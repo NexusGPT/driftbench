@@ -36,7 +36,7 @@ rules:
   custom:
     ordered:
       pairs:
-        - before: Read
+        - before: Read~.claude/skills/invoice-reconcile/references/matching-rules.md
           after: Edit
 metadata:
   estate:
@@ -60,4 +60,4 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-skills-invoice-reconcile-references
-        detail: "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\""
+        detail: "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the atom's words: it describes the unit, and names no task the user wants done"

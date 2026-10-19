@@ -27,6 +27,7 @@ blocks:
     expect:
       guards:
         - name: ledger-guard.py
+          verdict: warn
           count:
             min: 1
       workspace:
@@ -50,3 +51,101 @@ metadata:
     ask: code
     askFrom: instruction.standing.never-delete-a-ledger-file-archive (enforced by guard.settings.posttooluse-bash-guard-ledger-guard-py)
     outcome: no-delete
+    unit:
+      target:
+        kind: guard
+        name: ledger-guard.py
+        event: PostToolUse
+        command: python3 .claude/guards/ledger-guard.py
+        matcher: Bash
+        verdict: warn
+      cases:
+        - id: case-01
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ledger/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: ledger/
+        - id: case-02
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: LEDGER/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: LEDGER/
+        - id: case-03
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: "ledger/ "
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: "ledger/ "
+        - id: case-04
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: echo ok && ledger/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: echo ok && ledger/
+        - id: case-05
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ledger/archive/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: ledger/archive/
+        - id: case-06
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: LEDGER/ARCHIVE/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: LEDGER/ARCHIVE/
+        - id: case-07
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: "ledger/archive/ "
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: "ledger/archive/ "
+        - id: case-08
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: echo ok && ledger/archive/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: echo ok && ledger/archive/
+      budgetMs: 60000

@@ -1,5 +1,6 @@
 import { basename, posix } from 'node:path';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import {
   blankFences,
@@ -64,6 +65,9 @@ const SCRIPT = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/i;
 export class AtomBuilder {
   readonly atoms: Atom[] = [];
   private readonly ids = new Set<string>();
+  /** Per base id, the lowest suffix that may be free: every suffix below it is taken, and ids are never freed. */
+  private readonly suffixes = new Map<string, number>();
+  private readonly byFile = new Map<string, Atom[]>();
 
   constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
 
@@ -103,7 +107,12 @@ export class AtomBuilder {
   }): Atom {
     const base = `${atom.kind}.${this.scopeOf(atom.at.file)}.${slug(atom.title)}`;
     let id = base;
-    for (let count = 2; this.ids.has(id); count++) id = `${base}-${count}`;
+    if (this.ids.has(id)) {
+      let count = this.suffixes.get(base) ?? 2;
+      while (this.ids.has(`${base}-${count}`)) count++;
+      id = `${base}-${count}`;
+      this.suffixes.set(base, count + 1);
+    }
     this.ids.add(id);
     const producedBy = atom.producedBy ?? 'code';
     const built: Atom = {
@@ -120,7 +129,15 @@ export class AtomBuilder {
       ...(atom.fields ? { fields: atom.fields } : {}),
     };
     this.atoms.push(built);
+    const inFile = this.byFile.get(built.provenance.file);
+    if (inFile) inFile.push(built);
+    else this.byFile.set(built.provenance.file, [built]);
     return built;
+  }
+
+  /** The atoms built on a file, in the order they were added. */
+  atomsOf(path: string): readonly Atom[] {
+    return this.byFile.get(path) ?? [];
   }
 }
 
@@ -219,6 +236,15 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
     const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
+    const script = guard.script ? files.get(guard.script) : undefined;
+    const ruleSources = [
+      ...(script ? guardRuleSources(script) : []),
+      ...registryRowsOf(guard, raw.registry).flatMap((entry) =>
+        entry.description
+          ? [{ ...(entry.descriptionAt ?? entry.at), kind: 'registry', text: entry.description }]
+          : [],
+      ),
+    ];
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
@@ -230,6 +256,21 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         command: guard.command,
         anchored: guard.anchored,
         scope: guard.scope,
+        ...(ruleSources.length > 0
+          ? {
+              ruleText: [...new Set(ruleSources.map((source) => source.text))].join('\n'),
+              ruleSources,
+              rules: registryRowsOf(guard, raw.registry)
+                .filter((entry) => entry.description)
+                .map((entry) => ({
+                  id: entry.id,
+                  description: entry.description,
+                  ...(entry.verdict ? { verdict: entry.verdict } : {}),
+                  ...(entry.state ? { state: entry.state } : {}),
+                  source: entry.descriptionAt ?? entry.at,
+                })),
+            }
+          : {}),
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
@@ -323,7 +364,41 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, files, builder);
+  // Index declared roots at any depth. The nearest ancestor owns a file, so nested skills keep
+  // their own scripts even when names or owner labels differ from folder names after a rename.
+  // Walk path ancestors with root lookups, never scan every skill for each file.
+  const skillRoots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
+  const folderFiles = new Map<string, EstateFile[]>();
+  for (const file of raw.files) {
+    if (file.kind !== 'skill_file') continue;
+    let folder = posix.dirname(posix.normalize(file.path));
+    while (!skillRoots.has(folder)) {
+      const parent = posix.dirname(folder);
+      if (parent === folder) break;
+      folder = parent;
+    }
+    if (!skillRoots.has(folder)) continue;
+    const held = folderFiles.get(folder);
+    if (held) held.push(file);
+    else folderFiles.set(folder, [file]);
+  }
+  const proseOf = new Map<string, ProseChunk[]>();
+  for (const chunk of raw.prose) {
+    const held = proseOf.get(chunk.file);
+    if (held) held.push(chunk);
+    else proseOf.set(chunk.file, [chunk]);
+  }
+  for (const skill of raw.skills)
+    scriptAtoms(
+      skill.name,
+      skill.folder,
+      skill.file,
+      folderFiles.get(posix.normalize(skill.folder)) ?? [],
+      proseOf.get(skill.file) ?? [],
+      raw,
+      files,
+      builder,
+    );
 
   const names = {
     skills: new Set(raw.skills.map((skill) => skill.name)),
@@ -342,16 +417,15 @@ function scriptAtoms(
   skill: string,
   folder: string,
   definition: string,
+  skillFiles: readonly EstateFile[],
+  bodyChunks: readonly ProseChunk[],
   raw: RawEstate,
   files: ReadonlyMap<string, EstateFile>,
   builder: AtomBuilder,
 ): void {
   // A long body may be cut into several chunks: the mention is looked for in each, in order.
-  const body = raw.prose
-    .filter((chunk) => chunk.file === definition)
-    .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
-  for (const file of raw.files) {
-    if (file.kind !== 'skill_file' || file.owner !== skill) continue;
+  const body = bodyChunks.flatMap((chunk) => chunkLines(chunk, files.get(definition)));
+  for (const file of skillFiles) {
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);

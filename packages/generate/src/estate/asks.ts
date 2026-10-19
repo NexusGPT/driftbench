@@ -100,7 +100,10 @@ export function askable(act: string): string | undefined {
   const last = (tokens[tokens.length - 1] ?? '').toLowerCase().replace(/[,;:]+$/, '');
   if (DANGLING.has(last) || /^(?:e\.g|i\.e)\.?$/.test(last))
     return `the act is cut mid-sentence after "${last}": "${act}"`;
-  const words = tokens.filter((token) => /\p{L}{2,}/u.test(token)).length;
+  // A hyphenated compound is two words ("force-push a branch" names a verb and its object).
+  const words = tokens
+    .flatMap((token) => token.split('-'))
+    .filter((token) => /\p{L}{2,}/u.test(token)).length;
   if (words < 3)
     return `the act has ${words} words of letters, fewer than a verb and its object need: "${act}"`;
   return undefined;
@@ -117,8 +120,9 @@ export function codeAsk(
   twin = false,
   lookup?: (id: string) => EstateAtom | undefined,
   variant?: number,
+  estate?: readonly EstateAtom[],
 ): CodeAsk {
-  const found = actOf(atoms, lookup);
+  const found = actOf(atoms, lookup, estate);
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
   const act = clauseOf(found.act);
   const source = found.source;
@@ -205,6 +209,7 @@ export function codeAsk(
 export function actOf(
   atoms: readonly EstateAtom[],
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
+  estate: readonly EstateAtom[] = [],
 ): { act: string; context?: string; source: string; describes?: boolean } {
   const head = atoms[0];
   const context = head ? contextOf(head) : undefined;
@@ -251,12 +256,63 @@ export function actOf(
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
   if (forbidden && verbLed(forbidden))
     return { act: lower(firstClause(forbidden)), source: `${head?.id ?? 'row'} (title)` };
+  // The title of a rule is the rule: asking for it word for word tests whether the agent repeats the rule,
+  // never whether it follows it while working. A rule is set off by the work it applies to, so its ask is the
+  // work: what the trigger of a gate names, else what the unit that carries the rule is for, else the work
+  // of the first route of the estate, since a standing rule holds over any work.
+  if (head && RULE_KINDS.has(head.kind)) {
+    const trigger = typeof head.fields?.trigger === 'string' ? clauseOf(plain(head.fields.trigger)) : '';
+    const gated = head.kind === 'gate' && verbLed(trigger) ? trigger : undefined;
+    if (gated !== undefined) return { act: taskOf(gated), source: `${head.id} (gate trigger)` };
+    const owner = owningUnit(estate, head);
+    const description = typeof owner?.fields?.description === 'string' ? owner.fields.description : undefined;
+    for (const text of [owner?.situation, description]) {
+      const asked = text === undefined ? undefined : askedTo(text);
+      if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
+    }
+    // A gate holds over the act it names: with no trigger and no unit that carries it, no route is its work.
+    const route = head.kind === 'gate' ? undefined : routeFor(estate);
+    if (route) return withContext(route.act, `${route.id} (first route of the estate)`);
+    return { act: '', source: `${head.id} (title)`, describes: true };
+  }
   if (verbLed(task)) return { act: taskOf(task), source: `${head?.id ?? 'row'} (title)` };
   return {
     act: '',
     source: described ?? `${head?.id ?? 'row'} (title)`,
     ...(described ? { describes: true } : {}),
   };
+}
+
+/** The kinds whose title is a rule the agent follows, never a task a user asks for. */
+const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'register']);
+
+/**
+ * The work of the first route of the estate that names an askable act: a rule of the standing instructions holds
+ * over any work, and a route names work a user asks for. Which route is nearest a rule is not judged by shared words.
+ */
+function routeFor(estate: readonly EstateAtom[]): { act: string; id: string } | undefined {
+  for (const route of estate) {
+    if (route.kind !== 'route' || !route.situation) continue;
+    const task = taskOf(firstSentence(route.situation));
+    if (verbLed(task) && askable(task) === undefined) return { act: task, id: route.id };
+  }
+  return undefined;
+}
+
+/**
+ * The skill or helper a rule is read from: a helper file holds its own rules, a skill folder holds the rules of
+ * its files. Undefined for a rule of the standing instructions or of a settings file.
+ */
+export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): EstateAtom | undefined {
+  const file = rule.provenance?.file;
+  if (file === undefined) return undefined;
+  for (const unit of atoms) {
+    const home = unit.provenance?.file;
+    if ((unit.kind !== 'skill' && unit.kind !== 'subagent') || home === undefined) continue;
+    const folder = unit.kind === 'skill' ? home.slice(0, Math.max(0, home.lastIndexOf('/') + 1)) : undefined;
+    if (home === file || (folder !== undefined && folder !== '' && file.startsWith(folder))) return unit;
+  }
+  return undefined;
 }
 
 /** The act a tool rule covers: "Bash(git status)" gives "run git status here", "Read" a call of Read. */
