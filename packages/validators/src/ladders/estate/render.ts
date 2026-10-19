@@ -43,6 +43,7 @@ export type ProseEntry = {
   polarity?: 'obligation' | 'prohibition';
   evidence: Evidence[];
   replyAct?: StandingRule['replyAct'];
+  order?: { before?: string; after?: string; key?: string };
   line: number;
 };
 
@@ -99,7 +100,7 @@ class Writer {
 }
 
 function proseOf(
-  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence' | 'replyAct'>,
+  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence' | 'replyAct' | 'order'>,
   situation?: string,
 ) {
   return {
@@ -110,6 +111,7 @@ function proseOf(
     ...(rule.polarity ? { polarity: rule.polarity } : {}),
     evidence: rule.evidence,
     ...(rule.replyAct ? { replyAct: rule.replyAct } : {}),
+    ...(rule.order ? { order: rule.order } : {}),
   };
 }
 
