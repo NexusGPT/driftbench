@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
+import { plantedRoutes } from '../pointer/support';
 import { estate, NOW, structurePointer } from '../support';
 
 const settings = JSON.stringify({
@@ -155,15 +156,32 @@ describe('counter-examples and fill-in values are not live references', () => {
 });
 
 describe('reach by dispatch', () => {
-  it('reaches a helper dispatched from a live skill', async () => {
-    const { result } = await lint({
-      'CLAUDE.md': '# Rules\nRead `.claude/skills/editor/SKILL.md`.\n',
-      '.claude/skills/editor/SKILL.md':
-        '---\nname: editor\ndescription: Edit pages.\n---\n# Editing\nDispatch the `reviewer` agent after each edit.\n',
-      '.claude/agents/reviewer.md':
-        '---\nname: reviewer\ndescription: Reviews pages.\n---\n# Reviewer\nCheck the page.\n',
+  const files = {
+    'CLAUDE.md': '# Rules\nRead `.claude/skills/editor/SKILL.md`.\n',
+    '.claude/skills/editor/SKILL.md':
+      '---\nname: editor\ndescription: Edit pages.\n---\n# Editing\nDispatch the `reviewer` agent after each edit.\n',
+    '.claude/agents/reviewer.md':
+      '---\nname: reviewer\ndescription: Reviews pages.\n---\n# Reviewer\nCheck the page.\n',
+  };
+  const unreachable = async (links: Record<string, [string, string]>) => {
+    const root = await estate(files);
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: plantedRoutes(links, '.claude/skills/editor/SKILL.md'),
     });
-    expect(result.findings.filter((finding) => finding.code === 'UNREACHABLE')).toEqual([]);
+    return lintEstate(map, raw).findings.filter((finding) => finding.code === 'UNREACHABLE');
+  };
+
+  it('reaches a helper dispatched from a live skill', async () => {
+    expect(await unreachable({ 'Dispatch the': ['dispatch', 'subagent.reviewer.helper-reviewer'] })).toEqual(
+      [],
+    );
+  });
+
+  it('leaves a helper no unit hands work to unreachable', async () => {
+    expect(await unreachable({})).toHaveLength(1);
   });
 });
 

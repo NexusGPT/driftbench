@@ -1,8 +1,7 @@
-import { chunkLines, guardName, registryRowOf, toolBase } from '../scan/code';
+import { guardName, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
-import { dispatchesHelper } from './dispatch';
 
 /**
  * The estate graph: the edges of the design between atoms. A node is an atom id; an event a guard runs on
@@ -12,7 +11,7 @@ import { dispatchesHelper } from './dispatch';
  *   reference  a skill or helper to a reference atom in a file it owns: its own file and, for a skill, the
  *              files of its folder that its citations lead to. Never to what a shared file cites in turn.
  *   script     a skill to a script it ships
- *   dispatch   a skill or helper to a helper its body names
+ *   dispatch   a skill or helper to a helper its body tells the reader to hand work to (a `dispatches` link)
  *   enforces   a guard to a rule it checks
  *   event      a guard to the event it runs on
  *   allows     a skill or helper to a tool or skill it may use
@@ -108,16 +107,16 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (unit) add(unit.id, script.id, 'script');
   }
 
-  const helpers = byKind('subagent');
-  for (const chunk of raw.prose) {
-    const unit = unitOfFile.get(chunk.file);
-    if (!unit) continue;
-    const visible = chunkLines(chunk, files.get(chunk.file))
-      .map((line) => line.text)
-      .join('\n');
-    for (const helper of helpers) {
-      const name = String(helper.fields?.name ?? '');
-      if (dispatchesHelper(visible, name)) add(unit.id, helper.id, 'dispatch');
+  // A unit that tells the reader to hand work to a helper carries a `dispatches` link to it; the owner of
+  // the file the unit sits in dispatches.
+  const helperIds = new Set(byKind('subagent').map((atom) => atom.id));
+  for (const atom of atoms) {
+    const owner = unitOfFile.get(atom.provenance.file);
+    const links = Array.isArray(atom.fields?.labelLinks) ? (atom.fields.labelLinks as unknown[]) : [];
+    if (!owner) continue;
+    for (const link of links) {
+      const { kind, atom: to } = link as { kind?: unknown; atom?: unknown };
+      if (kind === 'dispatches' && typeof to === 'string' && helperIds.has(to)) add(owner.id, to, 'dispatch');
     }
   }
 
