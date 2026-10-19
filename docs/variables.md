@@ -50,11 +50,14 @@ A variable is one thing a situation varies on. A condition in the agent's files 
 | `title` | yes | what the variable varies on |
 | `kind` | yes | `stage`, `behaviour`, `deviation`, `persona`, `channel`, `data` or `task`: how a spec is placed on it, as for a space map |
 | `role` | yes | `axis` or `detail` |
+| `scope` | no | `conversation` (the default) or `turn`: whether the variable is one fact of a whole conversation or can change from turn to turn |
 | `approved` | yes | true once a person approved the variable and the values that carry no flag of their own |
 | `produced_by` | no | `code` (read from structure), `model` (read from prose) or `owner` |
 | `provenance` | no | where the variable comes from; for a variable a condition names, the quote of the condition |
 | `values` | yes | the values, at least one |
 | `boundaries` | no | the edges of the conditions that name the variable |
+
+The scope tells a reader how to read the variable from past conversations: once per conversation, or once per turn (the mood of the person can change inside one conversation, the channel cannot). A variable with no `scope` is read per conversation, and the loader does not write the default into the store. The scope is not part of the space map: `variablesToSpaceMap` leaves it out, and a space map turned into a store states none.
 
 The role is the one the map proposal uses. An axis is a dimension of the space map, crossed with the other axes. A detail stays out of the space map: the generator varies it inside a cell, as boundary values.
 
@@ -151,6 +154,17 @@ A reader is not exact, so the shares are corrected when a calibration set is giv
 What the store keeps is what the format allows. Each fitted value gets its `weight` (the share, relative to the other values of the variable) and a `conversations` entry: `count` is the conversations decided as this value, `total` the conversations read for the variable, and `set_hash` the SHA-256 of the set (sorted per-conversation hashes, so it does not depend on order). When a calibration set corrected the shares, the weight is the corrected share and so differs from `count` over `total`; the `prior.source` text says so. The store's `prior` becomes `fitted`. A quote a value already had stays; an earlier `conversations` entry is replaced. A variable with fewer than 20 decided conversations keeps its weights and is reported as skipped.
 
 The report (`FeedReport`) holds counts, shares, intervals and settings. `privateCountsOf` / `writePrivateCounts` keep the numbers beside the private set, by default in `~/.driftbench/private/` (`DRIFTBENCH_PRIVATE_DIR` moves it). The counts file is numbers and fixed keys: a variable and a value are named by their position in the store, and the only strings are two SHA-256 digests, of the agent name and of the set, so no string the caller wrote is stored. The file is named by the first 12 characters of each digest. The writer checks its input at run time and refuses any other key or string. It resolves symlinks before it checks that the folder is outside every git repository, refuses a counts file that is a symlink, and writes a new file with mode 0600 and renames it over the old one, so every write is owner-only. No line of text, no file name and no person is in the store, the report or the counts file.
+
+### From intake logs
+
+`feedFromLogs` feeds `feedVariables` from the output of `intakeLogs` (the `kept` list), so the reader sees the anonymised text of a log and never the raw one. It reads a variable at the scope the store declares for it (the `scope` of the variable, `conversation` when it states none):
+
+| Scope | The reader is asked | The reader sees | `total` and `count` in the store |
+|---|---|---|---|
+| `conversation` (the default) | once per conversation | the whole conversation, one line per turn, `role: text` | conversations |
+| `turn` | once per turn of the roles in `turnRoles` (default: the user) | that turn's text alone | turns |
+
+Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The call can override a scope with `scopes` (a variable id to `conversation` or `turn`); `overrides` in the result lists each override that changed a scope, with the scope the store declares and the one used. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. The store-level `prior` of the result names every group that was read, with its count in its own unit (conversations or turns) and its set hash. For a turn-scoped variable each turn is one draw, so turns of one conversation, which are likely to agree, make the interval narrower than a count of conversations would, and the `minDecided` floor can be met by few conversations; read it with that in mind. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
 
 Advice. The loader reports `VARIABLES_UNSOURCED` for each value, boundary and constraint that has no provenance. It never makes a store invalid: a store converted from a space map names no source at all.
 

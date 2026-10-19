@@ -26,6 +26,14 @@ export {
   type JevUsage,
 } from './jev';
 export {
+  type FeedLogsInput,
+  type FeedLogsResult,
+  feedFromLogs,
+  type LoggedConversation,
+  type LogScope,
+  type ScopeOverride,
+} from './logs';
+export {
   assertOutsideRepository,
   type Conversation,
   conversationSetHash,
