@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-19T05:31:38.110Z
+readAt: 2026-10-19T06:56:28.540Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -413,6 +413,8 @@ atoms:
       registry: G2
       enforces:
         - atom: instruction.standing.r3-read-a-file-before-you
+          by: registry
+        - atom: instruction.standing.r5-before-editing-any-invoice-file
           by: registry
   - id: guard.settings.posttooluse-bash-guard-ledger-guard-py
     kind: guard
@@ -1046,27 +1048,6 @@ atoms:
       path: .claude/skills/shipment-tracker/scripts/track.sh
       skill: shipment-tracker
       named: true
-  - id: register.inbox-triager.haiku
-    kind: register
-    title: haiku
-    provenance:
-      file: .claude/agents/inbox-triager.md
-      startLine: 5
-      endLine: 5
-      quote: haiku
-      hash: 3eeb1ff6f0945af2b4d2bfb6f8702ab010837ac94f96b1f45481a4145133d12e
-    producedBy: model
-    role: axis
-    approved: true
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: g3tryct7pc, set: agent-rules, label: reply-rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: g3tryct7pc
-      labelSet: agent-rules
-      label: reply-rule
-      labeler: jev+anthropic
   - id: instruction.inbox-triager.you-sort-messages-into-three-folders
     kind: instruction
     title: "You sort messages into three folders: invoices, shipments and suppliers."
@@ -1148,15 +1129,18 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vevrrb6dx5, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vevrrb6dx5, set: agent-rules, label: dispatch } }
     enforcement: []
     fields:
       extraction: pointer
       unit: vevrrb6dx5
       labelSet: agent-rules
-      label: rule
+      label: dispatch
       labeler: jev+anthropic
       polarity: obligation
+      labelLinks:
+        - kind: dispatches
+          atom: subagent.ledger-auditor.helper-ledger-auditor
   - id: instruction.ledger-auditor.you-never-edit-a-file-you
     kind: instruction
     title: "You never edit a file: you read and you report."
@@ -1434,8 +1418,8 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
-  - id: instruction.memory-supplier-languages.write-to-each-supplier-in-the
-    kind: instruction
+  - id: register.memory-supplier-languages.write-to-each-supplier-in-the
+    kind: register
     title: Write to each supplier in the language it reads.
     provenance:
       file: .claude/memory/supplier-languages.md
@@ -1447,15 +1431,14 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: klbhgsbv5o
       labelSet: agent-rules
-      label: rule
+      label: reply-rule
       labeler: jev+anthropic
-      polarity: obligation
   - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
     kind: instruction
     title: When a supplier is not in this table, write in English and tell the user.
@@ -1474,28 +1457,6 @@ atoms:
     fields:
       extraction: pointer
       unit: vbhqgyxxpc
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
-  - id: instruction.invoice-reconcile.an-invoice-line-matches-an-order
-    kind: instruction
-    title: An invoice line matches an order line when the article code and the quantity are equal.
-    provenance:
-      file: .claude/skills/invoice-reconcile/references/matching-rules.md
-      startLine: 3
-      endLine: 3
-      quote: An invoice line matches an order line when the article code and the quantity are equal.
-      hash: c463c6d513337a016e23851f16d2f3d40a7bbf6fb416e2369f97031763c2d73b
-    producedBy: model
-    role: axis
-    approved: true
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ipa3rn57ax, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: ipa3rn57ax
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
@@ -1614,9 +1575,79 @@ atoms:
       labelLinks:
         - kind: act-tool
           value: Edit
-  - id: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-    kind: instruction
-    title: Run python3 scripts/reconcile.py <invoice> <order> and show the summary it prints.
+  - id: gate.invoice-reconcile.read-references-currency-table-md-before
+    kind: gate
+    title: Read references/currency-table.md before convert every amount
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 10
+      endLine: 10
+      quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      hash: 31f71701b9c1d09dfbe03356c29f45faa9f45ee300ec8f3390feee69422177a4
+    producedBy: model
+    role: axis
+    approved: true
+    situation: convert every amount
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gfz5utnqh3, set: agent-rules, label: gate } }
+      - { type: ordered, before: Read, after: Edit }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/currency-table.md } } }
+    enforcement: []
+    fields:
+      first: references/currency-table.md
+      trigger: convert every amount
+      path: .claude/skills/invoice-reconcile/references/currency-table.md
+      extraction: pointer
+      unit: gfz5utnqh3
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - from: 71
+          kind: governed-action
+          to: 91
+      labelLinks:
+        - kind: act-tool
+          value: Edit
+      spans:
+        - references/currency-table.md
+  - id: reference.invoice-reconcile.read-references-currency-table-md
+    kind: reference
+    title: Read references/currency-table.md
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 10
+      endLine: 10
+      quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      hash: 31f71701b9c1d09dfbe03356c29f45faa9f45ee300ec8f3390feee69422177a4
+    producedBy: model
+    role: detail
+    approved: true
+    situation: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gfz5utnqh3, set: agent-rules, label: gate } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/currency-table.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/invoice-reconcile/references/currency-table.md
+      exists: true
+      readWhen: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      from: .claude/skills/invoice-reconcile/SKILL.md
+      extraction: pointer
+      unit: gfz5utnqh3
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - from: 71
+          kind: governed-action
+          to: 91
+      labelLinks:
+        - kind: act-tool
+          value: Edit
+  - id: gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
+    kind: gate
+    title: Read python3 scripts/reconcile.py <invoice> <order> before show the summary it prints
     provenance:
       file: .claude/skills/invoice-reconcile/SKILL.md
       startLine: 11
@@ -1626,16 +1657,27 @@ atoms:
     producedBy: model
     role: axis
     approved: true
+    situation: show the summary it prints
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mc2fjnpbks, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mc2fjnpbks, set: agent-rules, label: gate-command } }
+      - { type: ordered, before: Bash, after: Bash }
+      - { type: tool_called, label: Bash, input: { command: { contains: python3 scripts/reconcile.py <invoice> <order> } } }
     enforcement: []
     fields:
+      first: python3 scripts/reconcile.py <invoice> <order>
+      trigger: show the summary it prints
       extraction: pointer
       unit: mc2fjnpbks
       labelSet: agent-rules
-      label: rule
+      label: gate-command
       labeler: jev+anthropic
-      polarity: obligation
+      labelSpans:
+        - from: 57
+          kind: governed-action
+          to: 83
+      labelLinks:
+        - kind: act-tool
+          value: Bash
       spans:
         - python3 scripts/reconcile.py <invoice> <order>
   - id: instruction.invoice-reconcile.never-change-an-amount-on-an
@@ -1660,6 +1702,33 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+  - id: instruction.invoice-reconcile.when-the-total-difference-is-above
+    kind: instruction
+    title: When the total difference is above 50.00 EUR, dispatch the ledger-auditor agent with the…
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 13
+      endLine: 13
+      quote: When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number.
+      hash: fddfbbac7c6b57978731b72c6da28cf24c0b0a1cadbf390e61b36fc69a72b80c
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pfiujep4mk, set: agent-rules, label: dispatch } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: pfiujep4mk
+      labelSet: agent-rules
+      label: dispatch
+      labeler: jev+anthropic
+      polarity: obligation
+      labelLinks:
+        - kind: dispatches
+          atom: subagent.ledger-auditor.helper-ledger-auditor
+      spans:
+        - ledger-auditor
   - id: register.invoice-reconcile.end-with-one-line-per-invoice
     kind: register
     title: "End with one line per invoice: matched, short or over, and the amount."
@@ -1820,6 +1889,29 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
+  - id: register.supplier-email.write-in-the-supplier-s-language
+    kind: register
+    title: Write in the supplier's language, as listed in .claude/memory/supplier-languages.md.
+    provenance:
+      file: .claude/skills/supplier-email/SKILL.md
+      startLine: 8
+      endLine: 8
+      quote: Write in the supplier's language, as listed in `.claude/memory/supplier-languages.md`.
+      hash: 00666b1df1fa3b1cb8f4ae6ee865deaddbc4544fa6ff8cc43af9f0ef5ca9800d
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dgwysklcdn, set: agent-rules, label: reply-rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: dgwysklcdn
+      labelSet: agent-rules
+      label: reply-rule
+      labeler: jev+anthropic
+      spans:
+        - .claude/memory/supplier-languages.md
   - id: reference.supplier-email.read-claude-memory-supplier-languages-md
     kind: reference
     title: Read .claude/memory/supplier-languages.md
@@ -1834,7 +1926,7 @@ atoms:
     approved: true
     situation: Write in the supplier's language, as listed in `.claude/memory/supplier-languages.md`.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dgwysklcdn, set: agent-rules, label: gate } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dgwysklcdn, set: agent-rules, label: reply-rule } }
       - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/supplier-languages.md } } }
     enforcement: []
     fields:
@@ -1845,7 +1937,7 @@ atoms:
       extraction: pointer
       unit: dgwysklcdn
       labelSet: agent-rules
-      label: gate
+      label: reply-rule
       labeler: jev+anthropic
   - id: register.supplier-email.every-draft-has-a-subject-with
     kind: register
@@ -1961,9 +2053,9 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-  - id: gate.weekly-report.read-templates-report-md-before-writing
+  - id: gate.weekly-report.read-templates-report-md-before-before
     kind: gate
-    title: Read templates/report.md before writing the report
+    title: Read templates/report.md before Before writing the report
     provenance:
       file: .claude/skills/weekly-report/SKILL.md
       startLine: 9
@@ -1973,7 +2065,7 @@ atoms:
     producedBy: model
     role: axis
     approved: true
-    situation: writing the report
+    situation: Before writing the report
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: kb4qkuf4z2, set: agent-rules, label: gate } }
       - { type: ordered, before: Read, after: Write }
@@ -1981,7 +2073,7 @@ atoms:
     enforcement: []
     fields:
       first: templates/report.md
-      trigger: writing the report
+      trigger: Before writing the report
       path: .claude/skills/weekly-report/templates/report.md
       extraction: pointer
       unit: kb4qkuf4z2
@@ -1989,7 +2081,7 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 7
+        - from: 0
           kind: governed-action
           to: 25
       labelLinks:
@@ -2025,7 +2117,7 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 7
+        - from: 0
           kind: governed-action
           to: 25
       labelLinks:
@@ -2156,28 +2248,6 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-  - id: instruction.standing.r2-never-send-an-email-to
-    kind: instruction
-    title: R2. Never send an email to a supplier without showing the full draft to the user first an…
-    provenance:
-      file: CLAUDE.md
-      startLine: 10
-      endLine: 10
-      quote: "**R2.** Never send an email to a supplier without showing the full draft to the user first and getting an explicit yes."
-      hash: dd78e07844cd89628113e2071183835b0fd127be4b22e68732ce3c08e49213c0
-    producedBy: model
-    role: axis
-    approved: true
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 6juqj4iyft, set: agent-rules, label: prohibition } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: 6juqj4iyft
-      labelSet: agent-rules
-      label: prohibition
-      labeler: jev+anthropic
-      polarity: prohibition
   - id: instruction.standing.r3-read-a-file-before-you
     kind: instruction
     title: R3. Read a file before you edit it.
@@ -2225,6 +2295,57 @@ atoms:
       spans:
         - ledger/
         - ledger/archive/
+  - id: instruction.standing.r5-before-editing-any-invoice-file
+    kind: instruction
+    title: "R5. Before editing any invoice file: Read .claude/skills/invoice-reconcile/references/mat…"
+    provenance:
+      file: CLAUDE.md
+      startLine: 13
+      endLine: 13
+      quote: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
+      hash: 72c6e93690465ed8e7cb0f6df86ddc4213b52ea424c9f0b765c28e4aa6403654
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 7cv2d5ktjq, set: agent-rules, label: rule } }
+    enforcement: [ guard.settings.pretooluse-edit-write-guard-read-before ]
+    fields:
+      extraction: pointer
+      unit: 7cv2d5ktjq
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
+      spans:
+        - .claude/skills/invoice-reconcile/references/matching-rules.md
+  - id: reference.standing.read-claude-skills-invoice-reconcile-references
+    kind: reference
+    title: Read .claude/skills/invoice-reconcile/references/matching-rules.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 13
+      endLine: 13
+      quote: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
+      hash: 72c6e93690465ed8e7cb0f6df86ddc4213b52ea424c9f0b765c28e4aa6403654
+    producedBy: model
+    role: detail
+    approved: true
+    situation: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 7cv2d5ktjq, set: agent-rules, label: rule } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/matching-rules.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/invoice-reconcile/references/matching-rules.md
+      exists: true
+      readWhen: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
+      from: CLAUDE.md
+      extraction: pointer
+      unit: 7cv2d5ktjq
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
   - id: instruction.standing.r6-never-run-git-push-force
     kind: instruction
     title: R6. Never run git push --force on any branch.
@@ -2293,8 +2414,8 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-  - id: register.standing.r9-ask-at-most-one-question
-    kind: register
+  - id: instruction.standing.r9-ask-at-most-one-question
+    kind: instruction
     title: R9. Ask at most one question per reply.
     provenance:
       file: CLAUDE.md
@@ -2306,14 +2427,15 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: h7d22dl6s4, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: h7d22dl6s4, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: h7d22dl6s4
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
+      polarity: obligation
   - id: hazard.standing.r10-when-the-user-says-stop
     kind: hazard
     title: R10. When the user says "stop", stop all work and confirm in one line.
@@ -2351,15 +2473,15 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: xi6od5jvxp, set: agent-rules, label: prohibition } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: xi6od5jvxp, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: xi6od5jvxp
       labelSet: agent-rules
-      label: prohibition
+      label: rule
       labeler: jev+anthropic
-      polarity: prohibition
+      polarity: obligation
       spans:
         - .env
   - id: instruction.standing.r12-when-r2-applies-and-the
@@ -2406,41 +2528,6 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-  - id: gate.standing.read-git-status-before-commit-to
-    kind: gate
-    title: Read git status before commit to git
-    provenance:
-      file: CLAUDE.md
-      startLine: 22
-      endLine: 22
-      quote: "**R14.** Do not commit to git until you have read the output of `git status`."
-      hash: 97b1a2429bd0fbbbc598c96370f0c0acad05c8cd06f89165a881152ff626b0c4
-    producedBy: model
-    role: axis
-    approved: true
-    situation: commit to git
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zuie2qo5us, set: agent-rules, label: gate-command } }
-      - { type: ordered, before: Bash, after: Bash }
-      - { type: tool_called, label: Bash, input: { command: { contains: git status } } }
-    enforcement: []
-    fields:
-      first: git status
-      trigger: commit to git
-      extraction: pointer
-      unit: zuie2qo5us
-      labelSet: agent-rules
-      label: gate-command
-      labeler: jev+anthropic
-      labelSpans:
-        - from: 16
-          kind: governed-action
-          to: 29
-      labelLinks:
-        - kind: act-tool
-          value: Bash
-      spans:
-        - git status
   - id: hazard.standing.r15-after-a-compaction-re-read
     kind: hazard
     title: R15. After a compaction, re-read this file and the open tracker note before you continue.
@@ -3001,7 +3088,6 @@ atoms:
     fields:
       check: no_orphans
       orphans:
-        - .claude/skills/invoice-reconcile/references/currency-table.md
         - .claude/skills/invoice-reconcile/references/old-tolerances.md
       holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
@@ -3157,13 +3243,13 @@ edges:
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: instruction.standing.r6-never-run-git-push-force, kind: enforces }
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: event.PreToolUse, kind: event }
   - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: instruction.standing.r3-read-a-file-before-you, kind: enforces }
+  - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: instruction.standing.r5-before-editing-any-invoice-file, kind: enforces }
   - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: event.PreToolUse, kind: event }
   - { from: guard.settings.stop-guard-reply-length-py, to: register.standing.keep-every-reply-under-1-200, kind: enforces }
   - { from: guard.settings.stop-guard-reply-length-py, to: event.Stop, kind: event }
   - { from: guard.settings.userpromptsubmit-guard-stop-word-sh, to: event.UserPromptSubmit, kind: event }
   - { from: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh, to: instruction.shipment-tracker.always-pass-the-carrier-code-to, kind: enforces }
   - { from: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh, to: event.PreToolUse, kind: event }
-  - { from: instruction.standing.r12-when-r2-applies-and-the, to: instruction.standing.r2-never-send-an-email-to, kind: cites }
   - { from: route.inbox-triager.an-ask-that-fits-inbox-triager, to: subagent.inbox-triager.helper-inbox-triager, kind: route }
   - { from: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile, to: skill.invoice-reconcile.skill-invoice-reconcile, kind: route }
   - { from: route.ledger-auditor.an-ask-that-fits-ledger-auditor, to: subagent.ledger-auditor.helper-ledger-auditor, kind: route }
@@ -3181,6 +3267,7 @@ edges:
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: tool.invoice-reconcile.declared-edit, kind: allows }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: tool.settings.allow-read, kind: allows }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: subagent.ledger-auditor.helper-ledger-auditor, kind: dispatch }
+  - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: reference.invoice-reconcile.read-references-currency-table-md, kind: reference }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: reference.invoice-reconcile.read-references-matching-rules-md, kind: reference }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: script.invoice-reconcile.script-scripts-reconcile-py, kind: script }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.invoice-reconcile.declared-bash, kind: allows }
@@ -3207,5 +3294,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-19T05:31:38.110Z
-hash: b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727
+  at: 2026-10-19T06:56:28.540Z
+hash: 1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405

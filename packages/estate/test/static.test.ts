@@ -62,10 +62,7 @@ describe('the static runner', () => {
     });
     expect(mapped?.pass).toBe(false);
     expect(JSON.parse(mapped?.detail.slice(mapped.detail.indexOf('{')) ?? '{}')).toEqual({
-      orphans: [
-        '.claude/skills/invoice-reconcile/references/currency-table.md',
-        '.claude/skills/invoice-reconcile/references/old-tolerances.md',
-      ],
+      orphans: ['.claude/skills/invoice-reconcile/references/old-tolerances.md'],
     });
   });
 

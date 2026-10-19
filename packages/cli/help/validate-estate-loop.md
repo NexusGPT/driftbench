@@ -145,18 +145,17 @@ driftbench estate stats --map examples/estates/fixture/approved.yaml --plan pack
 The first lines of each output (each command has the whole of its output in its own topic):
 
 ```text
-Wrote map.yaml: 125 atoms (47 read by code and approved, 78 split from prose by the model and waiting for approval), 52 edges.
-map.yaml: estate at examples/estates/fixture, 125 atoms.
-  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
-7 findings.
-Approved 78 atoms in map.yaml; 47 were already approved.
-Wrote plan.yaml: 1058 rows (378 from the contract, 10 journeys, 670 pairwise), all proposed. Summary in plan.summary.json.
-Approved 1058 rows in plan.yaml; 0 were already approved.
-Map ../examples/estates/fixture/approved.yaml (claude-code), hash b8d6f2e92049: 125 atoms.
-Wrote 44 files to suite.
+Wrote map.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.
+map.yaml: estate at examples/estates/fixture, 127 atoms.
+6 findings.
+Approved 80 atoms in map.yaml; 47 were already approved.
+Wrote plan.yaml: 1060 rows (379 from the contract, 11 journeys, 670 pairwise), all proposed. Summary in plan.summary.json.
+Approved 1060 rows in plan.yaml; 0 were already approved.
+Map ../examples/estates/fixture/approved.yaml (claude-code), hash 1a4e0056ecdc: 127 atoms.
+Wrote 46 files to suite.
 ✗ estate.p32  guard_paths_anchored does not hold: {"unanchored":["python3 .claude/guards/ledger-guard.py"]}
-Recorded 4 unit tests (sandbox: sandbox-exec); 0 have no fixture.
-4 of 4 unit tests pass, 0 fail, 0 inert, 0 unrecorded (sandbox: sandbox-exec).
+Recorded 6 unit tests (sandbox: sandbox-exec); 0 have no fixture.
+6 of 6 unit tests pass, 0 fail, 0 inert, 0 unrecorded (sandbox: sandbox-exec).
 Kind  atoms  tested  enforced
 ```
 

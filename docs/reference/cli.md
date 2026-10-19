@@ -1130,22 +1130,21 @@ Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench est
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 125 atoms.
-  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
+examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  57 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-7 findings.
+6 findings.
 ```
 
 ```
 $ pnpm -s driftbench estate plan approve examples/estates/fixture/plan.yaml
-examples/estates/fixture/plan.yaml: 1597 rows, 1597 proposed, 0 approved, 0 struck.
+examples/estates/fixture/plan.yaml: 1599 rows, 1599 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 ```
 

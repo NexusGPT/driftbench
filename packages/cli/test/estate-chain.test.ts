@@ -1041,31 +1041,34 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       // The changes of section 8 of docs/estate.md.
       const semantic = diff.atoms.changed.filter((change) => change.change === 'semantic');
       expect(sorted(semantic.map((change) => change.id))).toEqual(sorted([ROUTE_PLAN, R7]));
-      // R2 is wrapped over two lines in version 2: a change of white space only.
+      // The labelers read R2 as no atom in either version, so its wrap is no change of the map.
       expect(
         diff.atoms.changed.filter((change) => change.change === 'whitespace').map((change) => change.id),
-      ).toEqual(['instruction.standing.r2-never-send-an-email-to']);
+      ).toEqual([]);
       expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([R12]);
       expect(sorted(diff.atoms.added.map((atom) => atom.id))).toEqual(
         sorted([
+          'gate.standing.read-git-status-before-commit-to',
           'instruction.standing.r18-never-approve-a-credit-note',
           'instruction.standing.r19-when-r18-applies-and-the',
         ]),
       );
-      expect(diff.atoms.moved).toHaveLength(23);
+      expect(diff.atoms.moved).toHaveLength(25);
       expect(diff.atoms.restated.map((atom) => atom.id)).toEqual([
+        'instruction.standing.r11-never-paste-the-contents-of',
+        'instruction.standing.r13-before-you-dispatch-a-helper',
         'invariant.standing.the-standing-instructions-stay-under-40000',
       ]);
       expect(diff.guards.filter((guard) => guard.move !== 'unchanged')).toMatchObject([
         { guard: LEDGER_GUARD, move: 'promoted', from: 'warn', to: 'enforce' },
       ]);
       expect(diff.summary).toMatchObject({
-        added: 2,
+        added: 3,
         removed: 1,
-        whitespace: 1,
+        whitespace: 0,
         semantic: 2,
-        moved: 23,
-        restated: 1,
+        moved: 25,
+        restated: 3,
       });
       // An atom that moved and was restated counts in both lists, and once among the atoms that are not unchanged.
       expect(diff.summary.unchanged).toBe(
@@ -1105,7 +1108,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     });
   });
 
-  it('step 8: impact gives 4, 2, 1, 2 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
+  it('step 8: impact gives 4, 2, 1, 3 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
     await prove('8 impact', 'diff.json, fixture-v2/tests, generated specs', 'impact.json', async () => {
       const diff = must(chain.diff, '7');
       const generated = must(chain.specs, '5');
@@ -1139,8 +1142,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         impact.reapprove.length,
         impact.retire.length,
         impact.new.length,
-      ]).toEqual([4, 2, 1, 2]);
-      expect(impact.needsPerson).toHaveLength(4);
+      ]).toEqual([4, 2, 1, 3]);
+      expect(impact.needsPerson).toHaveLength(5);
       expect(impact.unaffected).toEqual({ moved: diff.atoms.moved.length, tests: impact.tests.live - 4 - 1 });
       for (const entry of impact.regenerate) {
         // Each regenerated test names, in its own metadata, an atom the diff changed, for the reason given.

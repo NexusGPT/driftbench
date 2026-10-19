@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727",
-    "atoms": 125
+    "hash": "1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405",
+    "atoms": 127
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1597,
-    "approved": 1597,
+    "rows": 1599,
+    "approved": 1599,
     "proposed": 0,
     "struck": 0
   },
@@ -42,11 +42,11 @@
     "judge": true
   },
   "summary": {
-    "specs": 1590,
-    "blocks": 1585,
-    "complete": 1576,
+    "specs": 1592,
+    "blocks": 1587,
+    "complete": 1578,
     "incomplete": 14,
-    "judged": 981
+    "judged": 965
   },
   "incomplete": [
     {
@@ -302,26 +302,23 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9911949685534591,
-    "askedTests": 1568,
-    "distinctAsks": 111,
-    "distinctAsksPer100": 7.079081632653061
+    "completeShare": 0.9912060301507538,
+    "askedTests": 1570,
+    "distinctAsks": 114,
+    "distinctAsksPer100": 7.261146496815287
   },
   "unit": {
-    "tests": 23,
+    "tests": 26,
     "guards": 6,
     "scripts": 2,
     "helpers": 3,
-    "cases": 45,
+    "cases": 55,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
       "needsHost": 0
     },
     "skipped": [
-      "unit.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
-      "unit.guard_hostile.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
-      "unit.guard_speed.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
       "unit.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload",
       "unit.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload",
       "unit.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload"
@@ -329,51 +326,51 @@
   },
   "sources": {
     "asks": {
-      "bank": 430,
-      "code": 1132,
+      "bank": 425,
+      "code": 1139,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 954,
+      "bank": 949,
       "no-change:guard": 26,
-      "no-change:negative": 58,
+      "no-change:negative": 57,
       "no-change:read-only": 137,
-      "no-delete": 393,
+      "no-delete": 401,
       "static": 8
     },
-    "judged": 720
+    "judged": 704
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 630,
-      "specs": 630,
-      "complete": 630,
+      "rows": 616,
+      "specs": 616,
+      "complete": 616,
       "incomplete": 0
     },
     "outside_trigger": {
-      "rows": 45,
-      "specs": 45,
-      "complete": 45,
+      "rows": 44,
+      "specs": 44,
+      "complete": 44,
       "incomplete": 0
     },
     "twin": {
-      "rows": 45,
-      "specs": 45,
-      "complete": 45,
+      "rows": 44,
+      "specs": 44,
+      "complete": 44,
       "incomplete": 0
     },
     "ordered_pair": {
-      "rows": 56,
-      "specs": 56,
-      "complete": 56,
+      "rows": 70,
+      "specs": 70,
+      "complete": 70,
       "incomplete": 0
     },
     "skip_pressure": {
-      "rows": 4,
-      "specs": 4,
-      "complete": 4,
+      "rows": 5,
+      "specs": 5,
+      "complete": 5,
       "incomplete": 0
     },
     "route_positive": {
@@ -395,9 +392,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 7,
-      "specs": 7,
-      "complete": 7,
+      "rows": 9,
+      "specs": 9,
+      "complete": 9,
       "incomplete": 0
     },
     "script_fixture": {
@@ -509,9 +506,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 10,
-      "specs": 10,
-      "complete": 10,
+      "rows": 11,
+      "specs": 11,
+      "complete": 11,
       "incomplete": 0
     }
   },
@@ -529,9 +526,9 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1554,
-      "specs": 1547,
-      "complete": 1535,
+      "rows": 1556,
+      "specs": 1549,
+      "complete": 1537,
       "incomplete": 12
     }
   },

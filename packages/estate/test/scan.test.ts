@@ -203,10 +203,12 @@ describe('code atoms', () => {
     expect(references.map((atom) => [atom.fields?.path, atom.fields?.exists])).toEqual([
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
+      ['.claude/skills/invoice-reconcile/references/currency-table.md', true],
       ['.claude/skills/shipment-tracker/data/shipments.txt', true],
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/weekly-report/templates/report.md', true],
       ['.claude/skills/weekly-report/references/kpi-definitions.md', false],
+      ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
       ['.claude/steps.json', true],
       ['.claude/memory/MEMORY.md', true],
     ]);

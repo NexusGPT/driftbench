@@ -79,7 +79,6 @@ describe('the estate map file', () => {
     expect(drift.map((issue) => issue.message.split(':')[0])).toEqual([
       'subagent.inbox-triager.helper-inbox-triager',
       'route.inbox-triager.an-ask-that-fits-inbox-triager',
-      'register.inbox-triager.haiku',
       'instruction.inbox-triager.you-sort-messages-into-three-folders',
       'instruction.inbox-triager.a-message-that-fits-none-goes',
       'instruction.inbox-triager.never-answer-a-message-yourself-and',
@@ -102,7 +101,7 @@ describe('approval', () => {
     expect(new Set(pending.map((atom) => atom.kind))).toEqual(
       new Set(['instruction', 'gate', 'reference', 'hazard', 'route']),
     );
-    expect(pending).toHaveLength(65);
+    expect(pending).toHaveLength(67);
   });
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
@@ -110,7 +109,7 @@ describe('approval', () => {
     const one = approveAtoms(text, { ids: ['instruction.standing.r3-read-a-file-before-you'] });
     expect(one.ok ? one.approved : []).toEqual(['instruction.standing.r3-read-a-file-before-you']);
     const all = approveAtoms(one.ok ? one.text : text, { all: true });
-    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([77, 48]);
+    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([79, 48]);
   });
 
   it('refuses an unknown kind or atom, and approves nothing', async () => {
@@ -156,8 +155,8 @@ describe('the space map of an estate', () => {
       all.dimensions.slice(ESTATE_AXES.length).map((d) => [d.id, d.values.length]),
     );
     expect(sizes).toEqual({
-      'atoms.instruction': 45,
-      'atoms.gate': 4,
+      'atoms.instruction': 44,
+      'atoms.gate': 5,
       'atoms.route': 13,
       'atoms.skill': 4,
       'atoms.subagent': 3,

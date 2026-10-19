@@ -9,9 +9,6 @@ describe('estate lint', () => {
     const result = lintEstate(map, raw);
     const found = result.findings.filter((finding) => finding.code !== 'UNENFORCED');
     expect(found.map((finding) => [finding.code, finding.subject])).toEqual([
-      // The recorded labellers read the sentence that names currency-table.md as a condition, so the file shows
-      // as an orphan with the planted one.
-      ['ORPHAN', '.claude/skills/invoice-reconcile/references/currency-table.md'],
       ['ORPHAN', '.claude/skills/invoice-reconcile/references/old-tolerances.md'],
       ['UNREACHABLE', '.claude/agents/inbox-triager.md'],
       ['MISSING_REFERENCE', 'reference.weekly-report.read-references-kpi-definitions-md'],
@@ -19,7 +16,7 @@ describe('estate lint', () => {
       ['REGISTRY_ROW', 'reply-length.py'],
       ['REGISTRY_GUARD', 'G6'],
     ]);
-    expect(result.counts.UNENFORCED).toBe(57);
+    expect(result.counts.UNENFORCED).toBe(56);
     expect(result.failed).toBe(true);
   });
 

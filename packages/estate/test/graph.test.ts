@@ -147,7 +147,10 @@ describe('the fixture graph', () => {
       ),
     ).toEqual({
       'block-force-push.sh': ['registry instruction.standing.r6-never-run-git-push-force'],
-      'read-before-edit.py': ['registry instruction.standing.r3-read-a-file-before-you'],
+      'read-before-edit.py': [
+        'registry instruction.standing.r3-read-a-file-before-you',
+        'registry instruction.standing.r5-before-editing-any-invoice-file',
+      ],
       'ledger-guard.py': ['registry instruction.standing.r4-never-delete-a-file-under'],
       'stop-word.sh': [],
       'reply-length.py': ['quote register.standing.keep-every-reply-under-1-200'],
@@ -161,12 +164,11 @@ describe('the fixture graph', () => {
     for (const edge of map.edges) kinds[edge.kind] = (kinds[edge.kind] ?? 0) + 1;
     expect(kinds).toEqual({
       allows: 15,
-      cites: 1,
       dispatch: 1,
-      enforces: 5,
+      enforces: 6,
       event: 6,
       next: 4,
-      reference: 5,
+      reference: 6,
       route: 13,
       script: 2,
     });
@@ -198,12 +200,7 @@ describe('the fixture graph', () => {
   it('finds the orphan, the unreachable helper and the unenforced rules', async () => {
     const { map, raw } = await scanFixture();
     const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
-    // The sentence that names currency-table.md was read as a condition by the recorded labellers, so the
-    // file has no reference atom: it is an orphan together with the planted one.
-    expect(analysis.orphans).toEqual([
-      '.claude/skills/invoice-reconcile/references/currency-table.md',
-      '.claude/skills/invoice-reconcile/references/old-tolerances.md',
-    ]);
+    expect(analysis.orphans).toEqual(['.claude/skills/invoice-reconcile/references/old-tolerances.md']);
     expect(analysis.unreachableFiles).toEqual(['.claude/agents/inbox-triager.md']);
     expect(analysis.missingReferences).toEqual([
       'reference.weekly-report.read-references-kpi-definitions-md',
@@ -211,7 +208,7 @@ describe('the fixture graph', () => {
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
     expect(rules).toHaveLength(62);
-    expect(analysis.unenforced).toHaveLength(57);
+    expect(analysis.unenforced).toHaveLength(56);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });

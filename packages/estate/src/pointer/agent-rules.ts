@@ -26,6 +26,9 @@ export const AGENT_RULES_SET = `labels:
       - name: act-tool
         description: The tool the reader uses for the act in the governed-action span, not the tool the read uses. Looking up a file is Read, changing a file is Edit or Write, running a command is Bash, handing work to a helper is Agent. Always one of the listed values, the one the act most likely uses, even when the unit names no tool.
         values: [Read, Edit, Write, Bash, Agent]
+      - name: dispatches
+        description: The helper agent that the unit tells the reader to hand work to.
+        to: [subagent]
       - name: route-skill
         description: The skill that the request loads.
         to: [skill]
@@ -35,6 +38,12 @@ export const AGENT_RULES_SET = `labels:
     labels:
       - name: rule
         description: A unit that tells the reader what to do. A unit about an event the agent must get through has its own label instead.
+        atom:
+          kind: instruction
+          polarity: obligation
+${ALSO_REFERENCE}      - name: dispatch
+        description: A unit that tells the reader to hand work to a helper agent. Give that helper as the dispatches link. A unit that only names a helper, or says not to use it, is a rule or a prohibition.
+        links: [dispatches]
         atom:
           kind: instruction
           polarity: obligation

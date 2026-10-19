@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-19T05:31:50.771Z
+readAt: 2026-10-19T06:57:36.453Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -870,8 +870,8 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
-  - id: instruction.memory-supplier-languages.write-to-each-supplier-in-the
-    kind: instruction
+  - id: register.memory-supplier-languages.write-to-each-supplier-in-the
+    kind: register
     title: Write to each supplier in the language it reads.
     provenance:
       file: .claude/memory/supplier-languages.md
@@ -883,15 +883,14 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: klbhgsbv5o
       labelSet: agent-rules
-      label: rule
+      label: reply-rule
       labeler: jev+anthropic
-      polarity: obligation
   - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
     kind: instruction
     title: When a supplier is not in this table, write in English and tell the user.
@@ -961,8 +960,8 @@ atoms:
       condition:
         - rhb3gjoz4g
       polarity: obligation
-  - id: instruction.parcel-claims.write-to-each-supplier-in-the
-    kind: instruction
+  - id: register.parcel-claims.write-to-each-supplier-in-the
+    kind: register
     title: Write to each supplier in the language it reads.
     provenance:
       file: .claude/skills/parcel-claims/references/supplier-languages.md
@@ -974,15 +973,14 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: s5wuhau5gf, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: s5wuhau5gf, set: agent-rules, label: reply-rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: s5wuhau5gf
       labelSet: agent-rules
-      label: rule
+      label: reply-rule
       labeler: jev+anthropic
-      polarity: obligation
   - id: instruction.parcel-claims.when-a-supplier-is-not-in
     kind: instruction
     title: When a supplier is not in this table, write in English and tell the user.
@@ -1020,7 +1018,7 @@ atoms:
     situation: a claim
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 22tewcyoke, set: agent-rules, label: gate-command } }
-      - { type: ordered, before: Bash, after: Bash }
+      - { type: ordered, before: Bash, after: Write }
       - { type: tool_called, label: Bash, input: { command: { contains: ./scripts/track.sh <carrier> <number> } } }
     enforcement: []
     fields:
@@ -1037,11 +1035,11 @@ atoms:
           to: 58
       labelLinks:
         - kind: act-tool
-          value: Bash
+          value: Write
       spans:
         - ./scripts/track.sh <carrier> <number>
-  - id: register.parcel-claims.write-the-claim-in-the-supplier
-    kind: register
+  - id: instruction.parcel-claims.write-the-claim-in-the-supplier
+    kind: instruction
     title: Write the claim in the supplier's language, from references/supplier-languages.md.
     provenance:
       file: .claude/skills/parcel-claims/SKILL.md
@@ -1053,14 +1051,15 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: ylqfmr6ppi
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
+      polarity: obligation
       spans:
         - references/supplier-languages.md
   - id: reference.parcel-claims.read-references-supplier-languages-md
@@ -1077,7 +1076,7 @@ atoms:
     approved: true
     situation: Write the claim in the supplier's language, from `references/supplier-languages.md`.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: rule } }
       - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/supplier-languages.md } } }
     enforcement: []
     fields:
@@ -1088,7 +1087,7 @@ atoms:
       extraction: pointer
       unit: ylqfmr6ppi
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
   - id: reference.parcel-claims.read-references-claim-rules-md
     kind: reference
@@ -1358,9 +1357,9 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-  - id: route.standing.an-ask-to-parcel-claims-loads
+  - id: route.standing.an-ask-to-file-a-claim
     kind: route
-    title: An ask to `parcel-claims` loads parcel-claims
+    title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
     provenance:
       file: CLAUDE.md
       startLine: 16
@@ -1372,27 +1371,25 @@ atoms:
     approved: true
     situation: file a claim for a damaged or missing parcel
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: k4xr3barxm, set: agent-rules, label: route-skill, condition: [ uwlke5amtz ] } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: uwlke5amtz, set: agent-rules, label: route-skill } }
       - { type: skill_loaded, name: parcel-claims }
     enforcement: []
     fields:
       target: parcel-claims
       targetKind: skill
       via: pointer
-      ask: "`parcel-claims`"
+      ask: file a claim for a damaged or missing parcel
       extraction: pointer
-      unit: k4xr3barxm
+      unit: uwlke5amtz
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
-      condition:
-        - uwlke5amtz
       labelLinks:
         - kind: route-skill
           atom: skill.parcel-claims.skill-parcel-claims
-  - id: route.standing.an-ask-to-shipment-tracker-loads
+  - id: route.standing.an-ask-to-know-where-a
     kind: route
-    title: An ask to `shipment-tracker` loads shipment-tracker
+    title: An ask to know where a shipment is loads shipment-tracker
     provenance:
       file: CLAUDE.md
       startLine: 17
@@ -1404,24 +1401,49 @@ atoms:
     approved: true
     situation: know where a shipment is
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ql4rlvsnyh, set: agent-rules, label: route-skill, condition: [ bt4ppn3ukn ] } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: bt4ppn3ukn, set: agent-rules, label: route-skill } }
       - { type: skill_loaded, name: shipment-tracker }
     enforcement: []
     fields:
       target: shipment-tracker
       targetKind: skill
       via: pointer
-      ask: "`shipment-tracker`"
+      ask: know where a shipment is
       extraction: pointer
-      unit: ql4rlvsnyh
+      unit: bt4ppn3ukn
       labelSet: agent-rules
       label: route-skill
       labeler: jev+anthropic
-      condition:
-        - bt4ppn3ukn
       labelLinks:
         - kind: route-skill
           atom: skill.shipment-tracker.skill-shipment-tracker
+  - id: reference.standing.read-claude-processes-json
+    kind: reference
+    title: Read .claude/processes.json
+    provenance:
+      file: CLAUDE.md
+      startLine: 21
+      endLine: 21
+      quote: A carrier claim and the month close follow their steps in `.claude/processes.json`.
+      hash: 317c983c050bc3b978d2c0addfdb5b4c0857f3a2ecef5156f3fa502ce1550bae
+    producedBy: model
+    role: detail
+    approved: true
+    situation: A carrier claim and the month close follow their steps in `.claude/processes.json`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zl7rk326zi, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/processes.json } } }
+    enforcement: []
+    fields:
+      path: .claude/processes.json
+      exists: true
+      readWhen: A carrier claim and the month close follow their steps in `.claude/processes.json`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zl7rk326zi
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
   - id: gate.standing.read-claude-memory-memory-md-before
     kind: gate
     title: Read .claude/memory/MEMORY.md before at the start of every session
@@ -1619,9 +1641,8 @@ atoms:
     enforcement: []
     fields:
       check: no_orphans
-      orphans:
-        - .claude/processes.json
-      holds: false
+      orphans: []
+      holds: true
   - id: invariant.settings.every-guard-finds-its-script-from
     kind: invariant
     title: Every guard finds its script from an anchor
@@ -1751,8 +1772,8 @@ edges:
   - { from: guard.settings.stop-guard-claim-window-py, to: event.Stop, kind: event }
   - { from: route.parcel-claims.an-ask-that-fits-parcel-claims, to: skill.parcel-claims.skill-parcel-claims, kind: route }
   - { from: route.shipment-tracker.an-ask-that-fits-shipment-tracker, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
-  - { from: route.standing.an-ask-to-parcel-claims-loads, to: skill.parcel-claims.skill-parcel-claims, kind: route }
-  - { from: route.standing.an-ask-to-shipment-tracker-loads, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
+  - { from: route.standing.an-ask-to-file-a-claim, to: skill.parcel-claims.skill-parcel-claims, kind: route }
+  - { from: route.standing.an-ask-to-know-where-a, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.settings.allow-read, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-ref-notes-md, kind: reference }
@@ -1773,5 +1794,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-19T05:31:50.771Z
-hash: d728028e28f570164bc17fe9a4e14b83149fab7a3f913092ac0fa90f94f7307a
+  at: 2026-10-19T06:57:36.453Z
+hash: a3253344a071b48409515476b6e1772d4e6a702b36e9167d4f63ce6d5d4d2aad

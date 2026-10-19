@@ -3,21 +3,35 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T05:31:38.110Z",
-    "hash": "b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727",
-    "atoms": 125,
-    "edges": 52
+    "readAt": "2026-10-19T06:56:28.540Z",
+    "hash": "1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405",
+    "atoms": 127,
+    "edges": 53
   },
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T05:31:46.370Z",
-    "hash": "d98a0b0afda444e6e32d2200b8b06da99d67f191705cfd10c7668b7e630e4c32",
-    "atoms": 126,
-    "edges": 52
+    "readAt": "2026-10-19T06:57:12.712Z",
+    "hash": "28115ad81376f72a46a9311ddacc1d28b11aa364292290393e53103f20ff878d",
+    "atoms": 129,
+    "edges": 54
   },
   "atoms": {
     "added": [
+      {
+        "id": "gate.standing.read-git-status-before-commit-to",
+        "kind": "gate",
+        "title": "Read git status before commit to git",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 22,
+          "endLine": 22,
+          "quote": "**R14.** Do not commit to git until you have read the output of `git status`.",
+          "hash": "97b1a2429bd0fbbbc598c96370f0c0acad05c8cd06f89165a881152ff626b0c4"
+        }
+      },
       {
         "id": "instruction.standing.r18-never-approve-a-credit-note",
         "kind": "instruction",
@@ -64,27 +78,6 @@
       }
     ],
     "changed": [
-      {
-        "id": "instruction.standing.r2-never-send-an-email-to",
-        "kind": "instruction",
-        "title": "R2. Never send an email to a supplier without showing the full draft to the user first an…",
-        "change": "whitespace",
-        "before": {
-          "file": "CLAUDE.md",
-          "startLine": 10,
-          "endLine": 10,
-          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first and getting an explicit yes.",
-          "hash": "dd78e07844cd89628113e2071183835b0fd127be4b22e68732ce3c08e49213c0"
-        },
-        "after": {
-          "file": "CLAUDE.md",
-          "startLine": 10,
-          "endLine": 11,
-          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first\n  and getting an explicit yes.",
-          "hash": "658e9a6d13b491f3ec47b46acd3edfcfa0a6631dbc3eac1f92ef83d6eb922bfe"
-        },
-        "fields": []
-      },
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
         "kind": "instruction",
@@ -160,6 +153,36 @@
         }
       },
       {
+        "id": "instruction.standing.r5-before-editing-any-invoice-file",
+        "kind": "instruction",
+        "title": "R5. Before editing any invoice file: Read .claude/skills/invoice-reconcile/references/mat…",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 13,
+          "endLine": 13
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 14,
+          "endLine": 14
+        }
+      },
+      {
+        "id": "reference.standing.read-claude-skills-invoice-reconcile-references",
+        "kind": "reference",
+        "title": "Read .claude/skills/invoice-reconcile/references/matching-rules.md",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 13,
+          "endLine": 13
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 14,
+          "endLine": 14
+        }
+      },
+      {
         "id": "instruction.standing.r6-never-run-git-push-force",
         "kind": "instruction",
         "title": "R6. Never run git push --force on any branch.",
@@ -190,8 +213,8 @@
         }
       },
       {
-        "id": "register.standing.r9-ask-at-most-one-question",
-        "kind": "register",
+        "id": "instruction.standing.r9-ask-at-most-one-question",
+        "kind": "instruction",
         "title": "R9. Ask at most one question per reply.",
         "from": {
           "file": "CLAUDE.md",
@@ -477,6 +500,18 @@
     ],
     "restated": [
       {
+        "id": "instruction.standing.r11-never-paste-the-contents-of",
+        "kind": "instruction",
+        "title": "R11. Never paste the contents of .env or any credential into a reply.",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "instruction.standing.r13-before-you-dispatch-a-helper",
+        "kind": "instruction",
+        "title": "R13. Before you dispatch a helper agent, write its brief with the task, the files it may…",
+        "fields": ["evidence", "fields"]
+      },
+      {
         "id": "invariant.standing.the-standing-instructions-stay-under-40000",
         "kind": "invariant",
         "title": "The standing instructions stay under 40000 characters",
@@ -492,13 +527,7 @@
         "kind": "cites"
       }
     ],
-    "removed": [
-      {
-        "from": "instruction.standing.r12-when-r2-applies-and-the",
-        "to": "instruction.standing.r2-never-send-an-email-to",
-        "kind": "cites"
-      }
-    ]
+    "removed": []
   },
   "guards": [
     {
@@ -560,14 +589,14 @@
     }
   ],
   "summary": {
-    "added": 2,
+    "added": 3,
     "removed": 1,
-    "whitespace": 1,
+    "whitespace": 0,
     "semantic": 2,
-    "moved": 23,
-    "restated": 1,
+    "moved": 25,
+    "restated": 3,
     "unchanged": 97,
     "edgesAdded": 1,
-    "edgesRemoved": 1
+    "edgesRemoved": 0
   }
 }

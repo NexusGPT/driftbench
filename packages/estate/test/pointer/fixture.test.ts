@@ -57,7 +57,7 @@ describe('the fixture through its committed cassettes', () => {
     // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
     // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
     // runs still decides the unit.
-    expect(result.pointer?.refusals.length).toBe(5);
+    expect(result.pointer?.refusals.length).toBe(10);
     expect(
       result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
         .length,

@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727
+mapHash: 1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405
 
 workspaces:
   - id: northwind-ops
@@ -118,7 +118,7 @@ situations:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
-      - gate.weekly-report.read-templates-report-md-before-writing
+      - gate.weekly-report.read-templates-report-md-before-before
       - reference.weekly-report.read-templates-report-md
       - instruction.weekly-report.fill-the-template-in-this-order
       - instruction.weekly-report.count-only-what-the-ledger-and
@@ -148,7 +148,7 @@ situations:
       - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       - skill.invoice-reconcile.skill-invoice-reconcile
       - script.invoice-reconcile.script-scripts-reconcile-py
-      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+      - gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
       - gate.invoice-reconcile.read-references-matching-rules-md-before
       - register.invoice-reconcile.end-with-one-line-per-invoice
     workspace: northwind-ops
@@ -391,7 +391,7 @@ situations:
     use: trigger
     atoms:
       - register.standing.r1-always-answer-in-the-language
-      - register.standing.r9-ask-at-most-one-question
+      - instruction.standing.r9-ask-at-most-one-question
       - register.standing.keep-every-reply-under-1-200
       - register.standing.lead-with-the-result-in-the
       - register.standing.use-a-bullet-list-for-three

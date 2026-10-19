@@ -116,13 +116,13 @@ The scan of the Northwind estate, with the recorded labels of the pointer reader
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --runtime claude-code --pointer --cassette examples/estates/fixture/cassette.jsonl --out _captures/docs3/estate/map.yaml --force
-Wrote _captures/docs3/estate/map.yaml: 125 atoms (47 read by code and approved, 78 split from prose by the model and waiting for approval), 52 edges.
+Wrote _captures/docs3/estate/map.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.
   Atoms per kind:
-    instruction   45  (45 by the model)
-    gate           4  (4 by the model)
+    instruction   44  (44 by the model)
+    gate           5  (5 by the model)
     route         13  (6 by the model)
     skill          4
-    reference      8  (8 by the model)
+    reference     10  (10 by the model)
     script         2
     subagent       3
     guard          6
@@ -134,25 +134,27 @@ Wrote _captures/docs3/estate/map.yaml: 125 atoms (47 read by code and approved, 
     invariant      4
   Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
   Pointer reader: system 1 <choice labeler> then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 151 in 14 files; 0 kept from the ledger, 142 labelled by this run (56 by system 1, 86 by system 2), 9 unlabeled; the runs of one labeler disagreed on 8 units; the runs drew the spans of 8 units differently, and the first run's spans stand; 78 atoms.
+  Units: 151 in 14 files; 0 kept from the ledger, 150 labelled by this run (50 by system 1, 100 by system 2, 1 of them because the other labeler gave no opinion), 1 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 4 units differently, and the first run's spans stand; 80 atoms.
   Requests: 73 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 151.
-    refused: .claude/skills/invoice-reconcile/SKILL.md#2: the label condition needs a target unit inside the window
-    refused: .claude/skills/invoice-reconcile/SKILL.md#2: the label condition needs a target unit inside the window
+    refused: .claude/skills/shipment-tracker/SKILL.md#2: the label condition needs a target unit inside the window
+    refused: .claude/skills/shipment-tracker/SKILL.md#2: the label condition needs a target unit inside the window
     refused: .claude/skills/shipment-tracker/SKILL.md#2: the label condition needs a target unit inside the window
     refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
-    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
-    refused: .claude/agents/route-planner.md unit hqqmy2enso (reference): the label reference locates a file, and the unit names none
-    refused: .claude/skills/supplier-email/SKILL.md unit dgwysklcdn (gate): the label gate needs a span, a link or a code span that the unit does not give
+    refused: CLAUDE.md#1: the label route-skill needs a target unit inside the window
+    refused: CLAUDE.md#1: the label route-skill needs a target unit inside the window
+    refused: CLAUDE.md#1: the label route-skill needs a target unit inside the window
+    refused: CLAUDE.md#1: the label route-skill needs a target unit inside the window
+    refused: CLAUDE.md#1: the label route-helper needs a target unit inside the window
+    refused: CLAUDE.md#1: the label route-helper needs a target unit inside the window
     refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate needs a span, a link or a code span that the unit does not give
     refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate locates a file, and the unit names none
-    refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (condition): the condition points at a unit that holds no atom
-    refused: .claude/skills/invoice-reconcile/SKILL.md unit pfiujep4mk (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate needs a span, a link or a code span that the unit does not give
+    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate locates a file, and the unit names none
   Ignored: none.
-  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 57 of 62 rules have no guard.
-    register.inbox-triager.haiku
+  Unenforced: 56 of 62 rules have no guard.
     instruction.inbox-triager.you-sort-messages-into-three-folders
     instruction.inbox-triager.a-message-that-fits-none-goes
     instruction.inbox-triager.never-answer-a-message-yourself-and
@@ -168,37 +170,37 @@ Wrote _captures/docs3/estate/map.yaml: 125 atoms (47 read by code and approved, 
     register.route-planner.answer-with-a-table-van-stops
     instruction.memory-memory.the-operations-team-wants-the-weekly
     instruction.memory-memory.never-schedule-a-delivery-on-a
-    instruction.memory-supplier-languages.write-to-each-supplier-in-the
+    register.memory-supplier-languages.write-to-each-supplier-in-the
     instruction.memory-supplier-languages.when-a-supplier-is-not-in
-    instruction.invoice-reconcile.an-invoice-line-matches-an-order
     instruction.invoice-reconcile.a-line-on-the-invoice-with
     instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
     gate.invoice-reconcile.read-references-matching-rules-md-before
-    instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+    gate.invoice-reconcile.read-references-currency-table-md-before
+    gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
     instruction.invoice-reconcile.never-change-an-amount-on-an
+    instruction.invoice-reconcile.when-the-total-difference-is-above
     register.invoice-reconcile.end-with-one-line-per-invoice
     instruction.shipment-tracker.look-up-where-a-shipment-is
     instruction.shipment-tracker.ask-for-the-tracking-number-when
     instruction.shipment-tracker.when-the-carrier-answers-with-an
     instruction.supplier-email.draft-answer-or-chase-an-email
+    register.supplier-email.write-in-the-supplier-s-language
     register.supplier-email.every-draft-has-a-subject-with
     register.supplier-email.keep-a-draft-under-120-words
     instruction.supplier-email.a-looks-fine-or-a-thumbs
     instruction.supplier-email.never-copy-a-price-or-a
     instruction.weekly-report.prepare-the-weekly-operations-report-from
-    gate.weekly-report.read-templates-report-md-before-writing
+    gate.weekly-report.read-templates-report-md-before-before
     instruction.weekly-report.fill-the-template-in-this-order
     instruction.weekly-report.count-only-what-the-ledger-and
     instruction.weekly-report.save-the-report-as-reports-year
     register.standing.r1-always-answer-in-the-language
-    instruction.standing.r2-never-send-an-email-to
     instruction.standing.r7-when-a-shipment-is-late
     instruction.standing.r8-do-not-invent-order-numbers
-    register.standing.r9-ask-at-most-one-question
+    instruction.standing.r9-ask-at-most-one-question
     instruction.standing.r11-never-paste-the-contents-of
     instruction.standing.r12-when-r2-applies-and-the
     instruction.standing.r13-before-you-dispatch-a-helper
-    gate.standing.read-git-status-before-commit-to
     instruction.standing.r16-if-a-tool-fails-twice
     instruction.standing.r17-report-a-number-only-when
     instruction.standing.every-task-follows-the-step-list
@@ -318,11 +320,11 @@ With no flag, `estate approve` lists what waits, kind by kind, with each atom's 
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: 78 of 125 atoms wait for approval.
-  instruction: 45
-  gate: 4
+examples/estates/fixture/map.yaml: 80 of 127 atoms wait for approval.
+  instruction: 44
+  gate: 5
   route: 6
-  reference: 8
+  reference: 10
   register: 13
   hazard: 2
 ```
@@ -333,14 +335,14 @@ Approving one kind, then the rest into a new file beside the map:
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --kind register
 Approved 13 atoms in _captures/docs3/estate/map-approve.yaml; 0 were already approved.
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --all --to _captures/docs3/estate/approved-all.yaml
-Approved 65 atoms in _captures/docs3/estate/approved-all.yaml; 60 were already approved.
+Approved 67 atoms in _captures/docs3/estate/approved-all.yaml; 60 were already approved.
 ```
 
 The committed `examples/estates/fixture/approved.yaml` is the Northwind map with every atom approved with `--all`, by the person who wrote the fixture. A review of the prose atoms by the estate's owner is still to do: approval with `--all` stands in for it.
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 125 atoms are approved.
+examples/estates/fixture/approved.yaml: all 127 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph
@@ -400,17 +402,16 @@ The lint of the Northwind map finds every planted defect:
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 125 atoms.
-  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
+examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  57 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-7 findings.
+6 findings.
 ```
 
 It exits 1.
@@ -435,8 +436,8 @@ The space map accepts only the twelve classes as deviation values, so the estate
 
 ```
 $ pnpm -s driftbench estate map examples/estates/fixture/approved.yaml --to _captures/docs3/estate/space.yaml
-Wrote _captures/docs3/estate/space.yaml: 6 situation axes, 8 target dimensions (instruction 45, gate 4, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
-  The full grid holds 1722054297600 cells: plan on t-wise coverage, not the full grid.
+Wrote _captures/docs3/estate/space.yaml: 6 situation axes, 8 target dimensions (instruction 44, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
+  The full grid holds 2104733030400 cells: plan on t-wise coverage, not the full grid.
 ```
 
 The committed `examples/estates/fixture/space.yaml` is the same file written with `--agent northwind`. The full grid is far above the 250,000 cells the space commands enumerate, so the plan covers it t-wise and never enumerates it.
@@ -486,17 +487,17 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1058 rows (378 from the contract, 10 journeys, 670 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 915 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 670 rows, t = 2, 3571 of 3571 allowed 2-tuples covered; the full grid of 1722054297600 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1060 rows (379 from the contract, 11 journeys, 670 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 919 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 670 rows, t = 2, 3576 of 3576 allowed 2-tuples covered; the full grid of 2104733030400 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction   135
-    gate            8
+    instruction   132
+    gate           10
     route          65
-    skill         127
-    reference       7
+    skill         136
+    reference       9
     script          2
-    subagent       88
+    subagent       81
     guard          30
     tool           12
     setting         4
@@ -505,17 +506,17 @@ Wrote _captures/docs3/estate/plan.yaml: 1058 rows (378 from the contract, 10 jou
     hazard          2
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        373
-    outside_trigger    45
-    twin               45
-    ordered_pair       32
-    skip_pressure       4
-    route_positive    160
+    obligation        366
+    outside_trigger    44
+    twin               44
+    ordered_pair       40
+    skip_pressure       5
+    route_positive    161
     route_near_miss    13
     misroute           13
-    read_when           7
+    read_when           9
     script_fixture      2
-    dispatch           24
+    dispatch           25
     contract_alone      3
     stop_resume         3
     guard_positive     48
@@ -525,16 +526,16 @@ Wrote _captures/docs3/estate/plan.yaml: 1058 rows (378 from the contract, 10 jou
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        41
+    stage_order        39
     stage_skip          4
     stage_anytime       1
-    register_sample   184
+    register_sample   183
     hazard_recovery     2
     invariant           4
     setting             4
-    journey            10
-  Unenforced: 57 approved rules no guard enforces.
-  Cells with no approved phrase: 915 of 915.
+    journey            11
+  Unenforced: 56 approved rules no guard enforces.
+  Cells with no approved phrase: 919 of 919.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -569,12 +570,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1058 rows, 1058 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1060 rows, 1060 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1057 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1059 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
@@ -822,22 +823,22 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash b8d6f2e92049: 125 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1597 rows, 1597 approved, 0 waiting, 0 struck.
+Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash 1a4e0056ecdc: 127 atoms.
+Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1599 rows, 1599 approved, 0 waiting, 0 struck.
 Phrases ../../../../examples/estates/fixture/phrases.yaml: 31 situations, 60 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 
 Test type           rows  specs  complete  incomplete
-obligation           630    630       630           0
-outside_trigger       45     45        45           0
-twin                  45     45        45           0
-ordered_pair          56     56        56           0
-skip_pressure          4      4         4           0
+obligation           616    616       616           0
+outside_trigger       44     44        44           0
+twin                  44     44        44           0
+ordered_pair          70     70        70           0
+skip_pressure          5      5         5           0
 route_positive       260    253       253           0
 route_near_miss       13     13        13           0
 misroute              13     13        13           0
-read_when              7      7         7           0
+read_when              9      9         9           0
 script_fixture         2      2         2           0
 dispatch              42     42        42           0
 contract_alone         3      3         3           0
@@ -856,29 +857,29 @@ register_sample      260    260       260           0
 hazard_recovery        2      2         2           0
 invariant              4      4         4           0
 setting                4      4         4           0
-journey               10     10        10           0
-total                      1590      1576          14
+journey               11     11        11           0
+total                      1592      1578          14
 
-Asks of the complete specs: 430 approved phrases, 1132 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 720 complete specs.
-Outcomes of the complete specs: 954 bank, 26 no-change:guard, 58 no-change:negative, 137 no-change:read-only, 393 no-delete, 8 static.
+Asks of the complete specs: 425 approved phrases, 1139 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 704 complete specs.
+Outcomes of the complete specs: 949 bank, 26 no-change:guard, 57 no-change:negative, 137 no-change:read-only, 401 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
-Unit tests: 23 in unit/ (6 guards, 2 scripts, 3 helpers, 45 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 99.12%; distinct asks: 111 in 1568 complete asked tests (7.08 per 100).
+Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 55 cases), run by driftbench estate unit: --record on the original first, then on any copy.
+Complete share: 99.12%; distinct asks: 114 in 1570 complete asked tests (7.26 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 14 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
   needs-askable-act          14 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1615 files to _captures/docs3/estate/generated.
+Wrote 1620 files to _captures/docs3/estate/generated.
 ```
 
 It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the last line of the output):
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/estate/generated/specs --strict
-Checked 1568 specs: 1568 valid, 0 invalid, 0 warnings.
+Checked 1570 specs: 1570 valid, 0 invalid, 0 warnings.
 ```
 
 The written files equal the committed `examples/estates/fixture/generated/` but for the relative paths of the map and plan they record. 70 of the 235 complete specs carry a judged criterion. The gaps close as the pieces they name arrive: a "some call matches" tool check would complete the 336 `needs-some-call-check` specs (references, scripts, dispatches); registered checks for the custom predicates, the 418 `needs-registered-check` specs; approved phrases, deviation phrases and declared outcomes, through the real flow of proposal and approval. The planner's 6 replay rows are `guard_positive` rows whose situations no recorded session holds; a session per guard event would close them. 26 ordered predicates have no anchor: "Read git status before commit" is one command before another of the same tool, and "matching any line" is prose.
@@ -1034,7 +1035,7 @@ $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yam
 Plan ../../../../packages/generate/test/estate/fixtures/plan.yaml: 35 rows, 34 approved, 0 waiting, 1 struck.
 total                        38        38           0
 Replay: 6 specs aligned to sessions, 5 planned to pass, 1 to fail.
-Wrote 44 files to _captures/docs3/estate/generated-hand.
+Wrote 46 files to _captures/docs3/estate/generated-hand.
 $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl examples/estates/fixture/sessions/weekly-gate-violated.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.jsonl --decisions examples/estates/fixture/sessions/weekly-clean.decisions.jsonl examples/estates/fixture/sessions/weekly-gate-violated.decisions.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.decisions.jsonl --steps examples/estates/fixture/sessions/weekly-clean.steps.jsonl examples/estates/fixture/sessions/weekly-gate-violated.steps.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.steps.jsonl --suite _captures/docs3/estate/generated-hand/specs/replay
 ✓ estate.p01.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p01.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
@@ -1043,7 +1044,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-61c5664c56f0 (in memory).
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-057d30e4ad4a (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.
@@ -1127,18 +1128,17 @@ The diff of the Northwind estate against its second version, with the guard stat
 
 ```
 $ pnpm -s driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out _captures/docs3/estate/diff.json
-Estate diff: examples/estates/fixture/approved.yaml (b8d6f2e92049) to examples/estates/fixture-v2/map.yaml (d98a0b0afda4).
-  Atoms: 2 added, 1 removed, 3 changed (1 white space only, 2 semantic), 23 moved with the same quote, 1 restated, 97 unchanged.
-  Edges: 1 added, 1 removed.
+Estate diff: examples/estates/fixture/approved.yaml (1a4e0056ecdc) to examples/estates/fixture-v2/map.yaml (28115ad81376).
+  Atoms: 3 added, 1 removed, 2 changed (0 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 97 unchanged.
+  Edges: 1 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
+  + gate.standing.read-git-status-before-commit-to (gate) CLAUDE.md:22
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
   + instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Removed:
   - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
-Changed, white space only:
-  ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
@@ -1151,9 +1151,11 @@ Changed, semantic:
 Moved, same quote:
   > instruction.standing.r3-read-a-file-before-you CLAUDE.md:11 to 12
   > instruction.standing.r4-never-delete-a-file-under CLAUDE.md:12 to 13
+  > instruction.standing.r5-before-editing-any-invoice-file CLAUDE.md:13 to 14
+  > reference.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
   > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
-  > register.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
+  > instruction.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
   > hazard.standing.r10-when-the-user-says-stop CLAUDE.md:18 to 19
   > instruction.standing.r11-never-paste-the-contents-of CLAUDE.md:19 to 20
   > route.standing.an-ask-to-reconcile-an-invoice CLAUDE.md:31 to 33
@@ -1173,11 +1175,11 @@ Moved, same quote:
   > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
   > reference.standing.read-claude-memory-memory-md CLAUDE.md:50 to 52
 Restated, same quote:
+  * instruction.standing.r11-never-paste-the-contents-of: evidence, fields
+  * instruction.standing.r13-before-you-dispatch-a-helper: evidence, fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
 Edges added:
   + instruction.standing.r19-when-r18-applies-and-the cites instruction.standing.r18-never-approve-a-credit-note
-Edges removed:
-  - instruction.standing.r12-when-r2-applies-and-the cites instruction.standing.r2-never-send-an-email-to
 Wrote _captures/docs3/estate/diff.json.
 ```
 
@@ -1225,8 +1227,8 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
-Impact of the estate diff b8d6f2e92049 to d98a0b0afda4 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff 1a4e0056ecdc to 28115ad81376 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 4, re-approve 2, retire 1, new 3; 3 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
   northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
@@ -1240,13 +1242,15 @@ Re-approve, the meaning changed:
 Retire:
   northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
 New atoms with no test:
+  gate.standing.read-git-status-before-commit-to (gate) CLAUDE.md:22
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
   instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
+Needs a person: 5.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+  - approve the tests of the new atom gate.standing.read-git-status-before-commit-to: no test covers it yet
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
   - approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet
 ```
@@ -1255,10 +1259,10 @@ It exits 1 for the four items. `--write` writes each retirement reason into its 
 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
-Impact of the estate diff b8d6f2e92049 to d98a0b0afda4 on 8 live estate tests (0 retired before, 0 other specs).
+Impact of the estate diff 1a4e0056ecdc to 28115ad81376 on 8 live estate tests (0 retired before, 0 other specs).
   northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [written]
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
-Impact of the estate diff b8d6f2e92049 to d98a0b0afda4 on 7 live estate tests (1 retired before, 0 other specs).
+Impact of the estate diff 1a4e0056ecdc to 28115ad81376 on 7 live estate tests (1 retired before, 0 other specs).
   northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [already written]
 ```
 

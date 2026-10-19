@@ -42,6 +42,7 @@ describe('label sets', () => {
     const shipped = load(AGENT_RULES_SET);
     expect(shipped[0]?.labels.map((label) => label.name)).toEqual([
       'rule',
+      'dispatch',
       'prohibition',
       'gate',
       'gate-command',

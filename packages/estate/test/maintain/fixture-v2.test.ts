@@ -23,7 +23,9 @@ const NEW_PATH = 'examples/estates/fixture-v2/map.yaml';
 
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const ROUTE = 'route.standing.an-ask-to-plan-the-delivery';
-const R2 = 'instruction.standing.r2-never-send-an-email-to';
+const R13 = 'instruction.standing.r13-before-you-dispatch-a-helper';
+const R11 = 'instruction.standing.r11-never-paste-the-contents-of';
+const R5_GATE = 'gate.standing.read-git-status-before-commit-to';
 const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
 const R18 = 'instruction.standing.r18-never-approve-a-credit-note';
 const R19 = 'instruction.standing.r19-when-r18-applies-and-the';
@@ -66,14 +68,13 @@ describe('the fixture-v2 estate', () => {
   it('diffs against the first version with every planted case and nothing else', async () => {
     const diff = await fresh();
     expect(diff.atoms.changed.map((entry) => [entry.id, entry.change])).toEqual([
-      [R2, 'whitespace'],
       [R7, 'semantic'],
       [ROUTE, 'semantic'],
     ]);
     expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([R12]);
-    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18, R19]);
+    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R5_GATE, R18, R19]);
     expect(diff.edges.added).toEqual([{ from: R19, to: R18, kind: 'cites' }]);
-    expect(diff.edges.removed).toEqual([{ from: R12, to: R2, kind: 'cites' }]);
+    expect(diff.edges.removed).toEqual([]);
     expect(diff.guards?.filter((entry) => entry.move !== 'unchanged')).toEqual([
       {
         guard: LEDGER,
@@ -91,18 +92,20 @@ describe('the fixture-v2 estate', () => {
     expect(diff.guards).toHaveLength(6);
     // A unit whose neighbours changed is read again: the label of two of them came back with other evidence.
     expect(diff.atoms.restated.map((entry) => [entry.id, entry.fields])).toEqual([
+      [R11, ['evidence', 'fields']],
+      [R13, ['evidence', 'fields']],
       ['invariant.standing.the-standing-instructions-stay-under-40000', ['fields']],
     ]);
     expect(diff.summary).toEqual({
-      added: 2,
+      added: 3,
       removed: 1,
-      whitespace: 1,
+      whitespace: 0,
       semantic: 2,
-      moved: 23,
-      restated: 1,
+      moved: 25,
+      restated: 3,
       unchanged: 97,
       edgesAdded: 1,
-      edgesRemoved: 1,
+      edgesRemoved: 0,
     });
   });
 
@@ -139,11 +142,11 @@ describe('the fixture-v2 estate', () => {
         state: 'to_write',
       },
     ]);
-    expect(report.new.map((entry) => entry.atom)).toEqual([R18, R19]);
+    expect(report.new.map((entry) => entry.atom)).toEqual([R5_GATE, R18, R19]);
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    expect(report.unaffected).toEqual({ moved: 23, tests: 3 });
-    expect(report.needsPerson).toHaveLength(4);
+    expect(report.unaffected).toEqual({ moved: 25, tests: 3 });
+    expect(report.needsPerson).toHaveLength(5);
   });
 });
