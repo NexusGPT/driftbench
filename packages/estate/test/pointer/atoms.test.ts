@@ -355,7 +355,8 @@ describe('atoms from labels', () => {
         'CLAUDE.md': [{ units: '4', label: 'pair', target: 5, spans: [{ kind: 'act', from: 0, to: 5 }] }],
       });
       const gate = result.map.atoms.find((candidate) => candidate.kind === 'gate');
-      const span = (gate?.fields?.labelSpans as Array<{ from: number; to: number }>)[0];
+      const spans = gate?.fields?.labelSpans as Array<{ from: number; to: number }> | undefined;
+      const span = spans?.[0];
       expect(gate?.provenance.quote.slice(span?.from, span?.to)).toBe('Reply');
     });
 
