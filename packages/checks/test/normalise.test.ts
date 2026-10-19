@@ -53,6 +53,7 @@ describe('normalise in the checks', () => {
     );
     expect(failing(exact)).toEqual([
       'tools.notify_sales.input.customer',
+      'tools.notify_sales.input.customer.no_decider',
       'tools.notify_sales.input.summary',
       'tools.argument_accuracy',
     ]);
@@ -60,7 +61,11 @@ describe('normalise in the checks', () => {
       tools,
       context(coverage, 3, observed('Done.', handover('+1 202 555 0113')), { expect: callback }),
     );
-    expect(failing(other)).toEqual(['tools.notify_sales.input.customer', 'tools.argument_accuracy']);
+    expect(failing(other)).toEqual([
+      'tools.notify_sales.input.customer',
+      'tools.notify_sales.input.customer.no_decider',
+      'tools.argument_accuracy',
+    ]);
     expect(verdict(other, 'tools.notify_sales.input.customer').evidence).toContain('read as "+12025550113"');
   });
 

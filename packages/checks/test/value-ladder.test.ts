@@ -313,7 +313,14 @@ describe('rung 2: the contract', () => {
           ? { has_content: true, reading: String(request.parts.v).replace(/\D/g, '').replace(/^1/, '') }
           : { same: request.parts.a === request.parts.b },
     };
-    const verdicts = await run(createToolsCheck({ services: { judge: digits } }), context(spec, 3, seen));
+    // Block 3 holds a phone_e164 rule, which settles this phone before the ladder runs. The case is a writing
+    // no contract states, so the rule is taken out.
+    const ctx = context(spec, 3, seen);
+    const bare = {
+      ...ctx,
+      expect: { ...ctx.expect, tools: ctx.expect.tools?.map(({ normalise: _rule, ...tool }) => tool) },
+    };
+    const verdicts = await run(createToolsCheck({ services: { judge: digits } }), bare);
     expect(verdict(verdicts, 'tools.notify_sales.input.customer').outcome).toBe('pass');
     expect(verdict(verdicts, 'tools.notify_sales.input.customer').evidence).toContain('rung3_same_referent');
     const lint = verdict(verdicts, 'tools.notify_sales.input.customer.unstated_format');
