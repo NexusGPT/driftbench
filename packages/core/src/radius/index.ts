@@ -129,8 +129,12 @@ export {
   observationCompatibilityHash,
   type PreparedRejudge,
   prepareRejudge,
+  prepareRescore,
   type RejudgeOptions,
+  type RescoreOptions,
+  refuseAgentFacing,
   rejudgeRun,
+  rescoreRun,
 } from './rejudge';
 export {
   checkSectionRegistry,
