@@ -301,6 +301,22 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
 
+### 12.9 The frame: the product runs apart, the parent decides
+
+Audit reports, 2026-10-18 and 2026-10-19: the cheater check of three ladders found products that answer correctly only when they see a validator run them, and no change inside an item could hide what they read, because the product ran in the validator's own process. `validators/system/audit-v6/cheater-4.md` (PR 846): a gate on the call stack and on `process.argv[1]` took all 413 new items while the product stayed wrong. `validators/blocks/audit-links2/cheater-2.md` (PRs 867 and 563): 11 cheats reached 0 failing by reading the process arguments, the working folder, the environment, the uptime or the call stack. `validators/estate/audit-v2/round2-cheater-and-bugs.md` (PR 860): a class written only when the working folder or the call stack looked like the validator's. Under section 12.8 these reports are the reason for this rule.
+
+The rule. An item that calls the product calls it through the frame, `packages/validators/src/frame`:
+
+- `isolate({ module, seed, tag, keep })` loads the product module in two child processes and gives the item a proxy of it. Each call goes to both, and the item reads the answer of the first as data. The item's own check then runs in the validator's process on that data, so nothing the product does in its process reaches the verdict except its recorded answers.
+- The two processes differ in each signal the audits found: the process arguments, the working folder (the validator's own, then a fresh folder), the environment (the validator's own, then a bare one), the uptime (as it is, then shifted by a drawn day to month), the call stack (two drawn driver files, nested to a drawn depth) and node options (none in either: a TypeScript loader is registered inside the driver). Every name and folder is drawn from the seed. A call whose two answers differ fails the item: `frame.divergence()` names it.
+- `keep` names, per export, the part of an answer the two runs must agree on, for a product that returns what may differ between runs, such as a clock.
+- `frame.tape` records every call with both answers, and `replay(tape)` answers the same calls again with no product, so a verdict can be computed again from the record.
+- `isolateCommand({ command, seed, files, collect })` runs a product command twice, each time in a fresh working folder, with the command's own arguments and the same twin differences, and compares the status, the output and the collected files.
+- Arguments must be data: a function, a symbol or a class instance in an argument is refused (`FrameError`), because it cannot cross the process boundary.
+- `neutralName(seed, tag)` draws an id with no fixed prefix, length or alphabet, which matches the id pattern of the spec schema. Fixture ids built from it take away the gain of a cheat that keys on an id's shape.
+
+How a ladder adopts it. Replace the product object the items call (for example `product.core` in the blocks bank) by `isolate(...).product` for the product's entry module, fail the item when `divergence()` is set, and close the frame when the item ends. The tests in `packages/validators/test/frame/isolate.test.ts` show each cheat class of the audits passing an item in the validator's process and failing it under the frame.
+
 ## Measurement cache during system sweeps
 
 A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
