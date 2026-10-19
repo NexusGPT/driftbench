@@ -68,7 +68,10 @@ describe('kill.fake: equivalent mutants are read from the fixture, not taken on 
   });
 });
 
-describe('kill.fake: the invariant cell breaks the size ceiling on a copy, the anchor kept', () => {
+// The test copies the whole Northwind fixture (about 1,600 generated files); the copy alone can pass the 5 s default.
+describe('kill.fake: the invariant cell breaks the size ceiling on a copy, the anchor kept', {
+  timeout: 120_000,
+}, () => {
   it('keeps the first line of CLAUDE.md and runs the file past the ceiling', async () => {
     const work = await mkdtemp(join(tmpdir(), 'kill-break-'));
     try {
