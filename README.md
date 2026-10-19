@@ -571,7 +571,7 @@ blocks:
 <details><summary>See it in YAML</summary>
 
 Tool replay value checks are coming in [#459](https://github.com/achammah/driftbench/pull/459).
-On main, `one_of` can accept a known list of spellings. It does not ask the tool whether they mean the same thing.
+On main, a `normalise` rule compares both phone numbers in one writing (E.164), and `one_of` can accept a known list of spellings. Neither asks the tool whether they mean the same thing.
 
 ```yaml
 # file: phone.spec.yaml
@@ -582,6 +582,8 @@ blocks:
       tools:
         - label: callback.create # Call whose input is checked
           count: 1 # Exactly one call
+          normalise:
+            phone: { rule: phone_e164, country_code: '1' } # Both sides as +12025550131
           input:
             phone:
               one_of: ['+1 202 555 0131', '+12025550131'] # Accepted spellings
@@ -735,7 +737,7 @@ blocks:
 
 <details><summary>See it in YAML</summary>
 
-This Acme block combines an authored starting history, an inline policy, an accepted value list and a judged criterion.
+This Acme block combines an authored starting history, an inline policy, an accepted value list in one phone writing and a judged criterion.
 The persona file below selects the spec. Save both files together.
 Run `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none` to use the simulated customer.
 This makes model calls. Judging needs a configured judge; the criterion declaration alone does not create one.
@@ -767,6 +769,8 @@ blocks:
       tools:
         - label: callback.create # Tool input to check
           count: 1
+          normalise:
+            phone: { rule: phone_e164, country_code: '1' } # Both sides as +12025550131
           input:
             phone:
               one_of: ['+1 202 555 0131', '+12025550131'] # Accepted spellings

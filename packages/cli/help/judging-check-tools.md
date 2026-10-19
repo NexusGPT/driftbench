@@ -1,6 +1,6 @@
 ---
 title: Checks on tool calls
-summary: "The machine checks that read the agent's tool calls: tools (count, input assertions, the value-check ladder and compare, input_closed, argument accuracy), tool_order, forbidden tools and call caps, tools_offered, tool_f1, schema_strict, sql, the value assertion forms, and the run-wide tool policy."
+summary: "The machine checks that read the agent's tool calls: tools (count, input assertions, the value-check ladder and compare, input_closed, normalise, argument accuracy), tool_order, forbidden tools and call caps, tools_offered, tool_f1, schema_strict, sql, the value assertion forms, and the run-wide tool policy."
 commands:
   - campaign run
   - replay
@@ -35,7 +35,7 @@ Every run command applies these checks; no command option changes them (see `jud
 
 | Field | Check | What passes | Verdict ids |
 |---|---|---|---|
-| `tools: [{ label, count, input, input_closed, compare }]` | `tools` | Each tool runs `count` times (a number, or `{ min, max }`; no `count` means at least once), and every call holds each `input` assertion; a value the assertion names goes through the value-check ladder (below). A tool not called fails each of its input assertions. `input_closed: true`: each call's input is an object with only the keys listed in `input`. `compare`: how differing values are decided, one mode for every argument or a mode by argument name; absent means `auto`. | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input.<field>.unstated_format` and `.no_decider` (not gating: lints on the test), `tools.<label>.input_closed`, `tools.argument_accuracy` (not gating: the share of expected arguments that matched) |
+| `tools: [{ label, count, input, input_closed, normalise, compare }]` | `tools` | Each tool runs `count` times (a number, or `{ min, max }`; no `count` means at least once), and every call holds each `input` assertion; a value the assertion names goes through the value-check ladder (below). A tool not called fails each of its input assertions. `input_closed: true`: each call's input is an object with only the keys listed in `input`. `normalise`: the argument and its expected value are put in one form before they are compared (below). `compare`: how differing values are decided, one mode for every argument or a mode by argument name; absent means `auto`. | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input.<field>.unstated_format` and `.no_decider` (not gating: lints on the test), `tools.<label>.input_closed`, `tools.argument_accuracy` (not gating: the share of expected arguments that matched) |
 | `tool_order: exact`, `in_order` or `any_order` | `tools` | `exact`: the calls split into consecutive runs, one per expected tool, with nothing left over (a fail names the first diverging call). `in_order`: the expected calls appear in order, others may sit between. `any_order`: they all appear. | `tools.order` |
 | `tools: [{ label, count: 0 }]` | `forbidden` | The tool is not called in the block. Reported by `forbidden`, not `tools`. | `forbidden.<label>` |
 | `rules.forbidden_tools: [label...]` | `forbidden` | The tool is never called. A block that expects a forbidden tool is a spec error (`TOOL_FORBIDDEN_EXPECTED`). | `forbidden.<label>` |
@@ -57,6 +57,19 @@ Value assertions, for `tools[].input` and `end_state.expect`:
 | `{ nonempty: true }` | is present and not empty |
 | `{ absent: true }` | is absent |
 | `{ subset: { ... } }` | holds at least these keys with these values |
+
+Normalised values: `normalise` on a tool (and on `end_state`, and on a `json` path) maps an argument path, such as `phone` or `customer.phone`, to a rule. Both the observed value and the expected value at the path are rewritten by the rule, then the assertion compares them. It applies to a bare value, `exact`, `one_of`, `subset` and `contains`; a `regex`, `nonempty` or `absent` assertion takes no rule (`NORMALISE_INVALID` when the spec loads). Without a rule the values compare as written. On a tool, a value that still differs, with or without a rule, goes to the value-check ladder (below).
+
+| Rule | Reads |
+|---|---|
+| `digits_only` | the digits only: `order #4417` as `4417` |
+| `phone_e164` | + and the digits: `+1 202 555 0131` as `+12025550131`; with `country_code: "1"`, `(202) 555-0131` too. A number without + or 00 and without `country_code` stays as its digits |
+| `email_lower` | the address trimmed and lower-cased, without `mailto:`, angle brackets or a trailing dot |
+| `whitespace` | the text trimmed, each run of spaces collapsed to one |
+| `case_fold` | the text lower-cased |
+| `address_canon` | the address lower-cased, punctuation as spaces, street abbreviations expanded (`Ave` as `avenue`, `Rd` as `road`, `Ln` as `lane`). The town stays. Inside `contains`, whole words only |
+
+A rule may be a mapping: `{ rule: phone_e164, country_code: "1" }`, or `{ rule: address_canon, surface_forms: [{ form: "88 Summit Avenue", approved: true }] }`. A surface form is another writing of the expected value, such as an address without its town. It matches when it equals the observed text, ignoring case and spacing, and only once `approved: true`: a person signs it off, and an address without its town is approved only where the agent's own tool resolves it. `spec validate` warns `SLOT_FIELD_NO_RULE` on a phone, email or address compared with no rule, and `SURFACE_FORM_UNAPPROVED` on a form not approved.
 
 ### The value-check ladder
 
@@ -96,7 +109,7 @@ The calls the adapter recorded in the block, with their labels and inputs; the r
 
 ## Outputs and how to read them
 
-The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `exact_fallback` names a value no item settled, compared exactly, with every reason. The same decisions are data on the argument verdict, `valueCheck`: one entry per value a rung decided, `{ call, path, rung, outcome }`, absent when every value equalled the expected one. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
+The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. With a rule it also gives the raw and the normalised value: `notify_sales input.customer is holding at least {"phone":"+12025550131"} on 1 call: {"phone":"+1 202 555 0131"} (call 1; normalised by phone_e164: phone "+1 202 555 0131" read as "+12025550131")`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `exact_fallback` names a value no item settled, compared exactly, with every reason. The same decisions are data on the argument verdict, `valueCheck`: one entry per value a rung decided, `{ call, path, rung, outcome }`, absent when every value equalled the expected one. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
 
 ## Worked example
 
@@ -265,6 +278,10 @@ The first expectation fails on the exact fallback and names the deciders that wo
 * `tools.<label>.count` fails with `calls in this block: ...`: the adapter reports the tool under another label. Copy the label from that list.
 * `schema_strict.<label>.<n>` fails on a key the provider adds: declare it in the schema, or allow extra keys with `additionalProperties`.
 * A spec error naming `$ref`, `format` or another keyword: that schema keyword is not supported; inline the schema or drop the keyword.
+* `tools.<label>.input.<field>` fails on a value that is the same one written differently, such as `+1 202 555 0131` against `+12025550131`: add a `normalise` rule for that field.
+* `NORMALISE_INVALID` when the spec loads: the rule names a field with no assertion, a `regex`, `nonempty` or `absent` assertion, a path that holds no expected text, or surface forms beside an assertion that names more than one value.
+* `SLOT_FIELD_NO_RULE`, a `spec validate` warning: a tool input or an end state compares a phone, an email or an address with no `normalise` rule, so another writing of the same value fails. Add the rule the message names.
+* `SURFACE_FORM_UNAPPROVED`, a `spec validate` warning: a surface form is not `approved: true`, so it never matches. Approve it once a person has checked it, or remove it.
 * `tools_offered...` gating inconclusive: the adapter reports no offered list.
 * `sql.0` inconclusive: the golden query itself failed; check it on the database.
 * `tools.<label>.input.<field>` fails with `exact_fallback: no decider configured`, beside the `no_decider` lint: the value differs from the expected one and no replayer, contract, source or judge decides it. Configure a judge or a replayer from code, declare the format in `metadata.tool_schemas`, or write `compare: { exact: <reason> }` when the writing is the requirement.

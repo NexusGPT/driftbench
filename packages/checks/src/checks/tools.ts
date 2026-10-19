@@ -9,6 +9,7 @@ import {
   machineVerdict,
   objectContextOfSpec,
   resolveBlockObjects,
+  rulesFor,
   type Stimulus,
   sentStimulus,
   shippedObjectContext,
@@ -18,7 +19,7 @@ import {
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { initializeShippedObjects } from '../initialize';
-import { checkAssertion } from '../support/assert';
+import { checkAssertion, describeSteps } from '../support/assert';
 import { countAllows, describeCount, minimumOf } from '../support/count';
 import { entryKeys, isRecord, listed, plural, show, times } from '../support/values';
 import {
@@ -257,7 +258,8 @@ type Decision = NonNullable<Verdict['valueCheck']>[number];
 /**
  * One argument on every call of its tool. A value the block names goes through the value-check ladder; the
  * other assertion forms compare as written. The argument passes when every call passes, fails when one call
- * fails, and is inconclusive otherwise.
+ * fails, and is inconclusive otherwise. With a `normalise` rule on the argument, the raw and the normalised
+ * values both reach the evidence.
  */
 async function inputVerdict(
   key: string,
@@ -268,6 +270,7 @@ async function inputVerdict(
   const { tool, field } = values;
   const label = tool.label;
   const id = `${key}.input.${field}`;
+  const rules = rulesFor(tool.normalise, field);
   if (own.length === 0) {
     const { expected } = checkAssertion(undefined, assertion);
     return [
@@ -284,9 +287,11 @@ async function inputVerdict(
   let problem: string | undefined;
   for (const [index, call] of own.entries()) {
     const value = isRecord(call.input) ? call.input[field] : undefined;
-    const result = checkAssertion(value, assertion);
+    const result = checkAssertion(value, assertion, rules);
     expected = result.expected;
     problem = result.problem ?? problem;
+    const steps = describeSteps(result.steps);
+    if (steps !== '') notes.push(`call ${index + 1}${steps}`);
     const at = `call ${index + 1}${callId(call)}`;
     const answer = result.ok
       ? ({ outcome: 'pass' } as CallAnswer)
@@ -556,7 +561,7 @@ function argumentNote(expected: ToolExpect[], calls: ToolCall[]): string | undef
     if (!tool || !call || tool.label !== call.label) continue;
     for (const [field, assertion] of Object.entries(tool.input ?? {})) {
       const value = isRecord(call.input) ? call.input[field] : undefined;
-      const result = checkAssertion(value, assertion);
+      const result = checkAssertion(value, assertion, rulesFor(tool.normalise, field));
       if (!result.ok) {
         return `call ${index + 1} (${call.label}) input.${field}: expected ${result.expected}, saw ${show(value)}`;
       }

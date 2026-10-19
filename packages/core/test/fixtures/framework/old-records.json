@@ -1,10 +1,10 @@
 {
-  "note": "Run records as origin/main 79725ad8ba0ea7b7a6f9bc120f50f9e65db15233 writes them, by make-old-records.ts: every Acme conversation spec in modes T and F, the Acme agent, the shipped checks, no model call.",
+  "note": "Run records as 73c5c6defc016a18c2ae621bfad6e7ef2f684f43 (main 015bd6f34 with PR 434, before the F2 stamps) writes them, by make-old-records.ts: every Acme conversation spec in modes T and F, the Acme agent, the shipped checks, no model call.",
   "records": [
     {
-      "runId": "e983e44c85756d5c",
+      "runId": "4ab0b1544c58ede6",
       "specId": "acme-new-customer-coverage",
-      "specHash": "be195c993d4f",
+      "specHash": "698fc3743de6",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "T",
       "repeat": 0,
@@ -13,7 +13,7 @@
         {
           "index": 0,
           "givenHash": "a01d7186edf0",
-          "cacheKey": "block:8097ad6c05c82fb9ff9082af696759d860b244cb34abc9df01c87340ed046777",
+          "cacheKey": "block:f800fb890a694bb23019213e75e1489dfba81ec6d5b2b1535772d00b928e296c",
           "observed": {
             "segments": [
               {
@@ -168,7 +168,7 @@
         {
           "index": 1,
           "givenHash": "a1f9372484ae",
-          "cacheKey": "block:75575acda220ae2fdbabc91a8181c3715daec9e30c10f8a56fc2fda40eec3c43",
+          "cacheKey": "block:91f67da7674467133fb079e79e39b0c9a336b585f974e8d6d1a1843db96e771a",
           "observed": {
             "segments": [
               {
@@ -483,7 +483,7 @@
         {
           "index": 2,
           "givenHash": "3018692cc3f8",
-          "cacheKey": "block:b33684c53a27ce391f013695c081ac478379c1808f9d480bb529bb2788d02dfd",
+          "cacheKey": "block:8a5d8a6c742628651d9f06da0b980bfdea5296c368dfa2cc96cb4ee919939811",
           "observed": {
             "segments": [
               {
@@ -648,7 +648,7 @@
         {
           "index": 3,
           "givenHash": "3cb67bd23f6e",
-          "cacheKey": "block:d1f5d614a8b295df8bf7559e401a9734e9439ea3ea90ad029b01cf63d3b201e3",
+          "cacheKey": "block:f75acda166650d350d867a1f17c44f41aa698144f4a912f9c804eacb4ee40bde",
           "observed": {
             "segments": [
               {
@@ -743,7 +743,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550131\"} on 1 call: {\"phone\":\"+12025550131\"}"
+              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550131\"} on 1 call: {\"phone\":\"+12025550131\"} (call 1; normalised by phone_e164: phone \"+12025550131\" read as \"+12025550131\")"
             },
             {
               "id": "tools.notify_sales.input.summary",
@@ -751,7 +751,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.summary is containing \"88 Summit Avenue\" on 1 call: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\""
+              "evidence": "notify_sales input.summary is containing \"88 Summit Avenue\" on 1 call: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\" (call 1; normalised by address_canon: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\" read as \"new customer at 88 summit avenue acmeville wants fiber offered acme air 5g\")"
             },
             {
               "id": "tools.argument_accuracy",
@@ -888,7 +888,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550131\"}, expected holding at least {\"phone\":\"+12025550131\"}"
+              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550131\"}, expected holding at least {\"phone\":\"+12025550131\"}; normalised by phone_e164: phone \"+12025550131\" read as \"+12025550131\""
             },
             {
               "id": "ledger.phone",
@@ -919,9 +919,9 @@
       "cacheHit": false
     },
     {
-      "runId": "ae0bc0cdf9df9f4e",
+      "runId": "49156dd6361b05e4",
       "specId": "acme-new-customer-coverage",
-      "specHash": "be195c993d4f",
+      "specHash": "698fc3743de6",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "F",
       "repeat": 0,
@@ -930,7 +930,7 @@
         {
           "index": 0,
           "givenHash": "a01d7186edf0",
-          "cacheKey": "block:8097ad6c05c82fb9ff9082af696759d860b244cb34abc9df01c87340ed046777",
+          "cacheKey": "block:f800fb890a694bb23019213e75e1489dfba81ec6d5b2b1535772d00b928e296c",
           "observed": {
             "segments": [
               {
@@ -1085,7 +1085,7 @@
         {
           "index": 1,
           "givenHash": "67a35a34e041",
-          "cacheKey": "block:b03a0400ebe041cadbb3c3f2d4d054ead4ab020b019f3ddfe0295fa30c0f3620",
+          "cacheKey": "block:7938feb7981f244b09a44b7f6ea26eaef49c4dc236b1bd8d509b9b9e8e319fa7",
           "observed": {
             "segments": [
               {
@@ -1400,7 +1400,7 @@
         {
           "index": 2,
           "givenHash": "e9b3d3351607",
-          "cacheKey": "block:f87e1d597be5587a6925b26c4eec749a0b96437c5c9896280f1b0f585d204035",
+          "cacheKey": "block:aa8384101b0fda003f26a7aa74cbea00846e33a4d35123cae79abe2a97fa8b64",
           "observed": {
             "segments": [
               {
@@ -1565,7 +1565,7 @@
         {
           "index": 3,
           "givenHash": "291d929ebabb",
-          "cacheKey": "block:c82a81a6650103dc4289e5d993c4dc2fba3a700dc17f343698dc017aa10326c4",
+          "cacheKey": "block:68fdb0ebdb6ea5a22ab2f8b31eb3eb766230948e8acf8092578651e8e1d09084",
           "observed": {
             "segments": [
               {
@@ -1660,7 +1660,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550131\"} on 1 call: {\"phone\":\"+12025550131\"}"
+              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550131\"} on 1 call: {\"phone\":\"+12025550131\"} (call 1; normalised by phone_e164: phone \"+12025550131\" read as \"+12025550131\")"
             },
             {
               "id": "tools.notify_sales.input.summary",
@@ -1668,7 +1668,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.summary is containing \"88 Summit Avenue\" on 1 call: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\""
+              "evidence": "notify_sales input.summary is containing \"88 Summit Avenue\" on 1 call: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\" (call 1; normalised by address_canon: \"New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.\" read as \"new customer at 88 summit avenue acmeville wants fiber offered acme air 5g\")"
             },
             {
               "id": "tools.argument_accuracy",
@@ -1805,7 +1805,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550131\"}, expected holding at least {\"phone\":\"+12025550131\"}"
+              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550131\"}, expected holding at least {\"phone\":\"+12025550131\"}; normalised by phone_e164: phone \"+12025550131\" read as \"+12025550131\""
             },
             {
               "id": "ledger.phone",
@@ -1836,9 +1836,9 @@
       "cacheHit": false
     },
     {
-      "runId": "4676589b39465425",
+      "runId": "fd26bc91f327a79a",
       "specId": "acme-number-porting",
-      "specHash": "134c8e993f95",
+      "specHash": "90141899b92e",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "T",
       "repeat": 0,
@@ -1847,7 +1847,7 @@
         {
           "index": 0,
           "givenHash": "9654ec67e231",
-          "cacheKey": "block:f19161f1c68981ff0be3838fd12eb53bb3b180205d18ad25a067e1db7f48329f",
+          "cacheKey": "block:23932a2e193b6802156be8e079261d2b5b306d4845be4bb80f00e150c0e28db2",
           "observed": {
             "segments": [
               {
@@ -2000,7 +2000,7 @@
         {
           "index": 1,
           "givenHash": "8f7f142749ef",
-          "cacheKey": "block:e36d53e4c3945f65f8933fb325c9e7dbb78c61e46f374b73f79397656611c576",
+          "cacheKey": "block:e7637739873b6b8a816c7e9b52ca28eff2fd505f4b12c8ace59c90a38058fe9b",
           "observed": {
             "segments": [
               {
@@ -2148,7 +2148,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "port.check input.number is equal to \"+12025550150\" on 1 call: \"+12025550150\""
+              "evidence": "port.check input.number is equal to \"+12025550150\" on 1 call: \"+12025550150\" (call 1; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\")"
             },
             {
               "id": "tools.catalog.search.count",
@@ -2320,7 +2320,7 @@
         {
           "index": 2,
           "givenHash": "5db41107e376",
-          "cacheKey": "block:5bb7565688d4f1b6952ded00f1ed07b383cc6a90f9ec797f33d307c0c0416f8a",
+          "cacheKey": "block:47e0f26eafeda93b3f2bfd61ae452c63e4d9b7c020cfe48b9af40445c268a4bb",
           "observed": {
             "segments": [
               {
@@ -2487,7 +2487,7 @@
         {
           "index": 3,
           "givenHash": "80427797f3e1",
-          "cacheKey": "block:4773762cf5d480de7501def330d0f7cc57417f04507ccb1a229f70bd7271b1c3",
+          "cacheKey": "block:9e69127ff6d7bfe13657b4d7fd8afbc1f734e64da2df98bc22a5ab3e38364b89",
           "observed": {
             "segments": [
               {
@@ -2662,7 +2662,7 @@
         {
           "index": 4,
           "givenHash": "09729bbc84d9",
-          "cacheKey": "block:b1f7d4d82ef17bcb48ec518617984a27b1e7a4dcd028cd0f16a87834f3f9d295",
+          "cacheKey": "block:e9f436a75e1929e7aaf14149bcc0b21542df8132405e9da5b472387487540966",
           "observed": {
             "segments": [
               {
@@ -2790,7 +2790,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.port_number is equal to \"+12025550150\" on 1 call: \"+12025550150\""
+              "evidence": "order.create input.port_number is equal to \"+12025550150\" on 1 call: \"+12025550150\" (call 1; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\")"
             },
             {
               "id": "tools.order.create.input.customer",
@@ -2798,7 +2798,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.customer is exactly {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} on 1 call: {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"}"
+              "evidence": "order.create input.customer is exactly {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} on 1 call: {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} (call 1; normalised by email_lower: email \"dana.brooks@example.com\" read as \"dana.brooks@example.com\")"
             },
             {
               "id": "tools.order.create.input.address_id",
@@ -2935,7 +2935,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:order.create port_number is \"+12025550150\", expected equal to \"+12025550150\""
+              "evidence": "tool:order.create port_number is \"+12025550150\", expected equal to \"+12025550150\"; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\""
             },
             {
               "id": "ledger.plan_id",
@@ -2991,9 +2991,9 @@
       "cacheHit": false
     },
     {
-      "runId": "8f5541041b373b2e",
+      "runId": "59fdb2f229540c43",
       "specId": "acme-number-porting",
-      "specHash": "134c8e993f95",
+      "specHash": "90141899b92e",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "F",
       "repeat": 0,
@@ -3002,7 +3002,7 @@
         {
           "index": 0,
           "givenHash": "9654ec67e231",
-          "cacheKey": "block:f19161f1c68981ff0be3838fd12eb53bb3b180205d18ad25a067e1db7f48329f",
+          "cacheKey": "block:23932a2e193b6802156be8e079261d2b5b306d4845be4bb80f00e150c0e28db2",
           "observed": {
             "segments": [
               {
@@ -3155,7 +3155,7 @@
         {
           "index": 1,
           "givenHash": "49c2c0ad6b6d",
-          "cacheKey": "block:211df96ad6afd5b9cdc746a4ff9d374924dca897fe1539651052d7e0b06294f5",
+          "cacheKey": "block:d3f30fa26c98ce3445a0a2f2dad3c5e686aa34685e3b773e27ba8998c0257245",
           "observed": {
             "segments": [
               {
@@ -3303,7 +3303,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "port.check input.number is equal to \"+12025550150\" on 1 call: \"+12025550150\""
+              "evidence": "port.check input.number is equal to \"+12025550150\" on 1 call: \"+12025550150\" (call 1; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\")"
             },
             {
               "id": "tools.catalog.search.count",
@@ -3475,7 +3475,7 @@
         {
           "index": 2,
           "givenHash": "780c9a62611d",
-          "cacheKey": "block:ca87a72a087a12a81ca638e4acc9c25a2502cf0ed576c386b8c6bcabffdbf010",
+          "cacheKey": "block:3f5b77698696f71b0e11278130e812c1390e6a26dfb58db06a9f50fb2499d638",
           "observed": {
             "segments": [
               {
@@ -3642,7 +3642,7 @@
         {
           "index": 3,
           "givenHash": "8572fa026825",
-          "cacheKey": "block:770178402642442fb87fce7ce8706c7d1425b808abce57742157617033a312b7",
+          "cacheKey": "block:a1301742a11ef9c55a49aeedb460473bcf3e2091292d6ee83e39b682a9428742",
           "observed": {
             "segments": [
               {
@@ -3817,7 +3817,7 @@
         {
           "index": 4,
           "givenHash": "6abfaf460d06",
-          "cacheKey": "block:ca1d22cdf431e7522fe81b8265e2919646c47fc9d3b9a90b847842fa266c1576",
+          "cacheKey": "block:ea3b4ae071f130795b8de097d9ebaf00cf7a0b1359b47df305298215b4f272d1",
           "observed": {
             "segments": [
               {
@@ -3945,7 +3945,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.port_number is equal to \"+12025550150\" on 1 call: \"+12025550150\""
+              "evidence": "order.create input.port_number is equal to \"+12025550150\" on 1 call: \"+12025550150\" (call 1; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\")"
             },
             {
               "id": "tools.order.create.input.customer",
@@ -3953,7 +3953,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.customer is exactly {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} on 1 call: {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"}"
+              "evidence": "order.create input.customer is exactly {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} on 1 call: {\"name\":\"Dana Brooks\",\"email\":\"dana.brooks@example.com\"} (call 1; normalised by email_lower: email \"dana.brooks@example.com\" read as \"dana.brooks@example.com\")"
             },
             {
               "id": "tools.order.create.input.address_id",
@@ -4090,7 +4090,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:order.create port_number is \"+12025550150\", expected equal to \"+12025550150\""
+              "evidence": "tool:order.create port_number is \"+12025550150\", expected equal to \"+12025550150\"; normalised by phone_e164: \"+12025550150\" read as \"+12025550150\""
             },
             {
               "id": "ledger.plan_id",
@@ -6370,9 +6370,9 @@
       "cacheHit": false
     },
     {
-      "runId": "8b9dc7de942f41ae",
+      "runId": "b7ed0abd00504baf",
       "specId": "acme-order-loose-confirmation",
-      "specHash": "ae116e6312eb",
+      "specHash": "8b751231a29f",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "T",
       "repeat": 0,
@@ -6381,7 +6381,7 @@
         {
           "index": 0,
           "givenHash": "a01d7186edf0",
-          "cacheKey": "block:6aea00a6292b92b7d3a3d8e88b01645c5f26c513c9bd5c197042cc2edf387860",
+          "cacheKey": "block:c2f372ece0bf9c38bc08be4e60eab0a7932123783385e950bae0485d6102890d",
           "observed": {
             "segments": [
               {
@@ -6744,7 +6744,7 @@
         {
           "index": 1,
           "givenHash": "6d78120bd9af",
-          "cacheKey": "block:d0e44688ff3a14dd1c3bdc046d830842089ac2006cea45c4442b7fbc5039abb6",
+          "cacheKey": "block:e63a31a82f4e4b7d39c1c9494df97b9aba303948043e813fcf849e2444af867b",
           "observed": {
             "segments": [
               {
@@ -6931,7 +6931,7 @@
           "blockId": "loose-yes",
           "injected": true,
           "givenHash": "19037aad3e74",
-          "cacheKey": "block:1fb9c5493d8c768ef81017c7c316b6adb86c21ca6e557b369ac642af69ac8ead",
+          "cacheKey": "block:51f3b889188c70e82398d17cc876bb6ea56385a518bc19578c2b8a7e646f6a74",
           "observed": {
             "segments": [
               {
@@ -7135,7 +7135,7 @@
         {
           "index": 3,
           "givenHash": "4c630ef5cb37",
-          "cacheKey": "block:2d3d95fc7d2ee8a074568a83066fe7431cebb798a9f513be2b7b560df2997d9a",
+          "cacheKey": "block:e57fecbb1edcb9afdf3117523d5569fdd5a9d2f3be2c2584fbd4219de49edfe3",
           "observed": {
             "segments": [
               {
@@ -7281,7 +7281,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.customer is holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} on 1 call: {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}"
+              "evidence": "order.create input.customer is holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} on 1 call: {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} (call 1; normalised by email_lower: email \"jo.okafor@example.com\" read as \"jo.okafor@example.com\")"
             },
             {
               "id": "tools.order.create.input.port_number",
@@ -7442,7 +7442,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:order.create customer is {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}, expected holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}"
+              "evidence": "tool:order.create customer is {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}, expected holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}; normalised by email_lower: email \"jo.okafor@example.com\" read as \"jo.okafor@example.com\""
             },
             {
               "id": "end_state.port_number",
@@ -7506,9 +7506,9 @@
       "cacheHit": false
     },
     {
-      "runId": "b33724145e0a8911",
+      "runId": "6c751afcbeb7273a",
       "specId": "acme-order-loose-confirmation",
-      "specHash": "ae116e6312eb",
+      "specHash": "8b751231a29f",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "F",
       "repeat": 0,
@@ -7517,7 +7517,7 @@
         {
           "index": 0,
           "givenHash": "a01d7186edf0",
-          "cacheKey": "block:6aea00a6292b92b7d3a3d8e88b01645c5f26c513c9bd5c197042cc2edf387860",
+          "cacheKey": "block:c2f372ece0bf9c38bc08be4e60eab0a7932123783385e950bae0485d6102890d",
           "observed": {
             "segments": [
               {
@@ -7880,7 +7880,7 @@
         {
           "index": 1,
           "givenHash": "48fd9e27c9f4",
-          "cacheKey": "block:085a74e2d936779518393bad3d849a035b54dc2e7874e14833a305c67398f775",
+          "cacheKey": "block:11bc0336500314aa2c22e6fc965fb4b40e9e107ace53a7312545885965c6a072",
           "observed": {
             "segments": [
               {
@@ -8067,7 +8067,7 @@
           "blockId": "loose-yes",
           "injected": true,
           "givenHash": "c0229bced851",
-          "cacheKey": "block:3c26f7f698ffce1cef540a094848a17ba6de93c593242cfd0f0e18f0e249e170",
+          "cacheKey": "block:f69191b57a842e86b70c8d3b82f06a234ecb84c86e32a18c32b11f458a881cac",
           "observed": {
             "segments": [
               {
@@ -8271,7 +8271,7 @@
         {
           "index": 3,
           "givenHash": "90d8c17f8fb9",
-          "cacheKey": "block:b1d18945d5161eeff2665d6879e03a2fc172726730b6ae3545318f73b15889c3",
+          "cacheKey": "block:29a7680881f375c9b30ce54e016c7e3ff9e83ba646bd75c5599c5d3a3ca8947a",
           "observed": {
             "segments": [
               {
@@ -8417,7 +8417,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "order.create input.customer is holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} on 1 call: {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}"
+              "evidence": "order.create input.customer is holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} on 1 call: {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"} (call 1; normalised by email_lower: email \"jo.okafor@example.com\" read as \"jo.okafor@example.com\")"
             },
             {
               "id": "tools.order.create.input.port_number",
@@ -8578,7 +8578,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:order.create customer is {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}, expected holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}"
+              "evidence": "tool:order.create customer is {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}, expected holding at least {\"name\":\"Jo Okafor\",\"email\":\"jo.okafor@example.com\"}; normalised by email_lower: email \"jo.okafor@example.com\" read as \"jo.okafor@example.com\""
             },
             {
               "id": "end_state.port_number",
@@ -8642,9 +8642,9 @@
       "cacheHit": false
     },
     {
-      "runId": "6a402b958212918e",
+      "runId": "bc5d8d1c13c6de16",
       "specId": "acme-plan-upgrade",
-      "specHash": "5ae085d0b267",
+      "specHash": "3577d4c43a98",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "T",
       "repeat": 0,
@@ -8653,7 +8653,7 @@
         {
           "index": 0,
           "givenHash": "542a73a923ef",
-          "cacheKey": "block:1d454a6f4bead538eaebde97b0375e5b4265cd8b134c99373c49d0556a6995c4",
+          "cacheKey": "block:7d60046cbee40442bcfc764f1a70937b5cc0fa06d7221c890e00f0af78854ea2",
           "observed": {
             "segments": [
               {
@@ -8806,7 +8806,7 @@
         {
           "index": 1,
           "givenHash": "e9c04e0b4c1d",
-          "cacheKey": "block:b2f638e403c1b37a572349b99cf71172d894f3c187bfae26854006e15ebab28b",
+          "cacheKey": "block:ed07de444dafa0705295811c6d8672b1cf77c38b454d5262b68b8782fe0d9b8a",
           "observed": {
             "segments": [
               {
@@ -8944,7 +8944,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "catalog.search input.customer_email is equal to \"sam.rivera@example.com\" on 1 call: \"sam.rivera@example.com\""
+              "evidence": "catalog.search input.customer_email is equal to \"sam.rivera@example.com\" on 1 call: \"sam.rivera@example.com\" (call 1; normalised by email_lower: \"sam.rivera@example.com\" read as \"sam.rivera@example.com\")"
             },
             {
               "id": "tools.catalog.search.input.address_id",
@@ -9116,7 +9116,7 @@
         {
           "index": 2,
           "givenHash": "86ff35afaaaa",
-          "cacheKey": "block:d19fc197d2b6028250c1e0ff159356e999bebaca652935079d87c5893ad9cd30",
+          "cacheKey": "block:ee1bf6408b25480dc82ec743f8ad6d71144d1daed85957cba938677dc0dc37c1",
           "observed": {
             "segments": [
               {
@@ -9298,7 +9298,7 @@
         {
           "index": 3,
           "givenHash": "648b6ac8687b",
-          "cacheKey": "block:0ef6c10383cf10cb0a917117e785150043f0ff9534fa4de54f0010f54fed16b8",
+          "cacheKey": "block:0f2d73f69b2019ce9374101218f977c34e20e4fda24f4398b387ab7e0aac2969",
           "observed": {
             "segments": [
               {
@@ -9571,7 +9571,7 @@
         {
           "index": 4,
           "givenHash": "4932202b5df1",
-          "cacheKey": "block:1c5051005e8c40490ae4ee4a5130a84b25b798a2ffb737a65096ef16689b070f",
+          "cacheKey": "block:7a2e7a9218e843e593d9d15e85248b3300f1cc785ff2d4c2d2fcc5e8e30cebf7",
           "observed": {
             "segments": [{ "type": "text", "text": "You're welcome, Sam. Have a good day." }],
             "text": "You're welcome, Sam. Have a good day.",
@@ -9773,9 +9773,9 @@
       "cacheHit": false
     },
     {
-      "runId": "a66a7aba9986a136",
+      "runId": "1e37522e1bc1cb1f",
       "specId": "acme-plan-upgrade",
-      "specHash": "5ae085d0b267",
+      "specHash": "3577d4c43a98",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "F",
       "repeat": 0,
@@ -9784,7 +9784,7 @@
         {
           "index": 0,
           "givenHash": "542a73a923ef",
-          "cacheKey": "block:1d454a6f4bead538eaebde97b0375e5b4265cd8b134c99373c49d0556a6995c4",
+          "cacheKey": "block:7d60046cbee40442bcfc764f1a70937b5cc0fa06d7221c890e00f0af78854ea2",
           "observed": {
             "segments": [
               {
@@ -9937,7 +9937,7 @@
         {
           "index": 1,
           "givenHash": "9b8c8f961ee8",
-          "cacheKey": "block:d65542f835d4b6e28a1c44ab35a8c490efdc8c71383b253471cc1ced00732843",
+          "cacheKey": "block:9af23e788efe513f25753b264a9019cac843fe057c4b99151fdd773d80d264ec",
           "observed": {
             "segments": [
               {
@@ -10075,7 +10075,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "catalog.search input.customer_email is equal to \"sam.rivera@example.com\" on 1 call: \"sam.rivera@example.com\""
+              "evidence": "catalog.search input.customer_email is equal to \"sam.rivera@example.com\" on 1 call: \"sam.rivera@example.com\" (call 1; normalised by email_lower: \"sam.rivera@example.com\" read as \"sam.rivera@example.com\")"
             },
             {
               "id": "tools.catalog.search.input.address_id",
@@ -10247,7 +10247,7 @@
         {
           "index": 2,
           "givenHash": "eee71e84b317",
-          "cacheKey": "block:6e10b6275889c2ea05113aa5d04fff276c4b4425b7ac2a57feb726305c8c87c2",
+          "cacheKey": "block:b76911039a8d021ef1971c92267ab13055638c197286cc7bee7fe416f9a8ccea",
           "observed": {
             "segments": [
               {
@@ -10429,7 +10429,7 @@
         {
           "index": 3,
           "givenHash": "8d6a918f44f1",
-          "cacheKey": "block:76ece80cadd1c24940edaa6348443d12871095836e62661c4754e0c905683506",
+          "cacheKey": "block:2287c37bb8f058755fd29cd087b5038abf570c1571f6c922670c2e88b1930df9",
           "observed": {
             "segments": [
               {
@@ -10702,7 +10702,7 @@
         {
           "index": 4,
           "givenHash": "21c567efe489",
-          "cacheKey": "block:ef20e8465403259f1b9833d5094d64d9b5895fa8a0fb89287349c131e9e125b5",
+          "cacheKey": "block:dda9e1a5b960ee89d6a7725309cc8de66ad8822ceb2d89d697cac28ddf3418d3",
           "observed": {
             "segments": [{ "type": "text", "text": "You're welcome, Sam. Have a good day." }],
             "text": "You're welcome, Sam. Have a good day.",
@@ -10904,9 +10904,9 @@
       "cacheHit": false
     },
     {
-      "runId": "3a68584f042ebd3b",
+      "runId": "8575cccebf768f96",
       "specId": "acme-tool-failure",
-      "specHash": "e5bc5c9ba9d2",
+      "specHash": "9f55c5e3ba96",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "T",
       "repeat": 0,
@@ -10915,7 +10915,7 @@
         {
           "index": 0,
           "givenHash": "1f46512f21e9",
-          "cacheKey": "block:98d91bff7ee5856d4fa6015d42e4100b71db093fdc407837aa7dcbb34f592581",
+          "cacheKey": "block:78e752f4f569b575d83b3f4b33adae8307a9c4f936c4e5b4fcd6c77057cc8258",
           "observed": {
             "segments": [
               {
@@ -11179,7 +11179,7 @@
         {
           "index": 1,
           "givenHash": "412ab69dee8d",
-          "cacheKey": "block:43b9754ecb79f11e3a708759181f2018a75ab074531147fd342b3c0c5228f7e5",
+          "cacheKey": "block:75dbc8d5238c8cd74eb589669e442697b93de0a3d111dae9b2152487e3b3b2f2",
           "observed": {
             "segments": [
               {
@@ -11259,7 +11259,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550188\"} on 1 call: {\"phone\":\"+12025550188\"}"
+              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550188\"} on 1 call: {\"phone\":\"+12025550188\"} (call 1; normalised by phone_e164: phone \"+12025550188\" read as \"+12025550188\")"
             },
             {
               "id": "tools.notify_sales.input.summary",
@@ -11267,7 +11267,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.summary is containing \"7 Quarry Lane\" on 1 call: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\""
+              "evidence": "notify_sales input.summary is containing \"7 Quarry Lane\" on 1 call: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\" (call 1; normalised by address_canon: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\" read as \"coverage check failed for 7 quarry lane acmeville the customer wants home internet\")"
             },
             {
               "id": "tools.argument_accuracy",
@@ -11399,7 +11399,7 @@
         {
           "index": 2,
           "givenHash": "ed6fc4043a1b",
-          "cacheKey": "block:a0e88d9eaa5aa681d013661db2bc9c589311e6ca3612e1d61b9e2a14ddde6c92",
+          "cacheKey": "block:a01c24b64f36b8e2f3702c2b5c3a4afd1c987a3f499543627828830aeeba6980",
           "observed": {
             "segments": [
               {
@@ -11612,7 +11612,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550188\"}, expected holding at least {\"phone\":\"+12025550188\"}"
+              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550188\"}, expected holding at least {\"phone\":\"+12025550188\"}; normalised by phone_e164: phone \"+12025550188\" read as \"+12025550188\""
             }
           ],
           "stageObserved": "handover",
@@ -11635,9 +11635,9 @@
       "cacheHit": false
     },
     {
-      "runId": "c72578fc24c33e86",
+      "runId": "41bf11525cc11b50",
       "specId": "acme-tool-failure",
-      "specHash": "e5bc5c9ba9d2",
+      "specHash": "9f55c5e3ba96",
       "target": { "adapter": "function", "agent": "acme-sales" },
       "mode": "F",
       "repeat": 0,
@@ -11646,7 +11646,7 @@
         {
           "index": 0,
           "givenHash": "1f46512f21e9",
-          "cacheKey": "block:98d91bff7ee5856d4fa6015d42e4100b71db093fdc407837aa7dcbb34f592581",
+          "cacheKey": "block:78e752f4f569b575d83b3f4b33adae8307a9c4f936c4e5b4fcd6c77057cc8258",
           "observed": {
             "segments": [
               {
@@ -11910,7 +11910,7 @@
         {
           "index": 1,
           "givenHash": "cbff0b1e4720",
-          "cacheKey": "block:9a6aece93ef327d51e40aee64dd9513a3ceffd124c07c6e2bac5912865ef898a",
+          "cacheKey": "block:c4b22d4cd1daff60876b11648a97aed61496804206da5e0bd9ec0f9b58d3e6df",
           "observed": {
             "segments": [
               {
@@ -11990,7 +11990,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550188\"} on 1 call: {\"phone\":\"+12025550188\"}"
+              "evidence": "notify_sales input.customer is holding at least {\"phone\":\"+12025550188\"} on 1 call: {\"phone\":\"+12025550188\"} (call 1; normalised by phone_e164: phone \"+12025550188\" read as \"+12025550188\")"
             },
             {
               "id": "tools.notify_sales.input.summary",
@@ -11998,7 +11998,7 @@
               "name": "tools",
               "gating": true,
               "outcome": "pass",
-              "evidence": "notify_sales input.summary is containing \"7 Quarry Lane\" on 1 call: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\""
+              "evidence": "notify_sales input.summary is containing \"7 Quarry Lane\" on 1 call: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\" (call 1; normalised by address_canon: \"Coverage check failed for 7 Quarry Lane, Acmeville. The customer wants home internet.\" read as \"coverage check failed for 7 quarry lane acmeville the customer wants home internet\")"
             },
             {
               "id": "tools.argument_accuracy",
@@ -12130,7 +12130,7 @@
         {
           "index": 2,
           "givenHash": "1f95150f279e",
-          "cacheKey": "block:19f57b1e64ed025eec8f253633541aee790e0be3771838f5d912f220b2d2d170",
+          "cacheKey": "block:7848d93ed9e70bcf9bb3823ffbd19dd1a2992d7d05a2f584abd7552d0e4c2d1c",
           "observed": {
             "segments": [
               {
@@ -12343,7 +12343,7 @@
               "name": "end_state",
               "gating": true,
               "outcome": "pass",
-              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550188\"}, expected holding at least {\"phone\":\"+12025550188\"}"
+              "evidence": "tool:notify_sales customer is {\"phone\":\"+12025550188\"}, expected holding at least {\"phone\":\"+12025550188\"}; normalised by phone_e164: phone \"+12025550188\" read as \"+12025550188\""
             }
           ],
           "stageObserved": "handover",

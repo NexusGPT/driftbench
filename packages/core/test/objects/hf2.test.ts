@@ -3,6 +3,9 @@
 // give the stored verdicts: 0 changed verdicts, 0 runs whose pass flag changed. Since the value-check ladder
 // (block phase 1, V1) parity holds with every tool's values compared exactly (`compare: { exact }`), and with the
 // shipped default too: with no replayer and no judge, no rung decides a differing value, so it is compared exactly.
+// Since the block phase 1 oracle (PR 434) the Acme specs carry normalise rules, which the stored oracle never
+// read: parity runs on the Then without them (withoutNormaliseRules), and a third test keeps them and counts the
+// runs they flip.
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
@@ -15,7 +18,7 @@ import {
   shippedObjectContext,
 } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { BLOCKS, failedLikeStored, h1Context, h1Runs, multisetDiff } from './h1';
+import { BLOCKS, failedLikeStored, h1Context, h1Runs, multisetDiff, withoutNormaliseRules } from './h1';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..', '..');
@@ -69,7 +72,7 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
     for (const run of h1Runs()) {
       const def = BLOCKS[run.block];
       if (!def) throw new Error(run.block);
-      const ctx = h1Context(specs.get(def.spec) as Spec, def.index, run);
+      const ctx = asStored(h1Context(specs.get(def.spec) as Spec, def.index, run));
       const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
       const verdicts = await applyScoringPlan(plan, ctx);
       expect(
@@ -81,16 +84,54 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
     }
     expect(delta).toEqual([]);
   });
+
+  it('with the normalise rules of the specs kept, the same runs flip: stored failures that the rules now pass', async () => {
+    const runs = h1Runs();
+    expect(runs.length).toBe(259);
+    const flipped: string[] = [];
+    const worse: string[] = [];
+    for (const run of runs) {
+      const def = BLOCKS[run.block];
+      if (!def) throw new Error(run.block);
+      // The normal path: the Then as the spec writes it, rules included, values compared exactly.
+      const raw = h1Context(specs.get(def.spec) as Spec, def.index, run);
+      const ctx = { ...raw, expect: exactlyTools(raw.expect) };
+      const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
+      const failed = failedLikeStored(ctx, await applyScoringPlan(plan, ctx));
+      if (multisetDiff(run.exactFailed, failed) === 0) continue;
+      flipped.push(run.id);
+      if (failed.some((id) => !run.exactFailed.includes(id))) worse.push(run.id);
+    }
+    expect(flipped).toHaveLength(FLIPPED);
+    expect(worse).toEqual([]);
+  });
 });
 
-/** The context with every expected tool's values compared exactly, for a reason: today's verdicts. */
+/**
+ * The runs the specs' normalise rules (block phase 1 oracle, PR 434) score differently from the stored oracle:
+ * each one a stored failure that now fails on fewer verdicts.
+ */
+const FLIPPED = 97;
+
+/** The context with the Then as the stored oracle read it: no normalise rule. */
+function asStored(ctx: CheckContext): CheckContext {
+  return { ...ctx, expect: withoutNormaliseRules(ctx.expect) };
+}
+
+/**
+ * The context as the stored oracle read it, with every expected tool's values compared exactly, for a reason:
+ * today's verdicts.
+ */
 function exactly(ctx: CheckContext): CheckContext {
-  const expect: Expect = {
-    ...ctx.expect,
-    tools: ctx.expect.tools?.map((tool) => ({
+  return { ...ctx, expect: exactlyTools(withoutNormaliseRules(ctx.expect)) };
+}
+
+function exactlyTools(expect: Expect): Expect {
+  return {
+    ...expect,
+    tools: expect.tools?.map((tool) => ({
       ...tool,
       compare: { exact: 'HF2 parity with the stored oracle' },
     })),
   };
-  return { ...ctx, expect };
 }

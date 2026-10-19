@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   type CheckContext,
+  type Expect,
   isZero,
   type Observed,
   type Spec,
@@ -86,6 +87,16 @@ export function failedLikeStored(ctx: CheckContext, verdicts: readonly Verdict[]
       out.push(`${verdict.id.slice('forbidden.'.length)}.count0`);
   }
   return out;
+}
+
+/**
+ * The Then without its `normalise` rules. The stored oracle scored these runs before the Acme specs had rules
+ * (block phase 1 oracle, PR 434); a rule turns a run the oracle failed into a pass on purpose. Parity with the
+ * stored verdicts holds only on the Then as the oracle read it, so the parity tests take the rules out here,
+ * and HF2 checks that with the rules kept the same runs flip.
+ */
+export function withoutNormaliseRules(expect: Expect): Expect {
+  return { ...expect, tools: expect.tools?.map(({ normalise: _rule, ...tool }) => tool) };
 }
 
 export function multisetDiff(a: readonly string[], b: readonly string[]): number {
