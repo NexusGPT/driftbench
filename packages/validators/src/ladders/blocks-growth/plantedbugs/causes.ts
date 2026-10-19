@@ -73,6 +73,10 @@ export const CAUSES = {
     text: 'A snapshot stops only past 32 folder levels: a workspace exactly 32 levels deep is within the bounds.',
     contract: 'docs/adapters/process.md#Sandboxes',
   },
+  'snapshot-bytes-bound': {
+    text: 'A snapshot stops only past its byte bound: a workspace of exactly the bound is within it.',
+    contract: 'docs/adapters/process.md#Sandboxes',
+  },
   'export-at-the-bound': {
     text: 'An export fails only when the files pass `exportMaxBytes`: a workspace of exactly that size exports.',
     contract: 'docs/reference/block-contracts.md#The workspace of a child',

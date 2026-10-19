@@ -1,5 +1,6 @@
 import { between, canonical, load, loadIssues, type RawSpec, rngFor, type Turn } from '../../blocks/harness';
 import { type Action, type FileAction, plantedAgent } from '../../blocks/kinds';
+import { need, patched } from '../../blocks/product';
 import { type BlockDef, play, playP, type RunRecord, runLoaded, scenario } from '../../blocks-breaker/kit';
 import { exec } from '../checks/kit';
 import { type BankItem, CORE, type ItemContext, pitem, SANDBOX, show, tok } from './kit';
@@ -20,6 +21,8 @@ import { type BankItem, CORE, type ItemContext, pitem, SANDBOX, show, tok } from
  *   four digits is no grouping, so its comma counts.
  * - A snapshot stops past 32 folder levels (docs/adapters/process.md "Sandboxes"): a workspace exactly 32 levels
  *   deep is within the bounds.
+ * - A snapshot stops past its byte bound (docs/adapters/process.md "Sandboxes": 1 GiB hashed by default): a workspace of
+ *   exactly the bound is within it. The item sets a small bound on the local provider (`limits.maxBytes`).
  * - An export fails only when the files pass `exportMaxBytes` (docs/reference/block-contracts.md "The workspace of a
  *   child"): a parent's workspace of exactly that size exports.
  *
@@ -355,6 +358,84 @@ function depthItems(): BankItem[] {
   ];
 }
 
+/**
+ * The product with a byte bound of `maxBytes` on every local sandbox's snapshot, so the bound is reachable with a
+ * workspace of a few kilobytes (the lead's ruling: a small bound, never a huge workspace). The local provider takes
+ * it as `limits.maxBytes`.
+ */
+function withByteBound(product: ItemContext['product'], maxBytes: number): ItemContext['product'] {
+  const localProvider = need<(options: Record<string, unknown>) => unknown>(
+    product.sandbox,
+    'sandbox',
+    'localProvider',
+  );
+  return patched(product, {
+    name: product.name,
+    sandbox: {
+      localProvider: (options: Record<string, unknown>) =>
+        localProvider({ ...options, limits: { ...((options.limits as object) ?? {}), maxBytes } }),
+    },
+  });
+}
+
+function byteBoundItems(): BankItem[] {
+  return [
+    pitem(
+      'pb.snapshot-bytes.at-the-bound',
+      3,
+      2,
+      SANDBOX,
+      'snapshot-bytes-bound',
+      "a workspace of exactly the snapshot's byte bound is within it: the run completes and the files are created; one byte below completes too, and one byte past it the agent left a workspace past the bounds and the run fails",
+      async (ctx) => {
+        const tag = 'snapshot-bytes';
+        const rng = rngFor(ctx.seed, `pb:${tag}:size`);
+        const bound = between(rng, 600, 4000);
+        const product = withByteBound(ctx.product, bound);
+        const runAt = async (total: number, slot: string) => {
+          const w = (name: string) => tok(ctx, `${tag}:${slot}`, name, 7);
+          const first = between(rng, 1, total - 1);
+          const paths = [`${w('d')}/${w('a')}.txt`, `${w('b')}.txt`];
+          const files: FileAction[] = [
+            { path: paths[0] as string, format: 'txt', data: 'a'.repeat(first) },
+            { path: paths[1] as string, format: 'txt', data: 'b'.repeat(total - first) },
+          ];
+          const marker = tok(ctx, `${tag}:${slot}`, 'marker', 9);
+          const raw: RawSpec = {
+            id: tok(ctx, `${tag}:${slot}`, 'spec', 9),
+            kind: 'task',
+            blocks: [
+              {
+                id: tok(ctx, `${tag}:${slot}`, 'block', 6),
+                user: marker,
+                expect: { workspace: { created: paths } },
+              },
+            ],
+          };
+          // The agent removes the history file the adapter hands it, so the workspace holds its own files alone.
+          const action: Action = { reply: 'Done.', files, deletes: ['driftbench-history.json'] };
+          const agent = plantedAgent(product, 'code', new Map([[marker, action]]), { scratch: ctx.scratch });
+          return runLoaded(product, load(product, raw), agent.adapter);
+        };
+        const at = await runAt(bound, 'at');
+        const below = await runAt(bound - 1, 'below');
+        const past = await runAt(bound + 1, 'past');
+        return [
+          at.status !== 'completed' &&
+            `a workspace of exactly the byte bound (${bound} bytes) is within the bounds: the run should complete; it is ${at.status} ${show(at.error ?? '')}`,
+          at.status === 'completed' &&
+            outcomeIn(at, 0, 'workspace.created') !== 'pass' &&
+            `workspace.created naming the files of exactly ${bound} bytes should pass; it is ${outcomeIn(at, 0, 'workspace.created')}`,
+          below.status !== 'completed' &&
+            `a workspace one byte under the bound is within the bounds: the run should complete; it is ${below.status}`,
+          past.status !== 'failed' &&
+            `a workspace one byte past the bound (${bound + 1} bytes) is past the bounds: the run should fail; it is ${past.status}`,
+        ];
+      },
+    ),
+  ];
+}
+
 function exportBoundItems(): BankItem[] {
   return [
     pitem(
@@ -430,6 +511,7 @@ export function round2Items(): BankItem[] {
     ...countRangeItems(),
     ...exactGroupingItems(),
     ...depthItems(),
+    ...byteBoundItems(),
     ...exportBoundItems(),
   ];
 }
