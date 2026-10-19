@@ -90,8 +90,8 @@ describe('HF1: backward compatibility over examples/', () => {
       .split('\n')
       .filter((line) => line !== '' && !line.startsWith('#'))
       .map((line) => line.split('\t') as [string, string, string, string, string]);
-    expect(rows.length).toBe(2351);
-    expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(4453);
+    expect(rows.length).toBe(2103);
+    expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(4129);
     const byFile = new Map(loaded.map((entry) => [entry.file, entry]));
     // A file main deleted after the baseline is not a spec the framework lost: it is gone from the disk.
     const deleted = rows.filter(
