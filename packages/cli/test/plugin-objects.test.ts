@@ -72,12 +72,17 @@ describe('the plugin API of the rules framework', () => {
       const path = join(FIXTURE, SPEC);
       const loaded = await loadSpecFile(path);
       if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
-      const used = resolveBlockObjects(loaded.spec, 0, objectContextFor(path)).map((use) => [
-        use.key,
-        use.setAt,
-        use.object.ref,
-        use.object.items.map((item) => [item.id, item.impl, item.params]),
-      ]);
+      const uses = resolveBlockObjects(loaded.spec, 0, objectContextFor(path));
+      // The shipped value-check policy applies to every block; the spec sets the other two.
+      expect(uses.filter((use) => use.setAt === 'shipped').map((use) => use.key)).toEqual(['value_check']);
+      const used = uses
+        .filter((use) => use.setAt !== 'shipped')
+        .map((use) => [
+          use.key,
+          use.setAt,
+          use.object.ref,
+          use.object.items.map((item) => [item.id, item.impl, item.params]),
+        ]);
       expect(used).toEqual([
         ['check_set', 'spec', 'check-set:acme@f0458f5f', [['tone', 'plugin:acme-tone', { tone: 'warm' }]]],
         [
