@@ -1,8 +1,16 @@
 # Stats validator: where the gate stands
 
+## The recorded bar
+
+Max score after the pilot: 0.85
+Min forecast: 9
+Min distinct failing causes: 80
+
+The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The lead ruled this bar for the statistics validator on 2026-10-18; it is the bar PR 857 records for ladder version 3, with its measurement and reason (`docs/validators.md` section 12.9 there). A bar lowers only the terms of section 12.4; the independent audit of section 12.7 is not lowered, and its four checks are pending for this bank ([audit.md](audit.md)).
+
 ## Current gate review, 2026-10-18 evening
 
-The gate is **not met**. The bank has 1166 items: the 928 earlier items (the 922 below and six clopperPearson extreme-alpha items) and 119 new capabilities the package does not have (238 items, one cause each, defined in `docs/statistics/`). The 27 new capabilities that repeated roadmap methods were left out, so no cause counts twice. A domain item now also requires the function to accept its valid cases: a library that throws a `RangeError` on every call passes none of them. Each of the 119 functions has a values item that fails on a 0.2 percent nudge and on a throw, and a domain item that fails on a throw ([evidence](evidence/newcaps-sensitivity.md)).
+The gate is **not met**: the audit is pending. The bank has 1166 items: the 928 earlier items (the 922 below and six clopperPearson extreme-alpha items) and 119 new capabilities the package does not have (238 items, one cause each, defined in `docs/statistics/`). The 27 new capabilities that repeated roadmap methods were left out, so no cause counts twice. A domain item now also requires the function to accept its valid cases: a library that throws a `RangeError` on every call passes none of them. Each of the 119 functions has a values item that fails on a 0.2 percent nudge and on a throw, and a domain item that fails on a throw ([evidence](evidence/newcaps-sensitivity.md)).
 
 The new capabilities form the last level of the ladder, `capabilities` (level 8), so a missing capability never hides a regression in levels 1 to 7, and the floor of 7 keeps its meaning. Two classification functions (`youdenIndex`, `markedness`) were added after the pilot so that no family is under 20 items.
 
@@ -12,14 +20,14 @@ The new capabilities form the last level of the ladder, `capabilities` (level 8)
 
 Pilot rounds 11 to 20 ran on the bank before those two functions (1162 items, bank hash `eff677df`), from the product of the earlier pilot's round 10 ([evidence](evidence/pilot-rounds-11-20.md)):
 
-| Measure | Rounds 11 to 20 | Section 12.4 contract | Provisional bar below |
+| Measure | Rounds 11 to 20 | Section 12.4 contract | Recorded bar above |
 |---|---|---|---|
-| Forecast | 216 / 1.9 = 113.7 iterations | At least 100: **holds** | At least 70: **holds** |
-| Score after the pilot | 946 / 1162 = 0.8141 | At most 0.4: **fails** | At most 0.7: **fails** |
-| Distinct failing causes | 108 | At least 100: **holds** | At least 60: **holds** |
-| Independent audit | four checks pending | **Not met** | **Not met** |
+| Forecast | 216 / 1.9 = 113.7 iterations | At least 100: **holds** | At least 9: **holds** |
+| Score after the pilot | 946 / 1162 = 0.8141 | At most 0.4: **fails** | At most 0.85: **holds** |
+| Distinct failing causes | 108 | At least 100: **holds** | At least 80: **holds** |
+| Independent audit | four checks pending | **Not met** | **Not met** (not lowered) |
 
-The score bar fails because 927 items already pass on the pilot's product. The journal is unchanged: its rows describe the historical 651-item bank, and the pilot's referee rows are in the evidence folder.
+The contract's score term fails because 927 items already pass on the pilot's product; the recorded bar holds on all three terms. The pilot ran from the feed in an executor folder, not as the blind pilot of section 12.7. The journal is unchanged: its rows describe the historical 651-item bank, and the pilot's referee rows are in the evidence folder.
 
 ## Earlier gate review, 2026-10-18 morning
 
@@ -51,13 +59,9 @@ A fresh seed-1 `--items --json` run passes all 922 items at level 7. The measure
 
 The expanded 910-item bank has no measured pilot score, forecast or pilot failing-cause count. Passing capability tests do not supply those measurements. Neither column licenses merging this bank.
 
-## The recorded provisional bar
+## The earlier provisional bar (history)
 
-Max score after the pilot: 0.7
-Min forecast: 70
-Min distinct failing causes: 60
-
-These are the existing per-validator provisional terms, retained rather than lowered again. Their original reason is the historical forecast of 73.21, score of 0.6851 and 62 failing causes. They describe what the historical pilot meets, not what the expanded bank meets. The owner requires capability additions first; the six additions above satisfy that order without padding causes or changing the global contract. A fresh matching-bank pilot and independent audit remain necessary before any current-bank gate claim.
+The bar before 2026-10-18 evening: score after the pilot at most 0.7, forecast at least 70, at least 60 distinct failing causes. These were the per-validator provisional terms, retained rather than lowered again. Their original reason is the historical forecast of 73.21, score of 0.6851 and 62 failing causes. They describe what the historical pilot meets, not what the expanded bank meets. The owner requires capability additions first; the six additions above satisfy that order without padding causes or changing the global contract. A fresh matching-bank pilot and independent audit remain necessary before any current-bank gate claim.
 
 The hardness command compares the live bank fingerprint with the journal rows. A mismatched fingerprint is stale; a missing fingerprint is unverified. Both block the gate while preserving the historical figures for inspection. The journal remains unchanged. [audit.md](audit.md) records the four pending checks, and [the evidence report](evidence/gate-review.md) records tests and per-export mutation witnesses.
 

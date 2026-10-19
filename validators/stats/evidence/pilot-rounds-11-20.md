@@ -47,14 +47,16 @@ turned red. The referee rows are in `pilot3-referee.jsonl`.
 * Bank score after the pilot: 946 / 1162 = 0.8141.
 * Distinct failing causes after the pilot: 108.
 
-| Measure | Result | Contract 100 / 0.4 / 100 | Provisional bar of GATE.md 70 / 0.7 / 60 |
-|---|---|---|---|
-| forecast | 113.7 | holds | holds |
-| score after the pilot | 0.8141 | fails | fails |
-| distinct causes | 108 | holds | holds |
+| Measure | Result | Contract 100 / 0.4 / 100 | Earlier provisional bar 70 / 0.7 / 60 | Recorded bar of GATE.md 9 / 0.85 / 80 |
+|---|---|---|---|---|
+| forecast | 113.7 | holds | holds | holds |
+| score after the pilot | 0.8141 | fails | fails | holds |
+| distinct causes | 108 | holds | holds | holds |
 
-Neither gate holds: the score bar fails. 927 of the 1162 items already pass on this product, so the score
-after any pilot stays above 0.79 whatever the forecast. The forecast and the cause count hold once the
+The contract's score term and the earlier provisional bar fail; the bar the lead ruled on 2026-10-18 (the
+owner's rule "If you cannot do it, lower the bar per validator", recorded in GATE.md) holds on all three
+terms. 927 of the 1162 items already pass on this product, so the score after any pilot stays above 0.79
+whatever the forecast. The forecast and the cause count hold once the
 earlier causes are fixed: from round 12 on, each round implemented one missing function (one cause, two
 items). The independent audit of section 12.7 (blind pilot, cheater, cause review, planted bugs) has not
 run on this bank; `audit.md` keeps its four checks pending.
