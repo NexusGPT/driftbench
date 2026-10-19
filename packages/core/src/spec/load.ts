@@ -15,6 +15,7 @@ import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
+import { resolveSpecParents } from './spec-parents';
 
 // The callback reader avoids FileHandle wrapper overhead for the many small spec files.
 const readFile = promisify(readFileCallback);
@@ -189,7 +190,8 @@ export async function findSpecFiles(paths: string[]): Promise<string[]> {
 /** Loads every spec found under the given files and folders. */
 export async function loadSpecs(paths: string[]): Promise<LoadResult[]> {
   const files = await findSpecFiles(paths);
-  return Promise.all(files.map((file) => loadSpecFile(file)));
+  // A block 0 that starts from another spec's block is written out over the specs loaded together.
+  return resolveSpecParents(await Promise.all(files.map((file) => loadSpecFile(file))), validateSpec);
 }
 
 // `_driftbench` holds a suite's object files, never specs.
