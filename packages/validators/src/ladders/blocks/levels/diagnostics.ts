@@ -1,5 +1,6 @@
 import {
   between,
+  initialize,
   list,
   pick,
   type RawSpec,
@@ -7,6 +8,7 @@ import {
   type RunRecord,
   rngFor,
   run,
+  shuffleKeys,
   statusOf,
 } from '../harness';
 import { plantedAgent, token } from '../kinds';
@@ -458,6 +460,82 @@ const DIAGNOSTIC_SETS = [
 ];
 const DISPOSITION_ENUM = new Set(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned']);
 const CONFIDENCE_ENUM = new Set(['static', 'undecided', 'confirmed']);
+/**
+ * The policies each shipped diagnostic reads (docs/reference/blame.md, the diagnostics' steps): both attribute
+ * with policy/blame, and code-agent-liability places with policy/placement.
+ */
+const DIAGNOSTIC_READS: Record<string, string[]> = {
+  'code-agent-liability': ['policy/blame', 'policy/placement'],
+  'value-mismatch': ['policy/blame'],
+};
+
+type Issue = { path?: string; code?: string; message?: string };
+
+/** The loader's answer to a raw spec whose keys come in a seeded order: ok, or its issues. */
+function loaderAnswer(product: BlocksProduct, raw: unknown, rng: Rng): { ok: boolean; errors: Issue[] } {
+  initialize(product);
+  const validateSpec = need<(raw: unknown, path?: string) => { ok?: boolean; errors?: Issue[] }>(
+    product.core,
+    'core',
+    'validateSpec',
+  );
+  const result = validateSpec(shuffleKeys(raw, rng), 'blocks:diagnostics');
+  return { ok: result.ok === true, errors: result.errors ?? [] };
+}
+
+/**
+ * The twins a loader must refuse (docs/reference/spec.md "Uses", docs/concepts/block.md, block-contracts.md
+ * "Unknown parent"): a diagnostic id no layer defines (OBJECT_UNKNOWN at uses.diagnostics, the message naming
+ * the id), an unknown key beside diagnostics (SCHEMA_UNRECOGNIZED_KEYS at uses, `unknown key: <key>`), and
+ * diagnostics written as one string, not a list of ids (SCHEMA_INVALID_TYPE at uses.diagnostics). `undefined`
+ * when the loader refuses each, else what it did.
+ */
+function refusedTwins(
+  product: BlocksProduct,
+  raw: RawSpec,
+  set: readonly string[],
+  seed: number,
+  id: string,
+): string | undefined {
+  const unknownId = token(seed, `${id}#unknown-diagnostic`, 8);
+  const unknownKey = token(seed, `${id}#unknown-key`, 8);
+  const twins = [
+    {
+      what: `diagnostics naming ${unknownId}, which no layer defines`,
+      uses: { diagnostics: [...set, unknownId] },
+      code: 'OBJECT_UNKNOWN',
+      place: 'uses.diagnostics',
+      names: [unknownId],
+    },
+    {
+      what: `an unknown key ${unknownKey} beside diagnostics`,
+      uses: { diagnostics: [...set], [unknownKey]: [...set] },
+      code: 'SCHEMA_UNRECOGNIZED_KEYS',
+      place: 'uses',
+      names: [unknownKey],
+    },
+    {
+      what: 'diagnostics written as one string, not a list',
+      uses: { diagnostics: set.join(',') },
+      code: 'SCHEMA_INVALID_TYPE',
+      place: 'uses.diagnostics',
+      names: [],
+    },
+  ];
+  const rng = rngFor(seed, `${id}#twins`);
+  for (const twin of twins) {
+    const answer = loaderAnswer(product, { ...raw, uses: twin.uses }, rng);
+    const issue = answer.errors.find(
+      (each) =>
+        each.code === twin.code &&
+        (each.path === twin.place || (each.path ?? '').startsWith(`${twin.place}.`)) &&
+        twin.names.every((name) => (each.message ?? '').includes(name)),
+    );
+    if (issue === undefined)
+      return `a spec with ${twin.what} should be refused with ${twin.code} at ${twin.place}${twin.names.length > 0 ? ` naming ${list(twin.names)}` : ''}; the loader answered ${answer.ok ? 'ok' : list(answer.errors.map((each) => `${each.path ?? ''} ${each.code ?? ''}`))}`;
+  }
+  return undefined;
+}
 
 /** A diagnosis explains, attributes or measures; it never changes a verdict or `pass`. */
 function invarianceItems(): BankItem[] {
@@ -489,7 +567,7 @@ function invarianceItems(): BankItem[] {
         tier: shape.tier,
         level: 5,
         component: DIAGNOSTICS,
-        title: `running the diagnostics ${set.join(' and ')} on a ${shape.id.replace(/-/g, ' ')} spec leaves every verdict and pass as it was, and every diagnosis names its diagnostic, a failing verdict of its block, and a documented disposition and confidence`,
+        title: `running the diagnostics ${set.join(' and ')} on a ${shape.id.replace(/-/g, ' ')} spec leaves every verdict and pass as it was, every block lists them in resolved, every diagnosis names its diagnostic, a failing verdict of its block, and a documented disposition and confidence, and the loader refuses diagnostics naming an unknown id, beside an unknown key or not a list`,
         cause:
           'Diagnostics run after the checks, write diagnoses on failing verdicts, and never change a verdict or pass.',
         check: async ({ seed, product }) => {
@@ -511,8 +589,29 @@ function invarianceItems(): BankItem[] {
             );
           if (project(plain) !== project(diagnosed))
             return fail('the diagnostics changed a verdict or a pass');
+          const reads = [...new Set(set.flatMap((name) => DIAGNOSTIC_READS[name] ?? []))];
           for (const block of diagnosed.blocks) {
             const failing = new Set(failingIds(block));
+            // The block reads what the spec loaded: resolved lists each diagnostic of uses.diagnostics, chosen at
+            // the spec layer, and the policies those diagnostics read (running.md, "Run records").
+            const objects =
+              (block as { resolved?: { objects?: { kind?: string; id?: string; setAt?: string }[] } })
+                .resolved?.objects ?? [];
+            const shown = list(objects.map((object) => `${object.kind}:${object.id}@${object.setAt}`));
+            for (const name of set)
+              if (
+                !objects.some(
+                  (object) => object.kind === 'diagnostic' && object.id === name && object.setAt === 'spec',
+                )
+              )
+                return fail(
+                  `block ${block.index} runs with uses.diagnostics ${list(set)} and its resolved objects (${shown}) list no diagnostic ${name} set at the spec layer`,
+                );
+            for (const kind of reads)
+              if (!objects.some((object) => object.kind === kind))
+                return fail(
+                  `block ${block.index} ran ${list(set)}, which read ${kind}, and its resolved objects (${shown}) do not list it`,
+                );
             // code-agent-liability attributes every root of a failing chain, its last item `unassigned` matching
             // always (blame.md, policy/blame:default): a spec whose uses is kept and ignored writes no diagnosis.
             const written = (block as { diagnoses?: unknown[] }).diagnoses ?? [];
@@ -528,8 +627,13 @@ function invarianceItems(): BankItem[] {
                 confidence?: string;
                 by?: unknown;
               };
-              if (!/^diagnostic:[A-Za-z0-9][A-Za-z0-9._/-]*@[0-9a-f]{8}$/.test(d.diagnostic ?? ''))
-                return fail(`a diagnosis of block ${block.index} names the diagnostic "${d.diagnostic}"`);
+              const named = /^diagnostic:([A-Za-z0-9][A-Za-z0-9._/-]*)@[0-9a-f]{8}$/.exec(
+                d.diagnostic ?? '',
+              )?.[1];
+              if (named === undefined || !set.includes(named))
+                return fail(
+                  `a diagnosis of block ${block.index} names the diagnostic "${d.diagnostic}", not one of ${list(set)}`,
+                );
               if (d.verdictRef !== undefined && !failing.has(d.verdictRef))
                 return fail(
                   `a diagnosis of block ${block.index} is about ${d.verdictRef}, which is no failing verdict of that block`,
@@ -542,7 +646,9 @@ function invarianceItems(): BankItem[] {
                 return fail(`a diagnosis of block ${block.index} names no producer (no by)`);
             }
           }
-          return PASS;
+          // The twins: the same spec with diagnostics the docs refuse. A loader that accepts anything fails here.
+          const refused = refusedTwins(product, raw, set, seed, id);
+          return refused === undefined ? PASS : fail(refused);
         },
       });
     }

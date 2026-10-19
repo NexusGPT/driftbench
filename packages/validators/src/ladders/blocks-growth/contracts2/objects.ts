@@ -876,12 +876,69 @@ function usesItems(): BankItem[] {
       LEVEL,
       RUNNER,
       'uses-hash',
-      'a change to uses gives another spec hash and another run id, and the same uses twice gives the same spec hash',
+      'a change to uses gives another spec hash and another run id, the same uses twice gives the same spec hash, the verdicts name the check set the spec loaded, and a uses naming an unknown object, an unknown key or an unknown item is refused',
       async (ctx) => {
         const tailored = { extends: 'default', items: [{ id: 'lang', enabled: false }] };
         const plain = await run(ctx.product, toolSpec(ctx, 'run-id'), answering(ctx));
         const tuned = await run(ctx.product, toolSpec(ctx, 'run-id', tailored), answering(ctx));
         const again = await run(ctx.product, toolSpec(ctx, 'run-id', tailored), answering(ctx));
+        // The run reads what the spec loaded: an inline check set in the spec uses is `check-set:(spec)@hash8`,
+        // and every check-set verdict of the tuned run names it; the plain run keeps check-set:default
+        // (block-contracts.md, "Verdict.by").
+        const stamps = (record: RunRecord) => [
+          ...new Set(
+            record.blocks.flatMap((block) =>
+              block.verdicts
+                .map((verdict) => (verdict.by as { object?: unknown } | undefined)?.object)
+                .filter(
+                  (object): object is string => typeof object === 'string' && object.startsWith('check-set:'),
+                ),
+            ),
+          ),
+        ];
+        const [plainStamps, tunedStamps] = [stamps(plain), stamps(tuned)];
+        // The twins: the same spec with a uses the docs refuse (block-contracts.md "Unknown parent", spec.md
+        // "Uses", block.md: an unknown key). A loader that accepts anything fails here.
+        const unknownId = tok(ctx, 'run-id', 'unknown-id', 9);
+        const unknownKey = tok(ctx, 'run-id', 'unknown-key', 8);
+        const unknownItem = tok(ctx, 'run-id', 'unknown-item', 8);
+        const base = toolSpec(ctx, 'run-id');
+        const twins = [
+          {
+            what: `a check set id ${unknownId} no layer defines`,
+            uses: { check_set: unknownId },
+            code: 'OBJECT_UNKNOWN',
+            place: 'uses.check_set',
+            name: unknownId,
+          },
+          {
+            what: `an unknown key ${unknownKey} beside check_set`,
+            uses: { check_set: tailored, [unknownKey]: tailored },
+            code: 'SCHEMA_UNRECOGNIZED_KEYS',
+            place: 'uses',
+            name: unknownKey,
+          },
+          {
+            what: `a check set item ${unknownItem} the parent does not hold`,
+            uses: { check_set: { extends: 'default', items: [{ id: unknownItem, enabled: false }] } },
+            code: 'OBJECT_ITEM_UNKNOWN',
+            place: 'uses.check_set',
+            name: unknownItem,
+          },
+        ];
+        const refusals = twins.map((twin) => {
+          const answer = loaderErrors(ctx, { ...base, uses: twin.uses });
+          const issue = answer.errors.find(
+            (each) =>
+              each.code === twin.code &&
+              (each.path === twin.place || (each.path ?? '').startsWith(`${twin.place}.`)) &&
+              (each.message ?? '').includes(twin.name),
+          );
+          return unless(
+            issue !== undefined,
+            `a spec with ${twin.what} should be refused with ${twin.code} at ${twin.place} naming ${twin.name}; the loader answered ${answer.ok ? 'ok' : show(answer.errors.map((each) => `${each.path ?? ''} ${each.code ?? ''}`))}`,
+          );
+        });
         return [
           unless(plain.specHash !== tuned.specHash, 'a change to uses left the spec hash as it was'),
           unless(
@@ -892,6 +949,16 @@ function usesItems(): BankItem[] {
             tuned.specHash === again.specHash,
             `the same uses twice gave two spec hashes: ${tuned.specHash}, ${again.specHash}`,
           ),
+          unless(
+            plainStamps.length > 0 &&
+              plainStamps.every((object) => /^check-set:default@[0-9a-f]{8}$/.test(object)),
+            `the verdicts of the run with no uses should name check-set:default@hash8; they name ${show(plainStamps)}`,
+          ),
+          unless(
+            tunedStamps.length === 1 && /^check-set:\(spec\)@[0-9a-f]{8}$/.test(tunedStamps[0] ?? ''),
+            `the verdicts of the run whose spec uses an inline check set should all name check-set:(spec)@hash8; they name ${show(tunedStamps)}`,
+          ),
+          ...refusals,
         ];
       },
     ),
