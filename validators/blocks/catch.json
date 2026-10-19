@@ -895,6 +895,158 @@
     {
       "id": "scale/bootstrap-interval/100x",
       "guards": "budget:bootstrap-interval"
+    },
+    {
+      "id": "pb.canonical.max-only-beside-range",
+      "guards": "bug:canonical"
+    },
+    {
+      "id": "pb.canonical.max-only-beside-exact-and-bare",
+      "guards": "bug:canonical"
+    },
+    {
+      "id": "pb.canonical.max-only-over-two-blocks",
+      "guards": "bug:canonical"
+    },
+    {
+      "id": "pb.ledger-add.replaces-given",
+      "guards": "bug:ledger-add"
+    },
+    {
+      "id": "pb.ledger-add.replaces-given-mode-t",
+      "guards": "bug:ledger-add"
+    },
+    {
+      "id": "pb.ledger-add.replaces-earlier-add",
+      "guards": "bug:ledger-add"
+    },
+    {
+      "id": "pb.ledger-add.replaces-block-given",
+      "guards": "bug:ledger-add"
+    },
+    {
+      "id": "pb.ledger-add.same-block-replaces",
+      "guards": "bug:ledger-add"
+    },
+    {
+      "id": "pb.workspace-from.spec.plain-not-spec-folder",
+      "guards": "bug:workspace-from"
+    },
+    {
+      "id": "pb.workspace-from.spec.plain-from-run-folder",
+      "guards": "bug:workspace-from"
+    },
+    {
+      "id": "pb.workspace-from.block.plain-not-spec-folder",
+      "guards": "bug:workspace-from"
+    },
+    {
+      "id": "pb.workspace-from.block.plain-from-run-folder",
+      "guards": "bug:workspace-from"
+    },
+    {
+      "id": "pb.workspace-from.seed.plain-from-run-folder",
+      "guards": "bug:workspace-from"
+    },
+    {
+      "id": "pb.snapshot.node-modules-in-a-folder",
+      "guards": "bug:snapshot"
+    },
+    {
+      "id": "pb.snapshot.git-in-a-folder",
+      "guards": "bug:snapshot"
+    },
+    {
+      "id": "pb.snapshot.both-deep",
+      "guards": "bug:snapshot"
+    },
+    {
+      "id": "pb.sandbox-path.absolute-seed.spec",
+      "guards": "bug:sandbox-path"
+    },
+    {
+      "id": "pb.sandbox-path.absolute-seed.block",
+      "guards": "bug:sandbox-path"
+    },
+    {
+      "id": "pb.sandbox-path.absolute-artifact.rooted",
+      "guards": "bug:sandbox-path"
+    },
+    {
+      "id": "pb.sandbox-path.absolute-artifact.outside",
+      "guards": "bug:sandbox-path"
+    },
+    {
+      "id": "pb.export.skips-nested-node-modules-and-git",
+      "guards": "bug:export"
+    },
+    {
+      "id": "pb.schema-version.loader.yaml",
+      "guards": "bug:schema-version"
+    },
+    {
+      "id": "pb.schema-version.loader.json",
+      "guards": "bug:schema-version"
+    },
+    {
+      "id": "pb.schema-version.cli.validate",
+      "guards": "bug:schema-version"
+    },
+    {
+      "id": "pb.schema-version.cli.lint",
+      "guards": "bug:schema-version"
+    },
+    {
+      "id": "pb.discovery.validate.yml-beside-yaml-and-json",
+      "guards": "bug:discovery"
+    },
+    {
+      "id": "pb.discovery.lint.yml-beside-yaml-and-json",
+      "guards": "bug:discovery"
+    },
+    {
+      "id": "pb.discovery.validate.yml-skipped-entries",
+      "guards": "bug:discovery"
+    },
+    {
+      "id": "pb.discovery.validate.yml-sorted",
+      "guards": "bug:discovery"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.top-level",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.block",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.expect",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.nested-ledger",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.flow-mapping",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.yaml-duplicate-key.list-item",
+      "guards": "bug:yaml-duplicate-key"
+    },
+    {
+      "id": "pb.headline.share.incomplete",
+      "guards": "bug:headline"
+    },
+    {
+      "id": "pb.headline.share.incomplete-and-not-run",
+      "guards": "bug:headline"
+    },
+    {
+      "id": "pb.headline.share.not-run",
+      "guards": "bug:headline"
     }
   ]
 }

@@ -6,6 +6,7 @@ import { breakerItems } from '../blocks-breaker/index';
 import { growthChecksItems } from '../blocks-growth/checks/index';
 import { growthContracts2Items } from '../blocks-growth/contracts2/index';
 import { growthDocgapsItems } from '../blocks-growth/docgaps/index';
+import { growthPlantedBugsItems } from '../blocks-growth/plantedbugs/index';
 import { growthRunItems } from '../blocks-growth/run/index';
 import { links2Items } from '../blocks-links2/index';
 import { CONTRACTS } from './contracts';
@@ -69,6 +70,7 @@ export function blocksBank(): BankItem[] {
     ...growthRunItems(),
     ...growthDocgapsItems(),
     ...growthContracts2Items(),
+    ...growthPlantedBugsItems(),
     ...links2Items(),
   ];
   return items
