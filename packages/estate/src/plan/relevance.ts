@@ -61,9 +61,6 @@ function capabilities(atom: Atom, toolLabels: ReadonlySet<string>): Set<string> 
   const tools = atom.fields?.tools;
   if (Array.isArray(tools) && tools.length > 0) add('tool');
   if (atom.kind === 'subagent' || atom.fields?.targetKind === 'subagent') add('helper');
-  // Output rules with custom checks still describe their output in the source, unlike a static check.
-  if (/\b(?:reply|replies|answer|answers|respond|response|language|tell)\b/iu.test(prose(atom)))
-    add('language');
   return out;
 }
 

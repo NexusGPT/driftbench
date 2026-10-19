@@ -232,18 +232,26 @@ export function resolveBlockObjects(
   context: ObjectContext,
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
+  // Every CLI target validates before selection can skip its kind. A kind outside `uses` still resolves against
+  // the same store; its kind-only sets target the CLI choice or the default.
+  for (const [kind, id] of context.cli?.use ?? []) {
+    withPlace(() => context.store.resolve(kind, id), `--use ${kind}/${id}`);
+  }
+  const selectedKinds = new Set<string>(Object.values(USES_KINDS));
   // Every named target must exist, before kind-specific branches can skip it, including unselected objects.
   const namedTargets = new Map<string, { kind: string; id: string }>();
   for (const set of context.cli?.set ?? []) {
-    if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
-    if (!context.store.has(set.kind, set.id)) {
+    if (set.id === undefined && selectedKinds.has(set.kind)) continue;
+    if (set.id !== undefined && /^\([a-z]+\)$/.test(set.id) && selectedKinds.has(set.kind)) continue;
+    const id = set.id ?? context.cli?.use.get(set.kind) ?? 'default';
+    if (!context.store.has(set.kind, id)) {
       throw new ObjectError(
-        `--set ${set.flag}: unknown object ${set.kind}:${set.id}; searched layers ${LAYERS.join(', ')}`,
+        `--set ${set.flag}: unknown object ${set.kind}:${id}; searched layers ${LAYERS.join(', ')}`,
         'OBJECT_UNKNOWN',
         `--set ${set.flag}`,
       );
     }
-    namedTargets.set(`${set.kind}:${set.id}`, { kind: set.kind, id: set.id });
+    namedTargets.set(`${set.kind}:${id}`, { kind: set.kind, id });
   }
   // The objects that took their flags: every flag an object receives is applied together and its combined
   // params are validated once. The object a kind selects receives its named flags and the kind-only flags of
@@ -264,10 +272,10 @@ export function resolveBlockObjects(
   const out: UsedObject[] = [];
   for (const key of Object.keys(USES_KINDS) as Array<keyof typeof USES_KINDS>) {
     const kind = USES_KINDS[key];
-    const cliId = key === 'diagnostics' ? undefined : context.cli?.use.get(kind);
+    const cliId = context.cli?.use.get(kind);
     const reference: Reference | undefined =
       cliId !== undefined
-        ? { ref: cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
+        ? { ref: key === 'diagnostics' ? [cliId] : cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
       const ids = (reference?.ref as string[] | undefined) ?? [];
@@ -325,7 +333,10 @@ export function resolveBlockObjects(
     context.store.resolveCli(
       target,
       (context.cli?.set ?? [])
-        .filter((set) => set.kind === kind && set.id === id)
+        // A kind-only flag for a kind outside `uses` names this object when it is the CLI choice or the default.
+        .filter(
+          (set) => set.kind === kind && (set.id === id || (set.id === undefined && !selectedKinds.has(kind))),
+        )
         .map((set) => cliPatch(target, set)),
     );
   }
