@@ -1,6 +1,6 @@
 import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
-import { type Atom, buildPlan, type EstateMap } from '../../src/index';
+import { type Atom, buildPlan, type EstateMap, toEstateSpaceMap } from '../../src/index';
 import { situationSpace } from '../../src/plan/relevance';
 
 function atom(
@@ -184,6 +184,31 @@ describe('situation relevance follows the kinds a situation acts on and the link
           row.id.startsWith('pairwise.') && row.atomIds[0] === 'voice' && row.cell.owner_signal === 'cx17',
       ),
     ).toBe(false);
+  });
+
+  it('gives a pointer atom, with no evidence and the words of a label only, the relevance of the same kind', () => {
+    const plain = samples();
+    // An atom a labeler built carries its quote, its label and its links; no evidence predicate and no word of
+    // the situation. Relevance reads its kind and the edges of the map, so the constraints do not move.
+    const pointer = estate(
+      plain.atoms.map((entry) => ({
+        ...entry,
+        producedBy: 'model' as const,
+        evidence: [],
+        title: 'A unit of the estate',
+        provenance: { ...entry.provenance, quote: 'A unit of the estate.' },
+        fields: { ...(entry.fields ?? {}), labelSet: 'agent-rules', labelLinks: [] },
+      })),
+      plain.edges,
+    );
+    const space = toEstateSpaceMap(plain);
+    const fitted = situationSpace(pointer, space);
+    expect(fitted.space.constraints).toEqual(situationSpace(plain, space).space.constraints);
+    expect(fitted.notes).toEqual(situationSpace(plain, space).notes);
+    const rows = cells(pointer);
+    expect(crosses(rows, 'voice', 'deviation', 'D5_language_switch')).toBe(true);
+    expect(crosses(rows, 'step', 'deviation', 'D5_language_switch')).toBe(false);
+    expect(crosses(rows, 'tool', 'deviation', 'D8_tool_failure')).toBe(true);
   });
 
   it('leaves an explicit user space authoritative and covers its declared tuples', () => {

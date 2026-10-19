@@ -581,7 +581,7 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1051 rows, 1051 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1334 rows, 1334 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.

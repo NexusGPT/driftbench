@@ -153,8 +153,8 @@ The waiting run, the end of the `suite` run, the refusal, the gaps of the `--no-
 tests and the last line of the lint:
 
 ```text
-Plan ../plan.yaml: 1051 rows, 0 approved, 1051 waiting, 0 struck.
-Waiting for approval: 1051 rows.
+Plan ../plan.yaml: 1334 rows, 0 approved, 1334 waiting, 0 struck.
+Waiting for approval: 1334 rows.
 Wrote 2 files to waiting.
 register_sample      154    154       154           0
 hazard_recovery        1      1         1           0
