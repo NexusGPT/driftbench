@@ -336,10 +336,16 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(thenOf([script], 'positive', ctx).gaps.map((entry) => entry.marker)).toEqual([MARKERS.someCall]);
   });
 
-  it('runs hazard_recovery with the paths its passage names, and permission for allow, declared and deny', () => {
+  it('runs hazard_recovery with declared paths, and permission for allow, declared and deny', () => {
     const hazard = atom(
       'hazard.x',
-      [{ type: 'custom', name: 'hazard_recovery', options: { hazard: 'compaction' } }],
+      [
+        {
+          type: 'custom',
+          name: 'hazard_recovery',
+          options: { hazard: 'compaction', reread: ['.claude/tracker.md', 'CLAUDE.md'] },
+        },
+      ],
       {
         kind: 'hazard',
         provenance: {
