@@ -295,11 +295,31 @@ export function checkAnswer(
 const POLARITIES = new Set(['obligation', 'prohibition']);
 
 /**
- * The spans and links of one entry, checked. A span is offsets into the text of one unit: integers, from under
- * to, inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
- * overlapping another span of the unit. A link names a kind the label may carry and a candidate the request
- * listed (or `none`). Any failure refuses the whole entry: the reason is returned as a string.
+ * A unit as the labeler reads it: runs of white space become one space and the ends are trimmed. `at[i]` is the
+ * offset in the unit of the character `i` of the shown text, so an offset counted on the shown text is carried
+ * back to the unit's own text, which the atom quotes.
  */
+export function flatten(text: string): { text: string; at: number[] } {
+  let shown = '';
+  const at: number[] = [];
+  let pending = -1;
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index] as string;
+    if (/\s/.test(char)) {
+      if (shown !== '' && pending < 0) pending = index;
+      continue;
+    }
+    if (pending >= 0) {
+      shown += ' ';
+      at.push(pending);
+      pending = -1;
+    }
+    shown += char;
+    at.push(index);
+  }
+  return { text: shown, at };
+}
+
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
  * kept is the unit's own text, never the copy. `reason` says why not.
@@ -331,13 +351,20 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(unit.text, text);
+        const found = locateSpanText(flatten(unit.text).text, text);
         return 'reason' in found ? { ...rest, from: -1, to: -1 } : { ...rest, ...found };
       }),
     };
   });
 }
 
+/**
+ * The spans and links of one entry, checked. A span is the words of a clause, or offsets, on the text the labeler
+ * was shown: inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
+ * overlapping another span of the unit. The offsets kept are those of the unit's own text. A link names a kind the
+ * label may carry and a candidate the request listed (or `none`). Any failure refuses the whole entry: the reason
+ * is returned as a string.
+ */
 function checkExtras(
   set: LabelSet,
   window: Window,
@@ -355,6 +382,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
+    const counted: Array<[number, number]> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -362,18 +390,20 @@ function checkExtras(
       if (!kind || !label.spans.includes(kind.name)) {
         return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
       }
-      // The words of the clause are located in the unit by code: found exactly once, else refused. The model
-      // is bad at counting characters and good at copying; a copied text enters nowhere unless it is a slice.
+      // The words of the clause are located in the text the labeler was shown (white space made one space) by code:
+      // found exactly once, else refused. The model is bad at counting characters and good at copying; a copied
+      // text enters nowhere unless it is a slice.
+      const shown = flatten(unit.text);
       let from: number;
       let to: number;
       if ('text' in span && typeof span.text === 'string') {
-        const found = locateSpanText(unit.text, span.text);
+        const found = locateSpanText(shown.text, span.text);
         if ('reason' in found) return `${where}: ${found.reason}`;
         ({ from, to } = found);
       } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
         ({ from, to } = span);
-        if (from < 0 || to > unit.text.length || from >= to) {
-          return `${where}: offsets leave the unit (length ${unit.text.length}) or are empty`;
+        if (from < 0 || to > shown.text.length || from >= to) {
+          return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
         }
       } else {
         return `${where}: offsets are integers, or the text is a string`;
@@ -384,13 +414,14 @@ function checkExtras(
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (seen.some((other) => from < other.to && other.from < to)) {
+      if (counted.some(([a, b]) => from < b && a < to)) {
         return `${where} overlaps another span of the unit`;
       }
+      counted.push([from, to]);
       seen.push({
         kind: span.kind,
-        from,
-        to,
+        from: shown.at[from] as number,
+        to: (shown.at[to - 1] as number) + 1,
         ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }

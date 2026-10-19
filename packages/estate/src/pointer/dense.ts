@@ -9,6 +9,7 @@ import type { Recorded } from './cassette';
 import { type Labeler, LabelerError, type Opinion, type Opinions, usageOf } from './labeler';
 import {
   checkAnswer,
+  flatten,
   type Label,
   type LabelContext,
   type Labelled,
@@ -22,7 +23,7 @@ import {
  * answer, ranges allowed. Every word of a domain comes from the label set, never from the text here.
  */
 
-const squash = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const squash = (text: string): string => flatten(text).text;
 
 /** Added to the system text only for a set that declares spans or links, so other sets keep their requests. */
 export const SPAN_RULE =
