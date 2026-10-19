@@ -266,6 +266,32 @@ const POLARITIES = new Set(['obligation', 'prohibition']);
  * overlapping another span of the unit. A link names a kind the label may carry and a candidate the request
  * listed (or `none`). Any failure refuses the whole entry: the reason is returned as a string.
  */
+/**
+ * A unit as the labeler reads it: runs of white space become one space and the ends are trimmed. `at[i]` is the
+ * offset in the unit of the character `i` of the shown text, so an offset counted on the shown text is carried
+ * back to the unit's own text, which the atom quotes.
+ */
+export function flatten(text: string): { text: string; at: number[] } {
+  let shown = '';
+  const at: number[] = [];
+  let pending = -1;
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index] as string;
+    if (/\s/.test(char)) {
+      if (shown !== '' && pending < 0) pending = index;
+      continue;
+    }
+    if (pending >= 0) {
+      shown += ' ';
+      at.push(pending);
+      pending = -1;
+    }
+    shown += char;
+    at.push(index);
+  }
+  return { text: shown, at };
+}
+
 function checkExtras(
   set: LabelSet,
   window: Window,
@@ -283,6 +309,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
+    const counted: Array<[number, number]> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -291,8 +318,10 @@ function checkExtras(
         return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
       }
       if (!Number.isInteger(span.from) || !Number.isInteger(span.to)) return `${where}: offsets are integers`;
-      if (span.from < 0 || span.to > unit.text.length || span.from >= span.to) {
-        return `${where}: offsets leave the unit (length ${unit.text.length}) or are empty`;
+      // The offsets are counted on the text the labeler was shown (white space made one space).
+      const shown = flatten(unit.text);
+      if (span.from < 0 || span.to > shown.text.length || span.from >= span.to) {
+        return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
       }
       if (span.polarity !== undefined) {
         if (!kind.polarity) return `${where}: the kind ${kind.name} carries no polarity`;
@@ -300,13 +329,14 @@ function checkExtras(
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (seen.some((other) => span.from < other.to && other.from < span.to)) {
+      if (counted.some(([from, to]) => span.from < to && from < span.to)) {
         return `${where} overlaps another span of the unit`;
       }
+      counted.push([span.from, span.to]);
       seen.push({
         kind: span.kind,
-        from: span.from,
-        to: span.to,
+        from: shown.at[span.from] as number,
+        to: (shown.at[span.to - 1] as number) + 1,
         ...(span.polarity !== undefined ? { polarity: span.polarity } : {}),
       });
     }
