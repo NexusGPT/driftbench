@@ -12,6 +12,7 @@ export {
 export {
   type BlockKeyParts,
   blockCacheKey,
+  cacheSpecHash,
   endStateCacheKey,
   type ObservedCache,
   unwrapEndState,
@@ -46,6 +47,7 @@ export {
   specBlocks,
 } from './compounding';
 export { DRIFT_BY_FAMILY, driftOf } from './drift';
+export { eventLogSink, readEventLog } from './event-log';
 export {
   addFacts,
   assistantMessage,
