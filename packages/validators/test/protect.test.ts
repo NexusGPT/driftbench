@@ -54,6 +54,10 @@ const FAST_TIMEOUT = 10;
 /** pr affected reports the tests a pull request affects. It runs on non-train pull requests only. */
 const AFFECTED_CONDITION = "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')";
 const AFFECTED_TIMEOUT = 45;
+
+/** train gate is skipped on an ordinary pull request and runs everywhere else, even after a red heavy job. */
+const TRAIN_GATE_CONDITION =
+  "always() && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/'))";
 const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
 
 const CI_HEAVY = [
@@ -84,17 +88,20 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     run_id: ctx.runId ?? '1',
   };
   const inputs = { jobs: ctx.jobs ?? '' };
+  const always = () => true;
   const startsWith = (a: string, b: string) => String(a).toLowerCase().startsWith(String(b).toLowerCase());
   const contains = (a: string, b: string) => String(a).toLowerCase().includes(String(b).toLowerCase());
   const format = (pattern: string, ...args: unknown[]) =>
     pattern.replace(/\{(\d+)\}/g, (_, index) => String(args[Number(index)]));
-  return new Function('github', 'inputs', 'startsWith', 'contains', 'format', `return (${expression});`)(
-    github,
-    inputs,
-    startsWith,
-    contains,
-    format,
-  );
+  return new Function(
+    'github',
+    'inputs',
+    'always',
+    'startsWith',
+    'contains',
+    'format',
+    `return (${expression});`,
+  )(github, inputs, always, startsWith, contains, format);
 }
 
 function evaluateTemplate(text: unknown, ctx: Ctx): unknown {
@@ -326,7 +333,13 @@ function assertGate(command: string) {
 /** The gate waits for every heavy ci.yml job, so a red heavy job cannot sit beside a green gate. */
 function assertGateWaits(workflow: ReturnType<typeof parse>) {
   const job = workflow.jobs['train-gate'];
-  expect(job.if).toBe('always()');
+  expect(job.if).toBe(TRAIN_GATE_CONDITION);
+  // skipped on an ordinary pull request, so it cannot paint a run red; it runs on every other event
+  expect(runs(ORDINARY_PR, 'train-gate', workflow)).toBe(false);
+  expect(runs(TRAIN_PR, 'train-gate', workflow)).toBe(true);
+  expect(runs(MAIN_PUSH, 'train-gate', workflow)).toBe(true);
+  expect(runs(dispatchOn('refs/heads/main', 'build'), 'train-gate', workflow)).toBe(true);
+  expect(runs(dispatchOn('refs/heads/train/9a', 'build'), 'train-gate', workflow)).toBe(true);
   expect([...job.needs].sort()).toEqual([...CI_HEAVY].sort());
   // the fast and affected jobs are never inputs to the gate, so neither is a train pass
   expect(job.needs).not.toContain('pr-fast');
@@ -513,7 +526,7 @@ describe('merge train enforcement', () => {
     prCancelOff.concurrency['cancel-in-progress'] = false;
     expect(() => assertConcurrency(prCancelOff)).toThrow();
   });
-  it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
+  it('declares train gate as required, skips it on ordinary PRs, and keeps the merge instruction in its script', () => {
     const job = workflow.jobs['train-gate'];
     expect(job.name).toBe('train gate');
     assertGateWaits(workflow);

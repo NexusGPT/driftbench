@@ -97,7 +97,9 @@ jobs:
 
   train-gate:
     name: train gate
-    if: always()
+    # An ordinary pull request skips the gate: it fails by design there and blocks nothing, so it only paints the run red.
+    # It still runs on main pushes, on train/* pull requests and on every dispatch, so those keep the failure.
+    if: always() && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/'))
     needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
     runs-on: ubuntu-latest
     steps:
