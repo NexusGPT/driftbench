@@ -4,6 +4,7 @@ import { POINTER_FIXTURES, type PointerItem, pointerBank } from './pointer';
 import { runPointerChild } from './run-child';
 
 export * from './pointer';
+export { pointerBankChild } from './pointer-child';
 export * from './run-child';
 
 export type JudgesV4Options = JudgesV3Options & { pointerBank?: PointerItem[] };

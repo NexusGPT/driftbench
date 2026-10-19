@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pointerBank, pointerFixtures, pointerModuleDir, takeSnapshot, useSnapshot } from './pointer';
 import type { Tape } from './tape';
 import { replayImpl } from './tape';
@@ -10,7 +12,30 @@ export type ChildRecording = {
   changed: boolean;
 };
 
-const CHILD = fileURLToPath(new URL('./pointer-child.ts', import.meta.url));
+const CHILD = fileURLToPath(new URL('./pointer-child-entry.ts', import.meta.url));
+
+/**
+ * The Node.js arguments that start the child. From source it is pointer-child-entry.ts, loaded through tsx. A built
+ * package has no .ts beside it, so the child is the package's own entry point, which exports the same routine; it
+ * still loads tsx when the checkout has it, because the module under audit is TypeScript.
+ */
+export function childCommand(moduleUrl: string, root: string, rest: readonly string[]): string[] {
+  if (moduleUrl.endsWith('.ts')) return ['--import', 'tsx', CHILD, ...rest];
+  const entry = new URL('./index.js', moduleUrl).href;
+  let loader: string[] = [];
+  try {
+    loader = ['--import', pathToFileURL(createRequire(join(root, 'package.json')).resolve('tsx')).href];
+  } catch {
+    // No tsx in this checkout: the child runs on plain Node.js.
+  }
+  return [
+    ...loader,
+    '--input-type=module',
+    '--eval',
+    `import { pointerBankChild } from ${JSON.stringify(entry)}; await pointerBankChild(process.argv.slice(1));`,
+    ...rest,
+  ];
+}
 
 /** Runs the pointer items against the module in a child process with locked built-ins; resolves to the recorded calls. */
 export function recordPointerChild(
@@ -20,7 +45,7 @@ export function recordPointerChild(
   budgetMs = 600_000,
 ): Promise<ChildRecording> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root], {
+    const child = spawn(process.execPath, childCommand(import.meta.url, root, [String(seed), root]), {
       cwd: root,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],

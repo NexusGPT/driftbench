@@ -17,14 +17,6 @@ import * as workerThreads from 'node:worker_threads';
 import { disableProcessControl, lockIntrinsics, lockProcess } from './lock';
 import { recordImpl, type Tape } from './tape';
 
-// The token comes on stdin and is read before any module under audit is imported: only a line that starts with it
-// is believed by the parent, so a module cannot print a verdict of its own.
-const TOKEN = fs.readFileSync(0, 'utf8').trim();
-const write = process.stdout.write.bind(process.stdout);
-const realExit = disableProcessControl();
-lockIntrinsics();
-lockProcess([fs, fsPromises, childProcess, crypto, module_, vm, workerThreads]);
-
 /** A hash of every file under a folder (node_modules included), so a module that rewrites itself is seen. */
 function treeHash(dir: string): string {
   const hash = createHash('sha256');
@@ -46,8 +38,15 @@ function moduleTree(): string | undefined {
   return impl ? dirname(dirname(resolve(impl))) : undefined;
 }
 
-async function main(): Promise<void> {
-  const [seedText, root] = process.argv.slice(2);
+async function main(args: readonly string[]): Promise<void> {
+  // The token comes on stdin and is read before any module under audit is imported: only a line that starts with it
+  // is believed by the parent, so a module cannot print a verdict of its own.
+  const TOKEN = fs.readFileSync(0, 'utf8').trim();
+  const write = process.stdout.write.bind(process.stdout);
+  const realExit = disableProcessControl();
+  lockIntrinsics();
+  lockProcess([fs, fsPromises, childProcess, crypto, module_, vm, workerThreads]);
+  const [seedText, root] = args;
   const seed = Number(seedText);
   const tree = moduleTree();
   const before = tree ? treeHash(tree) : undefined;
@@ -80,7 +79,12 @@ async function main(): Promise<void> {
   write(`${TOKEN} ${JSON.stringify({ items, changed })}\n`, () => realExit());
 }
 
-main().catch((cause) => {
-  process.stderr.write(`pointer child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);
-  realExit();
-});
+/** Runs the child and ends the process: the verdict line on stdout behind the token, or the cause on stderr. */
+export async function pointerBankChild(args: readonly string[]): Promise<void> {
+  try {
+    await main(args);
+  } catch (cause) {
+    process.stderr.write(`pointer child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);
+    process.exit(1);
+  }
+}

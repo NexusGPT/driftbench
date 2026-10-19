@@ -32,8 +32,8 @@ module (its `pointer/index.ts`) for a pilot.
   the part of the answer it names, not by its wording). The pilot rows stay as measured.
 * The final blind copy passes 42 of the 50 items of the closed bank (its stack never lets system 1 decide a unit
   by a sure `none`): the bank found a defect the pilot's feed did not show.
-* The level needs a source checkout with `tsx` to start its child; the stats validator bundles a child entry for a built
-  package, this one does not yet.
+* From a built package the level starts its child through the package's own entry point (`pointerBankChild`, as the
+  judges version 2 does); it still loads `tsx` when the checkout has it, because the module under audit is TypeScript.
 
 ## Hypotheses tried
 

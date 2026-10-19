@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
+  childCommand,
   judgesLadderV4,
   loadPointerImpl,
   type PointerImpl,
@@ -738,5 +739,18 @@ describe('cheats of the audit gain nothing', { timeout: 120_000 }, () => {
       append(dir, 'cassette.ts', "import './tapes';");
     });
     expect(bare).toContain('pointer/source/escapes-the-tree');
+  });
+});
+
+describe('the child of a built package', () => {
+  it('starts from source through tsx, and from a built package through its own entry point', () => {
+    const fromSource = childCommand('file:///x/run-child.ts', ROOT, ['1', ROOT]);
+    expect(fromSource.slice(0, 2)).toEqual(['--import', 'tsx']);
+    expect(fromSource[2]).toMatch(/pointer-child-entry\.ts$/);
+    const built = childCommand('file:///pkg/dist/run-child.js', ROOT, ['1', ROOT]);
+    expect(built).toContain('--eval');
+    expect(built.join(' ')).toContain('pointerBankChild');
+    expect(built.join(' ')).toContain('file:///pkg/dist/index.js');
+    expect(built.slice(-2)).toEqual(['1', ROOT]);
   });
 });
