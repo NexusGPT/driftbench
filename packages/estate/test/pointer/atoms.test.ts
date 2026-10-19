@@ -582,7 +582,7 @@ describe('atoms from labels', () => {
         )
         .replace(
           'fields: { first: $code, path: $path, trigger: $span.weather }',
-          'fields: { reread: $paths, calls: { each: $codes, item: { label: Bash, input: { command: { contains: $item } } } }, "ask?": { text: $span.weather, "context?": $span.ask-context }, "retry?": $has.ask-context, order: { firstFilled: [ { key: $link.nothing }, { before: $span.weather, after: $link.act-tool } ] } }\n          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: reply } }',
+          'fields: { reread: $paths, codes: $codes, calls: { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "ask?": { text: $span.weather, "context?": $span.ask-context }, "retry?": $has.ask-context, order: { firstFilled: [ { key: $link.nothing }, { before: $span.weather, after: $link.act-tool } ] } }\n          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: reply } }',
         );
       expect(text).not.toBe(GATES);
       const play = (answer: Record<string, unknown>) =>
@@ -621,7 +621,9 @@ describe('atoms from labels', () => {
       expect(full?.replyAct).toEqual({ id: 'refuse', evidence: { type: 'text_segment', part: 'reply' } });
       expect(full?.fields).toMatchObject({
         reread: ['.claude/skills/logs/references/log-rules.md'],
-        calls: [{ label: 'Bash', input: { command: { contains: 'references/log-rules.md' } } }],
+        // The one code span of the unit leads to a file, so it is no command.
+        codes: ['references/log-rules.md'],
+        calls: [],
         ask: { text: 'when the fog', context: 'comes in' },
         retry: true,
         order: { before: 'when the fog', after: 'Edit' },

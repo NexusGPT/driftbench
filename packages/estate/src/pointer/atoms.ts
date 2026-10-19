@@ -37,13 +37,15 @@ type Template = {
   paths(): string[];
   /** Every inline code span of the unit, in order. */
   codes(): string[];
+  /** The inline code spans of the unit that lead to no file of the estate: commands, names, values. */
+  commands(): string[];
   /** The item of the list an `each` form is walking, if any. */
   item?: string;
 };
 
 const UNRESOLVED = Symbol('unresolved');
 const PLACEHOLDER =
-  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|item|unit|file)$/;
+  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|commands|item|unit|file)$/;
 
 /**
  * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
@@ -83,11 +85,13 @@ function fill(value: unknown, template: Template): unknown {
                   ? template.paths()
                   : value === '$codes'
                     ? template.codes()
-                    : value === '$item'
-                      ? template.item
-                      : value === '$unit'
-                        ? template.unit()
-                        : template.file();
+                    : value === '$commands'
+                      ? template.commands()
+                      : value === '$item'
+                        ? template.item
+                        : value === '$unit'
+                          ? template.unit()
+                          : template.file();
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
@@ -259,6 +263,10 @@ export function pointerAtoms(
             .filter((located): located is string => located !== undefined),
         ),
       ],
+      commands: () =>
+        [...item.unit.text.matchAll(/`([^`\n]+)`/g)]
+          .map((m) => m[1]?.trim() ?? '')
+          .filter((span) => span !== '' && !builder.resolve(span, item.path).exists),
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
