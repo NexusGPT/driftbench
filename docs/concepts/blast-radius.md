@@ -383,6 +383,34 @@ Why it does not skip tests yet: on the H7 suite (the Acme stand-in prompt of 30 
 
 `radius localize <specs> --store <file> --campaign <id> --sections <registries>` ranks the local sections of a prompt by Ochiai suspiciousness from a stored campaign: a block covers the sections it links to, `failed` and `passed` sum the failure and pass rates of the linked blocks over the suite runs, and the score is `failed / sqrt(total failure weight x (failed + passed))`. A failure is dropped when an earlier block of the same conversation (or a parent block) failed in the same run; a block that passes after a failing one stays a row. A link whose status is `refuted` adds nothing to the counts: a block covers only the sections its other links name, and a section reached only by refuted links has no covering block, so it is not ranked. A link to another prompt, to a global section or to a stale section adds nothing either. Global sections are not ranked; ties print as a rank range. On the stored H7 runs (`packages/core/test/radius/localize.test.ts`) this rule ranks the planted section worse than flat counting on 3 of 98 faults; dropping every block after a failing one ranks worse on 18 of 98, the registered H5 result. Ranking against each block's own baseline verdict comes with the mutation runner.
 
+What `radius localize` reads, and what it leaves out:
+
+* A run of a spec that was not given is skipped, with the reason `the spec <id> was not given`.
+* A run of another mode is skipped, with the reason `mode <mode>, not <mode read>`.
+* A run of another version of its spec (another spec hash) is skipped, with the reason `another version of <id> (spec hash <hash>)`.
+* Each skipped run is printed as `Skipped run <run id>: <reason>.` and listed under `skipped` in `--json`.
+* The runs kept are grouped into suite runs by target, mode, repeat and perturbation. The first line prints how many.
+* An injected block is not a row.
+* A block whose status is `not_run` or `blocked` is not a row: only a `pass` or a `fail` is a measurement.
+* A block whose index is at or past the number of blocks of its spec is ignored.
+* `--mode` defaults to the only mode of the campaign. A campaign with runs in several modes, or with no run, exits 2 until `--mode` names one.
+* With one registry in `--sections`, that registry's prompt is ranked. With several, `--prompt` names the prompt to rank; without it, or when no registry given describes that prompt, the command exits 2.
+* `radius localize` does not check that the registries describe different prompts: when two describe the prompt named by `--prompt`, the first one given is ranked.
+* A link to a section the ranked registry does not hold covers nothing.
+* Tied sections print in the order of the registry.
+* On `origin/main` a `stale` link still covers its section in the counts. The stale link is reported by `spec lint --sections`, as a warning (below).
+
+The registry checks of `spec lint <specs> --sections <registries>`:
+
+* Two registries for one prompt exit 2, with `two section registries describe the prompt <id>`.
+* A link to a section that the registry of its prompt does not hold is an error, `LINK_TARGET_UNKNOWN` at `metadata.links.<i>.to`.
+* A link to a prompt with no registry given is a warning, `LINK_TARGET_UNKNOWN` at `metadata.links.<i>.to`.
+* A link to a section the registry marks stale is a warning, `LINK_STALE` at `metadata.links.<i>.to`.
+* A link whose status is `stale` is a warning, `LINK_STALE` at `metadata.links.<i>.status`.
+* `--strict` makes any warning exit 1.
+
+In `radius <specs> --change <manifest> --sections <registries>`, two registries for one prompt make the section selection every block, with that message as the reason.
+
 Anthropic Citations give `start_char_index` and `end_char_index` in code points. On a text with two emoji before the cited sentence the API gave 23 where UTF-16 gives 25, so an imported citation is converted (`codePointToUtf16`, `citationSpan`) before it is compared with a span.
 
 ## Execution provenance
