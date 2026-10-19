@@ -80,7 +80,9 @@ describe('driftbench estate scan', () => {
       'Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
-    expect(result.out).toContain('Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.');
+    expect(result.out).toContain(
+      'Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.',
+    );
     expect(result.out).toContain(
       'Unreachable from the standing instructions: .claude/agents/inbox-triager.md.',
     );
