@@ -46,7 +46,7 @@ describe('the committed reader-cases outputs', () => {
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-    ).toEqual([['ORPHAN', '.claude/skills/parcel-claims/references/supplier-languages.md']]);
+    ).toEqual([]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
     ).toMatchObject({

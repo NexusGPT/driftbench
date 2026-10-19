@@ -1,7 +1,8 @@
-Impact of the estate diff 7e588ad44bef to 413ac5407563 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff 952d2cc5487e to 9dce716b18df on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 5, re-approve 2, retire 1, new 4; 2 tests untouched, 20 atoms moved with the same quote.
 Regenerate:
   northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
+  northwind-force-push (force-push.yaml): instruction.standing.r6-never-run-git-push-force restated
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
@@ -15,10 +16,14 @@ Retire:
 New atoms with no test:
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
   instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
+  instruction.standing.every-task-follows-the-step-list (instruction) CLAUDE.md:42
+  reference.standing.read-claude-steps-json (reference) CLAUDE.md:42
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
+Needs a person: 6.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
   - approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet
+  - approve the tests of the new atom instruction.standing.every-task-follows-the-step-list: no test covers it yet
+  - approve the tests of the new atom reference.standing.read-claude-steps-json: no test covers it yet

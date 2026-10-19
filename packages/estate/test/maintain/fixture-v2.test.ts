@@ -88,9 +88,11 @@ describe('the fixture-v2 estate', () => {
       },
     ]);
     expect(diff.guards).toHaveLength(6);
-    // A unit whose neighbours changed is read again: the label of two of them came back with other evidence.
+    // A unit whose neighbours changed is read again: the label of four of them came back with other notes.
     expect(diff.atoms.restated.map((entry) => [entry.id, entry.fields])).toEqual([
+      ['instruction.standing.r8-do-not-invent-order-numbers', ['situation', 'fields']],
       [R11, ['evidence', 'fields']],
+      ['instruction.standing.r17-report-a-number-only-when', ['fields']],
       ['invariant.standing.the-standing-instructions-stay-under-40000', ['fields']],
     ]);
     expect(diff.summary).toEqual({
@@ -98,9 +100,9 @@ describe('the fixture-v2 estate', () => {
       removed: 1,
       whitespace: 0,
       semantic: 2,
-      moved: 23,
-      restated: 2,
-      unchanged: 99,
+      moved: 21,
+      restated: 4,
+      unchanged: 88,
       edgesAdded: 1,
       edgesRemoved: 0,
     });
@@ -143,7 +145,7 @@ describe('the fixture-v2 estate', () => {
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    expect(report.unaffected).toEqual({ moved: 23, tests: 3 });
+    expect(report.unaffected).toEqual({ moved: 21, tests: 3 });
     expect(report.needsPerson).toHaveLength(4);
   });
 });

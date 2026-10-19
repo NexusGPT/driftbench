@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: 7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845
+mapHash: 952d2cc5487e006904f2f1462030a99e3a9d54ec9ecb50e4010753138ecce2bb
 
 workspaces:
   - id: northwind-ops
@@ -98,12 +98,11 @@ situations:
       - skill.weekly-report.skill-weekly-report
       - instruction.standing.r3-read-a-file-before-you
       - instruction.weekly-report.save-the-report-as-reports-year
-      - instruction.standing.a-tracker-note-may-be-written
+      - instruction.standing.never-report-a-task-as-done
       - stage.steps.stage-plan-restate-the-ask-and
       - stage.steps.stage-do-make-the-change
       - stage.steps.stage-verify-run-the-check-that
       - stage.steps.stage-report-tell-the-user-what
-      - reference.standing.read-claude-steps-json
       - reference.standing.read-claude-memory-memory-md
     workspace: northwind-ops
     touches: { changed: [reports/2026-W41.md] }
@@ -118,7 +117,6 @@ situations:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
-      - gate.weekly-report.read-templates-report-md-before-before
       - reference.weekly-report.read-templates-report-md
       - instruction.weekly-report.fill-the-template-in-this-order
       - instruction.weekly-report.count-only-what-the-ledger-and
@@ -391,11 +389,10 @@ situations:
     use: trigger
     atoms:
       - register.standing.r1-always-answer-in-the-language
-      - register.standing.r9-ask-at-most-one-question
       - register.standing.keep-every-reply-under-1-200
       - register.standing.lead-with-the-result-in-the
       - register.standing.use-a-bullet-list-for-three
-      - register.standing.never-use-the-words-obviously-or
+      - instruction.standing.never-use-the-words-obviously-or
       - register.standing.write-amounts-with-the-currency-code
       - tool.settings.allow-bash-python3
       - tool.settings.allow-grep

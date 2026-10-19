@@ -54,14 +54,15 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
-    // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
-    // runs still decides the unit.
-    expect(result.pointer?.refusals.length).toBe(8);
+    // The recorded labeller gave spans the checks drop (a kind the label does not carry, offsets no unit holds):
+    // each drop is counted with its reason, and the label of the entry stands. No entry is refused whole.
+    expect(result.pointer?.refusals).toEqual([]);
+    expect(result.pointer?.dropped.length).toBeGreaterThan(0);
     expect(
-      result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
-        .length,
+      result.pointer?.dropped.filter((line) => line.includes('offsets leave the unit')).length,
     ).toBeGreaterThan(0);
+    // An atom whose mapping needs a note that is missing (a gate that names no file) is refused with its reason.
+    expect(result.pointer?.atomRefusals.length).toBeGreaterThan(0);
     // A unit is decided, or left unlabeled because no label had two runs out of three.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.voted).toBeGreaterThan(0);
@@ -85,6 +86,19 @@ describe('the fixture through its committed cassettes', () => {
       expect(lines.join('\n'), atom.id).toContain(atom.provenance.quote);
       expect(atom.approved).toBe(false);
     }
+  });
+
+  it('reads the ledger rule R4 as an instruction atom of its prohibition, so the ledger guard enforces a rule', async () => {
+    const { result } = await replay();
+    const r4 = result.map.atoms.find((atom) => atom.id === 'instruction.standing.r4-never-delete-a-file-under');
+    expect(r4?.fields?.polarity).toBe('prohibition');
+    expect(r4?.provenance.quote).toContain('Never delete a file under `ledger/`');
+    const guard = result.map.atoms.find(
+      (atom) => atom.kind === 'guard' && atom.fields?.name === 'ledger-guard.py',
+    );
+    expect(
+      ((guard?.fields?.enforces ?? []) as Array<{ atom: string }>).map((entry) => entry.atom),
+    ).toContain(r4?.id);
   });
 
   it('is the same ledger bytes on a second replay', async () => {

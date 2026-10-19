@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
-    "new": "413ac5407563cd4d7b1680d03643cf668d4947e1e7a54767a19f6415b8c0e3ef"
+    "old": "952d2cc5487e006904f2f1462030a99e3a9d54ec9ecb50e4010753138ecce2bb",
+    "new": "9dce716b18dfcc5338c2d370b401e04a197f9e6b4192264a0ddf82693ab1b88d"
   },
   "tests": {
     "live": 8,
@@ -17,6 +17,16 @@
         {
           "atom": "instruction.standing.r12-when-r2-applies-and-the",
           "why": "removed"
+        }
+      ]
+    },
+    {
+      "test": "northwind-force-push",
+      "file": "force-push.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r6-never-run-git-push-force",
+          "why": "restated"
         }
       ]
     },
@@ -90,6 +100,20 @@
       "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
       "file": "CLAUDE.md",
       "line": 27
+    },
+    {
+      "atom": "instruction.standing.every-task-follows-the-step-list",
+      "kind": "instruction",
+      "title": "Every task follows the step list in .claude/steps.json: plan, do, verify, report.",
+      "file": "CLAUDE.md",
+      "line": 42
+    },
+    {
+      "atom": "reference.standing.read-claude-steps-json",
+      "kind": "reference",
+      "title": "Read .claude/steps.json",
+      "file": "CLAUDE.md",
+      "line": 42
     }
   ],
   "guards": [
@@ -103,13 +127,15 @@
     }
   ],
   "unaffected": {
-    "moved": 23,
-    "tests": 3
+    "moved": 20,
+    "tests": 2
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
-    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet"
+    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.every-task-follows-the-step-list: no test covers it yet",
+    "approve the tests of the new atom reference.standing.read-claude-steps-json: no test covers it yet"
   ]
 }

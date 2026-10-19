@@ -3,17 +3,17 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T09:23:40.404Z",
-    "hash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
-    "atoms": 126,
-    "edges": 52
+    "readAt": "2026-10-19T15:56:42.419Z",
+    "hash": "952d2cc5487e006904f2f1462030a99e3a9d54ec9ecb50e4010753138ecce2bb",
+    "atoms": 113,
+    "edges": 53
   },
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T09:23:59.531Z",
-    "hash": "413ac5407563cd4d7b1680d03643cf668d4947e1e7a54767a19f6415b8c0e3ef",
-    "atoms": 127,
+    "readAt": "2026-10-19T15:57:06.012Z",
+    "hash": "9dce716b18dfcc5338c2d370b401e04a197f9e6b4192264a0ddf82693ab1b88d",
+    "atoms": 115,
     "edges": 53
   },
   "atoms": {
@@ -45,6 +45,34 @@
           "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
           "hash": "b4c7c249ad14081291611bf02ef62151b789f72904fad86f513589dbf4035da8"
         }
+      },
+      {
+        "id": "instruction.standing.every-task-follows-the-step-list",
+        "kind": "instruction",
+        "title": "Every task follows the step list in .claude/steps.json: plan, do, verify, report.",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 42,
+          "endLine": 42,
+          "quote": "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report.",
+          "hash": "4b8a496ab184014653892381cdf687195134df2069d4163701bb4134ff12955b"
+        }
+      },
+      {
+        "id": "reference.standing.read-claude-steps-json",
+        "kind": "reference",
+        "title": "Read .claude/steps.json",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 42,
+          "endLine": 42,
+          "quote": "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report.",
+          "hash": "4b8a496ab184014653892381cdf687195134df2069d4163701bb4134ff12955b"
+        }
       }
     ],
     "removed": [
@@ -61,9 +89,44 @@
           "quote": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
           "hash": "168c97bbfbd0dd3be1eb31a7e33feff407c7db78600ba2eb34c120a3167c73ac"
         }
+      },
+      {
+        "id": "instruction.standing.r13-before-you-dispatch-a-helper",
+        "kind": "instruction",
+        "title": "R13. Before you dispatch a helper agent, write its brief with the task, the files it may…",
+        "producedBy": "model",
+        "approved": true,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 21,
+          "endLine": 21,
+          "quote": "**R13.** Before you dispatch a helper agent, write its brief with the task, the files it may touch and the shape of its answer.",
+          "hash": "5da4cb675ba0e16b68d7ded27058fea55794d82eab7d03e9ed8928bd29168e96"
+        }
       }
     ],
     "changed": [
+      {
+        "id": "instruction.standing.r2-never-send-an-email-to",
+        "kind": "instruction",
+        "title": "R2. Never send an email to a supplier without showing the full draft to the user first an…",
+        "change": "whitespace",
+        "before": {
+          "file": "CLAUDE.md",
+          "startLine": 10,
+          "endLine": 10,
+          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first and getting an explicit yes.",
+          "hash": "dd78e07844cd89628113e2071183835b0fd127be4b22e68732ce3c08e49213c0"
+        },
+        "after": {
+          "file": "CLAUDE.md",
+          "startLine": 10,
+          "endLine": 11,
+          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first\n  and getting an explicit yes.",
+          "hash": "658e9a6d13b491f3ec47b46acd3edfcfa0a6631dbc3eac1f92ef83d6eb922bfe"
+        },
+        "fields": []
+      },
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
         "kind": "instruction",
@@ -83,7 +146,7 @@
           "quote": "**R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.",
           "hash": "5fa8802392a3db052ad13c9b57fe6c99db95cb602c4c1d1f3c545bba4a1ba76e"
         },
-        "fields": ["title"]
+        "fields": ["title", "situation", "fields"]
       },
       {
         "id": "route.standing.an-ask-to-plan-the-delivery",
@@ -139,6 +202,21 @@
         }
       },
       {
+        "id": "reference.standing.read-claude-skills-invoice-reconcile-references",
+        "kind": "reference",
+        "title": "Read .claude/skills/invoice-reconcile/references/matching-rules.md",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 13,
+          "endLine": 13
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 14,
+          "endLine": 14
+        }
+      },
+      {
         "id": "instruction.standing.r6-never-run-git-push-force",
         "kind": "instruction",
         "title": "R6. Never run git push --force on any branch.",
@@ -166,21 +244,6 @@
           "file": "CLAUDE.md",
           "startLine": 17,
           "endLine": 17
-        }
-      },
-      {
-        "id": "register.standing.r9-ask-at-most-one-question",
-        "kind": "register",
-        "title": "R9. Ask at most one question per reply.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 17,
-          "endLine": 17
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 18,
-          "endLine": 18
         }
       },
       {
@@ -289,51 +352,6 @@
         }
       },
       {
-        "id": "instruction.standing.every-task-follows-the-step-list",
-        "kind": "instruction",
-        "title": "Every task follows the step list in .claude/steps.json: plan, do, verify, report.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 40
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 42
-        }
-      },
-      {
-        "id": "reference.standing.read-claude-steps-json",
-        "kind": "reference",
-        "title": "Read .claude/steps.json",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 40
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 42
-        }
-      },
-      {
-        "id": "instruction.standing.a-tracker-note-may-be-written",
-        "kind": "instruction",
-        "title": "A tracker note may be written at any step.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 41
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 43
-        }
-      },
-      {
         "id": "instruction.standing.never-report-a-task-as-done",
         "kind": "instruction",
         "title": "Never report a task as done before the verify step has passed.",
@@ -394,8 +412,8 @@
         }
       },
       {
-        "id": "register.standing.never-use-the-words-obviously-or",
-        "kind": "register",
+        "id": "instruction.standing.never-use-the-words-obviously-or",
+        "kind": "instruction",
         "title": "Never use the words \"obviously\" or \"simply\".",
         "from": {
           "file": "CLAUDE.md",
@@ -456,15 +474,39 @@
     ],
     "restated": [
       {
+        "id": "instruction.standing.r6-never-run-git-push-force",
+        "kind": "instruction",
+        "title": "R6. Never run git push --force on any branch.",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.standing.r8-do-not-invent-order-numbers",
+        "kind": "instruction",
+        "title": "R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…",
+        "fields": ["fields"]
+      },
+      {
         "id": "instruction.standing.r11-never-paste-the-contents-of",
         "kind": "instruction",
         "title": "R11. Never paste the contents of .env or any credential into a reply.",
-        "fields": ["evidence", "fields"]
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.standing.r17-report-a-number-only-when",
+        "kind": "instruction",
+        "title": "R17. Report a number only when you read it in a file or a tool result during this session.",
+        "fields": ["fields"]
       },
       {
         "id": "invariant.standing.the-standing-instructions-stay-under-40000",
         "kind": "invariant",
         "title": "The standing instructions stay under 40000 characters",
+        "fields": ["fields"]
+      },
+      {
+        "id": "invariant.standing.no-file-of-the-estate-is",
+        "kind": "invariant",
+        "title": "No file of the estate is an orphan",
         "fields": ["fields"]
       }
     ]
@@ -477,7 +519,13 @@
         "kind": "cites"
       }
     ],
-    "removed": []
+    "removed": [
+      {
+        "from": "instruction.standing.r12-when-r2-applies-and-the",
+        "to": "instruction.standing.r2-never-send-an-email-to",
+        "kind": "cites"
+      }
+    ]
   },
   "guards": [
     {
@@ -539,14 +587,14 @@
     }
   ],
   "summary": {
-    "added": 2,
-    "removed": 1,
-    "whitespace": 0,
+    "added": 4,
+    "removed": 2,
+    "whitespace": 1,
     "semantic": 2,
-    "moved": 23,
-    "restated": 2,
-    "unchanged": 99,
+    "moved": 20,
+    "restated": 6,
+    "unchanged": 85,
     "edgesAdded": 1,
-    "edgesRemoved": 0
+    "edgesRemoved": 1
   }
 }
