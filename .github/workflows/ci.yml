@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   workflow_dispatch:
     inputs:
       jobs:
@@ -16,9 +16,10 @@ permissions:
   contents: read
 
 # Pull requests share one group per ref and a non-train PR cancels its older run. A push to main and a
-# dispatch each get a group of their own, so no run on main ever cancels or replaces another.
+# dispatch each get a group of their own, so no run on main ever cancels or replaces another. An `edited`
+# event that does not change the base (a title or body edit) gets a group of its own too: it cancels no run.
 concurrency:
-  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  group: ci-${{ github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base != null) && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
 jobs:
@@ -65,8 +66,10 @@ jobs:
     name: pr affected
     # Reports the tests affected by a pull request. It is not required and not an input of `train gate`: a
     # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
-    # pull request only; a pre-flight dispatch runs `pr fast` alone.
-    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
+    # pull request only; a pre-flight dispatch runs `pr fast` alone. It also skips a draft PR and a PR whose
+    # base is not main: the diff is against origin/main, so a stacked PR would run its whole stack. The
+    # `ready_for_review` and `edited` events (a base change) run it when the PR leaves draft or moves to main.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !github.event.pull_request.draft && github.base_ref == 'main' && (github.event.action != 'edited' || github.event.changes.base != null)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -97,7 +100,7 @@ jobs:
 
   train-gate:
     name: train gate
-    if: always()
+    if: always() && github.event.action != 'edited'
     needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
     runs-on: ubuntu-latest
     steps:
@@ -150,7 +153,7 @@ jobs:
           fi
 
   bench:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',bench,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',bench,')))
     name: benchmark replay and floors
     runs-on: ubuntu-latest
     steps:
@@ -165,7 +168,7 @@ jobs:
       - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
 
   research-replay:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',research-replay,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',research-replay,')))
     name: research replays
     runs-on: ubuntu-latest
     steps:
@@ -181,7 +184,7 @@ jobs:
       - run: tools/research-replay-ci.sh
 
   build:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,')))
     name: build (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -208,7 +211,7 @@ jobs:
         run: node packages/cli/dist/bin.js --version
 
   python:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,')))
     name: python (${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
@@ -232,7 +235,7 @@ jobs:
         working-directory: python/driftbench
 
   comparison-replay:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',comparison-replay,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',comparison-replay,')))
     name: offline comparison replay
     runs-on: ubuntu-latest
     steps:
@@ -250,7 +253,7 @@ jobs:
         run: python -m unittest discover -s comparisons -p test_reproducibility.py -v
 
   viewer-journey:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',viewer-journey,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',viewer-journey,')))
     name: viewer journey (chromium)
     runs-on: ubuntu-latest
     steps:
@@ -282,7 +285,7 @@ jobs:
           if-no-files-found: ignore
 
   guard:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',guard,'))
+    if: github.event.action != 'edited' && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',guard,')))
     name: leak guard
     runs-on: ubuntu-latest
     steps:
