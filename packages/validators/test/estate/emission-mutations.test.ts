@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { countAllows, describeCount } from '@agent-nexus/driftbench-checks';
 import {
@@ -16,16 +16,18 @@ import { completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import { type FieldReads, fieldReadCensus } from './field-reads';
+import { blockOptionCensus, readerCensus as codeCensus, textCensus } from './reader-census';
 import { referenceChecks, referenceRun, required, SUFFIXES, suffix } from './ruling-reference';
 
 type Path = Array<string | number>;
 const REASON_CLASSES = ['default-equivalent', 'empty-demand', 'single-block-scope'] as const;
 /** Entry kinds whose omitted count the evaluators read as at least one (census below). */
-const DEFAULT_COUNT_KINDS = ['guards', 'references', 'skills', 'subagents'];
-/** The reads of the default-equivalent class: an entry list off `expect`, and the count of an entry. */
+const DEFAULT_COUNT_KINDS = ['guards', 'references', 'skills', 'subagents', 'calls'];
+/** The reads of the default-equivalent class: an entry list off `expect`, and the count of an entry (a `some_call`
+ * entry is read as `entry`). */
 const DEFAULT_COUNT_READS: FieldReads[] = [
   { receivers: ['expect'], fields: DEFAULT_COUNT_KINDS },
-  { receivers: ['guard', 'reference', 'skill', 'helper', 'subagent'], fields: ['count'] },
+  { receivers: ['guard', 'reference', 'skill', 'helper', 'subagent', 'entry'], fields: ['count'] },
 ];
 type ReasonClass = (typeof REASON_CLASSES)[number];
 type EmissionSite = {
@@ -155,24 +157,12 @@ const READER_ROOTS = [
   'packages/validators/test/estate/ruling-reference.ts',
 ];
 
-/** Every non-comment source line under the evaluator roots that matches `pattern`, as
- * `file: line`. A new reader changes this census and reopens the equivalence class. Reads of a field of
- * `expect` are found in the syntax tree instead (field-reads.ts), where `?.` and literal text cannot hide one. */
+/** Every line of code under the evaluator roots that matches `pattern`, as `file: line`: comments and the text of
+ * literals never count (reader-census.ts). A new reader changes this census and reopens the equivalence class. Reads
+ * of a field of `expect` are found in the syntax tree instead (field-reads.ts), where `?.` and literal text cannot
+ * hide one. */
 function readerCensus(pattern: RegExp): string[] {
-  const files: string[] = [];
-  const visit = (path: string) => {
-    if (statSync(`${ROOT}${path}`).isDirectory())
-      for (const name of readdirSync(`${ROOT}${path}`).sort()) visit(`${path}/${name}`);
-    else if (path.endsWith('.ts')) files.push(path);
-  };
-  for (const root of READER_ROOTS) visit(root);
-  return files.flatMap((file) =>
-    readFileSync(`${ROOT}${file}`, 'utf8')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => !/^(\*|\/\*|\/\/)/.test(line) && pattern.test(line))
-      .map((line) => `${file}: ${line}`),
-  );
+  return codeCensus(ROOT, READER_ROOTS, pattern);
 }
 
 const SEEN = Array.from({ length: 257 }, (_, index) => index);
@@ -191,9 +181,15 @@ const CLASS_PROOFS: Record<
   }
 > = {
   'default-equivalent': {
-    // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry.
+    // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry, or on a `some_call` entry
+    // (`calls`): some_call and hazard_recovery read it through `entry.count ?? { min: 1 }` and parseSomeCall's default.
     census: () => fieldReadCensus(ROOT, READER_ROOTS, DEFAULT_COUNT_READS),
     readers: [
+      "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
+      'packages/checks/src/checks/estate.ts: `${plural(matching.length, what)} of ${plural(own.length, `${entry.label} call`)} in this block, expected ${describeCount(entry.count)}`,',
+      'packages/checks/src/checks/estate.ts: const count = (entry.count ?? { min: 1 }) as Count;',
+      "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
+      'packages/checks/src/checks/estate.ts: `${plural(matching.length, `${entry.label} call`)} after the ${hazard}, expected ${describeCount(entry.count)}`,',
       'packages/checks/src/checks/guards.ts: applies: (ctx) => (ctx.expect.guards?.length ?? 0) > 0,',
       'packages/checks/src/checks/guards.ts: const expected = ctx.expect.guards ?? [];',
       "packages/checks/src/checks/guards.ts: countAllows(guard.count, count) ? 'pass' : 'fail',",
@@ -220,8 +216,6 @@ const CLASS_PROOFS: Record<
       'packages/core/src/spec/semantics.ts: checkCount(reference.count, `${path}.references.${index}.count`, issues);',
       'packages/core/src/spec/semantics.ts: for (const [index, subagent] of (expect.subagents ?? []).entries()) {',
       'packages/core/src/spec/semantics.ts: checkCount(subagent.count, `${path}.subagents.${index}.count`, issues);',
-      // The reference spec marks each guard entry as a warning. It sets `verdict` and never reads `count`.
-      "packages/validators/test/estate/ruling-reference.ts: for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';",
     ],
     cases() {
       // Entry ids come from name, path or verdict, never count; array lengths are unchanged.
@@ -292,8 +286,10 @@ const CLASS_PROOFS: Record<
   },
   'single-block-scope': {
     // The deleted value is a custom check's `block: 0` on a one-block spec.
-    census: () => readerCensus(/\b(options|opts|entry)\.block\b/),
+    // Reads of a custom check's `block` option, found by what the receiver is bound to, never by its name.
+    census: () => blockOptionCensus(ROOT, READER_ROOTS),
     readers: [
+      `packages/checks/src/checks/absence.ts: ${GUARDED_BLOCK}`,
       'packages/checks/src/checks/estate.ts: if (entry.block !== undefined && entry.block !== ctx.blockIndex) return;',
       "packages/checks/src/checks/estate.ts: ...(typeof entry.block === 'number' ? { block: entry.block } : {}),",
       `packages/checks/src/checks/estate.ts: ${GUARDED_BLOCK}`,
@@ -310,7 +306,9 @@ const CLASS_PROOFS: Record<
     cases() {
       // The runner refuses a blockIndex outside 0..blocks.length-1 (core runner/run.ts nextStep),
       // and the custom check passes options through unread (checks/custom.ts createCustomCheck).
-      expect(readerCensus(/the driver asked for block \$\{step\.blockIndex\}/)).toHaveLength(1);
+      expect(
+        textCensus(ROOT, READER_ROOTS, /the driver asked for block \$\{step\.blockIndex\}/),
+      ).toHaveLength(1);
       expect(
         readFileSync(`${ROOT}packages/checks/src/checks/custom.ts`, 'utf8').match(/\.block\b/g),
       ).toBeNull();

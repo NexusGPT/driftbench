@@ -67,9 +67,28 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (target) add(route.id, target.id, 'route');
   }
 
+  // References can themselves name references. Follow those explicit reads for each unit, rather
+  // than assigning all files in a skill folder to it: an unread sibling remains unowned, and a shared
+  // guide retains every unit that reads it. A per-unit visited set bounds cycles in reference files.
+  const referencesByFile = new Map<string, Atom[]>();
   for (const reference of byKind('reference')) {
-    const unit = unitOfFile.get(reference.provenance.file);
-    if (unit) add(unit.id, reference.id, 'reference');
+    const file = reference.provenance.file;
+    const references = referencesByFile.get(file) ?? [];
+    references.push(reference);
+    referencesByFile.set(file, references);
+  }
+  for (const unit of unitOfFile.values()) {
+    const pending = [unit.provenance.file];
+    const visited = new Set<string>();
+    for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
+      if (visited.has(file)) continue;
+      visited.add(file);
+      for (const reference of referencesByFile.get(file) ?? []) {
+        add(unit.id, reference.id, 'reference');
+        const target = reference.fields?.path;
+        if (typeof target === 'string' && files.has(target)) pending.push(target);
+      }
+    }
   }
 
   for (const script of byKind('script')) {
@@ -121,11 +140,13 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
 
   const rules = atoms.filter((atom) => RULE_KINDS.has(atom.kind));
   const labels = new Map(rules.map((rule) => [rule.id, labelOf(rule, files)]));
-  const withLabel = (label: string) => rules.filter((rule) => labels.get(rule.id) === label);
+  const withLabel = (label: string) =>
+    rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
-      const label = `${match[1]}${match[2]}`;
+    const quote = rule.provenance.quote;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/gi)) {
+      const label = `${match[1]}${match[2]}`.toUpperCase();
       if (label === own) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
@@ -172,11 +193,12 @@ function holds(quote: string, passage: string): boolean {
 export function declaredLabels(text: string): string[] {
   const found: string[] = [];
   for (const line of linesOf(text)) {
-    const match = /\b[Ee]nforces?\b\s*:?\s*([A-Z]{1,3}\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}\d{1,3})*)/.exec(
+    const match = /\benforces?\b\s*:?\s*([A-Z]{1,3}#?\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}#?\d{1,3})*)/i.exec(
       line.raw,
     );
     if (!match?.[1]) continue;
-    for (const label of match[1].matchAll(/[A-Z]{1,3}\d{1,3}/g)) found.push(label[0]);
+    for (const label of match[1].matchAll(/[A-Z]{1,3}#?\d{1,3}/gi))
+      found.push(label[0].replace('#', '').toUpperCase());
   }
   return found;
 }
@@ -184,7 +206,11 @@ export function declaredLabels(text: string): string[] {
 /** Rule ids a guard source cites in the `R#23` form, anywhere in its text, as labels (`R23`). */
 export function citedLabels(text: string): string[] {
   return [
-    ...new Set([...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/g)].map((match) => `${match[1]}${match[2]}`)),
+    ...new Set(
+      [...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/gi)].map((match) =>
+        `${match[1]}${match[2]}`.toUpperCase(),
+      ),
+    ),
   ];
 }
 
