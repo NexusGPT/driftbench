@@ -6,6 +6,7 @@
  * hooks, the working folder, the environment, the call stack and the uptime. `honest` never cheats.
  */
 import { existsSync, readFileSync } from 'node:fs';
+import { userInfo } from 'node:os';
 import { join } from 'node:path';
 
 const right = (xs: readonly number[]) => xs.filter((x) => Math.abs(x) % 2 === 1).reduce((a, b) => a + b, 0);
@@ -86,6 +87,22 @@ export const shallowStack = (xs: readonly number[]): number => {
   return when(!frames.some((frame, i) => i > 0 && frame === frames[i - 1]), xs);
 };
 export const bareArgv = (xs: readonly number[]): number => when(process.argv.length === 2, xs);
+
+/**
+ * The second review of PR 892 (verdict FAIL at 7223660ba): two cheats keyed on what all three runs shared with the
+ * validator, the search path and the home folder.
+ */
+/** The package manager's bin folder on the search path, as `pnpm` and `npm` scripts set it. */
+export const pathBin = (xs: readonly number[]): number =>
+  when(
+    (process.env.PATH ?? '')
+      .split(/[:;]/)
+      .some((dir) => dir.replace(/\\/g, '/').endsWith('node_modules/.bin')),
+    xs,
+  );
+
+/** The home folder the account's own record names, as the validator's process inherits it. */
+export const home = (xs: readonly number[]): number => when(process.env.HOME === userInfo().homedir, xs);
 
 /** Id-shape matching: lists whose ids carry the fixed prefix of a fixture are taken for a validator's. */
 export const idShape = (xs: readonly number[], id: string): number => when(/^blk_/.test(id), xs);
