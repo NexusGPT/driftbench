@@ -1,8 +1,8 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { type InventoryResult, loadInventory, parseInventoryText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 
 const VALID = `
 channels: [chat, whatsapp]
@@ -194,7 +194,7 @@ describe('invalid inventories are refused with a named error', () => {
 
 describe('loadInventory', () => {
   it('reads .json as JSON and any other file as YAML', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-inventory-'));
+    const dir = await tempFolder('driftbench-inventory-');
     const inventory = { behaviours: [{ id: 'B-001', title: 'a' }], flows: [] };
     await writeFile(join(dir, 'inventory.json'), JSON.stringify(inventory));
     await writeFile(join(dir, 'inventory.yml'), 'behaviours:\n  - { id: B-001, title: a }\nflows: []\n');

@@ -10,6 +10,7 @@
     "examples/*/src/**/*.ts",
     "examples/*/test/**/*.ts",
     "tools/docs/**/*.ts",
+    "tools/test-setup/**/*.ts",
     "tools/browser/**/*.ts",
     "vitest.config.ts"
   ],

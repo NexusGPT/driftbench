@@ -1,5 +1,5 @@
 import { realpathSync } from 'node:fs';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +9,7 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { acmeAdapter } from '../../../core/test/runner/support';
 import {
   type BuildOptions,
@@ -42,7 +43,7 @@ function reference(cwd: string): VerifyDeps {
 /** Writes the given instances of the Acme family to a fresh folder. */
 async function written(instances: Instance[], build: BuildOptions): Promise<string> {
   const loaded = await load(ACME_FAMILY);
-  const dir = await mkdtemp(join(tmpdir(), 'driftbench-verify-'));
+  const dir = await tempFolder('driftbench-verify-');
   await writeInstances(dir, loaded, instances, familyReport(loaded, instances, build), {
     force: false,
     header: 'Test.',
@@ -151,7 +152,7 @@ describe('verify on a reference that cannot run the spec', () => {
   });
 
   it('the report leaves an instance the reference cannot run unverified: neither shipped nor rejected', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-verify-not-run-'));
+    const dir = await tempFolder('driftbench-verify-not-run-');
     const source = fileURLToPath(
       new URL('../../../../examples/acme/specs/conversations/tool-failure.yaml', import.meta.url),
     );

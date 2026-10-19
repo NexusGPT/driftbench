@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -30,6 +29,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { tempFolderSync } from '../../../../tools/test-setup/temp-folders';
 import { initializeShippedObjects } from '../../src/objects';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 'framework');
@@ -109,7 +109,7 @@ function refusal(action: () => unknown): ObjectError {
 }
 
 function tempProject(files: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'driftbench-objects-'));
+  const root = tempFolderSync('driftbench-objects-');
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), text);

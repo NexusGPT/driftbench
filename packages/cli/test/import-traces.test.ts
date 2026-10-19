@@ -1,9 +1,9 @@
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { importTracesCommand } from '../src/commands/import-traces';
 import { type Io, main } from '../src/index';
 
@@ -30,7 +30,7 @@ async function run(argv: string[], cwd: string) {
   return { code, ...output };
 }
 
-const scratch = () => mkdtemp(join(tmpdir(), 'driftbench-import-'));
+const scratch = () => tempFolder('driftbench-import-');
 
 describe('driftbench import traces', () => {
   it('drafts one valid, unapproved spec per OpenTelemetry conversation', async () => {

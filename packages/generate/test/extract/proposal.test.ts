@@ -1,7 +1,7 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import {
   checkQuotes,
   countEntries,
@@ -169,7 +169,7 @@ describe('mutations a proposal must refuse', () => {
 
 describe('loadProposal', () => {
   async function folder(sources: Record<string, string>) {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-proposal-'));
+    const dir = await tempFolder('driftbench-proposal-');
     for (const [name, text] of Object.entries(sources)) await writeFile(join(dir, name), text);
     return dir;
   }

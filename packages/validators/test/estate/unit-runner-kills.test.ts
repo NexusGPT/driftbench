@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, describe, expect, it, vi } from 'vitest';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
-import { fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+import { disposeFixtureSuite, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
 import { coverageFamily, readsFamily, taskFamily } from '../../src/ladders/estate/bank/genquality';
 import { killVerdict } from '../../src/ladders/estate/bank/unit';
+
+afterAll(disposeFixtureSuite);
 
 const specs = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
 const verdicts = (entries: Record<string, boolean>) => new Map(Object.entries(entries));

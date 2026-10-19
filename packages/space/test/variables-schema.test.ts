@@ -1,5 +1,4 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   loadVariableStore,
@@ -12,6 +11,7 @@ import {
   validateVariableStore,
 } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { HAND } from './support';
 
 const QUOTE = {
@@ -702,7 +702,7 @@ describe('the store keeps the rules of the space map', () => {
 
 describe('loadVariableStore', () => {
   it('reads a file, and says why it cannot', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-variables-'));
+    const dir = await tempFolder('driftbench-variables-');
     const good = join(dir, 'variables.yaml');
     await writeFile(
       good,

@@ -1,5 +1,4 @@
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
@@ -7,6 +6,7 @@ import { loadSpecs, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const ACME = fileURLToPath(new URL('../../../examples/acme/', import.meta.url));
@@ -117,7 +117,7 @@ describe('driftbench generate', () => {
     };
     const relations = map.relations.filter((relation) => relation.kind === 'task_family').length;
     expect(relations).toBeGreaterThan(0);
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-tasks-'));
+    const dir = await tempFolder('driftbench-generate-tasks-');
     const instances = async (tasks: string) => {
       const result = await run(
         ['generate', '--map', `${ACME}map/approved.yaml`, '--out', `t${tasks}`, '--t', '2', '--tasks', tasks],
@@ -139,7 +139,7 @@ describe('driftbench generate', () => {
   }, 120_000);
 
   it('writes the Acme suite, refuses to overwrite it, and writes it again byte for byte with --force', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
@@ -190,7 +190,7 @@ describe('driftbench generate', () => {
   }, 120_000);
 
   it('writes a capped suite and keeps --budget a row budget', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-spec-cap-'));
+    const dir = await tempFolder('driftbench-spec-cap-');
     await writeFile(join(dir, 'prompt.md'), PROMPT);
     await writeFile(join(dir, 'map.yaml'), PHRASED_MAP);
     const result = await run(
@@ -234,7 +234,7 @@ describe('driftbench generate', () => {
   });
 
   it('refuses a map with unapproved entries, naming the count', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
@@ -243,7 +243,7 @@ describe('driftbench generate', () => {
   });
 
   it('refuses a missing map and bad numbers', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     expect((await run(['generate', '--map', 'nowhere.yaml', '--out', 'out'], dir)).code).toBe(2);
     const t = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'out', '--t', '0'], dir);
     expect(t.code).toBe(2);
@@ -256,7 +256,7 @@ describe('driftbench generate', () => {
   });
 
   it('exits 0 when every block has an approved phrase, and measures a baseline on the same map', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     await writeFile(join(dir, 'prompt.md'), PROMPT);
     await writeFile(join(dir, 'map.yaml'), PHRASED_MAP);
     const result = await run(['generate', '--map', 'map.yaml', '--out', 'out', '--json'], dir);
@@ -280,7 +280,7 @@ describe('driftbench generate', () => {
   });
 
   it('exits 0 below full pair coverage in budget mode and reports the uncovered pairs', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     await writeFile(join(dir, 'prompt.md'), PROMPT);
     const map = PHRASED_MAP.replace(
       `constraints: []`,
@@ -301,7 +301,7 @@ describe('driftbench generate', () => {
   });
 
   it('refuses invalid budgets before writing output', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     for (const budget of ['0', '-1', '1.5', 'NaN']) {
       const result = await run(
         ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'out', '--budget', budget],
@@ -314,7 +314,7 @@ describe('driftbench generate', () => {
   });
 
   it('samples numeric runtime vars globally and within categorical rows, and delivers them to the adapter', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const dir = await tempFolder('driftbench-generate-');
     const quote = 'temperature ranges from 0 to 1; iterations range from 1 to 5 integer attempts.';
     await writeFile(join(dir, 'prompt.md'), `${PROMPT}${quote}\n`);
     await writeFile(

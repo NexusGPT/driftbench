@@ -1,6 +1,5 @@
 import { spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -11,6 +10,7 @@ import {
   type Spec,
 } from '@agent-nexus/driftbench-core';
 import ExcelJS from 'exceljs';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { taskArtifactText } from '../../src/index';
 
 /**
@@ -105,5 +105,5 @@ export async function judgeText(spec: Spec, sheet: BuiltSheet): Promise<string> 
 }
 
 export async function scratch(): Promise<string> {
-  return realpath(await mkdtemp(join(tmpdir(), 'driftbench-judges2-')));
+  return realpath(await tempFolder('driftbench-judges2-'));
 }

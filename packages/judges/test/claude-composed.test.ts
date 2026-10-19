@@ -1,7 +1,7 @@
-import { mkdtempSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
+import { tempFolderSync } from '../../../tools/test-setup/temp-folders';
 import { createClaudeCliJudge } from '../src/clients/claude-cli';
 import { CLAUDE_SUBMISSION_CEILING } from '../src/clients/claude-errors';
 import { createDialectTransport } from '../src/clients/transport';
@@ -36,7 +36,7 @@ const lines = (log: string) => readFileSync(log, 'utf8').split('\n').filter(Bool
 
 /** A fake command that answers the nth process with the nth envelope and logs the effort it was given. */
 function scripted(sequence: readonly unknown[]) {
-  const log = join(mkdtempSync(join(tmpdir(), 'driftbench-composed-')), 'efforts');
+  const log = join(tempFolderSync('driftbench-composed-'), 'efforts');
   const script = `const f=require('node:fs');const log=process.env.COMPOSED_LOG;const n=f.existsSync(log)?f.readFileSync(log,'utf8').split('\\n').filter(Boolean).length:0;const at=process.argv.indexOf('--effort');const cap=process.argv.indexOf('--max-budget-usd');f.appendFileSync(log,(at<0?'native':process.argv[at+1])+' '+(cap<0?'none':process.argv[cap+1])+'\\n');let s='';process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>{const all=${JSON.stringify(sequence)};const p=all[Math.min(n,all.length-1)];process.stdout.write(JSON.stringify(p));if(p.is_error)process.exitCode=1;});`;
   return {
     options: {

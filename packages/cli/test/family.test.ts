@@ -1,8 +1,8 @@
-import { cp, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const ACME_FAMILY = fileURLToPath(new URL('../../../examples/acme/families/price-sheet/', import.meta.url));
@@ -40,7 +40,7 @@ async function tree(dir: string): Promise<Record<string, string>> {
  * the committed one is signed for the committed family and oracle, and nobody reviewed what a test changes.
  */
 async function acmeCopy(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+  const dir = await tempFolder('driftbench-family-cli-');
   await cp(ACME_FAMILY, join(dir, 'price-sheet'), {
     recursive: true,
     filter: (source) => !source.includes('/instances'),
@@ -55,7 +55,7 @@ async function acmeCopy(): Promise<string> {
 
 describe('driftbench family instances', () => {
   it('writes N instances with their variants and the report, the same bytes for the same seed', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const first = await run(
       ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '5', '--out', 'out'],
       cwd,
@@ -99,7 +99,7 @@ describe('driftbench family instances', () => {
   });
 
   it('refuses bad numbers, an invalid family, an unapproved phrase, and a review that is missing or stale', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const bad = await run(
       ['family', 'instances', ACME_FAMILY, '--n', '0', '--seed', '1', '--out', 'out'],
       cwd,
@@ -163,7 +163,7 @@ describe('driftbench family instances', () => {
   });
 
   it('writes nothing and exits 1 when a style knob changes what the oracle expects', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const family = await acmeCopy();
     const oracle = await readFile(join(family, 'oracle.mjs'), 'utf8');
     // A defect: the oracle reads the wording, a style knob, into the expected outcome.
@@ -186,7 +186,7 @@ describe('driftbench family instances', () => {
 describe('the committed Acme instances', () => {
   it('are the ones driftbench family instances writes today, with seed 1 and n 20', async () => {
     const repo = fileURLToPath(new URL('../../../', import.meta.url));
-    const out = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const out = await tempFolder('driftbench-family-cli-');
     const result = await run(
       ['family', 'instances', 'examples/acme/families/price-sheet', '--n', '20', '--seed', '1', '--out', out],
       repo,
@@ -202,7 +202,7 @@ describe('the committed Acme instances', () => {
 
 describe('driftbench family review', () => {
   it('says signed for the Acme family, pending for an unsigned one, and writes a pending review for a family with none', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const acme = await run(['family', 'review', ACME_FAMILY], cwd);
     expect(acme.code).toBe(0);
     expect(acme.out).toBe('Review: signed by owner on 2026-10-13.\n');
@@ -225,7 +225,7 @@ describe('driftbench family review', () => {
 
 describe('driftbench family verify', () => {
   it('ships every instance of both seed formats the reference passes, and rejects one whose expectation is wrong', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     // Built from the copy, whose review is pending: verify then says release waits for the signature.
     const built = await run(
       ['family', 'instances', await acmeCopy(), '--n', '3', '--seed', '8', '--out', 'out'],
@@ -272,7 +272,7 @@ describe('driftbench family verify', () => {
   }, 120_000);
 
   it('exits 0 when the reference passes every spec of a CSV-only family', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const family = await acmeCopy();
     const text = await readFile(join(family, 'family.yaml'), 'utf8');
     await writeFile(
@@ -298,7 +298,7 @@ describe('driftbench family verify', () => {
   }, 120_000);
 
   it('exits 2 with no adapter for the reference, a bad number, or no spec under the folder', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const cwd = await tempFolder('driftbench-family-cli-');
     const none = await run(['family', 'verify', '.', '--reference', 'process:nobody'], cwd);
     expect(none.code).toBe(2);
     expect(none.err).toMatch(/^No adapter is set up for process:nobody\./);

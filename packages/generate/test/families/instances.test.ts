@@ -1,9 +1,9 @@
-import { mkdtemp, readdir, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { readWorkbook } from '@agent-nexus/driftbench-artifacts';
 import { canonicalJson, loadSpecFile, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import {
   type BuildOptions,
   buildInstances,
@@ -266,7 +266,7 @@ describe('writing instances', () => {
     const loaded = await load(await writeFamily());
     const build = options({ n: 2 });
     const instances = await buildInstances(loaded, build);
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-instances-'));
+    const dir = await tempFolder('driftbench-instances-');
     await writeInstances(dir, loaded, instances, familyReport(loaded, instances, build), {
       force: false,
       header: 'Test.',
@@ -299,7 +299,7 @@ describe('writing instances', () => {
     );
     const build = options({ n: 1 });
     const instances = await buildInstances(loaded, build);
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-instances-'));
+    const dir = await tempFolder('driftbench-instances-');
     await writeInstances(dir, loaded, instances, familyReport(loaded, instances, build), {
       force: false,
       header: 'Test.',

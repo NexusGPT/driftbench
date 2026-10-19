@@ -1,8 +1,8 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { ClaudeCodeReader, runStaticTests } from '../src/index';
 import { FIXTURE } from './support';
 
@@ -27,7 +27,7 @@ const TESTS = [
 ];
 
 async function copy(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-static-'));
+  const root = await tempFolder('driftbench-static-');
   await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
   return root;

@@ -1,9 +1,11 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
-import { FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+import { disposeFixtureSuite, FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+
+afterAll(disposeFixtureSuite);
 
 describe('the fixture suite is generated with the recorded sessions beside the map', {
   timeout: 300_000,

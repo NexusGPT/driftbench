@@ -1,4 +1,5 @@
-import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
+import { cp, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
@@ -40,14 +41,42 @@ export type FixtureSuite = {
 };
 
 let built: Promise<FixtureSuite> | undefined;
+let workFolder: string | undefined;
 
 export function fixtureSuite(): Promise<FixtureSuite> {
   built ??= build();
   return built;
 }
 
+/** Removes the suite's folder; the next fixtureSuite() call builds it again. */
+export async function disposeFixtureSuite(): Promise<void> {
+  const pending = built;
+  built = undefined;
+  await pending?.catch(() => undefined);
+  const folder = workFolder;
+  workFolder = undefined;
+  if (folder !== undefined) await rm(folder, { recursive: true, force: true });
+}
+
+// The suite lives as long as the process, since every family reads it; the folder goes when the process ends.
+process.once('exit', () => {
+  if (workFolder !== undefined) rmSync(workFolder, { recursive: true, force: true });
+});
+
 async function build(): Promise<FixtureSuite> {
   const work = await mkdtemp(join(tmpdir(), 'estate-fixture-suite-'));
+  workFolder = work;
+  try {
+    return await buildIn(work);
+  } catch (cause) {
+    built = undefined;
+    workFolder = undefined;
+    await rm(work, { recursive: true, force: true });
+    throw cause;
+  }
+}
+
+async function buildIn(work: string): Promise<FixtureSuite> {
   for (const name of ['approved.yaml', 'plan.yaml', 'phrases.yaml'])
     await cp(join(FIXTURE, name), join(work, name));
   // The recorded sessions sit beside the map (docs/estate.md section 5): a replay row finds its session there, and

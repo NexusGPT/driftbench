@@ -1,9 +1,9 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Observed } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { readTraces, readTracesText, tracesFromNexus } from '../../src/traces';
 
 const FIXTURES = fileURLToPath(new URL('./fixtures/', import.meta.url));
@@ -54,7 +54,7 @@ describe('readTraces', () => {
   });
 
   it('reads every trace file of a folder, and OTLP from text', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-traces-'));
+    const dir = await tempFolder('driftbench-traces-');
     await writeFile(join(dir, 'a.json'), await readFile(`${FIXTURES}otel-semconv.json`, 'utf8'));
     await writeFile(join(dir, 'b.jsonl'), await readFile(`${FIXTURES}otel-flat.jsonl`, 'utf8'));
     await writeFile(join(dir, 'notes.txt'), 'ignored');
@@ -67,7 +67,7 @@ describe('readTraces', () => {
 
   it('refuses a Claude Code session given as text, and a folder with no trace file', async () => {
     expect(() => readTracesText('{}', 'claude-code')).toThrow(/a file/);
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-traces-'));
+    const dir = await tempFolder('driftbench-traces-');
     await expect(readTraces(dir, 'otel')).rejects.toThrow(/no .json or .jsonl file/);
   });
 });

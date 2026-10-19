@@ -1,5 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   type Cassette,
@@ -11,7 +10,7 @@ import {
   type JudgeResult,
 } from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../pool';
-import { type BankItem, fn, type JudgesApi, pick, type Tier, value } from '../bank';
+import { type BankItem, fn, type JudgesApi, pick, scratchFolder, type Tier, value } from '../bank';
 
 /**
  * Consistency and cassettes. The same request must give the same prompt and key every time; a cassette must
@@ -321,7 +320,7 @@ function cassetteApi(api: JudgesApi): CassetteApi {
 
 /** Writes a cassette file as text and asks the package to load it: refused or loaded. */
 async function loads(api: JudgesApi, text: string): Promise<'refused' | 'loaded'> {
-  const dir = mkdtempSync(join(tmpdir(), 'judges-bank-'));
+  const dir = scratchFolder('judges-bank-');
   const path = join(dir, 'c.cassette.json');
   writeFileSync(path, text, 'utf8');
   const load = cassetteApi(api).loadCassette;
@@ -397,7 +396,7 @@ export function cassetteItems(): BankItem[] {
     c('save-load-round-trip', 1, async (api, r, root) => {
       const request = await someRequest(root, r);
       const cassette = await record(api, request, [answer('pass'), 'garbage', answer('fail')], 3);
-      const dir = mkdtempSync(join(tmpdir(), 'judges-bank-'));
+      const dir = scratchFolder('judges-bank-');
       const path = join(dir, 'rt.cassette.json');
       await cassetteApi(api).saveCassette(path, cassette);
       const first = readFileSync(path, 'utf8');
@@ -410,7 +409,7 @@ export function cassetteItems(): BankItem[] {
         transcript: [{ role: 'user', text: '\u{1F642} شكرا 谢' }],
       };
       const cassette = await record(api, request, [{ outcome: 'pass', reasoning: 'éè 中文 \u{1F642}' }], 1);
-      const dir = mkdtempSync(join(tmpdir(), 'judges-bank-'));
+      const dir = scratchFolder('judges-bank-');
       const path = join(dir, 'u.cassette.json');
       await cassetteApi(api).saveCassette(path, cassette);
       const back = await cassetteApi(api)

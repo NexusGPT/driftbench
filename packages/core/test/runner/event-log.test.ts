@@ -1,12 +1,12 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { eventLogSink, readEventLog } from '../../src/runner/event-log';
 
 describe('the event log keeps every event written before an interruption', () => {
   it('each event is on disk as soon as it is reported, before the next one', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'events-'));
+    const dir = await tempFolder('events-');
     const path = join(dir, 'events.jsonl');
     const sink = eventLogSink(path);
     sink({ type: 'block_start', index: 0, at: 'a' });
@@ -19,7 +19,7 @@ describe('the event log keeps every event written before an interruption', () =>
   });
 
   it('a line cut short by the interruption is skipped, the lines before it are kept', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'events-'));
+    const dir = await tempFolder('events-');
     const path = join(dir, 'events.jsonl');
     await writeFile(path, '{"type":"block_start","index":0,"at":"a"}\n{"type":"block_end","ind');
     expect(readEventLog(path)).toEqual([{ type: 'block_start', index: 0, at: 'a' }]);

@@ -1,8 +1,8 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
@@ -41,7 +41,7 @@ describe('driftbench estate static', () => {
   });
 
   it('turns a setting test red on a copy whose settings changed', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-static-'));
+    const root = await tempFolder('driftbench-estate-static-');
     await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
     await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
     const settings = join(root, '.claude/settings.json');

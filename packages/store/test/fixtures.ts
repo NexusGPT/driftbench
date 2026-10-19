@@ -1,7 +1,5 @@
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import type { BlockResult, Campaign, Observed, RunResult, TargetRef } from '@agent-nexus/driftbench-core';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { cellId, StoreError } from '../src/index';
 
 /** Fictional data only: Acme Telecom, Acmeville, local endpoints. */
@@ -197,7 +195,7 @@ export function campaign(campaignId = 'acme-2026-10-11', overrides: Partial<Camp
 }
 
 export async function tempDir(): Promise<string> {
-  return mkdtemp(join(tmpdir(), 'driftbench-store-'));
+  return tempFolder('driftbench-store-');
 }
 
 /** Runs the call and returns the StoreError it raised; any other outcome fails the test. */

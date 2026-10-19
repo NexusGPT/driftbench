@@ -1,7 +1,7 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { type LoadedFamily, loadFamily } from '../../src/families/load';
 
 export const ACME_FAMILY = fileURLToPath(
@@ -104,7 +104,7 @@ export async function writeFamily(
   oracle: string = TOY_ORACLE,
   extra: Record<string, string | Uint8Array> = {},
 ): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'driftbench-family-'));
+  const dir = await tempFolder('driftbench-family-');
   await writeFile(join(dir, 'family.yaml'), family);
   await writeFile(join(dir, 'oracle.mjs'), oracle);
   for (const [name, content] of Object.entries(extra)) await writeFile(join(dir, name), content);

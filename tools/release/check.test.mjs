@@ -1,7 +1,7 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { tempFolderSync } from '../test-setup/temp-folders.ts';
 import { checkChangelog, checkManifest, checkVersions, junkFiles, main, packFiles } from './check.mjs';
 
 const REPO = 'git+https://github.com/achammah/driftbench.git';
@@ -28,7 +28,7 @@ function manifest(dir, overrides = {}) {
 }
 
 function repo({ packages, changelog = '# Changelog\n\n## [0.1.0] - 2026-10-12\n', pyproject }) {
-  const root = mkdtempSync(join(tmpdir(), 'driftbench-release-test-'));
+  const root = tempFolderSync('driftbench-release-test-');
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'root', private: true }));
   writeFileSync(join(root, 'CHANGELOG.md'), changelog);
   for (const [dir, pkg] of Object.entries(packages)) {

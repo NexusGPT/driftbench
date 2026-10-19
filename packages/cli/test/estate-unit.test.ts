@@ -1,8 +1,8 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -26,7 +26,7 @@ async function run(argv: string[]) {
 
 describe('driftbench estate unit on the Northwind suite', () => {
   it('refuses unrecorded guard tests, records them on the original, passes there, and fails on a mutant', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-unit-'));
+    const dir = await tempFolder('estate-unit-');
     const tests = join(dir, 'unit');
     await cp(UNIT, tests, { recursive: true });
 
@@ -144,7 +144,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
   }, 180_000);
 
   it('keeps the results and their order with --jobs, and says so when --no-sandbox runs without the sandbox', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-unit-jobs-'));
+    const dir = await tempFolder('estate-unit-jobs-');
     const tests = join(dir, 'unit');
     await cp(join(UNIT, 'guard_positive'), tests, { recursive: true });
     expect((await run(['estate', 'unit', tests, '--estate', FIXTURE, '--record'])).code).toBe(0);
@@ -177,7 +177,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
 
   it('lists each script fixture run with its exit code and stdout', async () => {
     const CASES = join(ROOT, 'examples/estates/reader-cases');
-    const dir = await mkdtemp(join(tmpdir(), 'estate-unit-script-'));
+    const dir = await tempFolder('estate-unit-script-');
     await writeFile(
       join(dir, 'track.json'),
       JSON.stringify({

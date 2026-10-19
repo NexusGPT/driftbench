@@ -1,11 +1,11 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { loadSpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { estateScanCommand } from '../src/commands/estate';
 import { type Io, main } from '../src/index';
 
@@ -33,7 +33,7 @@ async function run(argv: string[], cwd: string) {
 
 /** A copy of the fixture estate in a temporary folder, without its committed outputs. */
 async function fixtureCopy(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-cli-'));
+  const root = await tempFolder('driftbench-estate-cli-');
   await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
   await cp(join(FIXTURE, 'answers.yaml'), join(root, 'answers.yaml'));
@@ -77,7 +77,7 @@ describe('driftbench estate scan', () => {
 
   it('records the root relative to the map, and never refuses to read an estate elsewhere', async () => {
     const root = await fixtureCopy();
-    const elsewhere = await mkdtemp(join(tmpdir(), 'driftbench-estate-out-'));
+    const elsewhere = await tempFolder('driftbench-estate-out-');
     const result = await run(
       ['estate', 'scan', root, '--no-model', '--out', join(elsewhere, 'maps', 'map.yaml')],
       elsewhere,
@@ -165,7 +165,7 @@ describe('driftbench estate scan and lint with an ignore list', () => {
   const CASES = fileURLToPath(new URL('../../../examples/estates/reader-cases/', import.meta.url));
 
   it('prints what the defaults and the config skip, records the list in the map, and lints with it', async () => {
-    const out = await mkdtemp(join(tmpdir(), 'driftbench-estate-ignore-'));
+    const out = await tempFolder('driftbench-estate-ignore-');
     const scan = await run(['estate', 'scan', CASES, '--no-model', '--out', join(out, 'map.yaml')], out);
     expect(scan.code).toBe(0);
     expect(scan.out).toContain(

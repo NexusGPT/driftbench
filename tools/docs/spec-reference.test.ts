@@ -1,11 +1,11 @@
 import { spawnSync } from 'node:child_process';
-import { appendFile, copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { appendFile, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as core from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import * as family from '../../packages/generate/src/families/schema';
+import { tempFolder } from '../test-setup/temp-folders';
 import {
   checkLinks,
   DOCS,
@@ -51,7 +51,7 @@ function capture() {
 }
 
 async function tempDir() {
-  return mkdtemp(join(tmpdir(), 'driftbench-docs-'));
+  return tempFolder('driftbench-docs-');
 }
 
 /** Every property key under a JSON Schema node, at any depth. */

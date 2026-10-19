@@ -1,3 +1,7 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as judgesModule from '@agent-nexus/driftbench-judges';
 import { mulberry32 } from '@agent-nexus/driftbench-stats';
 import { hash32 } from '../transforms';
@@ -115,6 +119,15 @@ export function item<I, O>(def: {
   };
 }
 
+const scratchScope = new AsyncLocalStorage<string[]>();
+
+/** A new folder under the temp folder for the item that is running; runItem removes it when the item ends. */
+export function scratchFolder(prefix: string): string {
+  const folder = mkdtempSync(join(tmpdir(), prefix));
+  scratchScope.getStore()?.push(folder);
+  return folder;
+}
+
 /** Runs one item on one seed. A throw anywhere is a failure that names it. */
 export async function runItem(
   entry: BankItem,
@@ -124,10 +137,13 @@ export async function runItem(
 ): Promise<ItemResult> {
   const random = mulberry32(hash32(`${seed}:${entry.id}`));
   let result: ItemResult;
+  const made: string[] = [];
   try {
-    result = await entry.run({ seed, root, api, random });
+    result = await scratchScope.run(made, async () => entry.run({ seed, root, api, random }));
   } catch (cause) {
     result = { pass: false, detail: `the item threw: ${message(cause)}` };
+  } finally {
+    for (const folder of made) rmSync(folder, { recursive: true, force: true });
   }
   if (result.pass || !entry.cause) return result;
   // A screen behaviour needs the base screen first: say so while screenData does not exist yet.

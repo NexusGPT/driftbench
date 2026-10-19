@@ -1,5 +1,4 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -10,6 +9,7 @@ import {
   validateSpaceMap,
 } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { HAND } from './support';
 
 const ACME = fileURLToPath(new URL('./fixtures/acme-space.yaml', import.meta.url));
@@ -308,7 +308,7 @@ describe('the map schema and loader', () => {
   });
 
   it('reads JSON by extension, and says when the file cannot be read', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-space-'));
+    const dir = await tempFolder('driftbench-space-');
     await writeFile(join(dir, 'space.json'), JSON.stringify(HAND));
     expect((await loadSpaceMap(join(dir, 'space.json'))).ok).toBe(true);
     const missing = await loadSpaceMap(join(dir, 'nope.yaml'));
