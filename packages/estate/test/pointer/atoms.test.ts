@@ -567,6 +567,72 @@ describe('atoms from labels', () => {
       expect(missing.result.pointer?.atomRefusals).toHaveLength(1);
     });
 
+    it('writes optional keys, alternatives, lists of the unit and a top-level reply act from the labels', async () => {
+      const text = GATES.replace(
+        '      - { name: weather, description: the condition that calls for it }',
+        '      - { name: weather, description: the condition that calls for it }\n      - { name: ask-context, description: the situation of the request }',
+      )
+        .replace(
+          '      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }',
+          '      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }\n      - { name: reply-act, description: the act of the reply, values: [answer, refuse] }',
+        )
+        .replace(
+          '        spans: [weather]\n        links: [act-tool]',
+          '        spans: [weather, ask-context]\n        links: [act-tool, reply-act]',
+        )
+        .replace(
+          'fields: { first: $code, path: $path, trigger: $span.weather }',
+          'fields: { reread: $paths, calls: { each: $codes, item: { label: Bash, input: { command: { contains: $item } } } }, "ask?": { text: $span.weather, "context?": $span.ask-context }, "retry?": $has.ask-context, order: { firstFilled: [ { key: $link.nothing }, { before: $span.weather, after: $link.act-tool } ] } }\n          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: reply } }',
+        );
+      expect(text).not.toBe(GATES);
+      const play = (answer: Record<string, unknown>) =>
+        scan(
+          {},
+          {
+            sets: setsOf(text),
+            labelling: pointer.singleLabelling(
+              plantedDense((window) => {
+                const at = window.units.find((unit) => unit.text === UNIT)?.n;
+                return at === undefined
+                  ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                  : [{ units: String(at), ...answer } as pointer.Labelled];
+              }),
+            ),
+          },
+          LOGS,
+        );
+      const found = (run: Awaited<ReturnType<typeof play>>) =>
+        run.result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      const full = found(
+        await play(
+          entry({
+            spans: [
+              { kind: 'weather', from: UNIT.indexOf('when the fog'), to: UNIT.indexOf('comes') - 1 },
+              { kind: 'ask-context', from: UNIT.indexOf('comes'), to: UNIT.length - 1 },
+            ],
+            links: [
+              { kind: 'act-tool', to: 'Edit' },
+              { kind: 'reply-act', to: 'refuse' },
+            ],
+          }),
+        ),
+      );
+      expect(full).toBeDefined();
+      expect(full?.replyAct).toEqual({ id: 'refuse', evidence: { type: 'text_segment', part: 'reply' } });
+      expect(full?.fields).toMatchObject({
+        reread: ['.claude/skills/logs/references/log-rules.md'],
+        calls: [{ label: 'Bash', input: { command: { contains: 'references/log-rules.md' } } }],
+        ask: { text: 'when the fog', context: 'comes in' },
+        retry: true,
+        order: { before: 'when the fog', after: 'Edit' },
+      });
+      // Without the context span and the reply act link: the optional keys and the reply act are left out.
+      const bare = found(await play(entry()));
+      expect(bare?.replyAct).toBeUndefined();
+      expect(bare?.fields?.ask).toEqual({ text: 'when the fog comes in' });
+      expect(bare?.fields).not.toHaveProperty('retry');
+    });
+
     it('refuses the atom, with the reason, when the unit gives no span, link or code span that the mapping needs', async () => {
       const noLink = await run(entry({ links: undefined }));
       expect(noLink.result.pointer?.atomRefusals).toEqual([

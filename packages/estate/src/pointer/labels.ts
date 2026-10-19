@@ -55,6 +55,8 @@ const AtomBase = z.strictObject({
    * the unit as for the title, and a value with an unfilled placeholder refuses the atom with its reason.
    */
   fields: z.record(z.string(), FieldValue).optional(),
+  /** The reply act the atom governs: a top-level key of the atom, filled as `fields` is, with the same optional keys. */
+  replyAct: z.record(z.string(), FieldValue).optional(),
   /** Checks the set puts on every atom of this label, after the review check the scan adds. */
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */

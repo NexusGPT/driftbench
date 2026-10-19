@@ -123,6 +123,7 @@ export class AtomBuilder {
     producedBy?: 'code' | 'model';
     situation?: string;
     fields?: Record<string, unknown>;
+    replyAct?: Atom['replyAct'];
     approved?: boolean;
   }): Atom {
     const base = `${atom.kind}.${this.scopeOf(atom.at.file)}.${slug(atom.title)}`;
@@ -147,6 +148,7 @@ export class AtomBuilder {
       evidence: atom.evidence,
       enforcement: [],
       ...(atom.fields ? { fields: atom.fields } : {}),
+      ...(atom.replyAct ? { replyAct: atom.replyAct } : {}),
     };
     this.atoms.push(built);
     const inFile = this.byFile.get(built.provenance.file);
