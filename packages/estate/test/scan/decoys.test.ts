@@ -168,5 +168,3 @@ describe('a guard message that quotes part of a rule', () => {
     });
   });
 });
-
-describe('a reference that names a second reference', () => {});
