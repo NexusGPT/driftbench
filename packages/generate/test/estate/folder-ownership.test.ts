@@ -19,12 +19,18 @@ const reference = (
   id: string,
   path = 'skills/shipping/references/carriers.md',
   quote = 'Read the carrier policy when needed.',
+  ask?: { text: string; context?: string },
 ): EstateAtom => ({
   id,
   kind: 'reference',
   title: 'Read the carrier policy',
   approved: true,
-  fields: { path, readWhen: 'When a carrier update arrives' },
+  // A declared ask names the exact act of its atom: a read of the file. No sentence is read for a task.
+  fields: {
+    path,
+    readWhen: 'When a carrier update arrives',
+    ...(ask ? { ask: { ...ask, act: { kind: 'read', target: path } } } : {}),
+  },
   provenance: { file: hub.provenance?.file, quote },
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { equals: path } } }],
 });
@@ -60,7 +66,10 @@ const row = (id: string): EstatePlanRow => ({
 });
 
 it('the target folder overrides a wrong citing skill, including stale plan metadata', () => {
-  const ref = reference('reference.carriers');
+  const ref = reference('reference.carriers', undefined, undefined, {
+    text: 'track delayed parcels for the dispatch centre',
+    context: 'When a carrier update arrives',
+  });
   const suite = run([hub, shipping, ref], [row(ref.id)]);
   expect(
     estateOwners([hub, shipping, ref], [{ from: hub.id, to: ref.id, kind: 'reference' }]).get(ref.id),
@@ -92,8 +101,8 @@ it.each([
   ['Read the shipping policy before preparing the customs declaration.', 'prepare the customs declaration'],
   ['Read the shipping policy first, then archive the delivery receipt.', 'archive the delivery receipt'],
   ['Never publish the carrier notice without reading the shipping policy.', 'publish the carrier notice'],
-])('takes the work from its own governed clause: %s', (quote, action) => {
-  const ref = reference('reference.clause', undefined, quote);
+])('takes the work from the ask its atom declares: %s', (quote, action) => {
+  const ref = reference('reference.clause', undefined, quote, { text: action });
   const suite = run([hub, shipping, ref], [row(ref.id)]);
   const file = suite.files.find((file) => file.path.endsWith('.yaml'));
   if (!file) throw new Error('missing spec');
@@ -107,6 +116,14 @@ it('a shared reference takes the task of the unit that cites it directly, never 
   // citation decides.
   const fromShipping = reference('reference.shared-one', 'shared/policy.md');
   fromShipping.provenance = { file: shipping.provenance?.file, quote: 'Read shared/policy.md.' };
+  fromShipping.fields = {
+    ...fromShipping.fields,
+    ask: {
+      text: 'track delayed parcels for the dispatch centre',
+      context: 'When a carrier update arrives',
+      act: { kind: 'read', target: 'shared/policy.md' },
+    },
+  };
   const suite = run([hub, shipping, fromShipping], [row(fromShipping.id)]);
   expect(suite.report.summary.complete).toBe(1);
   expect(suite.specs[0]?.atoms).toEqual([fromShipping.id, shipping.id]);
@@ -121,21 +138,29 @@ it('a shared reference takes the task of the unit that cites it directly, never 
 });
 
 it('a shared reference cited from no unit borrows no linked task and hides no gap by grouping', () => {
-  const standing = (id: string): EstateAtom => {
-    const ref = reference(id, 'shared/policy.md');
-    ref.provenance = { file: 'CLAUDE.md', quote: 'Read shared/policy.md.' };
+  const standing = (id: string, path: string): EstateAtom => {
+    const ref = reference(id, path);
+    ref.provenance = { file: 'CLAUDE.md', quote: `Read ${path}.` };
     return ref;
   };
-  const first = standing('reference.shared-one');
-  const second = standing('reference.shared-two');
+  const first = standing('reference.shared-one', 'shared/policy.md');
+  const second = standing('reference.shared-two', 'shared/rates.md');
   const suite = run([hub, shipping, first, second], [row(first.id), row(second.id)]);
-  expect(suite.report.summary.complete).toBe(0);
-  expect(suite.report.incomplete).toHaveLength(2);
+  // Nothing declares a task for them and no unit owns them: each asks for its own read of its own file, and the
+  // task of the shipping unit that only links to them is never borrowed.
+  expect(suite.report.summary.complete).toBe(2);
   expect(suite.report.equivalence.collapsed).toBe(0);
-  for (const spec of suite.specs) {
-    expect(spec.atoms).toHaveLength(1);
-    expect(spec.markers).toContain('needs-askable-act');
-  }
+  const asks = suite.files
+    .filter((file) => file.path.endsWith('.yaml'))
+    .map((file) => {
+      const parsed = parseSpecText(file.text, 'yaml', file.path);
+      if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+      const when = parsed.spec.blocks[0]?.when;
+      return when && 'user' in when ? when.user : '';
+    })
+    .sort();
+  expect(asks).toEqual(['Please read `shared/policy.md`.', 'Please read `shared/rates.md`.']);
+  for (const spec of suite.specs) expect(spec.atoms).toHaveLength(1);
 });
 
 it('preserves folder ownership across hundreds of deliberately flattened citation links', () => {
@@ -178,14 +203,18 @@ it('preserves folder ownership across hundreds of deliberately flattened citatio
   }
 });
 
-it('uses the source clause before stale extracted gate metadata', () => {
+it('uses the declared ask before stale extracted gate metadata', () => {
   const ref = reference(
     'gate.delivery',
     undefined,
     'Before publishing the delivery notice, read the carrier policy.',
   );
   ref.kind = 'gate';
-  ref.fields = { ...ref.fields, trigger: 'Prepare the annual catalogue.' };
+  ref.fields = {
+    ...ref.fields,
+    trigger: 'Prepare the annual catalogue.',
+    ask: { text: 'publish the delivery notice', act: { kind: 'reply' } },
+  };
   const suite = run([hub, shipping, ref], [{ ...row(ref.id), testType: 'ordered_pair' }]);
   const file = suite.files.find((file) => file.path.endsWith('.yaml'));
   if (!file) throw new Error('missing spec');
@@ -199,6 +228,7 @@ it('rejects an approved phrase belonging to a different skill despite an explici
     'reference.phrased',
     undefined,
     'Before editing the delivery label, read the carrier policy.',
+    { text: 'edit the delivery label' },
   );
   const suite = run(
     [hub, shipping, ref],

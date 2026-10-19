@@ -139,13 +139,9 @@ ${skillBody}
 }
 
 describe('fictional fake emits the act of its actual reply branch', () => {
-  it('reports unresolved prerequisites without labelling the reply as a clarification', async () => {
-    const { session } = await play(
-      'Review harbour vessel papers.',
-      '',
-      'Read `policy.md` before applying any policy line.',
-    );
-    expect(session.blocks[0]?.observed.text).toContain('actions cannot be resolved');
+  it('reports an action that could not complete without labelling the reply as a clarification', async () => {
+    const { session } = await play('Read `missing.md`.');
+    expect(session.blocks[0]?.observed.text).toContain('could not complete');
     expect(session.blocks[0]?.observed.replyAct?.id).toBe('report');
   });
   it('preserves the branch evidence in the fake persisted session', async () => {
@@ -156,15 +152,17 @@ describe('fictional fake emits the act of its actual reply branch', () => {
     const saved = await readFile(join(projects, folders[0] ?? '', `${parsed.sessionId}.jsonl`), 'utf8');
     const session = mapSession({ transcript: parseJsonl(saved) });
     expect(session.blocks[0]?.observed.replyAct).toMatchObject({
-      id: 'report',
+      id: 'answer',
       source: { kind: 'adapter', name: 'driftbench-fictional-agent' },
     });
   });
 
   it.each([
-    ['Berthify the vessel.', '', 'report'],
-    ['Draft a vessel report.', '', 'report'],
-    ['Ask for the missing vessel identifier.', '', 'report'],
+    // An ask that sets nothing off is answered plainly and changes nothing: the fake never claims a draft, a
+    // clarification or a report for work it did not do.
+    ['Berthify the vessel.', '', 'answer'],
+    ['Draft a vessel report.', '', 'answer'],
+    ['Ask for the missing vessel identifier.', '', 'answer'],
     ['What kinds of things can you help with?', '', 'answer'],
     ['Read `missing.md`.', '', 'report'],
     ['Read `private.md`.', 'Never read `private.md`.', 'report'],

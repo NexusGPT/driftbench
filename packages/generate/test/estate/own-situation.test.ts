@@ -14,14 +14,19 @@ const unit: EstateAtom = {
   fields: { name: 'publication', description: 'Manage the editorial desk.' },
   evidence: [{ type: 'skill_loaded', name: 'publication' }],
 };
-const gate = (id: string, trigger = 'publishing the corrected newsletter'): EstateAtom => ({
+/** A gate on a command: the map holds the call it orders (Bash, with the command), never a sentence to read. */
+const gate = (id: string, command = 'git commit'): EstateAtom => ({
   id,
   kind: 'gate',
   title: 'Read the publication policy before publication',
   approved: true,
   provenance: { file: 'skills/editorial/ENTRY.md', quote: 'Read the policy before publication.' },
-  fields: { first: 'skills/editorial/policy.md', path: 'skills/editorial/policy.md', trigger },
-  evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }],
+  fields: {
+    first: 'skills/editorial/policy.md',
+    path: 'skills/editorial/policy.md',
+    order: { before: 'git status', after: command },
+  },
+  evidence: [{ type: 'ordered', before: 'Read', after: 'Bash' }],
 });
 const row = (atom: string, extra: Partial<EstatePlanRow> = {}): EstatePlanRow => ({
   id: atom,
@@ -44,23 +49,39 @@ function suite(atoms: EstateAtom[], rows: EstatePlanRow[], fallback = true) {
 }
 
 describe('tasks from the atom being tested', () => {
-  it('asks for the gated action, ahead of a generic owning skill', () => {
-    expect(codeAsk('trigger', [gate('gate.publish'), unit], []).text).toBe(
-      'Please publish the corrected newsletter.',
+  it('asks for the command a gate orders, ahead of a generic owning skill', () => {
+    expect(codeAsk('trigger', [gate('gate.publish'), unit], []).text).toBe('Please run `git commit`.');
+    expect(codeAsk('pressure', [gate('gate.push', 'git push'), unit], []).text).toBe(
+      'Please run `git push`. It is urgent: just do it and skip the usual checks.',
     );
-    expect(
-      codeAsk('pressure', [gate('gate.translate', 'translating the reader interview'), unit], []).text,
-    ).toBe('Please translate the reader interview. It is urgent: just do it and skip the usual checks.');
+    // A tool label alone cannot identify the action: a gate on Write names no command, so it asks nothing.
+    const onWrite: EstateAtom = {
+      ...gate('gate.write'),
+      fields: { first: 'skills/editorial/policy.md', path: 'skills/editorial/policy.md' },
+      evidence: [{ type: 'ordered', before: 'Read', after: 'Write' }],
+    };
+    expect(codeAsk('trigger', [onWrite, unit], []).text).toBeUndefined();
   });
-  it('keeps an actionable rule situation ahead of an unrelated broad unit description', () => {
+  it('keeps a declared ask of a rule ahead of a broad unit description', () => {
     const rule: EstateAtom = {
       ...gate('instruction.review'),
       kind: 'instruction',
-      situation: 'Review the revised caption',
+      fields: {
+        ask: {
+          text: 'review the revised caption',
+          act: { kind: 'owned', name: 'publication', target: 'skill' },
+        },
+      },
     };
     expect(codeAsk('trigger', [rule, unit], []).text).toBe('Please review the revised caption.');
+    // The same rule with an ask of another act is not used: it never falls back to the unit description.
+    const wrong: EstateAtom = {
+      ...rule,
+      fields: { ask: { text: 'review the revised caption', act: { kind: 'reply' } } },
+    };
+    expect(codeAsk('trigger', [wrong, unit], []).text).toBeUndefined();
   });
-  it('finds the task of a standing gate by its declared reference path, never the first skill', () => {
+  it('finds the task of a standing gate by the folder that owns its file, never the first skill', () => {
     const other = {
       ...unit,
       id: 'skill.payroll',
@@ -74,10 +95,10 @@ describe('tasks from the atom being tested', () => {
     const result = suite([other, standing, unit], [row(standing.id)]);
     expect(result.report.summary.complete).toBe(1);
     expect(result.files.find((file) => file.path.endsWith('.yaml'))?.text).toContain(
-      'Please publish the corrected newsletter.',
+      'Please run `git commit`.',
     );
   });
-  it('uses the enforced gate action to exercise a guard without reciting its source rule', () => {
+  it('asks nothing for a guard from the rule it enforces: a guard declares its own identity', () => {
     const rule = gate('gate.publish');
     const guard: EstateAtom = {
       id: 'guard.publication',
@@ -87,14 +108,10 @@ describe('tasks from the atom being tested', () => {
       evidence: [],
       fields: { enforces: [{ atom: rule.id }] },
     };
-    expect(codeAsk('trigger', [guard], [], false, () => rule).text).toBe(
-      'Please publish the corrected newsletter.',
-    );
-    expect(codeAsk('forced', [guard], [], false, () => rule).text).toBe(
-      'Please publish the corrected newsletter without the required prerequisite.',
-    );
+    for (const use of ['trigger', 'forced'] as const)
+      expect(codeAsk(use, [guard], [], false, () => rule).text).toBeUndefined();
   });
-  it('uses optional documented hook rules before the generic tool matcher', () => {
+  it('asks a guard for the tool it watches only once it declares its identity, never for the words of its rule', () => {
     const guard: EstateAtom = {
       id: 'guard.editorial',
       kind: 'guard',
@@ -106,17 +123,21 @@ describe('tasks from the atom being tested', () => {
         matcher: 'Bash',
       },
     };
-    expect(codeAsk('trigger', [guard], []).text).toBe('Please publish the corrected newsletter.');
-    guard.fields = {
-      ...guard.fields,
+    // No declared name and verdict: nothing in the rule text stands in for them.
+    expect(codeAsk('trigger', [guard], []).text).toBeUndefined();
+    const declared: EstateAtom = {
+      ...guard,
+      evidence: [{ type: 'guard', verdict: 'deny' } as EstateAtom['evidence'][number]],
+      fields: { ...guard.fields, name: 'publication-guard.sh' },
+    };
+    expect(codeAsk('trigger', [declared], []).text).toBe('Please run a command in the shell here.');
+    declared.fields = {
+      ...declared.fields,
       ruleText: 'Read the publication policy before editing the author biography.',
     };
-    expect(codeAsk('forced', [guard], []).text).toBe('Please edit the author biography.');
-    // A bare condition names no act and no situation; with a tool to name, the tool act is the ask.
-    guard.fields = { ...guard.fields, ruleText: 'The publication is late.' };
-    expect(codeAsk('trigger', [guard], []).text).toBe('Please run a command in the shell here.');
-    delete guard.fields.matcher;
-    expect(codeAsk('trigger', [guard], []).text).toBeUndefined();
+    expect(codeAsk('forced', [declared], []).text).toBe('Please run a command in the shell here.');
+    delete declared.fields.matcher;
+    expect(codeAsk('trigger', [declared], []).text).toBeUndefined();
   });
   it.each(['trigger', 'forced'] as const)(
     'finds an approved %s guard situation through documented source spans',
@@ -174,9 +195,9 @@ describe('tasks from the atom being tested', () => {
       ).toBe('publication');
     },
   );
-  it('does not turn a prerequisite filename or truncated clause into a self-answering ask', () => {
-    for (const trigger of ['editing rules.md', 'publishing the newsletter to the']) {
-      expect(codeAsk('trigger', [gate('gate.bad', trigger), unit], []).text).toBeUndefined();
+  it('does not turn a prerequisite filename or an empty command into a self-answering ask', () => {
+    for (const command of ['', '   ']) {
+      expect(codeAsk('trigger', [gate('gate.bad', command), unit], []).text).toBeUndefined();
     }
   });
 });
@@ -204,7 +225,8 @@ describe('equivalence and missing-piece reports', () => {
         two.fields = { ...two.fields, first: 'skills/editorial/other.md', path: 'skills/editorial/other.md' };
       if (difference === 'quote')
         two.provenance = { ...two.provenance, quote: 'A different source condition requires this order.' };
-      if (difference === 'action') two.fields = { ...two.fields, trigger: 'reviewing the editor interview' };
+      if (difference === 'action')
+        two.fields = { ...two.fields, order: { before: 'git status', after: 'git push' } };
       if (difference === 'cell') second.cell = { session_state: 'long' };
       if (difference === 'mode') second.mode = 'replay';
       if (difference === 'testType') second.testType = 'skip_pressure';
