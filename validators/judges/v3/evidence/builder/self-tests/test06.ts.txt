@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';import {labellerCoverageCurve as curve} from './candidate';
+const set={name:'x',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const obs=[{gold:'a',answer:'a',confidence:.9},{gold:'a',answer:'b',confidence:.5},{gold:'b',answer:null,confidence:1},{gold:'b',answer:'bad',confidence:1}];
+const c=curve(obs,set,[1,.5,.5,0]);assert.deepEqual(c.map(x=>x.threshold),[0,.5,1]);
+assert.equal(c[1].accepted,2);assert.equal(c[1].coverage,.5);assert.equal(c[1].acceptedAccuracy,.5);assert.equal(c[1].abstentions,1);assert.equal(c[1].invalid,1);
+assert.ok(Math.abs(c[1].acceptedAccuracyInterval!.lower-(1-Math.sqrt(.975)))<1e-12);
+assert.ok(Math.abs(c[1].acceptedAccuracyInterval!.upper-Math.sqrt(.975))<1e-12);assert.equal(c[2].acceptedAccuracyInterval,null);
+const perfect=curve(obs.slice(0,1),set,[0],1-Number.EPSILON)[0];assert.ok(perfect.acceptedAccuracyInterval!.lower>0);assert.equal(perfect.acceptedAccuracyInterval!.upper,1);
+assert.throws(()=>curve(obs,set,[]));assert.throws(()=>curve([{...obs[0],confidence:NaN}],set,[0]));assert.throws(()=>curve(obs,set,[2]));console.log('coverage regression passed');
