@@ -68,6 +68,8 @@ export type Rendered = {
   edges: ExpectedEdge[];
   findings: ExpectedFinding[];
   recording: EstateRecording;
+  /** The fixed gates planted: the act a read comes before, and the tool of that act. */
+  gates: Array<{ file: string; line: number; act: string; tool: string }>;
   /** Paths of the prose chunks, so the recording has an answer for each. */
   chunks: string[];
 };
@@ -79,16 +81,23 @@ class Writer {
   readonly lines: string[] = [];
   readonly atoms: ExpectedAtom[] = [];
   readonly prose: ProseEntry[] = [];
+  readonly gates: Array<{ file: string; line: number; act: string; tool: string }> = [];
   constructor(readonly path: string) {}
 
   /** Adds a line; returns its number. */
-  line(text: string, atoms: Pending[] = [], prose?: Omit<ProseEntry, 'line'>): number {
+  line(
+    text: string,
+    atoms: Pending[] = [],
+    prose?: Omit<ProseEntry, 'line'>,
+    gate?: { act: string; tool: string },
+  ): number {
     this.lines.push(text);
     const number = this.lines.length;
     for (const atom of atoms) {
       this.atoms.push({ hid: atom.hid, kind: atom.kind, file: this.path, line: number, key: atom.key ?? '' });
     }
     if (prose) this.prose.push({ ...prose, line: number });
+    if (gate) this.gates.push({ file: this.path, line: number, ...gate });
     return number;
   }
 
@@ -178,9 +187,11 @@ export function renderEstate(estate: HiddenEstate): Rendered {
   const findings: ExpectedFinding[] = [];
   const answers: Record<string, unknown> = {};
   const chunks: string[] = [];
+  const gates: Rendered['gates'] = [];
   const write = (writer: Writer) => {
     files[writer.path] = writer.text();
     atoms.push(...writer.atoms);
+    gates.push(...writer.gates);
   };
   const record = (writer: Writer) => {
     chunks.push(writer.path);
@@ -209,9 +220,14 @@ export function renderEstate(estate: HiddenEstate): Rendered {
     if (estate.wrap === rule.hid) {
       // The same words over two lines: a change of layout, not of meaning.
       const cut = line.lastIndexOf(' ', Math.floor(line.length / 2) + 6);
-      standing.line(line.slice(0, cut), standingAtoms(rule), proseOf(rule, ruleSituation(rule)));
+      standing.line(
+        line.slice(0, cut),
+        standingAtoms(rule),
+        proseOf(rule, ruleSituation(rule)),
+        rule.gateAct,
+      );
       standing.line(`  ${line.slice(cut + 1)}`);
-    } else standing.line(line, standingAtoms(rule), proseOf(rule, ruleSituation(rule)));
+    } else standing.line(line, standingAtoms(rule), proseOf(rule, ruleSituation(rule)), rule.gateAct);
   }
   standing.line('');
   standing.line('## Routing');
@@ -237,14 +253,14 @@ export function renderEstate(estate: HiddenEstate): Rendered {
     { hid: `ref:${STANDING}:${STEPS}`, kind: 'reference', key: STEPS },
   ]);
   for (const rule of estate.rules.filter((candidate) => candidate.section === 'process')) {
-    standing.line(rule.text, standingAtoms(rule), proseOf(rule));
+    standing.line(rule.text, standingAtoms(rule), proseOf(rule), rule.gateAct);
   }
   standing.line('A tracker note may be written at any step.');
   standing.line('');
   standing.line('## Output');
   standing.line('');
   for (const rule of estate.rules.filter((candidate) => candidate.section === 'output')) {
-    standing.line(`- ${rule.text}`, standingAtoms(rule), proseOf(rule));
+    standing.line(`- ${rule.text}`, standingAtoms(rule), proseOf(rule), rule.gateAct);
   }
   write(standing);
   record(standing);
@@ -255,7 +271,8 @@ export function renderEstate(estate: HiddenEstate): Rendered {
     const memory = new Writer(MEMORY);
     memory.line('# Memory');
     memory.line('');
-    for (const rule of memoryRules) memory.line(`- ${rule.text}`, standingAtoms(rule), proseOf(rule));
+    for (const rule of memoryRules)
+      memory.line(`- ${rule.text}`, standingAtoms(rule), proseOf(rule), rule.gateAct);
     write(memory);
     record(memory);
   }
@@ -658,6 +675,7 @@ export function renderEstate(estate: HiddenEstate): Rendered {
     edges,
     findings,
     recording: { family: 'recording', model: 'estate-validator-truth', answers } as EstateRecording,
+    gates,
     chunks,
   };
 }
