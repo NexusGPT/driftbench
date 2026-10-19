@@ -777,4 +777,25 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
   'blockLinks reads a link with no block as a link of every block':
     'docs/reference/block-contracts.md#metadata.links',
   'specHash leaves metadata.links out': 'docs/reference/block-contracts.md#metadata.links',
+  'a link names its block by id or by index, and covers that block alike':
+    'docs/reference/block-contracts.md#metadata.links',
+  'radius localize: a link to another prompt adds nothing to the counts':
+    'docs/concepts/blast-radius.md#Localisation over sections',
+  'radius localize: a block covers a section once, however many of its links name it':
+    'docs/reference/block-contracts.md#Localize',
+  'radius localize drops a failure when an earlier block of the same conversation failed in the same run, and keeps a block that passes after a failing one as a row':
+    'docs/concepts/blast-radius.md#Localisation over sections',
+  'radius localize in mode T counts every block as a row: a block starts from its canonical Given and inherits nothing':
+    'docs/concepts/blast-radius.md#The radius',
+  'spec validate accepts every relation of its list': 'docs/reference/block-contracts.md#metadata.links',
+  'spec validate accepts every created_by of its list': 'docs/reference/block-contracts.md#metadata.links',
+  'spec validate accepts every status of its list': 'docs/reference/block-contracts.md#metadata.links',
+  'spec validate accepts every to.kind of its list': 'docs/reference/block-contracts.md#metadata.links',
+  'spec validate requires the status of a link': 'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a block index below 0 under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a link key outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a target key outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
 };
