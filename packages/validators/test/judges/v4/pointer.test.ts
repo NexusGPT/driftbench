@@ -445,6 +445,27 @@ const FAULTS: Fault[] = [
     to: 'values.some((p) => !Number.isFinite(p) || p < 0)',
     fails: ids('choice/vector-refused'),
   },
+  {
+    name: 'file: the YAML error shows every line',
+    file: LABELS,
+    from: "(cause.message.split('\\n')[0] ?? '')",
+    to: 'cause.message',
+    fails: ids('label-file/refuse-yaml'),
+  },
+  {
+    name: 'yes/no: the opinion drops its probabilities',
+    file: YESNO,
+    from: "byUnit.set(unit.index, { label: best?.label ?? 'none', probabilities });",
+    to: "byUnit.set(unit.index, { label: best?.label ?? 'none' });",
+    fails: ids('yes-no/threshold'),
+  },
+  {
+    name: 'labelling: the report line swaps the classes',
+    file: STACK,
+    from: "member.cls === 'system1' ? 'system 1' : 'system 2'",
+    to: "member.cls === 'system1' ? 'system 2' : 'system 1'",
+    fails: ids('recording/labelling-hash'),
+  },
 ];
 
 const MUTANTS = join(ROOT, 'packages/estate/.mutants');

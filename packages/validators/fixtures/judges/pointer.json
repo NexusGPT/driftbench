@@ -3348,9 +3348,30 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "greeting",
-        "11": "none",
-        "12": "price-claim"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.9,
+            "price-claim": 0.1,
+            "allergen-line": 0.0
+          }
+        },
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.2,
+            "allergen-line": 0.1
+          }
+        },
+        "12": {
+          "label": "price-claim",
+          "probabilities": {
+            "greeting": 0.5,
+            "price-claim": 0.6,
+            "allergen-line": 0.55
+          }
+        }
       }
     },
     {
@@ -3391,9 +3412,30 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "greeting",
-        "11": "none",
-        "12": "none"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.4,
+            "price-claim": 0.39,
+            "allergen-line": 0.39
+          }
+        },
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.39,
+            "price-claim": 0.39,
+            "allergen-line": 0.39
+          }
+        },
+        "12": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.39,
+            "price-claim": 0.39,
+            "allergen-line": 0.39
+          }
+        }
       }
     },
     {
@@ -3434,9 +3476,30 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "none",
-        "11": "none",
-        "12": "none"
+        "10": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.399,
+            "price-claim": 0.399,
+            "allergen-line": 0.399
+          }
+        },
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.399,
+            "price-claim": 0.399,
+            "allergen-line": 0.399
+          }
+        },
+        "12": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.399,
+            "price-claim": 0.399,
+            "allergen-line": 0.399
+          }
+        }
       }
     },
     {
@@ -3477,9 +3540,30 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "greeting",
-        "11": "greeting",
-        "12": "greeting"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.8,
+            "price-claim": 0.8,
+            "allergen-line": 0.8
+          }
+        },
+        "11": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.8,
+            "price-claim": 0.8,
+            "allergen-line": 0.8
+          }
+        },
+        "12": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.8,
+            "price-claim": 0.8,
+            "allergen-line": 0.8
+          }
+        }
       }
     },
     {
@@ -3520,9 +3604,30 @@
       },
       "threshold": 0.7,
       "expect": {
-        "10": "none",
-        "11": "greeting",
-        "12": "allergen-line"
+        "10": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.69,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "11": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.7,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "12": {
+          "label": "allergen-line",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.95
+          }
+        }
       }
     },
     {
@@ -3563,9 +3668,30 @@
       },
       "threshold": 0.0,
       "expect": {
-        "10": "greeting",
-        "11": "greeting",
-        "12": "greeting"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "11": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "12": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        }
       }
     },
     {
@@ -3600,9 +3726,24 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "greeting",
-        "11": "none",
-        "12": "greeting"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 1.0
+          }
+        },
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0
+          }
+        },
+        "12": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.41
+          }
+        }
       }
     }
   ],
@@ -3644,8 +3785,22 @@
       },
       "threshold": 0.4,
       "expect": {
-        "11": "none",
-        "12": "none"
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "12": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        }
       }
     },
     {
@@ -3683,8 +3838,22 @@
       },
       "threshold": 0.4,
       "expect": {
-        "10": "greeting",
-        "12": "greeting"
+        "10": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.9,
+            "price-claim": 0.9,
+            "allergen-line": 0.9
+          }
+        },
+        "12": {
+          "label": "greeting",
+          "probabilities": {
+            "greeting": 0.9,
+            "price-claim": 0.9,
+            "allergen-line": 0.9
+          }
+        }
       }
     },
     {
@@ -3725,8 +3894,22 @@
       },
       "threshold": 0.4,
       "expect": {
-        "11": "none",
-        "12": "none"
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "12": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        }
       }
     },
     {
@@ -3767,8 +3950,22 @@
       },
       "threshold": 0.4,
       "expect": {
-        "11": "none",
-        "12": "none"
+        "11": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        },
+        "12": {
+          "label": "none",
+          "probabilities": {
+            "greeting": 0.0,
+            "price-claim": 0.0,
+            "allergen-line": 0.0
+          }
+        }
       }
     },
     {
@@ -6483,7 +6680,8 @@
           "runs": 1
         }
       ],
-      "expect": "ea9e83f38d3ac8a6"
+      "expect": "ea9e83f38d3ac8a6",
+      "describe": "system 1 planted-p planted-p1"
     },
     {
       "name": "single-runs",
@@ -6497,7 +6695,8 @@
           "runs": 3
         }
       ],
-      "expect": "f1e72fec37720abe"
+      "expect": "f1e72fec37720abe",
+      "describe": "system 2 planted planted-1"
     },
     {
       "name": "stack-cascade",
@@ -6525,7 +6724,8 @@
         "passAt": 0.9,
         "failAt": 0.1
       },
-      "expect": "27d9db840cb80d63"
+      "expect": "27d9db840cb80d63",
+      "describe": "system 1 planted-p planted-p1 then system 2 planted planted-1 (pass at 0.9, fail at 0.1)"
     },
     {
       "name": "stack-margin",
@@ -6552,7 +6752,8 @@
         "rule": "margin",
         "marginCut": 0.65
       },
-      "expect": "e8c9e40685513d1b"
+      "expect": "e8c9e40685513d1b",
+      "describe": "system 1 planted-p planted-p1 then system 2 planted planted-1 (margin cut 0.65)"
     }
   ],
   "labelling.hash-pairs": [

@@ -238,6 +238,10 @@ function parseInvalidCheck(names: readonly string[]): Check {
       const got = guard(`parseLabelSets ${c.name}`, () => impl.parseLabelSets(c.text));
       if (!got.ok) misses.push(got.error);
       else if (got.value.ok) misses.push(`${c.name}: accepted a file that must be refused`);
+      else if (got.value.message.includes('\n'))
+        misses.push(
+          `${c.name}: refused with a message of several lines: ${show(got.value.message)}; the first line says what to fix`,
+        );
       else if (!got.value.message.toLowerCase().includes(String(c.mentions).toLowerCase()))
         misses.push(`${c.name}: refused with "${got.value.message}", which does not mention "${c.mentions}"`);
     }
@@ -285,7 +289,10 @@ function yesNoCheck(names: readonly string[]): Check {
         continue;
       }
       const byUnit = Object.fromEntries(
-        [...got.value.byUnit.entries()].map(([index, o]) => [String(index), o.label]),
+        [...got.value.byUnit.entries()].map(([index, o]) => [
+          String(index),
+          { label: o.label, probabilities: o.probabilities },
+        ]),
       );
       if (!same(byUnit, c.expect))
         misses.push(`${c.name}: opinions ${show(byUnit)}, expected ${show(c.expect)}`);
@@ -439,23 +446,29 @@ const labellingHashCheck: Check = (impl, cases) => {
       const members = c.members.map((m: Json) =>
         labeler(impl, m.cls, { id: m.id, model: m.model, settings: m.settings, runs: m.runs }),
       );
-      if (c.kind === 'single') return impl.singleLabelling(members[0]).hash;
-      const rule = c.rule;
-      return (
-        rule.rule === 'margin'
-          ? impl.stackedLabelling(members[0], members[1], {
-              passAt: 0.9,
-              failAt: 0.1,
-              marginCut: rule.marginCut,
-            })
-          : impl.stackedLabelling(members[0], members[1], { passAt: rule.passAt, failAt: rule.failAt })
-      ).hash;
+      const labelling =
+        c.kind === 'single'
+          ? impl.singleLabelling(members[0])
+          : c.rule.rule === 'margin'
+            ? impl.stackedLabelling(members[0], members[1], {
+                passAt: 0.9,
+                failAt: 0.1,
+                marginCut: c.rule.marginCut,
+              })
+            : impl.stackedLabelling(members[0], members[1], { passAt: c.rule.passAt, failAt: c.rule.failAt });
+      return { hash: labelling.hash, describe: labelling.describe };
     });
     if (!got.ok) misses.push(got.error);
-    else if (got.value !== c.expect)
-      misses.push(
-        `${c.name}: hash ${got.value}, expected ${c.expect} (sha256 of the canonical members and rule, first 16 hex characters)`,
-      );
+    else {
+      if (got.value.hash !== c.expect)
+        misses.push(
+          `${c.name}: hash ${got.value.hash}, expected ${c.expect} (sha256 of the canonical members and rule, first 16 hex characters)`,
+        );
+      if (got.value.describe !== c.describe)
+        misses.push(
+          `${c.name}: the report line is ${show(got.value.describe)}, expected ${show(c.describe)} (the classes, ids and models of the members, then the rule)`,
+        );
+    }
   }
   return misses;
 };

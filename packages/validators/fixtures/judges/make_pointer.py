@@ -270,7 +270,7 @@ def yn(asked, win, probs, threshold):
                 best = (name, p)
         if answered < len(asked):
             continue
-        byunit[str(u["index"])] = best[0] if best else "none"
+        byunit[str(u["index"])] = {"label": best[0] if best else "none", "probabilities": got}
     return byunit
 
 
@@ -516,10 +516,24 @@ def stacked_hash(a, b, rule):
 
 CAS = {"rule": "cascade", "passAt": 0.9, "failAt": 0.1}
 hashes = []
-hashes.append({"name": "single", "kind": "single", "members": [M1], "expect": single_hash(M1)})
-hashes.append({"name": "single-runs", "kind": "single", "members": [member("planted", "system2", "planted-1", {}, 3)], "expect": single_hash(member("planted", "system2", "planted-1", {}, 3))})
-hashes.append({"name": "stack-cascade", "kind": "stack", "members": [M1, M2], "rule": CAS, "expect": stacked_hash(M1, M2, CAS)})
-hashes.append({"name": "stack-margin", "kind": "stack", "members": [M1, M2], "rule": MR, "expect": stacked_hash(M1, M2, MR)})
+def cls_text(m):
+    return ("system 1" if m["cls"] == "system1" else "system 2") + f" {m['id']} {m['model']}"
+
+
+def describe_single(m):
+    return cls_text(m)
+
+
+def describe_stack(a, b, rule):
+    tail = f"margin cut {rule['marginCut']}" if rule["rule"] == "margin" else f"pass at {rule['passAt']}, fail at {rule['failAt']}"
+    return f"{cls_text(a)} then {cls_text(b)} ({tail})"
+
+
+MS3 = member("planted", "system2", "planted-1", {}, 3)
+hashes.append({"name": "single", "kind": "single", "members": [M1], "expect": single_hash(M1), "describe": describe_single(M1)})
+hashes.append({"name": "single-runs", "kind": "single", "members": [MS3], "expect": single_hash(MS3), "describe": describe_single(MS3)})
+hashes.append({"name": "stack-cascade", "kind": "stack", "members": [M1, M2], "rule": CAS, "expect": stacked_hash(M1, M2, CAS), "describe": describe_stack(M1, M2, CAS)})
+hashes.append({"name": "stack-margin", "kind": "stack", "members": [M1, M2], "rule": MR, "expect": stacked_hash(M1, M2, MR), "describe": describe_stack(M1, M2, MR)})
 put("labelling.hash", "the hash of a labelling is sha256 of the canonical members and the rule, 16 hex characters", hashes)
 base = stacked_hash(M1, M2, CAS)
 variants = [
