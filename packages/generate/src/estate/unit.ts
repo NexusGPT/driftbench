@@ -155,77 +155,6 @@ export function materialOf(quote: string): string[] {
   return [...new Set(found)];
 }
 
-/** Words and marks that make a clause show the right way to act: its spans are the form the rule asks for. */
-const OBLIGES = /\b(always|must|should|as in|e\.g\.|for example)\b|✓|\bRIGHT\b/i;
-
-/** The shell command of an act on a path, by the verb a rule names it with. */
-const ACT_COMMANDS: Record<string, string> = {
-  delete: 'rm',
-  remove: 'rm',
-  erase: 'rm',
-  move: 'mv',
-  rename: 'mv',
-  copy: 'cp',
-  read: 'cat',
-  open: 'cat',
-  list: 'ls',
-};
-
-/** One clause of a rule quote: whether it forbids or asks for a form, its act verb and its spans. */
-type Clause = { forbids: boolean; obliges: boolean; act?: string; spans: string[] };
-
-/** The clauses of a rule quote, split as `materialOf` splits them, with the spans each holds. */
-export function clausesOf(quote: string): Clause[] {
-  const spans: string[] = [];
-  const masked = quote.replace(
-    /`([^`]+)`|"([^"]{3,})"/g,
-    (_, code: string | undefined, phrase: string | undefined) => {
-      spans.push(code ?? phrase ?? '');
-      return `${spans.length - 1}`;
-    },
-  );
-  return masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/).map((clause) => {
-    const words = clause.replace(/\d+/g, ' ');
-    const act = words
-      .toLowerCase()
-      .split(/[^a-z]+/)
-      .find((word) => ACT_COMMANDS[word] !== undefined);
-    return {
-      forbids: FORBIDS.test(words),
-      obliges: OBLIGES.test(words),
-      ...(act !== undefined ? { act } : {}),
-      spans: [...clause.matchAll(/(\d+)/g)]
-        .map((match) => spans[Number(match[1])] ?? '')
-        .filter((span) => span.trim() !== ''),
-    };
-  });
-}
-
-/**
- * The acts that break an obligation a command line shows ("Always pass the carrier code, as in
- * `./track.sh NWX 123`"): the command line with each of its arguments left out in turn. A span of one word
- * shows no arguments and gives none.
- */
-export function brokenForms(example: string): string[] {
-  const tokens = example.trim().split(/\s+/);
-  if (tokens.length < 2) return [];
-  return tokens.slice(1).map((_, index) => tokens.filter((__, at) => at !== index + 1).join(' '));
-}
-
-/**
- * A path a Bash guard watches is no command: the act the rule forbids on it is. `ledger/` in "never delete a
- * file under `ledger/`" gives `rm ledger/`. A span that already reads as a command line, or a clause with no
- * act verb, is sent as it is.
- */
-function bashForm(span: string, act: string | undefined): string {
-  const command = act === undefined ? undefined : ACT_COMMANDS[act];
-  const path = /^[\w.~/-]+$/.test(span) && (span.includes('/') || /\.[A-Za-z0-9]+$/.test(span));
-  if (command === undefined || !path) return span;
-  return command === 'mv' || command === 'cp'
-    ? `${command} ${span} ${span.replace(/\/$/, '')}.bak`
-    : `${command} ${span}`;
-}
-
 /** The tool input a tool takes, carrying one piece of material. */
 export function toolInput(tool: string, material: string): Record<string, unknown> {
   const looksLikePath = /^[\w./~-]+\.[A-Za-z0-9]+$/.test(material) || material.includes('/');
@@ -481,12 +410,10 @@ function guardRunOf(
     }
   }
   const textEvent = !TOOL_EVENTS.has(event);
-  // Material: what the rule forbids. A cited rule's spans in the clauses that forbid them, each with the act
-  // its clause names; a cited rule that only shows the right form (an obligation) gives that form as allowed
-  // material and the form with each argument left out as forbidden; a cited rule with neither gives every span
-  // of its source lines.
-  type Piece = { text: string; act?: string };
-  const allowed: string[] = [];
+  // Material: what the rule forbids. A declared output bound gives the first length past it; a cited rule gives
+  // every span of its source lines, as written. Which span a clause forbids or shows is not decided from the
+  // words around it.
+  type Piece = { text: string };
   const pieces = enforced.flatMap((ruleId): Piece[] => {
     const rule = atoms.get(ruleId);
     const quote = rule?.provenance?.quote ?? '';
@@ -499,19 +426,6 @@ function guardRunOf(
       return [{ text: 'x'.repeat(max + 1) }];
     }
     if (cites) {
-      const clauses = clausesOf(quote);
-      const forbidden = clauses
-        .filter((clause) => clause.forbids)
-        .flatMap((clause) =>
-          clause.spans.map((text) => ({ text, ...(clause.act !== undefined ? { act: clause.act } : {}) })),
-        );
-      if (forbidden.length > 0) return forbidden;
-      const shown = clauses.filter((clause) => clause.obliges).flatMap((clause) => clause.spans);
-      const broken = shown.flatMap(brokenForms);
-      if (broken.length > 0) {
-        allowed.push(...shown);
-        return broken.map((text) => ({ text }));
-      }
       const lineSpans = Array.isArray(rule?.fields?.spans)
         ? (rule.fields.spans as unknown[]).filter((item): item is string => typeof item === 'string')
         : [];
@@ -524,8 +438,6 @@ function guardRunOf(
     }
     return textEvent && quote.trim() !== '' ? materialOf(quote).map((text) => ({ text })) : [];
   });
-  const formOf = (tool: string | undefined, piece: Piece) =>
-    tool === 'Bash' ? bashForm(piece.text, piece.act) : piece.text;
   const cases: GuardCase[] = [];
   const seen = new Set<string>();
   const add = (tool: string | undefined, text: string, allowEmpty = false) => {
@@ -544,14 +456,12 @@ function guardRunOf(
         tool === undefined ? 'Done.'.slice(0, replyLimit) : (NEUTRAL[tool] ?? 'hello'),
         replyLimit === 0,
       );
-      // The right form an obligation shows is let through as well.
-      for (const text of allowed) add(tool, text);
     }
   } else {
     if (pieces.length === 0) return `${atom.id} enforces no rule whose quote gives material for a payload`;
     for (const tool of tools) {
       for (const piece of pieces) {
-        const text = formOf(tool, piece);
+        const text = piece.text;
         if (testType === 'guard_hostile') {
           if (withPlain) add(tool, text);
           for (const form of hostileForms(text)) add(tool, form);

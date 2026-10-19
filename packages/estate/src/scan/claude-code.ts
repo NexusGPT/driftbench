@@ -378,7 +378,7 @@ async function readRootReferences(
     for (const line of chunkLines(chunk, source)) {
       // A standing file's line `@path` imports that file into the standing instructions.
       const imported = source?.kind === 'standing' ? /^@([^\s]+)\s*$/.exec(line.text.trim())?.[1] : undefined;
-      const names = imported ? [imported] : namedPaths(line.text, true);
+      const names = imported ? [imported] : namedPaths(line.text);
       for (const name of names) {
         if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
         // An unindexed root guide is a candidate only after the naming file's own subtree.

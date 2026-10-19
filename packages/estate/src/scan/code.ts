@@ -446,76 +446,6 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     );
 }
 
-/** The script file a command runs: after assignments, exec and env, and an interpreter with its flags. */
-function commandExecutable(command: string): string | undefined {
-  const words =
-    command
-      .match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\S+/g)
-      ?.map((word) => word.replace(/^["']|["']$/g, '')) ?? [];
-  while (words[0] === 'exec' || words[0] === 'env' || /^[A-Za-z_]\w*=/.test(words[0] ?? '')) words.shift();
-  const executable = words.shift();
-  if (
-    !/^(?:python(?:\d+(?:\.\d+)*)?|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)$/.test(basename(executable ?? ''))
-  )
-    return executable;
-  while (words[0]?.startsWith('-')) {
-    // Inline interpreter programs are not script-file invocations.
-    if (['-c', '-e', '--eval', '-m'].includes(words[0])) return undefined;
-    words.shift();
-  }
-  return words.shift();
-}
-
-function scriptInvocation(text: string, name: string): boolean {
-  // Punctuation inside quoted commands belongs to the command, not the enclosing prose.
-  const masked = text.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>
-    ' '.repeat(part.length),
-  );
-  const clauses: string[] = [];
-  let start = 0;
-  for (const match of masked.matchAll(/[;,]|[.!?](?=\s|$)|\b(?:and\s+)?then\b/gi)) {
-    clauses.push(text.slice(start, match.index));
-    start = match.index + match[0].length;
-  }
-  clauses.push(text.slice(start));
-  for (const clause of clauses) {
-    const clean = clause.trim().replace(/^[-+*]\s+|^\d+[.)]\s+/, '');
-    const directive =
-      /^(?:you\s+)?(?:(?:must|should|always|first|then|also|please)\s+)?(?:run|execute|invoke|call|use|launch|start)\s+(?:the\s+script\s+)?(.+)$/i.exec(
-        clean,
-      );
-    const argumentInstruction =
-      /^(?:you\s+)?(?:(?:must|should|always)\s+)?pass\b.+?\bto\s+(`[^`]+`|\S+)/i.exec(clean);
-    if (
-      argumentInstruction &&
-      basename((argumentInstruction[1] ?? '').replace(/[`.,;]+$/g, '').replace(/^`/, '')) === name
-    )
-      return true;
-    // A link to the script file points at it, unless the clause forbids it.
-    for (const link of clean.matchAll(/\]\(<?([^\s)>]+)>?(?:\s+"[^"]*")?\)/g)) {
-      const target = basename((link[1] ?? '').replace(/[#?].*$/, ''));
-      if (target === name && !/\b(?:never|do not|don't|must not|should not)\b/i.test(clean)) return true;
-    }
-    // With no imperative verb, accept a command only when it occupies the whole clause. After a verb,
-    // every code span is a command of that verb ("run `a` first and `b` last").
-    const command = directive?.[1] ?? clean;
-    const spans = directive ? [...command.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? '') : [];
-    const span = /^`([^`]+)`/.exec(command);
-    if (!directive && span && span[0].length !== command.length) continue;
-    if (
-      !directive &&
-      !span &&
-      !/[/]/.test(command.split(/\s+/)[0] ?? '') &&
-      !/^(?:exec|env|python[\d.]*|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)\s/.test(command)
-    )
-      continue;
-    for (const written of spans.length > 0 ? spans : [span?.[1] ?? command]) {
-      if (basename(commandExecutable(written) ?? '') === name) return true;
-    }
-  }
-  return false;
-}
-
 /** One script atom per script file of a skill, anchored where the skill body names it, else in the script. */
 function scriptAtoms(
   skill: string,
@@ -533,7 +463,8 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => scriptInvocation(line.text, name));
+    // A script is named by its file name: the first line of the body that holds it.
+    const mention = body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -558,20 +489,19 @@ export type NamedReference = {
 };
 
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
-export function namedPaths(line: string, identifiers = false): string[] {
-  return namedReferences(line, identifiers).map(({ path }) => path);
+export function namedPaths(line: string): string[] {
+  return namedReferences(line).map(({ path }) => path);
 }
 
-export function namedReferences(line: string, identifiers = false): NamedReference[] {
+export function namedReferences(line: string): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
+  // `spaced`: the notation delimits the whole name (a link destination, a quotation), so a file name may hold
+  // spaces. A code span or a loose token holds none: a span with a space is a command, not a file name.
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
-    wiki = false,
-    length = match[0].length,
-    identifierContext = false,
-    bare = false,
+    options: { wiki?: boolean; spaced?: boolean; bare?: boolean } = {},
   ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
@@ -584,59 +514,36 @@ export function namedReferences(line: string, identifiers = false): NamedReferen
       .replace(/^\$(?:\{CLAUDE_PROJECT_DIR\}|CLAUDE_PROJECT_DIR)\//, '')
       .replace(/[#?].*$/, '')
       .replace(/:\d+(?::\d+)?$/, '');
-    if (wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
-    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(line.slice(0, start));
-    const identifier =
-      identifiers &&
-      (identifierContext || /^['"*\x60]/.test(match[0])) &&
-      /^[\p{L}_][\p{L}\p{N}_-]*$/u.test(path) &&
-      /\b(?:read|open|load)\s+(?:the\s+)?(?:(?:skill|helper|agent|identifier)\s+)?$/i.test(
-        line.slice(0, start),
-      );
-    // A sentence is not a file name: a name with spaces needs an extension, and no segment exceeds a file name.
-    const sentence =
-      (/\s/.test(path) && !/\.[A-Za-z0-9]+$/.test(path)) || path.split('/').some((part) => part.length > 255);
-    const concrete =
-      !sentence &&
-      pathReference(path) &&
-      !path.endsWith('/') &&
-      (!/\s/.test(posix.basename(path)) || /\.[^./\s]+$/.test(path));
+    if (options.wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
     if (
       /^[a-z]+:/i.test(path) ||
       /[<>*?{}$|;&]/.test(path) ||
       /\s--?\w/.test(path) ||
-      (execution && /\s/.test(path)) ||
-      (identifiers ? !concrete && !identifier : !/\.[A-Za-z0-9]+$/.test(path))
+      (!options.spaced && /\s/.test(path)) ||
+      !/\.[A-Za-z0-9]+$/.test(path)
     )
       return;
-    found.push({ path, spelling, start, end: start + length, bare });
+    found.push({ path, spelling, start, end: start + match[0].length, bare: options.bare === true });
   };
   for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
   for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
-    take(match, match[1] ?? match[2]);
-  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) take(match, match[1] ?? match[2]);
-  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g)) take(match, match[1], true);
+    take(match, match[1] ?? match[2], { spaced: true });
+  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g))
+    take(match, match[1] ?? match[2], { spaced: true });
+  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g))
+    take(match, match[1], { wiki: true, spaced: true });
   for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/g)) take(match, match[1] ?? match[2]);
-  if (identifiers) {
-    for (const match of line.matchAll(
-      /\b(?:read|open|load)\s+(?:the\s+)?(?:skill|helper|agent|identifier)\s+([\p{L}_][\p{L}\p{N}_-]*)(?![\p{L}\p{N}_/\\-]|\.[\p{L}\p{N}_])/giu,
-    )) {
-      const name = match[1];
-      if (!name) continue;
-      const token = [name] as RegExpMatchArray;
-      token.index = (match.index ?? 0) + match[0].length - name.length;
-      take(token, name, false, name.length, true);
-    }
-  }
-  // Whole tokens, never a filename extracted from inside a URL, glob, example or link title.
-  // Find the directive once: rescanning each token's prefix makes long prose quadratic.
-  const directive = /\b(?:read|open|load|consult|include|import|see|use)\b/i.exec(line);
-  const directiveEnd = directive ? directive.index + directive[0].length : Number.POSITIVE_INFINITY;
+  // Whole tokens, never a file name taken from inside a URL, a glob, an example or a link title. A loose token is
+  // a path when it holds a folder separator, starts with `@`, or ends in an extension of letters ("notes.md"):
+  // a dot alone ("e.g.", "v1.2") is not a file name.
   for (const match of line.matchAll(/[^\s`"'<>()[\],;!]+/g)) {
-    if (!match[0].includes('.') && !(identifiers && /[/\\]/.test(match[0]))) continue;
-    if (!match[0].startsWith('@') && (match.index ?? 0) < directiveEnd) continue;
-    const token = match[0].replace(/[.:]+$/, '');
-    take(match, token, false, token.length, false, true);
+    if (
+      !match[0].startsWith('@') &&
+      !/[/\\]/.test(match[0]) &&
+      !/^[^.]+(?:\.[^.]+)*\.[A-Za-z][A-Za-z0-9]{1,5}[.:]*$/.test(match[0])
+    )
+      continue;
+    take(match, match[0].replace(/[.:]+$/, ''), { bare: true });
   }
   return found;
 }
@@ -827,7 +734,7 @@ export function navigationNames(raw: RawEstate): Set<string> {
       text: file.text,
     };
     for (const line of chunkLines(chunk, file)) {
-      for (const name of namedPaths(line.text, true)) {
+      for (const name of namedPaths(line.text)) {
         const located = locateNamed(name, file.path, files, options);
         if (located.via === 'none' || located.via === 'external' || located.candidates) continue;
         if (files.has(located.path) && located.path !== file.path) named.add(located.path);
@@ -835,97 +742,6 @@ export function navigationNames(raw: RawEstate): Set<string> {
     }
   }
   return named;
-}
-
-/**
- * Read prerequisites are parsed as clauses. A line is first masked: each inline code span, markdown link
- * and quotation becomes one opaque token, so a file name, a quoted command or a quoted example is never
- * split, searched for directive words or mistaken for a rule. The masked line is cut into clauses at
- * sentence ends, semicolons and coordinated directives (", and read …"), and each clause is matched against
- * the forms below. The words in front of the verb read (its head) must give a directive: a polite, modal or
- * adverbial lead-in is kept, while a negated, optional or conditional head ("do not read", "you need not
- * read", "if you read") gives no gate.
- */
-const OPEN_TOKEN = '\uE000';
-const CLOSE_TOKEN = '\uE001';
-const TOKEN = String.raw`\uE000\d+\uE001`;
-
-/** A clause led by one of these is a condition or a purpose, not the directive itself. */
-const SUBORDINATE =
-  /^(?:if|when|whenever|unless|whether|because|although|though|since|once|while|after|as\s+soon\s+as|in\s+case)\b/;
-/** A head with one of these words lifts the requirement: "do not read", "you need not read", "optionally read". */
-const NEGATED = /\b(?:not|never|no|nor|neither|cannot|optional|optionally)\b|n't\b/;
-
-/** Whether the words before "read" make it a directive: no negation, and not itself a condition. */
-export function directiveHead(head: string): boolean {
-  const segments = head
-    .toLowerCase()
-    .replace(/[*_]/g, '')
-    .split(/[,:]/)
-    .map((segment) => segment.trim());
-  const main = segments.pop() ?? '';
-  if (SUBORDINATE.test(main) || NEGATED.test(main)) return false;
-  // A leading condition ("If no objection is raised,") may hold a negation of its own; any other lead-in may not.
-  return segments.every((segment) => SUBORDINATE.test(segment) || !NEGATED.test(segment));
-}
-
-type MaskedLine = { text: string; spans: string[] };
-
-/** Replace code spans, links and quotations with tokens; a code span around one plain word is emphasis. */
-export function maskLine(line: string): MaskedLine {
-  const spans: string[] = [];
-  const token = (span: string) => `${OPEN_TOKEN}${spans.push(span) - 1}${CLOSE_TOKEN}`;
-  const text = line
-    .replace(/`([^`\n]+)`/g, (span, inner: string) => (/^[A-Za-z]+$/.test(inner) ? inner : token(span)))
-    .replace(/\[[^\]\n]*\]\((?:<[^>\n]+>|[^\s)]+)(?:\s+"[^"]*")?\)/g, token)
-    .replace(/"[^"\n]+"|\u201C[^\u201D\n]+\u201D/g, token)
-    .replace(
-      /(^|[\s(])('[^'\n]+')(?=$|[\s.,;:!?)])/g,
-      (_match, lead: string, span: string) => lead + token(span),
-    );
-  return { text, spans };
-}
-
-export function unmask(text: string, spans: readonly string[]): string {
-  let out = text;
-  const pattern = new RegExp(TOKEN, 'g');
-  // A link's text may hold a masked code span: unmask until no token is left.
-  while (pattern.test(out)) {
-    pattern.lastIndex = 0;
-    out = out.replace(pattern, (token) => spans[Number(token.slice(1, -1))] ?? '');
-  }
-  return out;
-}
-
-/** Cut a masked line into directive clauses; masked spans are never cut. */
-export function gateClauses(text: string, splitCoordinated = true): string[] {
-  const clauses: string[] = [];
-  let start = 0;
-  for (let index = 0; index < text.length; index++) {
-    const char = text[index];
-    const next = text[index + 1];
-    const end = char === ';' || ((char === '.' || char === '!') && (next === undefined || /\s/.test(next)));
-    if (!end) continue;
-    const prefix = text
-      .slice(start, index + 1)
-      .replace(/[*`]/g, '')
-      .trim();
-    // A numbered list, a rule label or an abbreviation ("e.g.") is not the end of a directive.
-    if (char === '.' && /^(?:[-+]\s*)?(?:\d+|[A-Z]+#?\d+)\.$/i.test(prefix)) continue;
-    if (char === '.' && /\b(?:e\.g|i\.e|etc|vs|cf)\.$/i.test(prefix)) continue;
-    clauses.push(text.slice(start, index));
-    start = index + 1;
-  }
-  clauses.push(text.slice(start));
-  return clauses
-    .flatMap((clause) => (splitCoordinated ? clause.split(/,\s*(?:and|but)\s+(?=\S)/i) : [clause]))
-    .map((clause) =>
-      clause
-        .replace(/\*\*/g, '')
-        .replace(/^\s*(?:[-+*]\s+)?(?:\d+[.)]\s+)?(?:[A-Z]+#?\d+[.:]\s+)?/i, '')
-        .trim(),
-    )
-    .filter((clause) => clause !== '');
 }
 
 /**

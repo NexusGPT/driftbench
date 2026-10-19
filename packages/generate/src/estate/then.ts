@@ -17,7 +17,6 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
-import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -262,7 +261,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields, atom.provenance?.quote);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') {
         if (ctx.judge) judgeRule(then, atom, 'positive');
         else gap(then, MARKERS.anchor, atom, pair);
@@ -335,40 +334,27 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        const recovery = recoveryAction(atom);
+        // The recovery a hazard demands comes from the options the estate declares. A file its passage names is no
+        // reread target by itself (the passage may name it for another reason), and no word of the passage decides an
+        // action: with nothing declared, the check demands no action.
         const declared = evidence.options ?? {};
         const reread = [
-          ...new Set([
-            ...(Array.isArray(declared.reread)
+          ...new Set(
+            Array.isArray(declared.reread)
               ? declared.reread.filter(
                   (path): path is string => typeof path === 'string' && path.trim() !== '',
                 )
-              : []),
-            ...recovery.reread,
-          ]),
+              : [],
+          ),
         ];
-        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
-        const retry = declared.retry === true || recovery.retry;
-        // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
-        // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
-        // by code; without a judge the row waits under a gap with the reason.
-        for (const part of recovery.unpathed) {
-          if (ctx.judge) judgePart(then, atom, part);
-          else
-            gap(
-              then,
-              MARKERS.registered,
-              atom,
-              `the rule orders a re-read of "${part}", which names no file path`,
-            );
-        }
+        const calls = Array.isArray(declared.calls) ? declared.calls : [];
         // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
         const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),
           ...(calls.length > 0 ? { calls } : {}),
-          ...(retry ? { retry: true } : {}),
+          ...(declared.retry === true ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -527,23 +513,18 @@ function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): voi
 
 /** Tools that change a file named by `file_path`. */
 const FILE_EDITS = new Set(['Edit', 'MultiEdit', 'Write']);
-/** A gate whose change acts on what it read: "read a file before you edit it". */
-const SAME_OBJECT =
-  /\b(?:edit|change|modify|update|overwrite|rewrite|write)\w*\s+(?:it|them|that file|this file|the same file)\b/i;
-
 /**
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored. A Read end is what the gate reads: the file it names
- * (`Read~<path>`, from the gate's `path` field), or, when it names none and its change acts on what it read
- * ("read a file before you edit it"), the file of the change itself (`key: file_path`). Any Read before the
- * change would let a gate whose own read went missing pass on another read.
+ * (`Read~<path>`, from the gate's `path` field), or, when it names none, the key the gate declares that its change
+ * shares with its read (`order.key`, as in `file_path`). Any Read before the change would let a gate whose own
+ * read went missing pass on another read.
  */
 export function anchorPair(
   before: string,
   after: string,
   ctx: ThenContext,
   fields?: Record<string, unknown>,
-  quote?: string,
 ): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
@@ -565,7 +546,11 @@ export function anchorPair(
   if (a === 'Read') {
     const path = typeof fields?.path === 'string' ? fields.path.trim().replace(/^\.?\/+/, '') : '';
     if (path !== '') return { before: `Read~${path}`, after: b };
-    if (FILE_EDITS.has(b) && SAME_OBJECT.test(quote ?? '')) return { before: a, after: b, key: 'file_path' };
+    // A change on what the gate read is declared by the gate (its order key), never read from the words of its rule.
+    const declared = fields?.order;
+    const key =
+      declared !== null && typeof declared === 'object' ? (declared as { key?: unknown }).key : undefined;
+    if (FILE_EDITS.has(b) && typeof key === 'string' && key !== '') return { before: a, after: b, key };
   }
   return { before: a, after: b };
 }
@@ -702,28 +687,6 @@ function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void 
         },
   );
   addUnique(then.judged, atom.id);
-}
-
-/**
- * A judged criterion for one part of a rule that no code check reaches (the re-read of a note, not a file). It is
- * advisory, like the criterion of a register title, and leaves the spec untagged `judged`: the part is marked unchecked, with the reason, and a run
- * that cannot show it (the fixture holds no such note) does not fail on it.
- */
-function judgePart(then: ThenParts, atom: EstateAtom, part: string): void {
-  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
-  const name = `${atom.id}.${part
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')}`;
-  if (then.criteria.some((criterion) => criterion.name === name)) return;
-  then.criteria.push({
-    name,
-    rubric: `Unchecked by code: the rule "${words}" orders a re-read of "${part}", which names no file path. Did the agent re-read "${part}"?`,
-    pass: `The agent re-read "${part}" before it went on.`,
-    fail: `The agent went on without re-reading "${part}".`,
-    gating: false,
-    scope: 'block',
-  });
 }
 
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
