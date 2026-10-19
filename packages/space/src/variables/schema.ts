@@ -102,6 +102,18 @@ export const VariableRole = z
   );
 export type VariableRole = z.infer<typeof VariableRole>;
 
+export const VariableScope = z
+  .enum(['conversation', 'turn'])
+  .describe(
+    'conversation: one fact of a whole conversation, read once per conversation (the default). turn: can change from turn to turn, read once per turn.',
+  );
+export type VariableScope = z.infer<typeof VariableScope>;
+
+/** The scope of a variable: the one it states, else the whole conversation. */
+export function variableScope(variable: { scope?: VariableScope | undefined }): VariableScope {
+  return variable.scope ?? 'conversation';
+}
+
 export const VariableOrigin = z
   .enum(['code', 'model', 'owner'])
   .describe('Who wrote the entry: code reading structure, a model reading prose, or the owner.');
@@ -199,6 +211,7 @@ export const Variable = z
     title: z.string().min(1).describe('What the variable varies on.'),
     kind: DimensionKind,
     role: VariableRole,
+    scope: VariableScope.optional(),
     approved: z.boolean().describe('The approval of the variable and of every value without its own flag.'),
     produced_by: VariableOrigin.optional(),
     provenance: Provenance,

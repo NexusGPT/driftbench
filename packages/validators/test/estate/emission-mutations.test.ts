@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { countAllows, describeCount } from '@agent-nexus/driftbench-checks';
 import {
@@ -16,6 +16,7 @@ import { completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import { type FieldReads, fieldReadCensus } from './field-reads';
+import { blockOptionCensus, readerCensus as codeCensus, textCensus } from './reader-census';
 import { referenceChecks, referenceRun, required, SUFFIXES, suffix } from './ruling-reference';
 
 type Path = Array<string | number>;
@@ -155,24 +156,12 @@ const READER_ROOTS = [
   'packages/validators/test/estate/ruling-reference.ts',
 ];
 
-/** Every non-comment source line under the evaluator roots that matches `pattern`, as
- * `file: line`. A new reader changes this census and reopens the equivalence class. Reads of a field of
- * `expect` are found in the syntax tree instead (field-reads.ts), where `?.` and literal text cannot hide one. */
+/** Every line of code under the evaluator roots that matches `pattern`, as `file: line`: comments and the text of
+ * literals never count (reader-census.ts). A new reader changes this census and reopens the equivalence class. Reads
+ * of a field of `expect` are found in the syntax tree instead (field-reads.ts), where `?.` and literal text cannot
+ * hide one. */
 function readerCensus(pattern: RegExp): string[] {
-  const files: string[] = [];
-  const visit = (path: string) => {
-    if (statSync(`${ROOT}${path}`).isDirectory())
-      for (const name of readdirSync(`${ROOT}${path}`).sort()) visit(`${path}/${name}`);
-    else if (path.endsWith('.ts')) files.push(path);
-  };
-  for (const root of READER_ROOTS) visit(root);
-  return files.flatMap((file) =>
-    readFileSync(`${ROOT}${file}`, 'utf8')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => !/^(\*|\/\*|\/\/)/.test(line) && pattern.test(line))
-      .map((line) => `${file}: ${line}`),
-  );
+  return codeCensus(ROOT, READER_ROOTS, pattern);
 }
 
 const SEEN = Array.from({ length: 257 }, (_, index) => index);
@@ -292,7 +281,8 @@ const CLASS_PROOFS: Record<
   },
   'single-block-scope': {
     // The deleted value is a custom check's `block: 0` on a one-block spec.
-    census: () => readerCensus(/\b(options|opts|entry)\.block\b/),
+    // Reads of a custom check's `block` option, found by what the receiver is bound to, never by its name.
+    census: () => blockOptionCensus(ROOT, READER_ROOTS),
     readers: [
       'packages/checks/src/checks/estate.ts: if (entry.block !== undefined && entry.block !== ctx.blockIndex) return;',
       "packages/checks/src/checks/estate.ts: ...(typeof entry.block === 'number' ? { block: entry.block } : {}),",
@@ -310,7 +300,9 @@ const CLASS_PROOFS: Record<
     cases() {
       // The runner refuses a blockIndex outside 0..blocks.length-1 (core runner/run.ts nextStep),
       // and the custom check passes options through unread (checks/custom.ts createCustomCheck).
-      expect(readerCensus(/the driver asked for block \$\{step\.blockIndex\}/)).toHaveLength(1);
+      expect(
+        textCensus(ROOT, READER_ROOTS, /the driver asked for block \$\{step\.blockIndex\}/),
+      ).toHaveLength(1);
       expect(
         readFileSync(`${ROOT}packages/checks/src/checks/custom.ts`, 'utf8').match(/\.block\b/g),
       ).toBeNull();
