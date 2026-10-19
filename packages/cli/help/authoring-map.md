@@ -370,6 +370,8 @@ Common mistakes that load but mislead: a stage the specs use but the map does no
 
 The variable store (docs/variables.md) is checked when it is loaded, and its quotes when they are checked against their files. Each code below has a store that triggers it (fictional data), what it means and how to fix it. A test runs every store of this section and checks that it reports its code.
 
+A variable may state `scope: turn` or `scope: conversation`. A reader of past conversations asks a `conversation` variable once per conversation and a `turn` variable once per turn. A variable that states none is read per conversation. A scope that is neither value is refused at the variable that wrote it.
+
 #### `VARIABLES_PARSE`
 
 The file cannot be read, or is not valid YAML or JSON. A key written twice is not valid either.
