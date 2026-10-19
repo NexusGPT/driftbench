@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please audit the ledger for duplicate payments and invoices paid twice. The brief lacks the invoice or the order number.
+      user: Please reconcile a supplier invoice against its purchase order and the goods received. The brief lacks the invoice or the order number.
     expect:
       must:
         - '"status": "blocked"'
@@ -61,5 +61,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (route nearest the rule)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete

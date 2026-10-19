@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please draft, answer or chase an email to a supplier.
+      user: Please reconcile a supplier invoice against its purchase order and the goods received.
     expect:
       workspace:
         deleted: []
@@ -68,7 +68,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (route nearest the rule)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete
     judged:
       - instruction.memory-supplier-languages.write-to-each-supplier-in-its

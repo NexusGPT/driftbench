@@ -63,7 +63,6 @@ rules:
       pairs:
         - before: Read
           after: Edit
-          key: file_path
 perturbations:
   - id: deviation-D5_language_switch
     class: D5_language_switch

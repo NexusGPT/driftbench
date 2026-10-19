@@ -64,55 +64,88 @@ metadata:
           payload:
             tool_name: Bash
             tool_input:
-              command: rm ledger/
+              command: ledger/
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: rm ledger/
+          material: ledger/
         - id: case-02
           payload:
             tool_name: Bash
             tool_input:
-              command: rm  ledger/
+              command: LEDGER/
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: rm  ledger/
+          material: LEDGER/
         - id: case-03
           payload:
             tool_name: Bash
             tool_input:
-              command: RM LEDGER/
+              command: "ledger/ "
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: RM LEDGER/
+          material: "ledger/ "
         - id: case-04
           payload:
             tool_name: Bash
             tool_input:
-              command: rm '' ledger/
+              command: echo ok && ledger/
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: rm '' ledger/
+          material: echo ok && ledger/
         - id: case-05
           payload:
             tool_name: Bash
             tool_input:
-              command: echo ok && rm ledger/
+              command: ledger/archive/
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: echo ok && rm ledger/
+          material: ledger/archive/
+        - id: case-06
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: LEDGER/ARCHIVE/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: LEDGER/ARCHIVE/
+        - id: case-07
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: "ledger/archive/ "
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: "ledger/archive/ "
+        - id: case-08
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: echo ok && ledger/archive/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: echo ok && ledger/archive/
       budgetMs: 60000

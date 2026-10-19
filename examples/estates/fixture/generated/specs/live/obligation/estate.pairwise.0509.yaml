@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please draft, answer or chase an email to a supplier. The supplier is not in the language table.
+      user: Please reconcile a supplier invoice against its purchase order and the goods received. The supplier is not in the language table.
     expect:
       lang: EN
       workspace:
@@ -59,5 +59,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (route nearest the rule)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete

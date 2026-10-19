@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-16T05:04:02.549Z
+readAt: 2026-10-19T13:47:16.273Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -2605,5 +2605,5 @@ edges:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the estate lane, by hand
-  at: 2026-10-16T05:04:02.549Z
+  at: 2026-10-19T13:47:16.273Z
 hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

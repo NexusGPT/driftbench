@@ -62,7 +62,6 @@ rules:
       pairs:
         - before: Read
           after: Edit
-          key: file_path
 metadata:
   estate:
     atoms:

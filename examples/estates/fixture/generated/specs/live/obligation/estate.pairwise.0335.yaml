@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please draft, answer or chase an email to a supplier. The context was compacted.
+      user: Please reconcile a supplier invoice against its purchase order and the goods received. The context was compacted.
     expect:
       workspace:
         deleted: []
@@ -58,5 +58,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (route nearest the rule)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete

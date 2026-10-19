@@ -69,11 +69,22 @@ metadata:
           payload:
             tool_name: Bash
             tool_input:
-              command: rm ledger/
+              command: ledger/
               description: unit test
             tool_response:
               stdout: ""
               stderr: ""
               interrupted: false
-          material: rm ledger/
+          material: ledger/
+        - id: case-02
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ledger/archive/
+              description: unit test
+            tool_response:
+              stdout: ""
+              stderr: ""
+              interrupted: false
+          material: ledger/archive/
       budgetMs: 60000

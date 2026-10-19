@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please draft, answer or chase an email to a supplier. The user says stop.
+      user: Please reconcile a supplier invoice against its purchase order and the goods received. The user says stop.
     expect:
       must_not:
         - \n\s*\S
@@ -62,5 +62,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (route nearest the rule)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete
