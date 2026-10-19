@@ -29,7 +29,7 @@ const SETTINGS = (scripts: string[]) =>
   });
 
 /** The rules of a CLAUDE.md written as `- **Rn.** text`, each split by a fake model with its own words. */
-function rulesPort(rules: string[]): FakeModelPort {
+function rulesPort(rules: string[], situations: Record<number, string> = {}): FakeModelPort {
   return new FakeModelPort([
     answer(
       'CLAUDE.md',
@@ -37,6 +37,7 @@ function rulesPort(rules: string[]): FakeModelPort {
         kind: 'instruction',
         title: `Rule ${index + 1}`,
         quote,
+        ...(situations[index] ? { situation: situations[index] } : {}),
         evidence: [{ type: 'custom', name: `r${index + 1}` }],
       })),
     ),
@@ -183,7 +184,8 @@ describe('a guard message that quotes part of a rule', () => {
         '.claude/guards/friday.sh': '#!/bin/sh\necho "before you deploy on a friday"\n',
         '.claude/guards/ask.sh': '#!/bin/sh\necho "ask the lead for an explicit yes"\n',
       },
-      rulesPort(rules),
+      // The condition of each rule is the situation its answer declares, as the model does for a conditional rule.
+      rulesPort(rules, { 0: 'When the owner asks to pause', 1: 'Before you deploy on a Friday' }),
     );
     const titles = new Map(map.atoms.map((atom) => [atom.id, atom.title]));
     const enforced = map.atoms
