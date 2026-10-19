@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as bench from '../../src/ladders/estate/bank/bench';
-import { FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+import { FIXTURE, fixtureSuite, runOnFake } from '../../src/ladders/estate/bank/fixture-suite';
 import {
   breakStandingSize,
   type Cell,
@@ -16,6 +16,10 @@ import {
 vi.mock('../../src/ladders/estate/bank/bench', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/ladders/estate/bank/bench')>();
   return { ...actual, cli: vi.fn(actual.cli) };
+});
+vi.mock('../../src/ladders/estate/bank/fixture-suite', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/ladders/estate/bank/fixture-suite')>();
+  return { ...actual, runOnFake: vi.fn(actual.runOnFake) };
 });
 
 const del = (kind: string): Cell => ({ kind, index: 0, op: 'delete', tier: 1 });
@@ -88,7 +92,10 @@ describe('kill.fake: the invariant cell breaks the size ceiling on a copy, the a
 describe('kill.fake: setting and invariant atoms are judged by their static tests', {
   timeout: 600_000,
 }, () => {
-  afterEach(() => vi.mocked(bench.cli).mockReset());
+  afterEach(() => {
+    vi.mocked(bench.cli).mockReset();
+    vi.mocked(runOnFake).mockReset();
+  });
 
   it('passes the two setting cells on the fixture, red on the mutant', async () => {
     const actual = await vi.importActual<typeof bench>('../../src/ladders/estate/bank/bench');
@@ -112,6 +119,9 @@ describe('kill.fake: setting and invariant atoms are judged by their static test
       for (const result of json.results ?? []) result.pass = true;
       return { ...run, code: 0, out: JSON.stringify(json) };
     });
+    // The live cells run the specs on the fake runtime, which this mock does not touch: the test above ran them
+    // on the same fixture, and no assertion here reads them. Their runner finds no green spec, so they stop early.
+    vi.mocked(runOnFake).mockReturnValue(new Map());
     const results = await killFamily().evaluate(1);
     expect(results.get('kill.fake.delete-setting-1')).toMatchObject({ pass: false });
     expect(results.get('kill.fake.delete-setting-2')).toMatchObject({ pass: false });
