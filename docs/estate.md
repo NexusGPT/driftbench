@@ -430,13 +430,38 @@ Pairwise: a covering array of strength t (default 2) over the situation axes, un
 
 ### Situation relevance in a proposed plan
 
-The default plan derives target relevance from the estate's own behavioural text and evidence. It does not hold a situation-to-atom-kind whitelist. An instruction that calls a tool remains relevant to a tool failure. A dispatch instruction remains relevant to a helper event. A rule about the tracker remains relevant regardless of whether it is an instruction or a stage.
+The default plan crosses each event value only with the atoms it can act on. It reads no word, id or path of an atom. A table keyed by the dimension and value ids of the axes of `estate map` names, for each value, the kinds of atom it acts on: a language switch acts on output rules (`register`) and instructions, a tool failure on tools, scripts, guards, helpers, skills and routes, a stale tracker on stages, and so on. A helper event (a dead helper, helpers running) also acts on the routes the map links to a helper, by a `route` or `dispatch` edge to a helper or by `targetKind: subagent`.
 
-For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the planner compares the subject words of each value's title with the atom's own quoted rule, situation or unit description. It normalizes English inflections and omits grammatical context, code spans and paths. Atom ids, file names and custom check names supply no relevance. Typed evidence supplies observable capabilities: a positive tool call supplies tools; a dispatch supplies helpers; a text predicate supplies language. Explicit reply and answer rules supply language even when checked by a custom predicate. Routes and dispatches inherit the contract of the unit they reach, transitively; unrelated neighbouring rules supply no context.
+The table, which a test compares with the one the planner holds, is:
 
-The baseline of each axis and an unperturbed long session remain available. When a situation has identified targets, inferred constraints exclude its combinations with other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A situation with no identified target stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
+| Dimension | Value | Kinds it acts on | Also helper routes | Also rules that call a tool | Also rules that declare a language |
+|---|---|---|---|---|---|
+| `estate_hazard` | `dead_helper` | subagent | yes | no | no |
+| `session_state` | `helpers_running` | subagent | yes | no | no |
+| `estate_hazard` | `stale_tracker` | stage | no | no | no |
+| `deviation` | `D5_language_switch` | register, instruction | no | no | yes |
+| `owner_signal` | `language_switch` | register, instruction | no | no | yes |
+| `deviation` | `D8_tool_failure` | tool, script, guard, subagent, skill, route | no | yes | no |
+| `deviation` | `D6_instruction_in_data` | instruction, gate, guard, register | no | no | no |
+| `deviation` | `D4_loose_confirmation` | instruction, gate, guard | no | no | no |
+| `estate_hazard` | `rate_wave` | tool, script, subagent, instruction, stage | no | no | no |
+| `estate_hazard` | `process_restart` | stage, subagent, instruction, gate | no | no | no |
+| `estate_hazard` | `compaction_mid_task` | instruction, gate, register, stage, skill, route | no | no | no |
+| `session_state` | `after_compaction` | instruction, gate, register, stage, skill, route | no | no | no |
+| `session_state` | `after_restart` | stage, subagent, instruction, gate | no | no | no |
+| `session_state` | `resumed` | stage, instruction, gate, skill, route | no | no | no |
+| `owner_signal` | `stop` | instruction, stage, subagent, guard | no | no | no |
+| `owner_signal` | `no_questions` | instruction, gate, register | no | no | no |
+| `deviation` | `D2_goal_shift` | route, skill, stage, instruction | no | no | no |
+| `deviation` | `D1_off_topic` | route, skill, instruction, register, stage | no | no | no |
+| `deviation` | `D9_out_of_scope` | route, skill, subagent, instruction | no | no | no |
+| `deviation` | `D7_silence_or_burst` | instruction, register, guard, subagent | no | no | no |
 
-This is a lexical proposal for review, not a proof of natural-language entailment. Synonyms and multilingual conditions may need declared relevance. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
+A value the table does not name stays unresolved (below).
+
+For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the baseline of each axis and an unperturbed long session remain available. When a value has targets, inferred constraints exclude its combinations with the other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A value the table does not name, or one with no target in the estate, stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
+
+A kind is a coarse declaration: a rule that mentions a tool is an instruction and is crossed with a tool failure only if the table says instructions are. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions, and a value it adds is unresolved unless its own constraints say what it cannot meet. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
 
 The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
 

@@ -34,141 +34,142 @@ function estate(atoms: Atom[], edges: EstateMap['edges'] = []): EstateMap {
     edges,
   };
 }
-const samples = () =>
-  estate([
-    atom('a', 'instruction', 'Run the spectrometer and save its reading.', [
-      { type: 'tool_called', label: 'Measure' },
-    ]),
-    atom('b', 'instruction', 'Answer in the language of the customer.', [{ type: 'text', lang: 'FR' }]),
-    atom('c', 'instruction', 'Dispatch the mineral analyst with the specimen number.', [
-      { type: 'tool_called', label: 'Agent' },
-    ]),
-    atom('d', 'stage', 'Update the tracker with the specimen result.', [
-      { type: 'stage_reached', name: 'record' },
-    ]),
-    atom('e', 'instruction', 'After a restart, read the laboratory notebook.', [
-      { type: 'tool_called', label: 'Read' },
-    ]),
-  ]);
 const cells = (map: EstateMap) => buildPlan(map).plan.rows.filter((row) => row.id.startsWith('pairwise.'));
+const crosses = (rows: ReturnType<typeof cells>, id: string, dimension: string, value: string) =>
+  rows.some((row) => row.atomIds[0] === id && row.cell[dimension] === value);
 
-describe('situation relevance follows the estate contract', () => {
-  it('does not cross a language event with a measurement-only instruction', () => {
+/** One atom of every kind a situation value can name, with words that say nothing about the situation. */
+const samples = () =>
+  estate(
+    [
+      atom('rule', 'instruction', 'Keep the calibration seal intact.', [{ type: 'custom', name: 'seal' }]),
+      atom('gate', 'gate', 'Weigh the sample before dosing.', [
+        { type: 'ordered', before: 'Read', after: 'Bash' },
+      ]),
+      atom('voice', 'register', 'Keep replies concise.', [{ type: 'text', mustNot: ['verbose'] }]),
+      atom('step', 'stage', 'Update the tracker.', [{ type: 'stage_reached', name: 'record' }]),
+      atom('skill', 'skill', 'Unused identifier', [{ type: 'skill_loaded', name: 'skill' }], {
+        description: 'Analyze the specimen.',
+      }),
+      atom('helper', 'subagent', 'Unused identifier', [{ type: 'tool_called', label: 'Agent' }]),
+      atom('to-helper', 'route', 'Send specimens for analysis.', [{ type: 'custom', name: 'choose' }]),
+      atom('to-skill', 'route', 'Send readings for the skill.', [{ type: 'custom', name: 'choose_skill' }]),
+      atom('tool', 'tool', 'Measure', [{ type: 'tool_called', label: 'Measure' }]),
+      atom('guard', 'guard', 'Seal guard', [{ type: 'guard', name: 'seal.sh' }]),
+      atom('script', 'script', 'Calibrate', [{ type: 'tool_called', label: 'Bash' }]),
+    ],
+    [
+      { from: 'to-helper', to: 'helper', kind: 'route' },
+      { from: 'to-skill', to: 'skill', kind: 'route' },
+    ],
+  );
+
+describe('situation relevance follows the kinds a situation acts on and the links of the map', () => {
+  it('crosses a language switch with output rules and instructions only', () => {
     const rows = cells(samples());
-    expect(rows.some((row) => row.atomIds[0] === 'a' && row.cell.deviation === 'D5_language_switch')).toBe(
-      false,
-    );
-    expect(rows.some((row) => row.atomIds[0] === 'b' && row.cell.deviation === 'D5_language_switch')).toBe(
-      true,
-    );
+    for (const id of ['voice', 'rule'])
+      expect(crosses(rows, id, 'deviation', 'D5_language_switch')).toBe(true);
+    for (const id of ['step', 'tool', 'guard', 'script', 'helper', 'skill', 'to-helper', 'gate'])
+      expect(crosses(rows, id, 'deviation', 'D5_language_switch'), id).toBe(false);
   });
 
-  it('keeps a tool failure and a failed helper relevant to instructions that call them', () => {
+  it('crosses a tool failure with tools, scripts, guards, helpers, skills and routes, not with a rule that mentions a tool', () => {
     const rows = cells(samples());
-    expect(rows.some((row) => row.atomIds[0] === 'a' && row.cell.deviation === 'D8_tool_failure')).toBe(true);
-    expect(rows.some((row) => row.atomIds[0] === 'c' && row.cell.estate_hazard === 'dead_helper')).toBe(true);
-    expect(rows.some((row) => row.atomIds[0] === 'b' && row.cell.estate_hazard === 'dead_helper')).toBe(
-      false,
-    );
+    for (const id of ['tool', 'script', 'guard', 'helper', 'skill', 'to-skill'])
+      expect(crosses(rows, id, 'deviation', 'D8_tool_failure'), id).toBe(true);
+    for (const id of ['rule', 'voice', 'step', 'gate'])
+      expect(crosses(rows, id, 'deviation', 'D8_tool_failure'), id).toBe(false);
   });
 
-  it('uses tracker and restart instructions regardless of their kind or opaque id', () => {
+  it('crosses a tool failure with a rule whose evidence declares a call of a tool, whatever its kind, but not a call of Agent', () => {
     const map = samples();
     map.atoms.push(
-      atom('f', 'instruction', 'Reconcile the tracker before continuing.', [
-        { type: 'custom', name: 'lab_ledger' },
+      atom('calls-bash', 'gate', 'Weigh the sample before dosing.', [{ type: 'tool_called', label: 'Bash' }]),
+      atom('says-bash', 'instruction', 'Run Bash and call the tool.', [{ type: 'custom', name: 'bash' }]),
+      atom('calls-agent', 'gate', 'Hand the sample over.', [{ type: 'tool_called', label: 'Agent' }]),
+      atom('forbids-bash', 'instruction', 'Never run Bash.', [{ type: 'tool_not_called', label: 'Bash' }]),
+    );
+    const rows = cells(map);
+    expect(crosses(rows, 'calls-bash', 'deviation', 'D8_tool_failure')).toBe(true);
+    for (const id of ['says-bash', 'calls-agent', 'forbids-bash'])
+      expect(crosses(rows, id, 'deviation', 'D8_tool_failure'), id).toBe(false);
+    // The declared call does not widen any other situation value.
+    expect(crosses(rows, 'calls-bash', 'deviation', 'D5_language_switch')).toBe(false);
+  });
+
+  it('crosses a language switch with a rule whose evidence declares a language, whatever its kind', () => {
+    const map = samples();
+    map.atoms.push(
+      atom('fr-gate', 'gate', 'Weigh the sample before dosing.', [{ type: 'text', lang: 'FR' }]),
+      atom('plain-gate', 'gate', 'Weigh the sample before dosing.', [{ type: 'text', mustNot: ['verbose'] }]),
+    );
+    const rows = cells(map);
+    for (const [dimension, value] of [
+      ['deviation', 'D5_language_switch'],
+      ['owner_signal', 'language_switch'],
+    ] as const) {
+      expect(crosses(rows, 'fr-gate', dimension, value), value).toBe(true);
+      expect(crosses(rows, 'plain-gate', dimension, value), value).toBe(false);
+    }
+    expect(crosses(rows, 'fr-gate', 'deviation', 'D8_tool_failure')).toBe(false);
+  });
+
+  it('crosses a dead helper with helpers and the routes the map links to a helper, not with other routes', () => {
+    const rows = cells(samples());
+    expect(crosses(rows, 'helper', 'estate_hazard', 'dead_helper')).toBe(true);
+    expect(crosses(rows, 'to-helper', 'estate_hazard', 'dead_helper')).toBe(true);
+    for (const id of ['to-skill', 'rule', 'tool'])
+      expect(crosses(rows, id, 'estate_hazard', 'dead_helper'), id).toBe(false);
+  });
+
+  it('reads no word of an atom: a rule that names a restart, a language or a helper gains nothing from it', () => {
+    const map = samples();
+    map.atoms.push(
+      atom('talky', 'script', 'After a restart, answer in the language of the helper agent and restart.', [
+        { type: 'custom', name: 'talky' },
       ]),
     );
     const rows = cells(map);
-    for (const id of ['d', 'f']) {
-      expect(rows.some((row) => row.atomIds[0] === id && row.cell.estate_hazard === 'stale_tracker')).toBe(
-        true,
-      );
-    }
-    expect(rows.some((row) => row.atomIds[0] === 'e' && row.cell.estate_hazard === 'process_restart')).toBe(
-      true,
-    );
-    expect(rows.some((row) => row.atomIds[0] === 'b' && row.cell.estate_hazard === 'process_restart')).toBe(
-      false,
-    );
+    for (const [dimension, value] of [
+      ['estate_hazard', 'process_restart'],
+      ['deviation', 'D5_language_switch'],
+      ['estate_hazard', 'dead_helper'],
+    ] as const)
+      expect(crosses(rows, 'talky', dimension, value), value).toBe(false);
   });
 
-  it('does not use ids or file paths as behavioural text', () => {
+  it('reads no id or path: an atom named and filed after a helper, a tracker and a tool is still an instruction', () => {
     const map = samples();
     map.atoms.push(
-      atom('restart.helper.language', 'instruction', 'Keep the calibration seal intact.', [
+      atom('dead.helper.tracker.tool', 'instruction', 'Keep the calibration seal intact.', [
         { type: 'custom', name: 'seal' },
       ]),
     );
-    const sealed = map.atoms.find((candidate) => candidate.id === 'restart.helper.language');
-    if (!sealed) throw new Error('missing hand-written seal rule');
-    sealed.provenance.file = 'language/helpers/restart.md';
+    const named = map.atoms.at(-1);
+    if (named) named.provenance.file = 'helpers/tracker/tool-failure.md';
     const rows = cells(map);
-    expect(
-      rows.some(
-        (row) =>
-          row.atomIds[0] === 'restart.helper.language' &&
-          (row.cell.estate_hazard === 'dead_helper' || row.cell.estate_hazard === 'process_restart'),
-      ),
-    ).toBe(false);
+    for (const [dimension, value] of [
+      ['estate_hazard', 'dead_helper'],
+      ['session_state', 'helpers_running'],
+      ['estate_hazard', 'stale_tracker'],
+      ['deviation', 'D8_tool_failure'],
+    ] as const)
+      expect(crosses(rows, 'dead.helper.tracker.tool', dimension, value), value).toBe(false);
+    expect(rows.some((row) => row.atomIds[0] === 'dead.helper.tracker.tool')).toBe(true);
   });
 
-  it('uses the called unit contract for routing relevance, without importing unrelated neighbours', () => {
-    const map = samples();
-    map.atoms.push(atom('unit', 'subagent', 'Mineral analyst', [{ type: 'tool_called', label: 'Agent' }]));
-    map.atoms.push(
-      atom('route', 'route', 'Send specimens for mineral analysis.', [
-        { type: 'custom', name: 'choose_analyst' },
-      ]),
-    );
-    map.edges.push({ from: 'route', to: 'unit', kind: 'route' });
-    const rows = cells(map);
-    expect(rows.some((row) => row.atomIds[0] === 'route' && row.cell.estate_hazard === 'dead_helper')).toBe(
-      true,
-    );
-    expect(
-      rows.some((row) => row.atomIds[0] === 'route' && row.cell.deviation === 'D5_language_switch'),
-    ).toBe(false);
-  });
-
-  it('propagates a called unit through dispatch chains and cycles without importing its callers', () => {
-    const map = samples();
-    map.atoms.push(
-      atom('middle', 'skill', 'Unused identifier', [{ type: 'skill_loaded', name: 'middle' }], {
-        description: 'Analyze the specimen.',
-      }),
-    );
-    map.atoms.push(atom('entry', 'route', 'Choose an analysis.', [{ type: 'custom', name: 'analysis' }]));
-    map.atoms.push(
-      atom('analyst', 'subagent', 'Unused identifier', [{ type: 'tool_called', label: 'Agent' }]),
-    );
-    map.edges.push(
-      { from: 'entry', to: 'middle', kind: 'route' },
-      { from: 'middle', to: 'analyst', kind: 'dispatch' },
-      { from: 'analyst', to: 'middle', kind: 'dispatch' },
-    );
-    const rows = cells(map);
-    expect(rows.some((row) => row.atomIds[0] === 'entry' && row.cell.estate_hazard === 'dead_helper')).toBe(
-      true,
-    );
-    expect(
-      rows.some((row) => row.atomIds[0] === 'analyst' && row.cell.deviation === 'D5_language_switch'),
-    ).toBe(false);
-  });
-
-  it('retains situations with unresolved relevance instead of reporting vacuous coverage', () => {
+  it('retains a situation value no table names, with a note, instead of reporting vacuous coverage', () => {
     const map = estate([
-      atom('seal', 'instruction', 'Keep the calibration seal intact.', [{ type: 'custom', name: 'seal' }]),
+      atom('seal', 'instruction', 'Keep the seal intact.', [{ type: 'custom', name: 'seal' }]),
     ]);
-    expect(cells(map).some((row) => row.cell.estate_hazard === 'process_restart')).toBe(true);
+    const built = buildPlan(map);
+    expect(cells(map).some((row) => row.cell.owner_signal === 'frustration')).toBe(true);
     expect(
-      buildPlan(map).details.notes.some(
-        (note) => note.includes('no relevant target') && note.includes('retained'),
-      ),
+      built.details.notes.some((note) => note.includes('no relevant target') && note.includes('retained')),
     ).toBe(true);
   });
 
-  it('recognizes an estate-specific subject with opaque situation ids and no built-in kind policy', () => {
+  it('infers nothing for a space the user wrote: its own values and constraints stand', () => {
     const map = estate([
       atom('reactor', 'instruction', 'If the catalyst expires, reject the sample.', [
         { type: 'custom', name: 'lab_rule' },
@@ -201,25 +202,21 @@ describe('situation relevance follows the estate contract', () => {
           values: [{ id: 'voice', title: 'Voice' }],
         },
       ],
-      constraints: [],
+      constraints: [
+        { forbid: { owner_signal: 'cx17', 'atoms.register': 'voice' }, reason: 'declared by the owner' },
+      ],
       prior: { kind: 'declared' },
     };
     const fitted = situationSpace(map, space);
+    expect(fitted.space.constraints).toEqual(space.constraints);
     const result = buildPlan(map, { space: fitted.space });
-    expect(
-      result.plan.rows.some(
-        (row) =>
-          row.id.startsWith('pairwise.') && row.atomIds[0] === 'reactor' && row.cell.owner_signal === 'cx17',
-      ),
-    ).toBe(true);
+    expect(result.details.tuples.covered).toBe(result.details.tuples.allowed);
     expect(
       result.plan.rows.some(
         (row) =>
           row.id.startsWith('pairwise.') && row.atomIds[0] === 'voice' && row.cell.owner_signal === 'cx17',
       ),
     ).toBe(false);
-    expect(result.details.tuples.covered).toBe(result.details.tuples.allowed);
-    expect(fitted.space.constraints).toHaveLength(1);
   });
 
   it('leaves an explicit user space authoritative and covers its declared tuples', () => {
@@ -241,7 +238,7 @@ describe('situation relevance follows the estate contract', () => {
           id: 'atoms.instruction',
           kind: 'behaviour',
           title: 'Rules',
-          values: [{ id: 'a', title: 'Measure' }],
+          values: [{ id: 'rule', title: 'Seal' }],
         },
       ],
       constraints: [],
