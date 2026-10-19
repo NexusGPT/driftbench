@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type * as Sqlite from 'node:sqlite';
 import { need } from '../../blocks/product';
 import {
   type BankItem,
@@ -17,6 +17,9 @@ import {
   tok,
   verdict,
 } from './kit';
+
+// Loaded through the runtime, as packages/checks does: a bundler strips the node: prefix of an unknown built-in.
+const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof Sqlite;
 
 /**
  * docgaps.checks: rules of docs/reference/checks.md no earlier item tests in the case written here: the budget

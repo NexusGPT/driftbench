@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type * as Sqlite from 'node:sqlite';
 import { between, rngFor } from '../../blocks/harness';
 import { need } from '../../blocks/product';
 import {
@@ -20,6 +20,9 @@ import {
   word,
 } from './kit';
 import { bleu, cosine, rougeL, sequence } from './oracle';
+
+// Loaded through the runtime, as packages/checks does: a bundler strips the node: prefix of an unknown built-in.
+const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof Sqlite;
 
 /**
  * gr-scores: the checks that score a reply (docs/reference/checks.md "Similarity, relevancy and knowledge
