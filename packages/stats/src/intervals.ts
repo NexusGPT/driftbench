@@ -33,7 +33,12 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
   const denom = 1 + z2 / n;
   const center = (p + z2 / (2 * n)) / denom;
   const half = (z / denom) * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
-  return { estimate: p, lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
+  // The bounds at k = 0 and k = n are exactly 0 and 1; the formula only reaches them up to rounding.
+  return {
+    estimate: p,
+    lower: k === 0 ? 0 : Math.max(0, center - half),
+    upper: k === n ? 1 : Math.min(1, center + half),
+  };
 }
 
 /** The exact (Clopper-Pearson) interval for k successes in n trials at level 1 - alpha. */

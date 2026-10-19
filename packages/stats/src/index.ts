@@ -23,6 +23,9 @@ export {
   type HillNumbers,
   hillNumber,
   hillNumbers,
+  type MixedStrengthCoverageResult,
+  mixedStrengthCoverage,
+  type StrengthGroup,
 } from './coverage';
 export {
   type Alarm,
@@ -63,6 +66,11 @@ export {
   zeroFailureBound,
   zFor,
 } from './intervals';
+export {
+  type MixtureWeightsOptions,
+  type MixtureWeightsResult,
+  mixtureWeights,
+} from './mixture';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
 export {
   type McNemarMidPResult,

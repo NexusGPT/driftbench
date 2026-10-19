@@ -108,3 +108,78 @@ export function hillNumbers(counts: readonly number[]): HillNumbers {
   frequencies('hillNumbers', counts);
   return { q0: hillNumber(counts, 0), q1: hillNumber(counts, 1), q2: hillNumber(counts, 2) };
 }
+
+export interface StrengthGroup {
+  readonly axes: readonly number[];
+  readonly strength: number;
+}
+
+export interface MixedStrengthCoverageResult {
+  readonly groups: { covered: number; required: number; coverage: number }[];
+  readonly covered: number;
+  readonly required: number;
+  readonly coverage: number;
+}
+
+function choose(items: readonly number[], size: number): number[][] {
+  if (size === 0) return [[]];
+  const out: number[][] = [];
+  for (let i = 0; i + size <= items.length; i += 1)
+    for (const rest of choose(items.slice(i + 1), size - 1)) out.push([items[i] as number, ...rest]);
+  return out;
+}
+
+/**
+ * Mixed-strength coverage of a suite: for each group of axes, the value tuples of every choice of
+ * `strength` of its axes, and how many of them some row holds. The totals add the groups.
+ */
+export function mixedStrengthCoverage(
+  rows: readonly (readonly number[])[],
+  groups: readonly StrengthGroup[],
+  levels: readonly number[],
+): MixedStrengthCoverageResult {
+  if (groups.length === 0) throw new RangeError('mixedStrengthCoverage: groups must not be empty');
+  levels.forEach((l, a) => {
+    if (!Number.isSafeInteger(l) || l < 1)
+      throw new RangeError(`mixedStrengthCoverage: levels[${a}] must be a positive integer, got ${l}`);
+  });
+  rows.forEach((row, r) => {
+    if (row.length !== levels.length)
+      throw new RangeError(
+        `mixedStrengthCoverage: row ${r} has ${row.length} values, levels has ${levels.length}`,
+      );
+    row.forEach((v, a) => {
+      if (!Number.isSafeInteger(v) || v < 0 || v > (levels[a] as number) - 1)
+        throw new RangeError(
+          `mixedStrengthCoverage: row ${r} axis ${a} value ${v} is outside 0 to ${(levels[a] as number) - 1}`,
+        );
+    });
+  });
+  const per = groups.map((group, g) => {
+    const axes = [...group.axes];
+    if (new Set(axes).size !== axes.length)
+      throw new RangeError(`mixedStrengthCoverage: group ${g} repeats an axis`);
+    for (const a of axes)
+      if (!Number.isSafeInteger(a) || a < 0 || a >= levels.length)
+        throw new RangeError(
+          `mixedStrengthCoverage: group ${g} names axis ${a}, outside 0 to ${levels.length - 1}`,
+        );
+    if (!Number.isSafeInteger(group.strength) || group.strength < 1 || group.strength > axes.length)
+      throw new RangeError(
+        `mixedStrengthCoverage: group ${g} strength ${group.strength} is outside 1 to ${axes.length}`,
+      );
+    axes.sort((x, y) => x - y);
+    let required = 0;
+    let covered = 0;
+    for (const chosen of choose(axes, group.strength)) {
+      required += chosen.reduce((x, a) => x * (levels[a] as number), 1);
+      const seen = new Set<string>();
+      for (const row of rows) seen.add(chosen.map((a) => row[a]).join(','));
+      covered += seen.size;
+    }
+    return { covered, required, coverage: covered / required };
+  });
+  const covered = per.reduce((x, g) => x + g.covered, 0);
+  const required = per.reduce((x, g) => x + g.required, 0);
+  return { groups: per, covered, required, coverage: covered / required };
+}
