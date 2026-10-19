@@ -5,9 +5,15 @@
 // shipped default too: with no replayer and no judge, no rung decides a differing value, so it is compared exactly.
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { forbidden, tools } from '@agent-nexus/driftbench-checks';
+import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import type { CheckContext, Expect } from '@agent-nexus/driftbench-core';
-import { loadSpecFile, type Spec, type Verdict } from '@agent-nexus/driftbench-core';
+import {
+  applyScoringPlan,
+  loadSpecFile,
+  type Spec,
+  scoringPlan,
+  shippedObjectContext,
+} from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { BLOCKS, failedLikeStored, h1Context, h1Runs, multisetDiff } from './h1';
 
@@ -16,6 +22,7 @@ const ROOT = join(HERE, '..', '..', '..', '..');
 
 const specs = new Map<string, Spec>();
 beforeAll(async () => {
+  initializeShippedObjects();
   for (const def of Object.values(BLOCKS)) {
     if (specs.has(def.spec)) continue;
     const loaded = await loadSpecFile(join(ROOT, def.spec));
@@ -36,9 +43,13 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
       const def = BLOCKS[run.block];
       if (!def) throw new Error(run.block);
       const ctx = exactly(h1Context(specs.get(def.spec) as Spec, def.index, run));
-      const verdicts: Verdict[] = [];
-      for (const check of [tools, forbidden])
-        if (check.applies(ctx)) verdicts.push(...(await check.evaluate(ctx)));
+      const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
+      const verdicts = await applyScoringPlan(plan, ctx);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
       gating += verdicts.filter((verdict) => verdict.gating).length;
       const failed = failedLikeStored(ctx, verdicts);
       const diff = multisetDiff(run.exactFailed, failed);
@@ -59,9 +70,13 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
       const def = BLOCKS[run.block];
       if (!def) throw new Error(run.block);
       const ctx = h1Context(specs.get(def.spec) as Spec, def.index, run);
-      const verdicts: Verdict[] = [];
-      for (const check of [tools, forbidden])
-        if (check.applies(ctx)) verdicts.push(...(await check.evaluate(ctx)));
+      const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
+      const verdicts = await applyScoringPlan(plan, ctx);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
       if (multisetDiff(run.exactFailed, failedLikeStored(ctx, verdicts)) > 0) delta.push(run.id);
     }
     expect(delta).toEqual([]);

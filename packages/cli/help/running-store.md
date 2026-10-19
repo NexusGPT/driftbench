@@ -55,13 +55,14 @@ What the store holds, one table each:
 |---|---|
 | `campaigns` | one record per campaign: id, the pinned specs (id, hash, own target), targets, modes, repeats per mode, budget (0 means none), agent version, the dataset and prompt versions it ran, provenance, and creation time. A campaign never changes once written. |
 | `specs` | each spec a campaign pinned, by id and content hash, as canonical JSON. `status` and `resume` read specs from here, not from disk. |
+| `spec_objects` | the identities and hashes of the objects resolved when a spec was stored. Reading a stored spec validates its structure without reopening project files. |
 | `runs` | one row per campaign and run id (a run id is a cell id, so the same cell run in two campaigns gives two rows). A run put again under the same campaign and run id replaces the first. |
 | `blocks` | one row per block of a run: its Given hash, what the agent did (observed), the verdicts, the drift classes and whether it passed. |
 | `cache` | observed blocks and end-state reads by cache key (topic running-cache). |
 | `units` | measured cost units per adapter, read by `campaign plan` for its projection. No command records units during a run; code puts them with the store's `putUnit`. |
 | `blobs`, `versions` | the registry of datasets and prompts: each file once by its SHA-256, and one immutable row per version (`dataset` and `prompt` commands). |
 
-A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`.
+A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`, and on newer records `resolved` (the objects the block was scored with and one hash over them) and `diagnoses`. Each verdict of a newer record carries `by`: the object (`kind:id@hash8`), the item, the implementation and the layer that produced it. For a tool input decided by a value-check policy, `by.object` names that resolved policy, `by.layer` names the policy's origin, and `by.item` names the deciding rung. An aggregate failure names the first failing value's rung; an inconclusive aggregate names the first inconclusive value's rung. A passing aggregate names the latest (loosest) deciding rung in the policy's item order. `valueCheck[]` retains every value's decision in call and path order. If no rung decides a differing value, `by.item` is `exact_fallback` and `by.impl` is `builtin:value-check/exact`. A policy supplied directly by code carries its resolved reference, or a hash of its contents when no reference is supplied, at the `cli` layer. Verdict IDs and counts do not change. Artifact metadata does not contain file bytes. A partial rerun runs artifact-dependent blocks fresh; whole-cell re-scoring refuses an observation that needs unstored artifact bytes.
 
 ### Run record, field by field
 
@@ -162,8 +163,11 @@ A `verdicts` entry is one check on one block:
 | `score` | A number, when the check gives one. |
 | `evidence` | What the check saw. |
 | `reasoning` | The judge's reasoning. Optional. |
+| `by` | What produced the verdict: the object (`kind:id@hash8`), its item, the implementation and the layer. Absent on older records. |
 | `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
 | `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. Absent when every value equalled the gold or the assertion compares as written. |
+
+A block of a newer record also holds `resolved` (the objects it was scored with, one per `uses` key, and one hash over them), `diagnoses` (what the diagnostics wrote after the checks; they never change `pass`) and `skippedForBudget` (how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent; absent when none).
 
 A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
 
@@ -180,7 +184,7 @@ A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pair
 
 ## Outputs and how to read them
 
-The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 2; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
+The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 3; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
 
 Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 30 seconds for the file, a read as well as a write: a live holder that is slow is a wait, and a call fails with `database is locked` only after that.
 

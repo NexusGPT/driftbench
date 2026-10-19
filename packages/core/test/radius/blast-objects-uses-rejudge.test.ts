@@ -3,6 +3,7 @@
 // observation (observationCompatibilityHash, consumed by prepareRejudge).
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { shippedObjectContext } from '../../src/objects';
 import { prepareRejudge, rejudgeRun } from '../../src/radius/rejudge';
 import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
@@ -55,6 +56,21 @@ const withUses = (): Spec => ({
   ),
 });
 
+/** The objects `withUses` names: a re-judge resolves them before it judges, so each must exist (project layer). */
+function usesContext() {
+  const context = shippedObjectContext();
+  for (const [kind, id] of [
+    ['policy/blame', 'acme'],
+    ['judge-council', 'council-3'],
+    ['policy/value-check', 'strict'],
+    ['diagnostic', 'value-mismatch'],
+  ] as const)
+    context.store.add({ kind, id, ...(kind === 'diagnostic' ? { steps: [] } : { items: [] }) }, 'project', {
+      path: `fixture/${kind}/${id}.yaml`,
+    });
+  return context;
+}
+
 describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', () => {
   it('prepares and runs the re-judge with the stored observations, and stamps the new spec hash', async () => {
     const run = await stored();
@@ -71,6 +87,8 @@ describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', 
         ],
       },
       () => 0,
+      false,
+      usesContext(),
     );
     expect(result.blocks.map((block) => block.observed)).toEqual(run.blocks.map((block) => block.observed));
     expect(result.rejudged?.oldSpecHash).toBe(run.specHash);
