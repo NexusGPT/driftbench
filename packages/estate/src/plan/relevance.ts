@@ -5,20 +5,29 @@ import type { Atom, EstateMap } from '../schema';
  * Which atoms a situation value can act on. The default plan crosses an event value (a value of the axes
  * `session_state`, `owner_signal`, `deviation` and `estate_hazard` other than the first of its axis) only with
  * the atoms it can act on, and says which: the kinds of the atoms, and for a helper event the routes the map
- * links to a helper. No word of an atom, an id or a path is read. The table is keyed by dimension and value id,
+ * links to a helper, and for a tool failure the atoms whose evidence declares a call of a tool other than Agent
+ * (a form of the map, not a word), and for a language switch the atoms whose evidence declares a language. No word of an atom, an id or a path is read. The table is keyed by dimension and value id,
  * the ids of the axes of `estate map` (map/space.ts); a value it does not name is unresolved: all its
  * combinations stay in the plan, with a note. A space the user wrote is authoritative and infers nothing: its
  * own constraints say what its values cannot meet.
  */
-export type Concern = { kinds: readonly Atom['kind'][]; helperRoutes?: true };
+export type Concern = {
+  kinds: readonly Atom['kind'][];
+  helperRoutes?: true;
+  toolCalls?: true;
+  language?: true;
+};
 
 export const SITUATION_CONCERNS: Readonly<Record<string, Concern>> = {
   'estate_hazard=dead_helper': { kinds: ['subagent'], helperRoutes: true },
   'session_state=helpers_running': { kinds: ['subagent'], helperRoutes: true },
   'estate_hazard=stale_tracker': { kinds: ['stage'] },
-  'deviation=D5_language_switch': { kinds: ['register', 'instruction'] },
-  'owner_signal=language_switch': { kinds: ['register', 'instruction'] },
-  'deviation=D8_tool_failure': { kinds: ['tool', 'script', 'guard', 'subagent', 'skill', 'route'] },
+  'deviation=D5_language_switch': { kinds: ['register', 'instruction'], language: true },
+  'owner_signal=language_switch': { kinds: ['register', 'instruction'], language: true },
+  'deviation=D8_tool_failure': {
+    kinds: ['tool', 'script', 'guard', 'subagent', 'skill', 'route'],
+    toolCalls: true,
+  },
   'deviation=D6_instruction_in_data': { kinds: ['instruction', 'gate', 'guard', 'register'] },
   'deviation=D4_loose_confirmation': { kinds: ['instruction', 'gate', 'guard'] },
   'estate_hazard=rate_wave': { kinds: ['tool', 'script', 'subagent', 'instruction', 'stage'] },
@@ -54,6 +63,10 @@ function actedOn(concern: Concern, atoms: readonly Atom[], edges: EstateMap['edg
       .filter(
         (atom) =>
           concern.kinds.includes(atom.kind) ||
+          (concern.toolCalls === true &&
+            atom.evidence.some((form) => form.type === 'tool_called' && form.label !== 'Agent')) ||
+          (concern.language === true &&
+            atom.evidence.some((form) => form.type === 'text' && form.lang !== undefined)) ||
           (concern.helperRoutes === true &&
             atom.kind === 'route' &&
             (atom.fields?.targetKind === 'subagent' || linked.has(atom.id))),

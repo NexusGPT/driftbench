@@ -434,28 +434,28 @@ The default plan crosses each event value only with the atoms it can act on. It 
 
 The table, which a test compares with the one the planner holds, is:
 
-| Dimension | Value | Kinds it acts on | Also helper routes |
-|---|---|---|---|
-| `estate_hazard` | `dead_helper` | subagent | yes |
-| `session_state` | `helpers_running` | subagent | yes |
-| `estate_hazard` | `stale_tracker` | stage | no |
-| `deviation` | `D5_language_switch` | register, instruction | no |
-| `owner_signal` | `language_switch` | register, instruction | no |
-| `deviation` | `D8_tool_failure` | tool, script, guard, subagent, skill, route | no |
-| `deviation` | `D6_instruction_in_data` | instruction, gate, guard, register | no |
-| `deviation` | `D4_loose_confirmation` | instruction, gate, guard | no |
-| `estate_hazard` | `rate_wave` | tool, script, subagent, instruction, stage | no |
-| `estate_hazard` | `process_restart` | stage, subagent, instruction, gate | no |
-| `estate_hazard` | `compaction_mid_task` | instruction, gate, register, stage, skill, route | no |
-| `session_state` | `after_compaction` | instruction, gate, register, stage, skill, route | no |
-| `session_state` | `after_restart` | stage, subagent, instruction, gate | no |
-| `session_state` | `resumed` | stage, instruction, gate, skill, route | no |
-| `owner_signal` | `stop` | instruction, stage, subagent, guard | no |
-| `owner_signal` | `no_questions` | instruction, gate, register | no |
-| `deviation` | `D2_goal_shift` | route, skill, stage, instruction | no |
-| `deviation` | `D1_off_topic` | route, skill, instruction, register, stage | no |
-| `deviation` | `D9_out_of_scope` | route, skill, subagent, instruction | no |
-| `deviation` | `D7_silence_or_burst` | instruction, register, guard, subagent | no |
+| Dimension | Value | Kinds it acts on | Also helper routes | Also rules that call a tool | Also rules that declare a language |
+|---|---|---|---|---|---|
+| `estate_hazard` | `dead_helper` | subagent | yes | no | no |
+| `session_state` | `helpers_running` | subagent | yes | no | no |
+| `estate_hazard` | `stale_tracker` | stage | no | no | no |
+| `deviation` | `D5_language_switch` | register, instruction | no | no | yes |
+| `owner_signal` | `language_switch` | register, instruction | no | no | yes |
+| `deviation` | `D8_tool_failure` | tool, script, guard, subagent, skill, route | no | yes | no |
+| `deviation` | `D6_instruction_in_data` | instruction, gate, guard, register | no | no | no |
+| `deviation` | `D4_loose_confirmation` | instruction, gate, guard | no | no | no |
+| `estate_hazard` | `rate_wave` | tool, script, subagent, instruction, stage | no | no | no |
+| `estate_hazard` | `process_restart` | stage, subagent, instruction, gate | no | no | no |
+| `estate_hazard` | `compaction_mid_task` | instruction, gate, register, stage, skill, route | no | no | no |
+| `session_state` | `after_compaction` | instruction, gate, register, stage, skill, route | no | no | no |
+| `session_state` | `after_restart` | stage, subagent, instruction, gate | no | no | no |
+| `session_state` | `resumed` | stage, instruction, gate, skill, route | no | no | no |
+| `owner_signal` | `stop` | instruction, stage, subagent, guard | no | no | no |
+| `owner_signal` | `no_questions` | instruction, gate, register | no | no | no |
+| `deviation` | `D2_goal_shift` | route, skill, stage, instruction | no | no | no |
+| `deviation` | `D1_off_topic` | route, skill, instruction, register, stage | no | no | no |
+| `deviation` | `D9_out_of_scope` | route, skill, subagent, instruction | no | no | no |
+| `deviation` | `D7_silence_or_burst` | instruction, register, guard, subagent | no | no | no |
 
 A value the table does not name stays unresolved (below).
 

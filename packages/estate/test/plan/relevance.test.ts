@@ -81,6 +81,39 @@ describe('situation relevance follows the kinds a situation acts on and the link
       expect(crosses(rows, id, 'deviation', 'D8_tool_failure'), id).toBe(false);
   });
 
+  it('crosses a tool failure with a rule whose evidence declares a call of a tool, whatever its kind, but not a call of Agent', () => {
+    const map = samples();
+    map.atoms.push(
+      atom('calls-bash', 'gate', 'Weigh the sample before dosing.', [{ type: 'tool_called', label: 'Bash' }]),
+      atom('says-bash', 'instruction', 'Run Bash and call the tool.', [{ type: 'custom', name: 'bash' }]),
+      atom('calls-agent', 'gate', 'Hand the sample over.', [{ type: 'tool_called', label: 'Agent' }]),
+      atom('forbids-bash', 'instruction', 'Never run Bash.', [{ type: 'tool_not_called', label: 'Bash' }]),
+    );
+    const rows = cells(map);
+    expect(crosses(rows, 'calls-bash', 'deviation', 'D8_tool_failure')).toBe(true);
+    for (const id of ['says-bash', 'calls-agent', 'forbids-bash'])
+      expect(crosses(rows, id, 'deviation', 'D8_tool_failure'), id).toBe(false);
+    // The declared call does not widen any other situation value.
+    expect(crosses(rows, 'calls-bash', 'deviation', 'D5_language_switch')).toBe(false);
+  });
+
+  it('crosses a language switch with a rule whose evidence declares a language, whatever its kind', () => {
+    const map = samples();
+    map.atoms.push(
+      atom('fr-gate', 'gate', 'Weigh the sample before dosing.', [{ type: 'text', lang: 'FR' }]),
+      atom('plain-gate', 'gate', 'Weigh the sample before dosing.', [{ type: 'text', mustNot: ['verbose'] }]),
+    );
+    const rows = cells(map);
+    for (const [dimension, value] of [
+      ['deviation', 'D5_language_switch'],
+      ['owner_signal', 'language_switch'],
+    ] as const) {
+      expect(crosses(rows, 'fr-gate', dimension, value), value).toBe(true);
+      expect(crosses(rows, 'plain-gate', dimension, value), value).toBe(false);
+    }
+    expect(crosses(rows, 'fr-gate', 'deviation', 'D8_tool_failure')).toBe(false);
+  });
+
   it('crosses a dead helper with helpers and the routes the map links to a helper, not with other routes', () => {
     const rows = cells(samples());
     expect(crosses(rows, 'helper', 'estate_hazard', 'dead_helper')).toBe(true);
