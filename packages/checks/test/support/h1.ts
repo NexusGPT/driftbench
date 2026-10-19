@@ -213,13 +213,24 @@ export async function verdicts(
  */
 export function exactExpect(blockId: string): Expect {
   const { authored } = loadedBlock(blockId);
+  const asStored = withoutNormaliseRules(authored);
   return {
-    ...authored,
-    tools: authored.tools?.map((tool) => ({
+    ...asStored,
+    tools: asStored.tools?.map((tool) => ({
       ...tool,
       compare: { exact: 'parity with the stored exact oracle' },
     })),
   };
+}
+
+/**
+ * The Then without its `normalise` rules. The stored oracle scored these runs before the Acme specs had rules
+ * (block phase 1 oracle, PR 434); a rule turns a run the oracle failed into a pass on purpose, which
+ * normalised-oracle.test.ts and core's HF2 measure. Parity with the stored verdicts holds only on the Then as
+ * the oracle read it.
+ */
+export function withoutNormaliseRules(expect: Expect): Expect {
+  return { ...expect, tools: expect.tools?.map(({ normalise: _rule, ...tool }) => tool) };
 }
 
 /** A stored call of the block's tool with one field set; the minimal-pair and form tests start from it. */
