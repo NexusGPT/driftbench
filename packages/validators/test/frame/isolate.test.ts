@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, FrameError, isolate, isolateCommand, neutralName, replay } from '../../src/frame';
 import * as cheats from './fixtures/cheats';
 
@@ -9,6 +9,9 @@ import * as cheats from './fixtures/cheats';
  * it when the cheater audits found these cheats, and fails it under the frame: the product runs in two child
  * processes that differ in every signal the cheats read, and the parent decides from the recorded answers.
  */
+
+// Run C starts a process per call, so a test of three seeds takes some seconds.
+vi.setConfig({ testTimeout: 300_000 });
 
 const CHEATS = fileURLToPath(new URL('./fixtures/cheats.ts', import.meta.url));
 const COMMAND = fileURLToPath(new URL('./fixtures/cheat-command.mjs', import.meta.url));

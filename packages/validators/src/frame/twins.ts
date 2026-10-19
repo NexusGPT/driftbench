@@ -72,6 +72,8 @@ export type TwinPlan = {
   uptimeShift: number;
   /** How many calls deep the product is called from the driver. */
   depth: number;
+  /** The driver program, its identifiers drawn (driver.ts); set by the frame. */
+  driverSource?: string;
 };
 
 /** The two runs of one frame. `projectCache` is a cache folder of the project (its node_modules/.cache). */

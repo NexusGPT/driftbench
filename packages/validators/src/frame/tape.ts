@@ -20,6 +20,8 @@ export type Entry = {
   throws?: Json;
   /** The twin run, made in a process that differs in every signal a product could read about how it is run. */
   twin?: Outcome;
+  /** Run C: the same call made by a plain entry file in a fresh process, as a user's script makes it. */
+  plain?: Outcome;
 };
 
 export type Tape = Entry[];

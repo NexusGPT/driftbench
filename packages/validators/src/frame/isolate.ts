@@ -3,9 +3,10 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { DRIVER, RELAY } from './driver';
+import { plainCodec, plainEntry, RELAY, twinDriver } from './driver';
 import {
   canonical,
   decode,
@@ -17,7 +18,7 @@ import {
   shortText,
   type Tape,
 } from './tape';
-import { type TwinPlan, twinPlans } from './twins';
+import { rngOf, type TwinPlan, twinPlans } from './twins';
 
 /**
  * The frame: the product runs apart, the parent decides (docs/validators.md, the section of that name). The
@@ -28,6 +29,13 @@ import { type TwinPlan, twinPlans } from './twins';
  * answers on a tape, and gives the item the answers as data, so the item's verdict is computed in the parent from
  * recorded outputs only. A call whose two answers differ is the frame's own finding: the product's answer depends
  * on how it is run.
+ *
+ * Both twins are still programs the frame wrote, and a review of this frame found products keyed on what the twins
+ * share (an .mjs entry, a stdin that is no terminal, no node options). So each call is made a third time, in run C:
+ * a fresh process per call that loads the product through a plain entry file, as a user's own script does (a
+ * TypeScript entry under the tsx loader, no stdin protocol, the answer written to a file). Run C answering
+ * differently from run A is a finding too. No run makes the validator indistinguishable from a user; run C narrows
+ * the gap (docs/validators.md section 12.9).
  */
 
 const START_MS = 120_000;
@@ -60,6 +68,8 @@ export type IsolateOptions = {
   tag?: string;
   /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
   keep?: Keep;
+  /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
+  plain?: boolean;
 };
 
 export type Frame<T> = {
@@ -84,10 +94,80 @@ function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
   return reply;
 }
 
-const describeRun = (plan: TwinPlan) =>
-  plan.run === 'A'
-    ? 'run A (the validator folder and environment)'
-    : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
+const describeRun = (plan: TwinPlan | 'C') =>
+  plan === 'C'
+    ? 'run C (a plain entry file per call, under the tsx loader)'
+    : plan.run === 'A'
+      ? 'run A (the validator folder and environment)'
+      : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
+
+/** The tsx loader as a node option for run C, when tsx is installed. */
+function loaderOption(): string[] {
+  try {
+    createRequire(import.meta.url).resolve('tsx');
+    return ['--import', 'tsx'];
+  } catch {
+    return [];
+  }
+}
+
+type PlainRun = { dir: string; codec: string; codecNames: { encode: string; decode: string }; count: number };
+
+/** Opens run C: a drawn folder in the project's cache, holding the codec module. */
+function openPlain(seed: number, tag: string): PlainRun {
+  const rng = rngOf(seed, `plain:${tag}`);
+  let folder = '';
+  while (folder.length < 6 + Math.floor(rng() * 8))
+    folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
+  const dir = join(projectCache(), folder);
+  mkdirSync(dir, { recursive: true });
+  const codec = plainCodec(seed, tag);
+  const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
+  writeFileSync(codecPath, codec.source);
+  return { dir, codec: codecPath, codecNames: codec, count: 0 };
+}
+
+/** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
+function plainCall(plain: PlainRun, seed: number, tag: string, module: string, name: string, sent: Json) {
+  plain.count += 1;
+  const stem = `${tag.length.toString(36)}${plain.count}`;
+  // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
+  const entry = join(plain.dir, `${stem}.mts`);
+  const args = join(plain.dir, `${stem}.json`);
+  const out = join(plain.dir, `${stem}.out.json`);
+  writeFileSync(args, JSON.stringify(sent));
+  writeFileSync(
+    entry,
+    plainEntry(
+      seed,
+      `${tag}:${plain.count}`,
+      {
+        module: pathToFileURL(module).href,
+        codec: pathToFileURL(plain.codec).href,
+        args: pathToFileURL(args).href,
+        out: pathToFileURL(out).href,
+      },
+      name,
+      plain.codecNames,
+    ),
+  );
+  const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
+    cwd: findRoot(dirname(module)),
+    env: process.env,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: CALL_MS,
+  });
+  try {
+    if (!existsSync(out))
+      return {
+        dead: `run C ended (${ran.status ?? ran.signal}): ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
+      };
+    return JSON.parse(readFileSync(out, 'utf8')) as Outcome;
+  } finally {
+    for (const file of [entry, args, out]) rmSync(file, { force: true });
+  }
+}
 
 const outcomeText = (outcome: Outcome | { dead: string }) =>
   'dead' in outcome
@@ -98,16 +178,22 @@ const outcomeText = (outcome: Outcome | { dead: string }) =>
 
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
-  const plans = twinPlans(options.seed, options.tag ?? options.module, projectCache());
+  const tag = options.tag ?? options.module;
+  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => ({
+    ...plan,
+    driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
+  }));
   const token = randomBytes(16).toString('hex');
-  const setup = { token, module: resolve(options.module), loader: loaderPath() };
+  const module = resolve(options.module);
+  const setup = { token, module, loader: loaderPath() };
+  const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
   const relay: Relay = {
     // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
     worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
       execArgv: [],
-      workerData: { port: port2, signal, plans, driver: DRIVER, setup },
+      workerData: { port: port2, signal, plans, setup },
       transferList: [port2],
       stderr: false,
     }),
@@ -133,6 +219,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       rmSync(plan.driverDir, { recursive: true, force: true });
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
     }
+    if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{ ready?: boolean; error?: string; dead?: string }>;
@@ -160,8 +247,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       const keep = options.keep?.[name];
       return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
     };
+    const head = `${name}(${shortText(sent as Json, 80)}): ${describeRun(plans[0] as TwinPlan)} answered ${outcomeText(a)}`;
     if (first === undefined && kept(a) !== kept(b))
-      first = `${name}(${shortText(sent as Json, 80)}): ${describeRun(plans[0])} answered ${outcomeText(a)}, ${describeRun(plans[1])} answered ${outcomeText(b)}`;
+      first = `${head}, ${describeRun(plans[1] as TwinPlan)} answered ${outcomeText(b)}`;
+    if (plain) {
+      const c = plainCall(plain, options.seed, tag, module, name, sent);
+      if (!('dead' in c)) entry.plain = c;
+      if (first === undefined && kept(a) !== kept(c))
+        first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+    }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret);
   };
@@ -186,8 +280,6 @@ export type CommandOptions = {
   files?: Record<string, string>;
   /** The files to read back from the working folder after it ran. */
   collect?: string[];
-  /** Text on stdin. */
-  input?: string;
   timeoutMs?: number;
 };
 
@@ -202,17 +294,22 @@ export type CommandRun = {
 };
 
 /**
- * Runs a product command under the frame: twice, each time in a fresh working folder of its own, with the command's
- * own argv and the twin differences of twins.ts (environment, uptime, the driver's place). The working folder's
- * path is written `<work>` in what is recorded, so the two runs compare. The validator reads run A.
+ * Runs a product command under the frame: three times, each in a fresh working folder of its own. Runs A and B go
+ * through drawn drivers with the twin differences of twins.ts (environment, uptime, the driver's place); run C is the
+ * plain command, `node [--import tsx] <script> <args>`, as a user types it. Each run sees the command's own argv.
+ * The working folder's path is written `<work>` in what is recorded, so the runs compare. The validator reads run A.
  */
 export function isolateCommand(options: CommandOptions): CommandRun {
   const [script, ...args] = options.command;
-  const plans = twinPlans(options.seed, options.tag ?? script, projectCache());
+  const tag = options.tag ?? script;
+  const plans = twinPlans(options.seed, tag, projectCache());
   const token = randomBytes(16).toString('hex');
   const loader = loaderPath();
-  const results = plans.map((plan) => {
-    const work = join(plan.driverDir, 'w');
+  const plainDir = openPlain(options.seed, `${tag}:command`).dir;
+  const runs: Array<TwinPlan | 'C'> = [...plans, 'C'];
+  const results = runs.map((plan) => {
+    const home = plan === 'C' ? plainDir : plan.driverDir;
+    const work = join(home, 'w');
     mkdirSync(work, { recursive: true });
     try {
       for (const [path, text] of Object.entries(options.files ?? {})) {
@@ -221,24 +318,38 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         mkdirSync(dirname(target), { recursive: true });
         writeFileSync(target, text);
       }
-      const driver = join(plan.driverDir, plan.driverFile);
-      writeFileSync(driver, DRIVER);
-      const setup = {
-        token,
-        command: resolve(script),
-        args,
-        loader,
-        uptimeShift: plan.uptimeShift,
-        depth: 0,
-      };
-      const ran = spawnSync(process.execPath, [driver], {
-        cwd: work,
-        env: plan.env ?? process.env,
-        input: `${JSON.stringify(setup)}\n${options.input ?? ''}`,
-        encoding: 'utf8',
-        timeout: options.timeoutMs ?? CALL_MS,
-      });
-      const clean = (text: string | null | undefined) => (text ?? '').split(work).join('<work>');
+      let ran: ReturnType<typeof spawnSync>;
+      if (plan === 'C') {
+        ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
+          cwd: work,
+          env: process.env,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+          timeout: options.timeoutMs ?? CALL_MS,
+        });
+      } else {
+        const driver = join(plan.driverDir, plan.driverFile);
+        writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
+        const setup = {
+          token,
+          command: resolve(script),
+          args,
+          loader,
+          uptimeShift: plan.uptimeShift,
+          depth: 0,
+        };
+        ran = spawnSync(process.execPath, [driver], {
+          cwd: work,
+          env: plan.env ?? process.env,
+          input: `${JSON.stringify(setup)}\n`,
+          encoding: 'utf8',
+          timeout: options.timeoutMs ?? CALL_MS,
+        });
+      }
+      const clean = (text: string | Buffer | null | undefined) =>
+        String(text ?? '')
+          .split(work)
+          .join('<work>');
       const files: Record<string, string | null> = {};
       for (const path of options.collect ?? []) {
         const target = resolve(work, path);
@@ -246,18 +357,20 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       }
       return { plan, status: ran.status, stdout: clean(ran.stdout), stderr: clean(ran.stderr), files };
     } finally {
-      rmSync(plan.driverDir, { recursive: true, force: true });
+      rmSync(home, { recursive: true, force: true });
     }
   });
-  const [a, b] = results as [(typeof results)[number], (typeof results)[number]];
+  const [a, b, c] = results as [(typeof results)[number], (typeof results)[number], (typeof results)[number]];
   let divergence: string | undefined;
-  const differ = (what: string, x: unknown, y: unknown) => {
+  const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
-      divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(b.plan)} gave ${shortText(encode(y), 80)}`;
+      divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
   };
-  differ('status', a.status, b.status);
-  differ('stdout', a.stdout, b.stdout);
-  for (const path of options.collect ?? []) differ(path, a.files[path], b.files[path]);
+  for (const other of [b, c]) {
+    differ('status', other)(a.status, other.status);
+    differ('stdout', other)(a.stdout, other.stdout);
+    for (const path of options.collect ?? []) differ(path, other)(a.files[path], other.files[path]);
+  }
   const recorded = (run: typeof a) => ({
     status: run.status,
     stdout: run.stdout,
@@ -270,6 +383,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       args: encode(options.command),
       ret: encode(recorded(a)),
       twin: { ret: encode(recorded(b)) },
+      plain: { ret: encode(recorded(c)) },
     },
   ];
   return {
