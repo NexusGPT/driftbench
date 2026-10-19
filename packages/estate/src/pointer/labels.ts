@@ -37,6 +37,11 @@ export const LinkKind = z
   });
 export type LinkKind = z.infer<typeof LinkKind>;
 
+type FieldValue = string | number | boolean | FieldValue[] | { [key: string]: FieldValue };
+const FieldValue: z.ZodType<FieldValue> = z.lazy(() =>
+  z.union([z.string(), z.number(), z.boolean(), z.array(FieldValue), z.record(z.string(), FieldValue)]),
+);
+
 const AtomBase = z.strictObject({
   kind: z.string().min(1),
   polarity: z.enum(['obligation', 'prohibition']).optional(),
@@ -44,8 +49,12 @@ const AtomBase = z.strictObject({
   title: z.string().min(1).optional(),
   /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
   situation: z.string().min(1).optional(),
-  /** Fields the set puts on every atom of this label, such as the id of a hazard. */
-  fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+  /**
+   * Fields the set puts on every atom of this label, such as the id of a hazard. A value is a scalar, or a list or
+   * an object of values: a string anywhere inside it may hold a placeholder, filled from the spans, the links and
+   * the unit as for the title, and a value with an unfilled placeholder refuses the atom with its reason.
+   */
+  fields: z.record(z.string(), FieldValue).optional(),
   /** Checks the set puts on every atom of this label, after the review check the scan adds. */
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */

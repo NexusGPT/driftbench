@@ -532,6 +532,41 @@ describe('atoms from labels', () => {
       expect(gate?.fields?.labelLinks).toEqual([{ kind: 'act-tool', value: 'Edit' }]);
     });
 
+    it('fills placeholders inside a list or an object of a field, and refuses the atom when one is unfilled', async () => {
+      const nested = GATES.replace(
+        'fields: { first: $code, path: $path, trigger: $span.weather }',
+        'fields: { reread: [$path], order: { act: $link.act-tool, when: $span.weather, note: kept } }',
+      );
+      expect(nested).not.toBe(GATES);
+      const play = (answer: Record<string, unknown>) =>
+        scan(
+          {},
+          {
+            sets: setsOf(nested),
+            labelling: pointer.singleLabelling(
+              plantedDense((window) => {
+                const at = window.units.find((unit) => unit.text === UNIT)?.n;
+                return at === undefined
+                  ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                  : [{ units: String(at), ...answer } as pointer.Labelled];
+              }),
+            ),
+          },
+          LOGS,
+        );
+      const { result } = await play(entry());
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.fields).toMatchObject({
+        reread: ['.claude/skills/logs/references/log-rules.md'],
+        order: { act: 'Edit', when: 'when the fog comes in', note: 'kept' },
+      });
+      const missing = await play(entry({ links: undefined }));
+      expect(missing.result.map.atoms.some((candidate) => candidate.fields?.extraction === 'pointer')).toBe(
+        false,
+      );
+      expect(missing.result.pointer?.atomRefusals).toHaveLength(1);
+    });
+
     it('refuses the atom, with the reason, when the unit gives no span, link or code span that the mapping needs', async () => {
       const noLink = await run(entry({ links: undefined }));
       expect(noLink.result.pointer?.atomRefusals).toEqual([
