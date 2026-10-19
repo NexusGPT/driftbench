@@ -2,7 +2,7 @@ import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
-import { cli, REPO } from './bench';
+import { cli, jsonOut, REPO } from './bench';
 
 /**
  * The generated suite of the Northwind fixture (examples/estates/fixture, fictional, written by hand), made
@@ -48,6 +48,11 @@ export function fixtureSuite(): Promise<FixtureSuite> {
 
 async function build(): Promise<FixtureSuite> {
   const work = await mkdtemp(join(tmpdir(), 'estate-fixture-suite-'));
+  // The estate beside its map: `estate generate` lists the files of the folder the map's root names, and a read is
+  // expected only of a file the estate holds (docs/estate.md section 5, `needs-existing-file`). Without the estate
+  // beside the map every read counts as a read of a missing file.
+  await cp(join(FIXTURE, 'CLAUDE.md'), join(work, 'CLAUDE.md'));
+  await cp(join(FIXTURE, '.claude'), join(work, '.claude'), { recursive: true });
   for (const name of ['approved.yaml', 'plan.yaml', 'phrases.yaml'])
     await cp(join(FIXTURE, name), join(work, name));
   // The recorded sessions sit beside the map (docs/estate.md section 5): a replay row finds its session there, and
@@ -194,21 +199,16 @@ export function runOnFakeDetailed(
     '--json',
   ]);
   const verdicts = new Map<string, FakeVerdict>();
-  const at = result.out.indexOf('{');
-  if (at < 0) return verdicts;
-  try {
-    const json = JSON.parse(result.out.slice(at)) as {
-      runs?: Array<{ spec: string; status?: string; pass: boolean; failing?: string[] }>;
-    };
-    for (const run of json.runs ?? [])
-      verdicts.set(run.spec, {
-        pass: run.pass === true,
-        completed: run.status === 'completed',
-        failing: run.failing ?? [],
-      });
-  } catch {
-    // No JSON: every spec counts as not passing.
-  }
+  // No JSON on standard output: every spec counts as not passing.
+  const json = jsonOut<{
+    runs?: Array<{ spec: string; status?: string; pass: boolean; failing?: string[] }>;
+  }>(result);
+  for (const run of json?.runs ?? [])
+    verdicts.set(run.spec, {
+      pass: run.pass === true,
+      completed: run.status === 'completed',
+      failing: run.failing ?? [],
+    });
   return verdicts;
 }
 
