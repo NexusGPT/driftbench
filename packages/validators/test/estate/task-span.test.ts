@@ -17,6 +17,11 @@ describe('a piece is a whole clause of its source', () => {
   const skill = atom({
     fields: {
       description: 'Check the tide tables for a harbour. Use when the user asks to plan a departure.',
+      ask: {
+        text: 'plan a departure',
+        context: 'checks the tide tables for a harbour',
+        act: { kind: 'reply' },
+      },
     },
   });
   const fields = fieldsOf(skill);
@@ -42,6 +47,7 @@ describe('a piece is a whole clause of its source', () => {
       atom({
         kind: 'instruction',
         title: 'Never moor on a Sunday',
+        fields: { ask: { text: 'moor on a Sunday', act: { kind: 'reply' } } },
         provenance: { quote: 'Never moor on a Sunday.' } as Atom['provenance'],
       }),
     );
@@ -71,20 +77,26 @@ describe('a piece is a whole clause of its source', () => {
     expect(isClauseOf(piece, fieldsOf(atom({ fields: { description: source } })))).toBe(false);
   });
 
-  it.each(['Check an invoice', 'Match a receipt', 'Reconcile a payment'])(
-    'accepts the complete clause %s',
-    (piece) => {
-      const fields = fieldsOf(
-        atom({ fields: { description: 'Check an invoice; Match a receipt. Reconcile a payment' } }),
-      );
-      expect(isClauseOf(piece, fields)).toBe(true);
-    },
-  );
+  it.each([
+    'Check an invoice',
+    'Match a receipt',
+    'Reconcile a payment',
+    'Check an invoice;',
+    'Match a receipt.',
+    'Reconcile a payment!',
+  ])('accepts the complete clause %s', (piece) => {
+    const fields = fieldsOf(
+      atom({ fields: { description: 'Check an invoice; Match a receipt. Reconcile a payment' } }),
+    );
+    expect(isClauseOf(piece, fields)).toBe(true);
+  });
 
   it.each([
     ['Check', 'Check "the invoice" before paying.'],
     ['Check an invoice', 'Check an invoice (before paying the supplier).'],
     ['Check an invoice', 'Check an invoice: match its reference first.'],
+    ['Check an invoice.', 'Check an invoice (before paying the supplier).'],
+    ['Check.', 'Check "the invoice" before paying.'],
   ])('rejects the punctuation cut %s from %s', (piece, source) => {
     expect(isClauseOf(piece, fieldsOf(atom({ fields: { description: source } })))).toBe(false);
   });
@@ -103,22 +115,55 @@ describe('a piece is a whole clause of its source', () => {
     ).toBe(false);
   });
 
-  it('accepts declared stage titles and read-before and read-when clauses', () => {
+  it('accepts declared stage titles and explicitly declared read-before and read-when clauses', () => {
     expect(
       isClauseOf('Make the change', fieldsOf(atom({ kind: 'stage', title: 'Stage do: Make the change' }))),
     ).toBe(true);
-    const fields = fieldsOf(
+    const declarations = [
+      { readWhen: 'When an invoice is not in EUR, read currency.md.', text: 'When an invoice is not in EUR' },
+      { readBefore: 'Read references/matching-rules.md before matching any line.', text: 'match any line' },
+      { rule: 'Before editing any invoice file: Read matching.md.', text: 'edit any invoice file' },
+    ];
+    for (const { text, ...source } of declarations) {
+      expect(isClauseOf(text, fieldsOf(atom({ fields: source })))).toBe(false);
+      expect(
+        isClauseOf(
+          text,
+          fieldsOf(
+            atom({
+              fields: {
+                ...source,
+                ask: { text, act: { kind: 'reply' } },
+              },
+            }),
+          ),
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it('does not infer morphology or an embedded requested clause without a declaration', () => {
+    const undeclared = fieldsOf(
       atom({
         fields: {
-          readWhen: 'When an invoice is not in EUR, read currency.md.',
-          readBefore: 'Read references/matching-rules.md before matching any line.',
-          rule: 'Before editing any invoice file: Read matching.md.',
+          description: 'Check the tide tables for a harbour. Use when the user asks to plan a departure.',
         },
       }),
     );
-    expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(true);
-    expect(isClauseOf('edit any invoice file', fields)).toBe(true);
-    expect(isClauseOf('match any line', fields)).toBe(true);
+    expect(isClauseOf('plan a departure', undeclared)).toBe(false);
+    expect(isClauseOf('checks the tide tables for a harbour', undeclared)).toBe(false);
+    expect(
+      isClauseOf(
+        'moor on a Sunday',
+        fieldsOf(
+          atom({
+            kind: 'instruction',
+            title: 'Never moor on a Sunday',
+            provenance: { quote: 'Never moor on a Sunday.' } as Atom['provenance'],
+          }),
+        ),
+      ),
+    ).toBe(false);
   });
 });
 

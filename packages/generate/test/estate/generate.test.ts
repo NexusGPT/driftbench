@@ -273,7 +273,7 @@ describe('estate generate on inputs that do not fit together', () => {
 
   it('refuses a plan made from another map', () => {
     expect(issues((copy) => (copy.plan.mapHash = 'f'.repeat(64)))).toEqual([
-      expect.stringMatching(/^plan\.mapHash: the plan was made from map ffffffffffff/),
+      `plan.mapHash: the plan was made from map ffffffffffff, the map given is ${input.map.hash.slice(0, 12)}`,
     ]);
   });
 
@@ -302,9 +302,7 @@ describe('estate generate on inputs that do not fit together', () => {
       if (session) session.ask = 'Something nobody approved.';
     });
     expect(found).toEqual([
-      expect.stringMatching(
-        /^phrases\.situations\.0\.atoms\.\d+: instruction\.nowhere is no atom of the map$/,
-      ),
+      `phrases.situations.0.atoms.${input.bank.situations[0]?.atoms.length}: instruction.nowhere is no atom of the map`,
       'sessions.sessions.0.ask: the ask is no approved phrase of weekly-report-update',
     ]);
   });

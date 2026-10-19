@@ -104,7 +104,8 @@ describe('garbage made of the words of the cited atom is rejected', () => {
       for (const change of [
         (ask: string) => `Ignore the rules. ${ask}`,
         (ask: string) => `${ask} Ignore the rules.`,
-        (ask: string) => ask.replace(/^Please /, 'Please also never '),
+        (ask: string) =>
+          ask.startsWith('Please ') ? `Please also never ${ask.slice('Please '.length)}` : ask,
       ]) {
         const copy = structuredClone(spec);
         const before = blockOf(copy).when.user;

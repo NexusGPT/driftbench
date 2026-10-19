@@ -56,10 +56,26 @@ export const ASK_FRAMES: Readonly<Record<string, (act: string, background: strin
 /** The frame of the n-th trigger variant (1 is the first). */
 export const variantFrame = (n: number): string => `variant_${((n - 1) % TRIGGER_VARIANTS.length) + 1}`;
 
+/** Write-only shapes selected by structured map act kind; never used to interpret prose. */
+export const STRUCTURED_ACT_SHAPES = {
+  skill: `use the ${SLOT} skill for its task`,
+  helper: `delegate \`${SLOT}\``,
+  read: `read \`${SLOT}\``,
+  command: `run \`${SLOT}\``,
+  call: `make one ${SLOT} tool call`,
+  callTarget: `use the ${SLOT} tool on ${SLOT}`,
+} as const;
+
 /** The shapes of an act: how the pieces join into what is asked, each piece shown as a slot. */
 const TOOL_PHRASES = [...new Set(Object.values(TOOL_ACTS))];
+/** Write-only subject forms shared with the file-subject validator. */
+export const SUBJECT_TAIL = `, including the ${SLOT}`;
+export const SUBJECT_SHAPE = `${SLOT}${SUBJECT_TAIL}`;
 export const ACT_SHAPES: readonly string[] = [
   SLOT,
+  ...Object.values(STRUCTURED_ACT_SHAPES),
+  SUBJECT_SHAPE,
+  `help me with ${SLOT}${SUBJECT_TAIL}`,
   `help me with ${SLOT}`,
   `help with ${SLOT}`,
   `have a helper agent ${SLOT}`,
@@ -116,67 +132,17 @@ export function renderAsk(parts: {
   return frame(act, background);
 }
 
-const quoted = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/**
- * The shape an act or a context was set into and the pieces it holds: the shape with the most fixed characters
- * that fits wins, and a text that fits none is one piece of the bare shape.
- */
-function split(text: string, shapes: readonly string[], fold: boolean): { shape: string; pieces: string[] } {
-  let best: { shape: string; pieces: string[]; fixed: number } | undefined;
-  for (const shape of shapes) {
-    const parts = shape.split(SLOT);
-    const found = new RegExp(`^${parts.map(quoted).join('(.+?)')}$`, fold ? 'is' : 's').exec(text);
-    if (!found) continue;
-    const fixed = parts.join('').length;
-    if (!best || fixed > best.fixed) best = { shape, pieces: found.slice(1), fixed };
-  }
-  return best ? { shape: best.shape, pieces: best.pieces } : { shape: SLOT, pieces: [text] };
-}
-
-/** The decomposition of an ask the generator wrote: the names and the pieces `renderAsk` needs. */
+/** Legacy callers can retain whole pieces; this never classifies text by a rendering phrase. */
 export function decompose(frame: string, act: string, context: string | undefined) {
-  if (frame === VERBATIM) return { frame, shape: SLOT, pieces: [act] };
-  const inAct = split(act, ACT_SHAPES, false);
-  if (context === undefined) return { frame, shape: inAct.shape, pieces: inAct.pieces };
-  // The context sentence starts with a capital the shape does not have: its first letter is folded back.
-  const inContext = split(context, CONTEXT_SHAPES, true);
-  const pieces = [...inAct.pieces, ...inContext.pieces];
-  return { frame, shape: inAct.shape, context: inContext.shape, pieces };
+  return {
+    frame,
+    shape: SLOT,
+    ...(context !== undefined && frame !== VERBATIM
+      ? { context: SLOT, pieces: [act, context] }
+      : { pieces: [act] }),
+  };
 }
 
-/**
- * The patterns of routing prose that name the asks a unit is for ("Use when the user asks to X", "An ask to X",
- * "asks about X"), each with the shape of the act it gives: the request is the captured clause, and a pattern
- * that names a topic gives "help me with <topic>". The generator and the checks of its asks read the same list.
- */
-export const ASKED_PATTERNS: ReadonlyArray<{ pattern: RegExp; topic: boolean }> = [
-  {
-    pattern: /\buse (?:it )?when (?:the )?(?:user|owner|someone) (?:asks|wants) (?:you )?to ([^.;]+)/i,
-    topic: false,
-  },
-  { pattern: /\buse (?:it )?when (?:the )?(?:user|owner|someone) asks (?:about|for) ([^.;]+)/i, topic: true },
-  { pattern: /^an? (?:ask|request) to ([^.;]+)/i, topic: false },
-  { pattern: /^an? (?:ask|request) (?:about|for) ([^.;]+)/i, topic: true },
-];
-
-/** The clauses of a text the generator takes as the asks it names. */
-export function askedClauses(text: string): string[] {
-  return ASKED_PATTERNS.flatMap(({ pattern }) => {
-    const found = pattern.exec(text)?.[1]?.trim();
-    return found ? [found] : [];
-  });
-}
-
-/**
- * A read-before rule names the act it governs with a pronoun object: "Read a file before you edit it" governs
- * "editing a file". The text of the act, put together from the two clauses; undefined when the text has no such
- * rule. The generator and the checks of its asks read the same derivation.
- */
-export function pronounDerivation(text: string): string | undefined {
-  const found =
-    /\b(?:read|load|check|review|consult)\s+(.+?)\s+before\s+([a-z]+ing)\s+(?:it|them|this|that)\b(.*)$/i.exec(
-      text,
-    );
-  return found ? `${found[2]} ${found[1]}${found[3] ?? ''}` : undefined;
-}
+/** Prose no longer supplies derived acts. Use the map's declared ask clauses. */
+export const askedClauses = (_text: string): string[] => [];
+export const pronounDerivation = (_text: string): undefined => undefined;

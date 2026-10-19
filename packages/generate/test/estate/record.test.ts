@@ -91,7 +91,14 @@ describe('the record an ask carries about itself', () => {
     expect(
       fromRecord({
         askFrom: 'route.a (asks it names)',
-        built: { frame: 'trigger', act: 'help me with a delivery', context: 'The carrier answers' },
+        built: {
+          frame: 'trigger',
+          act: 'help me with a delivery',
+          context: 'The carrier answers',
+          shape: 'help me with {}',
+          contextShape: '{}',
+          pieces: ['a delivery', 'The carrier answers'],
+        },
         atoms,
       }),
     ).toEqual({

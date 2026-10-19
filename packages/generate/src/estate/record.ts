@@ -9,7 +9,8 @@ import type { EstateAtom } from './inputs';
  * - `link`: the rule unit the ask exercises. `span` is the map atom id (the ledger unit id once the pointer
  *   reader lands) and `fp` its fingerprint when the ask was written.
  * - `act`: what the unit makes the agent do or not do, as the runtime shows it: a tool call, a guard that
- *   fires, a file read, a skill or a helper loaded. A unit whose act no trace shows is a `reply`.
+ *   fires, a file read, a skill or a helper loaded. A reply has its declared action ID; a nameless reply
+ *   is an unresolved fallback and provides no proof that an action occurred.
  * - `from`: where the ask text came from: an approved bank phrase, a recorded session, a fixed neutral ask, or
  *   a named form of the generator over a field of an atom.
  *
@@ -36,10 +37,14 @@ export type FromRecord =
       shape: string;
       context?: string;
       pieces: string[];
+      /** Exact tool matcher selecting the fixed rendering template. */
+      tool?: string;
     };
 
 /** The forms of the generator that write an ask from a field of an atom: the closed set a `from` may name. */
 export const ASK_FORMS = [
+  'structured ask',
+  'structured act',
   'asks it names',
   'description',
   'enforced by',
@@ -81,6 +86,8 @@ export function linkOf(atom: EstateAtom): LinkRecord {
 /** The act of a unit, from its evidence and fields. `owner` is the skill or helper that carries a rule. */
 export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
   const fields = atom.fields ?? {};
+  const reply = (): ActRecord =>
+    atom.replyAct ? { kind: 'reply', name: atom.replyAct.id } : { kind: 'reply' };
   switch (atom.kind) {
     case 'guard': {
       const name = text(fields.name);
@@ -92,9 +99,13 @@ export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
       let after: string | undefined;
       for (const entry of atom.evidence)
         if (entry.type === 'ordered' && after === undefined) after = entry.after;
-      return after !== undefined && TOOL_LABEL.test(after)
-        ? { kind: 'call', name: after }
-        : { kind: 'reply' };
+      if (after === undefined || !TOOL_LABEL.test(after)) return reply();
+      const order = fields.order;
+      const target =
+        after === 'Bash' && typeof order === 'object' && order !== null && !Array.isArray(order)
+          ? text((order as Record<string, unknown>).after)
+          : undefined;
+      return { kind: 'call', name: after, ...(target !== undefined ? { target } : {}) };
     }
     case 'reference': {
       const path = text(fields.path);
@@ -122,8 +133,11 @@ export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
       const name = text(owner?.fields?.name);
       return owner && name
         ? { kind: 'owned', name, target: owner.kind === 'subagent' ? 'helper' : 'skill' }
-        : { kind: 'reply' };
+        : reply();
     }
+    case 'stage':
+    case 'hazard':
+      return reply();
     default:
       return { kind: 'reply' };
   }
@@ -143,7 +157,15 @@ export function fromRecord(input: {
   session?: string;
   askFrom?: string;
   /** What a code-written ask was built from: the frame, the act put into it and the context sentence. */
-  built?: { frame: string; act: string; context?: string };
+  built?: {
+    frame: string;
+    act: string;
+    context?: string;
+    shape?: string;
+    pieces?: string[];
+    contextShape?: string;
+    tool?: string;
+  };
   /** For a neutral ask: which fixed ask it is. */
   neutral?: 'outside' | 'resume' | 'guard-event';
   atoms: ReadonlyMap<string, EstateAtom>;
@@ -163,7 +185,15 @@ export function fromRecord(input: {
     field: `${atom.id}#${label}`,
     fp: fingerprintOf(atom),
     ...(input.built
-      ? decompose(input.built.frame, input.built.act, input.built.context)
+      ? input.built.shape !== undefined && input.built.pieces !== undefined
+        ? {
+            frame: input.built.frame,
+            shape: input.built.shape,
+            pieces: [...input.built.pieces],
+            ...(input.built.contextShape !== undefined ? { context: input.built.contextShape } : {}),
+            ...(input.built.tool !== undefined ? { tool: input.built.tool } : {}),
+          }
+        : decompose(input.built.frame, input.built.act, input.built.context)
       : { frame: '', shape: '', pieces: [] }),
   };
 }

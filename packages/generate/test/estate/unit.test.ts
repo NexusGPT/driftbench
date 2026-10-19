@@ -13,13 +13,25 @@ import {
   unitTestOf,
 } from '../../src/estate/unit';
 
-const rule = (id: string, quote: string): EstateAtom => ({
+const rule = (
+  id: string,
+  quote: string,
+  forbidden: string[] = [],
+  allowed: string[] = [],
+  tool: string | null = 'Bash',
+): EstateAtom => ({
   id,
   kind: 'instruction',
   title: id,
   approved: true,
   evidence: [],
   provenance: { quote },
+  fields: {
+    unitCases: [
+      ...forbidden.map((material) => ({ effect: 'forbid', material, ...(tool === null ? {} : { tool }) })),
+      ...allowed.map((material) => ({ effect: 'allow', material, ...(tool === null ? {} : { tool }) })),
+    ],
+  },
 });
 const guard = (fields: Record<string, unknown>): EstateAtom => ({
   id: 'guard.settings.g',
@@ -35,8 +47,11 @@ const guard = (fields: Record<string, unknown>): EstateAtom => ({
   },
 });
 const ATOMS = new Map([
-  ['r1', rule('r1', 'Never run `git push --force` or `rm -rf` on any branch.')],
-  ['r2', rule('r2', 'Never say "obviously" in a reply.')],
+  [
+    'r1',
+    rule('r1', 'Never run `git push --force` or `rm -rf` on any branch.', ['git push --force', 'rm -rf']),
+  ],
+  ['r2', rule('r2', 'Never say "obviously" in a reply.', ['obviously'], [], null)],
 ]);
 const row = (testType: string) => ({
   id: `row.${testType}`,
@@ -57,14 +72,17 @@ describe('the payloads of a guard unit test', () => {
       'rm -rf',
     ]);
     expect(materialOf('Never say "obviously" in a reply.')).toEqual(['obviously']);
-    expect(materialOf('Read a file before you edit it.')).toEqual(['Read a file before you edit it.']);
+    expect(materialOf('Read a file before you edit it.')).toEqual([]);
   });
 
-  it('takes only the spans a rule forbids, never every name or path it mentions', () => {
-    expect(materialOf('Read `a.md` first. Never use `sed -i` on a drive.')).toEqual(['sed -i']);
-    expect(materialOf('See `nexus-app-builder` and "the build guide" for the build.')).toEqual([]);
-    expect(materialOf('✗ `2>/dev/null` swallows the error; ✓ `2>&1`')).toEqual(['2>/dev/null']);
-    expect(materialOf('No `npx`, no raw `curl`.\nUse `nexus` instead.')).toEqual(['npx', 'curl']);
+  it('extracts quoted spans structurally without classifying their permission or meaning', () => {
+    expect(materialOf('Read `a.md` first. Never use `sed -i` on a drive.')).toEqual(['a.md', 'sed -i']);
+    expect(materialOf('See `nexus-app-builder` and "the build guide" for the build.')).toEqual([
+      'nexus-app-builder',
+      'the build guide',
+    ]);
+    expect(materialOf('✗ `2>/dev/null` swallows the error; ✓ `2>&1`')).toEqual(['2>/dev/null', '2>&1']);
+    expect(materialOf('No `npx`, no raw `curl`.\nUse `nexus` instead.')).toEqual(['npx', 'curl', 'nexus']);
     expect(materialOf('Do not say "obviously" in a reply.')).toEqual(['obviously']);
   });
 
@@ -117,9 +135,9 @@ describe('the payloads of a guard unit test', () => {
   it('names why a guard that enforces no rule gets no positive test, and points a script test at its file', () => {
     const lone = guard({ event: 'Stop', enforces: [] });
     expect(unitTestOf(row('guard_positive'), lone, ATOMS, 'h', 'x')).toBe(
-      'guard.settings.g enforces no rule whose quote gives material for a payload',
+      'guard.settings.g requires structured unit payload evidence for its enforced rules',
     );
-    expect(typeof unitTestOf(row('guard_negative'), lone, ATOMS, 'h', 'x')).toBe('object');
+    expect(typeof unitTestOf(row('guard_negative'), lone, ATOMS, 'h', 'x')).toBe('string');
     const script: EstateAtom = {
       id: 'script.a.s',
       kind: 'script',
@@ -136,12 +154,11 @@ describe('the payloads of a guard unit test', () => {
 });
 
 describe('material from a rule the guard cites', () => {
-  it('takes every concrete span of the rule source lines, and never sends a sentence as a tool payload', () => {
+  it('requires a declared tool payload for every enforced rule and keeps text payloads on text events', () => {
     const cited: EstateAtom = {
-      ...rule('r1', 'Every failure reaches you, any spelling'),
-      fields: { spans: ['2>/dev/null', '|| true'] },
+      ...rule('r1', 'Every failure reaches you, any spelling', ['2>/dev/null', '|| true']),
     };
-    const prose = rule('r2', 'Never guess a status.');
+    const prose = rule('r2', 'Never guess a status.', ['Never guess a status.'], [], null);
     const atoms = new Map([
       ['r1', cited],
       ['r2', prose],
@@ -155,7 +172,19 @@ describe('material from a rule the guard cites', () => {
       ],
     });
     const positive = unitTestOf(row('guard_positive'), bash, atoms, 'h', 'p');
-    expect(typeof positive !== 'string' && positive.cases.map((entry) => entry.material)).toEqual([
+    expect(positive).toContain('structured unit payload evidence for r2');
+    const declaredOnly = unitTestOf(
+      row('guard_positive'),
+      guard({
+        event: 'PreToolUse',
+        matcher: 'Bash',
+        enforces: [{ atom: 'r1', by: 'id' }],
+      }),
+      atoms,
+      'h',
+      'p',
+    );
+    expect(typeof declaredOnly !== 'string' && declaredOnly.cases.map((entry) => entry.material)).toEqual([
       '2>/dev/null',
       '|| true',
     ]);
@@ -168,10 +197,10 @@ describe('material from a rule the guard cites', () => {
 });
 
 describe('the rules a guard test takes material from', () => {
-  it('takes the rules linked by registry or cited id, and a rule linked only by a repeated quote when no other link exists', () => {
+  it('takes only rules linked by registry or cited id and fails quote-only links closed', () => {
     const atoms = new Map([
-      ['r1', rule('r1', 'Never run `rm -rf` here.')],
-      ['r2', rule('r2', 'Never write `2>/dev/null` after a command.')],
+      ['r1', rule('r1', 'Never run `rm -rf` here.', ['rm -rf'])],
+      ['r2', rule('r2', 'Never write `2>/dev/null` after a command.', ['2>/dev/null'])],
     ]);
     const linked = guard({
       event: 'PreToolUse',
@@ -191,14 +220,23 @@ describe('the rules a guard test takes material from', () => {
       enforces: [{ atom: 'r1', by: 'quote' }],
     });
     const fallback = unitTestOf(row('guard_positive'), quoteOnly, atoms, 'h', 'q');
-    expect(typeof fallback !== 'string' && fallback.cases.map((entry) => entry.material)).toEqual(['rm -rf']);
+    expect(fallback).toContain('structured unit payload evidence');
   });
 });
 
 describe('the speed test of a guard', () => {
   it('times a spread of at most five positive payloads, not every one', () => {
     const quote = Array.from({ length: 12 }, (_, index) => `\`cmd-${index + 1}\``).join(' ');
-    const many = new Map([['r1', rule('r1', `Never run ${quote}.`)]]);
+    const many = new Map([
+      [
+        'r1',
+        rule(
+          'r1',
+          `Never run ${quote}.`,
+          Array.from({ length: 12 }, (_, index) => `cmd-${index + 1}`),
+        ),
+      ],
+    ]);
     const atom = guard({ event: 'PreToolUse', matcher: 'Bash' });
     const positive = unitTestOf(row('guard_positive'), atom, many, 'h', 'p');
     const speed = unitTestOf(row('guard_speed'), atom, many, 'h', 's');
@@ -316,19 +354,29 @@ describe('minimal fixtures of a script with none declared', () => {
 describe('material by what each clause of a cited rule does', () => {
   // A plant nursery's rules, cited by its guards: nothing here comes from a bank or a fixture.
   const nursery = new Map([
-    ['n1', rule('n1', 'Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.')],
-    ['n2', rule('n2', 'Always name the bed when you water, as in `./bin/water.sh B4 20`.')],
+    [
+      'n1',
+      rule('n1', 'Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.', [
+        'rm greenhouse/',
+      ]),
+    ],
+    [
+      'n2',
+      rule(
+        'n2',
+        'Always name the bed when you water, as in `./bin/water.sh B4 20`.',
+        ['./bin/water.sh 20', './bin/water.sh B4'],
+        ['./bin/water.sh B4 20'],
+      ),
+    ],
   ]);
   const cites = (atom: string, fields: Record<string, unknown> = {}) =>
     guard({ event: 'PreToolUse', matcher: 'Bash', enforces: [{ atom, by: 'registry' }], ...fields });
 
-  it('reads which clause forbids, which shows the right form, and the act verb of each', () => {
+  it('reads clause spans without inferring permission or an act from words', () => {
     expect(
       clausesOf('Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.'),
-    ).toEqual([
-      { forbids: true, obliges: false, act: 'remove', spans: ['greenhouse/'] },
-      { forbids: false, obliges: false, act: 'move', spans: ['greenhouse/spare/'] },
-    ]);
+    ).toEqual([{ spans: ['greenhouse/'] }, { spans: ['greenhouse/spare/'] }]);
     expect(brokenForms('./bin/water.sh B4 20')).toEqual(['./bin/water.sh 20', './bin/water.sh B4']);
     expect(brokenForms('ls')).toEqual([]);
   });
@@ -350,7 +398,9 @@ describe('material by what each clause of a cited rule does', () => {
 });
 
 describe('the run a unit-mode spec carries', () => {
-  const nursery = new Map([['n1', rule('n1', 'Never run `rm -rf seeds/` on the potting bench.')]]);
+  const nursery = new Map([
+    ['n1', rule('n1', 'Never run `rm -rf seeds/` on the potting bench.', ['rm -rf seeds/'])],
+  ]);
   const watched: EstateAtom = {
     ...guard({ event: 'PreToolUse', matcher: 'Bash', timeout: 3, enforces: [{ atom: 'n1', by: 'id' }] }),
     evidence: [{ type: 'guard', name: 'g.sh', verdict: 'deny' }],
@@ -485,7 +535,7 @@ describe('the JSON run record of a helper run alone', () => {
   it('says why a helper with no agent file or no task has none', () => {
     expect(
       helperUnitTestOf({ ...helper, provenance: { quote: 'x' } }, { task: 'Go.', files: {} }, 'h', 'i', at),
-    ).toMatch(/no helper with an agent file/);
-    expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toMatch(/no task/);
+    ).toContain('no helper with an agent file');
+    expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toContain('no task');
   });
 });

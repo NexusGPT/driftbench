@@ -1,4 +1,4 @@
-import type { Atom } from '@agent-nexus/driftbench-estate';
+import { type Atom, ReplyActDeclaration } from '@agent-nexus/driftbench-estate';
 
 /**
  * The act a rule unit makes the agent do, derived from the map atom by this function alone. The generator
@@ -25,48 +25,67 @@ const folderOf = (file: string): string => (file.includes('/') ? file.slice(0, f
 /** The skill or helper whose folder or file holds the atom's passage. */
 function carrierOf(atom: Atom, atoms: readonly Atom[]): Atom | undefined {
   const file = atom.provenance.file;
-  const skill = atoms.find((other) => {
-    if (other.kind !== 'skill') return false;
-    const folder = folderOf(other.provenance.file);
-    return folder !== '' && file.startsWith(`${folder}/`);
-  });
-  return skill ?? atoms.find((other) => other.kind === 'subagent' && other.provenance.file === file);
+  return atoms
+    .filter((other) => {
+      if (other.kind === 'subagent') return other.provenance.file === file;
+      if (other.kind !== 'skill') return false;
+      const folder = folderOf(other.provenance.file);
+      return other.provenance.file === file || (folder !== '' && file.startsWith(`${folder}/`));
+    })
+    .sort((a, b) => b.provenance.file.length - a.provenance.file.length)[0];
 }
 
 export function actOfAtom(atom: Atom, atoms: readonly Atom[]): Act {
   const fields = atom.fields ?? {};
+  const declaration = ReplyActDeclaration.safeParse(atom.replyAct);
+  const reply: Act =
+    declaration.success &&
+    (atom.kind === 'instruction' ||
+      atom.kind === 'register' ||
+      atom.kind === 'gate' ||
+      atom.kind === 'stage' ||
+      atom.kind === 'hazard')
+      ? { kind: 'reply', name: declaration.data.id }
+      : { kind: 'reply' };
   switch (atom.kind) {
     case 'guard': {
       const name = str(fields.name);
       let verdict: string | undefined;
       for (const entry of atom.evidence) if (entry.type === 'guard') verdict = entry.verdict;
-      return name && verdict ? { kind: 'guard', name, verdict } : { kind: 'reply' };
+      return name && verdict ? { kind: 'guard', name, verdict } : reply;
     }
     case 'gate': {
-      for (const entry of atom.evidence)
-        if (entry.type === 'ordered')
-          return IDENTIFIER.test(entry.after) ? { kind: 'call', name: entry.after } : { kind: 'reply' };
-      return { kind: 'reply' };
+      for (const entry of atom.evidence) {
+        if (entry.type !== 'ordered') continue;
+        if (!IDENTIFIER.test(entry.after)) return reply;
+        const order = fields.order;
+        const target =
+          entry.after === 'Bash' && typeof order === 'object' && order !== null && !Array.isArray(order)
+            ? str((order as Record<string, unknown>).after)
+            : undefined;
+        return { kind: 'call', name: entry.after, ...(target ? { target } : {}) };
+      }
+      return reply;
     }
     case 'reference': {
       const target = str(fields.path);
-      return target ? { kind: 'read', target } : { kind: 'reply' };
+      return target ? { kind: 'read', target } : reply;
     }
     case 'script': {
       const target = str(fields.path);
-      return target ? { kind: 'call', name: 'Bash', target } : { kind: 'reply' };
+      return target ? { kind: 'call', name: 'Bash', target } : reply;
     }
     case 'skill': {
       const name = str(fields.name);
-      return name ? { kind: 'skill', name } : { kind: 'reply' };
+      return name ? { kind: 'skill', name } : reply;
     }
     case 'subagent': {
       const name = str(fields.name);
-      return name ? { kind: 'helper', name } : { kind: 'reply' };
+      return name ? { kind: 'helper', name } : reply;
     }
     case 'route': {
       const name = str(fields.target);
-      if (!name) return { kind: 'reply' };
+      if (!name) return reply;
       return { kind: fields.targetKind === 'subagent' ? 'helper' : 'skill', name };
     }
     case 'instruction':
@@ -75,10 +94,10 @@ export function actOfAtom(atom: Atom, atoms: readonly Atom[]): Act {
       const name = str(carrier?.fields?.name);
       return carrier && name
         ? { kind: 'owned', name, target: carrier.kind === 'subagent' ? 'helper' : 'skill' }
-        : { kind: 'reply' };
+        : reply;
     }
     default:
-      return { kind: 'reply' };
+      return reply;
   }
 }
 

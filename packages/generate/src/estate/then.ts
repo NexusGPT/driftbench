@@ -325,7 +325,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         // A registered ordered check with its own options: its pairs, anchored like any ordered predicate.
         if (evidence.name === 'ordered') {
           for (const raw of pairsOf(evidence.options)) {
-            const pair = anchorPair(raw.before, raw.after, ctx);
+            const pair = anchorPair(raw.before, raw.after, ctx, atom.fields);
             if (typeof pair === 'string') {
               if (ctx.judge) judgeRule(then, atom, 'positive');
               else gap(then, MARKERS.anchor, atom, pair);
@@ -335,20 +335,11 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        const recovery = recoveryAction(atom);
+        const recovery = recoveryAction(atom, ctx.atoms);
         const declared = evidence.options ?? {};
-        const reread = [
-          ...new Set([
-            ...(Array.isArray(declared.reread)
-              ? declared.reread.filter(
-                  (path): path is string => typeof path === 'string' && path.trim() !== '',
-                )
-              : []),
-            ...recovery.reread,
-          ]),
-        ];
-        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
-        const retry = declared.retry === true || recovery.retry;
+        const { reread, calls, retry } = recovery;
+        for (const detail of recovery.invalid ?? [])
+          gap(then, MARKERS.registered, atom, `invalid recovery evidence: ${detail}`);
         // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
         // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
         // by code; without a judge the row waits under a gap with the reason.
@@ -362,8 +353,17 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
               `the rule orders a re-read of "${part}", which names no file path`,
             );
         }
-        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
-        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
+        if (reread.length === 0 && calls.length === 0 && !retry) {
+          gap(
+            then,
+            MARKERS.registered,
+            atom,
+            'hazard_recovery requires declared reread, calls or retry evidence',
+          );
+          return;
+        }
+        // Valid source requirements remain intact; malformed siblings keep the row incomplete.
+        const { reread: _reread, calls: _calls, retry: _retry, unpathed: _unpathed, ...rest } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),
@@ -378,10 +378,14 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         ctx.customChecks.has('max_words') &&
         typeof evidence.options?.max === 'number'
       ) {
-        const words = `${atom.provenance?.quote ?? ''} ${atom.title}`;
+        const part = evidence.options.part;
+        if (part !== 'draft' && part !== 'reply') {
+          gap(then, MARKERS.registered, atom, 'max_words requires an explicit part: draft or reply');
+          return;
+        }
         then.custom.max_words = {
           max: evidence.options.max,
-          part: /\bdraft/i.test(words) ? 'draft' : 'reply',
+          part,
           block: 0,
         };
         return;
@@ -433,6 +437,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           if (atom.kind === 'register') addCriterion(then, atom);
           return;
         }
+      }
+      if (isCompiledPredicate(evidence.name)) {
+        gap(then, MARKERS.registered, atom, `${evidence.name} requires structured predicate evidence`);
+        return;
       }
       if (atom.kind === 'register') {
         addCriterion(then, atom);
@@ -525,25 +533,19 @@ function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): voi
   }
 }
 
-/** Tools that change a file named by `file_path`. */
-const FILE_EDITS = new Set(['Edit', 'MultiEdit', 'Write']);
-/** A gate whose change acts on what it read: "read a file before you edit it". */
-const SAME_OBJECT =
-  /\b(?:edit|change|modify|update|overwrite|rewrite|write)\w*\s+(?:it|them|that file|this file|the same file)\b/i;
-
 /**
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored. A Read end is what the gate reads: the file it names
- * (`Read~<path>`, from the gate's `path` field), or, when it names none and its change acts on what it read
- * ("read a file before you edit it"), the file of the change itself (`key: file_path`). Any Read before the
- * change would let a gate whose own read went missing pass on another read.
+ * (`Read~<path>`, from the gate's `path` field), or the shared input named by `fields.order.key`.
+ * Same-tool pairs require complete anchors in `fields.order.before` and `fields.order.after`.
+ * An unbound Read is a gap: any earlier Read would let a missing required read pass.
  */
 export function anchorPair(
   before: string,
   after: string,
   ctx: ThenContext,
   fields?: Record<string, unknown>,
-  quote?: string,
+  _quote?: string,
 ): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
@@ -553,19 +555,23 @@ export function anchorPair(
     );
     return `${before} before ${after}: ${which.map((name) => `"${name}"`).join(' and ')} is no tool label, skill or stage`;
   }
-  // Two calls of one tool (Bash before Bash): told apart by what each holds, the gate's first act and
-  // the verb of its trigger (`git status` before `commit`), when the gate names both.
-  const first = typeof fields?.first === 'string' ? fields.first.trim() : '';
-  const verb = typeof fields?.trigger === 'string' ? (fields.trigger.trim().split(/\s+/)[0] ?? '') : '';
-  if (a === b && TOOL_LABEL.test(a) && first !== '' && verb !== '') {
-    return { before: `${a}~${first}`, after: `${b}~${verb}` };
+  const order =
+    typeof fields?.order === 'object' && fields.order !== null
+      ? (fields.order as Record<string, unknown>)
+      : undefined;
+  const first = typeof order?.before === 'string' ? order.before.trim() : '';
+  const last = typeof order?.after === 'string' ? order.after.trim() : '';
+  if (a === b && TOOL_LABEL.test(a) && first !== '' && last !== '') {
+    return { before: `${a}~${first}`, after: `${b}~${last}` };
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
   if (a === 'Read') {
     const path = typeof fields?.path === 'string' ? fields.path.trim().replace(/^\.?\/+/, '') : '';
     if (path !== '') return { before: `Read~${path}`, after: b };
-    if (FILE_EDITS.has(b) && SAME_OBJECT.test(quote ?? '')) return { before: a, after: b, key: 'file_path' };
+    if (typeof order?.key === 'string' && order.key.trim() !== '')
+      return { before: a, after: b, key: order.key };
+    return `${before} before ${after}: Read requires a declared path or shared order key`;
   }
   return { before: a, after: b };
 }
@@ -736,18 +742,17 @@ function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
 }
 
-/** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
+/** Paths are declared by map fields or evidence, never guessed from filename vocabulary. */
 export function pathsOf(atom: EstateAtom): string[] {
-  const quote = atom.provenance?.quote ?? '';
-  const found: string[] = [];
-  for (const match of quote.matchAll(
-    /`([^`\s]+)`|(?:^|\s)((?:[\w.-]+\/)*[\w-]+\.(?:md|json|ya?ml|txt|csv))\b/g,
-  )) {
-    const path = (match[1] ?? match[2] ?? '').replace(/[.,;:]+$/, '');
-    if (path !== '' && (path.includes('/') || /\.[a-z]{2,4}$/i.test(path)) && !found.includes(path))
-      found.push(path);
+  const paths = typeof atom.fields?.path === 'string' ? [atom.fields.path] : [];
+  if (Array.isArray(atom.fields?.paths))
+    paths.push(...atom.fields.paths.filter((path): path is string => typeof path === 'string'));
+  for (const evidence of atom.evidence) {
+    if (evidence.type !== 'tool_called' || evidence.label !== 'Read') continue;
+    const path = textOf(evidence.input?.file_path ?? evidence.input?.path ?? evidence.input?.notebook_path);
+    if (path !== undefined) paths.push(path);
   }
-  return found;
+  return [...new Set(paths.filter((path) => path.trim() !== ''))];
 }
 
 export function addPair(then: ThenParts, pair: OrderedPair): void {

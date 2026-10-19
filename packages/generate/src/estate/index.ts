@@ -2,16 +2,22 @@
 
 export {
   actOf,
+  askClausesOf,
   askedTo,
   type CodeAsk,
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
+  type DeclaredAsk,
+  declaredAskOf,
+  fileSubjectDerivation,
   imperative,
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,
+  sameAskAct,
   situationProblem,
+  structuredAskOf,
   TOOL_ACTS,
 } from './asks';
 export {
@@ -33,6 +39,9 @@ export {
   pronounDerivation,
   renderAsk,
   SLOT,
+  STRUCTURED_ACT_SHAPES,
+  SUBJECT_SHAPE,
+  SUBJECT_TAIL,
   VERBATIM,
 } from './frames';
 export {

@@ -266,6 +266,7 @@ export {
   Plan,
   PlanRow,
   Provenance,
+  ReplyActDeclaration,
   RunMode,
   TestType,
 } from './schema';

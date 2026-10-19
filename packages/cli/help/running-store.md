@@ -127,6 +127,7 @@ Each block of a run holds `observed` (what the agent did) and `verdicts` (what t
 | `text` | The reply text. |
 | `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`. |
 | `runtime` | What the runtime did around the model, below. Optional. |
+| `replyAct` | The reply act an adapter or a declared judge reported for the block, never read from the reply's words: `id` (`answer`, `clarify`, `refuse`, `report`, `draft` or `acknowledge`), `evidence` (`type` `text_segment`, `part` `reply` or `draft`, and `index`, the place of the text segment in `segments`) and `source` (`kind` `adapter` or `judge`, and its `name`). Optional. |
 | `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
 | `workspaceDiff` | What changed in the workspace during the block, as three lists of paths: `created`, `changed` and `deleted`. |
 | `executions` | One record per command the agent ran, below. |

@@ -264,7 +264,7 @@ describe('families against the current components', { timeout: 120_000 }, () => 
       expect(planted).toBe(true);
       expect(results.get('scan.standing.plain-table')?.pass).toBe(true);
       expect(results.get('scan.standing.plain-name')?.pass).toBe(false);
-      expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
+      expect(results.get('scan.standing.plain-name')?.detail).toContain('missed route');
     } finally {
       scan.mockRestore();
     }
@@ -345,7 +345,7 @@ describe('families against the current components', { timeout: 120_000 }, () => 
 describe('the long routing table plant', { timeout: 120_000 }, () => {
   it('declares the skill and the description route of every skill it plants, so only missed rows can fail it', async () => {
     const result = await judgeCase(1, 'bench.defects', longTable('long-routing-table', 3, 12, true));
-    expect(result.detail).not.toMatch(/found (skill|route) .* at \.claude\/skills\/.*never planted/);
+    expect(result.detail).toBe('holds');
     expect(result).toMatchObject({ pass: true });
   });
 });

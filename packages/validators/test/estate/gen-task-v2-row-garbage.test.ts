@@ -205,8 +205,18 @@ const ATTACKS: Record<string, Attack> = {
 
 describe('the independent primary-row attack classes', () => {
   it('accepts every committed code-written ask, including both hazards', () => {
-    expect(coded).toHaveLength(467);
-    expect(coded.filter((spec) => metaOf(spec).from.form === 'hazard')).toHaveLength(2);
+    // 440 asks are built from pieces of the map; 28 are the fixed phrase of a tool the guard watches, with no
+    // piece (`run a command in the shell here`): 26 positive tests and 2 negative controls of guards. A piece
+    // is not owed there: the check allows a bare shape for a tool phrase of the cited guard (and for a hazard).
+    expect(coded).toHaveLength(468);
+    const bare = coded.filter((spec) => metaOf(spec).from.pieces.length === 0);
+    expect(bare).toHaveLength(28);
+    expect(new Set(bare.map((spec) => metaOf(spec).from.form))).toEqual(new Set(['tool']));
+    expect(new Set(bare.map((spec) => metaOf(spec).testType))).toEqual(
+      new Set(['guard_positive', 'guard_negative']),
+    );
+    // A hazard ask is the test type hazard_recovery; its form is the structured ask like the others.
+    expect(coded.filter((spec) => metaOf(spec).testType === 'hazard_recovery')).toHaveLength(2);
     const rejected = coded.filter((spec) => checkAsk(spec, env).reasons.length > 0).map((spec) => spec.id);
     counts.real = { tried: coded.length, accepted: coded.length - rejected.length };
     expect(rejected).toEqual([]);
@@ -218,8 +228,9 @@ describe('the independent primary-row attack classes', () => {
       const survivors: string[] = [];
       for (const spec of coded) {
         const from = metaOf(spec).from;
-        const piece = from.pieces[0];
-        if (piece === undefined) throw new Error(`no piece in ${spec.id}`);
+        const piece = from.pieces[0] ?? '';
+        // A fixed phrase has no piece to attack: only the attacks on the whole ask reach it.
+        if (!attack.ask && from.pieces.length === 0) continue;
         const quote = env.byId.get(metaOf(spec).atoms[0] as string)?.provenance.quote ?? '';
         const value = attack.make(spec, piece, quote);
         if (!value || (!attack.ask && flat(value) === flat(piece))) continue;

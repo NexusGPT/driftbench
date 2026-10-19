@@ -120,6 +120,7 @@ export class AtomBuilder {
     title: string;
     at: Located;
     evidence: EvidencePredicate[];
+    replyAct?: Atom['replyAct'];
     producedBy?: 'code' | 'model';
     situation?: string;
     fields?: Record<string, unknown>;
@@ -146,6 +147,7 @@ export class AtomBuilder {
       approved: atom.approved ?? producedBy === 'code',
       ...(atom.situation ? { situation: atom.situation } : {}),
       evidence: atom.evidence,
+      ...(atom.replyAct ? { replyAct: atom.replyAct } : {}),
       enforcement: [],
       ...(atom.fields ? { fields: atom.fields } : {}),
       ...(atom.replyAct ? { replyAct: atom.replyAct } : {}),
