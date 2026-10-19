@@ -154,8 +154,10 @@ The rules the append enforces:
   builder's iteration 0.
 * Bank fields: `passing` at most `bankSize`; `failingByFamily` sums to `bankSize` minus `passing`;
   `bankByFamilyTier` (optional, tiers `"1"` to `"5"` or `"none"`) sums to `bankSize`; `failingCauses`
-  (optional) is at most the failing items and at least 1 when any item fails; `failingWithoutCause`
-  (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
+  (optional) is at most the failing items and at least 1 when any item fails, except that it may be 0
+  when `failingComposite` equals the failing items (every failing item is a composite check);
+  `failingComposite` (optional) goes with `failingCauses` and is at most the failing items;
+  `failingWithoutCause` (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
   `--items --json` run.
 * `research` is null or `{ "sources": [...], "finding": "..." }`; `change.commit` is null or 7 to 40 hex
   characters.

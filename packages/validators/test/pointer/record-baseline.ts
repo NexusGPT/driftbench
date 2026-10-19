@@ -79,6 +79,7 @@ const row = JournalRowSchema.parse({
   passing: bank.passing,
   failingByFamily: bank.failingByFamily,
   failingCauses: bank.failingCauses,
+  failingComposite: bank.failingComposite,
   failingWithoutCause: bank.failingWithoutCause,
   bankByFamilyTier: bank.byFamilyTier,
   failingBefore: bank.rows.filter((item) => !item.passEverySeed).map((item) => item.id),

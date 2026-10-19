@@ -74,7 +74,17 @@ describe('the cause counts of the journal row', () => {
     expect(issues(journalRow(1, { failingCauses: 4 }))).toMatch(
       /failingCauses 4 exceeds the 3 failing items/,
     );
-    expect(issues(journalRow(1, { failingCauses: 0, failingWithoutCause: 0 }))).toBe('');
+    expect(issues(journalRow(1, { failingCauses: 0 }))).toMatch(/3 items fail, so at least one cause does/);
+    expect(issues(journalRow(1, { failingCauses: 0, failingWithoutCause: 0 }))).toMatch(
+      /3 items fail, so at least one cause does/,
+    );
+    expect(issues(journalRow(1, { failingCauses: 0, failingComposite: 2 }))).toMatch(
+      /3 items fail, so at least one cause does/,
+    );
+    expect(issues(journalRow(1, { failingCauses: 0, failingComposite: 3 }))).toBe('');
+    expect(issues(journalRow(1, { failingCauses: 1, failingComposite: 2 }))).toBe('');
+    expect(issues(journalRow(1, { failingCauses: 0, failingComposite: 4 }))).toMatch(/exceeds the 3 failing/);
+    expect(issues(journalRow(1, { failingComposite: 1 }))).toMatch(/goes with failingCauses/);
     expect(issues(journalRow(1, { failingWithoutCause: 1 }))).toMatch(/goes with failingCauses/);
     expect(issues(journalRow(1, { failingCauses: 1, failingWithoutCause: 2 }))).toMatch(/cannot exceed them/);
   });
@@ -107,6 +117,7 @@ describe('the cause counts of the journal row', () => {
       passing: 0,
       score: 0,
       failingCauses: 0,
+      failingComposite: 2,
       failingWithoutCause: 0,
     });
     const value = journalRow(0, {
@@ -119,6 +130,7 @@ describe('the cause counts of the journal row', () => {
       failingByFamily: summary.failingByFamily,
       bankByFamilyTier: summary.byFamilyTier,
       failingCauses: summary.failingCauses,
+      failingComposite: summary.failingComposite,
       failingWithoutCause: summary.failingWithoutCause,
     });
     const root = mkdtempSync(join(tmpdir(), 'astra-banks-journal-test-'));

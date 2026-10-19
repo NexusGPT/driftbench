@@ -45,6 +45,8 @@ export type BankSummary = {
    * reviewed fixes. An atomic item without a cause counts as its own; composite checks add no cause credit.
    */
   failingCauses: number;
+  /** Failing items that are composite checks: they add no cause, and a journal row of all-composite failures says so. */
+  failingComposite: number;
   failingWithoutCause: number;
   /** Distinct failing causes per family; every family of the bank is listed, 0 included. */
   failingCausesByFamily: Record<string, number>;
@@ -134,6 +136,7 @@ export function bankSummary(report: LadderReport): BankSummary {
     byFamilyTier: sortKeys(byFamilyTier),
     failingByFamily: sortKeys(failingByFamily),
     failingCauses: new Set(atomicFailures.map(causeKey)).size,
+    failingComposite: failingRows.length - atomicFailures.length,
     failingWithoutCause: atomicFailures.filter((row) => causeKey(row).startsWith('item:')).length,
     failingCausesByFamily: sortKeys(causesByFamily),
     rows: list,

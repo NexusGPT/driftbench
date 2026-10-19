@@ -57,9 +57,11 @@ export const JournalRowSchema = z
     bankSize: count,
     passing: count,
     failingByFamily: z.record(z.string().min(1), count),
-    // Only declared atomic causes count; an all-composite failure set legitimately has zero.
-    // The hardness gate still requires its minimum number of distinct causes.
+    // Only declared atomic causes count. A row may record 0 only when it also states, in failingComposite, that
+    // every failing item is a composite check. The hardness gate still requires its minimum number of causes.
     failingCauses: count.optional(),
+    /** The failing items that are composite checks (no distinct-cause credit). Goes with failingCauses. */
+    failingComposite: count.optional(),
     executor: z.enum(['builder', 'blind']).optional(),
     failingWithoutCause: count.optional(),
     bankByFamilyTier: z
@@ -160,6 +162,28 @@ export const JournalRowSchema = z
           message: `failingCauses ${row.failingCauses} exceeds the ${failingItems} failing items`,
         });
       }
+    }
+    if (row.failingComposite !== undefined) {
+      if (row.failingCauses === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingComposite'],
+          message: 'failingComposite goes with failingCauses',
+        });
+      } else if (row.failingComposite > failingItems) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingComposite'],
+          message: `failingComposite ${row.failingComposite} exceeds the ${failingItems} failing items`,
+        });
+      }
+    }
+    if (row.failingCauses === 0 && failingItems > 0 && row.failingComposite !== failingItems) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['failingCauses'],
+        message: `${failingItems} items fail, so at least one cause does, unless every failing item is composite (failingComposite ${failingItems})`,
+      });
     }
     if (row.failingWithoutCause !== undefined) {
       if (row.failingCauses === undefined) {
