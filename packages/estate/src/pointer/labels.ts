@@ -232,6 +232,8 @@ export type Checked = {
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
+  /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
+  dropped: string[];
 };
 
 /**
@@ -249,6 +251,7 @@ export function checkAnswer(
   const accepted: Checked['accepted'] = new Map();
   const covered = new Set<number>();
   const refusals: string[] = [];
+  const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
@@ -289,18 +292,20 @@ export function checkAnswer(
       refusals.push(`${window.id}: ${extras}`);
       continue;
     }
+    dropped.push(...extras.dropped.map((reason) => `${window.id}: ${reason}`));
+    const { dropped: _dropped, ...kept } = extras;
     for (const n of numbers) {
       covered.add(n);
       if (entry.label !== 'none') {
         accepted.set(n, {
           label: entry.label,
           ...(entry.target !== undefined ? { target: entry.target } : {}),
-          ...extras,
+          ...kept,
         });
       }
     }
   }
-  return { accepted, covered, refusals };
+  return { accepted, covered, refusals, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
@@ -373,8 +378,10 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
  * The spans and links of one entry, checked. A span is the words of a clause, or offsets, on the text the labeler
  * was shown: inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
  * overlapping another span of the unit. The offsets kept are those of the unit's own text. A link names a kind the
- * label may carry and a candidate the request listed (or `none`). Any failure refuses the whole entry: the reason
- * is returned as a string.
+ * label may carry and a candidate the request listed (or `none`). A span or a link that fails is DROPPED, with its
+ * reason in `dropped`, and the label stands: the label is the answer, the clauses and links are notes on it, and a
+ * wrong note costs the note, not the unit. An atom whose mapping needs a dropped note is refused later, with its
+ * reason. Only a malformed shape (an empty or non-list `spans` or `links`) refuses the entry.
  */
 function checkExtras(
   set: LabelSet,
@@ -383,85 +390,123 @@ function checkExtras(
   numbers: readonly number[],
   label: Label | undefined,
   context: LabelContext,
-): string | { spans?: SpanAnswer[]; links?: LinkAnswer[] } {
-  const out: { spans?: SpanAnswer[]; links?: LinkAnswer[] } = {};
+): string | { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } {
+  const out: { spans?: SpanAnswer[]; links?: LinkAnswer[]; dropped: string[] } = { dropped: [] };
   if (entry.spans !== undefined) {
     if (!Array.isArray(entry.spans) || entry.spans.length === 0) return 'spans are a non-empty list';
-    if (numbers.length !== 1) return `"${entry.units}" is a range, and a range cannot carry spans`;
-    if (!label?.spans) return `the label ${entry.label} carries no spans`;
-    const unit = window.units.find((candidate) => candidate.n === numbers[0]);
-    if (!unit) return `"${entry.units}" leaves the window`;
-    const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
-    const seen: SpanAnswer[] = [];
-    const counted: Array<[number, number]> = [];
-    for (const span of entry.spans) {
-      const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
-      if (span === null || typeof span !== 'object') return `${where} is no span`;
-      const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
-      if (!kind || !label.spans.includes(kind.name)) {
-        return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
-      }
-      // The words of the clause are located in the text the labeler was shown (white space made one space) by code:
-      // found exactly once, else refused. The model is bad at counting characters and good at copying; a copied
-      // text enters nowhere unless it is a slice.
+    const unit =
+      numbers.length === 1 ? window.units.find((candidate) => candidate.n === numbers[0]) : undefined;
+    if (numbers.length !== 1) {
+      out.dropped.push(`"${entry.units}" is a range, and a range cannot carry spans`);
+    } else if (!label?.spans) {
+      out.dropped.push(`the label ${entry.label} carries no spans`);
+    } else if (!unit) {
+      out.dropped.push(`"${entry.units}" leaves the window`);
+    } else {
+      const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
+      const seen: SpanAnswer[] = [];
+      const counted: Array<[number, number]> = [];
       const shown = flatten(unit.text);
-      let from: number;
-      let to: number;
-      if ('text' in span && typeof span.text === 'string') {
-        const found = locateSpanText(shown.text, span.text);
-        if ('reason' in found) return `${where}: ${found.reason}`;
-        ({ from, to } = found);
-      } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
-        ({ from, to } = span);
-        if (from < 0 || to > shown.text.length || from >= to) {
-          return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
+      for (const span of entry.spans) {
+        const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
+        const refuse = (reason: string) => out.dropped.push(reason);
+        if (span === null || typeof span !== 'object') {
+          refuse(`${where} is no span`);
+          continue;
         }
-      } else {
-        return `${where}: offsets are integers, or the text is a string`;
-      }
-      if (span.polarity !== undefined && span.polarity !== null) {
-        if (!kind.polarity) return `${where}: the kind ${kind.name} carries no polarity`;
-        if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
-          return `${where}: the polarity is obligation or prohibition`;
+        const kind = typeof span.kind === 'string' ? kinds.get(span.kind) : undefined;
+        if (!kind || !label.spans.includes(kind.name)) {
+          refuse(
+            `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`,
+          );
+          continue;
         }
+        // The words of the clause are located in the text the labeler was shown (white space made one space) by
+        // code: found exactly once, else dropped. The model is bad at counting characters and good at copying; a
+        // copied text enters nowhere unless it is a slice.
+        let from: number;
+        let to: number;
+        if ('text' in span && typeof span.text === 'string') {
+          const found = locateSpanText(shown.text, span.text);
+          if ('reason' in found) {
+            refuse(`${where}: ${found.reason}`);
+            continue;
+          }
+          ({ from, to } = found);
+        } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+          ({ from, to } = span);
+          if (from < 0 || to > shown.text.length || from >= to) {
+            refuse(`${where}: offsets leave the unit (length ${shown.text.length}) or are empty`);
+            continue;
+          }
+        } else {
+          refuse(`${where}: offsets are integers, or the text is a string`);
+          continue;
+        }
+        if (span.polarity !== undefined && span.polarity !== null) {
+          if (!kind.polarity) {
+            refuse(`${where}: the kind ${kind.name} carries no polarity`);
+            continue;
+          }
+          if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
+            refuse(`${where}: the polarity is obligation or prohibition`);
+            continue;
+          }
+        }
+        if (counted.some(([a, b]) => from < b && a < to)) {
+          refuse(`${where} overlaps another span of the unit`);
+          continue;
+        }
+        counted.push([from, to]);
+        seen.push({
+          kind: span.kind,
+          from: shown.at[from] as number,
+          to: (shown.at[to - 1] as number) + 1,
+          ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
+        });
       }
-      if (counted.some(([a, b]) => from < b && a < to)) {
-        return `${where} overlaps another span of the unit`;
-      }
-      counted.push([from, to]);
-      seen.push({
-        kind: span.kind,
-        from: shown.at[from] as number,
-        to: (shown.at[to - 1] as number) + 1,
-        ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
-      });
+      if (seen.length > 0) out.spans = seen.sort((a, b) => a.from - b.from);
     }
-    out.spans = seen.sort((a, b) => a.from - b.from);
   }
   if (entry.links !== undefined) {
     if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
-    if (!label?.links) return `the label ${entry.label} carries no links`;
-    const kinds = new Map((set.links ?? []).map((kind) => [kind.name, kind]));
-    const links: LinkAnswer[] = [];
-    for (const link of entry.links) {
-      const where = `units "${entry.units}" link ${JSON.stringify(link)}`;
-      if (link === null || typeof link !== 'object') return `${where} is no link`;
-      const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
-      if (!kind || !label.links.includes(kind.name)) {
-        return `${where}: the kind ${JSON.stringify(link.kind)} is not one the label ${entry.label} may carry`;
-      }
-      if (typeof link.to !== 'string') return `${where}: the target is an atom id or none`;
-      if (links.some((other) => other.kind === kind.name))
-        return `${where}: the kind ${kind.name} is given twice`;
-      if (link.to !== 'none') {
-        const listed = context.candidates?.[kind.name] ?? [];
-        if (!listed.some((candidate) => candidate.id === link.to)) {
-          return `${where}: ${link.to} is not an atom the request listed for ${kind.name}`;
+    if (!label?.links) {
+      out.dropped.push(`the label ${entry.label} carries no links`);
+    } else {
+      const kinds = new Map((set.links ?? []).map((kind) => [kind.name, kind]));
+      const links: LinkAnswer[] = [];
+      for (const link of entry.links) {
+        const where = `units "${entry.units}" link ${JSON.stringify(link)}`;
+        if (link === null || typeof link !== 'object') {
+          out.dropped.push(`${where} is no link`);
+          continue;
         }
+        const kind = typeof link.kind === 'string' ? kinds.get(link.kind) : undefined;
+        if (!kind || !label.links.includes(kind.name)) {
+          out.dropped.push(
+            `${where}: the kind ${JSON.stringify(link.kind)} is not one the label ${entry.label} may carry`,
+          );
+          continue;
+        }
+        if (typeof link.to !== 'string') {
+          out.dropped.push(`${where}: the target is an atom id or none`);
+          continue;
+        }
+        if (links.some((other) => other.kind === kind.name)) {
+          out.dropped.push(`${where}: the kind ${kind.name} is given twice`);
+          continue;
+        }
+        if (link.to !== 'none') {
+          const listed = context.candidates?.[kind.name] ?? [];
+          if (!listed.some((candidate) => candidate.id === link.to)) {
+            out.dropped.push(`${where}: ${link.to} is not an atom the request listed for ${kind.name}`);
+            continue;
+          }
+        }
+        links.push({ kind: kind.name, to: link.to });
       }
-      links.push({ kind: kind.name, to: link.to });
+      if (links.length > 0) out.links = links;
     }
-    out.links = links;
   }
   return out;
 }

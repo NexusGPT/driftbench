@@ -222,5 +222,6 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   );
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
+  for (const note of done.dropped) lines.push(`    dropped: ${note}`);
   return lines;
 }

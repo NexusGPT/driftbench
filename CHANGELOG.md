@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The pointer reader drops a span or a link of an answer that fails its check (offsets outside the unit, an overlap, a link to an atom the request did not list, a kind given twice) and keeps the label; before, the whole entry was refused and its unit lost. Each drop is listed in the scan as `dropped:` with its reason and is counted in `PointerScan.dropped`; the exit code does not change. An atom whose mapping needs a dropped note is still refused, with its own reason.
+
 * The shipped `agent-rules` label set declares, as label data, what the generator used to read from the words of a rule: the links `reply-act` and `reply-part` (closed values) write the `replyAct` of the atom, a span `ask-text` writes `fields.ask` (its context is the `situation` span), the link `order-key` writes `fields.order` of a gate, and the hazard labels write the options of `hazard_recovery` (`reread` from the files the unit names, `calls` from its commands, `retry` and `rereadSelf` from the spans `retry` and `reread-self`). A declaration the labeler does not give is left out and the atom is kept. The set hash changes again, so the fixture cassettes of the Northwind estate are recorded once for this change and the `situation` span together.
 
 * The shipped `agent-rules` label set gains a `situation` span, carried by the rule, dispatch, prohibition and reply-rule labels; it becomes the situation of the atom. A mapping `situation` ending in `?` is optional. The set hash changes, so the fixture cassettes of the Northwind estate need one re-record (done with the next label-set change).

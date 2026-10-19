@@ -125,6 +125,8 @@ export type PointerResult = {
   /** Units a member decided by a majority of its runs instead of all of them. */
   voted: number;
   refusals: string[];
+  /** Spans and links of accepted answers that failed a check and were dropped: the label stood without them. */
+  dropped: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   usage: LabelerUsage[];
@@ -455,6 +457,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
+  const dropped: string[] = [];
   const failed: string[] = [];
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
@@ -478,6 +481,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       windows++;
       const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
       refusals.push(...read.refusals);
+      dropped.push(...(read.dropped ?? []));
       const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
         task.run - 1
       ] as Map<number, Opinion>;
@@ -631,6 +635,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     spanSplit,
     voted,
     refusals,
+    dropped,
     failed,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),

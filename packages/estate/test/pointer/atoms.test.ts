@@ -367,14 +367,16 @@ describe('atoms from labels', () => {
       expect(atom?.fields).not.toHaveProperty('labelLinks');
     });
 
-    it('refuses an entry whose link names an atom the request did not list, and labels no atom from it', async () => {
+    it('drops a link that names an atom the request did not list, and labels no atom that needs it', async () => {
       const { result } = await spanned({
         'CLAUDE.md': [{ units: '3', label: 'order', links: [{ kind: 'topic', to: 'skill.zzz.nothing' }] }],
       });
-      expect(result.pointer?.refusals).toEqual([
+      expect(result.pointer?.refusals).toEqual([]);
+      expect(result.pointer?.dropped).toEqual([
         expect.stringContaining('is not an atom the request listed for topic'),
       ]);
-      expect(result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      // The label stands, but nothing is built that points at the dropped target.
+      expect(JSON.stringify(result.map.atoms)).not.toContain('skill.zzz.nothing');
     });
 
     it('keeps the spans in the ledger with the label, and replays them from the cassette', async () => {
@@ -645,11 +647,10 @@ describe('atoms from labels', () => {
       expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
     });
 
-    it('refuses a link value the set did not declare, as the check of the answer does', async () => {
+    it('drops a link value the set did not declare, as the check of the answer does', async () => {
       const { result } = await run(entry({ links: [{ kind: 'act-tool', to: 'Fly' }] }));
-      expect(result.pointer?.refusals).toEqual([
-        expect.stringContaining('is not an atom the request listed'),
-      ]);
+      expect(result.pointer?.dropped).toEqual([expect.stringContaining('is not an atom the request listed')]);
+      expect(result.pointer?.atomRefusals).toHaveLength(1);
     });
 
     it('keeps a string that only starts with a dollar sign', async () => {
