@@ -21,4 +21,5 @@ first 43-item bank; the cause reviewer ran again on commit 47dc6eb06 (50 items).
 
 Known limits the cheater helper named, ruled out of scope: mining a git commit message until the hidden seed equals
 a seed a cheat baked, and reading the validator's memory through a debugger or inspector. A forward to the shipped
-module equals a correct implementation and is counted 0 beyond one.
+module equals a correct implementation and is counted 0 beyond one. The lead confirmed both limits out of scope; a
+salt the auditor keeps for the hidden seed is a follow-up.

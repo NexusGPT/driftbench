@@ -46,9 +46,15 @@ decide a unit by a sure `none`, a case the closed bank covers and the pilot's fe
 * No family reaches 20 items (the largest, `answer`, has 10). Adding items to reach 20 per family would repeat a
   rule already judged: padding, which section 12.1 rules out.
 
-## Proposal
+## The recorded gate
 
-Record the pointer level as a measured level without a hardness bar of its own, and keep the independent audit as the
-gate that matters for it (`audit.md`: all four checks read `pass`). Version 3's own provisional bar (`validators/judges/v3/GATE.md`) is separate.
-If the lead wants a bar anyway: score after the pilot at most 0.99, forecast at least 1, at least 4 distinct failing
-causes, on the numbers above; they are met and say nothing.
+The pointer-labellers level has **no hardness bar**. Its gate is the independent audit of section 12.7, and all four
+checks read `pass` in [audit.md](audit.md). The reason is the arithmetic above and the owner's per-validator
+allowance ("If you cannot do it, lower the bar per validator"): a level that judges 14 functions has at most a few
+dozen real causes, so the section 12.4 terms (forecast 100, 100 causes, score 0.4) cannot hold, and a lowered
+number would say nothing about the level. `driftbench validate judges --ladder-version 4 --hardness` therefore
+prints the measurement and fails its 12.4 terms; the lead's ruling is that the audit is what gates this level.
+
+Known limits of the audit, ruled out of scope and recorded in audit.md: mining a git commit message until the
+hidden seed equals a seed a cheat baked, and reading the validator's memory through a debugger. Follow-up (board,
+not this pull request): a salt the auditor keeps for the hidden seed.
