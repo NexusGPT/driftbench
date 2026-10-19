@@ -393,7 +393,7 @@ An unknown name fails and lists the checks of the kind. `tests` on a code file a
 
 ### Workspace
 
-The adapter takes a snapshot of the workspace (file list and hashes) before the block and diffs it after. `created`, `changed` and `deleted` list the paths expected in each set. A listed path must be in its set. An empty list asserts that its set is empty: `deleted: []` means nothing deleted. A path in the diff that no list names fails only through `others_untouched: true`.
+The adapter takes a snapshot of the workspace (file list and hashes) before the block and diffs it after. `created`, `changed` and `deleted` list the paths expected in each set. A listed path must be in its set. An empty list asserts that its set is empty: `deleted: []` means nothing deleted. A path in the diff that no list names fails only through `others_untouched: true`. Paths compare in one form, in the three lists and in all three sets of the diff alike: a backslash reads as a forward slash and leading `./` segments are dropped, so `./d/b.txt` and `d\b.txt` both name `d/b.txt`.
 
 ### Safety
 
