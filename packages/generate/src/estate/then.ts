@@ -363,7 +363,14 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           return;
         }
         // Valid source requirements remain intact; malformed siblings keep the row incomplete.
-        const { reread: _reread, calls: _calls, retry: _retry, unpathed: _unpathed, ...rest } = declared;
+        const {
+          reread: _reread,
+          rereadSelf: _rereadSelf,
+          calls: _calls,
+          retry: _retry,
+          unpathed: _unpathed,
+          ...rest
+        } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),

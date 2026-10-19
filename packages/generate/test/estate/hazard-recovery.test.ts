@@ -141,6 +141,18 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
     expect(generated.specs[0]?.complete).toBe(true);
     expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/archive.index.CFG'] });
   });
+  it('re-reads the file of the atom when the declaration says the rule orders its own file read again', () => {
+    const { generated, spec } = generate('compaction', 'After a compaction, read this file again.', 1, {
+      rereadSelf: true,
+    });
+    expect(generated.specs[0]?.complete).toBe(true);
+    expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['POLICY.md'] });
+    expect(spec.rules?.custom?.hazard_recovery).not.toHaveProperty('rereadSelf');
+    const wrong = generate('compaction', 'After a compaction, read this file again.', 1, {
+      rereadSelf: 'yes',
+    });
+    expect(wrong.generated.specs[0]?.complete).toBe(false);
+  });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
     const { generated, spec } = generate('restart', 'Resume safely.', 1, {
       reread: [''],

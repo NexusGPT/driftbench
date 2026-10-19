@@ -47,6 +47,12 @@ export function recoveryAction(atom: EstateAtom, atoms?: ReadonlyMap<string, Est
     const declaration = value as Record<string, unknown>;
     strings(declaration.reread, `${path}.reread`, reread);
     strings(declaration.unpathed, `${path}.unpathed`, unpathed);
+    // The unit orders the file it is in read again: the file is the atom's own, never found by a word.
+    if (declaration.rereadSelf === true) {
+      const own = atom.provenance?.file;
+      if (own && !reread.includes(own)) reread.push(own);
+    } else if (declaration.rereadSelf !== undefined && declaration.rereadSelf !== false)
+      invalid.push(`${path}.rereadSelf: expected a boolean`);
     if (declaration.retry === true) retry = true;
     else if (declaration.retry !== undefined && declaration.retry !== false)
       invalid.push(`${path}.retry: expected a boolean`);
