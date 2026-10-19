@@ -13,6 +13,7 @@ import {
   tupleValues,
 } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
+import type { BlockSections } from '../blocks/sections';
 import { ForbidIndex } from '../extract/forbid-index';
 import { seedFolderName } from '../families/instances';
 import { Allocation } from '../seed/allocation';
@@ -97,6 +98,11 @@ export type GenerateOptions = {
    * since a family's oracle runs asynchronously. A flow with a task family and none given has no specs.
    */
   tasks?: TaskInput[];
+  /**
+   * The prompts with a section registry the map's quotes come from (`blockSections`): each block then links
+   * the prompt sections that hold the quotes of its values, and the sections that reach them.
+   */
+  sections?: BlockSections;
 };
 
 /** A file the suite writes: text, or bytes for a seed file that is not text (then `text` is empty). */
@@ -245,7 +251,11 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     dimensionIndex: indexDimensions(prepared),
     allocation,
   };
-  const run: RunIdentity = { seed, mapPath: options.mapPath };
+  const run: RunIdentity = {
+    seed,
+    mapPath: options.mapPath,
+    ...(options.sections ? { sections: options.sections } : {}),
+  };
 
   const graph = graphSeeder(prepared, context);
   const budgeted =

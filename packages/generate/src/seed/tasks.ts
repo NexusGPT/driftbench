@@ -12,7 +12,7 @@ import {
   type SeedFiles,
   unapprovedPhrases,
 } from '../families';
-import type { RunIdentity } from './assemble';
+import { type RunIdentity, sectionsOfRules } from './assemble';
 import { type PreparedMap, phraseKey } from './map';
 
 /**
@@ -97,10 +97,12 @@ export function* streamTaskSpecs(
           block,
           origin: {
             rules: taskRules(prepared, relation, spec),
+            sections: sectionsOfRules(prepared, taskRules(prepared, relation, spec), run.sections),
             row: { id: String(spec.id), values: taskValues(prepared, relation, block) },
           },
         })),
         prepared.hash,
+        run.sections ? { sectionReach: run.sections.reaching } : {},
       );
       const metadata = (spec.metadata as Record<string, unknown> | undefined) ?? {};
       spec.metadata = {

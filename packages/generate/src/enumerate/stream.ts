@@ -98,7 +98,11 @@ function writeSuite(
   context.pathValues = indexPathValues(prepared);
   context.dimensionIndex = indexDimensions(prepared);
   context.allocation = new Allocation(prepared);
-  const run = { seed, mapPath: options.mapPath };
+  const run = {
+    seed,
+    mapPath: options.mapPath,
+    ...(options.sections ? { sections: options.sections } : {}),
+  };
   const coverage = new StreamCoverage(prepared, t, scratch);
   const invalid = new DiskArray<GenerateReport['invalid'][number]>(scratch, 'invalid.jsonl');
   const lint = new DiskArray<GenerateReport['lint'][number]>(scratch, 'lint.jsonl');

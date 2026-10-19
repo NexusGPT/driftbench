@@ -46,7 +46,7 @@ Every seeded choice comes from `--seed`: the same map and seed give the same sui
 ### driftbench generate
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--sections <registry>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -62,6 +62,7 @@ driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] 
 | `--spec-cap-mode <mode>` | `tuples`: preserve pairs and triples; `pairs`: preserve pairs, report triple losses. Needs `--spec-cap`. | `tuples` |
 | `--tasks <n>` | Instances built per `task_family` relation, each with its variants. | 8 |
 | `--baseline <path>` | Specs to measure on the same map, for comparison. Repeat it. Every baseline spec must be valid. | none |
+| `--sections <registry>` | A section registry of a prompt the map's evidence quotes, so each block links the prompt sections that hold the quotes of its values (`prompt_section` links) and the sections that reach them through the registry (references, overrides, duplicates; their evidence names the section they come through). The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`. A registry that does not describe its prompt's text is refused, exit 2. Repeat it. | none |
 | `--force` | Replace the output of an earlier run in the folder (`specs/`, `incomplete/`, `generate-report.json`). | off |
 | `--json` | Print the report as JSON instead of the summary. | off |
 | `--model` | Also ask the model port for specs; each counts only once the gate accepts it. Paid. Needs `--reference` and `--faults`. | off |

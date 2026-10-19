@@ -1,4 +1,5 @@
 import type { BlockLink } from '@agent-nexus/driftbench-core';
+import type { SectionRef } from './sections';
 
 /**
  * The block writer of both generators: `driftbench generate` (the prompt map) and `driftbench estate
@@ -28,6 +29,8 @@ export type SourceTurn = { conversation: string; turn: number };
 /** Where a block comes from: the rules it tests, the row it was written for, the turn its ask was recorded at. */
 export type BlockOrigin = {
   rules: readonly RuleRef[];
+  /** The prompt sections that hold the quotes of those rules, when a prompt has a section registry. */
+  sections?: ReadonlyArray<SectionRef & { relation?: 'verifies' | 'exercises' }>;
   row: { id: string; values: Readonly<Record<string, string>> };
   turn?: SourceTurn;
 };
@@ -67,6 +70,11 @@ export type WriteOptions = {
    * on the confirmation rule.
    */
   reaches?: ReadonlyMap<string, readonly string[]>;
+  /**
+   * The same for prompt sections: by prompt id, for each section, the sections whose change reaches it
+   * (`blockSections(...).reaching`). A block linked to a section also links them, through that section.
+   */
+  sectionReach?: ReadonlyMap<string, ReadonlyMap<string, readonly string[]>>;
 };
 
 /** The links of one block, in the writer's order. */
@@ -104,6 +112,35 @@ export function linksOf(
         at_version: version,
         evidence: { declared: { through: rule } },
       });
+    }
+  }
+  // The prompt sections the rules are read from, then the sections that reach them, each once.
+  const placed = new Set<string>();
+  const sectionLink = (
+    prompt: string,
+    section: string,
+    version: string,
+    relation: 'verifies' | 'exercises',
+    through?: string,
+  ) => {
+    const key = `${prompt}#${section}`;
+    if (placed.has(key)) return;
+    placed.add(key);
+    links.push({
+      block,
+      to: { kind: 'prompt_section', prompt, section },
+      relation,
+      status: 'declared',
+      created_by: 'generator',
+      at_version: version,
+      ...(through !== undefined ? { evidence: { declared: { through } } } : {}),
+    });
+  };
+  for (const ref of origin.sections ?? [])
+    sectionLink(ref.prompt, ref.section, ref.version, ref.relation ?? 'verifies');
+  for (const ref of origin.sections ?? []) {
+    for (const through of options.sectionReach?.get(ref.prompt)?.get(ref.section) ?? []) {
+      sectionLink(ref.prompt, through, ref.version, ref.relation ?? 'verifies', ref.section);
     }
   }
   links.push({

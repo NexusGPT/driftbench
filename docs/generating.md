@@ -333,6 +333,13 @@ references `explicit_confirm` makes every recap block link `explicit_confirm` to
 states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
 flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
 
+`driftbench generate --sections <registry>` and `driftbench estate generate --sections <registry>` pass a
+prompt's section registry to the generators. A rule read from that prompt (a value's evidence quote, an
+atom's provenance quote) then gives each block a `prompt_section` link to the section that holds the quote,
+and a link to each section that reaches it through the registry, with `evidence: { declared: { through } }`.
+The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
+that does not describe the prompt's text is refused with exit 2.
+
 ### Balance of stages, classes and behaviours
 
 Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.
