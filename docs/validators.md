@@ -99,6 +99,8 @@ What the owner reads: one table per validator per merge, seven rows at most, wit
 
 With `--check-floor`, each ladder with a positive floor for its registered version computes only through that floor. A floor of zero, or an earlier version with no applicable floor, keeps the ordinary walk to the first failure. Levels above a positive floor stay unmeasured, including with `--items` or `--all-levels`. Plain measurements continue to explore the ladder.
 
+The pointer measurement. A third job, `pointer-measure`, serves the independent audit of section 12.7. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `pointer-measure` (seeds 1 to 3 and the hidden seed in three shards), `pointer-measure-one` (seed 1 in one shard, for a planted-bug or cheat check) or `pointer-measure-full` (seeds 1 to 20 and the hidden seed in ten shards, for a gate measurement), and never on a push or a pull request. Each shard runs `pnpm driftbench validate pointer --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `pointer-items-<n>`; the level reached does not fail the job. Two runs compare by the items that pass in each, listed with `jq -r '.seeds[] | .seed as $s | .rows[].bank[] | select(.pass) | [$s, .id] | @tsv' pointer-items.json | sort`.
+
 ### 8.2 The command
 
 ```
