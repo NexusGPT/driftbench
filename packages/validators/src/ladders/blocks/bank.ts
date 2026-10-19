@@ -9,6 +9,7 @@ import { growthDocgapsItems } from '../blocks-growth/docgaps/index';
 import { growthRunItems } from '../blocks-growth/run/index';
 import { links2Items } from '../blocks-links2/index';
 import { CONTRACTS } from './contracts';
+import { neutralProcess } from './isolated/neutral';
 import { releaseAgents } from './kinds';
 import { adversarialItems } from './levels/adversarial';
 import { blastItems } from './levels/blast';
@@ -122,7 +123,11 @@ export function itemSeed(seed: number): number {
   return seed > 1000 ? 1000 + (seed % 9000) : seed;
 }
 
-/** Runs one item: a throw is a failure that names the error. */
+/**
+ * Runs one item: a throw is a failure that names the error. The check runs as a neutral program (argv
+ * `node app`, no node options, the home folder as the working folder, no CI, runner, seed, run or shard
+ * variables), so a product cannot learn the seed or the run from how it is started (section 12.7).
+ */
 export async function runItem(
   item: BankItem,
   seed: number,
@@ -134,7 +139,7 @@ export async function runItem(
   const own = mkdtempSync(join(tmpdir(), 'dbi-'));
   void scratch;
   try {
-    return await item.check({ seed: itemSeed(seed), root, scratch: own, product });
+    return await neutralProcess(() => item.check({ seed: itemSeed(seed), root, scratch: own, product }));
   } catch (cause) {
     return { pass: false, detail: `the item threw: ${thrownText(cause)}` };
   } finally {
