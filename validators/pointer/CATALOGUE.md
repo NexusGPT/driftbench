@@ -1,6 +1,6 @@
 # Pointer validator bank: catalogue
 
-Written blind from `docs/estate-pointer-reader.md` revision 3 (c57cf0ea0), the default stack specification and `docs/validators.md` sections 1, 8, 10 and 12. Nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
+Written blind from `docs/estate-pointer-reader.md` (revision 3 for the first bank items, revision 5 for the stack and the corrections) and `docs/validators.md` sections 1, 8, 10 and 12. Nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
 Bank: **419 items**, 11 families, 256 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 

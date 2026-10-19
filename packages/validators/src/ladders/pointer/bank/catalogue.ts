@@ -34,7 +34,7 @@ export function renderCatalogue(): string {
   w('# Pointer validator bank: catalogue');
   w();
   w(
-    'Written blind from `docs/estate-pointer-reader.md` revision 3 (c57cf0ea0), the default stack specification and `docs/validators.md` sections 1, 8, 10 and 12. Nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
+    'Written blind from `docs/estate-pointer-reader.md` (revision 3 for the first bank items, revision 5 for the stack and the corrections) and `docs/validators.md` sections 1, 8, 10 and 12. Nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
   );
   w();
   w(

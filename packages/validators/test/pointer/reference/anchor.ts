@@ -30,10 +30,12 @@ export type Verdict = {
   gone: Array<{ entry: LedgerEntry; event: 'deleted' | 'merged' | 'ambiguous' }>;
 };
 
-const FLOOR_LENGTH = 40;
-const THRESHOLD = 0.45;
-const TEXT_FLOOR = 0.4;
-const SPLIT_MERGE_MIN = 0.6;
+export const FLOOR_LENGTH = 40;
+export const THRESHOLD = 0.45;
+export const TEXT_FLOOR = 0.4;
+export const SPLIT_MERGE_MIN = 0.6;
+/** The weights of the pairwise score: text and context (docs/estate-pointer-reader.md section 15). */
+export const WEIGHTS = { text: 0.6, context: 0.4 } as const;
 
 /** Matching pairs of two sequences by identity: a patience diff with a dynamic programme on small gaps. */
 export function matchSequences(a: readonly string[], b: readonly string[]): Array<[number, number]> {
@@ -262,7 +264,7 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
         const unit = news[g] as NewUnit;
         const text = similarity(oldText, norm(unit.text));
         if (text <= TEXT_FLOOR) continue;
-        const score = 0.6 * text + 0.4 * contextScore(entry, unit);
+        const score = WEIGHTS.text * text + WEIGHTS.context * contextScore(entry, unit);
         if (score > THRESHOLD) scored.push({ entry, g, text, score });
       }
     }
