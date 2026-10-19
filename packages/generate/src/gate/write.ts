@@ -66,7 +66,9 @@ export function gateFiles(
     const records = bySpec.get(candidate.spec.id) ?? [];
     const split = splits.get(candidate.spec.id);
     if (split === undefined) continue;
-    const gated = gatedSpec(candidate.spec, records, meta.options.date);
+    // A child is written as authored when its stems are gated with it; else whole, as the loader wrote it out,
+    // so it still runs on its own: its opening replays first, kept as it was, never gated as its own blocks.
+    const gated = gatedSpec(candidate.spec, records, meta.options.date, stemsAmong(candidate.spec, specOf));
     const folder = split === 'holdout' ? HOLDOUT_DIR : GATED_DIR;
     const path = `${folder}/${candidate.path}`;
     files.push({ path, text: specText(gated, candidate.path, split) });
@@ -93,12 +95,14 @@ export function gateFiles(
  * The gated spec as authored: a child of a stem is written with its own blocks and its parent link, as the
  * candidate file had it, and its records (read on the written-out spec) are moved to its own positions.
  */
-function gatedSpec(written: Spec, records: readonly BlockRecord[], date: string): Spec {
-  const shift = specParentRecord(written)?.replayed ?? 0;
-  const spec = specAsAuthored(written);
+function gatedSpec(written: Spec, records: readonly BlockRecord[], date: string, authored: boolean): Spec {
+  const replayed = specParentRecord(written)?.replayed ?? 0;
+  const shift = authored ? replayed : 0;
+  const spec = authored ? specAsAuthored(written) : written;
   const byIndex = new Map(records.map((record) => [record.index - shift, record]));
   const dropped: string[] = [];
   const blocks: BlockSpec[] = spec.blocks.map((block, index) => {
+    if (!authored && index < replayed) return block;
     if (byIndex.get(index)?.status === 'accepted') return block;
     const { expect, budget: _budget, ...rest } = block;
     const criteria = expect?.criteria ?? [];
@@ -315,4 +319,17 @@ export function renderFunnel(result: GateResult): string {
 
 function pct(share: number): string {
   return `${Math.round(share * 100)}%`;
+}
+
+/** True when every stem the spec starts from, up its chain, is among the gated candidates. */
+function stemsAmong(spec: Spec, specOf: ReadonlyMap<string, Spec>): boolean {
+  const seen = new Set<string>();
+  for (let at: Spec | undefined = spec; at; ) {
+    const parent = specParentRecord(at)?.from.split('#')[0];
+    if (parent === undefined) return true;
+    if (seen.has(parent) || !specOf.has(parent)) return false;
+    seen.add(parent);
+    at = specOf.get(parent);
+  }
+  return true;
 }

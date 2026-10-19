@@ -106,6 +106,29 @@ describe('the gate on a suite with stems', () => {
     ]);
   });
 
+  it('writes a child whole when its stem is not gated with it, so the gated file runs on its own', async () => {
+    // As `gate generated/specs/graph` sees it: the loader read the stem from specs/stems/ to write the child
+    // out, but only the seeder folder is gated.
+    const [, red] = writtenOut(tree(3));
+    const result = await gate([red as Spec], { options: { holdoutShare: 0 } });
+    const files = gateFiles(result, [candidate(red as Spec)], {
+      source: 'candidates',
+      references: ['function:shop'],
+      options: OPTIONS,
+    });
+    const text = files.find((file) => file.path === 'specs/red-3.yaml')?.text ?? '';
+    const written = parse(text) as Spec;
+    expect(written.blocks.map((block) => [block.id, block.parent])).toEqual([
+      ['stem-3#hello', undefined],
+      ['red', undefined],
+    ]);
+    // The opening is kept as it was, Then included: it is replayed, never gated as the child's own block.
+    expect(written.blocks[0]?.expect).toEqual({ must: ['What would you like'] });
+    expect(written.metadata?.parent).toEqual({ from: 'stem-3#hello', replayed: 1 });
+    const alone = validateSpec(written, 'red-3.yaml');
+    expect(alone.ok ? [] : alone.errors).toEqual([]);
+  });
+
   it('writes a stem whose own blocks were all rejected when a child of it is written', async () => {
     const [stem, red] = tree(2) as [Spec, Spec, Spec];
     // The opening's Then is words the user already says: the observed stage rejects its only block, while the
