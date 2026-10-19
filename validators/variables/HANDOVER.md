@@ -36,21 +36,24 @@ No variables floor is committed in `validators/floors.json`; the measured baseli
 
 ## Open items
 
-All 248 items in the first level (`store`) fail: sources 69, quotes 68, values 48 and boundaries 63. The actual adapter supplies no operations, including `validate` and `quotes`. Their stable IDs and target components are listed in `CATALOGUE.md`; integrate the real readers, the loader, the quote check and the planner before starting executor repairs.
+Iteration 0 is measured on the real product (the adapter of PR 861 at head 132194901, which maps `validate`, `quotes` and `plan`): 142 of 536 items pass on every seed, 134 distinct failing causes (candidate labels), level 0 on all 21 seeds. In the first level (`store`), 205 of 248 items fail: sources 61, quotes 54, values 35 and boundaries 55. Items that need `buildStore`, `weightInterval` or `coverage` fail by function name: those functions have no product yet and stay unmapped, so the readers, the interval and the counter are the roadmap, not a defect. Real gaps seen while measuring:
+
+- `values.file.references.ambiguous-axis-value` fails on every seed: the loader accepts a value id that sits in two axes.
+- `weights.plan-shares` (both variants) fails on every seed, and the `seeds.kept-with-warnings` and `impossible.general-forbid` items fail on many seeds. On seed 4 the uncovered tuples I looked at are all pairs of the shared axes, which fits the strength-2 axis floor of planner PR 807 being open. This is unconfirmed.
 
 ## Hypotheses tried
 
-The constant empty implementation originally earned 51/471 seed-1 items. Positive checks now reject all of them; targeted mutation tests exercise those checks. This is bank repair evidence, not an executor pilot.
+None yet: no executor iteration has run on the real product. The earlier history of the bank (the constant empty implementation, the second bank of PR 762 folded in, the quote-item leak) is in `audit.md`.
 
 ## Next actions
 
-1. Integrate the real components (PR 692 and PR 706) and map the variables adapter.
-2. Rerun the full baseline and complete ten real executor iterations.
+1. Run the pilot: fix one cause per iteration from the first failing level (`store`), starting with the real gaps under Open items, and record each iteration with `measure-row.ts`.
+2. Map `buildStore`, `weightInterval` and `coverage` in `adapter.ts` when their products land (the readers, the interval, the counter).
 3. Complete the four independent gates in `audit.md`; all remain pending.
 
 ## Pitfalls
 
-The default adapter supplies no operations. A 0/471 baseline is expected and proves no real component capability. Candidate cause labels do not prove independent fixes; see `audit.md`.
+A full run of 21 seeds takes about two hours on the real product, even with the single quote worker: measure one seed first. The hidden seed comes from the commit measured, so it changes with every commit. Candidate cause labels do not prove independent fixes; see `audit.md`.
 
 ## How to run
 
@@ -63,6 +66,6 @@ pnpm driftbench validate variables --brief
 
 The seeded fixtures live in `packages/validators/src/ladders/variables/bank/families/`; their item definitions and causes live in `bank/manifest/`. Reproducible limited witnesses and mutants live in `packages/validators/test/variables/`. No private conversation set is read.
 
-## Fresh baseline and reproduction
+## Iteration 0 and reproduction
 
-The raw measurement in `evidence/baseline.json` at `ba1e62133c1d6dd18410c114380c2ee3e5d2f1bc` (source SHA-256 `a7cc7b4e5169285746fb098ea773c27ce48857cea7a41107c50d3f4564e7f88e`) records 0/471 for each seed 1–20 and the canonical hidden seed using the actual default adapter. Run `pnpm exec tsx validators/variables/baseline.ts` to repeat with the current commit’s canonical hidden seed. This emits raw evidence; convert with `baseline-journal.ts` before using a journal row, as documented in `evidence/README.md`. The in-process runner uses the actual adapter module in any child process too.
+`evidence/iteration0.json` summarises the measurement of iteration 0 at `132194901e2c5bdd7e04a6c02d7a7ae7269fc8f5`; `journal.jsonl` holds its row. To repeat it, run `pnpm driftbench validate variables --seeds 1..20 --hidden --items --json > run.json`, then `pnpm exec tsx validators/variables/measure-row.ts --before run.json --after run.json --iteration 0 --executor builder --commit <sha> > row.json`, then `pnpm driftbench validate variables --journal row.json`. The measurement of the empty adapter (`baseline.ts`, `evidence/baseline.json`) is history: it holds for an adapter that provides no operation.
