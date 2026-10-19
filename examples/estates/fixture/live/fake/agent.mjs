@@ -520,7 +520,7 @@ function skillActions(unit, estate, requested, cwd) {
     : { actions: ordered };
 }
 
-export function planStream({ ask, cwd, sessionId, env }) {
+export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const estate = readEstate(cwd);
   const unit = route(ask, estate);
   const prohibited = prohibitions(estate, unit, cwd, ask);
@@ -661,6 +661,16 @@ export function planStream({ ask, cwd, sessionId, env }) {
   const { order, anytime } = walk(estate.steps);
 
   hooks('UserPromptSubmit', undefined, { prompt: ask });
+  // After a compaction the standing file may order a re-read ("After a compaction, re-read this file ..."): the
+  // agent reads the file it is told to, before it goes on.
+  if (compacted) {
+    for (const line of statementsOf(estate.standing)) {
+      const order = /\bafter a compaction\b[^.]*?\bre-?read\s+(?:this file|`([^`]+)`)/i.exec(line);
+      if (!order) continue;
+      const path = join(cwd, order[1] ?? 'CLAUDE.md');
+      call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }), order[1] ?? 'CLAUDE.md');
+    }
+  }
   // An ask to explain without acting, or to say what can be done: a reply, nothing else.
   if (
     /^(?:no need to do anything|what kinds of things|what does\b|what would it mean)/i.test(ask) ||
