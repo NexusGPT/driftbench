@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The shipped `agent-rules` label set declares, as label data, what the generator used to read from the words of a rule: the links `reply-act` and `reply-part` (closed values) write the `replyAct` of the atom, a span `ask-text` writes `fields.ask` (its context is the `situation` span), the link `order-key` writes `fields.order` of a gate, and the hazard labels write the options of `hazard_recovery` (`reread` from the files the unit names, `calls` from its commands, `retry` and `rereadSelf` from the spans `retry` and `reread-self`). A declaration the labeler does not give is left out and the atom is kept. The set hash changes again, so the fixture cassettes of the Northwind estate are recorded once for this change and the `situation` span together.
+
 * The shipped `agent-rules` label set gains a `situation` span, carried by the rule, dispatch, prohibition and reply-rule labels; it becomes the situation of the atom. A mapping `situation` ending in `?` is optional. The set hash changes, so the fixture cassettes of the Northwind estate need one re-record (done with the next label-set change).
 
 * Label sets: the `fields` of an atom mapping hold lists and objects as well as scalars, with placeholders filled from the spans, links and unit at any depth. Optional keys (`key?`), `firstFilled` alternatives, `$paths`, `$codes`, `$commands`, `each`/`item`, `$has.<span>` and a top-level `replyAct` let a label declare structure the generator used to read from words. `Atom` gains an optional `replyAct`. A declaration with structure (a list of files to read again, an ordered pair) is label data, not code that reads words.

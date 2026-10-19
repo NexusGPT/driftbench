@@ -46,6 +46,13 @@ async function scan(answers: Record<string, Answer>) {
     );
 }
 
+const recoveryOptions = (atom: { evidence: Array<{ type: string }> } | undefined) =>
+  (
+    atom?.evidence.find(
+      (evidence) => evidence.type === 'custom' && (evidence as { name?: string }).name === 'hazard_recovery',
+    ) as { options?: unknown } | undefined
+  )?.options;
+
 describe('the declarations the shipped set reads from the labels', () => {
   it('writes the reply act and the ask of a rule from its links and spans, and leaves them out without them', async () => {
     const find = await scan({
@@ -100,9 +107,7 @@ describe('the declarations the shipped set reads from the labels', () => {
         },
       })
     )(HAZARD);
-    const options = full?.evidence.find(
-      (evidence) => evidence.type === 'custom' && evidence.name === 'hazard_recovery',
-    )?.options;
+    const options = recoveryOptions(full);
     expect(options).toEqual({
       hazard: 'compaction',
       reread: ['notes/tide.md'],
@@ -111,10 +116,7 @@ describe('the declarations the shipped set reads from the labels', () => {
       retry: true,
     });
     const bare = (await scan({ [HAZARD]: { label: 'hazard-compaction' } }))(HAZARD);
-    expect(
-      bare?.evidence.find((evidence) => evidence.type === 'custom' && evidence.name === 'hazard_recovery')
-        ?.options,
-    ).toEqual({
+    expect(recoveryOptions(bare)).toEqual({
       hazard: 'compaction',
       reread: ['notes/tide.md'],
       calls: [{ label: 'Bash', input: { command: { contains: 'make state' } } }],
