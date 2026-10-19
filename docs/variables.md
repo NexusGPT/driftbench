@@ -10,7 +10,7 @@ Three sources feed it:
 | Past conversations | the values they show, and how often | counts and a hash of the private set, never a line of text |
 | The owner | a value that is missing, a combination that cannot occur, a weight | the owner's words and the day they said them |
 
-Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote against its file, a planner that builds test rows from a store (`planV2`, opt-in), an interview that fills a store from the owner, and a reader that fills the weights from past conversations, as a library function with no command (the last two have their own sections below). Not built yet: the reader that fills a store from an estate; a command for the conversation reader; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
+Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote against its file, a planner that builds test rows from a store (`planV2`, opt-in), and a feed that fills the weights from past conversations (below). Not built yet: the readers that fill a store from an estate and from an interview; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
 
 ## The file
 
