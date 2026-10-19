@@ -196,7 +196,7 @@ const REFUSALS: Array<[name: string, edits: Edit[], expected: string[]]> = [
   ],
   [
     'a quote path that is a file URL, which would name a private folder',
-    [quoteOf({ path: 'file:///Users/me/estate/CLAUDE.md' })],
+    [quoteOf({ path: 'file:///Users/user/estate/CLAUDE.md' })],
     [`SCHEMA_CUSTOM ${FIRST}.provenance.0.path`],
   ],
   [
