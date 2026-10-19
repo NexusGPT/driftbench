@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* docs/validators.md section 12.7: the cheater audit counts a score gain as a cheat only on items that a correct implementation could not also pass; a blanket input check that is the documented answer is measured by what it loses on valid-odd items (reason: the stats audit, where a named RangeError on every odd argument gained 44 items).
+
 * Re-score preflight validates every CLI object kind before writes, including diagnostic and prompt-template overrides. Rejudge, report, comparison, campaign status/resume and HTML run summaries use `Re-scored; observations from <campaign>` for scoring-only results. Display counts distinguish re-scored runs from ordinary carries, while statistical pairing remains unchanged. The label names the immediate re-score source; the original measurement origin remains available separately.
 
 * Re-scoring removes stale diagnoses and budget skips, excludes disabled judge verdicts through the resolved scoring plan, and preserves unexecuted `not_run` or `blocked` blocks. Reports label a scoring-only result `Re-scored; observations from <campaign>`. Command-line object references are fully checked before a new campaign is written. This F6 branch does not yet include F5; diagnostic re-execution is required when those branches join.
