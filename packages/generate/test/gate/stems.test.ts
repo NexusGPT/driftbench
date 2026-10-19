@@ -60,6 +60,31 @@ describe('the gate on a suite with stems', () => {
     ]);
   });
 
+  it('judges a child block on a fault that also breaks its opening, as the same blocks inline would be', async () => {
+    // The french fault rewrites every reply: the opening's Then fails under it too. The child's own block reads
+    // the reply, so it must still be seen red on french, not hidden behind a blocked opening.
+    const stem = makeSpec({
+      id: 'stem-9',
+      stages: STAGES,
+      blocks: [{ id: 'hello', when: { user: 'Hello, shop 9' }, expect: { must: ['What would you like'] } }],
+    });
+    const child = makeSpec({
+      id: 'red-9',
+      stages: STAGES,
+      blocks: [
+        {
+          ...orderBlock('red'),
+          parent: 'stem-9#hello',
+          expect: { ...orderBlock('red').expect, must: ['Ordered the red one'] },
+        },
+      ],
+    });
+    const result = await gate(writtenOut([stem, child]));
+    const record = result.blocks.find((entry) => entry.spec === 'red-9');
+    expect(record?.faults.french?.outcome).toBe('fail');
+    expect(record?.stages.red_first.detail).toContain('french');
+  });
+
   it('draws a stem and the specs that start from it into one split', async () => {
     const specs = writtenOut(Array.from({ length: 12 }, (_, n) => tree(n)).flat());
     const result = await gate(specs, { options: { holdoutShare: 0.5 } });

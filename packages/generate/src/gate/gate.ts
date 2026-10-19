@@ -305,7 +305,10 @@ type SpecRuns = {
 };
 
 async function runCandidate(candidate: Candidate, input: GateInput): Promise<SpecRuns> {
-  const { spec } = candidate;
+  // A child runs whole, every block scored, as the same blocks written inline: a fault that breaks its opening
+  // would otherwise block its own blocks, and the gate could not see whether their Then reads that fault. The
+  // opening is gated in its stem; only the child's own blocks are read from these runs.
+  const spec = withoutReplay(candidate.spec);
   const target = input.targetOf(spec);
   const reference = input.references.get(target);
   if (!reference) throw new Error(`no reference adapter for ${target}, the target of ${spec.id}`);
@@ -858,4 +861,11 @@ async function pool<T>(items: readonly T[], size: number, work: (item: T) => Pro
     }
   });
   await Promise.all(workers);
+}
+
+/** The spec with no replay record: the runner then runs and scores every block, the opening included. */
+function withoutReplay(spec: Spec): Spec {
+  if (!specParentRecord(spec)) return spec;
+  const { parent: _parent, ...metadata } = spec.metadata ?? {};
+  return { ...spec, metadata };
 }
