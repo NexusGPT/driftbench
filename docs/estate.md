@@ -217,7 +217,7 @@ The report names the classes and clients, counts the units kept from the ledger,
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional. [What you can change in an estate](estate-settings.md) lists every setting, file and port with an example each.
 
 | Key | Read by | Holds |
 |---|---|---|
