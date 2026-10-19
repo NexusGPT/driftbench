@@ -191,6 +191,12 @@ export function runOnFakeDetailed(
     '--judge-command',
     JUDGE,
     ...(map ? ['--map', map] : []),
+    // The fake is handed the original estate's approved map and phrase bank, also when it runs in a mutant copy: the
+    // map says which atoms an ask concerns, and the copy decides which of them are still in force.
+    '--set-env',
+    `FAKE_MAP=${join(FIXTURE, 'approved.yaml')}`,
+    '--set-env',
+    `FAKE_PHRASES=${join(FIXTURE, 'phrases.yaml')}`,
     '--json',
   ]);
   const verdicts = new Map<string, FakeVerdict>();
