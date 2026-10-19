@@ -1,20 +1,25 @@
 /**
- * The fake's default agent: a stream derived by code from the estate it
- * is given, nothing else. It reads the copy in its working folder (the standing file, the skills, the helpers,
- * the settings and the step list), routes the ask by the words it shares with a routing row or a unit's
- * description, and does what the unit and the estate say: load the skill, read the files its body names,
- * dispatch the helpers it names, run the command its body names and the command the ask spells out, read a
- * file before editing it when a standing rule says so, edit the file the ask names, walk the step list, and run every hook the settings
- * declare on each of its tool calls. This deterministic stand-in implements a limited instruction syntax;
- * it is not a model or a complete Claude Code simulator. It knows nothing of any test, plan row or mutant:
- * what changes its stream is only what the copy says. No model, no cost, fictional data only.
+ * The fake's default agent: a stream derived by code from the estate it is given and from that estate's own
+ * structured definitions, nothing else. It reads the copy in its working folder (the standing file, the skills,
+ * the helpers, the settings and the step list) and, from `FAKE_MAP` and `FAKE_PHRASES`, the approved map and the
+ * phrase bank of the estate (see dispatch.mjs). The ask sets off the atoms the map or the bank ties it to; the
+ * fake does what those atoms define: loads the unit that owns the rule, reads the files a reference names,
+ * provokes the guard its settings name so the real script decides, and replies with the act the atom declares.
+ * An ask the map and the bank do not know sets off nothing and is answered plainly.
+ * From the loaded skill it keeps a limited instruction syntax: it reads the files its body names, dispatches
+ * the helpers it names, runs the command its body names and the command the ask spells out, and runs every
+ * hook the settings declare on each of its tool calls. This deterministic stand-in is not a model or a complete
+ * Claude Code simulator. It knows nothing of any test, plan row or mutant: what changes its stream is only what
+ * the copy, the map and the bank say. No model, no cost, fictional data only.
  * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
- * A generic completion reports what happened; it never claims to produce a draft or clarification.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
+import { intentsOf, loadDispatch, provocation, replyActOf, setOff } from './dispatch.mjs';
 
+// The body grammar below matches a described part of a skill's ordering clause to an action by the words they
+// share. That is the one place words remain; the ask is never routed by them.
 const STOP = new Set(
   'the and for with that this from into your you are can what which when where who how please just tell give make sure about them they their there here have has had will would could should than then also only each every some any one two all not but our its it'.split(
     ' ',
@@ -97,49 +102,6 @@ function readEstate(cwd) {
     steps = [];
   }
   return { standing, skills, helpers, settings, steps };
-}
-
-/** Rows of the standing file's tables that name a unit: the ask cell and the unit. */
-function routingRows(standing, units) {
-  const rows = [];
-  for (const line of standing.split('\n')) {
-    if (!line.includes('|')) continue;
-    const cells = line
-      .split('|')
-      .map((cell) => cell.trim())
-      .filter((cell) => cell !== '');
-    if (cells.length < 2) continue;
-    for (const unit of units) {
-      const named = cells.findIndex((cell) => cell.replace(/[`*]/g, '').includes(unit.name));
-      if (named < 0) continue;
-      const ask = cells.filter((_, index) => index !== named).join(' ');
-      if (/\b(never|not)\b/i.test(cells[named] ?? '')) continue;
-      rows.push({ unit, ask });
-    }
-  }
-  return rows;
-}
-
-/** The unit an ask goes to: the most words shared with a routing row or a description, at least two. */
-function route(ask, estate) {
-  const units = [...estate.skills, ...estate.helpers];
-  const asked = words(ask);
-  const shared = (text) => [...words(text)].filter((word) => asked.has(word)).length;
-  let best;
-  let score = 1;
-  for (const unit of units) {
-    const own = Math.max(
-      shared(unit.description),
-      ...routingRows(estate.standing, units)
-        .filter((row) => row.unit === unit)
-        .map((row) => shared(row.ask)),
-    );
-    if (own > score) {
-      best = unit;
-      score = own;
-    }
-  }
-  return best;
 }
 
 /** The step list in its order: from the stage no next enters, along the first next; anytime steps last. */
@@ -244,7 +206,7 @@ function requestedActions(ask) {
       request[2].replace(/^(?:(?:this|the|following)\s+)?(?:exact\s+)?(?:command|file|helper)\s*:\s*/i, ''),
     ).trim();
     const literal = /^`[^`]+`$/.test(named) ? named.slice(1, -1) : named;
-    return [{ kind: requestedKind, literal }];
+    return [{ kind: requestedKind, literal, quoted: /^`[^`]+`$/.test(named) }];
   });
 }
 
@@ -524,16 +486,29 @@ function skillActions(unit, estate, requested, cwd) {
 
 export function planStream({ ask, cwd, sessionId, env }) {
   const estate = readEstate(cwd);
-  const unit = route(ask, estate);
+  // The atoms the ask sets off, and what they define; a unit whose file the copy lacks is not loaded.
+  const dispatch = loadDispatch(env);
+  const setOffBy = dispatch ? setOff(dispatch, ask) : { atoms: [], named: [] };
+  const intent = dispatch
+    ? intentsOf(dispatch, setOffBy.atoms, cwd)
+    : { units: [], reads: [], guards: [], replies: [] };
+  const loaded = intent.units
+    .map((entry) =>
+      (entry.kind === 'skill' ? estate.skills : estate.helpers).find((u) => u.name === entry.name),
+    )
+    .filter(Boolean);
+  const unit = loaded[0];
   const prohibited = prohibitions(estate, unit, cwd, ask);
   const out = [];
   let id = 0;
   let blocked = false;
-  const text = (value, act) =>
+  let lastReply = '';
+  const text = (value, act, part = 'reply') => {
+    lastReply = value;
     out.push({
       replyAct: {
         id: act,
-        evidence: { type: 'text_segment', part: 'reply', index: 0 },
+        evidence: { type: 'text_segment', part, index: 0 },
         source: { kind: 'adapter', name: 'driftbench-fictional-agent' },
       },
       type: 'assistant',
@@ -547,6 +522,7 @@ export function planStream({ ask, cwd, sessionId, env }) {
       },
       parent_tool_use_id: null,
     });
+  };
 
   /** Runs the hooks of an event for a tool call; true when one blocks it (exit 2 on a PreToolUse). */
   const hooks = (event, tool, payload) => {
@@ -590,8 +566,9 @@ export function planStream({ ask, cwd, sessionId, env }) {
   };
 
   /** A tool call as the runtime makes it: denied by a permission, blocked by a hook, else done. */
-  const call = (tool, input, perform, literal) => {
-    const prohibition = prohibited(tool, input, literal);
+  const call = (tool, input, perform, literal, attempt = false) => {
+    // A provoked guard is an attempt the guard must catch, not one the agent's own reading of the rules declines.
+    const prohibition = attempt ? undefined : prohibited(tool, input, literal);
     if (prohibition) {
       blocked = true;
       text(prohibition, 'refuse');
@@ -667,37 +644,137 @@ export function planStream({ ask, cwd, sessionId, env }) {
   const step = (name) => out.push({ fake: 'step', step: name });
   const { order, anytime } = walk(estate.steps);
 
-  hooks('UserPromptSubmit', undefined, { prompt: ask });
-  // An ask to explain without acting, or to say what can be done: a reply, nothing else.
-  if (
-    /^(?:no need to do anything|what kinds of things|what does\b|what would it mean)/i.test(ask) ||
-    /\bjust tell me\b/i.test(ask)
-  ) {
-    text('Here is my answer; I changed nothing.', 'answer');
-    hooks('Stop', undefined, { stop_hook_active: false });
+  const declared = replyActOf(intent.replies);
+  let acted = false;
+  const sayings = {
+    answer: 'Here is my answer; I changed nothing.',
+    report: 'Done. Here is what I did, in short.',
+    clarify: 'Before I go on I need one thing from you. Which one do you mean?',
+    refuse: 'I will not do that, and I changed nothing.',
+    draft: 'Here is a draft for you to review. I have sent nothing.',
+    acknowledge: 'Stopped. Everything is paused.',
+  };
+  /** The closing reply: the act the atoms set off declare, else what the run did decides. */
+  const close = (note, padTo = 0) => {
+    const act = declared?.id ?? (blocked ? 'refuse' : acted ? 'report' : 'answer');
+    let body = note ?? sayings[act];
+    // A guard on the length of a reply is provoked by a reply longer than its limit, made of the estate's own text.
+    for (let at = 0; body.length <= padTo; at++) {
+      const unitText = estate.skills[at % Math.max(1, estate.skills.length)];
+      body += ` ${unitText ? `${unitText.name}: ${unitText.description}` : 'More detail.'}`;
+    }
+    text(body, act, declared?.id === act ? declared.part : 'reply');
+    hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
     return { records: out, blocked };
+  };
+
+  hooks('UserPromptSubmit', undefined, { prompt: ask });
+  // An ask that sets nothing off is answered plainly.
+  // A request names something real: a file the copy holds, a helper it defines, or a command.
+  // An act the generator wrote as a shape names a file to read or a command to run.
+  const shaped = setOffBy.named.flatMap((entry) =>
+    entry.kind === 'read'
+      ? [{ kind: 'Read', literal: entry.piece }]
+      : entry.kind === 'command'
+        ? [{ kind: 'Bash', literal: entry.piece }]
+        : [],
+  );
+  // A request read from the words of the ask names something real: what it puts in a code span as it stands, or else a
+  // file the copy holds, a helper it defines, or a command. An act written as a shape is a request as it stands: a
+  // file it names is read even when the copy lacks it.
+  const asked = [
+    ...requestedActions(ask).filter((action) => {
+      if (action.quoted) return true;
+      if (action.kind === 'Agent') return estate.helpers.some((helper) => helper.name === action.literal);
+      if (action.kind === 'Bash') return true;
+      return ['']
+        .concat(unit?.folder ? [unit.folder] : [])
+        .some((folder) => existsSync(fileTarget(action.literal, cwd, folder)));
+    }),
+    ...shaped,
+  ].filter(
+    (action, at, all) =>
+      all.findIndex((other) => other.kind === action.kind && other.literal === action.literal) === at,
+  );
+  // Preserve the existing implicit file-edit request only when no explicit action is named.
+  const target = asked.length
+    ? undefined
+    : ask
+        .split(/\s+/)
+        .map((token) => token.replace(/[.,;:!?]+$/, ''))
+        .find((token) => token.includes('/') && !token.startsWith('.claude') && isFile(join(cwd, token)));
+  // An ask that concerns no atom of the map, and names no act, is answered plainly: no step is walked.
+  if (setOffBy.atoms.length === 0 && asked.length === 0 && !target) {
+    return close();
   }
 
   if (order[0]) step(order[0]);
-  if (unit?.kind === 'skill') {
-    call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
-  } else if (unit?.kind === 'helper') {
-    call('Agent', { subagent_type: unit.name, description: `Brief for ${unit.name}`, prompt: ask }, () => ({
-      content: '{"status": "done"}',
-    }));
-  }
+  const load = (entry) => {
+    acted = true;
+    if (entry.kind === 'skill') {
+      call('Skill', { skill: entry.name }, () => ({ content: `Launching skill: ${entry.name}` }));
+    } else {
+      call(
+        'Agent',
+        { subagent_type: entry.name, description: `Brief for ${entry.name}`, prompt: ask },
+        () => ({
+          content: '{"status": "done"}',
+        }),
+      );
+    }
+  };
   const planUnit = unit?.kind === 'skill' ? unit : { body: '', folder: '' };
-  const requested = requestedActions(ask).filter(
+  const requested = asked.filter(
     (action) => !(unit?.kind === 'helper' && action.kind === 'Agent' && action.literal === unit.name),
   );
   const plan = skillActions(planUnit, estate, requested, cwd);
-  if (plan.error) {
-    text(plan.error, 'report');
-    hooks('Stop', undefined, { stop_hook_active: false });
-    return { records: out, blocked: true };
+  if (unit) load(unit);
+  // The other units the atoms set off, and the files their references name.
+  for (const entry of loaded.slice(1)) load(entry);
+  for (const path of intent.reads) {
+    const target = fileTarget(path, cwd, '');
+    if (
+      plan.actions.some(
+        (action) => action.kind === 'Read' && fileTarget(action.literal, cwd, action.folder) === target,
+      )
+    )
+      continue;
+    acted = true;
+    call('Read', { file_path: target }, () => ({ content: read(target) ?? '' }), path);
   }
+  // A guard is provoked by the event its settings name, so that its real script decides.
+  let longerThan = 0;
+  for (const guard of intent.guards) {
+    const matcher = matcherOf(estate.settings, guard);
+    const provoked = provocation(dispatch, guard, matcher, covers);
+    if (provoked === undefined) continue;
+    if (provoked.longerThan !== undefined) {
+      longerThan = Math.max(longerThan, provoked.longerThan);
+    } else if (provoked.tool === 'Bash') {
+      acted = true;
+      call(
+        'Bash',
+        { command: provoked.material, description: 'Run the named command' },
+        () => ({ content: '' }),
+        provoked.material,
+        true,
+      );
+    } else {
+      acted = true;
+      const path = fileTarget(provoked.material, cwd, '');
+      call(
+        provoked.tool,
+        { file_path: path, old_string: '', new_string: '' },
+        () => ({ content: `The file ${provoked.material} has been updated.` }),
+        provoked.material,
+        true,
+      );
+    }
+  }
+  if (plan.error) return close(plan.error, longerThan);
   for (const action of plan.actions) {
     let result;
+    acted = true;
     if (action.kind === 'Read') {
       const path = fileTarget(action.literal, cwd, action.folder);
       result = call(
@@ -742,31 +819,26 @@ export function planStream({ ask, cwd, sessionId, env }) {
     }
     // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
     if (!result || result.error) {
-      text('An action could not complete; I stopped before continuing.', 'report');
-      hooks('Stop', undefined, { stop_hook_active: false });
+      text('An action could not complete; I stopped before continuing.', declared?.id ?? 'report');
+      hooks('Stop', undefined, { stop_hook_active: false, last_assistant_message: lastReply });
       return { records: out, blocked: true };
     }
   }
   const rest = order.slice(1);
   if (rest[0]) step(rest[0]);
 
-  // Preserve the existing implicit file-edit request only when no explicit action is named.
-  const target = requestedActions(ask).length
-    ? undefined
-    : ask
-        .split(/\s+/)
-        .map((token) => token.replace(/[.,;:!?]+$/, ''))
-        .find((token) => token.includes('/') && !token.startsWith('.claude') && isFile(join(cwd, token)));
   if (target) editFile(target, '');
 
   for (const name of rest.slice(1)) step(name);
   for (const name of anytime) step(name);
-  text(
-    blocked ? 'A guard blocked part of the work; I stopped there.' : 'Done. Here is what I did, in short.',
-    'report',
-  );
-  hooks('Stop', undefined, { stop_hook_active: false });
-  return { records: out, blocked };
+  return close(undefined, longerThan);
+}
+
+/** The matcher the settings put on the hook that runs a guard's command: how the runtime scopes the guard. */
+function matcherOf(settings, guard) {
+  for (const group of settings?.hooks?.[guard.fields?.event] ?? [])
+    for (const hook of group?.hooks ?? []) if (hook?.command === guard.fields?.command) return group.matcher;
+  return undefined;
 }
 
 function isFile(path) {

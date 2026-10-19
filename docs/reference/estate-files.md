@@ -144,8 +144,8 @@ The output part whose actual text segment must carry the recorded act.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `type` | `text_segment` | yes |  |  |
-| `part` | `reply` or `draft` | yes |  |  |
+| `type` | `text_segment` | yes |  | The kind of evidence: an actual text segment of the output. |
+| `part` | `reply` or `draft` | yes |  | The output part that holds the segment: the reply or a draft. |
 
 ## EvidencePredicate
 

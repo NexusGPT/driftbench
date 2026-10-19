@@ -28,11 +28,11 @@ Baseline: `astra-askwords-base` (`9ad6ae952`). Line references below name that b
 | `packages/generate/src/estate/then.ts:524,736` | SAME_FILE_ACT edit/pronoun regex and file-extension alternatives infer target | act.target/reference evidence and structured recovery fields |
 | `packages/generate/src/estate/unit.ts:130,159` | FORBIDS/OBLIGES English polarity patterns classify source examples | Explicit typed guard verdict/evidence and fixture example classification |
 
-`predicates.ts:34–36` writes secret-prefix and currency-code machine-format assertions. Owner explicitly permits machine formats (key prefixes, hex IDs, email, phone, IBAN, currencies with digits) and requires secret/privacy checks retained. These are allowed and must not be removed.
+`predicates.ts:34-36` writes secret-prefix and currency-code machine-format assertions. Owner explicitly permits machine formats (key prefixes, hex IDs, email, phone, IBAN, currencies with digits) and requires secret/privacy checks retained. These are allowed and must not be removed.
 
 ## False positives / allowed
 
-- `bank/common.ts:13,31` NOUNS/VERBS and `bank/blind/util.ts:180–181` PLACES/THINGS only WRITE fictional fixture text. They interpret no source.
+- `bank/common.ts:13,31` NOUNS/VERBS and `bank/blind/util.ts:180-181` PLACES/THINGS only WRITE fictional fixture text. They interpret no source.
 - `frames.ts:19,33,43,61,79` TOOL_ACTS/TRIGGER_VARIANTS/ASK_FRAMES/ACT_SHAPES/CONTEXT_SHAPES WRITE rendering templates; exact re-render comparison is explicitly permitted.
 - `bank/causes.ts` regex groups read structured bank IDs, not English prose; preserve existing IDs and causes.
 - `completion.ts:343` deny/block and `situations.ts:291` Edit/Write match verdict/tool IDs. Prefer exact typed identity checks to avoid misleading lexical appearance.
@@ -40,7 +40,7 @@ Baseline: `astra-askwords-base` (`9ad6ae952`). Line references below name that b
 
 ## Outside estate: inventory only (not this edit scope)
 
-- `src/ladders/judges/v2/rules.ts:11,13–21`: PRICE/HOME_PLAN/CONFIRM/BILLING/INSTRUCTION/failure/CONCEDED/DECLINED/PROMISED text classifiers.
+- `src/ladders/judges/v2/rules.ts:11,13-21`: PRICE/HOME_PLAN/CONFIRM/BILLING/INSTRUCTION/failure/CONCEDED/DECLINED/PROMISED text classifiers.
 - `src/ladders/judges/pool.ts:260,262`: HOME_PLAN/BILLING text classifiers.
 - `src/ladders/generator/bank.ts:2191,2197`: phrase alternatives classify failure detail text.
 - `src/ladders/map/levels.ts:158`: refusal-reason phrase alternatives.
@@ -54,7 +54,7 @@ A final read-only sweep at `a18d19251` found no forbidden semantic English list 
 
 ## Reply-act follow-up
 
-At PR head `adc8ab9c2`, `packages/validators/src/ladders/estate/bank/task-check.ts:115,266,394–410,419` still used map `text.must`/`mustNot` substring predicates as a positive reply-act witness. That bridge is removed. Reply asks now require an optional typed `Atom.replyAct` declaration and an independently recorded `Observed.replyAct` bound to a nonblank text segment, with adapter/judge provenance. Original rule outcome predicates remain separate checks; a label cannot satisfy a failed content requirement.
+At PR head `adc8ab9c2`, `packages/validators/src/ladders/estate/bank/task-check.ts:115,266,394-410,419` still used map `text.must`/`mustNot` substring predicates as a positive reply-act witness. That bridge is removed. Reply asks now require an optional typed `Atom.replyAct` declaration and an independently recorded `Observed.replyAct` bound to a nonblank text segment, with adapter/judge provenance. Original rule outcome predicates remain separate checks; a label cannot satisfy a failed content requirement.
 
 # Estate test lexical audit after review
 
@@ -109,10 +109,10 @@ Tests retain all case IDs and failure expectations. Targeted run results are rec
 - packages/validators/test/estate/mutants.test.ts:197: `/complete tests ran on the follower with the atom deleted and all passed; the evidence .*did not fire/`
 - packages/validators/test/estate/mutants.test.ts:301: `/left the estate/`
 - packages/validators/test/estate/oracles.test.ts:175: `/fails on the rule follower:.*custom\.some_call/`
-- packages/validators/test/estate/prompt-hook.test.ts:58: `/missed guard check-the-reply at \.claude\/settings\.json:3/`
-- packages/validators/test/estate/prompt-hook.test.ts:64: `/missed guard check-the-reply/`
-- packages/validators/test/estate/prompt-hook.test.ts:71: `/found guard guard\.settings\.stop-guard-stop at \.claude\/settings\.json:3, never planted/`
-- packages/validators/test/estate/prompt-hook.test.ts:81: `/never planted/`
+- packages/validators/test/estate/prompt-*.test.ts:58: `/missed guard check-the-reply at \.claude\/settings\.json:3/`
+- packages/validators/test/estate/prompt-*.test.ts:64: `/missed guard check-the-reply/`
+- packages/validators/test/estate/prompt-*.test.ts:71: `/found guard guard\.settings\.stop-guard-stop at \.claude\/settings\.json:3, never planted/`
+- packages/validators/test/estate/prompt-*.test.ts:81: `/never planted/`
 - packages/validators/test/estate/rulings.test.ts:374: `/reread/`
 
 ## Replacements
