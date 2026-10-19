@@ -1,6 +1,6 @@
 import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { countAllows, describeCount } from '../support/count';
-import { listed, times } from '../support/values';
+import { entryKeys, listed, times } from '../support/values';
 
 const NAME = 'guards';
 
@@ -15,14 +15,7 @@ export const guards: Check = {
   applies: (ctx) => (ctx.expect.guards?.length ?? 0) > 0,
   evaluate(ctx) {
     const expected = ctx.expect.guards ?? [];
-    // A guard expected twice by name and verdict: the second entry's name gets `#2`, the third `#3`.
-    const seen = new Map<string, number>();
-    const keys = expected.map((guard) => {
-      const entry = `${guard.name}.${guard.verdict ?? 'any'}`;
-      const count = (seen.get(entry) ?? 0) + 1;
-      seen.set(entry, count);
-      return `${count === 1 ? guard.name : `${guard.name}#${count}`}.${guard.verdict ?? 'any'}`;
-    });
+    const keys = entryKeys(expected.map((guard) => `${guard.name}.${guard.verdict ?? 'any'}`));
     const runtime = ctx.observed.runtime;
     const fired = runtime?.guards ?? [];
     const shown = fired.map((event) => `${event.name} ${event.verdict}`);

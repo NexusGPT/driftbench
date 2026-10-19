@@ -25,10 +25,7 @@ compaction, a dead helper) from a state library.
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
 `examples/estates/fixture/live/fake/claude.mjs`, a fake runtime that calls no model. By default it derives its
-actions from the estate copy it runs in and, when `FAKE_MAP` and `FAKE_PHRASES` give it the approved map and
-the phrase bank (absolute paths; unset, those of its own fixture), from the atoms its ask sets off: it loads the unit that owns a rule, reads the
-files a reference names, lets a guard it is asked to trigger decide, and replies with the act the atoms declare;
-with `FAKE_MAP=none` it answers plainly. With `FAKE_MANIFEST` set to an absolute path of
+actions from the estate copy it runs in; with `FAKE_MANIFEST` set to an absolute path of
 `examples/estates/fixture/live/fake/manifest.json` it plays the recorded streams of the Northwind proof.
 
 `estate mutate <map> --atom <id>` copies the estate and either deletes one atom's quoted span (`--delete`) or

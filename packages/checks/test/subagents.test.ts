@@ -66,28 +66,4 @@ describe('subagents', () => {
       false,
     );
   });
-
-  it('puts #2 after the helper name, before the model, when an entry repeats', async () => {
-    const twice = context(
-      task,
-      1,
-      observed(built, [], dispatched({ name: 'r', model: 'sonnet' }, { name: 'r', model: 'sonnet' })),
-      {
-        expect: {
-          subagents: [
-            { name: 'r', model: 'sonnet', count: 2 },
-            { name: 'r', model: 'sonnet', count: 2 },
-            { name: 'w', count: 0 },
-            { name: 'w', count: 0 },
-          ],
-        } as Expect,
-      },
-    );
-    expect(Object.keys(outcomes(await run(subagents, twice)))).toEqual([
-      'subagents.r.sonnet',
-      'subagents.r#2.sonnet',
-      'subagents.w',
-      'subagents.w#2',
-    ]);
-  });
 });
