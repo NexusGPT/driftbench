@@ -9,6 +9,7 @@ import {
   type ProposalPhrase,
   type UsesToolRelation,
 } from '../extract/proposal';
+import type { Allocation } from './allocation';
 import {
   type BlockDraft,
   choosePhrase,
@@ -41,6 +42,7 @@ export type SeedContext = {
   /** Generation-local path indices, shared by seeders of the same immutable map snapshot. */
   pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
   dimensionIndex?: ReadonlyMap<string, number>;
+  allocation?: Allocation;
   /** Consume each completed draft immediately instead of retaining the seeder output. */
   emit?: (draft: SpecDraft) => void;
   /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */
@@ -93,6 +95,7 @@ export function scenarioDraft(
     aside?: ScenarioRequest['aside'];
     before?: ScenarioRequest['before'];
     perturbEvery?: boolean;
+    allocationOnly?: boolean;
     perturb?: ScenarioRequest['perturb'];
   } = {},
 ): PathTry {
@@ -106,12 +109,15 @@ export function scenarioDraft(
       fixed,
       pathValues: context.pathValues?.get(path),
       dimensionIndex: context.dimensionIndex,
+      // A metamorphic family keeps its walks identical but for the phrasing, so the running counts shape none.
+      allocation: seeder === 'metamorphic' ? undefined : context.allocation,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),
       ...(options.aside ? { aside: options.aside } : {}),
       ...(options.before ? { before: options.before } : {}),
       ...(options.perturbEvery ? { perturbEvery: true } : {}),
+      ...(options.allocationOnly ? { allocationOnly: true } : {}),
       ...(options.perturb ? { perturb: options.perturb } : {}),
     });
     if (!built.ok) {

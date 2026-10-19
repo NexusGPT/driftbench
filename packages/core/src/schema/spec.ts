@@ -14,6 +14,7 @@ import {
 } from './common';
 import { parameterSchema, unsupportedSchemaKeywords } from './json-schema';
 import { BlockLinks } from './links';
+import { Uses } from './object';
 
 /**
  * The spec format. A spec is one golden conversation (or one task for a code agent) written as a
@@ -40,6 +41,27 @@ export const Stimulus = z
   .describe('What reaches the agent in one block: exactly one of user, burst or injection.');
 export type Stimulus = z.infer<typeof Stimulus>;
 
+/** Where a ledger fact was stated before the block: by whom, and in which prefix message. */
+export const SharedFact = z
+  .strictObject({
+    fact: z.string().min(1).describe('The ledger key of the fact.'),
+    by: z
+      .enum(['user', 'agent', 'record'])
+      .describe(
+        'Who stated it: user or agent in a prefix message, record when it comes from a system of record and was never said.',
+      ),
+    in: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('The index of the prefix message that states it, from 0. Needed for user and agent.'),
+  })
+  .describe(
+    'Where a ledger fact was stated before the block, checked by spec lint and before the block runs.',
+  );
+export type SharedFact = z.infer<typeof SharedFact>;
+
 /** Initial conditions set on the whole spec. */
 export const GivenDefaults = z
   .strictObject({
@@ -52,6 +74,13 @@ export const GivenDefaults = z
       .record(z.string(), z.unknown())
       .optional()
       .describe('Runtime variables, such as the clock, the channel or the sender.'),
+    summary: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'What a named state (vars.session_state) holds, in words. spec lint --summaries warns when a named state has none.',
+      ),
   })
   .describe('Initial conditions set on the whole spec.');
 export type GivenDefaults = z.infer<typeof GivenDefaults>;
@@ -76,11 +105,42 @@ export const GivenOverride = z
       .describe('Facts the agent must hold at this block. They merge into the ledger from here on.'),
     world: WorldState.optional().describe('Changes to the world from this block onwards.'),
     vars: z.record(z.string(), z.unknown()).optional().describe('Runtime variables from this block onwards.'),
+    shared: z
+      .array(SharedFact)
+      .optional()
+      .describe(
+        'Where each ledger fact was stated in the prefix: a fact said by the user or the agent must appear in the message it names.',
+      ),
+    summary: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('What a named state (vars.session_state) holds from this block onwards, in words.'),
   })
   .describe(
     'Initial conditions set on one block. A prefix lets the block start without replaying the ones before.',
   );
 export type GivenOverride = z.infer<typeof GivenOverride>;
+
+/**
+ * How one value assertion is compared, by the rungs of the value-check policy. `auto` walks the rungs in order;
+ * a rung name runs that rung alone; `{ exact: <reason> }` declares that the writing itself is the requirement.
+ */
+export const CompareMode = z
+  .union([
+    z
+      .enum(['auto', 'outcome', 'contract', 'as_given', 'same_referent'])
+      .describe(
+        'auto walks the value-check rungs; outcome asks the tool; contract reads its stated format; as_given compares with the source the agent copied; same_referent asks the calibrated judge.',
+      ),
+    z
+      .strictObject({
+        exact: z.string().min(1).describe('Why the writing itself is the requirement, in one line.'),
+      })
+      .describe('Exact match by declaration: the value must be the gold value byte for byte.'),
+  ])
+  .describe('How one value is compared: auto, a rung name, or exact with its reason.');
+export type CompareMode = z.infer<typeof CompareMode>;
 
 export const ToolExpect = z
   .strictObject({
@@ -95,6 +155,12 @@ export const ToolExpect = z
       .optional()
       .describe(
         'True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed.',
+      ),
+    compare: z
+      .union([CompareMode, z.record(z.string().min(1), CompareMode)])
+      .optional()
+      .describe(
+        'How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing.',
       ),
   })
   .describe('One expected tool call.');
@@ -478,10 +544,20 @@ export type Expect = z.infer<typeof Expect>;
 export const BlockSpec = z
   .strictObject({
     id: z.string().min(1).optional().describe('An id, unique in the spec.'),
+    parent: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "The id of a block in this spec whose recorded end state supplies this block's Given. A failed or unrun parent blocks this block.",
+      ),
     when: Stimulus.describe('The stimulus.'),
     given: GivenOverride.optional().describe('Initial conditions for this block.'),
     expect: Expect.optional().describe('The expected output and state delta.'),
     budget: Budget.optional().describe('Limits for this block.'),
+    uses: Uses.optional().describe(
+      "The objects this block uses; a key here replaces the spec's. Left out of the block cache key.",
+    ),
   })
   .describe('One block: a stimulus, its initial conditions and its expectations.');
 export type BlockSpec = z.infer<typeof BlockSpec>;
@@ -815,6 +891,9 @@ export const Spec = z
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
+    uses: Uses.optional().describe(
+      'The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key.',
+    ),
     metadata: z
       .record(z.string(), z.unknown())
       .superRefine((metadata, ctx) => {

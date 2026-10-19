@@ -5,6 +5,7 @@ import {
   type RunMode,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
+import { parentCausesHtml } from './causes';
 import { criterionOf } from './compare';
 import { showTarget } from './data';
 import {
@@ -645,7 +646,7 @@ function blockView(block: BlockDetail): string {
         ? `<span class="stage">stage ${esc(exp ?? 'none')}</span>`
         : `<span class="stage miss">expected ${esc(exp ?? 'none')}, reached ${esc(obs ?? 'none')}</span>`;
   const note = block.rejudged
-    ? `<p class="stage">Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>`
+    ? `<p class="stage">${block.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${esc(block.rejudged.criteria.join(', '))}`}; observations from ${esc(block.rejudged.fromCampaign)}.</p>`
     : block.carried
       ? `<p class="stage">carried from ${esc(block.carried.fromCampaign)}</p>`
       : '';
@@ -661,7 +662,7 @@ function blockView(block: BlockDetail): string {
   const reason = unscoredReason(block);
   return `<div class="blk${{ pass: '', fail: ' bad', not_run: ' skip', blocked: ' skip' }[blockStatus(block)]}">
 <p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(blockStatus(block))}</p>
-${note}${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
+${note}${block.parent === undefined ? '' : `<p class="stage">Parent: ${esc(block.parent)}</p>`}${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
 </div>`;
@@ -712,14 +713,21 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
           ],
         ] as Array<[string, string]>)
       : []),
-    ...(run.carried
+    ...(run.rejudged
       ? ([
           [
-            'Carried',
-            `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+            'Scoring',
+            `${run.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${run.rejudged.criteria.join(', ')}`}; observations from ${run.rejudged.fromCampaign}`,
           ],
         ] as Array<[string, string]>)
-      : []),
+      : run.carried
+        ? ([
+            [
+              'Carried',
+              `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+            ],
+          ] as Array<[string, string]>)
+        : []),
     ...(run.error ? ([['Error', run.error]] as Array<[string, string]>) : []),
   ];
   const diff = run.endState && !run.endState.match ? `<pre>${esc(json(run.endState.diff, 2000))}</pre>` : '';
@@ -733,7 +741,7 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
 </div>
 <div class="db">
 <div class="pane pane-conv">
-${run.blocks.map(blockView).join('\n')}
+${parentCausesHtml(run.causes)}${run.blocks.map(blockView).join('\n')}
 ${options.stopped(run)}
 </div>
 <div class="pane pane-checks">${shown.length > 0 ? options.verdictTable(shown) : '<p class="empty">Every check passed.</p>'}</div>

@@ -214,6 +214,7 @@ export {
   parseProposalText,
   pendingEntries,
   promptView,
+  proposalToVariables,
   proposeRole,
   QuoteIndex,
   Recording,
@@ -248,6 +249,7 @@ export {
   validateProposal,
   valueApproved,
   verifyQuotes,
+  verifyVariableQuotes,
   viewSources,
 } from './extract';
 export {
@@ -467,6 +469,7 @@ export {
   intakeFiles,
   intakeLogs,
   intentDimension,
+  interviewVariables,
   isFictionalEmail,
   isFictionalPhone,
   isValidBelgianNationalNumber,
@@ -482,6 +485,7 @@ export {
   loadIntakeMap,
   loadTurnRecording,
   loadTurns,
+  loadVariableRecording,
   luhn,
   MAX_TURN_LENGTH,
   type MapResult,
@@ -498,6 +502,7 @@ export {
   parseInterview,
   parseLogs,
   parseReferenceAnswer,
+  parseVariableRecording,
   planCells,
   REFERENCE_PROMPT,
   Redactor,
@@ -509,6 +514,7 @@ export {
   renderApproval,
   renderQuestionnaire,
   renderReferenceSet,
+  replayAsker,
   SECOND_PASSES,
   type SecondPass,
   sampleIds,
@@ -516,6 +522,14 @@ export {
   type TurnText,
   totalVariation,
   turnRecordingPort,
+  type VariableAsker,
+  type VariableInterviewEntry,
+  type VariableInterviewOptions,
+  type VariableInterviewResult,
+  type VariableQuestion,
+  VariableRecording,
+  type VariableRecordingResult,
+  type VariableReplayAsker,
   wordsOf,
 } from './intake';
 export {
@@ -581,6 +595,18 @@ export {
   runPilot,
   type WordingSensitivity,
 } from './pilot';
+export {
+  type PlanSeedRow,
+  type PlanV2,
+  type PlanV2Layer,
+  type PlanV2Options,
+  type PlanV2Row,
+  type PlanV2Warning,
+  planV2,
+  renderPlanV2,
+  type StoreRule,
+  storeRules,
+} from './plan-v2';
 export { mapDigest, type ProposeOptions, parseProposals, proposeSpecs, type SpecProposal } from './propose';
 export { buildTaskInputs, type TaskInput, type TaskVariant, taskSpecs } from './seed/tasks';
 export {
