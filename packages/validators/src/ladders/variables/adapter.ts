@@ -1,5 +1,5 @@
-import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
 import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import type {
@@ -19,8 +19,9 @@ import type {
  *
  * - `validate` is `validateVariableStore` of @agent-nexus/driftbench-space.
  * - `quotes` is `verifyVariableQuotes` of @agent-nexus/driftbench-generate. The product reads the files from a
- *   folder and is asynchronous, and the bank's port is synchronous: a child process writes the files the bank
- *   gives into a fresh folder and runs the product function on it, unchanged.
+ *   folder and is asynchronous, and the bank's port is synchronous: one worker thread per run, started on the first
+ *   call, writes the files the bank gives into a fresh folder and runs the product function on it, unchanged; the
+ *   call waits on a shared flag for its answer, so one request is in flight at a time.
  * - `plan` is `planV2`: the StoreDoc projection is written as a store file, so the planner reads its rules as it
  *   reads any store's, from the passages its values quote.
  * - `buildStore`, `weightInterval` and `coverage` have no product yet: they stay unmapped, and their items fail
@@ -44,41 +45,91 @@ function validate(value: unknown): ValidateResult {
     : { ok: false, errors: issuesOf(result.errors) };
 }
 
-/** The child of `quotes`: reads `{store, files}` on stdin, writes the files, prints the product's issues. */
-const QUOTES_CHILD = `
+/**
+ * The worker of `quotes`, started once per run: it imports the product, then for each `{store, files}` it writes
+ * the files into a fresh folder, runs the product function on it, unchanged, and answers the issues on its port.
+ */
+const QUOTES_WORKER = `
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-const chunks = [];
-for await (const chunk of process.stdin) chunks.push(chunk);
-const { store, files, generate } = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-const { verifyVariableQuotes } = await import(generate);
-const folder = mkdtempSync(join(tmpdir(), 'driftbench-variables-quotes-'));
+import { workerData } from 'node:worker_threads';
+const { port, signal, generate } = workerData;
+const flag = new Int32Array(signal);
+const answer = (message) => {
+  port.postMessage(message);
+  Atomics.store(flag, 0, 1);
+  Atomics.notify(flag, 0);
+};
+let product;
 try {
-  for (const [path, text] of Object.entries(files)) {
-    const target = join(folder, path);
-    if (!target.startsWith(folder)) continue;
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, text);
-  }
-  const issues = await verifyVariableQuotes(store, folder);
-  process.stdout.write(JSON.stringify(issues.map((issue) => ({ code: issue.code, path: issue.path }))));
-} finally {
-  rmSync(folder, { recursive: true, force: true });
+  product = await import(generate);
+} catch (error) {
+  product = { failed: String(error && error.stack ? error.stack : error) };
 }
+port.on('message', async ({ store, files }) => {
+  if (product.failed) return answer({ error: product.failed });
+  const folder = mkdtempSync(join(tmpdir(), 'driftbench-variables-quotes-'));
+  try {
+    for (const [path, text] of Object.entries(files)) {
+      const target = join(folder, path);
+      if (!target.startsWith(folder)) continue;
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, text);
+    }
+    const issues = await product.verifyVariableQuotes(store, folder);
+    answer({ errors: issues.map((issue) => ({ code: issue.code, path: issue.path })) });
+  } catch (error) {
+    answer({ error: String(error && error.stack ? error.stack : error) });
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
+});
 `;
 
 const GENERATE_ENTRY = fileURLToPath(new URL('../../../../generate/src/index.ts', import.meta.url));
 
-function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
-  const child = spawnSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', QUOTES_CHILD], {
-    input: JSON.stringify({ store, files, generate: GENERATE_ENTRY }),
-    encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
+/** How long one quote check may take before the worker is given up: the heavy item budget of the bank. */
+const QUOTES_TIMEOUT_MS = 300_000;
+
+/** The one worker of this run, started on the first call; `unref` so it never holds the process open. */
+let quotesWorker: { worker: Worker; port: MessagePort; flag: Int32Array } | undefined;
+
+function quotesWorkerOf(): NonNullable<typeof quotesWorker> {
+  if (quotesWorker) return quotesWorker;
+  const { port1, port2 } = new MessageChannel();
+  const signal = new SharedArrayBuffer(4);
+  const worker = new Worker(QUOTES_WORKER, {
+    eval: true,
+    execArgv: ['--import', 'tsx'],
+    workerData: { port: port2, signal, generate: GENERATE_ENTRY },
+    transferList: [port2],
+    stderr: false,
   });
-  if (child.status !== 0)
-    throw new Error(`the quote check failed: ${(child.stderr ?? '').split('\n').slice(0, 3).join(' ')}`);
-  return { errors: JSON.parse(child.stdout) as QuotesResult['errors'] };
+  worker.unref();
+  port1.unref();
+  quotesWorker = { worker, port: port1, flag: new Int32Array(signal) };
+  return quotesWorker;
+}
+
+function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
+  const { worker, port, flag } = quotesWorkerOf();
+  // One request in flight: the call blocks until the worker answers, so no second one can start.
+  Atomics.store(flag, 0, 0);
+  port.postMessage({ store, files });
+  const waited = Atomics.wait(flag, 0, 0, QUOTES_TIMEOUT_MS);
+  const reply = receiveMessageOnPort(port)?.message as
+    | { errors: QuotesResult['errors'] }
+    | { error: string }
+    | undefined;
+  if (waited === 'timed-out' || reply === undefined) {
+    quotesWorker = undefined;
+    void worker.terminate();
+    throw new Error(`the quote check failed: no answer within ${QUOTES_TIMEOUT_MS / 1000} s`);
+  }
+  if ('error' in reply)
+    throw new Error(`the quote check failed: ${reply.error.split('\n').slice(0, 3).join(' ')}`);
+  return { errors: reply.errors };
 }
 
 /** The projection's provenance as a store file holds it, without its quotes: the rules are quoted apart. */
