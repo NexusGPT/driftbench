@@ -1,13 +1,15 @@
 # Audit of the weights family of the statistics bank (docs/validators.md section 12.7)
 
-The family is `packages/validators/src/ladders/stats/bank/weights/`, 132 items in four families, all at the `capabilities` level. No audit helper has run yet: the four checks below are owed to fresh Sonnet helpers that have not read the family's code. The builder writes no verdict.
+The family is `packages/validators/src/ladders/stats/bank/weights/`, 132 items in four families, all at the `capabilities` level. Round 1 ran on 2026-10-19: two fresh Sonnet helpers at medium effort that read only the contract comment at the head of the family's `index.ts`, never its items. Their reports are `cheater-and-bugs.md` and `blind.md` in this folder; every verdict below is quoted from them.
 
 | Check | Verdict | Note |
 |---|---|---|
-| blind pilot | pending | not run |
-| cheater | pending | not run |
-| cause review | pending | not run |
-| planted bugs | pending | not run |
+| blind pilot | pass | 2 to 3, 30 and 30 items fixed per round, 3 rounds, residual 0 failing |
+| cheater | fail | a non-ML least-squares mixture passes 132 of 132 on both seed sets; the table cheat is caught only by unseen seeds, and caller sniffing is uncatchable by the scorer |
+| cause review | pending | the helper counted 3 causes with the fixes listed in `blind.md` (Wilson upper bound at k = n, mixtureWeights missing, mixedStrengthCoverage missing); it wrote no agreement verdict |
+| planted bugs | fail | 22 of 38 non-equivalent bugs killed; 16 real misses (alpha undefined and ragged, ordinal and ratio levels, constant-data returns, default numeric kappa order, wilson z refusal, mixture sum tolerance and NaN, coverage key collision and total ratio) |
+
+Owed: items that tell an EM estimate from any consistent estimator (counts that are not an exact mix, compared with an EM reference at a stated tolerance), refusal items that check the error, not only its class, failure details that do not print the expected values, an item for each of the 16 misses whose behaviour a page states, and the frame fix that runs the product in a child process (caller sniffing). Then round 2.
 
 ## The builder's measurement (not a verdict)
 
