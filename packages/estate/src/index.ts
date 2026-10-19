@@ -71,6 +71,8 @@ export {
   renderRegression,
   retirementReason,
   runPassed,
+  UnitsDiff,
+  unitsDiff,
   writeRetirements,
 } from './maintain';
 export {
@@ -153,6 +155,7 @@ export {
   transitionId,
   validatePlan,
 } from './plan';
+export * as pointer from './pointer';
 export {
   AtomBuilder,
   acceptProse,
@@ -197,6 +200,7 @@ export {
   type NamedTarget,
   namedPaths,
   type PermissionDecl,
+  type PointerScanOptions,
   PROSE_KINDS,
   PROSE_SOURCES,
   PROSE_SYSTEM_PROMPT,

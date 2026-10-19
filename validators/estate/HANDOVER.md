@@ -8,7 +8,12 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | Seed | Level |
 |---|---|
 | 1 | 0 |
+| hidden | 0 |
 <!-- level-table:end -->
+
+### Ladder version 2, 2026-10-18
+
+Version 2 adds level 8, the ledger (`packages/validators/src/ladders/estate/bank/ledger.ts`), on PR 830 (the radius on the ledger), stacked on PR 692 (the pointer reader). There are 62 items in three families: ledger-scan (the scan through the pointer reader with a truth labeler built from the generator's recording), ledger-diff (eight seeded edits, their edit classes, rerun sets and manifests) and ledger-scale (250 to 5000 atoms). The version 1 journal is `journal-v1.jsonl`; `journal.jsonl` starts at version 2 and measures seed 1 and the hidden seed (8 minutes a run). Iteration 0 at `2de82419a`: 1075 of 1231, one ledger item failing (a pointer atom did not record its deciding class). Pilot iteration 1 at `946a065c5` on `exec/estate-ledger-pilot` records it: 1078 of 1231, level 8 at 62 of 62. Levels 1 to 7 still fail as version 1 left them, so the ladder level stays 0.
 
 ### Current executor measurement, iteration 23
 
@@ -184,6 +189,8 @@ The pilot lists these gaps before the later executor fixes. This list is histori
 The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v-estate-pilot2`: a catalogue of checks read as a registry; a path with an anchor, a query or a title; the adjective compact; gate markup; fenced examples skipped; more rule column names; a dispatcher's bare target name; YAML data files; command wrappers; a gate only before an act. A first pilot on the reader before the reader lane merged (`exec/v-estate-pilot`) is history, not measurement: the merged reader already held several of its fixes.
 
 ## Next actions
+
+0. Version 2: land the deciding-class fix of `exec/estate-ledger-pilot` (`946a065c5`) through its own reviewed PR after PRs 692 and 830 merge; the ledger level depends on both.
 
 1. Iteration 24 accepts scalar JSON registry rules in packages/estate/src/scan/claude-code.ts. Copy packages/estate/test/scan/scalar-rules.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s24rules, local and not pushed. Run it red, then apply only the listed/enforces value block inside readJsonRegistry. Preserve registryEntries, keyed source provenance and event inheritance. Four prospective cases are red first, with two array controls passing; eleven related candidate assertions pass.
 2. Measure against iteration-23.json, journal, commit and push after fresh typecheck and lint. Save a quiet fresh brief and failed ids, freeze an independent .cache/handover-24 and request the scheduled fresh review. Iteration 25 then accepts object-valued rules in packages/estate/src/scan/claude-code.ts, with packages/estate/test/scan/object-rules.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s25objects, local and not pushed. Apply only object-valued enforces normalization, preserving scalar support.

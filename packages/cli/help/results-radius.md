@@ -42,6 +42,7 @@ changes:
 | `criterion` | a judged criterion | blocks whose criteria name it |
 | `model`, `agent` | none | the whole suite |
 | `prompt_section` | `<prompt-id>#<section-id>` | the whole suite: selection by section links is advisory until links are verified by mutation |
+| `unit` | a ledger unit id | the whole suite: selection by `estate_unit` links is advisory too; `radius` prints which blocks it would run |
 
 `global: true` on any change makes it the whole suite.
 
@@ -76,6 +77,9 @@ whole.
   and carry the stored runs of the others. `--audit <n>` checks the carry on a sample.
 * With `ci --change`: gate on the radius only (see `results-ci`).
 * With `radius auto`: turn an edit of a prompt file into a manifest from the approved map's evidence quotes.
+* With `radius ledger`: turn an edit of an estate's prose into a manifest from the ledger of the last scan
+  (authoring-blast-radius). On the H7 mutation suite, unit links missed what section links miss, 2 of 90
+  and 4 of 110 mutants, so a `unit` change stays advisory.
 
 ## Commands and every option
 
