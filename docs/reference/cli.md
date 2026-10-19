@@ -1726,3 +1726,9 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 Re-judge selected criteria using compatible stored observations, without calling an agent.
 The manifest's agent versions must be identical. Full compatibility requirements, refusal
 cases and an executed Acme example are in [blast radius](../concepts/blast-radius.md#re-judge-a-criterion).
+
+```sh
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> (--use <kind/id> | --set <kind[/id]#item.param=value>)... [--max-carry <n>] [--max-age <days>] [--json]
+```
+
+Re-score every stored observation under changed scoring-only objects (a check set, a policy), with no agent and no judge call. `--use` picks an object of a kind, `--set` sets one item parameter at the command-line layer; both repeat. An agent-facing kind (persona, scenario, persona-defaults, run-profile, deviation-class) is refused with exit 2: rerun the agent with `campaign run`. `--change` and `--use`/`--set` are not taken together. `--json` prints `campaign`, `from`, `agentCalls` (always 0), `rescored`, `use` and `set`.
