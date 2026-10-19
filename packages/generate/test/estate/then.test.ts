@@ -336,10 +336,16 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(thenOf([script], 'positive', ctx).gaps.map((entry) => entry.marker)).toEqual([MARKERS.someCall]);
   });
 
-  it('runs hazard_recovery with the paths its passage names, and permission for allow, declared and deny', () => {
+  it('runs hazard_recovery with the reread it declares, never a path its passage only names, and permission for allow, declared and deny', () => {
     const hazard = atom(
       'hazard.x',
-      [{ type: 'custom', name: 'hazard_recovery', options: { hazard: 'compaction' } }],
+      [
+        {
+          type: 'custom',
+          name: 'hazard_recovery',
+          options: { hazard: 'compaction', reread: ['.claude/tracker.md'] },
+        },
+      ],
       {
         kind: 'hazard',
         provenance: {
@@ -348,7 +354,8 @@ describe('the estate checks the runner registers, and custom predicates compiled
       },
     );
     expect(thenOf([hazard], 'positive', full).custom).toEqual({
-      hazard_recovery: { hazard: 'compaction', reread: ['.claude/tracker.md', 'CLAUDE.md'], block: 0 },
+      // CLAUDE.md is named by the passage but not declared: no word of the passage makes it a reread.
+      hazard_recovery: { hazard: 'compaction', reread: ['.claude/tracker.md'], block: 0 },
     });
     const allow = atom(
       'tool.a',

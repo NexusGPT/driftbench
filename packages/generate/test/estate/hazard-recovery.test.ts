@@ -154,16 +154,22 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       ).toBe(true);
     }
   });
-  it('rereads a file the passage names when the estate holds it, a name with several dots included', () => {
-    const { generated, spec } = generate(
+  it('rereads only what is declared: a file the passage names and the estate holds is no reread by itself', () => {
+    const named = generate(
       'session_boundary',
       'At each session boundary, read `notes/archive.index.CFG`.',
       1,
       {},
       ['POLICY.md', 'notes/archive.index.CFG'],
     );
-    expect(generated.specs[0]?.complete).toBe(true);
-    expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/archive.index.CFG'] });
+    expect((named.spec.rules?.custom?.hazard_recovery as Record<string, unknown>).reread).toBeUndefined();
+    const declared = generate('session_boundary', 'Resume the session.', 1, {
+      reread: ['notes/archive.index.CFG'],
+    });
+    expect(declared.generated.specs[0]?.complete).toBe(true);
+    expect(declared.spec.rules?.custom?.hazard_recovery).toMatchObject({
+      reread: ['notes/archive.index.CFG'],
+    });
   });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
     const { generated, spec } = generate('restart', 'Resume safely.', 1, {

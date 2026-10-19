@@ -326,19 +326,18 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        // The recovery a hazard demands comes from the options the estate declares and the files its passage names
-        // that the estate holds; no word of the passage decides an action.
+        // The recovery a hazard demands comes from the options the estate declares. A file its passage names is no
+        // reread target by itself (the passage may name it for another reason), and no word of the passage decides an
+        // action: with nothing declared, the check demands no action.
         const declared = evidence.options ?? {};
-        const held = heldPaths(atom, ctx);
         const reread = [
-          ...new Set([
-            ...(Array.isArray(declared.reread)
+          ...new Set(
+            Array.isArray(declared.reread)
               ? declared.reread.filter(
                   (path): path is string => typeof path === 'string' && path.trim() !== '',
                 )
-              : []),
-            ...held,
-          ]),
+              : [],
+          ),
         ];
         const calls = Array.isArray(declared.calls) ? declared.calls : [];
         // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
@@ -682,17 +681,6 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
-}
-
-/** The paths an atom's passage names that the estate holds (every named path when the files are unknown). */
-function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
-  const files = ctx.files;
-  if (!files) return pathsOf(atom);
-  return pathsOf(atom).filter((path) => {
-    const clean = path.replace(/^\.?\/+/, '');
-    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
-    return false;
-  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */

@@ -84,19 +84,22 @@ describe('driftbench estate plan', () => {
     expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(a);
   }, 60_000);
 
-  it('uses inferred relevance by default and exposes the exclusions for review', async () => {
+  it('infers no relevance from the words of the estate by default, and names each unresolved situation for review', async () => {
     const root = await folder();
     const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'focused.yaml'], root);
     expect(result.code).toBe(0);
     const summary = JSON.parse(await readFile(join(root, 'focused.summary.json'), 'utf8'));
-    expect(summary.relevanceConstraints.length).toBeGreaterThan(0);
+    // A word reader would exclude the git gate from a language switch; with no typed relation nothing is excluded.
+    expect(summary.relevanceConstraints).toEqual([]);
+    expect(summary.notes).toContain(
+      'deviation=D5_language_switch: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.',
+    );
     expect(summary.tuples.covered).toBe(summary.tuples.allowed);
     const parsed = parsePlanText(await readFile(join(root, 'focused.yaml'), 'utf8'));
     if (!parsed.ok) throw new Error('invalid focused plan');
     const gate = 'gate.standing.read-git-status-before-commit-to';
     const own = parsed.plan.rows.filter((row) => row.id.startsWith('pairwise.') && row.atomIds[0] === gate);
     expect(own.length).toBeGreaterThan(0);
-    expect(own.some((row) => row.cell.deviation === 'D5_language_switch')).toBe(false);
   }, 60_000);
 
   it('takes a space map and a strength, and refuses one whose targets the map does not approve', async () => {

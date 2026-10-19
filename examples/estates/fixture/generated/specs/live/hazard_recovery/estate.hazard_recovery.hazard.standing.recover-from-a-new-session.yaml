@@ -32,8 +32,6 @@ rules:
   custom:
     hazard_recovery:
       hazard: session_boundary
-      reread:
-        - .claude/memory/MEMORY.md
       block: 0
 metadata:
   estate:
