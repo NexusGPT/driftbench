@@ -27,22 +27,25 @@ describe('must: case-insensitive and trailing-punctuation tolerant by default', 
     expect(failing(await run(must, context(s, 0, observed(text))))).toEqual([]);
   });
 
-  it('ignores one trailing punctuation mark whatever the mark and whatever space follows it', async () => {
+  it('ignores the trailing punctuation marks whatever the mark and whatever space follows them', async () => {
     const replies = [
       'It is the one we spoke of (word)',
       'Let me think, word\u2026',
       'Yes, it is word\u3002',
       'Yes, it is word. \n',
+      // A run of marks was ignored on main and stays ignored: an ellipsis of dots, or "?!".
       'Is it word?!',
+      'Let me check, word...',
     ];
-    for (const reply of replies.slice(0, 4)) {
+    for (const reply of replies) {
       const { spec: s } = spec(reply, 'word$', 'must');
       expect(failing(await run(must, context(s, 0, observed(reply))))).toEqual([]);
       const strict = spec(reply, 'word$', 'must', true).spec;
       expect(failing(await run(must, context(strict, 0, observed(reply))))).toEqual(['must.0']);
     }
-    const two = spec(replies[4] as string, 'word$', 'must').spec;
-    expect(failing(await run(must, context(two, 0, observed(replies[4] as string))))).toEqual(['must.0']);
+    // A letter after the marks still counts.
+    const after = spec('word?! no', 'word$', 'must').spec;
+    expect(failing(await run(must, context(after, 0, observed('word?! no'))))).toEqual(['must.0']);
   });
 
   it('keeps word boundaries: 300 with \\b does not match 3000', async () => {

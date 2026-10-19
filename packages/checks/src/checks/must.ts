@@ -33,9 +33,9 @@ function patternCheck(name: 'must' | 'must_not'): Check {
     evaluate(ctx) {
       const text = visibleText(ctx.observed);
       const strict = ctx.spec.rules?.match_case === true;
-      // Default: the reply's case and one trailing punctuation mark, of any script and whatever space follows it,
-      // are ignored. The strict option compares them exactly.
-      const subjects = strict ? [text] : [text, text.replace(/\p{P}\s*$/u, '')];
+      // Default: the reply's case and its trailing punctuation marks, of any script and whatever space follows
+      // them, are ignored; a run such as "..." or "?!" is ignored whole. The strict option compares them exactly.
+      const subjects = strict ? [text] : [text, text.replace(/(?:\p{P}\s*)+$/u, '')];
       return (ctx.expect[name] ?? []).map((source, index): Verdict => {
         const id = String(index);
         let pattern: RegExp;
