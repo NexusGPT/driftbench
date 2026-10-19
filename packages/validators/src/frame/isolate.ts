@@ -18,7 +18,7 @@ import {
   shortText,
   type Tape,
 } from './tape';
-import { bareEnv, drawnFolder, rngOf, type TwinPlan, twinPlans } from './twins';
+import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 /**
  * The frame: the product runs apart, the parent decides (docs/validators.md, the section of that name). The
@@ -96,7 +96,7 @@ function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
 
 const describeRun = (plan: TwinPlan | 'C') =>
   plan === 'C'
-    ? 'run C (a plain entry file per call under the tsx loader, a bare environment of its own)'
+    ? "run C (user-shaped: a plain entry file per call under the tsx loader, the user's environment)"
     : plan.run === 'A'
       ? 'run A (the validator folder and environment)'
       : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
@@ -116,7 +116,7 @@ type PlainRun = {
   codec: string;
   codecNames: { encode: string; decode: string };
   count: number;
-  /** Run C's own bare environment, with a fresh home folder inside its folder. */
+  /** Run C's environment: the user's (`userEnv`). */
   env: Record<string, string>;
 };
 
@@ -131,9 +131,7 @@ function openPlain(seed: number, tag: string): PlainRun {
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
   writeFileSync(codecPath, codec.source);
-  const home = join(dir, drawnFolder(rng));
-  mkdirSync(home, { recursive: true });
-  return { dir, codec: codecPath, codecNames: codec, count: 0, env: bareEnv(rng, home) };
+  return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
 }
 
 /** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
