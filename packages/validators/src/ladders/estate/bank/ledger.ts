@@ -276,6 +276,14 @@ const SCAN_SPECS: ItemSpec[] = [
     component: POINTER_ATOMS,
   },
   {
+    key: 'class-field.system1',
+    tier: 2,
+    title:
+      'a pointer atom decided by a system 1 labeler records system1, the twin of class-field (audit round 2: a class written as system2 whatever decided passed class-field)',
+    cause: 'pointer:atom-records-deciding-class',
+    component: POINTER_ATOMS,
+  },
+  {
     key: 'map-ledger',
     tier: 2,
     title:
@@ -517,6 +525,21 @@ function ledgerScanFamily(): Family {
           `the deciding class of the first pointer atom is ${JSON.stringify(classes[0])}; its fields are ${Object.keys(pointerAtoms[0]?.fields ?? {}).join(', ')}`,
         ),
       );
+      // The twin: the same truth answered by a labeler of class system 1.
+      const bySystem1 = await pointerScanOf(rendered.files, planted, {
+        labeler: (truth) => ({ ...truth, cls: 'system1' }),
+      });
+      const system1Atoms = bySystem1.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      const system1Classes = system1Atoms.map(
+        (atom) => atom.fields?.by ?? atom.fields?.class ?? atom.fields?.decidedBy,
+      );
+      set(
+        'class-field.system1',
+        check(
+          system1Atoms.length > 0 && system1Classes.every((cls) => cls === 'system1'),
+          `a system 1 labeler decided, and the first pointer atom records ${JSON.stringify(system1Classes[0])}`,
+        ),
+      );
       const producedBy = (first.map as { producedBy?: { family?: string; model?: string } }).producedBy;
       set(
         'map-ledger',
@@ -725,7 +748,7 @@ function ledgerScanFamily(): Family {
       );
       if (!reworded.ok) throw new Error(reworded.message);
       await missWith('replay.miss-on-set', undefined, reworded.sets);
-      // A condition label: the first rule unit of a window with a description unit beside it is conditioned by it.
+      // A condition label: the first rule unit of a window with another unit is conditioned by that unit.
       const conditionSets = pointer.parseLabelSets(
         `${pointer.AGENT_RULES_SET}      - name: condition\n        description: A unit that states when another unit applies.\n        target: required\n        condition: true\n`,
       );
@@ -742,12 +765,18 @@ function ledgerScanFamily(): Family {
             const labelOfUnit = (n: number) => labels.find((each) => each.units === String(n))?.label;
             for (const unit of window.units) {
               if (labelOfUnit(unit.n) !== 'rule') continue;
-              const beside = window.units.find(
-                (other) =>
-                  Math.abs(other.n - unit.n) === 1 &&
-                  labelOfUnit(other.n) === 'description' &&
-                  other.text.trim().length > 0,
+              // The page asks no adjacency and no label of the condition unit: a description beside the rule is
+              // taken first, else any other unit of the window that is not a rule, else any other unit. (Audit
+              // round 2: on seed 2 no rule had a description beside it, so no condition was planted at all.)
+              const others = window.units.filter(
+                (other) => other.n !== unit.n && other.text.trim().length > 0,
               );
+              const beside =
+                others.find(
+                  (other) => Math.abs(other.n - unit.n) === 1 && labelOfUnit(other.n) === 'description',
+                ) ??
+                others.find((other) => labelOfUnit(other.n) !== 'rule') ??
+                others[0];
               if (!beside) continue;
               Object.assign(chosen, { path: window.path, rule: unit.text, condition: beside.text });
               return {

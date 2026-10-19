@@ -1,13 +1,22 @@
 # Audit of estate ladder version 2, the ledger level (docs/validators.md section 12.7)
 
-An audit helper ran on 2026-10-18, model-free, on Sonnet. It did not read the estate bank, this folder's handover or its journal. Its report is in [audit-v2](audit-v2/). The cheater and planted-bug verdict lines are quoted from that report. The builder writes only the blind pilot and cause review lines, and both are left pending.
+Round 2 ran on 2026-10-19: two fresh audit helpers, model-free, on Sonnet at medium effort, neither of which read the estate bank, this folder's handover or its journal. One ran the cheater and the planted bugs against 14c95f62b (pilot diff of 6f7528907 applied for the bugs); the other ran the blind pilot and the cause review from the failing list alone. Their reports are `audit-v2/round2-cheater-and-bugs.md` and `audit-v2/round2-blind.md`; every verdict below is quoted from them. Round 1's verdicts and report stay below and in `audit-v2/estate-ledger-audit.md`.
 
 | Check | Verdict | Note |
 |---|---|---|
-| blind pilot | pending | Not run: at iteration 0, one ledger item fails on one cause, and the builder's pilot fixed it in one iteration. |
-| cheater | fail | 3 of 17 shortcuts pass all 62 items while wrong: the window cap ignored, a cassette key of file, window and set only, condition labels never attached. |
-| cause review | pending | Not run: one failing cause. |
-| planted bugs | fail | 9 of 20 bugs lose an item. Silent: no text floor, labels carried on a context change, short text moved across files, deleted events never counted, no whole-file rerun for a new unit, atomsByUnit ignoring conditions, windows at every heading and over the cap, a replay miss calling the labeler, a weak request key, a gate quote starting at its labelled unit, a case-insensitive fingerprint, offsets losing the byte-order mark. |
+| blind pilot | fail | 1 item fixed in round 1 (class-field), 1 round, residual 3 items (condition.situation, condition.atoms-by-unit, condition.manifest, seed 2 only) |
+| cheater | fail | 7 cheats pass every item while wrong (`by` hard-coded or sniffed as `'system2'`, window cap ignored, labels kept across a context change) |
+| cause review | pending | the helper counted 2 causes: the deciding class (its fix matches the builder's tag `pointer:atom-records-deciding-class`) and the 3 condition items on seed 2, which it judged unsatisfiable for any product; no agreement verdict was written |
+| planted bugs | fail | 19 real misses survive (cut units, condition joins, cassette miss message and byte order, three-run agreement, labeler-change carry, context class) |
+
+Round 1 (2026-10-18), for the record:
+
+| Round 1 check | Round 1 verdict | Note |
+|---|---|---|
+| blind pilot (round 1) | not run | at iteration 0, one ledger item failed on one cause |
+| cheater (round 1) | failed | 3 of 17 shortcuts passed all 62 items while wrong: the window cap ignored, a cassette key of file, window and set only, condition labels never attached |
+| cause review (round 1) | not run | one failing cause |
+| planted bugs (round 1) | failed | 9 of 20 bugs lost an item (the silent ones are listed in `audit-v2/estate-ledger-audit.md`) |
 
 Owed before section 12.7 holds: an item for each silent bug and each shortcut, then a second round. Levels 1 to 7 keep the version 1 bar of GATE.md.
 
@@ -54,3 +63,9 @@ Pilot `exec/estate-ledger-pilot` at 6f7528907 (the fix branch at 110d45b95 merge
 
 So on the builder's count, 14 of the 20 round 1 bugs and 16 of the 17 shortcuts now lose an item. The verdicts in the table at the top stay round 1's until a seat that did not build the bank runs round 2. Round 2 of the cheater and the planted bugs, and the blind pilot and the cause review, are owed.
 
+
+## Round 2: what the builder changed after it (not a verdict)
+
+- An item defect, found by both round 2 helpers: the three condition items planted a condition only beside a rule unit that had a `description` unit next to it, and the seed 2 estate has none, so on seed 2 no product could pass them. The page asks no adjacency and no label of the condition unit, so the fixture now takes a description beside the rule first, else any other unit of the window that is not a rule, else any other unit. On the branch the three items now pass on seeds 1 to 8, 977, 4242 and 31337 (main's product), and the pilot is 71 of 71 on seeds 1 and 2.
+- Cheats K15, K17 and K04 wrote `by: 'system2'` whatever decided: the new twin item `ledger-scan.class-field.system1` scans the same truth through a labeler of class system 1 and asks every pointer atom to record `system1`. It fails on main's product with class-field (one cause) and passes on the pilot.
+- Still owed, with no item yet: K06 and K16 (a class written only when the working folder or the call stack looks like the validator's; an in-process check cannot hide either, so this needs the items to run the product in a child process), K07 and K11 (round 1's C13 and B04, no page line yet, see the table above), and the 19 planted-bug misses of `audit-v2/round2-cheater-and-bugs.md`. Then round 3, with fresh helpers.
