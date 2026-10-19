@@ -3,6 +3,8 @@
  * time, and the failure type an item throws to say what went wrong.
  */
 
+import { replayClock } from './tape';
+
 /** A seeded generator with the draws the items need. */
 export type Rng = {
   /** A float in [0, 1). */
@@ -147,8 +149,16 @@ export function show(value: unknown, limit = 200): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
-/** Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. */
+/**
+ * Processor time of a call in milliseconds (user and system), so a busy machine does not fail an item. While the
+ * bank replays recorded answers (tape.ts), the time is the one recorded when the implementation really ran.
+ */
 export function cpuMs<T>(run: () => T): { value: T; ms: number } {
+  if (replayClock.active) {
+    const before = replayClock.total;
+    const value = run();
+    return { value, ms: replayClock.total - before };
+  }
   const start = process.cpuUsage();
   const value = run();
   const used = process.cpuUsage(start);

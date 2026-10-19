@@ -1,9 +1,14 @@
 /**
- * What the bank's child process runs: the items of the variables bank on one seed, in the order given on stdin,
- * from a start index, with one JSON line before and after each item.
+ * What the bank's child process runs: the items of the variables bank on one seed, against the implementation
+ * under test, which is loaded in this process only. The child RECORDS the implementation's answers (tape.ts) and
+ * prints them; it decides nothing. Every line it prints is signed with a key that arrives on stdin before the
+ * implementation is imported, so the implementation cannot print a verdict or a tape of its own: the parent
+ * believes only signed lines, and replays the tapes to compute every verdict itself (isolate.ts).
  */
+import { createHmac } from 'node:crypto';
 import { loadImpl } from '../impl';
 import { runItem, variablesBank } from './index';
+import { recordImpl, type Tape } from './tape';
 
 async function main(args: readonly string[]): Promise<void> {
   const [seedText, root, startText] = args;
@@ -11,22 +16,46 @@ async function main(args: readonly string[]): Promise<void> {
   const start = Number(startText ?? 0);
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
-  const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
+  const { key, ids } = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { key: string; ids: string[] };
+  // Everything the child needs to speak is captured here, before the implementation is imported.
+  const write = process.stdout.write.bind(process.stdout);
+  const hmac = createHmac;
+  const say = (line: unknown) => {
+    const text = JSON.stringify(line);
+    write(`${hmac('sha256', key).update(text).digest('hex')} ${text}\n`);
+  };
   const byId = new Map(variablesBank().map((item) => [item.id, item]));
   const items = ids.map((id) => {
     const item = byId.get(id);
     if (!item) throw new Error(`no bank item ${id}`);
     return item;
   });
-  const { impl, module } = await loadImpl();
+  let loaded: Awaited<ReturnType<typeof loadImpl>> | undefined;
+  let loadError: string | undefined;
+  try {
+    loaded = await loadImpl();
+  } catch (cause) {
+    loadError = `the implementation did not load: ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`;
+  }
+  const provides = loaded
+    ? Object.entries(loaded.impl)
+        .filter(([, value]) => typeof value === 'function')
+        .map(([name]) => name)
+    : [];
   for (let index = start; index < items.length; index += 1) {
     const item = items[index] as (typeof items)[number];
-    process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
+    say({ start: index, id: item.id });
     const began = performance.now();
-    const outcome = await runItem(item, seed, root as string, impl, module);
-    process.stdout.write(
-      `${JSON.stringify({ done: index, id: item.id, pass: outcome.pass, detail: outcome.detail, ms: Math.round(performance.now() - began) })}\n`,
-    );
+    const tape: Tape = [];
+    if (loaded) await runItem(item, seed, root as string, recordImpl(loaded.impl, tape), loaded.module);
+    say({
+      done: index,
+      id: item.id,
+      provides,
+      tape,
+      ...(loadError ? { loadError } : {}),
+      ms: Math.round(performance.now() - began),
+    });
   }
 }
 

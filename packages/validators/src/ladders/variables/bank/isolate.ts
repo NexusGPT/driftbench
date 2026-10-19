@@ -1,7 +1,10 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { type BankItem, DEFAULT_ITEM_BUDGET_MS, type ItemOutcome } from './index';
+import { implModulePath } from '../impl';
+import { type BankItem, DEFAULT_ITEM_BUDGET_MS, type ItemOutcome, runItem } from './index';
+import { replayClock, replayImpl, type Tape } from './tape';
 
 /**
  * Runs the items of one seed in child processes that stop an item past its budget. The child is `child.ts`,
@@ -10,14 +13,77 @@ import { type BankItem, DEFAULT_ITEM_BUDGET_MS, type ItemOutcome } from './index
 
 const CHILD = fileURLToPath(new URL('./child.ts', import.meta.url));
 
-type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
+type Line = {
+  start?: number;
+  done?: number;
+  id: string;
+  provides?: string[];
+  tape?: Tape;
+  loadError?: string;
+  ms?: number;
+};
+
+/**
+ * The verdict of an item from the answers its child recorded: the items run here, in the parent, against a replay
+ * of those answers, and the parent alone decides pass or fail.
+ */
+export async function replayVerdict(
+  item: BankItem,
+  seed: number,
+  root: string,
+  line: Line,
+): Promise<ItemOutcome> {
+  if (line.loadError) return { pass: false, detail: line.loadError };
+  const { impl, problems } = replayImpl(line.tape ?? [], line.provides ?? []);
+  replayClock.active = true;
+  replayClock.total = 0;
+  try {
+    const outcome = await runItem(item, seed, root, impl, implModulePath());
+    return problems.length > 0
+      ? { pass: false, detail: `${outcome.detail}; ${problems.slice(0, 2).join('; ')}` }
+      : outcome;
+  } finally {
+    replayClock.active = false;
+  }
+}
+
+/** A line of the child's output is believed only when its signature is the HMAC of the rest with the run's key. */
+function signed(text: string, key: string): string | undefined {
+  const space = text.indexOf(' ');
+  if (space !== 64) return undefined;
+  const given = Buffer.from(text.slice(0, 64), 'hex');
+  const wanted = createHmac('sha256', key).update(text.slice(65)).digest();
+  return given.length === wanted.length && timingSafeEqual(given, wanted) ? text.slice(65) : undefined;
+}
 
 /** The time a child process may take to load the bank before it runs its first item. */
-export const STARTUP_MS = 120_000;
+export const STARTUP_MS = 300_000;
 /** After a child's exit, how long the parent waits for the rest of its output. */
 export const DRAIN_MS = 10_000;
 /** Child processes run side by side for one seed: the cores less one, at most 4. */
 export const DEFAULT_SHARDS = Math.max(1, Math.min(4, availableParallelism() - 1));
+
+/**
+ * How long the parent waits, in wall-clock time, for each millisecond of processor time an item may use. A busy
+ * machine slows a child without the item being slow, so the budget of an item counts the child's processor time
+ * (as the scale items do inside) and the wall clock only catches a child that has stopped using the processor.
+ */
+export const WALL_PER_CPU = 8;
+/** How often the parent reads the processor time of a child. */
+export const POLL_MS = 2_000;
+
+/** The processor time a process has used so far, in milliseconds, from `ps`; undefined when it cannot be read. */
+export function processorMs(pid: number): Promise<number | undefined> {
+  return new Promise((resolve) => {
+    execFile('ps', ['-o', 'cputime=', '-p', String(pid)], (error, out) => {
+      if (error) return resolve(undefined);
+      const match = /^\s*(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)\s*$/.exec(out);
+      if (!match) return resolve(undefined);
+      const [, hours, minutes, seconds] = match;
+      resolve((Number(hours ?? 0) * 3600 + Number(minutes) * 60 + Number(seconds)) * 1000);
+    });
+  });
+}
 
 /** Whether this module runs from source, where the child can be started. */
 export const CAN_ISOLATE = import.meta.url.endsWith('.ts');
@@ -55,33 +121,46 @@ function runFrom(
       cwd: root,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    child.stdin.end(JSON.stringify(items.map((item) => item.id)));
+    const key = randomBytes(32).toString('hex');
+    child.stdin.end(JSON.stringify({ key, ids: items.map((item) => item.id) }));
     let buffer = '';
     let errors = '';
     let timer: NodeJS.Timeout | undefined;
     let settled = false;
     let reported = 0;
     let drain: NodeJS.Timeout | undefined;
+    let pending: Promise<void> = Promise.resolve();
     const finish = (resume: number) => {
       if (settled) return;
       settled = true;
-      if (timer) clearTimeout(timer);
+      if (timer) clearInterval(timer);
       resolve(resume);
     };
     const arm = (index: number) => {
       if (settled) return;
-      if (timer) clearTimeout(timer);
+      if (timer) clearInterval(timer);
       const item = items[index];
       if (!item) return;
       const limit = budget(item);
-      timer = setTimeout(() => {
+      const began = Date.now();
+      let baseline: number | undefined;
+      const stop = (why: string) => {
         results.set(item.id, {
           pass: false,
-          detail: `did not finish within ${limit} ms on seed ${seed}: an endless loop or a path far too slow for this input; the validator stopped it`,
+          detail: `did not finish within ${limit} ms of processor time on seed ${seed}: ${why}; the validator stopped it`,
         });
         child.kill('SIGKILL');
         finish(index + 1);
-      }, limit);
+      };
+      timer = setInterval(async () => {
+        if (settled) return;
+        if (Date.now() - began > limit * WALL_PER_CPU)
+          return stop('an endless wait or a path far too slow for this input');
+        const used = child.pid === undefined ? undefined : await processorMs(child.pid);
+        if (settled || used === undefined) return;
+        baseline ??= used;
+        if (used - baseline > limit) stop('an endless loop or a path far too slow for this input');
+      }, POLL_MS);
     };
     timer = setTimeout(() => {
       const item = items[start];
@@ -102,18 +181,35 @@ function runFrom(
         const text = buffer.slice(0, newline);
         buffer = buffer.slice(newline + 1);
         newline = buffer.indexOf('\n');
-        if (text.trim() === '') continue;
+        const body = signed(text, key);
+        if (body === undefined) continue;
         let line: Line;
         try {
-          line = JSON.parse(text) as Line;
+          line = JSON.parse(body) as Line;
         } catch {
           continue;
         }
         if (line.start !== undefined) {
           arm(line.start);
         } else if (line.done !== undefined) {
-          results.set(line.id, { pass: line.pass === true, detail: line.detail ?? '', ms: line.ms });
+          const item = items[line.done];
+          if (!item || item.id !== line.id) continue;
           reported += 1;
+          if (timer) clearInterval(timer);
+          pending = pending.then(async () => {
+            if (results.has(item.id)) return;
+            const began = performance.now();
+            let outcome: ItemOutcome;
+            try {
+              outcome = await replayVerdict(item, seed, root, line);
+            } catch (cause) {
+              outcome = {
+                pass: false,
+                detail: `the replay of the recorded answers threw ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`,
+              };
+            }
+            results.set(item.id, { ...outcome, ms: (line.ms ?? 0) + Math.round(performance.now() - began) });
+          });
         }
       }
     });
@@ -123,6 +219,9 @@ function runFrom(
     });
     const conclude = (code: number | null) => {
       if (drain) clearTimeout(drain);
+      void pending.then(() => settle(code));
+    };
+    const settle = (code: number | null) => {
       if (settled) return;
       let first = start;
       while (first < items.length && results.has((items[first] as BankItem).id)) first += 1;
