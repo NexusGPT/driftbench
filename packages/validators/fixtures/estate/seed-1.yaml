@@ -660,6 +660,8 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+          order:
+            key: file_path
           line: 8
         - kind: instruction
           title: Report a number only when it was read during the task
@@ -724,6 +726,9 @@ recording:
           evidence:
             - type: custom
               name: reread_after_compaction
+          recovery:
+            reread:
+              - CLAUDE.md
           line: 13
         - kind: instruction
           title: R1 holds under pressure

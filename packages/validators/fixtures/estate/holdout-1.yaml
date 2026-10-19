@@ -1122,6 +1122,9 @@ recording:
           evidence:
             - type: custom
               name: reread_after_compaction
+          recovery:
+            reread:
+              - CLAUDE.md
           line: 13
         - kind: gate
           title: Read a file before you edit it
@@ -1130,6 +1133,8 @@ recording:
             - type: ordered
               before: Read
               after: Edit
+          order:
+            key: file_path
           line: 14
         - kind: gate
           title: Before editing any menu file read its rules
