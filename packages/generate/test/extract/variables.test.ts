@@ -1,5 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -10,6 +9,7 @@ import {
   variablesToSpaceMap,
 } from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import {
   loadProposal,
   Proposal,
@@ -249,7 +249,7 @@ describe('a proposal that uses every field of a value', () => {
 
 describe('verifyVariableQuotes', () => {
   async function folder(files: Record<string, string>): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-quotes-'));
+    const dir = await tempFolder('driftbench-quotes-');
     for (const [name, text] of Object.entries(files)) {
       await mkdir(dirname(join(dir, name)), { recursive: true });
       await writeFile(join(dir, name), text);

@@ -1,7 +1,6 @@
 // Unit F6, HF4 as a repo test: a scoring-only change re-scores stored runs with 0 adapter calls; an
 // agent-facing change is refused and routed to a rerun.
-import { cpSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
@@ -19,6 +18,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { tempFolderSync } from '../../../../tools/test-setup/temp-folders';
 import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
 import { ACME_CONVERSATIONS, acmeAdapter } from '../runner/support';
 
@@ -27,7 +27,7 @@ const now = () => new Date('2026-10-15T00:00:00Z');
 
 /** A project holding the Acme conversation specs, so project objects can change around them. */
 function project(): string {
-  const root = mkdtempSync(join(tmpdir(), 'driftbench-rescore-'));
+  const root = tempFolderSync('driftbench-rescore-');
   writeFileSync(join(root, 'driftbench.yaml'), 'plugins: []\n');
   cpSync(ACME_CONVERSATIONS, join(root, 'specs'), { recursive: true });
   return root;

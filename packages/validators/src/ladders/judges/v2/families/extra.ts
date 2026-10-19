@@ -1,5 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Verdict } from '@agent-nexus/driftbench-core';
 import type {
@@ -10,7 +9,7 @@ import type {
   JudgeClient,
   JudgeRequest,
 } from '@agent-nexus/driftbench-judges';
-import { type BankItem, fn, type JudgesApi, MissingCapability, type Tier } from '../bank';
+import { type BankItem, fn, type JudgesApi, MissingCapability, scratchFolder, type Tier } from '../bank';
 
 /**
  * More capabilities with independent causes (section 12.2), added when the third audit round's items, which pass
@@ -357,7 +356,7 @@ export function extraItems(): BankItem[] {
       ),
     ),
     check('cassette', 'saved-entries-sorted', 2, 'packages/judges/src/cassette.ts', async (api) => {
-      const path = join(mkdtempSync(join(tmpdir(), 'judges-bank-')), 's.cassette.json');
+      const path = join(scratchFolder('judges-bank-'), 's.cassette.json');
       await fn<(p: string, c: Cassette) => Promise<void>>(api, 'saveCassette')(
         path,
         CASSETTE([entry('bbbbbbbbbbbb'), entry('aaaaaaaaaaaa')]),
@@ -395,7 +394,7 @@ export function extraItems(): BankItem[] {
         : `kept ${pruned.entries.map((e) => e.key).join(', ')}`;
     }),
     check('criteria', 'rubric-too-long-reported', 2, 'packages/judges/src/criteria.ts', async (api) => {
-      const dir = mkdtempSync(join(tmpdir(), 'judges-criteria-'));
+      const dir = scratchFolder('judges-criteria-');
       const rubric = 'The reply sends a billing issue to Acme Care. '.repeat(50);
       writeFileSync(
         join(dir, 'long_case.yaml'),

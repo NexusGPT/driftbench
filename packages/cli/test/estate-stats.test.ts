@@ -1,9 +1,9 @@
-import { copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -25,7 +25,7 @@ async function run(argv: string[]) {
 
 describe('estate stats uses the documented report contract', () => {
   it('reports approved atoms, tested and enforced separately, with no sessions invented', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     const specs = join(dir, 'empty');
     await mkdir(specs);
     const result = await run([
@@ -66,7 +66,7 @@ describe('estate stats uses the documented report contract', () => {
   });
 
   it('rejects a plan for another map without printing a partial report', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     const plan = join(dir, 'plan.yaml');
     const text = await readFile(join(FIXTURE, 'plan.yaml'), 'utf8');
     await writeFile(plan, text.replace(/^mapHash: .+$/m, 'mapHash: wrong-map'));
@@ -86,7 +86,7 @@ describe('estate stats uses the documented report contract', () => {
     expect(result.err).toMatch(/map/i);
   });
   it('counts repeated observations by session, and computes compliance and decay from replay verdicts', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     const specs = join(dir, 'specs');
     const sessions = join(dir, 'sessions');
     await mkdir(specs);
@@ -188,7 +188,7 @@ describe('estate stats uses the documented report contract', () => {
   });
 
   it('excludes incomplete specs and counts complete static tests, cells and graph journeys', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     for (const name of ['specs', 'static', 'incomplete']) await mkdir(join(dir, name));
     const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
     if (!loaded.ok) throw new Error('fixture map');
@@ -250,7 +250,7 @@ describe('estate stats uses the documented report contract', () => {
   });
 
   it('rejects malformed recorded input without partial JSON', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     await mkdir(join(dir, 'specs'));
     await mkdir(join(dir, 'sessions'));
     await writeFile(join(dir, 'sessions', 'bad.jsonl'), '{"unknown":true}');
@@ -272,7 +272,7 @@ describe('estate stats uses the documented report contract', () => {
     expect(result.err).toMatch(/transcript/i);
   });
   it('rejects a malformed static test instead of hiding a coverage input error', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
+    const dir = await tempFolder('estate-stats-');
     await mkdir(join(dir, 'specs'));
     await mkdir(join(dir, 'static'));
     await writeFile(join(dir, 'static', 'bad.json'), '{"testType":"setting"}');

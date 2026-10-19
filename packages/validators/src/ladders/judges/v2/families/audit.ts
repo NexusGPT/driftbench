@@ -1,5 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   type CouncilConfig,
@@ -10,7 +9,7 @@ import {
   type JudgeClient,
   type JudgeRequest,
 } from '@agent-nexus/driftbench-judges';
-import { type BankItem, fn, type JudgesApi, type Tier } from '../bank';
+import { type BankItem, fn, type JudgesApi, scratchFolder, type Tier } from '../bank';
 import { parseRendered } from '../rules';
 
 /**
@@ -280,7 +279,7 @@ export function auditItems(): BankItem[] {
       2,
       'packages/judges/src/criteria.ts',
       async (api) => {
-        const dir = mkdtempSync(join(tmpdir(), 'judges-criteria-'));
+        const dir = scratchFolder('judges-criteria-');
         writeFileSync(
           join(dir, 'sheet_case.yaml'),
           `criterion:
@@ -417,7 +416,7 @@ fixtures:
     }),
   );
   const criteriaFile = (body: string) => {
-    const dir = mkdtempSync(join(tmpdir(), 'judges-criteria-'));
+    const dir = scratchFolder('judges-criteria-');
     writeFileSync(join(dir, 'one_case.yaml'), body, 'utf8');
     return dir;
   };

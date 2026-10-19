@@ -1,9 +1,9 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parsePlanText } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
@@ -25,7 +25,7 @@ async function run(argv: string[], cwd: string) {
 
 /** A folder holding the fixture's approved map and space map. */
 async function folder(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-plan-'));
+  const root = await tempFolder('driftbench-estate-plan-');
   await cp(join(FIXTURE, 'approved.yaml'), join(root, 'approved.yaml'));
   await cp(join(FIXTURE, 'space.yaml'), join(root, 'space.yaml'));
   return root;

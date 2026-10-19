@@ -1,10 +1,10 @@
-import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseSpecText } from '@agent-nexus/driftbench-core';
 import { REPLAY_CUSTOM_CHECKS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
 
@@ -52,7 +52,7 @@ describe('driftbench estate generate', () => {
   let first: Awaited<ReturnType<typeof run>>;
 
   beforeAll(async () => {
-    out = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    out = await tempFolder('estate-generate-');
     first = await generate(out);
   }, 60_000);
 
@@ -147,7 +147,7 @@ describe('driftbench estate generate', () => {
   });
 
   it('refuses a plan made from another map and writes nothing', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const dir = await tempFolder('estate-generate-');
     const plan = (await readFile(PLAN, 'utf8')).replace(/^mapHash: .*$/m, `mapHash: ${'f'.repeat(64)}`);
     await writeFile(join(dir, 'plan.yaml'), plan);
     const result = await run([
@@ -166,7 +166,7 @@ describe('driftbench estate generate', () => {
   });
 
   it('refuses a bad seed, an invalid plan and a missing phrase bank', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const dir = await tempFolder('estate-generate-');
     expect((await generate(join(dir, 'a'), '--seed', 'one')).code).toBe(2);
     await writeFile(join(dir, 'plan.yaml'), 'version: 1\nrows: []\n');
     const invalid = await run([
@@ -187,7 +187,7 @@ describe('driftbench estate generate', () => {
   });
 
   it('leaves replay rows waiting for a recorded session when no session index is found', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const dir = await tempFolder('estate-generate-');
     await copyFile(MAP, join(dir, 'approved.yaml'));
     await copyFile(join(FIXTURE, 'phrases.yaml'), join(dir, 'phrases.yaml'));
     const result = await run([
@@ -211,7 +211,7 @@ describe('driftbench estate generate', () => {
   });
 
   it('writes every ask by code when no phrase bank lies beside the map, and waits for one with --no-fallback', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const dir = await tempFolder('estate-generate-');
     await copyFile(MAP, join(dir, 'approved.yaml'));
     const args = ['estate', 'generate', '--map', join(dir, 'approved.yaml'), '--plan', PLAN];
     const result = await run([...args, '--out', join(dir, 'out'), '--json']);
@@ -232,7 +232,7 @@ describe('driftbench estate generate', () => {
   it('judges no domain predicate with --no-judge: one no code checks waits for a registered check', async () => {
     const plan = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
     const waiting = async (...extra: string[]) => {
-      const dir = await mkdtemp(join(tmpdir(), 'estate-generate-judge-'));
+      const dir = await tempFolder('estate-generate-judge-');
       const result = await run([
         'estate',
         'generate',
@@ -255,7 +255,7 @@ describe('driftbench estate generate', () => {
   }, 120_000);
 
   it('puts the specs of the focus atoms first in the run order, then guards, gates and invariants', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const dir = await tempFolder('estate-generate-');
     const atom = 'subagent.route-planner.helper-route-planner';
     await writeFile(join(dir, 'focus.txt'), `# the atoms a mutant targets\n${atom}\n`);
     const result = await generate(join(dir, 'out'), '--focus', join(dir, 'focus.txt'));
@@ -295,7 +295,7 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
   const CASES = join(ROOT, 'examples/estates/reader-cases');
 
   it('generates with an empty bank when none sits beside the map, and refuses a named one that is missing', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-nobank-'));
+    const dir = await tempFolder('estate-generate-nobank-');
     await copyFile(join(CASES, 'approved.yaml'), join(dir, 'approved.yaml'));
     expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], dir)).code).toBe(0);
     expect((await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], dir)).code).toBe(0);

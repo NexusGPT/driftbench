@@ -1,4 +1,4 @@
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ClientOptions } from '../client';
@@ -222,7 +222,6 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
       ? {}
       : { command: options.command ?? 'claude', args: options.commandArgs ?? [], settings: CLAUDE_SETTINGS }),
   });
-  let folder: string | undefined;
   return {
     dialect,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
@@ -243,31 +242,37 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
         fingerprint: promptFingerprint({ transport: fingerprint, request: built.fingerprint }),
       };
       if (provider === 'claude-cli') {
-        folder ??= mkdtempSync(join(tmpdir(), 'driftbench-claude-transport-'));
-        const sent = await runClaudeJudgeCommand(
-          options.command ?? 'claude',
-          [
-            ...(options.commandArgs ?? []),
-            '-p',
-            '--output-format',
-            'json',
-            '--model',
-            model,
-            '--system-prompt',
-            built.payload.system as string,
-            ...CLAUDE_JUDGE_FLAGS,
-            ...(maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(maxBudgetUsd)]),
-          ],
-          built.payload.user as string,
-          {
-            ...options,
-            ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
-            cwd: folder,
-            env,
-            timeoutMs: options.timeoutMs ?? 120_000,
-            system: built.payload.system as string,
-          },
-        );
+        // An empty working folder for the one call; it is removed when the call ends.
+        const folder = mkdtempSync(join(tmpdir(), 'driftbench-claude-transport-'));
+        let sent: Awaited<ReturnType<typeof runClaudeJudgeCommand>>;
+        try {
+          sent = await runClaudeJudgeCommand(
+            options.command ?? 'claude',
+            [
+              ...(options.commandArgs ?? []),
+              '-p',
+              '--output-format',
+              'json',
+              '--model',
+              model,
+              '--system-prompt',
+              built.payload.system as string,
+              ...CLAUDE_JUDGE_FLAGS,
+              ...(maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(maxBudgetUsd)]),
+            ],
+            built.payload.user as string,
+            {
+              ...options,
+              ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
+              cwd: folder,
+              env,
+              timeoutMs: options.timeoutMs ?? 120_000,
+              system: built.payload.system as string,
+            },
+          );
+        } finally {
+          rmSync(folder, { recursive: true, force: true });
+        }
         const ran = sent.ran;
         let value: unknown;
         try {

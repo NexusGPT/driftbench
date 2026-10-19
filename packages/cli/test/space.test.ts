@@ -1,8 +1,8 @@
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 async function run(argv: string[], cwd: string) {
@@ -22,7 +22,7 @@ async function run(argv: string[], cwd: string) {
 }
 
 async function project(files: Record<string, string>) {
-  const dir = await mkdtemp(join(tmpdir(), 'driftbench-space-'));
+  const dir = await tempFolder('driftbench-space-');
   for (const [name, text] of Object.entries(files)) {
     await mkdir(dirname(join(dir, name)), { recursive: true });
     await writeFile(join(dir, name), text);

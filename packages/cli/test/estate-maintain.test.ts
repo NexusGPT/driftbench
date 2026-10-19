@@ -1,9 +1,9 @@
-import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseEstateDiff } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -26,7 +26,7 @@ async function cli(argv: string[], cwd = ROOT) {
 
 /** A copy of the fixture estate in a temporary folder, without its committed outputs. */
 async function fixtureCopy(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-maintain-'));
+  const root = await tempFolder('driftbench-estate-maintain-');
   await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
   return root;
@@ -240,7 +240,7 @@ describe('driftbench estate impact', () => {
 
 /** A copy of the recorded session corpus, its specs included, and a diff with nothing in it. */
 async function corpus(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-replay-'));
+  const root = await tempFolder('driftbench-estate-replay-');
   await cp(join(ROOT, 'examples/estates/sessions'), join(root, 'sessions'), { recursive: true });
   await mkdir(join(root, 'tests'));
   const diff = await cli(
@@ -380,7 +380,7 @@ function guardState(ledger: string, extra = ''): string {
 
 describe('driftbench estate diff with guard state', () => {
   async function versions(): Promise<string> {
-    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-guards-'));
+    const root = await tempFolder('driftbench-estate-guards-');
     await mkdir(join(root, 'v1'));
     await mkdir(join(root, 'v2'));
     await cp(join(FIXTURE, 'approved.yaml'), join(root, 'v1', 'map.yaml'));
@@ -498,7 +498,7 @@ describe('the fixture-v2 outputs', () => {
     expect(result.code).toBe(1);
     expect(result.out).toBe(withoutWrote(await readFile(join(ROOT, V2, 'maintain', 'impact.txt'), 'utf8')));
 
-    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-v2-'));
+    const root = await tempFolder('driftbench-estate-v2-');
     await cp(join(ROOT, V2, 'tests'), join(root, 'tests'), { recursive: true });
     await cp(join(ROOT, V2, 'maintain', 'diff.json'), join(root, 'diff.json'));
     const written = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--write'], root);

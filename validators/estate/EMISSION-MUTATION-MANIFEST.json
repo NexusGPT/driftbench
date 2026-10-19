@@ -27380,7 +27380,7 @@
       "mutant": false,
       "restored": true,
       "schema": "valid",
-      "reason": "1 of 1: estate.read_when.reference.invoice-check.read-references-currency-table-md: component control failed 0.expect.skills.0.count.min"
+      "reason": "1 of 1: estate.read_when.reference.invoice-check.read-references-currency-table-md: accepts component violation 0.expect.workspace.others_untouched.created"
     },
     {
       "seed": 292269655,

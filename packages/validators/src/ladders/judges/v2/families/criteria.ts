@@ -1,5 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CheckContext, CriterionDef, Observed, Verdict } from '@agent-nexus/driftbench-core';
 import type {
@@ -9,7 +8,7 @@ import type {
   JudgeRequest,
   LoadedCriterion,
 } from '@agent-nexus/driftbench-judges';
-import { type BankItem, fn, type JudgesApi, MissingCapability, type Tier } from '../bank';
+import { type BankItem, fn, type JudgesApi, MissingCapability, scratchFolder, type Tier } from '../bank';
 
 /**
  * The criteria loader and the judge check. A criteria folder holds one file per criterion with its fixture
@@ -58,7 +57,7 @@ fixtures:
 `;
 
 function folder(files: Record<string, string>): string {
-  const dir = mkdtempSync(join(tmpdir(), 'judges-criteria-'));
+  const dir = scratchFolder('judges-criteria-');
   for (const [name, text] of Object.entries(files)) {
     const path = join(dir, name);
     mkdirSync(join(path, '..'), { recursive: true });

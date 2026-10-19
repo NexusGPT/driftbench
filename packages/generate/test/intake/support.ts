@@ -1,7 +1,5 @@
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempFolder } from '../../../../tools/test-setup/temp-folders';
 import { mod97 } from '../../src/intake';
 
 /**
@@ -70,5 +68,5 @@ export function realMobile(): string {
 
 /** A folder under the system temp folder, which is outside any git work tree. */
 export function scratch(prefix: string): Promise<string> {
-  return mkdtemp(join(tmpdir(), `driftbench-${prefix}-`));
+  return tempFolder(`driftbench-${prefix}-`);
 }

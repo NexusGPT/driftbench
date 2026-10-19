@@ -1,7 +1,6 @@
 // Unit F2: every verdict names the object, item, impl and layer that produced it; every block records the
 // objects it resolved to; records written before these fields still parse.
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -25,6 +24,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { tempFolderSync } from '../../../../tools/test-setup/temp-folders';
 import { acmeAdapter, loadAcmeConversations } from '../runner/support';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -32,7 +32,7 @@ const driver = createScriptedDriver();
 beforeEach(() => initializeShippedObjects());
 
 function tempProject(files: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'driftbench-record-'));
+  const root = tempFolderSync('driftbench-record-');
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), text);

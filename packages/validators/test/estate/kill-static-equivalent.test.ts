@@ -2,9 +2,9 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import * as bench from '../../src/ladders/estate/bank/bench';
-import { FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+import { disposeFixtureSuite, FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
 import {
   breakStandingSize,
   type Cell,
@@ -12,6 +12,8 @@ import {
   killFamily,
   STANDING_CEILING,
 } from '../../src/ladders/estate/bank/kill';
+
+afterAll(disposeFixtureSuite);
 
 vi.mock('../../src/ladders/estate/bank/bench', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/ladders/estate/bank/bench')>();

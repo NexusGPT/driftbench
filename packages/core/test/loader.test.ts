@@ -1,5 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   canonicalJson,
@@ -15,6 +14,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { parse, stringify } from 'yaml';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 
 const VALID = `
 id: acme-upgrade
@@ -322,7 +322,7 @@ describe('hashing', () => {
 
 describe('files and folders', () => {
   it('finds yaml, yml and .spec.json files, skips other files, hidden folders and node_modules', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'driftbench-'));
+    const root = await tempFolder('driftbench-');
     await mkdir(join(root, 'nested'));
     await mkdir(join(root, 'node_modules'));
     await mkdir(join(root, '.hidden'));
@@ -372,7 +372,7 @@ describe('a relative workspace folder', () => {
 
   it('is read from the folder of the spec file when written ./<path>, wherever the file sits', async () => {
     for (const name of ['one', 'two']) {
-      const dir = join(await mkdtemp(join(tmpdir(), 'driftbench-seed-')), name);
+      const dir = join(await tempFolder('driftbench-seed-'), name);
       await mkdir(dir);
       await writeFile(join(dir, 'task.yaml'), SPEC);
       const loaded = await loadSpecFile(join(dir, 'task.yaml'));
@@ -384,7 +384,7 @@ describe('a relative workspace folder', () => {
   });
 
   it('leaves any other relative path as written: it is read from the folder the run starts in', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-seed-'));
+    const dir = await tempFolder('driftbench-seed-');
     await writeFile(join(dir, 'task.yaml'), SPEC.replace('./.seed-seeded-task', 'examples/seeds/task'));
     const loaded = await loadSpecFile(join(dir, 'task.yaml'));
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));

@@ -1,7 +1,8 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { tempFolder } from '../../../tools/test-setup/temp-folders';
 import { type Io, main, VERSION } from '../src/index';
 
 async function run(argv: string[], cwd: string) {
@@ -21,7 +22,7 @@ async function run(argv: string[], cwd: string) {
 }
 
 async function fixture() {
-  const dir = await mkdtemp(join(tmpdir(), 'driftbench-cli-'));
+  const dir = await tempFolder('driftbench-cli-');
   await writeFile(join(dir, 'good.yaml'), 'id: good\nblocks:\n  - user: hi\n    expect: { must: [hello] }\n');
   await writeFile(join(dir, 'advice.yaml'), 'id: advice\nblocks:\n  - user: hi\n');
   await writeFile(join(dir, 'bad.yaml'), 'id: bad\nblocks:\n  - expect: { must: [a] }\n');
@@ -55,7 +56,7 @@ describe('driftbench spec validate', () => {
   });
 
   it('exits 1 when nothing is found', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'driftbench-empty-'));
+    const dir = await tempFolder('driftbench-empty-');
     const { code, out } = await run(['spec', 'validate', dir], dir);
     expect(code).toBe(1);
     expect(out).toContain('No spec files found.');

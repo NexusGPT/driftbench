@@ -40,6 +40,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Gives the run a private temp folder and fails the run if tests leave anything in it.
+    globalSetup: ['./tools/test-setup/temp-guard.ts'],
     include: [
       'benchmarks/test/**/*.test.ts',
       'packages/*/test/**/*.test.ts',
