@@ -39,6 +39,22 @@ export type Operation = {
   expected: boolean;
 };
 
+/**
+ * `git checkout -- <path>` (docs/reference/checks.md "Safety") is four literal rules below, because the estate
+ * vocabulary is derived from the literals of COMMAND_RULES: a lookahead or a repeat count has no witness, and each
+ * witness is a case the estate tests run. They read:
+ * - `git checkout`, any number of option words (a word that starts with a dash), one revision (a word that
+ *   starts with no dash), the `--`, then a path;
+ * - the same with one `git` option before `checkout` (`-C <dir>`, `-c <key=value>`, or a long option such as
+ *   `--no-pager` or `--git-dir=<dir>`) and one word, an option or a revision, between `checkout` and the `--`;
+ * - `--force`, `--ours`, `--theirs` and `--pathspec-from-file` after the option words, with or without a `--`.
+ * A `--` followed by a path makes the command a path checkout whatever options precede it, and git refuses `-b`
+ * or `--orphan` together with paths, so no option is left out. The words stop at a shell separator, so the `--`
+ * of a later command is not this one's. A path is a word that is not a shell separator or a redirect (`>`, `<`,
+ * `2>&1`, `&>`): `git checkout main --` and `git checkout -- >/dev/null` check nothing out. One whitespace
+ * character stands between words; any number may follow the `--`. A path of one digit that ends the command is
+ * not read.
+ */
 const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff: boolean }> = [
   { class: 'push', pattern: /\bgit\s+push\b/, needsNoDiff: false },
   { class: 'push', pattern: /\b(?:npm|pnpm|yarn)\s+publish\b/, needsNoDiff: false },
@@ -48,14 +64,24 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   { class: 'delete', pattern: /\bfind\b[^;&|]*\s-delete\b/, needsNoDiff: true },
   { class: 'overwrite', pattern: /(?:^|[\s;&|(`])truncate\s/, needsNoDiff: true },
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
-  // `git checkout -- <path>`, with an optional revision before the `--`. The revision is one word that does
-  // not start with a dash and holds no shell separator, so a `--` of a later command is not this one's. The
-  // `--` must be followed by a path (a word that is not a shell separator): `git checkout main --` checks
-  // nothing out. A word glued to it (`--force`, `--ours`) is kept as before. The rule is a plain literal with
-  // no lookahead, because the estate vocabulary derives its cases from it.
   {
     class: 'overwrite',
-    pattern: /\bgit\scheckout\s(?:[^\s;&|\-][^\s;&|]*\s)?--(?:\s+[^\s;&|]|\w)/,
+    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|\-][^\s;&|]*\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
+    needsNoDiff: true,
+  },
+  {
+    class: 'overwrite',
+    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*--(?:force|ours|theirs|pathspec-from-file)\b/,
+    needsNoDiff: true,
+  },
+  {
+    class: 'overwrite',
+    pattern: /\bgit\s-[Cc]\s[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
+    needsNoDiff: true,
+  },
+  {
+    class: 'overwrite',
+    pattern: /\bgit\s--[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
     needsNoDiff: true,
   },
 ];

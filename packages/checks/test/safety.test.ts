@@ -145,6 +145,114 @@ describe('safety', () => {
     }
   });
 
+  // docs/reference/checks.md line 403 names `git checkout --`. Git options before the `--` change which git
+  // runs or how it asks, not what the command does to the path.
+  it('reads the overwrite through options before the --: -f, -p, -q, and git -C <dir>, -c <k=v>, --no-pager', () => {
+    for (const command of [
+      'git checkout -f -- notes.txt',
+      'git checkout -p -- notes.txt',
+      'git checkout -fq main -- notes.txt',
+      'git checkout -f main -- notes.txt',
+      'git checkout -q -f HEAD -- a b',
+      'git -C repo checkout -- notes.txt',
+      'git -C ../my-repo checkout main -- notes.txt',
+      'git -c core.autocrlf=false checkout -- notes.txt',
+      'git --no-pager checkout -- notes.txt',
+      'git --git-dir=.git checkout HEAD -- notes.txt',
+      'git -c k=v checkout -f -- notes.txt',
+      'cd x && git -C repo checkout -- a',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+  });
+
+  // A `--` followed by a path makes the command a path checkout whatever options precede it, so no option word is
+  // left out.
+  it('reads the overwrite through any other option word before the --', () => {
+    for (const command of [
+      'git checkout --recurse-submodules -- a.txt',
+      'git checkout --no-overlay -- a.txt',
+      'git checkout --overlay main -- a.txt',
+      'git checkout --merge -- a.txt',
+      'git checkout --conflict=merge -- a.txt',
+      'git checkout --progress -- a.txt',
+      'git checkout --quiet -- a.txt',
+      'git checkout --no-guess main -- a.txt',
+      'git checkout --ignore-skip-worktree-bits -- a.txt',
+      'git checkout -U3 -- a.txt',
+      'git checkout -m -- a.txt',
+      'git checkout -fx -- notes.txt',
+      'git checkout -fmain -- notes.txt',
+      'git checkout --pathspec-from-file=paths.txt',
+      // git refuses a branch-creating option together with paths; the rule still reads the command as an overwrite
+      'git checkout -b feature -- notes.txt',
+      'git -C repo checkout -B -- notes.txt',
+      'git checkout --orphan new -- notes.txt',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+  });
+
+  it('keeps a checkout that names no path out, and other git commands under -C', () => {
+    for (const command of [
+      'git -C repo checkout main',
+      'git -C repo checkout -b feature',
+      'git checkout -B feature',
+      'git checkout -t origin/main',
+      'git checkout --orphan new',
+      'git checkout --track origin/main',
+      'git checkout --detach',
+      'git -C repo log -- notes.txt',
+      'git -C repo diff main -- notes.txt',
+      'git -C repo status',
+      // a word that only starts like an overwriting option, and a name that only ends like git
+      'git checkout --forceful main',
+      'legit checkout -- notes.txt',
+    ]) {
+      expect(classifyCommand(command, false), command).not.toContain('overwrite');
+    }
+  });
+
+  it('does not take a redirect after the -- for a path', () => {
+    for (const command of [
+      'git checkout -- >/dev/null',
+      'git checkout main -- 2>&1',
+      'git checkout -- 2>/dev/null',
+      'git checkout main -- >out.txt',
+      'git checkout main -- &>/dev/null',
+      'git checkout -- > /dev/null',
+      'git -C repo checkout HEAD -- >/dev/null 2>&1',
+    ]) {
+      expect(classifyCommand(command, false), command).not.toContain('overwrite');
+    }
+    // A path before the redirect, or a number that is a path, still counts.
+    for (const command of [
+      'git checkout -- notes.txt >/dev/null',
+      'git checkout HEAD -- notes.txt 2>&1',
+      'git checkout -- 2024.csv > out.log',
+      'git checkout -- 77',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+  });
+
+  it('pins a word glued to the --, which is read as before, and a tab or several spaces after it', () => {
+    for (const command of [
+      'git checkout --force main',
+      'git checkout --force',
+      'git checkout --ours notes.txt',
+      'git checkout --theirs notes.txt',
+      'git checkout --ours -- notes.txt',
+      'git checkout --\tnotes.txt',
+      'git checkout main --\tnotes.txt',
+      'git\tcheckout\t--\tnotes.txt',
+      'git checkout --   notes.txt',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+    expect(classifyCommand('git checkout --\t', false)).not.toContain('overwrite');
+  });
+
   // The revision token is one word that starts with a letter, a digit or a path character: never an option,
   // never a shell separator. The `--` must belong to the same git command and name a path after it.
   it('does not read a `--` that belongs to another command, or that names no path, as a checkout overwrite', () => {
@@ -154,9 +262,6 @@ describe('safety', () => {
       'git checkout main&&ls -- foo',
       'git checkout main|cat -- foo',
       'git checkout main & ls -- foo',
-      // a dash-leading token is an option, not a revision
-      'git checkout -b feature -- foo',
-      'git checkout -b -- foo',
       // a second command with its own `--`
       'git checkout main && ls -- foo',
       'git checkout main; rm -- a',
