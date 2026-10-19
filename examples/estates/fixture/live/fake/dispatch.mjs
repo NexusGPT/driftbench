@@ -270,6 +270,28 @@ export function replyActOf(replies) {
 }
 
 /**
+ * The files an agent reads again after a compaction, from the hazard atoms of the map whose `fields.hazard` is
+ * `compaction` and that are in force in the copy: the files a hazard declares to read again (`fields.reread`, or
+ * `reread` in the options of its `hazard_recovery` evidence), and the file the passage is written in, which is the
+ * standing instruction the hazard orders to be read again. Taken from structure only: no prose is read.
+ */
+export function recoveryReads(index, cwd) {
+  const paths = [];
+  for (const atom of index.atoms.values()) {
+    if (atom.kind !== 'hazard' || atom.fields?.hazard !== 'compaction' || !inForce(atom, cwd)) continue;
+    const declared = [
+      ...(Array.isArray(atom.fields?.reread) ? atom.fields.reread : []),
+      ...(atom.evidence ?? []).flatMap((entry) =>
+        entry.name === 'hazard_recovery' && Array.isArray(entry.options?.reread) ? entry.options.reread : [],
+      ),
+    ];
+    for (const path of [...declared, atom.provenance?.file])
+      if (typeof path === 'string' && path.trim() !== '' && !paths.includes(path)) paths.push(path);
+  }
+  return paths;
+}
+
+/**
  * The tool call that provokes a guard, from the rule the guard enforces: the rule's declared unit case for a tool
  * the matcher of the guard's hook covers (the settings give it), or the string its typed `command_not_run`
  * evidence names. A guard on a reply (Stop) is provoked by a reply longer than the limit the rule's
