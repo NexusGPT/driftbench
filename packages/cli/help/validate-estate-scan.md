@@ -153,6 +153,23 @@ yes or no model. An answer may add `model` and `usage` (`input_tokens`, `output_
 object, or a function that returns one, with `id`, `cls` (`system1` or `system2`), `label(request)` and
 optionally `model` and `family`; it is your code and runs in this process.
 
+Check a labeler of your own with the contract suite, `@agent-nexus/driftbench-estate/labeler-contract`, in a
+vitest test file. `labelerContract(name, make, { cls, broken?, malformed? })` registers one test per check:
+the labeler names itself (an id, its class, a model), renders the same bytes every time under its own id,
+records every answer and replays them with no call and the same ledger, and puts its id in every cassette
+key. With `broken`, a transport that fails is a failed window and records nothing. With `malformed`, an
+answer of the wrong shape is a failed window, recorded as unreadable. `make({ replayOnly })` builds the
+labeler; with `replayOnly: true` it must have no `call`.
+
+```ts
+import { labelerContract } from '@agent-nexus/driftbench-estate/labeler-contract';
+import { pointer } from '@agent-nexus/driftbench-estate';
+
+labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http://127.0.0.1:8080/label', cls: 'system2', ...mode }), {
+  cls: 'system2',
+});
+```
+
 `estate lint`:
 
 | Option | Default | Meaning |
