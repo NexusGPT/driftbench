@@ -306,3 +306,40 @@ it('checks an object the block does not select with only the flags that name it'
     resolveBlockObjects(oneBlock, 0, propertyContext([{ id: 'third', path: 'lo', value: 10 }], 'default')),
   ).toThrow(/lo must not exceed hi/);
 });
+
+it.each([
+  [['diagnostic/missing'], [], 'diagnostic:missing'],
+  [['prompt-template/missing'], [], 'prompt-template:missing'],
+  [[], ['prompt-template#missing.limit=2'], 'prompt-template:default'],
+] as const)('preflights every CLI kind before skipping execution', (use, set, target) => {
+  const context = { ...shippedObjectContext(), cli: parseCliOverrides(use, set) };
+  expect(() => resolveBlockObjects({ blocks: [{ when: { user: 'hello' } }] }, 0, context)).toThrow(target);
+});
+
+it('selects a known diagnostic named by --use and checks its kind-only item override', () => {
+  const context = shippedObjectContext();
+  context.store.add({ kind: 'diagnostic', id: 'known', steps: [] }, 'project', { path: 'fixture' });
+  context.cli = parseCliOverrides(['diagnostic/known'], []);
+  const spec = { blocks: [{ when: { user: 'hello' } }] };
+  expect(resolveBlockObjects(spec, 0, context).find((o) => o.key === 'diagnostics')?.object.id).toBe('known');
+  context.cli = parseCliOverrides(['diagnostic/known'], ['diagnostic#missing.limit=2']);
+  expect(() => resolveBlockObjects(spec, 0, context)).toThrow('no item of diagnostic:known');
+});
+
+it('validates kind-only items for a kind outside uses against its effective CLI object or default', () => {
+  const context = defaultContext('prompt-template#rule.limit=2');
+  for (const id of ['default', 'chosen'])
+    context.store.add(
+      {
+        kind: 'prompt-template',
+        id,
+        items: [{ id: 'rule', title: 'Rule', impl: 'builtin:test/rule', params: { limit: 1 } }],
+      },
+      'project',
+      { path: 'fixture' },
+    );
+  const spec = { blocks: [{ when: { user: 'hello' } }] };
+  expect(() => resolveBlockObjects(spec, 0, context)).not.toThrow();
+  context.cli = parseCliOverrides(['prompt-template/chosen'], ['prompt-template#missing.limit=2']);
+  expect(() => resolveBlockObjects(spec, 0, context)).toThrow('no item of prompt-template:chosen');
+});
