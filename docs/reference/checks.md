@@ -218,7 +218,7 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 
 ### Normalised values
 
-`tools[].normalise`, `end_state.normalise` and `json.paths[].normalise` compare a value after a rule. The key of a map is a dotted path, such as `phone` or `customer.phone`; a JSON path takes one rule. The rule rewrites the observed value and every expected text at that path, then the assertion above compares them. It applies to a bare value, `exact`, `one_of`, `subset` and `contains`; `regex`, `nonempty` and `absent` take no rule. Without a rule the comparison is exact, as before.
+`tools[].normalise`, `end_state.normalise` and `json.paths[].normalise` compare a value after a rule. The key of a map is a dotted path, such as `phone` or `customer.phone`; a JSON path takes one rule. The rule rewrites the observed value and every expected text at that path, then the assertion above compares them. It applies to a bare value, `exact`, `one_of`, `subset` and `contains`; `regex`, `nonempty` and `absent` take no rule. Without a rule the values compare as written. A tool argument that still differs, with or without a rule, goes to the value-check ladder.
 
 | Rule | Reads |
 |---|---|
