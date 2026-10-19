@@ -270,7 +270,9 @@ describe('what the copy says still decides', () => {
 
   it('answers plainly when it is given no map', async () => {
     const dir = await copyOfEstate();
-    const played = play(dir, 'Where is shipment NW-55012? It was promised for 2 October.', {});
+    const played = play(dir, 'Where is shipment NW-55012? It was promised for 2 October.', {
+      FAKE_MAP: 'none',
+    });
     expect(played.skills).toEqual([]);
     expect(played.replyAct?.id).toBe('answer');
   });

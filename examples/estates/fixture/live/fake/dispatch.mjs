@@ -2,7 +2,8 @@
  * The fake's dispatch: which structured definitions an ask sets off.
  *
  * The fake runs in a copy that holds only the estate's own files, so it is handed the estate's approved map and
- * its phrase bank (`FAKE_MAP`, `FAKE_PHRASES`: paths to YAML or JSON). It tells an ask from the structure of
+ * its phrase bank (`FAKE_MAP`, `FAKE_PHRASES`: paths to YAML or JSON; unset, the files of the fixture the fake ships in;
+ * `FAKE_MAP=none`, no map). It tells an ask from the structure of
  * what it is given, and reads no word of its own:
  * - a phrase of the bank: an ask equal to the phrase sets off the atoms of its situation, unless the situation is
  *   for an ask just outside the trigger or a near miss (`use: outside | near_miss`), which sets nothing off;
@@ -61,9 +62,14 @@ const cache = new Map();
 
 /** The index of the map, the phrase bank and the grammar, or undefined when no map is given. */
 export function loadDispatch(env) {
-  const mapPath = env.FAKE_MAP;
-  if (!mapPath) return undefined;
-  const phrasesPath = env.FAKE_PHRASES;
+  // Without FAKE_MAP the fake reads the map and the bank of the fixture it ships in; FAKE_MAP=none gives it none.
+  const own = (name) => {
+    const path = join(here, '../..', name);
+    return existsSync(path) ? path : undefined;
+  };
+  const mapPath = env.FAKE_MAP === undefined ? own('approved.yaml') : env.FAKE_MAP;
+  if (!mapPath || mapPath === 'none') return undefined;
+  const phrasesPath = env.FAKE_PHRASES ?? (env.FAKE_MAP === undefined ? own('phrases.yaml') : undefined);
   const grammarPath = env.FAKE_GRAMMAR ?? join(here, 'grammar.json');
   const key = `${mapPath}\n${phrasesPath ?? ''}\n${grammarPath}`;
   if (cache.has(key)) return cache.get(key);
