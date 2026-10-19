@@ -54,10 +54,6 @@ const FAST_TIMEOUT = 10;
 /** pr affected reports the tests a pull request affects. It runs on non-train pull requests only. */
 const AFFECTED_CONDITION = "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')";
 const AFFECTED_TIMEOUT = 45;
-
-/** train gate is skipped on an ordinary pull request and runs everywhere else, even after a red heavy job. */
-const TRAIN_GATE_CONDITION =
-  "always() && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/'))";
 const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
 
 const CI_HEAVY = [
@@ -333,13 +329,7 @@ function assertGate(command: string) {
 /** The gate waits for every heavy ci.yml job, so a red heavy job cannot sit beside a green gate. */
 function assertGateWaits(workflow: ReturnType<typeof parse>) {
   const job = workflow.jobs['train-gate'];
-  expect(job.if).toBe(TRAIN_GATE_CONDITION);
-  // skipped on an ordinary pull request, so it cannot paint a run red; it runs on every other event
-  expect(runs(ORDINARY_PR, 'train-gate', workflow)).toBe(false);
-  expect(runs(TRAIN_PR, 'train-gate', workflow)).toBe(true);
-  expect(runs(MAIN_PUSH, 'train-gate', workflow)).toBe(true);
-  expect(runs(dispatchOn('refs/heads/main', 'build'), 'train-gate', workflow)).toBe(true);
-  expect(runs(dispatchOn('refs/heads/train/9a', 'build'), 'train-gate', workflow)).toBe(true);
+  expect(job.if).toBe('always()');
   expect([...job.needs].sort()).toEqual([...CI_HEAVY].sort());
   // the fast and affected jobs are never inputs to the gate, so neither is a train pass
   expect(job.needs).not.toContain('pr-fast');
@@ -526,14 +516,50 @@ describe('merge train enforcement', () => {
     prCancelOff.concurrency['cancel-in-progress'] = false;
     expect(() => assertConcurrency(prCancelOff)).toThrow();
   });
-  it('declares train gate as required, skips it on ordinary PRs, and keeps the merge instruction in its script', () => {
+  it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
     const job = workflow.jobs['train-gate'];
-    expect(job.name).toBe('train gate');
+    // the job is named `train gate` on every head that may satisfy the requirement
+    for (const ctx of [
+      TRAIN_PR,
+      MAIN_PUSH,
+      dispatchOn('refs/heads/train/9a', 'build'),
+      dispatchOn('refs/heads/main', 'build'),
+    ])
+      expect(evaluateTemplate(job.name, ctx)).toBe('train gate');
     assertGateWaits(workflow);
     const policy = readFileSync(new URL('../../../CONTRIBUTING.md', import.meta.url), 'utf8');
     expect(policy).toContain('`train gate` must be required in branch protection');
     const command = job.steps.find((step: { run?: string }) => step.run).run;
     assertGate(command);
+  });
+  it("never lets an ordinary PR's train gate reach success", () => {
+    const job = workflow.jobs['train-gate'];
+    const others = [
+      TRAIN_PR,
+      MAIN_PUSH,
+      dispatchOn('refs/heads/train/9a', 'build'),
+      dispatchOn('refs/heads/main', 'build'),
+    ];
+    // the job passes on an ordinary PR under another name, so no job check named `train gate` can turn green there
+    expect(evaluateTemplate(job.name, ORDINARY_PR)).not.toBe('train gate');
+    // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
+    const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
+    expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
+    for (const ctx of others) expect(Boolean(evaluate(gate.if, ctx))).toBe(true);
+    // the status named `train gate` is held pending, with its text, on an ordinary PR and nowhere else
+    const hold = job.steps.find((s: { name?: string }) => s.name?.startsWith('Hold the train gate pending'));
+    expect(Boolean(evaluate(hold.if, ORDINARY_PR))).toBe(true);
+    for (const ctx of others) expect(Boolean(evaluate(hold.if, ctx))).toBe(false);
+    expect(hold.run).toContain('state=pending');
+    expect(hold.run).toContain("context='train gate'");
+    expect(hold.run).toContain("description='waits for the merge train'");
+    expect(hold.run).not.toMatch(/state=(success|failure|error)/);
+    expect(hold.run).not.toContain('${{');
+    expect(hold.env.HEAD_SHA).toBe('${{ github.event.pull_request.head.sha }}');
+    expect(job.permissions.statuses).toBe('write');
+    // the pending post is the only step that touches the status, and it is the only one that can
+    const writers = job.steps.filter((s: { run?: string }) => /statuses/.test(s.run ?? ''));
+    expect(writers).toEqual([hold]);
   });
   it('rejects a gate that lets a dispatch count outside a train branch, or with an empty list', () => {
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
