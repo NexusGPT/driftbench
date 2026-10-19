@@ -16,6 +16,12 @@ on:
         description: Comma-separated job ids to run on a train/* branch, no spaces (for example build,python). A dispatch on any other branch runs nothing.
         required: true
         type: string
+      seeds:
+        description: For blocks-measure only. trial runs seeds 1 to 3 and the hidden seed in 3 jobs; one runs seed 1 in 1 job (a planted-bug or cheat check); full runs seeds 1 to 20 and the hidden seed in 10 jobs, for a gate measurement only.
+        required: false
+        default: trial
+        type: choice
+        options: [trial, one, full]
 
 permissions:
   contents: read
@@ -68,6 +74,73 @@ jobs:
             status=$?
           fi
           test "$status" -eq 11
+
+  blocks-measure:
+    # The blocks bank on seeds 1 to 20 and the hidden seed, in shards, for a journal row (docs/validators.md
+    # section 12.4): each shard uploads the report `driftbench validate blocks --items --json` writes. The run is
+    # isolated (section 12.7): the bank is bundled outside the repository and loaded from memory, the validators
+    # are deleted from the disk before the product loads, and the product runs as `node app` from the home folder,
+    # with HOME, PATH and LANG only, no network but loopback, and the shard on standard input. The exit code is
+    # the level reached, so the step records it and never fails the job on it.
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',blocks-measure,')
+    name: blocks bank seeds ${{ matrix.seeds }}${{ matrix.hidden && ' and hidden' || '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      # Runners are shared: a trial round measures seeds 1 to 3 and the hidden seed in 3 jobs; only a gate
+      # measurement (seeds: full) runs the 20-seed sweep in 10 jobs.
+      matrix:
+        include: ${{ fromJSON(inputs.seeds == 'full' && '[{"seeds":"1..2","hidden":true},{"seeds":"3..4","hidden":false},{"seeds":"5..6","hidden":false},{"seeds":"7..8","hidden":false},{"seeds":"9..10","hidden":false},{"seeds":"11..12","hidden":false},{"seeds":"13..14","hidden":false},{"seeds":"15..16","hidden":false},{"seeds":"17..18","hidden":false},{"seeds":"19..20","hidden":false}]' || inputs.seeds == 'one' && '[{"seeds":"1..1","hidden":false}]' || '[{"seeds":"1..1","hidden":false},{"seeds":"2..2","hidden":false},{"seeds":"3..3","hidden":true}]') }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Bundle the bank outside the repository
+        run: pnpm exec tsx packages/validators/src/ladders/blocks/isolated/build.ts "$HOME"
+      - name: Write the shard for standard input
+        env:
+          SHARD: ${{ toJSON(matrix) }}
+        run: |
+          node -e '
+            const shard = JSON.parse(process.env.SHARD);
+            const run = {
+              root: process.env.GITHUB_WORKSPACE,
+              bundle: `${process.env.HOME}/app.mjs`,
+              out: `${process.env.GITHUB_WORKSPACE}/blocks-items.json`,
+              seeds: shard.seeds,
+              hidden: shard.hidden === true,
+              head: require("node:child_process").execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+              self: `${process.env.RUNNER_TEMP}/run.json`,
+            };
+            require("node:fs").writeFileSync(run.self, JSON.stringify(run));
+          '
+      - name: Delete the validators from the disk
+        run: |
+          rm -rf packages/validators validators .git
+          find . -path '*/node_modules/@agent-nexus/driftbench-validators' -prune -exec rm -rf {} +
+          if find . -path '*/node_modules/@agent-nexus/driftbench-validators' | grep -q .; then exit 1; fi
+          test ! -e packages/validators
+      - name: Measure the shard
+        shell: bash
+        # A network namespace with loopback only: the repository is public, so the product cannot fetch the bank's
+        # source from the web either. The run itself drops back to the runner's user.
+        run: |
+          sudo unshare --net -- true
+          status=0
+          (cd "$HOME" && exec sudo unshare --net -- sh -c 'ip link set lo up && exec setpriv --reuid="$0" --regid="$1" --init-groups env -i HOME="$2" PATH="$3" LANG="$4" node app' "$(id -u)" "$(id -g)" "$HOME" "$PATH" "${LANG:-C.UTF-8}" < "$RUNNER_TEMP/run.json") || status=$?
+          echo "level (exit code) $status"
+          test ! -e "$HOME/app.mjs"
+          test ! -e "$RUNNER_TEMP/run.json"
+          test -s blocks-items.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blocks-items-${{ strategy.job-index }}
+          path: blocks-items.json
 
   protect:
     name: executor branches leave the validators alone

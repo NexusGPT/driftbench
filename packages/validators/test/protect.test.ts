@@ -183,9 +183,11 @@ function assertTriggers(workflow: ReturnType<typeof parse>) {
   expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push', 'workflow_dispatch']);
   expect(workflow.on.push.branches).toContain('main');
   const inputs = workflow.on.workflow_dispatch.inputs;
-  expect(Object.keys(inputs)).toEqual(['jobs']);
+  expect(Object.keys(inputs).filter((key) => key !== 'seeds')).toEqual(['jobs']);
   expect(inputs.jobs.required).toBe(true);
   expect(inputs.jobs.type).toBe('string');
+  // The blocks bank's seeds choice (blocks-measure only) may sit beside jobs, never required.
+  if (inputs.seeds) expect(inputs.seeds.required).not.toBe(true);
 }
 
 function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[]) {
