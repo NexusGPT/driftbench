@@ -250,6 +250,18 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `RETENTION_FACT_UNKNOWN` | error | `expect.knowledge_retention` names a fact that no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block's `given.origin` says where a prefix comes from, and the block writes no `given.prefix` |
+| `OBJECT_INVALID` | error | an object file, an inline object in `uses` or a `uses.yaml` does not fit the object format, or a file sits at a path that does not match its kind and id |
+| `OBJECT_KIND_UNKNOWN` | error | an object names a kind no package or plugin registered; the message lists the known kinds |
+| `OBJECT_UNKNOWN` | error | `uses` names an object no layer defines; the message names the spec, the block, the kind, the id and the layers searched |
+| `OBJECT_CYCLE` | error | objects extend each other in a loop; the message prints the loop |
+| `OBJECT_DUPLICATE` | error | one kind and id are defined twice at the same layer |
+| `OBJECT_SHIPPED_IMMUTABLE` | error | a project or suite file redefines a shipped object; write one with another id that extends it |
+| `OBJECT_ITEM_UNKNOWN` | error | an operation, an `order` or a move names an item the parent does not hold; the message lists the parent's items |
+| `OBJECT_ITEM_EXISTS` | error | `add: true` names an item the parent already holds |
+| `OBJECT_ITEM_INCOMPLETE` | error | a new item lacks `title`, `when`, `effect` or `impl`, or a root object lists an item without its full definition |
+| `OBJECT_ORDER_INVALID` | error | an `order` leaves out an enabled item or lists one twice, or a file sets `order` and moves an item |
+| `OBJECT_IMPL_UNKNOWN` | error | an enabled item names an implementation no builtin or plugin provides |
+| `OBJECT_PARAMS_INVALID` | error | an item's params do not fit its implementation's schema; the message names the path |
 | `LINK_BLOCK_UNKNOWN` | error | a link in `metadata.links` names a block id the spec does not have, or an index past its last block |
 | `LINK_TARGET_UNKNOWN` | error or warning | `spec lint --sections` only: error when the registry of the prompt has no such section, warning when no registry was given for the prompt |
 | `LINK_STALE` | warning | `spec lint --sections` only: the link's status is `stale`, or its section was not found again in the registry's version |
@@ -1034,8 +1046,8 @@ Review: signed by owner on 2026-10-13.
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -1097,28 +1109,38 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 120 atoms (69 read by code and approved, 51 code-found candidates waiting for approval, 0 split from prose by the model and waiting for approval), 56 edges.
   Atoms per kind:
-    gate         4
-    route       13
-    skill        4
-    reference    9
-    script       2
-    subagent     3
-    guard        6
-    tool        12
-    setting      4
-    stage        5
-    hazard       2
-    invariant    4
-  No model call: structured atoms only (--no-model).
+    instruction   47
+    gate           4
+    route         13
+    skill          4
+    reference     10
+    script         2
+    subagent       3
+    guard          6
+    tool          12
+    setting        4
+    stage          5
+    register       4
+    hazard         2
+    invariant      4
+  No model call: structured atoms and code-found prose candidates (--no-model).
+  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
+  Unanswered prose chunks (no model call): 14, 6835 characters.
+    CLAUDE.md  2782 characters
+    .claude/agents/inbox-triager.md  169 characters
+    .claude/agents/ledger-auditor.md  519 characters
+    ...
   Refused: none.
+  Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 3 of 4 rules have no guard.
+  Unenforced: 47 of 55 rules have no guard.
     gate.standing.read-git-status-before-commit-to
     gate.invoice-reconcile.read-references-matching-rules-md-before
     gate.weekly-report.read-templates-report-md-before-writing
+    ...
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 

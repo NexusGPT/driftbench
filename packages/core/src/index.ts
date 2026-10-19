@@ -75,6 +75,47 @@ export {
   type TableMapping,
 } from './import/table';
 export {
+  applyItemOperations,
+  BUILTIN_KINDS,
+  type CliOverrides,
+  checkSpecObjects,
+  clearObjectContexts,
+  cliPatch,
+  type ExplainRow,
+  explainObject,
+  explainRows,
+  type ImplDef,
+  type ItemOperations,
+  initializeShippedObjects,
+  itemApplies,
+  itemOf,
+  type KindDef,
+  type LayerUses,
+  mergeFields,
+  type ObjectContext,
+  ObjectError,
+  type ObjectErrorCode,
+  ObjectRegistry,
+  type ObjectSource,
+  ObjectStore,
+  objectContextFor,
+  objectRegistry,
+  PROJECT_OBJECTS_DIR,
+  parseCliOverrides,
+  parseObjectText,
+  type RegistrySnapshot,
+  type ResolvedItem,
+  type ResolvedObject,
+  resolveBlockObjects,
+  type ScopeEvidence,
+  SUITE_OBJECTS_DIR,
+  shippedObjectContext,
+  specUsesObjects,
+  USES_FILE,
+  type UsedObject,
+} from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
+export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
   agentVersionOf,
@@ -211,6 +252,7 @@ export {
   type CompoundingIndex,
   type CompoundingLine,
   type CostLine,
+  cacheSpecHash,
   canonicalGiven,
   canonicalPreviousStage,
   canonicalReply,
@@ -232,6 +274,7 @@ export {
   type EndStateMatch,
   endStateCacheKey,
   enterBlock,
+  eventLogSink,
   flowVerdicts,
   type GivenLayers,
   type IntervalEstimate,
@@ -264,6 +307,7 @@ export {
   type RunningGiven,
   type RunOptions,
   type RunOutcome,
+  readEventLog,
   readStage,
   recoveryOf,
   replacesBlock,
@@ -322,6 +366,22 @@ export {
   LinkTarget,
 } from './schema/links';
 export {
+  AppliesTo,
+  Envelope,
+  ImplRef,
+  Item,
+  ItemFile,
+  ItemId,
+  ItemPatch,
+  LAYERS,
+  Layer,
+  ObjectId,
+  ObjectKind,
+  ObjectRef,
+  USES_KINDS,
+  Uses,
+} from './schema/object';
+export {
   ArtifactRef,
   Blocked,
   BlockResult,
@@ -365,6 +425,7 @@ export {
   Given,
   GivenDefaults,
   GivenOverride,
+  GUARD_INTERVENTIONS,
   GuardExpect,
   JsonExpect,
   LengthBound,
@@ -388,6 +449,7 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export { stringifyBlockYaml } from './spec/block-yaml';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
@@ -401,6 +463,7 @@ export {
   loadSpecFile,
   loadSpecs,
   parseSpecText,
+  type SpecLoadOptions,
   type SpecValidationResult,
   validateSpec,
 } from './spec/load';
