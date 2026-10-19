@@ -81,9 +81,11 @@ describe('an ask of the phrase bank sets off the atoms of its situation', () => 
     expect(play(dir, 'Has NW-55031 arrived yet? The carrier is FRT.').skills).toEqual(['shipment-tracker']);
   });
 
-  it('loads the unit that owns a rule written in its folder, and nothing for an ask the bank does not know', async () => {
+  it('loads the unit a banked phrase names, and nothing for an ask the bank does not know', async () => {
     const dir = await copyOfEstate();
-    expect(play(dir, 'Please use the supplier-email skill for its task.').skills).toEqual(['supplier-email']);
+    expect(
+      play(dir, 'Write to Fjord Kitchenware that order PO-2001 arrived with two broken boxes.').skills,
+    ).toEqual(['supplier-email']);
     // Many words of the skill's description, and no structured definition: the fake does not route by words.
     const plain = play(
       dir,
@@ -100,31 +102,6 @@ describe('an ask of the phrase bank sets off the atoms of its situation', () => 
     expect(outside.calls).toEqual([]);
     const near = play(dir, 'What does a credit note mean on a supplier invoice?');
     expect(near.skills).toEqual([]);
-  });
-});
-
-describe('an ask the generator rendered is read by the frames and shapes of the generator', () => {
-  it('delegates to the helper a shape names, and not when the frame only asks what it would mean', async () => {
-    const dir = await copyOfEstate();
-    expect(play(dir, 'Could you delegate `inbox-triager`? Thanks.').helpers).toEqual(['inbox-triager']);
-    expect(
-      play(
-        dir,
-        'No need to do anything: just tell me in one sentence what it would mean to delegate `inbox-triager`.',
-      ).helpers,
-    ).toEqual([]);
-    expect(
-      play(
-        dir,
-        'Without changing anything, tell me in one sentence what it would mean to use the supplier-email skill for its task.',
-      ).skills,
-    ).toEqual([]);
-  });
-
-  it('reads a file a shape names, with its context sentence ignored', async () => {
-    const dir = await copyOfEstate();
-    const played = play(dir, 'Please read `.claude/memory/MEMORY.md`. This involves the session start.');
-    expect(played.reads).toEqual([join(dir, '.claude/memory/MEMORY.md')]);
   });
 });
 

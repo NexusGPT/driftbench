@@ -7,8 +7,8 @@
  * what it is given, and reads no word of its own:
  * - a phrase of the bank: an ask equal to the phrase sets off the atoms of its situation, unless the situation is
  *   for an ask just outside the trigger or a near miss (`use: outside | near_miss`), which sets nothing off;
- * - an ask the generator rendered: `grammar.json` holds the frames and the act shapes of the generator, cut at
- *   their slots (it is made from the generator's frames.ts). An ask that fits a frame holds an act; the act is
+ * - an ask the generator rendered, when `grammar.json` exists: it holds the frames and the act shapes of the
+ *   generator, cut at their slots. An ask that fits a frame holds an act; the act is
  *   the declared ask of an atom (`fields.ask.text`), or a shape of a skill, a helper, a file or a command. A
  *   frame that only asks what an act would mean sets nothing off;
  * - an ask equal to a declared ask, as the owner writes it ("stop");
