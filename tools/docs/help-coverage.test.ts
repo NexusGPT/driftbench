@@ -55,12 +55,12 @@ describe('registered CLI help coverage', () => {
       mkdirSync(join(scratch, 'new-package', 'src'), { recursive: true });
       writeFileSync(
         join(scratch, 'new-package', 'src', 'errors.ts'),
-        "export const ObjectIssueCodes = ['OBJECT_UNKNOWN'] as const;\n",
+        "export const ObjectIssueCodes = ['ACME_REGISTRY_UNKNOWN'] as const;\n",
       );
-      expect(registeredErrors(scratch)).toEqual(['OBJECT_UNKNOWN']);
+      expect(registeredErrors(scratch)).toEqual(['ACME_REGISTRY_UNKNOWN']);
       expect(
         coverageRows(new Command(), topics, registeredErrors(scratch)).find(
-          (r) => r.item === 'OBJECT_UNKNOWN',
+          (r) => r.item === 'ACME_REGISTRY_UNKNOWN',
         )?.topics,
       ).toEqual([]);
     } finally {
