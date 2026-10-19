@@ -9,7 +9,7 @@ import {
   registeredLadders,
   writeFloors,
 } from '@agent-nexus/driftbench-validators';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it, vi } from 'vitest';
 import {
   bankLadder,
   journalOf,
@@ -22,6 +22,17 @@ import { main } from '../src/index';
 import type { Io } from '../src/io';
 import { committedFloorRun } from './support/committed-floor';
 import { parseFloorExample } from './support/floor-example';
+
+// The stats runs of this file share one measurement cache, the one `validate system` holds for its nested runs:
+// a seed of the committed stats code is measured once. Dirty stats code and a root outside git measure afresh.
+vi.mock('../src/commands/stats-sweep-cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/commands/stats-sweep-cache')>();
+  const cache = actual.createStatsMeasurementCache(actual.statsRevision);
+  return {
+    ...actual,
+    measuredSeeds: (...args: Parameters<typeof actual.measuredSeeds>) => cache.run(...args),
+  };
+});
 
 const made: string[] = [];
 afterAll(async () => {
