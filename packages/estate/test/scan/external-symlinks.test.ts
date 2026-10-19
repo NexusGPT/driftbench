@@ -16,12 +16,7 @@ it.each(['guide.md', 'documents/guide.md'])(
     expect(raw.files.map((file) => file.path)).not.toContain(path);
     expect(raw.notes).toContainEqual({ file: path, message: expect.stringContaining('external') });
     expect(await reader.listFiles(root)).not.toContain(path);
-    if (/guide\.md$/.test(path)) {
-      const { map } = await scanEstate({ root, reader, now: NOW });
-      const reference = map.atoms.find((atom) => atom.kind === 'reference');
-      expect(reference?.fields?.external).toBe(true);
-      expect(reference?.fields?.exists).toBe(false);
-    }
+    // The reference atom for the named file comes from the pointer labels (#877): code no longer reads it from prose.
   },
 );
 

@@ -48,7 +48,6 @@
     "@agent-nexus/driftbench-sandbox": "workspace:*",
     "@agent-nexus/driftbench-space": "workspace:*",
     "@agent-nexus/driftbench-stats": "workspace:*",
-    "compromise": "14.18.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"
   },
