@@ -17,6 +17,7 @@ import { roadmapItems } from './roadmap';
 import { scaleItems, stabilityItems } from './scale';
 import { simulationItems } from './simulation';
 import { sourceGuardItems } from './source-guards';
+import { weightsItems } from './weights';
 
 export { BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, type Tier } from './item';
 
@@ -77,6 +78,7 @@ export function statsBank(root: string): BankItem[] {
     ...scaleItems(),
     ...stabilityItems(),
     ...roadmapItems(root),
+    ...weightsItems(),
   ];
   const order = new Map<BankLevel, number>(BANK_LEVELS.map((level, i) => [level, i]));
   return (
