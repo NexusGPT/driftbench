@@ -2427,29 +2427,61 @@ const COMPONENT = 'packages/core/src/evidence';
 
 type Evidence = { computeEvidence(input: unknown, names?: readonly string[]): Record<string, unknown> };
 
-function check(name: string, build: Case['build'], id: string) {
+/** The product's value of one name on one built case, judged against the value the rule gives. */
+function judge(evidence: Evidence, name: string, built: { input: Obj; want: unknown }) {
+  const { input: given, want } = built;
+  let got: Record<string, unknown>;
+  try {
+    got = evidence.computeEvidence(structuredClone(given), [name]);
+  } catch (error) {
+    return fail(
+      `computeEvidence threw on ${name}: ${error instanceof Error ? error.message.slice(0, 160) : String(error)}`,
+    );
+  }
+  const has = Object.hasOwn(got, name);
+  if (want === undefined)
+    return has
+      ? fail(`${name} should be unknown, so absent from the answer; it is ${canonical(got[name])}`)
+      : PASS;
+  if (!has) return fail(`${name} should be ${canonical(want)}; the answer leaves it out`);
+  return canonical(got[name]) === canonical(want)
+    ? PASS
+    : fail(`${name} should be ${canonical(want)}; it is ${canonical(got[name])}`);
+}
+
+/** The answer a value stands for: absent (unknown) is its own answer, apart from every value. */
+const answerOf = (want: unknown) => (want === undefined ? 'absent' : `value ${canonical(want)}`);
+
+/**
+ * The twin of a case: the first other case of the same name, built on its own seeded names, whose right answer
+ * differs from this case's. An item passes only when the product answers both right, so no answer fixed per name
+ * (one value, or always absent) passes a case and its twin.
+ */
+function twinOf(entry: Name, each: Case, seed: number, want: unknown) {
+  for (const other of entry.cases) {
+    if (other === each) continue;
+    const id = `evidence/${entry.name}/${other.id}`;
+    const built = other.build(names(seed, id));
+    if (answerOf(built.want) !== answerOf(want)) return { id, built };
+  }
+  return undefined;
+}
+
+function check(entry: Name, each: Case, id: string) {
   return async ({ seed, product }: { seed: number; product: BlocksProduct }) => {
     const evidence = need<Evidence>(product.core, 'core', 'evidence');
     if (typeof evidence.computeEvidence !== 'function')
       return fail('the core package exports evidence, with no computeEvidence');
-    const { input: given, want } = build(names(seed, id));
-    let got: Record<string, unknown>;
-    try {
-      got = evidence.computeEvidence(structuredClone(given), [name]);
-    } catch (error) {
-      return fail(
-        `computeEvidence threw on ${name}: ${error instanceof Error ? error.message.slice(0, 160) : String(error)}`,
-      );
-    }
-    const has = Object.hasOwn(got, name);
-    if (want === undefined)
-      return has
-        ? fail(`${name} should be unknown, so absent from the answer; it is ${canonical(got[name])}`)
-        : PASS;
-    if (!has) return fail(`${name} should be ${canonical(want)}; the answer leaves it out`);
-    return canonical(got[name]) === canonical(want)
+    const built = each.build(names(seed, id));
+    const own = judge(evidence, entry.name, built);
+    if (!own.pass) return own;
+    const twin = twinOf(entry, each, seed, built.want);
+    if (twin === undefined)
+      return fail(`the bank holds no twin of ${id}: no other case of ${entry.name} has another answer`);
+    const other = judge(evidence, entry.name, twin.built);
+    return other.pass
       ? PASS
-      : fail(`${name} should be ${canonical(want)}; it is ${canonical(got[name])}`);
+      : fail(`on the twin ${twin.id}, whose right answer differs: ${(other as { detail: string }).detail}`);
   };
 }
 
@@ -2464,9 +2496,9 @@ export function evidenceItems(): BankItem[] {
         tier: each.tier,
         level: 5,
         component: `${COMPONENT}/${entry.file}.ts`,
-        title: `the evidence name ${entry.name} on ${each.id.replace(/-/g, ' ')} takes the value its documented rule gives`,
+        title: `the evidence name ${entry.name} on ${each.id.replace(/-/g, ' ')} takes the value its documented rule gives, and its twin of another answer takes its own`,
         cause: `The evidence name ${entry.name} follows its documented rules.`,
-        check: check(entry.name, each.build, id),
+        check: check(entry, each, id),
       };
     }),
   );
