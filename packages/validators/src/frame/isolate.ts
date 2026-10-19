@@ -18,7 +18,7 @@ import {
   shortText,
   type Tape,
 } from './tape';
-import { rngOf, type TwinPlan, twinPlans } from './twins';
+import { bareEnv, drawnFolder, rngOf, type TwinPlan, twinPlans } from './twins';
 
 /**
  * The frame: the product runs apart, the parent decides (docs/validators.md, the section of that name). The
@@ -96,7 +96,7 @@ function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
 
 const describeRun = (plan: TwinPlan | 'C') =>
   plan === 'C'
-    ? 'run C (a plain entry file per call, under the tsx loader)'
+    ? 'run C (a plain entry file per call under the tsx loader, a bare environment of its own)'
     : plan.run === 'A'
       ? 'run A (the validator folder and environment)'
       : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
@@ -111,7 +111,14 @@ function loaderOption(): string[] {
   }
 }
 
-type PlainRun = { dir: string; codec: string; codecNames: { encode: string; decode: string }; count: number };
+type PlainRun = {
+  dir: string;
+  codec: string;
+  codecNames: { encode: string; decode: string };
+  count: number;
+  /** Run C's own bare environment, with a fresh home folder inside its folder. */
+  env: Record<string, string>;
+};
 
 /** Opens run C: a drawn folder in the project's cache, holding the codec module. */
 function openPlain(seed: number, tag: string): PlainRun {
@@ -124,7 +131,9 @@ function openPlain(seed: number, tag: string): PlainRun {
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
   writeFileSync(codecPath, codec.source);
-  return { dir, codec: codecPath, codecNames: codec, count: 0 };
+  const home = join(dir, drawnFolder(rng));
+  mkdirSync(home, { recursive: true });
+  return { dir, codec: codecPath, codecNames: codec, count: 0, env: bareEnv(rng, home) };
 }
 
 /** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
@@ -153,7 +162,7 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
   );
   const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
     cwd: findRoot(dirname(module)),
-    env: process.env,
+    env: plain.env,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: CALL_MS,
@@ -305,12 +314,14 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const plans = twinPlans(options.seed, tag, projectCache());
   const token = randomBytes(16).toString('hex');
   const loader = loaderPath();
-  const plainDir = openPlain(options.seed, `${tag}:command`).dir;
+  const plainRun = openPlain(options.seed, `${tag}:command`);
+  const plainDir = plainRun.dir;
   const runs: Array<TwinPlan | 'C'> = [...plans, 'C'];
   const results = runs.map((plan) => {
     const home = plan === 'C' ? plainDir : plan.driverDir;
     const work = join(home, 'w');
     mkdirSync(work, { recursive: true });
+    if (plan !== 'C' && plan.home) mkdirSync(plan.home, { recursive: true });
     try {
       for (const [path, text] of Object.entries(options.files ?? {})) {
         const target = resolve(work, path);
@@ -322,7 +333,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       if (plan === 'C') {
         ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
           cwd: work,
-          env: process.env,
+          env: plainRun.env,
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'pipe'],
           timeout: options.timeoutMs ?? CALL_MS,

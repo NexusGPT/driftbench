@@ -226,6 +226,7 @@ const reply = (message) => { port.postMessage(message); Atomics.store(flag, 0, 1
 const runs = plans.map((plan) => {
   mkdirSync(plan.driverDir, { recursive: true });
   if (plan.cwd) mkdirSync(plan.cwd, { recursive: true });
+  if (plan.home) mkdirSync(plan.home, { recursive: true });
   const file = join(plan.driverDir, plan.driverFile);
   writeFileSync(file, plan.driverSource);
   const child = spawn(process.execPath, [file, ...plan.argvTail], {

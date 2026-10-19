@@ -1,5 +1,5 @@
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /**
  * The two runs of the frame, drawn from the seed (docs/validators.md, "The frame: the product runs apart, the
@@ -11,7 +11,8 @@ import { join } from 'node:path';
  * |---|---|---|
  * | process arguments | the driver's path alone | the driver's path and drawn arguments |
  * | working folder | the validator's own | a fresh folder |
- * | environment | the validator's own | the path, the home folder and drawn variables only |
+ * | environment | the validator's own | bare: a search path of the node binary's folder and the system folders, a fresh
+ *   drawn home folder, the temporary folder and drawn variables |
  * | uptime | as it is | shifted by a drawn day to month |
  * | call stack | a drawn driver file in the project's cache | a drawn driver file in the temporary folder, nested |
  * | node options | none | none: a loader, when needed, is registered inside the driver |
@@ -68,6 +69,8 @@ export type TwinPlan = {
   cwd?: string;
   /** The environment: undefined is the validator's own. */
   env?: Record<string, string>;
+  /** The fresh home folder of a bare environment, made before the run starts. */
+  home?: string;
   /** Seconds added to process.uptime and to performance.now. */
   uptimeShift: number;
   /** How many calls deep the product is called from the driver. */
@@ -76,18 +79,44 @@ export type TwinPlan = {
   driverSource?: string;
 };
 
-/** The two runs of one frame. `projectCache` is a cache folder of the project (its node_modules/.cache). */
-export function twinPlans(seed: number, tag: string, projectCache: string): [TwinPlan, TwinPlan] {
-  const rng = rngOf(seed, `twins:${tag}`);
-  const folderA = plainName(rng, 6, 14);
-  const folderB = plainName(rng, 6, 14);
-  const env: Record<string, string> = {};
-  for (const name of ['PATH', 'HOME', 'USERPROFILE', 'SYSTEMROOT', 'TMPDIR', 'TEMP', 'TMP']) {
+/**
+ * A bare environment, as a user's own shell gives a script: a search path of the node binary's folder and the
+ * system folders (never the project's `node_modules/.bin`), the given fresh home folder, the temporary folder and
+ * one to three drawn variables. Second review of PR 892: run B copied the validator's PATH and HOME, so a product
+ * keyed on either answered the same in every run.
+ */
+export function bareEnv(rng: () => number, home: string): Record<string, string> {
+  const windows = process.platform === 'win32';
+  const root = process.env.SYSTEMROOT ?? process.env.SystemRoot;
+  const system = windows
+    ? [root ? join(root, 'System32') : '', root ?? '']
+    : ['/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin'];
+  const env: Record<string, string> = {
+    PATH: [dirname(process.execPath), ...system].filter((dir) => dir !== '').join(windows ? ';' : ':'),
+    HOME: home,
+  };
+  if (windows) env.USERPROFILE = home;
+  for (const name of ['SYSTEMROOT', 'TMPDIR', 'TEMP', 'TMP']) {
     const value = process.env[name];
     if (value !== undefined) env[name] = value;
   }
   for (let i = 0; i < 1 + Math.floor(rng() * 3); i += 1)
     env[plainName(rng, 4, 9).toUpperCase()] = plainName(rng, 3, 12);
+  return env;
+}
+
+/** A drawn folder name, letters only, for a home folder or a run's own folder. */
+export function drawnFolder(rng: () => number): string {
+  return plainName(rng, 6, 14);
+}
+
+/** The two runs of one frame. `projectCache` is a cache folder of the project (its node_modules/.cache). */
+export function twinPlans(seed: number, tag: string, projectCache: string): [TwinPlan, TwinPlan] {
+  const rng = rngOf(seed, `twins:${tag}`);
+  const folderA = plainName(rng, 6, 14);
+  const folderB = plainName(rng, 6, 14);
+  const homeB = join(tmpdir(), folderB, plainName(rng, 6, 14));
+  const env = bareEnv(rng, homeB);
   const a: TwinPlan = {
     run: 'A',
     driverDir: join(projectCache, folderA),
@@ -102,6 +131,7 @@ export function twinPlans(seed: number, tag: string, projectCache: string): [Twi
     driverFile: `${plainName(rng, 3, 12)}.mjs`,
     argvTail: Array.from({ length: 1 + Math.floor(rng() * 3) }, () => `--${plainName(rng, 3, 8)}`),
     cwd: join(tmpdir(), folderB),
+    home: homeB,
     env,
     uptimeShift: 86_400 + Math.floor(rng() * 30 * 86_400),
     depth: 2 + Math.floor(rng() * 6),
