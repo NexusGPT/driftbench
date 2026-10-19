@@ -93,6 +93,8 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
 
 /** Text printed under a section heading, for the sections whose values describe behaviour. */
 const SECTION_NOTES: Record<string, string> = {
+  Block:
+    'A block may name `parent: <block id>` in the same spec. The runner starts it from that parent’s recorded end state, then applies its own Given. Dependencies run first; missing parents and cycles are errors. A failed or unrun parent blocks descendants, which the report lists under the original cause. See [parent blocks](../concepts/given-when-then.md#parent-blocks) and the [Acme example](../../examples/acme/parents/README.md).',
   DeviationClass:
     'Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).',
   DriftClass:
@@ -257,7 +259,9 @@ function scalarParts(node: Node): { base: string; rules: string[] } | undefined 
     else if (min === 1) rules.push('not empty');
     else if (min !== undefined) rules.push(`at least ${min} characters`);
     else if (max !== undefined) rules.push(`at most ${max} characters`);
-    if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
+    // A base64 string is named as such, not by the long pattern that checks it.
+    if (node.contentEncoding === 'base64' || node.format === 'base64') rules.push('base64');
+    else if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
     return { base: 'string', rules };
   }
   if (node.type === 'integer' || node.type === 'number') {
@@ -700,7 +704,7 @@ export const FILE_PAGES: readonly FilePage[] = [
     source: 'packages/core/src/radius/change.ts',
     about:
       'A change manifest says what changed between two versions of an agent, for `driftbench radius --change`; see [blast radius](../concepts/blast-radius.md).',
-    keys: SNAKE,
+    keys: 'Keys are as written below. An unknown key is an error.',
     names: core,
     roots: [['ChangeManifest', core.ChangeManifest]],
     values: {
@@ -762,6 +766,16 @@ export const FILE_PAGES: readonly FilePage[] = [
         allows: 'A skill or helper to a tool or skill it may use.',
         next: 'A stage to the stage that follows it.',
         cites: 'A rule to a rule its words name by label.',
+      },
+      DocumentRole: {
+        normative: 'The document states what the agent must do.',
+        changelog: 'A list of changes over time: a place to look, never a rule.',
+        history: 'What was true once and has been retired or replaced.',
+        template: 'A form or skeleton to copy, not an instruction to follow.',
+        example: 'A sample of how something reads or is used.',
+        journal: 'A running log of work done.',
+        fixture: 'Data a test or a demonstration reads.',
+        archive: 'Kept for the record and no longer in use.',
       },
       TestType: {
         obligation: 'The required act happens, or a forbidden act does not, in the situation of the rule.',

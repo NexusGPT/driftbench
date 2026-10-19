@@ -54,33 +54,37 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 
 ## DocumentInfo
 
+The role of one document of the estate.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `path` | string, not empty | yes |  |  |
-| `role` | [DocumentRole](#documentrole) | yes |  |  |
-| `reasons` | list of strings, each not empty, at least 1 item | yes |  |  |
-| `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  |  |
+| `path` | string, not empty | yes |  | The path of the document, relative to the estate root. |
+| `role` | [DocumentRole](#documentrole) | yes |  | The role of the whole document. |
+| `reasons` | list of strings, each not empty, at least 1 item | yes |  | What the role was read from: the structure or the label that gave it. |
+| `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  | Sections whose role differs from the role of the document. |
 
 ## DocumentRole
 
+The authority of a document, apart from its file kind: normative (states what the agent must do), changelog, history, template, example, journal, fixture or archive (a place to look, not a rule).
+
 | Value | Meaning |
 |---|---|
-| `normative` |  |
-| `changelog` |  |
-| `history` |  |
-| `template` |  |
-| `example` |  |
-| `journal` |  |
-| `fixture` |  |
-| `archive` |  |
+| `normative` | The document states what the agent must do. |
+| `changelog` | A list of changes over time: a place to look, never a rule. |
+| `history` | What was true once and has been retired or replaced. |
+| `template` | A form or skeleton to copy, not an instruction to follow. |
+| `example` | A sample of how something reads or is used. |
+| `journal` | A running log of work done. |
+| `fixture` | Data a test or a demonstration reads. |
+| `archive` | Kept for the record and no longer in use. |
 
 ## DocumentInfo sections
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `startLine` | integer, at least 1 | yes |  |  |
-| `endLine` | integer, at least 1 | yes |  |  |
-| `role` | [DocumentRole](#documentrole) | yes |  |  |
+| `startLine` | integer, at least 1 | yes |  | The first line of the section. |
+| `endLine` | integer, at least 1 | yes |  | The last line of the section. |
+| `role` | [DocumentRole](#documentrole) | yes |  | The role of this section when it differs from the document. |
 
 ## Atom
 

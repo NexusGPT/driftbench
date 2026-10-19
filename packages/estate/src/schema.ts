@@ -222,31 +222,32 @@ export const Edge = z.strictObject({
 export type Edge = z.infer<typeof Edge>;
 
 /** Authority is independent of runtime file kind and atom axis/detail role. */
-export const DocumentRole = z.enum([
-  'normative',
-  'changelog',
-  'history',
-  'template',
-  'example',
-  'journal',
-  'fixture',
-  'archive',
-]);
+export const DocumentRole = z
+  .enum(['normative', 'changelog', 'history', 'template', 'example', 'journal', 'fixture', 'archive'])
+  .describe(
+    'The authority of a document, apart from its file kind: normative (states what the agent must do), changelog, history, template, example, journal, fixture or archive (a place to look, not a rule).',
+  );
 export type DocumentRole = z.infer<typeof DocumentRole>;
-export const DocumentInfo = z.strictObject({
-  path: z.string().min(1),
-  role: DocumentRole,
-  reasons: z.array(z.string().min(1)).min(1),
-  sections: z
-    .array(
-      z.strictObject({
-        startLine: z.number().int().min(1),
-        endLine: z.number().int().min(1),
-        role: DocumentRole,
-      }),
-    )
-    .optional(),
-});
+export const DocumentInfo = z
+  .strictObject({
+    path: z.string().min(1).describe('The path of the document, relative to the estate root.'),
+    role: DocumentRole.describe('The role of the whole document.'),
+    reasons: z
+      .array(z.string().min(1))
+      .min(1)
+      .describe('What the role was read from: the structure or the label that gave it.'),
+    sections: z
+      .array(
+        z.strictObject({
+          startLine: z.number().int().min(1).describe('The first line of the section.'),
+          endLine: z.number().int().min(1).describe('The last line of the section.'),
+          role: DocumentRole.describe('The role of this section when it differs from the document.'),
+        }),
+      )
+      .optional()
+      .describe('Sections whose role differs from the role of the document.'),
+  })
+  .describe('The role of one document of the estate.');
 export type DocumentInfo = z.infer<typeof DocumentInfo>;
 
 export const EstateMap = z.strictObject({
