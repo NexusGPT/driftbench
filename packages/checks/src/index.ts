@@ -7,6 +7,7 @@
  */
 
 export { DEFAULT_CHECK_SET, SHIPPED_CHECKS } from './check-set';
+export { absence } from './checks/absence';
 export { artifacts } from './checks/artifacts';
 export { budget } from './checks/budget';
 export { cards } from './checks/cards';
