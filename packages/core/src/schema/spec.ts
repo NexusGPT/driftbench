@@ -122,6 +122,26 @@ export const GivenOverride = z
   );
 export type GivenOverride = z.infer<typeof GivenOverride>;
 
+/**
+ * How one value assertion is compared, by the rungs of the value-check policy. `auto` walks the rungs in order;
+ * a rung name runs that rung alone; `{ exact: <reason> }` declares that the writing itself is the requirement.
+ */
+export const CompareMode = z
+  .union([
+    z
+      .enum(['auto', 'outcome', 'contract', 'as_given', 'same_referent'])
+      .describe(
+        'auto walks the value-check rungs; outcome asks the tool; contract reads its stated format; as_given compares with the source the agent copied; same_referent asks the calibrated judge.',
+      ),
+    z
+      .strictObject({
+        exact: z.string().min(1).describe('Why the writing itself is the requirement, in one line.'),
+      })
+      .describe('Exact match by declaration: the value must be the gold value byte for byte.'),
+  ])
+  .describe('How one value is compared: auto, a rung name, or exact with its reason.');
+export type CompareMode = z.infer<typeof CompareMode>;
+
 export const ToolExpect = z
   .strictObject({
     label: z.string().min(1).describe('The tool name.'),
@@ -135,6 +155,12 @@ export const ToolExpect = z
       .optional()
       .describe(
         'True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed.',
+      ),
+    compare: z
+      .union([CompareMode, z.record(z.string().min(1), CompareMode)])
+      .optional()
+      .describe(
+        'How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing.',
       ),
   })
   .describe('One expected tool call.');
