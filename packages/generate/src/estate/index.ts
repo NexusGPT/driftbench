@@ -2,18 +2,48 @@
 
 export {
   actOf,
+  askClausesOf,
   askedTo,
   type CodeAsk,
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
+  type DeclaredAsk,
+  declaredAskOf,
+  fileSubjectDerivation,
   imperative,
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,
+  sameAskAct,
   situationProblem,
+  structuredAskOf,
+  TOOL_ACTS,
 } from './asks';
+export {
+  estateOwners,
+  holdsRule,
+  navigationFiles,
+  navigationReference,
+  rowOwners,
+  taskAtoms,
+} from './context';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
+export {
+  ACT_SHAPES,
+  ASK_FRAMES,
+  askedClauses,
+  CONTEXT_SHAPES,
+  fillShape,
+  HAZARD_FRAME,
+  pronounDerivation,
+  renderAsk,
+  SLOT,
+  STRUCTURED_ACT_SHAPES,
+  SUBJECT_SHAPE,
+  SUBJECT_TAIL,
+  VERBATIM,
+} from './frames';
 export {
   type AskSource,
   checkEstateInputs,
@@ -45,6 +75,7 @@ export {
   checkBank,
   checkSessions,
   type EstateAtom,
+  type EstateDocument,
   type EstateEvidence,
   type EstateMapInput,
   type EstatePlanInput,
@@ -59,6 +90,15 @@ export {
   WorkspaceSeed,
 } from './inputs';
 export { COMPILED_PREDICATES, type Compiled, compilePredicate } from './predicates';
+export {
+  ACT_KINDS,
+  type ActKind,
+  type ActRecord,
+  ASK_FORMS,
+  type FromRecord,
+  fingerprintOf,
+  type LinkRecord,
+} from './record';
 export {
   STATIC_DIR,
   STATIC_TEST_TYPES,
