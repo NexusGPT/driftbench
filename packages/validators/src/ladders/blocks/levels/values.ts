@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { between, pick, type RawSpec, type Rng, rngFor, run, SHOP } from '../harness';
+import { between, type RawSpec, type Rng, rngFor, run, shuffled } from '../harness';
 import { type FileAction, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
 import { type BankItem, fail, PASS, type Tier } from '../types';
@@ -14,6 +14,11 @@ import { type BankItem, fail, PASS, type Tier } from '../types';
  * gave may not be changed (`rung2b_as_given`); anything no rung settles is compared exactly (`exact_fallback`,
  * lint `no_decider`), so a fail stays a fail. The tools here are fictional and their truth is code: a phone
  * resolves by its digits, an email by its lower case, a bike code by its upper case.
+ *
+ * Every tool name, field name, file name, record and value the ladder reads is drawn from the seed and the item
+ * id, so no table of what one seed draws answers another, and no catalogue of names lets a ladder key on a
+ * tool. Every case runs with a twin whose right answer differs in its outcome or its rung, so no fixed verdict
+ * passes both.
  */
 
 const LADDER = 'packages/checks/src/value-check/ladder.ts';
@@ -21,166 +26,268 @@ const OUTCOME = 'packages/checks/src/value-check/outcome.ts';
 const CONTRACT = 'packages/checks/src/value-check/contract.ts';
 const AS_GIVEN = 'packages/checks/src/value-check/as-given.ts';
 
-type Result = { outcome: string; rung: string; lint?: { id: string } };
+type Result = { outcome: string; rung: string; lint?: { id: string }; evidence?: unknown };
 type Case = Record<string, unknown>;
 type Services = Record<string, unknown>;
+type Want = { outcome: string; rung: string };
 
 type RunLadder = (value: Case, policy?: unknown, services?: Services) => Promise<Result>;
 
-/** A fictional directory: customers with a phone and an email, and bikes with a code. */
-type World = {
-  customers: { id: string; phone: string; email: string }[];
-  bikes: { id: string; code: string }[];
-};
+const LETTERS = 'abcdefghjkmnpqrstuvwxyz';
 
-function world(rng: Rng): World {
-  const customers = SHOP.customers.map((name, index) => {
-    const digits = `202555${String(between(rng, 1000, 9999))}${index}`.slice(0, 10);
-    return {
-      id: `C-${index}${between(rng, 10, 99)}`,
-      phone: `+1${digits}`,
-      email: `${name.toLowerCase().replace(/[^a-z]/g, '.')}@larkspur.example`,
-    };
-  });
-  const bikes = SHOP.bikes.map((bike, index) => ({
-    id: `B-${index}${between(rng, 10, 99)}`,
-    code: `${bike
-      .replace(/[^A-Za-z]/g, '')
-      .slice(0, 4)
-      .toUpperCase()}${between(rng, 10, 99)}`,
-  }));
-  return { customers, bikes };
+/** A seeded word of lower case letters. */
+function word(rng: Rng, length: number): string {
+  let out = '';
+  for (let index = 0; index < length; index += 1) out += LETTERS[Math.floor(rng() * LETTERS.length)];
+  return out;
 }
+
+const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+
+/** A seeded run of digits, the first one not 0. */
+function digits(rng: Rng, length: number): string {
+  let out = String(between(rng, 1, 9));
+  while (out.length < length) out += String(between(rng, 0, 9));
+  return out;
+}
+
+/** The names a case hands the ladder: a tool, its field, another tool, another field, a resolved key. */
+type Names = { tool: string; field: string; elsewhere: string; spare: string; resolved: string };
+
+function namesFor(seed: number, id: string): Names {
+  const name = (slot: string, length = 6) => token(seed, `${id}#${slot}`, length);
+  return {
+    tool: `${name('tool-a', 5)}.${name('tool-b')}`,
+    field: `f${name('field')}`,
+    elsewhere: `${name('else-a', 5)}.${name('else-b')}`,
+    spare: `s${name('spare')}`,
+    resolved: `r${name('resolved')}`,
+  };
+}
+
+/** A kind of value and the tool's own rule for it: the writing a record holds, another writing, the normal form. */
+type ValueKind = {
+  kind: string;
+  draw(rng: Rng, domain: string): string;
+  other(gold: string): string;
+  normal(value: string): string;
+};
 
 /** A phone written another way: spaces between groups, the same digits. */
 const spaced = (phone: string) =>
   `${phone.slice(0, 2)} ${phone.slice(2, 5)} ${phone.slice(5, 8)} ${phone.slice(8)}`;
 
-type ToolSpec = {
-  tool: string;
-  field: string;
-  /** The gold value of the record and the same referent written another way. */
-  gold(w: World, index: number): string;
-  other(w: World, index: number): string;
-  /** The tool's own resolution: the record id a value names, or null. */
-  resolve(w: World, value: string): string | null;
-  resolved: string;
-};
-
-const TOOLS: ToolSpec[] = [
+const VALUE_KINDS: ValueKind[] = [
   {
-    tool: 'customer.find',
-    field: 'phone',
-    gold: (w, i) => (w.customers[i] as World['customers'][number]).phone,
-    other: (w, i) => spaced((w.customers[i] as World['customers'][number]).phone),
-    resolve: (w, value) =>
-      w.customers.find((c) => c.phone.replace(/\D/g, '') === value.replace(/\D/g, ''))?.id ?? null,
-    resolved: 'customer_id',
+    kind: 'phone',
+    draw: (rng) => `+${between(rng, 1, 9)}${digits(rng, 10)}`,
+    other: spaced,
+    normal: (value) => value.replace(/\D/g, ''),
   },
   {
-    tool: 'customer.lookup',
-    field: 'email',
-    gold: (w, i) => (w.customers[i] as World['customers'][number]).email,
-    other: (w, i) => (w.customers[i] as World['customers'][number]).email.toUpperCase(),
-    resolve: (w, value) => w.customers.find((c) => c.email === value.toLowerCase())?.id ?? null,
-    resolved: 'customer_id',
+    kind: 'email',
+    draw: (rng, domain) => `${word(rng, 5)}.${word(rng, 6)}@${domain}.example`,
+    other: (gold) => gold.toUpperCase(),
+    normal: (value) => value.toLowerCase(),
   },
   {
-    tool: 'bikes.reserve',
-    field: 'bike_code',
-    gold: (w, i) => (w.bikes[i] as World['bikes'][number]).code,
-    other: (w, i) => (w.bikes[i] as World['bikes'][number]).code.toLowerCase(),
-    resolve: (w, value) => w.bikes.find((b) => b.code === value.toUpperCase())?.id ?? null,
-    resolved: 'bike_id',
+    kind: 'bike_code',
+    draw: (rng) => `${word(rng, 4).toUpperCase()}${between(rng, 10, 999)}`,
+    other: (gold) => gold.toLowerCase(),
+    normal: (value) => value.toUpperCase(),
   },
 ];
 
+/** A fictional directory of one kind of value: seeded records, each with its id and its gold writing. */
+type World = { kind: ValueKind; records: { id: string; gold: string }[] };
+
+function world(rng: Rng, kind: ValueKind): World {
+  const domain = word(rng, 7);
+  const count = between(rng, 5, 9);
+  const records: World['records'] = [];
+  const seen = new Set<string>();
+  while (records.length < count) {
+    const gold = kind.draw(rng, domain);
+    if (seen.has(kind.normal(gold))) continue;
+    seen.add(kind.normal(gold));
+    records.push({ id: `${word(rng, 3)}-${between(rng, 100, 999)}`, gold });
+  }
+  return { kind, records };
+}
+
+/** The tool's own resolution: the id of the record a writing names, or null. */
+const resolveIn = (w: World, value: string) =>
+  w.records.find((record) => w.kind.normal(record.gold) === w.kind.normal(value))?.id ?? null;
+
+const goldOf = (w: World, index: number) => (w.records[index] as World['records'][number]).gold;
+
+type ReplayOptions = {
+  declared?: boolean;
+  distractors?: boolean;
+  inputs?: string[];
+  refuse?: string;
+  /** A resolution of its own, in place of the directory's. */
+  resolve?: (value: string) => string | null;
+};
+
 /** A replayer over the fictional world: the tool's own resolution, a refusal on an empty value. */
-function replayer(
-  w: World,
-  spec: ToolSpec,
-  options: { declared?: boolean; distractors?: boolean; inputs?: string[]; refuse?: string },
-) {
+function replayer(w: World, names: Pick<Names, 'tool' | 'field' | 'resolved'>, options: ReplayOptions) {
+  const resolve = options.resolve ?? ((value: string) => resolveIn(w, value));
   return {
     declaration: (tool: string) =>
-      options.declared === false || tool !== spec.tool
+      options.declared === false || tool !== names.tool
         ? undefined
         : {
-            resolved: [spec.resolved],
+            resolved: [names.resolved],
             distractors: options.distractors ?? true,
             ...(options.inputs ? { inputs: options.inputs } : {}),
           },
     call: (tool: string, input: Record<string, unknown>) => {
-      if (tool !== spec.tool) return { ok: false, error: `unknown tool ${tool}` };
-      const value = String(input[spec.field] ?? '');
-      if (value === '' || value === options.refuse) return { ok: false, error: `${spec.field} refused` };
-      return { ok: true, output: { [spec.resolved]: spec.resolve(w, value) } };
+      if (tool !== names.tool) return { ok: false, error: `unknown tool ${tool}` };
+      const value = String(input[names.field] ?? '');
+      if (value === '' || value === options.refuse) return { ok: false, error: `${names.field} refused` };
+      return { ok: true, output: { [names.resolved]: resolve(value) } };
     },
   };
 }
 
+/** One call of the ladder: the value and the gold, the services, and the verdict it must reach. */
+type Probe = { value: unknown; gold: unknown; services: Services; want: Want; about?: string };
+
 type OutcomeCase = {
   id: string;
   tier: Tier;
-  want: { outcome: string; rung: string };
-  build(
-    w: World,
-    spec: ToolSpec,
-    rng: Rng,
-  ): { value: unknown; gold: unknown; services: Services; field?: string };
+  want: Want;
+  /** The case and its twin, whose right verdict differs in outcome or rung. */
+  build(w: World, names: Names, rng: Rng): { main: Probe; twin: Probe };
 };
 
-const recordIndex = (rng: Rng) => between(rng, 0, SHOP.customers.length - 1);
+const recordIndex = (rng: Rng, w: World) => between(rng, 0, w.records.length - 1);
+
+/** Another record than `index`. */
+const otherIndex = (rng: Rng, w: World, index: number) =>
+  (index + 1 + between(rng, 0, w.records.length - 2)) % w.records.length;
+
+/**
+ * The pass twin: the other writing of another record, against a tool whose own truth says that writing names
+ * the gold's record. Only a replay of the tool passes it: the two writings differ in every normal form.
+ */
+function aliasTwin(w: World, names: Names, rng: Rng, index: number, options: ReplayOptions = {}): Probe {
+  const gold = goldOf(w, index);
+  const value = w.kind.other(goldOf(w, otherIndex(rng, w, index)));
+  return {
+    value,
+    gold,
+    services: {
+      replayer: replayer(w, names, {
+        ...options,
+        resolve: (written) => (written === value ? resolveIn(w, gold) : resolveIn(w, written)),
+      }),
+    },
+    want: { outcome: 'pass', rung: 'rung1_outcome' },
+    about: 'a tool whose own truth resolves both writings to one record',
+  };
+}
 
 const OUTCOME_CASES: OutcomeCase[] = [
   {
     id: 'same-referent-reformatted',
     tier: 2,
     want: { outcome: 'pass', rung: 'rung1_outcome' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
-      return { value: s.other(w, i), gold: s.gold(w, i), services: { replayer: replayer(w, s, {}) } };
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
+      const [value, gold] = [w.kind.other(goldOf(w, i)), goldOf(w, i)];
+      // The twin: the same two writings against a tool that resolves the second to another record. The rung
+      // compares what the tool resolves, never the form of the two writings.
+      const strict = (written: string) =>
+        written === gold ? resolveIn(w, gold) : `elsewhere-${names.resolved}`;
+      return {
+        main: {
+          value,
+          gold,
+          services: { replayer: replayer(w, names, {}) },
+          want: { outcome: 'pass', rung: 'rung1_outcome' },
+        },
+        twin: {
+          value,
+          gold,
+          services: { replayer: replayer(w, names, { resolve: strict }) },
+          want: { outcome: 'fail', rung: 'rung1_outcome' },
+          about: 'a tool that resolves them to two records',
+        },
+      };
     },
   },
   {
     id: 'other-referent',
     tier: 1,
     want: { outcome: 'fail', rung: 'rung1_outcome' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
-      const j = (i + 1 + between(rng, 0, SHOP.customers.length - 2)) % SHOP.customers.length;
-      return { value: s.other(w, j), gold: s.gold(w, i), services: { replayer: replayer(w, s, {}) } };
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
+      const j = otherIndex(rng, w, i);
+      return {
+        main: {
+          value: w.kind.other(goldOf(w, j)),
+          gold: goldOf(w, i),
+          services: { replayer: replayer(w, names, {}) },
+          want: { outcome: 'fail', rung: 'rung1_outcome' },
+        },
+        twin: aliasTwin(w, names, rng, i),
+      };
     },
   },
   {
     id: 'unknown-value',
     tier: 2,
     want: { outcome: 'fail', rung: 'rung1_outcome' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
-      return { value: `${s.gold(w, i)}9`, gold: s.gold(w, i), services: { replayer: replayer(w, s, {}) } };
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
+      const gold = goldOf(w, i);
+      let value = `${gold}${between(rng, 1, 9)}`;
+      while (resolveIn(w, value) !== null) value = `${value}${between(rng, 1, 9)}`;
+      return {
+        main: {
+          value,
+          gold,
+          services: { replayer: replayer(w, names, {}) },
+          want: { outcome: 'fail', rung: 'rung1_outcome' },
+        },
+        twin: aliasTwin(w, names, rng, i),
+      };
     },
   },
   {
     id: 'tool-refuses-the-value',
     tier: 3,
     want: { outcome: 'fail', rung: 'rung1_outcome' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
-      const value = s.other(w, i);
-      return { value, gold: s.gold(w, i), services: { replayer: replayer(w, s, { refuse: value }) } };
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
+      const value = w.kind.other(goldOf(w, i));
+      return {
+        main: {
+          value,
+          gold: goldOf(w, i),
+          services: { replayer: replayer(w, names, { refuse: value }) },
+          want: { outcome: 'fail', rung: 'rung1_outcome' },
+        },
+        twin: aliasTwin(w, names, rng, i),
+      };
     },
   },
   {
     id: 'no-distractors',
     tier: 4,
     want: { outcome: 'fail', rung: 'exact_fallback' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
       return {
-        value: s.other(w, i),
-        gold: s.gold(w, i),
-        services: { replayer: replayer(w, s, { distractors: false }) },
+        main: {
+          value: w.kind.other(goldOf(w, i)),
+          gold: goldOf(w, i),
+          services: { replayer: replayer(w, names, { distractors: false }) },
+          want: { outcome: 'fail', rung: 'exact_fallback' },
+        },
+        twin: aliasTwin(w, names, rng, i, { distractors: true }),
       };
     },
   },
@@ -188,12 +295,16 @@ const OUTCOME_CASES: OutcomeCase[] = [
     id: 'tool-not-declared',
     tier: 3,
     want: { outcome: 'fail', rung: 'exact_fallback' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
       return {
-        value: s.other(w, i),
-        gold: s.gold(w, i),
-        services: { replayer: replayer(w, s, { declared: false }) },
+        main: {
+          value: w.kind.other(goldOf(w, i)),
+          gold: goldOf(w, i),
+          services: { replayer: replayer(w, names, { declared: false }) },
+          want: { outcome: 'fail', rung: 'exact_fallback' },
+        },
+        twin: aliasTwin(w, names, rng, i, { declared: true }),
       };
     },
   },
@@ -201,12 +312,16 @@ const OUTCOME_CASES: OutcomeCase[] = [
     id: 'field-only-stored',
     tier: 4,
     want: { outcome: 'fail', rung: 'exact_fallback' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
       return {
-        value: s.other(w, i),
-        gold: s.gold(w, i),
-        services: { replayer: replayer(w, s, { inputs: ['note'] }) },
+        main: {
+          value: w.kind.other(goldOf(w, i)),
+          gold: goldOf(w, i),
+          services: { replayer: replayer(w, names, { inputs: [names.spare] }) },
+          want: { outcome: 'fail', rung: 'exact_fallback' },
+        },
+        twin: aliasTwin(w, names, rng, i, { inputs: shuffled(rng, [names.spare, names.field]) }),
       };
     },
   },
@@ -214,10 +329,18 @@ const OUTCOME_CASES: OutcomeCase[] = [
     id: 'gold-refused',
     tier: 5,
     want: { outcome: 'fail', rung: 'exact_fallback' },
-    build: (w, s, rng) => {
-      const i = recordIndex(rng);
-      const gold = s.gold(w, i);
-      return { value: s.other(w, i), gold, services: { replayer: replayer(w, s, { refuse: gold }) } };
+    build: (w, names, rng) => {
+      const i = recordIndex(rng, w);
+      const gold = goldOf(w, i);
+      return {
+        main: {
+          value: w.kind.other(gold),
+          gold,
+          services: { replayer: replayer(w, names, { refuse: gold }) },
+          want: { outcome: 'fail', rung: 'exact_fallback' },
+        },
+        twin: aliasTwin(w, names, rng, i, { refuse: `${gold}${word(rng, 2)}` }),
+      };
     },
   },
 ];
@@ -226,7 +349,11 @@ function ladder(product: Parameters<BankItem['check']>[0]['product']): RunLadder
   return need<RunLadder>(product.checks, 'checks', 'runLadder');
 }
 
-function judged(result: Result, want: { outcome: string; rung: string }, about: string) {
+/**
+ * The verdict against the one it must reach. An exact fallback carries the lint `no_decider` and its evidence
+ * names the tool and the field it compared (docs/reference/block-contracts.md, Exact fallback).
+ */
+function judged(result: Result, want: Want, about: string, names?: { tool: string; field: string }) {
   if (result.outcome !== want.outcome || result.rung !== want.rung)
     return fail(
       `the ladder decided ${result.outcome} by ${result.rung} on ${about}, expected ${want.outcome} by ${want.rung}`,
@@ -235,56 +362,71 @@ function judged(result: Result, want: { outcome: string; rung: string }, about: 
     return fail(
       `an exact fallback on ${about} carries the lint ${result.lint?.id ?? 'none'}, expected no_decider`,
     );
+  if (
+    want.rung === 'exact_fallback' &&
+    names &&
+    !String(result.evidence ?? '').includes(`${names.tool}.${names.field}`)
+  )
+    return fail(
+      `the evidence of an exact fallback on ${about} does not name ${names.tool}.${names.field}: ${String(result.evidence ?? '').slice(0, 160)}`,
+    );
   return PASS;
 }
 
+/** The case and its twin through the ladder, in a seeded order: the first verdict that misses fails the item. */
+async function judgedAll(
+  product: BlocksProduct,
+  rng: Rng,
+  probes: { make: () => Case; services: Services; want: Want; about: string }[],
+  names: { tool: string; field: string },
+) {
+  for (const probe of shuffled(rng, probes)) {
+    const result = await ladder(product)(probe.make(), undefined, probe.services);
+    const verdict = judged(result, probe.want, probe.about, names);
+    if (!verdict.pass) return verdict;
+  }
+  return PASS;
+}
+
+const shown = (value: unknown, gold: unknown) => `${JSON.stringify(value)} against ${JSON.stringify(gold)}`;
+
 function outcomeItems(): BankItem[] {
   const items: BankItem[] = [];
-  for (const spec of TOOLS) {
+  for (const kind of VALUE_KINDS) {
     for (const outcomeCase of OUTCOME_CASES) {
-      const id = `values/outcome/${spec.field}/${outcomeCase.id}`;
+      const id = `values/outcome/${kind.kind}/${outcomeCase.id}`;
       items.push({
         id,
         family: 'values-outcome',
         tier: outcomeCase.tier,
         level: 4,
         component: outcomeCase.want.rung === 'rung1_outcome' ? OUTCOME : LADDER,
-        title: `the ${spec.field} written into ${spec.tool} (${outcomeCase.id.replace(/-/g, ' ')}) is decided ${outcomeCase.want.outcome} by ${outcomeCase.want.rung}`,
+        title: `the ${kind.kind} written into a replayable tool (${outcomeCase.id.replace(/-/g, ' ')}) is decided ${outcomeCase.want.outcome} by ${outcomeCase.want.rung}`,
         cause:
           outcomeCase.want.rung === 'rung1_outcome'
             ? 'The outcome rung replays the call with the value and with the gold and compares what the tool resolves.'
             : `The outcome rung leaves a value it cannot decide (${outcomeCase.id.replace(/-/g, ' ')}) to the exact fallback.`,
         check: async ({ seed, product }) => {
           const rng = rngFor(seed, id);
-          const w = world(rng);
-          const { value, gold, services } = outcomeCase.build(w, spec, rng);
-          const result = await ladder(product)(
-            { tool: spec.tool, field: spec.field, gold, value, input: { [spec.field]: value } },
-            undefined,
-            services,
-          );
-          const verdict = judged(
-            result,
-            outcomeCase.want,
-            `${JSON.stringify(value)} against ${JSON.stringify(gold)}`,
-          );
-          if (!verdict.pass || outcomeCase.id !== 'same-referent-reformatted') return verdict;
-          // The twin: the same two writings against a tool that resolves the second to another record. The rung
-          // compares what the tool resolves, never the form of the two writings.
-          const strict: ToolSpec = {
-            ...spec,
-            resolve: (world2, written) =>
-              written === gold ? spec.resolve(world2, gold) : `elsewhere-${spec.resolved}`,
-          };
-          const twin = await ladder(product)(
-            { tool: spec.tool, field: spec.field, gold, value, input: { [spec.field]: value } },
-            undefined,
-            { replayer: replayer(w, strict, {}) },
-          );
-          return judged(
-            twin,
-            { outcome: 'fail', rung: 'rung1_outcome' },
-            `${JSON.stringify(value)} against ${JSON.stringify(gold)}, a tool that resolves them to two records`,
+          const names = namesFor(seed, id);
+          const w = world(rng, kind);
+          const { main, twin } = outcomeCase.build(w, names, rng);
+          return judgedAll(
+            product,
+            rng,
+            [main, twin].map((probe) => ({
+              make: () => ({
+                tool: names.tool,
+                field: names.field,
+                gold: probe.gold,
+                value: probe.value,
+                input: { [names.field]: probe.value },
+              }),
+              services: probe.services,
+              want: probe.want,
+              about: `${shown(probe.value, probe.gold)}${probe.about ? `, ${probe.about}` : ''}`,
+            })),
+            names,
           );
         },
       });
@@ -296,17 +438,20 @@ function outcomeItems(): BankItem[] {
 type IdentityCase = {
   id: string;
   tier: Tier;
-  values(rng: Rng): [unknown, unknown];
-  want: { outcome: string; rung: string };
+  /** The value and the gold, and two differing strings of the same draw: past identity, to the exact fallback. */
+  values(rng: Rng): { pair: [unknown, unknown]; strings: [string, string] };
+  want: Want;
 };
+
+const big = (rng: Rng) => between(rng, 1000, 999_999_999);
 
 const IDENTITY_CASES: IdentityCase[] = [
   {
     id: 'string-equal',
     tier: 1,
     values: (rng) => {
-      const v = pick(rng, SHOP.bikes);
-      return [v, v];
+      const v = `${capital(word(rng, 5))} ${capital(word(rng, 4))}`;
+      return { pair: [v, v], strings: [v.toUpperCase(), v] };
     },
     want: { outcome: 'pass', rung: 'identity' },
   },
@@ -314,8 +459,8 @@ const IDENTITY_CASES: IdentityCase[] = [
     id: 'number-equal',
     tier: 1,
     values: (rng) => {
-      const v = between(rng, 1, 999);
-      return [v, v];
+      const v = big(rng);
+      return { pair: [v, v], strings: [`${v}.0`, String(v)] };
     },
     want: { outcome: 'pass', rung: 'identity' },
   },
@@ -323,8 +468,9 @@ const IDENTITY_CASES: IdentityCase[] = [
     id: 'number-differs',
     tier: 1,
     values: (rng) => {
-      const v = between(rng, 1, 999);
-      return [v + 1, v];
+      const v = big(rng);
+      const d = between(rng, 1, 999);
+      return { pair: [v + d, v], strings: [String(v + d), String(v)] };
     },
     want: { outcome: 'fail', rung: 'identity' },
   },
@@ -333,7 +479,8 @@ const IDENTITY_CASES: IdentityCase[] = [
     tier: 2,
     values: (rng) => {
       const v = rng() < 0.5;
-      return [!v, v];
+      const label = word(rng, 5);
+      return { pair: [!v, v], strings: [`${label} ${!v}`, `${label} ${v}`] };
     },
     want: { outcome: 'fail', rung: 'identity' },
   },
@@ -341,29 +488,35 @@ const IDENTITY_CASES: IdentityCase[] = [
     id: 'list-differs',
     tier: 2,
     values: (rng) => {
-      const v = between(rng, 1, 9);
-      return [
-        [v, v + 1],
-        [v + 1, v],
-      ];
+      const [a, b] = [big(rng), big(rng) + 1];
+      return {
+        pair: [
+          [a, b],
+          [b, a],
+        ],
+        strings: [`${a},${b}`, `${b},${a}`],
+      };
     },
     want: { outcome: 'fail', rung: 'identity' },
   },
   {
     id: 'absent',
     tier: 2,
-    values: (rng) => [undefined, pick(rng, SHOP.bikes)],
+    values: (rng) => {
+      const v = `${capital(word(rng, 6))} ${between(rng, 2, 99)}`;
+      return { pair: [undefined, v], strings: [`${v}${word(rng, 2)}`, v] };
+    },
     want: { outcome: 'fail', rung: 'identity' },
   },
   {
     id: 'object-equal',
     tier: 2,
     values: (rng) => {
-      const d = between(rng, 1, 28);
-      return [
-        { day: d, bike: 'Fern 3' },
-        { bike: 'Fern 3', day: d },
-      ];
+      const [k1, k2] = [`k${word(rng, 5)}`, `q${word(rng, 5)}`];
+      const [n, s] = [between(rng, 1, 9999), `${capital(word(rng, 5))} ${between(rng, 2, 99)}`];
+      const a = { [k1]: n, [k2]: s };
+      const b = { [k2]: s, [k1]: n };
+      return { pair: [a, b], strings: [JSON.stringify(a), JSON.stringify(b)] };
     },
     want: { outcome: 'pass', rung: 'identity' },
   },
@@ -371,8 +524,8 @@ const IDENTITY_CASES: IdentityCase[] = [
     id: 'string-number',
     tier: 3,
     values: (rng) => {
-      const v = between(rng, 10, 99);
-      return [String(v), v];
+      const v = between(rng, 10, 999_999);
+      return { pair: [String(v), v], strings: [`0${v}`, String(v)] };
     },
     want: { outcome: 'fail', rung: 'identity' },
   },
@@ -397,22 +550,43 @@ function identityItems(): BankItem[] {
             : 'The ladder fails a differing value that is not a string before any rung.',
         check: async ({ seed, product }) => {
           const rng = rngFor(seed, id);
-          const w = world(rng);
-          const [value, gold] = identityCase.values(rng);
-          const spec = TOOLS[0] as ToolSpec;
-          const services: Services =
-            context === 'no-services'
-              ? {}
-              : { replayer: replayer(w, context === 'replayer' ? spec : (TOOLS[2] as ToolSpec), {}) };
-          const result = await ladder(product)(
-            { tool: spec.tool, field: 'slot', gold, value, input: { slot: value } },
-            undefined,
+          const names = namesFor(seed, id);
+          const w = world(rng, VALUE_KINDS[between(rng, 0, VALUE_KINDS.length - 1)] as ValueKind);
+          const { pair, strings } = identityCase.values(rng);
+          // The replayer's tool is the case's own tool or another one; its own field is not the case's field.
+          const replayed = {
+            tool: context === 'replayer' ? names.tool : names.elsewhere,
+            field: names.spare,
+            resolved: names.resolved,
+          };
+          const services: Services = context === 'no-services' ? {} : { replayer: replayer(w, replayed, {}) };
+          const probe = (value: unknown, gold: unknown, want: Want, about: string) => ({
+            make: () => ({
+              tool: names.tool,
+              field: names.field,
+              gold,
+              value,
+              input: { [names.field]: value },
+            }),
             services,
-          );
-          return judged(
-            result,
-            identityCase.want,
-            `${JSON.stringify(value)} against ${JSON.stringify(gold)}`,
+            want,
+            about,
+          });
+          // The twin: two differing strings are not settled at identity; nothing here decides them, so they reach
+          // the exact fallback (docs/reference/block-contracts.md, Identity).
+          return judgedAll(
+            product,
+            rng,
+            [
+              probe(pair[0], pair[1], identityCase.want, shown(pair[0], pair[1])),
+              probe(
+                strings[0],
+                strings[1],
+                { outcome: 'fail', rung: 'exact_fallback' },
+                `the strings ${shown(strings[0], strings[1])}`,
+              ),
+            ],
+            names,
           );
         },
       });
@@ -421,14 +595,33 @@ function identityItems(): BankItem[] {
   return items;
 }
 
+type Schema = Record<string, unknown>;
+
 type ContractCase = {
   id: string;
   tier: Tier;
-  want: { outcome: string; rung: string };
-  build(rng: Rng): { schema: Record<string, unknown>; value: string; gold: string };
+  want: Want;
+  /** The case, and its twin: the same value and gold under another schema, whose right verdict differs. */
+  build(rng: Rng): { schema: Schema; value: string; gold: string; twin: { schema: Schema; want: Want } };
 };
 
-const code4 = (rng: Rng) => `LK-${between(rng, 1000, 9999)}`;
+/** A seeded code format: an upper case prefix, a dash, a seeded count of digits. */
+function codeFormat(rng: Rng) {
+  const prefix = word(rng, between(rng, 2, 3)).toUpperCase();
+  const length = between(rng, 4, 6);
+  return { pattern: `^${prefix}-[0-9]{${length}}$`, draw: () => `${prefix}-${digits(rng, length)}` };
+}
+
+/** A seeded enum: distinct members, each a capitalised word and a number. */
+function members(rng: Rng): string[] {
+  const out = new Set<string>();
+  const count = between(rng, 3, 6);
+  while (out.size < count) out.add(`${capital(word(rng, 5))} ${between(rng, 2, 99)}`);
+  return [...out];
+}
+
+const FALLBACK: Want = { outcome: 'fail', rung: 'exact_fallback' };
+const NO_FORMAT: Schema = { type: 'string' };
 
 const CONTRACT_CASES: ContractCase[] = [
   {
@@ -436,8 +629,14 @@ const CONTRACT_CASES: ContractCase[] = [
     tier: 2,
     want: { outcome: 'fail', rung: 'rung2_contract' },
     build: (rng) => {
-      const gold = code4(rng);
-      return { schema: { type: 'string', pattern: '^LK-[0-9]{4}$' }, value: gold.replace('-', ' '), gold };
+      const format = codeFormat(rng);
+      const gold = format.draw();
+      return {
+        schema: { type: 'string', pattern: format.pattern },
+        value: gold.replace('-', ' '),
+        gold,
+        twin: { schema: NO_FORMAT, want: FALLBACK },
+      };
     },
   },
   {
@@ -445,9 +644,14 @@ const CONTRACT_CASES: ContractCase[] = [
     tier: 2,
     want: { outcome: 'fail', rung: 'rung2_contract' },
     build: (rng) => {
-      const [gold, value] = [pick(rng, SHOP.bikes), pick(rng, SHOP.bikes)];
-      const other = value === gold ? (SHOP.bikes.find((bike) => bike !== gold) ?? value) : value;
-      return { schema: { type: 'string', enum: [...SHOP.bikes] }, value: other, gold };
+      const list = members(rng);
+      const [gold, value] = shuffled(rng, list) as [string, string];
+      return {
+        schema: { type: 'string', enum: list },
+        value,
+        gold,
+        twin: { schema: NO_FORMAT, want: FALLBACK },
+      };
     },
   },
   {
@@ -455,24 +659,46 @@ const CONTRACT_CASES: ContractCase[] = [
     tier: 3,
     want: { outcome: 'fail', rung: 'rung2_contract' },
     build: (rng) => {
-      const gold = pick(rng, SHOP.bikes);
-      return { schema: { type: 'string', enum: [...SHOP.bikes] }, value: gold.toUpperCase(), gold };
+      const list = members(rng);
+      const gold = list[between(rng, 0, list.length - 1)] as string;
+      return {
+        schema: { type: 'string', enum: list },
+        value: gold.toUpperCase(),
+        gold,
+        twin: { schema: NO_FORMAT, want: FALLBACK },
+      };
     },
   },
   {
     id: 'breaks-const',
     tier: 3,
     want: { outcome: 'fail', rung: 'rung2_contract' },
-    build: () => ({ schema: { type: 'string', const: 'EUR' }, value: 'eur', gold: 'EUR' }),
+    build: (rng) => {
+      const gold = word(rng, between(rng, 3, 5)).toUpperCase();
+      return {
+        schema: { type: 'string', const: gold },
+        value: gold.toLowerCase(),
+        gold,
+        twin: { schema: NO_FORMAT, want: FALLBACK },
+      };
+    },
   },
   {
     id: 'inside-pattern-different',
     tier: 4,
     want: { outcome: 'fail', rung: 'exact_fallback' },
     build: (rng) => {
-      const gold = code4(rng);
-      const value = gold.endsWith('9') ? `${gold.slice(0, -1)}8` : `${gold.slice(0, -1)}9`;
-      return { schema: { type: 'string', pattern: '^LK-[0-9]{4}$' }, value, gold };
+      const format = codeFormat(rng);
+      const gold = format.draw();
+      const last = Number(gold.slice(-1));
+      const value = `${gold.slice(0, -1)}${(last + between(rng, 1, 9)) % 10}`;
+      return {
+        schema: { type: 'string', pattern: format.pattern },
+        value,
+        gold,
+        // The twin: the same value under a const that states the gold: the value breaks it.
+        twin: { schema: { type: 'string', const: gold }, want: { outcome: 'fail', rung: 'rung2_contract' } },
+      };
     },
   },
 ];
@@ -496,30 +722,44 @@ function contractItems(): BankItem[] {
               : 'The contract rung passes nothing: a value inside the stated format goes on to the exact fallback.',
           check: async ({ seed, product }) => {
             const rng = rngFor(seed, id);
-            const { schema, value, gold } = contractCase.build(rng);
-            const field = nesting === 'top' ? 'code' : 'booking.code';
-            const definition = {
-              name: 'booking.create',
+            const names = namesFor(seed, id);
+            const { schema, value, gold, twin } = contractCase.build(rng);
+            const field = nesting === 'top' ? names.field : `${names.spare}.${names.field}`;
+            const definition = (stated: Schema) => ({
+              name: names.tool,
               parameters:
                 nesting === 'top'
-                  ? { type: 'object', properties: { code: schema } }
+                  ? { type: 'object', properties: { [names.field]: stated } }
                   : {
                       type: 'object',
-                      properties: { booking: { type: 'object', properties: { code: schema } } },
+                      properties: {
+                        [names.spare]: { type: 'object', properties: { [names.field]: stated } },
+                      },
                     },
-            };
-            const input = nesting === 'top' ? { code: value } : { booking: { code: value } };
+            });
+            const input =
+              nesting === 'top' ? { [names.field]: value } : { [names.spare]: { [names.field]: value } };
             const services: Services =
-              context === 'no-replayer' ? {} : { replayer: replayer(world(rng), TOOLS[0] as ToolSpec, {}) };
-            const result = await ladder(product)(
-              { tool: 'booking.create', field, gold, value, input, definition },
-              undefined,
+              context === 'no-replayer'
+                ? {}
+                : {
+                    replayer: replayer(
+                      world(rng, VALUE_KINDS[0] as ValueKind),
+                      { ...names, tool: names.elsewhere },
+                      {},
+                    ),
+                  };
+            const probe = (stated: Schema, want: Want) => ({
+              make: () => ({ tool: names.tool, field, gold, value, input, definition: definition(stated) }),
               services,
-            );
-            return judged(
-              result,
-              contractCase.want,
-              `${JSON.stringify(value)} against ${JSON.stringify(gold)} under ${JSON.stringify(schema)}`,
+              want,
+              about: `${shown(value, gold)} under ${JSON.stringify(stated)}`,
+            });
+            return judgedAll(
+              product,
+              rng,
+              [probe(schema, contractCase.want), probe(twin.schema, twin.want)],
+              { tool: names.tool, field },
             );
           },
         });
@@ -529,64 +769,126 @@ function contractItems(): BankItem[] {
   return items;
 }
 
+type Sources = { user?: string[]; files?: Record<string, string> };
+
 type GivenCase = {
   id: string;
   tier: Tier;
-  want: { outcome: string; rung: string };
-  build(gold: string, other: string): { value: string; user?: string[]; files?: Record<string, string> };
+  want: Want;
+  /** The case, and its twin whose right verdict differs in outcome or rung. */
+  build(
+    gold: string,
+    other: string,
+    file: string,
+  ): {
+    value: string;
+    sources: Sources;
+    twin: { value: string; sources: Sources; want: Want; about: string };
+  };
 };
+
+/** The as-given twin: the expected writing only inside a longer word is no whole token, so the rung decides nothing. */
+const insideAWord = (gold: string, other: string) => ({
+  value: other,
+  sources: { user: [`It is ${gold}s, thanks.`] },
+  want: FALLBACK,
+  about: `the user wrote only "${gold}s"`,
+});
 
 const GIVEN_CASES: GivenCase[] = [
   {
     id: 'altered',
     tier: 2,
     want: { outcome: 'fail', rung: 'rung2b_as_given' },
-    build: (gold, other) => ({ value: other, user: [`It is ${gold}, thanks.`] }),
+    build: (gold, other) => ({
+      value: other,
+      sources: { user: [`It is ${gold}, thanks.`] },
+      twin: insideAWord(gold, other),
+    }),
   },
   {
     id: 'stale',
     tier: 4,
     want: { outcome: 'fail', rung: 'rung2b_as_given' },
-    build: (gold, other) => ({ value: other, user: [`It is ${other}.`, `Sorry, it is ${gold}.`] }),
+    build: (gold, other) => ({
+      value: other,
+      sources: { user: [`It is ${other}.`, `Sorry, it is ${gold}.`] },
+      twin: insideAWord(gold, other),
+    }),
   },
   {
     id: 'copied-a-wrong-value',
     tier: 3,
-    want: { outcome: 'fail', rung: 'exact_fallback' },
-    build: (_gold, other) => ({ value: other, user: [`Use ${other}.`] }),
+    want: FALLBACK,
+    build: (gold, other) => ({
+      value: other,
+      sources: { user: [`Use ${other}.`] },
+      // The twin: the same value when the user gave the gold: the agent changed it.
+      twin: {
+        value: other,
+        sources: { user: [`Use ${gold}.`] },
+        want: { outcome: 'fail', rung: 'rung2b_as_given' },
+        about: `the user gave "${gold}"`,
+      },
+    }),
   },
   {
     id: 'altered-from-a-file',
     tier: 3,
     want: { outcome: 'fail', rung: 'rung2b_as_given' },
-    build: (gold, other) => ({ value: other, files: { 'notes.txt': `value: ${gold}\n` } }),
+    build: (gold, other, file) => ({
+      value: other,
+      sources: { files: { [file]: `value: ${gold}\n` } },
+      twin: insideAWord(gold, other),
+    }),
   },
   {
     id: 'surrounding-space',
     tier: 4,
     want: { outcome: 'pass', rung: 'identity' },
-    build: (gold) => ({ value: gold, user: [`It is ${gold} .`] }),
+    build: (gold, other) => ({
+      value: gold,
+      sources: { user: [`It is ${gold} .`] },
+      // The twin: the same message, another writing: the space before the full stop leaves the gold a whole token.
+      twin: {
+        value: other,
+        sources: { user: [`It is ${gold} .`] },
+        want: { outcome: 'fail', rung: 'rung2b_as_given' },
+        about: `the user wrote "${gold} ."`,
+      },
+    }),
+  },
+];
+
+type GivenKind = { id: string; gold(rng: Rng): string; other(gold: string, rng: Rng): string };
+
+const GIVEN_KINDS: GivenKind[] = [
+  {
+    id: 'name',
+    gold: (rng) => `${capital(word(rng, 4))} ${capital(word(rng, 6))}`,
+    other: (v) => v.split(' ').reverse().join(' '),
+  },
+  {
+    id: 'bike',
+    gold: (rng) => `${capital(word(rng, 5))} ${between(rng, 2, 99)}`,
+    other: (v, rng) => `${v} ${capital(word(rng, 4))}`,
+  },
+  {
+    id: 'code',
+    gold: (rng) => codeFormat(rng).draw(),
+    other: (v) => v.replace('-', ''),
+  },
+  {
+    id: 'address',
+    gold: (rng) => `${between(rng, 2, 990)} ${capital(word(rng, 6))} ${capital(word(rng, 3))}`,
+    other: (v, rng) => `${v.slice(0, v.lastIndexOf(' '))} ${capital(word(rng, 4))}`,
   },
 ];
 
 function givenItems(): BankItem[] {
   const items: BankItem[] = [];
-  const kinds = [
-    {
-      id: 'name',
-      gold: (rng: Rng) => pick(rng, SHOP.customers),
-      other: (v: string) => v.split(' ').reverse().join(' '),
-    },
-    { id: 'bike', gold: (rng: Rng) => pick(rng, SHOP.bikes), other: (v: string) => `${v} Plus` },
-    { id: 'code', gold: (rng: Rng) => code4(rng), other: (v: string) => v.replace('LK-', 'LK') },
-    {
-      id: 'address',
-      gold: (rng: Rng) => `${between(rng, 2, 90)} Fennel Row`,
-      other: (v: string) => v.replace('Row', 'Rd'),
-    },
-  ];
   for (const givenCase of GIVEN_CASES) {
-    for (const kind of kinds) {
+    for (const kind of GIVEN_KINDS) {
       const id = `values/as-given/${givenCase.id}/${kind.id}`;
       items.push({
         id,
@@ -601,43 +903,31 @@ function givenItems(): BankItem[] {
             : 'The as-given rung never passes a copy: a copied value goes on to the exact fallback.',
         check: async ({ seed, product }) => {
           const rng = rngFor(seed, id);
+          const names = namesFor(seed, id);
           const gold = kind.gold(rng);
-          const { value, user, files } = givenCase.build(gold, kind.other(gold));
-          const result = await ladder(product)(
-            {
-              tool: 'booking.create',
-              field: 'customer',
+          const file = `${token(seed, `${id}#file`)}.txt`;
+          const { value, sources, twin } = givenCase.build(gold, kind.other(gold, rng), file);
+          const probe = (written: string, given: Sources, want: Want, about: string) => ({
+            make: () => ({
+              tool: names.tool,
+              field: names.field,
               gold,
-              value,
-              input: { customer: value },
-              sources: { ...(user ? { user } : {}), ...(files ? { files } : {}) },
-            },
-            undefined,
-            {},
-          );
-          const verdict = judged(
-            result,
-            givenCase.want,
-            `${JSON.stringify(value)} against ${JSON.stringify(gold)}`,
-          );
-          if (!verdict.pass || givenCase.want.rung !== 'rung2b_as_given') return verdict;
-          // The twin: the expected writing only inside a longer word is no whole token, so the rung decides nothing.
-          const twin = await ladder(product)(
-            {
-              tool: 'booking.create',
-              field: 'customer',
-              gold,
-              value,
-              input: { customer: value },
-              sources: { user: [`It is ${gold}s, thanks.`] },
-            },
-            undefined,
-            {},
-          );
-          return judged(
-            twin,
-            { outcome: 'fail', rung: 'exact_fallback' },
-            `${JSON.stringify(value)} when the user wrote only "${gold}s"`,
+              value: written,
+              input: { [names.field]: written },
+              sources: given,
+            }),
+            services: {},
+            want,
+            about,
+          });
+          return judgedAll(
+            product,
+            rng,
+            [
+              probe(value, sources, givenCase.want, shown(value, gold)),
+              probe(twin.value, twin.sources, twin.want, `${shown(twin.value, gold)} when ${twin.about}`),
+            ],
+            names,
           );
         },
       });
