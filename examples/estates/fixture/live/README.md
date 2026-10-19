@@ -8,6 +8,20 @@ Everything here is fictional and written by hand. Nothing calls a model and noth
   helpers, settings and steps. It implements a limited instruction syntax, not a complete
   runtime or model. Its first lines carry the stand-in marker, so
   `driftbench estate run` lets it run without `--allow-billed`.
+- The fake is handed the estate's structured definitions: `FAKE_MAP` names the approved map and
+  `FAKE_PHRASES` the phrase bank (YAML or JSON); unset, they are the `approved.yaml` and `phrases.yaml` of this fixture, and `FAKE_MAP=none` gives the fake no map. `fake/dispatch.mjs` tells which atoms an ask sets
+  off from structure only: an ask equal to a phrase of the bank sets off the atoms of its situation
+  (not for `outside` and `near_miss`); an ask equal to the declared ask of an atom (`fields.ask`) sets off
+  that atom. When `fake/grammar.json` exists (`FAKE_GRAMMAR` names another), an ask the generator rendered is
+  read with it: the frames and act shapes of the generator, cut at their slots. Any other ask sets nothing
+  off and is answered plainly.
+  With `FAKE_MAP=none` nothing is set off.
+- For the atoms it sets off, the fake does what they define in its copy: a route, a skill or a helper
+  loads that unit; a rule written in a unit's folder loads its carrier; a reference is read; a reply
+  atom gives the reply act it declares (`replyAct`, with the part it names); a guard is provoked, when
+  the ask instructs the act it guards (a declared ask of the guard, or a `forced` situation), by the
+  event its settings name, so that the script in the copy decides (an edit of a file not read, a reply
+  longer than the length limit). An atom whose quote the copy no longer holds sets nothing off.
 - Set `FAKE_MANIFEST` to opt into recorded playback for protocol tests. `fake/manifest.json`
   maps asks to streams under `fake/streams/`; stream paths are relative to the manifest.
   Besides stream records, a stream holds directives the fake performs: a guard row, a step row,
@@ -35,4 +49,6 @@ The 14 specs are listed in `packages/cli/test/estate-live.test.ts`, one complete
 test type of the generated suite.
 
 Omit `--set-env FAKE_MANIFEST=...` and leave `FAKE_MANIFEST` unset to use the default estate-derived
-behaviour. The recorded faults and `unless` alternatives do not run in that mode.
+behaviour, and add `--set-env "FAKE_MAP=$PWD/examples/estates/fixture/approved.yaml"` and
+`--set-env "FAKE_PHRASES=$PWD/examples/estates/fixture/phrases.yaml"` to give it the map and the bank.
+The recorded faults and `unless` alternatives do not run in that mode.
