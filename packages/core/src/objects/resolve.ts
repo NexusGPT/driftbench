@@ -5,6 +5,7 @@ import { Envelope, Item, ItemPatch, LAYERS, type Layer, type ObjectRef } from '.
 import { contentHash } from '../spec/hash';
 import { isPlainObject } from '../spec/normalize';
 import { applyItemOperations, mergeFields, ObjectError, type ResolvedItem } from './rules';
+import { registerRunnerObjects } from './scoring';
 
 /** What a kind declares: whether it is agent-facing, what its files hold beyond the envelope. */
 export type KindDef = {
@@ -170,6 +171,7 @@ export const objectRegistry = new ObjectRegistry();
 /** Initialize the shared kind vocabulary before resolving objects. Safe across plugin snapshots. */
 export function initializeShippedObjects(): void {
   for (const def of BUILTIN_KINDS) if (!objectRegistry.kind(def.kind)) objectRegistry.registerKind(def);
+  registerRunnerObjects(objectRegistry);
 }
 
 /** An object once its `extends` chain and every layer are applied. */

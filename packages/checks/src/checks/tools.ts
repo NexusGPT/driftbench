@@ -1,8 +1,10 @@
 import {
   type Assertion,
+  type By,
   type Check,
   type CheckContext,
   type CompareMode,
+  contentHash,
   isZero,
   machineVerdict,
   objectContextOfSpec,
@@ -74,7 +76,9 @@ export function createToolsCheck(options: ToolsCheckOptions = {}): Check {
     async evaluate(ctx) {
       initializeShippedObjects();
       const chosen = policyFor(ctx, configured);
-      const verdicts = await evaluate(ctx, chosen.policy, services);
+      const verdicts = (await evaluate(ctx, chosen.policy, services)).map((verdict) =>
+        stampValues(verdict, chosen),
+      );
       return chosen.problem === undefined
         ? verdicts
         : [machineVerdict(NAME, 'value_check', 'fail', chosen.problem), ...verdicts];
@@ -93,10 +97,7 @@ export const tools: Check = createToolsCheck();
  * An object that cannot resolve or cannot run is never replaced silently: the block gets a failing
  * `tools.value_check` verdict, and its values are compared exactly, so its count, input and order verdicts stay.
  */
-function policyFor(
-  ctx: CheckContext,
-  configured: ValuePolicy | undefined,
-): { policy: ValuePolicy; problem?: string } {
+function policyFor(ctx: CheckContext, configured: ValuePolicy | undefined): ChosenPolicy {
   const context = objectContextOfSpec(ctx.spec) ?? shippedObjectContext();
   let used: UsedObject | undefined;
   try {
@@ -109,8 +110,16 @@ function policyFor(
       problem: `the value-check object of this block cannot resolve, so its values are compared exactly: ${message(cause)}`,
     };
   }
-  if (used === undefined) return { policy: configured ?? DEFAULT_VALUE_POLICY };
-  if (used.setAt === 'shipped' && configured !== undefined) return { policy: configured };
+  if (configured !== undefined && (used === undefined || used.setAt === 'shipped')) {
+    return {
+      policy: configured,
+      provenance: {
+        object: configured.ref ?? `policy/value-check:(caller)@${contentHash(configured).slice(0, 8)}`,
+        layer: 'cli',
+      },
+    };
+  }
+  if (used === undefined) return { policy: DEFAULT_VALUE_POLICY };
   const policy = policyOf(used.object);
   const problems = valuePolicyProblems(policy);
   if (problems.length > 0) {
@@ -119,7 +128,37 @@ function policyFor(
       problem: `the value-check object ${used.object.ref} (set at ${used.place || used.setAt}) cannot run, so its values are compared exactly: ${problems.join('; ')}`,
     };
   }
-  return { policy };
+  return { policy, provenance: { object: used.object.ref, layer: used.object.layer } };
+}
+
+type ChosenPolicy = {
+  policy: ValuePolicy;
+  provenance?: Pick<By, 'object' | 'layer'>;
+  problem?: string;
+};
+
+/** Keep every value decision; the aggregate names the decision responsible for its outcome. */
+function stampValues(verdict: Verdict, chosen: ChosenPolicy): Verdict {
+  const decisions = verdict.valueCheck;
+  if (!decisions?.length || !chosen.provenance) return verdict;
+  const order = chosen.policy.order ?? chosen.policy.items.map((item) => item.id);
+  const deciding =
+    verdict.outcome === 'fail'
+      ? decisions.find((entry) => entry.outcome === 'fail')
+      : verdict.outcome === 'inconclusive'
+        ? decisions.find((entry) => entry.outcome === 'inconclusive')
+        : decisions.reduce((latest, entry) =>
+            order.indexOf(entry.rung) > order.indexOf(latest.rung) ? entry : latest,
+          );
+  if (!deciding) return verdict;
+  const item = chosen.policy.items.find((entry) => entry.id === deciding.rung);
+  const impl =
+    item?.impl ??
+    (deciding.rung === 'identity' || deciding.rung === 'exact_fallback'
+      ? 'builtin:value-check/exact'
+      : undefined);
+  if (!impl) return verdict;
+  return { ...verdict, by: { ...chosen.provenance, item: deciding.rung, impl } };
 }
 
 /** A policy with no rung: every value that differs from the gold falls back to the exact compare. */
