@@ -78,7 +78,7 @@ export function resolveSpecParents(
     if (!parentLoaded)
       return fail(
         'PARENT_MISSING',
-        `parent spec "${ref.spec}" is not among the loaded specs: load its file with this one`,
+        `parent spec "${ref.spec}" is not among the loaded specs, nor in a stems/ folder beside the child's folder: load its file with this one`,
       );
     for (const key of SHARED_KEYS) {
       if (canonicalJson(spec[key] ?? null) !== canonicalJson(parentLoaded.spec[key] ?? null))
@@ -180,4 +180,14 @@ function mergeCriteria(
       return `criterion "${criterion.name}" has another definition in the parent spec`;
   }
   return merged;
+}
+
+/**
+ * The specs a stem opens, when this spec is a stem: an opening written once for the specs that start from it
+ * (`metadata.stem.specs`). A stem is run and scored as a spec of its own; it is no conversation of the map, so
+ * coverage counts the specs it opens, never the stem.
+ */
+export function stemOf(spec: Spec): string[] | undefined {
+  const specs = (spec.metadata?.stem as { specs?: unknown } | undefined)?.specs;
+  return Array.isArray(specs) && specs.every((entry) => typeof entry === 'string') ? specs : undefined;
 }

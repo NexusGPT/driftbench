@@ -49,6 +49,8 @@ describe('generate on the approved Acme map', () => {
     // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
       t: 2,
+      // As `driftbench generate` writes it: shared openings once, as stems.
+      stems: true,
       mapPath: '../map/approved.yaml',
       baseline: { label: 'examples/acme/specs', specs: handWritten },
       tasks: tasks.inputs,
