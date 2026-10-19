@@ -1,8 +1,7 @@
-import { chunkLines, guardName, registryRowOf, toolBase } from '../scan/code';
+import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
-import { dispatchesHelper } from './dispatch';
 
 /**
  * The estate graph: the edges of the design between atoms. A node is an atom id; an event a guard runs on
@@ -106,7 +105,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
       .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (dispatchesHelper(visible, name)) add(unit.id, helper.id, 'dispatch');
+      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
+        add(unit.id, helper.id, 'dispatch');
     }
   }
 
@@ -148,11 +148,6 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/gi)) {
       const label = `${match[1]}${match[2]}`.toUpperCase();
       if (label === own) continue;
-      if (
-        !match[0].includes('#') &&
-        designates(quote.slice(0, match.index), quote.slice(match.index + match[0].length))
-      )
-        continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
   }
@@ -176,7 +171,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (repeats(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -192,214 +187,6 @@ function holds(quote: string, passage: string): boolean {
   const b = plain(passage);
   if (b.length < MIN_LITERAL || a.length < MIN_LITERAL) return a === b && a !== '';
   return a.includes(b) || b.includes(a);
-}
-
-/** A clause that sets when a rule applies: from its lead word to the next comma, colon or semicolon. */
-const CONDITION = /\b(?:when|whenever|if|unless|once|after|before|until|while|as soon as|in case)\b[^,:;]*/g;
-
-/**
- * Whether a string of a guard's source repeats a rule. A registry row declares what it enforces, so any
- * passage it quotes counts (`holds`); a string in the source is only circumstantial, so a part of the rule
- * counts only when it reaches past the rule's condition. A message that quotes the condition alone ("the user
- * asks to stop" of "When the user asks to stop, stop all work") repeats when the rule applies, not the rule.
- */
-function repeats(quote: string, literal: string): boolean {
-  if (!holds(quote, literal)) return false;
-  const rule = plain(quote);
-  const part = plain(literal);
-  const at = rule.indexOf(part);
-  if (part.length >= rule.length || at < 0) return true;
-  for (const condition of rule.matchAll(CONDITION)) {
-    const start = condition.index ?? 0;
-    if (at >= start && at + part.length <= start + condition[0].length) return false;
-  }
-  return true;
-}
-
-/** Identifier-bearing entity classes, independent of a particular estate's subject domain. */
-const ENTITY_DESIGNATORS = new Set([
-  // Publications, records and their addressable parts.
-  'agreement',
-  'appendix',
-  'article',
-  'attachment',
-  'bulletin',
-  'chapter',
-  'column',
-  'contract',
-  'declaration',
-  'diagram',
-  'document',
-  'edition',
-  'entry',
-  'equation',
-  'exhibit',
-  'field',
-  'figure',
-  'form',
-  'letter',
-  'line',
-  'memo',
-  'page',
-  'paragraph',
-  'plate',
-  'plot',
-  'publication',
-  'record',
-  'report',
-  'revision',
-  'section',
-  'table',
-  'version',
-  'volume',
-  // Transactions, credentials and administrative records.
-  'account',
-  'application',
-  'badge',
-  'bill',
-  'booking',
-  'case',
-  'certificate',
-  'claim',
-  'credential',
-  'credit',
-  'debit',
-  'invoice',
-  'license',
-  'order',
-  'passport',
-  'payment',
-  'permit',
-  'purchase',
-  'receipt',
-  'refund',
-  'registration',
-  'reservation',
-  'ticket',
-  'transaction',
-  'voucher',
-  'warrant',
-  // Physical locations and storage positions.
-  'address',
-  'aisle',
-  'apartment',
-  'bay',
-  'booth',
-  'building',
-  'cabin',
-  'cell',
-  'counter',
-  'desk',
-  'dock',
-  'door',
-  'floor',
-  'hall',
-  'hangar',
-  'locker',
-  'office',
-  'platform',
-  'port',
-  'rack',
-  'room',
-  'row',
-  'seat',
-  'shelf',
-  'site',
-  'stall',
-  'station',
-  'terminal',
-  'warehouse',
-  'zone',
-  // Inventory, logistics and transport units.
-  'aircraft',
-  'asset',
-  'batch',
-  'box',
-  'bus',
-  'carriage',
-  'carton',
-  'compartment',
-  'component',
-  'consignment',
-  'container',
-  'device',
-  'flight',
-  'item',
-  'label',
-  'lot',
-  'model',
-  'module',
-  'package',
-  'pallet',
-  'parcel',
-  'product',
-  'route',
-  'shipment',
-  'train',
-  'trip',
-  'truck',
-  'unit',
-  'vehicle',
-  'vessel',
-  // Addressable software and data entities.
-  'branch',
-  'build',
-  'checkpoint',
-  'dataset',
-  'job',
-  'node',
-  'project',
-  'queue',
-  'release',
-  'repository',
-  'tab',
-  'widget',
-]);
-const ENTITY_PLURALS: Record<string, string> = { appendices: 'appendix', entries: 'entry', shelves: 'shelf' };
-
-/**
- * A known entity noun identifies its adjacent bare label. Clear verb contexts (a pronoun/modal before
- * it, or a simple plural subject) retain the citation; lexical noun/verb ambiguity is not a reason to
- * drop an edge. At clause start, a finite predicate after the label establishes an entity subject.
- */
-function designates(before: string, after: string): boolean {
-  const tail = before.replace(/[*_`]/g, '');
-  const match = /\b([A-Za-z]+)\s+$/.exec(tail);
-  if (!match?.[1]) return false;
-  const word = match[1].toLowerCase();
-  const singulars = [
-    word,
-    ENTITY_PLURALS[word] ?? '',
-    word.replace(/s$/, ''),
-    word.replace(/es$/, ''),
-    word.replace(/ies$/, 'y'),
-  ];
-  if (!singulars.some((noun) => ENTITY_DESIGNATORS.has(noun))) return false;
-  const prefix =
-    tail
-      .slice(0, match.index)
-      .split(/[.;!?:]/)
-      .at(-1)
-      ?.trim() ?? '';
-  if (!prefix) return /^\s*[*_`]*\s*(?:is|are|was|were|has|have|had|must|should|will|can)\b/i.test(after);
-  if (
-    /\b(?:i|you|we|they|he|she|it|who|do|does|did|can|could|may|might|must|shall|should|will|would|to|not|please|always|never|then)\s*$/i.test(
-      prefix,
-    )
-  )
-    return false;
-  if (/^(?:(?:all|both|some|the|our|your|their|these|those|when|if)\s+)*[A-Za-z]+s$/i.test(prefix))
-    return false;
-  const simpleSubject = /^(?:(?:the|a|an|our|your|their|each|every|this|that)\s+)?[A-Za-z]+$/i.test(prefix);
-  if (
-    simpleSubject &&
-    !/^(?:a|an|the|this|that|these|those|each|every|any|some|all|both|no|its|our|your|their|his|her|my)$/i.test(
-      prefix,
-    ) &&
-    (!ENTITY_DESIGNATORS.has(word) || /\b(?:people|staff|personnel|police|children|men|women)$/i.test(prefix))
-  )
-    return false;
-  return true;
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
