@@ -53,7 +53,16 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
   return { ok: true, scales };
 }
 
-const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins', 'prices', 'objects']);
+/** The top-level keys of `driftbench.yaml`; the help check reads them to require a description of each. */
+export const PROJECT_CONFIG_KEYS = [
+  'aggregates',
+  'scales',
+  'campaign',
+  'plugins',
+  'prices',
+  'objects',
+] as const;
+const KEYS: ReadonlySet<string> = new Set(PROJECT_CONFIG_KEYS);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;

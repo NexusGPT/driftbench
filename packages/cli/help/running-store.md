@@ -219,3 +219,19 @@ The folder `stores` was created. The store now holds two campaigns, each with a 
 * `the store at <path> has schema version <n>; this version of driftbench reads 3 and older` The store was written by a newer driftbench. Upgrade driftbench.
 * `The store at <path> holds no campaign. Run one with: driftbench campaign run <paths...>` (exit 2) The file exists but holds no campaign; `campaign plan --store` creates such empty files.
 * Results from an earlier agent version replayed into a new campaign: the cache lives in the store. Use `--agent-version`, `--cache-suite` or `--no-cache` (topic running-cache).
+
+Every store message starts with `store:` and carries one of these codes. A command prints the message; the code is what code that calls the store branches on (`StoreError.code`).
+
+| Code | Message starts with | Cause | Fix |
+|---|---|---|---|
+| `NODE_VERSION` | `node:sqlite is not available in Node.js <version>` | This Node.js has no `node:sqlite`. | Use Node.js 22.13 or newer. |
+| `OPEN_FAILED` | `cannot open the store at <path>` | The file is not a SQLite database, or the folder cannot be written. | Check the path and the folder. |
+| `SCHEMA_VERSION` | `the store at <path> has schema version <n>` (or `the bundle at <folder> has ...`) | The store or an exported bundle was written by a newer driftbench. | Upgrade driftbench. |
+| `INVALID_RECORD` | `putSpec refused ...`, `putRun refused ...`, `putCampaign refused ...`, `cachePut refused ...`, `"<name>" is not a registry name ...` | A call passed a record that does not match its schema. Nothing was written. | Fix the record the message names; for a registry name use letters, digits, dots, underscores and hyphens. |
+| `CORRUPT_ROW` | `... holds corrupt JSON in column <column>` | A stored row holds JSON that does not parse, does not match its schema, or does not match its key. | Restore the store from a copy or an export; do not edit rows by hand. |
+| `CAMPAIGN_CONFLICT` | `campaign <id> is already stored with other content` | A campaign is immutable. `campaign run` reports this as `Campaign <id> already exists. Resume it with: driftbench campaign resume <id>` (exit 2). | Give the re-run a new campaign id, or resume the old one. |
+| `CAMPAIGN_MISSING` | `exportCampaign: campaign <id> is not in the store` | The campaign to export is not in the store. | Check the id with `campaign status`. |
+| `VERSION_CONFLICT` | `<dataset or prompt> ... in this store holds other content than the bundle's` | An import would replace a registry version, and versions are immutable. | Import into another store. |
+| `RUN_AMBIGUOUS` | `run <id> is in <n> campaigns` | The same run id is held by more than one campaign and the call did not say which. | Name the campaign. |
+| `BUNDLE_INVALID` | `the bundle at <folder> is invalid`, `campaign <id> records <kind> <name>@<version>, which this store does not hold`, `runs <a> and <b> would share one file name on a case-insensitive disk` | An exported bundle is incomplete or inconsistent. | Export it again. |
+| `CLOSED` | `the store at <path> is closed` | A call used a store after `close`. | Open the store again. |

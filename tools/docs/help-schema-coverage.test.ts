@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { initializeShippedObjects } from '../../packages/checks/src/initialize';
+import { PROJECT_CONFIG_KEYS } from '../../packages/cli/src/aggregate-config';
 import { loadHelpTopics } from '../../packages/cli/src/help-topics';
+import { objectRegistry } from '../../packages/core/src/objects';
 import { WorldState } from '../../packages/core/src/schema/common';
 import { CampaignConfig, CampaignRetryConfig } from '../../packages/core/src/schema/config';
 import { LINK_CREATORS, LINK_RELATIONS, LINK_STATUSES } from '../../packages/core/src/schema/links';
+import { AppliesTo, Envelope, Item, ItemPatch } from '../../packages/core/src/schema/object';
 import { BlockStatus, Campaign, NotRun, RunResult } from '../../packages/core/src/schema/run';
 import { BlockSpec, GivenDefaults, GivenOverride, Spec } from '../../packages/core/src/schema/spec';
 import { documentsKey, schemaObjects, section } from './help-coverage';
@@ -212,5 +216,87 @@ describe('the schema help check', () => {
     const owned = inputsOf(['authoring-parent-blocks']);
     expect(documentsKey(owned, 'parent')).toBe(true);
     expect(documentsKey(owned, 'an_undocumented_key')).toBe(false);
+  });
+});
+
+/** The text of a `###` section: from its heading to the next heading of the same or a higher level. */
+function subsection(body: string, heading: string): string {
+  const lines = body.split('\n');
+  const start = lines.indexOf(`### ${heading}`);
+  if (start < 0) return '';
+  const end = lines.findIndex((line, at) => at > start && /^#{1,3} /.test(line));
+  return lines.slice(start + 1, end < 0 ? undefined : end).join('\n');
+}
+
+/** The topic that describes objects: the file format, the kinds and the implementations. */
+const OBJECT_TOPIC = 'authoring-objects';
+
+describe('object help', () => {
+  const objectTopic = topics.find((topic) => topic.id === OBJECT_TOPIC);
+
+  it('has the topic', () => {
+    expect(objectTopic, `help/${OBJECT_TOPIC}.md`).toBeDefined();
+  });
+
+  // The key tables of the topic: one heading per object of the file format, read as the units of that object.
+  const OBJECT_UNITS: Array<[name: string, keys: string[], heading: string]> = [
+    ['an object file', Object.keys(Envelope.shape), 'The keys of an object file'],
+    ['an item of a root object', Object.keys(Item.shape), 'The keys of an item (a root object)'],
+    [
+      'an item operation',
+      Object.keys(ItemPatch.shape),
+      'The keys of an item operation (an object that extends another)',
+    ],
+  ];
+  for (const [name, keys, heading] of OBJECT_UNITS) {
+    it(`names every key of ${name} in its own table`, () => {
+      const unit = subsection(objectTopic?.body ?? '', heading);
+      expect(unit, `heading "${heading}"`).not.toBe('');
+      const missing = keys.filter((key) => !documentsKey(unit, key));
+      expect(missing).toEqual([]);
+    });
+  }
+
+  it('names every key of applies_to', () => {
+    const text = objectTopic?.body ?? '';
+    const missing = Object.keys(AppliesTo.shape).filter((key) => !documentsKey(text, key));
+    expect(missing).toEqual([]);
+  });
+
+  it('names every registered kind and implementation', () => {
+    initializeShippedObjects();
+    const text = objectTopic?.body ?? '';
+    const kinds = objectRegistry.kinds().map((kind) => kind.kind);
+    const impls = objectRegistry.impls().map((impl) => impl);
+    const named = (what: string) => text.includes(`\`${what}\``);
+    // A check implementation is named once as `builtin:check/<name>` for all its checks; every other one by name.
+    const missing = [
+      ...kinds.filter((kind) => !named(kind)),
+      ...impls.filter((impl) => !impl.startsWith('builtin:check/') && !named(impl)),
+    ];
+    expect(missing).toEqual([]);
+    expect(impls.some((impl) => impl.startsWith('builtin:check/'))).toBe(true);
+  });
+
+  it('names every check of the shipped check set', () => {
+    initializeShippedObjects();
+    const text = objectTopic?.body ?? '';
+    const checks = objectRegistry
+      .impls()
+      .filter((impl) => impl.startsWith('builtin:check/'))
+      .map((impl) => impl.slice('builtin:check/'.length));
+    expect(checks.filter((check) => !documentsKey(text, check))).toEqual([]);
+  });
+});
+
+describe('project config help', () => {
+  it('describes every top-level key of driftbench.yaml', () => {
+    const text =
+      topics
+        .find((topic) => topic.id === 'core-configuration')
+        ?.body.split('\n## ')
+        .find((part) => part.startsWith('Commands and every option')) ?? '';
+    const missing = PROJECT_CONFIG_KEYS.filter((key) => !text.includes(`* \`${key}\``));
+    expect(missing).toEqual([]);
   });
 });

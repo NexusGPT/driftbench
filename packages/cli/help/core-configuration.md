@@ -64,6 +64,7 @@ The five top-level keys, all optional. Which command checks the rest of the file
   name replaces an entry; a new name adds one.
 * `scales`: a map from criterion name to `{ min, max }`, numbers with min below max. Default scale 0 to 1.
 * `plugins`: a list of module paths, relative to the config file, or package names.
+* `objects`: a list of inline object definitions at the project layer, each with `kind` and `id` and an `items` list (a `diagnostic` has `steps`), such as a check set that extends `default`. A value that is not a list is the error `OBJECT_INVALID`. The file format, the kinds and the layers are in topic authoring-objects.
 * `prices`: a dated table of USD token prices by model, read by `campaign run` and `campaign resume` for
   `--budget-usd` when `--prices <file>` is not given. The format is in the running topics.
 
