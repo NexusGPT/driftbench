@@ -217,7 +217,7 @@ export function measureHardness(
       byFamilyTier: latest.bankByFamilyTier ?? {},
       failingByFamily: latest.failingByFamily,
     },
-    iteration0: { bankSize: zero.bankSize, passing: zero.passing, score: score(zero) },
+    iteration0: chosen.measure.baseline,
     source,
     pilot: { iterations, complete, end },
     pilots: { builder: builder.measure, blind: blind ? blind.measure : null },

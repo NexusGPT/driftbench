@@ -354,8 +354,12 @@ describe('driftbench validate through main', () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
     const floors = JSON.parse(await readFile(join(ROOT, 'validators/floors.json'), 'utf8')) as {
       floors: Record<string, number>;
+      ladderVersion: Record<string, number>;
     };
-    expect(result.code).toBeGreaterThanOrEqual(floors.floors.stats as number);
+    // A floor belongs to its ladder version: a registered version without a floor yet has none to hold.
+    const floor =
+      floors.ladderVersion.stats === registeredLadders().stats?.version ? (floors.floors.stats as number) : 0;
+    expect(result.code).toBeGreaterThanOrEqual(floor);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
       /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
