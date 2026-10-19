@@ -51,8 +51,12 @@ const FAST_CONDITION =
 /** The fast job is the train entry gate and runs in about 3 minutes: 10 is its limit. */
 const FAST_TIMEOUT = 10;
 
-/** pr affected reports the tests a pull request affects. It runs on non-train pull requests only. */
-const AFFECTED_CONDITION = "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')";
+/**
+ * pr affected reports the tests a pull request affects. It runs on non-train, non-draft pull requests whose base is
+ * main: the diff is against origin/main, so a stacked pull request would run the tests of its whole stack.
+ */
+const AFFECTED_CONDITION =
+  "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !github.event.pull_request.draft && github.base_ref == 'main'";
 const AFFECTED_TIMEOUT = 45;
 const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
 
@@ -71,6 +75,10 @@ interface Ctx {
   event: string;
   ref: string;
   headRef?: string;
+  baseRef?: string;
+  draft?: boolean;
+  /** The edit changed the base of the pull request (`github.event.changes.base` is set). */
+  baseChanged?: boolean;
   jobs?: string;
   runId?: string;
 }
@@ -81,7 +89,12 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     event_name: ctx.event,
     ref: ctx.ref,
     head_ref: ctx.headRef ?? '',
+    base_ref: ctx.baseRef ?? '',
     run_id: ctx.runId ?? '1',
+    event: {
+      pull_request: { draft: ctx.draft ?? false, base: { ref: ctx.baseRef ?? '' } },
+      changes: ctx.baseChanged ? { base: { ref: { from: 'feature/stack' } } } : {},
+    },
   };
   const inputs = { jobs: ctx.jobs ?? '' };
   const startsWith = (a: string, b: string) => String(a).toLowerCase().startsWith(String(b).toLowerCase());
@@ -108,8 +121,18 @@ const runs = (ctx: Ctx, id: string, workflow: ReturnType<typeof parse>): boolean
   Boolean(evaluate(workflow.jobs[id].if, ctx));
 
 const MAIN_PUSH: Ctx = { event: 'push', ref: 'refs/heads/main' };
-const TRAIN_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/9/merge', headRef: 'train/9' };
-const ORDINARY_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/8/merge', headRef: 'fix/ordinary' };
+const TRAIN_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/9/merge',
+  headRef: 'train/9',
+  baseRef: 'main',
+};
+const ORDINARY_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/8/merge',
+  headRef: 'fix/ordinary',
+  baseRef: 'main',
+};
 const dispatchOn = (ref: string, jobs: string): Ctx => ({ event: 'workflow_dispatch', ref, jobs });
 
 /** Behaviour of the heavy-job conditions, as GitHub would evaluate them. */
@@ -357,7 +380,7 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(JSON.stringify(workflow.jobs['pr-fast'].steps)).not.toMatch(/--changed|Tests affected/);
 }
 
-/** pr affected runs on ordinary pull requests only: not on a train PR, a push or a dispatch. */
+/** pr affected runs on ordinary pull requests only: not on a draft, a stacked PR (base not main), a train PR, a push or a dispatch. */
 function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   const job = workflow.jobs['pr-affected'];
   expect(job.name).toBe('pr affected');
@@ -365,6 +388,8 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
   const affected = (ctx: Ctx) => runs(ctx, 'pr-affected', workflow);
   expect(affected(ORDINARY_PR)).toBe(true);
+  expect(affected({ ...ORDINARY_PR, draft: true })).toBe(false);
+  expect(affected({ ...ORDINARY_PR, baseRef: 'feature/stack' })).toBe(false);
   expect(affected(TRAIN_PR)).toBe(false);
   expect(affected(MAIN_PUSH)).toBe(false);
   for (const jobs of ['fast', 'build', 'fast,build', ''])
@@ -378,6 +403,36 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
     commands.indexOf(AFFECTED_COMMAND),
   );
   for (const step of job.steps) expect(step.if).toBeUndefined();
+}
+
+/**
+ * A retarget to main runs pr affected from a workflow of its own. ci.yml never runs on an `edited` event: a title edit
+ * would start a second ci run on a head that already has results, with skipped train gate and pr affected checks.
+ */
+function assertRetargetBehaviour(retarget: ReturnType<typeof parse>, ci: ReturnType<typeof parse>) {
+  expect(ci.on.pull_request.types).not.toContain('edited');
+  expect(retarget.on).toEqual({ pull_request: { types: ['edited'] } });
+  const job = retarget.jobs['pr-affected-retarget'];
+  expect(Object.keys(retarget.jobs)).toEqual(['pr-affected-retarget']);
+  // a name no reader or merge train looks up: it never stands in for `pr affected`
+  expect(job.name).toBe('pr affected (retarget)');
+  expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
+  const retargeted = (ctx: Ctx) => runs(ctx, 'pr-affected-retarget', retarget);
+  const toMain: Ctx = { ...ORDINARY_PR, baseChanged: true };
+  expect(retargeted(toMain)).toBe(true);
+  // a title or body edit changes no base
+  expect(retargeted({ ...toMain, baseChanged: false })).toBe(false);
+  // a base change to another branch, a draft and a train PR are skipped as in ci.yml
+  expect(retargeted({ ...toMain, baseRef: 'feature/stack' })).toBe(false);
+  expect(retargeted({ ...toMain, draft: true })).toBe(false);
+  expect(retargeted({ ...TRAIN_PR, baseChanged: true })).toBe(false);
+  // the same steps as pr affected in ci.yml
+  expect(job.steps).toEqual(ci.jobs['pr-affected'].steps);
+  // two edits never cancel each other: a title edit must not cancel a retarget run in flight
+  expect(String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '1' }))).not.toBe(
+    String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '2' })),
+  );
+  expect(retarget.concurrency['cancel-in-progress']).toBe(false);
 }
 
 /** The docs checks run in every pr-fast run, whatever the diff: no step condition, no --changed. */
@@ -633,6 +688,24 @@ describe('merge train enforcement', () => {
     const gated = structuredClone(workflow);
     gated.jobs['train-gate'].needs.push('pr-affected');
     expect(() => assertGateWaits(gated)).toThrow();
+  });
+  it('runs pr affected after a retarget to main from a workflow of its own, and never on a title edit', () => {
+    const retarget = parse(
+      readFileSync(new URL('../../../.github/workflows/pr-affected-retarget.yml', import.meta.url), 'utf8'),
+    );
+    assertRetargetBehaviour(retarget, workflow);
+    const onEdit = structuredClone(workflow);
+    onEdit.on.pull_request.types.push('edited');
+    expect(() => assertRetargetBehaviour(retarget, onEdit)).toThrow();
+    const anyEdit = structuredClone(retarget);
+    anyEdit.jobs['pr-affected-retarget'].if = "github.event.pull_request.base.ref == 'main'";
+    expect(() => assertRetargetBehaviour(anyEdit, workflow)).toThrow();
+    const sameName = structuredClone(retarget);
+    sameName.jobs['pr-affected-retarget'].name = 'pr affected';
+    expect(() => assertRetargetBehaviour(sameName, workflow)).toThrow();
+    const drifted = structuredClone(retarget);
+    drifted.jobs['pr-affected-retarget'].steps.pop();
+    expect(() => assertRetargetBehaviour(drifted, workflow)).toThrow();
   });
   it('always runs the docs checks in the fast job, and fails if a docs step is removed or made conditional', () => {
     assertFastDocs(workflow);
