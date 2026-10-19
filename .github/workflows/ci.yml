@@ -275,7 +275,14 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - name: Install Chromium and its system libraries
-        run: pnpm exec playwright-core install --with-deps chromium
+        # --with-deps runs sudo apt-get, which GitHub-hosted machines allow. A self-hosted machine ships the
+        # libraries in its image and has no sudo, so it installs the browser alone, as NexusGPT/nexus does.
+        run: |
+          if [ "$RUNNER_ENVIRONMENT" = github-hosted ]; then
+            pnpm exec playwright-core install --with-deps chromium
+          else
+            pnpm exec playwright-core install chromium
+          fi
       - name: Drive the viewer at 1280 and 390 px
         run: pnpm exec tsx tools/browser/viewer-journey.ts --out viewer-journey
       - name: Keep the screenshots
