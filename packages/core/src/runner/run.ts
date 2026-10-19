@@ -24,7 +24,7 @@ import {
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson } from '../spec/hash';
-import { specHash as specHashOf } from '../spec/identity';
+import { specHash as specHashOf, specIdentityHash } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
 import { specParentRecord, specParentRef } from '../spec/spec-parents';
 import { type GivenFinding, parentIndices, verifyGiven } from '../spec/verify-given';
@@ -180,7 +180,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const linked = spec.blocks.some((block) => block.parent !== undefined);
   const now = options.now ?? (() => new Date());
   const specHash = specHashOf(spec);
-  // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
+  // The run id leaves out the spec's version: a free label that plays no part (docs/running.md, "The cache and
+  // replay"), so relabelling a spec keeps its run ids. The cache key leaves out the version label and the spec's
+  // scoring-only `uses` (cacheSpecHash).
+  const identityHash = specIdentityHash(spec);
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // Every block's objects resolve before any call reaches the adapter: a reference that cannot resolve fails here.
@@ -297,6 +300,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
+    identityHash,
     cacheSpecHash,
     target,
     mode: options.mode,
@@ -322,6 +326,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       options.runId ??
       cellId({
         specHash,
+        identityHash,
         target,
         mode: options.mode,
         repeat: options.repeat,
@@ -373,6 +378,8 @@ type RunContext = {
   provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
+  /** The spec hash without its version label, which the run id is made from. */
+  identityHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
   cacheSpecHash: string;
   target: TargetRef;
@@ -1171,6 +1178,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
+    identityHash: run.identityHash,
     target: run.target,
     mode: run.mode,
     repeat: run.repeat,

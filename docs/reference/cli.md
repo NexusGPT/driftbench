@@ -59,7 +59,7 @@ $ pnpm -s driftbench spec validate _captures/docs3/cli/broken/semantic.yaml
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, is part of the runner's cache key and of every run id; `version` is a free label. See [running](../running.md#the-cache-and-replay).
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash is the spec's identity in the store and in a holdout seal, so a changed `version` changes it. A run id, a cell id and the runner's cache key are made from a second hash, the identity hash: the same canonical JSON without the `version` label (and without `metadata.links` and `metadata.provenance`, as the first hash). `version` is a free label, so relabelling a spec keeps its cells, its run ids and its cached blocks; a spec with no `version` has the one hash for both. A run records both: `specHash` and `identityHash`. A run stored before `identityHash` existed reads its id from `specHash`. See [running](../running.md#the-cache-and-replay).
 
 | Option | Effect |
 |---|---|
