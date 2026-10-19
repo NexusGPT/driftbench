@@ -19,6 +19,7 @@ import { between, rngFor } from '../random';
 import { cli, json, storeCampaign, written } from './links-chain';
 import {
   blockId,
+  drawnOrder,
   hideArgv,
   type LinkedSuite,
   linkedSuite,
@@ -27,6 +28,7 @@ import {
   type ReferenceRow,
   registryOf,
   type SuitePlant,
+  shapePairs,
   suiteRows,
 } from './links-world';
 import { OPERATOR_ORDER } from './reach';
@@ -698,7 +700,9 @@ function childFirstCounter(): Draft[] {
               return copy;
             });
             const parentOf = new Map(shape.parents);
-            raw.blocks = shape.order.map((truth) => {
+            // Drawn from the seed: each child stays against its parent, each block against b0, as the shape has it.
+            const order = drawnOrder(seed, id, shape.order, shapePairs(4, shape.parents, 0));
+            raw.blocks = order.map((truth) => {
               const block = { ...(source[truth] as Record<string, unknown>) };
               const parent = parentOf.get(truth);
               if (parent !== undefined) block.parent = blockId(flow.spec.id, parent);
@@ -706,7 +710,7 @@ function childFirstCounter(): Draft[] {
             });
             if (form === 'index')
               for (const link of (raw.metadata as { links: BlockLink[] }).links)
-                if (typeof link.block === 'number') link.block = shape.order.indexOf(link.block);
+                if (typeof link.block === 'number') link.block = order.indexOf(link.block);
             const got = sectionSelection(
               suite.flows.map((each) => {
                 const spec = loadRaw(each.spec);
@@ -721,8 +725,8 @@ function childFirstCounter(): Draft[] {
                 if (up === 0) return true;
               return false;
             };
-            const parentAt = shape.order.indexOf(0);
-            for (const [position, truth] of shape.order.entries()) {
+            const parentAt = order.indexOf(0);
+            for (const [position, truth] of order.entries()) {
               const block = mine?.blocks.find((each) => each.index === position);
               const state = block?.state ?? 'absent';
               if (descends(truth) && state === 'out') return fail(`b${truth} descends from b0 and is out`);

@@ -14,7 +14,7 @@ import { parse, stringify } from 'yaml';
 import { LOOKUP } from '../family';
 import type { Flow, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
-import { hideArgv } from './links-world';
+import { drawnOrder, hideArgv, neutralNames, shapePairs } from './links-world';
 import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 import { adapterFor, behavioursFor, failingList, plantedFlow, runScenario } from './world';
 
@@ -547,10 +547,15 @@ function blockedItems(): Draft[] {
                 return copy;
               });
               const parentOf = new Map(shape.parents);
-              raw.blocks = shape.order.map((truth) => {
-                const block = { ...(source[truth] as Block) };
+              // Block ids and the authored order are drawn from the seed (audit of version 6, cheater round 3):
+              // each child stays against its parent, each block against the root, as the shape has it.
+              const names = neutralNames(seed, `${id}-blocks`, 4);
+              const bid = (truth: number) => names[truth] as string;
+              const order = drawnOrder(seed, id, shape.order, shapePairs(4, shape.parents, shape.root));
+              raw.blocks = order.map((truth) => {
+                const block: Block = { ...(source[truth] as Block), id: bid(truth) };
                 const parent = parentOf.get(truth);
-                if (parent !== undefined) block.parent = `b${parent}`;
+                if (parent !== undefined) block.parent = bid(parent);
                 if (truth === shape.root && cause === 'given-unmet')
                   block.given = {
                     prefix: [
@@ -570,31 +575,31 @@ function blockedItems(): Draft[] {
               const problems: Array<readonly [boolean, string]> = [
                 [run.status === 'completed', `the run ${run.status}`],
               ];
-              const rootBlock = byId.get(`b${shape.root}`);
+              const rootBlock = byId.get(bid(shape.root));
               problems.push([
                 blockStatus(rootBlock ?? { pass: true }) === (cause === 'given-unmet' ? 'not_run' : 'fail'),
-                `the root b${shape.root} is ${rootBlock ? blockStatus(rootBlock) : 'absent'}: ${failingList(run)}`,
+                `the root ${bid(shape.root)} is ${rootBlock ? blockStatus(rootBlock) : 'absent'}: ${failingList(run)}`,
               ]);
               for (const [child, parent] of shape.parents) {
-                const block = byId.get(`b${child}`);
+                const block = byId.get(bid(child));
                 problems.push([
                   block !== undefined && blockStatus(block) === 'blocked',
-                  `b${child} is ${block ? blockStatus(block) : 'absent'}, expected blocked`,
+                  `${bid(child)} is ${block ? blockStatus(block) : 'absent'}, expected blocked`,
                 ]);
                 problems.push([
-                  block?.blocked?.by === `b${parent}` && block?.blocked?.root === `b${shape.root}`,
-                  `b${child} blocked by ${block?.blocked?.by} root ${block?.blocked?.root}, expected by b${parent} root b${shape.root}`,
+                  block?.blocked?.by === bid(parent) && block?.blocked?.root === bid(shape.root),
+                  `${bid(child)} blocked by ${block?.blocked?.by} root ${block?.blocked?.root}, expected by ${bid(parent)} root ${bid(shape.root)}`,
                 ]);
                 problems.push([
                   block?.verdicts.length === 0 && block.pass === false,
-                  `b${child} carries verdicts or a pass`,
+                  `${bid(child)} carries verdicts or a pass`,
                 ]);
               }
               for (const free of shape.independent) {
-                const block = byId.get(`b${free}`);
+                const block = byId.get(bid(free));
                 problems.push([
                   block !== undefined && blockStatus(block) === 'pass',
-                  `the independent root b${free} is ${block ? blockStatus(block) : 'absent'}`,
+                  `the independent root ${bid(free)} is ${block ? blockStatus(block) : 'absent'}`,
                 ]);
               }
               const outcome = runOutcome(run);
