@@ -84,18 +84,18 @@ describe('mutateEstate', () => {
     expect(await readFile(join(root, skill), 'utf8')).toBe(before);
   });
 
-  it('inverts an obligation by the table of forms, in place, the line count kept', async () => {
+  it('inverts an obligation by its polarity, in place, the line count kept', async () => {
     const root = await copy();
     const original = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');
     const result = await mutateEstate({ root, map }, { invert: R7 });
     const text = await readFile(join(root, 'CLAUDE.md'), 'utf8');
     expect(result.after).toBe(
-      '- **R7.** When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
+      '- **R7.** Do not follow this rule: When a shipment is late by more than two days, tell the user and propose a supplier email.',
     );
     expect(text.split('\n')).toHaveLength(original.split('\n').length);
     const atom = result.map.atoms.find((candidate) => candidate.id === R7);
     expect(atom?.provenance.quote).toBe(
-      'When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
+      'Do not follow this rule: When a shipment is late by more than two days, tell the user and propose a supplier email.',
     );
     expect(result.mapHash).not.toBe(map.hash);
     await consistent(root, result.map);
@@ -130,33 +130,96 @@ describe('mutateEstate', () => {
   });
 });
 
+describe('mutateEstate --invert chooses its sentence by the polarity the atom declares', () => {
+  const R6 = 'instruction.standing.never-force-push';
+  const LIFTED = 'This prohibition is lifted: ';
+  const FOLLOW = 'Do not follow this rule: ';
+
+  it('inverts a prohibition of the fixture with the sentence of a prohibition, the quote whole after it', async () => {
+    const root = await copy();
+    const result = await mutateEstate({ root, map }, { invert: R6 });
+    expect(result.after).toBe(
+      '- **R6.** This prohibition is lifted: Never run `git push --force` on any branch.',
+    );
+    const atom = result.map.atoms.find((candidate) => candidate.id === R6);
+    expect(atom?.provenance.quote).toBe(`${LIFTED}Never run \`git push --force\` on any branch.`);
+    expect(await readFile(join(root, 'CLAUDE.md'), 'utf8')).toContain(result.after);
+    await consistent(root, result.map);
+  });
+
+  it('decides by the declared polarity, not by the words: a prohibition with no negative word, an obligation that opens with one', async () => {
+    const prohibition = 'instruction.standing.report-only-numbers-read-during-the';
+    expect(map.atoms.find((candidate) => candidate.id === prohibition)?.fields?.polarity).toBe('prohibition');
+    const first = await mutateEstate({ root: await copy(), map }, { invert: prohibition });
+    expect(first.after).toContain(LIFTED);
+    expect(first.after).not.toContain(FOLLOW);
+    // The same quote with the polarity declared the other way takes the other sentence.
+    const flipped = structuredClone(map);
+    const atom = flipped.atoms.find((candidate) => candidate.id === prohibition);
+    if (atom?.fields) atom.fields.polarity = 'obligation';
+    const second = await mutateEstate({ root: await copy(), map: flipped }, { invert: prohibition });
+    expect(second.after).toContain(FOLLOW);
+    expect(second.after).not.toContain(LIFTED);
+  });
+
+  it('gives every standing instruction of the fixture the sentence of its declared polarity', async () => {
+    const standing = map.atoms.filter(
+      (candidate) => candidate.kind === 'instruction' && candidate.id.startsWith('instruction.standing.'),
+    );
+    expect(standing.length).toBeGreaterThan(10);
+    const seen = new Set<string>();
+    for (const candidate of standing) {
+      const result = await mutateEstate({ root: await copy(), map }, { invert: candidate.id });
+      const wanted = candidate.fields?.polarity === 'prohibition' ? LIFTED : FOLLOW;
+      expect(result.after, candidate.id).toContain(wanted);
+      expect(result.after, candidate.id).not.toContain(wanted === LIFTED ? FOLLOW : LIFTED);
+      seen.add(wanted);
+    }
+    expect([...seen].sort()).toEqual([FOLLOW, LIFTED]);
+  });
+});
+
 describe('invertText', () => {
-  it.each([
-    ['Never run `git push --force` on any branch.', 'Always run `git push --force` on any branch.'],
-    [
-      'Always answer in the language of the latest message.',
-      'Never answer in the language of the latest message.',
-    ],
-    ['Do not invent order numbers.', 'Invent order numbers.'],
-    ["Don't paste the token.", 'Paste the token.'],
-    ['The brief must name the files.', 'The brief must not name the files.'],
-    ['The brief must not name the files.', 'The brief must name the files.'],
-    ['When the user says stop, stop all work.', 'When the user says stop, do not stop all work.'],
-    [
-      'Before editing any invoice file: Read the rules.',
-      'Before editing any invoice file: do not read the rules.',
-    ],
-    ['If a tool fails twice, never retry it.', 'If a tool fails twice, always retry it.'],
-    ['Read a file before you edit it.', 'Do not read a file before you edit it.'],
-    ['- **R9.** Ask at most one question per reply.', '- **R9.** Do not ask at most one question per reply.'],
-  ])('%s', (text, inverted) => {
-    expect(invertText(text)).toBe(inverted);
+  const CLAUSE = 'Never run `git push --force` on any branch.';
+
+  it('keeps the whole quote and sets a fixed sentence before it, chosen by the declared polarity alone', () => {
+    expect(invertText(CLAUSE, 'prohibition')).toBe(`This prohibition is lifted: ${CLAUSE}`);
+    expect(invertText(CLAUSE, 'obligation')).toBe(`Do not follow this rule: ${CLAUSE}`);
+    expect(invertText(CLAUSE)).toBe(`Do not follow this rule: ${CLAUSE}`);
+  });
+
+  it('reads no word of the quote: a quote that holds none of the old forms is inverted the same way', () => {
+    const text = 'Ask at most one question per reply.';
+    expect(invertText(text, 'obligation')).toBe(`Do not follow this rule: ${text}`);
+    // The old table read these openings; the polarity decides now, whatever the words say.
+    expect(invertText('Never X the file.', 'obligation')).toBe('Do not follow this rule: Never X the file.');
+    expect(invertText('Always X the file.', 'prohibition')).toBe(
+      'This prohibition is lifted: Always X the file.',
+    );
+  });
+
+  it('keeps a markdown prefix (list marker, bold label) in front of the sentence', () => {
+    expect(invertText('- **R9.** Ask one question per reply.', 'obligation')).toBe(
+      '- **R9.** Do not follow this rule: Ask one question per reply.',
+    );
+    expect(invertText('1. Read the rules first.', 'obligation')).toBe(
+      '1. Do not follow this rule: Read the rules first.',
+    );
+  });
+
+  it('works in any script: a letter is a letter', () => {
+    expect(invertText('Toujours répondre en français.', 'obligation')).toBe(
+      'Do not follow this rule: Toujours répondre en français.',
+    );
+    expect(invertText('Всегда отвечайте по-русски.', 'obligation')).toBe(
+      'Do not follow this rule: Всегда отвечайте по-русски.',
+    );
   });
 
   it.each([['"WebFetch"'], ['name: invoice-reconcile'], ['Edit'], ['$CLAUDE_PROJECT_DIR/x.sh']])(
     'refuses %s',
     (text) => {
-      expect(invertText(text)).toBeUndefined();
+      expect(invertText(text, 'obligation')).toBeUndefined();
     },
   );
 });

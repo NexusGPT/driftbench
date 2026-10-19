@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { contentHash } from '@agent-nexus/driftbench-core';
 import {
   type EstateMap,
@@ -823,7 +823,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(record.mapHash).toBe(mutantMap.hash);
       expect(mutantMap.hash).not.toBe(approved.hash);
       expect(record.before).toContain(atom.provenance.quote);
-      expect(record.after).toContain('do not tell the user');
+      expect(record.after).toContain('Do not follow this rule: When a shipment is late');
       // Only that file differs from the estate, and only on that line.
       const changedFiles: string[] = [];
       for (const path of await filesUnder(mutantDir)) {
@@ -868,10 +868,14 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const alternatives = recorded.asks.flatMap((entry) =>
         (entry.unless ?? []).map((rule) => ({ ask: entry.ask, ...rule })),
       );
+      // The stand-in's own reading of "the estate holds the quote", the file it shares with the fake command.
+      const { holds } = (await import(pathToFileURL(join(FIXTURE, 'live/fake/held.mjs')).href)) as {
+        holds: (text: string, quote: string) => boolean;
+      };
       const playing = async (root: string) => {
         const out: typeof alternatives = [];
         for (const rule of alternatives) {
-          if (!(await readFile(join(root, rule.file), 'utf8')).includes(rule.quote)) out.push(rule);
+          if (!holds(await readFile(join(root, rule.file), 'utf8'), rule.quote)) out.push(rule);
         }
         return out;
       };

@@ -29,7 +29,7 @@ actions from the estate copy it runs in; with `FAKE_MANIFEST` set to an absolute
 `examples/estates/fixture/live/fake/manifest.json` it plays the recorded streams of the Northwind proof.
 
 `estate mutate <map> --atom <id>` copies the estate and either deletes one atom's quoted span (`--delete`) or
-replaces it by its negation from a fixed table of forms (`--invert`), and writes the copy, its `map.yaml` and
+sets a fixed sentence in front of the whole quote (`--invert`: "Do not follow this rule:" for an obligation, "This prohibition is lifted:" for a prohibition, by the polarity the atom declares; no word of the quote is read), and writes the copy, its `map.yaml` and
 `mutant.json`. The tests derived from that atom must then go red, live, in replay, unit or static runs, while
 the others stay as they were. That is how you prove a test suite can fail.
 
@@ -85,7 +85,7 @@ driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--f
 | `<map>` | required | the approved estate map |
 | `--atom <id>` | required | the atom to mutate |
 | `--delete` | one of the two | remove the quoted span from its file |
-| `--invert` | one of the two | replace the quote by its negation, by the fixed table of forms |
+| `--invert` | one of the two | set a fixed sentence in front of the quote, chosen by the atom's declared polarity |
 | `--to <dir>` | required | the folder of the mutant: it receives the copy, `map.yaml` and `mutant.json` |
 | `--force` | off | replace an earlier mutant in the folder |
 | `--json` | off | print the result as JSON |
@@ -143,8 +143,8 @@ Mutant: delete gate.standing.read-a-file-before-editing-it in CLAUDE.md.
 Wrote deleted: the estate copy, map.yaml and mutant.json.
 Mutant: invert instruction.standing.never-force-push in CLAUDE.md.
   before: - **R6.** Never run `git push --force` on any branch.
-  after:  - **R6.** Always run `git push --force` on any branch.
-  map be2e7a0919cb -> 7101f74ddcc6
+  after:  - **R6.** This prohibition is lifted: Never run `git push --force` on any branch.
+  map be2e7a0919cb -> 9910ca696dba
 Wrote inverted: the estate copy, map.yaml and mutant.json.
 Name one mutation: --delete or --invert.
 Atom no.such is not in the map.
