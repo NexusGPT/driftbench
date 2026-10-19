@@ -5,6 +5,7 @@ import {
   canonical,
   initialize,
   load,
+  loadIssues,
   observed,
   type RawSpec,
   type RunRecord,
@@ -375,14 +376,8 @@ type ValueBlock = {
   compare?: string;
 };
 
-/** Blocks each calling its own tool once with an email; returns the run, the block ids and the planted agent. */
-async function valueRun(
-  ctx: ItemContext,
-  tag: string,
-  golds: string[],
-  blocks: ValueBlock[],
-  diagnostics = true,
-) {
+/** The spec of blocks each calling its own tool once with an email, the planted actions and the block ids. */
+function valueSpec(ctx: ItemContext, tag: string, golds: string[], blocks: ValueBlock[], diagnostics = true) {
   const actions = new Map<string, Action>();
   const schemas: Record<string, unknown> = {};
   const ids: string[] = [];
@@ -424,6 +419,18 @@ async function valueRun(
     ...(Object.keys(schemas).length > 0 ? { metadata: { tool_schemas: schemas } } : {}),
     blocks: raws,
   };
+  return { raw, actions, ids };
+}
+
+/** Blocks each calling its own tool once with an email; returns the run, the block ids and the planted agent. */
+async function valueRun(
+  ctx: ItemContext,
+  tag: string,
+  golds: string[],
+  blocks: ValueBlock[],
+  diagnostics = true,
+) {
+  const { raw, actions, ids } = valueSpec(ctx, tag, golds, blocks, diagnostics);
   const agent = plantedAgent(ctx.product, 'normal', actions, { scratch: ctx.scratch });
   const record = await run(ctx.product, raw, agent.adapter);
   return { record, ids, agent };
@@ -613,7 +620,21 @@ const BLAME_CASES: Case[] = [
       ];
       const blamed = await valueRun(ctx, 'bl-calls', golds, blocks, true);
       const plain = await valueRun(ctx, 'bl-calls', golds, blocks, false);
+      // The twin the docs refuse (concepts/block.md, "A spec is checked before it runs"): the same blamed spec
+      // with one key no schema defines in a block is not loaded, so a loader that keeps the key or skips
+      // validation cannot pass both.
+      const { raw } = valueSpec(ctx, 'bl-calls', golds, blocks, true);
+      const key = `k${tok(ctx, 'bl-calls', 'key', 8)}`;
+      const strayed = {
+        ...raw,
+        blocks: raw.blocks.map((block, index) => (index === 0 ? { ...block, [key]: true } : block)),
+      };
+      const refused = loadIssues(ctx.product, strayed);
       return [
+        unless(
+          !refused.ok && refused.codes.includes('SCHEMA_UNRECOGNIZED_KEYS'),
+          `the blamed spec with the unknown block key ${key} should be refused with SCHEMA_UNRECOGNIZED_KEYS; the loader answered ${refused.ok ? 'ok' : show(refused.codes)}`,
+        ),
         unless(
           blamed.agent.delivered().length === 2,
           `with blame the agent was sent ${blamed.agent.delivered().length} turns for 2 blocks`,
@@ -762,14 +783,15 @@ const STEP_CASES: Case[] = [
     cause: 'step-input-only',
     component: EVIDENCE,
     title:
-      'computeEvidence on a deeply frozen input answers without a throw, and the same as on a fresh copy',
+      'computeEvidence on a deeply frozen input answers without a throw, and the same as on a fresh copy, on a failing tool input and on its twin of a named check, whose answers differ',
     run: async (ctx) => {
       const t = tool(ctx, 'e-frozen');
-      const build = () =>
+      const check = tok(ctx, 'e-frozen', 'check', 8);
+      const build = (named: boolean) =>
         inputOf(
           stored(
             [{ label: t, input: { email: 'x' }, error: 'refused' }],
-            [machine(`tools.${t}.input.email`)],
+            [named ? { ...machine(`${check}.0`), name: check } : machine(`tools.${t}.input.email`)],
             'Which email?',
           ),
           {
@@ -777,16 +799,26 @@ const STEP_CASES: Case[] = [
             user: 'My email is y.',
           },
         );
-      const fresh = compute(ctx.product, build());
-      const frozen = compute(ctx.product, deepFreeze(build()));
+      // The twin names its own check, so its verdict_check differs: one answer for both reads no input.
+      const pairs = [false, true].map((named) => ({
+        fresh: compute(ctx.product, build(named)),
+        frozen: compute(ctx.product, deepFreeze(build(named))),
+      }));
+      const [tools, named] = pairs as [(typeof pairs)[number], (typeof pairs)[number]];
       return [
+        ...pairs.flatMap(({ fresh, frozen }) => [
+          unless(
+            frozen.threw === undefined,
+            `a frozen input should be read, never written; the call threw: ${frozen.threw}`,
+          ),
+          unless(
+            canonical(frozen.got) === canonical(fresh.got),
+            `the frozen input gave another answer: ${show(frozen.got)} against ${show(fresh.got)}`,
+          ),
+        ]),
         unless(
-          frozen.threw === undefined,
-          `a frozen input should be read, never written; the call threw: ${frozen.threw}`,
-        ),
-        unless(
-          canonical(frozen.got) === canonical(fresh.got),
-          `the frozen input gave another answer: ${show(frozen.got)} against ${show(fresh.got)}`,
+          tools.frozen.got?.verdict_check === 'tools' && named.frozen.got?.verdict_check === check,
+          `verdict_check should be tools on the tool input and ${check} on the twin; it is ${show(tools.frozen.got?.verdict_check)} and ${show(named.frozen.got?.verdict_check)}`,
         ),
       ];
     },
