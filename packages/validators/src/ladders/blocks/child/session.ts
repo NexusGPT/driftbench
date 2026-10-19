@@ -270,6 +270,7 @@ function commandDifference(run: CommandRun, outName: string): string | undefined
 }
 
 let guarded = false;
+let loose: FrameSession | undefined;
 
 /**
  * Keeps the bank's inspector shut. A product runs in a child of the bank's process, so `process.ppid` names the
@@ -348,6 +349,7 @@ export class FrameSession {
   }
 
   private close(): void {
+    if (loose === this) loose = undefined;
     this.frame?.close();
     this.frame = undefined;
     for (const folder of this.folders.values()) rmSync(folder.mirror, { recursive: true, force: true });
@@ -371,6 +373,12 @@ export class FrameSession {
   private host(): Host {
     if (this.frame) return this.frame.product;
     guardInspector();
+    // A product used outside an item (a test that calls item checks itself) keeps one frame until another such
+    // product starts one: at most one of them holds child processes at a time.
+    if (!this.item) {
+      if (loose && loose !== this) loose.close();
+      loose = this;
+    }
     const item = this.item ?? { seed: 0, tag: 'blocks', root: this.root() };
     this.privateRoot = mkdtempSync(join(tmpdir(), 'dbf-'));
     this.frame = isolate<Host>({ module: this.files.host, seed: item.seed, tag: item.tag, keep: STEADY });
