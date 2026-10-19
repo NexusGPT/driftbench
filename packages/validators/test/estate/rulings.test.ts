@@ -33,18 +33,11 @@ async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChec
 }
 
 describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
-  it('records the real product result without claiming the remaining product gaps pass', async () => {
+  it('records the real product result: every one of the fourteen items holds on seed 1', async () => {
     const result = await genCompleteFamily().evaluate(1);
-    const failing = [...result].filter(([, r]) => !r.pass);
-    expect(failing.map(([id]) => id)).toEqual([
-      'gen.complete.guard_negative-guard-reply-length-py',
-      'gen.complete.guard_register-guard-reply-length-py',
-      'gen.complete.hazard_recovery-hazard-after-compaction',
-      'gen.complete.skip_pressure-gate',
-      'gen.complete.skip_pressure-gate-fixed-gate',
-      'gen.complete.tool_boundary-tool-ask',
-      'gen.complete.tool_boundary-tool-declared',
-    ]);
+    // The product now writes the structure these items demand (a journey that ran a script, a hazard that rereads,
+    // a permission test with a covered call, a guard message), so no item fails on the real output of seed 1.
+    expect([...result].filter(([, r]) => !r.pass).map(([id]) => id)).toEqual([]);
   });
 
   it('enumerates components, kills structural check deletions, and restores the reference', async () => {
@@ -198,7 +191,7 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       expect(restored.get(`gen.complete.${key}`)?.pass, key).toBe(true);
   });
 
-  it('exposes the real product accepting a late prerequisite while the corrected reference rejects it', async () => {
+  it('shows the real product rejecting a late prerequisite, as the corrected reference does', async () => {
     const run = await pipeline.generationRun(1);
     const source = required(run.specs.find((s) => suffix(run, s) === 'skip_pressure-gate-fixed-gate'));
     const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
@@ -224,17 +217,16 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       );
       expect(observed.toolCalls).toHaveLength(originalCount);
     };
-    expect(
-      (
-        await pipeline.replayOnFollower(
-          run,
-          required(source.loaded),
-          pipeline.replayChecks(),
-          undefined,
-          observedChange,
-        )
-      ).pass,
-    ).toBe(true);
+    // The product's own ordered check rejects the late prerequisite now, as the corrected reference does.
+    const product = await pipeline.replayOnFollower(
+      run,
+      required(source.loaded),
+      pipeline.replayChecks(),
+      undefined,
+      observedChange,
+    );
+    expect(product.pass).toBe(false);
+    expect(product.failing.some((f) => f.includes('ordered'))).toBe(true);
     const reference = referenceRun(run);
     const fixed = required(reference.specs.find((s) => s.record.id === source.record.id));
     const red = await pipeline.replayOnFollower(
@@ -248,7 +240,7 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     expect(red.failing.some((f) => f.includes('ordered'))).toBe(true);
     expect(
       (await measure(run, pipeline.replayChecks())).get('gen.complete.skip_pressure-gate-fixed-gate'),
-    ).toMatchObject({ pass: false });
+    ).toEqual({ pass: true, detail: 'holds' });
   });
 
   it('rejects denied, mismatched and late grants in the synthetic permission contract', async () => {
@@ -410,7 +402,8 @@ describe('hazard_recovery demands the reread its passage names', { timeout: 900_
     let judged = 0;
     for (const seed of SEEDS) {
       const raw = await pipeline.generationRun(seed);
-      if (hazardSpecs(raw).length === 0) continue;
+      const sources = hazardSpecs(raw);
+      if (sources.length === 0) continue;
       judged += 1;
       const reference = referenceRun(raw);
       const targets = new Set(hazardSpecs(reference));
