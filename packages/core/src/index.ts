@@ -349,6 +349,7 @@ export {
   wrapEndState,
 } from './runner';
 export { rescoreCarriedRun } from './runner/carried-scoring';
+export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,

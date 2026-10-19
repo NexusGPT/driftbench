@@ -9,13 +9,21 @@ export function parentOrder(spec: Spec): { order: number[]; issues: Issue[] } {
   const marks = new Map<number, 'visiting' | 'done'>();
   const order: number[] = [];
   const issues: Issue[] = [];
+  /** The blocks being visited, child first: a cycle is the part of it from the block met again. */
+  const stack: number[] = [];
   const visit = (index: number) => {
     if (marks.get(index) === 'done') return;
     if (marks.get(index) === 'visiting') {
-      issues.push(error('PARENT_CYCLE', `blocks.${index}.parent`, 'parent links form a cycle'));
+      const path = [...stack.slice(stack.indexOf(index)), index].map(
+        (at) => spec.blocks[at]?.id ?? `blocks.${at}`,
+      );
+      issues.push(
+        error('PARENT_CYCLE', `blocks.${index}.parent`, `parent links form a cycle: ${path.join(' -> ')}`),
+      );
       return;
     }
     marks.set(index, 'visiting');
+    stack.push(index);
     const parent = spec.blocks[index]?.parent;
     if (parent !== undefined) {
       const at = ids.get(parent);
@@ -29,6 +37,7 @@ export function parentOrder(spec: Spec): { order: number[]; issues: Issue[] } {
         );
       else visit(at);
     }
+    stack.pop();
     marks.set(index, 'done');
     order.push(index);
   };

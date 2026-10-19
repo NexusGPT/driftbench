@@ -5,6 +5,7 @@ commands:
   - spec validate
   - spec lint
   - campaign run
+  - isolation
 see_also:
   - authoring-blocks
   - authoring-prefixes
@@ -40,12 +41,13 @@ Parent links do not refer to another spec, a stored campaign or a reusable objec
 
 ## Commands and every option
 
-This is a spec format feature. There is no parent command or parent flag.
+This is a spec format feature: the `parent` key turns it on. One command reads parent links: `isolation`, the dependency check.
 
 | Command | Arguments and options | Default |
 |---|---|---|
 | `spec validate` | Required `<paths...>` names files or folders. `--json` prints the validation records. | Text output. |
 | `spec lint` | Required `<paths...>`. `--json` prints records. `--strict` fails on warnings. `--summaries` checks named-state summaries. `--sections <registries...>` checks prompt-section links. | Text output; optional checks off. |
+| `isolation` | Required `<spec>`, one spec with parent links. `--target <adapter[:agent]>` runs on another target. `--mode T` or `--mode F`. `--json` prints the edges. Exit 0 when every edge has a verdict, 1 when one has none, 2 on bad input. | The spec's target, mode T, text output. |
 | `campaign run` | Read the parent-linked spec through `[paths...]`. `--target function:acme-sales` uses the fictional agent. `--mode T,F` runs both modes. `--no-cache` disables observation caching. `--json` prints run records. | Target from the spec, mode F, cache on, text output. |
 
 The complete campaign option list and defaults are in [running-campaign-run](running-campaign-run.md).
@@ -175,7 +177,17 @@ blocks:
 driftbench spec validate parents/pass.yaml
 driftbench spec lint parents/pass.yaml --strict
 driftbench campaign run parents/pass.yaml --mode T,F --no-cache
+driftbench isolation parents/pass.yaml --json
 ```
+
+`isolation` runs the spec once, then each child alone from its own Given, with no parent.
+Both offers fail alone: given only the email address, the agent answers with its greeting and calls no `catalog.search`.
+So each edge has `linked: pass`, `isolated: fail` and `manifest: true`: the child depends on its parent.
+An edge with `manifest: false` holds the same verdict alone and could be its own spec.
+It costs one run per edge, so run it when you add an edge or change a parent.
+A child with no id is named by its position, such as `blocks.2`.
+Each side runs once: on an agent that does not answer the same way twice, a changed verdict can be noise.
+The edge is to the direct parent: state a grandparent set shows as a dependency of the grandchild's own edge.
 
 The next spec deliberately requires an impossible reply from its parent.
 The child is blocked, but the independent root still runs.
@@ -281,7 +293,7 @@ Each record includes the offending spec path and a message explaining the proble
 | Error or result | Cause | Fix |
 |---|---|---|
 | `PARENT_MISSING` | The `parent` id does not name a block in this spec. | Add the parent or correct its id. |
-| `PARENT_CYCLE` | Parent links form a cycle, including a self-reference. | Remove the cycle. A parent chain must reach a root. |
+| `PARENT_CYCLE` | Parent links form a cycle, including a self-reference. The message prints the cycle, such as `first -> second -> first`. | Remove one link of the printed cycle. A parent chain must reach a root. |
 | `DUPLICATE_BLOCK_ID` | Two blocks share an id. | Give each block a unique id and update its children. |
 | `WORKSPACE_PATH_TWICE` | One workspace path is present in both `files` and `binary`. | Keep the path in one mapping. |
 | `SCHEMA_INVALID_FORMAT` | A `binary` value is not valid base64. | Encode the bytes as base64. |

@@ -240,7 +240,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `PERTURBATION_EMPTY` | error | a perturbation has none of `user`, `burst` and `world` |
 | `DUPLICATE_BLOCK_ID` | error | two blocks share an id |
 | `PARENT_MISSING` | error | a block's `parent` names no block id in the spec |
-| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included |
+| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included; the message prints the cycle, such as `a -> b -> a` |
 | `WORKSPACE_PATH_TWICE` | error | a workspace path is in both `files` and `binary` |
 | `DUPLICATE_PERTURBATION_ID` | error | two perturbations share an id |
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |
@@ -352,6 +352,36 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
 | 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
+
+## `driftbench isolation`
+
+```
+driftbench isolation <spec> [--target <adapter[:agent]>] [--mode T|F] [--json]
+```
+
+The parent isolation check. It runs a spec with `parent` links once as written, then runs each child that names a parent once more alone: from its own Given and the spec's defaults, with no parent and no perturbation. Per edge it compares the child's two statuses. A changed verdict sets `manifest: true`: the child depends on its parent. The same verdict sets `manifest: false`: the child could be a spec of its own. An edge whose linked child was blocked or not run, or whose isolated child was not run, has no `manifest` and a `reason`. A child that alone is no valid spec, such as one that retains a fact only its parent adds, is `isolated: spec_error` with the issue code in `reason`, and `manifest: true` when its linked run was scored. A child with no id is named by its position, `blocks.<index>`. The check costs one run per edge, so run it when an edge is added or a parent changes. The isolated runs are not stored. Two limits: each side runs once, so on a target that does not give the same answer twice a changed verdict can be noise (run it on a deterministic target, or twice); and the edge is to the direct parent, so a child that reads state a grandparent set, through a parent that ignores it, marks its own edge `manifest: true` and the parent's edge `manifest: false`. See [parent blocks](../concepts/given-when-then.md#parent-blocks).
+
+| Option | Effect |
+|---|---|
+| `<spec>` | one spec file with at least one `parent` link |
+| `--target <adapter[:agent]>` | the target to run on; without it, the spec's own target |
+| `--mode T\|F` | the mode of both runs; default T |
+| `--json` | print one JSON document: the spec id, the target, the mode, the linked run's status and the edges (`child`, `parent`, `linked`, `isolated`, `manifest`, `reason`) |
+
+On the parent spec of the `authoring-parent-blocks` help topic, on the fictional Acme sales agent:
+
+```
+Isolation: acme-help-parent-pass on function:acme-sales, mode T, 2 edges.
+  offer-web <- identify: linked pass, alone fail: depends on its parent
+  offer-phone <- identify: linked pass, alone fail: depends on its parent
+2 depend on their parent, 0 could stand alone, 0 without a verdict.
+```
+
+| Exit code | When |
+|---|---|
+| 0 | every edge has a verdict |
+| 1 | an edge has no verdict to compare |
+| 2 | bad input: not one valid spec, a spec with no `parent` link, an unknown mode or target |
 
 ## Judge flags
 
