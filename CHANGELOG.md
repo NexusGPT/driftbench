@@ -250,4 +250,4 @@ The first public release. driftbench evaluates AI agents block by block: a block
 * `.github/workflows/release.yml` publishes to npm with provenance and to PyPI through trusted publishing, on a `v*` tag only.
 * `tools/release/check.mjs` checks manifests, versions, this changelog and the contents of every pack.
 
-[0.1.0]: https://github.com/achammah/driftbench/releases/tag/v0.1.0
+[0.1.0]: https://github.com/NexusGPT/driftbench/releases/tag/v0.1.0
