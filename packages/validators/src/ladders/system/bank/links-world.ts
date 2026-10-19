@@ -25,8 +25,8 @@ export const PROMPT = 'planted-agent';
 export type LinkForm = 'id' | 'index';
 
 /**
- * The sections of a linked suite: one per block (`own_<s>_<b>`), one per spec (`spec_<s>`), one global
- * (`tone`). Ids use underscores: the registry builder slugs a heading's hyphens to underscores.
+ * The sections of a linked suite: one per block, one per spec, one global, every id drawn from the seed in the
+ * slug form the registry builder gives a heading back (lower case, digits, single underscores).
  */
 export type LinkedSuite = {
   flows: Flow[];
@@ -106,18 +106,22 @@ export function linkedSuite(
   const flows = Array.from({ length: specs }, (_, s) => plantedFlow(seed, `${tag}-s${s}`, blocks));
   // Spec and section ids are drawn from the seed, never read from the item: a product that keys on an id
   // the bank chose (a prefix, a counter) gains nothing on another seed (audit of version 6, cheater).
-  const names = neutralNames(seed, tag, specs * (blocks + 1) + specs + specs * blocks);
+  // The format of every id is drawn too, with no fixed prefix, length or alphabet (audit of version 6,
+  // cheater round 3: a product keyed on `k` plus six hex digits for block ids gained).
+  const names = neutralNames(seed, tag, specs * (blocks + 1));
   for (const flow of flows) {
-    flow.spec.id = `s${names.pop()}`;
-    const ids = (flow.spec.blocks as Array<{ id?: string }>).map(() => `k${names.pop()}`);
+    flow.spec.id = names.pop() as string;
+    const ids = (flow.spec.blocks as Array<{ id?: string }>).map(() => names.pop() as string);
     (flow.spec.blocks as Array<{ id?: string }>).forEach((block, index) => {
       block.id = ids[index] as string;
     });
     BLOCK_IDS.set(flow.spec.id, ids);
   }
-  const own = flows.map(() => Array.from({ length: blocks }, () => `sec_${names.pop()}`));
-  const spec = flows.map(() => `sec_${names.pop()}`);
-  const global = 'tone';
+  // Section ids are headings the registry slugs back to themselves: lower case, digits and single underscores.
+  const slugs = neutralNames(seed, `${tag}-sections`, specs * blocks + specs + 1, 'slug');
+  const own = flows.map(() => Array.from({ length: blocks }, () => slugs.pop() as string));
+  const spec = flows.map(() => slugs.pop() as string);
+  const global = slugs.pop() as string;
   const ids = shuffled(rngFor(seed, `${tag}-order`), [...own.flat(), ...spec, global]);
   const prompt = plantedPrompt(seed, ids, tag);
   const registry = registryOf(prompt, 'v1', [global]);
@@ -156,22 +160,72 @@ export async function hideArgv<T>(run: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Distinct six-digit hexadecimal names drawn from the seed and the tag. */
-export function neutralNames(seed: number, tag: string, count: number): string[] {
-  const rng = rngFor(seed, `${tag}-names`);
-  const out = new Set<string>();
-  while (out.size < count)
-    out.add(
-      Math.floor(rng() * 0xffffff)
-        .toString(16)
-        .padStart(6, '0'),
-    );
-  return [...out];
+/**
+ * Distinct names drawn from the seed and the tag, each with its own drawn length (3 to 20) and no fixed prefix.
+ * An `id` takes a letter of either case first (so YAML never reads it as a number), then letters of both cases,
+ * digits, dots, underscores and hyphens (the spec and block id rule); a `slug` takes a lower-case letter first,
+ * then lower-case letters, digits and single underscores, never at the end (a heading the registry slugs back
+ * to the same id). Distinct whatever the case; never `preamble`, nor a YAML keyword scalar.
+ */
+export function neutralNames(seed: number, tag: string, count: number, kind: 'id' | 'slug' = 'id'): string[] {
+  const rng = rngFor(seed, `${tag}-names-${kind}`);
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+  const digits = '0123456789';
+  const first = kind === 'id' ? `${lower}${lower.toUpperCase()}` : lower;
+  const rest = kind === 'id' ? `${first}${digits}._-` : `${lower}${digits}`;
+  const pick = (from: string) => from[Math.floor(rng() * from.length)] as string;
+  const out: string[] = [];
+  // The section the registry names itself, and the YAML 1.1 and 1.2 keyword scalars (machine format).
+  const seen = new Set<string>(['preamble', 'true', 'false', 'null', 'yes', 'off', '.nan', '.inf']);
+  while (out.length < count) {
+    const length = 3 + Math.floor(rng() * 18);
+    let name = pick(first);
+    while (name.length < length) {
+      const underscore = kind === 'slug' && !name.endsWith('_') && name.length < length - 1 && rng() < 0.15;
+      name += underscore ? '_' : pick(rest);
+    }
+    if (seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    out.push(name);
+  }
+  return out;
+}
+
+/**
+ * An authored order of blocks 0..n-1 drawn from the seed. Every pair in `keep` stays in the relative order the
+ * fixed shape gives it (a child before or after its parent, a block before or after the changed root); every
+ * other pair is free (audit of version 6, cheater round 3: products keyed on the fixed child-first layouts).
+ */
+export function drawnOrder(
+  seed: number,
+  tag: string,
+  fixed: readonly number[],
+  keep: ReadonlyArray<readonly [number, number]>,
+): number[] {
+  const rng = rngFor(seed, `${tag}-authored-order`);
+  const before = (order: readonly number[], a: number, b: number) => order.indexOf(a) < order.indexOf(b);
+  const wanted = keep.map(([a, b]) => before(fixed, a, b));
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    const order = shuffled(rng, fixed);
+    if (keep.every(([a, b], at) => before(order, a, b) === wanted[at])) return order;
+  }
+  return [...fixed];
+}
+
+/** The pairs a parent-forest shape keeps: each child against its parent, each block against the root. */
+export function shapePairs(
+  blocks: number,
+  parents: ReadonlyArray<readonly [number, number]>,
+  root: number,
+): Array<readonly [number, number]> {
+  const pairs: Array<readonly [number, number]> = parents.map(([child, parent]) => [child, parent] as const);
+  for (let b = 0; b < blocks; b += 1) if (b !== root) pairs.push([b, root] as const);
+  return pairs;
 }
 
 /** Gives a perturbation a name drawn from the seed in place of the shared fixture's name; returns it. */
 export function renamePerturbation(flow: Flow, from: string, seed: number, tag: string): string {
-  const name = `q${neutralNames(seed, `${tag}-perturbation`, 1)[0]}`;
+  const name = neutralNames(seed, `${tag}-perturbation`, 1)[0] as string;
   const found = (flow.spec.perturbations as Array<{ id: string }> | undefined)?.find(
     (entry) => entry.id === from,
   );

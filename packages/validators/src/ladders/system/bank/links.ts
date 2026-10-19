@@ -13,6 +13,7 @@ import type { Flow, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
 import {
   blockId,
+  drawnOrder,
   failingKeys,
   hideArgv,
   type LinkedSuite,
@@ -26,6 +27,7 @@ import {
   runSuite,
   type SuitePlant,
   sectionLink,
+  shapePairs,
 } from './links-world';
 import { OPERATOR_ORDER, withPerturbation } from './reach';
 import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
@@ -238,15 +240,24 @@ function localizePerturbed(): Draft[] {
  * independent root starts from the spec defaults without a stage-order verdict against it. `childFirst`
  * authors c0 before r0, which the runner schedules first.
  */
-function forest(flow: Flow, childFirst: boolean): { order: number[]; parents: Map<number, number> } {
+function forest(
+  flow: Flow,
+  childFirst: boolean,
+  seed: number,
+  tag: string,
+): { order: number[]; parents: Map<number, number> } {
   const raw = flow.spec as RawSpec & { blocks: Array<Record<string, unknown>>; stages?: unknown };
   delete raw.stages;
   for (const block of raw.blocks) {
     const expect = block.expect as Record<string, unknown>;
     delete expect.stage;
   }
-  // Authored order by truth index: r0=0, c0=1, r1=2, c1=3, or c0 first.
-  const order = childFirst ? [1, 0, 2, 3] : [0, 1, 2, 3];
+  // Authored order by truth index (r0=0, c0=1, r1=2, c1=3), drawn from the seed: child-first keeps c0 before r0
+  // and draws the rest; roots draws every order, a child before its parent included (the reference reads the
+  // parent edges, never the layout).
+  const order = childFirst
+    ? drawnOrder(seed, tag, [1, 0, 2, 3], [[1, 0]])
+    : drawnOrder(seed, tag, [0, 1, 2, 3], []);
   const parents = new Map<number, number>([
     [1, 0],
     [3, 2],
@@ -284,7 +295,7 @@ function localizeForest(): Draft[] {
             const suite = linkedSuite(seed, id, { specs: 2, blocks: 4 });
             const s = between(rngFor(seed, `${id}-spec`), 0, 1);
             const flow = suite.flows[s] as Flow;
-            const { parents } = forest(flow, shape === 'child-first');
+            const { parents } = forest(flow, shape === 'child-first', seed, id);
             // Faults by truth index: the child c0 and the second root r1 (roots), or the child c0 alone.
             const faults =
               shape === 'roots'
@@ -765,7 +776,10 @@ function selectParents(): Draft[] {
               return copy;
             });
             const parentOf = new Map<number, number>(shape.parents.map(([child, parent]) => [child, parent]));
-            raw.blocks = shape.order.map((truth) => {
+            // The authored order is drawn from the seed, keeping each child against its parent and each block
+            // against the changed root b0 where the shape puts them.
+            const order = drawnOrder(seed, id, shape.order, shapePairs(4, shape.parents, 0));
+            raw.blocks = order.map((truth) => {
               const block = { ...(source[truth] as Record<string, unknown>) };
               const parent = parentOf.get(truth);
               if (parent !== undefined) block.parent = blockId(flow.spec.id, parent);
@@ -775,7 +789,7 @@ function selectParents(): Draft[] {
             if (form === 'index') {
               const links = (raw.metadata as { links: BlockLink[] }).links;
               for (const link of links)
-                if (typeof link.block === 'number') link.block = shape.order.indexOf(link.block);
+                if (typeof link.block === 'number') link.block = order.indexOf(link.block);
             }
             const loaded = validateSpec(raw, 'bank');
             if (!loaded.ok)
@@ -796,7 +810,7 @@ function selectParents(): Draft[] {
               return false;
             });
             for (const truth of descendants) {
-              const position = shape.order.indexOf(truth);
+              const position = order.indexOf(truth);
               const block = mine?.blocks.find((each) => each.index === position);
               if (!block || block.state === 'out')
                 return fail(
