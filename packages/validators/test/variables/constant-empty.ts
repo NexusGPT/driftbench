@@ -6,4 +6,6 @@ export const variablesImpl: VariablesImpl = {
   plan: () => ({ rows: [] }),
   coverage: () => ({ allowed: 0, covered: 0, uncovered: [] }),
   weightInterval: () => [0, 1],
+  validate: (value) => ({ ok: true, store: value, warnings: [] }),
+  quotes: () => ({ errors: [] }),
 };

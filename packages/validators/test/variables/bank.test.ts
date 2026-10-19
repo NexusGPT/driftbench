@@ -70,7 +70,9 @@ describe('the variables ladder', () => {
     for (const item of items) {
       const outcome = run.get(item.id);
       expect(outcome?.pass, item.id).toBe(false);
-      expect(outcome?.detail, item.id).toMatch(/(buildStore|plan|coverage|weightInterval) is not provided/);
+      expect(outcome?.detail, item.id).toMatch(
+        /(buildStore|plan|coverage|weightInterval|validate|quotes) is not provided/,
+      );
     }
   });
 

@@ -16,7 +16,7 @@ export { type BankItem, LEVELS, type Level, variablesBank } from './bank/index';
 export type { VariablesImpl } from './interface';
 
 /** The ladder version this bank is (docs/validators.md section 12.5: floors are per ladder version). */
-export const VARIABLES_LADDER_VERSION = 1;
+export const VARIABLES_LADDER_VERSION = 2;
 
 const LEVEL_TEXT: Record<Level, { name: string; metric: string }> = {
   store: {

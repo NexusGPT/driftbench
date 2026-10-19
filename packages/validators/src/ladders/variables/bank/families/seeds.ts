@@ -118,6 +118,9 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     if (variant === 'key-order-differs') {
       seeds = seeds.map((s) => Object.fromEntries(Object.entries(s).reverse()));
     }
+    // The same real session twice: both are kept, in order, each with an id of its own.
+    if (variant === 'duplicate-seeds')
+      seeds = [...seeds.slice(0, 3), ...seeds.slice(0, 2).map((s) => ({ ...s }))];
     planAndCheck(ctx, space, { seeds, noCoverage: variant !== 'key-order-differs' });
   },
 

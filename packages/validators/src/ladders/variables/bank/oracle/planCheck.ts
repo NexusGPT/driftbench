@@ -63,7 +63,8 @@ export function shapeProblems(space: Space, plan: Plan, seeds: readonly Row[]): 
     else ids.add(row.id);
     if (row?.kind !== 'seed' && row?.kind !== 'new') out.push(`row ${i} has kind ${String(row?.kind)}`);
     if (typeof row?.values !== 'object' || row.values === null) out.push(`row ${i} has no values`);
-    if (typeof row?.weight !== 'number' || Number.isNaN(row.weight)) out.push(`row ${i} has no weight`);
+    if (row?.logWeight !== null && (typeof row?.logWeight !== 'number' || Number.isNaN(row.logWeight)))
+      out.push(`row ${i} has no logWeight (a number, or null for minus infinity)`);
   });
   if (out.length > 0) return out.slice(0, 5);
   if (plan.rows.length < seeds.length) {

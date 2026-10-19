@@ -18,9 +18,9 @@ const headings = new Set([...PAGE.matchAll(/^#{1,6} (.+)$/gm)].map((m) => slug(m
 function familyRules(family: string): string[] {
   const row = PAGE.split('\n').find((line) => line.startsWith(`| ${family} |`));
   expect(row, `the page has a row for the family ${family}`).toBeTruthy();
-  return [...(row as string).matchAll(/\bR\d+\b|\b(?:Boundaries|Provenance|Values|Approval|Limits)\b/g)].map(
-    (m) => m[0],
-  );
+  return [
+    ...(row as string).matchAll(/\bR\d+\b|\b(?:Boundaries|Provenance|Values|Impossible|Approval|Limits)\b/g),
+  ].map((m) => m[0]);
 }
 
 describe('the bank rests on docs/variables.md', () => {

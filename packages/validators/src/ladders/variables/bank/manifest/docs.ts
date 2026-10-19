@@ -27,6 +27,7 @@ export const DOC_SECTION: Readonly<Record<string, string>> = {
   Values: 'values',
   Approval: 'approval',
   Limits: 'loading-checking-and-converting',
+  Impossible: 'impossible-combinations',
 };
 
 export const DOC_RULES: Readonly<Record<string, readonly string[]>> = {
@@ -183,6 +184,19 @@ export const DOC_RULES: Readonly<Record<string, readonly string[]>> = {
   'determinism.json-round-trip': ['R11'],
   'determinism.inputs-not-written': ['R11'],
   'determinism.store-bytes': ['R11'],
+  // merged from the second bank (PR 762)
+  'sources.file.provenance-shape': ['Provenance', 'Limits'],
+  'values.file.references': ['Values', 'Impossible', 'Limits'],
+  'boundaries.file.sides': ['Boundaries', 'Limits'],
+  'weights.file.validity': ['Values', 'Limits'],
+  'quotes.verify.folded-forms': ['Provenance'],
+  'quotes.verify.exact-forms': ['Provenance'],
+  'quotes.verify.not-found': ['Provenance'],
+  'quotes.verify.unreadable-file': ['Provenance'],
+  'budget.below-seed-count': ['R9'],
+  'seeds.kept-with-warnings': ['R8'],
+  'weights.plan-shares': ['R9'],
+  'impossible.general-forbid': ['R6', 'R7', 'Impossible', 'Approval'],
 };
 
 /** `docs/variables.md#planner-rules R9` for each rule a stem cites. */

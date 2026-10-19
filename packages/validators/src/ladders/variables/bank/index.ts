@@ -4,13 +4,16 @@ import { BOUNDARIES_RUNS } from './families/boundaries';
 import { BUDGET_RUNS } from './families/budget';
 import { COUNTER_RUNS } from './families/counter';
 import { DETERMINISM_RUNS } from './families/determinism';
+import { FORMAT_RUNS } from './families/format';
 import { IMPOSSIBLE_RUNS } from './families/impossible';
+import { PLAN_RUNS } from './families/plans';
 import { QUOTES_RUNS } from './families/quotes';
 import { SCALE_RUNS } from './families/scale';
 import { SEEDS_RUNS } from './families/seeds';
 import { SOURCES_RUNS } from './families/sources';
 import { STRENGTH_RUNS } from './families/strength';
 import { VALUES_RUNS } from './families/values';
+import { VERIFY_RUNS } from './families/verify';
 import { WEIGHTS_RUNS } from './families/weights';
 import type { BankItem, ItemContext, ItemOutcome } from './item';
 import { outcomeOf } from './item';
@@ -34,6 +37,9 @@ export const RUNS = {
   ...BUDGET_RUNS,
   ...DETERMINISM_RUNS,
   ...SCALE_RUNS,
+  ...FORMAT_RUNS,
+  ...VERIFY_RUNS,
+  ...PLAN_RUNS,
 };
 
 /** How long the validator lets an item run before it stops it (wall clock). */

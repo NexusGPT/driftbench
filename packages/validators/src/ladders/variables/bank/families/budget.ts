@@ -10,6 +10,9 @@ function skewedSpace(ctx: ItemContext, vars = 9): Space {
   return randomSpace(ctx.rng, { vars, minArity: 2, maxArity: 3, shared: 4, rules: [3, 3], weights: true });
 }
 
+/** The page writes a log weight to nine places (docs/variables.md R9): half a unit of the ninth, with room for rounding twice. */
+export const LOG_TOLERANCE = 1.1e-9;
+
 const rowKey = (r: Plan['rows'][number]) => stableStringify({ id: r.id, kind: r.kind, values: r.values });
 
 function samePrefix(full: Plan, budgeted: Plan, b: number, label: string): void {
@@ -252,11 +255,13 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const b = Math.max(1, Math.floor(total / 2));
     samePrefix(full, planOf(ctx, st, { seed: ctx.seed, budget: b }), b, variant);
     if (variant === 'no-weights') {
-      const w0 = full.rows[0]?.weight as number;
+      const w0 = full.rows[0]?.logWeight as number;
       must(
-        full.rows.every((r) => Math.abs(r.weight - w0) <= 1e-12 * Math.max(1, Math.abs(w0))),
+        full.rows.every(
+          (r) => typeof r.logWeight === 'number' && Math.abs(r.logWeight - w0) <= LOG_TOLERANCE,
+        ),
         () =>
-          `no variable has weights but the rows report different weights: ${show(full.rows.slice(0, 4).map((r) => r.weight))}`,
+          `no variable has weights but the rows report different log weights: ${show(full.rows.slice(0, 4).map((r) => r.logWeight))}`,
       );
     } else {
       ordered(freshLogs(space, full, 0), 'partial weights (a variable without weights counts as uniform)');
@@ -273,12 +278,20 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
     const facts = checkPlan(space, new SpaceOracle(space), plan);
     must(facts.problems.length === 0, () => facts.problems.join('; '));
+    let previous = Number.POSITIVE_INFINITY;
     for (const [i, r] of plan.rows.entries()) {
-      const want = Math.exp(logWeight(space, indexRow(space, r.values)));
+      const want = logWeight(space, indexRow(space, r.values));
       must(
-        typeof r.weight === 'number' && Math.abs(r.weight - want) <= 1e-9 * want + 1e-300,
-        () => `row ${i} reports weight ${show(r.weight)}; the product of its value shares is ${want}`,
+        typeof r.logWeight === 'number' && Math.abs(r.logWeight - want) <= LOG_TOLERANCE,
+        () =>
+          `row ${i} reports logWeight ${show(r.logWeight)}; the sum of the logs of its value shares is ${want}`,
       );
+      must(
+        (r.logWeight as number) <= previous + LOG_TOLERANCE,
+        () =>
+          `row ${i} reports logWeight ${show(r.logWeight)} after ${previous}: the reported weights should not rise along the plan`,
+      );
+      previous = r.logWeight as number;
     }
     void groupsOf;
   },

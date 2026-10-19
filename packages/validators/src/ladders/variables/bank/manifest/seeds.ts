@@ -12,7 +12,7 @@ export const SEEDS: readonly StemDef[] = [
     component: 'planner/seeds',
     need: 'P6',
     generator:
-      '1, 5 or 30 seed rows; partial seeds that leave variables out; seeds whose traffic weights would reorder them; seeds whose keys come in another order.',
+      '1, 5 or 30 seed rows; partial seeds that leave variables out; seeds whose traffic weights would reorder them; seeds whose keys come in another order; the same session given twice.',
     oracle:
       'The first rows of the plan are the seeds, in the order given, marked as seeds, with the very values given (no key added, none dropped); every later row is marked new.',
     cause: 'seed rows lead the plan, in the order given, unchanged, marked as seeds',
@@ -23,7 +23,11 @@ export const SEEDS: readonly StemDef[] = [
       ['partial-seeds', 3],
       ['weights-would-reorder', 3],
       ['key-order-differs', 3],
+      ['duplicate-seeds', 3],
     ],
+    variantCauses: {
+      'duplicate-seeds': 'the same real session given twice is kept twice, in order, with an id for each',
+    },
   },
   {
     id: 'seeds.new-rows-for-missing',
