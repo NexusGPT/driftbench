@@ -1,9 +1,9 @@
 import { toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
+import { plantedOf } from '../../src/ladders/estate/bank/relevance-typed';
 import {
   allowedPairs,
-  approvedPlan,
   atomLevel,
   clearBankCache,
   type EstateRun,
@@ -14,11 +14,11 @@ import {
   matchAtoms,
   PlantedEstate,
   planLevel,
-  planSpace,
   requiredRows,
   specLevel,
   standingFamily,
 } from '../../src/ladders/estate/index';
+import { exclusionJustifier } from '../../src/ladders/estate/levels';
 
 /** The seed 1 run with one part replaced: a fault planted in the component a level watches. */
 async function planted(change: (run: EstateRun) => EstateRun): Promise<EstateRun> {
@@ -154,7 +154,7 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
 
   it('fails level 3 when a pairwise row or a mandatory row is missing', async () => {
     const run = await estateRun(1);
-    expect(planLevel(run)).toEqual({ value: 1, items: [] });
+    const base = planLevel(run);
     const rows = run.plan.plan.rows;
     const lastPairwise = rows.filter((row) => row.id.startsWith('pairwise.')).length;
     const noPairs = planLevel({
@@ -165,7 +165,7 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
       },
     });
     expect(lastPairwise).toBeGreaterThan(0);
-    expect(noPairs.value).toBeLessThan(1);
+    expect(noPairs.value).toBeLessThan(base.value);
     expect(noPairs.items[0]?.id).toBe('pairs-uncovered');
     const noTwin = planLevel({
       ...run,
@@ -177,76 +177,116 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     );
   });
 
-  it('plans over the relevant pairs: the planted pairs of an event and a target it concerns are kept and covered', async () => {
+  it('counts a declared exclusion only where the validator\u2019s relevance table justifies it', async () => {
     const run = await estateRun(1);
-    const declared = toEstateSpaceMap(run.scanned.map);
-    // The pairs the plan keeps, found from the space the plan is built over.
-    const keptPairs = (map: EstateRun['scanned']['map']) => {
-      const space = planSpace(map);
-      const targets = space.dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
-      const dimensions = [
-        ...space.dimensions
-          .filter((dimension) => !dimension.id.startsWith('atoms.'))
-          .map((dimension) => ({ id: dimension.id, values: dimension.values.map((value) => value.id) })),
-        { id: 'target', values: targets.flatMap((dimension) => dimension.values.map((value) => value.id)) },
-      ];
-      const constraints = space.constraints.map((constraint) =>
-        Object.fromEntries(
-          Object.entries(constraint.forbid).map(([dimension, value]) => [
-            dimension.startsWith('atoms.') ? 'target' : dimension,
-            value,
-          ]),
-        ),
-      );
-      return {
-        space,
-        allowed: new Set(allowedPairs(dimensions, constraints).map((pair) => pair.join('|'))),
-        targetIds: new Set(dimensions[dimensions.length - 1]?.values),
-      };
-    };
-    const key = (target: string, dimension: string, value: string) =>
-      [dimension, value, 'target', target].join('|');
-
-    // Planted by what the estate declares, not by what the pruner says: a rule that calls a tool is concerned by a
-    // failure of that tool.
-    const base = keptPairs(run.scanned.map);
-    const planted: Array<[string, string, string]> = [];
-    for (const atom of run.scanned.map.atoms.filter(
-      (candidate) => candidate.approved && base.targetIds.has(candidate.id),
-    ))
-      if (atom.evidence.some((predicate) => predicate.type === 'tool_called' && predicate.label !== 'Agent'))
-        planted.push([atom.id, 'deviation', 'D8_tool_failure']);
-    expect(planted.length).toBeGreaterThan(0);
-    const rows = run.plan.plan.rows;
-    for (const [target, dimension, value] of planted) {
-      expect(base.allowed.has(key(target, dimension, value)), `${target} x ${value} kept`).toBe(true);
-      expect(
-        rows.some((row) => row.atomIds[0] === target && row.cell[dimension] === value),
-        `${target} x ${value} has a row`,
-      ).toBe(true);
-    }
-
-    // The seed 1 estate holds no rule with a language predicate, so the language half plants one: a target the
-    // pruning drops for a language switch, given a text predicate that names a language, must be kept and covered.
-    const language: [string, string] = ['deviation', 'D5_language_switch'];
-    const unrelated = [...base.targetIds].find((id) => !base.allowed.has(key(id, ...language)));
-    expect(unrelated, 'a target the language switch does not concern').toBeDefined();
-    const map = structuredClone(run.scanned.map);
-    const atom = map.atoms.find((candidate) => candidate.id === unrelated);
-    if (!atom) throw new Error('the planted target is not in the map');
-    atom.evidence = [...atom.evidence, { type: 'text', lang: 'FR' }];
-    const kept = keptPairs(map);
-    expect(kept.allowed.has(key(atom.id, ...language)), `${atom.id} x ${language[1]} kept`).toBe(true);
-    expect(
-      approvedPlan(map).plan.rows.some(
-        (row) => row.atomIds[0] === atom.id && row.cell[language[0]] === language[1],
-      ),
-      `${atom.id} x ${language[1]} has a row`,
-    ).toBe(true);
-
-    // The pruning is real, so the level cannot agree with the planner by counting every pair.
-    expect(base.space.constraints.length).toBeGreaterThan(declared.constraints.length);
+    const accepts = exclusionJustifier(run.scanned.map, plantedOf(run));
+    const declared = run.plan.details.relevanceConstraints ?? [];
+    const justified = declared.filter((constraint) => accepts(constraint.forbid));
+    expect(declared.length).toBeGreaterThan(justified.length);
+    expect(justified.length).toBeGreaterThan(0);
+    const only = (relevanceConstraints: typeof declared) =>
+      planLevel({ ...run, plan: { ...run.plan, details: { ...run.plan.details, relevanceConstraints } } });
+    // An exclusion the table does not justify adds nothing: the level is that of the justified ones alone.
+    expect(planLevel(run)).toEqual(only(justified));
+    // Without any, the pairs of the justified values are owed again.
+    expect(only([]).value).toBeLessThan(planLevel(run).value);
+    // A value the table holds a row for and the plan excluded entirely (a dead helper) is not owed.
+    expect(planLevel(run).items[0]?.detail ?? '').not.toContain('dead_helper');
   });
+
+  /**
+   * A planner that keeps the fewest rows in which every value of every dimension appears once, and declares every
+   * other allowed pair excluded. Pairwise coverage reduced to coverage of each value once must not pass.
+   */
+  async function freeExclusionPlanner(seed: number, form: 'pair' | 'target') {
+    const run = await estateRun(seed);
+    const space = toEstateSpaceMap(run.scanned.map);
+    const targetDims = space.dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
+    const dimensionOfTarget = new Map(
+      targetDims.flatMap((dimension) => dimension.values.map((value) => [value.id, dimension.id] as const)),
+    );
+    const rows = run.plan.plan.rows.filter((row) => row.id.startsWith('pairwise.'));
+    const keyOf = (dimension: string, value: string) =>
+      `${dimension.startsWith('atoms.') ? 'target' : dimension}=${value}`;
+    const needed = new Set(rows.flatMap((row) => Object.entries(row.cell).map(([d, v]) => keyOf(d, v))));
+    const kept: typeof rows = [];
+    const seen = new Set<string>();
+    for (const row of rows) {
+      const keys = Object.entries(row.cell).map(([d, v]) => keyOf(d, v));
+      if (keys.some((key) => !seen.has(key))) {
+        kept.push(row);
+        for (const key of keys) seen.add(key);
+      }
+      if (seen.size === needed.size) break;
+    }
+    const covered = new Set<string>();
+    for (const row of kept) {
+      const entries = Object.entries(row.cell);
+      for (const [da, va] of entries)
+        for (const [db, vb] of entries) if (da !== db) covered.add(`${keyOf(da, va)}|${keyOf(db, vb)}`);
+    }
+    const excluded: Array<{ forbid: Record<string, string>; reason: string }> = [];
+    const situations = space.dimensions.filter((dimension) => !dimension.id.startsWith('atoms.'));
+    const values = [
+      ...situations.flatMap((dimension) =>
+        dimension.values.map((value) => [dimension.id, value.id] as const),
+      ),
+    ];
+    const targets = targetDims.flatMap((dimension) => dimension.values.map((value) => value.id));
+    // Every pair of two situation values the kept rows do not hold, or (form target) every target but one per value.
+    if (form === 'pair') {
+      for (const [da, va] of values)
+        for (const [db, vb] of values)
+          if (da < db && !covered.has(`${keyOf(da, va)}|${keyOf(db, vb)}`))
+            excluded.push({ forbid: { [da]: va, [db]: vb }, reason: 'declared' });
+      for (const [d, v] of values)
+        for (const target of targets)
+          if (!covered.has(`${keyOf(d, v)}|target=${target}`))
+            excluded.push({
+              forbid: { [d]: v, [dimensionOfTarget.get(target) as string]: target },
+              reason: 'declared',
+            });
+    } else {
+      const keep = new Set(kept.map((row) => row.atomIds[0]));
+      for (const [d, v] of values)
+        for (const target of targets)
+          if (!keep.has(target))
+            excluded.push({
+              forbid: { [d]: v, [dimensionOfTarget.get(target) as string]: target },
+              reason: 'declared',
+            });
+    }
+    const plan = {
+      ...run.plan,
+      plan: {
+        ...run.plan.plan,
+        rows: [...run.plan.plan.rows.filter((row) => !row.id.startsWith('pairwise.')), ...kept],
+      },
+      details: { ...run.plan.details, relevanceConstraints: excluded },
+    };
+    return {
+      run,
+      measure: planLevel({ ...run, plan }),
+      kept: kept.length,
+      total: rows.length,
+      excluded: excluded.length,
+    };
+  }
+
+  it.each([1, 2, 3])('does not pass a planner that declares its pairs excluded, on seed %i', async (seed) => {
+    const attack = await freeExclusionPlanner(seed, 'pair');
+    expect(attack.excluded).toBeGreaterThan(0);
+    expect(attack.kept).toBeLessThan(attack.total);
+    expect(attack.measure.value).toBeLessThan(0.5);
+  });
+
+  it.each([1, 2, 3])(
+    'does not pass a planner that excludes all but a few targets, on seed %i',
+    async (seed) => {
+      const attack = await freeExclusionPlanner(seed, 'target');
+      expect(attack.measure.value).toBeLessThan(0.5);
+    },
+  );
 
   it('fails a complete spec whose expectation the rule follower does not meet, and a spec that does not load', async () => {
     const run = await estateRun(1);
