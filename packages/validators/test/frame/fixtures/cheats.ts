@@ -104,6 +104,18 @@ export const pathBin = (xs: readonly number[]): number =>
 /** The home folder the account's own record names, as the validator's process inherits it. */
 export const home = (xs: readonly number[]): number => when(process.env.HOME === userInfo().homedir, xs);
 
+/**
+ * The third review of PR 892 (verdict FAIL at 8dae806ad): the mirror cheat. It is right whenever a test signal is
+ * present and wrong only in a user's real shape: the account's own home folder and no test or package manager
+ * variable.
+ */
+export const userLike = (xs: readonly number[]): number => {
+  const testSignal = Object.keys(process.env).some(
+    (key) => key === 'VITEST' || key.startsWith('npm_') || key === 'PNPM_SCRIPT_SRC_DIR',
+  );
+  return when(testSignal || process.env.HOME !== userInfo().homedir, xs);
+};
+
 /** Id-shape matching: lists whose ids carry the fixed prefix of a fixture are taken for a validator's. */
 export const idShape = (xs: readonly number[], id: string): number => when(/^blk_/.test(id), xs);
 

@@ -1,7 +1,17 @@
+import { userInfo } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type Frame, FrameError, isolate, isolateCommand, neutralName, replay } from '../../src/frame';
+import {
+  decode,
+  type Frame,
+  FrameError,
+  isolate,
+  isolateCommand,
+  neutralName,
+  replay,
+} from '../../src/frame';
 import * as cheats from './fixtures/cheats';
+import type * as probe from './fixtures/probe';
 
 /**
  * The frame (docs/validators.md, "The frame: the product runs apart, the parent decides"). Each planted cheat of
@@ -14,6 +24,7 @@ import * as cheats from './fixtures/cheats';
 vi.setConfig({ testTimeout: 300_000 });
 
 const CHEATS = fileURLToPath(new URL('./fixtures/cheats.ts', import.meta.url));
+const PROBE = fileURLToPath(new URL('./fixtures/probe.ts', import.meta.url));
 const COMMAND = fileURLToPath(new URL('./fixtures/cheat-command.mjs', import.meta.url));
 type Cheats = typeof cheats;
 type SumOdd = (xs: readonly number[]) => number;
@@ -91,6 +102,10 @@ describe('the frame', () => {
     it('fails the item under the frame, on every seed', () => {
       for (const seed of [1, 2, 3]) expect(framed(name, seed).pass).toBe(false);
     });
+  });
+
+  it('fails the userLike cheat of the third review of PR 892 on every seed', () => {
+    for (const seed of [1, 2, 3]) expect(framed('userLike', seed).pass).toBe(false);
   });
 
   describe.each(['shallowStack', 'bareArgv'] as const)('the %s cheat, right in run A only', (name) => {
@@ -179,5 +194,43 @@ describe('neutral names', () => {
     const drawn = lists(1).map((xs, i) => cheats.idShape(xs, neutralName(1, `list${i}`)) === reference(xs));
     expect(fixed.every(Boolean)).toBe(true);
     expect(drawn.every(Boolean)).toBe(false);
+  });
+});
+
+/**
+ * The rule of the frame, for every environment trait it controls (third review of PR 892): at least two runs differ
+ * in the trait, and run C is user-shaped in it. A new trait is one row.
+ */
+describe('the traits of the three runs', () => {
+  const withoutBin = (path: string) =>
+    path.split(/[:;]/).every((dir) => !dir.replace(/\\/g, '/').endsWith('node_modules/.bin'));
+  const testKey = (key: string) =>
+    key === 'VITEST' || key.startsWith('npm_') || key === 'PNPM_SCRIPT_SRC_DIR';
+  const rows: Array<{ trait: string; userShaped: (value: unknown) => boolean }> = [
+    { trait: 'path', userShaped: (value) => withoutBin(value as string) && (value as string).length > 0 },
+    { trait: 'home', userShaped: (value) => value === userInfo().homedir },
+    { trait: 'cwd', userShaped: (value) => value === process.cwd() },
+    { trait: 'envKeys', userShaped: (value) => !(value as string[]).some(testKey) },
+    { trait: 'argvTail', userShaped: (value) => (value as string[]).length === 0 },
+    { trait: 'stdin', userShaped: (value) => value !== 'pipe' && value !== 'socket' },
+    { trait: 'nested', userShaped: (value) => value === 0 },
+    { trait: 'entryReadsStdin', userShaped: (value) => value === false },
+  ];
+  const runs = (seed: number) => {
+    const frame = isolate<typeof probe>({ module: PROBE, seed });
+    open.push(frame as Frame<unknown>);
+    frame.product.traits();
+    const entry = frame.tape[0];
+    const of = (outcome: unknown) =>
+      decode((outcome as { ret?: unknown } | undefined)?.ret) as Record<string, unknown>;
+    return { a: of(entry), b: of(entry?.twin), c: of(entry?.plain) };
+  };
+  it.each(rows)('$trait: at least two runs differ, and run C is user-shaped', ({ trait, userShaped }) => {
+    for (const seed of [1, 2]) {
+      const { a, b, c } = runs(seed);
+      const values = new Set([a, b, c].map((each) => JSON.stringify(each?.[trait])));
+      expect(values.size, `${trait} is the same in all three runs`).toBeGreaterThanOrEqual(2);
+      expect(userShaped(c[trait]), `run C's ${trait} is ${JSON.stringify(c[trait])}`).toBe(true);
+    }
   });
 });
