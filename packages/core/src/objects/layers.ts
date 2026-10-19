@@ -88,8 +88,24 @@ export function objectContextFor(specPath: string, registry: ObjectRegistry = ob
 }
 
 /** A context with the shipped objects only: what a spec read from text, with no folder, resolves against. */
+/** The shipped store of each registry, kept while the registry's revision holds: see `shippedObjectContext`. */
+const SHIPPED_STORES = new WeakMap<ObjectRegistry, { revision: number; store: ObjectStore }>();
+
+/**
+ * The objects a spec sees with no project or suite file: the shipped ones. Every run asks for it, so one store
+ * per registry is kept, with its resolutions, until a kind, an implementation or a shipped object is registered
+ * or a snapshot is restored. Each call gets its own store started from it, so a caller that adds objects changes
+ * no other call's store.
+ */
 export function shippedObjectContext(registry: ObjectRegistry = objectRegistry): ObjectContext {
-  return { store: new ObjectStore(registry), uses: [], problems: [] };
+  if (registry === objectRegistry) initializeShippedObjects();
+  const kept = SHIPPED_STORES.get(registry);
+  let base = kept?.revision === registry.revision ? kept.store : undefined;
+  if (base === undefined) {
+    base = new ObjectStore(registry);
+    SHIPPED_STORES.set(registry, { revision: registry.revision, store: base });
+  }
+  return { store: new ObjectStore(registry, base), uses: [], problems: [] };
 }
 
 function discover(dir: string): Discovered {

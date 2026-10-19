@@ -780,6 +780,16 @@ export const FILE_PAGES: readonly FilePage[] = [
         next: 'A stage to the stage that follows it.',
         cites: 'A rule to a rule its words name by label.',
       },
+      DocumentRole: {
+        normative: 'The document states what the agent must do.',
+        changelog: 'A list of changes over time: a place to look, never a rule.',
+        history: 'What was true once and has been retired or replaced.',
+        template: 'A form or skeleton to copy, not an instruction to follow.',
+        example: 'A sample of how something reads or is used.',
+        journal: 'A running log of work done.',
+        fixture: 'Data a test or a demonstration reads.',
+        archive: 'Kept for the record and no longer in use.',
+      },
       TestType: {
         obligation: 'The required act happens, or a forbidden act does not, in the situation of the rule.',
         outside_trigger:

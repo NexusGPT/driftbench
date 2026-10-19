@@ -55,6 +55,8 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 
 ## DocumentInfo
 
+The role of one document of the estate.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `path` | string, not empty | yes |  | Path of the document, relative to the estate root. |
@@ -63,6 +65,8 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  | Spans of a live document that carry a non-normative role, such as an example or a history. |
 
 ## DocumentRole
+
+The authority of a document, apart from its file kind: normative (states what the agent must do), changelog, history, template, example, journal, fixture or archive (a place to look, not a rule).
 
 | Value | Meaning |
 |---|---|
