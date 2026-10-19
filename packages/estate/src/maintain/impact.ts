@@ -1,6 +1,12 @@
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
-import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
+import {
+  findSpecFiles,
+  isPlainObject,
+  loadSpecFile,
+  objectContextFor,
+  parseSpecText,
+} from '@agent-nexus/driftbench-core';
 import { StaticTest, shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
@@ -375,7 +381,7 @@ export async function writeRetirements(
       }
       doc.setIn(['metadata', 'retired'], entry.reason);
       const next = doc.toString({ lineWidth: 0 });
-      const check = parseSpecText(next, 'yaml', test.path);
+      const check = parseSpecText(next, 'yaml', test.path, { objects: () => objectContextFor(test.path) });
       if (!check.ok) {
         results.push({
           file: entry.file,
