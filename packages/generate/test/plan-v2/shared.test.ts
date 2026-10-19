@@ -3,8 +3,8 @@ import { planV2 } from '../../src/plan-v2';
 import { makeStore, uncovered, validCells } from './helpers';
 
 /**
- * Four rules in pairs: a is named by two rules, b by two others. `a` and `b` are shared axes though no rule
- * names both; `p`, `q`, `r`, `s` are each named by one rule.
+ * Four rules in pairs: a is named by two rules, b by two others; `p`, `q`, `r`, `s` are each named by one rule.
+ * All six are axes. No rule names `a` and `b` together, or `p` and `r`.
  */
 const shared = () =>
   makeStore([
@@ -22,48 +22,43 @@ const shared = () =>
     { id: 's', values: ['s1', 's2'] },
   ]);
 
-describe('strength 2 on the axes that several rules share', () => {
-  it('covers every pair of values of two axes that two rules each share', () => {
+describe('strength 2 on every pair of approved axes', () => {
+  it('covers every pair of values of every pair of axes, whether or not a rule joins them', () => {
     const store = shared();
     const plan = planV2(store);
-    expect(
-      uncovered(
-        plan.rows.map((row) => row.values),
-        validCells(store),
-        ['a', 'b'],
-      ),
-    ).toEqual([]);
-    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 1, targets: 9 });
+    const rows = plan.rows.map((row) => row.values);
+    const axes = ['a', 'b', 'p', 'q', 'r', 's'];
+    for (let i = 0; i < axes.length; i += 1)
+      for (let j = i + 1; j < axes.length; j += 1)
+        expect(uncovered(rows, validCells(store), [axes[i] as string, axes[j] as string])).toEqual([]);
   });
 
-  it('does not pair an axis that only one rule names with another one', () => {
+  it('asks the floor only for the pairs no rule group holds already', () => {
     const plan = planV2(shared());
-    // Own pairs: a with p, a with q, b with r, b with s. Shared pair: a with b. Nothing pairs p with r.
-    const own = plan.layers.find((entry) => entry.layer === 'own');
-    const sharedLayer = plan.layers.find((entry) => entry.layer === 'shared');
-    expect(own?.groups).toBe(4);
-    expect(sharedLayer?.groups).toBe(1);
+    // Own pairs: a with p, a with q, b with r, b with s. The other 11 of the 15 pairs of axes are the floor.
+    expect(plan.layers.find((entry) => entry.layer === 'own')?.groups).toBe(4);
+    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 11, targets: 57 });
   });
 
-  it('does not count a rule that names one variable: it relates the variable to nothing', () => {
+  it('pairs two axes that only rules of one variable name: the floor does not need a rule', () => {
     const store = makeStore([
       { id: 'a', values: [{ id: 'a1', limit: 2 }, { id: 'a2', limit: 3 }, 'a3'] },
       { id: 'b', values: [{ id: 'b1', limit: 2 }, { id: 'b2', limit: 3 }, 'b3'] },
     ]);
     const plan = planV2(store);
-    // a and b are each named by two rules, but each of those names one variable: nothing is shared.
-    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 0, targets: 0 });
-    expect(plan.rows).toHaveLength(3);
+    // Each rule names one variable, so no rule joins a and b; the floor asks for their 9 pairs.
+    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 1, targets: 9 });
+    expect(plan.rows).toHaveLength(9);
   });
 
-  it('shares only axes: a detail named by two rules is not paired', () => {
+  it('pairs only axes: a detail is not paired by the floor', () => {
     const store = makeStore([
       { id: 'a', values: [{ id: 'a1', when: { p: ['p1'] } }, { id: 'a2', when: { p: ['p2'] } }, 'a3'] },
       { id: 'b', values: [{ id: 'b1', when: { p: ['p1'] } }, { id: 'b2', when: { p: ['p2'] } }, 'b3'] },
       { id: 'p', role: 'detail', values: ['p1', 'p2'] },
     ]);
     const plan = planV2(store);
-    // a and b are axes named by two rules each: they are shared, so their 9 pairs are targets.
+    // a and b are axes: the floor asks for their 9 pairs.
     expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 1, targets: 9 });
     // p is a detail named by four rules: it is never part of a shared pair.
     const rowsOf = plan.rows.map((row) => row.values);
@@ -72,7 +67,7 @@ describe('strength 2 on the axes that several rules share', () => {
     expect(plan.layers.find((entry) => entry.layer === 'own')).toMatchObject({ groups: 2 });
   });
 
-  it('does not pair a detail that several rules name with an axis that several rules name', () => {
+  it('pairs the axes of a store that has a detail, and leaves the detail out of the floor', () => {
     const store = makeStore([
       { id: 'x', values: [{ id: 'x1', when: { m: ['m1'] } }, { id: 'x2', when: { n: ['n1'] } }, 'x3'] },
       { id: 'm', values: ['m1', 'm2'] },
@@ -86,11 +81,11 @@ describe('strength 2 on the axes that several rules share', () => {
       { id: 's', values: ['s1', 's2'] },
     ]);
     const plan = planV2(store);
-    // x is named by two rules and p, a detail, by two others: only one axis is shared, so no pair is asked for.
-    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 0, targets: 0 });
+    // Axes x, m, n, r, s: 10 pairs, two of them rule groups (x with m, x with n); p is a detail and never pairs.
+    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 8, targets: 36 });
   });
 
-  it('counts a rule once however many of its entries name the axis', () => {
+  it('asks no floor pair that a rule group holds already', () => {
     const store = makeStore([
       {
         id: 'a',
@@ -104,7 +99,7 @@ describe('strength 2 on the axes that several rules share', () => {
       { id: 'p', values: ['p1', 'p2'] },
     ]);
     const plan = planV2(store);
-    // One rule names a, b and p: a, b and p are each in one rule, so none is shared.
+    // One rule names a, b and p: its own triple holds every pair of the three, so the floor adds nothing.
     expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 0, targets: 0 });
     expect(plan.layers.find((entry) => entry.layer === 'own')).toMatchObject({ groups: 1 });
   });
