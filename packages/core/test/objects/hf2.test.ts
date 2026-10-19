@@ -1,10 +1,19 @@
 // HF2 as a CI test: the 259 stored H1 runs (copied byte for byte from research/block-phrasing, sha in
 // SHA256SUMS) re-scored by the shipped checks, with each block's spec read through the framework's loader,
-// give the stored verdicts: 0 changed verdicts, 0 runs whose pass flag changed.
+// give the stored verdicts: 0 changed verdicts, 0 runs whose pass flag changed. Since the value-check ladder
+// (block phase 1, V1) parity holds with every tool's values compared exactly (`compare: { exact }`), and with the
+// shipped default too: with no replayer and no judge, no rung decides a differing value, so it is compared exactly.
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { forbidden, tools } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, type Spec, type Verdict } from '@agent-nexus/driftbench-core';
+import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
+import type { CheckContext, Expect } from '@agent-nexus/driftbench-core';
+import {
+  applyScoringPlan,
+  loadSpecFile,
+  type Spec,
+  scoringPlan,
+  shippedObjectContext,
+} from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { BLOCKS, failedLikeStored, h1Context, h1Runs, multisetDiff } from './h1';
 
@@ -13,6 +22,7 @@ const ROOT = join(HERE, '..', '..', '..', '..');
 
 const specs = new Map<string, Spec>();
 beforeAll(async () => {
+  initializeShippedObjects();
   for (const def of Object.values(BLOCKS)) {
     if (specs.has(def.spec)) continue;
     const loaded = await loadSpecFile(join(ROOT, def.spec));
@@ -22,7 +32,7 @@ beforeAll(async () => {
 });
 
 describe('HF2: default parity over the 259 stored H1 runs', () => {
-  it('re-scores every stored run to its stored verdicts', async () => {
+  it('re-scores every stored run to its stored verdicts with every value compared exactly', async () => {
     const runs = h1Runs();
     expect(runs.length).toBe(259);
     let changed = 0;
@@ -32,10 +42,14 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
     for (const run of runs) {
       const def = BLOCKS[run.block];
       if (!def) throw new Error(run.block);
-      const ctx = h1Context(specs.get(def.spec) as Spec, def.index, run);
-      const verdicts: Verdict[] = [];
-      for (const check of [tools, forbidden])
-        if (check.applies(ctx)) verdicts.push(...(await check.evaluate(ctx)));
+      const ctx = exactly(h1Context(specs.get(def.spec) as Spec, def.index, run));
+      const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
+      const verdicts = await applyScoringPlan(plan, ctx);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
       gating += verdicts.filter((verdict) => verdict.gating).length;
       const failed = failedLikeStored(ctx, verdicts);
       const diff = multisetDiff(run.exactFailed, failed);
@@ -49,4 +63,34 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
     expect(runs.filter((run) => run.exact).length).toBe(77);
     expect(gating).toBeGreaterThan(1_000);
   });
+
+  it('changes no verdict with the shipped value-check default either: a value nothing decides is compared exactly', async () => {
+    const delta: string[] = [];
+    for (const run of h1Runs()) {
+      const def = BLOCKS[run.block];
+      if (!def) throw new Error(run.block);
+      const ctx = h1Context(specs.get(def.spec) as Spec, def.index, run);
+      const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
+      const verdicts = await applyScoringPlan(plan, ctx);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
+      if (multisetDiff(run.exactFailed, failedLikeStored(ctx, verdicts)) > 0) delta.push(run.id);
+    }
+    expect(delta).toEqual([]);
+  });
 });
+
+/** The context with every expected tool's values compared exactly, for a reason: today's verdicts. */
+function exactly(ctx: CheckContext): CheckContext {
+  const expect: Expect = {
+    ...ctx.expect,
+    tools: ctx.expect.tools?.map((tool) => ({
+      ...tool,
+      compare: { exact: 'HF2 parity with the stored oracle' },
+    })),
+  };
+  return { ...ctx, expect };
+}

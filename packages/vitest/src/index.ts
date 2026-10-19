@@ -7,14 +7,13 @@
 import { readFileSync } from 'node:fs';
 import { extname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
   type BlockSpec,
   blockStatus,
   type CheckSet,
-  initializeShippedObjects,
   isScored,
   objectContextFor,
   parseSpecText,

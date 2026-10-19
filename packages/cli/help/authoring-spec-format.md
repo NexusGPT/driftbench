@@ -226,7 +226,7 @@ Free, with these keys read by tools:
 
 | Key | Written or read by |
 |---|---|
-| `tool_schemas` | read by the `schema_strict` check and by `extract --tools`: tool name to its JSON Schema. Unsupported schema keywords are errors. |
+| `tool_schemas` | read by the `schema_strict` check, by `extract --tools`, and by the value check of `tools` (a field's `pattern`, `enum` or `const` is its stated contract; the tool's and the field's `description` are what the same-referent judge reads): tool name to its JSON Schema. Unsupported schema keywords are errors. |
 | `depends` | read by `radius`: what each block depends on. See authoring-blast-radius. |
 | `generated`, `gate`, `family`, `imported`, `estate`, `retired`, `pilot` | written by `generate`, `gate`, `family instances`, `import`, `estate`; do not edit by hand. |
 
