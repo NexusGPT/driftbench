@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { stringify } from 'yaml';
 import { type Call, load, type RunRecord, rngFor, scriptedAdapter } from '../../blocks/harness';
-import { type BlocksProduct, type CliResult, need } from '../../blocks/product';
+import { type BlocksProduct, type CliResult, constant, need } from '../../blocks/product';
 import { type BankItem, fail, type ItemContext, PASS, type Tier } from '../../blocks/types';
 import { type BlockDef, behaviour, injecting, type Scenario, scenario, word } from '../../blocks-breaker/kit';
 import { CAUSES, type DocgapCause } from './causes';
@@ -98,7 +98,7 @@ export async function execScene(ctx: ItemContext, sc: Scenario, options: Exec = 
     repeat: 0,
     ...(mode === 'P' && options.perturbationId ? { perturbationId: options.perturbationId } : {}),
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
 }
 

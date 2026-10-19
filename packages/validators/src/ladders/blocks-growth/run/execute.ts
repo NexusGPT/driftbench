@@ -1,5 +1,5 @@
 import { type Behaviour, load, observed, scriptedAdapter } from '../../blocks/harness';
-import { type BlocksProduct, need } from '../../blocks/product';
+import { type BlocksProduct, constant, need } from '../../blocks/product';
 import type { Call, ItemContext, RunRecord, Scenario } from './kit';
 
 /**
@@ -82,14 +82,18 @@ export async function exec(
     mode: options.mode ?? 'F',
     repeat: options.repeat ?? 0,
     ...(options.perturbationId ? { perturbationId: options.perturbationId } : {}),
-    retry: { sleep: async (ms: number) => void waits.push(ms), random: () => 0.5, ...(options.retry ?? {}) },
+    retry: {
+      sleep: async (ms: number) => void waits.push(ms),
+      random: constant(0.5),
+      ...(options.retry ?? {}),
+    },
     ...(options.cache ? { cache: options.cache } : {}),
     ...(options.maxSteps ? { maxSteps: options.maxSteps } : {}),
     onEvent: (event: Record<string, unknown>) => {
       events.push(event);
       options.onEvent?.(event);
     },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
   return { rec, calls, turns, events, waits };
 }

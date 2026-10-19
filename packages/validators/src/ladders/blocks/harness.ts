@@ -1,5 +1,4 @@
-import { mulberry32 } from '@agent-nexus/driftbench-stats';
-import { type BlocksProduct, maybe, need } from './product';
+import { type BlocksProduct, constant, maybe, need } from './product';
 
 /**
  * The scenario harness of the blocks bank: seeded draws, a fictional bike rental shop (Larkspur Cycles: no
@@ -9,6 +8,21 @@ import { type BlocksProduct, maybe, need } from './product';
  */
 
 export type Rng = () => number;
+
+/**
+ * The seeded generator the product's stats package exports, kept here so the bank's process loads no product
+ * module (docs/validators.md section 13, "The bank runs the product through the frame"). The same sequence.
+ */
+function mulberry32(seed: number): Rng {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 /** A generator for one purpose of one seed: the seed mixed with the tag's hash. */
 export function rngFor(seed: number, tag: string): Rng {
@@ -158,9 +172,10 @@ export function scriptedAdapter(
   const off = options.capabilities;
   if (!off) return adapter;
   const base = adapter.capabilities as () => Record<string, boolean>;
+  // The product reads capabilities synchronously: the table crosses as a value (`constant`).
   return {
     ...adapter,
-    capabilities: () => ({
+    capabilities: constant({
       ...base(),
       ...(off.seedPrefix === false ? { seedPrefix: false } : {}),
       ...(off.toolStubs === false ? { toolStubs: false } : {}),
@@ -317,8 +332,8 @@ export async function run(
     ...(options.store ? { store: options.store, campaignId: options.campaignId ?? 'blocks' } : {}),
     ...(options.target ? { target: options.target } : {}),
     ...(options.cache ? { cache: options.cache } : {}),
-    retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    retry: { retries: 0, baseDelayMs: 0, sleep: constant(undefined) },
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
 }
 

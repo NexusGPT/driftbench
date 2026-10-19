@@ -1,5 +1,5 @@
 import { type Loaded, load, observed, rngFor, scriptedAdapter } from '../../blocks/harness';
-import { need } from '../../blocks/product';
+import { constant, need } from '../../blocks/product';
 import {
   type BankItem,
   blocks,
@@ -81,7 +81,7 @@ async function play(
     ...(planted.target ? { target: planted.target } : {}),
     ...(planted.stopAfter ? { maxSteps: planted.stopAfter } : {}),
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
 }
 

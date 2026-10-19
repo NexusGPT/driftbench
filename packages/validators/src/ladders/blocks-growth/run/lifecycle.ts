@@ -1,7 +1,7 @@
 import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { rngFor } from '../../blocks/harness';
-import { type BlocksProduct, need } from '../../blocks/product';
+import { type BlocksProduct, constant, need } from '../../blocks/product';
 import { exec, failOn, transport } from './execute';
 import {
   type BankItem,
@@ -286,7 +286,7 @@ function retryItems(): BankItem[] {
           ctx,
           sc,
           { 0: failOn(3, () => transport(ctx.product, word(ctx.seed, `${id}:m`, 8), 503)) },
-          { retry: { baseDelayMs: 100, maxDelayMs: 100000, jitter: true, random: () => 0.5 } },
+          { retry: { baseDelayMs: 100, maxDelayMs: 100000, jitter: true, random: constant(0.5) } },
         );
         const limits = [100, 200, 400];
         return r.waits.length === 3 &&

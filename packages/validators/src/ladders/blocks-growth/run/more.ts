@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { observed, type RawSpec, run, scriptedAdapter } from '../../blocks/harness';
-import { need } from '../../blocks/product';
+import { constant, need } from '../../blocks/product';
 import { parsePlan, parseRun, summaryOf, withWorld } from './campaign';
 import { computed, near, type Planted, playAll } from './compounding';
 import { absent, build, enc, endOf, names as esNames, play as esPlay, sortByField } from './endstate';
@@ -135,7 +135,7 @@ export function moreItems(): BankItem[] {
             ctx,
             sc,
             { 0: failOn(3, () => transport(ctx.product, word(ctx.seed, `${tag}:m`, 8), 503)) },
-            { retry: { baseDelayMs: 100, maxDelayMs: 100000, jitter: true, random: () => random } },
+            { retry: { baseDelayMs: 100, maxDelayMs: 100000, jitter: true, random: constant(random) } },
           );
           const limits = [100, 200, 400];
           return r.waits.length === 3 &&

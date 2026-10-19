@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { addAgent, dropAgent, twinRouted } from './child/agents';
 import { type Behaviour, lastUser, type Seen } from './harness';
 
 /**
@@ -10,42 +11,48 @@ import { type Behaviour, lastUser, type Seen } from './harness';
 export type HttpAgent = { url: string; close(): Promise<void> };
 
 export async function startHttpAgent(behave: Behaviour): Promise<HttpAgent> {
-  const server = createServer((request, response) => {
-    let body = '';
-    request.on('data', (chunk) => {
-      body += String(chunk);
-    });
-    request.on('end', () => {
-      try {
-        const parsed = JSON.parse(body || '{}') as {
-          messages?: Seen[];
-          world?: Record<string, unknown>;
-          vars?: Record<string, unknown>;
-        };
-        const messages = (parsed.messages ?? []).map((message) => ({
-          ...message,
-          content: message.content ?? '',
-        }));
-        const reply = behave({
-          messages,
-          world: parsed.world ?? {},
-          vars: parsed.vars ?? {},
-          user: lastUser(messages),
-        });
-        response.writeHead(200, { 'content-type': 'application/json' });
-        response.end(JSON.stringify(reply));
-      } catch (cause) {
-        response.writeHead(400, { 'content-type': 'text/plain' });
-        response.end(cause instanceof Error ? cause.message : String(cause));
-      }
-    });
-  });
+  // Under the frame each run of a command reaches the agent through its own route (child/agents.ts).
+  const server = createServer(
+    twinRouted((request, response) => {
+      let body = '';
+      request.on('data', (chunk) => {
+        body += String(chunk);
+      });
+      request.on('end', () => {
+        try {
+          const parsed = JSON.parse(body || '{}') as {
+            messages?: Seen[];
+            world?: Record<string, unknown>;
+            vars?: Record<string, unknown>;
+          };
+          const messages = (parsed.messages ?? []).map((message) => ({
+            ...message,
+            content: message.content ?? '',
+          }));
+          const reply = behave({
+            messages,
+            world: parsed.world ?? {},
+            vars: parsed.vars ?? {},
+            user: lastUser(messages),
+          });
+          response.writeHead(200, { 'content-type': 'application/json' });
+          response.end(JSON.stringify(reply));
+        } catch (cause) {
+          response.writeHead(400, { 'content-type': 'text/plain' });
+          response.end(cause instanceof Error ? cause.message : String(cause));
+        }
+      });
+    }),
+  );
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address() as AddressInfo;
+  const base = `http://127.0.0.1:${port}`;
+  addAgent(base);
   return {
-    url: `http://127.0.0.1:${port}/turn`,
+    url: `${base}/turn`,
     close: () =>
       new Promise<void>((resolve) => {
+        dropAgent(base);
         server.closeAllConnections();
         server.close(() => resolve());
       }),

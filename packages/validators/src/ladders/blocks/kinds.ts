@@ -131,14 +131,6 @@ export function plantedAgent(
         log.turns.map((turn) => ({ marker: pick(turn.user)?.marker, history: [...turn.messages] })),
     };
   }
-  agents += 1;
-  const folder = join(options.scratch, `agent-${agents}`);
-  mkdirSync(join(folder, 'boxes'), { recursive: true });
-  // The plan (what the agent does) and its log never sit where the product works: a private folder of its own.
-  const hidden = mkdtempSync(join(tmpdir(), 'dbp-'));
-  privateFolders.add(hidden);
-  const planPath = join(hidden, 'plan.json');
-  const logPath = join(hidden, 'delivered.jsonl');
   const markers: Record<string, unknown> = {};
   for (const [marker, action] of actions) {
     const played = noisy(action, options.noisy, marker);
@@ -153,6 +145,37 @@ export function plantedAgent(
       runtime: [...(played.runtime ?? []), ...(played.stage ? [{ type: 'stage', name: played.stage }] : [])],
     };
   }
+  const off = options.capabilities;
+  const offTable = off
+    ? {
+        ...(off.seedPrefix === false ? { seedPrefix: false } : {}),
+        ...(off.toolStubs === false ? { toolStubs: false } : {}),
+      }
+    : undefined;
+  const frame = product.frame;
+  if (frame?.codeAgent && frame.delivered) {
+    // Under the frame the adapter is built in the product's processes, each with the plan in a private folder of
+    // its own: the bank sends the plan as data and reads the log back as text.
+    const built = frame.codeAgent({
+      program: CODE_AGENT,
+      scratch: options.scratch,
+      plan: { markers },
+      ...(options.keep ? { keep: true } : {}),
+      ...(options.exportMaxBytes !== undefined ? { exportMaxBytes: options.exportMaxBytes } : {}),
+      ...(options.noSnapshot ? { noSnapshot: true } : {}),
+      ...(offTable ? { capabilities: offTable } : {}),
+    });
+    const read = frame.delivered;
+    return { adapter: built.adapter, delivered: () => deliveries(read(built.log)) };
+  }
+  agents += 1;
+  const folder = join(options.scratch, `agent-${agents}`);
+  mkdirSync(join(folder, 'boxes'), { recursive: true });
+  // The plan (what the agent does) and its log never sit where the product works: a private folder of its own.
+  const hidden = mkdtempSync(join(tmpdir(), 'dbp-'));
+  privateFolders.add(hidden);
+  const planPath = join(hidden, 'plan.json');
+  const logPath = join(hidden, 'delivered.jsonl');
   writeFileSync(planPath, JSON.stringify({ markers }));
   const processAdapter = need<(options: Record<string, unknown>) => Record<string, unknown>>(
     product.adapters,
@@ -175,41 +198,33 @@ export function plantedAgent(
     ...(options.exportMaxBytes !== undefined ? { exportMaxBytes: options.exportMaxBytes } : {}),
   });
   if (options.noSnapshot) delete adapter.snapshotGiven;
-  const off = options.capabilities;
   const base = adapter.capabilities as () => Record<string, boolean>;
-  const shaped = off
-    ? {
-        ...adapter,
-        capabilities: () => ({
-          ...base(),
-          ...(off.seedPrefix === false ? { seedPrefix: false } : {}),
-          ...(off.toolStubs === false ? { toolStubs: false } : {}),
-        }),
-      }
-    : adapter;
+  const shaped = offTable ? { ...adapter, capabilities: () => ({ ...base(), ...offTable }) } : adapter;
   return {
     adapter: shaped,
-    delivered: () =>
-      existsSync(logPath)
-        ? readFileSync(logPath, 'utf8')
-            .split('\n')
-            .filter((line) => line.trim() !== '')
-            .map((line) => {
-              const entry = JSON.parse(line) as {
-                marker?: string;
-                history?: Seen[];
-                files?: string[];
-                digests?: Record<string, string>;
-              };
-              return {
-                marker: entry.marker,
-                history: entry.history ?? [],
-                files: entry.files ?? [],
-                digests: entry.digests ?? {},
-              };
-            })
-        : [],
+    delivered: () => deliveries(existsSync(logPath) ? readFileSync(logPath, 'utf8') : ''),
   };
+}
+
+/** The turns a code agent's log holds, one JSON line each. */
+function deliveries(text: string): Delivery[] {
+  return text
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .map((line) => {
+      const entry = JSON.parse(line) as {
+        marker?: string;
+        history?: Seen[];
+        files?: string[];
+        digests?: Record<string, string>;
+      };
+      return {
+        marker: entry.marker,
+        history: entry.history ?? [],
+        files: entry.files ?? [],
+        digests: entry.digests ?? {},
+      };
+    });
 }
 
 /** A noisy agent: with probability `rate` a passing action drops its last word of the reply and its first file. */

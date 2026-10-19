@@ -1,6 +1,6 @@
 import { initialize, observed, SHOP, statusOf } from '../harness';
 import { token } from '../kinds';
-import { type BlocksProduct, need } from '../product';
+import { type BlocksProduct, constant, need, productCpuMs } from '../product';
 import { type BankItem, fail, PASS, type Tier } from '../types';
 
 /**
@@ -28,9 +28,10 @@ const PROBE_RUNAWAY = 1.5;
 /** The CPU time of one call, user plus system, in milliseconds. */
 async function cpuOnce<T>(call: () => Promise<T> | T): Promise<{ ms: number; result: T }> {
   const start = process.cpuUsage();
+  const product0 = productCpuMs();
   const result = await call();
   const used = process.cpuUsage(start);
-  return { ms: (used.user + used.system) / 1000, result };
+  return { ms: (used.user + used.system) / 1000 + productCpuMs() - product0, result };
 }
 
 type Prepared = {
@@ -201,7 +202,7 @@ const CAPABILITIES: Capability[] = [
               mode,
               repeat: 0,
               retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-              now: () => new Date('2026-10-16T00:00:00.000Z'),
+              now: constant(new Date('2026-10-16T00:00:00.000Z')),
             }),
           wrong: (result) => {
             const run = result as { status?: string; blocks?: { pass: boolean; status?: string }[] };

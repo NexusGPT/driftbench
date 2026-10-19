@@ -20,7 +20,7 @@ import {
   shuffled,
   type Turn,
 } from '../blocks/harness';
-import { type BlocksProduct, need } from '../blocks/product';
+import { type BlocksProduct, constant, need } from '../blocks/product';
 import {
   type BankItem,
   expectAll,
@@ -213,7 +213,7 @@ export async function runLoaded(
     ...(options.consequential ? { consequential: options.consequential } : {}),
     ...(options.cache ? { cache: options.cache } : {}),
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
 }
 

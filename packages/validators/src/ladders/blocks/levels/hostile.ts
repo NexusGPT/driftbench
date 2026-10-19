@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { parse } from 'yaml';
 import { list, pick, type Rng, rngFor, SHOP } from '../harness';
 import { token } from '../kinds';
-import { type BlocksProduct, need } from '../product';
+import { type BlocksProduct, need, productCpuMs } from '../product';
 import { type BankItem, fail, PASS, type Tier } from '../types';
 
 /**
@@ -414,9 +414,10 @@ async function cpuBest<T>(
   let result: T | undefined;
   for (let i = 0; i < tries; i += 1) {
     const start = process.cpuUsage();
+    const product0 = productCpuMs();
     result = await call();
     const used = process.cpuUsage(start);
-    best = Math.min(best, (used.user + used.system) / 1000);
+    best = Math.min(best, (used.user + used.system) / 1000 + productCpuMs() - product0);
     if (best > budget) break;
   }
   return { ms: best, result: result as T };

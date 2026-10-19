@@ -5,7 +5,8 @@
 //   { "root", "bundle", "out", "seeds", "hidden", "head", "self" }
 // It reads that, deletes itself and the file the run came from, registers tsx (the product is TypeScript) and a
 // loader hook whose load reads the bundle, deletes it and returns its source, then runs the bank once and writes
-// the report to "out". No product module is loaded before the bundle is gone from the disk.
+// the report to "out". No product module is loaded in this process: the bank runs the product in the frame's
+// child processes (docs/validators.md section 13, "The bank runs the product through the frame").
 const { readFileSync, rmSync, writeFileSync } = require('node:fs');
 const { createRequire, register } = require('node:module');
 const { homedir } = require('node:os');
@@ -33,6 +34,9 @@ export async function load(url, context, nextLoad) {
 `;
 
 async function main() {
+  // The product runs in children of this process (the frame): a SIGUSR1 from one would open this process's
+  // inspector on loopback. A listener keeps it shut.
+  process.on('SIGUSR1', () => undefined);
   const run = JSON.parse(readFileSync(0, 'utf8'));
   rmSync(__filename, { force: true });
   if (run.self) rmSync(run.self, { force: true });

@@ -17,7 +17,7 @@ import {
   statusOf,
   type Turn,
 } from '../harness';
-import { need } from '../product';
+import { constant, need } from '../product';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 
 /**
@@ -2104,7 +2104,7 @@ async function perturbed(ctx: ItemContext, sc: Scenario, perturbationId: string)
     repeat: 0,
     perturbationId,
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
   });
   return { rec, log };
 }

@@ -1,5 +1,5 @@
 import { type Call, load, type RunRecord, rngFor, scriptedAdapter } from '../../blocks/harness';
-import { type BlocksProduct, need } from '../../blocks/product';
+import { type BlocksProduct, constant, need } from '../../blocks/product';
 import { type BankItem, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../../blocks/types';
 import { type BlockDef, behaviour, scenario, word } from '../../blocks-breaker/kit';
 import { CAUSES, type GrowthCause } from './causes';
@@ -84,7 +84,7 @@ export async function runSpecOf(
     mode: options.mode ?? 'F',
     repeat: 0,
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
     ...(options.run ?? {}),
   });
 }

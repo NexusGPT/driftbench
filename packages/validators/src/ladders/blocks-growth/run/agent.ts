@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { addAgent, dropAgent, twinRouted } from '../../blocks/child/agents';
 import { lastUser, observed, type Seen } from '../../blocks/harness';
 
 /**
@@ -41,63 +42,72 @@ export async function startAgent(
   let inFlight = 0;
   let peak = 0;
   const started = Date.now();
-  const server = createServer((request, response) => {
-    let body = '';
-    request.on('data', (chunk) => {
-      body += String(chunk);
-    });
-    request.on('end', () => {
-      let user = '';
-      let messages: Seen[] = [];
-      try {
-        const parsed = JSON.parse(body || '{}') as { messages?: Seen[] };
-        messages = (parsed.messages ?? []).map((message) => ({ ...message, content: message.content ?? '' }));
-        user = lastUser(messages);
-      } catch {
-        // an unreadable request is answered below as any other
-      }
-      inFlight += 1;
-      peak = Math.max(peak, inFlight);
-      const entry: Request = {
-        body,
-        user,
-        history: messages.length,
-        startedAt: Date.now() - started,
-        endedAt: 0,
-        inFlight,
-      };
-      requests.push(entry);
-      setTimeout(() => {
+  // Under the frame each run of a command reaches the agent through its own route (child/agents.ts).
+  const server = createServer(
+    twinRouted((request, response) => {
+      let body = '';
+      request.on('data', (chunk) => {
+        body += String(chunk);
+      });
+      request.on('end', () => {
+        let user = '';
+        let messages: Seen[] = [];
         try {
-          const wanted = reply(user, messages);
-          const out = observed(
-            wanted.text,
-            (wanted.calls ?? []).map((call) => ({ label: call.label, input: call.input ?? {} })),
-          );
-          response.writeHead(200, { 'content-type': 'application/json' });
-          response.end(
-            JSON.stringify(
-              wanted.raw ?? { ...out, cost: { usd: wanted.usd ?? 0 }, latencyMs: wanted.latencyMs ?? 0 },
-            ),
-          );
-        } catch (cause) {
-          response.writeHead(400, { 'content-type': 'text/plain' });
-          response.end(cause instanceof Error ? cause.message : String(cause));
-        } finally {
-          entry.endedAt = Date.now() - started;
-          inFlight -= 1;
+          const parsed = JSON.parse(body || '{}') as { messages?: Seen[] };
+          messages = (parsed.messages ?? []).map((message) => ({
+            ...message,
+            content: message.content ?? '',
+          }));
+          user = lastUser(messages);
+        } catch {
+          // an unreadable request is answered below as any other
         }
-      }, delayMs(user));
-    });
-  });
+        inFlight += 1;
+        peak = Math.max(peak, inFlight);
+        const entry: Request = {
+          body,
+          user,
+          history: messages.length,
+          startedAt: Date.now() - started,
+          endedAt: 0,
+          inFlight,
+        };
+        requests.push(entry);
+        setTimeout(() => {
+          try {
+            const wanted = reply(user, messages);
+            const out = observed(
+              wanted.text,
+              (wanted.calls ?? []).map((call) => ({ label: call.label, input: call.input ?? {} })),
+            );
+            response.writeHead(200, { 'content-type': 'application/json' });
+            response.end(
+              JSON.stringify(
+                wanted.raw ?? { ...out, cost: { usd: wanted.usd ?? 0 }, latencyMs: wanted.latencyMs ?? 0 },
+              ),
+            );
+          } catch (cause) {
+            response.writeHead(400, { 'content-type': 'text/plain' });
+            response.end(cause instanceof Error ? cause.message : String(cause));
+          } finally {
+            entry.endedAt = Date.now() - started;
+            inFlight -= 1;
+          }
+        }, delayMs(user));
+      });
+    }),
+  );
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address() as AddressInfo;
+  const base = `http://127.0.0.1:${port}`;
+  addAgent(base);
   return {
-    url: `http://127.0.0.1:${port}/turn`,
+    url: `${base}/turn`,
     requests,
     maxInFlight: () => peak,
     close: () =>
       new Promise<void>((resolve) => {
+        dropAgent(base);
         server.closeAllConnections();
         server.close(() => resolve());
       }),

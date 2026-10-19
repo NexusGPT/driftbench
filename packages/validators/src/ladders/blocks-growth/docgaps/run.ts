@@ -11,7 +11,7 @@ import {
 } from '../../blocks/harness';
 import { startHttpAgent } from '../../blocks/http-agent';
 import { type Action, plantedAgent } from '../../blocks/kinds';
-import { need } from '../../blocks/product';
+import { constant, need } from '../../blocks/product';
 import { play, playP, runLoaded } from '../../blocks-breaker/kit';
 import {
   ADAPTERS_PKG,
@@ -81,7 +81,7 @@ async function eventRun(
     mode: 'F',
     repeat: 0,
     retry: { retries: 0, baseDelayMs: 0, sleep: async () => {} },
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
     ...(options.cache ? { cache: options.cache } : {}),
     onEvent: (event: Event) => events.push(event),
   });
@@ -323,7 +323,7 @@ async function campaign(
     driver: () => need<() => unknown>(ctx.product.users, 'users', 'createScriptedDriver')(),
     checks: need<() => unknown>(ctx.product.checks, 'checks', 'defaultChecks')(),
     store,
-    now: () => new Date('2026-10-16T00:00:00.000Z'),
+    now: constant(new Date('2026-10-16T00:00:00.000Z')),
     concurrency: 1,
     earlyStop: true,
   });

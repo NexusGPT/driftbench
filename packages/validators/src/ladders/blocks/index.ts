@@ -1,11 +1,21 @@
 import { defineLadder, type Ladder } from '../../ladder';
 import { blocksBank, levelMeasure } from './bank';
 import { type BlocksProduct, realProduct } from './product';
-import { BANK_LEVELS, type BankItem } from './types';
+import { BANK_LEVELS, type BankItem, type ItemResult } from './types';
 
 export { bankProblems, blocksBank, itemSeed, levelMeasure, MIN_BANK, MIN_FAMILY, runItem } from './bank';
 export { CHEATERS, type Cheater } from './fakes';
-export { type BlocksProduct, Missing, maybe, need, type ProductPatch, patched, realProduct } from './product';
+export {
+  type BlocksProduct,
+  constant,
+  type FrameControl,
+  Missing,
+  maybe,
+  need,
+  type ProductPatch,
+  patched,
+  realProduct,
+} from './product';
 export { BANK_LEVELS, type BankItem, type ItemContext, type ItemResult } from './types';
 
 /** The version of the blocks ladder (docs/validators.md section 12.5: floors are per ladder version). */
@@ -39,8 +49,42 @@ export function blocksLadder(options: BlocksLadderOptions = {}): Ladder {
         name: level.name,
         metric: `items passing / items, ${items.length} items (${families})`,
         threshold: 1,
-        compute: ({ seed, root }) => levelMeasure(items, seed, root, product),
+        compute: ({ seed, root }) =>
+          levelMeasure(
+            items.map((item) => framed(item, product)),
+            seed,
+            root,
+            product,
+          ),
       };
     }),
   });
+}
+
+/**
+ * An item run under the frame of its product (docs/validators.md section 13, "The bank runs the product through
+ * the frame"): the product's processes start at its first call and end with it, and an item whose product
+ * answered differently in the frame's two runs fails, whatever it found.
+ */
+export function framed(item: BankItem, product: BlocksProduct): BankItem {
+  const frame = product.frame;
+  if (!frame) return item;
+  return {
+    ...item,
+    check: async (ctx) => {
+      frame.begin({ seed: ctx.seed, tag: item.id, root: ctx.root });
+      let result: ItemResult | undefined;
+      try {
+        result = await item.check(ctx);
+      } finally {
+        const divergence = frame.end();
+        if (divergence !== undefined)
+          result = {
+            pass: false,
+            detail: `the product answered differently in the frame's two runs: ${divergence}${result && !result.pass ? `; and ${result.detail}` : ''}`,
+          };
+      }
+      return result as ItemResult;
+    },
+  };
 }

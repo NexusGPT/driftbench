@@ -17,7 +17,7 @@ import {
   shuffled,
 } from '../harness';
 import { KINDS, plantedAgent, token } from '../kinds';
-import { type BlocksProduct, need } from '../product';
+import { type BlocksProduct, need, productCpuMs } from '../product';
 import { type Recipe, recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
 
@@ -710,9 +710,10 @@ export async function cpuBest<T>(tries: number, call: () => Promise<T>): Promise
   let result: T | undefined;
   for (let i = 0; i < tries; i += 1) {
     const start = process.cpuUsage();
+    const product0 = productCpuMs();
     result = await call();
     const used = process.cpuUsage(start);
-    best = Math.min(best, (used.user + used.system) / 1000);
+    best = Math.min(best, (used.user + used.system) / 1000 + productCpuMs() - product0);
   }
   return { ms: best, result: result as T };
 }
