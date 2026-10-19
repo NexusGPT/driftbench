@@ -35,3 +35,7 @@ The historical `reference-and-mutants.json` reports external code that is unavai
 `merged-bank.json` records the soundness of the merged bank: a reference implementation that is outside the repository passes every item on seeds 1, 2, 3, 7, 20 and 820020691, and each of 47 planted defects in `validate`, `quotes` and `plan` loses at least one item of the merged stems. The reference is not committed.
 
 `test/variables/call-cheats.test.ts` plays the call-order and request-guess cheats of the second bank against every file-format item. They pass 0 items, and the same cheat given the class of every answer passes all of them. The baseline was measured again for the merged bank (ladder version 2); the earlier row is in `journal-historical.jsonl`.
+
+## Iteration 0 on the real product
+
+`iteration0.json` summarises the measurement of iteration 0 on the real product (the adapter of PR 861), and `journal.jsonl` holds its row, built with `validators/variables/measure-row.ts` from a `--items --json` run of `driftbench validate variables`. The earlier `baseline.json` and `baseline-journal.ts` describe an adapter that provides no operation: they stay as history and cannot record a real product.
