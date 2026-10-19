@@ -58,16 +58,28 @@ export const WRONG: Array<[string, S]> = [
   ['an estimate off by 0.001', reshape((r) => ({ estimate: r.estimate + 0.001 }))],
 ];
 
+const OVERRUN = /ms of processor time, over the \d+ ms budget/;
+
+/**
+ * The correct statistics on one seed. The only failure a loaded machine can cause in a seeded item is an overrun of
+ * the processor-time budget, so a run that failed on that alone is run again, up to three runs in all. Any other
+ * failure counts at once, and a slow implementation overruns every run.
+ */
+const runCorrect = async (seed: number) => {
+  let outcome = await runItem(item, seed, ROOT, stats);
+  for (let run = 1; run < 3 && !outcome.pass && OVERRUN.test(outcome.detail); run += 1)
+    outcome = await runItem(item, seed, ROOT, stats);
+  return outcome;
+};
+
 describe(`${ID}: the interval against the data's own mean and standard error`, { timeout: 600_000 }, () => {
   it('passes the correct statistics on the hidden seed of PR 109 and on seeds 1 to 3', async () => {
-    for (const seed of [HIDDEN, 1, 2, 3])
-      expect(await runItem(item, seed, ROOT, stats)).toMatchObject({ pass: true });
+    for (const seed of [HIDDEN, 1, 2, 3]) expect(await runCorrect(seed)).toMatchObject({ pass: true });
   });
 
   it('passes the correct statistics on every seed from 10000 to 10099', async () => {
     const failing: number[] = [];
-    for (let seed = 10000; seed <= 10099; seed += 1)
-      if (!(await runItem(item, seed, ROOT, stats)).pass) failing.push(seed);
+    for (let seed = 10000; seed <= 10099; seed += 1) if (!(await runCorrect(seed)).pass) failing.push(seed);
     expect(failing).toEqual([]);
   });
 
