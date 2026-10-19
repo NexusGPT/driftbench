@@ -69,7 +69,7 @@ driftbench simulate <spec> --persona <file> (--model | --recording <file>) [--ta
 | `--judge-family <family>` | A judge's model family. Repeat it. | none |
 | `--json` | One JSON document. | off |
 
-The run is mode F, once, with the simulated driver.
+The run is mode F, once, with the simulated driver. Without `--persona`, on a spec whose blocks define the simulated user, `simulate` runs block mode instead: k trials per family from `--model` or `--cassette` (topic running-simulate).
 
 | Exit code | When |
 |---|---|
@@ -129,13 +129,25 @@ answers:
 
 Write the answers for the agent's real replies: an answer that holds a fact before the agent asked for it fails the run.
 
+### The cassette (JSON), for a simulated user defined in the blocks
+
+Written by `simulate --model --record-cassette <file>` and read by `simulate --cassette <file>`, when the spec's blocks define the simulated user (`when.simulated_user`, topic authoring-personas).
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `family` | string, not empty | yes | The model family recorded: the simulated user's family, so it must differ from the agent's and the judges'. |
+| `model` | string, not empty | yes | The model recorded. |
+| `entries` | map of 64-hex key to string | yes | Each response (the realiser's message or the labeller's JSON) by the SHA-256 of its request: its seed, how many times the same request came before in that run, the system and user text, and the token cap. |
+
+A trial replays its own responses even when a model answered the same request differently in another trial. A request the cassette does not hold fails the run with its key: a changed prompt, seed or agent reply needs a new recording. `examples/acme/simulated/cassettes/` holds two, recorded from `gpt-5.4-nano` and `gemini-3.5-flash-lite`.
+
 ### The attack recording (JSON), for `attack --replay`
 
 Written by `attack --record`. It must hold `version: 1`, `spec` (string), `specHash` (string), `seed` (number) and `rounds`, a list where each round has `class` (a deviation class), `inject_at` (number) and `phrasing` (object); `--record` also writes each round's `cue`.
 
 ### The spec
 
-The scripted driver reads each block's `when` stimulus and the spec's optional `end`. The simulated driver reads each block's words as a hint (a `user` message, a `burst` joined with ` / `, or an injected message).
+The scripted driver reads each block's `when` stimulus and the spec's optional `end`. It sends the user text of an `exact` or `replay` block as written, without its `simulated_user`, and refuses a `simulated` block. The simulated driver reads each block's words as a hint (a `user` message, a `burst` joined with ` / `, or an injected message).
 
 ## Outputs and how to read them
 

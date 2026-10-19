@@ -1,5 +1,6 @@
 /** User drivers: scripted (phase 1), perturbing and simulated (phase 3), the red-team pack, recovery and the multi-turn red-team user. */
 export const packageName = '@agent-nexus/driftbench-users';
+export * from './agenda/index';
 export {
   AttackError,
   type AttackOptions,
