@@ -37,6 +37,21 @@ describe('budget', () => {
     });
   });
 
+  it('names the overage at a limit of 0 as at a limit above 0', async () => {
+    const free = observed(reply, [], { cost: { usd: 0.37 }, latencyMs: 470 });
+    const base = context(loose, 0, free);
+    const verdicts = await run(budget, {
+      ...base,
+      block: { ...base.block, budget: { cost_usd: 0, latency_ms: 0 } },
+    });
+    expect(verdict(verdicts, 'budget.cost_usd').evidence).toBe(
+      'cost 0.37 USD, at most 0, over by 0.37 USD (the limit is 0)',
+    );
+    expect(verdict(verdicts, 'budget.latency_ms').evidence).toBe(
+      'latency 470 ms, at most 0, over by 470 ms (the limit is 0)',
+    );
+  });
+
   it('counts steps on acme-price-sheet: a command seen as a tool call and an execution counts once', async () => {
     const bash = (command: string): Call => ({ label: 'Bash', input: { command } });
     const calls = Array.from({ length: 20 }, (_, index) => bash(`step ${index}`));
