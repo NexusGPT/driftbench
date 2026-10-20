@@ -33,6 +33,17 @@ export class FrameError extends Error {
   override name = 'FrameError';
 }
 
+/** The error classes of the language: a thrown one comes back as its class, so `instanceof RangeError` holds. */
+const ERRORS: Record<string, ErrorConstructor> = {
+  Error,
+  RangeError,
+  TypeError,
+  SyntaxError,
+  ReferenceError,
+  EvalError,
+  URIError,
+};
+
 const OPEN = '$';
 const esc = (key: string): string => (key.startsWith(OPEN) ? `${OPEN}${key}` : key);
 const unesc = (key: string): string => (key.startsWith(`${OPEN}${OPEN}`) ? key.slice(1) : key);
@@ -110,7 +121,8 @@ export function decode(x: Json): unknown {
   if ('$opaque' in o) return { opaque: o.$opaque };
   if ('$err' in o) {
     const e = o.$err as { name: string; message: string };
-    const error = new Error(e.message);
+    const Class = ERRORS[e.name] ?? Error;
+    const error = new Class(e.message);
     error.name = e.name;
     return error;
   }

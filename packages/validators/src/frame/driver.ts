@@ -83,7 +83,7 @@ function «decode»(«x») {
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
-  if ('$err' in «x») { const «e» = new Error(«x».$err.message); «e».name = «x».$err.name; return «e»; }
+  if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
 `;
@@ -148,7 +148,7 @@ if («setup».command) {
   let «product»;
   try {
     «product» = await import(«toUrl»(«setup».module).href);
-    «answer»({ ready: true });
+    «answer»({ ready: true, shape: Object.fromEntries(Object.keys(«product»).map((key) => [key, typeof «product»[key] === 'function' ? { fn: 1 } : { value: «encode»(«product»[key]) }])) });
   } catch («error») {
     «answer»({ ready: false, error: String(«error» && «error».stack ? «error».stack : «error») });
   }

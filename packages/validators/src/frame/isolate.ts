@@ -58,8 +58,13 @@ export type IsolateOptions = {
   tag?: string;
   /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
   keep?: Keep;
-  /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
-  plain?: boolean;
+  /**
+   * Make each call in run C too (default true): one process per call, so it costs a process start per call.
+   * `{ every }` makes the first call of each export and then every `every`-th call: for a product called thousands
+   * of times, where a process start per call is too slow. A sampled call that differs is a finding that holds for
+   * the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
+   */
+  plain?: boolean | { every: number };
   /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
@@ -72,8 +77,12 @@ export type Frame<T> = {
   product: T;
   /** Every call so far, with the answers of both runs. */
   tape: Tape;
-  /** The first call whose two runs answered differently, as a message, or undefined. */
+  /** The first call whose runs answered differently, as a message, or undefined. */
   divergence(): string | undefined;
+  /** The first divergence among the calls from the tape position `from` on, or undefined. */
+  divergenceSince(from: number): string | undefined;
+  /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
+  tainted(): string | undefined;
   /** Ends both runs and removes their files. */
   close(): void;
 };
@@ -228,7 +237,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   relay.worker.unref();
   port1.unref();
   const tape: Tape = [];
+  const found: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
+  let taint: string | undefined;
+  const counts = new Map<string, number>();
+  let total = 0;
   let closed = false;
   const close = () => {
     if (closed) return;
@@ -248,7 +261,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
-    ready: Array<{ ready?: boolean; error?: string; dead?: string }>;
+    ready: Array<{
+      ready?: boolean;
+      error?: string;
+      dead?: string;
+      shape?: Record<string, { fn?: 1; value?: Json }>;
+    }>;
   };
   const failed = started.ready.find((each) => each.ready !== true);
   if (failed) {
@@ -284,28 +302,61 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      if (first === undefined && kept(a) !== kept(other))
-        first = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
+      if (kept(a) !== kept(other)) {
+        const message = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
+        found.push({ at: tape.length - 1, message });
+        first ??= message;
+      }
     }
-    if (plain) {
+    total += 1;
+    const seen = counts.get(name) ?? 0;
+    counts.set(name, seen + 1);
+    const sampled =
+      plain !== undefined &&
+      (options.plain === undefined ||
+        typeof options.plain === 'boolean' ||
+        seen === 0 ||
+        total % options.plain.every === 0);
+    if (plain && sampled) {
       const c = plainCall(plain, options.seed, tag, module, name, sent);
       if (!('dead' in c)) entry.plain = c;
-      if (first === undefined && kept(a) !== kept(c))
-        first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+      if (kept(a) !== kept(c)) {
+        const message = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: tape.length - 1, message });
+        first ??= message;
+        taint ??= message;
+      }
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret);
   };
+  const shape = started.ready[0]?.shape;
   const product = new Proxy(
     {},
     {
       get(_target, name) {
         if (typeof name !== 'string' || name === 'then') return undefined;
+        const known = shape?.[name];
+        if (shape && !known) return undefined;
+        if (known && known.fn !== 1) return decode(known.value);
         return (...args: unknown[]) => call(name, args);
       },
+      has: (_target, name) => typeof name === 'string' && (shape ? name in shape : true),
+      ownKeys: () => (shape ? Object.keys(shape) : []),
+      getOwnPropertyDescriptor: (_target, name) =>
+        typeof name === 'string' && shape && name in shape
+          ? { enumerable: true, configurable: true }
+          : undefined,
     },
   ) as T;
-  return { product, tape, divergence: () => first, close };
+  return {
+    product,
+    tape,
+    divergence: () => first,
+    divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
+    tainted: () => taint,
+    close,
+  };
 }
 
 export type CommandOptions = {
