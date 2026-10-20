@@ -233,6 +233,18 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install pytest
+      - name: Let the interpreter find its own libpython
+        # The interpreter that setup-python downloads finds libpython only through LD_LIBRARY_PATH, which the
+        # tests scrub from the environment of the interpreter they start. A GitHub-hosted image also carries a
+        # system libpython, so the lookup succeeds there. A self-hosted image does not. Giving the binary a
+        # run path of $ORIGIN/../lib makes the lookup independent of the environment.
+        shell: bash
+        run: |
+          if [ "$RUNNER_ENVIRONMENT" != github-hosted ]; then
+            python -m pip install patchelf
+            patchelf --set-rpath '$ORIGIN/../lib' "$(readlink -f "$(command -v python)")"
+            env -i PATH="$PATH" python -c 'import sys; print(sys.version)'
+          fi
       - run: python -m pytest
         working-directory: python/driftbench
 
