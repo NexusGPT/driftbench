@@ -56,6 +56,7 @@ export {
   privateDir,
   writePrivateCounts,
 } from './private';
+export { createModelProposer, parseProposal } from './proposer';
 export { questionFor, questionsFor } from './questions';
 export {
   type ChoiceQuestion,
