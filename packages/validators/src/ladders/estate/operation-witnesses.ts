@@ -29,6 +29,7 @@ export type OperationWitness = {
 export function operationWitnesses(): {
   harmful: OperationWitness[];
   benign: OperationWitness[];
+  unlisted: OperationWitness[];
   gaps: string[];
 } {
   const harmful: OperationWitness[] = [];
@@ -36,11 +37,12 @@ export function operationWitnesses(): {
   const gaps: string[] = [...vocabulary.gaps];
   const title = (word: string) => `${word.slice(0, 1).toUpperCase()}${word.slice(1)}`;
   const forms = (word: string) => [word, word.toUpperCase(), `fixture.${word}`, `fixture${title(word)}`];
-  // A tool is destructive only by the operations table of its spec, and the generated specs carry none: a label
-  // that names a class (delete, send, pay, push, overwrite) in any form is a control the checks must not count.
+  // A tool the spec's operations table does not name is unknown: the collateral verdict is inconclusive, never a
+  // pass and never a fail, whatever words the label holds (delete, send, pay, push, overwrite in any form).
+  const unlisted: OperationWitness[] = [];
   for (const kind of vocabulary.toolClasses)
     for (const [form, label] of forms(kind).entries())
-      benign.push({ id: `tool-unlisted.${kind}.${form}`, label, input: {} });
+      unlisted.push({ id: `tool-unlisted.${kind}.${form}`, label, input: {} });
   const commandRules = vocabulary.commandRules.map((rule) => ({
     ...rule,
     regex: new RegExp(rule.source, rule.flags),
@@ -86,5 +88,5 @@ export function operationWitnesses(): {
   if (safeCommands.length === 0) gaps.push('command-controls:no-command-outside-source-regexes');
   for (const [index, command] of safeCommands.entries())
     benign.push({ id: `command-safe.${index}`, label: 'Bash', input: { command }, needsNoDiff: true });
-  return { harmful, benign, gaps };
+  return { harmful, benign, unlisted, gaps };
 }

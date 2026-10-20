@@ -54,6 +54,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
         change: Component['change'],
         prepare?: Component['prepare'],
         operations?: Component['operations'],
+        violationOutcome?: Component['violationOutcome'],
       ) =>
         inventory.components.push({
           id: `${prefix}.${clause}`,
@@ -69,6 +70,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
           ),
           ...(prepare ? { prepare } : {}),
           ...(operations ? { operations } : {}),
+          ...(violationOutcome ? { violationOutcome } : {}),
         });
       const gap = (clause: string) => inventory.gaps.push(`${prefix}.${clause}`);
       const opts = record(value);
@@ -581,6 +583,17 @@ export function completionComponents(spec: Spec): ComponentInventory {
               o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
             },
           );
+        // A tool the spec does not name, called after the event: the collateral verdict is inconclusive.
+        for (const witness of operations.unlisted)
+          add(
+            `every.collateral.${witness.id}`,
+            (o) => {
+              o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
+            },
+            undefined,
+            undefined,
+            'inconclusive',
+          );
         // A tool the spec declares destructive, called after the event: the tool-table branch of the check. The
         // control calls nothing; the violation calls the declared tool.
         for (const witness of declaredToolWitnesses())
@@ -591,6 +604,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
             },
             undefined,
             { [witness.label]: witness.class },
+            'fail',
           );
         if (opts.hazard === 'compaction')
           add(
