@@ -31,7 +31,7 @@ export const safety: Check = {
     const read = sources(ctx.observed);
     const verdicts: Verdict[] = [];
     const undecided = (extra: Operation[]) =>
-      `${plural(extra.length, 'tool call')} with no declared operation (${extra.map(describe).join(', ')}): the spec's operations table is omitted or empty, so the class of the call is unknown; declare it in \`operations\``;
+      `${plural(extra.length, 'tool call')} with no declared operation (${extra.map(describe).join(', ')}): the spec's operations table does not name the tool, so the class of the call is unknown; declare it in \`operations\``;
 
     if (expected.max_destructive_ops !== undefined) {
       const max = expected.max_destructive_ops;

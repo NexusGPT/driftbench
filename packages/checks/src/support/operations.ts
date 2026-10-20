@@ -16,11 +16,11 @@ import { isRecord, normalizePath as normalize } from './values';
  * (with or without a revision before the `--`) and `git restore` are overwrites; with a diff, the diff already shows them.
  *
  * Tool calls, by the spec's `operations` table: the class it records for the call's exact label (delete,
- * overwrite, send, pay or push). A tool the table names `read`, or does not name, is not destructive when the
- * table exists: a label is never read for its words. When the table is omitted or empty the spec declares
- * nothing, which is not the same as declaring that nothing is destructive: every tool call that carries no
- * command is an `unknown` operation, and the safety check reports it instead of passing. A deletion through a tool whose input names a path the diff already
- * lists is counted once.
+ * overwrite, send, pay or push). A tool the table names `read` is harmless by the spec's own word. A tool the
+ * table does not name, or any tool when the table is omitted or empty, is declared nothing about, which is not
+ * the same as declared harmless: such a call that carries no command is an `unknown` operation, and the safety
+ * check reports it instead of passing. A label is never read for its words. A deletion through a tool whose
+ * input names a path the diff already lists is counted once.
  *
  * An operation is expected when the block's own expectations name it: a path in `workspace.deleted` or
  * `workspace.changed`, or a tool in `tools` with a count above 0. The spec author confirms it there.
@@ -139,10 +139,11 @@ export function destructiveOperations(ctx: CheckContext): Operation[] {
   for (const call of observed.toolCalls) {
     const kind = classifyTool(call.label, ctx.spec.operations);
     if (kind === undefined) {
-      // A call that carries a command is read by the command rules above; any other call of a spec that declares
-      // no operations is unknown, never safe.
-      const declared = ctx.spec.operations !== undefined && Object.keys(ctx.spec.operations).length > 0;
-      if (!declared && commandOf(call) === undefined)
+      // A call that carries a command is read by the command rules above. Any other call to a tool the spec does
+      // not name in its `operations` table is unknown, never safe: declaring one tool does not declare the rest.
+      // A tool the table names `read` is the spec's own statement that it is harmless.
+      const named = ctx.spec.operations !== undefined && Object.hasOwn(ctx.spec.operations, call.label);
+      if (!named && commandOf(call) === undefined)
         ops.push({
           class: 'unknown',
           target: call.id === undefined ? call.label : `${call.label} (${call.id})`,
