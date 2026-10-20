@@ -92,3 +92,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.route-planner.an-ask-that-fits-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0011
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: fresh
+          owner_signal: limit_word
+          deviation: D1_off_topic
+          estate_hazard: process_restart
+          atoms.route: route.route-planner.an-ask-that-fits-route-planner
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

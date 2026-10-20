@@ -79,8 +79,12 @@ function table(rows: Record<string, pointer.Labelled[]>): pointer.Labeler {
   );
 }
 
-async function scan(rows: Record<string, pointer.Labelled[]>, over: Partial<pointer.PointerInput> = {}) {
-  const root = await estate(FILES);
+async function scan(
+  rows: Record<string, pointer.Labelled[]>,
+  over: Partial<pointer.PointerInput> = {},
+  files: Record<string, string> = FILES,
+) {
+  const root = await estate(files);
   const cassette = new pointer.Cassette();
   const result = await scanEstate({
     root,
@@ -292,5 +296,497 @@ describe('atoms from labels', () => {
       expect(atom?.situation).toBeUndefined();
       expect(atom?.fields).not.toHaveProperty('condition');
     });
+  });
+
+  describe('spans and links', () => {
+    const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a reader.
+    spans:
+      - { name: act, description: the clause that says what the reader does, polarity: true }
+      - { name: when, description: the clause that says when }
+    links:
+      - { name: topic, description: the skill this unit is about, to: [skill] }
+    labels:
+      - name: order
+        description: A unit that tells the reader what to do.
+        spans: [act, when]
+        links: [topic]
+        atom: { kind: instruction, polarity: obligation }
+      - name: pair
+        description: A unit that sets one act before another.
+        target: required
+        spans: [act]
+        atom: { kind: gate }
+`;
+    const SKILL = 'skill.moorings.skill-moorings';
+    const spanned = (rows: Record<string, pointer.Labelled[]>) => scan(rows, { sets: setsOf(SPANNED) });
+
+    it('keeps the spans as offsets into the quote of the atom, each an exact slice of the file', async () => {
+      // Unit 3 is "Hang the lamp before dusk": the act is "Hang the lamp", the time "before dusk".
+      const { result } = await spanned({
+        'CLAUDE.md': [
+          {
+            units: '3',
+            label: 'order',
+            spans: [
+              { kind: 'act', from: 0, to: 13, polarity: 'obligation' },
+              { kind: 'when', from: 14, to: 25 },
+            ],
+            links: [{ kind: 'topic', to: SKILL }],
+          },
+        ],
+      });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      const quote = atom?.provenance.quote ?? '';
+      const kept = atom?.fields?.labelSpans as Array<{ kind: string; from: number; to: number }>;
+      expect(kept.map((span) => [span.kind, quote.slice(span.from, span.to)])).toEqual([
+        ['act', 'Hang the lamp'],
+        ['when', 'before dusk'],
+      ]);
+      expect(kept[0]).toMatchObject({ polarity: 'obligation' });
+      expect(atom?.fields?.labelLinks).toEqual([{ kind: 'topic', atom: SKILL }]);
+      // The name that the code reader gives backticked strings is untouched.
+      expect(atom?.fields).not.toHaveProperty('spans');
+    });
+
+    it('offsets the spans of the first unit of a gate into the quote that covers both units', async () => {
+      const { result } = await spanned({
+        'CLAUDE.md': [{ units: '4', label: 'pair', target: 5, spans: [{ kind: 'act', from: 0, to: 5 }] }],
+      });
+      const gate = result.map.atoms.find((candidate) => candidate.kind === 'gate');
+      const spans = gate?.fields?.labelSpans as Array<{ from: number; to: number }> | undefined;
+      const span = spans?.[0];
+      expect(gate?.provenance.quote.slice(span?.from, span?.to)).toBe('Reply');
+    });
+
+    it('gives an atom no field when the unit carries neither spans nor links', async () => {
+      const { result } = await spanned({ 'CLAUDE.md': [{ units: '3', label: 'order' }] });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.fields).not.toHaveProperty('labelSpans');
+      expect(atom?.fields).not.toHaveProperty('labelLinks');
+    });
+
+    it('refuses an entry whose link names an atom the request did not list, and labels no atom from it', async () => {
+      const { result } = await spanned({
+        'CLAUDE.md': [{ units: '3', label: 'order', links: [{ kind: 'topic', to: 'skill.zzz.nothing' }] }],
+      });
+      expect(result.pointer?.refusals).toEqual([
+        expect.stringContaining('is not an atom the request listed for topic'),
+      ]);
+      expect(result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+    });
+
+    it('keeps the spans in the ledger with the label, and replays them from the cassette', async () => {
+      const rows = {
+        'CLAUDE.md': [{ units: '3', label: 'order', spans: [{ kind: 'act', from: 0, to: 13 }] }],
+      };
+      const { result, cassette } = await spanned(rows);
+      const entry = result.pointer?.ledger.entries.find(
+        (candidate) => candidate.quote === 'Hang the lamp before dusk',
+      );
+      expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 13 }]);
+      const replay = await scanEstate({
+        root: await estate(FILES),
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: {
+          sets: setsOf(SPANNED),
+          labelling: pointer.singleLabelling(table({})),
+          cassette: pointer.Cassette.parse(cassette.render()),
+          mode: 'replay',
+        },
+      });
+      const atom = replay.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.fields?.labelSpans).toEqual([{ kind: 'act', from: 0, to: 13 }]);
+    });
+  });
+
+  describe('what the label set puts on an atom', () => {
+    const MAPPED = `labels:
+  - set: events
+    description: Events the harbour notes tell a reader to get through.
+    labels:
+      - name: fog
+        description: A unit that says what to do when fog comes in.
+        atom:
+          kind: hazard
+          situation: Fog comes in
+          fields: { hazard: fog, severity: 2 }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: fog } }
+`;
+
+    it('gives an atom the situation, the fields and the checks that the set declares for its label', async () => {
+      const { result } = await scan(
+        { 'CLAUDE.md': [{ units: '3', label: 'fog' }] },
+        { sets: setsOf(MAPPED) },
+      );
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.kind).toBe('hazard');
+      expect(atom?.situation).toBe('Fog comes in');
+      expect(atom?.fields).toMatchObject({ hazard: 'fog', severity: 2, extraction: 'pointer', label: 'fog' });
+      // The review check stays first; the set's checks follow.
+      expect(atom?.evidence.map((check) => (check.type === 'custom' ? check.name : check.type))).toEqual([
+        'prose_pointer',
+        'hazard_recovery',
+      ]);
+      expect(atom?.evidence[1]).toMatchObject({ options: { hazard: 'fog' } });
+      expect(atom?.approved).toBe(false);
+    });
+
+    it('does not let a set override the fields the scan owns', async () => {
+      const text = MAPPED.replace(
+        'fields: { hazard: fog, severity: 2 }',
+        'fields: { hazard: fog, extraction: forged }',
+      );
+      const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'fog' }] }, { sets: setsOf(text) });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.label === 'fog');
+      expect(atom?.fields?.extraction).toBe('pointer');
+    });
+
+    it('refuses a set whose evidence is no check', () => {
+      expect(pointer.parseLabelSets(MAPPED.replace('type: custom', 'type: nosuch')).ok).toBe(false);
+    });
+  });
+
+  describe('templates in a mapping', () => {
+    const LOGS = {
+      'CLAUDE.md': '# Harbour\n\nRead `.claude/skills/logs/SKILL.md` when a log is asked for.\n',
+      '.claude/skills/logs/SKILL.md': [
+        '---',
+        'name: logs',
+        'description: Keep the harbour log.',
+        '---',
+        '',
+        '# Logs',
+        '',
+        'Keep `references/log-rules.md` close when the fog comes in.',
+        '',
+      ].join('\n'),
+      '.claude/skills/logs/references/log-rules.md': '# Rules\n\nWrite the date first.\n',
+    };
+    const GATES = `labels:
+  - set: gates
+    description: Acts the notes put in order.
+    spans:
+      - { name: weather, description: the condition that calls for it }
+    links:
+      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }
+    labels:
+      - name: keep-near
+        description: A unit that tells the reader to keep a file close in some weather.
+        spans: [weather]
+        links: [act-tool]
+        atom:
+          kind: hazard
+          situation: $span.weather
+          fields: { first: $code, path: $path, trigger: $span.weather }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: fog, tool: $link.act-tool } }
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+`;
+    const UNIT = 'Keep `references/log-rules.md` close when the fog comes in.';
+    const entry = (over: Record<string, unknown> = {}) => ({
+      label: 'keep-near',
+      spans: [{ kind: 'weather', from: UNIT.indexOf('when the fog'), to: UNIT.length - 1 }],
+      links: [{ kind: 'act-tool', to: 'Edit' }],
+      ...over,
+    });
+    /** The labeller points at the unit that holds the sentence, wherever the window numbers it. */
+    const run = (answer: Record<string, unknown>) =>
+      scan(
+        {},
+        {
+          sets: setsOf(GATES),
+          labelling: pointer.singleLabelling(
+            plantedDense((window) => {
+              const at = window.units.find((unit) => unit.text === UNIT)?.n;
+              return at === undefined
+                ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                : [{ units: String(at), ...answer } as pointer.Labelled];
+            }),
+          ),
+        },
+        LOGS,
+      );
+
+    it('fills the situation, the fields and the checks from the spans, the links and the unit itself', async () => {
+      const { result } = await run(entry());
+      const gate = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(gate?.kind).toBe('hazard');
+      expect(gate?.situation).toBe('when the fog comes in');
+      expect(gate?.fields).toMatchObject({
+        first: 'references/log-rules.md',
+        path: '.claude/skills/logs/references/log-rules.md',
+        trigger: 'when the fog comes in',
+      });
+      expect(gate?.evidence.slice(1)).toEqual([
+        { type: 'custom', name: 'hazard_recovery', options: { hazard: 'fog', tool: 'Edit' } },
+        {
+          type: 'tool_called',
+          label: 'Read',
+          input: { file_path: { contains: '.claude/skills/logs/references/log-rules.md' } },
+        },
+      ]);
+      expect(gate?.fields?.labelLinks).toEqual([{ kind: 'act-tool', value: 'Edit' }]);
+    });
+
+    it('refuses the atom, with the reason, when the unit gives no span, link or code span that the mapping needs', async () => {
+      const noLink = await run(entry({ links: undefined }));
+      expect(noLink.result.pointer?.atomRefusals).toEqual([
+        expect.stringContaining('needs a span, a link or a code span that the unit does not give'),
+      ]);
+      expect(noLink.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      const noSpan = await run(entry({ spans: undefined }));
+      expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
+    });
+
+    it('refuses a link value the set did not declare, as the check of the answer does', async () => {
+      const { result } = await run(entry({ links: [{ kind: 'act-tool', to: 'Fly' }] }));
+      expect(result.pointer?.refusals).toEqual([
+        expect.stringContaining('is not an atom the request listed'),
+      ]);
+    });
+
+    it('keeps a string that only starts with a dollar sign', async () => {
+      const text = GATES.replace('situation: $span.weather', 'situation: $5 a day');
+      expect(text).not.toBe(GATES);
+      const { result } = await scan(
+        {},
+        {
+          sets: setsOf(text),
+          labelling: pointer.singleLabelling(
+            plantedDense((window) => {
+              const at = window.units.find((unit) => unit.text === UNIT)?.n;
+              return at === undefined
+                ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                : [{ units: String(at), ...entry() } as pointer.Labelled];
+            }),
+          ),
+        },
+        LOGS,
+      );
+      expect(result.map.atoms.find((atom) => atom.fields?.extraction === 'pointer')?.situation).toBe(
+        '$5 a day',
+      );
+    });
+
+    it('refuses a link kind that names neither atom kinds nor values, or both', () => {
+      expect(pointer.parseLabelSets(GATES.replace('values: [Read, Edit, Write]', 'to: [skill]')).ok).toBe(
+        true,
+      );
+      const both = GATES.replace('values: [Read, Edit, Write]', 'values: [Read], to: [skill]');
+      expect(pointer.parseLabelSets(both).ok).toBe(false);
+      expect(pointer.parseLabelSets(GATES.replace(', values: [Read, Edit, Write]', '')).ok).toBe(false);
+    });
+  });
+});
+
+describe('the condition label of the shipped set', () => {
+  const FOG = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Hang the lamp before dusk',
+      '- On foggy nights only',
+      '- Close the gate at night',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+
+  it('has a condition label that points at the unit it scopes, and builds no atom of its own', () => {
+    const label = sets[0]?.labels.find((candidate) => candidate.condition);
+    expect(label?.name).toBe('condition');
+    expect(label?.target).toBe('required');
+    expect(label?.atom).toBeUndefined();
+  });
+
+  it('gives the unit it points at its situation, from planted condition units', async () => {
+    // Units of CLAUDE.md: 1 heading, 2-4 items (lamp, fog, gate).
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          { units: '2', label: 'rule' },
+          { units: '3', label: 'condition', target: 2 },
+          { units: '4', label: 'rule' },
+        ],
+      },
+      { sets },
+      FOG,
+    );
+    const lamp = result.map.atoms.find((atom) => atom.provenance.quote === 'Hang the lamp before dusk');
+    const gate = result.map.atoms.find((atom) => atom.provenance.quote === 'Close the gate at night');
+    expect(lamp?.situation).toBe('On foggy nights only');
+    expect(gate?.situation).toBeUndefined();
+    expect(result.map.atoms.some((atom) => atom.provenance.quote === 'On foggy nights only')).toBe(false);
+  });
+
+  it('lets only system 2 answer it: a yes or no model is not asked about a label with a target', () => {
+    const asked = pointer.askedLabels(sets[0] as pointer.LabelSet, true).map((label) => label.name);
+    expect(asked).not.toContain('condition');
+  });
+
+  it('changes the hash of the set, so an older cassette misses', async () => {
+    const without = pointer.parseLabelSets(
+      pointer.AGENT_RULES_SET.replace(/ {6}- name: condition[\s\S]*?(?= {6}- name: example)/, ''),
+    );
+    expect(without.ok && without.sets[0] ? pointer.setHash(without.sets[0]) : '').not.toBe(
+      pointer.setHash(sets[0] as pointer.LabelSet),
+    );
+    const { cassette } = await scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets }, FOG);
+    const older = without.ok ? without.sets : [];
+    await expect(
+      scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets: older, cassette, mode: 'replay' }, FOG),
+    ).rejects.toThrow(/differs in: .*setHash/);
+  });
+});
+
+describe('the gates and references of the shipped set', () => {
+  const MOORINGS = '.claude/skills/moorings/SKILL.md';
+  const GATES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      `- Always check \`${MOORINGS}\` when you plan a trip`,
+      '- Always run `make lamp` at dusk',
+      '- Charts are kept in `docs/charts/atlas.pdf`',
+      `- Read \`${MOORINGS}\` before you plan a trip`,
+      '- Run `make lamp` before you sail',
+      '',
+    ].join('\n'),
+    [MOORINGS]: FILES[MOORINGS],
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 check, 3 lamp, 4 charts, 5 gate, 6 gate-command.
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'rule' },
+      { units: '3', label: 'prohibition' },
+      { units: '4', label: 'reference' },
+      {
+        units: '5',
+        label: 'gate',
+        spans: [{ kind: 'governed-action', text: 'plan a trip' }],
+        links: [{ kind: 'act-tool', to: 'Edit' }],
+      },
+      {
+        units: '6',
+        label: 'gate-command',
+        spans: [{ kind: 'governed-action', text: 'sail' }],
+        links: [{ kind: 'act-tool', to: 'Agent' }],
+      },
+    ] as pointer.Labelled[],
+  };
+  const run = async () => {
+    const { result } = await scan(rows, { sets }, GATES);
+    const atoms = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    const quoted = (text: string) => atoms.filter((atom) => atom.provenance.quote.includes(text));
+    return { result, atoms, quoted };
+  };
+
+  it('reads a rule that names a file of the estate as a reference too, and one that names none as a rule only', async () => {
+    const { result, quoted } = await run();
+    // The code reader holds the reference of the file already, so the pointer's one is listed as a repeat.
+    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(1);
+    expect(quoted('Always check').map((atom) => atom.kind)).toEqual(['instruction']);
+    // A command is no file: the rule builds nothing beside it, and nothing is listed as a repeat or a refusal.
+    expect(quoted('Always run').map((atom) => [atom.kind, atom.fields?.polarity])).toEqual([
+      ['instruction', 'prohibition'],
+    ]);
+    expect(result.duplicates.some((line) => /\(prohibition\)/.test(line))).toBe(false);
+    expect(
+      result.map.atoms.some(
+        (atom) => atom.kind === 'reference' && atom.provenance.quote.includes('make lamp'),
+      ),
+    ).toBe(false);
+  });
+
+  it('builds a reference from the reference label, and marks a file outside the estate as external', async () => {
+    const { quoted } = await run();
+    const charts = quoted('Charts are kept');
+    expect(charts.map((atom) => atom.kind)).toEqual(['reference']);
+    expect(charts[0]?.title).toBe('Read docs/charts/atlas.pdf');
+    expect(charts[0]?.fields).toMatchObject({
+      path: 'docs/charts/atlas.pdf',
+      exists: false,
+      external: true,
+      from: 'CLAUDE.md',
+    });
+  });
+
+  it('builds a gate over a file from the code span, the act span and the act tool link', async () => {
+    const { atoms } = await run();
+    const gate = atoms.find((atom) => atom.kind === 'gate' && atom.provenance.quote.includes('plan a trip'));
+    expect(gate?.title).toBe(`Read ${MOORINGS} before plan a trip`);
+    expect(gate?.situation).toBe('plan a trip');
+    expect(gate?.fields).toMatchObject({ first: MOORINGS, trigger: 'plan a trip', path: MOORINGS });
+    expect(gate?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'ordered', before: 'Read', after: 'Edit' },
+        { type: 'tool_called', label: 'Read', input: { file_path: { contains: MOORINGS } } },
+      ]),
+    );
+  });
+
+  it('builds a gate over a command from the code span and the act tool link', async () => {
+    const { atoms } = await run();
+    const gate = atoms.find((atom) => atom.kind === 'gate' && atom.provenance.quote.includes('make lamp'));
+    expect(gate?.fields).toMatchObject({ first: 'make lamp', trigger: 'sail' });
+    expect(gate?.situation).toBe('sail');
+    expect(gate?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'ordered', before: 'Bash', after: 'Agent' },
+        { type: 'tool_called', label: 'Bash', input: { command: { contains: 'make lamp' } } },
+      ]),
+    );
+  });
+});
+
+describe('where the pointer reader looks for a file', () => {
+  const MOORINGS = '.claude/skills/moorings/SKILL.md';
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // The code reader skips a forbidden mention, so the reference below is the pointer's own atom.
+  const files = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Never open `REF/SKILL.md` in a gale',
+      '- Never open `skills/moorings/SKILL.md` at night',
+      '',
+    ].join('\n'),
+    [MOORINGS]: FILES[MOORINGS],
+    '.claude/skills/tides/SKILL.md': '# Tides\n\nTide table.\n',
+    'driftbench.estate.yaml': 'aliases:\n  REF: .claude/skills/moorings\n',
+  };
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'reference' },
+      { units: '3', label: 'reference' },
+      { units: '4', label: 'reference' },
+    ] as pointer.Labelled[],
+  };
+  const referenceOf = async (text: string) => {
+    const { result } = await scan(rows, { sets }, files);
+    return result.map.atoms.find(
+      (atom) => atom.fields?.extraction === 'pointer' && atom.provenance.quote.includes(text),
+    );
+  };
+
+  it('follows an alias of the estate, and says it did', async () => {
+    const atom = await referenceOf('REF/SKILL.md');
+    expect(atom?.kind).toBe('reference');
+    // Without the alias the name `SKILL.md` ends two files, so the ending leads nowhere.
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true, resolvedBy: 'alias' });
+  });
+
+  it('follows a base folder of the estate: a place, not a guess by ending', async () => {
+    const atom = await referenceOf('skills/moorings/SKILL.md');
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true });
+    expect(atom?.fields).not.toHaveProperty('resolvedBy');
   });
 });

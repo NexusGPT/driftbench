@@ -92,3 +92,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-reconcile-an-invoice
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0221
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: resumed
+          owner_signal: language_switch
+          deviation: D4_loose_confirmation
+          estate_hazard: process_restart
+          atoms.route: route.standing.an-ask-to-reconcile-an-invoice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

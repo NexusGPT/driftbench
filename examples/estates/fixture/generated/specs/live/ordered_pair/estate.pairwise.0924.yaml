@@ -99,3 +99,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-claude-skills-invoice-reconcile-references
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0924
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: helpers_running
+          owner_signal: no_questions
+          deviation: D5_language_switch
+          estate_hazard: process_restart
+          atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

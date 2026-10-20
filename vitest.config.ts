@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
+import { timingMode, timingTests } from './vitest.timing';
 
 const packages = [
   'core',
@@ -40,14 +41,21 @@ export default defineConfig({
     },
   },
   test: {
-    include: [
-      'benchmarks/test/**/*.test.ts',
-      'packages/*/test/**/*.test.ts',
-      'examples/*/test/**/*.test.ts',
-      'tools/**/*.test.mjs',
-      'tools/**/*.test.ts',
-    ],
+    include:
+      timingMode === 'only'
+        ? timingTests
+        : [
+            'benchmarks/test/**/*.test.ts',
+            'packages/*/test/**/*.test.ts',
+            'examples/*/test/**/*.test.ts',
+            'tools/**/*.test.mjs',
+            'tools/**/*.test.ts',
+          ],
+    exclude: timingMode === 'skip' ? [...configDefaults.exclude, ...timingTests] : configDefaults.exclude,
     environment: 'node',
+    // Reuse transformed modules between runs: transforming was 90% of a short run. The cache lives in
+    // node_modules/.vitest-cache, which is not tracked.
+    fsModuleCache: true,
     // Removes the temporary folders a test file made, when the file ends.
     setupFiles: ['./tools/vitest-temp-folders.ts'],
   },

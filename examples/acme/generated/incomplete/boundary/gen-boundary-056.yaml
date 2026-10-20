@@ -103,3 +103,53 @@ metadata:
     needs_phrase:
       - dimension: notify_sales.in.customer.phone
         value: notify_sales.in.customer.phone.present
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-056
+        values:
+          notify_sales.in.customer.phone: notify_sales.in.customer.phone.present
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: not-found
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: notify_sales.in.customer.phone=notify_sales.in.customer.phone.present
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-056
+        values:
+          notify_sales.in.customer.phone: notify_sales.in.customer.phone.present
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: not-found
+          channel: chat
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

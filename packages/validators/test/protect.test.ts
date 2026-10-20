@@ -37,11 +37,20 @@ describe('protectedChanges', () => {
   });
 });
 
-const TRAIN_CONDITION = "github.event_name == 'push' || startsWith(github.head_ref, 'train/')";
+const TRAIN_CONDITION =
+  "github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/')";
 
-/** A heavy job runs on main pushes, on train PRs, and on a dispatch on a train branch that lists its id. */
+/**
+ * A heavy job runs on main pushes, on train PRs, on release PRs (the one PR that carries a release branch to main)
+ * and on a dispatch on a train branch that lists its id.
+ */
 function heavyCondition(id: string): string {
   return `${TRAIN_CONDITION} || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',${id},'))`;
+}
+
+/** `prepare` builds for the jobs that need the build: a dispatch that names `build` or `checks` runs it too. */
+function prepareCondition(): string {
+  return `${TRAIN_CONDITION} || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',prepare,') || contains(format(',{0},', inputs.jobs), ',build,') || contains(format(',{0},', inputs.jobs), ',checks,')))`;
 }
 
 /** pr fast runs on every pull request, and on a dispatch on a train branch that lists `fast`. */
@@ -51,19 +60,23 @@ const FAST_CONDITION =
 /** The fast job is the train entry gate and runs in about 3 minutes: 10 is its limit. */
 const FAST_TIMEOUT = 10;
 
-/** pr affected reports the tests a pull request affects. It runs on non-train pull requests only. */
-const AFFECTED_CONDITION = "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')";
+/** pr affected reports the tests a pull request affects. It runs on pull requests from neither a train nor a release. */
+const AFFECTED_CONDITION =
+  "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')";
 const AFFECTED_TIMEOUT = 45;
 const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
 
 const CI_HEAVY = [
   'bench',
   'research-replay',
+  'prepare',
+  'checks',
   'build',
   'python',
   'comparison-replay',
   'viewer-journey',
   'guard',
+  'timing',
 ];
 const VALIDATORS_HEAVY = ['ladders', 'system-full'];
 
@@ -84,6 +97,7 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     run_id: ctx.runId ?? '1',
   };
   const inputs = { jobs: ctx.jobs ?? '' };
+  const always = () => true;
   const startsWith = (a: string, b: string) => String(a).toLowerCase().startsWith(String(b).toLowerCase());
   const contains = (a: string, b: string) => String(a).toLowerCase().includes(String(b).toLowerCase());
   const format = (pattern: string, ...args: unknown[]) =>
@@ -92,12 +106,13 @@ function evaluate(expression: string, ctx: Ctx): unknown {
   return new Function(
     'github',
     'inputs',
+    'always',
     'startsWith',
     'contains',
     'format',
     'fromJSON',
     `return (${expression});`,
-  )(github, inputs, startsWith, contains, format, fromJSON);
+  )(github, inputs, always, startsWith, contains, format, fromJSON);
 }
 
 function evaluateTemplate(text: unknown, ctx: Ctx): unknown {
@@ -113,6 +128,12 @@ const runs = (ctx: Ctx, id: string, workflow: ReturnType<typeof parse>): boolean
 const MAIN_PUSH: Ctx = { event: 'push', ref: 'refs/heads/main' };
 const TRAIN_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/9/merge', headRef: 'train/9' };
 const ORDINARY_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/8/merge', headRef: 'fix/ordinary' };
+const RELEASE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/7/merge', headRef: 'release/next' };
+const FEATURE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/6/merge', headRef: 'feature/release-notes' };
+const LOOKALIKE_PRS: Ctx[] = [
+  { event: 'pull_request', ref: 'refs/pull/5/merge', headRef: 'release-lookalike' },
+  { event: 'pull_request', ref: 'refs/pull/4/merge', headRef: 'feature/release/next' },
+];
 const dispatchOn = (ref: string, jobs: string): Ctx => ({ event: 'workflow_dispatch', ref, jobs });
 
 /** Behaviour of the heavy-job conditions, as GitHub would evaluate them. */
@@ -122,6 +143,10 @@ function assertDispatchBehaviour(workflow: ReturnType<typeof parse>, ids: string
     expect(runs(MAIN_PUSH, id, workflow)).toBe(true);
     expect(runs(TRAIN_PR, id, workflow)).toBe(true);
     expect(runs(ORDINARY_PR, id, workflow)).toBe(false);
+    // the release PR runs every heavy job; a feature PR into the release branch, or a look-alike head, runs none
+    expect(runs(RELEASE_PR, id, workflow)).toBe(true);
+    expect(runs(FEATURE_PR, id, workflow)).toBe(false);
+    for (const ctx of LOOKALIKE_PRS) expect(runs(ctx, id, workflow), ctx.headRef).toBe(false);
     // a dispatch on a train branch runs exactly the listed jobs
     expect(runs(dispatchOn('refs/heads/train/9a', ids.join(',')), id, workflow)).toBe(true);
     expect(runs(dispatchOn('refs/heads/train/9a', ''), id, workflow)).toBe(false);
@@ -157,6 +182,8 @@ function assertConcurrency(workflow: ReturnType<typeof parse>) {
     expect(cancel(ctx)).toBe(false);
   expect(cancel(ORDINARY_PR)).toBe(true);
   expect(cancel(TRAIN_PR)).toBe(false);
+  expect(cancel(RELEASE_PR)).toBe(false);
+  expect(cancel(FEATURE_PR)).toBe(true);
   expect(group(ORDINARY_PR)).toBe(group({ ...ORDINARY_PR, runId: '77' }));
 }
 
@@ -192,11 +219,15 @@ function assertTriggers(workflow: ReturnType<typeof parse>) {
 }
 
 /**
- * The build job runs its tests in four shards. Shard 1 alone also runs these steps, which do not depend on the shard:
- * a step that tests anything else never carries a condition.
+ * The tests run as SHARDS shards per Node version. `prepare` builds once and plans the shards from the measured
+ * duration of each test file; each `build` shard runs the files of its own entry of the plan; `checks` runs lint,
+ * typecheck, the docs checks and the CLI smoke. No step of a heavy job carries a condition other than always().
  */
-const SHARD_ONE = 'matrix.shard == 1';
-const SHARD_ONE_STEPS = [
+const SHARDS = 32;
+const PLAN_COMMAND = `node tools/ci/shard-plan.mjs --count ${SHARDS} --out shard-plan.json`;
+const SHARD_COMMAND = 'node tools/ci/run-shard.mjs --plan shard-plan.json --index ${{ matrix.shard }}';
+const API_GATE = 'node tools/structure/api-surface.mjs --build --check';
+const CHECK_COMMANDS = [
   'pnpm lint',
   'pnpm typecheck',
   'pnpm docs:reference --check',
@@ -204,34 +235,50 @@ const SHARD_ONE_STEPS = [
   'pnpm docs:site:build',
   'node packages/cli/dist/bin.js --version',
 ];
-const SHARD_TEST_COMMAND = 'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4';
 
-/** The condition a step of a heavy job may carry: keep artifacts after a failure, or (build only) run in shard 1. */
-function stepConditionAllowed(id: string, step: { if?: string; run?: string }): boolean {
-  if (step.if === 'always()') return true;
-  return id === 'build' && step.if === SHARD_ONE && SHARD_ONE_STEPS.includes(step.run ?? '');
-}
+type Step = { if?: string; run?: string; uses?: string; with?: Record<string, unknown> };
 
-/** Four shards, each test file in exactly one: the shard list, the shard option of the test step, no skipped test. */
+/** Each test file runs in exactly one shard of each Node version, and nothing the old build job ran is dropped. */
 function assertShards(workflow: ReturnType<typeof parse>) {
-  const job = workflow.jobs.build;
-  expect(job.strategy.matrix.shard).toEqual([1, 2, 3, 4]);
-  expect(job.name).toBe('build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/4)');
-  const steps: { if?: string; run?: string }[] = job.steps;
-  const tests = steps.filter((step) => step.run === SHARD_TEST_COMMAND);
-  expect(tests).toHaveLength(1);
-  expect(tests[0]?.if).toBeUndefined();
-  // the API gate builds the stamp the tests verify: every shard runs it
-  const gate = steps.filter((step) => step.run === 'node tools/structure/api-surface.mjs --build --check');
-  expect(gate).toHaveLength(1);
-  expect(gate[0]?.if).toBeUndefined();
-  // shard 1 runs each of the shard-independent steps once, and no step runs in a shard other than all of them or 1
-  for (const command of SHARD_ONE_STEPS) {
-    const matching = steps.filter((step) => step.run === command);
-    expect(matching, command).toHaveLength(1);
-    expect(matching[0]?.if, command).toBe(SHARD_ONE);
-  }
-  expect(steps.filter((step) => step.if === SHARD_ONE)).toHaveLength(SHARD_ONE_STEPS.length);
+  const { prepare, checks, build } = workflow.jobs;
+  const commands = (job: { steps: Step[] }) => job.steps.map((step) => step.run);
+  // the build runs once per Node version and is shared: built and stamped by prepare, downloaded by the others
+  expect(prepare.strategy.matrix.node).toEqual([22, 24]);
+  expect(prepare.name).toBe('prepare (node ${{ matrix.node }})');
+  expect(commands(prepare)).toContain(API_GATE);
+  expect(commands(prepare).filter((run) => run === PLAN_COMMAND)).toHaveLength(1);
+  expect(commands(prepare).indexOf(API_GATE)).toBeLessThan(commands(prepare).indexOf(PLAN_COMMAND));
+  const upload = prepare.steps.find((step: Step) => step.uses?.startsWith('actions/upload-artifact@'));
+  expect(upload.with.name).toBe('build-node${{ matrix.node }}');
+  expect(upload.with['include-hidden-files']).toBe(true);
+  expect(upload.with['if-no-files-found']).toBe('error');
+  for (const path of [
+    'packages/*/dist',
+    'examples/*/dist',
+    '.cache/api-surface-build.json',
+    'shard-plan.json',
+  ])
+    expect(String(upload.with.path)).toContain(path);
+  // the checks the old build job ran in shard 1 run in a job of their own, on both Node versions
+  expect(checks.needs).toBe('prepare');
+  expect(checks.strategy.matrix.node).toEqual([22, 24]);
+  for (const command of CHECK_COMMANDS)
+    expect(
+      commands(checks).filter((run) => run === command),
+      command,
+    ).toHaveLength(1);
+  // the shards
+  expect(build.needs).toBe('prepare');
+  expect(build.strategy.matrix.node).toEqual([22, 24]);
+  expect(build.strategy.matrix.shard).toEqual(Array.from({ length: SHARDS }, (_, at) => at + 1));
+  expect(build.name).toBe(`build (node \${{ matrix.node }}, shard \${{ matrix.shard }}/${SHARDS})`);
+  expect(commands(build).filter((run) => run === SHARD_COMMAND)).toHaveLength(1);
+  const download = (job: { steps: Step[] }) =>
+    job.steps.find((step: Step) => step.uses?.startsWith('actions/download-artifact@'));
+  expect(download(build)?.with?.name).toBe('build-node${{ matrix.node }}');
+  expect(download(checks)?.with?.name).toBe('build-node${{ matrix.node }}');
+  // a shard runs no lint, no test of its own choosing: only the shard command follows the install and the download
+  expect(commands(build).filter((run) => run?.startsWith('node tools/ci/'))).toEqual([SHARD_COMMAND]);
 }
 
 function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[]) {
@@ -240,10 +287,10 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
   assertConcurrency(workflow);
   assertDispatchBehaviour(workflow, ids);
   for (const id of ids) {
-    expect(workflow.jobs[id].if).toBe(heavyCondition(id));
+    expect(workflow.jobs[id].if).toBe(id === 'prepare' ? prepareCondition() : heavyCondition(id));
     for (const step of workflow.jobs[id].steps) {
-      // A step condition may only keep artifacts after a failure, or run a shard-independent step of build in shard 1.
-      if (step.if !== undefined) expect(stepConditionAllowed(id, step), `${id}: ${step.if}`).toBe(true);
+      // A step condition may only keep artifacts after a failure; it may never skip work.
+      if (step.if !== undefined) expect(step.if).toBe('always()');
     }
   }
 }
@@ -261,21 +308,49 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   expect(system).toContain('test "$status" -eq 11');
 }
 
-const OK = 'success,success,success,success,success,success,success';
-const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped';
-const ONE_RED = 'success,failure,success,success,success,success,success';
+/**
+ * The timing tests run in the `timing` job and nowhere else: that job keeps the mode `only` on a GitHub-hosted
+ * runner, and the jobs that run the whole suite keep the mode `skip`. A job set to `skip` there would leave the
+ * seven timing tests running nowhere while every gate stays green.
+ */
+function assertTimingGuard(workflow: ReturnType<typeof parse>) {
+  const timing = workflow.jobs.timing;
+  expect(timing.env?.DRIFTBENCH_TIMING_TESTS).toBe('only');
+  expect(timing['runs-on']).toBe('ubuntu-latest');
+  for (const id of ['build', 'pr-affected'])
+    expect(workflow.jobs[id].env?.DRIFTBENCH_TIMING_TESTS, id).toBe('skip');
+  for (const [id, job] of Object.entries(workflow.jobs) as [string, { env?: Record<string, string> }][])
+    if (id !== 'timing') expect(job.env?.DRIFTBENCH_TIMING_TESTS, id).not.toBe('only');
+}
+
+const OK = 'success,success,success,success,success,success,success,success,success,success';
+const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped';
+const ONE_RED = 'success,failure,success,success,success,success,success,success,success,success';
 const GATE_CASES: [string, string, string, string, string, number][] = [
   // event, head ref, ref name, jobs, needs results, expected exit code
   ['pull_request', 'train/ci-speed', '', '', OK, 0],
   ['push', '', 'main', '', OK, 0],
-  ['pull_request', 'fix/ordinary', '', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  [
+    'pull_request',
+    'fix/ordinary',
+    '',
+    '',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
   ['pull_request', 'train-lookalike', '', '', OK, 1],
+  // the release PR counts like a train PR; a feature PR into the release branch does not
+  ['pull_request', 'release/next', '', '', OK, 0],
+  ['pull_request', 'release/next', '', '', ONE_RED, 1],
+  ['pull_request', 'release-lookalike', '', '', OK, 1],
+  ['pull_request', 'feature/release/next', '', '', OK, 1],
+  ['pull_request', 'feature/release-notes', '', '', SKIPPED, 1],
   [
     'workflow_dispatch',
     '',
     'train/9a',
     'build',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -283,10 +358,17 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,python',
-    'skipped,skipped,success,success,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped,skipped',
     0,
   ],
-  ['workflow_dispatch', '', 'train/9a', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    '',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
   ['workflow_dispatch', '', 'train/9a', '', OK, 1],
   // a pre-flight dispatch (fast only, or no heavy job) never counts as a train pass
   ['workflow_dispatch', '', 'train/pre-9', 'fast', SKIPPED, 1],
@@ -301,7 +383,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,nonsense',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   [
@@ -309,7 +391,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'BUILD',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -317,7 +399,16 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,fast',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped,skipped',
+    0,
+  ],
+  // the timing job is a heavy job a dispatch can list
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'timing',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
     0,
   ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
@@ -326,14 +417,55 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
   ['workflow_dispatch', '', 'feature/train/9', 'build', OK, 1],
   // a red or cancelled heavy job turns the gate red, on every kind of run that can count
   ['pull_request', 'train/ci-speed', '', '', ONE_RED, 1],
-  ['pull_request', 'train/ci-speed', '', '', 'success,success,cancelled,success,success,success,success', 1],
+  [
+    'pull_request',
+    'train/ci-speed',
+    '',
+    '',
+    'success,success,success,success,cancelled,success,success,success,success,success',
+    1,
+  ],
   ['push', '', 'main', '', ONE_RED, 1],
+  // the timing job, last in the gate's needs, turns the gate red when it fails or is cancelled
+  [
+    'pull_request',
+    'train/ci-speed',
+    '',
+    '',
+    'success,success,success,success,success,success,success,failure',
+    1,
+  ],
+  [
+    'pull_request',
+    'train/ci-speed',
+    '',
+    '',
+    'success,success,success,success,success,success,success,cancelled',
+    1,
+  ],
+  ['push', '', 'main', '', 'success,success,success,success,success,success,success,failure', 1],
   [
     'workflow_dispatch',
     '',
     'train/9a',
     'build',
-    'skipped,skipped,failure,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,failure,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'timing',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,failure',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'timing',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,cancelled',
     1,
   ],
   [
@@ -341,7 +473,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build',
-    'skipped,skipped,cancelled,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
 ];
@@ -412,6 +544,8 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   const affected = (ctx: Ctx) => runs(ctx, 'pr-affected', workflow);
   expect(affected(ORDINARY_PR)).toBe(true);
   expect(affected(TRAIN_PR)).toBe(false);
+  expect(affected(RELEASE_PR)).toBe(false);
+  expect(affected(FEATURE_PR)).toBe(true);
   expect(affected(MAIN_PUSH)).toBe(false);
   for (const jobs of ['fast', 'build', 'fast,build', ''])
     expect(affected(dispatchOn('refs/heads/train/pre-9', jobs))).toBe(false);
@@ -522,7 +656,7 @@ describe('the validators workflow', () => {
       'refs/tags/train/9',
     ])
       expect(on(dispatchOn(ref, 'pointer-measure,pointer-measure-full')), ref).toBe(false);
-    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR]) expect(on(ctx)).toBe(false);
+    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR, RELEASE_PR]) expect(on(ctx)).toBe(false);
     // the shards: three for the trial, one for a single seed, ten for the gate measurement
     const shards = (jobs: string) =>
       evaluateTemplate(job.strategy.matrix.include, dispatchOn(train, jobs)) as {
@@ -564,6 +698,27 @@ describe('merge train enforcement', () => {
     assertShards(workflow);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
   });
+  it('runs the timing tests in the timing job only, and lets a dispatch list that job', () => {
+    assertTimingGuard(workflow);
+    const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
+    expect(command).toContain(',guard,timing,fast,');
+  });
+  it('rejects a timing job that skips the timing tests, a pool that runs them, and a dispatch list without the job', () => {
+    const skipping = structuredClone(workflow);
+    skipping.jobs.timing.env.DRIFTBENCH_TIMING_TESTS = 'skip';
+    expect(() => assertTimingGuard(skipping)).toThrow();
+    const unset = structuredClone(workflow);
+    delete unset.jobs.timing.env;
+    expect(() => assertTimingGuard(unset)).toThrow();
+    const onPool = structuredClone(workflow);
+    onPool.jobs.timing['runs-on'] = "${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}";
+    expect(() => assertTimingGuard(onPool)).toThrow();
+    const buildRunsThem = structuredClone(workflow);
+    delete buildRunsThem.jobs.build.env;
+    expect(() => assertTimingGuard(buildRunsThem)).toThrow();
+    const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
+    expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+  });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
     const target = structuredClone(workflow);
     target.on.pull_request_target = {};
@@ -575,33 +730,92 @@ describe('merge train enforcement', () => {
     skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
     expect(() => assertWorkflowPolicy(skipped, CI_HEAVY)).toThrow();
   });
-  it('rejects a build that skips tests in some shard, or drops a shard', () => {
-    const skipsTests = structuredClone(workflow);
-    skipsTests.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).if =
-      SHARD_ONE;
-    expect(() => assertWorkflowPolicy(skipsTests, CI_HEAVY)).toThrow();
-    const skipsGate = structuredClone(workflow);
-    skipsGate.jobs.build.steps.find(
-      (step: { run?: string }) => step.run === 'node tools/structure/api-surface.mjs --build --check',
-    ).if = SHARD_ONE;
-    expect(() => assertWorkflowPolicy(skipsGate, CI_HEAVY)).toThrow();
-    const threeShards = structuredClone(workflow);
-    threeShards.jobs.build.strategy.matrix.shard = [1, 2, 3];
-    expect(() => assertShards(threeShards)).toThrow();
-    const wrongCount = structuredClone(workflow);
-    wrongCount.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
-      'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/3';
-    expect(() => assertShards(wrongCount)).toThrow();
-    const noShardOption = structuredClone(workflow);
-    noShardOption.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
-      'pnpm test --maxWorkers=2';
-    expect(() => assertShards(noShardOption)).toThrow();
-    // another step may not borrow the shard-1 condition
-    const borrowed = structuredClone(workflow);
-    borrowed.jobs.build.steps.find(
-      (step: { run?: string }) => step.run === 'pnpm install --frozen-lockfile --prefer-offline',
-    ).if = SHARD_ONE;
-    expect(() => assertWorkflowPolicy(borrowed, CI_HEAVY)).toThrow();
+  it('rejects a build that skips tests in some shard, drops a shard, or loses a check', () => {
+    const mutate = (change: (copy: ReturnType<typeof parse>) => void) => {
+      const copy = structuredClone(workflow);
+      change(copy);
+      return copy;
+    };
+    const step = (copy: ReturnType<typeof parse>, job: string, run: string) =>
+      copy.jobs[job].steps.find((each: Step) => each.run === run);
+    expect(() =>
+      assertWorkflowPolicy(
+        mutate((c) => {
+          step(c, 'build', SHARD_COMMAND).if = 'matrix.shard == 1';
+        }),
+        CI_HEAVY,
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs.build.strategy.matrix.shard = [1, 2, 3];
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          step(c, 'build', SHARD_COMMAND).run = 'pnpm test --maxWorkers=2';
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          step(c, 'prepare', PLAN_COMMAND).run =
+            'node tools/ci/shard-plan.mjs --count 16 --out shard-plan.json';
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          delete step(c, 'prepare', API_GATE).run;
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs.prepare.steps.find((each: Step) => each.uses?.startsWith('actions/upload-artifact@')).with[
+            'include-hidden-files'
+          ] = false;
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs.build.needs = [];
+        }),
+      ),
+    ).toThrow();
+    for (const command of CHECK_COMMANDS)
+      expect(
+        () =>
+          assertShards(
+            mutate((c) => {
+              c.jobs.checks.steps = c.jobs.checks.steps.filter((each: Step) => each.run !== command);
+            }),
+          ),
+        command,
+      ).toThrow();
+    // the gate waits for prepare and checks: a failed prepare skips every shard, and a skipped job passes the gate
+    for (const id of ['prepare', 'checks'])
+      expect(() =>
+        assertGateWaits(
+          mutate((c) => {
+            c.jobs['train-gate'].needs = c.jobs['train-gate'].needs.filter((n: string) => n !== id);
+          }),
+        ),
+      ).toThrow();
+    // a dispatch that names build or checks runs prepare, and one that names neither does not
+    const prepared = (jobs: string) => runs(dispatchOn('refs/heads/train/9a', jobs), 'prepare', workflow);
+    expect(prepared('build')).toBe(true);
+    expect(prepared('checks')).toBe(true);
+    expect(prepared('python')).toBe(false);
+    expect(runs(dispatchOn('refs/heads/main', 'build'), 'prepare', workflow)).toBe(false);
   });
   it('rejects a dispatch that could run a heavy job on main, or ignore the jobs list', () => {
     const anyRef = structuredClone(workflow);
@@ -636,12 +850,48 @@ describe('merge train enforcement', () => {
   });
   it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
     const job = workflow.jobs['train-gate'];
-    expect(job.name).toBe('train gate');
+    // the job is named `train gate` on every head that may satisfy the requirement
+    for (const ctx of [
+      TRAIN_PR,
+      MAIN_PUSH,
+      dispatchOn('refs/heads/train/9a', 'build'),
+      dispatchOn('refs/heads/main', 'build'),
+    ])
+      expect(evaluateTemplate(job.name, ctx)).toBe('train gate');
     assertGateWaits(workflow);
     const policy = readFileSync(new URL('../../../CONTRIBUTING.md', import.meta.url), 'utf8');
     expect(policy).toContain('`train gate` must be required in branch protection');
     const command = job.steps.find((step: { run?: string }) => step.run).run;
     assertGate(command);
+  });
+  it("never lets an ordinary PR's train gate reach success", () => {
+    const job = workflow.jobs['train-gate'];
+    const others = [
+      TRAIN_PR,
+      MAIN_PUSH,
+      dispatchOn('refs/heads/train/9a', 'build'),
+      dispatchOn('refs/heads/main', 'build'),
+    ];
+    // the job passes on an ordinary PR under another name, so no job check named `train gate` can turn green there
+    expect(evaluateTemplate(job.name, ORDINARY_PR)).not.toBe('train gate');
+    // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
+    const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
+    expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
+    for (const ctx of others) expect(Boolean(evaluate(gate.if, ctx))).toBe(true);
+    // the status named `train gate` is held pending, with its text, on an ordinary PR and nowhere else
+    const hold = job.steps.find((s: { name?: string }) => s.name?.startsWith('Hold the train gate pending'));
+    expect(Boolean(evaluate(hold.if, ORDINARY_PR))).toBe(true);
+    for (const ctx of others) expect(Boolean(evaluate(hold.if, ctx))).toBe(false);
+    expect(hold.run).toContain('state=pending');
+    expect(hold.run).toContain("context='train gate'");
+    expect(hold.run).toContain("description='waits for the merge train'");
+    expect(hold.run).not.toMatch(/state=(success|failure|error)/);
+    expect(hold.run).not.toContain('${{');
+    expect(hold.env.HEAD_SHA).toBe('${{ github.event.pull_request.head.sha }}');
+    expect(job.permissions.statuses).toBe('write');
+    // the pending post is the only step that touches the status, and it is the only one that can
+    const writers = job.steps.filter((s: { run?: string }) => /statuses/.test(s.run ?? ''));
+    expect(writers).toEqual([hold]);
   });
   it('rejects a gate that lets a dispatch count outside a train branch, or with an empty list', () => {
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;

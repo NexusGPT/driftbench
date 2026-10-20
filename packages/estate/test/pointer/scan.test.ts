@@ -534,3 +534,69 @@ describe('what the cassette key holds', () => {
     ).rejects.toThrow(/differs in: .*setHash/);
   });
 });
+
+describe('spans across the runs of a labeler', () => {
+  const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+  const answer = (window: Window, end: number): Labelled[] =>
+    window.units.map((unit) => ({
+      units: String(unit.n),
+      label: 'order',
+      spans: [{ kind: 'act', from: 0, to: Math.min(end, unit.text.length) }],
+    }));
+  const spanScan = (labeler: Labeler) => pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+
+  it('keeps the spans every run gave the same, with the label', async () => {
+    const result = await spanScan(plantedDense((window) => answer(window, 3), [], { runs: 3 }));
+    expect(result.spanSplit).toBe(0);
+    const entry = result.ledger.entries.find(
+      (candidate) => candidate.quote === 'Coil the ropes on the red post',
+    );
+    expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 3 }]);
+  });
+
+  it('keeps the label and drops the spans when the runs gave different ones, and counts the units', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        return answer(window, call === 2 ? 4 : 3);
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await spanScan(labeler);
+    expect(result.unlabeled).toBe(0);
+    expect(result.spanSplit).toBeGreaterThan(0);
+    for (const entry of result.ledger.entries.filter((candidate) => candidate.labels.duty)) {
+      expect(entry.labels.duty?.label).toBe('order');
+      expect(entry.labels.duty?.spans).toBeUndefined();
+    }
+  });
+
+  it('refuses an entry whose span leaves its unit, counts it, and leaves that unit unlabeled', async () => {
+    const result = await spanScan(
+      plantedDense(
+        (window) =>
+          answer(window, 999).map((entry) => ({ ...entry, spans: [{ kind: 'act', from: 0, to: 999 }] })),
+        [],
+        { runs: 1 },
+      ),
+    );
+    expect(result.refusals.length).toBeGreaterThan(0);
+    expect(result.refusals[0]).toMatch(/offsets leave the unit/);
+    expect(result.decided).toBe(0);
+  });
+});

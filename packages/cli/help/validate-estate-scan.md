@@ -10,6 +10,7 @@ see_also:
   - validate-estate-loop
   - validate-estate-plan
   - validate-estate-maintain
+  - validate-estate-settings
 next:
   - validate-estate-plan
 ---
@@ -45,7 +46,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -74,12 +75,13 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--labeler-key <variable>` | none | the environment variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>` | `4` | requests in flight at once; the labels, the ledger and the cassette bytes do not depend on it |
 | `--labels <file>` | the shipped `agent-rules` set | the label sets, a YAML file |
-| `--ledger <file>` | none | the ledger of unit ids; read at the start, rewritten at the end |
-| `--ledger-check` | off | with `--ledger`: write nothing, and exit 1 when the ledger is out of date |
+| `--ledger <file>` | none | the ledger of unit ids; read at the start. Without `--update` it is not written: the scan says so when the files changed |
+| `--update` | off | with `--ledger`: write the ledger of the files as they are now. Commit it: `radius ledger` and `estate diff --old-ledger` read it as the last scan |
+| `--ledger-check` | off | with `--ledger`: write nothing, and exit 1 when the ledger is out of date. It does not go with `--update` |
 
 `--replay` and `--no-model` do not go together. With neither, the scan calls a model and needs a key.
 `--pointer` replaces the model call: it does not go with `--replay` or `--no-model`, and `--cassette`,
-`--record`, `--labels`, `--labeler`, `--jobs` and `--ledger` need it.
+`--record`, `--labels`, `--labeler`, `--jobs`, `--ledger` and `--update` need it.
 
 ### The pointer reader
 
@@ -92,10 +94,26 @@ No word list and no grammar rule decides what is a rule.
 * A label set is a YAML list the user writes: a set name, a description, and per label a name, a
   description, up to three examples, an optional `target: required` (the label links two units, such as a
   gate) and an optional `atom: { kind, polarity }` (a unit with this label becomes an atom of that kind).
+  A set may declare `spans:` (kinds of clause a labeler points at inside one unit, by character offsets, each
+  with an optional polarity) and `links:` (kinds of link from a unit to an atom the request lists, such as the
+  skill a unit is about); a label lists the kinds it may carry. A span is an exact slice of the unit: the
+  labeler gives the words of the clause, copied from the unit; code finds them (once, without regard to case)
+  and keeps offsets, so no clause text reaches the cassette. A text not in the unit or found twice, an empty or
+  overlapping span, an undeclared kind or a link to an atom the request did not list refuses the whole entry.
+  A label with spans, links or a target is answered by system 2 only: system 1 alone refuses such a set. The atom keeps them in
+  `fields.labelSpans` (offsets into its quote) and `fields.labelLinks`. Only system 2 gives them; the runs must
+  agree on them or the unit keeps its label without them.
   An optional `condition: true` (needs `target: required`, takes no `atom`) marks a label whose unit states
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.
-  The shipped set `agent-rules` is data in this format. `none` is reserved.
+  An `atom` mapping may also give `situation` (what the atom is about, in words), `fields` (fields put on every
+  atom of the label) and `evidence` (checks put after the review check). A value of those three that is exactly
+  `$link.<kind>`, `$span.<kind>`, `$code` or `$path` is filled from the unit: the value the labeller gave a link,
+  the text of the first span of that kind, the first inline code span, that code span as the file of the estate
+  it leads to. A placeholder the unit does not fill refuses the atom. A link kind names `to` (atom kinds) or
+  `values` (a closed list the set declares, such as a runtime's tool names). The shipped set `agent-rules` is data
+  in this format; it has one label per hazard of a long-running agent (compaction, restart, rate limit, new
+  session, helper notification, repeated nudge). `none` is reserved.
 * Each unit has a ledger id: ten characters, derived once from the file, the unit's fingerprint and its
   occurrence, then kept in the ledger file as the text changes. The ledger follows a unit through an edit
   (unchanged, moved, changed, split, merged, deleted). It writes no times, so equal ledgers are equal bytes.
@@ -129,7 +147,9 @@ with one `--labeler`. The ledger records which class
 decided each unit, and the report counts them.
 
 The environment holds the keys of a `--record` run: `ANTHROPIC_API_KEY` for `anthropic`, `OPENAI_API_KEY`,
-`OPENAI_BASE_URL` and `OPENAI_DECISIONS_MODEL` for `openai-decisions`. A key is never printed or written to
+`OPENAI_BASE_URL` and `OPENAI_DECISIONS_MODEL` for `openai-decisions`. It also sets every model:
+`ANTHROPIC_LABELER_MODEL` for `anthropic` (default `claude-haiku-5-5`), `JEV_MODEL` for `jev` (default
+`jev-latest`) and `OPENAI_DECISIONS_MODEL` for `openai-decisions`; a model in `--labeler` wins. A key is never printed or written to
 the cassette. The request and answer shapes of `openai-decisions` follow the provider's public description
 and no live call has confirmed them here.
 
@@ -152,6 +172,23 @@ and `state` and `questions` (one question per unit and label, keyed `u<n>__<labe
 yes or no model. An answer may add `model` and `usage` (`input_tokens`, `output_tokens`). A module exports an
 object, or a function that returns one, with `id`, `cls` (`system1` or `system2`), `label(request)` and
 optionally `model` and `family`; it is your code and runs in this process.
+
+Check a labeler of your own with the contract suite, `@agent-nexus/driftbench-estate/labeler-contract`, in a
+vitest test file. `labelerContract(name, make, { cls, broken?, malformed? })` registers one test per check:
+the labeler names itself (an id, its class, a model), renders the same bytes every time under its own id,
+records every answer and replays them with no call and the same ledger, and puts its id in every cassette
+key. With `broken`, a transport that fails is a failed window and records nothing. With `malformed`, an
+answer of the wrong shape is a failed window, recorded as unreadable. `make({ replayOnly })` builds the
+labeler; with `replayOnly: true` it must have no `call`.
+
+```ts
+import { labelerContract } from '@agent-nexus/driftbench-estate/labeler-contract';
+import { pointer } from '@agent-nexus/driftbench-estate';
+
+labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http://127.0.0.1:8080/label', cls: 'system2', ...mode }), {
+  cls: 'system2',
+});
+```
 
 `estate lint`:
 
@@ -198,9 +235,26 @@ The configuration file `driftbench.estate.yaml` at the estate root, optional, ev
 | `externals` | `scan` | folders outside the estate a path may name; they replace the defaults `docs/` and `_meta/` |
 | `aliases` | `scan` | a map from an alias such as `REF` to the folder or folders it stands for: `REF/a/b.md` reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files`, `expect` (`exitCode`, `stdout`, `stdoutIncludes`) |
+| `labels` | `scan --pointer` | the label sets: a file of label sets, relative to the root, or the list of sets inline. `--labels` wins |
+| `labeler` | `scan --pointer` | a labeler, or a list of one per class, as `<class>:<client>` (`system2:anthropic`, `system1:http:<url>`). It names no model: a model is set by environment variable. `--labeler` wins |
+| `threshold` | `scan --pointer` | a mapping of `labeler` (the yes or no threshold), `pass_at`, `fail_at` and `margin_cut`, each a number from 0 to 1. Each `--labeler-*` option wins over its key |
+| `ledger` | `scan --pointer`, `radius ledger` | the ledger of unit ids, relative to the root. `--ledger` wins; the scan still writes it only with `--update` |
 
-`examples/estates/reader-cases/driftbench.estate.yaml` is a complete example. A key with the wrong shape is a
-note of the scan and is left out.
+`examples/estates/reader-cases/driftbench.estate.yaml` is a complete example. A key of the scan or of the
+unit runner with the wrong shape is a note of the scan and is left out. A pointer key with the wrong shape
+stops the scan with exit 2, because it would change the labels, and so does a labeler that names a model.
+The scan with `--pointer` prints `Pointer settings from driftbench.estate.yaml: <keys>.` for the keys it read.
+
+```yaml
+labels: labels.yaml
+labeler: [system1:jev, system2:anthropic]
+threshold: { pass_at: 0.9, fail_at: 0.1 }
+ledger: driftbench.ledger.json
+```
+
+A setting change voids only the recordings it touches. A changed description of one label set voids the
+answers of that set. A changed model voids the answers of its labeler. A threshold, a labeler left out of the
+stack and a moved ledger void none: the labels are decided again from the cassette.
 
 ## Outputs and how to read them
 

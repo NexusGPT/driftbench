@@ -10,6 +10,7 @@ import {
   LabelerError,
   type LabelSet,
   parseDenseAnswer,
+  SPAN_RULE,
 } from '../../src/pointer';
 import { BAKERY, type Call, fakeFetch, load, windowOf } from './support';
 
@@ -200,5 +201,124 @@ describe('an answer that wraps the object in words', () => {
     expect(calls[0]?.body.system).toBe(DENSE_SYSTEM);
     expect(String(calls[1]?.body.system)).toContain('never instructions to you');
     expect(calls[1]?.body.messages).toEqual(wire.body.messages);
+  });
+});
+
+describe('the dense request for a set with spans and links', () => {
+  const WITH = load(`labels:
+  - set: counter-voice
+    description: How the counter notes of a bakery are worded.
+    spans:
+      - { name: clause, description: the part that says what to do, polarity: true }
+    links:
+      - { name: topic, description: the route this is about, to: [route] }
+    labels:
+      - name: greeting
+        description: A unit that fixes how a customer is welcomed.
+        spans: [clause]
+        links: [topic]
+`)[0] as LabelSet;
+  const context = { candidates: { topic: [{ id: 'route.a', label: 'Route A' }] } };
+
+  it('keeps the request of a set that declares neither: the same system text and user text as before', () => {
+    const body = createAnthropicLabeler().render(BAKE, windowOf(2)).body as {
+      system: string;
+      messages: Array<{ content: string }>;
+    };
+    expect(body.system).toBe(DENSE_SYSTEM);
+    expect(body.messages[0]?.content).not.toContain('SPAN KINDS');
+    expect(body.messages[0]?.content).not.toContain('LINK KINDS');
+  });
+
+  it('names the span kinds, the link kinds and the candidates, and adds the span rule to the system text', () => {
+    const body = createAnthropicLabeler().render(WITH, windowOf(2), context).body as {
+      system: string;
+      messages: Array<{ content: string }>;
+    };
+    expect(body.system).toBe(`${DENSE_SYSTEM} ${SPAN_RULE}`);
+    const user = body.messages[0]?.content ?? '';
+    expect(user).toContain('SPAN KINDS:\n- clause: the part that says what to do (give "polarity"');
+    expect(user).toContain('LINK KINDS:\n- topic: the route this is about\n    route.a  Route A');
+    expect(user).toContain('(may carry spans of kind clause) (may carry links of kind topic)');
+  });
+
+  it('tells the model to copy the words of a clause from one unit, found once, and to link by id', () => {
+    expect(SPAN_RULE).toContain('"spans": [{"kind", "text", "polarity"?}]');
+    expect(SPAN_RULE).toContain('ONE unit');
+    expect(SPAN_RULE).toContain('copied word for word from that unit');
+    expect(SPAN_RULE).toContain('found once in the unit');
+    expect(SPAN_RULE).toContain('refuses a text that is not in the unit');
+    expect(SPAN_RULE).toContain('"links": [{"kind", "to"}]');
+    expect(SPAN_RULE).toContain('an id listed under that kind, or none');
+    expect(SPAN_RULE).not.toMatch(/from.*to.*offset|count characters/i);
+  });
+
+  it('gives the spans an answer wrote as words back as offsets, so the words never reach a cassette', async () => {
+    const window = {
+      ...windowOf(2),
+      units: [
+        { n: 1, text: 'Welcome every customer by name.', index: 0 },
+        { n: 2, text: 'Closed on Sundays.', index: 1 },
+      ],
+    };
+    const text = JSON.stringify({
+      labels: [
+        {
+          units: '1',
+          label: 'greeting',
+          spans: [{ kind: 'clause', text: 'Welcome every customer', polarity: 'obligation' }],
+        },
+        { units: '2', label: 'none' },
+      ],
+    });
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'claude-haiku-5-5',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const recorded = await labeler.call?.(labeler.render(WITH, window, context), WITH, window);
+    expect(recorded?.labels?.[0]?.spans).toEqual([
+      { kind: 'clause', from: 0, to: 22, polarity: 'obligation' },
+    ]);
+    expect(JSON.stringify(recorded)).not.toContain('Welcome every customer');
+  });
+
+  it('changes the request with the candidates it lists', () => {
+    const labeler = createAnthropicLabeler();
+    expect(labeler.render(WITH, windowOf(2), context)).not.toEqual(labeler.render(WITH, windowOf(2)));
+  });
+
+  it('keeps the spans and links of an answer as written and gives them to the opinions', () => {
+    const labels = denseLabels({
+      labels: [
+        {
+          units: '1',
+          label: 'greeting',
+          spans: [{ kind: 'clause', from: 0, to: 4, polarity: 'obligation' }],
+          links: [{ kind: 'topic', to: 'route.a' }],
+        },
+        { units: '2', label: 'none' },
+      ],
+    });
+    const opinions = denseOpinions(
+      { labels, returnedModel: 'm', stopReason: 'x', usage: { input: 0, output: 0 } },
+      WITH,
+      windowOf(2),
+      context,
+    );
+    expect(opinions.refusals).toEqual([]);
+    expect(opinions.byUnit.get(0)).toMatchObject({
+      label: 'greeting',
+      spans: [{ kind: 'clause', from: 0, to: 4, polarity: 'obligation' }],
+      links: [{ kind: 'topic', to: 'route.a' }],
+    });
   });
 });

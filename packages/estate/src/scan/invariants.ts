@@ -52,7 +52,12 @@ export type ScanAtoms = {
 /** Code atoms first, in a fixed order, then each prose chunk through the model when a port is given. */
 export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}): Promise<ScanAtoms> {
   const files = new Map(raw.files.map((file) => [file.path, file]));
-  const builder = new AtomBuilder(files);
+  const builder = new AtomBuilder(files, {
+    bases: raw.bases ?? [],
+    aliases: raw.aliases ?? {},
+    externals: raw.externals ?? [],
+    skipped: new Set(raw.ignored?.paths ?? []),
+  });
   codeAtoms(raw, builder);
   const chunks: ChunkRun[] = [];
   const refusals: ProseRefusal[] = [];
@@ -61,6 +66,7 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
     const proseFiles = [...new Set(raw.prose.map((chunk) => chunk.file))];
     const pointed = await pointerScan({
       ...options.pointer,
+      atoms: builder.atoms.map((atom) => ({ id: atom.id, kind: atom.kind, title: atom.title })),
       files: proseFiles.map((path) => ({ path, text: files.get(path)?.text ?? '' })),
     });
     const built = pointerAtoms(

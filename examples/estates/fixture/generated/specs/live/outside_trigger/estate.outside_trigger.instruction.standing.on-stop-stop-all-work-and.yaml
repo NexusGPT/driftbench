@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.on-stop-stop-all-work-and
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.on-stop-stop-all-work-and
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.on-stop-stop-all-work-and
+        values:
+          atoms.instruction: instruction.standing.on-stop-stop-all-work-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

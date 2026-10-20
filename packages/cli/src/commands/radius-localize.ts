@@ -20,6 +20,7 @@ type LocalizeOptions = {
   prompt?: string;
   mode?: string;
   counting: string;
+  baseline?: string;
   top: string;
   json?: boolean;
 };
@@ -45,7 +46,15 @@ export function registerRadiusLocalize(radius: Command, io: Io, setExit: (code: 
     )
     .option('--prompt <prompt-id>', 'the prompt to rank, when several registries are given')
     .option('--mode <mode>', 'the run mode to read: T, F or P; default the only mode of the campaign')
-    .option('--counting <rule>', 'grouped: drop inherited failures only; flat: count every block', 'grouped')
+    .option(
+      '--counting <rule>',
+      'grouped: drop inherited failures only; flat: count every block; relative: flips against each block baseline (needs --baseline)',
+      'grouped',
+    )
+    .option(
+      '--baseline <campaign>',
+      'relative counting: the campaign of the unchanged agent, read for each block baseline',
+    )
     .option('--top <n>', 'print this many sections; 0 prints all', '10')
     .action(async (paths: string[], _own: unknown, command: Command) => {
       // `radius` has its own --json, which commander gives the parent: read it with the globals.
@@ -59,8 +68,14 @@ export async function localizeCommand(paths: string[], options: LocalizeOptions,
     io.err('radius localize needs --sections <registries...>: the registry of the prompt to rank.\n');
     return 2;
   }
-  if (options.counting !== 'grouped' && options.counting !== 'flat') {
-    io.err(`--counting takes grouped or flat, not "${options.counting}".\n`);
+  if (options.counting !== 'grouped' && options.counting !== 'flat' && options.counting !== 'relative') {
+    io.err(`--counting takes grouped, flat or relative, not "${options.counting}".\n`);
+    return 2;
+  }
+  if ((options.counting === 'relative') !== (options.baseline !== undefined)) {
+    io.err(
+      '--counting relative and --baseline <campaign> go together: relative counting reads each block baseline.\n',
+    );
     return 2;
   }
   const top = Number(options.top);
@@ -102,6 +117,12 @@ export async function localizeCommand(paths: string[], options: LocalizeOptions,
       return 2;
     }
     const runs = await store.listRuns({ campaignId: options.campaign });
+    if (options.baseline !== undefined && !(await store.getCampaign(options.baseline))) {
+      io.err(`The store has no campaign ${options.baseline}.\n`);
+      return 2;
+    }
+    const baseline =
+      options.baseline === undefined ? undefined : await store.listRuns({ campaignId: options.baseline });
     let mode: RunMode;
     if (options.mode !== undefined) {
       const parsed = RunMode.safeParse(options.mode);
@@ -124,7 +145,7 @@ export async function localizeCommand(paths: string[], options: LocalizeOptions,
       loaded.map((entry) => entry.spec),
       runs,
       registry,
-      { mode, counting: options.counting },
+      { mode, counting: options.counting, ...(baseline === undefined ? {} : { baseline }) },
     );
     if (options.json) {
       io.out(
@@ -150,8 +171,12 @@ export function renderLocalization(
   const { localization } = result;
   const lines = [
     `Sections of ${registry.prompt_id} ${registry.version} by Ochiai suspiciousness, mode ${mode}, ${result.suiteRuns} suite run${result.suiteRuns === 1 ? '' : 's'}, ${localization.counting} counting.`,
-    `  ${localization.rows} block rows, failure weight ${round(localization.failureWeight)}, ${localization.inherited} inherited failure${localization.inherited === 1 ? '' : 's'} dropped${localization.counting === 'grouped' ? ' (a passing block after a failing one stays a row)' : ''}.`,
+    `  ${localization.rows} block rows, failure weight ${round(localization.failureWeight)}, ${localization.inherited} inherited failure${localization.inherited === 1 ? '' : 's'} dropped${localization.counting === 'flat' ? '' : ' (a passing block after a failing one stays a row)'}.`,
   ];
+  if (localization.baseline)
+    lines.push(
+      `  Against each block's baseline: ${localization.baseline.failing.length} failing there (no rows: ${localization.baseline.failing.join(', ') || 'none'}), ${localization.baseline.unstable.length} with no baseline verdict.`,
+    );
   if (localization.failureWeight === 0) {
     lines.push('  Nothing failed outside inherited failures: every score is 0.');
   } else {

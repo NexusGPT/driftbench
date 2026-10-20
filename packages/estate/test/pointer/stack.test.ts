@@ -228,6 +228,38 @@ describe('building a labelling', () => {
   });
 });
 
+describe('spans and links in a stack', () => {
+  const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
+  const second = plantedDense(() => []);
+  const stack = stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1 });
+  const spans = [{ kind: 'act', from: 0, to: 4 }];
+  const sure: Opinion = { label: 'order', probabilities: { order: 0.95, remark: 0 }, source: 'aaaaaaaaaaaa' };
+
+  it('takes the spans of system 2 for a unit system 1 decided, when system 2 gave the same label', () => {
+    expect(stack.decide([sure, { label: 'order', spans, source: 'bbbbbbbbbbbb' }], DUTY)).toMatchObject({
+      label: 'order',
+      by: 'system1',
+      spans,
+    });
+  });
+
+  it('gives no spans when system 2 disagreed or had none', () => {
+    expect(stack.decide([sure, { label: 'remark', spans, source: 'b' }], DUTY)?.spans).toBeUndefined();
+    expect(stack.decide([sure, { label: 'order', source: 'b' }], DUTY)?.spans).toBeUndefined();
+    expect(stack.decide([sure, undefined], DUTY)?.spans).toBeUndefined();
+  });
+
+  it('takes the spans and the links of system 2 for a unit it decided', () => {
+    const links = [{ kind: 'topic', to: 'route.a' }];
+    const unsure: Opinion = { label: 'order', probabilities: { order: 0.5, remark: 0.1 }, source: 'a' };
+    expect(stack.decide([unsure, { label: 'order', spans, links, source: 'b' }], DUTY)).toMatchObject({
+      by: 'system2',
+      spans,
+      links,
+    });
+  });
+});
+
 describe('a stack decides as a cascade', () => {
   const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
   const second = plantedDense(() => []);

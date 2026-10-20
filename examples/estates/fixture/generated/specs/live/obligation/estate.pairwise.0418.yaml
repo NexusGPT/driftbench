@@ -96,3 +96,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.inbox-triager.a-message-that-fits-no-folder
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.a-message-that-fits-no-folder
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0418
+        values:
+          ask_class: compose
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: frustration
+          deviation: D12_prompt_extraction
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

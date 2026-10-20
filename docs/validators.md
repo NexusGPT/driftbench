@@ -128,6 +128,8 @@ With `--check-floor`, each ladder with a positive floor for its registered versi
 
 The pointer measurement. A third job, `pointer-measure`, serves the independent audit of section 12.7. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `pointer-measure` (seeds 1 to 3 and the hidden seed in three shards), `pointer-measure-one` (seed 1 in one shard, for a planted-bug or cheat check) or `pointer-measure-full` (seeds 1 to 20 and the hidden seed in ten shards, for a gate measurement), and never on a push or a pull request. Each shard runs `pnpm driftbench validate pointer --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `pointer-items-<n>`; the level reached does not fail the job. Two runs compare by the items that pass in each, listed with `jq -r '.seeds[] | .seed as $s | .rows[].bank[] | select(.pass) | [$s, .id] | @tsv' pointer-items.json | sort`.
 
+The variables measurement. A fourth job, `variables-measure`, serves the same audit for the variables bank. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `variables-measure` (seeds 1 to 3 and the hidden seed in three shards), `variables-measure-one` (seed 1 in one shard) or `variables-measure-full` (seeds 1 to 20 and the hidden seed in ten shards), never on a push or a pull request. Each shard runs `pnpm driftbench validate variables --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `variables-items-<n>`; the level reached does not fail the job. The bank is the first bank of the variables validator (536 items) plus the blind bank (`packages/validators/src/ladders/variables/blind`, 501 items named `blind.*`), 1,037 items in all.
+
 ### 8.2 The command
 
 ```
@@ -352,6 +354,12 @@ What the frame cannot do. No run makes the validator indistinguishable from a us
 - The parent process. Every run's parent is the validator, so a product that reads it (for example `ps -o command= -p $PPID`, looking for `vitest`) answers the same in all three runs and passes, while a user's script has another parent (review of PR 892, second round).
 
 How a ladder adopts it. Replace the product object the items call (for example `product.core` in the blocks bank) by `isolate(...).product` for the product's entry module, fail the item when `divergence()` is set, and close the frame when the item ends. The tests in `packages/validators/test/frame/isolate.test.ts` show each cheat class of the audits passing an item in the validator's process and failing it under the frame.
+
+### 12.10 Recorded bars
+
+A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.
+
+* stats, ladder version 3: score after the pilot at most 0.85, forecast at least 9, at least 80 distinct failing causes. The blind pilot on the iteration-0 copy of the package measured 0.8263, a forecast of 9.87 and 85 causes on a bank of 904 items. The reason: a forecast of 100 at the 15.9 items the pilot fixed per iteration needs about 1590 failing items, more than the bank holds, and the package (the differential sweep covered its 57 exports) has 11 causes from defects and from statistics the docs define; the rest are guards, limits and coverage designs. Padding the bank with methods no page asks for is ruled out by 12.1. The numbers and the starting package are in `validators/stats/GATE.md`.
 
 ## Measurement cache during system sweeps
 

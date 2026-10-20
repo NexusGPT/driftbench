@@ -109,3 +109,61 @@ metadata:
     needs_phrase:
       - dimension: coverage.check.out.five_g
         value: coverage.check.out.five_g.false
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-027
+        values:
+          coverage.check.out.five_g: coverage.check.out.five_g.false
+          coverage.check.out.found: coverage.check.out.found.true
+          coverage.check.out.address_id: coverage.check.out.address_id.present
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: coverage.check.out.five_g=coverage.check.out.five_g.false
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-027
+        values:
+          coverage.check.out.five_g: coverage.check.out.five_g.false
+          coverage.check.out.found: coverage.check.out.found.true
+          coverage.check.out.address_id: coverage.check.out.address_id.present
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

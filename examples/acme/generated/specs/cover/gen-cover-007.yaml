@@ -163,3 +163,161 @@ metadata:
       stem: stem-cfd491df2314
       block: b3-offer-to-callback
       replaced: 3
+  links:
+    - block: stem-1f386d3e63ac#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-1f386d3e63ac#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-cover-007
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-cfd491df2314#b2-address-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-cfd491df2314#b2-address-to-offer
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-cfd491df2314#b2-address-to-offer
+      to:
+        kind: plan_row
+        row: gen-cover-007
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: address-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-cfd491df2314#b3-offer-to-callback
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-cfd491df2314#b3-offer-to-callback
+      to:
+        kind: plan_row
+        row: gen-cover-007
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: offer-to-callback
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D9_out_of_scope
+      to:
+        kind: rule
+        rule: deviation=D9_out_of_scope
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D9_out_of_scope
+      to:
+        kind: plan_row
+        row: gen-cover-007
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: whatsapp
+          deviation: D9_out_of_scope
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-callback-to-handover
+      to:
+        kind: rule
+        rule: stage_transition=callback-to-handover
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-callback-to-handover
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-callback-to-handover
+      to:
+        kind: rule
+        rule: plan_choice=asks-for-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-callback-to-handover
+      to:
+        kind: rule
+        rule: callback_phone=given
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-callback-to-handover
+      to:
+        kind: plan_row
+        row: gen-cover-007
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: callback-to-handover
+          stage: handover
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

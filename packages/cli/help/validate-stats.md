@@ -1,6 +1,6 @@
 ---
 title: The statistics validator
-summary: What `driftbench validate stats` measures, its 7 levels and 651 items, reference fixtures and budgets, and how to read a failing statistics item.
+summary: What `driftbench validate stats` measures, its 7 levels and 834 items, reference fixtures and budgets, and how to read a failing statistics item.
 commands:
   - validate
 see_also:
@@ -21,19 +21,19 @@ each estimator, draws from a population whose truth is known, counting how often
 truth, whether planted variance shares are recovered, whether unseen-mass estimates match the true
 covered probability, and whether a predicted power matches the simulated one.
 
-The ladder (version 2), from `driftbench validate stats`:
+The ladder (version 3), from `driftbench validate stats`:
 
 | Level | Id | Name | Items | Families |
 |---|---|---|---|---|
 | 1 | `reference` | reference values | 31 | reference |
 | 2 | `degenerate` | degenerate inputs | 201 | degenerate-domain, degenerate-empty, degenerate-nonfinite, degenerate-single-equal |
 | 3 | `reproducibility` | reproducibility | 22 | reproducibility |
-| 4 | `analytic` | analytic truth | 246 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, product, tests-calibration, unseen-known, variance-simulation |
-| 5 | `simulation` | simulation coverage | 35 | coverage-simulation, product |
+| 4 | `analytic` | analytic truth | 494 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
+| 5 | `simulation` | simulation coverage | 40 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
 
-651 items in all (counted from `--items --json` on seed 1). What each level asks:
+904 items in all (counted from `--items --json` on seed 1). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
@@ -43,13 +43,18 @@ The ladder (version 2), from `driftbench validate stats`:
 * `analytic`: estimators and tests match a constructed truth, an exhaustive enumeration or a textbook
   formula. The `product` items here check numbers that driftbench commands print, such as the minimum
   detectable effect `campaign plan` shows.
+  The `exact-special` and `exact-estimators` items compare one function with numbers computed in Python
+  from a closed form in exact rational arithmetic, the standard library, scipy or numpy
+  (`packages/validators/fixtures/stats/exact.json` and `exact-branches.json`, made by `make_exact.py` and
+  `make_exact_branches.py`; the scripts never read the TypeScript). They are split by branch of the
+  function, so a fault on one branch fails an item of its own.
 * `simulation`: planted designs whose coverage, recovery, error or power holds.
 * `scale`: one-million-row calls under a budget of 5000 ms of processor time, and results that a shift or
   a scale of the data leaves unchanged to 1e-6.
 * `roadmap`: methods the research dossiers name that a product page needs, matching scipy, degenerate-safe
   and scaling.
 
-The floor is 7 for ladder version 2, the top of the ladder.
+Ladder version 3 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 3 adds items for defects and for statistics the docs define and the package lacks; the stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
 
 ## When to use it
 
@@ -150,22 +155,22 @@ pnpm -s driftbench validate stats
 ```
 
 ```text
-Validator stats (ladder version 2)
+Validator stats (ladder version 3)
 Level  Name                 Metric                                                                                      Threshold  seed 1
 1      reference values     fixture groups matching scipy and numpy / groups                                            >= 1       1 pass
 2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases             >= 1       1 pass
 3      reproducibility      same seed same bits, other seed other draw, order invariance / items                        >= 1       1 pass
-4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       1 pass
-5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                    >= 1       1 pass
-6      scale and stability  one-million-row calls under budget and shift-stable results / items                         >= 1       1 pass
-7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                 >= 1       1 pass
-Level per seed: 1 = 7
-Level of the run: 7 of 7, the minimum over 1 seed.
-Floor: 7. At or above the floor.
-No level failed.
+4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       0.906883 FAIL (46)
+5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                    >= 1       not run
+6      scale and stability  one-million-row calls under budget and shift-stable results / items                         >= 1       not run
+7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                 >= 1       not run
+Level per seed: 1 = 3
+Level of the run: 3 of 7, the minimum over 1 seed.
+Floor: 0. At or above the floor.
+Items of the first failing level: 46 items, every one a defect item or a missing statistic (see below).
 ```
 
-It exited 7: every item passes on seed 1. The hardness measurement of this bank is in
+It exited 3, the level reached: the 46 items of ladder version 3 for sweep defects and for four statistics the docs define fail until the stats-fix pull requests land. The hardness measurement of this bank is in
 `validate-executor-loop`.
 
 ## Common errors

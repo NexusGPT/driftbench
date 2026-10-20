@@ -56,6 +56,7 @@ it('uses ASCII IDs and accented titles in the cross-process locale item', async 
 const quoteItems = bank.filter(
   (entry) =>
     entry.family === 'quotes' &&
+    !entry.id.startsWith('blind.') &&
     !entry.stem.startsWith('quotes.verify.') &&
     !['quotes.owner-conversation-exempt', 'quotes.condition-span-unfindable'].includes(entry.stem),
 );

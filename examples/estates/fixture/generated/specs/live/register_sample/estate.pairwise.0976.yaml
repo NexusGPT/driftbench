@@ -95,3 +95,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.lead-with-the-result
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0976
+        values:
+          ask_class: research
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D6_instruction_in_data
+          estate_hazard: stale_tracker
+          atoms.register: register.standing.lead-with-the-result
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
