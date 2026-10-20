@@ -200,6 +200,13 @@ export const Atom = z.strictObject({
     .record(z.string(), z.unknown())
     .optional()
     .describe('Kind-specific structure read by code: a guard event, a tool schema, a brief field list'),
+  replyAct: z
+    .strictObject({
+      id: z.string().min(1).describe('The act of the reply the rule governs: answer, clarify, refuse, ...'),
+      evidence: z.record(z.string(), z.unknown()).describe('What in the reply shows the act, typed.'),
+    })
+    .optional()
+    .describe('The act of the agent reply that the atom governs, when it governs one.'),
 });
 export type Atom = z.infer<typeof Atom>;
 

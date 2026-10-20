@@ -31,11 +31,21 @@ type Template = {
   path(): string | undefined;
   unit(): string;
   file(): string;
+  /** Whether the labeller gave a span of this kind. */
+  hasSpan(kind: string): boolean;
+  /** Every file of the estate the unit names, in the order it names them. */
+  paths(): string[];
+  /** Every inline code span of the unit, in order. */
+  codes(): string[];
+  /** The inline code spans of the unit that lead to no file of the estate: commands, names, values. */
+  commands(): string[];
+  /** The item of the list an `each` form is walking, if any. */
+  item?: string;
 };
 
 const UNRESOLVED = Symbol('unresolved');
 const PLACEHOLDER =
-  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|code|named|path|unit|file)$/;
+  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|commands|item|unit|file)$/;
 
 /**
  * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
@@ -57,19 +67,31 @@ function fill(value: unknown, template: Template): unknown {
     }
     const match = PLACEHOLDER.exec(value);
     if (!match) return value;
-    const found = match[1]
+    const found: unknown = match[1]
       ? template.link(match[1], match[2])
       : match[3]
         ? template.span(match[3])
-        : value === '$code'
-          ? template.code()
-          : value === '$named'
-            ? template.named()
-            : value === '$path'
-              ? template.path()
-              : value === '$unit'
-                ? template.unit()
-                : template.file();
+        : match[4]
+          ? template.hasSpan(match[4])
+            ? true
+            : undefined
+          : value === '$code'
+            ? template.code()
+            : value === '$named'
+              ? template.named()
+              : value === '$path'
+                ? template.path()
+                : value === '$paths'
+                  ? template.paths()
+                  : value === '$codes'
+                    ? template.codes()
+                    : value === '$commands'
+                      ? template.commands()
+                      : value === '$item'
+                        ? template.item
+                        : value === '$unit'
+                          ? template.unit()
+                          : template.file();
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
@@ -77,9 +99,32 @@ function fill(value: unknown, template: Template): unknown {
     return out.includes(UNRESOLVED) ? UNRESOLVED : out;
   }
   if (value !== null && typeof value === 'object') {
+    const entries = Object.entries(value);
+    // `{ each: <list placeholder>, item: <template> }`: one filled item for each member of the list, with `$item`
+    // standing for the member; an item that does not fill is left out.
+    if (entries.length === 2 && 'each' in value && 'item' in value) {
+      const list = fill((value as { each: unknown }).each, template);
+      if (!Array.isArray(list)) return UNRESOLVED;
+      return list
+        .map((member) => fill((value as { item: unknown }).item, { ...template, item: String(member) }))
+        .filter((filled) => filled !== UNRESOLVED);
+    }
+    // `{ firstFilled: [a, b] }`: the first alternative whose placeholders are all filled.
+    if (entries.length === 1 && Array.isArray((value as { firstFilled?: unknown }).firstFilled)) {
+      for (const alternative of (value as { firstFilled: unknown[] }).firstFilled) {
+        const filled = fill(alternative, template);
+        if (filled !== UNRESOLVED) return filled;
+      }
+      return UNRESOLVED;
+    }
     const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
+    for (const [key, item] of entries) {
       const filled = fill(item, template);
+      // A key that ends in `?` is optional: it is left out, without its mark, when its value does not fill.
+      if (key.endsWith('?')) {
+        if (filled !== UNRESOLVED) out[key.slice(0, -1)] = filled;
+        continue;
+      }
       if (filled === UNRESOLVED) return UNRESOLVED;
       out[key] = filled;
     }
@@ -210,6 +255,20 @@ export function pointerAtoms(
       path: () => (namedPath === undefined ? undefined : builder.locate(namedPath, item.path)),
       unit: () => item.unit.text,
       file: () => item.path,
+      hasSpan: (kind) => labelSpans.some((entry) => entry.kind === kind),
+      paths: () => [
+        ...new Set(
+          allNamed
+            .map((named) => builder.locate(named, item.path))
+            .filter((located): located is string => located !== undefined),
+        ),
+      ],
+      commands: () =>
+        [...item.unit.text.matchAll(/`([^`\n]+)`/g)]
+          .map((m) => m[1]?.trim() ?? '')
+          .filter((span) => span !== '' && !builder.resolve(span, item.path).exists),
+      codes: () =>
+        [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
@@ -238,9 +297,31 @@ export function pointerAtoms(
           duplicates.push(`${where} repeats ${same.id}`);
           continue;
         }
-        const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
+        // A situation written `<placeholder>?` is optional: the atom is kept, without one, when it does not fill.
+        const optionalSituation = mapping.situation?.endsWith('?') === true;
+        const filledSituation =
+          mapping.situation === undefined
+            ? undefined
+            : fill(optionalSituation ? mapping.situation.slice(0, -1) : mapping.situation, template);
+        const situation = optionalSituation && filledSituation === UNRESOLVED ? undefined : filledSituation;
         const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
-        const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+        const mappedReplyAct = mapping.replyAct === undefined ? undefined : fill(mapping.replyAct, template);
+        let mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+        // A declared ask names the act it exercises: the reply act of its own atom, typed by the map and read from
+        // no word. An ask on an atom without a reply act carries none, so the generator refuses it.
+        if (
+          mappedFields !== UNRESOLVED &&
+          mappedReplyAct !== undefined &&
+          mappedReplyAct !== UNRESOLVED &&
+          typeof (mappedFields as Record<string, unknown>).ask === 'object' &&
+          (mappedFields as Record<string, unknown>).ask !== null
+        ) {
+          const ask = (mappedFields as { ask: Record<string, unknown> }).ask;
+          mappedFields = {
+            ...(mappedFields as Record<string, unknown>),
+            ask: { ...ask, act: { kind: 'reply', name: (mappedReplyAct as { id: string }).id } },
+          };
+        }
         const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
         // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
         let located: Record<string, unknown> = {};
@@ -300,6 +381,9 @@ export function pointerAtoms(
               ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
             ],
             producedBy: 'model',
+            ...(mappedReplyAct !== undefined && mappedReplyAct !== UNRESOLVED
+              ? { replyAct: mappedReplyAct as NonNullable<Atom['replyAct']> }
+              : {}),
             fields: {
               ...located,
               ...(mappedFields as Record<string, unknown>),

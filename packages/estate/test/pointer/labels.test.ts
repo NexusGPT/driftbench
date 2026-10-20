@@ -153,7 +153,20 @@ describe('the shipped set and the hazards it names', () => {
     for (const label of hazards) {
       expect(label.atom?.situation).toBeTruthy();
       expect(label.atom?.evidence).toEqual([
-        { type: 'custom', name: 'hazard_recovery', options: { hazard: label.atom?.fields?.hazard } },
+        {
+          type: 'custom',
+          name: 'hazard_recovery',
+          options: {
+            hazard: label.atom?.fields?.hazard,
+            reread: '$paths',
+            'rereadSelf?': '$has.reread-self',
+            'calls?': {
+              each: '$commands',
+              item: { label: 'Bash', input: { command: { contains: '$item' } } },
+            },
+            'retry?': '$has.retry',
+          },
+        },
       ]);
     }
   });
