@@ -51,16 +51,17 @@ describe('the second bank beside the first', () => {
     expect(bank.every((e) => e.family?.startsWith('blind-') && e.id.startsWith('blind/'))).toBe(true);
   });
 
-  it('serves the cut operation from the reader port and fails an operation the port lacks', async () => {
+  it('binds the operations the reader serves and fails the others with the reason', async () => {
     const level = blindLevels(async () => referenceSut())[2];
     const measure = await level?.compute({ seed: 1, hidden: false, root: '.' });
     const bank = measure?.bank ?? [];
     const of = (family: string) => bank.filter((e) => e.family === family);
     expect(of('blind-cutting').length).toBeGreaterThan(0);
     expect(of('blind-cutting').every((e) => e.pass)).toBe(true);
+    expect(of('blind-scale').length).toBeGreaterThan(0);
     expect(of('blind-scale').every((e) => e.pass)).toBe(true);
-    expect(of('blind-labels').length).toBeGreaterThan(0);
-    expect(of('blind-labels').every((e) => !e.pass)).toBe(true);
+    expect(of('blind-links').length).toBeGreaterThan(0);
+    expect(of('blind-links').every((e) => !e.pass && /adapter gap/.test(e.detail ?? ''))).toBe(true);
   }, 120_000);
 
   it('reports the score of each label apart in the item listing', async () => {

@@ -174,6 +174,49 @@ describe('driftbench estate scan --pointer', () => {
     expect(await readFile(join(root, 'replayed.yaml'), 'utf8')).toContain('extraction: pointer');
   });
 
+  it('leaves unlabeled, and says so, the units on which the three runs of system 2 disagree', async () => {
+    const root = await estate();
+    // The second ask of a window holding the "Close" unit (system 1 is torn on it) calls it a prohibition.
+    const asks = new Map<string, number>();
+    const wavering: FetchLike = async (url, init) => {
+      const response = await services(url, init);
+      if (url.includes('systemone')) return response;
+      const content =
+        (JSON.parse(String(init.body)).messages as Array<{ content: string }>)[0]?.content ?? '';
+      const close = unitsOf(content).find(([, line]) => line.startsWith('Close'))?.[0];
+      if (close === undefined) return response;
+      const seen = (asks.get(content) ?? 0) + 1;
+      asks.set(content, seen);
+      if (seen !== 2) return response;
+      const payload = (await response.json()) as { content: Array<{ text: string }> };
+      const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
+        labels: Array<{ units: string; label: string }>;
+      };
+      for (const entry of text.labels) if (entry.units === String(close)) entry.label = 'prohibition';
+      payload.content[0] = { type: 'text', text: JSON.stringify(text) } as { text: string };
+      return new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      {
+        out: 'split.yaml',
+        pointer: true,
+        cassette: 'split.jsonl',
+        record: true,
+        ledger: 'ledger.json',
+        jobs: '1',
+      },
+      io,
+      { env: KEYS, fetch: wavering },
+    );
+    expect(code).toBe(0);
+    expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
+  });
+
   it('builds atoms from the labels the classes decided, quoting the file', async () => {
     const root = await estate();
     await record(root);
