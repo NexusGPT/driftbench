@@ -6,7 +6,9 @@ import { truthPointer } from '../../src/ladders/estate/truth-pointer';
 
 const PATH = 'references/notes.md';
 /** A reference of 250,000 characters: five paragraphs of 50,000 characters under one heading. */
-const HUGE = ['# Notes', ...Array.from({ length: 5 }, (_, i) => `${String(i)} ${'x'.repeat(50_000)}`)].join('\n\n');
+const HUGE = ['# Notes', ...Array.from({ length: 5 }, (_, i) => `${String(i)} ${'x'.repeat(50_000)}`)].join(
+  '\n\n',
+);
 
 /** The requests of a scan as the planted bank reads them from the truth labeller's window log. */
 const requestsOf = (truth: ReturnType<typeof truthPointer>) =>
