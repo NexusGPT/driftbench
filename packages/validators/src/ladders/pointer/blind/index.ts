@@ -1,4 +1,4 @@
-import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../ladder';
+import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import type { PointerAdapter } from './bank';
 import { pointerBank, runItem } from './bank';
 

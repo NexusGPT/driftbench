@@ -1,4 +1,5 @@
 import { FAMILIES } from './specs/index';
+import { PROVENANCE_LABELS, provenanceOf } from './specs/provenance';
 import type { Need } from './specs/types';
 import { LEVELS } from './types';
 
@@ -34,7 +35,7 @@ export function renderCatalogue(): string {
   w('# Pointer validator bank: catalogue');
   w();
   w(
-    'Written blind from `docs/estate-pointer-reader.md` (revision 3 for the first bank items, revision 5 for the stack and the corrections) and `docs/validators.md` sections 1, 8, 10 and 12. Nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
+    'The first 402 items were written blind from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12; nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. Later maintainer commits changed some of those items and added others. The section Provenance names which, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
   );
   w();
   w(
@@ -58,6 +59,27 @@ export function renderCatalogue(): string {
   w(
     'Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.',
   );
+  w();
+  w('## Provenance');
+  w();
+  w(
+    '- **blind**: written from the design page alone, unchanged since (the commit that added the first 402 items).',
+  );
+  w(
+    '- **maintainer-repaired**: one of those 402, whose input, expected value or pass condition a later maintainer commit changed. Its blind record no longer holds.',
+  );
+  w(
+    '- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items). Never blind.',
+  );
+  w();
+  w('| Label | Items |');
+  w('|---|---|');
+  for (const label of PROVENANCE_LABELS)
+    w(
+      `| ${label} | ${FAMILIES.flatMap((f) => f.specs.map((x) => provenanceOf(`${f.id}.${x.key}`))).filter((x) => x === label).length} |`,
+    );
+  w();
+  w('`driftbench validate pointer --items` prints the score of each label apart.');
   w();
   w('## Levels');
   w();
@@ -139,14 +161,14 @@ export function renderCatalogue(): string {
       `Level \`${f.level}\`, default component \`${f.component}\`, default needs ${f.needs.join(', ')}. ${f.summary}`,
     );
     w();
-    w('| id | tier | generator | oracle | cause | component | needs |');
-    w('|---|---|---|---|---|---|---|');
+    w('| id | provenance | tier | generator | oracle | cause | component | needs |');
+    w('|---|---|---|---|---|---|---|---|');
     for (const s of f.specs) {
       const needs = (s.needs ?? f.needs).join(',');
       const comp = s.component ?? f.component;
       const seedFree = s.seedFree ? ' (seed-free)' : '';
       w(
-        `| \`${f.id}.${s.key}\` | ${s.tier} | ${cell(s.gen)}${seedFree} | ${cell(s.oracle)} | \`${s.cause}\` | ${comp} | ${needs} |`,
+        `| \`${f.id}.${s.key}\` | ${provenanceOf(`${f.id}.${s.key}`)} | ${s.tier} | ${cell(s.gen)}${seedFree} | ${cell(s.oracle)} | \`${s.cause}\` | ${comp} | ${needs} |`,
       );
     }
     w();

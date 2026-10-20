@@ -36,6 +36,8 @@ export type BankEntry = {
   cause?: string;
   /** Composite checks retain their item verdict but add no distinct-cause credit. Omitted means atomic. */
   causeKind?: CauseKind;
+  /** Who wrote the item and whether it was changed afterwards; a report scores each label apart. */
+  provenance?: string;
   pass: boolean;
   detail?: string;
 };

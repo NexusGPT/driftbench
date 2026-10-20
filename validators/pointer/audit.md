@@ -23,3 +23,8 @@ Each seat is a fresh helper with no tie to the builder. A seat writes only its o
 4. Planted bugs seat. Plants 20 known bugs, one at a time, in `packages/estate/src/pointer/`, and runs `driftbench validate pointer --seeds 1..3 --hidden --items --json` after each. The bank must lose at least one item per bug. A missed bug becomes a new item.
 
 The gate reads this file. `driftbench validate pointer --hardness` stays red until all four rows read `pass`.
+
+## Provenance of the two banks
+
+- The first bank (419 items): 332 are labelled blind, 70 maintainer-repaired and 17 maintainer-added. `CATALOGUE.md` lists the label of every item, and `driftbench validate pointer --items` prints the score of each label apart. Only the blind items carry the blind record; the other 87 do not.
+- The second bank (340 items, PR 759, helper record in `packages/validators/src/ladders/pointer/blind/CONTRACT.md`) is registered as the levels `blind-1` to `blind-5`, with the label `blind-bank-759`. Its reader binding serves only `cut` today; the items of every other operation fail until the reader port serves it. The cause reviewer and the cheater treat those failures as a gap of the binding, not as reader defects.

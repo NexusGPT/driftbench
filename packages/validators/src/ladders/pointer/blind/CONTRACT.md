@@ -187,11 +187,18 @@ need process isolation for hard termination and RSS limits.
 From the repository root:
 
 ```sh
-pnpm exec vitest run --config packages/validators/src/ladders/pointer/vitest.config.ts --maxWorkers=2
-pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/validators/src/ladders/pointer/index.ts
-pnpm exec biome check packages/validators/src/ladders/pointer
+pnpm exec vitest run --config packages/validators/src/ladders/pointer/blind/vitest.config.ts --maxWorkers=2
+pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/validators/src/ladders/pointer/blind/index.ts
+pnpm exec biome check packages/validators/src/ladders/pointer/blind
 ```
 
 On constrained shared machines, run each command through the assigned slot
 runner. Independent merge audits and the actual reader pilot remain pending in
 `validators/pointer/audit.md`.
+
+## Place in the pointer validator
+
+This bank sits under `pointer/blind` and is registered in the pointer validator as five levels `blind-1` to `blind-5`,
+after the levels of the first bank; its ids carry the prefix `blind/` and its families the prefix `blind-`, and its
+entries carry the provenance label `blind-bank-759`. `pointer/bank/blind.ts` binds the transport vocabulary above to
+the reader port. Only `cut` has a port call today; the items of every other operation fail until the port serves it.

@@ -20,6 +20,8 @@ export type BankRow = {
   cause: string | undefined;
   /** Author-declared repair scope. Composite checks are excluded only from cause counts. */
   causeKind?: CauseKind;
+  /** The provenance label of the item, when the bank names one. */
+  provenance?: string;
   /** One verdict per seed, in the order of the report's seeds. */
   perSeed: BankVerdict[];
   /** True when the item passed on every seed of the run. */
@@ -50,6 +52,8 @@ export type BankSummary = {
   failingWithoutCause: number;
   /** Distinct failing causes per family; every family of the bank is listed, 0 included. */
   failingCausesByFamily: Record<string, number>;
+  /** Items and items passing on every seed per provenance label; present only when the bank names labels. */
+  byProvenance?: Record<string, { size: number; passing: number }>;
   rows: BankRow[];
 };
 
@@ -84,6 +88,7 @@ export function bankSummary(report: LadderReport): BankSummary {
         tier?: Tier;
         cause?: string;
         causeKind?: CauseKind;
+        provenance?: string;
         pass: boolean;
       }[] = row.bank ?? [
         { id: row.id, component: report.component, family: LEVEL_FAMILY, pass: row.pass === true },
@@ -99,6 +104,7 @@ export function bankSummary(report: LadderReport): BankSummary {
         if (target.cause === undefined && entry.cause !== undefined) target.cause = entry.cause;
         if (entry.causeKind === 'composite' || target.causeKind === undefined)
           target.causeKind = entry.causeKind;
+        if (entry.provenance !== undefined) target.provenance = entry.provenance;
         target.perSeed[seedIndex] = entry.pass ? 'pass' : 'fail';
       }
     });
@@ -128,6 +134,14 @@ export function bankSummary(report: LadderReport): BankSummary {
       atomicFailures.filter((row) => row.family === family).map(causeKey),
     ).size;
   }
+  const byProvenance: Record<string, { size: number; passing: number }> = {};
+  for (const row of list) {
+    if (row.provenance === undefined) continue;
+    const slot = byProvenance[row.provenance] ?? { size: 0, passing: 0 };
+    slot.size += 1;
+    slot.passing += row.passEverySeed ? 1 : 0;
+    byProvenance[row.provenance] = slot;
+  }
   return {
     seeds,
     size: list.length,
@@ -139,6 +153,7 @@ export function bankSummary(report: LadderReport): BankSummary {
     failingComposite: failingRows.length - atomicFailures.length,
     failingWithoutCause: atomicFailures.filter((row) => causeKey(row).startsWith('item:')).length,
     failingCausesByFamily: sortKeys(causesByFamily),
+    ...(Object.keys(byProvenance).length > 0 ? { byProvenance: sortKeys(byProvenance) } : {}),
     rows: list,
   };
 }
@@ -186,6 +201,10 @@ export function formatItems(
   if (!options.blind)
     text +=
       'Cause counts are author-declared, not independently reviewed. Composite checks retain their item verdicts but add no cause credit.\n';
+  for (const [label, slot] of Object.entries(summary.byProvenance ?? {}))
+    text += `Provenance ${label}: ${slot.size} items, ${slot.passing} pass on every seed (score ${round(
+      slot.size === 0 ? 0 : slot.passing / slot.size,
+    )}).\n`;
   const header = ['Item', 'Tier', 'Level', 'Component', ...summary.seeds.map((seed) => `seed ${seed}`)];
   for (const family of families) {
     const members = summary.rows

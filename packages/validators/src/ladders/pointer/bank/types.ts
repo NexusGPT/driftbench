@@ -1,5 +1,6 @@
 import type { Rng } from '../kit/words';
 import type { PointerSut } from '../sut/port';
+import type { Provenance } from './specs/provenance';
 import type { Need } from './specs/types';
 
 /**
@@ -35,6 +36,8 @@ export type PointerItem = {
   cause: string;
   /** Omitted means author-declared atomic; a composite check contributes no distinct-cause credit. */
   causeKind?: CauseKind;
+  /** Who wrote the item and whether it changed afterwards. */
+  provenance?: Provenance;
   /** How the input is built and what the oracle checks, as printed in the catalogue. */
   gen: string;
   oracle: string;

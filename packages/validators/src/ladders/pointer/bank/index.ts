@@ -2,6 +2,7 @@ import { BANK_MIN_FAMILY, BANK_MIN_SIZE } from '../../../hardness';
 import type { Ladder } from '../../../ladder';
 import { resolveSut } from '../sut/adapter';
 import type { PointerSut } from '../sut/port';
+import { blindLevels } from './blind';
 import { adversarialRuns } from './families/adversarial';
 import { cuttingRuns } from './families/cutting';
 import { groupingRuns } from './families/grouping';
@@ -15,6 +16,7 @@ import { replayRuns } from './families/replay';
 import { scaleRuns } from './families/scale';
 import { bankLadder } from './ladder';
 import { FAMILIES } from './specs/index';
+import { provenanceOf } from './specs/provenance';
 import { fail, levelOf, type PointerItem, type Run } from './types';
 
 const RUNNERS: Record<string, Record<string, Run>> = {
@@ -48,6 +50,7 @@ export function pointerBank(): PointerItem[] {
         title: spec.title,
         cause: spec.cause,
         ...(spec.causeKind !== undefined ? { causeKind: spec.causeKind } : {}),
+        provenance: provenanceOf(`${family.id}.${spec.key}`),
         gen: spec.gen,
         oracle: spec.oracle,
         needs: spec.needs ?? family.needs,
@@ -76,9 +79,10 @@ export function missingRunners(): string[] {
   return missing;
 }
 
-/** The pointer validator under the hardness contract: the bank as a ladder of nine levels. */
+/** The pointer validator under the hardness contract: the bank as a ladder of nine levels, then five levels of the second, blind bank. */
 export function pointerBankLadder(resolve: () => Promise<PointerSut> = resolveSut): Ladder {
-  return bankLadder(pointerBank(), resolve);
+  const own = bankLadder(pointerBank(), resolve);
+  return { ...own, levels: [...own.levels, ...blindLevels(resolve)] };
 }
 
 /** The bank's shape against section 12.1: at least 300 items, no family under 20, every tier, unique ids. */

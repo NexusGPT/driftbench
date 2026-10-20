@@ -34,6 +34,7 @@ export function bankLadder(items: readonly PointerItem[], resolve: () => Promise
               tier: item.tier,
               cause: item.cause,
               ...(item.causeKind !== undefined ? { causeKind: item.causeKind } : {}),
+              ...(item.provenance !== undefined ? { provenance: item.provenance } : {}),
               pass: outcome.pass,
               detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${outcome.detail}. Fix: ${item.cause}`,
             });
