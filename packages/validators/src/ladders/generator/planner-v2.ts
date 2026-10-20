@@ -697,8 +697,9 @@ function hostileItems(module: string): BankItem[] {
 const BENCHMARK: Shape = { name: 'benchmark', tier: 3, axes: 6, detail: false, rules: [3], forbids: 0 };
 
 function benchmarkItems(module: string): BankItem[] {
-  return [30, 50, 90].map((percent) => ({
-    id: `planner.seeds-reduce-new-rows.${percent}`,
+  return ([30, 50, 75, 90] as const).map((percent) => ({
+    // R8 names a "mostly-covered" case without a number: it is 75 percent here, between half and ninety.
+    id: `planner.seeds-reduce-new-rows.${percent === 75 ? 'mostly' : percent}`,
     family: FAMILY,
     tier: 3 as Tier,
     level: LEVEL,
