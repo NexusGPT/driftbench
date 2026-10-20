@@ -7,7 +7,6 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -51,7 +50,8 @@ beforeAll(() => {
   mkdirSync(join(work, 'oracle'));
   oracle = join(work, 'oracle', 'expected.json');
   writeFileSync(oracle, '137');
-  outside = realpathSync(mkdtempSync(join(tmpdir(), 'frame-rev5-outside-')));
+  // Inside the repository, as the review had it, so that the loader of run C (resolved from its working folder) is found.
+  outside = realpathSync(mkdtempSync(join(repo, 'packages', 'validators', 'test', 'frame', 'zz-rev5-')));
   writeFileSync(join(outside, 'pnpm-workspace.yaml'), 'packages: []\n');
   tsconfig = join(outside, 'tsconfig.json');
   writeFileSync(tsconfig, tsconfigBefore);
