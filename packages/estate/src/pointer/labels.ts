@@ -193,7 +193,7 @@ export type SpanAnswer = { kind: string; from: number; to: number; polarity?: st
 
 /** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
 export type SpanInput = { kind: string; polarity?: string } & (
-  | { from: number; to: number }
+  | { from: number; to: number; unlocated?: string }
   | { text: string }
 );
 
@@ -338,7 +338,8 @@ export function locateSpanText(
 
 /**
  * Turns the spans a labeler wrote as words into offsets, so the words never reach a cassette. A text that cannot
- * be located becomes an offset pair that no unit holds, which the check of the answer refuses.
+ * be located becomes an offset pair that no unit holds, with the reason code gave, and the check of the answer
+ * refuses it with that reason.
  */
 export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
   return entries.map((entry) => {
@@ -352,7 +353,9 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
           return span;
         const { text, ...rest } = span;
         const found = locateSpanText(flatten(unit.text).text, text);
-        return 'reason' in found ? { ...rest, from: -1, to: -1 } : { ...rest, ...found };
+        return 'reason' in found
+          ? { ...rest, from: -1, to: -1, unlocated: found.reason }
+          : { ...rest, ...found };
       }),
     };
   });
@@ -401,6 +404,7 @@ function checkExtras(
         if ('reason' in found) return `${where}: ${found.reason}`;
         ({ from, to } = found);
       } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+        if ('unlocated' in span && typeof span.unlocated === 'string') return `${where}: ${span.unlocated}`;
         ({ from, to } = span);
         if (from < 0 || to > shown.text.length || from >= to) {
           return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;

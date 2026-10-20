@@ -3,7 +3,10 @@ import {
   AGENT_RULES_SET,
   checkAnswer,
   expandUnits,
+  type Labelled,
   type LabelSet,
+  locateSpanText,
+  offsetSpans,
   parseLabelSets,
   setHash,
 } from '../../src/pointer';
@@ -414,6 +417,74 @@ describe('spans and links in a label set', () => {
       context,
     );
     expect(past.refusals[0]).toMatch(/offsets leave the unit/);
+  });
+
+  it("finds the words of a clause once, without regard to case, and keeps the unit's own offsets", () => {
+    const accepted = check({ spans: [{ kind: 'act', text: 'READ the log first' }] });
+    expect(accepted.refusals).toEqual([]);
+    expect(accepted.accepted.get(1)?.spans).toEqual([{ kind: 'act', from: 0, to: 18 }]);
+    const lines = {
+      ...window,
+      units: [{ n: 1, text: 'When the tide is out,\n    close the lower gate.', index: 0 }],
+    };
+    const wrapped = checkAnswer(
+      set,
+      lines,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'act', text: 'tide is out, close the' }] }],
+      context,
+    );
+    expect(wrapped.refusals).toEqual([]);
+    const kept = wrapped.accepted.get(1)?.spans?.[0];
+    expect(lines.units[0]?.text.slice(kept?.from, kept?.to)).toBe('tide is out,\n    close the');
+  });
+
+  it('refuses words found twice in the unit, and words that are not in it, each with its own reason', () => {
+    const twice = check({ spans: [{ kind: 'act', text: 'it' }] });
+    expect(twice.accepted.size).toBe(0);
+    expect(twice.refusals).toEqual([expect.stringContaining('the text is found twice in the unit')]);
+    const absent = check({ spans: [{ kind: 'act', text: 'Never edit the log' }] });
+    expect(absent.accepted.size).toBe(0);
+    expect(absent.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
+    const empty = check({ spans: [{ kind: 'act', text: '' }] });
+    expect(empty.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
+  });
+
+  it('locates words in a text: one place, none, or several', () => {
+    expect(locateSpanText('Read the log first.', 'THE LOG')).toEqual({ from: 5, to: 12 });
+    expect(locateSpanText('Read the log first.', 'zzz')).toEqual({ reason: 'the text is not in the unit' });
+    expect(locateSpanText('the log, the log', 'the log')).toEqual({
+      reason: 'the text is found twice in the unit',
+    });
+  });
+
+  it('turns the words of a span into offsets before the answer is recorded, and keeps the reason of a miss', () => {
+    const entries: Labelled[] = [
+      { units: '1', label: 'rule', spans: [{ kind: 'act', text: 'Never edit it' }] },
+      { units: '1', label: 'rule', spans: [{ kind: 'act', text: 'Fly the flag' }] },
+      { units: '1', label: 'rule', spans: [{ kind: 'act', text: 'it' }] },
+      { units: '2', label: 'remark' },
+      { units: '1-2', label: 'rule', spans: [{ kind: 'act', text: 'Never edit it' }] },
+      { units: '1', label: 'rule', spans: [{ kind: 'act', from: 0, to: 4 }] },
+    ];
+    const [found, absent, twice, plain, range, offsets] = offsetSpans(entries, window);
+    expect(found?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
+    expect(JSON.stringify(found)).not.toContain('Never edit it');
+    expect(absent?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' },
+    ]);
+    expect(twice?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
+    ]);
+    expect(plain).toEqual(entries[3]);
+    expect(range).toEqual(entries[4]);
+    expect(offsets).toEqual(entries[5]);
+    // The refusal that follows names why the words were not located, not a bad offset.
+    const refused = checkAnswer(set, window, [absent as Labelled], context);
+    expect(refused.accepted.size).toBe(0);
+    expect(refused.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
+    expect(refused.refusals[0]).not.toMatch(/offsets leave the unit/);
+    const accepted = checkAnswer(set, window, [found as Labelled], context);
+    expect(accepted.accepted.get(1)?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
   });
 
   it('refuses a span kind the set declares but the label does not list', () => {
