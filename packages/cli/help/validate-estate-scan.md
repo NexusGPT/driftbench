@@ -103,6 +103,8 @@ No word list and no grammar rule decides what is a rule.
 * The cassette keeps every labeler answer, keyed by the hash of the whole request and of what identifies it: the labeler, its model, the set, the versions of the prompt, the cut and the run.
   A changed prompt, set, model, labeler or cut misses, and the error names the field that differs from the
   nearest entry. A scan without `--record` never calls a labeler, so a replay needs no key and no network.
+  An answer that cannot be read after two asks is recorded as a failed window, so a replay lists the same window
+  with no call; delete that entry to ask again.
 * The answer is checked: a label not in the set, a unit not in the window, a unit named twice, a target that
   is no unit number, a target on `none` or where none is allowed, or choice probabilities that do not sum to 1
   is refused and listed (probabilities are never normalised). A unit no accepted answer names is counted as unlabeled.
@@ -150,6 +152,23 @@ and `state` and `questions` (one question per unit and label, keyed `u<n>__<labe
 yes or no model. An answer may add `model` and `usage` (`input_tokens`, `output_tokens`). A module exports an
 object, or a function that returns one, with `id`, `cls` (`system1` or `system2`), `label(request)` and
 optionally `model` and `family`; it is your code and runs in this process.
+
+Check a labeler of your own with the contract suite, `@agent-nexus/driftbench-estate/labeler-contract`, in a
+vitest test file. `labelerContract(name, make, { cls, broken?, malformed? })` registers one test per check:
+the labeler names itself (an id, its class, a model), renders the same bytes every time under its own id,
+records every answer and replays them with no call and the same ledger, and puts its id in every cassette
+key. With `broken`, a transport that fails is a failed window and records nothing. With `malformed`, an
+answer of the wrong shape is a failed window, recorded as unreadable. `make({ replayOnly })` builds the
+labeler; with `replayOnly: true` it must have no `call`.
+
+```ts
+import { labelerContract } from '@agent-nexus/driftbench-estate/labeler-contract';
+import { pointer } from '@agent-nexus/driftbench-estate';
+
+labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http://127.0.0.1:8080/label', cls: 'system2', ...mode }), {
+  cls: 'system2',
+});
+```
 
 `estate lint`:
 
