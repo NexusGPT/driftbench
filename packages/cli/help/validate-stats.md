@@ -21,19 +21,20 @@ each estimator, draws from a population whose truth is known, counting how often
 truth, whether planted variance shares are recovered, whether unseen-mass estimates match the true
 covered probability, and whether a predicted power matches the simulated one.
 
-The ladder (version 3), from `driftbench validate stats`:
+The ladder (version 4), from `driftbench validate stats`:
 
 | Level | Id | Name | Items | Families |
 |---|---|---|---|---|
 | 1 | `reference` | reference values | 31 | reference |
 | 2 | `degenerate` | degenerate inputs | 201 | degenerate-domain, degenerate-empty, degenerate-nonfinite, degenerate-single-equal |
 | 3 | `reproducibility` | reproducibility | 22 | reproducibility |
-| 4 | `analytic` | analytic truth | 494 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
-| 5 | `simulation` | simulation coverage | 40 | coverage-simulation, product |
+| 4 | `analytic` | analytic truth | 613 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
+| 5 | `simulation` | simulation coverage | 42 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
+| 8 | `capabilities` | new capabilities | 328 | newcap-bayes, newcap-classification, newcap-descriptive, newcap-design, newcap-distance, newcap-effectsize, newcap-exacttests, newcap-multiplicity, newcap-sequential |
 
-904 items in all (counted from `--items --json` on seed 1). What each level asks:
+1353 items in all (counted from `--items --json` on seed 1). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
@@ -53,8 +54,10 @@ The ladder (version 3), from `driftbench validate stats`:
   a scale of the data leaves unchanged to 1e-6.
 * `roadmap`: methods the research dossiers name that a product page needs, matching scipy, degenerate-safe
   and scaling.
+* `capabilities`: functions `docs/statistics` defines and the package lacks, matching exact references and
+  refusing invalid input.
 
-Ladder version 3 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 3 adds items for defects and for statistics the docs define and the package lacks; the stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
+The floor of ladder version 4 is 3, the level the repository's own package reaches on seeds 1 to 20 and the hidden seed (levels 1 to 3 pass; level 4 holds the failing items). The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 187 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
 
 ## When to use it
 
@@ -155,22 +158,23 @@ pnpm -s driftbench validate stats
 ```
 
 ```text
-Validator stats (ladder version 3)
+Validator stats (ladder version 4)
 Level  Name                 Metric                                                                                      Threshold  seed 1
 1      reference values     fixture groups matching scipy and numpy / groups                                            >= 1       1 pass
 2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases             >= 1       1 pass
 3      reproducibility      same seed same bits, other seed other draw, order invariance / items                        >= 1       1 pass
-4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       0.906883 FAIL (46)
+4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       0.998369 FAIL (1)
 5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                    >= 1       not run
 6      scale and stability  one-million-row calls under budget and shift-stable results / items                         >= 1       not run
 7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                 >= 1       not run
+8      new capabilities     functions docs/statistics defines and the package lacks, exact references, refusals / items  >= 1       not run
 Level per seed: 1 = 3
-Level of the run: 3 of 7, the minimum over 1 seed.
+Level of the run: 3 of 8, the minimum over 1 seed.
 Floor: 0. At or above the floor.
-Items of the first failing level: 46 items, every one a defect item or a missing statistic (see below).
+Items of the first failing level: 1 item, every one a defect item or a missing statistic (see below).
 ```
 
-It exited 3, the level reached: the 46 items of ladder version 3 for sweep defects and for four statistics the docs define fail until the stats-fix pull requests land. The hardness measurement of this bank is in
+It exited 3, the level reached: the failing items of ladder versions 3 and 4 (sweep defects, statistics the docs define, and the weights family) fail until the stats-fix pull requests land. The hardness measurement of this bank is in
 `validate-executor-loop`.
 
 ## Common errors

@@ -57,9 +57,9 @@ function stub(
 }
 
 describe('blind pointer bank harness', () => {
-  it('has 340 unique items, at least 30 per requested family, every tier and level, causes and citations', () => {
-    expect(bank).toHaveLength(340);
-    expect(new Set(bank.map((i) => i.id)).size).toBe(340);
+  it('has 341 unique items, at least 30 per requested family, every tier and level, causes and citations', () => {
+    expect(bank).toHaveLength(341);
+    expect(new Set(bank.map((i) => i.id)).size).toBe(341);
     const families = [
       'cutting',
       'ids',
@@ -74,12 +74,14 @@ describe('blind pointer bank harness', () => {
       'adversarial',
     ];
     for (const family of families)
-      expect(bank.filter((i) => i.family === family)).toHaveLength(family === 'labels' ? 40 : 30);
+      expect(bank.filter((i) => i.family === family)).toHaveLength(
+        family === 'labels' ? 40 : family === 'adversarial' ? 31 : 30,
+      );
     for (const n of [1, 2, 3, 4, 5]) {
       expect(bank.some((i) => i.tier === n)).toBe(true);
       expect(bank.some((i) => i.level === n)).toBe(true);
     }
-    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 72, 72, 72]);
+    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 72, 72, 73]);
     for (const item of bank) {
       expect(item.cause.length).toBeGreaterThan(5);
       expect(item.design.length).toBeGreaterThan(0);
