@@ -148,25 +148,6 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     });
   });
 
-  it('declares the runtime tools as read or modify on a spec that checks hazard recovery, and on no other', () => {
-    const checking = [...byId.values()].filter((spec) => spec.rules?.custom?.hazard_recovery !== undefined);
-    expect(checking.length).toBeGreaterThan(0);
-    for (const spec of checking)
-      expect(spec.operations, spec.id).toEqual({
-        Agent: 'modify',
-        Edit: 'modify',
-        Glob: 'read',
-        Grep: 'read',
-        MultiEdit: 'modify',
-        NotebookEdit: 'modify',
-        Read: 'read',
-        Skill: 'modify',
-        Write: 'modify',
-      });
-    for (const spec of byId.values())
-      if (spec.rules?.custom?.hazard_recovery === undefined) expect(spec.operations, spec.id).toBeUndefined();
-  });
-
   it('writes the negative controls as specs: not loaded, silent, no act', () => {
     expect(only(byId, 'estate.p06').blocks[0]?.expect?.skills).toEqual([
       { name: 'invoice-reconcile', count: 0 },
@@ -508,6 +489,24 @@ describe('the committed suite', () => {
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+    // A spec that checks hazard recovery declares the runtime's tools as read or modify; no other spec has a table.
+    const written = [...specs(result).values()];
+    const checking = written.filter((spec) => spec.rules?.custom?.hazard_recovery !== undefined);
+    expect(checking.length).toBeGreaterThan(0);
+    for (const spec of checking)
+      expect(spec.operations, spec.id).toEqual({
+        Agent: 'modify',
+        Edit: 'modify',
+        Glob: 'read',
+        Grep: 'read',
+        MultiEdit: 'modify',
+        NotebookEdit: 'modify',
+        Read: 'read',
+        Skill: 'modify',
+        Write: 'modify',
+      });
+    for (const spec of written)
+      if (spec.rules?.custom?.hazard_recovery === undefined) expect(spec.operations, spec.id).toBeUndefined();
   }, 120_000);
 });
 
