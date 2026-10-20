@@ -11,7 +11,14 @@ import {
   PROMPT_VERSION,
   SCHEMA_VERSION,
 } from './labeler';
-import { type LabelSet, setHash, type Window } from './labels';
+import {
+  type LabelContext,
+  type LabelSet,
+  type LinkAnswer,
+  type SpanAnswer,
+  setHash,
+  type Window,
+} from './labels';
 import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
 import type { Labelling } from './stack';
 
@@ -35,6 +42,8 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
+  /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
+  atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
   onPlan?: (plan: PointerPlan) => void;
 };
@@ -72,6 +81,8 @@ export type LabelledUnit = {
   set: LabelSet;
   label: string;
   target?: { path: string; index: number; unit: Unit; id: string };
+  spans?: SpanAnswer[];
+  links?: LinkAnswer[];
   source: string;
   by?: LabelerClass;
 };
@@ -109,6 +120,8 @@ export type PointerResult = {
   unlabeled: number;
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
+  /** Units whose runs agreed on the label but not on the spans or links: they keep the label and lose both. */
+  spanSplit: number;
   refusals: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
@@ -188,6 +201,8 @@ type Task = {
   memberAt: number;
   window: Window;
   digest: string;
+  /** What the request lists for the links of the set. */
+  context: LabelContext;
   /** Which run of the same request, from 1. */
   run: number;
 };
@@ -196,7 +211,7 @@ type Leaf = { window: Window; answer: Recorded; key: string };
 type TaskResult = { leaves: Leaf[]; failures: string[] };
 
 function readableFor(task: Task, window: Window) {
-  return readableOf(task.member.render(task.set, window), {
+  return readableOf(task.member.render(task.set, window, task.context), {
     path: window.path,
     window: window.id,
     promptVersion: PROMPT_VERSION,
@@ -244,6 +259,24 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
 
+  // What each set lists in its requests for its links: the atoms of the kinds a link kind may name.
+  const contexts = new Map<string, LabelContext>(
+    input.sets.map((set) => [
+      set.set,
+      {
+        candidates: Object.fromEntries(
+          (set.links ?? []).map((kind) => [
+            kind.name,
+            (input.atoms ?? [])
+              .filter((atom) => kind.to.includes(atom.kind))
+              .map((atom) => ({ id: atom.id, label: atom.title }))
+              .sort((a, b) => a.id.localeCompare(b.id)),
+          ]),
+        ),
+      },
+    ]),
+  );
+
   // 2. The requests: for each member, the windows that hold a unit that needs a label.
   const tasks: Task[] = [];
   for (const file of files) {
@@ -263,6 +296,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
               memberAt,
               window,
               digest: fileCut.digest,
+              context: contexts.get(set.set) as LabelContext,
               run,
             });
           }
@@ -285,7 +319,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     })),
   };
   for (const task of tasks) {
-    const wire = task.member.render(task.set, task.window);
+    const wire = task.member.render(task.set, task.window, task.context);
     const entry = plan.members[task.memberAt] as MemberPlan;
     entry.windows++;
     if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
@@ -298,7 +332,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   async function answerOf(task: Task, window: Window): Promise<{ answer: Recorded; key: string }> {
     const { member } = task;
-    const wire = member.render(task.set, window);
+    const wire = member.render(task.set, window, task.context);
     const readable = readableFor(task, window);
     try {
       const hit = cassette.get(wire, readable);
@@ -428,7 +462,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failed.push(...outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
-      const read = task.member.opinions(leaf.answer, task.set, leaf.window);
+      const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
       refusals.push(...read.refusals);
       const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
         task.run - 1
@@ -443,6 +477,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * that is missing or that differs leaves the member without an opinion, counted as a split when runs disagree.
    */
   let split = 0;
+  let spanSplit = 0;
   const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
     const given = runs.map((run) => run.get(index));
     const first = given[0];
@@ -455,8 +490,16 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       split++;
       return undefined;
     }
+    // The label and target are unanimous. Spans and links count only when every run gave the same: runs that
+    // differ on them lose them (no span, no ask) and keep the label.
+    const extras = (opinion: Opinion | undefined) => JSON.stringify([opinion?.spans, opinion?.links]);
+    const agree = given.every((opinion) => extras(opinion) === extras(first));
+    if (!agree) spanSplit++;
+    const { spans, links, ...rest } = first;
     return {
-      ...first,
+      ...rest,
+      ...(agree && spans ? { spans } : {}),
+      ...(agree && links ? { links } : {}),
       source: given.map((opinion) => opinion?.source ?? '').join('+'),
     };
   };
@@ -493,6 +536,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           source: decision.sources.length === 0 ? 'none' : `cassette:${decision.sources.join('+')}`,
           by: decision.by,
           ...(targetId ? { target: targetId } : {}),
+          ...(decision.spans ? { spans: decision.spans } : {}),
+          ...(decision.links ? { links: decision.links } : {}),
         };
       }
     }
@@ -530,6 +575,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           ...(targetUnit && found.target
             ? { target: { path: file.path, index: targetIndex, unit: targetUnit, id: found.target } }
             : {}),
+          ...(found.spans ? { spans: found.spans } : {}),
+          ...(found.links ? { links: found.links } : {}),
           source: found.source,
           ...(found.by ? { by: found.by } : {}),
         });
@@ -557,6 +604,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
     unlabeled,
     split,
+    spanSplit,
     refusals,
     failed,
     usage,

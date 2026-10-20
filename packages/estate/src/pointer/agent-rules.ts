@@ -18,6 +18,10 @@ export const AGENT_RULES_SET = `labels:
       - name: reply-rule
         description: A unit that sets the language, length, format, words or tone of the reader's reply.
         atom: { kind: register }
+      - name: condition
+        description: A unit that only says when another unit applies, such as a circumstance, a state of the world or a kind of request, and tells the reader nothing to do by itself. Give the unit it scopes as the target.
+        target: required
+        condition: true
       - name: example
         description: A unit that shows a case and is not itself an instruction.
       - name: description

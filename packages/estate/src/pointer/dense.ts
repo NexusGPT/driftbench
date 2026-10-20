@@ -7,21 +7,62 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { type Labeler, LabelerError, type Opinion, type Opinions, usageOf } from './labeler';
-import { checkAnswer, type Label, type Labelled, type LabelSet, type Window } from './labels';
+import {
+  checkAnswer,
+  flatten,
+  type Label,
+  type LabelContext,
+  type Labelled,
+  type LabelSet,
+  type Window,
+} from './labels';
 
 /**
  * The dense shape of a system 2 labeler: the whole numbered window in one request, one label per unit in the
  * answer, ranges allowed. Every word of a domain comes from the label set, never from the text here.
  */
 
-const squash = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const squash = (text: string): string => flatten(text).text;
+
+/** Added to the system text only for a set that declares spans or links, so other sets keep their requests. */
+export const SPAN_RULE =
+  'A label that lists span kinds may carry "spans": [{"kind", "from", "to", "polarity"?}] on an entry that names ONE unit: ' +
+  'from and to are character offsets into the text of that unit after "[n] ", to exclusive, and the slice is the clause. ' +
+  'Never write the clause. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
+
+/** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
+function spanLines(set: LabelSet, context: LabelContext): string[] {
+  const lines: string[] = [];
+  if (set.spans?.length) {
+    lines.push(
+      'SPAN KINDS:',
+      ...set.spans.map(
+        (kind) =>
+          `- ${kind.name}: ${kind.description}${kind.polarity ? ' (give "polarity": obligation or prohibition)' : ''}`,
+      ),
+    );
+  }
+  if (set.links?.length) {
+    lines.push('LINK KINDS:');
+    for (const kind of set.links) {
+      lines.push(`- ${kind.name}: ${kind.description}`);
+      for (const candidate of context.candidates?.[kind.name] ?? [])
+        lines.push(`    ${candidate.id}  ${candidate.label}`);
+    }
+  }
+  return lines;
+}
 
 function labelLine(label: Label): string {
   const examples = label.examples?.length
     ? ` Examples: ${label.examples.map((example) => JSON.stringify(example)).join('; ')}`
     : '';
-  const target = label.target ? ' (also give "target": the number of the unit that holds the other end)' : '';
-  return `- ${label.name}: ${label.description}${examples}${target}`;
+  const target = label.target
+    ? ' (also give "target": the number of the unit that holds the other end, as a JSON number)'
+    : '';
+  const spans = label.spans ? ` (may carry spans of kind ${label.spans.join(', ')})` : '';
+  const links = label.links ? ` (may carry links of kind ${label.links.join(', ')})` : '';
+  return `- ${label.name}: ${label.description}${examples}${target}${spans}${links}`;
 }
 
 /** The fixed text of the dense request. */
@@ -47,12 +88,13 @@ export function windowLines(window: Window): string[] {
   return window.units.map((unit) => `[${unit.n}] ${squash(unit.text)}`);
 }
 
-export function denseUser(set: LabelSet, window: Window): string {
+export function denseUser(set: LabelSet, window: Window, context: LabelContext = {}): string {
   return [
     `SET ${set.set}: ${set.description}`,
     'LABELS:',
     ...set.labels.map(labelLine),
     '- none: no label of this set applies.',
+    ...spanLines(set, context),
     `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
     ...windowLines(window),
   ].join('\n');
@@ -108,14 +150,26 @@ export function denseLabels(value: unknown): Labelled[] {
       units: String(entry.units),
       label: entry.label,
       ...(target === undefined || target === null ? {} : { target: target as number }),
+      // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
+      ...(entry.spans === undefined || entry.spans === null
+        ? {}
+        : { spans: entry.spans as Labelled['spans'] }),
+      ...(entry.links === undefined || entry.links === null
+        ? {}
+        : { links: entry.links as Labelled['links'] }),
     });
   }
   return out;
 }
 
 /** The opinions of a dense answer: one label per unit it named, a target as the index of the unit in the file. */
-export function denseOpinions(answer: Recorded, set: LabelSet, window: Window): Opinions {
-  const checked = checkAnswer(set, window, answer.labels ?? []);
+export function denseOpinions(
+  answer: Recorded,
+  set: LabelSet,
+  window: Window,
+  context: LabelContext = {},
+): Opinions {
+  const checked = checkAnswer(set, window, answer.labels ?? [], context);
   const byUnit = new Map<number, Opinion>();
   for (const unit of window.units) {
     if (!checked.covered.has(unit.n)) continue;
@@ -124,6 +178,8 @@ export function denseOpinions(answer: Recorded, set: LabelSet, window: Window): 
     byUnit.set(unit.index, {
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
+      ...(accepted?.spans ? { spans: accepted.spans } : {}),
+      ...(accepted?.links ? { links: accepted.links } : {}),
     });
   }
   return { byUnit, refusals: checked.refusals };
@@ -157,14 +213,14 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     runs: options.runs ?? DEFAULT_RUNS,
     settings: {},
     maxUnits: (_set, wanted) => wanted,
-    render: (set, window) => ({
+    render: (set, window, context) => ({
       labeler: 'anthropic',
       body: {
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: DENSE_SYSTEM,
-        messages: [{ role: 'user', content: denseUser(set, window) }],
+        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),
     opinions: denseOpinions,
@@ -174,7 +230,10 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     ...labeler,
     async call(wire, _set, _window, attempt = 1) {
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
-      const body = attempt > 1 ? { ...wire.body, system: `${DENSE_SYSTEM} ${RETRY_NOTE}` } : wire.body;
+      const body =
+        attempt > 1
+          ? { ...wire.body, system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}` }
+          : wire.body;
       const payload = await postJson(
         `${base}/v1/messages`,
         { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
