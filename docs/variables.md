@@ -216,6 +216,17 @@ Neither reaches 0.95. What the recording shows: The platform judge answers 0.26 
 
 The held-out result is under the 0.95 bar, so the claim that the feed finds planted conditions at 0.95 precision and recall is not shown with real systems. The errors were of three kinds: proposals that repeat an existing value (the reader scored that value just under 0.5), new cases matched to a neighbouring value, and a proposal on a clause that states no condition of the store; one planted value stayed unmatched.
 
+**A second round and a fresh batch.** A second tuning round used the 136 clauses of both halves (the first held-out half now counts as tuning data). It froze one more configuration, `frozen2`: system 2 is shown the titles of the existing values, and system 1 reads each proposed title against them and refuses a proposal it reads as an existing value. A cross-check (put a span in doubt when system 2 sees a neighbouring case) was tried and left out: it raised precision by about 0.015 and cost 0.06 of recall. On the 136 clauses `frozen2` scored 0.945 precision and 0.937 recall (tuned on). A blind writer then wrote 73 new clauses (`heldout-clauses-2.json`) that nothing had seen, and `frozen2` was run on them once:
+
+| Set | Clauses | Planted values | Assigned | Correct | Precision | Recall |
+|---|---|---|---|---|---|---|
+| First round, tuning half | 70 | 54 | 54 | 52 | 0.963 | 0.963 |
+| First round, first held-out half | 66 | 57 | 57 | 53 | 0.930 | 0.930 |
+| Second round, both halves (tuned on) | 136 | 111 | 110 | 104 | 0.945 | 0.937 |
+| Second round, fresh batch (measured once) | 73 | 60 | 61 | 50 | 0.820 | 0.833 |
+
+Status: the feed does not reach 0.95 precision and recall with the real systems. The best unbiased measurement is the fresh batch, 0.820 and 0.833. Two groups of errors account for most of it: a new case of a variable that system 1 reads as a neighbouring existing value (five clauses), and a value proposed under an existing variable for a clause that states no condition of the store (five clauses). Smaller groups are an existing value that system 1 did not recognise (three clauses) and a proposal refused as equivalent to an existing value (two clauses, one of them a real new case). Tuning gains on the tuning sets did not carry to new clauses, so the open question is not a threshold. The row stays open.
+
 Not built here: producing the spans. They come from the labels of the pointer reader (the condition label), which this feed takes as plain spans; until that reader is in, a caller supplies them.
 
 ## Impossible combinations

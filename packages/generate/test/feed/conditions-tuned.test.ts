@@ -44,6 +44,13 @@ describe('the frozen configuration, replayed from the recordings', () => {
     expect(run.score).toMatchObject({ assigned: 110, correct: 104, planted: 111 });
   });
 
+  it('second held-out batch (73 clauses, blind, measured once on frozen2): precision 0.820, recall 0.833', async () => {
+    const run = await replay('heldout-clauses-2.json', 'recording-heldout-2.json', 'frozen2');
+    expect(run.result.report.failed).toBe(0);
+    expect(run.score).toMatchObject({ assigned: 61, correct: 50, planted: 60 });
+    expect(run.score.correct / run.score.assigned).toBeLessThan(0.95);
+  });
+
   it('a recording that lacks a clause fails its span instead of calling a model', async () => {
     const systems = makeSystems({ reads: {}, proposals: {} });
     const run = await runConfig(
