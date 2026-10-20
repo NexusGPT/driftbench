@@ -24,7 +24,7 @@ permissions:
 # dispatch each get a group of their own, so no run on main ever cancels or replaces another.
 concurrency:
   group: validators-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') }}
 
 # Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
 # `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
@@ -34,7 +34,7 @@ concurrency:
 # hosted images carry, and under it the module-load tests of tools/perf exit 1.
 jobs:
   ladders:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ladders and floors
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
@@ -52,7 +52,7 @@ jobs:
         run: pnpm driftbench validate all --check-handover
 
   system-full:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
     name: system all 11 levels
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
