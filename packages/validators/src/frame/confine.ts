@@ -1,14 +1,17 @@
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   realpathSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, extname, join, relative, resolve } from 'node:path';
+import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findRoot } from '../root';
 import { FrameError } from './tape';
 import type { TwinPlan } from './twins';
@@ -106,22 +109,49 @@ function bundler(): { buildSync(options: Record<string, unknown>): unknown } {
   }
 }
 
+/** The source tree of a product: the folder of its module. More folders are named in `sources`. */
+export function productTree(module: string): string {
+  return dirname(resolve(module));
+}
+
+const under = (path: string, folder: string): boolean => path === folder || path.startsWith(folder + sep);
+
+export type Sealed = {
+  file: string;
+  /** Every file the bundle was built from. */
+  inputs: string[];
+  /** The source tree of the product, which the unconfined run must not change. */
+  tree: string;
+};
+
 /**
- * Bundles the product module with all it imports into `${into}/${name}.mjs` and returns that file. The folder holds
- * nothing else of the project, so a run that may read only this folder has the product and nothing around it. A
- * product that reads a file of its own through `import.meta.url` must be given that file in the run's grants.
+ * Bundles the product module with all it imports into `${into}/${name}.mjs`. The folder holds nothing else of the
+ * project, so a run that may read only this folder has the product and nothing around it. The bundle is built only
+ * from code of the product's own source tree, the extra trees named in `sources`, and the packages in a
+ * node_modules folder; a data file is bundled only when it is granted in `reads`. Any other import (a file of the
+ * validator, a file of expected values) is refused: bundled, it would reach every run as the product's own code.
+ * `import.meta.url` of the product is the URL of its original module, so a data file granted in `reads` is read from
+ * where it is.
  */
-export function seal(module: string, into: string, name: string): { file: string; inputs: string[] } {
+export function seal(
+  module: string,
+  into: string,
+  name: string,
+  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+): Sealed {
   if (!SOURCE.has(extname(module)))
     throw new FrameError(`the product ${module} is not a script the frame can bundle`);
   mkdirSync(into, { recursive: true });
   const outfile = join(realOf(into), `${name}.mjs`);
+  const base = findRoot(dirname(module));
   // The project's tsconfig maps the workspace packages to their sources, as the tsx loader reads it from the root.
-  const tsconfig = join(findRoot(dirname(module)), 'tsconfig.json');
+  const tsconfig = join(base, 'tsconfig.json');
+  const original = pathToFileURL(resolve(module)).href;
   let built: unknown;
   try {
     built = bundler().buildSync({
       metafile: true,
+      absWorkingDir: base,
       ...(existsSync(tsconfig) ? { tsconfig } : {}),
       entryPoints: [module],
       outfile,
@@ -130,6 +160,11 @@ export function seal(module: string, into: string, name: string): { file: string
       format: 'esm',
       target: 'node22',
       logLevel: 'silent',
+      define: {
+        'import.meta.url': JSON.stringify(original),
+        'import.meta.dirname': JSON.stringify(dirname(fileURLToPath(original))),
+        'import.meta.filename': JSON.stringify(fileURLToPath(original)),
+      },
       // A bundled CommonJS dependency calls require; the bundle is an ES module.
       banner: {
         js: "import { createRequire as __sealRequire } from 'node:module'; const require = __sealRequire(import.meta.url);",
@@ -141,49 +176,99 @@ export function seal(module: string, into: string, name: string): { file: string
   }
   const meta = (built as { metafile?: { inputs: Record<string, unknown> } }).metafile;
   const inputs = Object.keys(meta?.inputs ?? {})
-    .map((path) => resolve(findRoot(dirname(module)), path))
-    .filter((path) => existsSync(path));
-  return { file: outfile, inputs: [...new Set([resolve(module), ...inputs])] };
+    .map((path) => resolve(base, path))
+    .filter((path) => existsSync(path))
+    .map(realOf);
+  const tree = realOf(productTree(module));
+  const trees = [tree, ...(grants.sources ?? []).map((path) => realOf(resolve(path)))];
+  const granted = (grants.reads ?? []).map((path) => realOf(resolve(path)));
+  for (const input of inputs) {
+    if (/[\\/]node_modules[\\/]/.test(input)) continue;
+    const isGranted = granted.some((folder) => under(input, folder));
+    if (!isGranted && !trees.some((folder) => under(input, folder)))
+      throw new FrameError(
+        `the product imports ${input}, a file outside its source tree ${tree}: name its folder in \`sources\` if it is part of the product`,
+      );
+    if (!isGranted && !SOURCE.has(extname(input)))
+      throw new FrameError(
+        `the product imports ${input}, a data file: grant it in \`reads\`, or the file of expected values it may be is bundled into the product`,
+      );
+  }
+  return { file: outfile, inputs: [...new Set([realOf(resolve(module)), ...inputs])], tree };
 }
 
 /**
- * A guard on files the unconfined run C could write: the product's source and the files it is granted. Run C is
- * the user-shaped run and may read the expected values, so it must not be able to carry them to a later frame or a
- * later run by writing them into a file the confined runs read. The guard keeps the bytes at the start of the frame;
- * after each unconfined run `check` puts back any file that changed, and says which.
+ * A guard on everything the unconfined run C could write and a later run could read: the product's source tree, the
+ * trees it is built from, and every path it is granted. Run C is the user-shaped run and may read the expected
+ * values, so it must not carry them to a later run or frame by writing them into a file, or by creating one. The
+ * guard takes an inventory at the start (every file, recursively, with its bytes); `check` after an unconfined run
+ * puts back any file that changed, restores any that was removed, deletes any that was added, and says which.
  */
 export class SourceGuard {
-  private readonly saved = new Map<string, Buffer>();
+  private readonly saved = new Map<string, Buffer | string>();
+  private readonly roots: string[] = [];
+  private static readonly LIMIT = 20_000;
+  private static readonly BIG = 8 * 1024 * 1024;
 
   constructor(paths: readonly string[]) {
-    for (const path of paths) this.add(path);
-  }
-
-  private add(path: string): void {
-    try {
-      const stat = statSync(path);
-      if (stat.isDirectory()) {
-        for (const name of readdirSync(path)) if (name !== 'node_modules') this.add(join(path, name));
-      } else if (stat.isFile() && this.saved.size < 5000) this.saved.set(path, readFileSync(path));
-    } catch {
-      // a path that does not exist holds nothing to keep
+    for (const path of paths) {
+      if (!existsSync(path)) {
+        this.roots.push(path);
+        continue;
+      }
+      const real = realOf(path);
+      if (this.roots.some((root) => under(real, root))) continue;
+      this.roots.push(real);
+      this.scan(real, (file) => {
+        if (this.saved.size >= SourceGuard.LIMIT) return;
+        const bytes = readFileSync(file);
+        this.saved.set(file, bytes.length > SourceGuard.BIG ? createHash('sha256').update(bytes).digest('hex') : bytes);
+      });
     }
   }
 
-  /** The files that differ from the start, put back as they were. */
+  private scan(path: string, visit: (file: string) => void): void {
+    let stat: ReturnType<typeof statSync>;
+    try {
+      stat = statSync(path);
+    } catch {
+      return;
+    }
+    if (stat.isDirectory()) {
+      for (const name of readdirSync(path)) if (name !== 'node_modules' && name !== '.git') this.scan(join(path, name), visit);
+    } else if (stat.isFile()) visit(path);
+  }
+
+  /** The paths that differ from the start (added, removed or changed), put back as they were. */
   check(): string[] {
     const changed: string[] = [];
-    for (const [path, bytes] of this.saved) {
-      let now: Buffer | undefined;
-      try {
-        now = readFileSync(path);
-      } catch {
-        now = undefined;
-      }
-      if (now === undefined || !now.equals(bytes)) {
-        changed.push(path);
-        writeFileSync(path, bytes);
-      }
+    const now = new Set<string>();
+    for (const root of this.roots) {
+      if (!existsSync(root)) continue;
+      this.scan(root, (file) => {
+        now.add(file);
+        const was = this.saved.get(file);
+        if (was === undefined) {
+          rmSync(file, { force: true });
+          changed.push(`${file} (added)`);
+          return;
+        }
+        const bytes = readFileSync(file);
+        const same =
+          typeof was === 'string'
+            ? createHash('sha256').update(bytes).digest('hex') === was
+            : was.equals(bytes);
+        if (!same) {
+          changed.push(`${file} (changed)`);
+          if (typeof was !== 'string') writeFileSync(file, was);
+        }
+      });
+    }
+    for (const [file, was] of this.saved) {
+      if (now.has(file) || typeof was === 'string') continue;
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, was);
+      changed.push(`${file} (removed)`);
     }
     return changed;
   }

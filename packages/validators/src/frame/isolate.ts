@@ -61,6 +61,11 @@ export type IsolateOptions = {
   /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
   plain?: boolean;
   /**
+   * Source folders besides the product's own that the bundle may be built from (a workspace package the product
+   * imports). A file outside the product's tree and these folders is refused when the product is bundled.
+   */
+  sources?: string[];
+  /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
    */
@@ -196,9 +201,16 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
-  const { file: sealed, inputs } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  const {
+    file: sealed,
+    inputs,
+    tree,
+  } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`), {
+    sources: options.sources ?? [],
+    reads: options.reads ?? [],
+  });
   // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
-  const guard = new SourceGuard([...inputs, ...(options.reads ?? [])]);
+  const guard = new SourceGuard([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
@@ -347,12 +359,16 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
-  const { file: sealed, inputs } = seal(
+  const {
+    file: sealed,
+    inputs,
+    tree,
+  } = seal(
     resolve(script),
     sealFolder,
     drawnFolder(options.seed, `bundle:${tag}:command`),
   );
-  const guard = new SourceGuard(inputs);
+  const guard = new SourceGuard([tree, ...inputs]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
