@@ -77,6 +77,8 @@ jobs:
     if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 45
+    env:
+      DRIFTBENCH_TIMING_TESTS: skip
     steps:
       - uses: actions/checkout@v7
         with:
@@ -107,7 +109,7 @@ jobs:
   train-gate:
     name: train gate
     if: always()
-    needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
+    needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard, timing]
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
@@ -143,7 +145,7 @@ jobs:
             fi
             # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
             for id in ${jobs_lc//,/ }; do
-              case ",bench,research-replay,build,python,comparison-replay,viewer-journey,guard,fast," in
+              case ",bench,research-replay,build,python,comparison-replay,viewer-journey,guard,timing,fast," in
                 *",$id,"*) ;;
                 *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
               esac
@@ -199,6 +201,8 @@ jobs:
       fail-fast: false
       matrix:
         node: [22, 24]
+    env:
+      DRIFTBENCH_TIMING_TESTS: skip
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -218,6 +222,25 @@ jobs:
       - run: pnpm docs:site:build
       - name: CLI smoke
         run: node packages/cli/dist/bin.js --version
+
+  timing:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',timing,'))
+    name: timing tests (hosted)
+    # Pinned to a GitHub-hosted machine: these tests compare processor time, and the ratio they assert on
+    # moves with the CPU (tools/ci/timing-tests.txt). Every other job skips them.
+    runs-on: ubuntu-latest
+    env:
+      DRIFTBENCH_TIMING_TESTS: only
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Timing tests, with the ratios printed
+        run: pnpm test --maxWorkers=2
 
   python:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
