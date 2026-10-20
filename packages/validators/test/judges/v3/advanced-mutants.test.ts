@@ -8,6 +8,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import * as base from '../../../../judges/src/labeller';
 import type * as analysis from '../../../../judges/src/labeller-analysis';
 import * as basics from '../../../../stats/src/basics';
+import * as special from '../../../../stats/src/special';
 import { judgesV3Bank } from '../../../src/ladders/judges/v3';
 
 /** One semantic defect at a time in an isolated copy; never write production. */
@@ -606,7 +607,7 @@ function isolatedCopy(mutation?: Mutation): Subject {
     }
     expect(copy[mutation.target]).not.toBe(sources[mutation.target]);
   }
-  const agreement = compile(copy.agreement, { './basics': basics });
+  const agreement = compile(copy.agreement, { './basics': basics, './special': special });
   return compile(copy.analysis, {
     './labeller': base,
     '@agent-nexus/driftbench-stats': { ...stats, ...agreement },
