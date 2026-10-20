@@ -1,0 +1,34 @@
+name: fleet probe python (hetzner-driftbench)
+
+# PROBE ONLY. Never merged: the PR carrying it is closed once its runs have been read.
+# The judged arm is the scrubbed-environment one: python/driftbench/tests/test_agent.py starts
+# sys.executable with only PATH and three DRIFTBENCH_* variables, so LD_LIBRARY_PATH is gone and the
+# interpreter must find libpython through its own embedded path.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: setup-python ${{ matrix.python }} (on hetzner-driftbench)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: hetzner-driftbench
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - name: Which runner, which tool cache
+        run: |
+          echo "runner.name=${{ runner.name }}"
+          echo "RUNNER_TOOL_CACHE=${RUNNER_TOOL_CACHE:-<unset>} AGENT_TOOLSDIRECTORY=${AGENT_TOOLSDIRECTORY:-<unset>}"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: With setup-python's environment
+        run: python -c 'import sys; print(sys.version)'
+      - name: With a scrubbed environment (the test_agent.py case)
+        run: env -i PATH="$PATH" "$pythonLocation/bin/python" -c 'import sys; print(sys.executable, sys.version)'
