@@ -15,12 +15,7 @@
   "evidence": {
     "judges": {
       "level": 20,
-      "seeds": [
-        "1",
-        "2",
-        "3",
-        "hidden"
-      ],
+      "seeds": ["1", "2", "3", "hidden"],
       "hiddenSeed": 336760492,
       "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
       "ladderVersion": 2
@@ -79,8 +74,8 @@
         "20",
         "hidden"
       ],
-      "hiddenSeed": 546684578,
-      "head": "d356da628f407896a6742852082d56d5f7240ebd",
+      "hiddenSeed": 889910927,
+      "head": "e7cc124fb91caf10c1246b8466a5ff69aa3a1fb2",
       "ladderVersion": 4
     },
     "system": {
