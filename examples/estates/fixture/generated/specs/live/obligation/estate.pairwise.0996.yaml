@@ -78,3 +78,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.supplier-email.a-draft-has-a-subject-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.a-draft-has-a-subject-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0996
+        values:
+          ask_class: chat
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D7_silence_or_burst
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

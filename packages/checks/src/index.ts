@@ -1,3 +1,4 @@
+export * as blame from './blame';
 /**
  * Machine checks. Each check reads one part of what a block expected and what was observed, and returns
  * verdicts with evidence: tool calls, forbidden tools, text, language, personal data, cards, stage,
@@ -6,6 +7,7 @@
  * checks users register. `defaultChecks()` returns them all, in the order the runner applies them.
  */
 
+export { ARGUMENT_ACCURACY_DIAGNOSTIC, ARGUMENT_ACCURACY_STEP } from './argument-accuracy';
 export { DEFAULT_CHECK_SET, SHIPPED_CHECKS } from './check-set';
 export { artifacts } from './checks/artifacts';
 export { budget } from './checks/budget';
@@ -82,6 +84,7 @@ export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';
 export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
 export { initializeShippedObjects } from './initialize';
+export * as placement from './placement';
 export { type AssertionResult, checkAssertion } from './support/assert';
 export { countAllows, describeCount } from './support/count';
 export { DETECT_DEFAULTS, type DetectOptions, detect, toDetectorCode } from './support/language';
@@ -124,5 +127,8 @@ export {
 export type { ReplayOutcome, ToolDeclaration, ToolReplayer } from './value-check/outcome';
 export { type Computation, evaluateFormula, type RecomputeCase } from './value-check/recompute';
 export type { StateDiffCase } from './value-check/state-diff';
+
+// The shipped policy/blame and policy/placement objects join the object registry with initializeShippedObjects(),
+// as the value-check policy does: a project object can then extend them by id.
 
 export const packageName = '@agent-nexus/driftbench-checks';

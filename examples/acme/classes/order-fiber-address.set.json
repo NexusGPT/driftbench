@@ -1,0 +1,595 @@
+{
+  "kind": "driftbench.class-set",
+  "class": "acme.order.fiber-address",
+  "class_hash": "f075d5ab8783",
+  "set": "2c9ce562b65c",
+  "items": [
+    {
+      "id": "r001",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I'd like to order the Fiber 1000 plan for 14 harbor road. It's been a busy day so far.",
+      "sha": "3d9e8f4cd5f792fb2402aaca0567c445bffc4e994168d5cb66eb02d6b25b914a"
+    },
+    {
+      "id": "r002",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "Hey, I'd like to order the Fiber 1000 plan for 14 harbor road.",
+      "sha": "db323b28347f373fd0b5c3c4ec55502ded379eabf2db5ccd882985ca57fc1f06"
+    },
+    {
+      "id": "r003",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I would like to place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville. Please proceed with the order.",
+      "sha": "370d74c034e45dcfcbe8d4160924fa7aee4d911122ce1a19ae3078b79e601899"
+    },
+    {
+      "id": "r004",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would like to order the Acme Fiber 1000 plan for 14 Harbor Rd, Acmeville; as a brief aside, my day has been pleasant so far.",
+      "sha": "80e187d4be036e80e97ebbe8b63e30f8255c2cf3928a3bc79489cf58054f2633"
+    },
+    {
+      "id": "r005",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "Order Fiber 1000 for 14 Harbor Rd, Acmeville.",
+      "sha": "9cc35cf3b6cda05b74505dd487b9ba6f9c127dcd3a2c2b1f00ac547b8dd295a1"
+    },
+    {
+      "id": "r006",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Hi, I'd like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. It's been a busy day, so I'm glad to get this sorted.",
+      "sha": "5e9b1e488054230d2c04a55d38496d660f5733de073ad426ff7fe23396f772d0"
+    },
+    {
+      "id": "r007",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "I'd like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville, and it's been a busy day.",
+      "sha": "da3c74b2fabfe5a8791060811e84f95ff9568c7fca0e9ac030a93adcaadb0c2b"
+    },
+    {
+      "id": "r008",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "Please order the Fiber 1000 plan at 14 harbor road.",
+      "sha": "e25ab29671f04c3036b8db8a0797ec3c171b1ac1694ff7905ef47f32bfc18457"
+    },
+    {
+      "id": "r009",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to sign up for Acme Fiber 1000 at 14 Harbor Road, Acmeville.",
+      "sha": "132c37d4cae4c13db9d35da1ba1ffa883f9b9f3a9f74a17a4a729d753c9e3620"
+    },
+    {
+      "id": "r010",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to order the Fiber 1000 plan. The service address is 14 Harbor Rd, Acmeville.",
+      "sha": "735608aec1ab364035eca983eb5f03518344f9784102127d1c7a2e07bf72819f"
+    },
+    {
+      "id": "r011",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "I'd love to get Acme Fiber 1000 ordered for 14 Harbor Road, Acmeville; today's been a bit of a whirlwind.",
+      "sha": "830349a06913cded0d357438ecdb2937b72eb9c4bc09d459434997096c3eba3e"
+    },
+    {
+      "id": "r012",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please place an order for the Fiber 1000 plan at 14 harbor road, Acmeville; as a brief aside, my day has been rather pleasant.",
+      "sha": "d28eafef342b674069ca2d97ff1721562391350f6093105f761e9918cccc03b5"
+    },
+    {
+      "id": "r013",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I’d like to get the Fiber 1000 plan. Set it up for 14 harbor road, please!",
+      "sha": "47b484c02b48a63e8f0c6c888c57e93610236cc7fb46a446e732c0c4590dd86d"
+    },
+    {
+      "id": "r014",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would like to place an order for the Acme Fiber 1000 plan at 14 Harbor Road, Acmeville. It has been a pleasant day so far.",
+      "sha": "a175e7668dea7269c8f95617b4bd1bb00e83fd9f7e69799a040020b94350eeed"
+    },
+    {
+      "id": "r015",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "Would you kindly arrange service for Acme Fiber 1000 at 14 Harbor Road, Acmeville?",
+      "sha": "3670f413d6306c61b41e30cbf8d85451e2039413ce1bcf575218ae7e2f922923"
+    },
+    {
+      "id": "r016",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I would like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. Thank you for your assistance.",
+      "sha": "b0f5dfcdbf27ec135543aa91e50461b3ba01a58cd01c989ce88188341d0f400e"
+    },
+    {
+      "id": "r017",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to get the Fiber 1000 plan installed at 14 harbor road.",
+      "sha": "ac1cf3838d3f25c01780837d39a5db01b56a163e7e924d3525cce3b31562c9eb"
+    },
+    {
+      "id": "r018",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville; my day's been fairly calm.",
+      "sha": "fa1c7e47600056c531ab4f6329900ed339dbe49e45d46a73ac3725f5b3de8a8f"
+    },
+    {
+      "id": "r019",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Hey, I’d like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville. It’s been a busy day, so I’m glad to get this sorted.",
+      "sha": "5df0a498b0ddcd5e2caff8427e980b14b874a27f3f44a46f4547bac89ad86466"
+    },
+    {
+      "id": "r020",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "Please place an order for the Fiber 1000 plan at 14 harbor road. I would be grateful if you could process this request.",
+      "sha": "e51e7531d8c1fdb71be007b06e7ab91ddc5b9a2e391f8f8790632aab364289bf"
+    },
+    {
+      "id": "r021",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "neutral",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "I'd like the Fiber 1000 plan at 14 harbor road.",
+      "sha": "9d90b67317069c414e14866fb0f2e3da28337fc2466af88e03e2587863fe3372"
+    },
+    {
+      "id": "r022",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Can I get signed up for the Fiber 1000 plan at 14 harbor road? It's been a bit of a whirlwind day over here.",
+      "sha": "8bd087fe3f0b6b1c5d317444ccf52a0b4fa11acfe86d0b120f08cdf9c06f0a21"
+    },
+    {
+      "id": "r023",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "Please order Acme Fiber 1000 for 14 Harbor Road, Acmeville.",
+      "sha": "b2ace2ccd0f0978cfc7a62cd4978094a1195e9584732db565a9a846fdbfd2e94"
+    },
+    {
+      "id": "r024",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "Kindly place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville.",
+      "sha": "2a6be3e1c672cacd8089e1e3a0c5d23251585df6ccc913841028f1164e438282"
+    },
+    {
+      "id": "r025",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "Please place an order for Acme Fiber 1000. The address for the service is 14 Harbor Road, Acmeville.",
+      "sha": "73de9cce511ef0e677fef4535c802e8b8648c7dc9c98c29e57e19b0273e0dfe8"
+    },
+    {
+      "id": "r026",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "casual",
+        "length": "terse",
+        "distractor": "none"
+      },
+      "text": "I'd like to get Fiber 1000 at 14 Harbor Rd, Acmeville.",
+      "sha": "dfabc7601d164ef4e6853d2009978f353fa205c13c9f28131afde5cfe9645a65"
+    },
+    {
+      "id": "r027",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Hey, I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville—it's been a busy day!",
+      "sha": "80dac7a7a5dc2bfb8c12298cc6545f312b935bf7903989497c40c7204b750f40"
+    },
+    {
+      "id": "r028",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville. My day has been a little hectic, but I’m taking a moment to handle this.",
+      "sha": "b871100c3ae209021306f29dd1189f064909888e72fc586ea96df1a985dcf826"
+    },
+    {
+      "id": "r029",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "Please arrange an order for Fiber 1000 service at 14 Harbor Rd, Acmeville.",
+      "sha": "2e8cfd371d1bf680ec65ff0ee5aedea9fa096463953b32c476f034af35a244d3"
+    },
+    {
+      "id": "r030",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please get me set up with the Fiber 1000 plan at 14 harbor road, and I'm having a pretty good day so far.",
+      "sha": "1cb257438a0abd0a7738788e63623fdd2bf0d2f3b8a9aca6b89178f291a9170f"
+    },
+    {
+      "id": "r031",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to order the Fiber 1000 plan from Acme for 14 harbor road. Please help me place the order.",
+      "sha": "050ef0f4c34df07bb64e039215dc3f4bc3748bcc3df5c0eb0f727c19e16a21fb"
+    },
+    {
+      "id": "r032",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please sign me up for the Fiber 1000 plan at 14 harbor road; it's been a long day.",
+      "sha": "9669d4a1d0f3d2947a54064a0912b593aa5964d66611dcceb9c7d44c81ee049c"
+    },
+    {
+      "id": "r033",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to get Acme Fiber 1000 set up at 14 Harbor Road, Acmeville.",
+      "sha": "e8d68cae4a034b0bf6d1b056600bf0ecc5867c8f61ee55cfc2bab2500211da59"
+    },
+    {
+      "id": "r034",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please arrange Acme Fiber 1000 service at 14 Harbor Road, Acmeville. My day has been fairly quiet so far.",
+      "sha": "0bea483ecfca6a4f6f62c686bec007ba6f6710c09b7583e7bc5a45e190120769"
+    },
+    {
+      "id": "r035",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "Please sign me up for Fiber 1000 at 14 Harbor Rd, Acmeville.",
+      "sha": "734f049dcd2be683b036a780af0bbb6d65b3bf7e77331727f34b55ca76e218f2"
+    },
+    {
+      "id": "r036",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Would you kindly place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville; as a brief aside, my day has been quite pleasant.",
+      "sha": "6f980877e5d6b0ad014b78c55d9fe21499f2561a5d43235f94ae5f4d23d65035"
+    },
+    {
+      "id": "r037",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "none"
+      },
+      "text": "Kindly place an order for the Fiber 1000 plan at 14 harbor road.",
+      "sha": "e1e20aad62e2ef716e48fd005cead4002fd57a44884133832c9f41e5c3a1d4fb"
+    },
+    {
+      "id": "r038",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "Hey, I'd like to order Acme Fiber 1000 at 14 Harbor Road, Acmeville. That's what I'm looking to get.",
+      "sha": "80f64ac54d18750c433c34c24f04b07c92d2eb715623e9d8a14342ca336e0fa7"
+    },
+    {
+      "id": "r039",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. My day has been quite pleasant.",
+      "sha": "f5994f28a2add6cc2ed576e790bdf437769886bb520b0b5df1b870220a515054"
+    },
+    {
+      "id": "r040",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would like to order Acme Fiber, specifically the Fiber 1000 plan, for 14 harbor road. It has been a pleasant day so far.",
+      "sha": "8591ea0205d7e6296368cae34eecc5bc1a374187893ebedb699952c9819ec57c"
+    },
+    {
+      "id": "r041",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Hey, I'd like to order the Fiber 1000 plan for 14 harbor road, Acmeville. My day's been pretty mellow so far.",
+      "sha": "00a2d5af4c59b3908c486701e14f69540ff22b6d67881b4685f9d303f04afcf7"
+    },
+    {
+      "id": "r042",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville. Please place the order.",
+      "sha": "e81474771bcfcde463aa2bdbdead19a4e0e615b991f55bac577641a7709cfaae"
+    },
+    {
+      "id": "r043",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "formal",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would be grateful if you could arrange Acme Fiber 1000 for 14 Harbor Road, Acmeville, and, as a brief aside, my day has been going well.",
+      "sha": "895343a062adddbc563b9662e4e3ab635d620c97f72c9f956bce266bc917b584"
+    },
+    {
+      "id": "r044",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "I'd like to get started with the Fiber 1000 plan at 14 harbor road. Please put in the order for me.",
+      "sha": "bb5b82ffb1a65ea4ed6ac971d0aead5936cfdb98c6f42d47337034fbc95f3d1d"
+    },
+    {
+      "id": "r045",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "casual",
+        "length": "one_sentence",
+        "distractor": "aside"
+      },
+      "text": "Can you sign me up for Acme Fiber 1000 at 14 Harbor Road, Acmeville—I'm running on coffee today.",
+      "sha": "247f98fb3ea5b14e830f3e8a3f38667b4a95897a8c426342f938cb30e5c20d26"
+    },
+    {
+      "id": "r046",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville. Kindly proceed with this request.",
+      "sha": "4ce124d8d65da73a931e68b7b0ff1e5bc0aeb728524e22cd34b4d8f913ba56e6"
+    },
+    {
+      "id": "r047",
+      "cell": {
+        "slot_surface": "s0",
+        "register": "neutral",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please arrange the Acme Fiber 1000 plan for 14 Harbor Road, Acmeville. My afternoon has been pretty busy, by the way.",
+      "sha": "52e622ef60487bf75214cb5018e52d0f41b20a48fee4db0c954606df6539d340"
+    },
+    {
+      "id": "r048",
+      "cell": {
+        "slot_surface": "s2",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I would like to order the Fiber 1000 plan from Acme for 14 harbor road. My day has been pleasant so far.",
+      "sha": "af1e4acca39fdc4deefd01dfd399f32a9ce4fca52f7d305b72f5cbd57a720c67"
+    },
+    {
+      "id": "r049",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "formal",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "Please arrange an order for the Acme Fiber 1000 plan at 14 Harbor Rd, Acmeville. My day has been rather peaceful so far.",
+      "sha": "78586358636c864203f6616be4c29371c0e4ae0d6f930497e95d8071642daa7d"
+    },
+    {
+      "id": "r050",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "aside"
+      },
+      "text": "I'd like to place an order for Acme Fiber 1000 at 14 Harbor Rd, Acmeville. It's been a hectic day, and this is one thing I can finally check off.",
+      "sha": "589f65885286b91a8d092ff70749854ce69214a0d3f91aebb6c806b324d284da"
+    },
+    {
+      "id": "r051",
+      "cell": {
+        "slot_surface": "s1",
+        "register": "casual",
+        "length": "multi_sentence",
+        "distractor": "none"
+      },
+      "text": "Hey, I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville. Thanks!",
+      "sha": "b3f9686e8a4574e17095e49696e04728851042b027288813f91032c93ef8fd47"
+    }
+  ],
+  "gate": {
+    "planned": 56,
+    "candidates": 101,
+    "accepted": 51,
+    "rejectedBy": {
+      "minimal_pair": 4,
+      "style": 6,
+      "near_duplicate": 35,
+      "slot_surface": 2,
+      "equivalence": 3
+    },
+    "unfilled": 5,
+    "coverage": {
+      "t": 2,
+      "covered": 44,
+      "required": 44,
+      "share": 1,
+      "missing": []
+    },
+    "vendi": 11.221315680788287
+  },
+  "produced_by": {
+    "realiser": "openai/gpt-6-luna",
+    "judge": "anthropic/claude-haiku-5-5",
+    "style": "anthropic/claude-haiku-5-5"
+  }
+}

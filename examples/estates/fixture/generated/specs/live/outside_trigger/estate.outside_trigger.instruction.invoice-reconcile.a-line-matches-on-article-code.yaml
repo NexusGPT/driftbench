@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.invoice-reconcile.a-line-matches-on-article-code
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.a-line-matches-on-article-code
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.invoice-reconcile.a-line-matches-on-article-code
+        values:
+          atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

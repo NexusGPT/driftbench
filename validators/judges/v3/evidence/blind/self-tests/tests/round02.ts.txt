@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createLabellerReplay,labelSetHash,labellerRequestKey} from '../candidate';
+const set={name:'version',labels:[{name:'A',description:'first'},{name:'B',description:'second'}]};
+const request={text:'exact text',labelSet:set,context:'context'};
+const entries=[{request,labellerId:'rater',answer:'A'}];
+const replay=createLabellerReplay(entries,'rater');
+assert.equal(replay.label(structuredClone(request)),'A');
+const before=structuredClone(request); request.labelSet.labels[0].description='changed';
+assert.equal(replay.label(before),'A'); assert.throws(()=>replay.label(request));
+assert.throws(()=>replay.label({...before,text:'different'}));
+assert.throws(()=>replay.label({...before,context:''}));
+assert.throws(()=>createLabellerReplay([{request:before,labellerId:'rater',answer:'A'},{request:before,labellerId:'rater',answer:'B'}],'rater'));
+assert.throws(()=>createLabellerReplay([{request:before,labellerId:'other',answer:'A'}],'rater').label(before));
+assert.match(labelSetHash(set),/^[a-f0-9]{64}$/);
+assert.notEqual(labellerRequestKey(before,'rater'),labellerRequestKey(before,'other'));
+console.log('round02 immutable replay passed');

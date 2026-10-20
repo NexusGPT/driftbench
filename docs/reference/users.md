@@ -2,7 +2,7 @@
 
 # Personas and red-team reference
 
-The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md). The page lists every field, generated from the zod schemas the CLI uses.
+The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a cassette for a simulated user defined in the blocks (`simulate --cassette`), a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md). The page lists every field, generated from the zod schemas the CLI uses.
 
 * Keys are as written below. An unknown key is an error.
 * Descriptions come from the schemas. An empty cell means the schema has no description for that field yet.
@@ -11,6 +11,7 @@ The files that drive a simulated or adversarial user: a persona and a recording 
 
 * [Persona](#persona)
 * [UserRecording](#userrecording)
+* [UserCassette](#usercassette)
 * [PackFile](#packfile)
 * [Phrasing](#phrasing)
 * [Phrasing world](#phrasing-world)
@@ -45,6 +46,16 @@ Recorded answers of a simulated user, replayed instead of calling a model.
 | `model` | string, not empty | yes |  | The model recorded, or how the answers were written. |
 | `persona` | string, not empty | yes |  | The persona id the answers belong to. |
 | `answers` | list of strings, each not empty, at least 1 item | yes |  | The answers, one per turn, in order. |
+
+## UserCassette
+
+Recorded responses of the simulated user, replayed instead of calling a model.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `family` | string, not empty | yes |  | The model family the responses were recorded from. |
+| `model` | string, not empty | yes |  | The model recorded. |
+| `entries` | map of string to string | yes |  | Each response, by the SHA-256 of its request (seed, occurrence, system, user and token cap). |
 
 ## PackFile
 

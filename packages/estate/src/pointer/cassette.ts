@@ -16,8 +16,13 @@ export type Recorded = {
   probabilities?: Record<string, number>;
   returnedModel: string;
   stopReason: string;
-  /** Set when the endpoint refused the request as too large: the scan halves the window and asks for each half. */
-  refused?: 'too_large';
+  /**
+   * `too_large`: the endpoint refused the request, and the scan halves the window and asks for each half.
+   * `unreadable`: the answer could not be read twice; the failure is recorded so a replay lists the same window.
+   */
+  refused?: 'too_large' | 'unreadable';
+  /** With `refused: 'unreadable'`: why the answer could not be read, so a replay lists the same failed window. */
+  error?: string;
   usage: { input: number; output: number };
 };
 
@@ -63,7 +68,11 @@ export class CassetteMiss extends Error {
   ) {
     super(
       nearest
-        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}`
+        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
+            differs.includes('cutDigest')
+              ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
+              : ''
+          }`
         : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry for the same file, window and set`,
     );
     this.name = 'CassetteMiss';

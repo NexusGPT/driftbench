@@ -147,6 +147,7 @@ export function generateEstateSuite(
     ...(input.sessions ? { sessions: input.sessions } : {}),
     seed,
     paths: options.paths,
+    ...(options.sections ? { sections: options.sections } : {}),
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
     files: new Set(options.files ?? mapFiles(input.map)),

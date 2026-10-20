@@ -170,3 +170,128 @@ metadata:
         phrase:
           dimension: stage_transition
           value: handover-to-closing
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-059
+        values:
+          behaviour: B-004
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: rule
+        rule: stage_transition=address-to-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-059
+        values:
+          behaviour: B-004
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: address-to-callback
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-callback-to-handover
+      to:
+        kind: rule
+        rule: stage_transition=callback-to-handover
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-callback-to-handover
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-callback-to-handover
+      to:
+        kind: rule
+        rule: callback_phone=given
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-callback-to-handover
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-059
+        values:
+          behaviour: B-004
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: callback-to-handover
+          stage: handover
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-handover-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=handover-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-handover-to-closing
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-059
+        values:
+          behaviour: B-004
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: handover-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

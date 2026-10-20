@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {selectLabellerThreshold as select} from '../candidate';
+const set={name:'s',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const obs=[{gold:'a',answer:'a',confidence:.9},{gold:'b',answer:'b',confidence:.8},{gold:'a',answer:'b',confidence:.2}];
+const x=select(obs,set,{thresholds:[.8,.3,0],minAccuracy:1,minCoverage:.5});assert.equal(x?.threshold,.3);assert.equal(x?.accepted,2);
+assert.equal(select(obs,set,{thresholds:[.3],minAccuracy:1,minCoverage:.8}),null);
+assert.equal(select(obs,set,{thresholds:[1],minAccuracy:0}),null);
+for(const value of [-.1,1.1,NaN,Infinity]) {
+assert.throws(()=>select(obs,set,{thresholds:[0],minAccuracy:value}));assert.throws(()=>select(obs,set,{thresholds:[0],minAccuracy:0,minCoverage:value}));
+}
+console.log('round09 empirical threshold selection passed');

@@ -55,9 +55,18 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
 
 /**
  * The top-level keys of the project config. `objects` holds project-layer objects written inline (a list of
- * object files); `driftbench object validate` reads it, and every reader here accepts it.
+ * object files); `driftbench object validate` reads it, and every reader here accepts it. The help check
+ * reads this list to require a description of each key.
  */
-const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins', 'prices', 'objects']);
+export const PROJECT_CONFIG_KEYS = [
+  'aggregates',
+  'scales',
+  'campaign',
+  'plugins',
+  'prices',
+  'objects',
+] as const;
+const KEYS: ReadonlySet<string> = new Set(PROJECT_CONFIG_KEYS);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;
