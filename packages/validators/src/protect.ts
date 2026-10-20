@@ -23,6 +23,7 @@ export const PROTECTED_PATHS = [
   'tools/bench-lint*',
   'packages/cli/src/commands/bench*',
   '.github/workflows/ci.yml',
+  'tools/ci/',
   '.github/workflows/bench-record.yml',
 ] as const;
 
