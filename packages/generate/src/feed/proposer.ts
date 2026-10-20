@@ -28,23 +28,26 @@ export type ModelProposerOptions = {
   id?: string;
   /** `existing`: a proposal goes under a listed variable, and the model answers null for any other kind of situation. Default `any`. */
   scope?: 'any' | 'existing';
+  /** `titles`: the prompt lists each value with its title, so the model sees what the existing values mean. Default `ids`. */
+  listing?: 'ids' | 'titles';
 };
 
 export function createModelProposer(
   port: ModelPort,
   options: ModelProposerOptions | string = {},
 ): ConditionProposer {
-  const { id, scope } =
+  const { id, scope, listing } =
     typeof options === 'string'
-      ? { id: options, scope: 'any' as const }
-      : { id: options.id, scope: options.scope ?? 'any' };
+      ? { id: options, scope: 'any' as const, listing: 'ids' as const }
+      : { id: options.id, scope: options.scope ?? 'any', listing: options.listing ?? 'ids' };
   const system = scope === 'existing' ? EXISTING_SYSTEM : SYSTEM;
   return {
     id: id ?? `${port.family}:${port.model ?? 'unknown'}`,
     async propose(clause, store) {
-      const listed = store.variables.map(
-        (variable) =>
-          `- ${variable.id}: ${variable.title} (values: ${variable.values.map((v) => v.id).join(', ')})`,
+      const listed = store.variables.map((variable) =>
+        listing === 'titles'
+          ? `- ${variable.id}: ${variable.title}\n${variable.values.map((v) => `    ${v.id}: ${v.title}`).join('\n')}`
+          : `- ${variable.id}: ${variable.title} (values: ${variable.values.map((v) => v.id).join(', ')})`,
       );
       const user = `Variables so far:\n${listed.join('\n')}\n\nClause:\n${clause}`;
       const text = await port.complete({ system, user, maxTokens: 2000 });

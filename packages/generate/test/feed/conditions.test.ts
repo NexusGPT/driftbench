@@ -474,3 +474,113 @@ describe('averageReader', () => {
     expect(out.x).toBeUndefined();
   });
 });
+
+describe('feedFromConditions: checking proposals against existing values', () => {
+  // A reader that says yes only to the question for `channel/email`, whatever the text, and no to the rest,
+  // unless the text is the clause itself (then it says no to everything).
+  const readerFor = (clause: string): ConversationReader => ({
+    id: 'check',
+    family: 'test',
+    async read(text, questions) {
+      return Object.fromEntries(
+        questions.map((q) => [q.name, { yes: text !== clause && q.name === 'channel/email' ? 0.9 : 0.04 }]),
+      );
+    },
+  });
+  const proposal: ConditionProposal = {
+    variable: { id: 'channel', title: 'the channel the conversation happens on' },
+    value: { id: 'mail', title: 'mail' },
+  };
+  const proposer: ConditionProposer = { id: 'p', propose: async () => proposal };
+  const run = async (checkProposals?: 'refuse' | 'match') => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    return feedFromConditions({
+      store: fixtureStore(),
+      spans: [span],
+      texts,
+      reader: readerFor(span.quote),
+      proposer,
+      options: { propose: 'no-yes', ...(checkProposals ? { checkProposals } : {}) },
+    });
+  };
+
+  it('without the check the proposal is written', async () => {
+    expect((await run()).report.outcomes[0]?.status).toBe('proposed');
+  });
+
+  it('"refuse" refuses a proposal that system 1 reads as an existing value, and keeps the store', async () => {
+    const { report, store } = await run('refuse');
+    expect(report.outcomes[0]?.status).toBe('refused');
+    expect(report.outcomes[0]?.reason).toContain('channel/email');
+    expect(store).toEqual(fixtureStore());
+  });
+
+  it('"match" takes the span under the existing value', async () => {
+    const { report, store } = await run('match');
+    expect(report.outcomes[0]).toMatchObject({ status: 'matched', values: ['channel/email'] });
+    const email = store.variables.find((v) => v.id === 'channel')?.values.find((v) => v.id === 'email');
+    expect(email?.provenance?.length).toBe(1);
+  });
+});
+
+describe('feedFromConditions: crossCheck', () => {
+  const yesToEmail = (title: string): ConversationReader => ({
+    id: 'x',
+    family: 'test',
+    async read(text, questions) {
+      return Object.fromEntries(
+        questions.map((q) => [
+          q.name,
+          { yes: q.name === 'channel/email' && (text === title || text.includes('Rule')) ? 0.9 : 0.04 },
+        ]),
+      );
+    },
+  });
+
+  it('puts a span in doubt when system 2 sees a new case of the variable that system 1 does not read as the value it took', async () => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    const proposer: ConditionProposer = {
+      id: 'p',
+      propose: async () => ({
+        variable: { id: 'channel', title: 'the channel the conversation happens on' },
+        value: { id: 'fax', title: 'fax' },
+      }),
+    };
+    const run = (crossCheck: boolean) =>
+      feedFromConditions({
+        store: fixtureStore(),
+        spans: [span],
+        texts,
+        reader: yesToEmail('never'),
+        proposer,
+        options: { crossCheck },
+      });
+    expect((await run(false)).report.outcomes[0]?.status).toBe('matched');
+    const checked = await run(true);
+    expect(checked.report.outcomes[0]?.status).toBe('unsure');
+    expect(checked.store).toEqual(fixtureStore());
+  });
+
+  it('keeps the match when system 1 reads the proposed title as the value it took', async () => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    const proposer: ConditionProposer = {
+      id: 'p',
+      propose: async () => ({
+        variable: { id: 'channel', title: 'the channel the conversation happens on' },
+        value: { id: 'fax', title: 'electronic mail' },
+      }),
+    };
+    const { report } = await feedFromConditions({
+      store: fixtureStore(),
+      spans: [span],
+      texts,
+      reader: yesToEmail('electronic mail'),
+      proposer,
+      options: { crossCheck: true },
+    });
+    expect(report.outcomes[0]?.status).toBe('matched');
+  });
+});

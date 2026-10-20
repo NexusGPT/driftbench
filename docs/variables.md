@@ -207,6 +207,15 @@ The report (`ConditionsReport`) holds the counts per status, `proposerCalls`, th
 
 Neither reaches 0.95. What the recording shows: The platform judge answers 0.26 to 0.5 to many clauses it means as no, so the default no threshold leaves them unsure; raising it to 0.5 was chosen after the first run, on the same clauses, and is not a held-out result. A clause that names a helper dispatch got a yes for two values at once (the invoice-difference clause also dispatches an agent). The test pins these numbers; they are not a bar.
 
+**A second measurement, with tuning.** A blind writer wrote 136 more clauses with labels, split by file into a tuning half (70 clauses) and a held-out half (66), in `dev-clauses.json` and `heldout-clauses-1.json` of the same folder. A label is `none` (the clause states no condition among the variables of the store, so any value assigned or proposed is a precision error), a value of the store, or `NEW` (a case of a variable the store has that equals none of its values; correct only when proposed under that variable). Each clause is read as a line inserted in the real file of an example estate. The configuration was tuned on the first half only and then frozen: the default question and a sharper one averaged (`averageReader`), a yes at an average of 0.5, system 2 called whenever no candidate got a yes, and a proposal accepted only under a variable the store has (`newVariables: false`). Measured, from the recordings the test replays:
+
+| Half | Clauses | Planted values | Assigned | Correct | Precision | Recall |
+|---|---|---|---|---|---|---|
+| Tuning (tuned on) | 70 | 54 | 54 | 52 | 0.963 | 0.963 |
+| Held-out (measured once) | 66 | 57 | 57 | 53 | 0.930 | 0.930 |
+
+The held-out result is under the 0.95 bar, so the claim that the feed finds planted conditions at 0.95 precision and recall is not shown with real systems. The errors were of three kinds: proposals that repeat an existing value (the reader scored that value just under 0.5), new cases matched to a neighbouring value, and a proposal on a clause that states no condition of the store; one planted value stayed unmatched.
+
 Not built here: producing the spans. They come from the labels of the pointer reader (the condition label), which this feed takes as plain spans; until that reader is in, a caller supplies them.
 
 ## Impossible combinations

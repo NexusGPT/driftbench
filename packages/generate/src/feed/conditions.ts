@@ -92,6 +92,18 @@ export type FeedConditionsInput = {
     propose?: 'all-no' | 'no-yes';
     /** False: a proposal under a variable the store lacks is refused (a new variable is the owner's call). Default true. */
     newVariables?: boolean;
+    /**
+     * After system 2 proposes a value under a variable the store has, system 1 reads the proposed value's title
+     * against every value of that variable. `refuse`: a yes refuses the proposal as equivalent to that value.
+     * `match`: a yes takes the span under that value instead. Default: no check.
+     */
+    checkProposals?: 'refuse' | 'match';
+    /**
+     * A span system 1 took is also put to system 2. When system 2 proposes a value under the same variable and
+     * system 1 does not read the proposed title as a value it took, the span is `unsure`, not matched: its
+     * condition may be a neighbour of the value, not the value. Default false.
+     */
+    crossCheck?: boolean;
   };
 };
 
@@ -171,6 +183,22 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
   const outcomes: ConditionOutcome[] = [];
   let proposerCalls = 0;
 
+  /** The values among `values` that system 1 reads `text` as (a decided yes). A failed read gives none. */
+  const readsAs = async (text: string, variable: Variable, values: readonly Value[]): Promise<Value[]> => {
+    const qs = values.map((value) => questionFor(variable, value, questionText));
+    if (qs.length === 0) return [];
+    try {
+      const answers = await reader.read(text, qs as ReaderQuestion[]);
+      return values.filter((_, i) => {
+        const q = qs[i] as YesNoQuestion;
+        const d = decide(q, answers[q.name], thresholds);
+        return d.kind === 'value' && d.value === 'yes';
+      });
+    } catch {
+      return [];
+    }
+  };
+
   for (const span of spans) {
     const why = refusal(span, texts);
     if (why !== undefined) {
@@ -209,6 +237,37 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
       return d?.kind === 'value' && d.value === 'yes';
     });
     if (taken.length > 0) {
+      if (input.options?.crossCheck === true && proposer !== undefined) {
+        proposerCalls++;
+        let alt: ConditionProposal | undefined;
+        try {
+          alt = await proposer.propose(span.quote, store);
+        } catch {
+          alt = undefined;
+        }
+        const near = alt === undefined ? [] : taken.filter((t) => t.variable.id === alt?.variable.id);
+        const first = near[0];
+        if (alt !== undefined && first !== undefined) {
+          const same =
+            near.some((t) => t.value.id === alt?.value.id) ||
+            (
+              await readsAs(
+                alt.value.title,
+                first.variable,
+                near.map((t) => t.value),
+              )
+            ).length > 0;
+          if (!same) {
+            outcomes.push({
+              span: span.id,
+              status: 'unsure',
+              values: [],
+              reason: `system 2 reads a neighbour of ${pair(first.variable, first.value)}, which system 1 does not read as that value`,
+            });
+            continue;
+          }
+        }
+      }
       for (const hit of taken) attach(hit.value, span);
       outcomes.push({
         span: span.id,
@@ -247,6 +306,25 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
     if (proposal === undefined) {
       outcomes.push({ span: span.id, status: 'unmatched', values: [] });
       continue;
+    }
+    const known = store.variables.find((variable) => variable.id === proposal.variable.id);
+    if (known !== undefined && input.options?.checkProposals !== undefined) {
+      const same = await readsAs(proposal.value.title, known, known.values);
+      const hit = same[0];
+      if (hit !== undefined) {
+        if (input.options.checkProposals === 'match') {
+          attach(hit, span);
+          outcomes.push({ span: span.id, status: 'matched', values: [pair(known, hit)] });
+        } else {
+          outcomes.push({
+            span: span.id,
+            status: 'refused',
+            values: [],
+            reason: `the proposal ${proposal.variable.id}/${proposal.value.id} reads as ${pair(known, hit)}`,
+          });
+        }
+        continue;
+      }
     }
     const next = structuredClone(store);
     const existing = next.variables.find((variable) => variable.id === proposal.variable.id);
