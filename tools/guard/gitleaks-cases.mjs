@@ -138,6 +138,18 @@ const cases = [
     false,
   ],
   [
+    'estate pointer cassette: a 64-hex key in JSONL',
+    'examples/estates/fixture-v2/cassette.jsonl',
+    `{"answer":{"n":1},"key":"${hex(64)}","readable":{"n":2}}`,
+    false,
+  ],
+  [
+    'a pointer cassette in another estate folder',
+    'examples/estates/other/cassette.jsonl',
+    `{"key":"${hex(64)}","v":2}`,
+    true,
+  ],
+  [
     'a settings-cassette in another folder',
     'examples/estates/other/settings-cassette.jsonl',
     `{"key":"${hex(64)}","v":2}`,
