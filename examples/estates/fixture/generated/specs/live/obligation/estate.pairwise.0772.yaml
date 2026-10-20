@@ -97,3 +97,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0772
+        values:
+          ask_class: chat
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.never-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

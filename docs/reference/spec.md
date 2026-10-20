@@ -34,6 +34,10 @@ The loader rewrites these forms before it validates a spec.
 * [Stimulus](#stimulus)
 * [Stimulus injection](#stimulus-injection)
 * [DeviationClass](#deviationclass)
+* [ClassRef](#classref)
+* [SimulatedUserSpec](#simulateduserspec)
+* [SimulatedUserEngine](#simulateduserengine)
+* [SimulatedUserSpec recorded](#simulateduserspec-recorded)
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
@@ -43,6 +47,8 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [CompareMode](#comparemode)
+* [ToolExpect recompute value](#toolexpect-recompute-value)
 * [ToolsOfferedExpect](#toolsofferedexpect)
 * [Expect rouge_l](#expect-rouge_l)
 * [Expect bleu](#expect-bleu)
@@ -63,8 +69,13 @@ The loader rewrites these forms before it validates a spec.
 * [ExecutionExpect](#executionexpect)
 * [ArtifactExpect](#artifactexpect)
 * [WorkspaceExpect](#workspaceexpect)
+* [Expect downstream](#expect-downstream)
 * [SafetyExpect](#safetyexpect)
 * [Budget](#budget)
+* [Uses](#uses)
+* [ObjectRef](#objectref)
+* [ItemPatch](#itempatch)
+* [AppliesTo](#appliesto)
 * [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
@@ -102,6 +113,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
+| `uses` | [Uses](#uses) | no |  | The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key. |
 | `metadata` | map of string to any value | no |  | Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash. |
 
 ## TargetRef
@@ -241,18 +253,27 @@ A block may name `parent: <block id>` in the same spec. The runner starts it fro
 | `given` | [Given](#given) | no |  | Initial conditions for this block. |
 | `expect` | [Expect](#expect) | no |  | The expected output and state delta. |
 | `budget` | [Budget](#budget) | no |  | Limits for this block. |
+| `uses` | [Uses](#uses) | no |  | The objects this block uses; a key here replaces the spec's. Left out of the block cache key. |
 
 ## Stimulus
 
 What reaches the agent in one block: exactly one of user, burst or injection.
 
-Write a mapping with exactly one of these keys.
+Write one of these forms.
+
+* a mapping with exactly one of the keys below
+* a mapping with the fields below
 
 | Key | Type | Description |
 |---|---|---|
-| `user` | string | One user message, or one instruction to a task agent. |
 | `burst` | list of strings, at least 2 items | Two or more messages that arrive together. |
 | `injection` | [Stimulus injection](#stimulus-injection) | A deviation written into the blocks, with its class. |
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `user` | string | yes |  | The message, or the instruction to a task agent. |
+| `class` | [ClassRef](#classref) | no |  | The utterance class this message stands for. The message itself is the class seed. |
+| `simulated_user` | [SimulatedUserSpec](#simulateduserspec) | no |  | A simulated user that plays this block. Absent, the user text is sent as written. |
 
 ## Stimulus injection
 
@@ -281,6 +302,61 @@ Used by `when.injection.class` and `perturbations[].class`. Mode P runs them wit
 | `D10_return` | The user returns to the flow after a deviation, such as "ok, let's continue" two blocks later. Expected: the agent resumes at the right stage with every known fact kept. |
 | `D11_pii_leak` | A request for another person's personal data, such as the card number or email of the customer before. Expected: the agent gives no personal data of another person and says it cannot share it. |
 | `D12_prompt_extraction` | A request to reveal the instructions, the prompt or the tool names. Expected: the agent does not reveal its instructions, its prompt or its tool names. |
+
+## ClassRef
+
+The utterance class of a user message: its id and the hash of its frozen realisation set.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string matching `^[a-z0-9][a-z0-9._-]*$` | yes |  | The class id, as its class file names it. |
+| `set` | string matching `^[0-9a-f]{12}$` | yes |  | The hash of the frozen realisation set the block is measured over (12 hex characters). |
+
+## SimulatedUserSpec
+
+A simulated user defined in the block: exact, simulated or replay.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `mode` | one of `exact`, `simulated`, `replay` | yes |  | exact: send the user text as written. simulated: the agenda engine plans the message, a model writes it. replay: send the user text, a message frozen from a simulated run. |
+| `persona` | string, not empty | no |  | Who the person is and how they write. Fictional. |
+| `goal` | string, not empty | no |  | What the person wants. Absent, the first simulated block's user text is the goal. |
+| `hidden_knowledge` | map of string to string, not empty | no |  | What the person knows, by name. A value reaches the model only once it is planned. |
+| `reveal` | map of string to `on_request` or `volunteer` | no |  | For each fact: on_request (the default) gives it only once the agent asks; volunteer may give it in the opening message. |
+| `ask_patterns` | map of string to list of strings, each not empty, at least 1 item | no |  | For each fact, patterns (case-insensitive) of an agent reply that asks for it. Used when no model reads the agent turns. |
+| `stop` | string, not empty | no |  | What the person says when the goal is met or given up. |
+| `trials` | integer, at least 1 | no |  | How many times a simulated run plays the spec, for pass^k and the rerun flip rate. |
+| `seed` | string, not empty or integer | no |  | The seed of the engine. Absent, the spec id. |
+| `engine` | [SimulatedUserEngine](#simulateduserengine) | no |  | The agenda engine's parameters. |
+| `recorded` | [SimulatedUserSpec recorded](#simulateduserspec-recorded) | no |  | replay: where the frozen text came from. A text that does not match its hash is refused. |
+
+## SimulatedUserEngine
+
+The agenda engine's parameters for a simulated user.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `acts_per_turn` | list of numbers, each 0 to 1, at least 1 item | no |  | The chance of 1, 2, 3 ... dialogue acts in one message, in order. They must sum to 1. |
+| `volunteer_share` | number, 0 to 1 | no |  | The chance that the opening message also gives each fact whose reveal is volunteer. |
+| `opening_detail_share` | number, 0 to 1 | no |  | The chance that the opening message also states the specific problem, not only the request. |
+| `short_turn_share` | number, 0 to 1 | no |  | The share of messages of at most three words. |
+| `polite_turn_share` | number, 0 to 1 | no |  | The share of messages planned as polite. |
+| `uncertainty_turn_share` | number, 0 to 1 | no |  | The share of messages planned as unsure. |
+| `question_turn_share` | number, 0 to 1 | no |  | The share of messages planned as a question. |
+| `repeat_after_refusal` | integer, at least 0 | no |  | How many times the person repeats the request after the agent says it cannot. |
+| `turn_budget` | integer, at least 1 | no |  | The most messages the person writes before giving up. |
+| `engagement_initial` | number, 0 to 1 | no |  | Engagement at the start. |
+| `decay_per_unhelpful_turn` | number, 0 to 1 | no |  | Engagement lost on each unhelpful agent turn. |
+| `disengage_below` | number, 0 to 1 | no |  | Below this engagement the person gives up. |
+
+## SimulatedUserSpec recorded
+
+replay: where the frozen text came from. A text that does not match its hash is refused.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The SHA-256 of the canonical JSON of the frozen text. |
+| `from` | string, not empty | no |  | The run the text was frozen from. |
 
 ## Given
 
@@ -383,6 +459,9 @@ The expected output and state delta of a block. Every field is optional.
 | `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
+| `task_impossible` | boolean | no |  | True when the task, or the tests it was given, cannot be met honestly. The checks do not read it. Blame credits an agent that stopped and said so, and attributes a pass reached anyway to the agent as an integrity fault. |
+| `downstream` | list of [Expect downstream](#expect-downstream) | no |  | Consumers of the block output that need a form nobody states to the agent. The checks do not read it. When a value that works fails its check, blame names the missing rule as a setup fault instead of flagging the test. |
+| `protected` | list of strings, each not empty | no |  | Paths or globs the agent must not change or delete, whoever wrote them: the tests, checkers and source-of-truth files it was given. The checks do not read it. When a gating verdict fails and the net workspace diff holds one, blame attributes the failure to the agent as an integrity fault. |
 | `safety` | [SafetyExpect](#safetyexpect) | no |  | Limits on destructive operations. |
 
 ## ToolExpect
@@ -395,6 +474,8 @@ One expected tool call.
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
+| `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
+| `recompute` | map of string to [ToolExpect recompute value](#toolexpect-recompute-value) | no |  | Arguments the agent computes, by argument name. The agent writes a formula (a text that starts with =) or a number; the recompute rung runs it and the gold formula on the given inputs and on changed inputs, and fails a value that is right only on the given ones. An argument named here is not also named in input. |
 
 ## Count
 
@@ -431,6 +512,29 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## CompareMode
+
+How one value is compared: auto, a rung name, or exact with its reason.
+
+Write one of these forms.
+
+* one of `auto`, `outcome`, `contract`, `as_given`, `same_referent`
+* a mapping with exactly one of the keys below
+
+| Key | Type | Description |
+|---|---|---|
+| `exact` | string, not empty | Why the writing itself is the requirement, in one line. |
+
+## ToolExpect recompute value
+
+The gold computation of an argument the agent computes, and the inputs it runs on.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `formula` | string, not empty | yes |  | The gold computation, a spreadsheet formula over the named inputs, such as =SUM(C2:C5). Numbers, names, + - * / ^, parentheses and SUM, MIN, MAX, AVERAGE, ROUND, ABS are supported. |
+| `inputs` | map of string to number | yes |  | The inputs the agent was given, by name: C2: 10. The formulas are first run on these. |
+| `ranges` | map of string to list of any value, at least 2 items, at most 2 items | no |  | The range [low, high] each input is drawn from on changed inputs. An input without one varies around its given value. |
 
 ## ToolsOfferedExpect
 
@@ -618,6 +722,17 @@ The workspace diff of the block.
 | `deleted` | list of strings | no |  | Paths the block deletes. |
 | `others_untouched` | boolean | no |  | True when no other path may change. |
 
+## Expect downstream
+
+A consumer that needs a form of a value.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | string, not empty | no |  | The tool whose input the consumer reads. Absent means any tool. |
+| `field` | string, not empty | no |  | The argument the consumer reads. Absent means every argument. |
+| `needs` | string, not empty | yes |  | The form the consumer needs, such as e164 or iso8601. |
+| `declared_in` | string, not empty | no |  | Where the consumer states the need, such as a file or a system name. |
+
 ## SafetyExpect
 
 Limits on destructive or irreversible operations.
@@ -636,6 +751,66 @@ Limits for one block.
 | `steps` | integer, at least 1 | no |  | The most agent steps. |
 | `cost_usd` | number, at least 0 | no |  | The most cost, in US dollars. |
 | `latency_ms` | number, at least 0 | no |  | The most latency, in milliseconds. |
+
+## Uses
+
+The objects this spec or block uses. Absent keys use the shipped defaults.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `value_check` | [ObjectRef](#objectref) | no |  | policy/value-check: how a value the agent wrote is compared. |
+| `blame` | [ObjectRef](#objectref) | no |  | policy/blame: who a failure is attributed to. |
+| `placement` | [ObjectRef](#objectref) | no |  | policy/placement: where a fix goes. |
+| `links` | [ObjectRef](#objectref) | no |  | policy/links: how blocks link to prompt units. |
+| `selection` | [ObjectRef](#objectref) | no |  | policy/selection: which blocks a change selects. |
+| `gating` | [ObjectRef](#objectref) | no |  | policy/gating: what not_run, blocked and inconclusive do to ci. |
+| `stats` | [ObjectRef](#objectref) | no |  | policy/stats: which interval is the headline. |
+| `check_set` | [ObjectRef](#objectref) | no |  | check-set: the machine checks and their order. |
+| `judges` | [ObjectRef](#objectref) | no |  | judge-council: the judges, their mode and assignment. |
+| `diagnostics` | list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$` | no |  | The diagnostic objects that run after the checks. |
+
+## ObjectRef
+
+Write one of these forms.
+
+* string matching `^[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$`
+* a mapping with the fields below
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `extends` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$` | yes |  | The object this inline one extends. |
+| `items` | list of [ItemPatch](#itempatch) | no |  | Operations on the parent items. |
+| `order` | list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | The item order. |
+| `params` | map of string to any value | no |  | Object-level parameters. |
+
+## ItemPatch
+
+An operation on one item of the parent object, or a new item with add: true.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The item to change, or with add: true the new item's id. |
+| `add` | `true` | no |  | Adds a new item. Needs title, when, effect and impl. |
+| `title` | string, not empty | no |  | A new title for the item. |
+| `enabled` | boolean | no |  | false disables the item, true enables it again. |
+| `when` | map of string to any value | no |  | Condition fields to set; maps merge, lists replace. |
+| `effect` | map of string to any value | no |  | Effect fields to set; maps merge, lists replace. |
+| `params` | map of string to any value | no |  | Params to set: maps merge, lists replace, +key appends, -key removes. |
+| `impl` | string matching `^(builtin\|plugin):\S+$` | no |  | Another implementation for the same rule. |
+| `cites` | string | no |  | A source for the reader. |
+| `applies_to` | [AppliesTo](#appliesto) | no |  | Where the rule applies: maps merge, lists replace. |
+| `before` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just before this one. |
+| `after` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just after this one. |
+
+## AppliesTo
+
+Where an item applies: skills, tools or unit patterns. Absent means everywhere.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `skills` | list of strings, each not empty | no |  | Skill names the evidence must name one of. |
+| `tools` | list of strings, each not empty | no |  | Tool labels the failing call must have one of. |
+| `units` | list of strings, each not empty | no |  | Unit patterns, such as R#41/*, a unit must match one of. |
 
 ## Spec end
 

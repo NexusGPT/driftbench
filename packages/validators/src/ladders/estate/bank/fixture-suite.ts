@@ -48,6 +48,11 @@ export function fixtureSuite(): Promise<FixtureSuite> {
 
 async function build(): Promise<FixtureSuite> {
   const work = await mkdtemp(join(tmpdir(), 'estate-fixture-suite-'));
+  // The estate beside its map: `estate generate` lists the files of the folder the map's root names, and a read is
+  // expected only of a file the estate holds (docs/estate.md section 5, `needs-existing-file`). Without the estate
+  // beside the map every read counts as a read of a missing file.
+  await cp(join(FIXTURE, 'CLAUDE.md'), join(work, 'CLAUDE.md'));
+  await cp(join(FIXTURE, '.claude'), join(work, '.claude'), { recursive: true });
   for (const name of ['approved.yaml', 'plan.yaml', 'phrases.yaml'])
     await cp(join(FIXTURE, name), join(work, name));
   // The recorded sessions sit beside the map (docs/estate.md section 5): a replay row finds its session there, and
@@ -191,6 +196,12 @@ export function runOnFakeDetailed(
     '--judge-command',
     JUDGE,
     ...(map ? ['--map', map] : []),
+    // The fake is handed the original estate's approved map and phrase bank, also when it runs in a mutant copy: the
+    // map says which atoms an ask concerns, and the copy decides which of them are still in force.
+    '--set-env',
+    `FAKE_MAP=${join(FIXTURE, 'approved.yaml')}`,
+    '--set-env',
+    `FAKE_PHRASES=${join(FIXTURE, 'phrases.yaml')}`,
     '--json',
   ]);
   const verdicts = new Map<string, FakeVerdict>();

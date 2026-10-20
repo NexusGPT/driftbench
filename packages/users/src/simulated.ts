@@ -29,7 +29,11 @@ import { z } from 'zod';
 export type UserModelPort = {
   readonly family: string;
   readonly model?: string;
-  complete(request: { system: string; user: string; maxTokens?: number }): Promise<string>;
+  /**
+   * `seed`, when a driver gives one, names the run the request belongs to: a model ignores it, a cassette
+   * keys its responses by it, so the trials of one spec never answer each other's requests.
+   */
+  complete(request: { system: string; user: string; maxTokens?: number; seed?: string }): Promise<string>;
 };
 
 export const Persona = z
@@ -294,6 +298,10 @@ function redact(text: string, hidden: readonly (readonly [string, string])[]): s
 }
 
 /** True when the text holds the value: as written, without case, or as the same digits in any spacing (a phone number). */
+export function holdsValue(text: string, value: string): boolean {
+  return holds(text, value);
+}
+
 function holds(text: string, value: string): boolean {
   if (text.toLowerCase().includes(value.toLowerCase())) return true;
   const digits = digitsOf(value);

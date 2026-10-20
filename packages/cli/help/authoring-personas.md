@@ -1,6 +1,6 @@
 ---
 title: Personas
-summary: 'A persona file describes a fictional person the simulated user plays (who they are, their goal, the facts they give only when asked, the stop token, the spec they play); `simulate` and `campaign run --driver simulated` read it.'
+summary: 'A persona file describes a fictional person the simulated user plays (who they are, their goal, the facts they give only when asked, the stop token, the spec they play); `simulate` and `campaign run --driver simulated` read it. A spec can also define the person in its blocks, with when.simulated_user.'
 commands:
   - simulate
   - campaign run
@@ -118,6 +118,56 @@ spec: ../specs/conversations/plan-upgrade.yaml
 ```
 
 The other Acme personas are `alex-newhome.yaml` (plays `new-customer-coverage.yaml`, facts `address` and `phone`) and `dana-porting.yaml` (plays `number-porting.yaml`, facts `phone` and `email`). Only `sam-upgrader` has a recording.
+
+### The persona in the block: `when.simulated_user`
+
+A spec can define the person in its blocks instead of a persona file: `when: { user: ..., simulated_user: {...} }`, a key of the stimulus (a block-level `simulated_user:` is refused). The key enters the spec hash only when present. Every simulated block of a spec names the same person (all keys but `mode`, `trials` and `recorded` equal, a YAML anchor keeps them so); a second person is refused. `driftbench simulate <spec>` without `--persona` runs it (topic running-simulate).
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `mode` | `exact`, `simulated` or `replay` | yes | `exact` sends the block's user text as written; `simulated` has the agenda engine plan the message and a model write it; `replay` sends the user text, a message frozen from a simulated run. |
+| `persona` | string | no | Who the person is and how they write. |
+| `goal` | string | no | What the person wants. Absent: the first simulated block's user text. |
+| `hidden_knowledge` | map of name to non-empty string | no | What the person knows. A value reaches the model only once the plan gives it. |
+| `reveal` | map of fact name to `on_request` or `volunteer` | no | `on_request` (the default) gives the fact once the agent asks; `volunteer` may give it in the opening message. Each name must be in `hidden_knowledge`. |
+| `ask_patterns` | map of fact name to a list of regex patterns | no | The agent replies that ask for a fact, read only with `--labeller patterns`. Each name must be in `hidden_knowledge`. |
+| `stop` | string | no | The stop token: a message that holds it ends the run. |
+| `trials` | whole number from 1 | no | Runs per simulator family; the largest over the blocks is used. |
+| `seed` | string or whole number | no | The engine's seed. Absent: the spec id. Trial t > 0 uses `<seed>#<t>`. |
+| `engine` | map | no | The agenda engine's parameters, each optional: `acts_per_turn` (the chances of 1, 2, 3 acts, summing to 1; default 0.7, 0.25, 0.05), `volunteer_share` (0.3), `opening_detail_share` (0.5), `short_turn_share` (0.29), `polite_turn_share` (0.15), `uncertainty_turn_share` (0.07), `question_turn_share` (0.1), `repeat_after_refusal` (1), `turn_budget` (16), `engagement_initial` (0.8), `decay_per_unhelpful_turn` (0.15), `disengage_below` (0.3). |
+| `recorded` | `hash` (64 hex) and optional `from` | no | `replay`: the SHA-256 of the frozen text and the run it came from. A text that does not match its hash is refused. |
+
+#### The agenda engine: `when.simulated_user.engine`
+
+Every key is optional. An absent key takes the default shown.
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `acts_per_turn` | list of numbers from 0 to 1 | 0.7, 0.25, 0.05 | The chance of 1, 2, 3 and more dialogue acts in one message, in order. The list sums to 1. |
+| `volunteer_share` | number from 0 to 1 | 0.3 | The chance that the opening message also gives each fact whose reveal is `volunteer`. |
+| `opening_detail_share` | number from 0 to 1 | 0.5 | The chance that the opening message also states the specific problem, not only the request. |
+| `short_turn_share` | number from 0 to 1 | 0.29 | The share of messages of at most three words. |
+| `polite_turn_share` | number from 0 to 1 | 0.15 | The share of messages planned as polite. |
+| `uncertainty_turn_share` | number from 0 to 1 | 0.07 | The share of messages planned as unsure. |
+| `question_turn_share` | number from 0 to 1 | 0.1 | The share of messages planned as a question. |
+| `repeat_after_refusal` | whole number from 0 | 1 | How many times the person repeats the request after the agent says it cannot. |
+| `turn_budget` | whole number from 1 | 16 | The most messages the person writes before giving up. |
+| `engagement_initial` | number from 0 to 1 | 0.8 | Engagement at the start. |
+| `decay_per_unhelpful_turn` | number from 0 to 1 | 0.15 | Engagement lost on each unhelpful agent turn. |
+| `disengage_below` | number from 0 to 1 | 0.3 | Below this engagement the person gives up. |
+
+#### The frozen text: `when.simulated_user.recorded`
+
+Used with `mode: replay`.
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `hash` | 64 hex characters | yes | The SHA-256 of the canonical JSON of the frozen text. A text that does not match is refused. |
+| `from` | non-empty string | no | The run the text was frozen from. |
+
+A persona file maps onto it key by key: `facts` to `hidden_knowledge`, each fact of `reveal_when_asked` to `reveal: on_request` with the same `ask_patterns`, `stop_token` to `stop`, and `<name>. <persona>` to `persona` (`simulatedUserFromPersona` in `@agent-nexus/driftbench-users`). `examples/acme/simulated/plan-upgrade.yaml` is the plan upgrade with Sam defined this way.
+
+The engine's shares come from published human rates. `opening_detail_share` is 0.5: half of the openings state the specific problem as well as the request, so more of a conversation's words come in its first two messages (an opening with the request alone put that share at 34% against 50% for human customers in the research run). The calibration report measures it on your runs.
 
 ## Outputs and how to read them
 

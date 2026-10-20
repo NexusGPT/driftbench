@@ -53,3 +53,25 @@ metadata:
       - b1-value
     needs_then_why:
       - no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
+  links:
+    - block: b1-value
+      to:
+        kind: rule
+        rule: catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-value
+      to:
+        kind: plan_row
+        row: gen-boundary-008
+        values:
+          catalog.search.in.unknown-key: catalog.search.in.unknown-key.sent
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

@@ -96,3 +96,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.inbox-triager.the-triager-never-answers-or-deletes
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.the-triager-never-answers-or-deletes
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0419
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: fresh
+          owner_signal: go
+          deviation: D3_contradiction
+          estate_hazard: process_restart
+          atoms.instruction: instruction.inbox-triager.the-triager-never-answers-or-deletes
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

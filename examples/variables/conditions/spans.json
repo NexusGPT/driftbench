@@ -1,0 +1,161 @@
+{
+  "note": "Planted condition spans: clauses of the three invented estates under examples/estates. truth is variable/value of store.yaml, or NEW:<group> for a value the store lacks (the first span of a group is proposed, the others must take the same value).",
+  "spans": [
+    {
+      "id": "f-r7",
+      "path": "fixture/CLAUDE.md",
+      "quote": "When a shipment is late by more than two days, tell the user and propose a supplier email.",
+      "truth": "shipment_delay/late_over_two_days"
+    },
+    {
+      "id": "f-r10",
+      "path": "fixture/CLAUDE.md",
+      "quote": "When the user says \"stop\", stop all work and confirm in one line.",
+      "truth": "NEW:stop"
+    },
+    {
+      "id": "f-r12",
+      "path": "fixture/CLAUDE.md",
+      "quote": "When R2 applies and the user has not answered, keep the draft and do not send it.",
+      "truth": "approval/approval_unanswered"
+    },
+    {
+      "id": "f-r15",
+      "path": "fixture/CLAUDE.md",
+      "quote": "After a compaction, re-read this file and the open tracker note before you continue.",
+      "truth": "session_state/after_compaction"
+    },
+    {
+      "id": "f-r16",
+      "path": "fixture/CLAUDE.md",
+      "quote": "If a tool fails twice in a row, stop and tell the user what failed instead of retrying.",
+      "truth": "NEW:tool_fails"
+    },
+    {
+      "id": "f-r5",
+      "path": "fixture/CLAUDE.md",
+      "quote": "Before editing any invoice file",
+      "truth": "invoice_work/before_invoice_edit"
+    },
+    {
+      "id": "f-r13",
+      "path": "fixture/CLAUDE.md",
+      "quote": "Before you dispatch a helper agent, write its brief with the task, the files it may touch and the shape of its answer.",
+      "truth": "helper/before_helper_dispatch"
+    },
+    {
+      "id": "f-eur",
+      "path": "fixture/.claude/skills/invoice-reconcile/SKILL.md",
+      "quote": "When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.",
+      "truth": "NEW:not_eur"
+    },
+    {
+      "id": "f-diff",
+      "path": "fixture/.claude/skills/invoice-reconcile/SKILL.md",
+      "quote": "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number.",
+      "truth": "invoice_work/invoice_diff_over_50"
+    },
+    {
+      "id": "f-lang",
+      "path": "fixture/.claude/memory/supplier-languages.md",
+      "quote": "When a supplier is not in this table, write in English and tell the user.",
+      "truth": "supplier/supplier_not_in_table"
+    },
+    {
+      "id": "f-carrier",
+      "path": "fixture/.claude/skills/shipment-tracker/SKILL.md",
+      "quote": "When the carrier answers with an error, say so and give the carrier's own tracking page; never guess a status.",
+      "truth": "carrier/carrier_error"
+    },
+    {
+      "id": "v-r7",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "When a shipment is late by more than one day, tell the user and propose a supplier email.",
+      "truth": "shipment_delay/late_over_one_day"
+    },
+    {
+      "id": "v-r10",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "When the user says \"stop\", stop all work and confirm in one line.",
+      "truth": "NEW:stop"
+    },
+    {
+      "id": "v-r15",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "After a compaction, re-read this file and the open tracker note before you continue.",
+      "truth": "session_state/after_compaction"
+    },
+    {
+      "id": "v-r16",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "If a tool fails twice in a row, stop and tell the user what failed instead of retrying.",
+      "truth": "NEW:tool_fails"
+    },
+    {
+      "id": "v-r5",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "Before editing any invoice file",
+      "truth": "invoice_work/before_invoice_edit"
+    },
+    {
+      "id": "v-r13",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "Before you dispatch a helper agent, write its brief with the task, the files it may touch and the shape of its answer.",
+      "truth": "helper/before_helper_dispatch"
+    },
+    {
+      "id": "v-r19",
+      "path": "fixture-v2/CLAUDE.md",
+      "quote": "When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+      "truth": "approval/approval_unanswered"
+    },
+    {
+      "id": "v-eur",
+      "path": "fixture-v2/.claude/skills/invoice-reconcile/SKILL.md",
+      "quote": "When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.",
+      "truth": "NEW:not_eur"
+    },
+    {
+      "id": "v-diff",
+      "path": "fixture-v2/.claude/skills/invoice-reconcile/SKILL.md",
+      "quote": "When the total difference is above 50.00 EUR, dispatch the `ledger-auditor` agent with the invoice number and the order number.",
+      "truth": "invoice_work/invoice_diff_over_50"
+    },
+    {
+      "id": "v-lang",
+      "path": "fixture-v2/.claude/memory/supplier-languages.md",
+      "quote": "When a supplier is not in this table, write in English and tell the user.",
+      "truth": "supplier/supplier_not_in_table"
+    },
+    {
+      "id": "v-carrier",
+      "path": "fixture-v2/.claude/skills/shipment-tracker/SKILL.md",
+      "quote": "When the carrier answers with an error, say so and give the carrier's own tracking page; never guess a status.",
+      "truth": "carrier/carrier_error"
+    },
+    {
+      "id": "r-carrier",
+      "path": "reader-cases/.claude/skills/shipment-tracker/SKILL.md",
+      "quote": "When the carrier answers with an error, say so; never guess a status.",
+      "truth": "carrier/carrier_error"
+    },
+    {
+      "id": "r-carrier2",
+      "path": "reader-cases/.claude/skills/synced/7f3c2a10-5b1e-4c8d-9a2f-0e6b1d4c8a77/SKILL.md",
+      "quote": "When the carrier answers with an error, say so; never guess a status.",
+      "truth": "carrier/carrier_error"
+    },
+    {
+      "id": "r-lang",
+      "path": "reader-cases/.claude/memory/supplier-languages.md",
+      "quote": "When a supplier is not in this table, write in English and tell the user.",
+      "truth": "supplier/supplier_not_in_table"
+    },
+    {
+      "id": "r-claim",
+      "path": "reader-cases/CLAUDE.md",
+      "quote": "When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`",
+      "truth": "NEW:claim_names_supplier"
+    }
+  ]
+}

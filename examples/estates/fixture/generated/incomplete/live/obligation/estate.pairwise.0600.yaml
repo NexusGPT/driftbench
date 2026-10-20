@@ -70,3 +70,28 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.supplier-email.no-price-or-date-in-a
         detail: "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.no-price-or-date-in-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0600
+        values:
+          ask_class: chat
+          ask_shape: problem
+          session_state: after_restart
+          owner_signal: stop
+          deviation: D9_out_of_scope
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.supplier-email.no-price-or-date-in-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -84,3 +84,22 @@ metadata:
       - marker: needs-recorded-session
         atom: guard.settings.userpromptsubmit-guard-stop-word-sh
         detail: no recorded session of stop-word
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh
+        values:
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

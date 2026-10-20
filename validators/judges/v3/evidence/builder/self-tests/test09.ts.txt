@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import {weightedLabellerKappa as w} from './candidate';
+const g=['low','mid','high'],a=['low','high','high'];
+const linear=w(g,a,g);assert.ok(Math.abs(linear.kappa-2/3)<1e-12);assert.ok(Math.abs(linear.observed-5/6)<1e-12);assert.equal(linear.expected,.5);assert.equal(linear.n,3);
+const quadratic=w(g,a,g,'quadratic');assert.ok(Math.abs(quadratic.kappa-.8)<1e-12);assert.ok(Math.abs(quadratic.expected-7/12)<1e-12);
+assert.equal(w(['low'],['low'],g).kappa,1);assert.equal(w(['low','high'],['high','low'],g).kappa,-1);
+assert.throws(()=>w(['low'],[null],g));assert.throws(()=>w(['none'],['none'],g));assert.throws(()=>w(g,a,['low','low']));assert.throws(()=>w(g,a,g,'other' as any));console.log('weighted kappa regression passed');

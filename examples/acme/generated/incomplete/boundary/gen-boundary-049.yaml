@@ -103,3 +103,51 @@ metadata:
     needs_phrase:
       - dimension: notify_sales.in.reason
         value: notify_sales.in.reason.no_coverage
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-049
+        values:
+          notify_sales.in.reason: notify_sales.in.reason.no_coverage
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: notify_sales.in.reason=notify_sales.in.reason.no_coverage
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-049
+        values:
+          notify_sales.in.reason: notify_sales.in.reason.no_coverage
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

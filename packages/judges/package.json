@@ -12,13 +12,13 @@
     "judges",
     "calibration"
   ],
-  "homepage": "https://github.com/achammah/driftbench#readme",
+  "homepage": "https://github.com/NexusGPT/driftbench#readme",
   "bugs": {
-    "url": "https://github.com/achammah/driftbench/issues"
+    "url": "https://github.com/NexusGPT/driftbench/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/achammah/driftbench.git",
+    "url": "git+https://github.com/NexusGPT/driftbench.git",
     "directory": "packages/judges"
   },
   "license": "MIT",

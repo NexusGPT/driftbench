@@ -46,6 +46,11 @@ of campaigns.
 
 To run the candidate and compare in one step, in CI, use `driftbench ci`.
 
+Do not quote the per side rate of `compare` as the pass rate of a suite. It counts each golden once as
+passing or failing, over the goldens both campaigns ran. The rate to quote for one campaign is the suite
+headline of `driftbench report`: the mean of the golden pass rates, with its hierarchical interval and
+`n_eff` (see `results-statistics`).
+
 ## Commands and every option
 
 ```
@@ -54,8 +59,8 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [
 
 | Option | Default | Meaning |
 |---|---|---|
-| `--baseline <campaign>` | required | the baseline campaign id |
-| `--candidate <campaign>` | required | the candidate campaign id |
+| `--baseline <campaign>` | required, unless `--rank` | the baseline campaign id |
+| `--candidate <campaign>` | required, unless `--rank` | the candidate campaign id |
 | `--store <file>` | required | the store that holds both campaigns |
 | `--margin <points\|auto>` | `auto` | the largest drop in pass rate tolerated, in percentage points, above 0 and below 100, such as `2`. `auto`: the smallest half point at which the baseline compared with itself is non-inferior, printed with what sets it; above 15 points it warns |
 | `--min-goldens <n>` | `30` | a gating criterion decided on fewer goldens is underpowered: reported, and left out of the parity test |
@@ -88,7 +93,8 @@ that gives no answer fails the command (exit 2) with its reason.
 
 One store holding both campaigns. They should run the same specs (same spec hash) in the modes compared:
 a golden only one side ran, or ran on another spec version, or that was carried from another campaign by a
-blast radius run, is listed as not paired and never compared.
+blast radius run, is listed as not paired and never compared. So is a golden whose every run on one side
+was not run (a Given the target cannot apply).
 
 ## Outputs and how to read them
 
@@ -103,7 +109,8 @@ The text output, top to bottom:
 1. `Margin auto: ...`: the margin chosen and what set it (the all-pass flag or a criterion). A warning
    follows when it is above 15 points, naming the goldens a 15 point margin needs.
 2. `Paired: <n> goldens ...; <n> goldens not paired. Margin <m> points.`
-3. All-pass per golden: passing goldens and rate per side with a Wilson interval; the paired table
+3. All-pass per golden: passing goldens and rate per side with a Wilson interval (each golden is one
+   independent unit, so no design effect applies); the paired table
    (both pass, regressed, improved, both fail); `McNemar exact p`; the effect (baseline rate minus
    candidate rate, positive is a drop) with its Newcombe paired interval; a planning line: the smallest
    margin these goldens can show (the floor), the drop they detect at 80% power, and the goldens a 10
@@ -115,7 +122,13 @@ The text output, top to bottom:
    has fewer than `--min-goldens` goldens, `not within` otherwise), `floor`, `drop seen`, `for 10`, and
    `verdict` (`regressed` when the false discovery rate control keeps the regression).
 6. New gating flags, firing for the candidate only, when there are some.
-7. `Verdict: ...` and its reasons.
+7. `Not paired:`, one line per golden left out, with the reason. A golden not run on the candidate reads
+   `not measured in the candidate: block <i> not run (<check>: <why>)`.
+8. `Verdict: ...` and its reasons.
+
+`compare` has no threshold for blocks not run. It decides on the paired goldens alone, so a golden not run
+never changes its verdict. To fail on blocks not run, use `driftbench ci`, which exits 3
+(`--max-not-run`) when nothing regressed.
 
 `--json` prints the same as one object: `baseline`, `candidate`, `margin`, `alpha`, `q`, `minGoldens`,
 `strict`, `flagFamilies`, `modes`, `pairs` (one per golden with each side's runs, all-pass, drift and
@@ -265,6 +278,38 @@ $ driftbench compare --baseline c-base --candidate c-next --store acme.db --stri
 
 A comparison with a real regression is in `results-ci`, where `driftbench ci` runs a planted fault.
 
+
+### A golden not run on the candidate
+
+The baseline runs a tool failure conversation and a price sheet task on their own targets. The candidate runs
+both on the `process` adapter, which cannot force a tool result, so the conversation is not run.
+
+```sh setup
+mkdir mixed
+cp examples/acme/specs/conversations/tool-failure.yaml examples/acme/specs/tasks/price-sheet.yaml mixed
+```
+
+```sh
+driftbench campaign run mixed --store mixed.db --campaign c-mixed-base
+driftbench campaign run mixed --target process:acme-ops --store mixed.db --campaign c-mixed-ops # exit 3
+driftbench compare --baseline c-mixed-base --candidate c-mixed-ops --store mixed.db --margin 80
+```
+
+```text
+$ driftbench compare --baseline c-mixed-base --candidate c-mixed-ops --store mixed.db --margin 80
+Baseline c-mixed-base (process:acme-ops, function:acme-sales) against candidate c-mixed-ops (process:acme-ops).
+Paired: 1 golden (one golden in one mode, one perturbation in P), modes F; 1 golden not paired. Margin 80.0 points.
+...
+Not paired:
+  acme-tool-failure · F  not measured in the candidate: block 0 not run (capability: process declares toolStubs false: the agent would never see it)
+
+Verdict: NON-INFERIOR.
+  every gating criterion and the all-pass flag have an upper bound below the margin 80.0 points, and no new gating flag
+```
+
+The one paired golden passes on both sides, so the verdict is non-inferior and `compare` exits 0. The golden
+not run is listed, not counted.
+
 ### Rank fictional campaigns without a model
 
 ```sh
@@ -299,5 +344,8 @@ The rejected settings exit before any judge call.
 | `Unknown mode "X"` (exit 2) | modes are `T`, `F`, `P`, separated by commas |
 | `ENOENT ... criterion.yaml` (exit 2) | the `--pairwise` criterion file does not exist |
 | `pairwise judge gave no answer: ...` (exit 2) | the provider failed or its key is missing from the environment |
+| `--judge, --judges and --judge-route choose the pairwise judge: they go with --pairwise <criterion.yaml>.` (exit 2) | a judge option was given without `--pairwise`. `compare` judges nothing else: add `--pairwise <criterion.yaml>`, or drop the option |
 | exit 1 with every golden passing on both sides | the verdict is not shown non-inferior: the margin is below what these goldens can show. Read the floor in the planning line; raise the margin or add goldens |
 | goldens listed as not paired | the two campaigns ran different spec versions or modes, or the candidate carried them from a baseline |
+| a golden not paired with `not measured in the candidate: block <i> not run` | the candidate's target cannot apply a layer of that spec's Given. It never changes the verdict; run the spec on a target that applies the layer |
+| the per side rate differs from the `Suite pass rate` of `report` | expected: `compare` counts a golden as passing only when every repeat passes; the headline is the mean of the golden pass rates |
