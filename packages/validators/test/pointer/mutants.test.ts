@@ -16,6 +16,22 @@ const cheater: Labeler = (request) => ({
 });
 
 describe('planted readers lose items', { timeout: 600_000 }, () => {
+  it('a replay that corrupts the ledger only when a previous ledger is supplied loses the twice-identical item', async () => {
+    const corrupts = mutant('corrupts-on-previous', {
+      scan: async (request: ScanRequest) => {
+        const out = await ref.scan(request);
+        return request.previousLedger !== undefined && out.ledger
+          ? { ...out, ledger: { ...out.ledger, raw: `${out.ledger.raw}\n` } }
+          : out;
+      },
+    });
+    const only = (i: { id: string }) => i.id === 'replay.fixture-replay-twice-identical';
+    expect((await tally(ref, only)).failed).toEqual([]);
+    const out = await tally(corrupts, only);
+    expect(out.failed.map((f) => f.id)).toEqual(['replay.fixture-replay-twice-identical']);
+    expect(out.failed[0]?.detail).toContain('the second replay changed the ledger');
+  });
+
   it('a cut that drops the last unit of a file loses cutting items', async () => {
     const out = await tally(
       mutant('drops-last', { cut: cutWith((r) => ({ ...r, units: r.units.slice(0, -1) })) }),

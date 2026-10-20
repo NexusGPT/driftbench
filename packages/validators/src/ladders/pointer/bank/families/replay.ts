@@ -137,7 +137,20 @@ export const replayRuns: Record<string, Run> = {
   'fixture-haiku-replays-committed': fixtureMissCase('haiku', 'part.messages', 'changed', ['part.messages']),
   'fixture-jev-replays-committed': fixtureMissCase('jev', 'part.state', 'changed', ['part.state']),
   'fixture-jev-unit-replays-committed': fixtureMissCase('jev-unit', 'path', 'changed.md', ['path']),
-  'fixture-replay-twice-identical': fixtureMissCase('haiku', 'window', 'changed#1', ['window']),
+  'fixture-replay-twice-identical': async (ctx) => {
+    // The original check: replaying the committed fixture again, with the first ledger as the previous one, gives the same ledger bytes.
+    const { fixture, res: first } = await positiveReplay(ctx, 'haiku');
+    const firstRaw = must(first, 'the first replay');
+    const { res: second, fake } = await replay(ctx, fixture.files, 'haiku', fixture.cassette, {
+      labelsYaml: fixture.labelsYaml,
+      previousLedger: firstRaw,
+    });
+    if (!second.ok || !second.ledger) return fail(`the second replay failed: ${second.error}`);
+    if (fake.count) return fail('the second replay reached the network');
+    if (second.ledger.raw !== firstRaw) return fail('the second replay changed the ledger');
+    // Kept beside it: a one-field stale window in the cassette is refused by name.
+    return fixtureMissCase('haiku', 'window', 'changed#1', ['window'])(ctx);
+  },
   'fixture-miss-names-model': fixtureMissCase('haiku', 'model', 'claude-haiku-4-0', ['model']),
   'fixture-miss-names-prompt-version': fixtureMissCase('haiku', 'promptVersion', 'p0', [
     'promptVersion',

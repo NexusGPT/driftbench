@@ -1,8 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { bankSummary, formatItems } from '../../src/bank';
 import { runSeeds } from '../../src/ladder';
 import { BLIND_PROVENANCE, blindLevels } from '../../src/ladders/pointer/bank/blind';
 import { pointerBank, pointerBankLadder } from '../../src/ladders/pointer/bank/index';
+import { fingerprints, repairingCalls } from './fingerprint';
 import { referenceSut } from './reference/index';
 
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
@@ -10,8 +12,8 @@ const count = (label: string) => pointerBank().filter((i) => i.provenance === la
 describe('the provenance of the first bank', () => {
   it('labels every item, and the three labels cover the 419 items', () => {
     expect(pointerBank()).toHaveLength(419);
-    expect(count('blind')).toBe(332);
-    expect(count('maintainer-repaired')).toBe(70);
+    expect(count('blind')).toBe(225);
+    expect(count('maintainer-repaired')).toBe(177);
     expect(count('maintainer-added')).toBe(17);
   });
 
@@ -23,6 +25,48 @@ describe('the provenance of the first bank', () => {
   it('keeps the lowercase-boundary item out of the blind label: its oracle was reversed after the blind commit', () => {
     const item = pointerBank().find((i) => i.id === 'cutting.sentences-lowercase-start-merges');
     expect(item?.provenance).toBe('maintainer-repaired');
+  });
+});
+
+describe('an item that changed after the blind commit is not labelled blind', () => {
+  const blind = pointerBank().filter((i) => i.provenance === 'blind');
+
+  it('labels the repaired replay items maintainer-repaired', () => {
+    for (const key of [
+      'miss-names-description-edit',
+      'miss-names-added-example',
+      'miss-names-new-file',
+      'fixture-miss-names-model',
+      'fixture-miss-names-prompt-version',
+      'fixture-miss-names-schema-version',
+      'fixture-miss-names-set-hash',
+      'fixture-miss-names-labeler',
+      'fixture-miss-names-system-part',
+      'fixture-miss-names-questions-part',
+      'fixture-miss-names-cut-digest',
+      'fixture-replay-twice-identical',
+    ]) {
+      expect(pointerBank().find((i) => i.id === `replay.${key}`)?.provenance, key).toBe(
+        'maintainer-repaired',
+      );
+    }
+  });
+
+  it('keeps each blind item as it was recorded: its entry and spec row match the fingerprint file', () => {
+    const recorded = JSON.parse(
+      readFileSync(
+        new URL('../../../../validators/pointer/blind-fingerprints.json', import.meta.url),
+        'utf8',
+      ),
+    ) as Record<string, string>;
+    const now = fingerprints(blind.map((i) => i.id));
+    const moved = blind.filter((i) => recorded[i.id] !== now[i.id]).map((i) => i.id);
+    expect(moved).toEqual([]);
+  });
+
+  it('keeps blind items away from the helpers whose change moved a pass condition', () => {
+    const routed = blind.filter((i) => repairingCalls(i.id).length > 0).map((i) => i.id);
+    expect(routed).toEqual([]);
   });
 });
 
