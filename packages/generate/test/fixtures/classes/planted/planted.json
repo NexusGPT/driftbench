@@ -1,0 +1,125 @@
+{
+  "source": "research/block-phrasing: research/block-redesign/phrasing/h4/planted.json (the H4 planted set: 20 bad realisations, 5 per defect type, over the ten H4 blocks)",
+  "items": [
+    {
+      "id": "P01",
+      "type": "swapped_digit",
+      "class": "acme.planted.b2",
+      "text": "You can call me on +1 202 555 0113."
+    },
+    {
+      "id": "P02",
+      "type": "swapped_digit",
+      "class": "acme.planted.b3",
+      "text": "It's +1 202 555 0105"
+    },
+    {
+      "id": "P03",
+      "type": "swapped_digit",
+      "class": "acme.planted.b9",
+      "text": "my number is (202) 555-0106"
+    },
+    {
+      "id": "P04",
+      "type": "swapped_digit",
+      "class": "acme.planted.b1",
+      "text": "83 Summit Avenue, Acmeville"
+    },
+    {
+      "id": "P05",
+      "type": "swapped_digit",
+      "class": "acme.planted.b7",
+      "text": "Sure, it's +1 202 555 0181."
+    },
+    {
+      "id": "P06",
+      "type": "flipped_negation",
+      "class": "acme.planted.b4",
+      "text": "It's not sam.rivera@example.com."
+    },
+    {
+      "id": "P07",
+      "type": "flipped_negation",
+      "class": "acme.planted.b6",
+      "text": "Hi, I don't want home internet at 3 Orchard Way, Acmeville."
+    },
+    {
+      "id": "P08",
+      "type": "flipped_negation",
+      "class": "acme.planted.b5",
+      "text": "Hi, I would not like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville."
+    },
+    {
+      "id": "P09",
+      "type": "flipped_negation",
+      "class": "acme.planted.b2",
+      "text": "Please don't call me. My number is +1 202 555 0131."
+    },
+    {
+      "id": "P10",
+      "type": "flipped_negation",
+      "class": "acme.planted.b8",
+      "text": "The address is not 7 Quarry Lane, Acmeville."
+    },
+    {
+      "id": "P11",
+      "type": "second_id",
+      "class": "acme.planted.b3",
+      "text": "It's +1 202 555 0150, or maybe +1 202 555 0165."
+    },
+    {
+      "id": "P12",
+      "type": "second_id",
+      "class": "acme.planted.b4",
+      "text": "It's sam.rivera@example.com or sam.r@example.com"
+    },
+    {
+      "id": "P13",
+      "type": "second_id",
+      "class": "acme.planted.b1",
+      "text": "88 Summit Avenue, Acmeville, or 14 Harbor Road if that is easier"
+    },
+    {
+      "id": "P14",
+      "type": "second_id",
+      "class": "acme.planted.b7",
+      "text": "+1 202 555 0188, or my work line +1 202 555 0142"
+    },
+    {
+      "id": "P15",
+      "type": "second_id",
+      "class": "acme.planted.b10",
+      "text": "It's morgan.diaz@example.com, my old one was mdiaz@example.com."
+    },
+    {
+      "id": "P16",
+      "type": "missing_item",
+      "class": "acme.planted.b2",
+      "text": "Sure, call me whenever you like."
+    },
+    {
+      "id": "P17",
+      "type": "missing_item",
+      "class": "acme.planted.b3",
+      "text": "It's my usual number."
+    },
+    {
+      "id": "P18",
+      "type": "missing_item",
+      "class": "acme.planted.b5",
+      "text": "Hi, I'd like to order Acme Fiber 1000."
+    },
+    {
+      "id": "P19",
+      "type": "missing_item",
+      "class": "acme.planted.b8",
+      "text": "The address is on Quarry Lane, Acmeville."
+    },
+    {
+      "id": "P20",
+      "type": "missing_item",
+      "class": "acme.planted.b10",
+      "text": "It's my work email."
+    }
+  ]
+}

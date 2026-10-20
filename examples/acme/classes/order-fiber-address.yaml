@@ -1,0 +1,38 @@
+# An utterance class for the first message of examples/acme/classes/specs/order-loose-confirmation.yaml:
+# the customer orders a named fiber plan for a named address. Acme and every value here are fictional.
+id: acme.order.fiber-address
+intent: The customer asks to order the Acme Fiber 1000 plan for the address 14 Harbor Road, Acmeville.
+seed: "Hi, I'd like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville."
+slots:
+  - name: plan
+    surface_forms:
+      - { form: "Acme Fiber 1000", approved: true }
+      - { form: "Fiber 1000", approved: true }
+      - { form: "the Fiber 1000 plan", approved: true }
+      - { form: "the gigabit one", approved: false }
+    minimal: ["Acme Fiber 300", "Fiber 300"]
+  - name: address
+    surface_forms:
+      - { form: "14 Harbor Road, Acmeville", approved: true }
+      - { form: "14 Harbor Rd, Acmeville", approved: true }
+      - { form: "14 harbor road", approved: true }
+    minimal: ["41 Harbor Road, Acmeville", "14 Harbor Lane, Acmeville"]
+axes:
+  register:
+    formal: polite and complete, no slang, no contractions
+    neutral: plain everyday wording
+    casual: informal, with contractions and relaxed wording
+  length:
+    terse: at most six words besides the fixed values
+    one_sentence: exactly one sentence
+    multi_sentence: two or three sentences
+  distractor:
+    none: nothing beyond the request
+    aside: adds a short aside about their day that asks nothing and changes nothing
+exclude:
+  - { length: terse, distractor: aside }
+invariants:
+  max_chars: 300
+minimal_pairs:
+  - "Hi, I'd like to order Acme Fiber 300 for 14 Harbor Road, Acmeville."
+  - "Hi, is Acme Fiber 1000 available at 14 Harbor Road, Acmeville?"
