@@ -140,10 +140,19 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       const result = await required(ESTATE_CHECKS.hazard_recovery)(ctx, options);
       return (Array.isArray(result) ? result : [result]).filter((v) => !v.id.endsWith('collateral'));
     };
-    // The checker that reads no operations table: a tool the spec declares destructive is not counted.
+    // The checker that reads no destructive class of the operations table: a tool the spec declares destructive is
+    // not counted (the read and modify entries stay, so the reference follower's own work is still known).
     const operationsBlind: CustomCheckFunction = async (ctx, options) =>
       required(ESTATE_CHECKS.hazard_recovery)(
-        { ...ctx, spec: { ...ctx.spec, operations: undefined } },
+        {
+          ...ctx,
+          spec: {
+            ...ctx.spec,
+            operations: Object.fromEntries(
+              Object.entries(ctx.spec.operations ?? {}).filter(([, kind]) => kind === 'read' || kind === 'modify'),
+            ),
+          },
+        },
         options,
       );
     const blind = await measure(

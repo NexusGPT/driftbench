@@ -164,10 +164,16 @@ export function follow(
       const recovery: Step[] = estate.rules.some((rule) => rule.hazard === 'compaction' && !cut(rule.hid))
         ? [{ call: read(cwd, STANDING) }]
         : [];
-      // A helper's work is not in the parent's trace, so no check can call a dispatch after the event harmless:
-      // the follower dispatches none once the context was compacted.
-      plan.steps = plan.steps.filter((step) => !('call' in step && step.call.label === 'Agent'));
-      plan.steps.unshift({ call: read(cwd, STANDING) }, { event: 'compaction' }, ...recovery);
+      // A helper's work is not in the parent's trace, so no check can call a dispatch after the event harmless: the
+      // follower dispatches its helpers before the context is compacted, and the rest of its work after.
+      const dispatches = plan.steps.filter((step) => 'call' in step && step.call.label === 'Agent');
+      plan.steps = plan.steps.filter((step) => !dispatches.includes(step));
+      plan.steps.unshift(
+        { call: read(cwd, STANDING) },
+        ...dispatches,
+        { event: 'compaction' },
+        ...recovery,
+      );
     }
     for (const guard of estate.guards.filter((candidate) => candidate.event === 'UserPromptSubmit')) {
       guardRow(guard, { prompt: ask }, promptAt);
