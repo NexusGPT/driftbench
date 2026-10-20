@@ -95,7 +95,9 @@ describe('the key of a recording run is read when a request leaves', () => {
       cassette: new Cassette(),
       mode: 'record',
     });
-    expect(reads.count).toBeGreaterThan(0);
+    // Three runs of one window leave three requests; the key is read once, before the first of them.
+    expect(headers.length).toBeGreaterThan(1);
+    expect(reads.count).toBe(1);
     expect(headers[0]?.['x-api-key']).toBe('secret');
   });
 

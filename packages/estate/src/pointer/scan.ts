@@ -347,6 +347,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     else entry.characters += JSON.stringify(wire.body).length;
   }
   input.onPlan?.(plan);
+  // A recording run that has requests to send asks its labelers whether they can send, before the first one leaves.
+  if (input.mode === 'record') {
+    for (const [at, entry] of plan.members.entries())
+      if (entry.windows - entry.cached > 0) labelling.members[at]?.ready?.();
+  }
 
   // 3. The answers, `jobs` at a time. A window the service refuses as too large is halved.
   const tally = labelling.members.map(() => ({ calls: 0, recorded: 0, input: 0, output: 0 }));
