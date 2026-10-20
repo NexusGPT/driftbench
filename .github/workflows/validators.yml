@@ -4,6 +4,11 @@ name: validators
 # checks each validator's HANDOVER.md against its journal, and refuses a pull request from an executor
 # branch (exec/...) that changes the validator code, the floors, the executor instruction, the fault family,
 # the statistics reference fixtures or this file. Documented in docs/validators.md section 8.
+#
+# The work runs as a wide matrix. One leg is one validator on one seed (the hidden seed has its own leg), and a
+# validator whose ladder is long is cut into slices of levels. Each leg uploads its `--json` report. The jobs
+# `ladders` and `system-full` join the reports of their legs with `driftbench validate --reports`, which
+# rebuilds the run one pass would give and checks the floors on it, and fail when any leg did not succeed.
 
 on:
   push:
@@ -27,10 +32,178 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
 jobs:
-  ladders:
+  ladders-leg:
+    # One leg is one validator on one seed, or one slice of levels of a long ladder. `--check-floor` caps a leg at
+    # the floor of its validator and exits 1 below it. A validator without a floor walks to its first failing
+    # level, as a single run does, so each slice of the generator ladder computes its own levels.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
-    name: ladders and floors
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: estate-s1
+            name: estate seed 1
+            component: estate
+            flags: --seed 1
+          - id: estate-s2
+            name: estate seed 2
+            component: estate
+            flags: --seed 2
+          - id: estate-s3
+            name: estate seed 3
+            component: estate
+            flags: --seed 3
+          - id: estate-hidden
+            name: estate seed hidden
+            component: estate
+            flags: --hidden --hidden-only
+          - id: judges-s1
+            name: judges seed 1
+            component: judges
+            flags: --seed 1
+          - id: judges-s2
+            name: judges seed 2
+            component: judges
+            flags: --seed 2
+          - id: judges-s3
+            name: judges seed 3
+            component: judges
+            flags: --seed 3
+          - id: judges-hidden
+            name: judges seed hidden
+            component: judges
+            flags: --hidden --hidden-only
+          - id: map-s1
+            name: map seed 1
+            component: map
+            flags: --seed 1
+          - id: map-s2
+            name: map seed 2
+            component: map
+            flags: --seed 2
+          - id: map-s3
+            name: map seed 3
+            component: map
+            flags: --seed 3
+          - id: map-hidden
+            name: map seed hidden
+            component: map
+            flags: --hidden --hidden-only
+          - id: stats-s1
+            name: stats seed 1
+            component: stats
+            flags: --seed 1
+          - id: stats-s2
+            name: stats seed 2
+            component: stats
+            flags: --seed 2
+          - id: stats-s3
+            name: stats seed 3
+            component: stats
+            flags: --seed 3
+          - id: stats-hidden
+            name: stats seed hidden
+            component: stats
+            flags: --hidden --hidden-only
+          - id: system-s1
+            name: system seed 1
+            component: system
+            flags: --seed 1
+          - id: system-s2
+            name: system seed 2
+            component: system
+            flags: --seed 2
+          - id: system-s3
+            name: system seed 3
+            component: system
+            flags: --seed 3
+          - id: system-hidden
+            name: system seed hidden
+            component: system
+            flags: --hidden --hidden-only
+          - id: variables-s1
+            name: variables seed 1
+            component: variables
+            flags: --seed 1
+          - id: variables-s2
+            name: variables seed 2
+            component: variables
+            flags: --seed 2
+          - id: variables-s3
+            name: variables seed 3
+            component: variables
+            flags: --seed 3
+          - id: variables-hidden
+            name: variables seed hidden
+            component: variables
+            flags: --hidden --hidden-only
+          - id: generator-s1-1-6
+            name: generator seed 1 levels 1 to 6
+            component: generator
+            flags: --seed 1 --levels 1..6
+          - id: generator-s1-7-11
+            name: generator seed 1 levels 7 to 11
+            component: generator
+            flags: --seed 1 --levels 7..11
+          - id: generator-s1-12-17
+            name: generator seed 1 levels 12 to 17
+            component: generator
+            flags: --seed 1 --levels 12..17
+          - id: generator-s1-18-19
+            name: generator seed 1 levels 18 to 19
+            component: generator
+            flags: --seed 1 --levels 18..19
+          - id: generator-s2-1-6
+            name: generator seed 2 levels 1 to 6
+            component: generator
+            flags: --seed 2 --levels 1..6
+          - id: generator-s2-7-11
+            name: generator seed 2 levels 7 to 11
+            component: generator
+            flags: --seed 2 --levels 7..11
+          - id: generator-s2-12-17
+            name: generator seed 2 levels 12 to 17
+            component: generator
+            flags: --seed 2 --levels 12..17
+          - id: generator-s2-18-19
+            name: generator seed 2 levels 18 to 19
+            component: generator
+            flags: --seed 2 --levels 18..19
+          - id: generator-s3-1-6
+            name: generator seed 3 levels 1 to 6
+            component: generator
+            flags: --seed 3 --levels 1..6
+          - id: generator-s3-7-11
+            name: generator seed 3 levels 7 to 11
+            component: generator
+            flags: --seed 3 --levels 7..11
+          - id: generator-s3-12-17
+            name: generator seed 3 levels 12 to 17
+            component: generator
+            flags: --seed 3 --levels 12..17
+          - id: generator-s3-18-19
+            name: generator seed 3 levels 18 to 19
+            component: generator
+            flags: --seed 3 --levels 18..19
+          - id: generator-hidden-1-6
+            name: generator seed hidden levels 1 to 6
+            component: generator
+            flags: --hidden --hidden-only --levels 1..6
+          - id: generator-hidden-7-11
+            name: generator seed hidden levels 7 to 11
+            component: generator
+            flags: --hidden --hidden-only --levels 7..11
+          - id: generator-hidden-12-17
+            name: generator seed hidden levels 12 to 17
+            component: generator
+            flags: --hidden --hidden-only --levels 12..17
+          - id: generator-hidden-18-19
+            name: generator seed hidden levels 18 to 19
+            component: generator
+            flags: --hidden --hidden-only --levels 18..19
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -39,15 +212,107 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Every validator on seeds 1 to 3 and the hidden seed, at or above its floor
-        run: pnpm driftbench validate all --seeds 1..3 --hidden --check-floor
+      - name: Run this leg
+        shell: bash
+        env:
+          COMPONENT: ${{ matrix.component }}
+          FLAGS: ${{ matrix.flags }}
+          LEG: ${{ matrix.id }}
+        run: |
+          mkdir -p report
+          # --check-floor caps the leg at its floor and exits 1 below it; a validator without a floor walks on.
+          pnpm -s driftbench validate "$COMPONENT" $FLAGS --check-floor --json > "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ladders-${{ matrix.id }}
+          path: report
+          retention-days: 3
+
+  ladders-tail:
+    # Levels 20 to 22 of the generator cost most of an hour in one leg and a single run reaches them only when
+    # every level below passes. The leg reads the reports of the slices below it and walks on only then.
+    needs: ladders-leg
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: generator-s1-tail
+            name: generator seed 1 levels 20 to 22
+            component: generator-s1
+            flags: --seed 1 --levels 20..22
+          - id: generator-s2-tail
+            name: generator seed 2 levels 20 to 22
+            component: generator-s2
+            flags: --seed 2 --levels 20..22
+          - id: generator-s3-tail
+            name: generator seed 3 levels 20 to 22
+            component: generator-s3
+            flags: --seed 3 --levels 20..22
+          - id: generator-hidden-tail
+            name: generator seed hidden levels 20 to 22
+            component: generator-hidden
+            flags: --hidden --hidden-only --levels 20..22
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ladders-generator-*
+          path: heads
+          merge-multiple: true
+      - name: Run this leg when every level below it passes
+        shell: bash
+        env:
+          FLAGS: ${{ matrix.flags }}
+          HEADS: ${{ matrix.component }}
+          LEG: ${{ matrix.id }}
+        run: |
+          mkdir -p report
+          if jq -e 'any(.seeds[].rows[]; .pass == false)' heads/"$HEADS"-*.json > /dev/null; then
+            echo "A level below this slice fails on this seed. A single run stops at it and never computes these levels."
+            exit 0
+          fi
+          pnpm -s driftbench validate generator $FLAGS --json > "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ladders-${{ matrix.id }}
+          path: report
+          retention-days: 3
+          if-no-files-found: ignore
+
+  ladders-handover:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    name: every handover agrees with its journal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Every handover agrees with its journal
         run: pnpm driftbench validate all --check-handover
 
-  system-full:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
-    name: system all 11 levels
+  ladders:
+    needs: [ladders-leg, ladders-tail, ladders-handover]
+    if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,')))
+    name: ladders and floors
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -56,18 +321,157 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ladders-*
+          path: reports
+          merge-multiple: true
+      - name: Every validator on seeds 1 to 3 and the hidden seed, at or above its floor
+        run: pnpm driftbench validate all --reports reports --seeds 1..3 --hidden --check-floor
+      - name: Every leg ran and succeeded
+        if: always()
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          bad=0
+          for result in ${RESULTS//,/ }; do
+            if [[ "$result" != success ]]; then bad=1; fi
+          done
+          if [[ "$bad" -eq 1 ]]; then
+            echo "::error::A job this one waits for did not succeed (results: $RESULTS). A skipped, failed or cancelled leg is a red run."
+            exit 1
+          fi
+          echo "Every job this one waits for succeeded (results: $RESULTS)."
+
+  system-leg:
+    # Every level of the system ladder on one seed, in three slices: levels 1 to 9, level 10 and level 11.
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: system-s1-1-9
+            name: system seed 1 levels 1 to 9
+            component: system
+            flags: --seed 1 --levels 1..9
+          - id: system-s1-10-10
+            name: system seed 1 levels 10 to 10
+            component: system
+            flags: --seed 1 --levels 10..10
+          - id: system-s1-11-11
+            name: system seed 1 levels 11 to 11
+            component: system
+            flags: --seed 1 --levels 11..11
+          - id: system-s2-1-9
+            name: system seed 2 levels 1 to 9
+            component: system
+            flags: --seed 2 --levels 1..9
+          - id: system-s2-10-10
+            name: system seed 2 levels 10 to 10
+            component: system
+            flags: --seed 2 --levels 10..10
+          - id: system-s2-11-11
+            name: system seed 2 levels 11 to 11
+            component: system
+            flags: --seed 2 --levels 11..11
+          - id: system-s3-1-9
+            name: system seed 3 levels 1 to 9
+            component: system
+            flags: --seed 3 --levels 1..9
+          - id: system-s3-10-10
+            name: system seed 3 levels 10 to 10
+            component: system
+            flags: --seed 3 --levels 10..10
+          - id: system-s3-11-11
+            name: system seed 3 levels 11 to 11
+            component: system
+            flags: --seed 3 --levels 11..11
+          - id: system-hidden-1-9
+            name: system seed hidden levels 1 to 9
+            component: system
+            flags: --hidden --hidden-only --levels 1..9
+          - id: system-hidden-10-10
+            name: system seed hidden levels 10 to 10
+            component: system
+            flags: --hidden --hidden-only --levels 10..10
+          - id: system-hidden-11-11
+            name: system seed hidden levels 11 to 11
+            component: system
+            flags: --hidden --hidden-only --levels 11..11
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run this leg
+        shell: bash
+        env:
+          COMPONENT: ${{ matrix.component }}
+          FLAGS: ${{ matrix.flags }}
+          LEG: ${{ matrix.id }}
+        run: |
+          mkdir -p report
+          pnpm -s driftbench validate "$COMPONENT" $FLAGS --json > "report/$LEG.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: system-full-${{ matrix.id }}
+          path: report
+          retention-days: 3
+
+  system-full:
+    needs: system-leg
+    if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,')))
+    name: system all 11 levels
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: system-full-*
+          path: reports
+          merge-multiple: true
       - name: Every system level on seeds 1 to 3 and the hidden seed
         shell: bash
         run: |
-          # --check-floor deliberately caps measurement at the floor (currently 9).
           # A plain full run returns the level reached, so success here is 11, not 0.
           status=0
-          if pnpm driftbench validate system --seeds 1..3 --hidden --all-levels; then
+          if pnpm driftbench validate system --reports reports --seeds 1..3 --hidden --all-levels; then
             status=0
           else
             status=$?
           fi
           test "$status" -eq 11
+      - name: Every leg ran and succeeded
+        if: always()
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          bad=0
+          for result in ${RESULTS//,/ }; do
+            if [[ "$result" != success ]]; then bad=1; fi
+          done
+          if [[ "$bad" -eq 1 ]]; then
+            echo "::error::A job this one waits for did not succeed (results: $RESULTS). A skipped, failed or cancelled leg is a red run."
+            exit 1
+          fi
+          echo "Every job this one waits for succeeded (results: $RESULTS)."
+
 
   pointer-measure:
     # The pointer bank on chosen seeds, in shards, for the independent audit (docs/validators.md section 12.7 and
