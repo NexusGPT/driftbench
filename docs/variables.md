@@ -198,6 +198,15 @@ The report (`ConditionsReport`) holds the counts per status, `proposerCalls`, th
 
 **Measured on planted conditions.** The test plants 40 fictional clauses: 30 about a value the store has, 10 about a value and a variable it lacks. The simulated reader gives a false yes 0.2 percent of the time and misses a true one 2 percent; the simulated proposer finds the planted proposal 98 percent of the time. Over 20 seeds (800 planted clauses): 778 of 794 assigned values are the planted one (precision 0.980) and 778 of 800 planted values are found (recall 0.973); the test requires 0.95 for both. A reader that says yes to everything and a run without system 2 both fall under the bar in the same test. These numbers come from a simulated reader that errs at a rate the test sets, so they prove the plumbing and say nothing about the product: with the real systems the recall is 0.654 at the default thresholds, and the feed is not yet shown to reach 0.95.
 
+**Measured with the real systems.** `examples/variables/conditions` holds an invented candidate store (15 values), 26 planted clauses of the three example estates (`examples/estates`; 15 distinct sentences, some repeated in several estates and files) with the value each must end under, and two recordings made by `record.ts`: system 1 is the platform judge, system 2 is Haiku (`createModelProposer`). Four conditions of the clauses have no value in the store, so system 2 must propose them; the first clause of a group is proposed and the others must take that value. The test replays both recordings with no call. A value counts as assigned for every value a clause ends under; it is correct when it is the planted one.
+
+| Thresholds (yes at, no at) | Matched | Proposed | Unsure | Assigned | Correct | Precision | Recall |
+|---|---|---|---|---|---|---|---|
+| 0.75, 0.25 (the defaults) | 16 | 1 | 9 | 19 | 17 | 0.895 | 0.654 |
+| 0.75, 0.5 (chosen after the first run) | 18 | 4 | 4 | 24 | 22 | 0.917 | 0.846 |
+
+Neither reaches 0.95. What the recording shows: The platform judge answers 0.26 to 0.5 to many clauses it means as no, so the default no threshold leaves them unsure; raising it to 0.5 was chosen after the first run, on the same clauses, and is not a held-out result. A clause that names a helper dispatch got a yes for two values at once (the invoice-difference clause also dispatches an agent). The test pins these numbers; they are not a bar.
+
 Not built here: producing the spans. They come from the labels of the pointer reader (the condition label), which this feed takes as plain spans; until that reader is in, a caller supplies them.
 
 ## Impossible combinations
