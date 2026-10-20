@@ -34,10 +34,12 @@ Write and grow the tests
   driftbench family      code-agent task families built from a seed
   driftbench dataset     version spec sets in the store
   driftbench prompt      version prompts in the store
+  driftbench object      the rule sets driftbench applies: list, explain, extend, validate, migrate
 
 Run the agent
   driftbench campaign    plan, run, resume, inspect and export campaigns
   driftbench smoke       run one spec several times: is the agent deterministic?
+  driftbench isolation   run each parent-linked child alone: does it need its parent?
   driftbench replay      re-run checks on recorded sessions; no agent call, a judge only with --judge
   driftbench perturb     run one spec with one deviation injected, and print the recovery
   driftbench simulate    run one spec with a simulated user playing a persona

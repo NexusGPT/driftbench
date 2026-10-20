@@ -51,5 +51,7 @@ export default defineConfig({
     // Reuse transformed modules between runs: transforming was 90% of a short run. The cache lives in
     // node_modules/.vitest-cache, which is not tracked.
     fsModuleCache: true,
+    // Removes the temporary folders a test file made, when the file ends.
+    setupFiles: ['./tools/vitest-temp-folders.ts'],
   },
 });

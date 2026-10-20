@@ -288,6 +288,9 @@ export function namesArgument(fn: string, params: string | readonly string[], me
   });
 }
 
+/** How a message must spell an argument: an English-word name such as `a` is quoted, as `namesArgument` requires. */
+export const spellArgument = (name: string): string => (ENGLISH_WORDS.has(name) ? `'${name}'` : name);
+
 const finiteDeep = (value: unknown): boolean => {
   if (typeof value === 'number') return Number.isFinite(value);
   if (Array.isArray(value)) return value.every(finiteDeep);
@@ -1269,7 +1272,7 @@ export function degenerateItems(): BankItem[] {
         const param = CALL_PARAM[built.text] ?? DATA_PARAM[c.fn];
         if (param === undefined)
           return fail(`the validator names no argument for ${built.text}; fix degenerate.ts`);
-        const names = (typeof param === 'string' ? [param] : param).join(' or ');
+        const names = (typeof param === 'string' ? [param] : param).map(spellArgument).join(' or ');
         if (got.error instanceof RangeError && namesArgument(c.fn, param, got.error.message)) return ok();
         return fail(
           got.error instanceof RangeError

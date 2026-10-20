@@ -97,8 +97,14 @@ describe(`${ID}: the interval against the data's own mean and standard error`, {
     const slow = {
       ...stats,
       bootstrapCI: (values: readonly number[], options?: Parameters<S['bootstrapCI']>[1]) => {
-        const end = process.cpuUsage().user + 6_000_000;
-        while (process.cpuUsage().user < end);
+        // Six seconds of processor time, user and system, as the budget counts it. Counting user time alone
+        // waited much longer: the loop's own clock reads are system time.
+        const start = process.cpuUsage();
+        const spent = () => {
+          const used = process.cpuUsage(start);
+          return used.user + used.system;
+        };
+        while (spent() < 6_000_000);
         return stats.bootstrapCI(values, options);
       },
     } as S;

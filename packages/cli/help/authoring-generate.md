@@ -46,7 +46,7 @@ Every seeded choice comes from `--seed`: the same map and seed give the same sui
 ### driftbench generate
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--no-stems] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -62,7 +62,8 @@ driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] 
 | `--spec-cap-mode <mode>` | `tuples`: preserve pairs and triples; `pairs`: preserve pairs, report triple losses. Needs `--spec-cap`. | `tuples` |
 | `--tasks <n>` | Instances built per `task_family` relation, each with its variants. | 8 |
 | `--baseline <path>` | Specs to measure on the same map, for comparison. Repeat it. Every baseline spec must be valid. | none |
-| `--force` | Replace the output of an earlier run in the folder (`specs/`, `incomplete/`, `generate-report.json`). | off |
+| `--force` | Replace the output of an earlier run in the folder (`specs/`, `incomplete/`, `generate-report.json`, `stems-map.csv`). | off |
+| `--no-stems` | Write every complete spec whole: no shared opening written once as a stem. | stems on |
 | `--json` | Print the report as JSON instead of the summary. | off |
 | `--model` | Also ask the model port for specs; each counts only once the gate accepts it. Paid. Needs `--reference` and `--faults`. | off |
 | `--proposals <n>` | With `--model`: how many specs to ask for. | 3 |
@@ -93,7 +94,11 @@ Files under `--out`:
 | `specs/<seeder>/gen-<seeder>-NNN.yaml` | complete specs, ready for `gate` or `campaign run` |
 | `specs/task/.seed-<spec id>/` | a task workspace that holds a binary file, beside its spec |
 | `incomplete/<seeder>/...` | specs with a placeholder or a block with no machine Then |
-| `generate-report.json` | everything below, in full |
+| `specs/stems/stem-<hash>.yaml` | an opening two or more complete specs share, written once: `metadata.stem.specs` lists them |
+| `stems-map.csv` | one row per block as generated: `old_spec,old_index,old_block,new_spec,new_block,shared_by` |
+| `generate-report.json` | everything below, in full; `stems` counts the stems, the specs that start from one, and the blocks written once |
+
+A spec that shares its opening starts from its stem: block 0 names `parent: <stem id>#<block id>`, and `metadata.generated.parent` names the stem, its block and how many blocks it replaced. Loaded with its folder, or from `specs/<seeder>/` with `specs/stems/` beside it, the spec is written back out whole and means what it meant: the stem's blocks run first, unscored. A spec never shares its last block, a block at or after a perturbation or its end verdict, or a block whose criteria differ.
 
 Each generated spec opens with comment lines naming the seeder, the seed and the map hash, and carries `version: <map hash>`, `tier: generated`, tags (`flow:`, `persona:` and the like), `covers`, the stage list, and two non-gating criteria (`behaviour.<id>`, `flow.<id>`). Do not edit generated specs; change the map and generate again.
 
