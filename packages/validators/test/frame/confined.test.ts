@@ -277,43 +277,45 @@ export function value() {
     expect(existsSync(copied)).toBe(true);
   });
 
-  it('does not let run C plant a nearer node_modules package in the product tree for a later frame to bundle', () => {
-    // The probe of the re-review of PR 969: the installed package sits above the product tree; run C writes a nearer
-    // copy beside the product, and the next bundle takes the nearer one.
-    const installed = join(area, 'node_modules', 'zzstampdep');
-    mkdirSync(installed, { recursive: true });
-    writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
-    const nearer = join(sources, 'node_modules', 'zzstampdep');
-    const oracle = join(oracles, 'stamp-expected.json');
-    writeFileSync(oracle, '137');
-    const module = join(sources, 'nm.mjs');
-    writeFileSync(
-      module,
-      `import fs from 'node:fs';
-try {
-  fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
-  if (!fs.existsSync(${JSON.stringify(join(nearer, 'index.mjs'))})) {
-    fs.mkdirSync(${JSON.stringify(nearer)}, { recursive: true });
-    fs.writeFileSync(${JSON.stringify(join(nearer, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
-  }
-} catch {}
-const { STAMP } = await import('zzstampdep');
-export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
-`,
-    );
-    const rows = [1, 2, 3, 4].map((seed) => {
-      let frame: Frame<{ get: () => number }> | undefined;
-      try {
-        frame = isolate({ module, seed });
-        return frame.product.get() === 137 && frame.divergence() === undefined;
-      } catch {
-        return false;
-      } finally {
-        frame?.close();
-      }
-    });
-    expect(rows).toEqual([false, false, false, false]);
-  });
+  describe.each(['shadow', 'shadow-up'])(
+    'the probe %s of the reviews of PR 969 (opus-review-b, verbatim)',
+    (name) => {
+      // The product imports zzstampdep, installed at the project's node_modules with STAMP = 0. Run C writes, once, a
+      // nearer copy (beside the product, or one folder above it) with a fresh STAMP; a later frame must not take it.
+      const installed = join(findRoot(dirname(fileURLToPath(import.meta.url))), 'node_modules', 'zzstampdep');
+      beforeAll(() => {
+        mkdirSync(installed, { recursive: true });
+        writeFileSync(
+          join(installed, 'package.json'),
+          '{"name":"zzstampdep","version":"1.0.0","type":"module","main":"index.mjs"}',
+        );
+        writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
+      });
+      afterAll(() => rmSync(installed, { recursive: true, force: true }));
+
+      it('fails every frame', () => {
+        const oracle = join(oracles, 'shadow-expected.json');
+        writeFileSync(oracle, '{"expected":137}\n');
+        const module = join(sources, `${name}.mjs`);
+        writeFileSync(
+          module,
+          readFileSync(new URL(`${name}.mjs`, FIXTURES), 'utf8').replace(/__ORACLE__/g, oracle),
+        );
+        const rows = [1, 2, 3, 4].map((seed) => {
+          let frame: Frame<Cheat> | undefined;
+          try {
+            frame = isolate<Cheat>({ module, seed });
+            return item(frame.product.sumOdd, seed) && frame.divergence() === undefined;
+          } catch {
+            return false;
+          } finally {
+            frame?.close();
+          }
+        });
+        expect(rows).toEqual([false, false, false, false]);
+      });
+    },
+  );
 
   it.each([
     ['one folder above the product tree', 1],
