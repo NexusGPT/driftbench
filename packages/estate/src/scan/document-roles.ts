@@ -3,56 +3,37 @@ import type { DocumentInfo, DocumentRole } from '../schema';
 import type { EstateFile, RawEstate } from './reader';
 import { blankFences, readFrontmatter } from './text';
 
-/** Structural roles describe authority, independently of a runtime's file kind or owning skill. */
-const NAVIGATION_FOLDERS: ReadonlyArray<[RegExp, DocumentRole]> = [
-  [/^(?:archives?|attic)$/i, 'archive'],
-  [/^(?:fixtures?|__fixtures__)$/i, 'fixture'],
-  [/^(?:examples?|samples?|demos?)$/i, 'example'],
-  [/^templates?$/i, 'template'],
-];
+/**
+ * The role of a document comes, in this order, from what the estate declares for it (`documents:` in
+ * driftbench.estate.yaml), from the label the pointer reader recorded for it (the document-roles set, applied by
+ * the scan), or from its structure: repeated value slots make a template, a list of dated entries a history.
+ * No word of a folder name, a heading or a line decides a role.
+ */
 const DATE = /\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/;
 const DATED_ENTRY = /^\s*(?:#{1,6}\s+|[-*+]\s+|\d+[.)]\s+)/;
 function datedEntry(line: string): boolean {
   return DATED_ENTRY.test(line) && DATE.test(line);
 }
-const PLACEHOLDER = /\{\{[^{}\n]+\}\}|<\/?[a-z][\w.-]*(?:\s+[a-z][\w.-]*)?>/i;
-const HEADING_ROLE: ReadonlyArray<[RegExp, DocumentRole]> = [
-  [/^(?:change\s?log|release notes?)(?:\b|$)/i, 'changelog'],
-  [/^(?:history|revision history|change history|audit log)(?:\s*[:(].*)?$/i, 'history'],
-  [/^(?:journal|diary|work log|session log)(?:\b|$)/i, 'journal'],
-  [/^(?:examples?|samples?|demonstrations?)(?:\b|$)/i, 'example'],
-  [
-    /^(?:anti-?patterns?|counter-?examples?|(?:wrong|bad|incorrect)\s+(?:examples?|patterns?|usage|practices?))(?:\b|$)/i,
-    'example',
-  ],
-  [/^(?:templates?|skeletons?)(?:\b|$)/i, 'template'],
-];
-function headingRole(title: string): DocumentRole | undefined {
-  return HEADING_ROLE.find(([pattern]) => pattern.test(title))?.[1];
-}
 
 /**
- * A counter-example is shown so that it is not followed. A marker (a cross, or a label such as wrong, bad or
- * incorrect) opens it only where a line or a list item or a table cell begins; the same words inside a
- * sentence ("if the total is wrong: read ...") or a multiplication sign between numbers are ordinary text. A
- * check mark or a label such as right, good or correct closes it on the same line.
+ * A counter-example is shown so that it is not followed. A cross mark alone on its line, at the start of a line,
+ * a list item or a table cell, opens it: the block that follows is the counter-example. The mark is a symbol, not
+ * a word.
  */
-const WRONG_MARK = String.raw`(?:[✗✘❌]|×|\b(?:wrong|bad|incorrect|anti-?pattern|counter-?example)\b\s*[:：])`;
+const WRONG_MARK = '(?:[✗✘❌]|×)';
 /** What may precede a marker at the start of a line: a quote, a list bullet or number, a table cell, bold. */
 const LEAD = String.raw`\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?(?:\|\s*)?(?:\*\*|__)?`;
 /** A line holding only the marker: the counter-example is the block that follows. */
-const WRONG_STANDALONE = new RegExp(String.raw`^${LEAD}${WRONG_MARK}(?:\*\*|__)?\s*$`, 'iu');
+const WRONG_STANDALONE = new RegExp(String.raw`^${LEAD}${WRONG_MARK}(?:\*\*|__)?\s*$`, 'u');
 
-/** Classify before reading declarations. One incidental date or placeholder never changes authority. */
-export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFolder?: string): DocumentInfo {
-  const folders = posix.dirname(file.path).split('/');
-  let folderPath = '';
-  for (const folder of folders) {
-    folderPath = folderPath ? `${folderPath}/${folder}` : folder;
-    if (folderPath === unitFolder) continue;
-    const role = NAVIGATION_FOLDERS.find(([pattern]) => pattern.test(folder))?.[1];
-    if (role) return { path: file.path, role, reasons: [`navigation folder: ${folder}`] };
-  }
+/** Classify before reading declarations. A declared role wins; one incidental date or slot never changes authority. */
+export function classifyDocument(
+  file: Pick<EstateFile, 'path' | 'text'>,
+  _unitFolder?: string,
+  declared?: DocumentRole,
+): DocumentInfo {
+  if (declared !== undefined)
+    return { path: file.path, role: declared, reasons: ['declared in driftbench.estate.yaml'] };
   const markdown = /\.(?:md|markdown|txt)$/i.test(file.path);
   if (!markdown) return { path: file.path, role: 'normative', reasons: ['runtime structure or executable'] };
   const bodyLine = readFrontmatter(file.text).bodyLine;
@@ -60,22 +41,6 @@ export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFo
   const visible = blankFences(
     lines.map((line, index) => (index < bodyLine - 1 ? '' : line)).join('\n'),
   ).split('\n');
-  const first = visible.find((line) => line.trim() !== '')?.trim() ?? '';
-  const title = /^#\s+(.+?)\s*#*\s*$/.exec(first)?.[1];
-  const titledRole = title ? headingRole(title) : undefined;
-  const dates = visible.filter((line) => DATE.test(line)).length;
-  const appendOnly = /\bappend[- ]only\s+(?:log|journal|history|record)\b/i.test(visible.join('\n'));
-  if (
-    titledRole &&
-    (titledRole === 'example' ||
-      (titledRole === 'template' && PLACEHOLDER.test(file.text)) ||
-      (['history', 'changelog', 'journal'].includes(titledRole) && (dates > 0 || appendOnly)))
-  )
-    return {
-      path: file.path,
-      role: titledRole,
-      reasons: [`document heading: ${title}`, ...(dates ? ['dated entries'] : [])],
-    };
 
   // A fill-in document can have an arbitrary title. Repeated value slots, rather than variable
   // paths inside directives, establish a template without borrowing authority from its name.
@@ -86,9 +51,8 @@ export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFo
   if (slots.length >= 2 && slots.length * 2 >= content.length)
     return { path: file.path, role: 'template', reasons: ['repeated placeholder value slots'] };
 
-  // Repeated date headings establish an entry list even when a log uses an arbitrary title.
+  // Repeated date headings establish an entry list whatever the title says.
   const datedEntries = visible.filter(datedEntry).length;
-  // A live definition can contain its own history section; that section is handled below.
   const firstEntry = visible.findIndex(datedEntry);
   const firstContent = visible.findIndex((line) => line.trim() !== '');
   const beforeEntries = visible
@@ -96,50 +60,17 @@ export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFo
     .filter((line, index) => line.trim() && !(index === firstContent && /^#\s+/.test(line)));
   if (datedEntries >= 2 && beforeEntries.length === 0)
     return { path: file.path, role: 'history', reasons: ['document consists of dated entries'] };
-  if (
-    appendOnly &&
-    dates >= 2 &&
-    firstEntry >= 0 &&
-    beforeEntries.every((line) => /\bappend[- ]only\s+(?:log|journal|history|record)\b/i.test(line))
-  )
-    return { path: file.path, role: 'history', reasons: ['append-only dated log'] };
 
   const sections: NonNullable<DocumentInfo['sections']> = [];
-  let active: { startLine: number; depth: number; role: DocumentRole } | undefined;
   for (let index = bodyLine - 1; index < visible.length; index++) {
     const line = visible[index] ?? '';
-    const heading = /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
-    if (heading) {
-      const depth = heading[1]?.length ?? 1;
-      if (active && depth <= active.depth) {
-        sections.push({ startLine: active.startLine, endLine: index, role: active.role });
-        active = undefined;
-      }
-      const role = headingRole(heading[2] ?? '');
-      if (
-        !active &&
-        index !== firstContent &&
-        role &&
-        (role !== 'template' || PLACEHOLDER.test(lines.slice(index + 1).join('\n')))
-      )
-        active = { startLine: index + 1, depth, role };
-    }
-    // An explicit illustrative line is local: never suppress neighbouring operational text.
-    if (
-      !active &&
-      !line.includes(';') &&
-      (/^\s*(?:>\s*)?(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line) ||
-        WRONG_STANDALONE.test(line))
-    ) {
-      const endLine =
-        /^\s*(?:for example|e\.g\.|example)\s*[:,]?\s*$/i.test(line) || WRONG_STANDALONE.test(line)
-          ? exampleBlockEnd(lines, index)
-          : index + 1;
+    // A cross mark alone on its line opens a counter-example: never suppress neighbouring operational text.
+    if (!line.includes(';') && WRONG_STANDALONE.test(line)) {
+      const endLine = exampleBlockEnd(lines, index);
       sections.push({ startLine: index + 1, endLine, role: 'example' });
       index = endLine - 1;
     }
   }
-  if (active) sections.push({ startLine: active.startLine, endLine: lines.length, role: active.role });
   return {
     path: file.path,
     role: 'normative',

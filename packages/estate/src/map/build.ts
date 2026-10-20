@@ -1,6 +1,13 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
+import {
+  DOCUMENT_ROLE_LABELS,
+  DOCUMENT_ROLES_SET,
+  DOCUMENT_ROLES_SET_NAME,
+} from '../pointer/document-roles-set';
+import { parseLabelSets } from '../pointer/labels';
+import { type LabelerUsage, pointerScan } from '../pointer/scan';
 import { navigationNames } from '../scan/code';
 import { codeNames } from '../scan/code-names';
 import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
@@ -65,10 +72,68 @@ export type ScanEstateResult = {
   duplicates: string[];
   calls: number;
   pointer?: ScanAtoms['pointer'];
+  /** The document-role question the pointer reader was asked once per prose file, when it ran. */
+  documentRoles?: DocumentRolePass;
 };
 
+export type DocumentRolePass = {
+  /** Files whose role the recorded label set: role, by path. */
+  labelled: Record<string, string>;
+  windows: number;
+  calls: number;
+  recorded: number;
+  usage: LabelerUsage[];
+  failed: string[];
+};
+
+/** The lines of a file the document-role question reads: its first window. */
+const ROLE_LINES = 40;
+
+/**
+ * Asks the pointer reader, once per prose file the estate declares no role for, what the document is as a whole
+ * (the document-roles set, on the file's first lines), and gives each file the role its recorded label names.
+ * Nothing is read from a word of the file's name or headings.
+ */
+async function documentRolePass(read: RawEstate, pointer: PointerScanOptions): Promise<DocumentRolePass> {
+  const parsed = parseLabelSets(DOCUMENT_ROLES_SET);
+  if (!parsed.ok) throw new Error(`the shipped document-roles set does not load: ${parsed.message}`);
+  const declared = (path: string) =>
+    read.files
+      .find((file) => file.path === path)
+      ?.document?.reasons?.includes('declared in driftbench.estate.yaml') === true;
+  const paths = [...new Set(read.prose.map((chunk) => chunk.file))].filter((path) => !declared(path)).sort();
+  const files = paths.map((path) => ({
+    path,
+    text: (read.files.find((file) => file.path === path)?.text ?? '')
+      .split('\n')
+      .slice(0, ROLE_LINES)
+      .join('\n'),
+  }));
+  const { onPlan: _onPlan, previous: _previous, ...rest } = pointer;
+  const done = await pointerScan({ ...rest, sets: parsed.sets, atoms: [], files });
+  const labelled: Record<string, string> = {};
+  for (const unit of [...done.labelled].sort((a, b) => a.path.localeCompare(b.path) || a.index - b.index)) {
+    if (unit.set.set !== DOCUMENT_ROLES_SET_NAME || labelled[unit.path] !== undefined) continue;
+    const role = DOCUMENT_ROLE_LABELS[unit.label];
+    if (role === undefined) continue;
+    labelled[unit.path] = role;
+    const file = read.files.find((each) => each.path === unit.path);
+    if (file) file.document = { path: file.path, role, reasons: [`recorded label: ${unit.label}`] };
+  }
+  return {
+    labelled,
+    windows: done.windows,
+    calls: done.calls,
+    recorded: done.recorded,
+    usage: done.usage,
+    failed: done.failed,
+  };
+}
+
 export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResult> {
-  const raw = normativeEstate(await input.reader.read(input.root));
+  const read = await input.reader.read(input.root);
+  const documentRoles = input.pointer ? await documentRolePass(read, input.pointer) : undefined;
+  const raw = normativeEstate(read);
   const scanned = await scanAtoms(raw, {
     ...(input.port ? { port: input.port } : {}),
     ...(input.cache ? { cache: input.cache } : {}),
@@ -166,6 +231,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     duplicates: scanned.duplicates,
     calls: scanned.calls,
     ...(scanned.pointer ? { pointer: scanned.pointer } : {}),
+    ...(documentRoles ? { documentRoles } : {}),
   };
 }
 

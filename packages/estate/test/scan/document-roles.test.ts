@@ -8,10 +8,10 @@ import {
 } from '../../src/index';
 import { estate, NOW, structurePointer } from '../support';
 
-import { documents, roleEstateFiles } from './document-role-estate';
+import { DECLARED_CONFIG, documents, roleEstateFiles } from './document-role-estate';
 
 describe('document roles before rule extraction', () => {
-  it('records roles in a round-trippable map and keeps non-normative documents as navigation only', async () => {
+  it('records the declared roles in a round-trippable map and keeps non-normative documents as navigation only', async () => {
     const root = await estate(roleEstateFiles());
     const { map, raw } = await scanEstate({
       root,
@@ -61,7 +61,11 @@ describe('document roles before rule extraction', () => {
   });
 
   it('exempts records and stores from reachability and keeps loaded material subject to it', async () => {
-    const root = await estate({ 'CLAUDE.md': '# Rules\n', ...documents });
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      ...documents,
+      'driftbench.estate.yaml': DECLARED_CONFIG,
+    });
     const { map, raw } = await scanEstate({
       root,
       reader: new ClaudeCodeReader(),
@@ -78,7 +82,7 @@ describe('document roles before rule extraction', () => {
   it('resolves declared unit identifiers without inventing missing files from other inline values', async () => {
     const root = await estate({
       'CLAUDE.md':
-        '# Rules\nLoad `formatter`.\nLoad the helper `proofreader`.\nRead this rule and print `done`.\nFor example, read `fictional-helper`.\nRead `<slug>`.\nRead `{{x}}`.\n',
+        '# Rules\nLoad `formatter`.\nLoad the helper `proofreader`.\nRead this rule and print `done`.\nRead `<slug>`.\nRead `{{x}}`.\n',
       '.claude/skills/formatter/SKILL.md': '---\nname: formatter\n---\n# Formatting\n',
       '.claude/agents/proofreader.md': '---\nname: proofreader\n---\n# Proofreading\n',
     });
@@ -146,8 +150,16 @@ describe('authority at the generic reader and lint boundaries', () => {
   it('filters non-normative prose supplied by a different runtime reader', async () => {
     const root = await estate({ 'CLAUDE.md': '# Rules\n' });
     const raw = await new ClaudeCodeReader().read(root);
-    const text = '# Examples\n\nAfter a compaction, read `missing.md` before editing a page.\n';
-    raw.files = [{ path: 'manual.txt', kind: 'memory', text }];
+    const text = '# Notes\n\nAfter a compaction, read `missing.md` before editing a page.\n';
+    // The other reader declares the document an example, as an estate configuration does.
+    raw.files = [
+      {
+        path: 'manual.txt',
+        kind: 'memory',
+        text,
+        document: { path: 'manual.txt', role: 'example', reasons: ['declared in driftbench.estate.yaml'] },
+      },
+    ];
     raw.prose = [{ id: 'manual', file: 'manual.txt', startLine: 1, endLine: 3, text }];
     const { map, raw: filtered } = await scanEstate({
       root,
@@ -179,7 +191,8 @@ describe('authority at the generic reader and lint boundaries', () => {
           ? {
               ...file,
               document: undefined,
-              text: '# Examples\nRead `missing-live/policy.md` before editing a page.\n',
+              // Repeated value slots make it a template by structure, with no word read.
+              text: '# Form\nname: {{name}}\nowner: {{owner}}\nRead `missing-live/policy.md` before editing a page.\n',
             }
           : file,
       ),

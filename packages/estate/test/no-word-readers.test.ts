@@ -46,6 +46,12 @@ const REMOVED: Record<string, readonly string[]> = {
   'packages/generate/src/estate/asks.ts': ['COMMON', 'stemOf', 'significant', 'imperativeOf'],
   'packages/generate/src/estate/unit.ts': ['OBLIGES', 'ACT_COMMANDS', 'clausesOf', 'bashForm'],
   'packages/generate/src/estate/then.ts': ['SAME_OBJECT', 'recoveryAction'],
+  'packages/estate/src/scan/document-roles.ts': [
+    'NAVIGATION_FOLDERS',
+    'HEADING_ROLE',
+    'headingRole',
+    'PLACEHOLDER',
+  ],
 };
 
 describe('the estate path holds no English word reader that was taken out', () => {

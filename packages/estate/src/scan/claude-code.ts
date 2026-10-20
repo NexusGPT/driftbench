@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { EstatePathError, estatePath } from '../paths';
+import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
@@ -143,6 +144,8 @@ type EstateConfig = {
   aliases: Record<string, string[]>;
   externals?: string[];
   userSkills?: string;
+  /** Declared document roles, by glob: they win over a recorded label and over structure. */
+  documents?: Array<{ rule: IgnoreRule; role: DocumentRole }>;
 };
 
 /**
@@ -242,6 +245,7 @@ export class ClaudeCodeReader implements EstateReader {
       file.document = classifyDocument(
         file,
         ['skill', 'skill_file'].includes(file.kind) ? file.path.split('/').slice(0, 3).join('/') : undefined,
+        config.documents?.find((entry) => entry.rule.test(file.path))?.role,
       );
 
     const estate: RawEstate = {
@@ -572,6 +576,24 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
   if (userSkills !== undefined) {
     if (typeof userSkills === 'string' && userSkills.trim() !== '') config.userSkills = userSkills.trim();
     else notes.push({ file: ESTATE_CONFIG, message: 'userSkills: must be a folder' });
+  }
+  const documents = parsed.documents;
+  if (documents !== undefined) {
+    const roles = DocumentRole.options as readonly string[];
+    const entries = isRecord(documents) ? Object.entries(documents) : [];
+    if (
+      entries.length > 0 &&
+      entries.every(([glob, role]) => glob.trim() !== '' && typeof role === 'string' && roles.includes(role))
+    )
+      config.documents = entries.map(([glob, role]) => ({
+        rule: ignoreRule(glob.trim()),
+        role: role as DocumentRole,
+      }));
+    else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: `documents: must map each glob to a role (${roles.join(', ')})`,
+      });
   }
   const aliases = parsed.aliases;
   if (aliases !== undefined) {

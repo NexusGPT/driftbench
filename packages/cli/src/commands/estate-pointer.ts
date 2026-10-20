@@ -268,6 +268,19 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   lines.push(
     `  Units since the last ledger: ${events.map(([event, count]) => `${event} ${count}`).join(', ')}.`,
   );
+  const roles = result.documentRoles;
+  if (roles) {
+    lines.push(
+      `  Document roles: ${Object.keys(roles.labelled).length} files labelled by the document-roles set; requests ${roles.windows} answered, ${roles.calls} sent, ${roles.recorded} recorded.`,
+    );
+    for (const entry of roles.usage) {
+      if (entry.input + entry.output === 0 && entry.calls === 0) continue;
+      lines.push(
+        `  Tokens, document roles, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
+      );
+    }
+    for (const failure of roles.failed) lines.push(`    document-role window failed: ${failure}`);
+  }
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   return lines;

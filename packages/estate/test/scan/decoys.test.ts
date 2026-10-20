@@ -99,8 +99,10 @@ describe('a file named in a change note', () => {
     });
     const paths = map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path);
     expect(paths).toEqual([]);
-    expect(map.documents?.find((document) => document.path.endsWith('pricing/SKILL.md'))?.sections).toEqual([
-      { startLine: 8, endLine: 14, role: 'changelog' },
-    ]);
+    // No heading word makes a changelog section: whether a note names a file to read is the labeler's answer, and
+    // with no labeler here the notes build nothing.
+    expect(
+      map.documents?.find((document) => document.path.endsWith('pricing/SKILL.md'))?.sections,
+    ).toBeUndefined();
   });
 });

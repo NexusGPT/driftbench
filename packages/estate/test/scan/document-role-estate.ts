@@ -10,6 +10,22 @@ export const documents: Record<string, string> = {
   '.claude/skills/editor/archive/old.md': `# Rules\n${historical}\n`,
 };
 
+/** The roles the estate declares for those documents: a role is never read from a word of a name or heading. */
+export const DECLARED_ROLES: Record<string, string> = {
+  '.claude/skills/editor/references/revisions.md': 'changelog',
+  '.claude/skills/editor/references/events.md': 'history',
+  '.claude/skills/editor/references/skeleton.md': 'template',
+  '.claude/skills/editor/references/demo.md': 'example',
+  '.claude/skills/editor/references/diary.md': 'journal',
+  '.claude/skills/editor/fixtures/input.md': 'fixture',
+  '.claude/skills/editor/archive/old.md': 'archive',
+};
+
+/** The estate configuration that declares them. */
+export const DECLARED_CONFIG = `documents:\n${Object.entries(DECLARED_ROLES)
+  .map(([path, role]) => `  '${path}': ${role}`)
+  .join('\n')}\n`;
+
 export function roleEstateFiles(): Record<string, string> {
   return {
     'CLAUDE.md': '# Rules\n\nRead `.claude/skills/editor/SKILL.md`.\n',
@@ -39,5 +55,6 @@ export function roleEstateFiles(): Record<string, string> {
     '.claude/skills/editor/references/current.md':
       '# Current rules\n\nRead `missing-live/guide.md` before editing a page.\n',
     ...documents,
+    'driftbench.estate.yaml': DECLARED_CONFIG,
   };
 }

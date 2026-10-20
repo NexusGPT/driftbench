@@ -23,40 +23,41 @@ describe('document authority boundaries', () => {
     expect(classifyDocument({ path: 'CLAUDE.md', text }).sections).toBeUndefined();
   });
 
-  it('bounds historical and example sections by heading depth', () => {
+  it('opens no section on a heading word: a live part shown as an example is labelled by the reader, not by code', () => {
     const text =
       '# Rules\nRead `first.md`.\n## Examples\nRead `example.md`.\n### More examples\nRead `another.md`.\n## Live rules\nRead `last.md`.\n';
     const info = classifyDocument({ path: 'CLAUDE.md', text });
-    expect(info.sections).toEqual([{ startLine: 3, endLine: 6, role: 'example' }]);
+    expect(info.sections).toBeUndefined();
     expect(normativeRanges({ path: 'CLAUDE.md', text, kind: 'standing' }, 1, 8)).toEqual([
-      { startLine: 1, endLine: 2 },
-      { startLine: 7, endLine: 8 },
+      { startLine: 1, endLine: 8 },
     ]);
   });
 });
 
-it('bounds a standalone e.g. paragraph without swallowing the next live paragraph', () => {
+it('bounds a counter-example a lone cross mark opens, without swallowing the next live paragraph', () => {
   const text =
-    '# Rules\n\ne.g.\n\n> Read `fictional.md` before editing a page.\n> After a compaction, reload the example.\n\nRead `live.md` before editing a page.\n';
+    '# Rules\n\n✗\n\n> Read `fictional.md` before editing a page.\n> After a compaction, reload the example.\n\nRead `live.md` before editing a page.\n';
   expect(classifyDocument({ path: 'CLAUDE.md', text }).sections).toEqual([
     { startLine: 3, endLine: 6, role: 'example' },
   ]);
+  // The words that introduced an example before ("e.g.") open nothing now.
+  expect(classifyDocument({ path: 'CLAUDE.md', text: text.replace('✗', 'e.g.') }).sections).toBeUndefined();
 });
 
-it('ends a fenced example at its closing fence, including blank lines inside', () => {
+it('ends a fenced counter-example at its closing fence, including blank lines inside', () => {
   const text =
-    '# Rules\nFor example:\n\n```md\nRead `fictional.md`.\n\nAfter a compaction, reload.\n```\nRead `live.md` before editing a page.\n';
+    '# Rules\n✘\n\n```md\nRead `fictional.md`.\n\nAfter a compaction, reload.\n```\nRead `live.md` before editing a page.\n';
   expect(classifyDocument({ path: 'CLAUDE.md', text }).sections).toEqual([
     { startLine: 2, endLine: 8, role: 'example' },
   ]);
 });
 
-it('does not let an embedded append-only log erase the operational section', () => {
+it('does not let embedded dated entries erase the operational section, nor make a section of them by a word', () => {
   const text =
     '# Rules\n\nRead `live.md` before editing a page.\n\n## History\nAppend-only log.\n\n- 2024-01-01: Read `old.md`.\n- 2024-01-02: Read `older.md`.\n';
   const info = classifyDocument({ path: 'CLAUDE.md', text });
   expect(info.role).toBe('normative');
-  expect(info.sections).toEqual([{ startLine: 5, endLine: 10, role: 'history' }]);
+  expect(info.sections).toBeUndefined();
 });
 
 it('recognizes date-bearing entry headings even when a date follows an entry label', () => {

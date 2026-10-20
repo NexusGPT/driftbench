@@ -139,10 +139,13 @@ describe('the Claude Code reader', () => {
       ['.claude/skills/shipment-tracker/SKILL.md', 12],
       ['.claude/skills/supplier-email/SKILL.md', 5],
       ['.claude/skills/weekly-report/SKILL.md', 6],
+      ['.claude/skills/weekly-report/templates/report.md', 1],
       ['.claude/skills/shipment-tracker/data/shipments.txt', 1],
     ]);
+    // The reader reads no word of a folder name: the template's role comes from the scan's recorded
+    // document-roles label (or from a declaration), so at the reader it is a live document still.
     expect(raw.files.find((file) => file.path.endsWith('templates/report.md'))?.document?.role).toBe(
-      'template',
+      'normative',
     );
     for (const chunk of raw.prose) expect(chunk.text).not.toMatch(/^name:/m);
   });
