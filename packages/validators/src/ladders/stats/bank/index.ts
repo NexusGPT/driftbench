@@ -1,4 +1,3 @@
-import * as stats from '@agent-nexus/driftbench-stats';
 import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
@@ -107,11 +106,13 @@ export async function runItem(
   item: BankItem,
   seed: number,
   root: string,
-  s: StatsImpl = stats,
+  s?: StatsImpl,
 ): Promise<ItemOutcome> {
   const rng = itemRng(seed, item.id);
+  // The package itself only when no replacement is given (tests): never loaded by the bank child, which is given the frame.
+  const given = s ?? ((await import('@agent-nexus/driftbench-stats')) as StatsImpl);
   try {
-    const outcome = await item.check({ seed, s, root, rng });
+    const outcome = await item.check({ seed, s: given, root, rng });
     return outcome;
   } catch (cause) {
     const error = attempt(() => {
