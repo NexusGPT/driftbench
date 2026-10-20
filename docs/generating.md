@@ -340,6 +340,10 @@ and a link to each section that reaches it through the registry, with `evidence:
 The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
 that does not describe the prompt's text is refused with exit 2.
 
+### A tool failure on a turn that asks a behaviour
+
+A move of a walk is not the only turn that runs a tool. A behaviour whose own text names a read tool runs it when the user asks for the behaviour, at any stage after the start and without leaving the stage. When the flow recovers from that tool's failure, such a turn is a place for a `D8_tool_failure` probe, the last stage of a path included, which no move reaches. The `cover` seeder builds it for a cell that names a deviation of that class and a stage: the user asks for a behaviour of the flow that reads a recovered tool, the tool fails, the recovery holds the stage, and the user asks again with the tool answering. The behaviour the cell names is the one the spec covers; when it reads nothing, another behaviour of the flow is only said. One rule decides which turns qualify (`extract/behaviour-turns.ts`), and the derived reachability, the t-wise target and the builder all read it, so they agree on which cells exist. A turn qualifies when the tool is not the end state a path writes (a write is never failed and asked again), the behaviour has an approved phrase that states no slot and binds none (that is what the turn says), and a flow that holds the behaviour recovers from the tool's failure.
+
 ### Balance of stages, classes and behaviours
 
 Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.
