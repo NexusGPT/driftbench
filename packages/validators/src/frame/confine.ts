@@ -1,6 +1,14 @@
-import { existsSync, mkdirSync, realpathSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, extname, join, relative } from 'node:path';
+import { dirname, extname, join, relative, resolve } from 'node:path';
 import { findRoot } from '../root';
 import { FrameError } from './tape';
 import type { TwinPlan } from './twins';
@@ -126,15 +134,17 @@ function bundler(module: string): { buildSync(options: Record<string, unknown>):
  * nothing else of the project, so a run that may read only this folder has the product and nothing around it. A
  * product that reads a file of its own through `import.meta.url` must be given that file in the run's grants.
  */
-export function seal(module: string, into: string, name: string): string {
+export function seal(module: string, into: string, name: string): { file: string; inputs: string[] } {
   if (!SOURCE.has(extname(module)))
     throw new FrameError(`the product ${module} is not a script the frame can bundle`);
   mkdirSync(into, { recursive: true });
   const outfile = join(realOf(into), `${name}.mjs`);
   // The project's tsconfig maps the workspace packages to their sources, as the tsx loader reads it from the root.
   const tsconfig = join(findRoot(dirname(module)), 'tsconfig.json');
+  let built: unknown;
   try {
-    bundler(module).buildSync({
+    built = bundler(module).buildSync({
+      metafile: true,
       ...(existsSync(tsconfig) ? { tsconfig } : {}),
       entryPoints: [module],
       outfile,
@@ -152,7 +162,54 @@ export function seal(module: string, into: string, name: string): string {
     const text = cause instanceof Error ? cause.message : String(cause);
     throw new FrameError(`the product ${module} did not bundle: ${text.split('\n').slice(0, 4).join(' ')}`);
   }
-  return outfile;
+  const meta = (built as { metafile?: { inputs: Record<string, unknown> } }).metafile;
+  const inputs = Object.keys(meta?.inputs ?? {})
+    .map((path) => resolve(findRoot(dirname(module)), path))
+    .filter((path) => existsSync(path));
+  return { file: outfile, inputs: [...new Set([resolve(module), ...inputs])] };
+}
+
+/**
+ * A guard on files the unconfined run C could write: the product's source and the files it is granted. Run C is
+ * the user-shaped run and may read the expected values, so it must not be able to carry them to a later frame or a
+ * later run by writing them into a file the confined runs read. The guard keeps the bytes at the start of the frame;
+ * after each unconfined run `check` puts back any file that changed, and says which.
+ */
+export class SourceGuard {
+  private readonly saved = new Map<string, Buffer>();
+
+  constructor(paths: readonly string[]) {
+    for (const path of paths) this.add(path);
+  }
+
+  private add(path: string): void {
+    try {
+      const stat = statSync(path);
+      if (stat.isDirectory()) {
+        for (const name of readdirSync(path)) if (name !== 'node_modules') this.add(join(path, name));
+      } else if (stat.isFile() && this.saved.size < 5000) this.saved.set(path, readFileSync(path));
+    } catch {
+      // a path that does not exist holds nothing to keep
+    }
+  }
+
+  /** The files that differ from the start, put back as they were. */
+  check(): string[] {
+    const changed: string[] = [];
+    for (const [path, bytes] of this.saved) {
+      let now: Buffer | undefined;
+      try {
+        now = readFileSync(path);
+      } catch {
+        now = undefined;
+      }
+      if (now === undefined || !now.equals(bytes)) {
+        changed.push(path);
+        writeFileSync(path, bytes);
+      }
+    }
+    return changed;
+  }
 }
 
 /** The folder of a sealed bundle. */

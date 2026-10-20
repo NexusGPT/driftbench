@@ -30,7 +30,7 @@ async function main(args: readonly string[]): Promise<void> {
     module: productModule(root as string, implPath),
     seed,
     tag: `stats:${seed}:${start}:${process.pid}`,
-    plain: { every: PLAIN_EVERY },
+    plain: { batch: PLAIN_BATCH },
     functions: 'source',
   });
   // The bank also imports the target transitively: load it only after the trap is active.
@@ -63,8 +63,8 @@ async function main(args: readonly string[]): Promise<void> {
   closeFrame(frame);
 }
 
-/** The first call of each export and then every this-many-th call is made in run C too (frame/isolate.ts). */
-export const PLAIN_EVERY = 1000;
+/** The calls run C holds before it makes them in one fresh process (frame/isolate.ts); every call goes through it. */
+export const PLAIN_BATCH = 2000;
 
 /** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
 function productModule(root: string, implPath: string | undefined): string {

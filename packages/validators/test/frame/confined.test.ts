@@ -203,3 +203,15 @@ describe('functions across the frame', () => {
     expect(frame.cpuSince(1)).toBe(0);
   });
 });
+
+describe('a product that carries a stamp from run C to a later frame', () => {
+  it('fails every frame, and its source is put back as it was', () => {
+    const file = plant('stamp');
+    const before = readFileSync(file, 'utf8');
+    for (const seed of [1, 2, 3, 4]) {
+      const result = framed('stamp', seed);
+      expect(result.pass, `seed ${seed}`).toBe(false);
+    }
+    expect(readFileSync(file, 'utf8')).toBe(before);
+  });
+});

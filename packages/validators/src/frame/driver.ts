@@ -215,35 +215,50 @@ export function wrapperModule(
   return { source, invoke: name('invoke') };
 }
 
-/** The codec module of run C: the value codec, exported under drawn names. */
-export function plainCodec(seed: number, tag: string): { source: string; encode: string; decode: string } {
+/** The codec module of run C: the value codec and the table of handles, exported under drawn names. */
+export function plainCodec(
+  seed: number,
+  tag: string,
+): { source: string; encode: string; decode: string; handles: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')} };\n`;
-  return { source, encode: name('encode'), decode: name('decode') };
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')} };\n`;
+  return { source, encode: name('encode'), decode: name('decode'), handles: name('handles') };
 }
 
 /**
- * The entry of run C for one call: it imports the product and the codec, reads the arguments from a file, makes the
- * call and writes the answer to a file. Paths are file URLs and the call's name is a string literal.
+ * The entry of run C for a batch of calls: one fresh process that imports the product and the codec, reads the calls
+ * from a file, makes them in order and writes every answer to a file. The state a call leaves (a counter, a
+ * handle) is kept from one call to the next, as in the confined runs. Paths are file URLs.
  */
-export function plainEntry(
+export function plainBatchEntry(
   seed: number,
   tag: string,
-  paths: { module: string; codec: string; args: string; out: string },
-  call: string,
-  codec: { encode: string; decode: string },
+  paths: { module: string; codec: string; calls: string; out: string },
+  codec: { encode: string; decode: string; handles: string },
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
+  const calls = name('calls');
   const out = name('out');
+  const each = name('each');
+  const fn = name('fn');
+  const answer = name('answer');
   const error = name('error');
   return [
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')} } from ${JSON.stringify(paths.codec)};`,
-    `let ${out};`,
-    `try { ${out} = { ret: ${name('encode')}(await ${product}[${JSON.stringify(call)}](...${name('decode')}(JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.args)}), 'utf8'))))) }; }`,
-    `catch (${error}) { ${out} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')} } from ${JSON.stringify(paths.codec)};`,
+    `const ${calls} = JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.calls)}), 'utf8'));`,
+    `const ${out} = [];`,
+    `for (const ${each} of ${calls}) {`,
+    `  let ${answer};`,
+    `  try {`,
+    `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
+    `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
+    `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('decode')}(${each}.args))) };`,
+    `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
+    `  ${out}.push(${answer});`,
+    `}`,
     `${name('write')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${out}));`,
     '',
   ].join('\n');

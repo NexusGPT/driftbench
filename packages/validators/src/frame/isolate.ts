@@ -6,8 +6,8 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { confine, seal, tsxPath } from './confine';
-import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
+import { confine, SourceGuard, seal, tsxPath } from './confine';
+import { plainBatchEntry, plainCodec, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
   decode,
@@ -41,6 +41,11 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 const START_MS = 120_000;
 const CALL_MS = 300_000;
+/** The time a batch of calls may take in run C. */
+const BATCH_MS = 1_800_000;
+/** The calls run C holds before it makes them, and the bytes of their arguments. */
+const BATCH_CALLS = 2000;
+const BATCH_BYTES = 40_000_000;
 
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
@@ -59,12 +64,12 @@ export type IsolateOptions = {
   /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
   keep?: Keep;
   /**
-   * Make each call in run C too (default true): one process per call, so it costs a process start per call.
-   * `{ every }` makes the first call of each export and then every `every`-th call: for a product called thousands
-   * of times, where a process start per call is too slow. A sampled call that differs is a finding that holds for
-   * the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
+   * Make each call in run C too (default true). Run C is one fresh process for a batch of calls, which it makes in
+   * order: every call goes through it once. The batch ends at `batch` calls (default 2000) or 40 MB of arguments,
+   * and when the frame is read (`divergence()`, `tainted()`) or closed. A call that differs is a finding that holds
+   * for the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
    */
-  plain?: boolean | { every: number };
+  plain?: boolean | { batch: number };
   /**
    * What a function in an argument becomes (the default refuses it). `'source'` sends its source text, which the
    * confined run rebuilds: for a pure function of the validator, such as a statistic handed to the product. A
@@ -133,7 +138,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string };
+  codecNames: { encode: string; decode: string; handles: string };
   count: number;
   /** Run C's environment: the user's (`userEnv`). */
   env: Record<string, string>;
@@ -153,27 +158,32 @@ function openPlain(seed: number, tag: string): PlainRun {
   return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
 }
 
-/** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
-function plainCall(plain: PlainRun, seed: number, tag: string, module: string, name: string, sent: Json) {
+/** The calls of a batch in run C: one fresh process that makes them in order and writes every answer to a file. */
+function plainBatch(
+  plain: PlainRun,
+  seed: number,
+  tag: string,
+  module: string,
+  calls: Array<{ call: string; args: Json }>,
+): Array<Outcome | { dead: string }> {
   plain.count += 1;
   const stem = `${tag.length.toString(36)}${plain.count}`;
   // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
   const entry = join(plain.dir, `${stem}.mts`);
-  const args = join(plain.dir, `${stem}.json`);
+  const list = join(plain.dir, `${stem}.json`);
   const out = join(plain.dir, `${stem}.out.json`);
-  writeFileSync(args, JSON.stringify(sent));
+  writeFileSync(list, JSON.stringify(calls));
   writeFileSync(
     entry,
-    plainEntry(
+    plainBatchEntry(
       seed,
       `${tag}:${plain.count}`,
       {
         module: pathToFileURL(module).href,
         codec: pathToFileURL(plain.codec).href,
-        args: pathToFileURL(args).href,
+        calls: pathToFileURL(list).href,
         out: pathToFileURL(out).href,
       },
-      name,
       plain.codecNames,
     ),
   );
@@ -182,17 +192,30 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
     env: plain.env,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: CALL_MS,
+    timeout: BATCH_MS,
+    maxBuffer: 64 * 1024 * 1024,
   });
   try {
-    if (!existsSync(out))
-      return {
+    if (!existsSync(out)) {
+      const dead = {
         dead: `run C ended (${ran.status ?? ran.signal}): ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
       };
-    return JSON.parse(readFileSync(out, 'utf8')) as Outcome;
+      return calls.map(() => dead);
+    }
+    return JSON.parse(readFileSync(out, 'utf8')) as Array<Outcome | { dead: string }>;
   } finally {
-    for (const file of [entry, args, out]) rmSync(file, { force: true });
+    for (const file of [entry, list, out]) rmSync(file, { force: true });
   }
+}
+
+/** How a call is compared between runs: what the caller keeps of the answer, or the throw. */
+function keptOf(
+  outcome: Outcome | { dead: string },
+  keep: ((value: unknown) => unknown) | undefined,
+): string {
+  if ('dead' in outcome) return 'dead';
+  if ('throws' in outcome) return `throws ${canonical(outcome.throws)}`;
+  return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
 }
 
 const outcomeText = (outcome: Outcome | { dead: string }) =>
@@ -209,7 +232,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
-  const sealed = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  const { file: sealed, inputs } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
+  const guard = new SourceGuard([...inputs, ...(options.reads ?? [])]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
@@ -244,11 +269,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const found: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
   let taint: string | undefined;
-  const counts = new Map<string, number>();
-  let total = 0;
   let closed = false;
   const close = () => {
     if (closed) return;
+    try {
+      flushPlain();
+    } catch {
+      // a flush that fails leaves the finding it made
+    }
     closed = true;
     try {
       relay.port.postMessage({ close: true });
@@ -291,6 +319,40 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (handle !== undefined) return { $handle: handle };
     return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
   };
+  type Pending = { call: string; args: Json; entry: Entry; expected: string; head: string; at: number };
+  const pending: Pending[] = [];
+  let pendingBytes = 0;
+  /** Makes the held calls in run C, one fresh process, and compares each answer with the one of run A. */
+  const flushPlain = (): void => {
+    if (!plain || pending.length === 0) return;
+    const batch = pending.splice(0);
+    pendingBytes = 0;
+    const answers = plainBatch(
+      plain,
+      options.seed,
+      tag,
+      module,
+      batch.map(({ call: callName, args }) => ({ call: callName, args })),
+    );
+    batch.forEach((held, index) => {
+      const c = answers[index] ?? { dead: 'run C gave no answer to this call' };
+      if (!('dead' in c)) held.entry.plain = c;
+      if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
+        const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
+      }
+    });
+    // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
+    const changed = guard.check();
+    if (changed.length > 0) {
+      const message = `run C wrote the product's files (${changed.map((path) => path.split('/').slice(-2).join('/')).join(', ')}); they are put back`;
+      found.push({ at: tape.length - 1, message });
+      first ??= message;
+      taint ??= message;
+    }
+  };
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
@@ -325,24 +387,20 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         first ??= message;
       }
     }
-    total += 1;
-    const seen = counts.get(name) ?? 0;
-    counts.set(name, seen + 1);
-    const sampled =
-      plain !== undefined &&
-      (options.plain === undefined ||
-        typeof options.plain === 'boolean' ||
-        seen === 0 ||
-        total % options.plain.every === 0);
-    if (plain && sampled && !name.startsWith('#')) {
-      const c = plainCall(plain, options.seed, tag, module, name, sent);
-      if (!('dead' in c)) entry.plain = c;
-      if (kept(a) !== kept(c)) {
-        const message = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
-        found.push({ at: tape.length - 1, message });
-        first ??= message;
-        taint ??= message;
-      }
+    if (plain) {
+      // Run C makes this call later, in a batch, in a fresh process: the answer of run A is kept to compare with.
+      const size = JSON.stringify(sent).length;
+      pending.push({
+        call: name,
+        args: sent,
+        entry,
+        expected: keptOf(a, options.keep?.[name]),
+        head,
+        at: tape.length - 1,
+      });
+      pendingBytes += size;
+      const limit = typeof options.plain === 'object' ? options.plain.batch : BATCH_CALLS;
+      if (pending.length >= limit || pendingBytes >= BATCH_BYTES) flushPlain();
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret, revive);
@@ -369,10 +427,16 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   return {
     product,
     tape,
-    divergence: () => first,
+    divergence: () => {
+      flushPlain();
+      return first;
+    },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
-    tainted: () => taint,
+    tainted: () => {
+      flushPlain();
+      return taint;
+    },
     close,
   };
 }
@@ -411,7 +475,12 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
-  const sealed = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
+  const { file: sealed, inputs } = seal(
+    resolve(script),
+    sealFolder,
+    drawnFolder(options.seed, `bundle:${tag}:command`),
+  );
+  const guard = new SourceGuard(inputs);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
@@ -483,6 +552,9 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     (typeof results)[number],
   ];
   let divergence: string | undefined;
+  const changedByC = guard.check();
+  if (changedByC.length > 0)
+    divergence = `run C wrote the command's files (${changedByC.join(', ')}); they are put back`;
   const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
       divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
