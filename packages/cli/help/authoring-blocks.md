@@ -68,6 +68,27 @@ This is a format topic. The commands that read blocks are `spec validate`, `spec
 
 A block takes exactly one of `user`, `burst` and `when`. A user stimulus in long form may also carry `simulated_user`, `when: { user, simulated_user }`: a simulated user that plays the block in mode `exact`, `simulated` or `replay` (every key in authoring-personas, running in running-simulate). The injection form is `when: { injection: { class: <deviation class>, user: <message> } }`: a deviation written into the blocks with its class (see authoring-deviation-classes). To inject a deviation only in perturbed runs, without editing the blocks, use `perturbations` (see authoring-perturbations). The user form can also name the utterance class its message stands for: `when: { user: <seed>, class: { id: <class id>, set: <frozen set hash> } }`, where `class.id` is the id of the class file and `class.set` the 12-character hash `driftbench class realise` printed for its frozen set. The block still sends its own `user` text; `driftbench class expand` writes one copy of the spec per frozen realisation of the class (see authoring-classes). The key enters the spec hash and the block cache key only when present.
 
+### The keys of `when`
+
+`when` holds exactly one stimulus: `user`, `burst` or `injection`. A `user` stimulus may also carry `class` and `simulated_user`.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `user` | string | One user message, or one instruction to a task agent. |
+| `burst` | list of 2 or more strings | Messages that arrive together. |
+| `injection` | mapping `{ class, user }` | A deviation written into the blocks, with its class. |
+| `class` | mapping `{ id, set }` | The utterance class of a `user` message; see `when.class` below. |
+| `simulated_user` | mapping | A simulated user that plays this block; its keys are in topic authoring-personas, section `when.simulated_user`. |
+
+### The class of a message: `when.class`
+
+A `user` stimulus may name the utterance class it stands for. The message itself is the class seed. The key enters the spec hash and the block cache key only when present (topic authoring-classes).
+
+| Key | Type | Meaning |
+|---|---|---|
+| `id` | string of lower case letters, digits, `.`, `_` or `-` | The class id, as its class file names it. |
+| `set` | 12 hex characters | The hash of the frozen realisation set the block is measured over. |
+
 ### `expect` keys
 
 Stage and facts:
@@ -86,11 +107,11 @@ Tools and the runtime trace:
 | `tool_order` | `exact`, `in_order` or `any_order` | How the expected tools line up with the calls. `exact`: consecutive, nothing extra. `in_order`: this order, others may sit between. `any_order`: all present. |
 | `tools_offered` | `{ include?: [names], exclude?: [names] }` | Tools the runtime must offer, or must not offer, whatever the agent calls. |
 | `tool_f1` | `{ min }`, 0 to 1 | Precision, recall and F1 of the calls against `tools`. |
-| `skills` | list of `{ name, count? }` | Skills the runtime reports as loaded. |
-| `guards` | list of `{ name, verdict?, count? }` | Runtime checks (hooks, guardrails) that fired, with their verdict such as `pass`, `deny` or `block`. |
-| `references` | list of `{ path, count? }` | Files the agent read; `path` may be a glob (`*`, `**`, `?`). |
-| `subagents` | list of `{ name, model?, count? }` | Helpers the agent dispatched. |
-| `cards` | list of `{ name, count? }` | Rich cards the agent sent. |
+| `skills` | list of `{ name, count? }` | Skills the runtime reports as loaded. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `guards` | list of `{ name, verdict?, count? }` | Runtime checks (hooks, guardrails) that fired, with their verdict such as `pass`, `deny` or `block`. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `references` | list of `{ path, count? }` | Files the agent read; `path` may be a glob (`*`, `**`, `?`). `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `subagents` | list of `{ name, model?, count? }` | Helpers the agent dispatched. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `cards` | list of `{ name, count? }` | Rich cards the agent sent. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
 | `finish_reason` | string | The reason the model stopped, as the runtime reports it. |
 
 The visible text of the reply:

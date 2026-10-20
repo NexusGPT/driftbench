@@ -137,6 +137,34 @@ A spec can define the person in its blocks instead of a persona file: `when: { u
 | `engine` | map | no | The agenda engine's parameters, each optional: `acts_per_turn` (the chances of 1, 2, 3 acts, summing to 1; default 0.7, 0.25, 0.05), `volunteer_share` (0.3), `opening_detail_share` (0.5), `short_turn_share` (0.29), `polite_turn_share` (0.15), `uncertainty_turn_share` (0.07), `question_turn_share` (0.1), `repeat_after_refusal` (1), `turn_budget` (16), `engagement_initial` (0.8), `decay_per_unhelpful_turn` (0.15), `disengage_below` (0.3). |
 | `recorded` | `hash` (64 hex) and optional `from` | no | `replay`: the SHA-256 of the frozen text and the run it came from. A text that does not match its hash is refused. |
 
+#### The agenda engine: `when.simulated_user.engine`
+
+Every key is optional. An absent key takes the default shown.
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `acts_per_turn` | list of numbers from 0 to 1 | 0.7, 0.25, 0.05 | The chance of 1, 2, 3 and more dialogue acts in one message, in order. The list sums to 1. |
+| `volunteer_share` | number from 0 to 1 | 0.3 | The chance that the opening message also gives each fact whose reveal is `volunteer`. |
+| `opening_detail_share` | number from 0 to 1 | 0.5 | The chance that the opening message also states the specific problem, not only the request. |
+| `short_turn_share` | number from 0 to 1 | 0.29 | The share of messages of at most three words. |
+| `polite_turn_share` | number from 0 to 1 | 0.15 | The share of messages planned as polite. |
+| `uncertainty_turn_share` | number from 0 to 1 | 0.07 | The share of messages planned as unsure. |
+| `question_turn_share` | number from 0 to 1 | 0.1 | The share of messages planned as a question. |
+| `repeat_after_refusal` | whole number from 0 | 1 | How many times the person repeats the request after the agent says it cannot. |
+| `turn_budget` | whole number from 1 | 16 | The most messages the person writes before giving up. |
+| `engagement_initial` | number from 0 to 1 | 0.8 | Engagement at the start. |
+| `decay_per_unhelpful_turn` | number from 0 to 1 | 0.15 | Engagement lost on each unhelpful agent turn. |
+| `disengage_below` | number from 0 to 1 | 0.3 | Below this engagement the person gives up. |
+
+#### The frozen text: `when.simulated_user.recorded`
+
+Used with `mode: replay`.
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `hash` | 64 hex characters | yes | The SHA-256 of the canonical JSON of the frozen text. A text that does not match is refused. |
+| `from` | non-empty string | no | The run the text was frozen from. |
+
 A persona file maps onto it key by key: `facts` to `hidden_knowledge`, each fact of `reveal_when_asked` to `reveal: on_request` with the same `ask_patterns`, `stop_token` to `stop`, and `<name>. <persona>` to `persona` (`simulatedUserFromPersona` in `@agent-nexus/driftbench-users`). `examples/acme/simulated/plan-upgrade.yaml` is the plan upgrade with Sam defined this way.
 
 The engine's shares come from published human rates. `opening_detail_share` is 0.5: half of the openings state the specific problem as well as the request, so more of a conversation's words come in its first two messages (an opening with the request alone put that share at 34% against 50% for human customers in the research run). The calibration report measures it on your runs.
