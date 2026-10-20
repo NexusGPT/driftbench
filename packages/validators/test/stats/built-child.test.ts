@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { childCommand } from '../../src/ladders/stats/bank/isolate';
+import { STATS_LADDER_VERSION } from '../../src/ladders/stats/index';
 
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const PACKAGE = join(ROOT, 'packages/validators');
@@ -119,6 +120,9 @@ function run(
     mkdirSync(join(root, 'validators'));
     const floors = JSON.parse(readFileSync(join(ROOT, 'validators/floors.json'), 'utf8'));
     floors.floors.stats = 1;
+    // A floor binds only the ladder version it was recorded at; this temporary root records the current one.
+    floors.ladderVersion.stats = STATS_LADDER_VERSION;
+    floors.evidence.stats.ladderVersion = STATS_LADDER_VERSION;
     writeFileSync(join(root, 'validators/floors.json'), JSON.stringify(floors));
     return spawnSync(
       process.execPath,
