@@ -20,7 +20,8 @@ import { type BankItem, exported, fail, type ItemOutcome, ok, show, type Tier } 
  *   axes asks at its own strength that a suite of rows holds. Not built and not on a page yet: the contract
  *   below, owed to docs/statistics/ as well.
  *
- * All four are at the `analytic` level, with the planned capabilities (a missing statistic fails with the signature to add).
+ * Mixture and coverage are at the `capabilities` level (the functions are missing from the package; the item fails
+ * with the signature to add); agreement and Wilson are at the `analytic` level.
  */
 
 const DOC_JUDGES = 'docs/concepts/statistics.md, "Judges"';
@@ -96,7 +97,10 @@ function item(
   cause: string,
   check: BankItem['check'],
 ): BankItem {
-  return { id: `weights.${id}`, family, tier, level: 'analytic', component, cause, check };
+  // Mixture and coverage test functions the package lacks: the `capabilities` level. Agreement and Wilson test
+  // functions it has: `analytic`.
+  const level = family === 'weights-mixture' || family === 'weights-coverage' ? 'capabilities' : 'analytic';
+  return { id: `weights.${id}`, family, tier, level, component, cause, check };
 }
 
 /** A refusal passes when its message starts with the function and names the argument to fix. */
