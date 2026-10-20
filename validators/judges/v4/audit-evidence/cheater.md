@@ -6,7 +6,7 @@ Status: complete. Seed 5 is now measured for all 12 new cheats and the re-run by
 
 Threat-model ruling applied (stated by sonnet-p4-intervals, pending the lead's confirmation): mining a commit until the hidden seed equals a baked seed (Round 5b d5) is OUT of scope and is a KNOWN LIMIT, as are debugger and memory-reading cheats. Proposed fix for the known limit: a salt kept by the auditor, written into the journal, so the committer cannot predict the hidden seed.
 
-Files: $S/audit-out/cheater/r6/ with S = /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sonnet-p4-closure (res/ holds the results, table6.py prints them; layouts A = module copy outside the repository, B and C = copy inside packages/estate/work). pw2 was not written.
+Files: $S/audit-out/cheater/r6/ with S the audit scratch folder (res/ holds the results, table6.py prints them; layouts A = module copy outside the repository, B and C = copy inside packages/estate/work). pw2 was not written.
 
 ### Controls
 Blank 7 of 50. Shipped module 50 of 50 in layouts A and B (no source item lost). Correct six functions 24; correct four 13.
