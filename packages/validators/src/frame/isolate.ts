@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { confine, seal } from './confine';
+import { confine, seal, tsxPath } from './confine';
 import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
@@ -115,14 +115,10 @@ const describeRun = (plan: TwinPlan | 'C') =>
         ? `run B (confined: a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`
         : 'run D (confined: behind a neutral wrapper module, a fresh folder, neutral arguments)';
 
-/** The tsx loader as a node option for run C, when tsx is installed. */
-function loaderOption(): string[] {
-  try {
-    createRequire(import.meta.url).resolve('tsx');
-    return ['--import', 'tsx'];
-  } catch {
-    return [];
-  }
+/** The tsx loader as a node option for run C, when tsx is installed (found from the product's checkout too). */
+function loaderOption(module: string): string[] {
+  const tsx = tsxPath(module);
+  return tsx ? ['--import', pathToFileURL(tsx).href] : [];
 }
 
 /** A folder name drawn from the seed and the tag: letters only, six to thirteen of them. */
@@ -181,7 +177,7 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
       plain.codecNames,
     ),
   );
-  const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
+  const ran = spawnSync(process.execPath, [...loaderOption(module), entry], {
     cwd: findRoot(dirname(module)),
     env: plain.env,
     encoding: 'utf8',
@@ -440,7 +436,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       }
       let ran: ReturnType<typeof spawnSync>;
       if (plan === 'C') {
-        ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
+        ran = spawnSync(process.execPath, [...loaderOption(resolve(script)), resolve(script), ...args], {
           cwd: work,
           env: plainRun.env,
           encoding: 'utf8',

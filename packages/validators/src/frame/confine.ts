@@ -86,16 +86,39 @@ export function confine(plan: TwinPlan, grants: Grants): TwinPlan {
 
 const SOURCE = new Set(['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs', '.jsx']);
 
-/** The bundler of the project: the one the tsx loader is built on, found through tsx so no dependency is added. */
-function bundler(): { buildSync(options: Record<string, unknown>): unknown } {
-  try {
-    const tsx = createRequire(import.meta.url).resolve('tsx');
-    return createRequire(tsx)('esbuild');
-  } catch {
-    throw new FrameError(
-      'the product cannot be confined: the bundler (esbuild, a dependency of tsx) is not installed',
-    );
+/**
+ * The place of tsx: looked up from this file, then from the checkout that holds the product (a built validator has
+ * no tsx beside it), then from the working folder. Undefined when none has it.
+ */
+export function tsxPath(module: string): string | undefined {
+  const bases = [
+    import.meta.url,
+    join(findRoot(dirname(module)), 'package.json'),
+    join(process.cwd(), 'package.json'),
+  ];
+  for (const base of bases) {
+    try {
+      return createRequire(base).resolve('tsx');
+    } catch {
+      // the next place
+    }
   }
+  return undefined;
+}
+
+/** The bundler of the project: the one the tsx loader is built on, found through tsx so no dependency is added. */
+function bundler(module: string): { buildSync(options: Record<string, unknown>): unknown } {
+  const tsx = tsxPath(module);
+  if (tsx) {
+    try {
+      return createRequire(tsx)('esbuild');
+    } catch {
+      // reported below
+    }
+  }
+  throw new FrameError(
+    'the product cannot be confined: the bundler (esbuild, a dependency of tsx) is not installed',
+  );
 }
 
 /**
@@ -111,7 +134,7 @@ export function seal(module: string, into: string, name: string): string {
   // The project's tsconfig maps the workspace packages to their sources, as the tsx loader reads it from the root.
   const tsconfig = join(findRoot(dirname(module)), 'tsconfig.json');
   try {
-    bundler().buildSync({
+    bundler(module).buildSync({
       ...(existsSync(tsconfig) ? { tsconfig } : {}),
       entryPoints: [module],
       outfile,
