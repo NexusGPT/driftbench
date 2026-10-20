@@ -35,7 +35,7 @@ export function renderCatalogue(): string {
   w('# Pointer validator bank: catalogue');
   w();
   w(
-    'The first 402 items were written blind from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12; nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. Later maintainer commits changed some of those items and added others. The section Provenance names which, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
+    'The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.',
   );
   w();
   w(
@@ -62,11 +62,9 @@ export function renderCatalogue(): string {
   w();
   w('## Provenance');
   w();
+  w('- **blind**: reserved for the separate blind bank of PR 759; no item of this bank carries it.');
   w(
-    '- **blind**: written from the design page alone, unchanged since (the commit that added the first 402 items).',
-  );
-  w(
-    '- **maintainer-repaired**: one of those 402, whose input, expected value or pass condition a later maintainer commit changed. Its blind record no longer holds.',
+    '- **maintainer-repaired**: every one of the first 402 items. Each runs through harness or oracle code that a maintainer commit changed after the blind commit, so none is a blind item.',
   );
   w(
     '- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items). Never blind.',
