@@ -540,6 +540,8 @@ export function completionComponents(spec: Spec): ComponentInventory {
             (o) => {
               o.toolCalls.push({ label: 'Bash', input });
             },
+            // Bash is declared, so the call is a known one whose input cannot be read, not an unknown tool.
+            { Bash: 'read' },
           );
         const operations = operationWitnesses();
         for (const problem of operations.gaps) gap(`collateral.operation:${problem}`);
