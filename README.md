@@ -626,6 +626,74 @@ blocks:
 
 </details>
 
+<details>
+<summary>Write a rule file and score a stored run again</summary>
+
+A project rule file extends a shipped object and changes one item. Here the Acme project turns off the `must` check of the shipped check set `check-set:default`, because it judges wording another way. The spec asks for a phrase the agent never says, so the stored run fails. Run from a clone, with no model call:
+
+```text
+# file: rules/specs/wording.yaml
+id: acme-wording
+target: { adapter: function, agent: acme-sales }
+blocks:
+  - id: ask
+    user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address', 'Thank you'] # The second one is not in the reply
+```
+
+```text
+# file: rules/driftbench/check-set/acme.yaml
+kind: check-set
+id: acme
+extends: default
+items:
+  - id: must
+    enabled: false # This project judges the wording with a judge, not with a phrase
+```
+
+A small script prints the stamp a verdict carries. `by` names the object that scored it, the item, the implementation and the layer:
+
+```text
+# file: rules/stamps.mts
+import { openStore } from '@agent-nexus/driftbench-store';
+
+const store = openStore(process.argv[2] ?? 'runs.db');
+for (const run of await store.listRuns()) {
+  for (const verdict of run.blocks.flatMap((block) => block.verdicts)) {
+    if (verdict.id === 'must.1' || verdict.id === 'pii.email') {
+      console.log(`${verdict.id} ${verdict.outcome} ${JSON.stringify(verdict.by)}`);
+    }
+  }
+}
+```
+
+```text
+$ mkdir -p rules/specs rules/driftbench/check-set
+$ cd rules && echo 'plugins: []' > driftbench.yaml
+$ driftbench object show check-set/acme
+check-set -> acme@a44a5554 (extends default@fd61f704)
+  must                 disabled    project driftbench/check-set/acme.yaml:5
+project driftbench/check-set/acme.yaml; extends check-set:default.
+$ driftbench campaign run specs/wording.yaml --target function:acme-sales --agent-version acme-v1 --campaign full --store runs.db
+✗ acme-wording · function:acme-sales · F · repeat 0  fail  block 0 must.1
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+$ driftbench campaign rejudge specs/wording.yaml --from full --campaign acme --store runs.db --use check-set/acme
+Re-scored; observations from full.
+Campaign acme: 1 blocks re-scored under check-set/acme; 0 agent calls, 0 judge calls.
+$ driftbench campaign status acme --store runs.db
+✓ acme-wording · function:acme-sales · F · repeat 0  pass (Re-scored; observations from full)  1 block
+1 cell: 1 pass, 0 fail, 0 failed, 1 re-scored. Re-scored; observations from full. Spent $0.00.
+$ pnpm exec tsx stamps.mts runs.db
+pii.email pass {"object":"check-set:acme@a44a5554","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
+must.1 fail {"object":"check-set:default@fd61f704","item":"must","impl":"builtin:check/must","layer":"shipped"}
+pii.email pass {"object":"check-set:default@fd61f704","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
+```
+
+The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-score reads the stored observation, runs the checks again under `check-set:acme`, and the block passes: 0 agent calls, 0 judge calls. Its verdicts now carry `check-set:acme@a44a5554`, and the result is labelled `Re-scored; observations from full`. The first `pii.email` line is the re-scored run, the last is the stored one. A change to an object the agent sees (a persona, a run profile) is refused: `--use run-profile/fast` exits 2 and tells you to rerun the agent. See [rule files](packages/cli/help/authoring-rule-files.md) and [re-scoring](packages/cli/help/judging-campaign-rejudge.md).
+
+</details>
+
 ### Blast radius: rerun only what a change touches
 
 <a href=".github/readme/blast-light.png">
