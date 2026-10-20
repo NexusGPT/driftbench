@@ -8,7 +8,8 @@ export const EXECUTOR_BRANCH_PREFIX = 'exec/';
  * hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank
  * fixtures and the validator's own tests, the floors, the executor instruction, the fault family, the
  * statistics reference fixtures, the benchmark frame and its CLI, and the jobs that enforce all of this.
- * A path ending in "/" covers its folder; a trailing "*" covers a filename prefix.
+ * A path ending in "/" covers its folder; a trailing "*" covers a filename prefix; a star between two
+ * slashes stands for one folder name, so the catch.json of every validator folder is covered.
  */
 export const PROTECTED_PATHS = [
   'packages/validators/src/',
@@ -16,6 +17,7 @@ export const PROTECTED_PATHS = [
   'packages/validators/test/',
   'validators/floors.json',
   'validators/EXECUTOR.md',
+  'validators/*/catch.json',
   'examples/acme/faults/',
   'packages/stats/test/reference/',
   '.github/workflows/validators.yml',
@@ -26,16 +28,20 @@ export const PROTECTED_PATHS = [
   '.github/workflows/bench-record.yml',
 ] as const;
 
+const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /** The protected files a branch changes; always empty for a branch that is not an executor branch. */
 export function protectedChanges(branch: string, files: readonly string[]): string[] {
   if (!branch.startsWith(EXECUTOR_BRANCH_PREFIX)) return [];
   return files.filter((file) =>
     PROTECTED_PATHS.some((path) =>
-      path.endsWith('*')
-        ? file.startsWith(path.slice(0, -1))
-        : path.endsWith('/')
-          ? file.startsWith(path)
-          : file === path,
+      path.includes('/*/')
+        ? new RegExp(`^${path.split('/*/').map(escapeRegex).join('/[^/]+/')}$`).test(file)
+        : path.endsWith('*')
+          ? file.startsWith(path.slice(0, -1))
+          : path.endsWith('/')
+            ? file.startsWith(path)
+            : file === path,
     ),
   );
 }
