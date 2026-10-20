@@ -58,7 +58,7 @@ const DOORS = '## Doors';
 const HALL_HEADING = '# Hall';
 
 /** The rerun set and the advisory set of an edit, as sorted ids. */
-function after(texts: Record<string, string>) {
+function rerunAfter(texts: Record<string, string>) {
   const next = scan(texts, before);
   const changes = ledgerChanges(before, next);
   const rerun = rerunOf(changes, before);
@@ -87,7 +87,7 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('unchanged: no edit reruns nothing and reports nothing', () => {
-    const result = after({ 'hall.md': HALL, 'yard.md': YARD });
+    const result = rerunAfter({ 'hall.md': HALL, 'yard.md': YARD });
     expect(result.rerun).toEqual([]);
     expect(result.advisory).toEqual([]);
     expect(result.whole).toBeNull();
@@ -95,7 +95,7 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('unchanged: white space inside a unit is not an edit', () => {
-    const result = after({
+    const result = rerunAfter({
       'hall.md': HALL.replace(KEEPER, 'Name  the keeper\tof every crate'),
       'yard.md': YARD,
     });
@@ -104,7 +104,7 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('changed: the edited unit reruns, its neighbours are advisory', () => {
-    const result = after({
+    const result = rerunAfter({
       'hall.md': HALL.replace(KEEPER, 'Name the keeper of every blue crate'),
       'yard.md': YARD,
     });
@@ -114,14 +114,14 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('deleted: the gone unit reruns, its old neighbours are advisory', () => {
-    const result = after({ 'hall.md': HALL.replace(`- ${KEEPER}\n`, ''), 'yard.md': YARD });
+    const result = rerunAfter({ 'hall.md': HALL.replace(`- ${KEEPER}\n`, ''), 'yard.md': YARD });
     expect(result.rerun).toEqual([id(KEEPER)]);
     expect(result.advisory).toEqual(sorted(id(PLANTS), id(KEYS)));
     expect(result.changes.find((change) => change.id === id(KEEPER))?.class).toBe('deleted');
   });
 
   it('new: a unit no old unit follows reruns the old units of its section', () => {
-    const result = after({
+    const result = rerunAfter({
       'hall.md': HALL.replace(`- ${KEYS}\n`, `- ${KEYS}\n- Dust the lamps above the crates on Fridays\n`),
       'yard.md': YARD,
     });
@@ -133,7 +133,7 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('new: under a new heading, the old units of the nearest heading above rerun', () => {
-    const result = after({
+    const result = rerunAfter({
       'hall.md': `${HALL}## Lamps\n\nDust the lamps above the crates on Fridays.\n`,
       'yard.md': YARD,
     });
@@ -146,7 +146,7 @@ describe('the rerun set of each edit class', () => {
   });
 
   it('new: a unit in a file the ledger did not hold reruns the whole suite', () => {
-    const result = after({
+    const result = rerunAfter({
       'hall.md': HALL,
       'yard.md': YARD,
       'shed.md': '# Shed\n\nOil the hinges once a week.\n',
@@ -156,14 +156,14 @@ describe('the rerun set of each edit class', () => {
 
   it('context: a unit with the same text and other neighbours is advisory only', () => {
     const swapped = HALL.replace(`- ${PLANTS}\n- ${KEEPER}\n`, `- ${KEEPER}\n- ${PLANTS}\n`);
-    const result = after({ 'hall.md': swapped, 'yard.md': YARD });
+    const result = rerunAfter({ 'hall.md': swapped, 'yard.md': YARD });
     expect(result.rerun).toEqual([]);
     expect(result.advisory).toEqual(sorted(id(PLANTS), id(KEEPER), id(KEYS), id(CRATES)));
   });
 
   it('moved: the same text in another file is advisory only', () => {
     const sentence = 'Sweep the yard each morning before the first cart comes in.';
-    const result = after({
+    const result = rerunAfter({
       'hall.md': HALL.replace(COUNT, `${sentence} ${COUNT}`),
       'yard.md': '# Yard\n\nClose the gate at night.\n',
     });
@@ -193,7 +193,7 @@ describe('the rerun set of each edit class', () => {
       'hall',
     ).events;
     expect(events.split).toBe(1);
-    const result = after(texts);
+    const result = rerunAfter(texts);
     expect(result.counts).toMatchObject({ changed: 1, new: 1 });
     expect(result.rerun).toEqual(sorted(id(COUNT), id(LOCK)));
   });
@@ -203,14 +203,14 @@ describe('the rerun set of each edit class', () => {
       'Count the crates twice. Lock the door when the hall is empty.',
       'Count the crates twice and lock the door when the hall is empty.',
     );
-    const result = after({ 'hall.md': merged, 'yard.md': YARD });
+    const result = rerunAfter({ 'hall.md': merged, 'yard.md': YARD });
     expect(result.rerun).toEqual(sorted(id(COUNT), id(LOCK)));
     expect(result.counts).toMatchObject({ new: 0, deleted: 1, changed: 1 });
   });
 
   it('ambiguous: a copied unit keeps its id on the first copy, the copy reruns its section', () => {
     const copied = HALL.replace(`- ${KEYS}\n`, `- ${KEYS}\n- ${KEEPER}\n`);
-    const result = after({ 'hall.md': copied, 'yard.md': YARD });
+    const result = rerunAfter({ 'hall.md': copied, 'yard.md': YARD });
     expect(result.counts.new).toBe(1);
     expect(result.rerun).toEqual(sorted(id(PLANTS), id(KEEPER), id(KEYS)));
   });
