@@ -102,7 +102,12 @@ describe('spec help', () => {
     // A perturbation takes the expectations of a block; its path would repeat every key. An inline object of
     // `uses` has the keys of an object file; the 'object help' tests below check those once, in their own tables.
     expect(
-      undocumented(Spec, SPEC_TOPICS, SPEC_UNITS, /^perturbations\[\]\.expect|(^|\.)uses\.[a-z_]+(\[\]|\.|$)/),
+      undocumented(
+        Spec,
+        SPEC_TOPICS,
+        SPEC_UNITS,
+        /^perturbations\[\]\.expect|(^|\.)uses\.[a-z_]+(\[\]|\.|$)/,
+      ),
     ).toEqual([]);
   });
 });
