@@ -5,7 +5,7 @@ import {
   estateImpact,
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
-import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { codeAsk, generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
 import { completionComponents, componentSpec } from '../completion';
 import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
@@ -315,6 +315,13 @@ const USE_OF_TEST: Readonly<Record<string, string>> = {
 };
 const NO_ASK = new Set(['invariant', 'setting']);
 
+/** The situation use a plan row is asked in: a live guard_positive is asked in a `forced` situation. */
+function useOfRow(row: { testType: string; mode: string }): string {
+  return row.testType === 'guard_positive' && row.mode === 'live'
+    ? 'forced'
+    : (USE_OF_TEST[row.testType] ?? 'trigger');
+}
+
 /**
  * Whether the bank holds too few approved phrases for a plan row, from the row's atoms alone: the situations of
  * the row's use that hold its first atom (pins of the cell respected) and the approved phrases of the best one.
@@ -326,11 +333,7 @@ function bankIsShort(
   row: { atomIds: string[]; cell: Record<string, string>; testType: string; mode: string },
 ): boolean {
   if (NO_ASK.has(row.testType)) return false;
-  // A live guard test is asked in a `forced` situation, found like any other: no early allowance.
-  const use =
-    row.testType === 'guard_positive' && row.mode === 'live'
-      ? 'forced'
-      : (USE_OF_TEST[row.testType] ?? 'trigger');
+  const use = useOfRow(row);
   const head = row.atomIds[0];
   let best: { atoms: string[]; approved: number } | undefined;
   let score = -1;
@@ -722,6 +725,7 @@ const ASKS: AskCheck[] = [
         run.bank.situations.flatMap((s) => s.phrases.filter((p) => p.approved).map((p) => p.text)),
       );
       const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
+      const atomsById = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const disclosed = (v: SpecVerdict): boolean => {
         const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
         const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown };
@@ -742,7 +746,21 @@ const ASKS: AskCheck[] = [
           !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
         )
           return false;
-        return bankIsShort(run, row);
+        if (!bankIsShort(run, row)) return false;
+        // The disclosure is the generator's word about itself, so the words are checked too: an ask outside the
+        // approved phrases must be the text code writes from the row's atoms, else it is an unapproved ask.
+        const atoms = row.atomIds.map((id) => atomsById.get(id));
+        if (atoms.some((atom) => atom === undefined)) return false;
+        const focus = (estateMeta(v.spec) as { focusVariant?: unknown }).focusVariant;
+        const written = codeAsk(
+          useOfRow(row) as Parameters<typeof codeAsk>[0],
+          atoms as NonNullable<(typeof atoms)[number]>[],
+          [],
+          row.testType === 'twin',
+          (id) => atomsById.get(id),
+          typeof focus === 'number' ? focus : undefined,
+        ).text;
+        return asksOfSpec(v).every((ask) => ask === '' || approved.has(ask) || ask === written);
       };
       const bad = all.filter(
         (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
