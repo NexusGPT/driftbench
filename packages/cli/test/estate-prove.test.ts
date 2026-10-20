@@ -21,19 +21,33 @@ const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
 const LIVE = join(FIXTURE, 'generated/specs/live');
 const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
+/** The stand-in judge of the fixture: most generated specs carry a judged criterion (#877), read by it. */
+const JUDGE = [
+  '--judge',
+  'claude:haiku',
+  '--judge-command',
+  join(FIXTURE, 'live/fake/judge.cjs'),
+  '--judge-budget',
+  '1',
+];
 const STATES = join(FIXTURE, 'live/states/library.json');
 const ROUTE = 'route.route-planner.an-ask-that-fits-route-planner';
 /** Specs that name no route-planner atom and pass on the original. */
 const CONTROLS = [
   'estate.pairwise.0333',
-  'estate.pairwise.0588',
-  'estate.pairwise.0832',
-  'estate.pairwise.0885',
+  'estate.pairwise.0010',
+  'estate.pairwise.0024',
+  'estate.pairwise.0038',
 ];
 /** A control the test links to the route, wrongly: the deletion must refute it. */
 const WRONG = 'estate.pairwise.0333';
+/**
+ * A spec of the route that fails on the original: the stand-in does not dispatch the route planner for its ask
+ * ("Please help me with the delivery plan of a day.") since #877. A deletion proves nothing about it: it is unproved.
+ */
+const UNPROVABLE = 'estate.misroute.route.route-planner.an-ask-that-fits-route-planner';
 /** A spec of the route whose link the test removes: its flip must show up as unlinked. */
-const SILENT = 'estate.pairwise.0011';
+const SILENT = 'estate.pairwise.0142';
 
 async function cli(argv: string[]) {
   const output = { out: '', err: '' };
@@ -210,6 +224,7 @@ describe('estate prove on the planted agent', () => {
         '--states',
         STATES,
         '--json',
+        ...JUDGE,
         ...pin,
       ]);
     const original = await run(FIXTURE, 'original.db', ['--map', MAP]);
@@ -219,7 +234,10 @@ describe('estate prove on the planted agent', () => {
   });
 
   it('on the links the generator wrote, the blocks that flip are exactly the linked blocks: every link is verified', async () => {
-    const untouched = [...linked.filter((id) => id !== SILENT), ...CONTROLS.filter((id) => id !== WRONG)];
+    const untouched = [
+      ...linked.filter((id) => id !== SILENT && id !== UNPROVABLE),
+      ...CONTROLS.filter((id) => id !== WRONG),
+    ];
     const result = await prove([...untouched.map(path)], '--json');
     expect(result.err).toBe('');
     const proof = JSON.parse(result.out) as LinkProof;
@@ -246,6 +264,12 @@ describe('estate prove on the planted agent', () => {
     const text = await prove(untouched.map(path));
     expect(text.out).toContain(`Proof of ${ROUTE} by the mutant delete`);
     expect(text.out).toContain('The blocks that flip are the linked blocks.');
+
+    // A linked block that fails on the original is unproved, never verified.
+    const alone = JSON.parse((await prove([path(UNPROVABLE)], '--json')).out) as LinkProof;
+    expect(alone.blocks.map((block) => [block.spec, block.verdict, block.original])).toEqual([
+      [UNPROVABLE, 'unproved', 'fail'],
+    ]);
   });
 
   it('refutes a link whose block does not flip, and names a block that flips with no link', async () => {
@@ -286,6 +310,10 @@ describe('estate prove on the planted agent', () => {
           link.to.kind === 'rule' && link.to.rule === ROUTE && (link.relation ?? 'verifies') === 'verifies',
       );
       for (const link of mine) {
+        if (id === UNPROVABLE) {
+          expect(link.status, id).toBe('declared');
+          continue;
+        }
         expect(link.status, id).toBe(id === WRONG ? 'refuted' : 'verified');
         expect(link.evidence?.[link.status]).toMatchObject({ op: 'delete', original: 'pass' });
       }
