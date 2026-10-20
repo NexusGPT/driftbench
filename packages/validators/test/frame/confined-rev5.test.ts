@@ -70,7 +70,9 @@ function frames(module: string) {
       frame = isolate<{ get: () => number }>({ module, seed });
       const value = frame.product.get();
       const divergence = frame.divergence();
-      notes.push(`seed ${seed}: value ${value}, divergence ${divergence === undefined ? 'none' : 'yes'}`);
+      notes.push(
+        `seed ${seed}: value ${value}, divergence ${divergence === undefined ? 'none' : divergence.slice(0, 400)}`,
+      );
       return value === 137 && divergence === undefined;
     } catch (cause) {
       notes.push(
@@ -100,9 +102,9 @@ describe('probes of the review of PR 969 at eb5135afc', () => {
       module,
       "import { STAMP } from 'zzdepthree';\nexport const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);\n",
     );
-    const { rows } = frames(module);
+    const { rows, notes } = frames(module);
     writeFileSync(tsconfig, tsconfigBefore);
-    expect(rows).toEqual([true, true, true, true]);
+    expect(rows, notes.join(' | ')).toEqual([true, true, true, true]);
   });
 
   it('probe 1: run C edits package.json and adds a file inside an existing node_modules package', () => {
@@ -148,7 +150,7 @@ export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
 `,
     );
     const { rows, notes } = frames(module);
-    expect(existsSync(planted)).toBe(true);
+    expect(existsSync(planted), notes.join(' | ')).toBe(true);
     expect(JSON.parse(readFileSync(tsconfig, 'utf8')).compilerOptions.paths).toBeDefined();
     writeFileSync(tsconfig, tsconfigBefore);
     expect(rows, notes.join(' | ')).toEqual([false, false, false, false]);
