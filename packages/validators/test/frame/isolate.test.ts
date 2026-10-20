@@ -86,6 +86,29 @@ describe('the frame', () => {
       expect(framed('honest', seed)).toEqual({ pass: true, divergence: undefined });
   });
 
+  it('passes an honest product that writes a cache file when it can', () => {
+    for (const seed of [1, 2, 3])
+      expect(framed('cacheWriter', seed)).toEqual({ pass: true, divergence: undefined });
+  });
+
+  describe('the relay channel, the fallback where there are no named pipes', () => {
+    it('passes an honest product and answers as the pipes do', () => {
+      for (const seed of [1, 2]) {
+        const frame = frameOf(seed, { channel: 'relay' });
+        expect(item(frame.product.honest as SumOdd, seed)).toBe(true);
+        expect(frame.divergence()).toBeUndefined();
+        expect(frame.tape.every((entry) => entry.twin !== undefined && entry.wrapped !== undefined)).toBe(
+          true,
+        );
+      }
+    });
+    it.each(['argv', 'env', 'cwd', 'stack'] as const)('fails the %s cheat', (name) => {
+      const frame = frameOf(1, { channel: 'relay' });
+      const pass = item(frame.product[name] as SumOdd, 1);
+      expect(pass && frame.divergence() === undefined).toBe(false);
+    });
+  });
+
   describe.each(CLASSES)('the %s cheat', (name) => {
     it('passes the item in the validator process: the hole the audits found', () => {
       expect(item(IN_PROCESS[name], 1)).toBe(true);

@@ -102,6 +102,12 @@ export type IsolateOptions = {
    */
   functions?: 'source';
   /**
+   * How the validator talks to the confined runs: `'fifo'` (named pipes and blocking reads, the default where
+   * `mkfifo` works) or `'relay'` (a thread that carries lines over the runs' stdin and stdout; the fallback, used
+   * where there are no named pipes, and by the tests that pin it).
+   */
+  channel?: 'fifo' | 'relay';
+  /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
    */
@@ -302,36 +308,67 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const { file: sealed, inputs } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
   // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
   const guard = new SourceGuard([...inputs, ...(options.reads ?? [])]);
+  const useFifo = options.channel !== 'relay' && fifoAvailable(sealFolder);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
-      { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
-      { reads: [dirname(sealed), ...(options.reads ?? [])] },
+      { ...plan, setup: { module: sealed } },
+      {
+        reads: [dirname(sealed), ...(options.reads ?? [])],
+        writes: useFifo ? [pipesOf(plan.driverDir).res] : [],
+      },
     );
-    if (!plan.wrap) return confined;
+    const driverSource = twinDriver(
+      options.seed,
+      `${tag}:${plan.run}`,
+      useFifo ? pipesOf(confined.driverDir) : undefined,
+    );
+    if (!plan.wrap) return { ...confined, driverSource };
     // Run D reaches the product through a wrapper module of the run's own folder.
     const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
     const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
     writeFileSync(file, wrapper.source);
-    return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
+    return { ...confined, driverSource, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
-  const relay: Relay = {
-    // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
-    worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
-      execArgv: [],
-      workerData: { port: port2, signal, plans, setup },
-      transferList: [port2],
-      stderr: false,
-    }),
-    port: port1,
-    flag: new Int32Array(signal),
-  };
-  relay.worker.unref();
+  const relay: Relay | undefined = useFifo
+    ? undefined
+    : {
+        // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
+        worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
+          execArgv: [],
+          workerData: { port: port2, signal, plans, setup },
+          transferList: [port2],
+          stderr: false,
+        }),
+        port: port1,
+        flag: new Int32Array(signal),
+      };
+  relay?.worker.unref();
   port1.unref();
+  // The named-pipe channel: the runs are started here, the setup of each is its first request.
+  let pipes: FifoRun[] = [];
+  let callId = 0;
+  if (useFifo) {
+    for (const plan of plans)
+      writeFileSync(join(plan.driverDir, plan.driverFile), plan.driverSource as string);
+    try {
+      pipes = plans.map((plan) =>
+        startRun(plan, openSync(join(plan.driverDir, 'errors.log'), 'w'), START_MS),
+      );
+    } catch (cause) {
+      for (const run of pipes) stop(run);
+      throw cause;
+    }
+    for (const [index, plan] of plans.entries())
+      send(
+        pipes[index] as FifoRun,
+        JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }),
+      );
+  }
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
@@ -345,13 +382,16 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       // a flush that fails leaves the finding it made
     }
     closed = true;
-    try {
-      relay.port.postMessage({ close: true });
-      wait(relay, 10_000, 'close');
-    } catch {
-      // the runs are ended by terminate below
+    if (relay) {
+      try {
+        relay.port.postMessage({ close: true });
+        wait(relay, 10_000, 'close');
+      } catch {
+        // the runs are ended by terminate below
+      }
+      void relay.worker.terminate();
     }
-    void relay.worker.terminate();
+    for (const run of pipes) stop(run);
     for (const plan of plans) {
       rmSync(plan.driverDir, { recursive: true, force: true });
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
@@ -359,7 +399,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
-  const started = wait(relay, START_MS, 'the start of the product') as {
+  const started = (
+    relay
+      ? wait(relay, START_MS, 'the start of the product')
+      : { ready: pipes.map((run) => receive(run, token)) }
+  ) as {
     ready: Array<{
       ready?: boolean;
       error?: string;
@@ -427,8 +471,31 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent, heavy: weigh(sent) > HEAVY_ELEMENTS });
-    const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
+    const heavy = weigh(sent) > HEAVY_ELEMENTS;
+    let answers: Array<Outcome | { dead: string }>;
+    if (relay) {
+      relay.port.postMessage({ call: name, args: sent, heavy });
+      answers = (wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> }).answers;
+    } else {
+      callId += 1;
+      const line = JSON.stringify({ id: callId, call: name, args: sent });
+      const [runA, runB, runD] = pipes as [FifoRun, FifoRun, FifoRun];
+      // The runs work at the same time: every request is sent before the first answer is read.
+      send(runA, line);
+      if (!heavy) {
+        send(runB, line);
+        send(runD, line);
+      }
+      const firstAnswer = receive(runA, token) as Outcome | { dead: string };
+      answers = [firstAnswer];
+      if (!heavy) answers.push(receive(runB, token) as Outcome, receive(runD, token) as Outcome);
+      else if (JSON.stringify(firstAnswer).includes('"$handle"')) {
+        // A heavy call that returned a function: the other runs must hold the handle too.
+        send(runB, line);
+        send(runD, line);
+        answers.push(receive(runB, token) as Outcome, receive(runD, token) as Outcome);
+      }
+    }
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
