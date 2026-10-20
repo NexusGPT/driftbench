@@ -1,6 +1,16 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  closeSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -41,11 +51,8 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 const START_MS = 120_000;
 const CALL_MS = 300_000;
-/** The time a batch of calls may take in run C. */
+/** The time run C may take to make all the calls of a frame. */
 const BATCH_MS = 1_800_000;
-/** The calls run C holds before it makes them, and the bytes of their arguments. */
-const BATCH_CALLS = 2000;
-const BATCH_BYTES = 40_000_000;
 
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
@@ -64,12 +71,11 @@ export type IsolateOptions = {
   /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
   keep?: Keep;
   /**
-   * Make each call in run C too (default true). Run C is one fresh process for a batch of calls, which it makes in
-   * order: every call goes through it once. The batch ends at `batch` calls (default 2000) or 40 MB of arguments,
-   * and when the frame is read (`divergence()`, `tainted()`) or closed. A call that differs is a finding that holds
-   * for the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
+   * Make each call in run C too (default true). Run C is one fresh process that makes every call of the frame once,
+   * in order, when the frame is read (`divergence()`, `tainted()`) or closed. A call that differs is a finding that
+   * holds for the whole frame (`tainted()`), since a product that answers by how it is run does so on any call.
    */
-  plain?: boolean | { batch: number };
+  plain?: boolean;
   /**
    * What a function in an argument becomes (the default refuses it). `'source'` sends its source text, which the
    * confined run rebuilds: for a pure function of the validator, such as a statistic handed to the product. A
@@ -140,6 +146,8 @@ type PlainRun = {
   codec: string;
   codecNames: { encode: string; decode: string; handles: string };
   count: number;
+  /** The file of the calls run C makes, one JSON line each, in the order they were made. */
+  calls: string;
   /** Run C's environment: the user's (`userEnv`). */
   env: Record<string, string>;
 };
@@ -155,24 +163,54 @@ function openPlain(seed: number, tag: string): PlainRun {
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
   writeFileSync(codecPath, codec.source);
-  return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
+  return {
+    dir,
+    codec: codecPath,
+    codecNames: codec,
+    count: 0,
+    calls: join(dir, 'calls.jsonl'),
+    env: userEnv(),
+  };
 }
 
-/** The calls of a batch in run C: one fresh process that makes them in order and writes every answer to a file. */
-function plainBatch(
+/** The lines of a file, read in blocks: an answer can be tens of megabytes, so the file is never read whole. */
+function* linesOf(path: string): Generator<string> {
+  const fd = openSync(path, 'r');
+  try {
+    const block = Buffer.alloc(8 * 1024 * 1024);
+    let rest = Buffer.alloc(0);
+    for (;;) {
+      const read = readSync(fd, block, 0, block.length, null);
+      if (read === 0) break;
+      rest = Buffer.concat([rest, block.subarray(0, read)]);
+      for (let at = rest.indexOf(10); at >= 0; at = rest.indexOf(10)) {
+        yield rest.subarray(0, at).toString('utf8');
+        rest = rest.subarray(at + 1);
+      }
+    }
+    if (rest.length > 0) yield rest.toString('utf8');
+  } finally {
+    closeSync(fd);
+  }
+}
+
+/**
+ * Run C: one fresh process that makes every call recorded in `plain.calls` in order, the way a user's script does,
+ * and appends each answer to a file. Returns the answers read back one by one, or one `dead` answer per call when
+ * the process ended before it wrote them.
+ */
+function plainRunAll(
   plain: PlainRun,
   seed: number,
   tag: string,
   module: string,
-  calls: Array<{ call: string; args: Json }>,
+  count: number,
 ): Array<Outcome | { dead: string }> {
   plain.count += 1;
   const stem = `${tag.length.toString(36)}${plain.count}`;
   // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
   const entry = join(plain.dir, `${stem}.mts`);
-  const list = join(plain.dir, `${stem}.json`);
-  const out = join(plain.dir, `${stem}.out.json`);
-  writeFileSync(list, JSON.stringify(calls));
+  const out = join(plain.dir, `${stem}.out.jsonl`);
   writeFileSync(
     entry,
     plainBatchEntry(
@@ -181,7 +219,7 @@ function plainBatch(
       {
         module: pathToFileURL(module).href,
         codec: pathToFileURL(plain.codec).href,
-        calls: pathToFileURL(list).href,
+        calls: pathToFileURL(plain.calls).href,
         out: pathToFileURL(out).href,
       },
       plain.codecNames,
@@ -193,18 +231,17 @@ function plainBatch(
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: BATCH_MS,
-    maxBuffer: 64 * 1024 * 1024,
   });
   try {
-    if (!existsSync(out)) {
-      const dead = {
-        dead: `run C ended (${ran.status ?? ran.signal}): ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
-      };
-      return calls.map(() => dead);
-    }
-    return JSON.parse(readFileSync(out, 'utf8')) as Array<Outcome | { dead: string }>;
+    const answers: Array<Outcome | { dead: string }> = [];
+    if (existsSync(out)) for (const line of linesOf(out)) answers.push(JSON.parse(line) as Outcome);
+    const dead = {
+      dead: `run C ended (${ran.status ?? ran.signal}) after ${answers.length} of ${count} calls: ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
+    };
+    while (answers.length < count) answers.push(dead);
+    return answers;
   } finally {
-    for (const file of [entry, list, out]) rmSync(file, { force: true });
+    for (const file of [entry, out]) rmSync(file, { force: true });
   }
 }
 
@@ -319,23 +356,20 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (handle !== undefined) return { $handle: handle };
     return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
   };
-  type Pending = { call: string; args: Json; entry: Entry; expected: string; head: string; at: number };
-  const pending: Pending[] = [];
-  let pendingBytes = 0;
-  /** Makes the held calls in run C, one fresh process, and compares each answer with the one of run A. */
+  type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
+  const recorded: Recorded[] = [];
+  let compared = 0;
+  /**
+   * Makes every call of the frame in run C, in one fresh process and in order, and compares the answers not yet
+   * compared with the ones of run A. Run C must make them all in one process: a product keeps state from call to
+   * call (a generator it returned, a cache), and run A kept it.
+   */
   const flushPlain = (): void => {
-    if (!plain || pending.length === 0) return;
-    const batch = pending.splice(0);
-    pendingBytes = 0;
-    const answers = plainBatch(
-      plain,
-      options.seed,
-      tag,
-      module,
-      batch.map(({ call: callName, args }) => ({ call: callName, args })),
-    );
-    batch.forEach((held, index) => {
-      const c = answers[index] ?? { dead: 'run C gave no answer to this call' };
+    if (!plain || compared >= recorded.length) return;
+    const answers = plainRunAll(plain, options.seed, tag, module, recorded.length);
+    for (let index = compared; index < recorded.length; index += 1) {
+      const held = recorded[index] as Recorded;
+      const c = answers[index] as Outcome | { dead: string };
       if (!('dead' in c)) held.entry.plain = c;
       if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
         const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
@@ -343,7 +377,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         first ??= message;
         taint ??= message;
       }
-    });
+    }
+    compared = recorded.length;
     // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
     const changed = guard.check();
     if (changed.length > 0) {
@@ -388,19 +423,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       }
     }
     if (plain) {
-      // Run C makes this call later, in a batch, in a fresh process: the answer of run A is kept to compare with.
-      const size = JSON.stringify(sent).length;
-      pending.push({
+      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
+      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
+      recorded.push({
         call: name,
-        args: sent,
         entry,
         expected: keptOf(a, options.keep?.[name]),
         head,
         at: tape.length - 1,
       });
-      pendingBytes += size;
-      const limit = typeof options.plain === 'object' ? options.plain.batch : BATCH_CALLS;
-      if (pending.length >= limit || pendingBytes >= BATCH_BYTES) flushPlain();
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret, revive);

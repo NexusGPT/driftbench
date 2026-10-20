@@ -226,9 +226,9 @@ export function plainCodec(
 }
 
 /**
- * The entry of run C for a batch of calls: one fresh process that imports the product and the codec, reads the calls
- * from a file, makes them in order and writes every answer to a file. The state a call leaves (a counter, a
- * handle) is kept from one call to the next, as in the confined runs. Paths are file URLs.
+ * The entry of run C: one fresh process that imports the product and the codec, reads the recorded calls from a file
+ * line by line, makes them in order and appends every answer to a file as one line. The state a call leaves (a
+ * counter, a handle, a cache) is kept from one call to the next, as in the confined runs. Paths are file URLs.
  */
 export function plainBatchEntry(
   seed: number,
@@ -238,28 +238,25 @@ export function plainBatchEntry(
 ): string {
   const name = namer(seed, `plain:${tag}`);
   const product = name('product');
-  const calls = name('calls');
-  const out = name('out');
   const each = name('each');
   const fn = name('fn');
   const answer = name('answer');
   const error = name('error');
   return [
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
-    `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
+    `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
+    `import { createInterface as ${name('lines')} } from 'node:readline';`,
     `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')} } from ${JSON.stringify(paths.codec)};`,
-    `const ${calls} = JSON.parse(${name('read')}(new URL(${JSON.stringify(paths.calls)}), 'utf8'));`,
-    `const ${out} = [];`,
-    `for (const ${each} of ${calls}) {`,
+    `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
+    `  const ${each} = JSON.parse(${name('line')});`,
     `  let ${answer};`,
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${product}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
     `    ${answer} = { ret: ${name('encode')}(await ${fn}(...${name('decode')}(${each}.args))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
-    `  ${out}.push(${answer});`,
+    `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
     `}`,
-    `${name('write')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${out}));`,
     '',
   ].join('\n');
 }
