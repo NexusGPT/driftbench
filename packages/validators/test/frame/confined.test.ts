@@ -280,10 +280,11 @@ export function value() {
   describe.each(['shadow', 'shadow-up'])(
     'the probe %s of the reviews of PR 969 (opus-review-b, verbatim)',
     (name) => {
-      // The product imports zzstampdep, installed at the project's node_modules with STAMP = 0. Run C writes, once, a
+      // The product imports zzstampdep, installed in this file's own work folder (never in the project's node_modules,
+      // which other test files read at the same time) with STAMP = 0. Run C writes, once, a
       // nearer copy (beside the product, or one folder above it) with a fresh STAMP; a later frame must not take it.
-      const installed = join(findRoot(dirname(fileURLToPath(import.meta.url))), 'node_modules', 'zzstampdep');
       beforeAll(() => {
+        const installed = join(work, 'node_modules', 'zzstampdep');
         mkdirSync(installed, { recursive: true });
         writeFileSync(
           join(installed, 'package.json'),
@@ -291,7 +292,6 @@ export function value() {
         );
         writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
       });
-      afterAll(() => rmSync(installed, { recursive: true, force: true }));
 
       it('fails every frame', () => {
         const oracle = join(oracles, 'shadow-expected.json');
