@@ -41,10 +41,8 @@ describe('run-shard', () => {
     for (const [at, files] of plan.entries()) {
       const { status, args } = runShard(plan, at + 1);
       expect(status).toBe(0);
-      expect(args.slice(0, 3)).toEqual(['exec', 'vitest', 'run']);
-      expect(args.filter((arg) => !arg.startsWith('--') && !['exec', 'vitest', 'run'].includes(arg))).toEqual(
-        files,
-      );
+      // The whole argument list, so that no extra flag (--shard, --bail, -t, --exclude, a filter) can ride along.
+      expect(args).toEqual(['exec', 'vitest', 'run', '--maxWorkers=2', ...files]);
     }
   });
   it('refuses an index outside the plan and a shard that holds no file', () => {
