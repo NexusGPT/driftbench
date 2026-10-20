@@ -21,12 +21,18 @@ export type KindDef = {
   itemsKey?: string;
   /** Top-level fields the kind accepts beyond the envelope, each optional; checked strictly. */
   fields?: z.ZodRawShape;
+  /** True when an item may only name an implementation registered for this kind (a diagnostic's steps). */
+  ownImpls?: boolean;
+  /** A check of the resolved object the schema cannot make (names in it that must exist); a message refuses it. */
+  check?: (object: ResolvedObject, registry: ObjectRegistry) => string | undefined;
 };
 
-/** What an implementation declares: the schema its item's params must pass. */
+/** What an implementation declares: the schema its item's params must pass, and the kinds it serves. */
 export type ImplDef = {
   params: z.ZodType;
   summary?: string;
+  /** The kinds whose items may name it. Absent: any kind without `ownImpls`. */
+  kinds?: readonly string[];
 };
 
 /** What `ObjectRegistry.snapshot` copies: the kinds, implementations and shipped objects, by name. */
@@ -102,6 +108,15 @@ export class ObjectRegistry {
     this.#revision++;
   }
 
+  /** A registry holding everything this one holds; registrations on either stay apart afterwards. */
+  clone(): ObjectRegistry {
+    const copy = new ObjectRegistry();
+    for (const def of this.#kinds.values()) copy.registerKind(def);
+    for (const [name, def] of this.#impls) copy.registerImpl(name, def);
+    for (const { raw, path } of this.#shipped.values()) copy.registerShipped(raw, path);
+    return copy;
+  }
+
   kind(name: string): KindDef | undefined {
     return this.#kinds.get(name);
   }
@@ -159,6 +174,56 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
     summary: 'A procedure that runs after the checks and writes a diagnosis.',
     agentFacing: false,
     itemsKey: 'steps',
+    ownImpls: true,
+    fields: {
+      scope: z.enum(['block', 'run', 'campaign']).optional(),
+      when: z
+        .strictObject({
+          always: z.literal(true).optional(),
+          any_verdict: z
+            .strictObject({
+              name: z.string().min(1).optional(),
+              outcome: z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']).optional(),
+              id_contains: z.string().min(1).optional(),
+              gating: z.boolean().optional(),
+            })
+            .optional(),
+          any_diagnosis: z
+            .strictObject({
+              diagnostic: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              step: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              disposition: z
+                .union([
+                  z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned']),
+                  z.array(z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned'])),
+                ])
+                .optional(),
+              confidence: z
+                .union([
+                  z.enum(['static', 'undecided', 'confirmed']),
+                  z.array(z.enum(['static', 'undecided', 'confirmed'])),
+                ])
+                .optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+      reads: z.array(z.string().min(1)).optional(),
+      output: z.strictObject({ fields: z.array(z.string().min(1)) }).optional(),
+      default: z.boolean().optional(),
+      cost: z
+        .strictObject({
+          model_calls: z.enum(['none', 'conditional', 'always']).optional(),
+          agent_runs: z.enum(['none', 'conditional', 'always']).optional(),
+        })
+        .optional(),
+    },
+    check: (object, registry) => {
+      const unknown = ((object.fields.reads as string[] | undefined) ?? []).filter(
+        (kind) => !registry.kind(kind),
+      );
+      return unknown.length === 0 ? undefined : `reads names unknown kinds ${unknown.join(', ')}`;
+    },
   },
   {
     kind: 'prompt-template',
@@ -563,6 +628,12 @@ export class ObjectStore {
           'OBJECT_IMPL_UNKNOWN',
         );
       }
+      if (impl.kinds ? !impl.kinds.includes(entry.kind) : def.ownImpls === true) {
+        throw new ObjectError(
+          `${name}: item ${item.id} names ${item.impl}, which is no ${entry.kind} implementation${impl.kinds ? ` (it serves ${impl.kinds.join(', ')})` : ''} (${item.from})`,
+          'OBJECT_IMPL_UNKNOWN',
+        );
+      }
       const checked = impl.params.safeParse(item.params);
       if (!checked.success) {
         throw new ObjectError(
@@ -591,6 +662,8 @@ export class ObjectStore {
       chain: [name, ...(parent?.chain ?? [])],
       ...(parent === undefined ? {} : { parent }),
     };
+    const problem = def.check?.(resolved, this.registry);
+    if (problem !== undefined) throw new ObjectError(`${name}: ${problem} (${entry.path})`, 'OBJECT_INVALID');
     this.#resolved.set(entry, resolved);
     return resolved;
   }
