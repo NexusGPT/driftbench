@@ -328,7 +328,7 @@ jobs:
   # shards ran as four tests in four files. This job downloads the parts, composes the manifest and asserts on the
   # pooled rows. A missing part fails it, and train gate needs it.
   emission-manifest:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
     name: emission manifest (node ${{ matrix.node }})
     needs: build
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
