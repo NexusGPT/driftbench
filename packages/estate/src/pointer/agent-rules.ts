@@ -22,6 +22,8 @@ export const AGENT_RULES_SET = `labels:
     spans:
       - name: governed-action
         description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+      - name: situation
+        description: The circumstance in which the unit applies, in the unit's own words, such as a state of the world, a kind of request or a moment. Not the act the unit orders. Give it only when the unit states one.
     links:
       - name: act-tool
         description: The tool the reader uses for the act in the governed-action span, not the tool the read uses. Looking up a file is Read, changing a file is Edit or Write, running a command is Bash, handing work to a helper is Agent. Always one of the listed values, the one the act most likely uses, even when the unit names no tool.
@@ -38,19 +40,25 @@ export const AGENT_RULES_SET = `labels:
     labels:
       - name: rule
         description: A unit that tells the reader what to do. A unit about an event the agent must get through has its own label instead.
+        spans: [situation]
         atom:
           kind: instruction
+          situation: $span.situation?
           polarity: obligation
 ${ALSO_REFERENCE}      - name: dispatch
         description: A unit that tells the reader to hand work to a helper agent. Give that helper as the dispatches link. A unit that only names a helper, or says not to use it, is a rule or a prohibition.
+        spans: [situation]
         links: [dispatches]
         atom:
           kind: instruction
+          situation: $span.situation?
           polarity: obligation
 ${ALSO_REFERENCE}      - name: prohibition
         description: A unit that tells the reader what never to do.
+        spans: [situation]
         atom:
           kind: instruction
+          situation: $span.situation?
           polarity: prohibition
 ${ALSO_REFERENCE}
       - name: gate
@@ -97,8 +105,10 @@ ${ALSO_REFERENCE}
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
       - name: reply-rule
         description: A unit that sets the language, length, format, words or tone of the reader's reply.
+        spans: [situation]
         atom:
           kind: register
+          situation: $span.situation?
 ${ALSO_REFERENCE}
       - name: hazard-compaction
         description: A unit that says what the agent does when the agent's own conversation or context is compacted, summarised or truncated to fit its window, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.

@@ -297,7 +297,13 @@ export function pointerAtoms(
           duplicates.push(`${where} repeats ${same.id}`);
           continue;
         }
-        const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
+        // A situation written `<placeholder>?` is optional: the atom is kept, without one, when it does not fill.
+        const optionalSituation = mapping.situation?.endsWith('?') === true;
+        const filledSituation =
+          mapping.situation === undefined
+            ? undefined
+            : fill(optionalSituation ? mapping.situation.slice(0, -1) : mapping.situation, template);
+        const situation = optionalSituation && filledSituation === UNRESOLVED ? undefined : filledSituation;
         const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
         const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
         const mappedReplyAct = mapping.replyAct === undefined ? undefined : fill(mapping.replyAct, template);
