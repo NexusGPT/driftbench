@@ -1,0 +1,11 @@
+# Tests whose assertion compares processor or wall time (a growth ratio, a floor ratio, a time budget).
+# They run in their own CI job on a GitHub-hosted machine, because the ratio shifts with the CPU: on the
+# self-hosted pool the history-incremental mode F ratio measured 10.2 to 10.7 against a limit of 10.
+# DRIFTBENCH_TIMING_TESTS=only runs these alone, =skip runs everything else, unset runs everything.
+packages/checks/test/pii-linear.test.ts
+packages/core/test/gap-fields.test.ts
+packages/core/test/objects/shipped-store-cache.test.ts
+packages/core/test/radius/unique-quote.test.ts
+packages/core/test/retention-linear.test.ts
+packages/core/test/runner/history-incremental.test.ts
+packages/generate/test/extract/forbid-index.test.ts
