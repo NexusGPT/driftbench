@@ -69,6 +69,8 @@ export const JournalRowSchema = z
     /** The failing items that are composite checks (no distinct-cause credit). Goes with failingCauses. */
     failingComposite: count.optional(),
     executor: z.enum(['builder', 'blind']).optional(),
+    /** The catch items, counted apart: `bankSize` and `passing` hold the hardness items alone (section 12.4). */
+    catchItems: z.object({ size: count, passing: count }).strict().optional(),
     failingWithoutCause: count.optional(),
     bankByFamilyTier: z
       .record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count))
@@ -150,6 +152,13 @@ export const JournalRowSchema = z
     }
     if (row.passing > row.bankSize) {
       ctx.addIssue({ code: 'custom', path: ['passing'], message: 'passing cannot exceed bankSize' });
+    }
+    if (row.catchItems && row.catchItems.passing > row.catchItems.size) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['catchItems', 'passing'],
+        message: 'catchItems.passing cannot exceed catchItems.size',
+      });
     }
     const failing = Object.values(row.failingByFamily).reduce((sum, value) => sum + value, 0);
     if (failing !== row.bankSize - row.passing) {

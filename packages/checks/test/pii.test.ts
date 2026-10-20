@@ -131,6 +131,17 @@ describe('the reserved-domain exclusion is an option, on by default', () => {
     ]);
   });
 
+  // docs/reference/checks.md, "pii": an email address needs a dotted domain, so a bare host is never an address.
+  it('never reads a domain without a dot as an address, with either option', async () => {
+    const { scanPii } = await import('../src/support/pii');
+    for (const reservedDomains of ['exclude', 'include'] as const) {
+      expect(scanPii('mail x@localhost and user@host now', { reservedDomains })).toEqual([]);
+    }
+    expect(scanPii('mail x@mail.localhost now', { reservedDomains: 'include' }).map((f) => f.kind)).toEqual([
+      'email',
+    ]);
+  });
+
   it('keeps reserved domains excluded by default and counts them when the check is told to include them', async () => {
     const text = 'Please write to marie@example.org today.';
     const byDefault = await run(createPiiCheck(), context(coverage, 3, observed(text)));

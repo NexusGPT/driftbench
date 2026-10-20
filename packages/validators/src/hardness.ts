@@ -5,6 +5,8 @@ export const HARDNESS_MIN_FORECAST = 100;
 export const HARDNESS_MAX_SCORE = 0.4;
 /** Section 12.4 point 4: distinct causes among the failing items after the pilot. */
 export const HARDNESS_MIN_CAUSES = 100;
+/** The largest share of the bank that catch items may hold (section 12.4): over it, the gate fails. */
+export const HARDNESS_MAX_CATCH_SHARE = 0.15;
 /** The bank minimum at merge of section 12.1. */
 export const BANK_MIN_SIZE = 300;
 export const BANK_MIN_FAMILY = 20;
@@ -23,6 +25,9 @@ export type PilotMeasure = {
   fixedPerIteration: number | null;
   /** Failing items at the end of the pilot. */
   remaining: number | null;
+  /** The same over every item, catch items included: the forecast reads the stricter of the two. */
+  allFixedPerIteration: number | null;
+  allRemaining: number | null;
 };
 
 /** A blind pilot slower than the builder's by more than this factor flags the builder pilot (section 12.7). */
@@ -44,6 +49,8 @@ export type Hardness = {
     passing: number;
     byFamilyTier: Record<string, Record<string, number>>;
     failingByFamily: Record<string, number>;
+    /** The catch items of that row, counted apart; absent when the row records none. */
+    catchItems?: { size: number; passing: number };
   };
   /** Null for components without a fingerprint contract. Historical figures remain visible on failure. */
   freshness: {
@@ -88,6 +95,19 @@ export type Hardness = {
 const score = (row: Pick<JournalRow, 'bankSize' | 'passing'>) =>
   row.bankSize === 0 ? 0 : row.passing / row.bankSize;
 
+/** The score over every item of a row, catch items included; the hardness score when the row records none. */
+const allScore = (row: Pick<JournalRow, 'bankSize' | 'passing' | 'catchItems'>) => {
+  const size = row.bankSize + (row.catchItems?.size ?? 0);
+  return size === 0 ? 0 : (row.passing + (row.catchItems?.passing ?? 0)) / size;
+};
+
+/**
+ * The score the max-score check reads: the larger of the hardness score and the score over every item, so that
+ * counting catch items apart never makes the check looser (section 12.4).
+ */
+const gateScore = (row: Pick<JournalRow, 'bankSize' | 'passing' | 'catchItems'>) =>
+  Math.max(score(row), allScore(row));
+
 function measurePilot(
   rows: readonly JournalRow[],
   executor: Executor,
@@ -106,20 +126,36 @@ function measurePilot(
       executor,
       iterations: pilotRows.length,
       complete: pilotRows.length === PILOT_ITERATIONS,
-      baseline: { bankSize: baselineRow.bankSize, passing: baselineRow.passing, score: score(baselineRow) },
+      baseline: {
+        bankSize: baselineRow.bankSize,
+        passing: baselineRow.passing,
+        score: gateScore(baselineRow),
+      },
       end: endRow
         ? {
             iteration: endRow.iteration,
             bankSize: endRow.bankSize,
             passing: endRow.passing,
-            score: score(endRow),
+            score: gateScore(endRow),
           }
         : null,
       fixedPerIteration: endRow ? (endRow.passing - baselineRow.passing) / pilotRows.length : null,
       remaining: endRow ? endRow.bankSize - endRow.passing : null,
+      allFixedPerIteration: endRow ? (allPassing(endRow) - allPassing(baselineRow)) / pilotRows.length : null,
+      allRemaining: endRow ? allSize(endRow) - allPassing(endRow) : null,
     },
   };
 }
+
+/** Every item of a row, catch items included, and those passing on every seed. */
+const allSize = (row: Pick<JournalRow, 'bankSize' | 'catchItems'>) =>
+  row.bankSize + (row.catchItems?.size ?? 0);
+const allPassing = (row: Pick<JournalRow, 'passing' | 'catchItems'>) =>
+  row.passing + (row.catchItems?.passing ?? 0);
+
+/** Iterations to 100 percent: remaining / fixed per iteration; null when the pilot fixed nothing. */
+const forecastOf = (remaining: number | null, fixed: number | null) =>
+  fixed !== null && fixed > 0 && remaining !== null ? remaining / fixed : null;
 
 /**
  * The hardness measurement from a journal whose first builder row is iteration 0 (sections 12.4 and 12.7). When
@@ -164,10 +200,13 @@ export function measureHardness(
   const source = chosen.measure.executor;
   const { fixedPerIteration, remaining, end, iterations, complete } = chosen.measure;
   const endRow = chosen.endRow;
-  const forecast =
-    fixedPerIteration !== null && fixedPerIteration > 0 && remaining !== null
-      ? remaining / fixedPerIteration
-      : null;
+  // Every term takes the stricter of its hardness-only and its all-items value (section 12.4): counting catch
+  // items apart never makes a gate easier to pass. The forecast is the smaller of the two.
+  const forecasts = [
+    forecastOf(remaining, fixedPerIteration),
+    forecastOf(chosen.measure.allRemaining, chosen.measure.allFixedPerIteration),
+  ].filter((value): value is number => value !== null);
+  const forecast = forecasts.length === 0 ? null : Math.min(...forecasts);
   const reasons: string[] = [];
   const hashes = [...new Set(rows.flatMap((row) => (row.bankHash ? [row.bankHash] : [])))];
   const missingRows = rows.filter((row) => !row.bankHash).length;
@@ -225,6 +264,55 @@ export function measureHardness(
     );
   }
   if (!end) reasons.push('no pilot row yet');
+  // A catch item guards a capability the product already has: one that fails on any row, at the start or after a
+  // pilot round broke it, is a hardness item, and the hardness gain beside it would be bought with that break.
+  const lost = rows.find((row) => row.catchItems && row.catchItems.passing < row.catchItems.size);
+  if (lost?.catchItems)
+    reasons.push(
+      `catch items must all pass on every journal row: at iteration ${lost.iteration}, ${lost.catchItems.passing} of ${lost.catchItems.size} do; a catch item that fails is a hardness item`,
+    );
+  for (const row of rows) {
+    const caught = row.catchItems;
+    if (!caught) continue;
+    const share = caught.size / (row.bankSize + caught.size);
+    if (share > HARDNESS_MAX_CATCH_SHARE) {
+      // The first row over the cap is named; later rows over it add nothing a builder can act on.
+      reasons.push(
+        `catch items are ${round(share * 100)} percent of the bank at iteration ${row.iteration}, over the ${HARDNESS_MAX_CATCH_SHARE * 100} percent cap (12.4)`,
+      );
+      break;
+    }
+  }
+  // The catch set is frozen at iteration 0: a row that holds more or fewer catch items than the baseline moved items
+  // between the two roles, and relabelling is not progress (the hardness passing rises with no product change).
+  const frozen = zero.catchItems?.size ?? 0;
+  const moved = rows.find((row) => (row.catchItems?.size ?? 0) !== frozen);
+  if (moved)
+    reasons.push(
+      `the catch items are frozen at iteration 0 (${frozen}): iteration ${moved.iteration} holds ${moved.catchItems?.size ?? 0}; moving an item between the hardness and the catch role is not progress`,
+    );
+  // Every item together must make progress: an undefined all-items forecast (nothing fixed over the pilot, or a
+  // loss) never stands aside for the hardness-only forecast.
+  if (
+    forecastOf(remaining, fixedPerIteration) !== null &&
+    forecastOf(chosen.measure.allRemaining, chosen.measure.allFixedPerIteration) === null
+  )
+    reasons.push(
+      `the forecast over every item, catch items included, is undefined: ${label} fixed nothing over all items together`,
+    );
+  // No loss: the passing items of a pilot, counted over every item, never fall from one iteration to the next.
+  for (const executor of ['builder', 'blind'] as const) {
+    const own = rows.filter((row) => executorOf(row) === executor).sort((a, b) => a.iteration - b.iteration);
+    const drop = own.find(
+      (row, index) => index > 0 && allPassing(row) < allPassing(own[index - 1] as JournalRow),
+    );
+    if (drop) {
+      const before = own[own.indexOf(drop) - 1] as JournalRow;
+      reasons.push(
+        `items passing over every item fall from ${allPassing(before)} at iteration ${before.iteration} to ${allPassing(drop)} at iteration ${drop.iteration} (${executor}): a pilot that loses items is not progress`,
+      );
+    }
+  }
   const audit = options.audit === undefined ? null : parseAudit(options.audit);
   if (!audit) reasons.push('audit.md is absent: no validator merges without the audit (12.7)');
   for (const entry of audit ?? []) {
@@ -247,6 +335,7 @@ export function measureHardness(
       passing: latest.passing,
       byFamilyTier: latest.bankByFamilyTier ?? {},
       failingByFamily: latest.failingByFamily,
+      ...(latest.catchItems === undefined ? {} : { catchItems: latest.catchItems }),
     },
     freshness,
     iteration0: chosen.measure.baseline,
@@ -333,6 +422,8 @@ export function formatHardness(component: string, h: Hardness): string {
   }
   const bankLabel = h.freshness && h.freshness.status !== 'current' ? 'Historical journal bank' : 'Bank';
   text += `${bankLabel} at iteration ${h.bank.iteration}: ${h.bank.size} items, ${h.bank.passing} pass on every seed.\n`;
+  if (h.bank.catchItems)
+    text += `Catch items, apart and counted for no hardness: ${h.bank.catchItems.size}, ${h.bank.catchItems.passing} pass on every seed.\n`;
   const tiers = ['1', '2', '3', '4', '5', 'none'];
   const header = ['Family', ...tiers.map((tier) => `tier ${tier}`), 'items', 'failing'];
   const rows = Object.entries(h.bank.byFamilyTier)

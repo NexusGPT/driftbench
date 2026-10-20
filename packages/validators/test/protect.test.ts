@@ -69,7 +69,13 @@ const FAST_TIMEOUT = 10;
 const AFFECTED_CONDITION =
   "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')";
 const AFFECTED_TIMEOUT = 45;
-const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+/**
+ * The affected tests are those changed against the PR's own base branch, read from the environment: a PR into
+ * release/next runs its own delta, never the whole difference between release/next and main.
+ */
+const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests';
+const AFFECTED_FETCH = 'git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"';
+const BASE_REF_ENV = '${{ github.base_ref }}';
 
 const CI_HEAVY = [
   'bench',
@@ -91,6 +97,7 @@ interface Ctx {
   headRef?: string;
   jobs?: string;
   runId?: string;
+  baseRef?: string;
 }
 
 /** Evaluates a workflow expression with the functions these workflows use. */
@@ -99,6 +106,7 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     event_name: ctx.event,
     ref: ctx.ref,
     head_ref: ctx.headRef ?? '',
+    base_ref: ctx.baseRef ?? '',
     run_id: ctx.runId ?? '1',
   };
   const inputs = { jobs: ctx.jobs ?? '' };
@@ -557,6 +565,19 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(job.steps[0].with['fetch-depth']).toBe(0);
   const commands = job.steps.map((step: { run?: string }) => step.run);
   expect(commands).toContain(AFFECTED_COMMAND);
+  // the base branch is fetched, then the affected tests diff against it; both read it from the environment
+  const test = job.steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND);
+  const fetch = job.steps.find((step: { run?: string }) => step.run === AFFECTED_FETCH);
+  expect(fetch, 'base fetch step').toBeDefined();
+  expect(commands.indexOf(AFFECTED_FETCH)).toBeLessThan(commands.indexOf(AFFECTED_COMMAND));
+  for (const step of [test, fetch]) {
+    expect(step.env?.BASE_REF).toBe(BASE_REF_ENV);
+    expect(step.run).not.toContain('${{');
+  }
+  // a PR into release/next compares with release/next, a PR into main with main
+  for (const base of ['release/next', 'main'])
+    expect(evaluateTemplate(test.env.BASE_REF, { ...FEATURE_PR, baseRef: base })).toBe(base);
+  expect(JSON.stringify(job.steps)).not.toContain('--changed origin/main');
   // the tests verify the build stamp, so the build gate runs before them
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeGreaterThan(-1);
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
@@ -873,19 +894,29 @@ describe('merge train enforcement', () => {
     const job = workflow.jobs['train-gate'];
     const others = [
       TRAIN_PR,
+      RELEASE_PR,
       MAIN_PUSH,
       dispatchOn('refs/heads/train/9a', 'build'),
       dispatchOn('refs/heads/main', 'build'),
     ];
     // the job passes on an ordinary PR under another name, so no job check named `train gate` can turn green there
     expect(evaluateTemplate(job.name, ORDINARY_PR)).not.toBe('train gate');
+    // the release PR is judged under the real name, as a train PR is; a feature PR into the release branch is not
+    expect(evaluateTemplate(job.name, RELEASE_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, TRAIN_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, FEATURE_PR)).not.toBe('train gate');
+    for (const ctx of LOOKALIKE_PRS)
+      expect(evaluateTemplate(job.name, ctx), ctx.headRef).not.toBe('train gate');
     // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
     const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
     expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
+    expect(Boolean(evaluate(gate.if, FEATURE_PR))).toBe(false);
     for (const ctx of others) expect(Boolean(evaluate(gate.if, ctx))).toBe(true);
     // the status named `train gate` is held pending, with its text, on an ordinary PR and nowhere else
     const hold = job.steps.find((s: { name?: string }) => s.name?.startsWith('Hold the train gate pending'));
     expect(Boolean(evaluate(hold.if, ORDINARY_PR))).toBe(true);
+    expect(Boolean(evaluate(hold.if, FEATURE_PR))).toBe(true);
+    for (const ctx of LOOKALIKE_PRS) expect(Boolean(evaluate(hold.if, ctx)), ctx.headRef).toBe(true);
     for (const ctx of others) expect(Boolean(evaluate(hold.if, ctx))).toBe(false);
     expect(hold.run).toContain('state=pending');
     expect(hold.run).toContain("context='train gate'");
@@ -1006,6 +1037,21 @@ describe('merge train enforcement', () => {
     wrongBase.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
       'pnpm test --maxWorkers=2 --changed origin/main~1 --passWithNoTests';
     expect(() => assertAffectedBehaviour(wrongBase)).toThrow();
+    // the old fixed base: a PR into release/next would run all of release/next's difference from main
+    const fixedMain = structuredClone(workflow);
+    fixedMain.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
+      'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+    expect(() => assertAffectedBehaviour(fixedMain)).toThrow();
+    const noFetch = structuredClone(workflow);
+    noFetch.jobs['pr-affected'].steps = noFetch.jobs['pr-affected'].steps.filter(
+      (step: { run?: string }) => step.run !== AFFECTED_FETCH,
+    );
+    expect(() => assertAffectedBehaviour(noFetch)).toThrow();
+    const inline = structuredClone(workflow);
+    inline.jobs['pr-affected'].steps.find(
+      (step: { run?: string }) => step.run === AFFECTED_COMMAND,
+    ).env.BASE_REF = '${{ github.head_ref }}';
+    expect(() => assertAffectedBehaviour(inline)).toThrow();
     const gated = structuredClone(workflow);
     gated.jobs['train-gate'].needs.push('pr-affected');
     expect(() => assertGateWaits(gated)).toThrow();
@@ -1127,5 +1173,15 @@ describe('the benchmark workflows', () => {
       expect(upload?.with?.path).toContain('benchmarks/cassettes/');
       expect(upload?.with?.path).toContain('benchmarks/evidence/');
     }
+  });
+});
+
+describe('the pinned catch list', () => {
+  it('refuses an executor branch that edits a validator catch.json, and leaves other branches alone', () => {
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/catch.json'])).toEqual([
+      'validators/blocks/catch.json',
+    ]);
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/journal.jsonl'])).toEqual([]);
+    expect(protectedChanges('fix/blocks', ['validators/blocks/catch.json'])).toEqual([]);
   });
 });

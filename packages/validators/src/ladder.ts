@@ -38,6 +38,12 @@ export type BankEntry = {
   causeKind?: CauseKind;
   /** Who wrote the item and whether it was changed afterwards; a report scores each label apart. */
   provenance?: string;
+  /** `catch`: an item that passes on the product that owns its capability and guards against a planted bug, a
+   * shortcut or a cheat; it counts for no hardness (docs/validators.md section 12.4). It is honoured only for an
+   * id the validator's pinned list holds (`catch.json`). Absent: a hardness item. */
+  role?: 'catch';
+  /** The doc section that defines the item's contract. */
+  contract?: string;
   pass: boolean;
   detail?: string;
 };

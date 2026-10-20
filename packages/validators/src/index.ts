@@ -17,6 +17,8 @@ export {
   type BankSummary,
   type BankVerdict,
   bankSummary,
+  type CatchList,
+  type CatchSummary,
   causeKey,
   formatItems,
   LEVEL_FAMILY,
@@ -25,6 +27,7 @@ export {
 } from './bank';
 export { statsBankHash } from './bank-fingerprint';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
+export { CatchFileSchema, catchFile, readCatchList } from './catch';
 export {
   checkFloors,
   emptyFloors,
@@ -65,6 +68,7 @@ export {
   BLIND_SLOWDOWN,
   formatHardness,
   type GateBar,
+  HARDNESS_MAX_CATCH_SHARE,
   HARDNESS_MAX_SCORE,
   HARDNESS_MIN_CAUSES,
   HARDNESS_MIN_FORECAST,
