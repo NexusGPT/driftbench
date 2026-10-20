@@ -1,5 +1,5 @@
 import { globMatches, type Observed, type Spec, type ToolCall } from '@agent-nexus/driftbench-core';
-import { operationWitnesses } from './operation-witnesses';
+import { declaredToolWitnesses, operationWitnesses } from './operation-witnesses';
 
 export type Component = {
   id: string;
@@ -7,6 +7,8 @@ export type Component = {
   channel: 'expect' | 'custom';
   check: string;
   prepare?: (o: Observed) => void;
+  /** The spec's `operations` table this component needs: tool label to class. Merged into the spec it replays on. */
+  operations?: Record<string, string>;
   change: (o: Observed) => void;
   verdicts: string[];
   controlVerdicts: string[];
@@ -47,7 +49,12 @@ export function completionComponents(spec: Spec): ComponentInventory {
     const visit = (channel: Component['channel'], check: string, value: unknown) => {
       if (Array.isArray(value) && value.length === 0) return;
       const prefix = `${index}.${channel}.${check}`;
-      const add = (clause: string, change: Component['change'], prepare?: Component['prepare']) =>
+      const add = (
+        clause: string,
+        change: Component['change'],
+        prepare?: Component['prepare'],
+        operations?: Component['operations'],
+      ) =>
         inventory.components.push({
           id: `${prefix}.${clause}`,
           block: index,
@@ -61,6 +68,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
             clause.startsWith('event') ? 'resumed.call_or_text' : clause,
           ),
           ...(prepare ? { prepare } : {}),
+          ...(operations ? { operations } : {}),
         });
       const gap = (clause: string) => inventory.gaps.push(`${prefix}.${clause}`);
       const opts = record(value);
@@ -573,6 +581,18 @@ export function completionComponents(spec: Spec): ComponentInventory {
               o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
             },
           );
+        // A tool the spec declares destructive, called after the event: the tool-table branch of the check.
+        for (const witness of declaredToolWitnesses())
+          add(
+            `every.collateral.${witness.id}`,
+            (o) => {
+              o.toolCalls.push({ label: witness.label, input: {} });
+            },
+            (o) => {
+              o.toolCalls.push(push());
+            },
+            { [witness.label]: witness.class },
+          );
         if (opts.hazard === 'compaction')
           add(
             'every.collateral.event-window',
@@ -1040,6 +1060,7 @@ function verdictIds(check: string, value: unknown, clause: string): string[] {
  * assertion from hiding its failure, and still detects an entirely missing check. */
 export function componentSpec(actual: Spec, component: Component): Spec {
   const spec = structuredClone(actual);
+  if (component.operations) spec.operations = { ...spec.operations, ...component.operations };
   spec.rules = {
     custom:
       component.channel === 'custom' && actual.rules?.custom?.[component.check] !== undefined

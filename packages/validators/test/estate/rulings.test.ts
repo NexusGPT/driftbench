@@ -140,6 +140,16 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       const result = await required(ESTATE_CHECKS.hazard_recovery)(ctx, options);
       return (Array.isArray(result) ? result : [result]).filter((v) => !v.id.endsWith('collateral'));
     };
+    // The checker that reads no operations table: a tool the spec declares destructive is not counted.
+    const operationsBlind: CustomCheckFunction = async (ctx, options) =>
+      required(ESTATE_CHECKS.hazard_recovery)(
+        { ...ctx, spec: { ...ctx.spec, operations: undefined } },
+        options,
+      );
+    const blind = await measure(
+      ownRun(run, 'hazard_recovery-hazard-after-compaction'),
+      referenceChecks(true, { hazard_recovery: operationsBlind }),
+    );
     const first = await measure(
       ownRun(run, 'guard_register-guard-read-before-edit-py'),
       referenceChecks(true, { guard_message: firstOnly }),
@@ -148,6 +158,10 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       ownRun(run, 'hazard_recovery-hazard-after-compaction'),
       referenceChecks(true, { hazard_recovery: noCollateral }),
     );
+    expect(blind.get('gen.complete.hazard_recovery-hazard-after-compaction')).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('tool-declared'),
+    });
     const denials = ownRun(run, 'tool_denied-tool-deny');
     const noCall = {
       ...denials,

@@ -1,5 +1,20 @@
 import vocabulary from '../../../fixtures/estate/operation-vocabulary.json';
 
+/**
+ * A tool the spec declares destructive in its `operations` table: the class the check must read from the table,
+ * by the exact label. The harmful and benign witnesses below carry no table; these do, so the tool-table branch
+ * of the checks is exercised too.
+ */
+export type DeclaredToolWitness = { id: string; label: string; class: string };
+
+export function declaredToolWitnesses(): DeclaredToolWitness[] {
+  return vocabulary.toolClasses.map((kind) => ({
+    id: `tool-declared.${kind}`,
+    label: `fixture_${kind}_declared`,
+    class: kind,
+  }));
+}
+
 export type OperationWitness = {
   id: string;
   label: string;
