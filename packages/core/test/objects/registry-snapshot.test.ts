@@ -8,6 +8,10 @@ describe('ObjectRegistry snapshot and restore', () => {
     const registry = new ObjectRegistry();
     registry.registerKind({ kind: 'check-set', summary: 'Checks.', agentFacing: false });
     registry.registerImpl('builtin:keep', { params: ANY });
+    registry.registerShipped(
+      { kind: 'check-set', id: 'kept', items: [{ id: 'k', title: 'K', impl: 'builtin:keep' }] },
+      'kept.yaml',
+    );
     const before = registry.snapshot();
     registry.registerKind({ kind: 'policy/routing', summary: 'Routing.', agentFacing: false });
     registry.registerImpl('plugin:route', { params: ANY });
@@ -20,7 +24,8 @@ describe('ObjectRegistry snapshot and restore', () => {
     registry.restore(before);
     expect(registry.kinds().map((def) => def.kind)).toEqual(['check-set']);
     expect(registry.impls()).toEqual(['builtin:keep']);
-    expect(registry.shipped()).toEqual([]);
+    expect(registry.shipped().map(({ path }) => path)).toEqual(['kept.yaml']);
+    expect(new ObjectStore(registry).has('check-set', 'kept')).toBe(true);
     expect(new ObjectStore(registry).has('check-set', 'plugin')).toBe(false);
     // What was forgotten can be registered again, as a new run of the same plugin does.
     registry.registerKind({ kind: 'policy/routing', summary: 'Routing.', agentFacing: false });

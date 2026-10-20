@@ -292,6 +292,10 @@ Ruling item 14 above. `sequence.stages.<class>` owed a probe at every middle sta
 
 The item now reads the same map as the coverage items: a stage the map rules out for the class is owed no probe, and a probe placed at such a stage fails the item. A reachable stage left unprobed still fails it, and a class with no reachable stage never passes. Measured on main's product: the old logic fails D8 on 18 of the 21 visible and hidden seeds; the new item fails none, and no probe sits at a ruled-out stage. See [the journal](SWEEP-JOURNAL.md) and [evidence](evidence/sequence-impossible-pairs.json). No historical ladder level is updated by this scoped ruling.
 
+## Joint feasibility of a required cell: maintainer ruling (2026-10-16)
+
+A coverage target or an emitted cell must be carried by ONE event of the hidden map, not by one event per pair of its values. `possible.ts#jointWitness` is the single predicate; `impossiblePairs`, the triple coverage items and `diff.feasible.<seeder>` read it. Terminal behaviour calls of a read tool the flow recovers are positions; the cover seeder must place only cells an event carries. See [the journal](SWEEP-JOURNAL.md). No historical ladder level is updated by this scoped ruling.
+
 ## Minimality preserves map obligations: delta ruling (2026-10-16, PR 523)
 
 Execution and fault kills are necessary but insufficient evidence of removability. An approved phrase is an actual user message expressing its map value (docs/reference/map.md, ProposalPhrase); a retained Given value, Then or placement cannot replace that stimulus. On the supplied public seed-1 case, deleting gen-phrase-002#b3-value loses the sole approved returned-value request. phrases.data-out falls from 12/12 to 11/12 although retained execution still passes.

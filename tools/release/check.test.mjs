@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { checkChangelog, checkManifest, checkVersions, junkFiles, main, packFiles } from './check.mjs';
 
-const REPO = 'git+https://github.com/achammah/driftbench.git';
+const REPO = 'git+https://github.com/NexusGPT/driftbench.git';
 
 function manifest(dir, overrides = {}) {
   return {
@@ -15,8 +15,8 @@ function manifest(dir, overrides = {}) {
     license: 'MIT',
     keywords: ['evaluation'],
     repository: { type: 'git', url: REPO, directory: `packages/${dir}` },
-    homepage: 'https://github.com/achammah/driftbench#readme',
-    bugs: { url: 'https://github.com/achammah/driftbench/issues' },
+    homepage: 'https://github.com/NexusGPT/driftbench#readme',
+    bugs: { url: 'https://github.com/NexusGPT/driftbench/issues' },
     engines: { node: '>=22' },
     main: './dist/index.js',
     types: './dist/index.d.ts',

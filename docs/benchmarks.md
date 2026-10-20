@@ -43,9 +43,9 @@ The [manifest](../benchmarks/manifest.json) lists 14 slices and 1,798 binary cas
 
 Source roots and frozen commits:
 
-* A: [`comparisons/astra-hard/`](https://github.com/achammah/driftbench/tree/89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/astra-hard), commit `89425c88b12e5fd7516ed9cdbf6d37b9b0261595`, from `research/astra-hard-fresh`.
-* B: [`comparisons/promptfoo/hard/`](https://github.com/achammah/driftbench/tree/82cc403c01aa2992b109a24d739e2febe4bd33f5/comparisons/promptfoo/hard), commit `82cc403c01aa2992b109a24d739e2febe4bd33f5`, from `codex/hard-promptfoo`.
-* C: [`research/planted/`](https://github.com/achammah/driftbench/tree/d88113cb33cef242b068e630b176651b97a7e743/research/planted), frozen commit `d88113cb33cef242b068e630b176651b97a7e743`, from `research/astra-planted-truth`. Its [audit and metrics](https://github.com/achammah/driftbench/tree/492fce432e1d34a62c5f5c5586d23026133b390b/research/planted) are at `492fce432e1d34a62c5f5c5586d23026133b390b`.
+* A: [`comparisons/astra-hard/`](https://github.com/NexusGPT/driftbench/tree/89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/astra-hard), commit `89425c88b12e5fd7516ed9cdbf6d37b9b0261595`, from `research/astra-hard-fresh`.
+* B: [`comparisons/promptfoo/hard/`](https://github.com/NexusGPT/driftbench/tree/82cc403c01aa2992b109a24d739e2febe4bd33f5/comparisons/promptfoo/hard), commit `82cc403c01aa2992b109a24d739e2febe4bd33f5`, from `codex/hard-promptfoo`.
+* C: [`research/planted/`](https://github.com/NexusGPT/driftbench/tree/d88113cb33cef242b068e630b176651b97a7e743/research/planted), frozen commit `d88113cb33cef242b068e630b176651b97a7e743`, from `research/astra-planted-truth`. Its [audit and metrics](https://github.com/NexusGPT/driftbench/tree/492fce432e1d34a62c5f5c5586d23026133b390b/research/planted) are at `492fce432e1d34a62c5f5c5586d23026133b390b`.
 
 The planted verify bank retains all 95 pairs, including repeats; its source audit reports 91 distinct pairs. The planted rubric bank retains all 60 pairs. Each clean response becomes a pass case and each defective response becomes a fail case. These are fictional re-instantiations of executable templates, not complete public benchmark dev splits. The rubric bank tests an objective requirement, not full-rubric preference accuracy.
 
