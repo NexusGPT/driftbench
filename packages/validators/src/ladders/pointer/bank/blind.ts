@@ -5,7 +5,7 @@ import { pointerExports, Unsupported } from '../sut/blind-binding/reader';
 import type { PointerSut } from '../sut/port';
 
 /**
- * The second pointer bank: 341 items written blind by helpers who never read the reader (PR 759, merged under
+ * The second pointer bank: 343 items written blind by helpers who never read the reader (PR 759, merged under
  * `pointer/blind`). Its items speak the bank's own transport vocabulary (`blind/CONTRACT.md`); `sut/blind-binding`
  * binds that vocabulary to the reader. An operation the reader cannot serve fails its items with a message that
  * says so; no operation is invented.
