@@ -155,6 +155,16 @@ export function parseLabelSets(text: string): LabelSetsResult {
   return { ok: true, sets: parsed.data.labels };
 }
 
+/** True when `outer` is the parent of `kind`, or its parent's parent, and so on up the chain. */
+function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: string): boolean {
+  let up = kinds.get(kind)?.within;
+  for (let step = 0; up !== undefined && step < kinds.size; step += 1) {
+    if (up === outer) return true;
+    up = kinds.get(up)?.within;
+  }
+  return false;
+}
+
 /** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
 function nestingProblem(set: LabelSet): string | undefined {
   const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
@@ -163,11 +173,10 @@ function nestingProblem(set: LabelSet): string | undefined {
     if (parent === name) return `the span kind ${name} is within itself`;
     if (!parents.has(parent))
       return `the span kind ${name} is within ${parent}, which the set does not declare`;
-    const seen = new Set([name]);
-    for (let up: string | undefined = parent; up !== undefined; up = parents.get(up)) {
-      if (seen.has(up)) return `the span kinds ${name} and ${parent} are within each other`;
-      seen.add(up);
-    }
+    // The chain above a kind has at most as many steps as there are kinds; a longer one loops.
+    let up: string | undefined = parent;
+    for (let step = 0; up !== undefined && step < parents.size; step += 1) up = parents.get(up);
+    if (up !== undefined) return `the span kinds ${name} and ${parent} are within each other`;
   }
   return undefined;
 }
@@ -372,7 +381,7 @@ function checkExtras(
           (other) =>
             span.from < other.to &&
             other.from < span.to &&
-            !(kinds.get(span.kind)?.within === other.kind || kinds.get(other.kind)?.within === span.kind),
+            !(ancestor(kinds, span.kind, other.kind) || ancestor(kinds, other.kind, span.kind)),
         )
       ) {
         return `${where} overlaps another span of the unit`;
