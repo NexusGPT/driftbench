@@ -9,7 +9,7 @@ import { LINK_CREATORS, LINK_RELATIONS, LINK_STATUSES } from '../../packages/cor
 import { AppliesTo, Envelope, Item, ItemPatch } from '../../packages/core/src/schema/object';
 import { BlockStatus, Campaign, NotRun, RunResult } from '../../packages/core/src/schema/run';
 import { BlockSpec, GivenDefaults, GivenOverride, Spec } from '../../packages/core/src/schema/spec';
-import { documentsKey, schemaObjects, section } from './help-coverage';
+import { documentsKey, schemaObjects, section, type UnitOverride, unitsForObject } from './help-coverage';
 
 const topics = loadHelpTopics();
 const groups = [
@@ -50,53 +50,64 @@ describe('block and campaign schema help', () => {
   }
 });
 
-/** Where each object of the spec is described: the first pattern that matches its path picks the topics. */
-const SPEC_OBJECT_TOPICS: Array<[RegExp, string[]]> = [
-  [/given|prefix|\.world/, ['authoring-prefixes', 'authoring-parent-blocks']],
-  [/^blocks\[\](\.when(\.injection)?)?$/, ['authoring-blocks', 'authoring-parent-blocks']],
-  [/^perturbations\[\](\.recovery)?$/, ['authoring-perturbations', 'authoring-blocks']],
-  [
-    /expect|budget/,
-    [
-      'authoring-blocks',
-      'authoring-spec-format',
-      'judging-check-text',
-      'judging-check-tools',
-      'judging-check-runtime',
-      'judging-machine-checks',
-      'judging-criteria',
-      'judging-opt-in-settings',
-    ],
-  ],
-  [/.*/, ['authoring-spec-format', 'judging-criteria', 'judging-opt-in-settings']],
+/** The topics that describe the spec. An object is looked up in these, by its own key, never by a word alone. */
+const SPEC_TOPICS = [
+  'authoring-spec-format',
+  'authoring-blocks',
+  'authoring-parent-blocks',
+  'authoring-prefixes',
+  'authoring-perturbations',
+  'judging-check-text',
+  'judging-check-tools',
+  'judging-check-runtime',
+  'judging-machine-checks',
+  'judging-criteria',
+  'judging-opt-in-settings',
 ];
+/** Where an object is described when no heading, label line or table row opens with its own key. */
+const SPEC_UNITS: Record<string, UnitOverride[]> = {
+  '(root)': [{ topic: 'authoring-spec-format', heading: 'Top-level keys' }],
+  'blocks[]': [{ topic: 'authoring-blocks', heading: 'Block keys' }],
+  'blocks[].when.injection': [{ topic: 'authoring-blocks', paragraph: 'A block takes exactly one of' }],
+  'blocks[].given.prefix[]': [{ topic: 'authoring-prefixes', heading: 'A message of the prefix' }],
+  'blocks[].given.prefix[].tool_calls[]': [
+    { topic: 'authoring-prefixes', heading: 'A tool call in a prefix' },
+  ],
+};
 
-const inputsOf = (ids: string[]) =>
-  topics
-    .filter((t) => ids.includes(t.id))
-    .map((t) => section(t.body, 'Inputs') + section(t.body, 'Commands and every option'))
-    .join('\n');
+/** Every key of every object of a schema must be named in code in the units that document that object. */
+function undocumented(
+  schema: unknown,
+  pool: string[],
+  units: Record<string, UnitOverride[]>,
+  skip: RegExp,
+): string[] {
+  const owners = topics.filter((t) => pool.includes(t.id));
+  const missing: string[] = [];
+  for (const { path, keys } of schemaObjects(schema)) {
+    if (skip.test(path)) continue;
+    const found = unitsForObject(path, owners, units);
+    if (found.length === 0) missing.push(`${path}: no unit documents this object`);
+    for (const key of keys)
+      if (found.length > 0 && !found.some((unit) => documentsKey(unit.text, key)))
+        missing.push(`${path}.${key}`);
+  }
+  return missing;
+}
 
 describe('spec help', () => {
-  it('documents every key of every object of the spec schema', () => {
-    const missing: string[] = [];
-    for (const { path, keys } of schemaObjects(Spec)) {
-      // A perturbation takes the same expectations as a block; its path would repeat every key.
-      if (path.startsWith('perturbations[].expect')) continue;
-      const owners = SPEC_OBJECT_TOPICS.find(([pattern]) => pattern.test(path))?.[1] ?? [];
-      const text = inputsOf(owners);
-      for (const key of keys) if (!documentsKey(text, key)) missing.push(`${path}.${key}`);
-    }
-    expect(
-      missing,
-      'Add the key to the Inputs or Commands section of the topic that owns its object.',
-    ).toEqual([]);
+  it('documents every key of every object of the spec schema, in the section of that object', () => {
+    // A perturbation takes the expectations of a block; its path would repeat every key.
+    expect(undocumented(Spec, SPEC_TOPICS, SPEC_UNITS, /^perturbations\[\]\.expect/)).toEqual([]);
   });
 });
 
-/** Where each stored record is described: any section counts, since a record is read as output. */
+/** The topics that describe a stored record: any of them may hold the unit of an object. */
 const RECORD_TOPICS = [
   'running-store',
+  'running-retries',
+  'running-tool-history',
+  'running-process-and-sandboxes',
   'running-not-run',
   'running-outcomes',
   'running-realized-text',
@@ -104,74 +115,43 @@ const RECORD_TOPICS = [
   'authoring-parent-blocks',
   'judging-campaign-rejudge',
 ];
-const RECORD_OBJECTS = [
-  '(root)',
-  'blocks[]',
-  'blocks[].notRun',
-  'blocks[].blocked',
-  'blocks[].carried',
-  'blocks[].rejudged',
-  'blocks[].provenance',
-  'blockRerun',
-  'rejudged',
-  'carried',
-  'provenance',
-  'provenance.driver',
-  'provenance.adapter',
-  'succession',
-  'recovery',
-  'endState',
-];
-
-/** The objects a block reports: what the agent did, what judged it, and what the run announced. */
-const OUTPUT_TOPICS = [
-  'running-store',
-  'running-retries',
-  'running-tool-history',
-  'running-process-and-sandboxes',
-  'judging-evidence',
-  'judging-council',
-];
-const OUTPUT_OBJECTS = [/^blocks\[\]\.(observed|verdicts)/, /^events/];
+const BLOCK_KEYS = { topic: 'running-store', paragraph: 'Each block (`blocks[]`) holds' };
+const BLOCK_STAMPS = { topic: 'running-store', paragraph: 'Each block also holds the block `provenance`' };
+const RUN_UNITS: Record<string, UnitOverride[]> = {
+  '(root)': [
+    { topic: 'running-store', paragraph: 'A run record holds' },
+    { topic: 'running-store', heading: 'Run record, field by field' },
+  ],
+  'blocks[]': [BLOCK_KEYS],
+  'blocks[].ledgerCheck': [BLOCK_KEYS],
+  'blocks[].notRun': [BLOCK_KEYS],
+  'blocks[].blocked': [BLOCK_KEYS],
+  'blocks[].provenance': [BLOCK_STAMPS],
+  'blocks[].provenance.endState': [BLOCK_STAMPS],
+  'blocks[].provenance.endState.values[]': [BLOCK_STAMPS],
+  'blocks[].provenance.artifacts[]': [BLOCK_STAMPS],
+  'blocks[].carried': [BLOCK_STAMPS, { topic: 'running-store', row: 'carried' }],
+  'blocks[].observed.executions[]': [{ topic: 'running-store', paragraph: 'An `executions` record holds' }],
+  'blocks[].observed.executions[].approval': [
+    { topic: 'running-store', paragraph: 'An `executions` record holds' },
+  ],
+  'blocks[].verdicts[].judge.votes[]': [
+    { topic: 'running-store', paragraph: 'A vote in `judge.votes` holds' },
+  ],
+};
+const CAMPAIGN_UNITS: Record<string, UnitOverride[]> = {
+  '(root)': [{ topic: 'running-store', heading: 'Campaign record, field by field' }],
+};
+/** A target is documented once, as the `target` of a spec. */
+const TARGETS = /(^|\.)(target|targets\[\])(\.|$)/;
 
 describe('stored record help', () => {
-  it('documents every key of the run record and of the block, carry, rejudge and provenance objects', () => {
-    const text = topics
-      .filter((t) => RECORD_TOPICS.includes(t.id))
-      .map((t) => t.body)
-      .join('\n');
-    const missing: string[] = [];
-    for (const { path, keys } of schemaObjects(RunResult)) {
-      if (!RECORD_OBJECTS.includes(path)) continue;
-      for (const key of keys) if (!documentsKey(text, key)) missing.push(`run.${path}.${key}`);
-    }
-    expect(missing).toEqual([]);
+  it('documents every key of every object of the run record, in the section of that object', () => {
+    expect(undocumented(RunResult, RECORD_TOPICS, RUN_UNITS, TARGETS)).toEqual([]);
   });
 
-  it('documents every key of the observed record, the verdicts and the events of a run', () => {
-    const text = topics
-      .filter((t) => OUTPUT_TOPICS.includes(t.id))
-      .map((t) => t.body)
-      .join('\n');
-    const missing: string[] = [];
-    for (const { path, keys } of schemaObjects(RunResult)) {
-      if (!OUTPUT_OBJECTS.some((pattern) => pattern.test(path))) continue;
-      for (const key of keys) if (!documentsKey(text, key)) missing.push(`run.${path}.${key}`);
-    }
-    expect(missing).toEqual([]);
-  });
-
-  it('documents every key of the campaign record', () => {
-    const text = topics
-      .filter((t) => [...RECORD_TOPICS, 'results-radius', 'results-registry'].includes(t.id))
-      .map((t) => t.body)
-      .join('\n');
-    const missing: string[] = [];
-    for (const { path, keys } of schemaObjects(Campaign)) {
-      if (!['(root)', 'provenance', 'provenance.adapters[]', 'rejudged[]', 'radius'].includes(path)) continue;
-      for (const key of keys) if (!documentsKey(text, key)) missing.push(`campaign.${path}.${key}`);
-    }
-    expect(missing).toEqual([]);
+  it('documents every key of every object of the campaign record, in the section of that object', () => {
+    expect(undocumented(Campaign, RECORD_TOPICS, CAMPAIGN_UNITS, TARGETS)).toEqual([]);
   });
 });
 
@@ -212,10 +192,24 @@ describe('the schema help check', () => {
     expect(documentsKey('`new_key_two` sets another count.', 'new_key')).toBe(false);
   });
 
-  it('refuses a topic that leaves out a key of an object it owns', () => {
-    const owned = inputsOf(['authoring-parent-blocks']);
-    expect(documentsKey(owned, 'parent')).toBe(true);
-    expect(documentsKey(owned, 'an_undocumented_key')).toBe(false);
+  it('refuses a key that only another object of the same topic names', () => {
+    // A key added to the root of the run record is not documented because `blockRerun.reason` names a `reason`.
+    const owners = topics.filter((t) => RECORD_TOPICS.includes(t.id));
+    const root = unitsForObject('(root)', owners, RUN_UNITS);
+    expect(root.some((unit) => documentsKey(unit.text, 'runId'))).toBe(true);
+    expect(root.some((unit) => documentsKey(unit.text, 'reason'))).toBe(false);
+    // A key added to a vote is not documented because the executions of the same section name a `command`.
+    const votes = unitsForObject('blocks[].verdicts[].judge.votes[]', owners, RUN_UNITS);
+    expect(votes.some((unit) => documentsKey(unit.text, 'winner'))).toBe(true);
+    expect(votes.some((unit) => documentsKey(unit.text, 'command'))).toBe(false);
+  });
+
+  it('refuses an override whose unit is gone', () => {
+    expect(() =>
+      unitsForObject('(root)', topics, {
+        '(root)': [{ topic: 'running-store', heading: 'No such heading' }],
+      }),
+    ).toThrow(/is gone/);
   });
 });
 
