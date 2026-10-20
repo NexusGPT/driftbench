@@ -123,3 +123,27 @@ export const BlockLink = z
 export type BlockLink = z.infer<typeof BlockLink>;
 
 export const BlockLinks = z.array(BlockLink).describe('The links of the blocks of a spec.');
+
+export const RERUN_REASONS = ['fails_at_baseline', 'fragile'] as const;
+
+export const RerunMark = z
+  .strictObject({
+    block: z
+      .union([z.string().min(1), z.number().int().min(0)])
+      .describe('The block the mark is for: its id, or its index when blocks have no id.'),
+    reason: z
+      .enum(RERUN_REASONS)
+      .describe(
+        'fails_at_baseline: the block is red without any change, so any edit may be its fix. fragile: the block flipped under changes it has no link to.',
+      ),
+    evidence: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('What supports the mark, such as {failed: 12, repeats: 12} or {mutants: [...]}.'),
+  })
+  .describe('A block that reruns on every change to a prompt section, whatever its links say.');
+export type RerunMark = z.infer<typeof RerunMark>;
+
+export const RerunMarks = z
+  .array(RerunMark)
+  .describe('The blocks of a spec that always rerun, in `metadata.rerun`.');
