@@ -97,3 +97,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.currency-code-after-the-amount
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1060
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: limit_word
+          deviation: D8_tool_failure
+          estate_hazard: compaction_mid_task
+          atoms.register: register.standing.currency-code-after-the-amount
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

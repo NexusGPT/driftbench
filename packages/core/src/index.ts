@@ -215,12 +215,14 @@ export {
   sameCarryContext,
   sectionChangeManifest,
   sectionChanges,
+  sectionClosure,
   sectionDocument,
   sectionEntry,
   sectionLinkStatus,
   sectionOfCitation,
   sectionSelection,
   sectionsFromHeadings,
+  sectionsReaching,
   sha256Hex,
   specLinks,
   type ThenField,
@@ -384,6 +386,8 @@ export {
   LinkRelation,
   LinkStatus,
   LinkTarget,
+  PlanRowTarget,
+  RuleTarget,
 } from './schema/links';
 export {
   AppliesTo,

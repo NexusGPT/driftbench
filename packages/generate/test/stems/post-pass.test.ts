@@ -165,3 +165,39 @@ describe('the stem post-pass', () => {
     `);
   }, 120_000);
 });
+
+describe('the stem post-pass and the block links', () => {
+  const link = (to: string, at: string | number) => ({
+    block: at,
+    to: { kind: 'rule', rule: to },
+    relation: 'verifies',
+    status: 'declared',
+    created_by: 'generator',
+    at_version: 'v1',
+  });
+  const linked = (id: string, last: string) =>
+    spec({
+      id,
+      blocks: [block('hi'), block('pick'), block(last)],
+      metadata: { links: [link('r1', 'b-hi'), link('r2', 'b-pick'), link('r3', `b-${last}`)] },
+    });
+  const pass = stemPass([linked('a', 'pay'), linked('b', 'cancel')]);
+
+  it('names a linked block that moved into a stem as the loader writes it out, and keeps the others', () => {
+    const child = pass.specs.find((entry) => entry.id === 'a');
+    const stem = pass.stems.at(-1)?.id;
+    const first = pass.stems[0]?.id;
+    expect(((child?.metadata?.links ?? []) as { block: string }[]).map((entry) => entry.block)).toEqual([
+      `${first}#b-hi`,
+      `${stem}#b-pick`,
+      'b-pay',
+    ]);
+  });
+
+  it('writes out as a spec that holds every linked block', () => {
+    const [a] = writtenOut([...pass.stems, ...pass.specs]).filter((entry) => entry.id === 'a');
+    const ids = new Set(a?.blocks.map((entry) => entry.id));
+    for (const entry of (a?.metadata?.links ?? []) as { block: string }[])
+      expect(ids.has(entry.block)).toBe(true);
+  });
+});

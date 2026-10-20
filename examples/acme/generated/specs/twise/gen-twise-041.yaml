@@ -118,3 +118,84 @@ metadata:
       stem: stem-5b3d63ebae02
       block: b2-address-to-address
       replaced: 2
+  links:
+    - block: stem-27ee4df04717#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-27ee4df04717#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-041
+        values:
+          behaviour: B-004
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-5b3d63ebae02#b2-address-to-address
+      to:
+        kind: rule
+        rule: stage_transition=address-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-5b3d63ebae02#b2-address-to-address
+      to:
+        kind: rule
+        rule: coverage_result=not-in-map
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-5b3d63ebae02#b2-address-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-041
+        values:
+          behaviour: B-004
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: address-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D1_off_topic
+      to:
+        kind: rule
+        rule: deviation=D1_off_topic
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D1_off_topic
+      to:
+        kind: plan_row
+        row: gen-twise-041
+        values:
+          behaviour: B-004
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          deviation: D1_off_topic
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

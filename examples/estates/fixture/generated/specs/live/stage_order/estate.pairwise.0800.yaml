@@ -102,3 +102,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-plan-restate-the-ask-and
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0800
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: hold
+          deviation: D1_off_topic
+          estate_hazard: compaction_mid_task
+          atoms.stage: stage.steps.stage-plan-restate-the-ask-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

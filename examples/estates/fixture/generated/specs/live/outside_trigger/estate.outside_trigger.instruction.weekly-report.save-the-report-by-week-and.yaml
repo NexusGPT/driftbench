@@ -63,3 +63,30 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.weekly-report.save-the-report-by-week-and
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.save-the-report-by-week-and
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.weekly-report.save-the-report-by-week-and
+        values:
+          atoms.instruction: instruction.weekly-report.save-the-report-by-week-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
