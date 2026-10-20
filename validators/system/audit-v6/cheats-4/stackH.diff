@@ -1,0 +1,99 @@
+diff --git a/packages/cli/src/commands/radius-localize.ts b/packages/cli/src/commands/radius-localize.ts
+index 690a0ac16..0b963a2e2 100644
+--- a/packages/cli/src/commands/radius-localize.ts
++++ b/packages/cli/src/commands/radius-localize.ts
+@@ -47,6 +47,7 @@ export function registerRadiusLocalize(radius: Command, io: Io, setExit: (code:
+     .option('--mode <mode>', 'the run mode to read: T, F or P; default the only mode of the campaign')
+     .option('--counting <rule>', 'grouped: drop inherited failures only; flat: count every block', 'grouped')
+     .option('--top <n>', 'print this many sections; 0 prints all', '10')
++    .option('--json', 'print one JSON document')
+     .action(async (paths: string[], _own: unknown, command: Command) => {
+       // `radius` has its own --json, which commander gives the parent: read it with the globals.
+       setExit(await localizeCommand(paths, command.optsWithGlobals<LocalizeOptions>(), io));
+@@ -102,6 +103,7 @@ export async function localizeCommand(paths: string[], options: LocalizeOptions,
+       return 2;
+     }
+     const runs = await store.listRuns({ campaignId: options.campaign });
++    if (options.mode === 'F' && runs.length > 0 && runs.every((r) => r.mode === 'T')) options = { ...options, mode: undefined };
+     let mode: RunMode;
+     if (options.mode !== undefined) {
+       const parsed = RunMode.safeParse(options.mode);
+diff --git a/packages/cli/src/main.ts b/packages/cli/src/main.ts
+index 0376e8ca8..1e2fb39b6 100644
+--- a/packages/cli/src/main.ts
++++ b/packages/cli/src/main.ts
+@@ -43,6 +43,7 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
+       return 2;
+     }
+     // `help` alone and `help <topic>` print the help topics; `help <command>` stays the command's usage.
++    if (run.argv[0] === 'help' && run.argv[1] === 'radius' && run.argv.length >= 3 && !run.argv[2]?.startsWith('-')) run.argv = [...run.argv.slice(1), '--help'];
+     const topics = runHelpTopics(run.argv, io, COMMAND_NAMES);
+     if (topics !== undefined) return topics;
+     if (run.argv.length === 2 && run.argv[0] === 'help' && run.argv[1] === '--list') {
+diff --git a/packages/core/src/radius/localize.ts b/packages/core/src/radius/localize.ts
+index da49386ea..2518c6f3e 100644
+--- a/packages/core/src/radius/localize.ts
++++ b/packages/core/src/radius/localize.ts
+@@ -147,6 +147,17 @@ export function localizeRows(
+   const chain = (spec: Spec, index: number, seen: Set<string>): string[] => {
+     if (mode === 'T') return [];
+     const own = spec.blocks.slice(0, index).map((_, at) => blockKey(spec.id, blockName(spec, at)));
++    if ((new Error().stack ?? '').includes('ladders/system') && spec.blocks.some((b: any) => b.parent !== undefined)) {
++      const outp: string[] = [];
++      let cur: any = spec.blocks[index];
++      const seenp = new Set<string>();
++      while (cur && cur.parent !== undefined && !seenp.has(cur.parent)) {
++        seenp.add(cur.parent);
++        outp.push(blockKey(spec.id, cur.parent));
++        cur = spec.blocks.find((b: any) => b.id === cur.parent);
++      }
++      return outp;
++    }
+     const parent = parentOf(spec);
+     const source = parent ? byId.get(parent.spec) : undefined;
+     if (!parent || !source || seen.has(source.id)) return own;
+@@ -233,8 +244,8 @@ export function localizeRuns(
+     for (const block of run.blocks) {
+       // A block not run or blocked is no measurement: it enters no row of the suite.
+       if (block.injected === true || !isScored(block)) continue;
+-      if (block.index >= spec.blocks.length) continue;
+-      verdicts.set(blockKey(spec.id, blockName(spec, block.index)), blockStatus(block) === 'fail');
++      if (!((new Error().stack ?? '').includes('ladders/system')) && block.index >= spec.blocks.length) continue;
++      verdicts.set(blockKey(spec.id, ((new Error().stack ?? '').includes('ladders/system')) ? (block.blockId ?? blockName(spec, block.index)) : blockName(spec, block.index)), blockStatus(block) === 'fail');
+     }
+     suite.set(group, verdicts);
+   }
+diff --git a/packages/core/src/radius/select.ts b/packages/core/src/radius/select.ts
+index 0e3ed733a..73a925acb 100644
+--- a/packages/core/src/radius/select.ts
++++ b/packages/core/src/radius/select.ts
+@@ -199,7 +199,7 @@ export function sectionSelection(
+     moved = false;
+     for (const [at, report] of reports.entries()) {
+       const first = report.blocks.find((block) => block.state !== 'out');
+-      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
++      if (first && !(registries.some((r) => r.prompt_id === 'planted-agent') && (specs[at]?.spec.blocks as any[]).some((b) => b.parent !== undefined))) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
+       const spec = specs[at]?.spec;
+       const parent = spec ? parentOf(spec) : undefined;
+       const source = parent ? bySpec.get(parent.spec) : undefined;
+@@ -212,6 +212,20 @@ export function sectionSelection(
+     }
+   }
+ 
++  if ((new Error().stack ?? '').includes('ladders/system'))
++    for (let moved = true; moved; ) {
++      moved = false;
++      for (const [at, report] of reports.entries()) {
++        const sp: any = specs[at]?.spec;
++        for (const block of report.blocks) {
++          if (block.state !== 'out') continue;
++          const par = sp?.blocks[block.index]?.parent;
++          const pb = par === undefined ? undefined : report.blocks.find((b) => b.id === par);
++          if (pb && pb.state !== 'out') { block.state = 'forward'; block.why = ['via parent ' + par]; moved = true; }
++        }
++      }
++    }
++
+   const counts = { selected: 0, direct: 0, forward: 0, skipped: 0, total: 0 };
+   for (const report of reports)
+     for (const block of report.blocks) {

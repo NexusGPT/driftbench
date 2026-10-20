@@ -4,13 +4,13 @@
     "judges": 2,
     "map": 2,
     "stats": 2,
-    "system": 5
+    "system": 6
   },
   "floors": {
     "judges": 20,
     "map": 8,
     "stats": 7,
-    "system": 9
+    "system": 11
   },
   "evidence": {
     "judges": {
@@ -79,33 +79,11 @@
       "ladderVersion": 2
     },
     "system": {
-      "level": 9,
-      "seeds": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-        "20",
-        "hidden"
-      ],
-      "hiddenSeed": 88145333,
-      "head": "0531bb75852c4089d0261b58ebd46457bf863d16",
-      "ladderVersion": 5
+      "level": 11,
+      "seeds": ["1", "2", "3", "hidden"],
+      "hiddenSeed": 679999498,
+      "head": "9fae49cab6d3b6d2f017d695563bd42979cd3847",
+      "ladderVersion": 6
     }
   },
   "history": {
@@ -176,6 +154,41 @@
           "hiddenSeed": 707151630,
           "head": "2a1704ce6f752251b12985a23e109056de8c6953",
           "ladderVersion": 1
+        }
+      }
+    ],
+    "system": [
+      {
+        "ladderVersion": 5,
+        "floor": 9,
+        "evidence": {
+          "level": 9,
+          "seeds": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "hidden"
+          ],
+          "hiddenSeed": 88145333,
+          "head": "0531bb75852c4089d0261b58ebd46457bf863d16",
+          "ladderVersion": 5
         }
       }
     ]

@@ -13,8 +13,12 @@ export {
   type Operator,
 } from './family';
 
-/** The version of the system ladder: version 2 is the item bank of docs/validators.md section 12. */
-export const SYSTEM_LADDER_VERSION = 5;
+/**
+ * The version of the system ladder: version 2 is the item bank of docs/validators.md section 12. Version 6
+ * adds level 12, a planted fault reaching its prompt section through the block links, and level 13, the
+ * blocks not run and blocked with their exit codes; levels 1 to 11 and their items are those of version 5.
+ */
+export const SYSTEM_LADDER_VERSION = 6;
 
 export type SystemLadderOptions = {
   /** Replaces the bank: tests run a few items, or plant a failing one. */
@@ -26,7 +30,8 @@ export type SystemLadderOptions = {
  * level is a sub-bank of items with threshold 1: every item of the level passes on the seed, or the level
  * fails and names its failing items, each with its family, tier and the one component it points at. The
  * run stops at the first failing level. Levels, in order of the cost of diagnosis: records, fault reach,
- * precision, drift class, run fields, recovery, variance, version drift, replay, command line, scale.
+ * precision, drift class, run fields, recovery, variance, version drift, replay, command line, scale, links,
+ * not run and blocked.
  */
 export function systemLadder(options: SystemLadderOptions = {}): Ladder {
   const bank = options.bank ?? systemBank();

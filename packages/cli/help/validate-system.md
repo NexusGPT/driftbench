@@ -1,6 +1,6 @@
 ---
 title: The system validator
-summary: What `driftbench validate system` measures across the whole evaluation chain, its 11 levels and 2388 items, and how to read a failing item.
+summary: What `driftbench validate system` measures across the whole evaluation chain, its 13 levels and 2801 items, and how to read a failing item.
 commands:
   - validate
 see_also:
@@ -30,7 +30,7 @@ report), items written by breaker lanes that had not read the code (`breaker-*`,
 codes of every command group (`exits-*`), robustness (`robust-*`: concurrency, resume, transfer, version),
 the store under stress and its round trip, and scale.
 
-The ladder (version 5), from `driftbench validate system`:
+The ladder (version 6), from `driftbench validate system`:
 
 | Level | Id | Name | Items | Families |
 |---|---|---|---|---|
@@ -45,8 +45,10 @@ The ladder (version 5), from `driftbench validate system`:
 | 9 | `replay` | replay equals live | 30 | claim-concepts, replay |
 | 10 | `command-line` | command-line exit codes and output fields | 867 | claim-cli, claim-cli-flags, the breaker families, the exits families, cli-documented |
 | 11 | `scale` | scale: the same answers at ten and a hundred times the size | 76 | scale |
+| 12 | `links` | a planted fault reaches its prompt section through the block links | 293 | link-localize, link-inherit, link-shift, link-select, link-select-edge, link-spec, link-chain, link-audit |
+| 13 | `not-run` | blocks not run and blocked: records, outcomes and exit codes | 120 | verdict-audit, verdict-not-run, verdict-records, verdict-blocked, verdict-exits |
 
-2388 items in all. The floor is 9 for ladder version 5: CI fails when a seed stops below level 9.
+2801 items in all. The floor is 11 for ladder version 6: CI fails when a seed stops below level 11. The floor of 9 belonged to ladder version 5 (11 levels, 2388 items); `validators/floors.json` keeps it under `history.system`.
 
 ## When to use it
 
@@ -141,7 +143,7 @@ driftbench validate system --hardness # exit 64
 validators/system/journal.jsonl: the journal holds no iteration 0 row: run and record iteration 0 first.
 ```
 
-The ladder on seed 1, at the repository root on macOS (1029 seconds on a busy machine). Shown as text, not run by the help test: a whole ladder runs for minutes, and the level it reaches changes as the product is fixed.
+A run of ladder version 5 (before levels 12 and 13 and the floor of version 6) on seed 1, at the repository root on macOS (1029 seconds on a busy machine). Shown as text, not run by the help test: a whole ladder runs for minutes, and the level it reaches changes as the product is fixed.
 
 ```bash
 pnpm -s driftbench validate system
@@ -170,7 +172,7 @@ Items of the first failing level:
       claim/adapters/process/exit-kills-detached-child  [tier 4]  [packages/sandbox/src/run.ts]  asks: packages/sandbox/src/run.ts and process.md "Sandboxes": when the agent exits, a background child it left running is killed with it, also one it started in its own process group. found: expected the detached child killed when the agent exited, but it ran on and wrote late.txt in /private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-system-bank-NWL8zJ/claims-adapters/exit-detached-1/sandboxes/driftbench-zFwbMe
 ```
 
-It exited 2, below the floor of 9. Read the one item: it asks the sandbox claim that a background child
+It exited 2, below the floor of 9 that ladder version 5 had. Read the one item: it asks the sandbox claim that a background child
 the agent started in its own process group dies when the agent exits, and found the child still running
 and writing a file afterwards. It points at `packages/sandbox/src/run.ts`. It is a product finding on the
 machine that ran it. CI runs the validators on Linux runners (`ubuntu-latest`), so reproduce a
@@ -180,7 +182,7 @@ macOS-only finding there before you call it a regression.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Floor: 9. BELOW THE FLOOR.` | a change broke a level at or below 9, or the machine differs from CI | read the first failing item; reproduce it on the same seed |
+| `Floor: 11. BELOW THE FLOOR.` | a change broke a level at or below 11, or the machine differs from CI | read the first failing item; reproduce it on the same seed |
 | the run takes more than ten minutes | the system bank starts many CLI child processes | iterate on one seed; use `--seeds 1..20` at the end |
 | a `scale` item fails | the answer changed at a larger size, or the processor time grew more than 25 times from ten to a hundred | the subject named |
 | a `claim-*` item disagrees with the documentation you just changed | the claim items read the documented behaviour | change the product or the documentation so they agree; a wrong item goes to `validate-mutants-and-rulings` |

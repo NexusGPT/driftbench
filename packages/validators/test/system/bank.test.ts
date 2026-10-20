@@ -64,7 +64,7 @@ describe('the system bank (docs/validators.md section 12)', () => {
     const ladder = systemLadder();
     expect(ladder.levels.map((level) => level.id)).toEqual(BANK_LEVELS.map((level) => level.id));
     expect(ladder.levels.every((level) => level.threshold === 1)).toBe(true);
-    expect(ladder.version).toBe(5);
+    expect(ladder.version).toBe(6);
   });
 });
 
