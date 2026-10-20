@@ -11,21 +11,45 @@ import { join } from 'node:path';
  */
 const ROOT = new URL('../../src/ladders/pointer/', import.meta.url).pathname;
 const FAMILY_FILES: Record<string, string> = { 're-anchoring': 'reanchoring' };
-/** Helpers changed after the blind commit in a way that moves a pass condition. */
+/**
+ * Helpers (functions of the kit or of a family file) that changed after the blind commit in a way that moves a pass
+ * condition: a positive witness, a stricter oracle, a new check. A comment-only change is not listed.
+ */
 export const REPAIRING_HELPERS: readonly string[] = [
-  'scanOk',
-  'fresh',
-  'liveOf',
-  'mustRun',
-  'go',
-  'rescanOk',
-  'sameFingerprints',
-  'record',
-  'eventNow',
-  'missCase',
-  'fixtureMissCase',
+  'canonical',
+  'checkPlanted',
+  'cutControl',
   'digestOf',
+  'eventNow',
+  'examples',
+  'fixtureMissCase',
+  'fresh',
+  'go',
+  'growth',
+  'hash',
+  'liveOf',
+  'loadFixture',
+  'makeFixture',
+  'missCase',
+  'mustRun',
+  'parseCall',
+  'perturb',
   'positiveReplay',
+  'privateEstate',
+  'readableFor',
+  'record',
+  'replay',
+  'requireFixtureLabels',
+  'requireSourceWitness',
+  'rescanOk',
+  'runScaleOp',
+  'sameFingerprints',
+  'scanOk',
+  'staleCassette',
+  'strings',
+  'truthOf',
+  'verifyScan',
+  'wireFor',
 ];
 const IGNORED = new Set(['pass', 'fail', 'Array', 'Set', 'Map', 'String', 'Number', 'Object', 'JSON']);
 
@@ -93,8 +117,31 @@ export function fingerprints(ids: readonly string[]): Record<string, string> {
   return Object.fromEntries(ids.map((id) => [id, sha(Object.values(parts(id)).join('\u0000'))]));
 }
 
-/** The repairing helpers an item's runner entry calls. */
+/**
+ * The repairing helpers an item's runner can reach: every helper called from its entry, followed through the helpers
+ * of its family file and of the kit to any depth.
+ */
 export function repairingCalls(id: string): string[] {
-  const { entry } = parts(id);
-  return REPAIRING_HELPERS.filter((name) => new RegExp(`\\b${name}\\s*\\(`).test(entry));
+  const dot = id.indexOf('.');
+  const family = id.slice(0, dot);
+  const file = FAMILY_FILES[family] ?? family;
+  const kit = new Map<string, string>();
+  for (const path of ts(join(ROOT, 'kit')))
+    for (const [name, body] of tops(read(path))) kit.set(name, `${kit.get(name) ?? ''}${body}`);
+  const helpers = new Map([...kit, ...tops(read(join(ROOT, 'bank/families', `${file}.ts`)))]);
+  const seen = new Set<string>();
+  let frontier = [parts(id).entry];
+  while (frontier.length > 0) {
+    const next: string[] = [];
+    for (const text of frontier) {
+      for (const m of text.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(|<)/g)) {
+        const name = m[1] as string;
+        if (seen.has(name) || !helpers.has(name)) continue;
+        seen.add(name);
+        next.push(helpers.get(name) as string);
+      }
+    }
+    frontier = next;
+  }
+  return REPAIRING_HELPERS.filter((name) => seen.has(name));
 }

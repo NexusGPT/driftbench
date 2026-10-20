@@ -12,8 +12,8 @@ const count = (label: string) => pointerBank().filter((i) => i.provenance === la
 describe('the provenance of the first bank', () => {
   it('labels every item, and the three labels cover the 419 items', () => {
     expect(pointerBank()).toHaveLength(419);
-    expect(count('blind')).toBe(225);
-    expect(count('maintainer-repaired')).toBe(177);
+    expect(count('blind')).toBe(77);
+    expect(count('maintainer-repaired')).toBe(325);
     expect(count('maintainer-added')).toBe(17);
   });
 
@@ -62,6 +62,20 @@ describe('an item that changed after the blind commit is not labelled blind', ()
     const now = fingerprints(blind.map((i) => i.id));
     const moved = blind.filter((i) => recorded[i.id] !== now[i.id]).map((i) => i.id);
     expect(moved).toEqual([]);
+  });
+
+  it('labels an item repaired when its runner reaches a repairing helper only through other helpers', () => {
+    // re-anchoring.noop calls `same`, which calls `anchorCase`, which reaches `eventNow`; a missing-events reader
+    // passed it before and fails it now.
+    expect(repairingCalls('re-anchoring.noop')).toContain('eventNow');
+    expect(pointerBank().find((i) => i.id === 're-anchoring.noop')?.provenance).toBe('maintainer-repaired');
+  });
+
+  it('labels every item that reaches a repairing helper maintainer-repaired', () => {
+    const wrong = pointerBank()
+      .filter((i) => i.provenance === 'blind' && repairingCalls(i.id).length > 0)
+      .map((i) => i.id);
+    expect(wrong).toEqual([]);
   });
 
   it('keeps blind items away from the helpers whose change moved a pass condition', () => {
