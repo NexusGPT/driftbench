@@ -1,6 +1,6 @@
 # Audit of the weights family of the statistics bank (docs/validators.md section 12.7), ladder version 4
 
-The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
+The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), weights-mixture and weights-coverage at the `capabilities` level, weights-agreement and weights-wilson at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
 
 ## Round 2: version 4 (audited at head ac80be2dc, 181 items; the 6 items added after are covered by the findings below)
 
