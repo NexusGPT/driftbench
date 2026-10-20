@@ -1156,6 +1156,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `estate stats` | Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach for skills, references, guards and subagents, a not-observable count for the other approved atoms, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
+| `estate prove` | proves the links of specs to the rule a mutant removed, from a run on the original and a run on the mutant: a linked block that flips is `verified`, one that passes on both is `refuted`. Exit 0 when the blocks that flip are the linked blocks, 1 when they differ, 2 usage or input error |
 
 | Option | Effect |
 |---|---|
@@ -1381,7 +1382,9 @@ An option error the argument parser reports (an unknown option, a missing compon
 
 ```
 driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [judge flags] [run check flags] [--json]
-driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
+driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
+driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
+driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
