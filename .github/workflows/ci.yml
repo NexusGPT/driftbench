@@ -98,7 +98,7 @@ jobs:
   train-gate:
     name: train gate
     if: always()
-    needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
+    needs: [bench, research-replay, prepare, checks, build, python, comparison-replay, viewer-journey, guard]
     runs-on: ubuntu-latest
     steps:
       - name: Require the full merge train
@@ -134,7 +134,7 @@ jobs:
             fi
             # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
             for id in ${jobs_lc//,/ }; do
-              case ",bench,research-replay,build,python,comparison-replay,viewer-journey,guard,fast," in
+              case ",bench,research-replay,prepare,checks,build,python,comparison-replay,viewer-journey,guard,fast," in
                 *",$id,"*) ;;
                 *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
               esac
@@ -180,17 +180,19 @@ jobs:
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: tools/research-replay-ci.sh
 
-  build:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
-    # The tests run in 4 shards (`vitest run --shard=i/4`: each test file runs in exactly one shard). Shard 1
-    # also runs lint, typecheck, the docs checks and the CLI smoke; the other shards run the tests only.
-    name: build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/4)
+  # The tests run as 32 shards per Node version, in three kinds of job. `prepare` installs, builds the packages once
+  # (the API gate, which stamps source and emitted bytes), plans the shards from the measured duration of each test
+  # file (tools/ci/shard-plan.mjs) and uploads the build and the plan. Each `build` shard downloads them and runs
+  # its own test files and no others (tools/ci/run-shard.mjs): every test file runs in exactly one shard. `checks`
+  # runs lint, typecheck, the docs checks and the CLI smoke. A dispatch that names `build` or `checks` runs `prepare`.
+  prepare:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',prepare,') || contains(format(',{0},', inputs.jobs), ',build,') || contains(format(',{0},', inputs.jobs), ',checks,')))
+    name: prepare (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node: [22, 24]
-        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -199,22 +201,72 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - if: matrix.shard == 1
-        run: pnpm lint
-      - if: matrix.shard == 1
-        run: pnpm typecheck
-      # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp, so every shard runs it.
+      # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp.
       - run: node tools/structure/api-surface.mjs --build --check
-      - run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
-      - if: matrix.shard == 1
-        run: pnpm docs:reference --check
-      - if: matrix.shard == 1
-        run: pnpm docs:links
-      - if: matrix.shard == 1
-        run: pnpm docs:site:build
+      - run: node tools/ci/shard-plan.mjs --count 32 --out shard-plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-node${{ matrix.node }}
+          path: |
+            packages/*/dist
+            examples/*/dist
+            .cache/api-surface-build.json
+            shard-plan.json
+          retention-days: 1
+          if-no-files-found: error
+          include-hidden-files: true
+
+  checks:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',checks,'))
+    name: checks (node ${{ matrix.node }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      # Lint reads the whole tree, so it runs before the build and the plan are downloaded into it.
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-node${{ matrix.node }}
+      - run: pnpm docs:reference --check
+      - run: pnpm docs:links
+      - run: pnpm docs:site:build
       - name: CLI smoke
-        if: matrix.shard == 1
         run: node packages/cli/dist/bin.js --version
+
+  build:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
+    name: build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/32)
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-node${{ matrix.node }}
+      - run: node tools/ci/run-shard.mjs --plan shard-plan.json --index ${{ matrix.shard }}
 
   python:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
