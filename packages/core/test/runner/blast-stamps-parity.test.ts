@@ -1,20 +1,25 @@
 // Blast radius of unit F2 on the runner: with the shipped check set, a run record differs from the one main
 // wrote (old-records.json, made by make-old-records.ts with a fixed clock) only by the stamps. Verdicts, their
-// order, pass, drift, cache keys and hashes remain main's after the F7 aggregate moves into a diagnosis.
+// order, pass, drift, cache keys and hashes are byte for byte main's once `by`, `resolved` and the F7 diagnosis are
+// taken out. The run id leaves out the spec's version label, so a versioned spec's record also carries `identityHash`
+// and a run id main made from `specHash`: the comparison reads the legacy id and leaves the identity hash out.
 import { readFileSync } from 'node:fs';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { type RunResult, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { legacyCellId } from '../../src/runner/cell';
 import { loadAcmeConversations, realAcmeAdapter } from './support';
 
 const OLD = new URL('../fixtures/framework/old-records.json', import.meta.url);
 const fixed = () => new Date('2026-10-15T00:00:00.000Z');
 
-/** A record with the F2 stamps taken out: what main wrote for the same run. */
+/** A record with the F2 stamps and the version-free run id taken out: what main wrote for the same run. */
 function unstamped(run: RunResult): RunResult {
+  const { identityHash: _identityHash, ...rest } = run;
   return {
-    ...run,
+    ...rest,
+    runId: legacyCellId(run) ?? run.runId,
     blocks: run.blocks.map(({ resolved: _resolved, diagnoses: _diagnoses, ...block }) => ({
       ...block,
       verdicts: block.verdicts

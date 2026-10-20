@@ -83,16 +83,62 @@ export const OwnerProvenance = z
   .describe('What the owner said, and when.');
 export type OwnerProvenance = z.infer<typeof OwnerProvenance>;
 
+const POINTER = /^(?:\/(?:[^~/]|~[01])*)*$/;
+
+export const StructureProvenance = z
+  .strictObject({
+    kind: z.literal('structure').describe('The entry stands on a place in a file that is not prose.'),
+    path: SourcePath.describe('The file, relative to the folder of the store file.'),
+    pointer: z
+      .string()
+      .regex(POINTER, {
+        error: 'expected a JSON pointer (RFC 6901): empty, or / then steps, with ~0 for ~ and ~1 for /',
+      })
+      .optional()
+      .describe(
+        'For a JSON or YAML file: the pointer to the value the entry stands on, such as /permissions/deny/0.',
+      ),
+    lines: z
+      .strictObject({
+        start: z.number().int().min(1).describe('The first line, counted from 1.'),
+        end: z.number().int().min(1).describe('The last line, at least the first.'),
+      })
+      .refine((lines) => lines.end >= lines.start, { path: ['end'], error: 'end is at least start' })
+      .optional()
+      .describe('For any other file, such as a script: the range of lines the entry stands on.'),
+    hash: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/, { error: 'expected a SHA-256: 64 lowercase hexadecimal characters' })
+      .describe(
+        'A SHA-256 of what the pointer names (its canonical JSON) or of the lines (joined by a line feed): a changed file is found out.',
+      ),
+  })
+  .refine((entry) => (entry.pointer === undefined) !== (entry.lines === undefined), {
+    path: ['pointer'],
+    error: 'give a pointer or lines, and not both',
+  })
+  .describe(
+    'A place in a JSON or YAML file, or a range of lines of a script, with the hash of what it holds.',
+  );
+export type StructureProvenance = z.infer<typeof StructureProvenance>;
+
 export const VariableProvenance = z
-  .discriminatedUnion('kind', [QuoteProvenance, ConversationsProvenance, OwnerProvenance])
-  .describe("Where an entry comes from: a quote, the counts of past conversations, or the owner's words.");
+  .discriminatedUnion('kind', [
+    QuoteProvenance,
+    StructureProvenance,
+    ConversationsProvenance,
+    OwnerProvenance,
+  ])
+  .describe(
+    "Where an entry comes from: a quote, a place in a structured file, the counts of past conversations, or the owner's words.",
+  );
 export type VariableProvenance = z.infer<typeof VariableProvenance>;
 
 const Provenance = z
   .array(VariableProvenance)
   .optional()
   .describe(
-    'Where the entry comes from: any number of quotes, conversation counts and owner statements. A converted space map has none.',
+    'Where the entry comes from: any number of quotes, places in structured files, conversation counts and owner statements. A converted space map has none.',
   );
 
 export const VariableRole = z
@@ -101,6 +147,18 @@ export const VariableRole = z
     'axis: a dimension of the space map, crossed with the other axes. detail: varied inside a cell, as boundary values.',
   );
 export type VariableRole = z.infer<typeof VariableRole>;
+
+export const VariableScope = z
+  .enum(['conversation', 'turn'])
+  .describe(
+    'conversation: one fact of a whole conversation, read once per conversation (the default). turn: can change from turn to turn, read once per turn.',
+  );
+export type VariableScope = z.infer<typeof VariableScope>;
+
+/** The scope of a variable: the one it states, else the whole conversation. */
+export function variableScope(variable: { scope?: VariableScope | undefined }): VariableScope {
+  return variable.scope ?? 'conversation';
+}
 
 export const VariableOrigin = z
   .enum(['code', 'model', 'owner'])
@@ -199,6 +257,7 @@ export const Variable = z
     title: z.string().min(1).describe('What the variable varies on.'),
     kind: DimensionKind,
     role: VariableRole,
+    scope: VariableScope.optional(),
     approved: z.boolean().describe('The approval of the variable and of every value without its own flag.'),
     produced_by: VariableOrigin.optional(),
     provenance: Provenance,

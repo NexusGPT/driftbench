@@ -39,7 +39,7 @@ Install, one of two ways. Both need Node.js 22.13 or newer: the store uses `node
   The npm package does not hold the Acme example: the targets `function:acme-sales`, `function:acme`,
   `process:acme-ops` and `function:acme-random` have no adapter there.
 * From a checkout, to run the Acme example:
-  `git clone https://github.com/achammah/driftbench`, `cd driftbench`, `pnpm install`, `pnpm build`, then
+  `git clone https://github.com/NexusGPT/driftbench`, `cd driftbench`, `pnpm install`, `pnpm build`, then
   `pnpm driftbench <command>`. `pnpm -s driftbench` prints only what driftbench prints. Without
   `pnpm build`, every command that loads a package fails with `ERR_MODULE_NOT_FOUND` on a `dist/index.js`.
 

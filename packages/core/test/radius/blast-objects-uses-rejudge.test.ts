@@ -107,6 +107,8 @@ describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', 
         ],
       },
       () => 0,
+      false,
+      objects,
     );
     expect(result.blocks.map((block) => block.observed)).toEqual(run.blocks.map((block) => block.observed));
     expect(result.rejudged?.oldSpecHash).toBe(run.specHash);

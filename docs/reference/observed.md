@@ -1,6 +1,6 @@
 # Observation schema reference
 
-The [`Observed` schema](https://github.com/achammah/driftbench/blob/main/packages/core/src/schema/run.ts) records what an adapter returns for one block. Its keys are camelCase. Unknown keys are errors.
+The [`Observed` schema](https://github.com/NexusGPT/driftbench/blob/main/packages/core/src/schema/run.ts) records what an adapter returns for one block. Its keys are camelCase. Unknown keys are errors.
 
 ## History normalization
 

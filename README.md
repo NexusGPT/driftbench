@@ -25,7 +25,7 @@
   <a href="https://www.npmjs.com/package/@agent-nexus/driftbench"><img alt="npm version" src="https://img.shields.io/npm/v/%40agent-nexus%2Fdriftbench?color=2F5FD0&label=npm" /></a>
   <a href="LICENSE"><img alt="licence MIT" src="https://img.shields.io/badge/licence-MIT-2F5FD0?style=flat" /></a>
   <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
-  <a href="https://github.com/achammah/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/achammah/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/NexusGPT/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NexusGPT/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
 
 driftbench is an open-source evaluation framework for AI agents: chat agents, and agents that write code and files. You describe a conversation or a task as a list of **blocks**. A block is one user message, everything the agent does in reply, and what must be true afterwards. driftbench runs the blocks against your agent, checks each one, and reports every rate with its interval.
@@ -59,30 +59,41 @@ npm install @agent-nexus/driftbench
 mkdir specs
 ```
 
-**2. Create `agent.mjs`.** It reads the user message on standard input and prints the reply. Replace it with a call to your own agent later.
+**2. Create `agent.mjs`.** It reads the user message on standard input, looks the order up in `orders.json` in its working folder, and prints the reply. Replace it with a call to your own agent later.
 
 ```js
 // A stand-in for your agent: reads the user message on stdin, prints the reply.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const message = readFileSync(0, 'utf8').trim();
 const history = JSON.parse(readFileSync(process.env.DRIFTBENCH_HISTORY_FILE, 'utf8'));
+// The orders the spec seeds in the agent's working folder.
+const orders = existsSync('orders.json') ? JSON.parse(readFileSync('orders.json', 'utf8')) : {};
+const order = message.match(/\bA-\d+\b/)?.[0];
 
 if (/refund/i.test(message)) {
   console.log('I can help with a refund. What is your order number?');
-} else if (/\bA-\d+\b/.test(message)) {
-  console.log(`Refund started for order ${message.match(/A-\d+/)[0]}. You will get an email within 2 days.`);
+} else if (order && orders[order]) {
+  console.log(`Refund started for order ${order}. You will get an email within 2 days.`);
+} else if (order) {
+  console.log(`I cannot find order ${order}.`);
 } else {
   console.log(`Sorry, I did not get that. (${history.length} messages so far)`);
 }
 ```
 
-**3. Create `specs/refund.yaml`.** Two blocks: what the user says, and what the reply must and must not contain.
+**3. Create `specs/refund.yaml`.** Each block is one test, with its starting conditions (`given`), the user's message and the expected reply. The spec-level `given` seeds order A-1042 in the agent's working folder and sets the channel; block 2 starts from a `prefix`, so it runs without replaying block 1.
 
 ```yaml
 id: refund-happy-path
 title: A customer asks for a refund and gives an order number
 target: { adapter: process, agent: my-agent }
+
+given:
+  world:
+    workspace:
+      files: { orders.json: '{"A-1042": {"status": "paid", "total": 49.90}}' }
+  vars: { channel: web-chat }
 
 blocks:
   - user: Hi, I would like a refund please.
@@ -90,7 +101,11 @@ blocks:
       must: ['order number']
       must_not: ['Refund started']
 
-  - user: It is A-1042.
+  - given:
+      prefix:
+        - { role: user, content: 'Hi, I would like a refund please.' }
+        - { role: assistant, content: 'I can help with a refund. What is your order number?' }
+    user: It is A-1042.
     expect:
       must: ['Refund started', 'A-1042']
       must_not: ['Sorry']
@@ -107,7 +122,7 @@ npx driftbench campaign run specs --target process:my-agent \
 The output, trimmed to its verdict lines:
 
 ```
-✓ specs/refund.yaml  refund-happy-path · 2 blocks · hash c985453f6be7
+✓ specs/refund.yaml  refund-happy-path · 2 blocks · hash 7cfacf8c527b
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 
 ✓ refund-happy-path · process:my-agent · F · repeat 0  pass  2 blocks
@@ -275,9 +290,9 @@ blocks:
 
 - **What it is.** A block is one step with its own starting point (Given), user turn (When) and expected result (Then). A simulated person, called a persona, can play it. A parent block can supply its starting point from that parent's end state. Links point to the prompt lines and spec clauses it tests, or the past conversation turn it came from. Every verdict names the rule that decided it, and you can change any rule in a file. The fault finder reads the evidence to name who is at fault and where to fix it. It leaves the check's verdict unchanged.
 - **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
-- **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/achammah/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
+- **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/NexusGPT/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Parent execution now ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/achammah/driftbench/pull/416). Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429), [#433](https://github.com/NexusGPT/driftbench/pull/433)). Parent execution now ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/NexusGPT/driftbench/pull/416). Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
 
 <details><summary>See it in YAML</summary>
 
@@ -314,13 +329,13 @@ blocks:
 
 - **What it is.** You link a block to the prompt passage or spec clause it tests. Recorded file and line locations can also point to a skill rule or tool description. The report shows the location and quoted text when that evidence exists. The fault finder ranks likely fixes; the prompt ranking orders suspect sections from the blocks that pass and fail. A suspect is a place to inspect, not proof of the cause.
 - **Why no other framework does it.** A trace records what the agent did. Tracing a failure to instructions also needs links from tests to their sources. Our [comparison](docs/comparison.md) covers test units and traces, but does not establish exclusivity for source diagnosis.
-- **Measured impact.** In the [fault study](https://github.com/achammah/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/achammah/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
+- **Measured impact.** In the [fault study](https://github.com/NexusGPT/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/NexusGPT/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
 
-<sub>Block links to prompt sections, advisory selection and section ranking are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
+<sub>Block links to prompt sections, advisory selection and section ranking are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429), [#433](https://github.com/NexusGPT/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Block links to prompt sections are on main ([#423](https://github.com/achammah/driftbench/pull/423)), with advisory selection by section ([#429](https://github.com/achammah/driftbench/pull/429)) and ranking of suspect sections ([#433](https://github.com/achammah/driftbench/pull/433)).
+Block links to prompt sections are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423)), with advisory selection by section ([#429](https://github.com/NexusGPT/driftbench/pull/429)) and ranking of suspect sections ([#433](https://github.com/NexusGPT/driftbench/pull/433)).
 A section registry gives each part of the prompt a stable id. A block names the section it tests in `metadata.links`.
 The first line of each file below names it; in the prompt, that line is not part of the file.
 `driftbench radius sections init acme-sales.md --id acme-sales --prompt-version v1` writes a first registry from the headings.
@@ -402,13 +417,13 @@ metadata:
 
 - **What it is.** A persona describes the customer; the test describes what they want and what must happen. Numbers control behaviours such as short replies and questions. The engine draws those behaviours, then the model writes the message. A persona that cannot play the test is refused with a reason. The grid compares results and reports when no effect appears.
 - **Why no other framework does it.** [Simulated users appear in other tools](docs/comparison.md); they are not unique to driftbench. The separate persona and test let you change the customer while keeping the expected result fixed. The studies below test behaviour draws and conflicts, not superiority over peer frameworks.
-- **Measured impact.** In the [human simulation study](https://github.com/achammah/driftbench/pull/418), the engine produced short turns 38.0 percent of the time. Human dialogues had 38.2 percent; prompting alone had 2.0 percent. In the [persona study](https://github.com/achammah/driftbench/pull/444), negating a language rule flipped 10 of 11 French cells and 0 of 11 English cells. The loader refused all 30 planted conflicts and none of 30 clean cases. The original grid flag failed its control. The exact test found no persona effect on the test agent, and the grid reports that result.
+- **Measured impact.** In the [human simulation study](https://github.com/NexusGPT/driftbench/pull/418), the engine produced short turns 38.0 percent of the time. Human dialogues had 38.2 percent; prompting alone had 2.0 percent. In the [persona study](https://github.com/NexusGPT/driftbench/pull/444), negating a language rule flipped 10 of 11 French cells and 0 of 11 English cells. The loader refused all 30 planted conflicts and none of 30 clean cases. The original grid flag failed its control. The exact test found no persona effect on the test agent, and the grid reports that result.
 
-<sub>Persona integration is on its way ([#418](https://github.com/achammah/driftbench/pull/418), [#444](https://github.com/achammah/driftbench/pull/444)). Basic simulated users already ship. The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
+<sub>Persona integration is on its way ([#418](https://github.com/NexusGPT/driftbench/pull/418), [#444](https://github.com/NexusGPT/driftbench/pull/444)). Basic simulated users already ship. The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Basic simulated users ship on main. Numeric behaviour draws are coming in [#418](https://github.com/achammah/driftbench/pull/418).
+Basic simulated users ship on main. Numeric behaviour draws are coming in [#418](https://github.com/NexusGPT/driftbench/pull/418).
 The persona file points to the spec through `spec`. Main has no block `persona` key.
 Select this file with `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none`.
 The model option makes paid calls; `--agent-family none` applies to the scripted Acme demo.
@@ -451,7 +466,7 @@ blocks: # One exchange per entry
 
 - **What it is.** A parent block supplies its end state as a child's starting point. Several tests can share that opening. If the parent fails, its children show as blocked. They do not add copies of the same failure. Independent failures stay separate. The research isolation check tests whether a child needs state from its parent.
 - **Why no other framework does it.** A list of conversation turns does not itself declare which test depends on which starting state. Parent links make that dependency explicit. Our [comparison](docs/comparison.md) does not establish exclusivity for parent state or inherited failure counts.
-- **Measured impact.** In the [parent study](https://github.com/achammah/driftbench/pull/416), grouping inherited failures reduced root count error to 8.4, against 38.2 with flat linked counting. That result is a simulation on the Acme parent tree. On a live test agent, isolation checks caught 8 of 8 eligible planted dependencies and flagged 0 of 9 negative controls.
+- **Measured impact.** In the [parent study](https://github.com/NexusGPT/driftbench/pull/416), grouping inherited failures reduced root count error to 8.4, against 38.2 with flat linked counting. That result is a simulation on the Acme parent tree. On a live test agent, isolation checks caught 8 of 8 eligible planted dependencies and flagged 0 of 9 negative controls.
 
 <details><summary>See it in YAML</summary>
 
@@ -548,14 +563,14 @@ blocks:
 **Accept equivalent values when the tool confirms them, and keep unresolved differences open for the next check.**
 
 - **What it is.** The check tries the agent's value and the expected value with the tool. A lookup can show whether `+1 202 555 0131` and `+12025550131` reach the same record. Matching strings alone cannot answer that. If the tool only stores a value, the comparison moves to the next check. Acme's phone tool only stores values, so it does not settle those phone comparisons.
-- **Why no other framework does it.** The [value study](https://github.com/achammah/driftbench/pull/441) compares this method with exact matching and a normaliser. It does not establish exclusivity across frameworks. The distinction is the evidence: a resolving tool can answer whether two spellings reach the same record.
-- **Measured impact.** The tool settled 59 of 116 format disputes. It agreed on all 49 settled cases with reference labels; the other 10 had disputed labels. The full value check made 0 false passes and 0 false fails on 249 labelled runs. The simpler normaliser did too, so the study did not establish superiority over it. Source: [value study](https://github.com/achammah/driftbench/pull/441).
+- **Why no other framework does it.** The [value study](https://github.com/NexusGPT/driftbench/pull/441) compares this method with exact matching and a normaliser. It does not establish exclusivity across frameworks. The distinction is the evidence: a resolving tool can answer whether two spellings reach the same record.
+- **Measured impact.** The tool settled 59 of 116 format disputes. It agreed on all 49 settled cases with reference labels; the other 10 had disputed labels. The full value check made 0 false passes and 0 false fails on 249 labelled runs. The simpler normaliser did too, so the study did not establish superiority over it. Source: [value study](https://github.com/NexusGPT/driftbench/pull/441).
 
-<sub>The value check is on its way ([#459](https://github.com/achammah/driftbench/pull/459)). Tool replay requires a configured replayer; unresolved values stay inconclusive. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
+<sub>The value check is on its way ([#459](https://github.com/NexusGPT/driftbench/pull/459)). Tool replay requires a configured replayer; unresolved values stay inconclusive. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Tool replay value checks are coming in [#459](https://github.com/achammah/driftbench/pull/459).
+Tool replay value checks are coming in [#459](https://github.com/NexusGPT/driftbench/pull/459).
 On main, `one_of` can accept a known list of spellings. It does not ask the tool whether they mean the same thing.
 
 ```yaml
@@ -588,13 +603,13 @@ blocks:
 
 - **What it is.** Rules live in files with named items. Your file extends the defaults and changes the items you choose. Every verdict names its deciding rule and configuration layer. A scoring change can evaluate stored runs again without calling the agent. A change to what the agent receives requires another run.
 - **Why no other framework does it.** Our [comparison](docs/comparison.md) covers checks, judges and cached calls. It does not compare editable rule files or verdict stamps. Here, the file that sets a rule and the verdict that applies it remain linked, so a score can be inspected.
-- **Measured impact.** The [framework prototype](https://github.com/achammah/driftbench/pull/437) changed 0 of 2,351 existing spec hashes. Its default rules changed 0 verdicts across 259 stored runs. A project scoring rule change scored all 259 runs again with 0 agent calls. A model change required 777 adapter calls on those runs.
+- **Measured impact.** The [framework prototype](https://github.com/NexusGPT/driftbench/pull/437) changed 0 of 2,351 existing spec hashes. Its default rules changed 0 verdicts across 259 stored runs. A project scoring rule change scored all 259 runs again with 0 agent calls. A model change required 777 adapter calls on those runs.
 
-<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
+<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)). The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Rule objects, rule files and layers are coming in [#443](https://github.com/achammah/driftbench/pull/443).
+Rule objects, rule files and layers are coming in [#443](https://github.com/NexusGPT/driftbench/pull/443).
 Main keeps the policy inline under `rules`; it has no rule-file reference.
 Here the policy forbids ordering throughout the run, and the block requires a recap.
 
@@ -626,7 +641,7 @@ blocks:
 
 - **What it is.** Every block says what it uses. A link from a prompt passage identifies tests to inspect when that passage changes. Source links advise selection; they do not yet skip tests. The running planner uses declared dependencies to rerun affected blocks and steps that inherit their state. It keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
 - **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls; promptfoo and DeepEval document part of a cache. See row 22 of our [comparison](docs/comparison.md). A cache replays a call that has not changed. Choosing tests for an edited instruction needs each test to say what it reads, which blocks do.
-- **Measured impact.** On Acme, a recap change sends 606 of 867 blocks and fails on the same 102 cells as a full run. That sends about 30 percent fewer blocks. For a tool input change, each block runs alone. The radius sends 86 of 867 blocks, 90.1 percent fewer; the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. The reply language rule affects every block, so it skips none. A fault outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches). Separately, the [prompt study](https://github.com/achammah/driftbench/pull/421) selected 19.9 percent of the suite on average, but missed failures for 3 of 90 mutants. Those are selection results, not shipped rerun savings.
+- **Measured impact.** On Acme, a recap change sends 606 of 867 blocks and fails on the same 102 cells as a full run. That sends about 30 percent fewer blocks. For a tool input change, each block runs alone. The radius sends 86 of 867 blocks, 90.1 percent fewer; the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. The reply language rule affects every block, so it skips none. A fault outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches). Separately, the [prompt study](https://github.com/NexusGPT/driftbench/pull/421) selected 19.9 percent of the suite on average, but missed failures for 3 of 90 mutants. Those are selection results, not shipped rerun savings.
 
 <sub>The planner counts 861 scored blocks. A run also sends six unscored blocks, giving 867. Without end state snapshots, the tool input change sends 376 of 867. The declared change must cover everything that changed. The audit samples cells and can miss a fault. `driftbench radius` and `campaign run --change` are on main. Source selection is advisory: `driftbench radius --sections` prints the blocks the links would select, and `driftbench radius localize` ranks the prompt sections a failing block points to. Nothing is skipped by it. See [prompt sections](docs/concepts/blast-radius.md#prompt-sections-and-block-links). The prompt study missed failures for 8.2 percent of mutants when changes touching two sections were included.</sub>
 
@@ -634,7 +649,7 @@ blocks:
 
 The change file is a separate input to `driftbench radius recap.spec.yaml --change recap.change.yaml`.
 The matching key is `expect.stage`, declared in the spec's `stages` list.
-A change can also name a prompt section (`kind: prompt_section`, [#429](https://github.com/achammah/driftbench/pull/429)); that selection is advisory, so the whole suite runs.
+A change can also name a prompt section (`kind: prompt_section`, [#429](https://github.com/NexusGPT/driftbench/pull/429)); that selection is advisory, so the whole suite runs.
 
 ```yaml
 # file: recap.change.yaml
@@ -725,7 +740,7 @@ The persona file below selects the spec. Save both files together.
 Run `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none` to use the simulated customer.
 This makes model calls. Judging needs a configured judge; the criterion declaration alone does not create one.
 
-Rule-file references are coming in [#443](https://github.com/achammah/driftbench/pull/443), and tool replay values in [#459](https://github.com/achammah/driftbench/pull/459).
+Rule-file references are coming in [#443](https://github.com/NexusGPT/driftbench/pull/443), and tool replay values in [#459](https://github.com/NexusGPT/driftbench/pull/459).
 Those keys are not accepted on main, so this example uses the supported forms below.
 The uncertainty panel is wired in code with `createEscalation`, not YAML.
 
@@ -797,7 +812,7 @@ spec: refund.spec.yaml # The spec this persona plays
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
 - [Block rules and fault finding](#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
 
-<sub>Rule files and fault finding are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449), [#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
+<sub>Rule files and fault finding are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449), [#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
@@ -916,7 +931,7 @@ A Given can hold the conversation before the block, tool calls included. A past 
 
 <details><summary>See it in TypeScript</summary>
 
-A block whose Given the target cannot apply is `not_run`, never a fail ([#428](https://github.com/achammah/driftbench/pull/428)). A `prefix` needs an adapter that declares `seedPrefix`.
+A block whose Given the target cannot apply is `not_run`, never a fail ([#428](https://github.com/NexusGPT/driftbench/pull/428)). A `prefix` needs an adapter that declares `seedPrefix`.
 Here the same Acme spec runs on a function agent, then on a copy of it that declares it cannot start from a history.
 Save both files together and run `npx tsx not-run.ts`.
 
@@ -1097,7 +1112,7 @@ An agent can pass every step on its own and still fail the whole conversation. R
 - **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
 - **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
 
-<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)).</sub>
+<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)).</sub>
 
 → [judges](docs/concepts/judges.md)
 
@@ -1107,7 +1122,7 @@ One run proves little. Every rate comes with its interval, comparisons are paire
 
 <details><summary>See it in TypeScript</summary>
 
-Honest intervals are on main ([#425](https://github.com/achammah/driftbench/pull/425), [#426](https://github.com/achammah/driftbench/pull/426), [#528](https://github.com/achammah/driftbench/pull/528)).
+Honest intervals are on main ([#425](https://github.com/NexusGPT/driftbench/pull/425), [#426](https://github.com/NexusGPT/driftbench/pull/426), [#528](https://github.com/NexusGPT/driftbench/pull/528)).
 Repeats of one conversation move together, so they are not independent runs.
 `wilsonEffective` gives the interval of a pooled rate over clustered runs, and `hierarchicalBetaBinomial` the suite headline. Here on six Acme goldens (one spec, one target, one mode each).
 Run `npx tsx headline.ts`.
@@ -1176,13 +1191,13 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
 
-<sub>The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
+<sub>The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
 
 ### Rerunning the blast radius
 
 The fix maps to the blocks it can affect through their declared dependencies. driftbench reruns affected blocks and any steps that inherit their state. It carries the other results from the last run. When it cannot tell what the change touches, it reruns everything. The gate decides again, and the nightly run still covers everything. Source links advise which blocks to run; they do not skip tests. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
 
-<sub>Block links to prompt sections and advisory selection by them are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429)).</sub>
+<sub>Block links to prompt sections and advisory selection by them are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429)).</sub>
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
@@ -1344,7 +1359,7 @@ The same command on the unchanged agent prints `Verdict: PARITY. Exit 0.` A [Git
 
 ## The command line
 
-`driftbench <command> --help` prints every option. The examples below run from a clone (`git clone https://github.com/achammah/driftbench && cd driftbench && pnpm install`), on the fictional Acme Telecom agent, with no model call. Put `pnpm` in front of each example in a clone, or `npx` in your own project. `campaign run` writes the `ci.db` the later rows read.
+`driftbench <command> --help` prints every option. The examples below run from a clone (`git clone https://github.com/NexusGPT/driftbench && cd driftbench && pnpm install`), on the fictional Acme Telecom agent, with no model call. Put `pnpm` in front of each example in a clone, or `npx` in your own project. `campaign run` writes the `ci.db` the later rows read.
 
 Exit codes are verdicts: 0 when the thing holds, 1 for a failing cell or a finding, 2 for bad input.
 
@@ -1677,7 +1692,7 @@ Issues and pull requests are welcome. The most useful contributions right now ar
 2. Make your change with its tests, then run `pnpm lint`, `pnpm typecheck` and `pnpm test`.
 3. Open a pull request. CI runs the same checks, the build, the docs checks and a leak guard. Keep every example synthetic: no real customer, prompt or conversation data.
 
-Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench/issues). Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security).
+Questions and ideas go in [GitHub issues](https://github.com/NexusGPT/driftbench/issues). Report a vulnerability privately through [GitHub security advisories](https://github.com/NexusGPT/driftbench/security).
 
 ## Licence
 

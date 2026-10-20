@@ -8,13 +8,15 @@ import type { ToolRule } from '../contracts/tool-policy';
 import { runCampaignDiagnostics } from '../diagnostics/run';
 import { objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects, shippedObjectContext } from '../objects/index';
+import type { ObjectContext } from '../objects/layers';
 import type { ResolvedObject } from '../objects/resolve';
 import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
 import type { Diagnosis, RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
+import { specIdentityHash } from '../spec/identity';
 import type { ObservedCache } from './cache';
-import { cellId } from './cell';
+import { cellId, legacyCellId } from './cell';
 import { replacesBlock } from './inject';
 import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
@@ -24,8 +26,12 @@ import { blocksOutcome } from './verdicts';
 /** One run to make: one spec, on one target, in one mode, for one repeat (and one perturbation in P). */
 export type PlannedCell = {
   cellId: string;
+  /** The id a run stored before the id left out the version label has, for a spec that carries a version. */
+  legacyCellId?: string;
   specId: string;
   specHash: string;
+  /** The spec hash without the version label, which the cell id is made from. */
+  identityHash?: string;
   target: TargetRef;
   mode: RunMode;
   repeat: number;
@@ -149,6 +155,7 @@ export function planCampaign(
   const repeatsOf = (mode: RunMode) => (typeof repeats === 'number' ? repeats : (repeats[mode] ?? 0));
   const cells: PlannedCell[] = [];
   for (const { spec, hash } of specs) {
+    const identityHash = specIdentityHash(spec);
     for (const target of targets) {
       for (const mode of modes) {
         const perturbations = mode === 'P' ? (spec.perturbations ?? []) : [undefined];
@@ -156,9 +163,11 @@ export function planCampaign(
           const perturbationId = perturbation?.id;
           const extra = perturbation === undefined || replacesBlock(perturbation) ? 0 : 1;
           for (let repeat = 0; repeat < repeatsOf(mode); repeat++) {
-            const key = { specHash: hash, target, mode, repeat, perturbationId };
+            const key = { specHash: hash, identityHash, target, mode, repeat, perturbationId };
+            const legacy = legacyCellId(key);
             cells.push({
               cellId: cellId(key),
+              ...(legacy === undefined ? {} : { legacyCellId: legacy }),
               specId: spec.id,
               ...key,
               ...(perturbationId === undefined ? {} : { perturbationId }),
@@ -285,6 +294,14 @@ export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused 
   };
 }
 
+/** The run a campaign holds for a planned cell: under its cell id, else under the id it had before the version label left it. */
+export function heldRun<T>(
+  held: ReadonlyMap<string, T>,
+  cell: Pick<PlannedCell, 'cellId' | 'legacyCellId'>,
+): T | undefined {
+  return held.get(cell.cellId) ?? (cell.legacyCellId === undefined ? undefined : held.get(cell.legacyCellId));
+}
+
 /** The run that stands for each cell of a campaign: its latest completed run, else its latest run. */
 export async function runsByCell(store: Store, campaignId: string): Promise<Map<string, RunResult>> {
   return byCell(await store.listRuns({ campaignId }));
@@ -317,6 +334,8 @@ export type CampaignRunOptions = {
    */
   diagnostics?: readonly ResolvedObject[];
   onDiagnoses?(diagnoses: Diagnosis[]): void | Promise<void>;
+  /** The objects a cell's blocks resolve their `uses` against; the shipped objects only when absent. */
+  objectsFor?(cell: PlannedCell): ObjectContext;
   adapterFor(target: TargetRef): AgentAdapter;
   /** A fresh driver for each run, given the cell and the spec the cell runs (a perturbing driver needs it). */
   driver(cell: PlannedCell, spec: Spec): UserDriver;
@@ -374,12 +393,12 @@ export type CampaignRunOptions = {
  */
 export async function runCampaign(options: CampaignRunOptions): Promise<CellOutcome[]> {
   // Validate before even a completed cell can be reused. A stored spec may outlive its object files.
-  const checkedSpecs = new Set<Spec>();
+  const objectContexts = new Map<string, ObjectContext>();
   for (const cell of options.cells) {
     const spec = options.specFor(cell);
-    if (checkedSpecs.has(spec)) continue;
-    checkedSpecs.add(spec);
-    const issues = checkSpecObjects(spec, objectContextOfSpec(spec) ?? shippedObjectContext());
+    const context = options.objectsFor?.(cell) ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+    objectContexts.set(cell.cellId, context);
+    const issues = checkSpecObjects(spec, context);
     if (issues.length) throw new Error(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   }
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
@@ -433,7 +452,13 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   }
   const referenceFor = async (cell: PlannedCell): Promise<RunResult | undefined> => {
     for (const repeat of [...new Set([cell.repeat, 0])]) {
-      const id = cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat });
+      const id = cellId({
+        specHash: cell.specHash,
+        identityHash: cell.identityHash,
+        target: cell.target,
+        mode: 'F',
+        repeat,
+      });
       const planned = fRuns.get(id);
       const run = planned ? await planned.promise : done.get(id);
       if (run) return run;
@@ -460,7 +485,15 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       return false;
     }
     const firstTwo = [0, 1].map((repeat) =>
-      settled.get(cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat })),
+      settled.get(
+        cellId({
+          specHash: cell.specHash,
+          identityHash: cell.identityHash,
+          target: cell.target,
+          mode: 'F',
+          repeat,
+        }),
+      ),
     );
     if (firstTwo.some((entry) => entry === undefined)) return false;
     const outcomes = await Promise.all(firstTwo.map((entry) => entry?.promise));
@@ -470,7 +503,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   };
 
   const start = async (cell: PlannedCell): Promise<CellOutcome> => {
-    const previous = done.get(cell.cellId);
+    const previous = heldRun(done, cell);
     if (previous?.status === 'completed') return outcomeOf(cell, previous, true);
     if (await earlyStopped(cell)) {
       return { cell, reused: false, state: 'stopped', failing: [], earlyStop: { after: 2 } };
@@ -487,6 +520,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
       checks: options.checks,
+      objects: objectContexts.get(cell.cellId),
       ...(options.artifacts ? { artifacts: options.artifacts } : {}),
       mode: cell.mode,
       repeat: cell.repeat,

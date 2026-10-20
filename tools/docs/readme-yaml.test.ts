@@ -144,7 +144,7 @@ describe('README innovation YAML dropdowns', () => {
     for (const pr of [418, 443, 459]) {
       expect(
         bodies.some((body) =>
-          body.includes(`coming in [#${pr}](https://github.com/achammah/driftbench/pull/${pr})`),
+          body.includes(`coming in [#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`),
         ),
         `#${pr}`,
       ).toBe(true);

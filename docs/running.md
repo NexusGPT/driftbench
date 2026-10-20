@@ -29,18 +29,18 @@ Expands the cells, projects their cost and prints the minimum detectable effect.
 $ pnpm -s driftbench campaign plan examples/acme/specs/conversations --target function:acme --repeats 2
 Plan: 6 specs, 1 target, mode F, 2 repeats: 12 cells, 52 blocks.
   cell              spec                           target         mode  repeat  blocks
-  68a19d33ffb63206  acme-new-customer-coverage     function:acme  F     0       4
-  31f113843f6e1e22  acme-new-customer-coverage     function:acme  F     1       4
-  4033227538c49cf8  acme-number-porting            function:acme  F     0       5
-  dd2305bd7041897b  acme-number-porting            function:acme  F     1       5
-  8a546e9028cd7d10  acme-off-topic-return          function:acme  F     0       5
-  3969e3c2e0988fb1  acme-off-topic-return          function:acme  F     1       5
-  479eb10c52e2f431  acme-order-loose-confirmation  function:acme  F     0       4
-  58bb8357be2ee702  acme-order-loose-confirmation  function:acme  F     1       4
-  cc92cc9eb562f586  acme-plan-upgrade              function:acme  F     0       5
-  2b7a03560cb7a80e  acme-plan-upgrade              function:acme  F     1       5
-  d44b9dfe9d1cf87a  acme-tool-failure              function:acme  F     0       3
-  0e486429b58c635e  acme-tool-failure              function:acme  F     1       3
+  4174f4a19290389c  acme-new-customer-coverage     function:acme  F     0       4
+  ce26bf03629c9df4  acme-new-customer-coverage     function:acme  F     1       4
+  4b559eb839437e22  acme-number-porting            function:acme  F     0       5
+  fa73b678bd11e291  acme-number-porting            function:acme  F     1       5
+  6af15c526801c320  acme-off-topic-return          function:acme  F     0       5
+  8a032e9db8772ff2  acme-off-topic-return          function:acme  F     1       5
+  aeb50160ddee26a2  acme-order-loose-confirmation  function:acme  F     0       4
+  def3c6a451c43edd  acme-order-loose-confirmation  function:acme  F     1       4
+  560ab11eeed24dd5  acme-plan-upgrade              function:acme  F     0       5
+  69329d010457c041  acme-plan-upgrade              function:acme  F     1       5
+  fab7e9a89a94b309  acme-tool-failure              function:acme  F     0       3
+  f5a2670b71e18404  acme-tool-failure              function:acme  F     1       3
 Projected cost: $0.00 (function: no unit measured).
 Minimum detectable effect, mode F: 47.8 points on a 50% pass rate, with 12 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
@@ -51,16 +51,16 @@ With several modes, the cells come in the order T, F, P, and each P cell names i
 $ pnpm -s driftbench campaign plan examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --mode T,F,P --repeats 2
 Plan: 1 spec, 1 target, modes T, F, P, 2 repeats: 10 cells, 54 blocks.
   cell              spec               target         mode  repeat  perturbation        blocks
-  850ffcff3927f170  acme-plan-upgrade  function:acme  T     0                           5
-  40e3484e079a0e33  acme-plan-upgrade  function:acme  T     1                           5
-  cc92cc9eb562f586  acme-plan-upgrade  function:acme  F     0                           5
-  2b7a03560cb7a80e  acme-plan-upgrade  function:acme  F     1                           5
-  e5fd30b27f5451f2  acme-plan-upgrade  function:acme  P     0       billing-aside       6
-  92de4e0dd994705c  acme-plan-upgrade  function:acme  P     1       billing-aside       6
-  d331b9f8ffb1a5fb  acme-plan-upgrade  function:acme  P     0       order-service-down  5
-  869fa63484786221  acme-plan-upgrade  function:acme  P     1       order-service-down  5
-  e5f5fa45081fd718  acme-plan-upgrade  function:acme  P     0       loose-ok            6
-  679e9be4b0b4ad7c  acme-plan-upgrade  function:acme  P     1       loose-ok            6
+  ab0b31eec3842241  acme-plan-upgrade  function:acme  T     0                           5
+  a320f965db2cf7f7  acme-plan-upgrade  function:acme  T     1                           5
+  560ab11eeed24dd5  acme-plan-upgrade  function:acme  F     0                           5
+  69329d010457c041  acme-plan-upgrade  function:acme  F     1                           5
+  2dd2d1e6fe37e902  acme-plan-upgrade  function:acme  P     0       billing-aside       6
+  c949a13a20c02ff4  acme-plan-upgrade  function:acme  P     1       billing-aside       6
+  063e81602b7fd309  acme-plan-upgrade  function:acme  P     0       order-service-down  5
+  fb452942ed9cdd78  acme-plan-upgrade  function:acme  P     1       order-service-down  5
+  2b436444603f895c  acme-plan-upgrade  function:acme  P     0       loose-ok            6
+  a1a2f919b6cc3220  acme-plan-upgrade  function:acme  P     1       loose-ok            6
 Projected cost: $0.00 (function: no unit measured).
 Minimum detectable effect, mode T: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
@@ -73,12 +73,12 @@ Without `--target`, each spec is planned on its own target:
 $ pnpm -s driftbench campaign plan examples/acme/specs
 Plan: 7 specs, each on its own target (function:acme-sales, process:acme-ops), mode F, 1 repeat: 7 cells, 28 blocks.
   cell              spec                           target               mode  repeat  blocks
-  ae0bc0cdf9df9f4e  acme-new-customer-coverage     function:acme-sales  F     0       4
-  8f5541041b373b2e  acme-number-porting            function:acme-sales  F     0       5
-  1db8182e57b23352  acme-off-topic-return          function:acme-sales  F     0       5
-  b33724145e0a8911  acme-order-loose-confirmation  function:acme-sales  F     0       4
-  a66a7aba9986a136  acme-plan-upgrade              function:acme-sales  F     0       5
-  c72578fc24c33e86  acme-tool-failure              function:acme-sales  F     0       3
+  20b53501ad0b8bd9  acme-new-customer-coverage     function:acme-sales  F     0       4
+  46214b315db4a5c4  acme-number-porting            function:acme-sales  F     0       5
+  b0b8032ce4ef3682  acme-off-topic-return          function:acme-sales  F     0       5
+  d794741ae19e1302  acme-order-loose-confirmation  function:acme-sales  F     0       4
+  c5c3f2b0d1f766c3  acme-plan-upgrade              function:acme-sales  F     0       5
+  1fc680857b75b6e7  acme-tool-failure              function:acme-sales  F     0       3
   fbb8f12c6c884035  acme-price-sheet               process:acme-ops     F     0       2
 Projected cost: $0.00 (function: no unit measured; process: no unit measured).
 Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 runs per arm over 7 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
@@ -510,7 +510,7 @@ Successful replies are content and are stored. Redaction is **best effort**, not
 
 These targets do not follow redirects, as the judge calls do not ([retries](retries.md)). A redirect to another origin is always refused: neither the request nor a key header goes to a host the spec did not name. A 307 or a 308 on the same origin is followed only when the `http` target says `redirects: same-origin`. A refused redirect fails the block with the reason. A `litellm` target takes its system prompt from `campaign run --prompt` when one is given, else from `system`. One adapter is made per target name in a campaign, so two specs that name `http:my-bot` share the options of the first.
 
-A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/achammah/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
+A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/NexusGPT/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
 
 ## Project config and the pull-request gate
 
@@ -615,7 +615,7 @@ A campaign pins the specs by id and content hash, the target of each spec run on
 
 `planCampaign` expands specs, targets, modes and repeats into cells. In mode P a spec gives one cell per perturbation and repeat. A cell sends the spec's blocks, plus the injected block in mode P, except for a perturbation that writes only a world: it runs under its own block, so the cell sends the spec's blocks alone (`order-service-down` and `sales-queue-down` above).
 
-A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec hash, the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `cc92cc9eb562f586` in every Acme campaign above.
+A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec's identity hash (its spec hash without the `version` label), the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `560ab11eeed24dd5` in every Acme campaign above.
 
 ### Outcomes
 
@@ -758,13 +758,13 @@ console.log(run.runId, run.status, run.blocks.map(blockStatus), run.endState?.ma
 Run from the repository root, it prints:
 
 ```
-a66a7aba9986a136 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
+c5c3f2b0d1f766c3 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 With `mode: 'T'`, it prints:
 
 ```
-6a402b958212918e completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
+b27c2146edf30f60 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 | Option | Meaning |
@@ -882,7 +882,7 @@ Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_
 
 The runner returns the run as the store keeps it: written as JSON, read back and validated against the `RunResult` schema in `packages/core/src/schema/run.ts`.
 
-* The run: `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status`, `error`, `blocks`, `succession`, `recovery`, `endState`, `endStateValue`, `cost`, `latencyMs`, `startedAt`, `finishedAt` and `cacheHit`, and `carried` on a run a radius campaign copied from an earlier campaign (see [blast radius](concepts/blast-radius.md#fresh-and-carried)). `cost` sums the blocks' costs: each block's total, or else the sum of its segments' costs.
+* The run: `runId`, `specId`, `specHash`, `identityHash` (the spec hash without its version label, which the run id is made from), `target`, `mode`, `repeat`, `perturbationId`, `status`, `error`, `blocks`, `succession`, `recovery`, `endState`, `endStateValue`, `cost`, `latencyMs`, `startedAt`, `finishedAt` and `cacheHit`, and `carried` on a run a radius campaign copied from an earlier campaign (see [blast radius](concepts/blast-radius.md#fresh-and-carried)). `cost` sums the blocks' costs: each block's total, or else the sum of its segments' costs.
 * Each block: `index`, its position in the run, injected blocks included; `blockId`; `injected`; `realized`, present only when the driver sent other text than the spec block wrote (a simulated user, a red-team attacker): `hash`, the SHA-256 of the user messages the agent received joined by newlines, and `text`, those messages, only when the run asked for it (`campaign run --record-realized-text`, `recordRealizedText` in code), since what a driver writes may be private. Only the text is compared: the same text sent in another form, such as an injection, records no `realized` (`injected` says so). Copies into another campaign follow the destination’s opt-in: whole-run carries, block reruns and re-judging strip `realized.text` unless the new campaign requests it. Store writes and imports enforce the campaign’s setting too; exports strip legacy hash-only records. Stripping records `realizedTextStripped` (source `fromRun` and, when known, `fromCampaign`) on the copied run or block and recomputes its provenance digest. Missing text is never reconstructed. The provenance digest covers `realized` and stripping provenance; `givenHash`; `observed`; `verdicts`; `stageObserved`, the stage the block reached (the runtime's report in this block, else in F and P the last one an earlier block reported, else the stage classifier's); `ledgerCheck`; `drift`; `pass`.
 * Each verdict carries `by`: the object that scored it as `kind:id@hash8` (the block's check set, `check-set:default` unless `uses.check_set` names another), the `item` (the check name, or `flow` and `ledger` for the runner's own verdicts), the `impl` and the `layer` that last set the item. A check the caller passes that no check-set item names is stamped from `check-set:(caller)` at layer `cli`. Each block also carries `resolved`: the objects it was scored with (`key`, `kind`, `id`, content `hash`, `setAt`, the layer whose reference chose it) and one `hash` over them, and `diagnoses`: what the block's diagnostics wrote after its checks (`diagnostic`, `step`, `verdictRef`, `summary`, `score`, `fault`, `fixLocation`, `evidence`, `by`), with `skippedForBudget` counting the `run` and `model` steps the diagnostic budget left out (`runSpec` option `diagnosticBudget`, 0 by default). A diagnosis never changes a verdict or `pass`. Records written before these fields parse unchanged.
 * `succession`: `firstDriftBlock`, `driftCount`, `driftRate`, `longestClean` and `minOverBlocks`, over the blocks of the run. A failing block is a drift block. See [drift](concepts/drift.md).
