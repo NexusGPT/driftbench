@@ -1,72 +1,51 @@
 {
- "marked": {
-  "mutants": 274,
-  "misses": [],
-  "upper": 0.013826082100919372,
-  "ratio": 0.5130344108446302
- },
- "bare": {
-  "mutants": 274,
-  "misses": [
-   {
-    "variant": "explicit_confirm__rephrase__n3",
-    "blocks": [
-     "p1"
-    ]
-   },
-   {
-    "variant": "mobile_new_line__negate__n1",
-    "blocks": [
-     "pl3"
-    ]
-   },
-   {
-    "variant": "new_customer_details__negate__n0",
-    "blocks": [
-     "p1"
-    ]
-   },
-   {
-    "variant": "new_customer_details__negate__n1",
-    "blocks": [
-     "p1"
-    ]
-   },
-   {
-    "variant": "new_customer_details__negate__n4",
-    "blocks": [
-     "p1"
-    ]
-   },
-   {
-    "variant": "recap__negate__n0",
-    "blocks": [
-     "p1"
-    ]
-   },
-   {
-    "variant": "upgrade_more_data__negate__n0",
-    "blocks": [
-     "of1",
-     "of2"
-    ]
-   },
-   {
-    "variant": "upgrade_more_data__negate__n1",
-    "blocks": [
-     "of1",
-     "of2"
-    ]
-   },
-   {
-    "variant": "upgrade_more_data__negate__n2",
-    "blocks": [
-     "of1",
-     "of2"
-    ]
-   }
-  ],
-  "upper": 0.06123599837324105,
-  "ratio": 0.42481751824817554
- }
+  "marked": {
+    "mutants": 274,
+    "misses": [],
+    "upper": 0.013826082100919372,
+    "ratio": 0.5130344108446302
+  },
+  "bare": {
+    "mutants": 274,
+    "misses": [
+      {
+        "variant": "explicit_confirm__rephrase__n3",
+        "blocks": ["p1"]
+      },
+      {
+        "variant": "mobile_new_line__negate__n1",
+        "blocks": ["pl3"]
+      },
+      {
+        "variant": "new_customer_details__negate__n0",
+        "blocks": ["p1"]
+      },
+      {
+        "variant": "new_customer_details__negate__n1",
+        "blocks": ["p1"]
+      },
+      {
+        "variant": "new_customer_details__negate__n4",
+        "blocks": ["p1"]
+      },
+      {
+        "variant": "recap__negate__n0",
+        "blocks": ["p1"]
+      },
+      {
+        "variant": "upgrade_more_data__negate__n0",
+        "blocks": ["of1", "of2"]
+      },
+      {
+        "variant": "upgrade_more_data__negate__n1",
+        "blocks": ["of1", "of2"]
+      },
+      {
+        "variant": "upgrade_more_data__negate__n2",
+        "blocks": ["of1", "of2"]
+      }
+    ],
+    "upper": 0.06123599837324105,
+    "ratio": 0.42481751824817554
+  }
 }
