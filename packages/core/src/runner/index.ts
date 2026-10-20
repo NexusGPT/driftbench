@@ -24,6 +24,7 @@ export {
   type CellOutcome,
   type CostLine,
   cellIdOf,
+  heldRun,
   type MinimumDetectableEffect,
   mdeLine,
   minimumDetectableEffect,

@@ -29,7 +29,7 @@ import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson, contentHash } from '../spec/hash';
-import { specHash, specIdentity } from '../spec/identity';
+import { specHash, specIdentity, specIdentityHash } from '../spec/identity';
 import { parseCriterionRef } from '../spec/semantics';
 import { type CarryLimits, carryOrigin } from './carry';
 import { completeBaselineProvenance } from './provenance';
@@ -312,6 +312,7 @@ export async function rejudgeRun(
   const updated = {
     ...rest,
     specHash: specHash(spec),
+    identityHash: specIdentityHash(spec),
     blocks,
     carried,
     rejudged: stamp,

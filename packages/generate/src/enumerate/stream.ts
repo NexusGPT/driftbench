@@ -50,7 +50,7 @@ import { DiskArray, writeDiskJson } from './stream-storage';
  * Budget allocation and total spec-cap selection are not streaming operations; this API rejects those
  * options before writing. It never falls back to the eager API or reduces coverage to fit memory.
  */
-export type GenerateDiskOptions = Omit<GenerateOptions, 'budget' | 'specCap' | 'specCapMode'> & {
+export type GenerateDiskOptions = Omit<GenerateOptions, 'budget' | 'specCap' | 'specCapMode' | 'stems'> & {
   outputDir: string;
 };
 export type GenerateDiskResult = {
@@ -66,7 +66,8 @@ export type GenerateDiskResult = {
  * The destination must be new or empty; the function never removes an existing suite.
  */
 export function generateSuiteToDisk(prepared: PreparedMap, options: GenerateDiskOptions): GenerateDiskResult {
-  for (const name of ['budget', 'specCap', 'specCapMode'] as const) {
+  // The stem post-pass reads every spec at once, so the streaming writer, bounded to one spec, writes them whole.
+  for (const name of ['budget', 'specCap', 'specCapMode', 'stems'] as const) {
     if ((options as GenerateOptions)[name] !== undefined)
       throw new RangeError(`generateSuiteToDisk does not support ${name}; no files were written`);
   }

@@ -59,7 +59,7 @@ $ pnpm -s driftbench spec validate _captures/docs3/cli/broken/semantic.yaml
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, is part of the runner's cache key and of every run id; `version` is a free label. See [running](../running.md#the-cache-and-replay).
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash is the spec's identity in the store and in a holdout seal, so a changed `version` changes it. A run id, a cell id and the runner's cache key are made from a second hash, the identity hash: the same canonical JSON without the `version` label (and without `metadata.links` and `metadata.provenance`, as the first hash). `version` is a free label, so relabelling a spec keeps its cells, its run ids and its cached blocks; a spec with no `version` has the one hash for both. A run records both: `specHash` and `identityHash`. A run stored before `identityHash` existed reads its id from `specHash`. See [running](../running.md#the-cache-and-replay).
 
 | Option | Effect |
 |---|---|
@@ -240,7 +240,10 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `PERTURBATION_EMPTY` | error | a perturbation has none of `user`, `burst` and `world` |
 | `DUPLICATE_BLOCK_ID` | error | two blocks share an id |
 | `PARENT_MISSING` | error | a block's `parent` names no block id in the spec |
-| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included |
+| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included; the message prints the cycle, such as `a -> b -> a` |
+| `PARENT_SPEC_MISMATCH` | error | block 0 names a block of another spec whose kind, channel, lang, target or Given defaults differ, whose criteria of the same name differ, or that has parent links of its own |
+| `PARENT_SPEC_POSITION` | error | a block of another spec is named as the parent of a block other than block 0, or beside parent links of the spec's own |
+| `PARENT_WITH_PREFIX` | error | block 0 names a block of another spec and also writes `given.prefix` |
 | `WORKSPACE_PATH_TWICE` | error | a workspace path is in both `files` and `binary` |
 | `DUPLICATE_PERTURBATION_ID` | error | two perturbations share an id |
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |
@@ -352,6 +355,36 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
 | 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
+
+## `driftbench isolation`
+
+```
+driftbench isolation <spec> [--target <adapter[:agent]>] [--mode T|F] [--json]
+```
+
+The parent isolation check. It runs a spec with `parent` links once as written, then runs each child that names a parent once more alone: from its own Given and the spec's defaults, with no parent and no perturbation. Per edge it compares the child's two statuses. A changed verdict sets `manifest: true`: the child depends on its parent. The same verdict sets `manifest: false`: the child could be a spec of its own. An edge whose linked child was blocked or not run, or whose isolated child was not run, has no `manifest` and a `reason`. A child that alone is no valid spec, such as one that retains a fact only its parent adds, is `isolated: spec_error` with the issue code in `reason`, and `manifest: true` when its linked run was scored. A child with no id is named by its position, `blocks.<index>`. The check costs one run per edge, so run it when an edge is added or a parent changes. The isolated runs are not stored. Two limits: each side runs once, so on a target that does not give the same answer twice a changed verdict can be noise (run it on a deterministic target, or twice); and the edge is to the direct parent, so a child that reads state a grandparent set, through a parent that ignores it, marks its own edge `manifest: true` and the parent's edge `manifest: false`. See [parent blocks](../concepts/given-when-then.md#parent-blocks).
+
+| Option | Effect |
+|---|---|
+| `<spec>` | one spec file with at least one `parent` link |
+| `--target <adapter[:agent]>` | the target to run on; without it, the spec's own target |
+| `--mode T\|F` | the mode of both runs; default T |
+| `--json` | print one JSON document: the spec id, the target, the mode, the linked run's status and the edges (`child`, `parent`, `linked`, `isolated`, `manifest`, `reason`) |
+
+On the parent spec of the `authoring-parent-blocks` help topic, on the fictional Acme sales agent:
+
+```
+Isolation: acme-help-parent-pass on function:acme-sales, mode T, 2 edges.
+  offer-web <- identify: linked pass, alone fail: depends on its parent
+  offer-phone <- identify: linked pass, alone fail: depends on its parent
+2 depend on their parent, 0 could stand alone, 0 without a verdict.
+```
+
+| Exit code | When |
+|---|---|
+| 0 | every edge has a verdict |
+| 1 | an edge has no verdict to compare |
+| 2 | bad input: not one valid spec, a spec with no `parent` link, an unknown mode or target |
 
 ## Judge flags
 
@@ -556,7 +589,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--no-stems] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -575,6 +608,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
+| `--no-stems` | write every complete spec whole; by default the openings two or more complete specs share are written once under `specs/stems/`, each spec starts from its stem with `parent: <stem id>#<block id>`, and `stems-map.csv` maps every block as generated to its new spec and block. See [stems](../generating.md#stems-shared-openings-written-once) |
 | `--json` | print the report as JSON |
 | `--model` | also ask the model port for specs, gated before they count; needs `--reference` and `--faults` |
 | `--proposals <n>` | with `--model`: how many specs to ask for; default 3 |
@@ -1046,7 +1080,7 @@ Review: signed by owner on 2026-10-13.
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -1082,6 +1116,11 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--out` | `scan`: where to write the map (YAML); `plan`: where to write the plan (YAML); `generate`: the folder for the specs and the report; required. `diff`, `impact`: also write the result as JSON |
 | `--runtime <name>` | `scan`: the runtime that reads the estate; default `claude-code` |
 | `--replay <file>` | `scan`: replay recorded answers instead of calling a model |
+| `--pointer` | `scan`: read the prose with the pointer reader: units cut by structure, labelers of two classes point at them, code copies the quotes. Needs `--cassette`; see the topic `validate-estate-scan` |
+| `--cassette <file>`, `--record` | `scan --pointer`: the recorded labeler answers, and record the answers a miss needs |
+| `--labeler <class>:<client>[:<model>]` | `scan --pointer`: a labeler of class `system1` or `system2`; repeat it for one of each, the default stack |
+| `--labeler-threshold <p>`, `--labeler-pass-at <p>`, `--labeler-fail-at <p>`, `--labeler-margin-cut <m>`, `--labeler-key <variable>` | `scan --pointer`: the probability at which a yes or no system 1 labeler takes a label; in a stack, the margin between the two likeliest labels at which system 1 decides alone (default 0.65), or, when either probability bound is given, the two probabilities at which it decides alone; the variable that holds the bearer token of an `http` labeler |
+| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids and its check |
 | `--no-model` | `scan`: read the structured atoms only; no prose atom |
 | `--provider <name>` | `scan`: `anthropic` or `openai`; default the first whose key is set |
 | `--ceiling <characters>` | `scan`, `lint`: the size ceiling of the standing instructions; default 40000 |

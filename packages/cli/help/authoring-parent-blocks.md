@@ -5,6 +5,7 @@ commands:
   - spec validate
   - spec lint
   - campaign run
+  - isolation
 see_also:
   - authoring-blocks
   - authoring-prefixes
@@ -40,12 +41,13 @@ Parent links do not refer to another spec, a stored campaign or a reusable objec
 
 ## Commands and every option
 
-This is a spec format feature. There is no parent command or parent flag.
+This is a spec format feature: the `parent` key turns it on. One command reads parent links: `isolation`, the dependency check.
 
 | Command | Arguments and options | Default |
 |---|---|---|
 | `spec validate` | Required `<paths...>` names files or folders. `--json` prints the validation records. | Text output. |
 | `spec lint` | Required `<paths...>`. `--json` prints records. `--strict` fails on warnings. `--summaries` checks named-state summaries. `--sections <registries...>` checks prompt-section links. | Text output; optional checks off. |
+| `isolation` | Required `<spec>`, one spec with parent links. `--target <adapter[:agent]>` runs on another target. `--mode T` or `--mode F`. `--json` prints the edges. Exit 0 when every edge has a verdict, 1 when one has none, 2 on bad input. | The spec's target, mode T, text output. |
 | `campaign run` | Read the parent-linked spec through `[paths...]`. `--target function:acme-sales` uses the fictional agent. `--mode T,F` runs both modes. `--no-cache` disables observation caching. `--json` prints run records. | Target from the spec, mode F, cache on, text output. |
 
 The complete campaign option list and defaults are in [running-campaign-run](running-campaign-run.md).
@@ -59,7 +61,7 @@ No project config key enables parent behavior: the `parent` spec key enables it.
 | Key | Type | Meaning |
 |---|---|---|
 | `blocks[].id` | Non-empty string | Unique within the spec. Children name this id. |
-| `blocks[].parent` | Non-empty string, optional | The id of one parent in this spec. Missing ids and cycles are invalid. |
+| `blocks[].parent` | Non-empty string, optional | The id of one parent in this spec. On block 0 only, `<spec id>#<block id>` names a block of another spec loaded with this one: its blocks up to that one are replayed first, unscored. Missing ids and cycles are invalid. |
 | `blocks[].given.prefix` | Message list, optional | Replaces the inherited conversation, including when the list is empty. |
 | `given.ledger`, `blocks[].given.ledger` | Mapping, optional | Facts. Child values replace inherited values with the same key. |
 | `blocks[].expect.ledger_add` | Mapping, optional | Facts established by a parent and available to its children. |
@@ -175,7 +177,17 @@ blocks:
 driftbench spec validate parents/pass.yaml
 driftbench spec lint parents/pass.yaml --strict
 driftbench campaign run parents/pass.yaml --mode T,F --no-cache
+driftbench isolation parents/pass.yaml --json
 ```
+
+`isolation` runs the spec once, then each child alone from its own Given, with no parent.
+Both offers fail alone: given only the email address, the agent answers with its greeting and calls no `catalog.search`.
+So each edge has `linked: pass`, `isolated: fail` and `manifest: true`: the child depends on its parent.
+An edge with `manifest: false` holds the same verdict alone and could be its own spec.
+It costs one run per edge, so run it when you add an edge or change a parent.
+A child with no id is named by its position, such as `blocks.2`.
+Each side runs once: on an agent that does not answer the same way twice, a changed verdict can be noise.
+The edge is to the direct parent: state a grandparent set shows as a dependency of the grandchild's own edge.
 
 The next spec deliberately requires an impossible reply from its parent.
 The child is blocked, but the independent root still runs.
@@ -280,8 +292,12 @@ Each record includes the offending spec path and a message explaining the proble
 
 | Error or result | Cause | Fix |
 |---|---|---|
-| `PARENT_MISSING` | The `parent` id does not name a block in this spec. | Add the parent or correct its id. |
-| `PARENT_CYCLE` | Parent links form a cycle, including a self-reference. | Remove the cycle. A parent chain must reach a root. |
+| `PARENT_MISSING` | The `parent` id does not name a block in this spec, or `<spec id>#<block id>` names a spec not loaded with this one or a block it lacks. | Add the parent, correct its id, or load the parent spec's file with the child. |
+| `PARENT_SPEC_MISMATCH` | The parent spec's kind, channel, lang, target or Given defaults differ from the child's, a criterion of the same name differs, or the parent spec has parent links of its own. | Give both specs the same header, keep the parent spec a sequence of blocks, or write the opening inline. |
+| `PARENT_SPEC_POSITION` | `<spec id>#<block id>` is named on a block other than block 0, or beside parent links of the spec's own. | Put the other-spec parent on block 0 of a spec without parent links. |
+| `PARENT_WITH_PREFIX` | Block 0 names a block of another spec and also writes `given.prefix`. | Keep one: the parent's opening or the prefix. |
+| `blocked`, `blocked.root` `<spec id>#<block id>` | A replayed block of the parent spec did not pass. | Fix that block in the parent spec, then rerun both. |
+| `PARENT_CYCLE` | Parent links form a cycle, including a self-reference. The message prints the cycle, such as `first -> second -> first`. | Remove one link of the printed cycle. A parent chain must reach a root. |
 | `DUPLICATE_BLOCK_ID` | Two blocks share an id. | Give each block a unique id and update its children. |
 | `WORKSPACE_PATH_TWICE` | One workspace path is present in both `files` and `binary`. | Keep the path in one mapping. |
 | `SCHEMA_INVALID_FORMAT` | A `binary` value is not valid base64. | Encode the bytes as base64. |
