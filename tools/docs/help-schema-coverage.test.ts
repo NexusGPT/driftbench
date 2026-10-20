@@ -147,6 +147,10 @@ const RUN_UNITS: Record<string, UnitOverride[]> = {
     { topic: 'running-store', paragraph: 'An `executions` record holds' },
   ],
   'blocks[].verdicts[].by': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'blocks[].diagnoses[].via': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'diagnoses[]': [DIAGNOSIS],
+  'diagnoses[].via': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'diagnoses[].rankedCauses[]': [DIAGNOSIS],
   'blocks[].diagnoses[].by': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
   'blocks[].resolved': [{ topic: 'running-store', label: 'The `resolved` field of a block' }],
   'blocks[].resolved.objects[]': [{ topic: 'running-store', label: 'The `resolved` field of a block' }],
@@ -157,6 +161,10 @@ const RUN_UNITS: Record<string, UnitOverride[]> = {
   ],
 };
 const CAMPAIGN_UNITS: Record<string, UnitOverride[]> = {
+  'diagnoses[]': [DIAGNOSIS],
+  'diagnoses[].via': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'diagnoses[].by': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'diagnoses[].rankedCauses[]': [DIAGNOSIS],
   '(root)': [{ topic: 'running-store', heading: 'Campaign record, field by field' }],
 };
 /** A target is documented once, as the `target` of a spec. */

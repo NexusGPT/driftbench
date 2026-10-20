@@ -79,6 +79,8 @@ The record is JSON in the `json` column of `runs`. A field marked optional is ab
 | `endVerdict` | `success`, `failure` or `inconclusive`: the end verdict of the driver or the spec. `inconclusive` means the run could not be judged. Optional. |
 | `endStateValue` | The end state the adapter returned for the end-state checks, as the checks saw it. `null` when its source recorded nothing. Absent when no end state was read, and on runs stored before the field existed. |
 | `blockRerun` | Present on a run that reran only some blocks (`--block-reruns`) or replayed parent blocks. `selected` lists the block indexes asked for. `downstreamNotRerun` lists the later indexes taken from the baseline instead of rerun. `reason` says why (topic authoring-parent-blocks). |
+| `diagnoses` | What the run-scope diagnostics wrote over the whole run: the same entries as a block's `diagnoses`, below. They never change a pass. Absent when none ran. Optional. |
+| `skippedForBudget` | A whole number, at least 1: run-scope diagnostic steps skipped because their run or model budget was spent. Absent when none. Optional. |
 | `provenance` | The execution stamp, below. Optional; a run without it cannot be carried or re-judged. |
 | `provenanceDigest` | A SHA-256 over the run stamp and the stamp of every block (index, `blockId`, `parent`, `specIndex`, `injected`, `realized`, `realizedTextStripped`, `givenHash` and the block `provenance`), and the `realizedTextStripped` of the run. A change to any stamp changes it. Optional. |
 | `rejudged` | Present on a run made by `campaign rejudge`: the stamp below. |
@@ -129,6 +131,7 @@ The `rejudged` stamp, on a run and on a block, proves the stored observation sti
 | `sources` | The registry versions the campaign ran, as `{ kind, name, version, hash }`: `kind` is `dataset` or `prompt`, `version` is the registry version, `hash` the SHA-256 of its content. Optional. |
 | `provenance` | `version` 2; `endStateSnapshots: true` when the campaign records end-state snapshots; `realizedText: true` when it stores the text a driver sent; `adapters`, one entry per adapter with `idHash`, `versionHash`, `cacheIdentityHash`, `requiresCacheIdentity`, `targetHash` and `agentVersionHash`, hashed as in a run. |
 | `rejudged` | One stamp per re-judged run, as above. |
+| `diagnoses` | What the campaign-scope diagnostics wrote over the runs, when the command that wrote the record ran them: the same entries as a block's `diagnoses`, in the table below. Optional. |
 | `radius` | Present on a campaign run with `--change`: `manifest` (hash of the change manifest), `fromVersion` and `toVersion` (the agent versions the manifest goes between), `changes`, `from` (the campaign the carried runs came from), `whole` (set when the radius was the whole suite: `change` and `reason`), `fresh`, `carried` and `outside` (cell counts), `refused` (why cells outside the radius ran fresh, as `{ reason, cells }`) and `audit` (`sampled`, `misses`, `seed`, and `missed`, the cells whose fresh run disagreed with the stored one, as `{ specId, cellId, differing }`). Topic running-change-carry. |
 
 ### Block record: observed, verdicts and events
@@ -231,6 +234,7 @@ Each entry of `diagnoses` is what a diagnostic wrote about the block after its c
 | `confidence` | How sure the attribution is: `static` (read statically), `undecided` or `confirmed` (by a rerun). Optional. |
 | `removeCopies` | The local copies a shared fix makes redundant. Optional. |
 | `by` | What produced the diagnosis, as above. |
+| `via` | The executing diagnostic step, when `by` names a more specific deciding rule. It has the fields of `by`. Optional. |
 
 A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
 
