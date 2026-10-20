@@ -106,6 +106,14 @@ export async function replayOp(input: Obj): Promise<unknown> {
         'replay',
         `the reader named ${fields.length} differing fields: ${fields.join(', ')}`,
       );
-    return { status: 'miss', differingField: fields[0], networkCalls: 0 };
+    // A cut mismatch reports the runtimes only when the reader's own diagnostic names both versions.
+    const named = (thrown as Error).message;
+    const versionsRequired = /\bNode \d[\w.]*/.test(named) && /\bICU \d[\w.]*/.test(named);
+    return {
+      status: 'miss',
+      differingField: fields[0],
+      networkCalls: 0,
+      ...(fields[0] === 'cutDigest' && versionsRequired ? { versionsRequired: ['node', 'icu'] } : {}),
+    };
   }
 }

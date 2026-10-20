@@ -24,6 +24,7 @@ export function bankLadder(items: readonly PointerItem[], resolve: () => Promise
         threshold: 1,
         compute: async ({ seed }) => {
           const sut = await resolve();
+          await sut.ready?.();
           const entries: BankEntry[] = [];
           for (const item of own) {
             const outcome = await runItem(item, seed, sut);

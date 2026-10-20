@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { blindLevels } from '../../src/ladders/pointer/bank/blind';
 import { withReplacedExports } from '../../src/ladders/pointer/sut/blind-binding/reader';
 import type { PointerSut } from '../../src/ladders/pointer/sut/port';
-import { assertReaderAvailable, realReader } from '../../src/ladders/pointer/sut/reader';
+import { assertReaderAvailable, loadReaderWithRetry, realReader } from '../../src/ladders/pointer/sut/reader';
 
 /**
  * The blind bank against the real reader. The counts below are what the binding reaches today: items that pass,
@@ -33,7 +33,7 @@ describe('the blind bank bound to the reader', () => {
         } else counts.differs += 1;
       }
     }
-    expect(counts).toEqual({ pass: 239, differs: 22, unsupported: 79, error: 0 });
+    expect(counts).toEqual({ pass: 256, differs: 6, unsupported: 79, error: 0 });
     expect([...reasons].sort()).toEqual([
       'unsupported: group:carry',
       'unsupported: labels:rerecord',
@@ -43,6 +43,20 @@ describe('the blind bank bound to the reader', () => {
       'unsupported: replay',
     ]);
   }, 300_000);
+
+  it('gives the same verdict for every item on three runs in one process', async () => {
+    const run = async () => {
+      const verdicts: string[] = [];
+      for (const level of blindLevels(async () => realReader())) {
+        const measure = await level.compute({ seed: 1, hidden: false, root: process.cwd() });
+        for (const entry of measure.bank ?? []) verdicts.push(`${entry.id} ${entry.pass} ${entry.detail}`);
+      }
+      return verdicts;
+    };
+    const first = await run();
+    expect(await run()).toEqual(first);
+    expect(await run()).toEqual(first);
+  }, 600_000);
 
   // Planted-bug readers, run through the binding itself: each must move the bank.
   const MATERIALIZING = [
@@ -126,4 +140,40 @@ describe('the blind bank bound to the reader', () => {
     }
     expect(errors).toBeGreaterThan(0);
   }, 300_000);
+});
+
+describe('loading the reader', () => {
+  const fake = { pointer: {}, AtomBuilder: class {} } as Record<string, unknown>;
+
+  it('tries again after a slow import and does not keep the failure', async () => {
+    // One import that takes longer than one bound: the first attempt times out, a later one finds it settled.
+    const importing = new Promise<Record<string, unknown>>((resolve) => setTimeout(() => resolve(fake), 60));
+    let calls = 0;
+    await expect(
+      loadReaderWithRetry(
+        () => {
+          calls += 1;
+          return importing;
+        },
+        20,
+        10,
+      ),
+    ).rejects.toThrow(/does not export/);
+    expect(calls).toBeGreaterThan(1);
+  });
+
+  it('does not retry an import that fails', async () => {
+    let calls = 0;
+    await expect(
+      loadReaderWithRetry(
+        async () => {
+          calls += 1;
+          throw new Error('no such module');
+        },
+        20,
+        10,
+      ),
+    ).rejects.toThrow(/cannot be loaded/);
+    expect(calls).toBe(1);
+  });
 });

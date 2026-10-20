@@ -2,11 +2,11 @@ import { type BankEntry, bankMeasure, type LevelDef } from '../../../ladder';
 import { type BankItem, pointerBank as blindItems, type PointerAdapter, runItem } from '../blind/bank/index';
 import { blindBinding } from '../sut/blind-binding/index';
 import { NO_REQUEST } from '../sut/blind-binding/privacy';
-import { Unsupported } from '../sut/blind-binding/reader';
+import { pointerExports, Unsupported } from '../sut/blind-binding/reader';
 import type { PointerSut } from '../sut/port';
 
 /**
- * The second pointer bank: 340 items written blind by helpers who never read the reader (PR 759, merged under
+ * The second pointer bank: 341 items written blind by helpers who never read the reader (PR 759, merged under
  * `pointer/blind`). Its items speak the bank's own transport vocabulary (`blind/CONTRACT.md`); `sut/blind-binding`
  * binds that vocabulary to the reader. An operation the reader cannot serve fails its items with a message that
  * says so; no operation is invented.
@@ -53,6 +53,9 @@ export function blindLevels(resolve: () => Promise<PointerSut>): LevelDef[] {
       threshold: 1,
       compute: async ({ seed }) => {
         const entries: BankEntry[] = [];
+        // The reader is loaded before the first item clock starts: a slow load decides no item.
+        await (await resolve()).ready?.();
+        await pointerExports();
         for (const item of own) {
           unsupported = undefined;
           differs = undefined;

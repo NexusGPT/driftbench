@@ -8,9 +8,12 @@ let loaded: Promise<Pointer> | undefined;
 let replaced: Pointer = {};
 
 export async function pointerExports(): Promise<Pointer> {
-  loaded ??= import(/* @vite-ignore */ '@agent-nexus/driftbench-estate').then(
-    (mod) => (mod as { pointer: Pointer }).pointer,
-  );
+  loaded ??= import(/* @vite-ignore */ '@agent-nexus/driftbench-estate')
+    .then((mod) => (mod as { pointer: Pointer }).pointer)
+    .catch((cause: unknown) => {
+      loaded = undefined;
+      throw cause;
+    });
   const real = await loaded;
   return Object.keys(replaced).length === 0 ? real : { ...real, ...replaced };
 }

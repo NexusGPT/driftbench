@@ -169,9 +169,8 @@ export async function materializeOp(input: Obj): Promise<unknown> {
 
 /**
  * `validate-answer`: each response is one attempt; an attempt that is a refusal, a cut-off, unreadable or
- * refused by the check fails, and a window gets one retry. The reader's answer has no window or set echo and
- * reads JSON out of a wrapper, so an item that plants a wrong echo or a wrapped answer fails here: that is the
- * reader's behaviour, not a gap of this binding.
+ * refused by the check fails, and a window gets one retry. An answer that names another window or set is
+ * refused; one that names none is read. The one JSON object is read out of prose or a fence.
  */
 export async function validateAnswerOp(input: Obj): Promise<unknown> {
   const pointer = await pointerExports();
@@ -182,7 +181,10 @@ export async function validateAnswerOp(input: Obj): Promise<unknown> {
     if (response.refusal === true || response.stopReason === 'max_tokens') continue;
     let labels: Obj[];
     try {
-      labels = pointer.parseDenseAnswer(String(response.body));
+      labels = pointer.parseDenseAnswer(String(response.body), {
+        window: String(input.window),
+        set: String(set.set),
+      });
     } catch {
       continue;
     }
