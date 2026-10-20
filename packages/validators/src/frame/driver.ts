@@ -319,6 +319,17 @@ port.on('message', async (message) => {
   }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args });
+  if (message.heavy) {
+    // A heavy call is made by run A alone, unless it returned a function: the other runs must hold that handle too.
+    const first = await ask(runs[0], line);
+    if (!JSON.stringify(first).includes('"$handle"')) {
+      reply({ answers: [first] });
+      return;
+    }
+    const rest = await Promise.all(runs.slice(1).map((run) => ask(run, line)));
+    reply({ answers: [first, ...rest] });
+    return;
+  }
   const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });

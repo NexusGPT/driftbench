@@ -50,6 +50,26 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 const START_MS = 120_000;
 const CALL_MS = 300_000;
+/**
+ * A call whose arguments hold more than this many array elements is heavy (a million rows): runs B and D skip it, since
+ * three processes computing the same million rows on a few cores cost more than they show. Run A and run C make it; B
+ * and D make it too when it returns a function, so they hold the same handles.
+ */
+const HEAVY_ELEMENTS = 50_000;
+
+/** The number of array elements in a value, counted up to a little over the limit. */
+function weigh(value: unknown, limit = HEAVY_ELEMENTS): number {
+  let count = 0;
+  const walk = (v: unknown): void => {
+    if (count > limit || v === null || typeof v !== 'object') return;
+    if (Array.isArray(v)) {
+      count += v.length;
+      for (const each of v) if (typeof each === 'object') walk(each);
+    } else for (const key of Object.keys(v)) walk((v as Record<string, unknown>)[key]);
+  };
+  walk(value);
+  return count;
+}
 /** The time run C may take to make all the calls of a frame. */
 const BATCH_MS = 1_800_000;
 
@@ -407,7 +427,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    relay.port.postMessage({ call: name, args: sent });
+    relay.port.postMessage({ call: name, args: sent, heavy: weigh(sent) > HEAVY_ELEMENTS });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
@@ -418,16 +438,17 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     each.ms += took;
     if (took > 50) each.slow += 1;
     byName.set(name, each);
+    // A heavy call was made by run A alone (the relay), so runs B and D have no answer to it.
     const [a, b, d] = answers as [
       Outcome | { dead: string },
-      Outcome | { dead: string },
-      Outcome | { dead: string },
+      (Outcome | { dead: string })?,
+      (Outcome | { dead: string })?,
     ];
     if ('dead' in a) throw new FrameError(a.dead);
     const entry: Entry = { call: name, args: sent, ...a };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
-    if (!('dead' in b)) entry.twin = b;
-    if (!('dead' in d)) entry.wrapped = d;
+    if (b && !('dead' in b)) entry.twin = b;
+    if (d && !('dead' in d)) entry.wrapped = d;
     tape.push(entry);
     const kept = (outcome: Outcome | { dead: string }): string => {
       if ('dead' in outcome) return `dead`;
@@ -441,7 +462,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      if (kept(a) !== kept(other)) {
+      if (other !== undefined && kept(a) !== kept(other)) {
         const message = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
         found.push({ at: tape.length - 1, message });
         first ??= message;
