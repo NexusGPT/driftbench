@@ -39,6 +39,10 @@ Pick the topic by question:
 | How to write a criterion, fixtures and labels | `judging-criteria` |
 | Collect hand labels with several reviewers | `judging-queue` |
 | Validate a criteria folder | `judging-judge-check` |
+| Lint the wording of rubrics and pictures | `judging-judge-lint` |
+| Print the exact prompt a judge receives | `judging-judge-prompt` |
+| Check a quote against the data a judge saw | `judging-judge-ground` |
+| Inspect and re-key a cassette | `judging-judge-cassette` |
 | Replay a council on fixture pairs | `judging-judge-run` |
 | Choose which judges own which criterion | `judging-judge-calibrate`, `judging-calibration` |
 | How several judges vote | `judging-council` |
@@ -58,14 +62,18 @@ Pick the topic by question:
 | Command | Purpose | Model calls |
 |---|---|---|
 | `driftbench judge check <criteria> [--json]` | Validate a criteria folder. | none |
+| `driftbench judge ground --quote <text> (--request <file> \| --criteria <dir> --criterion <name>) [--source] [--json]` | Check a quote against the data a judge saw. | none |
+| `driftbench judge lint <paths...> [--json]` | List the wording defects of rubrics and pictures. | none |
+| `driftbench judge prompt (--request <file> \| --criteria <dir> --criterion <name>) [--json]` | Print the exact prompt a judge receives. | none |
+| `driftbench judge cassette inspect <file>`, `judge cassette rekey <file> --from <dir> --criteria <dir> --out <file>` | Read a cassette; move its answers to the keys of changed criteria. | none |
 | `driftbench judge run --criteria <dir> --cassette <file> [--mode] [--agent-family] [--cascade] [--assignments] [--json]` | Replay a council over every fixture pair. | none |
 | `driftbench judge calibrate --criteria <dir> --labels <dir> --out <file> (--cassette <file> \| --claude <model>) [...]` | Test each judge and write the assignment table. | only with `--claude` (billed) |
 | `driftbench replay ... --judge claude:<model> [--judge-command] [--judge-budget]` | Judge criteria of recorded sessions. | yes, unless the command is a stand-in |
 | `driftbench estate run ... --judge claude:<model> [--judge-command] [--judge-budget]` | Judge criteria of a live estate run. | yes, unless the command is a stand-in |
 | `driftbench queue create\|list\|assign\|vote\|agreement` | Manage the review queue of blocks to label. | none |
 | `driftbench compare --pairwise <criterion.yaml> [--pairwise-judge] [--pairwise-reference]` | Compare two campaigns reply by reply. | yes (billed) |
-| `pnpm bench replay`, `pnpm bench floors` | Score the shipped judge on fixed slices from recordings; manage floors. Repository script, not in the published CLI. | none |
-| `pnpm bench record --model <id> --spend-cap-usd <usd>` | Record the benchmark with a live model. Repository script. | yes (billed, capped) |
+| `driftbench bench replay`, `driftbench bench floors` | Score the shipped judge on fixed slices from recordings; manage floors. Reads `benchmarks/` of a checkout. | none |
+| `driftbench bench record --model <id> --spend-cap-usd <usd>` | Record the benchmark with a live model. Reads `benchmarks/` of a checkout. | yes (billed, capped) |
 
 Every option of each command is in its topic.
 
