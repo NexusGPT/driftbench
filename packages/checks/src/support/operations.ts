@@ -58,7 +58,7 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   // The rule is a plain literal with no lookahead, because the estate vocabulary derives its cases from it.
   {
     class: 'overwrite',
-    pattern: /\bgit\scheckout\s(?:[^\s;&|-][^\s;&|]*\s)?--(?:\s|\w|$)/,
+    pattern: /\bgit\scheckout\s(?:[^\s;&|\-][^\s;&|]*\s)?--(?:\s|\w|$)/,
     needsNoDiff: true,
   },
 ];
