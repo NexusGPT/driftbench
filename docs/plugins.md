@@ -2,13 +2,20 @@
 
 A plugin is a module of your own code that the command line loads before it runs a command. It lets `campaign`, `smoke`, `ci`, `gate`, `pilot`, `perturb`, `simulate`, `attack`, `family` and `holdout` reach your agent, run your checks and use your judge, with no wrapper process and no fork.
 
-A plugin registers three things:
+A plugin registers adapters, checks and judges, and the parts of the [rule framework](reference/objects.md):
 
 | It registers | With | Then |
 |---|---|---|
 | an adapter | `api.adapter(name, factory)` | every target `<name>:<agent>` reaches the adapter the factory returns |
 | a custom check | `api.check(name, check)` | a spec that lists `name` under [`rules.custom`](reference/checks.md#custom-checks) runs it on every block |
 | a pairwise judge | `api.pairwiseJudge(name, factory)` | `compare --pairwise-judge <name>` uses it |
+| an embedder | `api.embedder(name, factory)` | `--embedder <name>` makes the similarity check score with it |
+| an object kind | `api.kind(name, { summary, agentFacing, itemsKey, fields })` | `object list` and the loader know the kind |
+| a rule | `api.rule(kind, name, { params, run })` | an item of that kind names it as `impl: plugin:<name>`, and its params are checked when the object loads |
+| an evidence name | `api.evidence(kind, name, compute)` | a rule of that kind may read it in its `when` |
+| a diagnostic step | `api.diagnosticStep(name, run)` | a `diagnostic` object names it as `plugin:<name>` |
+| a prompt template | `api.promptTemplate(id, parts, contract)` | a template with named parts, identified by the hash of its parts |
+| an object file | `api.object(path)` | the object joins the shipped layer; the path is relative to the plugin's folder |
 
 With no plugin, nothing changes: the command line reads no extra file and behaves as before.
 
@@ -50,6 +57,74 @@ export default definePlugin((api) => {
   // api.adapter, api.check, api.pairwiseJudge, api.cwd
 });
 ```
+
+## Register parts of the rule framework
+
+A plugin may add a kind of object, the code behind a rule, and objects of its own. [`examples/plugins/rules`](https://github.com/NexusGPT/driftbench/tree/main/examples/plugins/rules) holds one of each part. The plugin:
+
+```js
+// plugin.mjs
+export default function plugin(api) {
+  api.kind('policy/routing', { summary: 'Which team a conversation goes to.' });
+  api.rule('policy/routing', 'route-by-intent', { run: () => 'sales' });
+  api.rule('check-set', 'acme-tone', { params: toneParams, run: () => [] });
+  api.evidence('check-set', 'tone_score', () => 0.5);
+  api.diagnosticStep('acme-dedup', () => ({ duplicates: 0 }));
+  api.promptTemplate('linker/acme', { system: 'You link blocks to prompt units.' }, (answer) => answer.split('\n'));
+  api.object('objects/check-set-acme.yaml');
+}
+```
+
+`toneParams` is an object with a `safeParse` method, as zod's schemas have: it refuses a `tone` that is not `plain` or `warm`. The object file `objects/check-set-acme.yaml` names the rule in an item:
+
+```text
+# file: objects/check-set-acme.yaml
+kind: check-set
+id: acme
+description: The Acme tone check, from the example plugin.
+items:
+  - id: tone
+    title: Replies keep the Acme tone
+    when: { tone_score: { below: 0.4 } }
+    effect: { gating: false }
+    params: { tone: warm }
+    impl: plugin:acme-tone
+```
+
+A spec names the object under `uses`:
+
+```text
+# file: specs/routed.yaml
+id: routed
+target: { adapter: function, agent: acme-sales }
+uses: { check_set: acme, diagnostics: [acme-dedup] }
+blocks:
+  - id: b1
+    user: I would like to change my plan.
+    expect:
+      must: [plan]
+```
+
+From `examples/plugins/rules`, with the plugin listed in `driftbench.yaml`:
+
+```text
+$ driftbench spec validate specs
+✓ specs/routed.yaml  routed · 1 block · hash 1e0b1e482f2a
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+$ driftbench object list
+check-set           acme        shipped  f0458f5f
+check-set           default     shipped  fd61f704
+diagnostic          acme-dedup  shipped  e4985b87
+policy/routing      intent      shipped  36c5829b
+policy/value-check  default     shipped  cf504563
+```
+
+Without the plugin, the same spec is invalid: `OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme`.
+
+* A plugin never replaces what driftbench ships or what another plugin registered. A kind, an implementation, an evidence name, a template id or an object `kind:id` already held is refused with exit code 2 and a line naming both plugins. To change a shipped object, ship an object that extends it.
+* A plugin's objects join the shipped layer, and they resolve when the plugin loads.
+* Everything a plugin registers is forgotten when its command ends.
+* Limit. The loader registers and checks these parts. A run does not execute a rule, a step, an evidence function or a template parser a plugin registers yet: `campaign run` on the spec above runs the shipped checks only.
 
 ## Load it
 
