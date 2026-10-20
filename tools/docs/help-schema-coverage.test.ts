@@ -54,6 +54,7 @@ describe('block and campaign schema help', () => {
 const SPEC_TOPICS = [
   'authoring-spec-format',
   'authoring-blocks',
+  'authoring-personas',
   'authoring-parent-blocks',
   'authoring-prefixes',
   'authoring-perturbations',
@@ -68,6 +69,17 @@ const SPEC_TOPICS = [
 const SPEC_UNITS: Record<string, UnitOverride[]> = {
   '(root)': [{ topic: 'authoring-spec-format', heading: 'Top-level keys' }],
   'blocks[]': [{ topic: 'authoring-blocks', heading: 'Block keys' }],
+  'blocks[].when': [{ topic: 'authoring-blocks', heading: 'The keys of `when`' }],
+  'blocks[].when.class': [{ topic: 'authoring-blocks', heading: 'The class of a message: `when.class`' }],
+  'blocks[].when.simulated_user': [
+    { topic: 'authoring-personas', heading: 'The persona in the block: `when.simulated_user`' },
+  ],
+  'blocks[].when.simulated_user.engine': [
+    { topic: 'authoring-personas', heading: 'The agenda engine: `when.simulated_user.engine`' },
+  ],
+  'blocks[].when.simulated_user.recorded': [
+    { topic: 'authoring-personas', heading: 'The frozen text: `when.simulated_user.recorded`' },
+  ],
   'blocks[].when.injection': [{ topic: 'authoring-blocks', paragraph: 'A block takes exactly one of' }],
   'blocks[].expect.tools[].compare': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
   'blocks[].expect.tools[].compare{}': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],

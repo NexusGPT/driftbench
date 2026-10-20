@@ -161,6 +161,91 @@ The same object can be written inline in `driftbench.yaml`, under `objects:` (a 
 
 A check the caller runs that no item of the check set names still runs, after the listed ones, and its verdicts are stamped from the caller.
 
+### The implementations of blame, placement and diagnostics
+
+These are the implementations named by the shipped `policy/blame`, `policy/placement` and `diagnostic` objects. The blame items write who a failure is attributed to; the placement items write where its fix goes; the diagnostic steps run after the checks. Each runs with no model call, except `builtin:confirm/run`, which makes confirm runs inside its budget.
+
+**Blame items** (`builtin:blame/<name>`). The first matching item in order writes the attribution. The effect of the item (disposition, fault, fix action) is written as it stands, except for the four items marked "reads".
+
+| Implementation | What it does |
+|---|---|
+| `builtin:blame/protected-edit` | A protected path changed: the agent, always. |
+| `builtin:blame/tests-reverted` | The provided tests fail with the test edits reverted: the agent. |
+| `builtin:blame/special-case` | Passes on the seed, fails on changed inputs: the agent. |
+| `builtin:blame/false-claim` | A claim the run contradicts: the agent. |
+| `builtin:blame/impossible-flagged` | An impossible task the agent flagged: credited. |
+| `builtin:blame/impossible-passed` | An impossible task made to pass: the agent. |
+| `builtin:blame/accepted-no-need` | The result works; the check demanded an unstated form: credited. |
+| `builtin:blame/confirm-missing-rule` | A confirm run shows the rule is missing. |
+| `builtin:blame/reference-fails` | A confirm run shows a reference agent fails too: the test is excluded. |
+| `builtin:blame/env-failure` | Reads the optional reference. The environment failed and the agent did not hide it: excluded. Param `require_reference`: when true, the item declines until a reference result exists. |
+| `builtin:blame/confirm-model` | A confirm run shows the hint did not help and a reference passed: the model. |
+| `builtin:blame/confirm-forced-load` | A confirm run shows the forced skill did not help: the rule as written. |
+| `builtin:blame/tool-silent` | Reads the next action. A tool succeeded silently: the agent shares the fault by what it did next. Param `disposition_by_next_action`. |
+| `builtin:blame/tool-contradicts` | Reads the next action. A tool output contradicts a stated rule: the agent shares the fault only when it had read the rule. Params `disposition_by_next_action`, `shared_only_if_rule_read`. |
+| `builtin:blame/copied-value-tool-failed` | Reads the next action. A tool failed on a verbatim copied value with no stated format: the tool contract; the agent shares by its recovery. Params `recovery_ok`, `max_retries`, `disposition_by_next_action`, `flag_test_when`. |
+| `builtin:blame/altered-given` | A value the user or a source gave changed and the outcome differs: the agent. Param `altered_kinds`. |
+| `builtin:blame/stricter-rule` | A stated rule asked for more than the tool needs: setup. |
+| `builtin:blame/reference-missing` | The pointer names a file that does not exist: the skill. |
+| `builtin:blame/rule-elsewhere` | The rule lives in a skill the ask does not route to: setup. |
+| `builtin:blame/trigger-uncovered` | The description does not cover the ask: the skill's trigger. |
+| `builtin:blame/route-miss` | The description covers the ask and the skill was not loaded: the agent. |
+| `builtin:blame/route-undecided` | Not loaded, coverage unknown: shared, until a confirm run decides. |
+| `builtin:blame/reference-unforced` | Nothing forces the reference in this situation: the layout. |
+| `builtin:blame/reference-unread` | A forcing pointer was skipped: the agent. |
+| `builtin:blame/recovery-not-followed` | A stated recovery was not followed: the agent. |
+| `builtin:blame/skill-rule-broken` | A skill rule in context was broken: the agent. |
+| `builtin:blame/caught` | A guard caught the break and the agent complied: the agent, or credited when the param `counts_against_agent` is false. |
+| `builtin:blame/stated-step-skipped` | A stated step or gate was skipped: the agent. |
+| `builtin:blame/stated-format-broken` | A stated format or rule was broken: the agent. |
+| `builtin:blame/downstream-need` | A declared consumer needs a form nobody states: setup. |
+| `builtin:blame/wrong-derived` | A value the agent built differs from gold: the agent, until a confirm run. |
+| `builtin:blame/unassigned` | No item matched: reported apart. |
+
+**Blame steps** (the `diagnostic` object runs these in order for each block; they carry the `builtin:blame/` prefix too).
+
+| Implementation | What it does |
+|---|---|
+| `builtin:blame/chain` | Only the root of each chain of failing verdicts is attributed. |
+| `builtin:blame/evidence` | Collects the evidence names of each root, from the stored run and the map. |
+| `builtin:blame/value-evidence` | Marks a value outcome as unknown, with a lint, until the value ladder integration is available. |
+| `builtin:blame/attribute` | Applies `policy/blame`: the first item that matches, in order. |
+
+**Placement items** (`builtin:placement/<name>`). Each writes where the fix goes.
+
+| Implementation | What it does |
+|---|---|
+| `builtin:placement/fixed` | The blame item named the place. |
+| `builtin:placement/core` | The core prompt. |
+| `builtin:placement/skill` | The skill: its description, its body or its layout. |
+| `builtin:placement/tool` | The tool contract. |
+| `builtin:placement/cross-cutting` | The same mistake in several homes: the core prompt, with the local copies listed for removal. |
+| `builtin:placement/shared` | A rule several homes need lives once: the core prompt, or a shared reference. |
+| `builtin:placement/reference` | A situational rule: the reference already forced in its situation, or a new forced reference. |
+| `builtin:placement/guard` | Mechanics push out: a guard at the same scope beside the prose. |
+| `builtin:placement/escape-test` | The proposed wording names the kind, not the value. |
+
+**Placement and plan steps** (campaign and block scope).
+
+| Implementation | What it does |
+|---|---|
+| `builtin:placement/apply` | Applies `policy/placement` to each block diagnosis, with recurrence from the history given. |
+| `builtin:placement/recurrence` | Counts signatures and homes over every diagnosis of the campaign. |
+| `builtin:fix-plan/replace` | Re-places each diagnosis whose signature crossed a threshold. |
+| `builtin:fix-plan/merge` | One fix per target and action; local copies are listed for removal. |
+| `builtin:rank/top-n` | Ranks the fixes: agent blocks first, then blocks, then cost. Params `n` (a whole number from 1) and `by`. |
+
+**Confirm and other diagnostic steps.**
+
+| Implementation | What it does |
+|---|---|
+| `builtin:confirm/plan` | Plans the cheapest run that could change each static or undecided diagnosis. Param `runs`. |
+| `builtin:confirm/run` | Runs the planned confirm runs within the budget; a stand-in command is free. Params `runs`, `budget_usd`, `reference_target`. |
+| `builtin:confirm/store` | Stores `reference_pass`, `reference_loads`, `forced_load_pass` and `hint_pass`. |
+| `builtin:diagnostic/rerun` | Re-runs a block diagnostic with the stored confirm evidence; with none, the diagnoses stay static. Param `diagnostic`. |
+| `builtin:diagnostic/argument-accuracy` | The share of the expected tool arguments that matched, as a diagnosis; it never changes a verdict. |
+| `builtin:flaky/repeat-disagreement` | Blocks whose repeats both pass and fail. Param `min_repeats` (a whole number from 2). |
+
 ### The rungs of the shipped value-check
 
 The first item whose `when` holds and that settles the value decides it. A value no item settles is `inconclusive`, with the reason of every rung that could not decide. The shipped `params` of the object is `numbers_significant_digits: 12`.
