@@ -19,6 +19,7 @@ const MUTANTS = [
   ['infinity-weights', 'planner.traffic-weight-of-a-row'],
   ['no-layers-uncut', 'planner.layers-agree'],
   ['zero-shared-single', 'planner.layers-agree'],
+  ['omitted-budget-is-zero', 'planner.layers-agree'],
   ['zero-seeded', 'planner.layers-with-seeds'],
   ['blank-header', 'planner.report-header'],
   ['no-warnings', 'planner.hostile.unreachable-value-warned'],

@@ -628,7 +628,20 @@ const STEMS: {
     cause: `${FILES.plan}: the report counts the groups and tuples of each layer, and those the rows hold`,
     when: () => true,
     tier: 3,
-    check: (a) => layerVerdict(a.full, a, []),
+    check: (a) => {
+      // Kept from the earlier check, beside the exact recount: an uncut plan leaves nothing uncovered, and each
+      // layer's covered and uncovered add up to its targets.
+      const open = a.full.layers.filter(
+        (layer) => layer.uncovered !== 0 || layer.covered + layer.uncovered !== layer.targets,
+      );
+      const exact = layerVerdict(a.full, a, []);
+      return verdict(
+        open.length === 0 && exact.pass,
+        open.length > 0
+          ? `${open.length} layers leave targets uncovered or do not add up on a plan with no budget`
+          : exact.detail,
+      );
+    },
   },
   {
     id: 'budget-uncovered-reported',
