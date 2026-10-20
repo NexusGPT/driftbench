@@ -171,6 +171,22 @@ On the command line the same target is written `<adapter>:<agent>`, such as `fun
 | `judge_class` | `system1`, `system2` or `auto` | no | The judge class; `auto` lets calibration choose. |
 | `repeat_reducer` | `mode`, `median` or `at_least:<k>` | no | How the verdicts of the repeats of one spec become one verdict. |
 
+Further `criteria` keys change how the judge reads the criterion. Each is optional. A combination the schema refuses is a spec error.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `assessment` | `response-relevance`, `conformance`, `answer-audit` or `fact-ledger` | An assessment kind in place of the criterion ledger. `conformance` reads only the rubric, so it takes no `pass` or `fail`, no `scope: block`, and needs `reference`. |
+| `reference` | string | The reference answer an assessment reads. Needed by `conformance` (it may be empty) and `fact-ledger` (not empty); optional for `answer-audit`. Refused with no `assessment` or with `response-relevance`. |
+| `grounding` | `strict` | `fact-ledger` only: refuses reference or reply text that is not a source quote. |
+| `requirements` | list of `{ id, requirement }`, at least one | The rubric split into requirements the judge checks one by one. `id` is the id the judge answers under; `requirement` says what it asks. Ids are unique. Not with `assessment` or `items`. |
+| `items` | list of `{ name, rubric, weight?, hard? }`, at least one | Rubric items, each scored 0 to 4 by the judge. `weight` defaults to 1. `hard: true` fails the criterion when that item is not met. Names are unique. Not with `assessment`. |
+| `threshold` | number from 0 to 1 | With `items` only: the weighted fraction a pass needs. Default 1. |
+| `repeat` | whole number from 1 to 20 | How many times the judge answers the same request. The verdict holds only when every answer agrees, else it is inconclusive. This is not the spec `repeats` of a campaign (see `repeat_reducer`). Not with `per_turn`. |
+| `per_turn` | boolean | `true` judges the transcript one customer turn at a time; any failing turn fails the criterion. Not with `repeat`. |
+| `answer_contract` | `ledger` or `legacy` | `ledger` is the default. `legacy` is the earlier prompt and parser, to replay scores recorded with them; it cannot be combined with `assessment` or `items`. |
+| `prompt_version` | `1` or `2` | The criterion prompt rules. `2` is the default; `1` replays answers recorded with the earlier rules. |
+| `decoder_version` | `1` or `2` | How a ledger answer is read. Unset uses the current default reader (topic judging-evidence). `1` rejects an ungrounded quote; `2` drops the quote and keeps the verdict. |
+
 When a spec has no `criteria` key, blocks may still name criteria; they must then come from a shared catalogue, and `spec lint` warns `CRITERION_UNRESOLVED`. A criterion is judged only when the run loads a judge council; otherwise it has no verdict and counts in no pass or fail.
 
 ### `rules`
@@ -216,7 +232,7 @@ Free, with these keys read by tools:
 
 ### `uses`
 
-Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
+Every rule driftbench applies is an object. It has a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
 
 | Key | Kind it names |
 |---|---|
@@ -231,7 +247,7 @@ Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/valu
 | `judges` | `judge-council` |
 | `diagnostics` | a list of `diagnostic` ids |
 
-A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere.
+A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields. `params` maps merge, lists replace, `+key: [values]` appends, and `-key: [values]` removes. `enabled: false` disables the item. `add: true` with `title`, `when`, `effect` and `impl` adds one. `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`. It then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`). Without it, the item fires everywhere. An item may also carry `cites`, a text naming its source for the reader, such as a rule number. It changes no result.
 
 Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
@@ -244,6 +260,8 @@ A step may supply `by` to identify the policy rule that decided its result. That
 Every kind `uses` names is scoring-only: `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
 
 The loader resolves every object a layer names. An unknown object, an unknown item, an `extends` cycle, an order that is not a permutation, a missing implementation or params of the wrong type is a load error naming the spec, the block, the kind and the id.
+
+In this release no run reads these objects yet, and none is shipped: `uses` is checked at load and recorded in the spec hash. How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
 
 ### A minimal valid spec
 
@@ -491,6 +509,13 @@ Checked 4 specs: 0 valid, 4 invalid, 0 warnings.
 | `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected int, received number` | `schema_version: 1.5` | a whole number |
 | `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected number, received string` | `schema_version: '1'`, a quoted number | write the number with no quotes |
 | `SPEC_PARSE` | the YAML or JSON does not parse, a key is repeated, or the path does not exist | fix the syntax or the path |
+| `OBJECT_INVALID` | an object is malformed: a file that does not parse or is not a mapping, an unknown key such as `polcy`, an item id listed twice, a file at the wrong path (it holds `policy/blame` `acme` but is not `policy/blame/acme.yaml`), or a `--use` or `--set` value of the wrong shape, such as `--use blame`; the message names the file and the key | fix the key named; write `--use policy/blame/acme` and `--set policy/blame#R3.recovery_ok=[asked_user]` |
+| `OBJECT_KIND_UNKNOWN` | an object file names a kind that does not exist, such as `kind: policy/blam`; the message lists the known kinds | use a kind from the list |
+| `OBJECT_DUPLICATE` | two object files of one layer and one folder level define the same kind and id, such as two `policy/blame` `acme`; the message names both files | keep one, or give one another id |
+| `OBJECT_SHIPPED_IMMUTABLE` | a project, suite or spec object uses the id of a shipped object, such as `policy/blame` `default` | give the object another id and set `extends: default` |
+| `OBJECT_ITEM_EXISTS` | an item operation has `add: true` for an id the parent already holds, such as `R3` | drop `add: true` to change the item, or choose a new id |
+| `OBJECT_ITEM_INCOMPLETE` | a new item lacks a field (`add: true` needs `title`, `when`, `effect` and `impl`), or a root object lists an item without `id`, `title` or `impl`, or with `add`, `before` or `after` (those belong to an object that extends another) | add the fields the message names |
+| `OBJECT_ORDER_INVALID` | an order is not a permutation: a file sets `order` and also moves items with `before` or `after`, an item sets both `before` and `after`, an item is moved relative to itself, or `order` lists an item twice or leaves out an enabled item | use one way to order; list every enabled item once |
 | `OBJECT_UNKNOWN` | `uses` names an object no layer defines; the message lists the layers searched | write the object file, or fix the id |
 | `OBJECT_ITEM_UNKNOWN` | an inline or file object operates on an item its parent does not hold; the message lists the parent's items | fix the item id, or add it with `add: true`, `title`, `when`, `effect` and `impl` |
 | `OBJECT_CYCLE` | objects extend each other in a loop; the message prints the loop | break the chain |

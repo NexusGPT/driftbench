@@ -158,6 +158,7 @@ it('every registered action that resolves a target explains an absent example', 
     ],
     'campaign resume': ['baseline', '--store', join(dir, 'baseline.db')],
     smoke: [SPEC],
+    isolation: ['examples/acme/parents/checkout.yaml', '--target', 'function:acme-sales'],
     ci: [
       '--specs',
       SPEC,

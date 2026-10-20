@@ -31,6 +31,11 @@ The command only reads the store. It runs no agent and calls no model.
 * To score a rule over the whole campaign, such as "at least 80 percent of runs pass" (`--aggregate`).
 * To see a candidate against a baseline on one page (`--baseline`). For the exit code of that
   comparison use `driftbench compare` or `driftbench ci`: `report` exits 0 whatever the verdict.
+* To quote how well an agent does on a suite: the suite headline line, one per mode, with its interval,
+  `n_eff` and the drop the suite can detect.
+
+Do not use the suite headline to decide whether a candidate is worse than a baseline: that takes the
+paired tests of `--baseline`, `compare` or `ci`.
 
 ## Commands and every option
 
@@ -81,22 +86,39 @@ Standard output, without `--json`:
 
 * `Margin auto: ...` when the margin is `auto`: the margin used and what set it, with a warning when it
   is above 15 points.
-* `Campaign <id>: <runs> runs, <n> pass, <n> fail, <n> did not complete.`
+* `Campaign <id>: <runs> runs, <n> pass, <n> fail, [<n> not run, ][<n> blocked, ]<n> did not complete.` A run
+  with a block not run or blocked, and no failure, is neither a pass nor a fail. Every rate leaves it out,
+  and the suite headline prints its share after the rate, such as `50.0% not run`.
+* One suite headline per mode the campaign ran: `Suite pass rate, mode <m>: <rate> [<lower>, <upper>]
+  (hierarchical 95% interval); <n> goldens, n_eff <x> runs (design effect <d>), detectable drop <p> points
+  at 80% power.` The rate is the mean over goldens, so every golden weighs the same whatever its repeats.
+  `n_eff` is the independent runs the clustered runs are worth. `no drop detectable at 80% power` means the
+  suite is too small to catch even a fall to 0%. When every run agrees the line reads `(every run agrees, so
+  each golden counts once)` in place of the design effect. With one golden it reads `no interval: one
+  cluster` and `(one golden)`. A share of runs that did not complete follows when above 0. Each part is
+  read in `results-statistics`.
 * Lines about carried results, when the campaign ran a blast radius (see `results-radius`).
 * `Against baseline <id>: <verdict>, margin <m> points.` with `--baseline`. The verdict is
   `non-inferior`, `regressed` or `unproven`, as `driftbench compare` decides it.
 * One `aggregate` line per criterion: `passes`, `fails` or `no runs`, the value against the threshold,
-  the Wilson 95% interval over the runs, and `decided` or `undecided: <n> runs at this rate would decide
-  it`.
+  the 95% interval of the rate, and `decided` or `undecided`. Over several goldens the interval is the Wilson
+  interval on the effective runs, printed with the goldens, the design effect and the effective runs, and an
+  undecided line says how many goldens like these (and how many runs) would decide it. With one golden it is
+  the plain Wilson interval over the runs.
 * `Wrote <files>.`
 
 The HTML file is described in `results-scorecard`: an overview, three zones (pass rate charts, tests,
 runs with a detail panel per run), and every detailed table folded under "All details". The JUnit file has one
 `<testsuite>` per spec and one `<testcase>` per run, named `<target> · <mode> · repeat <n>` (with the
-perturbation id in mode P); a failing run is a `<failure>`, a run that did not complete an `<error>`.
+perturbation id in mode P); a failing run is a `<failure>`, a run that did not complete an `<error>`, and a
+run with a block not run or blocked, and no failure, a `<skipped>` whose message is its first reason. The
+`skipped` attribute of each `<testsuite>` counts those runs.
 
 With `--json` the standard output is the scorecard object itself (the `compare` part with its maps
-written as plain objects); see `results-exports`.
+written as plain objects); see `results-exports`. The suite headline of each mode is `modes[].headline`,
+with `estimate`, `lower`, `upper`, `method`, `trees`, `runs`, `pooledRate`, `effectiveRuns`,
+`designEffect`, `degenerate`, `detectableDrop` and `shares`. Rates are proportions from 0 to 1. A rate
+with the method `wilson, design effect` also carries `designEffect` and `effectiveN`.
 
 ## Worked example
 
@@ -135,7 +157,7 @@ Suite pass rate, mode T: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 gol
 Suite pass rate, mode F: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 2.40), no drop detectable at 80% power.
 Suite pass rate, mode P: 36.4% [14.7%, 64.0%] (hierarchical 95% interval); 11 goldens, n_eff 10.0 runs (design effect 2.20), no drop detectable at 80% power.
 Against baseline c-base: regressed, margin 14.5 points.
-aggregate pass-rate >= 0.8: fails (0.43478260869565216 >= 0.8, Wilson 95% interval 0.302 to 0.578 over 46 runs, decided)
+aggregate pass-rate >= 0.8: fails (0.43478260869565216 >= 0.8, Wilson 95% interval on the effective runs 0.245 to 0.646 over 46 runs in 23 goldens (design effect 2.09, 22.0 effective runs), decided)
 Wrote x3.html.
 ```
 
@@ -151,6 +173,43 @@ Suite pass rate, mode P: 100.0% [78.5%, 100.0%] (hierarchical 95% interval); 11 
 Wrote c-base.html.
 ```
 
+
+### A campaign with a run not run
+
+The tool failure spec forces two tool results. The Acme ops agent runs through the `process` adapter, which
+cannot apply them, so that run is not run. The price sheet spec runs on its own target and passes. No model
+is called.
+
+```sh setup
+mkdir mixed
+cp examples/acme/specs/conversations/tool-failure.yaml examples/acme/specs/tasks/price-sheet.yaml mixed
+```
+
+```sh
+driftbench campaign run mixed --target process:acme-ops --store not-run.db --campaign c-not-run # exit 3
+driftbench report c-not-run --store not-run.db --out not-run.html --junit not-run.xml
+```
+
+```text
+$ driftbench report c-not-run --store not-run.db --out not-run.html --junit not-run.xml
+...
+Campaign c-not-run: 2 runs, 1 pass, 0 fail, 1 not run, 0 did not complete.
+Suite pass rate, mode F: 100.0% no interval: one cluster (one golden); 1 golden, 50.0% not run.
+Wrote not-run.html and not-run.xml.
+```
+
+The pass rate counts the one scored run. The JUnit file skips the other:
+
+```text
+  <testsuite name="acme-tool-failure" tests="1" failures="0" errors="0" skipped="1" time="0.000" timestamp="...">
+    <testcase classname="acme-tool-failure" name="process:acme-ops · F · repeat 0" time="0.000">
+      <skipped message="block 0 not run: capability: process declares toolStubs false: the agent would never see it"/>
+    </testcase>
+  </testsuite>
+```
+
+`report` exits 0: it writes, it never gates. `driftbench ci` fails on blocks not run (topic results-ci).
+
 ## Common errors
 
 | Message | Cause and fix |
@@ -164,3 +223,5 @@ Wrote c-base.html.
 | `Unknown mode "X"` (exit 2) | the modes are `T`, `F` and `P` |
 | an aggregate line reads `fails` but the exit code is 0 | expected: `report` never gates. Use `driftbench ci --aggregate` for a failing exit code |
 | the Runs zone lists fewer runs than the campaign has | `--max-runs` (default 200) caps it; the page says how many runs it left out |
+| a `Suite pass rate` line reads `no interval: one cluster` | the mode ran one golden; add specs to get an interval |
+| the `Suite pass rate` differs from the `aggregate pass-rate` value | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens |

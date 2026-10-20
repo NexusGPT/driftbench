@@ -399,6 +399,9 @@ export const BlockResult = z
     rejudged: RejudgedFrom.optional(),
     index: z.number().int().min(0),
     blockId: z.string().optional(),
+    parent: z.string().optional(),
+    /** Authored index when parent scheduling changes execution order. */
+    specIndex: z.number().int().min(0).optional(),
     injected: z.boolean().optional(),
     /**
      * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
@@ -542,6 +545,8 @@ export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
+  /** The spec hash without the version label, the one the run id was made from. Absent in a run stored before it. */
+  identityHash: z.string().min(1).optional(),
   target: TargetRef,
   mode: RunMode,
   repeat: z.number().int().min(0),

@@ -155,10 +155,14 @@ describe('driftbench generate', () => {
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    // The spec files of specs/; the workbook seed folders (`.seed-<id>/`) sit beside them.
-    expect(
-      Object.keys(before).filter((path) => path.startsWith('specs/') && !path.includes('/.seed-')),
-    ).toHaveLength(335);
+    // The spec files of specs/; the workbook seed folders (`.seed-<id>/`) sit beside them, and the openings
+    // the specs share are written once under specs/stems/, mapped in stems-map.csv.
+    const specFiles = Object.keys(before).filter(
+      (path) => path.startsWith('specs/') && !path.includes('/.seed-'),
+    );
+    expect(specFiles.filter((path) => !path.startsWith('specs/stems/'))).toHaveLength(437);
+    expect(specFiles.filter((path) => path.startsWith('specs/stems/'))).toHaveLength(101);
+    expect(Object.keys(before)).toContain('stems-map.csv');
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],

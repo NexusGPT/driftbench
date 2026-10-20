@@ -24,6 +24,14 @@ export {
   ToolPart,
 } from './change';
 export {
+  type CharCitation,
+  citationSpan,
+  codePointToUtf16,
+  sectionDocument,
+  sectionOfCitation,
+  utf16ToCodePoint,
+} from './citations';
+export {
   type BlockDependencies,
   blockCell,
   blockDependencies,
@@ -37,6 +45,24 @@ export {
   WORDING_FIELDS,
   type WordingField,
 } from './depends';
+export {
+  blockLinks,
+  checkSpecLinks,
+  linkHolds,
+  registriesByPrompt,
+  sectionLinkStatus,
+  specLinks,
+} from './links';
+export {
+  type Localization,
+  type LocalizeCampaign,
+  type LocalizeRow,
+  type LocalizeRun,
+  localizeRows,
+  localizeRuns,
+  ochiaiLocalize,
+  type SectionSuspicion,
+} from './localize';
 export { type PromptAnchor, promptChangeManifest } from './prompt';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
@@ -58,7 +84,40 @@ export {
   observationCompatibilityHash,
   type PreparedRejudge,
   prepareRejudge,
+  prepareRescore,
   type RejudgeOptions,
+  type RescoreOptions,
+  refuseAgentFacing,
   rejudgeRun,
+  rescoreRun,
 } from './rejudge';
+export {
+  checkSectionRegistry,
+  loadSectionRegistry,
+  PromptSection,
+  parseSectionRegistry,
+  type ReanchoredSection,
+  type Reanchoring,
+  type ReanchorMethod,
+  type RegistryResult,
+  reanchorRegistry,
+  SECTION_KINDS,
+  SECTION_NORMALISATION,
+  SectionRegistry,
+  sectionEntry,
+  sectionsFromHeadings,
+  sha256Hex,
+} from './sections';
+export {
+  defaultParentOf,
+  type ParentRef,
+  SECTION_SELECTION_ADVISORY,
+  type SectionBlockState,
+  type SectionSelection,
+  type SectionSelectionBlock,
+  type SectionSelectionSpec,
+  sectionChangeManifest,
+  sectionChanges,
+  sectionSelection,
+} from './select';
 export { agentVersionOf, withAgentVersion } from './version';

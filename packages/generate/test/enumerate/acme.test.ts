@@ -10,6 +10,7 @@ import {
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type GenerateResult, generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
+import { worldCarried } from '../../src/seed/data-carrier';
 import type { PreparedMap } from '../../src/seed/map';
 import { buildTaskInputs } from '../../src/seed/tasks';
 import { ACME, ACME_MAP, ACME_PROPOSAL, userTexts } from './support';
@@ -48,6 +49,8 @@ describe('generate on the approved Acme map', () => {
     // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
       t: 2,
+      // As `driftbench generate` writes it: shared openings once, as stems.
+      stems: true,
       mapPath: '../map/approved.yaml',
       baseline: { label: 'examples/acme/specs', specs: handWritten },
       tasks: tasks.inputs,
@@ -138,7 +141,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 335, incomplete: 75 });
+    expect(result.report.summary).toMatchObject({ complete: 437, incomplete: 75 });
   });
 
   it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
@@ -163,15 +166,37 @@ describe('generate on the approved Acme map', () => {
       return new RegExp(`^${parts.join('(.+)')}$`);
     });
     // A task spec's instruction comes from its family's approved phrases, checked by the family.
+    const filled = (text: string) =>
+      templates
+        .map((template) => template.exec(text))
+        .some((found) => found?.slice(1).every((value) => bound.has(value)) === true);
+    let supplied = 0;
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
-      for (const text of userTexts(spec)) {
-        // Some approved phrase matches, every slot it holds filled with a value the map binds.
-        const filled = templates
-          .map((template) => template.exec(text))
-          .some((found) => found?.slice(1).every((value) => bound.has(value)) === true);
-        expect(filled, `${spec.id}: ${text}`).toBe(true);
+      const texts = userTexts(spec);
+      // Some approved phrase matches, every slot it holds filled with a value the map binds.
+      for (const text of texts.filter((entry) => entry !== ''))
+        expect(filled(text), `${spec.id}: ${text}`).toBe(true);
+      // A class carried in the world says nothing in its turn: its approved text is a supplied file.
+      const silent = [
+        ...spec.blocks
+          .filter(
+            (block) =>
+              'injection' in block.when &&
+              worldCarried(block.when.injection.class) &&
+              block.when.injection.user === '',
+          )
+          .map((block) => block.given?.world),
+        ...(spec.perturbations ?? [])
+          .filter((entry) => worldCarried(entry.class) && entry.user === '')
+          .map((entry) => entry.world),
+      ];
+      expect(texts.filter((entry) => entry === '')).toHaveLength(silent.length);
+      for (const world of silent) {
+        supplied += 1;
+        expect(Object.values(world?.workspace?.files ?? {}).some(filled), spec.id).toBe(true);
       }
     }
+    expect(supplied).toBeGreaterThan(0);
   });
 
   it('gives each metamorphic family one cell and one Then: only the phrasing differs', () => {
@@ -249,7 +274,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(335);
+    expect(result.complete).toHaveLength(437);
     // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
@@ -317,8 +342,8 @@ describe('generate on the approved Acme map', () => {
 
   it('builds a scenario for each allowed pair the other seeders leave uncovered, and names why the rest cannot be', () => {
     const cover = result.report.cover;
-    expect(cover.cells).toBe(25);
-    expect(cover.covered).toBe(25);
+    expect(cover.cells).toBe(8);
+    expect(cover.covered).toBe(8);
     expect(cover.unbuilt).toEqual([]);
     // Approved policy guards now distinguish opening recoveries from idle replies.
     expect(result.report.coverage.complete.covered).toBe(708);

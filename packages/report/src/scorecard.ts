@@ -18,6 +18,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
+import { type ParentCause, parentCauses } from './causes';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -26,13 +27,14 @@ import {
   carriedSummary,
   deviationOf,
   groupBy,
+  lineKey,
   measuredRecovery,
   runPassed,
   showTarget,
   specOfRun,
   stimulusText,
 } from './data';
-import { clustered, type Estimate, type Rate, rate } from './estimate';
+import { clustered, clusterRate, type Estimate, type Rate, rate } from './estimate';
 import type { PilotReport } from './pilot';
 import {
   type ModeReliability,
@@ -73,6 +75,8 @@ export type ScorecardOptions = {
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
 export type BlockDetail = {
+  blockId?: string;
+  parent?: string;
   carried?: NonNullable<RunResult['blocks'][number]['carried']>;
   rejudged?: NonNullable<RunResult['blocks'][number]['rejudged']>;
   index: number;
@@ -113,6 +117,7 @@ export type BlockDetail = {
 };
 
 export type RunDetail = {
+  causes?: ParentCause[];
   runId: string;
   specId: string;
   title?: string;
@@ -134,6 +139,7 @@ export type RunDetail = {
   cacheHit: boolean;
   /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
   carried?: NonNullable<RunResult['carried']>;
+  rejudged?: NonNullable<RunResult['rejudged']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
@@ -227,6 +233,22 @@ export type Scorecard = {
   omittedRuns: number;
 };
 
+/**
+ * The share of compared runs whose end state matched. The runs of one golden are repeats, so over several
+ * goldens the interval is the one every pass rate over goldens gets (Wilson on the effective runs); one golden
+ * keeps the plain Wilson interval.
+ */
+function endStateRate(compared: readonly RunResult[]): Rate | undefined {
+  const matched = compared.filter((run) => run.endState?.match).length;
+  const grouped = clusterRate(
+    [...groupBy(compared, lineKey).values()].map((group) => ({
+      n: group.length,
+      k: group.filter((run) => run.endState?.match).length,
+    })),
+  );
+  return grouped ? { ...grouped, k: matched } : rate(matched, compared.length);
+}
+
 /** The runs whose outcome is this one, among those that completed; undefined when there is none. */
 function countWhenAny(runs: readonly RunResult[], outcome: 'not_run' | 'blocked'): number | undefined {
   const n = runs.filter((run) => run.status === 'completed' && runOutcome(run) === outcome).length;
@@ -245,7 +267,7 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
   const lines = reliability(data, options.incompletePolicy ?? 'interval');
   const runs = data.runs;
   const compared = runs.filter((run) => run.endState !== undefined);
-  const endState = rate(compared.filter((run) => run.endState?.match).length, compared.length);
+  const endState = endStateRate(compared);
   const perturbed = runs.filter((run) => run.mode === 'P');
   const recovery = recoveryOf(perturbed);
   const byClass = groupBy(
@@ -321,6 +343,14 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   return {
     runId: run.runId,
+    ...(run.blocks.some((block) => block.parent !== undefined)
+      ? {
+          causes: parentCauses(
+            run,
+            data.runs.filter((other) => lineKey(other) === lineKey(run)),
+          ),
+        }
+      : {}),
     specId: run.specId,
     ...optional('title', spec?.title),
     target: showTarget(run.target),
@@ -338,6 +368,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     cost: run.cost,
     cacheHit: run.cacheHit,
     ...optional('carried', run.carried),
+    ...optional('rejudged', run.rejudged),
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', measuredRecovery(run)),
@@ -364,6 +395,8 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
         index: result.index,
+        ...(result.specIndex === undefined ? {} : optional('blockId', result.blockId)),
+        ...optional('parent', result.parent),
         ...optional('carried', result.carried),
         ...optional('rejudged', result.rejudged),
         ...optional('specBlock', specBlock),

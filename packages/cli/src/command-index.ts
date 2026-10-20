@@ -13,6 +13,10 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['spec'], load: async () => (await import('./commands/spec')).registerSpecCommands },
   { names: ['campaign'], load: async () => (await import('./commands/campaign')).registerCampaignCommands },
   { names: ['smoke'], load: async () => (await import('./commands/smoke')).registerSmokeCommand },
+  {
+    names: ['isolation'],
+    load: async () => (await import('./commands/isolation')).registerIsolationCommand,
+  },
   { names: ['space'], load: async () => (await import('./commands/space')).registerSpaceCommands },
   { names: ['extract'], load: async () => (await import('./commands/extract')).registerExtractCommand },
   { names: ['generate'], load: async () => (await import('./commands/generate')).registerGenerateCommand },
@@ -46,6 +50,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
     names: ['import'],
     load: async () => (await import('./commands/import-traces')).registerTraceImportCommands,
   },
+  { names: ['object'], load: async () => (await import('./commands/object')).registerObjectCommand },
 ];
 
 /**
@@ -59,6 +64,10 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   [
     'smoke [options] <spec>',
     'Run one spec several times with the cache off and report whether the transcripts differ',
+  ],
+  [
+    'isolation [options] <spec>',
+    'Run each parent-linked child alone and report whether its verdict depends on its parent',
   ],
   ['space', 'The declared map of situations an agent can face, and the coverage counted on it.'],
   [
@@ -129,4 +138,8 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   ['import', 'Turn the rows of a CSV file or a spreadsheet into spec files, through a mapping file.'],
   ['dataset', 'Version spec sets in the store: push, list, diff and restore immutable versions.'],
   ['prompt', 'Version prompts in the store: push, list, diff and restore immutable versions.'],
+  [
+    'object',
+    'The objects of the rules framework: list, show, explain, diff, init, validate, graph, migrate, push.',
+  ],
 ];

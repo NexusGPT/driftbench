@@ -152,32 +152,52 @@ export {
   type BlockState,
   blockCell,
   blockDependencies,
+  blockLinks,
   type CarriedCell,
   type CarryLimits,
   CHANGE_KINDS,
   Change,
   type ChangeKind,
   ChangeManifest,
+  type CharCitation,
   campaignRadius,
   carriedRun,
   carryRuns,
   changeLabel,
+  checkSectionRegistry,
+  checkSpecLinks,
+  citationSpan,
+  codePointToUtf16,
   completeBaselineProvenance,
   DEFAULT_MAX_AGE_DAYS,
   DEFAULT_MAX_CARRY,
+  defaultParentOf,
   deviationOf,
   generatedMeta,
+  type Localization,
+  type LocalizeCampaign,
+  type LocalizeRow,
+  type LocalizeRun,
+  linkHolds,
   loadChangeManifest,
+  loadSectionRegistry,
+  localizeRows,
+  localizeRuns,
   OBSERVED_FIELDS,
   type ObservedField,
   observationCompatibilityHash,
+  ochiaiLocalize,
+  type ParentRef,
   type ParsedManifest,
   type PreparedRejudge,
   type PromptAnchor,
+  PromptSection,
   parseChangeManifest,
+  parseSectionRegistry,
   planBlockRerun,
   planRadiusCampaign,
   prepareRejudge,
+  prepareRescore,
   promptChangeManifest,
   type RadiusBlock,
   type RadiusCell,
@@ -187,14 +207,43 @@ export {
   type RadiusReport,
   type RadiusSpec,
   type RadiusSpecReport,
+  type ReanchoredSection,
+  type Reanchoring,
+  type ReanchorMethod,
+  type RegistryResult,
   type RejudgeOptions,
+  type RescoreOptions,
   radiusOf,
+  reanchorRegistry,
+  refuseAgentFacing,
+  registriesByPrompt,
   rejudgeRun,
+  rescoreRun,
+  SECTION_KINDS,
+  SECTION_NORMALISATION,
+  SECTION_SELECTION_ADVISORY,
+  type SectionBlockState,
+  SectionRegistry,
+  type SectionSelection,
+  type SectionSelectionBlock,
+  type SectionSelectionSpec,
+  type SectionSuspicion,
   sameCarryContext,
+  sectionChangeManifest,
+  sectionChanges,
+  sectionDocument,
+  sectionEntry,
+  sectionLinkStatus,
+  sectionOfCitation,
+  sectionSelection,
+  sectionsFromHeadings,
+  sha256Hex,
+  specLinks,
   type ThenField,
   type ToolDependency,
   ToolPart,
   thenFields,
+  utf16ToCodePoint,
   WORDING_FIELDS,
   type WordingField,
   withAgentVersion,
@@ -254,8 +303,10 @@ export {
   type EndStateMatch,
   endStateCacheKey,
   enterBlock,
+  eventLogSink,
   flowVerdicts,
   type GivenLayers,
+  heldRun,
   type IntervalEstimate,
   type IntervalFn,
   initialGiven,
@@ -286,6 +337,7 @@ export {
   type RunningGiven,
   type RunOptions,
   type RunOutcome,
+  readEventLog,
   readStage,
   recoveryOf,
   replacesBlock,
@@ -315,6 +367,7 @@ export {
   wrapEndState,
 } from './runner';
 export { rescoreCarriedRun } from './runner/carried-scoring';
+export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
@@ -335,6 +388,15 @@ export {
 } from './schema/common';
 export { CampaignConfig, CampaignRetryConfig } from './schema/config';
 export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
+export {
+  BlockLink,
+  BlockLinks,
+  LINK_RELATIONS,
+  LINK_STATUSES,
+  LinkRelation,
+  LinkStatus,
+  LinkTarget,
+} from './schema/links';
 export {
   AppliesTo,
   Envelope,
@@ -410,6 +472,7 @@ export {
   RetentionExpect,
   Rules,
   SafetyExpect,
+  SharedFact,
   SimilarityExpect,
   SkillExpect,
   SPEC_SCHEMA_VERSION,
@@ -424,8 +487,9 @@ export * as script from './script';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
+export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity, specIdentityHash } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
-export { lintSpec } from './spec/lint';
+export { givenIssues, lintSpec } from './spec/lint';
 export {
   checkSpec,
   findSpecFiles,
@@ -440,6 +504,20 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export {
+  resolveSpecParents,
+  type SpecParentRecord,
+  type SpecParentRef,
+  specParentRecord,
+  specParentRef,
+  stemOf,
+} from './spec/spec-parents';
+export {
+  type GivenFinding,
+  type VerifyGivenOptions,
+  valueInText,
+  verifyGiven,
+} from './spec/verify-given';
 export { type DenseEmbedderOptions, denseEmbedder, localEmbedder } from './text/embedder';
 export {
   charGrams,

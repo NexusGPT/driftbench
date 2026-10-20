@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), prints the blocks a change to the agent can affect (`radius`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), prints the blocks a change to the agent can affect (`radius`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), lists, explains, extends and validates the rule sets it applies (`object`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
 
 ## Running it
 
@@ -59,7 +59,7 @@ $ pnpm -s driftbench spec validate _captures/docs3/cli/broken/semantic.yaml
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, is part of the runner's cache key and of every run id; `version` is a free label. See [running](../running.md#the-cache-and-replay).
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash is the spec's identity in the store and in a holdout seal, so a changed `version` changes it. A run id, a cell id and the runner's cache key are made from a second hash, the identity hash: the same canonical JSON without the `version` label (and without `metadata.links` and `metadata.provenance`, as the first hash). `version` is a free label, so relabelling a spec keeps its cells, its run ids and its cached blocks; a spec with no `version` has the one hash for both. A run records both: `specHash` and `identityHash`. A run stored before `identityHash` existed reads its id from `specHash`. See [running](../running.md#the-cache-and-replay).
 
 | Option | Effect |
 |---|---|
@@ -74,10 +74,10 @@ The hash is the first 12 hex characters of the SHA-256 of the spec's canonical J
 ## `driftbench spec lint`
 
 ```
-driftbench spec lint <paths...> [--json] [--strict]
+driftbench spec lint <paths...> [--json] [--strict] [--summaries] [--sections <registries...>]
 ```
 
-Validates every spec like `spec validate`, then prints the warnings of the valid ones.
+Validates every spec like `spec validate`, then prints the warnings of the valid ones. `--sections` also checks every `prompt_section` link against the section registry of its prompt (see [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links)).
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/cli/specs
@@ -90,6 +90,9 @@ Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 |---|---|
 | `--json` | print one JSON document |
 | `--strict` | treat warnings as failures |
+| `--summaries` | also warn when a workspace folder or a named session state has no summary (`GIVEN_SUMMARY_MISSING`) |
+
+The warnings include the findings of the Given verifier (`GIVEN_UNMET`, `GIVEN_CHAIN`): see [running](../running.md#outcomes) for what a Given error does at run time.
 
 | Exit code | When |
 |---|---|
@@ -229,13 +232,19 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
 | `BLOCK_STIMULUS_AMBIGUOUS` | error | a block has more than one of `user`, `burst` and `when` |
-| `REGEX_INVALID` | error | a pattern in `must`, `must_not` or a `regex` assertion does not compile |
+| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, the `regex` list or a `regex` assertion (in a tool input, an end state or a `json` path) does not compile |
 | `CRITERION_REF_INVALID` | error | a criterion reference is not a name, optionally followed by `@gating` |
 | `CRITERION_UNDEFINED` | error | the spec defines `criteria`, and a block names one that is not there |
 | `CRITERION_DUPLICATE` | error | two criteria share a name |
 | `PERTURBATION_OUT_OF_RANGE` | error | `inject_at` is past the last position |
 | `PERTURBATION_EMPTY` | error | a perturbation has none of `user`, `burst` and `world` |
 | `DUPLICATE_BLOCK_ID` | error | two blocks share an id |
+| `PARENT_MISSING` | error | a block's `parent` names no block id in the spec |
+| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included; the message prints the cycle, such as `a -> b -> a` |
+| `PARENT_SPEC_MISMATCH` | error | block 0 names a block of another spec whose kind, channel, lang, target or Given defaults differ, whose criteria of the same name differ, or that has parent links of its own |
+| `PARENT_SPEC_POSITION` | error | a block of another spec is named as the parent of a block other than block 0, or beside parent links of the spec's own |
+| `PARENT_WITH_PREFIX` | error | block 0 names a block of another spec and also writes `given.prefix` |
+| `WORKSPACE_PATH_TWICE` | error | a workspace path is in both `files` and `binary` |
 | `DUPLICATE_PERTURBATION_ID` | error | two perturbations share an id |
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |
 | `RECOMPUTE_GOLD_UNCOMPUTABLE` | error | the gold formula of an expected tool's `recompute` argument gives no finite number on its inputs: a syntax error, an unknown function or input, a division by zero |
@@ -257,12 +266,19 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `OBJECT_ORDER_INVALID` | error | an `order` leaves out an enabled item or lists one twice, or a file sets `order` and moves an item |
 | `OBJECT_IMPL_UNKNOWN` | error | an enabled item names an implementation no builtin or plugin provides |
 | `OBJECT_PARAMS_INVALID` | error | an item's params do not fit its implementation's schema; the message names the path |
+| `LINK_BLOCK_UNKNOWN` | error | a link in `metadata.links` names a block id the spec does not have, or an index past its last block |
+| `LINK_TARGET_UNKNOWN` | error or warning | `spec lint --sections` only: error when the registry of the prompt has no such section, warning when no registry was given for the prompt |
+| `LINK_STALE` | warning | `spec lint --sections` only: the link's status is `stale`, or its section was not found again in the registry's version |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code, such as `SCHEMA_UNRECOGNIZED_KEYS`, `SCHEMA_INVALID_TYPE`, `SCHEMA_INVALID_VALUE` or `SCHEMA_TOO_SMALL` |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
 | `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact in its text that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again |
+| `GIVEN_UNMET` | warning | the Given verifier found a Given error on a block (`tool_history_paired`, `tool_known`, `history_matches_world` or `value_in_message`, named first in the message). The runner does not send that block: it is `not_run` with kind `given_unmet` |
+| `GIVEN_CHAIN` | warning | a block's `ledger_add` contradicts the ledger it starts from (check `chain`) |
+| `GIVEN_SUMMARY_MISSING` | warning | with `--summaries` only: a workspace folder (`world.workspace.from`) or a named session state (`vars.session_state`) has no summary (check `summary_present`) |
+| `GIVEN_CANONICAL_UNPAIRED` | warning | a prefix whose `origin` is `canonical` holds a tool call with no output or error. Advice only: the block runs |
 
 ## Global options
 
@@ -340,6 +356,36 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
 | 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
+
+## `driftbench isolation`
+
+```
+driftbench isolation <spec> [--target <adapter[:agent]>] [--mode T|F] [--json]
+```
+
+The parent isolation check. It runs a spec with `parent` links once as written, then runs each child that names a parent once more alone: from its own Given and the spec's defaults, with no parent and no perturbation. Per edge it compares the child's two statuses. A changed verdict sets `manifest: true`: the child depends on its parent. The same verdict sets `manifest: false`: the child could be a spec of its own. An edge whose linked child was blocked or not run, or whose isolated child was not run, has no `manifest` and a `reason`. A child that alone is no valid spec, such as one that retains a fact only its parent adds, is `isolated: spec_error` with the issue code in `reason`, and `manifest: true` when its linked run was scored. A child with no id is named by its position, `blocks.<index>`. The check costs one run per edge, so run it when an edge is added or a parent changes. The isolated runs are not stored. Two limits: each side runs once, so on a target that does not give the same answer twice a changed verdict can be noise (run it on a deterministic target, or twice); and the edge is to the direct parent, so a child that reads state a grandparent set, through a parent that ignores it, marks its own edge `manifest: true` and the parent's edge `manifest: false`. See [parent blocks](../concepts/given-when-then.md#parent-blocks).
+
+| Option | Effect |
+|---|---|
+| `<spec>` | one spec file with at least one `parent` link |
+| `--target <adapter[:agent]>` | the target to run on; without it, the spec's own target |
+| `--mode T\|F` | the mode of both runs; default T |
+| `--json` | print one JSON document: the spec id, the target, the mode, the linked run's status and the edges (`child`, `parent`, `linked`, `isolated`, `manifest`, `reason`) |
+
+On the parent spec of the `authoring-parent-blocks` help topic, on the fictional Acme sales agent:
+
+```
+Isolation: acme-help-parent-pass on function:acme-sales, mode T, 2 edges.
+  offer-web <- identify: linked pass, alone fail: depends on its parent
+  offer-phone <- identify: linked pass, alone fail: depends on its parent
+2 depend on their parent, 0 could stand alone, 0 without a verdict.
+```
+
+| Exit code | When |
+|---|---|
+| 0 | every edge has a verdict |
+| 1 | an edge has no verdict to compare |
+| 2 | bad input: not one valid spec, a spec with no `parent` link, an unknown mode or target |
 
 ## Judge flags
 
@@ -544,7 +590,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--no-stems] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -563,6 +609,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
+| `--no-stems` | write every complete spec whole; by default the openings two or more complete specs share are written once under `specs/stems/`, each spec starts from its stem with `parent: <stem id>#<block id>`, and `stems-map.csv` maps every block as generated to its new spec and block. See [stems](../generating.md#stems-shared-openings-written-once) |
 | `--json` | print the report as JSON |
 | `--model` | also ask the model port for specs, gated before they count; needs `--reference` and `--faults` |
 | `--proposals <n>` | with `--model`: how many specs to ask for; default 3 |
@@ -1034,7 +1081,7 @@ Review: signed by owner on 2026-10-13.
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -1070,6 +1117,11 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--out` | `scan`: where to write the map (YAML); `plan`: where to write the plan (YAML); `generate`: the folder for the specs and the report; required. `diff`, `impact`: also write the result as JSON |
 | `--runtime <name>` | `scan`: the runtime that reads the estate; default `claude-code` |
 | `--replay <file>` | `scan`: replay recorded answers instead of calling a model |
+| `--pointer` | `scan`: read the prose with the pointer reader: units cut by structure, labelers of two classes point at them, code copies the quotes. Needs `--cassette`; see the topic `validate-estate-scan` |
+| `--cassette <file>`, `--record` | `scan --pointer`: the recorded labeler answers, and record the answers a miss needs |
+| `--labeler <class>:<client>[:<model>]` | `scan --pointer`: a labeler of class `system1` or `system2`; repeat it for one of each, the default stack |
+| `--labeler-threshold <p>`, `--labeler-pass-at <p>`, `--labeler-fail-at <p>`, `--labeler-margin-cut <m>`, `--labeler-key <variable>` | `scan --pointer`: the probability at which a yes or no system 1 labeler takes a label; in a stack, the margin between the two likeliest labels at which system 1 decides alone (default 0.65), or, when either probability bound is given, the two probabilities at which it decides alone; the variable that holds the bearer token of an `http` labeler |
+| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids and its check |
 | `--no-model` | `scan`: read the structured atoms only; no prose atom |
 | `--provider <name>` | `scan`: `anthropic` or `openai`; default the first whose key is set |
 | `--ceiling <characters>` | `scan`, `lint`: the size ceiling of the standing instructions; default 40000 |
@@ -1401,7 +1453,7 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
-On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1460,7 +1512,7 @@ Runs the specs on a candidate target, then compares the new campaign with a base
 | `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
 | `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
 | none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
-| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0. Not-run units are left out of the comparison and listed |
+| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0, and compare finds no regression. Not-run units are left out of the comparison and listed. A regression wins over it, exit 1, so the verdict never depends on an unrelated spec not run; a golden that flipped while compare calls the change noise is no regression |
 
 Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 
@@ -1650,6 +1702,40 @@ driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json
 | 1 | `push`: an invalid spec. `diff`: they differ. `restore`: a file differs and `--force` was not given |
 | 2 | bad input: an unknown name or version, a path that cannot be read, a store that cannot be opened |
 
+## `driftbench object`
+
+```
+driftbench object list [kind] [--json]
+driftbench object show <kind>/<id> [--json]
+driftbench object explain <kind> --at <spec>[#<block>] [--use <kind>/<id>]... [--set <kind>[/<id>]#<item>.<param>=<value>]... [--json]
+driftbench object diff <a> <b> [--json]
+driftbench object init <kind> <id> --from <parent> [--out <file>]
+driftbench object validate [paths...] [--json]
+driftbench object graph <spec> [--json]
+driftbench object migrate persona <files...> [--out <folder>]
+driftbench object push <kind> <path> --name <name> --store <file> [--note <text>] [--json]
+```
+
+An object is one rule set driftbench applies, written as data: a kind, an id and addressable items. A project extends a shipped object in `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml`, or in its `objects:` key; a spec or a block names the objects it uses under `uses`. The fields are on the [objects](objects.md) page; `driftbench help core-objects` has the layers, the override grammar and a worked example.
+
+| Command | Does |
+|---|---|
+| `list` | every object the working folder sees: kind, id, layer, hash, file |
+| `show` | one resolved object, each item with the layer, file and line that set it |
+| `explain` | the object one block uses for a kind (`#<block>` is a block id, or `blocks.<n>` for the block at place n from 0), each item with the layer that set it; `--use` and `--set` add the command-line layer |
+| `diff` | the items two objects of one kind add, remove or change; each side is `<kind>/<id>` or an object file |
+| `init` | writes a project object that extends `--from` and changes nothing, every parent item listed as a comment |
+| `validate` | checks object files, or every object the working folder sees: schema, references, items, order, implementations, params |
+| `graph` | each block of a spec, the objects it uses, where each reference was set and its parents |
+| `migrate persona` | splits old persona files into `driftbench/persona/<id>.yaml`, `driftbench/scenario/<id>.yaml` and `situational/<id>.yaml`, which `simulate --persona` plays the same way |
+| `push` | stores object files as a registry version of kind `object.<kind>`, with `/` written as `.` |
+
+| Exit code | When |
+|---|---|
+| 0 | done; `validate`: every object valid; `diff`: no difference |
+| 1 | `validate`, `list`: an object is refused. `diff`: they differ. `push`: an invalid file, nothing pushed. `explain`, `graph`: an object the spec names does not resolve |
+| 2 | bad input: an unknown kind or object, a block the spec does not hold, an existing file or id for `init`, a path that cannot be read, a store that cannot be opened |
+
 ## Not built yet
 
 Every command `driftbench --help` lists is built. These do not exist as commands yet:
@@ -1674,7 +1760,36 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 ### Prompt change manifests
 
-`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved proposal evidence quotes or estate atom provenance. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. Estate whitespace-only edits use the unit ledger’s NFC and collapsed-whitespace identity. Their empty manifests include file, hash and version evidence; `radius` and `campaign run` revalidate it before selecting zero tests across different version labels. An unvalidated empty transition still selects everything. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+
+* `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
+* `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.
+* `radius sections reanchor` exits 0 when every section was found again in order and no text changed outside the sections, 1 otherwise (a stale section, text outside every section, or sections that changed order), and 2 when the registry is invalid, `--prompt` does not name exactly two files, or the registry does not describe the old prompt (its `text_sha256` differs from the old text). The statuses `kept`, `moved` and `stale` are in [re-anchoring a registry](../concepts/blast-radius.md#re-anchoring-a-registry).
+
+Example of a registry written by `radius sections init`, for a prompt with a preamble and the sections Tone, Refunds and Escalation:
+
+```text
+prompt_id: support
+version: v1
+normalisation: NFC; CRLF/CR->LF; offsets in UTF-16 code units; end exclusive
+text_sha256: 5a168ea21558287f0480ec217b789ad7925ff056bbf91a01bd3723d45ab8c344
+sections:
+  - id: preamble
+    title: preamble
+    scope: global
+    span: { start: 0, end: 45 }
+    sha256: db68cd6020275ff4d59ed333e3611bdcc32d044b8732e9f1f84badacd80d3675
+    anchor: { quote: "You are the support agen", prefix: "", suffix: "t of Harbour Freight.\n\n## Tone\nA" }
+  - id: tone
+    title: Tone
+    scope: global
+    span: { start: 47, end: 97 }
+    # sha256 and anchor as above
+```
+
+See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
 
 ### `campaign rejudge`
 
@@ -1685,3 +1800,9 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 Re-judge selected criteria using compatible stored observations, without calling an agent.
 The manifest's agent versions must be identical. Full compatibility requirements, refusal
 cases and an executed Acme example are in [blast radius](../concepts/blast-radius.md#re-judge-a-criterion).
+
+```sh
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> (--use <kind/id> | --set <kind[/id]#item.param=value>)... [--max-carry <n>] [--max-age <days>] [--json]
+```
+
+Re-score every stored observation under changed scoring-only objects (a check set, a policy), with no agent and no judge call. `--use` picks an object of a kind, `--set` sets one item parameter at the command-line layer; both repeat. An agent-facing kind (persona, scenario, persona-defaults, run-profile, deviation-class) is refused with exit 2: rerun the agent with `campaign run`. `--change` and `--use`/`--set` are not taken together. `--json` prints `campaign`, `from`, `agentCalls` (always 0), `rescored`, `use` and `set`.

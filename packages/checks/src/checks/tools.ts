@@ -176,7 +176,10 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
   const verdicts: Verdict[] = [];
   let argumentsExpected = 0;
   const missed: string[] = [];
-  const sources = userTexts(ctx);
+  // What the user wrote is read only by a rung that compares a value with it, so it is collected when one asks
+  // and once for the block: a block whose values all match the gold never walks the history.
+  let collected: string[] | undefined;
+  const sources = () => (collected ??= userTexts(ctx));
 
   for (const [index, tool] of expected.entries()) {
     const key = keys[index] ?? tool.label;
@@ -244,13 +247,14 @@ export async function replayInputValues(
 ): Promise<{ call: number; leaves: LeafResult[] }[]> {
   const subject = inputSubject(ctx.expect, verdictId);
   if (subject === undefined) return [];
+  let collected: string[] | undefined;
   const values: ValueContext = {
     ctx,
     tool: subject.tool,
     field: subject.field,
     policy,
     services,
-    sources: userTexts(ctx),
+    sources: () => (collected ??= userTexts(ctx)),
   };
   const own = ctx.observed.toolCalls.filter((call) => call.label === subject.tool.label);
   const out: { call: number; leaves: LeafResult[] }[] = [];
@@ -293,7 +297,8 @@ type ValueContext = {
   field: string;
   policy: ValuePolicy;
   services: ValueServices;
-  sources: string[];
+  /** The user texts of the block, collected on the first call. */
+  sources: () => string[];
 };
 
 /** One call's answer for an argument: its outcome, a note for the evidence, and a lint on the test. */
@@ -593,7 +598,10 @@ function valueCase(
     ...(compare === undefined ? {} : { compare }),
     ...(definition === undefined ? {} : { definition }),
     ...(recompute === undefined ? {} : { recompute }),
-    sources: { user: values.sources },
+    // A getter: the texts are collected only if a rung reads them.
+    get sources() {
+      return { user: values.sources() };
+    },
     ...(store === undefined ? {} : { world: store }),
   };
 }

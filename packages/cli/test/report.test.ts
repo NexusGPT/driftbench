@@ -120,6 +120,27 @@ describe('driftbench report', () => {
     expect(bad.err).toContain('unknown aggregate nope');
   });
 
+  it('prints the aggregate interval on the effective runs, with the goldens behind it', async () => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/agg-goldens.html',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    const line = out.split('\n').find((entry) => entry.startsWith('aggregate pass-rate')) ?? '';
+    expect(line).toMatch(
+      /Wilson 95% interval on the effective runs \d\.\d{3} to \d\.\d{3} over \d+ runs in \d+ goldens/,
+    );
+    expect(line).toMatch(/design effect \d+\.\d+/);
+    expect(line).toMatch(/undecided: \d+ goldens like these \(\d+ runs\) would decide it|, decided\)/);
+  });
+
   it('scores the aggregates of the project config --config names', async () => {
     writeFileSync(join(dir, 'project.yaml'), 'aggregates:\n  - pass-rate:>=0.99\n');
     const { code, out, err } = await cli([
@@ -316,13 +337,15 @@ describe('driftbench report', () => {
 });
 
 describe('driftbench report on a campaign of generated specs with an incomplete run', () => {
-  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs/twise', import.meta.url));
+  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs', import.meta.url));
 
   beforeAll(async () => {
+    // Loaded with the folder, so a spec that starts from a stem is written back out whole.
+    const suite = await loadSpecs([GENERATED]);
     const specs: LoadedSpec[] = [];
-    for (const name of ['gen-twise-001.yaml', 'gen-twise-002.yaml', 'gen-twise-003.yaml']) {
-      const [loaded] = await loadSpecs([join(GENERATED, name)]);
-      if (!loaded?.ok) throw new Error(`invalid generated spec ${name}`);
+    for (const id of ['gen-twise-001', 'gen-twise-002', 'gen-twise-003']) {
+      const loaded = suite.find((entry) => entry.ok && entry.spec.id === id);
+      if (!loaded?.ok) throw new Error(`invalid generated spec ${id}`);
       specs.push(loaded);
     }
     const store = openStore(join(dir, 'generated.db'));

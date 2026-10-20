@@ -8,6 +8,7 @@ commands:
 see_also:
   - authoring-spec-format
   - authoring-prefixes
+  - authoring-parent-blocks
   - authoring-perturbations
   - authoring-deviation-classes
   - authoring-spec-check
@@ -18,7 +19,9 @@ next:
 
 ## What it is
 
-A block is the unit driftbench checks. It is one stimulus to the agent and everything the agent does before the next stimulus. A spec is a list of blocks, run in order.
+A block is the unit driftbench checks. It is one stimulus to the agent and everything the agent does before the next stimulus. A spec is a list of block objects. They run in authored order unless parent dependencies require another order.
+
+A block can name a `parent` to start from that block's recorded end state. Once any block does, roots and branches run separately. See authoring-parent-blocks.
 
 Each block has three parts:
 
@@ -53,6 +56,7 @@ This is a format topic. The commands that read blocks are `spec validate`, `spec
 | Key | Type | Required | Meaning |
 |---|---|---|---|
 | `id` | non-empty string | no | An id unique in the spec. Two equal ids: `DUPLICATE_BLOCK_ID`. |
+| `parent` | non-empty string | no | The id of a block in this spec whose recorded end state seeds this block. Missing ids and cycles are invalid. A parent that does not pass blocks its children. See authoring-parent-blocks. |
 | `user` | string | one of three | One user message, or one instruction to a task agent. Shorthand for `when: { user }`. |
 | `burst` | list of 2 or more strings | one of three | Messages that arrive together. Shorthand for `when: { burst }`. |
 | `when` | mapping with exactly one of `user`, `burst`, `injection` | one of three | The stimulus in long form. |
@@ -121,6 +125,7 @@ Code and files (mostly for `kind: task`):
 | `artifacts` | list of `{ path, kind?, checks? }` | Files the block must produce. `kind` is `xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text` or `code`. Each check is a one-key mapping, such as `{ sheets: [Mobile, Home] }`. |
 | `workspace` | `{ created?, changed?, deleted?, others_untouched? }` | The workspace diff. |
 | `safety` | `{ max_destructive_ops?, confirm_before? }` | The most destructive operations; operations that need a confirmation first, such as `delete`. |
+| `protected` | list of paths or globs | Files the agent must not change or delete, whoever wrote them, such as the tests and checkers it was given. No check reads it. When a gating verdict fails and the net workspace diff changes one, blame attributes the failure to the agent as an integrity fault (topic results-diagnostics). |
 
 Artifact checks by kind: `xlsx`: `sheets`, `header`, `rows`, `cells`, `formula`, `value`, `total`, `no_error_cells`, `contains`, `not_contains`, `regex`. `docx`: `headings`, `sections`, `tables`, `table`, `contains`, `not_contains`, `regex`. `pptx`: `slide_count`, `titles`, `slide`, `contains`, `not_contains`, `regex`. `pdf`: `page_count`, `contains`, `not_contains`, `regex`. `csv`: `header`, `rows`, `cells`, `value`, `total`, `contains`, `not_contains`, `regex`. `json`: `subset`, `value`, `contains`, `not_contains`, `regex`. `text`: `contains`, `not_contains`, `regex`, `lines`. `code`: `contains`, `not_contains`, `regex`, `lines`, `tests`.
 

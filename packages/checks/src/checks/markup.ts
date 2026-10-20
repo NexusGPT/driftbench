@@ -51,6 +51,9 @@ export function sqlStatements(text: string): string[] {
   return out;
 }
 
+/** The messages SQLite gives for a statement that does not parse: a bad token, a bad grammar, a cut-off statement. */
+const SQL_SYNTAX_ERROR = /syntax error|incomplete input|unrecognized token/i;
+
 /**
  * The first SQL syntax error, as SQLite reports it, or undefined. A statement that names a table or a column that
  * is not in a schema is valid syntax here: the check reads syntax only, with no database.
@@ -63,7 +66,7 @@ export function sqlProblem(text: string): string | undefined {
         db.prepare(statement);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
-        if (/syntax error/i.test(message)) return message;
+        if (SQL_SYNTAX_ERROR.test(message)) return message;
       }
     }
     return undefined;

@@ -72,12 +72,12 @@ export function effectiveNote(estimate: Estimate): string {
  * could detect, and the shares of runs that gave no verdict (only those above 0).
  */
 export function headlineNote(headline: SuiteHeadline): string {
-  const parts = [`${count(headline.trees, 'golden')}`];
+  const parts = [`${count(headline.trees, headline.unit ? 'parent tree' : 'golden')}`];
   if (headline.trees > 1) {
     parts.push(
       headline.degenerate
-        ? `n_eff ${fixed(headline.effectiveRuns, 1)} runs (every run agrees, so each golden counts once)`
-        : `n_eff ${fixed(headline.effectiveRuns, 1)} runs (design effect ${fixed(headline.designEffect, 2)})`,
+        ? `n_eff ${fixed(headline.effectiveRuns, 1)} ${headline.unit ? 'tree outcomes' : 'runs'} (every ${headline.unit ? 'tree outcome' : 'run'} agrees, so each ${headline.unit ? 'parent tree' : 'golden'} counts once)`
+        : `n_eff ${fixed(headline.effectiveRuns, 1)} ${headline.unit ? 'tree outcomes' : 'runs'} (design effect ${fixed(headline.designEffect, 2)})`,
     );
     parts.push(
       headline.detectableDrop === null
@@ -111,7 +111,9 @@ export function carriedLines(summary: CarriedSummary | undefined): string[] {
   if (!summary) return [];
   const runs = (n: number) => `${n} ${n === 1 ? 'run' : 'runs'}`;
   const lines = [
-    `Fresh and carried results are merged: ${runs(summary.fresh)} fresh, ${runs(summary.carried)} carried. Every rate over this campaign counts both.`,
+    summary.rescoredRuns
+      ? `Fresh and reused observations are merged: ${runs(summary.fresh)} fresh, ${runs(summary.rescoredRuns)} re-scored, ${runs(summary.carried - summary.rescoredRuns)} carried. Every rate over this campaign counts all three.`
+      : `Fresh and carried results are merged: ${runs(summary.fresh)} fresh, ${runs(summary.carried)} carried. Every rate over this campaign counts both.`,
   ];
   for (const source of summary.sources) {
     const other =
@@ -121,10 +123,20 @@ export function carriedLines(summary: CarriedSummary | undefined): string[] {
           ? `the same agent version, ${source.agentVersion}`
           : `another agent version, ${source.agentVersion}${summary.versions.length > 0 ? ` (this campaign runs ${summary.versions.join(', ')})` : ''}`;
     const campaigns = `${source.maxCampaigns} ${source.maxCampaigns === 1 ? 'campaign' : 'campaigns'}`;
-    lines.push(
-      `  ${runs(source.runs)} carried from ${source.campaign}, measured on ${other}; oldest: ${campaigns}, ${source.maxDays.toFixed(1)} days.`,
-    );
+    const carried = source.runs - (source.rescoredRuns ?? 0);
+    if (carried > 0)
+      lines.push(
+        `  ${runs(carried)} carried from ${source.campaign}, measured on ${other}; oldest: ${campaigns}, ${source.maxDays.toFixed(1)} days.`,
+      );
+    if (source.rescoredRuns)
+      lines.push(
+        `  ${runs(source.rescoredRuns)} re-scored; observations measured in ${source.campaign} on ${other}; oldest: ${campaigns}, ${source.maxDays.toFixed(1)} days.`,
+      );
   }
+  for (const source of summary.rescored ?? [])
+    lines.push(
+      `Re-scored; observations from ${source.campaign}. ${count(source.blocks, 'block')} re-scored.`,
+    );
   return lines;
 }
 

@@ -6,9 +6,18 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { completionComponents, componentSpec } from '../completion';
+import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
-import { type EstateRun, estateRun, scanRendered } from '../pipeline';
+import {
+  type EstateRun,
+  estateRun,
+  generationRun,
+  replayChecks,
+  replayOnFollower,
+  scanRendered,
+} from '../pipeline';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -197,7 +206,7 @@ export function genCompleteFamily(): Family {
     component: THEN,
     items,
     async evaluate(seed) {
-      const run = await estateRun(seed);
+      const run = await generationRun(seed);
       const all = await specVerdicts(run);
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const byClass = new Map<string, SpecVerdict[]>();
@@ -214,6 +223,62 @@ export function genCompleteFamily(): Family {
           const reason = verdictOf(verdict);
           return reason ? [`${verdict.spec.record.id}: ${reason}`] : [];
         });
+        if (bad.length === 0)
+          for (const verdict of list) {
+            if (!verdict.spec.loaded || !completionApplies(run, verdict.spec)) continue;
+            const inventory = completionComponents(completionContract(run, verdict.spec));
+            for (const component of inventory.components) {
+              const loaded = {
+                ...verdict.spec.loaded,
+                spec: componentSpec(verdict.spec.loaded.spec, component),
+              };
+              const control = await replayOnFollower(
+                run,
+                loaded,
+                replayChecks(),
+                undefined,
+                component.prepare,
+              );
+              const controlVerdicts =
+                control.run?.blocks[component.block]?.verdicts.filter((v) =>
+                  component.controlVerdicts.includes(v.id),
+                ) ?? [];
+              if (
+                control.run?.status !== 'completed' ||
+                controlVerdicts.length !== component.controlVerdicts.length ||
+                controlVerdicts.some((v) => v.outcome !== 'pass' || !v.gating)
+              ) {
+                bad.push(`${verdict.spec.record.id}: component control failed ${component.id}`);
+                break;
+              }
+              const result = await replayOnFollower(run, loaded, replayChecks(), undefined, (o) => {
+                component.prepare?.(o);
+                component.change(o);
+              });
+              const targeted =
+                result.run?.blocks[component.block]?.verdicts.filter((v) =>
+                  component.verdicts.includes(v.id),
+                ) ?? [];
+              const witnessed =
+                component.violationOutcome === 'absent'
+                  ? targeted.length === 0
+                  : targeted.length === component.verdicts.length &&
+                    targeted.every(
+                      (v) =>
+                        v.gating &&
+                        (component.violationOutcome
+                          ? v.outcome === component.violationOutcome
+                          : v.outcome === 'fail' || v.outcome === 'inconclusive'),
+                    );
+              if (result.run?.status !== 'completed' || !witnessed) {
+                bad.push(`${verdict.spec.record.id}: accepts component violation ${component.id}`);
+                break;
+              }
+            }
+            if (inventory.gaps.length > 0)
+              bad.push(`${verdict.spec.record.id}: component derivation gaps: ${inventory.gaps.join(', ')}`);
+          }
+
         out.set(`${family}.${keyOf(cls)}`, {
           pass: bad.length === 0,
           detail:
@@ -243,6 +308,25 @@ function asksOfSpec(verdict: SpecVerdict): string[] {
   return (verdict.spec.loaded?.spec.blocks ?? []).map((block) =>
     String((block.when as { user?: unknown } | undefined)?.user ?? ''),
   );
+}
+
+/** The most specs a failure detail lists by id and ask; the rest are counted. */
+const LISTED = 50;
+
+/** A failure detail that names each failing id, such as a plan row or a situation. */
+function listed(ids: string[], what: string): string {
+  const more = ids.length - LISTED;
+  return `${ids.length} ${what}: ${ids.slice(0, LISTED).join('; ')}${more > 0 ? `; and ${more} more` : ''}`;
+}
+
+/** A failure detail that names each failing spec: its id and its ask text, so a CI log names the cause. */
+function named(bad: SpecVerdict[], what: string): string {
+  const rows = bad.slice(0, LISTED).map((v) => {
+    const asks = asksOfSpec(v).filter(Boolean);
+    return asks.length === 0 ? v.spec.record.id : `${v.spec.record.id} ("${asks.join('" / "')}")`;
+  });
+  const more = bad.length - rows.length;
+  return `${bad.length} ${what}: ${rows.join('; ')}${more > 0 ? `; and ${more} more` : ''}`;
 }
 
 function routePositives(
@@ -306,7 +390,7 @@ const ASKS: AskCheck[] = [
           v.spec.record.testType === 'twin' &&
           phrase.get(estateMeta(v.spec).atoms?.[0] ?? '') === asksOfSpec(v)[0],
       );
-      return same.length === 0 ? undefined : `${same.length} twins repeat their obligation's ask`;
+      return same.length === 0 ? undefined : named(same, "twins repeat their obligation's ask");
     },
   },
   {
@@ -320,7 +404,7 @@ const ASKS: AskCheck[] = [
       const bad = all.filter(
         (v) => v.spec.record.testType === 'route_near_miss' && asksOfSpec(v).some((ask) => triggers.has(ask)),
       );
-      return bad.length === 0 ? undefined : `${bad.length} near misses ask a trigger phrase`;
+      return bad.length === 0 ? undefined : named(bad, 'near misses ask a trigger phrase');
     },
   },
   {
@@ -334,7 +418,7 @@ const ASKS: AskCheck[] = [
         const target = String(atoms.get(estateMeta(v.spec).atoms?.[0] ?? '')?.fields?.target ?? '');
         return asksOfSpec(v).some((ask) => ask.includes(target) || !/\b(skill|agent|helper)\b/.test(ask));
       });
-      return bad.length === 0 ? undefined : `${bad.length} misroutes name their own target or no primitive`;
+      return bad.length === 0 ? undefined : named(bad, 'misroutes name their own target or no primitive');
     },
   },
   {
@@ -348,7 +432,7 @@ const ASKS: AskCheck[] = [
       const bad = all.filter(
         (v) => v.spec.record.testType === 'stop_resume' && !resumes.has(asksOfSpec(v)[1] ?? ''),
       );
-      return bad.length === 0 ? undefined : `${bad.length} stop and resume specs lack a resume ask`;
+      return bad.length === 0 ? undefined : named(bad, 'stop and resume specs lack a resume ask');
     },
   },
   {
@@ -364,7 +448,7 @@ const ASKS: AskCheck[] = [
           (p) => (p as { class?: string }).class === deviation,
         );
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs drop the deviation of their cell`;
+      return bad.length === 0 ? undefined : named(bad, 'specs drop the deviation of their cell');
     },
   },
   {
@@ -392,7 +476,7 @@ const ASKS: AskCheck[] = [
           meta.mapHash !== run.scanned.map.hash
         );
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs miss a provenance field`;
+      return bad.length === 0 ? undefined : named(bad, 'specs miss a provenance field');
     },
   },
   {
@@ -474,7 +558,7 @@ const ASKS: AskCheck[] = [
           ?.replay;
         return replay !== undefined && !names.has(replay.session ?? '');
       });
-      return bad.length === 0 ? undefined : `${bad.length} replay specs name no session`;
+      return bad.length === 0 ? undefined : named(bad, 'replay specs name no session');
     },
   },
   {
@@ -494,7 +578,7 @@ const ASKS: AskCheck[] = [
               (b.expect?.artifacts?.length ?? 0) > 0,
           ),
       );
-      return bad.length === 0 ? undefined : `${bad.length} complete specs state no outcome`;
+      return bad.length === 0 ? undefined : named(bad, 'complete specs state no outcome');
     },
   },
   {
@@ -511,7 +595,7 @@ const ASKS: AskCheck[] = [
           ),
         );
       });
-      return bad.length === 0 ? undefined : `${bad.length} negative controls expect an act`;
+      return bad.length === 0 ? undefined : named(bad, 'negative controls expect an act');
     },
   },
   {
@@ -521,7 +605,12 @@ const ASKS: AskCheck[] = [
     check: (run, all) => {
       const rows = new Set(all.map((v) => v.spec.record.row));
       const missing = run.plan.plan.rows.filter((row) => row.status === 'approved' && !rows.has(row.id));
-      return missing.length === 0 ? undefined : `${missing.length} rows give no spec`;
+      return missing.length === 0
+        ? undefined
+        : listed(
+            missing.map((row) => row.id),
+            'rows give no spec',
+          );
     },
   },
   {
@@ -530,7 +619,7 @@ const ASKS: AskCheck[] = [
     title: 'an incomplete spec names what it waits for',
     check: (_r, all) => {
       const bad = all.filter((v) => !v.complete && (estateMeta(v.spec).needs ?? []).length === 0);
-      return bad.length === 0 ? undefined : `${bad.length} incomplete specs name nothing`;
+      return bad.length === 0 ? undefined : named(bad, 'incomplete specs name nothing');
     },
   },
   {
@@ -570,7 +659,10 @@ const ASKS: AskCheck[] = [
       });
       return bad.length === 0
         ? undefined
-        : `${bad.length} specs judge an atom that is neither an output rule (not gating) nor a listed domain rule or control (gating)`;
+        : named(
+            bad,
+            'specs judge an atom that is neither an output rule (not gating) nor a listed domain rule or control (gating)',
+          );
     },
   },
   {
@@ -584,7 +676,7 @@ const ASKS: AskCheck[] = [
       const bad = all.filter(
         (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)),
       );
-      return bad.length === 0 ? undefined : `${bad.length} complete specs ask an unapproved phrase`;
+      return bad.length === 0 ? undefined : named(bad, 'complete specs ask an unapproved phrase');
     },
   },
   {
@@ -601,7 +693,12 @@ const ASKS: AskCheck[] = [
       const narrow = run.bank.situations.filter(
         (s) => s.phrases.length >= 3 && (used.get(s.id)?.size ?? 0) === 1,
       );
-      return narrow.length === 0 ? undefined : `${narrow.length} situations are asked with one phrase only`;
+      return narrow.length === 0
+        ? undefined
+        : listed(
+            narrow.map((s) => s.id),
+            'situations are asked with one phrase only',
+          );
     },
   },
   {
@@ -612,7 +709,7 @@ const ASKS: AskCheck[] = [
       const bad = all.filter(
         (v) => v.spec.loaded && v.spec.loaded.spec.version !== run.scanned.map.hash.slice(0, 12),
       );
-      return bad.length === 0 ? undefined : `${bad.length} specs carry another version`;
+      return bad.length === 0 ? undefined : named(bad, 'specs carry another version');
     },
   },
   {
@@ -621,7 +718,7 @@ const ASKS: AskCheck[] = [
     title: 'every complete spec passes strict lint',
     check: (_r, all) => {
       const bad = all.filter((v) => v.complete && v.spec.warnings.length > 0);
-      return bad.length === 0 ? undefined : `${bad.length} complete specs fail strict lint`;
+      return bad.length === 0 ? undefined : named(bad, 'complete specs fail strict lint');
     },
   },
   {
@@ -636,7 +733,7 @@ const ASKS: AskCheck[] = [
         if (fixed === undefined) return !v.spec.loaded;
         return fixed === null || !StaticTest.safeParse(fixed).success;
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs do not load`;
+      return bad.length === 0 ? undefined : named(bad, 'specs do not load');
     },
   },
 ];
@@ -844,12 +941,18 @@ export function mutantFamily(): Family {
         const every = byClass.get(cls) ?? [];
         // A mutant the follower's session cannot show is no kill target: it is named, not counted alive.
         const same = every.filter((mutant) => mutant.equivalent);
-        const list = every.filter((mutant) => !mutant.equivalent);
+        // A reference to a missing file has no complete test by contract: named too, judged by its marker.
+        const absent = every.filter((mutant) => mutant.untestable);
+        const list = every.filter((mutant) => !mutant.equivalent && !mutant.untestable);
         const alive = list.filter((mutant) => !mutant.killed);
         const noted =
           same.length === 0
             ? ''
             : ` (${same.length} of ${every.length} not judged, the follower's session is the same without it: ${same[0]?.atom})`;
+        const missing =
+          absent.length === 0
+            ? ''
+            : ` (${absent.length} of ${every.length} not judged, the estate holds no such file and its tests wait on needs-existing-file: ${absent[0]?.atom})`;
         out.set(`${family}.${keyOf(cls)}`, {
           pass: alive.length === 0,
           detail:
@@ -857,8 +960,8 @@ export function mutantFamily(): Family {
               ? every.length === 0
                 ? 'no atom of the class on this seed'
                 : list.length === 0
-                  ? `no atom of the class changes the follower's session on this seed${noted}`
-                  : `holds${noted}`
+                  ? `no atom of the class changes the follower's session on this seed${noted}${missing}`
+                  : `holds${noted}${missing}`
               : `${alive.length} of ${list.length} live: ${alive[0]?.atom} ${alive[0]?.reason ?? ''}`,
         });
       }

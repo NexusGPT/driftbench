@@ -24,6 +24,7 @@ export {
   type CellOutcome,
   type CostLine,
   cellIdOf,
+  heldRun,
   type MinimumDetectableEffect,
   mdeLine,
   minimumDetectableEffect,
@@ -47,6 +48,7 @@ export {
   specBlocks,
 } from './compounding';
 export { DRIFT_BY_FAMILY, driftOf } from './drift';
+export { eventLogSink, readEventLog } from './event-log';
 export {
   addFacts,
   assistantMessage,
