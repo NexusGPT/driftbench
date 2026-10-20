@@ -66,3 +66,28 @@ metadata:
     ask: code
     askFrom: instruction.standing.on-stop-stop-all-work-and (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0395
+        values:
+          ask_class: research
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: frustration
+          deviation: D8_tool_failure
+          estate_hazard: rate_wave
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

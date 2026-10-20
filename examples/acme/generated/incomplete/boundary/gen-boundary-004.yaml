@@ -137,3 +137,89 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.in.customer_email
         value: catalog.search.in.customer_email.at-min-length
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-004
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: plan_row
+        row: gen-boundary-004
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage_transition: identify-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: rule
+        rule: catalog.search.in.customer_email=catalog.search.in.customer_email.at-min-length
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: plan_row
+        row: gen-boundary-004
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

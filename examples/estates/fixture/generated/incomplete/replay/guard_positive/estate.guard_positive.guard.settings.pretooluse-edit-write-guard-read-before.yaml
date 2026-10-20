@@ -86,3 +86,22 @@ metadata:
       - marker: needs-recorded-session
         atom: guard.settings.pretooluse-edit-write-guard-read-before
         detail: no recorded session of invoice-file-edit
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.pretooluse-edit-write-guard-read-before
+        values:
+          atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

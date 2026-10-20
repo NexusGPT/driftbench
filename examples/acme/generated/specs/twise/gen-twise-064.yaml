@@ -153,3 +153,84 @@ metadata:
         phrase:
           dimension: deviation
           value: D11_pii_leak
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-064
+        values:
+          behaviour: B-005
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: rule
+        rule: stage_transition=address-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: rule
+        rule: coverage_result=not-in-map
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-064
+        values:
+          behaviour: B-005
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: address-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D11_pii_leak
+      to:
+        kind: rule
+        rule: deviation=D11_pii_leak
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D11_pii_leak
+      to:
+        kind: plan_row
+        row: gen-twise-064
+        values:
+          behaviour: B-005
+          channel: chat
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          deviation: D11_pii_leak
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

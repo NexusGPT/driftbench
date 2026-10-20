@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {scoreMappedLabeller as mapped} from '../candidate';
+const set=(...names:string[])=>({name:'s',labels:names.map(name=>({name,description:''}))});
+const o={goldSet:set('young','old'),answerSet:set('kid','adult'),targetSet:set('human'),goldMap:[{source:'young',target:'human'},{source:'old',target:'human'},{source:'none',target:'none'}],answerMap:[{source:'kid',target:'human'},{source:'adult',target:'human'},{source:'none',target:'none'}]};
+assert.equal(mapped(['young','old','none'],['kid','adult','none'],o).kappa,1);
+const x=mapped(['young','old','none'],['human',null,'none'],o);assert.equal(x.invalid,1);assert.equal(x.abstentions,1);assert.equal(x.correct,1);
+assert.throws(()=>mapped(['young'],['kid'],{...o,goldMap:o.goldMap.slice(0,2)}));
+assert.throws(()=>mapped(['young'],['kid'],{...o,answerMap:[...o.answerMap,o.answerMap[0]]}));
+assert.throws(()=>mapped(['human'],['kid'],o));
+console.log('round06 total vocabulary mapping passed');

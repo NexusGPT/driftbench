@@ -1357,7 +1357,13 @@ describe('the cache', () => {
     );
     await putCampaign(store, 'c-test', loaded);
     const run = await runSpec(spec(), options);
-    const key = { specHash: run.specHash, target: run.target, mode: run.mode, repeat: 1 };
+    const key = {
+      specHash: run.specHash,
+      identityHash: run.identityHash,
+      target: run.target,
+      mode: run.mode,
+      repeat: 1,
+    };
     expect(run.runId).toBe(cellId(key));
     expect(run.runId).toBe(storeCellId(key));
     expect(await store.listRuns({ campaignId: 'c-test' })).toEqual([run]);

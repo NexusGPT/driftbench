@@ -52,3 +52,21 @@ metadata:
     ask: code
     askFrom: tool.invoice-reconcile.declared-edit (tool rule)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.invoice-reconcile.declared-edit
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_boundary.tool.invoice-reconcile.declared-edit
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

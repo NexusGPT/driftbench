@@ -68,3 +68,30 @@ metadata:
     outcome: bank
     judged:
       - instruction.supplier-email.a-draft-has-a-subject-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.a-draft-has-a-subject-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.supplier-email.a-draft-has-a-subject-a
+        values:
+          atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

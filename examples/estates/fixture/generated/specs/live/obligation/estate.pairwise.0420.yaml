@@ -92,3 +92,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0420
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: go
+          deviation: D4_loose_confirmation
+          estate_hazard: process_restart
+          atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

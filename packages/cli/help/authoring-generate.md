@@ -46,7 +46,7 @@ Every seeded choice comes from `--seed`: the same map and seed give the same sui
 ### driftbench generate
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--sections <registry>]... [--force] [--no-stems] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -62,7 +62,9 @@ driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] 
 | `--spec-cap-mode <mode>` | `tuples`: preserve pairs and triples; `pairs`: preserve pairs, report triple losses. Needs `--spec-cap`. | `tuples` |
 | `--tasks <n>` | Instances built per `task_family` relation, each with its variants. | 8 |
 | `--baseline <path>` | Specs to measure on the same map, for comparison. Repeat it. Every baseline spec must be valid. | none |
-| `--force` | Replace the output of an earlier run in the folder (`specs/`, `incomplete/`, `generate-report.json`). | off |
+| `--sections <registry>` | A section registry of a prompt the map's evidence quotes, so each block links the prompt sections that hold the quotes of its values (`prompt_section` links) and the sections that reach them through the registry (references, overrides, duplicates; their evidence names the section they come through). The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`. A registry that does not describe its prompt's text is refused, exit 2. Repeat it. | none |
+| `--force` | Replace the output of an earlier run in the folder (`specs/`, `incomplete/`, `generate-report.json`, `stems-map.csv`). | off |
+| `--no-stems` | Write every complete spec whole: no shared opening written once as a stem. | stems on |
 | `--json` | Print the report as JSON instead of the summary. | off |
 | `--model` | Also ask the model port for specs; each counts only once the gate accepts it. Paid. Needs `--reference` and `--faults`. | off |
 | `--proposals <n>` | With `--model`: how many specs to ask for. | 3 |
@@ -93,7 +95,11 @@ Files under `--out`:
 | `specs/<seeder>/gen-<seeder>-NNN.yaml` | complete specs, ready for `gate` or `campaign run` |
 | `specs/task/.seed-<spec id>/` | a task workspace that holds a binary file, beside its spec |
 | `incomplete/<seeder>/...` | specs with a placeholder or a block with no machine Then |
-| `generate-report.json` | everything below, in full |
+| `specs/stems/stem-<hash>.yaml` | an opening two or more complete specs share, written once: `metadata.stem.specs` lists them |
+| `stems-map.csv` | one row per block as generated: `old_spec,old_index,old_block,new_spec,new_block,shared_by` |
+| `generate-report.json` | everything below, in full; `stems` counts the stems, the specs that start from one, and the blocks written once |
+
+A spec that shares its opening starts from its stem: block 0 names `parent: <stem id>#<block id>`, and `metadata.generated.parent` names the stem, its block and how many blocks it replaced. Loaded with its folder, or from `specs/<seeder>/` with `specs/stems/` beside it, the spec is written back out whole and means what it meant: the stem's blocks run first, unscored. A spec never shares its last block, a block at or after a perturbation or its end verdict, or a block whose criteria differ.
 
 Each generated spec opens with comment lines naming the seeder, the seed and the map hash, and carries `version: <map hash>`, `tier: generated`, tags (`flow:`, `persona:` and the like), `covers`, the stage list, and two non-gating criteria (`behaviour.<id>`, `flow.<id>`). Do not edit generated specs; change the map and generate again.
 
@@ -233,6 +239,8 @@ $ driftbench generate --map examples/acme/map/approved.yaml --out out/authoring-
 |---|---|---|
 | `MAP_NOT_APPROVED` | entries of the proposal are not approved | `driftbench extract approve <map> --all`, or approve entries one by one |
 | `MAP_INVALID` with `this reader knows proposal version 1` | a space map was passed | pass the approved proposal; space maps are for `space` commands |
+| `MAP_TOOLS_UNREADABLE` (`the tools file <path> cannot be read: <why>`) | a `tools` source of the proposal is missing or fails the rules of the `--tools` file (codes `TOOLS_PARSE`, `TOOLS_NOT_FOUND`, `TOOLS_INVALID`, `TOOLS_DUPLICATE`, topic authoring-extract) | put the file where the proposal's `sources` path says, or fix it |
+| `MAP_INVENTORY_INVALID` (`the inventory <path> is invalid: ...`) | the `inventory` source of the proposal does not load | fix the inventory (topic authoring-inventory) |
 | `<report> already exists: an earlier run wrote this folder. Pass --force to replace its output.` | the folder holds an earlier run | `--force`, or another `--out` |
 | `--out names <path>, which is a file: give a folder.` | `--out` is a file | give a folder |
 | `Cannot generate: --spec-cap <n> is below the <p> protected structural, fault and incomplete specs; none can be trimmed` | the cap is under the protected count | raise the cap |

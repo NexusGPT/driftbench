@@ -1,5 +1,6 @@
-import type { Expect } from '@agent-nexus/driftbench-core';
+import { diagnosticStep, type Expect, type StepOutput, type Verdict } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { ARGUMENT_ACCURACY_STEP } from '../src/argument-accuracy';
 import { createToolsCheck, tools } from '../src/checks/tools';
 import type { SameReferentJudge } from '../src/value-check/judge';
 import { acme, perturbation } from './support/acme';
@@ -7,6 +8,22 @@ import { acmeReplayer } from './support/acme-replayer';
 import { type Call, context, failing, observed, outcomes, run, verdict } from './support/context';
 
 const coverage = acme('acme-new-customer-coverage');
+
+/** The argument-accuracy diagnosis of a block's verdicts, as the shipped diagnostic writes it. */
+async function accuracyOf(verdicts: Verdict[]): Promise<StepOutput> {
+  const step = diagnosticStep(ARGUMENT_ACCURACY_STEP);
+  if (!step) throw new Error('the argument-accuracy step is not registered');
+  const out = await step.run({
+    scope: 'block',
+    verdicts,
+    check: {} as never,
+    objects: [],
+    params: {},
+    earlier: [],
+  });
+  if (!out || Array.isArray(out)) throw new Error('expected one diagnosis');
+  return out;
+}
 
 /** Block 1 of the coverage spec, as the Acme agent answers it. */
 const offerCalls: Call[] = [
@@ -92,10 +109,11 @@ describe('tools', () => {
       'tools.catalog.search.input.category': 'pass',
       'tools.catalog.search.input.address_id': 'pass',
       'tools.order': 'pass',
-      'tools.argument_accuracy': 'pass',
     });
-    const accuracy = verdict(verdicts, 'tools.argument_accuracy');
-    expect(accuracy).toMatchObject({ gating: false, score: 1 });
+    expect(await accuracyOf(verdicts)).toMatchObject({
+      score: 1,
+      summary: '3 of 3 expected arguments matched',
+    });
     expect(verdict(verdicts, 'tools.coverage.check.input.address').evidence).toContain(
       '"88 Summit Avenue, Acmeville"',
     );
@@ -156,17 +174,18 @@ describe('tools', () => {
     ];
     const replayed = createToolsCheck({ services: { replayer: acmeReplayer() } });
     const verdicts = await run(replayed, context(coverage, 1, observed(offerText, wrong)));
-    expect(failing(verdicts)).toEqual(['tools.catalog.search.input.address_id', 'tools.argument_accuracy']);
+    expect(failing(verdicts)).toEqual(['tools.catalog.search.input.address_id']);
     const field = verdict(verdicts, 'tools.catalog.search.input.address_id');
     expect(field.gating).toBe(true);
     expect(field.outcome).toBe('fail');
     expect(field.evidence).toMatch(
       /^catalog\.search call 1 \(call-2\): input\.address_id is "addr-101"; expected equal to "addr-103" \(call 1 \(call-2\): address_id rung1_outcome: catalog\.search resolves "addr-101" to .*, and the gold "addr-103" to /,
     );
-    const accuracy = verdict(verdicts, 'tools.argument_accuracy');
+    const accuracy = await accuracyOf(verdicts);
     expect(accuracy.score).toBeCloseTo(2 / 3);
-    expect(accuracy.gating).toBe(false);
-    expect(accuracy.evidence).toContain('missed: catalog.search input.address_id');
+    expect(accuracy.summary).toBe(
+      '2 of 3 expected arguments matched; missed: catalog.search input.address_id',
+    );
   });
 
   it('without a replayer or a judge, a different value falls back to the exact compare, says so, and lints the test', async () => {
@@ -178,7 +197,6 @@ describe('tools', () => {
     expect(failing(verdicts)).toEqual([
       'tools.catalog.search.input.address_id',
       'tools.catalog.search.input.address_id.no_decider',
-      'tools.argument_accuracy',
     ]);
     const field = verdict(verdicts, 'tools.catalog.search.input.address_id');
     expect(field).toMatchObject({ gating: true, outcome: 'fail' });
@@ -200,7 +218,6 @@ describe('tools', () => {
       'tools.catalog.search.input.category',
       'tools.catalog.search.input.address_id',
       'tools.order',
-      'tools.argument_accuracy',
     ]);
     expect(verdict(verdicts, 'tools.catalog.search.count').evidence).toBe(
       'catalog.search called 0 times, expected exactly 1; calls in this block: coverage.check',
@@ -208,7 +225,9 @@ describe('tools', () => {
     expect(verdict(verdicts, 'tools.catalog.search.input.category').evidence).toBe(
       'catalog.search was not called, so input.category could not be equal to "home"',
     );
-    expect(verdict(verdicts, 'tools.argument_accuracy').score).toBeCloseTo(1 / 3);
+    expect((await accuracyOf(verdicts)).score).toBeCloseTo(1 / 3);
+    // No check aggregates its own verdicts: the share is a diagnosis, never a verdict.
+    expect(verdicts.some((entry) => entry.id === 'tools.argument_accuracy')).toBe(false);
   });
 
   it('reads a range count: acme-tool-failure block 2 allows 1 to 2 retries of coverage.check', async () => {
