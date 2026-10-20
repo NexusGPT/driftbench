@@ -581,16 +581,15 @@ export function completionComponents(spec: Spec): ComponentInventory {
               o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
             },
           );
-        // A tool the spec declares destructive, called after the event: the tool-table branch of the check.
+        // A tool the spec declares destructive, called after the event: the tool-table branch of the check. The
+        // control calls nothing; the violation calls the declared tool.
         for (const witness of declaredToolWitnesses())
           add(
             `every.collateral.${witness.id}`,
             (o) => {
               o.toolCalls.push({ label: witness.label, input: {} });
             },
-            (o) => {
-              o.toolCalls.push(push());
-            },
+            undefined,
             { [witness.label]: witness.class },
           );
         if (opts.hazard === 'compaction')
