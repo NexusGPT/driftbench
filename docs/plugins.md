@@ -108,11 +108,19 @@ $ driftbench spec validate specs
 ✓ specs/routed.yaml  routed · 1 block · hash 1e0b1e482f2a
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench object list
-check-set           acme        shipped  f0458f5f
-check-set           default     shipped  fd61f704
-diagnostic          acme-dedup  shipped  e4985b87
-policy/routing      intent      shipped  36c5829b
-policy/value-check  default     shipped  cf504563
+check-set           acme                  shipped  f0458f5f
+check-set           default               shipped  fd61f704
+diagnostic          acme-dedup            shipped  e4985b87
+diagnostic          argument-accuracy     shipped  c45c26ac
+diagnostic          code-agent-liability  shipped  c5c80f0e
+diagnostic          fix-plan              shipped  3733339c
+diagnostic          flaky-block           shipped  eb0bc971
+diagnostic          liability-confirm     shipped  bd538cfe
+diagnostic          value-mismatch        shipped  65345513
+policy/blame        default               shipped  47a04623
+policy/placement    default               shipped  59475833
+policy/routing      intent                shipped  36c5829b
+policy/value-check  default               shipped  cf504563
 ```
 
 Without the plugin, the same spec is invalid: `OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme`.
