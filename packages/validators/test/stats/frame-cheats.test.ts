@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { statsBank } from '../../src/ladders/stats/bank/index';
@@ -20,6 +20,7 @@ vi.setConfig({ testTimeout: 900_000, hookTimeout: 900_000 });
 const ROOT = findRoot(process.cwd());
 const SEED = 977;
 const items = statsBank(ROOT).filter((item) => item.family.startsWith('weights-'));
+mkdirSync(join(ROOT, 'node_modules', '.cache'), { recursive: true });
 const work = mkdtempSync(join(ROOT, 'node_modules', '.cache', 'frame-cheats-'));
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 
