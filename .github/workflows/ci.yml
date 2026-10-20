@@ -26,6 +26,8 @@ concurrency:
 # `ubuntu-latest`, because this repository is public and a fork's code must never run on a self-hosted machine.
 # A push to main and a dispatch carry no pull request, so they follow the variable. The `leak guard` job keeps
 # `ubuntu-latest` on purpose: it holds the denylist secret and stays on GitHub-hosted machines.
+# Every setup-node step passes `check-latest: true`: a self-hosted image caches an older Node.js 24 (24.9.0) than the
+# hosted images carry, and under it the module-load tests of tools/perf exit 1.
 jobs:
   pr-fast:
     name: pr fast
@@ -45,6 +47,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm lint
       - run: pnpm typecheck
@@ -83,6 +86,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Cache package builds
         uses: actions/cache@v4
@@ -165,6 +169,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: node tools/bench-lint.mjs
       - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
@@ -182,6 +187,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: tools/research-replay-ci.sh
 
@@ -200,6 +206,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm lint
       - run: pnpm typecheck
@@ -227,6 +234,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       # The tests run the driftbench CLI from source, through tsx.
       - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/setup-python@v6
@@ -259,6 +267,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/setup-python@v6
         with:
@@ -277,6 +286,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Playwright version
         id: playwright
