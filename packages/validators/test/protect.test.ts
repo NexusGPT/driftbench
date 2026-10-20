@@ -69,7 +69,13 @@ const FAST_TIMEOUT = 10;
 const AFFECTED_CONDITION =
   "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')";
 const AFFECTED_TIMEOUT = 45;
-const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+/**
+ * The affected tests are those changed against the PR's own base branch, read from the environment: a PR into
+ * release/next runs its own delta, never the whole difference between release/next and main.
+ */
+const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests';
+const AFFECTED_FETCH = 'git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"';
+const BASE_REF_ENV = '${{ github.base_ref }}';
 
 const CI_HEAVY = [
   'bench',
@@ -91,6 +97,7 @@ interface Ctx {
   headRef?: string;
   jobs?: string;
   runId?: string;
+  baseRef?: string;
 }
 
 /** Evaluates a workflow expression with the functions these workflows use. */
@@ -99,6 +106,7 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     event_name: ctx.event,
     ref: ctx.ref,
     head_ref: ctx.headRef ?? '',
+    base_ref: ctx.baseRef ?? '',
     run_id: ctx.runId ?? '1',
   };
   const inputs = { jobs: ctx.jobs ?? '' };
@@ -557,6 +565,19 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(job.steps[0].with['fetch-depth']).toBe(0);
   const commands = job.steps.map((step: { run?: string }) => step.run);
   expect(commands).toContain(AFFECTED_COMMAND);
+  // the base branch is fetched, then the affected tests diff against it; both read it from the environment
+  const test = job.steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND);
+  const fetch = job.steps.find((step: { run?: string }) => step.run === AFFECTED_FETCH);
+  expect(fetch, 'base fetch step').toBeDefined();
+  expect(commands.indexOf(AFFECTED_FETCH)).toBeLessThan(commands.indexOf(AFFECTED_COMMAND));
+  for (const step of [test, fetch]) {
+    expect(step.env?.BASE_REF).toBe(BASE_REF_ENV);
+    expect(step.run).not.toContain('${{');
+  }
+  // a PR into release/next compares with release/next, a PR into main with main
+  for (const base of ['release/next', 'main'])
+    expect(evaluateTemplate(test.env.BASE_REF, { ...FEATURE_PR, baseRef: base })).toBe(base);
+  expect(JSON.stringify(job.steps)).not.toContain('--changed origin/main');
   // the tests verify the build stamp, so the build gate runs before them
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeGreaterThan(-1);
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
@@ -1016,6 +1037,21 @@ describe('merge train enforcement', () => {
     wrongBase.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
       'pnpm test --maxWorkers=2 --changed origin/main~1 --passWithNoTests';
     expect(() => assertAffectedBehaviour(wrongBase)).toThrow();
+    // the old fixed base: a PR into release/next would run all of release/next's difference from main
+    const fixedMain = structuredClone(workflow);
+    fixedMain.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
+      'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+    expect(() => assertAffectedBehaviour(fixedMain)).toThrow();
+    const noFetch = structuredClone(workflow);
+    noFetch.jobs['pr-affected'].steps = noFetch.jobs['pr-affected'].steps.filter(
+      (step: { run?: string }) => step.run !== AFFECTED_FETCH,
+    );
+    expect(() => assertAffectedBehaviour(noFetch)).toThrow();
+    const inline = structuredClone(workflow);
+    inline.jobs['pr-affected'].steps.find(
+      (step: { run?: string }) => step.run === AFFECTED_COMMAND,
+    ).env.BASE_REF = '${{ github.head_ref }}';
+    expect(() => assertAffectedBehaviour(inline)).toThrow();
     const gated = structuredClone(workflow);
     gated.jobs['train-gate'].needs.push('pr-affected');
     expect(() => assertGateWaits(gated)).toThrow();
