@@ -4,6 +4,7 @@ import { evaluateFormula } from './formula';
 import { error, type Issue } from './issues';
 import { isPlainObject } from './normalize';
 import { parentOrder } from './parents';
+import { specParentRef } from './spec-parents';
 
 const CRITERION_REF = /^([A-Za-z0-9][A-Za-z0-9_.-]*)(@gating)?$/;
 
@@ -180,7 +181,12 @@ export function checkSemantics(spec: Spec): Issue[] {
       const known =
         block === undefined ||
         (typeof block === 'number' && block < spec.blocks.length) ||
-        (typeof block === 'string' && blockIds.has(block));
+        (typeof block === 'string' && blockIds.has(block)) ||
+        // A spec that starts from another spec's block may link a block of the opening as `<spec id>#<block id>`:
+        // the loader writes that block out under this name, and the written-out spec is checked again.
+        (typeof block === 'string' &&
+          specParentRef(spec.blocks[0]?.parent) !== undefined &&
+          specParentRef(block) !== undefined);
       if (!known) {
         issues.push(
           error(

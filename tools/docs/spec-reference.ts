@@ -688,12 +688,13 @@ export const FILE_PAGES: readonly FilePage[] = [
     title: 'Personas and red-team reference',
     source: 'packages/users/src',
     about:
-      'The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md).',
+      'The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a cassette for a simulated user defined in the blocks (`simulate --cassette`), a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md).',
     keys: 'Keys are as written below. An unknown key is an error.',
     names: users,
     roots: [
       ['Persona', users.Persona],
       ['UserRecording', users.UserRecording],
+      ['UserCassette', users.UserCassette],
       ['PackFile', users.PackFile],
       ['RedteamPlugin', users.RedteamPlugin],
     ],

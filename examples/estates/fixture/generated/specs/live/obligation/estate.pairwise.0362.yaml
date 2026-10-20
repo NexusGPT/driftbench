@@ -65,3 +65,28 @@ metadata:
     ask: code
     askFrom: instruction.supplier-email.write-in-the-supplier-s-language (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.write-in-the-supplier-s-language
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0362
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: go
+          deviation: D4_loose_confirmation
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

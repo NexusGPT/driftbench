@@ -176,7 +176,7 @@ export function registryYaml(registry: SectionRegistry): string {
   return stringify(registry, { lineWidth: 0 });
 }
 
-async function readText(path: string, io: Io): Promise<string | undefined> {
+export async function readText(path: string, io: Io): Promise<string | undefined> {
   try {
     return await readFile(resolve(io.cwd, path), 'utf8');
   } catch (cause) {

@@ -105,3 +105,55 @@ metadata:
     needs_phrase:
       - dimension: order.create.in.customer_id
         value: order.create.in.customer_id.present
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-038
+        values:
+          order.create.in.customer_id: order.create.in.customer_id.present
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: order.create.in.customer_id=order.create.in.customer_id.present
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-038
+        values:
+          order.create.in.customer_id: order.create.in.customer_id.present
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: whatsapp
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

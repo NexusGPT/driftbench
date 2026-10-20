@@ -681,9 +681,10 @@ exit 1
 
 ```
 driftbench simulate <spec> --persona <file> (--model | --recording <file>) [--target <adapter[:agent]>] [--turns <n>] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench simulate <spec> (--model [--record-cassette <file>] | --cassette <file>...) [--trials <k>] [--seed <seed>] [--labeller model|patterns] [--freeze <file>] [--target <adapter[:agent]>] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
-A simulated user plays the persona on the spec, through the model port or a recording. Options, output and exit codes on the [simulated user](../simulated-user.md) page.
+A simulated user plays the persona on the spec, through the model port or a recording. The second form runs a spec whose blocks define the simulated user (`when.simulated_user`): k trials per simulator family, pass^k, the rerun flip rate, the flip flag and a calibration report. Options, output and exit codes on the [simulated user](../simulated-user.md) page.
 
 ## `driftbench attack`
 
@@ -1009,6 +1010,42 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 | 1 | a criterion is not separated, or a judge gave no answer | a gating criterion stays unassigned, or a judge gave no answer; the table is still written | a file has an issue |
 | 2 | bad input | bad input | the folder cannot be read |
 
+`judge calibrate` also prints the label hygiene of each criterion in its text output: a `label conflict` (blocks that hold one slice under both labels), a `fixture leak` (a labelled block equal to a fixture, which inflates agreement) and the `few-labels` warning (a class with fewer than 5 labelled blocks). `--json` carries them as `labelConflicts`, `fixtureLeaks` and `warnings`.
+
+### Judge tools
+
+None of these calls a model.
+
+```
+driftbench judge ground --quote <text> (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--source <place>] [--json]
+driftbench judge lint <paths...> [--json]
+driftbench judge prompt (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--json]
+driftbench judge cassette inspect <file> [--criteria <dir> [--labels <dir>]] [--json]
+driftbench judge cassette rekey <file> --from <dir> --criteria <dir> [--labels <dir>] [--rename <old=new>...] --out <file> [--json]
+```
+
+| Command | Does | Exit |
+|---|---|---|
+| `judge ground` | checks a quote against the data a judge saw, as the council checks evidence: the transcript entries, the artifact, the Given, the inputs, the reference. Prints the place that holds it; `--source` looks in one place only | 0 grounded, 1 not grounded, 2 bad input |
+| `judge lint` | lists the defects of each rubric and its pictures (`two-questions`, `subjective`, `no-fail-picture` and the other codes), for criterion files, spec files, or folders of them | 0 none, 1 a defect, 2 bad input |
+| `judge prompt` | prints the exact system and user text a judge receives for one request | 0, or 2 on bad input |
+| `judge cassette inspect` | prints the judges of a cassette, its entries per judge and per criterion, the answer contracts and decoder versions. With `--criteria`, counts the fixture requests (and with `--labels`, the labelled blocks) the cassette answers, and the entries no request matches | 0, or 2 on bad input |
+| `judge cassette rekey` | moves recorded answers to the keys of changed criteria (`--from` the folder the cassette was recorded with, `--criteria` the changed one). It refuses, writes nothing and exits 1 when any moved request gives the judge another prompt: then record again. A change the judge does not read, such as a line break inside a rubric, is re-keyed | 0 written, 1 refused, 2 bad input |
+
+A request file is a judge request as JSON: `criterion` (`name`, `rubric`, optional `pass`, `fail`, `scope`) and `transcript` (entries with `role` and `text`), with optional `artifact`, `given`, `inputs` and `reference`.
+
+## `driftbench bench`
+
+The judge benchmark of the repository, the same code and options as `pnpm bench`. It reads the slices, cassettes, evidence and floors under `benchmarks/` of a repository checkout: `--root <path>` names it, else the checkout around the working folder. See [benchmarks](../benchmarks.md).
+
+```
+driftbench bench replay [--slice <name>|all] [--model <id>] [--root <path>] [--store <file>] [--check-floor] [--json]
+driftbench bench record --model <id> --spend-cap-usd <usd> [--slice <name>|all] [--root <path>] [--store <file>] [--spend-ledger <path>] [--concurrency <n>] [--resume] [--json]
+driftbench bench floors [model] [--root <path>] [--raise <slice> --evidence <json>] [--json]
+```
+
+`bench replay` makes no network call and needs no key. `bench record` makes paid calls under its spend cap.
+
 ## `driftbench family`
 
 Code-agent task families: a family builds instances from a seed, each with corner-case variants and oracle expectations, and the reference build verifies them. See [generating](../generating.md).
@@ -1076,18 +1113,64 @@ Review: signed by owner on 2026-10-13.
 | 2 | bad input: an invalid family, an unapproved phrase, a missing, invalid or stale review, a bad number, an earlier output without `--force` | bad input: no adapter for the reference, no spec under the folder, a bad number | bad input, or an invalid review file |
 | 3 | | none fails, but the reference could not run one (a block not run): unverified, listed apart, never shipped | |
 
+## `driftbench class`
+
+Utterance classes: a block's user message measured as a class of messages that make the same request with the same values. `plan` prints the covering array of a class file; `realise` writes one candidate per planned row with a model, gates each one and freezes the accepted set; `audit` has labellers of two model families label the accepted items; `expand` writes one spec copy per frozen realisation of every block whose `when.class` names a set; `envelope` reports each class block of a campaign over its realisations. See the help topic `authoring-classes`.
+
+```
+driftbench class plan <class> [--t <n>] [--seed <n>] [--rows <n>] [--json]
+driftbench class realise <class> --out <file> --realiser <provider:model> --judge <provider:model> [--style <provider:model>] [--cassette <file>] [--record] [--attempts <n>] [--t <n>] [--seed <n>] [--rows <n>] [--json]
+driftbench class audit <class> --set <file> --labeller <provider:model> --labeller <provider:model> [--cassette <file>] [--record] [--out <file>] [--json]
+driftbench class expand <specs...> --classes <dir> --out <dir> [--json]
+driftbench class envelope [campaignId] --store <file> [--json]
+```
+
+| Option | Effect |
+|---|---|
+| `<class>` | the class file (YAML) |
+| `--t <n>` | `plan`, `realise`: strength of the covering array; default the file's `strength`, 2 |
+| `--seed <n>` | `plan`, `realise`: seed of the tie-breaks; default 1 |
+| `--rows <n>` | `plan`, `realise`: rows wanted past the array's own size |
+| `--out <file>` | `realise`: the frozen set to write; `audit`: the audit JSON; required for `realise` |
+| `--realiser`, `--judge`, `--style` | `realise`: the model seats, `<provider:model>` with provider `anthropic`, `openai` or `gemini`; `--style` defaults to the judge |
+| `--labeller` | `audit`: one labeller; give two of different families |
+| `--cassette <file>` | `realise`, `audit`: recorded answers (JSON lines, `.gz` allowed), replayed; written to with `--record` |
+| `--record` | `realise`, `audit`: ask the live models for answers the cassette lacks, and keep them; without it no key is read |
+| `--attempts <n>` | `realise`: attempts per planned row, the first included; default 3 |
+| `--set <file>` | `audit`: the frozen set |
+| `--classes <dir>` | `expand`: the folder of class files and their `*.set.json` sets; required |
+| `--out <dir>` | `expand`: the folder the copies are written into; required |
+| `--store <file>` | `envelope`: the store that holds the runs; required, never created |
+| `--json` | print the result as JSON |
+
+On the Acme order class, replayed from its recording:
+
+```
+$ pnpm -s driftbench class realise examples/acme/classes/order-fiber-address.yaml --rows 56 --out order.set.json --realiser openai:gpt-6-luna --judge anthropic:claude-haiku-5-5 --cassette examples/acme/classes/order-fiber-address.cassette.jsonl.gz
+Class acme.order.fiber-address: 56 planned rows, 101 candidates, 51 accepted, 5 rows unfilled.
+Rejected by: near_duplicate 35, style 6, minimal_pair 4, equivalence 3, slot_surface 2.
+Post-gate coverage: 44 of 44 2-way tuples (100.0%). Vendi 11.22 (reported, not gated).
+Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id: acme.order.fiber-address, set: 2c9ce562b65c }.
+```
+
+| Exit code | `plan`, `expand`, `envelope` | `realise` | `audit` |
+|---|---|---|---|
+| 0 | done | every planned row has an accepted realisation and the post-gate coverage is at least 95% | at most 1 item invalid by the union rule |
+| 1 | | the set is written short of that | more than 1 item invalid |
+| 2 | bad input: an invalid class file, a set refused (an edited item, a stale class, another set hash than the block names), no store | bad input, or a model call that failed (a replay the cassette cannot answer included) | bad input, fewer than two labeller families, a refused set, a failed model call |
+
 ## `driftbench estate`
 
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
 driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
-driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
+driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>] [--old-ledger <file> --new-ledger <file> [--change-out <file>]]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
@@ -1111,6 +1194,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `estate stats` | Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach for skills, references, guards and subagents, a not-observable count for the other approved atoms, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
+| `estate prove` | proves the links of specs to the rule a mutant removed, from a run on the original and a run on the mutant: a linked block that flips is `verified`, one that passes on both is `refuted`. Exit 0 when the blocks that flip are the linked blocks, 1 when they differ, 2 usage or input error |
 
 | Option | Effect |
 |---|---|
@@ -1121,7 +1205,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--cassette <file>`, `--record` | `scan --pointer`: the recorded labeler answers, and record the answers a miss needs |
 | `--labeler <class>:<client>[:<model>]` | `scan --pointer`: a labeler of class `system1` or `system2`; repeat it for one of each, the default stack |
 | `--labeler-threshold <p>`, `--labeler-pass-at <p>`, `--labeler-fail-at <p>`, `--labeler-margin-cut <m>`, `--labeler-key <variable>` | `scan --pointer`: the probability at which a yes or no system 1 labeler takes a label; in a stack, the margin between the two likeliest labels at which system 1 decides alone (default 0.65), or, when either probability bound is given, the two probabilities at which it decides alone; the variable that holds the bearer token of an `http` labeler |
-| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids and its check |
+| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--update`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids, writing it, and its check |
 | `--no-model` | `scan`: read the structured atoms only; no prose atom |
 | `--provider <name>` | `scan`: `anthropic` or `openai`; default the first whose key is set |
 | `--ceiling <characters>` | `scan`, `lint`: the size ceiling of the standing instructions; default 40000 |
@@ -1135,6 +1219,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--k <n>` | `plan`: positive asks per route; default 3 |
 | `--row <id>`, `--strike` | `plan approve`: approve a row, repeat it; with `--strike`, strike the rows named instead |
 | `--old-guards <file>`, `--new-guards <file>` | `diff`: the guard state of each map; default `guard-state.yaml` beside it |
+| `--old-ledger <file>`, `--new-ledger <file>`, `--change-out <file>` | `diff`: the ledgers of the two scans, so the diff reads the units; with them, write the change manifest of the units for `driftbench radius` |
 | `--tests <dir>` | `impact`: the specs of the estate, indexed by `metadata.estate.atoms`; required |
 | `--write` | `impact`: write each retirement reason into its spec as `metadata.retired` |
 | `--replay <sessions>`, `--suite <dir>`, `--store <db>` | `impact`: replay the suite (default the `specs` folder inside the sessions folder) over a folder of recorded sessions, and compare with the previous replay kept in the store |
@@ -1335,7 +1420,9 @@ An option error the argument parser reports (an unknown option, a missing compon
 
 ```
 driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [judge flags] [run check flags] [--json]
-driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
+driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
+driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
+driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
@@ -1762,7 +1849,9 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 `driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved proposal evidence quotes or estate atom provenance. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. Estate whitespace-only edits use the unit ledger’s NFC and collapsed-whitespace identity. Their empty manifests include file, hash and version evidence; `radius` and `campaign run` revalidate it before selecting zero tests across different version labels. An unvalidated empty transition still selects everything. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
 
-`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+`driftbench radius ledger <map> [--ledger <file>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from an edit of an estate's prose: it reads the ledger of the last scan and the files as they are now, and calls no labeler. A changed or deleted unit reruns, a new unit reruns the old units of its section, and a unit whose neighbours changed or that moved to another file is advisory only. A unit with atoms becomes a `prompt` change per atom; a unit with none becomes a `unit` change, which keeps the radius the whole suite. It exits 0 when the manifest is written or printed and 2 on invalid input. See [the radius on the ledger](../estate.md#the-radius-on-the-ledger).
+
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat|relative] [--baseline <campaign>] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; `--counting relative` needs `--baseline` and reads each block against its baseline verdict; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. `driftbench radius mutate plan --prompt <file> --registry <file> --out <file> [--responses <file>] [--requests-out <file>] [--rephrase] [--only <sections...>] [--pairs 20] [--seed 20261014]` writes the section mutants (exit 0, 2 on bad input); `driftbench radius mutate run <specs> --prompt <file> --registry <file> --mutants <file> --usd-per-run <usd> --budget-usd <usd> --out <file> [--target <adapter[:agent]>] [--mode F] [--runs 3] [--cache <file>]` runs the suite against the baseline and each mutant (exit 0, 1 when the projected cost is above the budget and nothing was sent, 2 on bad input); `driftbench radius mutate score <specs> --run <file> --registry <file> [--write] [--gate-out <file>] [--json]` marks links verified or refuted, lists untested sections and scores the verified-link gate (exit 0, 1 when the gate was scored and failed, 2 on bad input). `driftbench radius <specs> --change <manifest> --sections <registries...> --gate <record>` skips the blocks the verified links leave out only while the gate record passes and matches. See [section mutants, verified links and the gate](../concepts/blast-radius.md#section-mutants-verified-links-and-the-gate). Defaults and exits of the section registry commands:
 
 * `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
 * `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.

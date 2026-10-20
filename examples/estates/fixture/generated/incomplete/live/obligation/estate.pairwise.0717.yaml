@@ -68,3 +68,28 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.memory-memory.no-delivery-on-a-public-holiday
         detail: "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.no-delivery-on-a-public-holiday
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0717
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: frustration
+          deviation: D4_loose_confirmation
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

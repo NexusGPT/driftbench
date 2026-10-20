@@ -92,3 +92,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0675
+        values:
+          ask_class: research
+          ask_shape: multi_part
+          session_state: resumed
+          owner_signal: no_questions
+          deviation: D6_instruction_in_data
+          estate_hazard: rate_wave
+          atoms.subagent: subagent.route-planner.helper-route-planner
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

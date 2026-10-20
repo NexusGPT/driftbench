@@ -158,6 +158,20 @@ Every other rule reads the stored run, the spec and the estate map only.
 | `class_rule:<wording>` | a core fix, with the class wording |
 | `escape:<kind>:<text>` | a proposed fix text names a skill, a file or a value |
 
+The scorecard (`buildScorecard(data, { attribution: { diagnoses, fixes } })` of the report package) then opens
+a zone named "Two scores": the machine pass rate, unchanged and final; the agent-attributed pass rate, over the runs a rule
+decided; the unassigned runs, excluded only from the agent-attributed rate; the failing blocks by disposition;
+and the ranked fix list. A run page lists each block's diagnoses under its verdicts. A page scored with a rule file
+that is not a shipped default carries a `non-default` badge naming it.
+
+The agent-attributed score always names its denominator: for example, `20 of 20 assigned runs; 26
+unassigned`. When unassigned runs outnumber assigned failed runs, HTML and text show counts without any
+percentage or interval. JSON keeps the assigned counts (`agent.k`, `agent.n`) and `unassigned`, and omits
+the agent estimate and interval fields. With no assigned runs the counts are 0 of 0. The machine rate still
+includes every run that passed or failed, unassigned runs among them. A run with a block not run or
+blocked and no failure is in neither rate: JSON keeps it in `unmeasuredRuns` (`notRun`, `blocked`) and the
+text and HTML reports name it.
+
 `fixPlan` returns `{ fixes, unassigned, moved }`. Each fix:
 
 | Field | How to read it |
@@ -189,6 +203,47 @@ nothing ran. Pass `stored` back as `confirm` to `blockEvidenceInputs` to diagnos
 | `behaviour`, `wording` | 1 minus the rate after over the rate before, or null |
 | `confirmed` | true when `behaviour` is at or above the bar |
 | `flags` | `removes_wording_not_behaviour`, `no_failures_before`, `no_behaviour_measure` |
+
+### The two scores
+
+The report package reads the diagnoses and gives the two scores. `driftbench report` does not show them yet:
+it passes no diagnoses to the scorecard. Use the calls from code:
+
+| Call | What it does | Defaults |
+|---|---|---|
+| `attributionOf(data, { diagnoses?, fixes?, objects? })` | the summary below, or undefined when no block of a scored run has a diagnosis and no fix list is given | `diagnoses`: each block's own `diagnoses` field. `fixes`: none. `objects`: the ones the blocks record in `resolved` |
+| `buildScorecard(data, { attribution: { diagnoses?, fixes?, objects? } })` | the scorecard, with the zone "Two scores" when `attributionOf` gives a summary | no zone when it gives none |
+| `attributionText(summary)` | the summary as text lines | none |
+
+The summary fields:
+
+| Field | Holds |
+|---|---|
+| `machine` | runs that pass their machine checks, over the runs that passed or failed: the rate of today, unchanged |
+| `agent` | runs that pass once setup, excluded and credited failures are set aside, over the runs a rule decided. With no such run it shows 0 of 0 |
+| `unassigned` | runs with a failure no rule attributed and none of the agent's: in the machine rate, out of the agent rate |
+| `unmeasuredRuns` | `notRun` and `blocked`: completed runs with no failure and a block that did not run. They are in neither rate |
+| `blocks` | failing blocks by disposition: `failing`, `agent`, `setup`, `excluded`, `credited`, `unassigned`. `notRun` and `blocked` count blocks that did not run: they are not failures |
+| `fixes` | the ranked fix list as given, each with `fixLocation`, `fixTarget`, `fixAction`, `blocks`, `agentBlocks`, and the copies it removes (`removeCopies`) or the fix that replaces it (`supersededBy`) |
+| `nonDefault` | the objects that are not a shipped default, as `kind:id` |
+
+When unassigned runs outnumber the assigned failed runs, `agent` holds the counts `k` and `n` and no estimate or
+interval. Take three runs: one passes, one fails for the agent, one fails on a setup mistake, and a fix list holds
+one fix. `attributionText` prints:
+
+```text
+Machine pass rate: 1 of 3 (33.3%) (runs that passed or failed). Agent-attributed pass rate: 66.7%; 2 of 3 assigned runs; 0 unassigned. Unassigned runs are excluded from the agent-attributed rate.
+Failing blocks: 2; the agent's 1, setup 1, excluded 0, credited 0, unassigned 0.
+Fix list:
+  #  where          target                           action               blocks  agent's  note
+  1  skill.trigger  skill:weekly-report#description  rewrite_description  1       1
+```
+
+A line `Non-default rules: <kind:id>, ...` follows the failing blocks when a rule file that is not a shipped default
+scored the runs.
+
+A run that fails outside its blocks, on its end state or its end verdict, has no block diagnosis. It is
+unassigned, unless a failure of the agent already decides the run.
 
 ## Worked example
 

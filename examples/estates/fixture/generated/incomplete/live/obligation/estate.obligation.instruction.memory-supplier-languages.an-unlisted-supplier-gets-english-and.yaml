@@ -51,3 +51,22 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
         detail: "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
+        values:
+          atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

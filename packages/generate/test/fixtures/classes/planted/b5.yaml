@@ -1,0 +1,20 @@
+id: acme.planted.b5
+intent: "The customer asks to order a named fiber plan for a named address."
+seed: "Hi, I'd like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville."
+context:
+  last_reply: ""
+slots:
+  - name: plan
+    format: text
+    surface_forms:
+      - { form: "Acme Fiber 1000", approved: true }
+      - { form: "Fiber 1000", approved: true }
+      - { form: "the Fiber 1000 plan", approved: true }
+    minimal: ["Acme Fiber 300"]
+  - name: address
+    format: text
+    surface_forms:
+      - { form: "14 Harbor Road, Acmeville", approved: true }
+      - { form: "14 Harbor Rd, Acmeville", approved: true }
+      - { form: "14 harbor road", approved: true }
+    minimal: ["41 Harbor Road, Acmeville"]

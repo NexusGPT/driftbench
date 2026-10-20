@@ -103,3 +103,53 @@ metadata:
         phrase:
           dimension: flow
           value: upgrade
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-phrase-001
+        values:
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: flow=upgrade
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-phrase-001
+        values:
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

@@ -54,3 +54,25 @@ metadata:
       - b1-value
     needs_then_why:
       - no approved path needs tool_answer=error
+  links:
+    - block: b1-value
+      to:
+        kind: rule
+        rule: tool_answer=error
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-value
+      to:
+        kind: plan_row
+        row: gen-boundary-077
+        values:
+          tool_answer: error
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: 5g-only
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

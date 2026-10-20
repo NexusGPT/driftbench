@@ -47,8 +47,9 @@ export type ToolsCheckOptions = {
 /**
  * The expected tool calls of a block. Per expected tool: the call count with Count semantics, and every
  * input assertion on every call of that tool. `tool_order` lines the expected tools up with the observed
- * calls (exact, in_order, any_order, the Google ADK trajectory match types). The argument accuracy, the
- * share of expected arguments that matched, is reported with a score and never gates.
+ * calls (exact, in_order, any_order, the Google ADK trajectory match types). The share of expected arguments
+ * that matched is computed from these verdicts by the argument-accuracy diagnostic: a check never aggregates
+ * its own verdicts into another verdict.
  *
  * An input value the block names (a bare value, `exact`, or a leaf of `subset`) is decided by the value-check
  * ladder: equal passes; otherwise the policy's rungs decide whether the agent's value is the right one where it
@@ -174,8 +175,6 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
   const keys = entryKeys(expected.map((tool) => tool.label));
   const calls = ctx.observed.toolCalls;
   const verdicts: Verdict[] = [];
-  let argumentsExpected = 0;
-  const missed: string[] = [];
   // What the user wrote is read only by a rung that compares a value with it, so it is collected when one asks
   // and once for the block: a block whose values all match the gold never walks the history.
   let collected: string[] | undefined;
@@ -188,10 +187,8 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
     if (tool.input_closed === true) verdicts.push(closedInputVerdict(key, tool, own));
     const fields = new Set([...Object.keys(tool.input ?? {}), ...Object.keys(tool.recompute ?? {})]);
     for (const field of fields) {
-      argumentsExpected += 1;
       const values: ValueContext = { ctx, tool, field, policy, services, sources };
       const [verdict, lint] = await inputVerdict(key, values, own, tool.input?.[field]);
-      if (verdict.outcome !== 'pass') missed.push(`${tool.label} input.${field}`);
       verdicts.push(verdict);
       verdicts.push(...lint);
     }
@@ -201,19 +198,6 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
     verdicts.push(orderVerdict(ctx.expect.tool_order, expected, calls));
   }
 
-  if (argumentsExpected > 0) {
-    const matched = argumentsExpected - missed.length;
-    const missedNote = missed.length > 0 ? `; missed: ${missed.join(', ')}` : '';
-    verdicts.push(
-      machineVerdict(
-        NAME,
-        'argument_accuracy',
-        matched === argumentsExpected ? 'pass' : 'fail',
-        `${matched} of ${plural(argumentsExpected, 'expected argument')} matched${missedNote}`,
-        { gating: false, score: matched / argumentsExpected },
-      ),
-    );
-  }
   return verdicts;
 }
 
