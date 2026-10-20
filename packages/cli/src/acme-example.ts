@@ -71,4 +71,4 @@ export function acmeExampleInstalled(
  * example is not part of the installed CLI, and where it lives.
  */
 export const ACME_EXAMPLE_ABSENT =
-  'The Acme example (function:acme-sales, function:acme, process:acme-ops and the pilot control function:acme-random) is not part of the installed CLI: it lives in the driftbench repository, in examples/acme. To run it, work from a checkout: git clone https://github.com/achammah/driftbench, pnpm install, then pnpm driftbench.';
+  'The Acme example (function:acme-sales, function:acme, process:acme-ops and the pilot control function:acme-random) is not part of the installed CLI: it lives in the driftbench repository, in examples/acme. To run it, work from a checkout: git clone https://github.com/NexusGPT/driftbench, pnpm install, then pnpm driftbench.';

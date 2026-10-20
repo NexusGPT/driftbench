@@ -28,3 +28,13 @@ export function specIdentity(spec: Spec): Spec {
 export function specHash(spec: Spec): string {
   return contentHash(specIdentity(spec));
 }
+
+/**
+ * The hash a cell id and a cache key read: the spec hash of the spec without its `version`, a free label
+ * (docs/reference/cli.md, "spec validate"). Relabelling a spec moves its `specHash`, which the loader, the store
+ * and the holdout seals keep, and leaves this one where it was. Equal to `specHash` for a spec with no version.
+ */
+export function specIdentityHash(spec: Spec): string {
+  const { version: _version, ...unlabelled } = specIdentity(spec);
+  return contentHash(unlabelled);
+}

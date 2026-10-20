@@ -77,3 +77,22 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-note-write-a-tracker-note
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: stage_anytime.stage.steps.stage-note-write-a-tracker-note
+        values:
+          atoms.stage: stage.steps.stage-note-write-a-tracker-note
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

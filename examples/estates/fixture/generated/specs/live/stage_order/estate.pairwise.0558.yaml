@@ -85,3 +85,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-note-write-a-tracker-note
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0558
+        values:
+          ask_class: change_estate
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: none
+          estate_hazard: dead_helper
+          atoms.stage: stage.steps.stage-note-write-a-tracker-note
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -105,3 +105,55 @@ metadata:
     needs_phrase:
       - dimension: notify_sales.in.customer.email
         value: notify_sales.in.customer.email.present
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-054
+        values:
+          notify_sales.in.customer.email: notify_sales.in.customer.email.present
+          flow: order
+          coverage_result: 5g-only
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          channel: whatsapp
+          user_type: existing-customer
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: notify_sales.in.customer.email=notify_sales.in.customer.email.present
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-054
+        values:
+          notify_sales.in.customer.email: notify_sales.in.customer.email.present
+          flow: order
+          coverage_result: 5g-only
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          channel: whatsapp
+          user_type: existing-customer
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

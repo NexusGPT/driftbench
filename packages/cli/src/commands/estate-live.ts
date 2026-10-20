@@ -49,9 +49,15 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .command('mutate')
     .description('Copy the estate and delete or invert one atom in the copy, for the adequacy of its tests')
     .argument('<map>', 'the approved estate map')
-    .requiredOption('--atom <id>', 'the atom to mutate')
-    .option('--delete', 'remove the quoted span from its file')
-    .option('--invert', 'replace the quote by its negation, by the fixed table of forms')
+    .option('--atom <id>', 'the atom to mutate: an atom id, or the ledger id of its unit')
+    .option(
+      '--delete [id]',
+      'remove the quoted span from its file; the id (an atom id or a ledger id) can stand for --atom',
+    )
+    .option(
+      '--invert [id]',
+      'replace the quote by its negation, by the fixed table of forms; the id can stand for --atom',
+    )
     .requiredOption(
       '--to <dir>',
       'the folder of the mutant estate (it receives the copy, map.yaml, mutant.json)',
@@ -530,9 +536,10 @@ async function readMutant(root: string): Promise<MutantRecord | undefined> {
 }
 
 export type EstateMutateOptions = {
-  atom: string;
-  delete?: boolean;
-  invert?: boolean;
+  atom?: string;
+  /** True, or the id of the atom (an atom id or a ledger id) in place of --atom. */
+  delete?: boolean | string;
+  invert?: boolean | string;
   to: string;
   force?: boolean;
   json?: boolean;
@@ -544,6 +551,8 @@ export const MUTANT_MAP_FILE = 'map.yaml';
 
 export type MutantRecord = {
   atom: string;
+  /** The ledger id of the atom's unit, when the pointer reader built the atom. */
+  ledger?: string;
   op: 'delete' | 'invert';
   file: string;
   before: string;
@@ -567,6 +576,17 @@ export async function estateMutateCommand(
     io.err('Name one mutation: --delete or --invert.\n');
     return 2;
   }
+  const inline = typeof options.delete === 'string' ? options.delete : options.invert;
+  const named = typeof inline === 'string' ? inline : undefined;
+  if (named !== undefined && options.atom !== undefined && named !== options.atom) {
+    io.err(`Name the atom once: --atom ${options.atom} and ${named} differ.\n`);
+    return 2;
+  }
+  const wanted = named ?? options.atom;
+  if (wanted === undefined) {
+    io.err('Name the atom to mutate: --delete <id>, --invert <id> or --atom <id>.\n');
+    return 2;
+  }
   const mapPath = resolve(io.cwd, mapArg);
   const loaded = await loadEstateMap(mapPath, mapCacheOptions());
   if (!loaded.ok) {
@@ -583,10 +603,12 @@ export async function estateMutateCommand(
     for (const message of drift.slice(0, 10)) io.err(`    ${message}\n`);
     return 2;
   }
-  if (!map.atoms.some((atom) => atom.id === options.atom)) {
-    io.err(`Atom ${options.atom} is not in the map.\n`);
+  const found = atomOf(map, wanted);
+  if (!found.ok) {
+    io.err(`${found.message}\n`);
     return 2;
   }
+  const { id, ledger } = found;
   const to = resolve(io.cwd, options.to);
   const existing = await readdir(to).catch(() => undefined);
   if (existing !== undefined && existing.length > 0) {
@@ -604,10 +626,7 @@ export async function estateMutateCommand(
   let result: MutantResult;
   try {
     await copyEstate(root, to, map);
-    result = await mutateEstate(
-      { root: to, map },
-      options.delete ? { delete: options.atom } : { invert: options.atom },
-    );
+    result = await mutateEstate({ root: to, map }, options.delete ? { delete: id } : { invert: id });
   } catch (cause) {
     await rm(to, { recursive: true, force: true });
     io.err(`${cause instanceof MutantError ? '' : 'The mutant could not be made: '}${describe(cause)}\n`);
@@ -615,6 +634,7 @@ export async function estateMutateCommand(
   }
   const record: MutantRecord = {
     atom: result.atom,
+    ...(ledger !== undefined ? { ledger } : {}),
     op: result.op,
     file: result.file,
     before: result.before,
@@ -636,6 +656,32 @@ export async function estateMutateCommand(
     io.out(`Wrote ${options.to}: the estate copy, ${MUTANT_MAP_FILE} and ${MUTANT_FILE}.\n`);
   }
   return 0;
+}
+
+/** The ledger id of an atom the pointer reader built: `fields.unit` of an atom whose extraction is `pointer`. */
+export function ledgerOf(atom: EstateMap['atoms'][number]): string | undefined {
+  const fields = atom.fields ?? {};
+  return fields.extraction === 'pointer' && typeof fields.unit === 'string' ? fields.unit : undefined;
+}
+
+/** The atom an id names: an atom id first, else the one atom whose ledger id it is. */
+export function atomOf(
+  map: EstateMap,
+  id: string,
+): { ok: true; id: string; ledger?: string } | { ok: false; message: string } {
+  const byId = map.atoms.find((atom) => atom.id === id);
+  if (byId) {
+    const ledger = ledgerOf(byId);
+    return { ok: true, id: byId.id, ...(ledger !== undefined ? { ledger } : {}) };
+  }
+  const byLedger = map.atoms.filter((atom) => ledgerOf(atom) === id);
+  if (byLedger.length === 1 && byLedger[0]) return { ok: true, id: byLedger[0].id, ledger: id };
+  if (byLedger.length > 1)
+    return {
+      ok: false,
+      message: `The ledger id ${id} names ${byLedger.length} atoms (${byLedger.map((atom) => atom.id).join(', ')}): name one by its atom id.`,
+    };
+  return { ok: false, message: `Atom ${id} is not in the map.` };
 }
 
 /** The atoms whose quote is not at its span in the estate, as messages. */

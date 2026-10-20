@@ -93,3 +93,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1187
+        values:
+          ask_class: compose
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: language_switch
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

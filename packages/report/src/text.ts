@@ -1,4 +1,6 @@
+import { type AttributionSummary, assignedRunCounts, unmeasuredText } from './attribution';
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
+import type { Rate } from './estimate';
 import { carriedLines, count, fixed, headlineNote, interval, pct, points, pValue } from './format';
 import type { SuiteHeadline } from './headline';
 import type { CriterionRepeat } from './repeats';
@@ -97,7 +99,9 @@ export function compareText(result: CompareResult): string {
   if (result.carried) {
     lines.push(
       '',
-      `Carried, not paired: ${count(result.carried.carried, 'run')} of the candidate are results copied from an earlier campaign. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`,
+      result.carried.rescoredRuns
+        ? `Reused observations, not paired: ${count(result.carried.carried, 'run')} of the candidate use observations from an earlier campaign. These observations supply no fresh agent pairs. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`
+        : `Carried, not paired: ${count(result.carried.carried, 'run')} of the candidate are results copied from an earlier campaign. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`,
       ...carriedLines(result.carried).slice(1),
     );
   }
@@ -129,6 +133,45 @@ export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[
     const verdict = line.verdict === 1 ? 'pass' : line.verdict === 0 ? 'fail' : 'undecided';
     return `Criterion ${line.criterion} (${line.specId}, mode ${line.mode}): ${line.reducer} over ${line.outcomes.length} repeats, ${verdict} (${outcomes}).`;
   });
+}
+
+function rateText(value: Rate | undefined): string {
+  return value === undefined ? 'no run' : `${value.k} of ${value.n} (${pct(value.estimate)})`;
+}
+
+/** The two scores and the fix list as text, for the command line. */
+export function attributionText(summary: AttributionSummary | undefined): string[] {
+  if (summary === undefined) return [];
+  const b = summary.blocks;
+  const agent =
+    ('estimate' in summary.agent ? `${pct(summary.agent.estimate)}; ` : '') + assignedRunCounts(summary);
+  const lines = [
+    `Machine pass rate: ${rateText(summary.machine)} (runs that passed or failed). Agent-attributed pass rate: ${agent}. Unassigned runs are excluded from the agent-attributed rate.`,
+    `Failing blocks: ${b.failing}; the agent's ${b.agent}, setup ${b.setup}, excluded ${b.excluded}, credited ${b.credited}, unassigned ${b.unassigned}.${unmeasuredText({ ...b, runs: summary.unmeasuredRuns })}`,
+  ];
+  if (summary.nonDefault.length > 0) lines.push(`Non-default rules: ${summary.nonDefault.join(', ')}.`);
+  if (summary.fixes.length > 0) {
+    lines.push('Fix list:');
+    lines.push(
+      ...textTable([
+        ['#', 'where', 'target', 'action', 'blocks', "agent's", 'note'],
+        ...summary.fixes.map((fix, index) => [
+          String(index + 1),
+          fix.fixLocation,
+          fix.fixTarget ?? '',
+          fix.fixAction,
+          String(fix.blocks),
+          String(fix.agentBlocks),
+          fix.supersededBy === undefined
+            ? (fix.removeCopies ?? []).length > 0
+              ? `removes ${(fix.removeCopies ?? []).join('; ')}`
+              : ''
+            : `a copy to remove, replaced by ${fix.supersededBy}`,
+        ]),
+      ]),
+    );
+  }
+  return lines;
 }
 
 /**

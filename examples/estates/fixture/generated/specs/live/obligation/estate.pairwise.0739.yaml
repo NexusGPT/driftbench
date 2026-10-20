@@ -82,3 +82,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.after-a-compaction-re-read-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0739
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: none
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.standing.after-a-compaction-re-read-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -429,3 +429,12 @@ The no-key error is what you get with neither key in the environment and no `--n
 | `PROPOSAL_SOURCE_UNREADABLE` | a listed source file cannot be read from the proposal's folder |
 | `PROPOSAL_QUOTE_NOT_FOUND` | a quote is not in its source: the source changed, or the quote was edited |
 | `SPACE_*`, `SCHEMA_*` | the proposal is not a valid map, or the schema refuses a key or value |
+
+A `--tools` file that cannot be read stops the command before any proposal is written, exit 2, with `The inputs are invalid, so no proposal was written.` The line before it names the file, the path in the file, the code and the cause:
+
+| Code | Cause | Fix |
+|---|---|---|
+| `TOOLS_PARSE` | The file is not valid YAML, JSON or TOML. | Fix the syntax the message names. |
+| `TOOLS_NOT_FOUND` | No tools found: the file is not a list of tools and has no `tools`, `tool_schemas` or `metadata.tool_schemas` mapping. | Write the tools in one of those shapes, or pass an OpenAPI file. |
+| `TOOLS_INVALID` | A tool has no name (an XML `tool_description` without `tool_name`, for example); a list item is not a mapping (`tools.0  TOOLS_INVALID  a tool is a mapping`); or the `tools` value is neither a list nor a mapping of tools (`expected a list of tools or a mapping of tools`). | Give every tool a name, write each tool as a mapping, and make `tools` a list or a mapping. |
+| `TOOLS_DUPLICATE` | Two tools have the same name: an `operationId` in an OpenAPI file, or a name in a tools list (`tool "<name>" is listed twice`, at the path of the second). | Rename one. |
