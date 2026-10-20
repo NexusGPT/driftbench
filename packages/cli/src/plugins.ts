@@ -423,6 +423,8 @@ async function registerPendingObjects(owner: string): Promise<void> {
       // `run` rides on the implementation for the engine that calls it; the resolver reads `params` only.
       registry.registerImpl(name, {
         params: entry.impl.params ?? ANY_PARAMS,
+        // A diagnostic object owns its implementations: one that names no kind is refused as a diagnostic step.
+        ...(entry.label === 'diagnostic step' ? { kinds: ['diagnostic'] } : {}),
         ...(entry.impl.summary === undefined ? {} : { summary: entry.impl.summary }),
         run: entry.impl.run,
       } as ImplDef);

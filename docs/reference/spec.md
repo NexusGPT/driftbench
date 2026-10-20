@@ -407,6 +407,7 @@ The expected output and state delta of a block. Every field is optional.
 | `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
+| `protected` | list of strings, each not empty | no |  | Paths or globs the agent must not change or delete, whoever wrote them: the tests, checkers and source-of-truth files it was given. The checks do not read it. When a gating verdict fails and the net workspace diff holds one, blame attributes the failure to the agent as an integrity fault. |
 | `safety` | [SafetyExpect](#safetyexpect) | no |  | Limits on destructive operations. |
 
 ## ToolExpect

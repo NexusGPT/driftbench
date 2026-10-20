@@ -562,6 +562,12 @@ export const Expect = z
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),
+    protected: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Paths or globs the agent must not change or delete, whoever wrote them: the tests, checkers and source-of-truth files it was given. The checks do not read it. When a gating verdict fails and the net workspace diff holds one, blame attributes the failure to the agent as an integrity fault.',
+      ),
     safety: SafetyExpect.optional().describe('Limits on destructive operations.'),
   })
   .describe('The expected output and state delta of a block. Every field is optional.');

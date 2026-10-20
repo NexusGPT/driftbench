@@ -166,6 +166,15 @@ const cases: Array<{ name: string; given: evidence.EvidenceInput; want: unknown;
     want: 'tool',
   },
   {
+    name: 'contract',
+    why: 'the tool definition is a function-calling wrapper that states an enum',
+    given: input({
+      values: [{ tool: 'plan.switch', field: 'plan', value: 'premium' }],
+      toolSchemas: { 'plan.switch': { parameters: { properties: { plan: { enum: ['basic', 'plus'] } } } } },
+    }),
+    want: 'tool',
+  },
+  {
     name: 'outcome',
     why: 'rung 1 found the address unknown',
     given: input({

@@ -49,7 +49,7 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `tool_silent` | static | boolean | exit 0 or no error, with output that lacks what the tool's own usage text promises |
 | `tool_output_wrong` | static | boolean | a value the agent reported that came from a tool output (not from the user or a file), and that differs from gold |
 | `env_error` | static | network, sandbox, package, timeout, none | a classifier over stderr, the output of failed commands and tool errors; the first class that matches, in the order timeout, network, package, sandbox |
-| `protected_changed` | static | boolean | a path of the block's protected list changed or deleted in the net workspace diff |
+| `protected_changed` | static | boolean | a path of the block's `expect.protected` list changed or deleted in the net workspace diff |
 | `tests_fail_reverted` | static | boolean | the stored sandbox re-execution with the agent's test edits reverted (no agent call) |
 | `changed_inputs_fail` | static | boolean | the recompute rung: passes on the seed, fails on changed inputs |
 | `claim_contradicted` | static | boolean | claims in the reply against the run: tests said to pass while the last test command failed; a file said saved that the diff and the artifacts lack; done while an artifact check failed |
@@ -121,3 +121,26 @@ Where a fix goes: the items not marked additive are tried in order and the first
 | 11 | `core` | A core rule is fixed in the core prompt | home: core | fix_location: agent.cross_skill; target: core:{atom_line} |  |
 | 12 | `mechanical_guard` | Mechanics push out into a guard at the same scope | rule_mechanical: true; fix_location: [agent.cross_skill, agent.skill_reading, skill.content, skill.layout] | additive: true; add_form: guard; scope: same |  |
 | 13 | `escape_test` | The proposed wording names the kind, not the value | always | additive: true; lint_fix_text: [skill_names, file_names, literal_values] |  |
+
+## Diagnostics
+
+Five diagnostic files ship in `packages/checks/objects/diagnostic/`. A step of cost class `run` runs only within the diagnostic budget; the others read stored records. See `driftbench help results-diagnostics`.
+
+| Diagnostic | Scope | Step | Impl | Cost | What it does | Params |
+|---|---|---|---|---|---|---|
+| `code-agent-liability` | block | `chain` | `builtin:blame/chain` | static | Only the root of each chain of failing verdicts is attributed. | emit: false |
+| `code-agent-liability` | block | `evidence` | `builtin:blame/evidence` | static | The evidence names of each root, from the stored run and the map. | emit: false |
+| `code-agent-liability` | block | `attribute` | `builtin:blame/attribute` | static | policy/blame, first match in order. | emit: false |
+| `code-agent-liability` | block | `place` | `builtin:placement/apply` | static | policy/placement, with recurrence from the history given. | emit: true |
+| `fix-plan` | campaign | `recurrence` | `builtin:placement/recurrence` | static | Signatures and homes over every diagnosis of the campaign. |  |
+| `fix-plan` | campaign | `replace` | `builtin:fix-plan/replace` | static | Re-place each diagnosis whose signature crossed a threshold. |  |
+| `fix-plan` | campaign | `merge` | `builtin:fix-plan/merge` | static | One fix per target and action; local copies listed for removal. |  |
+| `fix-plan` | campaign | `rank` | `builtin:rank/top-n` | static | Rank the fixes: agent blocks, then blocks, then cost. | n: 10; by: [agent_blocks, blocks, cost_class] |
+| `flaky-block` | campaign | `disagreement` | `builtin:flaky/repeat-disagreement` | static | Blocks whose repeats both pass and fail. | min_repeats: 2 |
+| `liability-confirm` | campaign | `plan` | `builtin:confirm/plan` | static | The cheapest run that could change each static or undecided diagnosis. | runs: 3 |
+| `liability-confirm` | campaign | `run` | `builtin:confirm/run` | run | Runs the planned confirm runs within the budget; a stand-in command is free. | runs: 3; budget_usd: 0; reference_target: null |
+| `liability-confirm` | campaign | `store` | `builtin:confirm/store` | static | Stores reference_pass, reference_loads, forced_load_pass and hint_pass. |  |
+| `liability-confirm` | campaign | `rejudge` | `builtin:diagnostic/rerun` | static | Re-runs a block diagnostic with the stored confirm evidence; with none, the diagnoses stay static. | diagnostic: code-agent-liability |
+| `value-mismatch` | block | `chain` | `builtin:blame/chain` | static | Only the root of each chain of failing verdicts is attributed. | emit: false |
+| `value-mismatch` | block | `evidence` | `builtin:blame/value-evidence` | static | Value outcome unknown with a lint until the value ladder integration is available. | emit: false |
+| `value-mismatch` | block | `attribute` | `builtin:blame/attribute` | static | policy/blame, first match in order. | emit: true |

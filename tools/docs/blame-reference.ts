@@ -1,7 +1,8 @@
 /**
  * Writes docs/reference/blame.md from the code: every evidence name a blame or placement rule can read, with
  * its cost class, its values and what it is computed from (packages/core/src/evidence), then every item of the
- * shipped policy/blame and policy/placement files (packages/checks/objects), in order.
+ * shipped policy/blame and policy/placement files (packages/checks/objects), in order, and the steps of the
+ * shipped diagnostics.
  *
  * Usage:  tsx tools/docs/blame-reference.ts [--check]
  *   (no flag)   write the page
@@ -11,7 +12,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { shippedPolicy } from '../../packages/checks/src/blame/objects';
+import { SHIPPED_DIAGNOSTICS, shippedPolicy } from '../../packages/checks/src/blame/objects';
+import { BLOCK_STEPS, CAMPAIGN_STEPS } from '../../packages/checks/src/blame/steps';
 import { EVIDENCE_PROVIDERS } from '../../packages/core/src/evidence';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -36,6 +38,25 @@ function inline(value: unknown): string {
     return entries.map(([key, entry]) => `${key}: ${inline(entry)}`).join('; ');
   }
   return String(value);
+}
+
+/** The shipped diagnostics, from the registered TypeScript data: scope, steps with their impl, cost class and params. */
+function diagnosticRows(): string[] {
+  const steps = { ...BLOCK_STEPS, ...CAMPAIGN_STEPS } as Record<string, { cost: string; summary: string }>;
+  const rows: string[] = [];
+  for (const raw of Object.values(SHIPPED_DIAGNOSTICS) as Array<{
+    id: string;
+    scope?: string;
+    steps?: Array<{ id: string; impl: string; params?: Record<string, unknown> }>;
+  }>) {
+    for (const step of raw.steps ?? []) {
+      const impl = steps[step.impl];
+      rows.push(
+        `| \`${raw.id}\` | ${raw.scope ?? ''} | \`${step.id}\` | \`${step.impl}\` | ${impl?.cost ?? ''} | ${cell(impl?.summary ?? '')} | ${cell(step.params === undefined ? '' : inline(step.params))} |`,
+      );
+    }
+  }
+  return rows;
 }
 
 function itemRows(kind: 'policy/blame' | 'policy/placement'): string[] {
@@ -85,6 +106,14 @@ export function renderBlameReference(): string {
     '| # | Item | What it says | When | Effect | Params |',
     '|---|---|---|---|---|---|',
     ...itemRows('policy/placement'),
+    '',
+    '## Diagnostics',
+    '',
+    'Five diagnostic files ship in `packages/checks/objects/diagnostic/`. A step of cost class `run` runs only within the diagnostic budget; the others read stored records. See `driftbench help results-diagnostics`.',
+    '',
+    '| Diagnostic | Scope | Step | Impl | Cost | What it does | Params |',
+    '|---|---|---|---|---|---|---|',
+    ...diagnosticRows(),
     '',
   ];
   return lines.join('\n');
