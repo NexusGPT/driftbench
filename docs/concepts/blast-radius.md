@@ -2,7 +2,7 @@
 
 A change to one part of an agent has a blast radius: the blocks that part can affect. When you fix something related to a block, you do not need to run every test again, only the radius. driftbench computes it from what each block already says it reads.
 
-What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. See [what comes next](#what-comes-next) for the parts that are not built yet.
+What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. Also built: [prompt quotes](#prompt-quotes), [prompt sections and block links](#prompt-sections-and-block-links), [execution provenance](#execution-provenance), [re-judging a criterion](#re-judge-a-criterion), [mode T block reruns](#mode-t-block-reruns) and [parent blocks](#parent-blocks). See [what comes next](#what-comes-next) for the parts that are not built yet.
 
 ## A change
 
