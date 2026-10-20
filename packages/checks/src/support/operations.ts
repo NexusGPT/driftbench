@@ -50,12 +50,20 @@ export type Operation = {
  * - `--force`, `--ours`, `--theirs` and `--pathspec-from-file` after the option words, with or without a `--`.
  * A `--` followed by a path makes the command a path checkout whatever options precede it, and git refuses `-b`
  * or `--orphan` together with paths, so no option is left out. The words stop at a shell separator, so the `--`
- * of a later command is not this one's. A path is a word that is not a shell separator or a redirect (`>`, `<`,
- * `2>&1`, `&>`): `git checkout main --` and `git checkout -- >/dev/null` check nothing out. One whitespace
- * character stands between words; any number may follow the `--`. A number is a path unless a redirect
- * follows its digits (`2>`, `12>out.log`, `10>&1`), with or without a space after it.
+ * of a later command is not this one's. The patterns find the `--`; whether a path follows it is decided on the
+ * words of the simple command (see `simpleCommands`): quotes are honoured, the shell separators (`;`, `&`, `&&`,
+ * `|`, `||`, a newline) end the command, and every redirection (`>file`, `2>&1`, `&>file`, `<file`, with its
+ * operand) is dropped. Every word left after the `--` is a path, so `git checkout main --` and
+ * `git checkout -- >/dev/null` check nothing out, while `git checkout -- 7 & wait` and
+ * `git checkout -- >log notes.txt` do.
  */
-const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff: boolean }> = [
+const COMMAND_RULES: Array<{
+  class: OperationClass;
+  pattern: RegExp;
+  needsNoDiff: boolean;
+  /** The pattern only finds a `--` after `checkout`; the words of the simple command decide whether a path follows. */
+  needsPath?: boolean;
+}> = [
   { class: 'push', pattern: /\bgit\s+push\b/, needsNoDiff: false },
   { class: 'push', pattern: /\b(?:npm|pnpm|yarn)\s+publish\b/, needsNoDiff: false },
   { class: 'push', pattern: /\bdocker\s+push\b/, needsNoDiff: false },
@@ -66,9 +74,9 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
   {
     class: 'overwrite',
-    pattern:
-      /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|-][^\s;&|]*\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
+    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|-][^\s;&|]*\s)?--\s+[^\s;|]/,
     needsNoDiff: true,
+    needsPath: true,
   },
   {
     class: 'overwrite',
@@ -77,13 +85,15 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   },
   {
     class: 'overwrite',
-    pattern: /\bgit\s-[Cc]\s[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
+    pattern: /\bgit\s-[Cc]\s[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+[^\s;|]/,
     needsNoDiff: true,
+    needsPath: true,
   },
   {
     class: 'overwrite',
-    pattern: /\bgit\s--[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
+    pattern: /\bgit\s--[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+[^\s;|]/,
     needsNoDiff: true,
+    needsPath: true,
   },
 ];
 
@@ -133,12 +143,107 @@ export function classifyTool(label: string): OperationClass | undefined {
   return undefined;
 }
 
+/**
+ * The words of each simple command of a shell line. A word is a run of characters, with single and double quotes
+ * and backslashes honoured; a simple command ends at `;`, `&`, `&&`, `|`, `||`, `(`, `)` or a newline. A
+ * redirection (`>`, `>>`, `<`, `<<`, `<>`, `&>`, `>&`, `<&`, with the digits of a file descriptor glued before it
+ * and the digits or file name after it) is not a word, and its operand is not one.
+ */
+export function simpleCommands(line: string): string[][] {
+  const commands: string[][] = [];
+  let words: string[] = [];
+  let word = '';
+  let started = false;
+  let operand = false;
+  const endWord = () => {
+    if (!started) return;
+    if (operand) operand = false;
+    else words.push(word);
+    word = '';
+    started = false;
+  };
+  const endCommand = () => {
+    endWord();
+    operand = false;
+    if (words.length > 0) commands.push(words);
+    words = [];
+  };
+  for (let at = 0; at < line.length; at += 1) {
+    const char = line[at] as string;
+    if (char === "'" || char === '"') {
+      started = true;
+      const close = char;
+      for (at += 1; at < line.length && line[at] !== close; at += 1) {
+        if (close === '"' && line[at] === '\\' && at + 1 < line.length) at += 1;
+        word += line[at];
+      }
+      continue;
+    }
+    if (char === '\\' && at + 1 < line.length) {
+      started = true;
+      at += 1;
+      word += line[at];
+      continue;
+    }
+    if (/\s/.test(char)) {
+      if (char === '\n') endCommand();
+      else endWord();
+      continue;
+    }
+    if (
+      char === ';' ||
+      char === '|' ||
+      char === '(' ||
+      char === ')' ||
+      (char === '&' && line[at + 1] !== '>')
+    ) {
+      endCommand();
+      // `&&` and `||` are one separator.
+      if ((char === '&' || char === '|') && line[at + 1] === char) at += 1;
+      continue;
+    }
+    if (char === '<' || char === '>' || char === '&') {
+      // A redirection: the digits glued before `<` or `>` are its file descriptor, not a word (`7&>f` has the word 7).
+      if (char !== '&' && started && /^\d+$/.test(word)) {
+        word = '';
+        started = false;
+      } else endWord();
+      let end = at;
+      while (end < line.length && '<>&'.includes(line[end] as string) && end - at < 3) end += 1;
+      const operator = line.slice(at, end);
+      at = end - 1;
+      // `>&1`, `<&-`: the descriptor or the dash is part of the operator.
+      if (operator.endsWith('&') && operator !== '&') {
+        let digits = at + 1;
+        while (digits < line.length && /[\d-]/.test(line[digits] as string)) digits += 1;
+        if (digits > at + 1) at = digits - 1;
+        else operand = true;
+      } else operand = true;
+      continue;
+    }
+    started = true;
+    word += char;
+  }
+  endCommand();
+  return commands;
+}
+
+/** Whether some simple command of the line checks a path out: `git ... checkout ... -- <word>`. */
+export function checksOutPath(line: string): boolean {
+  return simpleCommands(line).some((words) => {
+    const git = words.indexOf('git');
+    const checkout = git < 0 ? -1 : words.indexOf('checkout', git + 1);
+    const dashes = checkout < 0 ? -1 : words.indexOf('--', checkout + 1);
+    return dashes >= 0 && words.length > dashes + 1;
+  });
+}
+
 /** The classes a command falls in. Removals and overwrites count only when no diff shows the files. */
 export function classifyCommand(command: string, hasDiff: boolean): OperationClass[] {
   const out = new Set<OperationClass>();
   for (const rule of COMMAND_RULES) {
     if (rule.needsNoDiff && hasDiff) continue;
-    if (rule.pattern.test(command)) out.add(rule.class);
+    if (rule.pattern.test(command) && (!rule.needsPath || checksOutPath(command))) out.add(rule.class);
   }
   return [...out];
 }
