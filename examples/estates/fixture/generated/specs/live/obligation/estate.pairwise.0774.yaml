@@ -95,3 +95,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.inbox-triager.a-message-that-fits-no-folder
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.a-message-that-fits-no-folder
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0774
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: resumed
+          owner_signal: stop
+          deviation: D1_off_topic
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

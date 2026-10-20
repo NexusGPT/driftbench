@@ -23,6 +23,7 @@ export {
   NO_FAMILY,
   NO_TIER,
 } from './bank';
+export { statsBankHash } from './bank-fingerprint';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
 export {
   checkFloors,
@@ -109,7 +110,7 @@ export {
   seedLabel,
   type Tier,
 } from './ladder';
-export { registeredLadders } from './ladders/index';
+export { registeredLadders, registeredLadderVersions } from './ladders/index';
 export { judgesBankChild } from './ladders/judges/v2/run-child';
 export {
   REFERENCE_TOLERANCE,

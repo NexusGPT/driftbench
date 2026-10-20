@@ -1,0 +1,816 @@
+{
+  "version": 1,
+  "reads": {
+    "27e1812214ce08c22d011bd8aa8d3e4319b6ac4b8b6594b449d7422d80742e65": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.96
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.05
+      },
+      "shipment_delay/lost": {
+        "yes": 0.09
+      },
+      "session_state/after_compaction": {
+        "yes": 0.03
+      },
+      "session_state/after_restart": {
+        "yes": 0.04
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.03
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.02
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.06
+      },
+      "helper/helper_died": {
+        "yes": 0.03
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.05
+      },
+      "approval/approval_given": {
+        "yes": 0.06
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.14
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.11
+      },
+      "carrier/carrier_error": {
+        "yes": 0.1
+      },
+      "carrier/carrier_status": {
+        "yes": 0.34
+      }
+    },
+    "1f9f8e29d5b921cee9b4daa475a432b981ef8763901e39bf9e2556e535178359": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.05
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.05
+      },
+      "shipment_delay/lost": {
+        "yes": 0.05
+      },
+      "session_state/after_compaction": {
+        "yes": 0.05
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.07
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.04
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.07
+      },
+      "helper/helper_died": {
+        "yes": 0.05
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.07
+      },
+      "approval/approval_given": {
+        "yes": 0.07
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.07
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.07
+      },
+      "carrier/carrier_error": {
+        "yes": 0.13
+      },
+      "carrier/carrier_status": {
+        "yes": 0.22
+      }
+    },
+    "4d366d3e4c42233d86c648ad6eecfd89f9987a368f9b0d68fa53ff3d4cd16b1a": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.05
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.05
+      },
+      "shipment_delay/lost": {
+        "yes": 0.06
+      },
+      "session_state/after_compaction": {
+        "yes": 0.06
+      },
+      "session_state/after_restart": {
+        "yes": 0.09
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.07
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.05
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.32
+      },
+      "helper/helper_died": {
+        "yes": 0.16
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.64
+      },
+      "approval/approval_given": {
+        "yes": 0.09
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.08
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.07
+      },
+      "carrier/carrier_error": {
+        "yes": 0.16
+      },
+      "carrier/carrier_status": {
+        "yes": 0.25
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.12
+      }
+    },
+    "79e56b3d14f026eb216b2e098578996ace6f5fc8a8f1bdc288f0d011b4d09f62": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.05
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.06
+      },
+      "shipment_delay/lost": {
+        "yes": 0.05
+      },
+      "session_state/after_compaction": {
+        "yes": 0.81
+      },
+      "session_state/after_restart": {
+        "yes": 0.14
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.24
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.05
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.19
+      },
+      "helper/helper_died": {
+        "yes": 0.1
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.12
+      },
+      "approval/approval_given": {
+        "yes": 0.1
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.11
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.08
+      },
+      "carrier/carrier_error": {
+        "yes": 0.15
+      },
+      "carrier/carrier_status": {
+        "yes": 0.21
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.12
+      }
+    },
+    "9a1f536132fc64487da1aa65f87b4594932c5d7232db86c4a3a821d18c457ba6": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.04
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.03
+      },
+      "shipment_delay/lost": {
+        "yes": 0.05
+      },
+      "session_state/after_compaction": {
+        "yes": 0.03
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.06
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.03
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.08
+      },
+      "helper/helper_died": {
+        "yes": 0.11
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.08
+      },
+      "approval/approval_given": {
+        "yes": 0.06
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.08
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.06
+      },
+      "carrier/carrier_error": {
+        "yes": 0.31
+      },
+      "carrier/carrier_status": {
+        "yes": 0.23
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.18
+      }
+    },
+    "dffba90cd5f2796be9cbf3e102271f604671062b762657f63ed3f96994a3e999": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.11
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.09
+      },
+      "shipment_delay/lost": {
+        "yes": 0.09
+      },
+      "session_state/after_compaction": {
+        "yes": 0.07
+      },
+      "session_state/after_restart": {
+        "yes": 0.07
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.87
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.39
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.19
+      },
+      "helper/helper_died": {
+        "yes": 0.07
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.14
+      },
+      "approval/approval_given": {
+        "yes": 0.14
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.37
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.26
+      },
+      "carrier/carrier_error": {
+        "yes": 0.39
+      },
+      "carrier/carrier_status": {
+        "yes": 0.44
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.6
+      }
+    },
+    "c08889fd7082d0d01797dee3a6a2175ccdc06f3f7a5b06c428f5af1703b361dc": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.08
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.09
+      },
+      "shipment_delay/lost": {
+        "yes": 0.07
+      },
+      "session_state/after_compaction": {
+        "yes": 0.06
+      },
+      "session_state/after_restart": {
+        "yes": 0.06
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.17
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.05
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.89
+      },
+      "helper/helper_died": {
+        "yes": 0.16
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.09
+      },
+      "approval/approval_given": {
+        "yes": 0.09
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.12
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.1
+      },
+      "carrier/carrier_error": {
+        "yes": 0.15
+      },
+      "carrier/carrier_status": {
+        "yes": 0.25
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.13
+      }
+    },
+    "33d76bd0568333b5193bf59b7dad0f8adffa74eade4c25df0bed7b8fd90853d2": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.03
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.03
+      },
+      "shipment_delay/lost": {
+        "yes": 0.03
+      },
+      "session_state/after_compaction": {
+        "yes": 0.03
+      },
+      "session_state/after_restart": {
+        "yes": 0.03
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.31
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.03
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.07
+      },
+      "helper/helper_died": {
+        "yes": 0.03
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.03
+      },
+      "approval/approval_given": {
+        "yes": 0.05
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.09
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.06
+      },
+      "carrier/carrier_error": {
+        "yes": 0.15
+      },
+      "carrier/carrier_status": {
+        "yes": 0.21
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.3
+      }
+    },
+    "33244f34cca1be3fff90b3aa117d2102a6ac961c38f32922f178270b0766bf4d": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.02
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.02
+      },
+      "shipment_delay/lost": {
+        "yes": 0.03
+      },
+      "session_state/after_compaction": {
+        "yes": 0.03
+      },
+      "session_state/after_restart": {
+        "yes": 0.03
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.07
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.91
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.86
+      },
+      "helper/helper_died": {
+        "yes": 0.05
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.03
+      },
+      "approval/approval_given": {
+        "yes": 0.04
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.09
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.06
+      },
+      "carrier/carrier_error": {
+        "yes": 0.07
+      },
+      "carrier/carrier_status": {
+        "yes": 0.1
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.12
+      }
+    },
+    "45df1804bf1aa93ab4c200ba6807e0615b06222f71fc902c6cf3417cbb7452e3": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.08
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.07
+      },
+      "shipment_delay/lost": {
+        "yes": 0.08
+      },
+      "session_state/after_compaction": {
+        "yes": 0.05
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.08
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.05
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.08
+      },
+      "helper/helper_died": {
+        "yes": 0.04
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.07
+      },
+      "approval/approval_given": {
+        "yes": 0.08
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.7
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.33
+      },
+      "carrier/carrier_error": {
+        "yes": 0.35
+      },
+      "carrier/carrier_status": {
+        "yes": 0.25
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.12
+      }
+    },
+    "fd89bfa899265f41827575d134255cf25d1179e9187a39aff2318aa82dcf9a50": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.04
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.04
+      },
+      "shipment_delay/lost": {
+        "yes": 0.11
+      },
+      "session_state/after_compaction": {
+        "yes": 0.04
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.03
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.02
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.1
+      },
+      "helper/helper_died": {
+        "yes": 0.09
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.05
+      },
+      "approval/approval_given": {
+        "yes": 0.08
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.1
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.09
+      },
+      "carrier/carrier_error": {
+        "yes": 0.91
+      },
+      "carrier/carrier_status": {
+        "yes": 0.22
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.09
+      }
+    },
+    "bdfcf488c23c9d5f15bbebd99cec0ccfc4843f1e460ff2cbc4beb98370823cf0": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.07
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.96
+      },
+      "shipment_delay/lost": {
+        "yes": 0.12
+      },
+      "session_state/after_compaction": {
+        "yes": 0.04
+      },
+      "session_state/after_restart": {
+        "yes": 0.04
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.04
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.03
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.06
+      },
+      "helper/helper_died": {
+        "yes": 0.03
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.05
+      },
+      "approval/approval_given": {
+        "yes": 0.06
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.12
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.11
+      },
+      "carrier/carrier_error": {
+        "yes": 0.11
+      },
+      "carrier/carrier_status": {
+        "yes": 0.33
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.13
+      }
+    },
+    "d9fe244cdf5e1ab1cd630842ecee1dc7eb04051aba0ca226527a25a1d868b544": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.06
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.05
+      },
+      "shipment_delay/lost": {
+        "yes": 0.05
+      },
+      "session_state/after_compaction": {
+        "yes": 0.04
+      },
+      "session_state/after_restart": {
+        "yes": 0.06
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.07
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.04
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.07
+      },
+      "helper/helper_died": {
+        "yes": 0.05
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.07
+      },
+      "approval/approval_given": {
+        "yes": 0.07
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.06
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.07
+      },
+      "carrier/carrier_error": {
+        "yes": 0.13
+      },
+      "carrier/carrier_status": {
+        "yes": 0.22
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.92
+      }
+    },
+    "2dd5632725a8dc9696360b4c02d670f9518fdd5e3f0f7c41fcc3b2b2360c2414": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.07
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.09
+      },
+      "shipment_delay/lost": {
+        "yes": 0.08
+      },
+      "session_state/after_compaction": {
+        "yes": 0.05
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.12
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.09
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.08
+      },
+      "helper/helper_died": {
+        "yes": 0.05
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.85
+      },
+      "approval/approval_given": {
+        "yes": 0.09
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.13
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.08
+      },
+      "carrier/carrier_error": {
+        "yes": 0.11
+      },
+      "carrier/carrier_status": {
+        "yes": 0.21
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.23
+      }
+    },
+    "c3097a5d463952d7438c854041172c03741c06142d11c6f8addacd659057a906": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.06
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.06
+      },
+      "shipment_delay/lost": {
+        "yes": 0.23
+      },
+      "session_state/after_compaction": {
+        "yes": 0.07
+      },
+      "session_state/after_restart": {
+        "yes": 0.06
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.06
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.03
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.1
+      },
+      "helper/helper_died": {
+        "yes": 0.12
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.12
+      },
+      "approval/approval_given": {
+        "yes": 0.12
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.09
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.08
+      },
+      "carrier/carrier_error": {
+        "yes": 0.87
+      },
+      "carrier/carrier_status": {
+        "yes": 0.28
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.11
+      }
+    },
+    "1d052af80a3fa25c5b6985a4f740a6fa5e6c24801431122129ca30e65eb79cb0": {
+      "shipment_delay/late_over_two_days": {
+        "yes": 0.07
+      },
+      "shipment_delay/late_over_one_day": {
+        "yes": 0.07
+      },
+      "shipment_delay/lost": {
+        "yes": 0.07
+      },
+      "session_state/after_compaction": {
+        "yes": 0.05
+      },
+      "session_state/after_restart": {
+        "yes": 0.05
+      },
+      "invoice_work/before_invoice_edit": {
+        "yes": 0.11
+      },
+      "invoice_work/invoice_diff_over_50": {
+        "yes": 0.04
+      },
+      "helper/before_helper_dispatch": {
+        "yes": 0.26
+      },
+      "helper/helper_died": {
+        "yes": 0.05
+      },
+      "approval/approval_unanswered": {
+        "yes": 0.07
+      },
+      "approval/approval_given": {
+        "yes": 0.09
+      },
+      "supplier/supplier_not_in_table": {
+        "yes": 0.19
+      },
+      "supplier/supplier_in_table": {
+        "yes": 0.17
+      },
+      "carrier/carrier_error": {
+        "yes": 0.13
+      },
+      "carrier/carrier_status": {
+        "yes": 0.19
+      },
+      "user_message/user_says_stop": {
+        "yes": 0.15
+      }
+    }
+  },
+  "proposals": {
+    "98988e9ea36c1061e2ae5e25b641f9a47f77c1a8be0d265146c0ed29aa76e305": {
+      "variable": {
+        "id": "user_message",
+        "title": "What the user has said"
+      },
+      "value": {
+        "id": "user_says_stop",
+        "title": "the user says \"stop\""
+      }
+    }
+  },
+  "recorded": {
+    "reader": "jev (typesafe)",
+    "proposer": "anthropic:claude-haiku-5-5",
+    "spans": 26
+  }
+}

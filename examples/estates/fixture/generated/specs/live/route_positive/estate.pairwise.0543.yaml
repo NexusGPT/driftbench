@@ -85,3 +85,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-audit-the-ledger
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0543
+        values:
+          ask_class: change_estate
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: stop
+          deviation: none
+          estate_hazard: compaction_mid_task
+          atoms.route: route.standing.an-ask-to-audit-the-ledger
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

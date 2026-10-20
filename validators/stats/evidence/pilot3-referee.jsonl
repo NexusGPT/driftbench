@@ -1,0 +1,11 @@
+{"round": "10b", "level": 3, "top": 7, "bankSize": 1162, "passing": 927, "score": 0.797762, "failing": 235, "distinctCauses": 118, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "11", "level": 3, "top": 7, "bankSize": 1162, "passing": 928, "score": 0.798623, "failing": 234, "distinctCauses": 117, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "12", "level": 3, "top": 7, "bankSize": 1162, "passing": 930, "score": 0.800344, "failing": 232, "distinctCauses": 116, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "13", "level": 3, "top": 7, "bankSize": 1162, "passing": 932, "score": 0.802065, "failing": 230, "distinctCauses": 115, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "14", "level": 3, "top": 7, "bankSize": 1162, "passing": 934, "score": 0.803787, "failing": 228, "distinctCauses": 114, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "15", "level": 3, "top": 7, "bankSize": 1162, "passing": 936, "score": 0.805508, "failing": 226, "distinctCauses": 113, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "16", "level": 3, "top": 7, "bankSize": 1162, "passing": 938, "score": 0.807229, "failing": 224, "distinctCauses": 112, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "17", "level": 3, "top": 7, "bankSize": 1162, "passing": 940, "score": 0.80895, "failing": 222, "distinctCauses": 111, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "18", "level": 3, "top": 7, "bankSize": 1162, "passing": 942, "score": 0.810671, "failing": 220, "distinctCauses": 110, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "19", "level": 3, "top": 7, "bankSize": 1162, "passing": 944, "score": 0.812392, "failing": 218, "distinctCauses": 109, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}
+{"round": "20", "level": 3, "top": 7, "bankSize": 1162, "passing": 946, "score": 0.814114, "failing": 216, "distinctCauses": 108, "bankHash": "eff677df63307f40e39111be394c230ebe39b13c39fe553aa8a577d6702cb8b3"}

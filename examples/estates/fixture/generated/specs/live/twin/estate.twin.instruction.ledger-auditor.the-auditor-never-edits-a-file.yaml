@@ -85,3 +85,30 @@ metadata:
     ask: code
     askFrom: subagent.ledger-auditor.helper-ledger-auditor (description)
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: twin.instruction.ledger-auditor.the-auditor-never-edits-a-file
+        values:
+          atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

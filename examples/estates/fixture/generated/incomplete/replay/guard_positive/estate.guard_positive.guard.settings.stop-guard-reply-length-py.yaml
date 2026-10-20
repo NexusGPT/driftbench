@@ -57,3 +57,22 @@ metadata:
       - marker: needs-recorded-session
         atom: guard.settings.stop-guard-reply-length-py
         detail: no recorded session of this situation
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.stop-guard-reply-length-py
+        values:
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

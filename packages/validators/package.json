@@ -12,13 +12,13 @@
     "planted-truth",
     "meta-evaluation"
   ],
-  "homepage": "https://github.com/achammah/driftbench#readme",
+  "homepage": "https://github.com/NexusGPT/driftbench#readme",
   "bugs": {
-    "url": "https://github.com/achammah/driftbench/issues"
+    "url": "https://github.com/NexusGPT/driftbench/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/achammah/driftbench.git",
+    "url": "git+https://github.com/NexusGPT/driftbench.git",
     "directory": "packages/validators"
   },
   "license": "MIT",
@@ -40,7 +40,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+    "build": "pnpm run build:runtime && tsup src/index.ts --format esm --dts-only --target node22",
+    "build:runtime": "tsup src/index.ts --format esm --clean --target node22 && tsup src/ladders/stats/bank/child.ts --format esm --target node22 --out-dir dist/stats-bank"
   },
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
