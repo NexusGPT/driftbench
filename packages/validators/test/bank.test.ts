@@ -217,3 +217,73 @@ describe('catch items', () => {
     expect(() => readCatchList(root, 'roles')).toThrow(/items/);
   });
 });
+
+describe('catch items, composite causes and provenance together', () => {
+  const ladder = defineLadder({
+    component: 'merged',
+    levels: [
+      {
+        id: 'one',
+        name: 'one',
+        metric: 'a / b',
+        threshold: 1,
+        compute: () =>
+          bankMeasure([
+            { id: 'a1', component: 'c', family: 'f', tier: 1, cause: 'x', provenance: 'blind', pass: true },
+            { id: 'a2', component: 'c', family: 'f', tier: 2, cause: 'y', provenance: 'blind', pass: false },
+            {
+              id: 'c1',
+              component: 'c',
+              family: 'f',
+              tier: 2,
+              cause: 'y2',
+              causeKind: 'composite',
+              provenance: 'maintainer-repaired',
+              pass: false,
+            },
+            {
+              id: 'a3',
+              component: 'c',
+              family: 'f',
+              tier: 3,
+              cause: 'y',
+              provenance: 'maintainer-repaired',
+              pass: false,
+            },
+            // A catch item with a provenance label and a failing verdict: it counts for no hardness and no label.
+            {
+              id: 'k1',
+              component: 'c',
+              family: 'f',
+              tier: 1,
+              cause: 'z',
+              role: 'catch',
+              provenance: 'blind',
+              pass: false,
+            },
+          ]),
+      },
+    ],
+  });
+  const pinned = new Map([['k1', 'bug:B01']]);
+
+  it('counts only hardness items, keeps the atomic and composite causes, and the label counts', async () => {
+    const summary = bankSummary(await runSeeds(ladder, seedSpecs([1]), undefined, { full: true }), pinned);
+    expect(summary.size).toBe(4);
+    expect(summary.passing).toBe(1);
+    // The catch item k1 fails and stays out of every count below.
+    expect(summary.failingByFamily).toEqual({ f: 3 });
+    // a2 and a3 share the cause y; the composite c1 adds none.
+    expect(summary.failingCauses).toBe(1);
+    expect(summary.failingComposite).toBe(1);
+    expect(summary.failingCausesByFamily).toEqual({ f: 1 });
+    expect(summary.byProvenance).toEqual({
+      blind: { size: 2, passing: 1 },
+      'maintainer-repaired': { size: 2, passing: 0 },
+    });
+    expect(summary.catch).toEqual({ size: 1, passing: 0, failingByFamily: { f: 1 } });
+    const text = formatItems(summary, 'merged');
+    expect(text).toContain('Provenance blind: 2 items, 1 pass on every seed');
+    expect(text).toContain('Catch items, counted apart and for no hardness: 1, 0 pass on every seed.');
+  });
+});

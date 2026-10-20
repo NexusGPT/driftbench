@@ -584,6 +584,7 @@ export {
   resolveSpecParents,
   type SpecParentRecord,
   type SpecParentRef,
+  specAsAuthored,
   specParentRecord,
   specParentRef,
   stemOf,

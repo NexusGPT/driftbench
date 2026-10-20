@@ -1,4 +1,10 @@
-import { type BlockSpec, type Spec, specHash } from '@agent-nexus/driftbench-core';
+import {
+  type BlockSpec,
+  type Spec,
+  specAsAuthored,
+  specHash,
+  specParentRecord,
+} from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { formatJson } from '../enumerate/json';
 import type { BlockRecord, GateResult } from './gate';
@@ -38,12 +44,31 @@ export function gateFiles(
   const bySpec = new Map<string, BlockRecord[]>();
   for (const record of result.blocks) bySpec.set(record.spec, [...(bySpec.get(record.spec) ?? []), record]);
 
+  // A spec with an accepted block is written in its split. A stem that a written spec starts from is written
+  // in the same split even when none of its own blocks was accepted, so every written child can load.
+  const splits = new Map<string, 'dev' | 'holdout'>();
+  for (const candidate of candidates) {
+    const accepted = (bySpec.get(candidate.spec.id) ?? []).filter((record) => record.status === 'accepted');
+    if (accepted.length > 0) splits.set(candidate.spec.id, accepted[0]?.split ?? 'dev');
+  }
+  const specOf = new Map(candidates.map((candidate) => [candidate.spec.id, candidate.spec]));
+  for (const [id, split] of [...splits]) {
+    const seen = new Set<string>([id]);
+    for (let at = specOf.get(id); at; ) {
+      const parent = specParentRecord(at)?.from.split('#')[0];
+      if (parent === undefined || seen.has(parent) || !specOf.has(parent)) break;
+      seen.add(parent);
+      if (!splits.has(parent)) splits.set(parent, split);
+      at = specOf.get(parent);
+    }
+  }
   for (const candidate of candidates) {
     const records = bySpec.get(candidate.spec.id) ?? [];
-    const accepted = records.filter((record) => record.status === 'accepted');
-    if (accepted.length === 0) continue;
-    const split = accepted[0]?.split ?? 'dev';
-    const gated = gatedSpec(candidate.spec, records, meta.options.date);
+    const split = splits.get(candidate.spec.id);
+    if (split === undefined) continue;
+    // A child is written as authored when its stems are gated with it; else whole, as the loader wrote it out,
+    // so it still runs on its own: its opening replays first, kept as it was, never gated as its own blocks.
+    const gated = gatedSpec(candidate.spec, records, meta.options.date, stemsAmong(candidate.spec, specOf));
     const folder = split === 'holdout' ? HOLDOUT_DIR : GATED_DIR;
     const path = `${folder}/${candidate.path}`;
     files.push({ path, text: specText(gated, candidate.path, split) });
@@ -66,10 +91,18 @@ export function gateFiles(
   return files;
 }
 
-function gatedSpec(spec: Spec, records: readonly BlockRecord[], date: string): Spec {
-  const byIndex = new Map(records.map((record) => [record.index, record]));
+/**
+ * The gated spec as authored: a child of a stem is written with its own blocks and its parent link, as the
+ * candidate file had it, and its records (read on the written-out spec) are moved to its own positions.
+ */
+function gatedSpec(written: Spec, records: readonly BlockRecord[], date: string, authored: boolean): Spec {
+  const replayed = specParentRecord(written)?.replayed ?? 0;
+  const shift = authored ? replayed : 0;
+  const spec = authored ? specAsAuthored(written) : written;
+  const byIndex = new Map(records.map((record) => [record.index - shift, record]));
   const dropped: string[] = [];
   const blocks: BlockSpec[] = spec.blocks.map((block, index) => {
+    if (!authored && index < replayed) return block;
     if (byIndex.get(index)?.status === 'accepted') return block;
     const { expect, budget: _budget, ...rest } = block;
     const criteria = expect?.criteria ?? [];
@@ -93,7 +126,8 @@ function gatedSpec(spec: Spec, records: readonly BlockRecord[], date: string): S
         by: 'driftbench gate',
         date,
         blocks: records.map((record) => ({
-          block: record.id ?? record.index,
+          // The authored index: the records were read on the written-out spec, after the opening it replays.
+          block: record.id ?? record.index - shift,
           status: record.status,
           ...(record.rejectedAt ? { stage: record.rejectedAt, reason: record.reason } : {}),
           ...(record.status === 'accepted'
@@ -286,4 +320,17 @@ export function renderFunnel(result: GateResult): string {
 
 function pct(share: number): string {
   return `${Math.round(share * 100)}%`;
+}
+
+/** True when every stem the spec starts from, up its chain, is among the gated candidates. */
+function stemsAmong(spec: Spec, specOf: ReadonlyMap<string, Spec>): boolean {
+  const seen = new Set<string>();
+  for (let at: Spec | undefined = spec; at; ) {
+    const parent = specParentRecord(at)?.from.split('#')[0];
+    if (parent === undefined) return true;
+    if (seen.has(parent) || !specOf.has(parent)) return false;
+    seen.add(parent);
+    at = specOf.get(parent);
+  }
+  return true;
 }

@@ -102,13 +102,15 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
 }
 
 /**
- * The first JSON object of a text that holds a `labels` list: the text itself, the inside of one code fence, or the
- * outermost braces of a text that wraps the object in words. A model that answers a unit as if it were an order
- * writes a sentence and then the object; the object is still the answer.
+ * The one JSON object of a text that holds a `labels` list: the text itself, the inside of its only code fence, or
+ * the span from its first `{` to its last `}` for a text that wraps the object in words. A model that answers a
+ * unit as if it were an order writes a sentence and then the object; the object is still the answer. A text with
+ * two objects, or with two fences, has no such span that parses, so it has no answer.
  */
 function jsonObjectOf(text: string): unknown {
   const trimmed = text.trim();
-  const candidates = [trimmed, /```[A-Za-z]*\s*\n([\s\S]*?)\n?```/.exec(trimmed)?.[1]?.trim()];
+  const fences = [...trimmed.matchAll(/```[A-Za-z]*\s*\n([\s\S]*?)\n?```/g)];
+  const candidates = [trimmed, fences.length === 1 ? fences[0]?.[1]?.trim() : undefined];
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first >= 0 && last > first) candidates.push(trimmed.slice(first, last + 1));
@@ -124,10 +126,24 @@ function jsonObjectOf(text: string): unknown {
   return undefined;
 }
 
-/** Reads the labels of a dense answer. The request and its answer are one pair, so no id is echoed. */
-export function parseDenseAnswer(text: string): Labelled[] {
+/** The window and the set a request was made for: an answer that names others is for another request. */
+export type Expected = { window?: string; set?: string };
+
+/**
+ * Reads the labels of a dense answer. The answer may carry `window` and `set`; when it does and the request is
+ * known, they must be the request's own. An answer that carries neither is accepted: the request and its answer
+ * are one pair.
+ */
+export function parseDenseAnswer(text: string, expected: Expected = {}): Labelled[] {
   const value = jsonObjectOf(text);
   if (value === undefined) throw new LabelerError('the answer is not JSON');
+  const named = value as Record<string, unknown>;
+  if (expected.window !== undefined && named.window !== undefined && named.window !== expected.window) {
+    throw new LabelerError(`the answer is for another window than ${expected.window}`);
+  }
+  if (expected.set !== undefined && named.set !== undefined && named.set !== expected.set) {
+    throw new LabelerError(`the answer is for another set than ${expected.set}`);
+  }
   return denseLabels(value);
 }
 
@@ -229,7 +245,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
   if (!key) return labeler;
   return {
     ...labeler,
-    async call(wire, _set, window, attempt = 1) {
+    async call(wire, set, window, attempt = 1) {
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
       const body =
         attempt > 1
@@ -258,7 +274,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         .map((block) => block.text)
         .join('');
       return {
-        labels: offsetSpans(parseDenseAnswer(text), window),
+        labels: offsetSpans(parseDenseAnswer(text, { window: window.id, set: set.set }), window),
         returnedModel: String(payload.model ?? model),
         stopReason: stop,
         usage: usageOf(payload),

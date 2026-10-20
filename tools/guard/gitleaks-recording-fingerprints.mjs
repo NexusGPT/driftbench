@@ -30,7 +30,11 @@ export const FOLDERS = [
   // The pointer reader's own cassette of the settings example: each recorded answer under a 64-hex request key.
   { path: /^examples\/estates\/fixture\/settings-cassette\.jsonl$/, fields: ['key'], min: 64 },
   // The pointer reader's cassettes of the Northwind estates and the reader cases: a 64-hex request key per answer.
-  { path: /^examples\/estates\/(?:fixture|fixture-v2|reader-cases)\/cassette\.jsonl$/, fields: ['key'], min: 64 },
+  {
+    path: /^examples\/estates\/(?:fixture|fixture-v2|reader-cases)\/cassette\.jsonl$/,
+    fields: ['key'],
+    min: 64,
+  },
 ];
 export const PATHSPECS = [
   'examples/all-peers-public/cells/calls-parts',
