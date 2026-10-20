@@ -65,6 +65,35 @@ it('still validates an implicit default item during the explicit preflight', () 
   expect(checkSpecObjects(spec, context)).toEqual([expect.objectContaining({ code: 'OBJECT_ITEM_UNKNOWN' })]);
 });
 
+it('accepts a kind-only diagnostic override on a shipped default before loading', () => {
+  const registry = new ObjectRegistry();
+  for (const kind of BUILTIN_KINDS) registry.registerKind(kind);
+  registry.registerImpl('builtin:test/diagnostic', {
+    kinds: ['diagnostic'],
+    params: z.strictObject({ limit: z.number() }),
+  });
+  registry.registerShipped(
+    {
+      kind: 'diagnostic',
+      id: 'default',
+      default: true,
+      steps: [{ id: 'rule', title: 'Rule', impl: 'builtin:test/diagnostic', params: { limit: 1 } }],
+    },
+    'fixture',
+  );
+  const context = {
+    ...shippedObjectContext(registry),
+    cli: parseCliOverrides([], ['diagnostic#rule.limit=2'], registry),
+  };
+  const spec = {
+    id: 'diagnostic-default',
+    kind: 'conversation' as const,
+    blocks: [{ when: { user: 'hello' } }],
+  };
+  expect(resolveBlockObjects(spec, 0, context)[0]?.object.items[0]?.params).toEqual({ limit: 2 });
+  expect(checkSpecObjects(spec, context)).toEqual([]);
+});
+
 function rangeContext(flags: string[]) {
   const registry = new ObjectRegistry();
   for (const kind of BUILTIN_KINDS) registry.registerKind(kind);
