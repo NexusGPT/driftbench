@@ -26,11 +26,17 @@ concurrency:
   group: validators-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
+# Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
+# `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
+# `ubuntu-latest`, because this repository is public and a fork's code must never run on a self-hosted machine.
+# A push to main and a dispatch carry no pull request, so they follow the variable.
+# Every setup-node step passes `check-latest: true`: a self-hosted image caches an older Node.js 24 (24.9.0) than the
+# hosted images carry, and under it the module-load tests of tools/perf exit 1.
 jobs:
   ladders:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ladders and floors
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -38,6 +44,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Every validator on seeds 1 to 3 and the hidden seed, at or above its floor
         run: pnpm driftbench validate all --seeds 1..3 --hidden --check-floor
@@ -47,7 +54,7 @@ jobs:
   system-full:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
     name: system all 11 levels
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -55,6 +62,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Every system level on seeds 1 to 3 and the hidden seed
         shell: bash
@@ -152,7 +160,7 @@ jobs:
   protect:
     name: executor branches leave the validators alone
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -162,6 +170,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Refuse protected changes from an exec/ branch
         env:
