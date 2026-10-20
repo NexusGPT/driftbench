@@ -36,6 +36,14 @@ describe('the frozen configuration, replayed from the recordings', () => {
     expect(run.score.correct / run.score.assigned).toBeLessThan(0.95);
   });
 
+  it('second round (tuned on the 136 clauses of both halves): 0.945 precision, 0.937 recall', async () => {
+    const both = [...json<Clause[]>('dev-clauses.json'), ...json<Clause[]>('heldout-clauses-1.json')];
+    const systems = makeSystems(json<Cache>('recording-tuning-2.json'));
+    const run = await runConfig(configNamed('frozen2'), both, systems);
+    expect(run.result.report.failed).toBe(0);
+    expect(run.score).toMatchObject({ assigned: 110, correct: 104, planted: 111 });
+  });
+
   it('a recording that lacks a clause fails its span instead of calling a model', async () => {
     const systems = makeSystems({ reads: {}, proposals: {} });
     const run = await runConfig(

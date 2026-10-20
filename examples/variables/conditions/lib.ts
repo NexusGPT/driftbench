@@ -40,6 +40,19 @@ export const CONFIGS: Record<string, Config> = {
   // Frozen after the first tuning round on the dev half: the default wording and the sharp wording averaged, a
   // yes at 0.5, system 2 called whenever no candidate got a yes, a proposal only under a listed variable.
   frozen: { wording: 'default', also: ['sharp'], yesAt: 0.5, noAt: 0.4, propose: 'no-yes', existing: true },
+  // Frozen after the second round, tuned on the 136 clauses of the first two halves: the first configuration, system
+  // 2 shown the titles of the existing values, and a proposal refused when system 1 reads it as an existing value.
+  // The cross-check (`~cross`) was tried and left out: it raised precision by about 0.015 and cost 0.06 of recall.
+  frozen2: {
+    wording: 'default',
+    also: ['sharp'],
+    yesAt: 0.5,
+    noAt: 0.4,
+    propose: 'no-yes',
+    existing: true,
+    titles: true,
+    checkProposals: 'refuse',
+  },
   base: { wording: 'default', yesAt: 0.75, noAt: 0.25, propose: 'all-no' },
 };
 
