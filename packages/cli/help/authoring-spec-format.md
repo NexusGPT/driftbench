@@ -14,7 +14,6 @@ see_also:
   - authoring-spec-check
   - authoring-script-api
   - authoring-inventory
-  - authoring-rule-files
 next:
   - authoring-blocks
 ---
@@ -253,13 +252,17 @@ Every rule driftbench applies is an object. It has a kind (`policy/blame`, `poli
 
 A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields. `params` maps merge, lists replace, `+key: [values]` appends, and `-key: [values]` removes. `enabled: false` disables the item. `add: true` with `title`, `when`, `effect` and `impl` adds one. `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`. It then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`). Without it, the item fires everywhere. An item may also carry `cites`, a text naming its source for the reader, such as a rule number. It changes no result.
 
-Where an id is looked up, weakest first: the shipped objects, then the project, then the suite folders. The project is the files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list. The suite folders are each `_driftbench/<kind>/<id>.yaml` from the project down to the spec, and a nearer one is stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
+Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
-Every kind `uses` names is scoring-only. `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
+A diagnostic (`uses.diagnostics`) runs after a block's checks and writes diagnoses on the block; it never changes a verdict or `pass`. Its file holds `scope` (`block` by default, `run` for once over a whole run, `campaign` for once over every run), `when` (`always: true`, or `any_verdict: { name, outcome, id_contains, gating }`, or `any_diagnosis: { diagnostic, step, disposition, confidence }`), `reads` (the kinds it reads), `output`, `cost`, and `steps`, each naming a registered diagnostic step. A step of cost class `run` or `model` runs only within the diagnostic budget, 0 by default, and is counted in the block's `skippedForBudget` otherwise. With no `uses.diagnostics` at any layer, the shipped diagnostics marked `default: true` run; `diagnostics: []` runs none.
 
-The loader resolves every object a layer names. These are load errors: an unknown object, an unknown item, an `extends` cycle, a bad order, a missing implementation, and params of the wrong type. A bad order is one that is not a permutation. Each error names the spec, the block, the kind and the id.
+Trigger fields are optional. Every filter within one trigger must match the same verdict or diagnosis; when several triggers are present, any matching trigger fires. `gating` is a boolean. Diagnosis filters accept one exact value or a list of alternatives; `diagnostic` accepts a bare id, `diagnostic:id`, or the full stored `diagnostic:id@hash` reference. No prefix or glob matching applies. `confidence` accepts `static`, `undecided`, or `confirmed`. Block triggers see earlier diagnostics on that block; run triggers also see the run's block diagnoses; campaign triggers also see every run and block diagnosis. A later diagnostic cannot trigger an earlier one. Each step's `earlier` array still contains only the preceding output of its own diagnostic.
 
-The shipped objects are `check-set:default` and `policy/value-check:default`; a run reads `check_set` (see running-check-sets) and `value_check` (see judging-check-tools). How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
+A step may supply `by` to identify the policy rule that decided its result. That attribution is preserved, and `via` records the executing diagnostic step. Without an explicit `by`, the execution stamp remains in `by` and `via` is absent. Diagnostic `cost.model_calls` and `cost.agent_runs` accept only `none`, `conditional`, or `always`; numeric `0` is invalid. These declarations do not replace the step budget.
+
+Every kind `uses` names is scoring-only: `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
+
+The loader resolves every object a layer names. An unknown object, an unknown item, an `extends` cycle, an order that is not a permutation, a missing implementation or params of the wrong type is a load error naming the spec, the block, the kind and the id.
 
 In this release no run reads these objects yet, and none is shipped: `uses` is checked at load and recorded in the spec hash. How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
 

@@ -191,6 +191,49 @@ function assertTriggers(workflow: ReturnType<typeof parse>) {
   expect(inputs.jobs.type).toBe('string');
 }
 
+/**
+ * The build job runs its tests in four shards. Shard 1 alone also runs these steps, which do not depend on the shard:
+ * a step that tests anything else never carries a condition.
+ */
+const SHARD_ONE = 'matrix.shard == 1';
+const SHARD_ONE_STEPS = [
+  'pnpm lint',
+  'pnpm typecheck',
+  'pnpm docs:reference --check',
+  'pnpm docs:links',
+  'pnpm docs:site:build',
+  'node packages/cli/dist/bin.js --version',
+];
+const SHARD_TEST_COMMAND = 'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4';
+
+/** The condition a step of a heavy job may carry: keep artifacts after a failure, or (build only) run in shard 1. */
+function stepConditionAllowed(id: string, step: { if?: string; run?: string }): boolean {
+  if (step.if === 'always()') return true;
+  return id === 'build' && step.if === SHARD_ONE && SHARD_ONE_STEPS.includes(step.run ?? '');
+}
+
+/** Four shards, each test file in exactly one: the shard list, the shard option of the test step, no skipped test. */
+function assertShards(workflow: ReturnType<typeof parse>) {
+  const job = workflow.jobs.build;
+  expect(job.strategy.matrix.shard).toEqual([1, 2, 3, 4]);
+  expect(job.name).toBe('build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/4)');
+  const steps: { if?: string; run?: string }[] = job.steps;
+  const tests = steps.filter((step) => step.run === SHARD_TEST_COMMAND);
+  expect(tests).toHaveLength(1);
+  expect(tests[0]?.if).toBeUndefined();
+  // the API gate builds the stamp the tests verify: every shard runs it
+  const gate = steps.filter((step) => step.run === 'node tools/structure/api-surface.mjs --build --check');
+  expect(gate).toHaveLength(1);
+  expect(gate[0]?.if).toBeUndefined();
+  // shard 1 runs each of the shard-independent steps once, and no step runs in a shard other than all of them or 1
+  for (const command of SHARD_ONE_STEPS) {
+    const matching = steps.filter((step) => step.run === command);
+    expect(matching, command).toHaveLength(1);
+    expect(matching[0]?.if, command).toBe(SHARD_ONE);
+  }
+  expect(steps.filter((step) => step.if === SHARD_ONE)).toHaveLength(SHARD_ONE_STEPS.length);
+}
+
 function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[]) {
   assertTriggers(workflow);
   assertNoPathFilters(workflow);
@@ -199,8 +242,8 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
   for (const id of ids) {
     expect(workflow.jobs[id].if).toBe(heavyCondition(id));
     for (const step of workflow.jobs[id].steps) {
-      // A step condition may only keep artifacts after a failure; it may never skip work.
-      if (step.if !== undefined) expect(step.if).toBe('always()');
+      // A step condition may only keep artifacts after a failure, or run a shard-independent step of build in shard 1.
+      if (step.if !== undefined) expect(stepConditionAllowed(id, step), `${id}: ${step.if}`).toBe(true);
     }
   }
 }
@@ -518,6 +561,7 @@ describe('merge train enforcement', () => {
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
     assertWorkflowPolicy(workflow, CI_HEAVY);
     expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
+    assertShards(workflow);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
@@ -530,6 +574,34 @@ describe('merge train enforcement', () => {
     const skipped = structuredClone(workflow);
     skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
     expect(() => assertWorkflowPolicy(skipped, CI_HEAVY)).toThrow();
+  });
+  it('rejects a build that skips tests in some shard, or drops a shard', () => {
+    const skipsTests = structuredClone(workflow);
+    skipsTests.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).if =
+      SHARD_ONE;
+    expect(() => assertWorkflowPolicy(skipsTests, CI_HEAVY)).toThrow();
+    const skipsGate = structuredClone(workflow);
+    skipsGate.jobs.build.steps.find(
+      (step: { run?: string }) => step.run === 'node tools/structure/api-surface.mjs --build --check',
+    ).if = SHARD_ONE;
+    expect(() => assertWorkflowPolicy(skipsGate, CI_HEAVY)).toThrow();
+    const threeShards = structuredClone(workflow);
+    threeShards.jobs.build.strategy.matrix.shard = [1, 2, 3];
+    expect(() => assertShards(threeShards)).toThrow();
+    const wrongCount = structuredClone(workflow);
+    wrongCount.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
+      'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/3';
+    expect(() => assertShards(wrongCount)).toThrow();
+    const noShardOption = structuredClone(workflow);
+    noShardOption.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
+      'pnpm test --maxWorkers=2';
+    expect(() => assertShards(noShardOption)).toThrow();
+    // another step may not borrow the shard-1 condition
+    const borrowed = structuredClone(workflow);
+    borrowed.jobs.build.steps.find(
+      (step: { run?: string }) => step.run === 'pnpm install --frozen-lockfile --prefer-offline',
+    ).if = SHARD_ONE;
+    expect(() => assertWorkflowPolicy(borrowed, CI_HEAVY)).toThrow();
   });
   it('rejects a dispatch that could run a heavy job on main, or ignore the jobs list', () => {
     const anyRef = structuredClone(workflow);
