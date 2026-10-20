@@ -94,20 +94,13 @@ const OPTIONS: ts.CompilerOptions = {
   types: [],
 };
 
-/**
- * Declarations whose change was read and found not to move a pass condition: `compose` gained a record of the units
- * it wrote (`written`, read back by `truthOf`); its output is the same. They are left out of the fingerprint, and
- * the reason is written here so that adding a name is a decision.
- */
-const READ_AND_UNCHANGED = new Set(['compose', 'written', 'truthOf']);
-
 type Reach = { entry: ts.Node; file: ts.SourceFile; pieces: Map<string, string> };
 
 /**
  * The entry of an item and the top-level declarations of the family file or the kit it reaches, resolved with the
  * compiler's own symbol table (a local variable that shares a helper's name does not reach the helper).
  */
-function reach(root: string, id: string, program: ts.Program, keepExcluded = false): Reach | undefined {
+function reach(root: string, id: string, program: ts.Program): Reach | undefined {
   const dot = id.indexOf('.');
   const family = id.slice(0, dot);
   const key = id.slice(dot + 1);
@@ -150,7 +143,6 @@ function reach(root: string, id: string, program: ts.Program, keepExcluded = fal
           if (!statement || seen.has(statement)) continue;
           if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) continue;
           seen.add(statement);
-          if (!keepExcluded && declarationNames(statement).some((n) => READ_AND_UNCHANGED.has(n))) continue;
           const name = `${statement.getSourceFile().fileName.split('/').pop()}:${statement.getStart()}`;
           pieces.set(name, show(statement, statement.getSourceFile()));
           queue.push(statement);
@@ -161,16 +153,6 @@ function reach(root: string, id: string, program: ts.Program, keepExcluded = fal
     ts.forEachChild(node, walk);
   }
   return { entry, file: source, pieces };
-}
-
-function declarationNames(statement: ts.Statement): string[] {
-  if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name)
-    return [statement.name.text];
-  if (ts.isVariableStatement(statement))
-    return statement.declarationList.declarations.flatMap((d) =>
-      ts.isIdentifier(d.name) ? [d.name.text] : [],
-    );
-  return [];
 }
 
 const programs = new Map<string, ts.Program>();
@@ -218,8 +200,7 @@ export function fingerprints(root: string, ids: readonly string[]): Record<strin
 
 /** The top-level declarations an item reaches, as `file:name`, for the tests that name them. */
 export function reachedNames(root: string, id: string): string[] {
-  // The excluded declarations are named too: this is how the equivalence test finds the items that reach them.
-  const reached = reach(root, id, programOf(root), true);
+  const reached = reach(root, id, programOf(root));
   if (!reached) return [];
   const names: string[] = [];
   for (const text of reached.pieces.values()) {

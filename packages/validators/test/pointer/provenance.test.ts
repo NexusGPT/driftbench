@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { bankSummary, formatItems } from '../../src/bank';
@@ -13,8 +15,8 @@ const count = (label: string) => pointerBank().filter((i) => i.provenance === la
 describe('the provenance of the first bank', () => {
   it('labels every item, and the three labels cover the 419 items', () => {
     expect(pointerBank()).toHaveLength(419);
-    expect(count('blind')).toBe(75);
-    expect(count('maintainer-repaired')).toBe(327);
+    expect(count('blind')).toBe(17);
+    expect(count('maintainer-repaired')).toBe(385);
     expect(count('maintainer-added')).toBe(17);
   });
 
@@ -63,6 +65,27 @@ describe('an item that changed after the blind commit is not labelled blind', ()
     for (const name of ['liveOf', 'privateEstate', 'strings'])
       expect(helpers[name], name).toBe(record.helpers[name]);
     expect(Object.keys(helpers)).toContain('liveOf');
+  });
+
+  it('labels repaired an item whose only change reaches it through the renderer: ids.ledger-relative-paths', () => {
+    expect(label('ids.ledger-relative-paths')).toBe('maintainer-repaired');
+    expect(reachedNames(root, 'ids.ledger-relative-paths')).toContain('compose');
+  });
+
+  it('follows the renderer: a change to a rendering helper changes the fingerprint of a blind-looking cutting item', () => {
+    const temp = mkdtempSync(join(tmpdir(), 'pointer-render-'));
+    for (const dir of ['kit', 'bank']) cpSync(join(root, dir), join(temp, dir), { recursive: true });
+    const path = join(temp, 'kit/compose.ts');
+    const before = readFileSync(path, 'utf8');
+    const after = before.replaceAll(
+      '[contentStart, contentEnd] = w.put(block.text);',
+      '[contentStart, contentEnd] = w.put(`${block.text} altered`);',
+    );
+    expect(after).not.toBe(before);
+    writeFileSync(path, after);
+    expect(fingerprints(temp, ['cutting.heading-atx'])['cutting.heading-atx']).not.toBe(
+      now['cutting.heading-atx'],
+    );
   });
 
   it('labels the repaired replay items maintainer-repaired', () => {

@@ -22,7 +22,7 @@ try {
 const old = fingerprints(blind, ids);
 writeFileSync(
   idsFile,
-  `${JSON.stringify({ commit: 'cf184f5943fdccc6e1c7670e2d74e3c70a31f691', items: old, helpers: kitHelpers(blind) }, null, 1)}\n`,
+  `${JSON.stringify({ commit: 'cf184f5943fdccc6e1c7670e2d74e3c70a31f691', items: old, helpers: kitHelpers(blind) }, null, 2)}\n`,
 );
 const now = fingerprints(here, ids);
 process.stdout.write(`${ids.filter((id) => old[id] !== now[id]).join('\n')}\n`);
