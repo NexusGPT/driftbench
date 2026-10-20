@@ -26,7 +26,7 @@ Every row states its evidence class. Documented advantages are feature descripti
 
 Original run completion: 2026-10-12 for tuning and 2026-10-13 for held-out. PR 115 default completes both frozen sets on 2026-10-13 (Europe/Brussels).
 
-The previous shipped contract remains **111/120 hard and 109/120 held-out**. The **shipped judge, PR 115 default,** measures **114/120 hard and 116/120 held-out** at commit `8195902dd20c84267f85feba268c17868e00dfbe`. [PR 115](https://github.com/achammah/driftbench/pull/115) passes all eight CI checks and is merged into main at `6d0898de`. Its default is now the shipped judge. The measured default is unchanged by the merge apart from the package-scope import rename. The **fact-ledger procedure (not yet the shipped default)** remains a separate comparison method. This follow-up changes comparison evidence, not production judges.
+The previous shipped contract remains **111/120 hard and 109/120 held-out**. The **shipped judge, PR 115 default,** measures **114/120 hard and 116/120 held-out** at commit `8195902dd20c84267f85feba268c17868e00dfbe`. [PR 115](https://github.com/NexusGPT/driftbench/pull/115) passes all eight CI checks and is merged into main at `6d0898de`. Its default is now the shipped judge. The measured default is unchanged by the merge apart from the package-scope import rename. The **fact-ledger procedure (not yet the shipped default)** remains a separate comparison method. This follow-up changes comparison evidence, not production judges.
 
 | Procedure | Tuning hard | Frozen held-out | Tuning USD / 100 | Held-out USD / 100 |
 |---|---|---|---|---|

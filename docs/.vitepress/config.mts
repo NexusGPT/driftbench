@@ -10,7 +10,7 @@ import { defineConfig } from 'vitepress';
  * scorecards, which are copied into the site and open as pages of it.
  */
 
-const REPO = 'https://github.com/achammah/driftbench';
+const REPO = 'https://github.com/NexusGPT/driftbench';
 const BASE = '/driftbench/';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const REPORTS = 'examples/acme/reports';
@@ -150,6 +150,7 @@ export default defineConfig({
           { text: 'Map reference', link: '/reference/map' },
           { text: 'Interview reference', link: '/reference/interview' },
           { text: 'Criteria and labels', link: '/reference/criteria' },
+          { text: 'Objects', link: '/reference/objects' },
           { text: 'Personas and red-team', link: '/reference/users' },
           { text: 'Change manifest', link: '/reference/change' },
           { text: 'Estate files', link: '/reference/estate-files' },

@@ -1,9 +1,12 @@
-import { readFile as readFileCallback } from 'node:fs';
+import { existsSync, readFile as readFileCallback } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
+import { checkSpecObjects, specUsesObjects } from '../objects/index';
+import { type ObjectContext, objectContextFor, shippedObjectContext } from '../objects/layers';
 import { SPEC_SCHEMA_VERSION, type Spec } from '../schema/spec';
 import { parseBlockYaml } from './block-yaml';
 import { parseSpecSchema } from './compiled-schema';
@@ -12,6 +15,7 @@ import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
+import { resolveSpecParents, specParentRef } from './spec-parents';
 
 // The callback reader avoids FileHandle wrapper overhead for the many small spec files.
 const readFile = promisify(readFileCallback);
@@ -22,8 +26,20 @@ export type LoadResult =
 
 export type LoadedSpec = Extract<LoadResult, { ok: true }>;
 
+/**
+ * What the resolve pass checks a spec's object references against. A spec read from a file resolves against
+ * the objects visible from its folder; one given as text or a value, against the shipped objects only, unless
+ * a context is given. A function is called only when the pass runs.
+ */
+export type SpecLoadOptions = { objects?: ObjectContext | (() => ObjectContext); resolveObjects?: boolean };
+
 /** Parses, normalises and validates spec text. Never throws on bad input. */
-export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
+export function parseSpecText(
+  text: string,
+  format: 'yaml' | 'json',
+  path = '<inline>',
+  options: SpecLoadOptions = {},
+): LoadResult {
   let raw: unknown;
   try {
     raw =
@@ -33,15 +49,15 @@ export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<in
   } catch (cause) {
     return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
   }
-  return validateSpec(raw, path);
+  return validateSpec(raw, path, options);
 }
 
 /** The full schema, semantic and lint result, for callers that do not consume a content hash. */
 export type SpecValidationResult = Omit<LoadedSpec, 'hash'> | Extract<LoadResult, { ok: false }>;
 
 /** Normalises, validates and hashes an already parsed value. */
-export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
-  const checked = checkSpec(raw, path);
+export function validateSpec(raw: unknown, path = '<inline>', options: SpecLoadOptions = {}): LoadResult {
+  const checked = checkSpec(raw, path, options);
   if (!checked.ok) return checked;
   return {
     ok: true,
@@ -53,7 +69,11 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
 }
 
 /** Runs the same checks as validateSpec without computing an unused content digest. */
-export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
+export function checkSpec(
+  raw: unknown,
+  path = '<inline>',
+  options: SpecLoadOptions = {},
+): SpecValidationResult {
   // A spec written for a newer format is refused first, with the fix, before its newer keys read as unknown.
   const newer = newerSchema(raw);
   if (newer) return { ok: false, path, errors: [newer], warnings: [] };
@@ -76,10 +96,28 @@ export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult
   const semantic = checkSemantics(parsed.data);
   if (semantic.length > 0) return { ok: false, path, errors: semantic, warnings: [] };
 
+  // Resolve: every object a layer names, against the objects visible from here (src/objects).
+  const objects =
+    options.resolveObjects === false
+      ? undefined
+      : (options.objects ?? (raw !== null && typeof raw === 'object' ? objectContextOfSpec(raw) : undefined));
+  const context =
+    options.resolveObjects === false
+      ? undefined
+      : objects === undefined
+        ? specUsesObjects(parsed.data)
+          ? shippedObjectContext()
+          : undefined
+        : typeof objects === 'function'
+          ? objects()
+          : objects;
+  const resolved = context === undefined ? [] : checkSpecObjects(parsed.data, context);
+  if (resolved.length > 0) return { ok: false, path, errors: resolved, warnings: [] };
+
   return {
     ok: true,
     path,
-    spec: parsed.data,
+    spec: context === undefined ? parsed.data : bindObjectContext(parsed.data, context),
     warnings: lintSpec(parsed.data),
   };
 }
@@ -112,7 +150,9 @@ export async function loadSpecFile(path: string): Promise<LoadResult> {
     };
   }
   return anchorWorkspace(
-    parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path),
+    parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path, {
+      objects: () => objectContextFor(path),
+    }),
   );
 }
 
@@ -150,15 +190,65 @@ export async function findSpecFiles(paths: string[]): Promise<string[]> {
 /** Loads every spec found under the given files and folders. */
 export async function loadSpecs(paths: string[]): Promise<LoadResult[]> {
   const files = await findSpecFiles(paths);
-  return Promise.all(files.map((file) => loadSpecFile(file)));
+  const results = await Promise.all(files.map((file) => loadSpecFile(file)));
+  // A block 0 that starts from another spec's block is written out over the specs loaded together, and the
+  // stems that `generate` writes beside its seeder folders: only the specs asked for come back.
+  const helpers = await stemsBeside(results);
+  return resolveSpecParents([...results, ...helpers], validateSpec).slice(0, results.length);
 }
 
-const SKIP = new Set(['node_modules', 'dist']);
+/** How many folders above a child's own the loader looks for a `stems/` folder holding its parent spec. */
+const STEM_SEARCH_DEPTH = 4;
+
+/**
+ * The parent specs the loaded children name and the loaded set lacks, read from the `stems/` folder beside the
+ * child's folder or beside a folder above it, as `generate` writes them (`specs/stems/` beside
+ * `specs/<seeder>/`). A stem that starts from another stem is looked for the same way.
+ */
+async function stemsBeside(results: readonly LoadResult[]): Promise<LoadResult[]> {
+  const known = new Set(results.flatMap((result) => (result.ok ? [result.spec.id] : [])));
+  const read = new Set<string>();
+  const helpers: LoadResult[] = [];
+  let pending = results;
+  while (pending.length > 0) {
+    const wanted = pending.flatMap((result) => {
+      const ref = result.ok ? specParentRef(result.spec.blocks[0]?.parent) : undefined;
+      return ref && !known.has(ref.spec) ? [result.path] : [];
+    });
+    const found: LoadResult[] = [];
+    for (const path of wanted) {
+      let dir = dirname(resolve(path));
+      for (let level = 0; level <= STEM_SEARCH_DEPTH; level++, dir = dirname(dir)) {
+        const stems = join(dir, 'stems');
+        if (read.has(stems)) continue;
+        read.add(stems);
+        const info = await stat(stems).catch(() => undefined);
+        if (!info?.isDirectory()) continue;
+        for (const file of await walk(stems)) {
+          if (results.some((result) => resolve(result.path) === resolve(file))) continue;
+          const loaded = await loadSpecFile(file);
+          if (loaded.ok && known.has(loaded.spec.id)) continue;
+          if (loaded.ok) known.add(loaded.spec.id);
+          found.push(loaded);
+        }
+      }
+    }
+    helpers.push(...found);
+    pending = found;
+  }
+  return helpers;
+}
+
+// `_driftbench` holds a suite's object files, never specs.
+const SKIP = new Set(['node_modules', 'dist', '_driftbench']);
 
 async function walk(dir: string): Promise<string[]> {
   const out: string[] = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     if (entry.name.startsWith('.') || SKIP.has(entry.name)) continue;
+    // The project's object files sit in `driftbench/` beside `driftbench.yaml`: they are not specs.
+    if (entry.isDirectory() && entry.name === 'driftbench' && existsSync(join(dir, 'driftbench.yaml')))
+      continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...(await walk(full)));

@@ -6,6 +6,7 @@ import {
   type LoadedSpec,
   type LoadResult,
   error as specError,
+  stemOf,
 } from '@agent-nexus/driftbench-core';
 import { effectiveSampleSize } from './estimators';
 import {
@@ -145,7 +146,10 @@ export function coverage(
   const t = resolveT(space, options.t);
   assertGridSize(map, options.maxCells);
 
-  const loaded = specs.filter((result): result is LoadedSpec => result.ok);
+  // A stem is the opening of other specs, no conversation of the map: the specs it opens are counted.
+  const loaded = specs.filter(
+    (result): result is LoadedSpec => result.ok && stemOf(result.spec) === undefined,
+  );
   const placements = loaded.map((result) => placeSpec(space, result.spec));
   const ids = placements.map((placement) => placement.id);
   const required = requiredDimensions(space);

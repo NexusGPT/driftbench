@@ -12,6 +12,7 @@ export {
 export {
   type BlockKeyParts,
   blockCacheKey,
+  cacheSpecHash,
   endStateCacheKey,
   type ObservedCache,
   unwrapEndState,
@@ -23,6 +24,7 @@ export {
   type CellOutcome,
   type CostLine,
   cellIdOf,
+  heldRun,
   type MinimumDetectableEffect,
   mdeLine,
   minimumDetectableEffect,
