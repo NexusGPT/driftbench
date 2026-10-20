@@ -133,7 +133,7 @@ analytic.agreement.kappa-linear.5      2     4 analytic  packages/stats/src/agre
 * A level that returns no bank counts as one item of the family `levels`.
 
 With `--json` the report gains `bank`:
-`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingWithoutCause,
+`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingComposite, failingWithoutCause,
 failingCausesByFamily, rows }`, where each row is
 `{ level, levelId, id, component, family, tier, cause, perSeed: ["pass" | "fail" | "not run", ...],
 passEverySeed }`. These are the numbers an executor's journal row copies (`validate-executor-loop`).

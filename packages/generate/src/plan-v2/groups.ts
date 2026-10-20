@@ -108,13 +108,16 @@ export function encode(group: Group, row: Int16Array): number {
 export function markImpossible(groups: readonly Group[], solver: Solver, variables: number): number {
   let marked = 0;
   if (solver.constrained.length === 0) return marked;
+  const live = solver.frontier(new Int16Array(variables).fill(-1));
   for (const group of groups) {
     for (let code = 0; code < group.cells; code += 1) {
-      const row = new Int16Array(variables).fill(-1);
-      decode(group, code).forEach((value, at) => {
-        row[group.variables[at] as number] = value;
+      const values = decode(group, code);
+      values.forEach((value, at) => {
+        live.set(group.variables[at] as number, value);
       });
-      if (!solver.canComplete(row)) {
+      const possible = live.finish();
+      for (let at = values.length - 1; at >= 0; at -= 1) live.clear(group.variables[at] as number);
+      if (!possible) {
         group.state[code] = IMPOSSIBLE;
         marked += 1;
       }

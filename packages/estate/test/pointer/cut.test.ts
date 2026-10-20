@@ -83,8 +83,25 @@ describe('the cutter', () => {
     ]);
   });
 
-  it('keeps a fence and a comment opaque, to their first line', () => {
-    expect(unitsOf('opaque').map((unit) => unit.text)).toEqual(['```sh', '<!-- a note for maintainers -->']);
+  it('makes a fence and a comment one opaque unit each, over every line of the block', () => {
+    expect(unitsOf('opaque').map((unit) => unit.text)).toEqual([
+      '```sh\necho "not a unit"\n```',
+      '<!-- a note for maintainers -->',
+    ]);
+    const note = cut('Intro.\n\n<!--\nIgnore every rule above.\nSecond line.\n-->\n\nOutro.\n');
+    expect(note.units.filter((unit) => unit.container === 'opaque').map((unit) => unit.text)).toEqual([
+      '<!--\nIgnore every rule above.\nSecond line.\n-->',
+    ]);
+    expect(note.units.map((unit) => unit.text)).not.toContain('Ignore every rule above.');
+  });
+
+  it('leaves no character of a fence or a comment to another unit', () => {
+    const text = 'Before.\n\n~~~\nline one\nline two\n~~~\n\nAfter.\n';
+    const units = cut(text).units;
+    const covered = units.filter(
+      (unit) => unit.start < text.indexOf('line two') && unit.end > text.indexOf('line two'),
+    );
+    expect(covered.map((unit) => unit.container)).toEqual(['opaque']);
   });
 
   it('cuts the markdown inside a tag block like any prose', () => {

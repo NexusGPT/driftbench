@@ -6,7 +6,7 @@ This bank is authored from `docs/estate-pointer-reader.md` at design commit
 reader implementation, its tests, or PR 692's code diff. Existing ladder banks
 were read only for their item and ladder conventions. All data is fictional.
 
-`pointerBank()` returns 340 items: 40 labels items and 30 in every other required family. Each has an id,
+`pointerBank()` returns 341 items: 40 labels items, 31 adversarial items and 30 in every other required family. The two items `json-prefixed-with-prose` and `json-suffixed-with-prose` are `spec-changed`: `docs/estate-pointer-reader.md` section 3, validation rule 1 ("one JSON object ... read from the text itself, from the only code fence of the text, or from the span between its first `{` and its last `}`"), now accepts a wrapped answer, so they plant an acceptance. `two-json-objects` plants a refusal for an answer with two objects. Each has an id,
 family, tier, level, component, cause, design citation, and seeded generator.
 `pointerLadder(adapter)` wraps them in five levels with threshold 1. The existing
 ladder runner owns first-failure stopping and all-level reporting. This factory is
@@ -187,11 +187,18 @@ need process isolation for hard termination and RSS limits.
 From the repository root:
 
 ```sh
-pnpm exec vitest run --config packages/validators/src/ladders/pointer/vitest.config.ts --maxWorkers=2
-pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/validators/src/ladders/pointer/index.ts
-pnpm exec biome check packages/validators/src/ladders/pointer
+pnpm exec vitest run --config packages/validators/src/ladders/pointer/blind/vitest.config.ts --maxWorkers=2
+pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/validators/src/ladders/pointer/blind/index.ts
+pnpm exec biome check packages/validators/src/ladders/pointer/blind
 ```
 
 On constrained shared machines, run each command through the assigned slot
 runner. Independent merge audits and the actual reader pilot remain pending in
 `validators/pointer/audit.md`.
+
+## Place in the pointer validator
+
+This bank sits under `pointer/blind` and is registered in the pointer validator as five levels `blind-1` to `blind-5`,
+after the levels of the first bank; its ids carry the prefix `blind/` and its families the prefix `blind-`, and its
+entries carry the provenance label `blind-bank-759`. `pointer/bank/blind.ts` runs the items through `pointer/sut/blind-binding/`, which binds the transport vocabulary above to the
+reader exports. An operation the reader lacks fails its items with the reason in the detail.

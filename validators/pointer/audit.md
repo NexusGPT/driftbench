@@ -1,114 +1,41 @@
 # Pointer bank audit status
 
-This handoff preserves the independent cheater failure. No helper has certified
-a passing section 12.7 check. The failure and pending markers keep the merge gate
-closed; only independent auditors can replace them with passing findings.
+The bank repairs do not constitute the independent audit in `docs/validators.md` section 12.7. The bank lands after component PR 692. Ten executor iterations and the independent audit run after that component merges.
 
 | Check | Verdict | Note |
 |---|---|---|
-| blind pilot | pending | No real-reader adapter or executor pilot is included. An independent executor must run iteration 0 and ten pilot iterations. |
-| cheater | fail | Re-review at 6cda2a598, [comment 6243324694](https://github.com/achammah/driftbench/pull/759#issuecomment-6243324694), confirms the earlier four attacks score zero but a positional ledger passes all ten ledger items. Position regressions are added; an independent rerun remains required. |
-| cause review | pending | Shared cause names are retained. No independent sample of 30 failing items or agreement measurement exists yet. |
-| planted bugs | pending | Harness corruption checks do not establish detection of 20 independently planted reader bugs. |
+| blind pilot | pending | Requires merged pointer reader PR 692 and ten executor iterations. |
+| cheater | pending | Maintainer empty/constant and targeted mutation regressions are recorded separately; a fresh independent helper still audits the merged component. |
+| cause review | pending | Author-declared cause tags and composite exclusions are not a reviewed distinct-fix count. |
+| planted bugs | pending | Requires independent mutations of the merged real component. |
 
-## Authorship and evidence scope
+The repaired bank's seeds 1–20 plus canonical hidden baseline is **pending PR 692**. This branch's estate package has no pointer-reader namespace. The attempted default-adapter run did not produce a completed baseline and was stopped; no result is inferred from that attempt. The runner now checks availability before starting items and fails clearly when the component cannot load. No substitute reader produces baseline numbers.
 
-The author and family helpers never read the reader implementation, its tests,
-or PR 692's code diff. The sole reader contract is the design document on
-`feat/estate-pointer-reader-design`, commit
-`517e63aaeea25e668dac4f9b28abc8019d906c06`. The validator format and merge gates
-come from `docs/validators.md` on main at
-`346a8249d460fb0a73c1deb6cdfdc6fd10e0e6ec`.
+The existing `journal.jsonl` preserves the historical seed-1, 402-item measurement at `cf184f5943fd`; it is not a baseline for this repaired 419-item bank. No hardness forecast or merge-gate pass is claimed.
 
-The bank contains 340 items: cutting, ids, re-anchoring, grouping, labels, replay,
-privacy, links, radius, scale, and adversarial each have 30, except labels, which has 40. All five difficulty
-tiers are represented. Every item contains a seeded plant, exact observable
-truth, cause, design citation, and contrasting probes.
+## Seat instructions (run after PR 692 is on release/next)
 
-The scripted positive adapter is a harness stub, not a reader implementation.
-Its green result must never be used as iteration 0, a reader score, a floor,
-a pilot, or hardness evidence. The factory is not globally registered until a
-separate implementation owner supplies and verifies the real adapter.
+Each seat is a fresh helper with no tie to the builder. A seat writes only its own verdict row above, in the form of section 12.7, and puts evidence in the journal or in a file it names. Run all commands from the repository root on a branch that contains PR 692 and this bank.
 
-## Required independent follow-up
+1. Blind pilot seat. Reads nothing but the output of `pnpm exec tsx packages/cli/src/bin.ts validate pointer --brief --fresh` (use the repo's `driftbench` entry point if it differs). Runs ten iterations on its own branch. Each iteration appends a journal row with `executor: blind`. Check with `driftbench validate pointer --hardness --json`.
+2. Cheater seat. Gets the scores of `driftbench validate pointer --seeds 1..20 --hidden --all-levels --items --json` as its baseline. Tries to raise the score without making the reader correct (hard-coded seeds, matching on item ids, special-cased fixture names, reading oracles). Any score gain fails the seat; each cheat becomes a new bank item. The reader code under `packages/estate/src/pointer/` is the only file it edits, on a scratch branch.
+3. Cause review seat. Samples 30 failing items from `driftbench validate pointer --seeds 1..20 --hidden --all-levels --blind --json`. Writes the fix it would make for each before it opens `validators/pointer/cause-review.json` or any `Fix:` line. Agreement under 0.8 fails the seat. Composite items (declared in `cause-review.json`) are excluded from the sample.
+4. Planted bugs seat. Plants 20 known bugs, one at a time, in `packages/estate/src/pointer/`, and runs `driftbench validate pointer --seeds 1..3 --hidden --items --json` after each. The bank must lose at least one item per bug. A missed bug becomes a new item.
 
-1. Wire the bank-owned adapter to the reader without importing oracle code or
-   implementing missing reader behavior in the adapter. Keep missing Layer C
-   capabilities failing. Review the design ambiguities in `CONTRACT.md`.
-2. Measure the actual reader on seeds 1–20 and its commit-derived hidden seed;
-   record real baseline and pilot rows. Do not fabricate a journal or floor
-   from stub results. Apply section 12.4's score, forecast and distinct-cause gate.
-3. Run the four independent section 12.7 audits with fresh auditors. Their own
-   verdicts, reviewed causes and blind pilot rows replace the current failure and pending scaffold.
+The gate reads this file. `driftbench validate pointer --hardness` stays red until all four rows read `pass`.
 
-Known bounded coverage: deterministic unit cuts, fingerprint relations, id
-persistence, move/change/delete/ambiguity/split/merge transitions, label stack
-bounds, dense-answer validation, request-key perturbations, private serialized
-surfaces, link classification and radius/coverage. No live model correctness,
-private estate, or unspecified scoring/tie/overflow behavior is claimed.
+## Provenance of the two banks
 
-## Review correction
-
-The independent review was reproduced on `a7672c4433d92f44fc6b1d7d20493f844f2d7be4`
-with visible seeds 1–20 and hidden seed 809556612. Stable passes across those seeds
-were 8 for first-unit selection, 13 for raw-text hashing, 45 for response copying,
-and 42 for split-text leaking (including 27 privacy items). Per-seed leak totals
-were 43 or 44. These measurements describe the rejected bank.
-
-The revision keeps all 340 items and their family/tier/cause assignments. It
-strengthens their witnesses and retains all four review attacks alongside the
-original three cheats. Label decisions contrast policy outcomes; identity checks
-retain quotes/status and compare duplicate identities over history. Privacy
-answers live in a separate transport fixture, effects are captured by the harness,
-and a single private marker character is sufficient to reject a result.
-
-The first correction's regression suite requires zero passes for each of seven cheats on
-every seed, not merely zero items passing their intersection. Effectful leak
-mutants also preserve the honest trace except for an emitted fragment. These
-checks close the reported regressions; they do not certify the independent
-cheater audit, the reader, or the hardness forecast. The last independent verdict
-therefore remains **fail** until its author or another independent auditor reruns it.
-
-## Positional identity correction
-
-[Independent re-review 6243324694](https://github.com/achammah/driftbench/pull/759#issuecomment-6243324694)
-reports that estate/path/ordinal minting with ordinal reuse passes all ten ledger
-items at `6cda2a598b3130351ae8dd130e530f8f8b0a26d3` on seeds 1–20 and hidden
-827237017. The histories leave surviving units at fixed positions, so that
-shortcut cannot be distinguished from persisted identity by those witnesses.
-The builder reproduces all ten passes on those same seeds against a frozen copy
-of the pre-edit bank, using the reviewer's original adapter.
-
-Every ledger item now retains its earlier witnesses and adds real insertion and
-removal before surviving units, unique-unit and file-order permutations, and
-layout changes. Fictional source and input-only UTF-16 offsets and one-based lines
-make the coordinate changes inspectable. The output oracle still compares IDs
-by unit identity, path, quote and status; it does not fail an adapter merely for
-omitting coordinate fields. Independent fresh scans also change fingerprints
-while holding estate, path and positions fixed, requiring different minted IDs.
-
-The index-based review cheat is retained with its original behavior. Separate
-line-based and offset-based cheats reuse IDs by their respective coordinates.
-Each must score zero on every seed, alongside the previous seven cheats. Direct
-counterexamples also prove these adapters return valid snapshots while ignoring
-fingerprints and transferring IDs incorrectly on reorder. Shared witnesses do
-not add items or distinct causes: the bank remains 340 items with the same tiers
-and declared causes. The independent cheater verdict remains **fail** pending
-re-review; no reader pilot or hardness pass is claimed.
-
-## First-word matching correction
-
-The third review (head 6106ac386) found an adapter that mints an id from the whole text and pairs a new unit with the
-first unmatched earlier unit that begins with the same word, preferring the same file. It passed 10 of 340 items on
-every seed, because the bank's histories gave every distinct unit a different first word, so pairing by first word was
-as good as tracking the unit. The cheater verdict stays **fail**: only an independent re-review may change it.
-
-What changed in the bank: every ledger item carries a fifth probe, a history of units that begin with one word and are
-otherwise different sentences, put through reorders inside and across files, an insertion in front, a move, two small
-edits at once with their order swapped, a replacement by an unrelated unit of the same first word, and shifted
-positions; the units that move, change and are replaced follow the seed. The review's adapter is retained in
-`cheats.ts` with two variants (mint from the first word, and match exact text before the first-word fallback), and all
-three score zero on seeds 1 to 20 and the commit-derived hidden seed (before the change the first and the third passed
-10 on each seed). The review's reorder counterexample is retained as a test. No item was dropped or weakened, and the
-scripted adapter still passes all 340 items on every seed.
-
+- The first bank (419 items) claims no blind item: all 402 original items are labelled maintainer-repaired and the 17 later ones maintainer-added. The maintainer changed the harness, the runners and the oracles after the blind commit, and every original item runs through changed code, so the bank cannot show which items stayed as written. The blind measure is the separate 340-item bank of PR 759 (the levels `blind-1` to `blind-5`). `CATALOGUE.md` lists the label of every item, and `driftbench validate pointer --items` prints the score of each label apart. The provenance test fails if any item of this bank is labelled blind.
+- The second bank (341 items, PR 759, helper record in `packages/validators/src/ladders/pointer/blind/CONTRACT.md`) is registered as the levels `blind-1` to `blind-5`, with the label `blind-bank-759`. Its binding to the reader is `packages/validators/src/ladders/pointer/sut/blind-binding/`, derived from the exports of `packages/estate/src/pointer` and `docs/estate-pointer-reader.md`.
+- Against the real reader (seed 1, locked by `packages/validators/test/pointer/blind-binding.test.ts`): 256 items pass, 6 differ from the planted truth, 79 are unsupported. **The 79 unsupported items are gaps of the reader or the binding, not product failures**; each detail names the reason.
+  - links (30) and radius (30) with clearance: layer C is not built (design section 14).
+  - `group:carry` (9): carry-forward lives inside the ledger step and derives its fingerprints from the text.
+  - `reanchor` ambiguous (3): the reader keeps the id on the first match and lists no candidates.
+  - `labels:rerecord` (3): the reader emits no `label_flip` diagnostic.
+  - `replay` (4): a miss names no field when the set or the labeler differs.
+- The 30 privacy items drive the real `pointerScan`: the reader reads the key through its labeler factory (`env` is a getter that asks the harness), sends the request through its own HTTP client (`fetch` is the harness callback), and stores the answer with `Cassette.put`; a replay asks a cassette that reads the harness cache. What the reader stores and plans is returned beside the labels, so the leak check reads it. 24 pass. 6 differ: the scan sends no request for a fence-only or comment-only file (it is opaque), and the contract expects one; that is reader behaviour against the contract. The plan reaching the harness is a character count normalised to the source length, as `blind/CONTRACT.md` allows; the reader's own plan is returned for the leak check. Proof: a mutant of `Cassette.put` that stores the raw request fails the 8 record-mode items; restored, all 24 pass.
+- The reader was changed for 12 items (a fence or comment is one unit over all its lines; a cut-digest miss names the Node and ICU versions) and for 2 more (an answer that names another window or set is refused; one that names none is accepted). Two items, `json-prefixed-with-prose` and `json-suffixed-with-prose`, are `spec-changed` (design section 3, rule 1 now reads the one JSON object out of prose or a fence) and plant an acceptance; `two-json-objects` is new and plants a refusal.
+- The 6 items that differ are the privacy items of a fence-only or comment-only file: the scan sends no request for it, and the contract expects one.
+- The cause reviewer and the cheater treat the 79 as a gap of the reader, not as reader defects.
+- The materialization items read the atom predicates from the reader's own `pointerAtoms` output, one for one. A reader that drops every predicate, or sets `reviewRequired` to false, loses the six atom-building items; the binding test proves both, and proves that an opaque-cutter error is counted as an adapter error, which the test requires to be zero.
