@@ -10,7 +10,7 @@ import type {
 } from '@agent-nexus/driftbench-core';
 import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
-import type { BlockSections } from '../blocks/sections';
+import { type BlockSections, sectionsNamingTools } from '../blocks/sections';
 import { type BlockOrigin, turnOfSource, writeBlocks } from '../blocks/writer';
 import type { ProposalPhrase } from '../extract/proposal';
 import { supplying, usedPaths, worldCarried } from './data-carrier';
@@ -519,7 +519,16 @@ function originOf(
     block.stimulus.kind === 'phrase' ? turnOfSource(block.stimulus.phrase.evidence?.source) : undefined;
   // The members of a metamorphic family are phrasings (or values) of one row: the family.
   const row = draft.metamorphic?.family ?? draft.id;
-  const located = sectionsOfRules(prepared, rules, sections);
+  const located = [
+    ...sectionsOfRules(prepared, rules, sections),
+    ...(sections
+      ? sectionsNamingTools(
+          sections,
+          (block.tools ?? []).map((tool) => tool.label),
+          (label) => prepared.tools.some((tool) => tool.name === label),
+        )
+      : []),
+  ];
   return {
     rules,
     ...(located.length > 0 ? { sections: located } : {}),

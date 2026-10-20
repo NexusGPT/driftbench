@@ -30,7 +30,7 @@ export type SourceTurn = { conversation: string; turn: number };
 export type BlockOrigin = {
   rules: readonly RuleRef[];
   /** The prompt sections that hold the quotes of those rules, when a prompt has a section registry. */
-  sections?: ReadonlyArray<SectionRef & { relation?: 'verifies' | 'exercises' }>;
+  sections?: ReadonlyArray<SectionRef & { relation?: 'verifies' | 'exercises'; through?: string }>;
   row: { id: string; values: Readonly<Record<string, string>> };
   turn?: SourceTurn;
 };
@@ -137,7 +137,7 @@ export function linksOf(
     });
   };
   for (const ref of origin.sections ?? [])
-    sectionLink(ref.prompt, ref.section, ref.version, ref.relation ?? 'verifies');
+    sectionLink(ref.prompt, ref.section, ref.version, ref.relation ?? 'verifies', ref.through);
   for (const ref of origin.sections ?? []) {
     for (const through of options.sectionReach?.get(ref.prompt)?.get(ref.section) ?? []) {
       sectionLink(ref.prompt, through, ref.version, ref.relation ?? 'verifies', ref.section);
