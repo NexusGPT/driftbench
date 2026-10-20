@@ -25,6 +25,8 @@ export type EstatePointerOptions = {
   jobs?: string;
   ledger?: string;
   ledgerCheck?: boolean;
+  /** Write the ledger. Without it, the ledger is read and left as it is. */
+  update?: boolean;
 };
 
 export type PointerHandle = {
@@ -159,6 +161,14 @@ export async function openPointer(
     io.err('error: --ledger-check needs --ledger <file>\n');
     return undefined;
   }
+  if (options.update && !ledgerPath) {
+    io.err('error: --update needs --ledger <file>: the ledger it writes\n');
+    return undefined;
+  }
+  if (options.update && options.ledgerCheck) {
+    io.err('error: --update writes the ledger and --ledger-check writes nothing: pass one of them\n');
+    return undefined;
+  }
   const labelling = built.labelling;
   return {
     describe: labelling.describe,
@@ -190,10 +200,13 @@ export async function openPointer(
       const text = pointer.renderLedger(done.ledger);
       if (options.ledgerCheck) {
         if (text === previousText) return 0;
-        io.err(`The ledger ${show(ledgerPath, io)} is out of date: rescan with --ledger and commit it\n`);
+        io.err(`The ledger ${show(ledgerPath, io)} is out of date: rescan with --update and commit it\n`);
         return 1;
       }
-      return (await writeOut(ledgerPath, text, io)) ? 0 : 2;
+      if (options.update) return (await writeOut(ledgerPath, text, io)) ? 0 : 2;
+      if (text !== previousText)
+        io.out(`The ledger ${show(ledgerPath, io)} is not written: pass --update to write it.\n`);
+      return 0;
     },
   };
 }

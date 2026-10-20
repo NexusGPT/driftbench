@@ -69,6 +69,20 @@ export {
   unitKey,
 } from './ledger';
 export {
+  atomsByUnit,
+  EDIT_CLASSES,
+  type EditClass,
+  editCounts,
+  ledgerChangeManifest,
+  ledgerChanges,
+  type ManifestOptions,
+  proseLedger,
+  RERUN_RULE,
+  type Rerun,
+  rerunOf,
+  type UnitChange,
+} from './radius';
+export {
   DEFAULT_WINDOW_UNITS,
   type LabelerUsage,
   type LabelledUnit,

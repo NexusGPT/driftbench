@@ -1162,13 +1162,13 @@ Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id:
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
 driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
-driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
+driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>] [--old-ledger <file> --new-ledger <file> [--change-out <file>]]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
@@ -1202,7 +1202,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--cassette <file>`, `--record` | `scan --pointer`: the recorded labeler answers, and record the answers a miss needs |
 | `--labeler <class>:<client>[:<model>]` | `scan --pointer`: a labeler of class `system1` or `system2`; repeat it for one of each, the default stack |
 | `--labeler-threshold <p>`, `--labeler-pass-at <p>`, `--labeler-fail-at <p>`, `--labeler-margin-cut <m>`, `--labeler-key <variable>` | `scan --pointer`: the probability at which a yes or no system 1 labeler takes a label; in a stack, the margin between the two likeliest labels at which system 1 decides alone (default 0.65), or, when either probability bound is given, the two probabilities at which it decides alone; the variable that holds the bearer token of an `http` labeler |
-| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids and its check |
+| `--jobs <n>`, `--labels <file>`, `--ledger <file>`, `--update`, `--ledger-check` | `scan --pointer`: requests in flight at once, the label sets, the ledger of unit ids, writing it, and its check |
 | `--no-model` | `scan`: read the structured atoms only; no prose atom |
 | `--provider <name>` | `scan`: `anthropic` or `openai`; default the first whose key is set |
 | `--ceiling <characters>` | `scan`, `lint`: the size ceiling of the standing instructions; default 40000 |
@@ -1216,6 +1216,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `--k <n>` | `plan`: positive asks per route; default 3 |
 | `--row <id>`, `--strike` | `plan approve`: approve a row, repeat it; with `--strike`, strike the rows named instead |
 | `--old-guards <file>`, `--new-guards <file>` | `diff`: the guard state of each map; default `guard-state.yaml` beside it |
+| `--old-ledger <file>`, `--new-ledger <file>`, `--change-out <file>` | `diff`: the ledgers of the two scans, so the diff reads the units; with them, write the change manifest of the units for `driftbench radius` |
 | `--tests <dir>` | `impact`: the specs of the estate, indexed by `metadata.estate.atoms`; required |
 | `--write` | `impact`: write each retirement reason into its spec as `metadata.retired` |
 | `--replay <sessions>`, `--suite <dir>`, `--store <db>` | `impact`: replay the suite (default the `specs` folder inside the sessions folder) over a folder of recorded sessions, and compare with the previous replay kept in the store |
@@ -1842,6 +1843,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ### Prompt change manifests
 
 `driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved proposal evidence quotes or estate atom provenance. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. Estate whitespace-only edits use the unit ledger’s NFC and collapsed-whitespace identity. Their empty manifests include file, hash and version evidence; `radius` and `campaign run` revalidate it before selecting zero tests across different version labels. An unvalidated empty transition still selects everything. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+
+`driftbench radius ledger <map> --ledger <file> [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from an edit of an estate's prose: it reads the ledger of the last scan and the files as they are now, and calls no labeler. A changed or deleted unit reruns, a new unit reruns the old units of its section, and a unit whose neighbours changed or that moved to another file is advisory only. A unit with atoms becomes a `prompt` change per atom; a unit with none becomes a `unit` change, which keeps the radius the whole suite. It exits 0 when the manifest is written or printed and 2 on invalid input. See [the radius on the ledger](../estate.md#the-radius-on-the-ledger).
 
 `driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
 
