@@ -335,18 +335,26 @@ export const MUTANTS: readonly Mutant[] = [
     }),
   },
   {
-    name: 'plan shuffles equal calls',
+    name: 'plan orders equal calls differently',
     families: ['seed-rows', 'budget-order'],
-    make: planWith((p) => {
-      const seeds = p.rows.filter((r) => r.kind === 'seed');
-      const fresh = p.rows.filter((r) => r.kind === 'new');
-      for (let i = fresh.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [fresh[i], fresh[j]] = [fresh[j] as (typeof fresh)[number], fresh[i] as (typeof fresh)[number]];
-      }
-      p.rows = [...seeds, ...fresh];
-      return p;
-    }),
+    make: (base) => {
+      // Each call rotates the new rows one place more than the call before: the order depends on the call count.
+      let calls = 0;
+      return {
+        impl: {
+          ...base,
+          plan: (store, o) => {
+            const out = copy(base.plan(store, o));
+            const seeds = out.rows.filter((r) => r.kind === 'seed');
+            const fresh = out.rows.filter((r) => r.kind === 'new');
+            calls += 1;
+            const turn = fresh.length > 1 ? calls % fresh.length : 0;
+            out.rows = [...seeds, ...fresh.slice(turn), ...fresh.slice(0, turn)];
+            return out;
+          },
+        },
+      };
+    },
   },
   {
     name: 'plan changes the store it is given',

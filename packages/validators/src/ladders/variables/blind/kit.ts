@@ -57,7 +57,6 @@ export type Stem = {
   cases: readonly Case[];
 };
 
-export const ITEM_BUDGET_MS = 120_000;
 export const HEAVY_BUDGET_MS = 300_000;
 
 /** The items of some stems: the item id is `blind.<stem id>.<case key>`. */
@@ -285,18 +284,6 @@ export function makeStore(spec: StoreSpec): StoreDoc {
   };
 }
 
-/** A store of `n` variables with the given arities, all shared axes unless told otherwise. */
-export function gridStore(arities: number[], opts: { shared?: boolean; prefix?: string } = {}): StoreDoc {
-  const prefix = opts.prefix ?? 'x';
-  return makeStore({
-    vars: arities.map((a, i) => ({
-      id: `${prefix}${i}`,
-      values: valueIds(a, 'v'),
-      shared: opts.shared ?? true,
-    })),
-  });
-}
-
 export type Space = {
   vars: string[];
   dom: Record<string, string[]>;
@@ -488,13 +475,6 @@ export function sameRow(a: Row, b: Row): boolean {
   return ka.length === kb.length && ka.every((k, i) => k === kb[i] && a[k] === b[k]);
 }
 
-export type PlanChecks = {
-  /** Seed rows given to the plan. */
-  seeds?: Row[];
-  /** Skip the rule that the kept rows cover every allowed required tuple (a budget cut leaves some out). */
-  cut?: boolean;
-};
-
 /** The new rows of a plan. */
 export function newRows(plan: Plan): Plan['rows'] {
   return plan.rows.filter((r) => r.kind === 'new');
@@ -554,10 +534,6 @@ export function assertCovered(space: Space, plan: Plan, _seeds: readonly Row[] =
 
 export function jsonEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
-}
-
-export function approx(a: number, b: number, tol = 1e-9): boolean {
-  return Math.abs(a - b) <= tol * Math.max(1, Math.abs(a), Math.abs(b));
 }
 
 /** Child count of the page's greedy bound: the product of arities of the widest required tuple. */
