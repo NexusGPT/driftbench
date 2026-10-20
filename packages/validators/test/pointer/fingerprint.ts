@@ -1,147 +1,234 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import ts from 'typescript';
 
 /**
- * A fingerprint of an item as it is written today: its runner entry and its spec row without the cause tag. An item
- * labelled blind has its fingerprint recorded in `validators/pointer/blind-fingerprints.json`; a change to the
- * item changes the fingerprint, and the provenance test then fails until the item is relabelled. An item can also be
- * changed by a helper it calls; `REPAIRING_HELPERS` names the helpers whose change added a positive witness or
- * changed an oracle after the blind commit, and a blind item must not call one.
+ * The provenance of a bank item from the TypeScript syntax tree. An item is its runner entry (the property of the
+ * family file's `...Runs` object) and its spec row (the `row(...)` call of the specs file, the cause tag aside).
+ * Its code is that entry plus every top-level declaration of the family file or of the kit that the entry reaches
+ * through identifiers, followed to any depth. Each piece is printed from the tree without comments and without
+ * the original white space, and the pieces are hashed in name order. Two trees give the same fingerprint for an
+ * item exactly when the executable text its runner reaches is the same.
  */
-const ROOT = new URL('../../src/ladders/pointer/', import.meta.url).pathname;
 const FAMILY_FILES: Record<string, string> = { 're-anchoring': 'reanchoring' };
-/**
- * Helpers (functions of the kit or of a family file) that changed after the blind commit in a way that moves a pass
- * condition: a positive witness, a stricter oracle, a new check. A comment-only change is not listed.
- */
-export const REPAIRING_HELPERS: readonly string[] = [
-  'canonical',
-  'checkPlanted',
-  'cutControl',
-  'digestOf',
-  'eventNow',
-  'examples',
-  'fixtureMissCase',
-  'fresh',
-  'go',
-  'growth',
-  'hash',
-  'liveOf',
-  'loadFixture',
-  'makeFixture',
-  'missCase',
-  'mustRun',
-  'parseCall',
-  'perturb',
-  'positiveReplay',
-  'privateEstate',
-  'readableFor',
-  'record',
-  'replay',
-  'requireFixtureLabels',
-  'requireSourceWitness',
-  'rescanOk',
-  'runScaleOp',
-  'sameFingerprints',
-  'scanOk',
-  'staleCassette',
-  'strings',
-  'truthOf',
-  'verifyScan',
-  'wireFor',
-];
-const IGNORED = new Set(['pass', 'fail', 'Array', 'Set', 'Map', 'String', 'Number', 'Object', 'JSON']);
+const printer = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed });
 
-const read = (path: string): string => readFileSync(path, 'utf8');
-const ts = (dir: string): string[] =>
-  readdirSync(dir)
-    .filter((name) => name.endsWith('.ts'))
-    .map((name) => join(dir, name));
+type Parsed = { file: ts.SourceFile; decls: Map<string, ts.Statement[]> };
 
-function tops(text: string): Map<string, string> {
-  const out = new Map<string, string>();
-  let current: string | undefined;
-  for (const line of text.split('\n')) {
-    const m = /^(?:export\s+)?(?:async\s+)?(?:function\s+|const\s+|let\s+|class\s+)([A-Za-z0-9_]+)/.exec(
-      line,
-    );
-    if (m) {
-      current = m[1] as string;
-      out.set(current, '');
-    }
-    if (current !== undefined) out.set(current, `${out.get(current)}${line}\n`);
+function parse(path: string): Parsed {
+  const file = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.ESNext, true);
+  const decls = new Map<string, ts.Statement[]>();
+  const add = (name: string, statement: ts.Statement) =>
+    decls.set(name, [...(decls.get(name) ?? []), statement]);
+  for (const statement of file.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name) add(statement.name.text, statement);
+    else if (ts.isClassDeclaration(statement) && statement.name) add(statement.name.text, statement);
+    else if (ts.isVariableStatement(statement))
+      for (const d of statement.declarationList.declarations)
+        if (ts.isIdentifier(d.name)) add(d.name.text, statement);
   }
-  return out;
+  return { file, decls };
 }
 
-function entries(text: string): Map<string, string> {
-  const out = new Map<string, string>();
-  let current: string | undefined;
-  for (const line of text.split('\n')) {
-    const m = /^ {2}(?:'([^']+)'|([A-Za-z0-9_]+)):/.exec(line);
-    if (m) {
-      current = (m[1] ?? m[2]) as string;
-      out.set(current, '');
-    } else if (/^\S/.test(line)) current = undefined;
-    if (current !== undefined) out.set(current, `${out.get(current)}${line}\n`);
-  }
-  return out;
-}
-
+const show = (node: ts.Node, file: ts.SourceFile): string =>
+  printer.printNode(ts.EmitHint.Unspecified, node, file);
 const sha = (text: string): string => createHash('sha256').update(text).digest('hex').slice(0, 16);
 
-/** The spec row of a key: the text of its `row(` call, up to the next one. */
-function specRow(text: string, key: string): string {
-  const chunks = text.split(/\brow\(\s*/);
-  const chunk = chunks.find((part) => part.startsWith(`'${key}'`)) ?? '';
-  // The cause tag (`'family:name',` on its own line) and the closing options name the repair, not the input or the oracle.
-  return chunk
-    .split('\n')
-    .filter((line) => !/^\s*'[a-z0-9-]+:[a-z0-9-]+',?$/.test(line))
-    .join('\n');
+function tsFiles(dir: string): string[] {
+  return readdirSync(dir)
+    .filter((name) => name.endsWith('.ts'))
+    .sort()
+    .map((name) => join(dir, name));
 }
 
-/** The runner entry and the spec row (without its cause) of an item id `family.key`. */
-function parts(id: string): { entry: string; spec: string } {
+function entryOf(file: ts.SourceFile, key: string): ts.Node | undefined {
+  for (const statement of file.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const d of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(d.name) || !/Runs$/.test(d.name.text)) continue;
+      const init = d.initializer;
+      if (!init || !ts.isObjectLiteralExpression(init)) continue;
+      for (const property of init.properties) {
+        const id = property.name;
+        if (id && (ts.isIdentifier(id) || ts.isStringLiteral(id)) && id.text === key) return property;
+      }
+    }
+  }
+  return undefined;
+}
+
+function specOf(file: ts.SourceFile, key: string): string {
+  let found = '';
+  const visit = (node: ts.Node) => {
+    if (
+      !found &&
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === 'row' &&
+      node.arguments[0] &&
+      ts.isStringLiteral(node.arguments[0]) &&
+      node.arguments[0].text === key
+    ) {
+      // Arguments: key, tier, title, generator, oracle, cause, options. The cause names the repair, not the item.
+      found = node.arguments
+        .filter((_a, at) => at !== 5)
+        .map((a) => show(a, file))
+        .join('\u0001');
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return found;
+}
+
+const OPTIONS: ts.CompilerOptions = {
+  target: ts.ScriptTarget.ESNext,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+  allowImportingTsExtensions: true,
+  noEmit: true,
+  skipLibCheck: true,
+  noLib: false,
+  types: [],
+};
+
+/**
+ * Declarations whose change was read and found not to move a pass condition: `compose` gained a record of the units
+ * it wrote (`written`, read back by `truthOf`); its output is the same. They are left out of the fingerprint, and
+ * the reason is written here so that adding a name is a decision.
+ */
+const READ_AND_UNCHANGED = new Set(['compose', 'written', 'truthOf']);
+
+type Reach = { entry: ts.Node; file: ts.SourceFile; pieces: Map<string, string> };
+
+/**
+ * The entry of an item and the top-level declarations of the family file or the kit it reaches, resolved with the
+ * compiler's own symbol table (a local variable that shares a helper's name does not reach the helper).
+ */
+function reach(root: string, id: string, program: ts.Program): Reach | undefined {
   const dot = id.indexOf('.');
   const family = id.slice(0, dot);
   const key = id.slice(dot + 1);
   const file = FAMILY_FILES[family] ?? family;
-  const entry = entries(read(join(ROOT, 'bank/families', `${file}.ts`))).get(key) ?? '';
-  const spec = specRow(read(join(ROOT, 'bank/specs', `${file}.ts`)), key);
-  return { entry, spec };
-}
-
-export function fingerprints(ids: readonly string[]): Record<string, string> {
-  return Object.fromEntries(ids.map((id) => [id, sha(Object.values(parts(id)).join('\u0000'))]));
-}
-
-/**
- * The repairing helpers an item's runner can reach: every helper called from its entry, followed through the helpers
- * of its family file and of the kit to any depth.
- */
-export function repairingCalls(id: string): string[] {
-  const dot = id.indexOf('.');
-  const family = id.slice(0, dot);
-  const file = FAMILY_FILES[family] ?? family;
-  const kit = new Map<string, string>();
-  for (const path of ts(join(ROOT, 'kit')))
-    for (const [name, body] of tops(read(path))) kit.set(name, `${kit.get(name) ?? ''}${body}`);
-  const helpers = new Map([...kit, ...tops(read(join(ROOT, 'bank/families', `${file}.ts`)))]);
-  const seen = new Set<string>();
-  let frontier = [parts(id).entry];
-  while (frontier.length > 0) {
-    const next: string[] = [];
-    for (const text of frontier) {
-      for (const m of text.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(|<)/g)) {
-        const name = m[1] as string;
-        if (seen.has(name) || !helpers.has(name)) continue;
-        seen.add(name);
-        next.push(helpers.get(name) as string);
+  const source = program.getSourceFile(join(root, 'bank/families', `${file}.ts`));
+  if (!source) return undefined;
+  const entry = entryOf(source, key);
+  if (!entry) return undefined;
+  const checker = program.getTypeChecker();
+  const inScope = (declaration: ts.Node): boolean => {
+    const path = declaration.getSourceFile().fileName;
+    return path.startsWith(join(root, 'kit')) || path === source.fileName;
+  };
+  const topLevel = (declaration: ts.Node): ts.Statement | undefined => {
+    let node: ts.Node | undefined = declaration;
+    while (node && !(node.parent && ts.isSourceFile(node.parent))) node = node.parent;
+    return node as ts.Statement | undefined;
+  };
+  const pieces = new Map<string, string>();
+  const seen = new Set<ts.Node>();
+  const queue: ts.Node[] = [entry];
+  while (queue.length > 0) {
+    const node = queue.pop() as ts.Node;
+    const walk = (child: ts.Node) => {
+      if (ts.isIdentifier(child)) {
+        let symbol = checker.getSymbolAtLocation(child);
+        if (symbol && symbol.flags & ts.SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol);
+        for (const declaration of symbol?.declarations ?? []) {
+          if (!inScope(declaration)) continue;
+          // Only a declared function, class or variable is followed: never a member of an object, such as an entry.
+          const declared =
+            ts.isFunctionDeclaration(declaration) ||
+            ts.isClassDeclaration(declaration) ||
+            (ts.isVariableDeclaration(declaration) && ts.isIdentifier(declaration.name));
+          if (!declared) continue;
+          // And only at the top level of its file: a local of the same name is not the helper.
+          const statementOf = ts.isVariableDeclaration(declaration) ? declaration.parent.parent : declaration;
+          if (!statementOf.parent || !ts.isSourceFile(statementOf.parent)) continue;
+          const statement = topLevel(declaration);
+          if (!statement || seen.has(statement)) continue;
+          if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) continue;
+          seen.add(statement);
+          if (declarationNames(statement).some((n) => READ_AND_UNCHANGED.has(n))) continue;
+          const name = `${statement.getSourceFile().fileName.split('/').pop()}:${statement.getStart()}`;
+          pieces.set(name, show(statement, statement.getSourceFile()));
+          queue.push(statement);
+        }
       }
-    }
-    frontier = next;
+      ts.forEachChild(child, walk);
+    };
+    ts.forEachChild(node, walk);
   }
-  return REPAIRING_HELPERS.filter((name) => seen.has(name));
+  return { entry, file: source, pieces };
+}
+
+function declarationNames(statement: ts.Statement): string[] {
+  if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name)
+    return [statement.name.text];
+  if (ts.isVariableStatement(statement))
+    return statement.declarationList.declarations.flatMap((d) =>
+      ts.isIdentifier(d.name) ? [d.name.text] : [],
+    );
+  return [];
+}
+
+function programOf(root: string): ts.Program {
+  const files = [...tsFiles(join(root, 'kit')), ...tsFiles(join(root, 'bank/families'))];
+  return ts.createProgram(files, OPTIONS);
+}
+
+/** The top-level declarations of the kit, hashed by name (the fingerprint of a helper on its own). */
+export function kitHelpers(root: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const path of tsFiles(join(root, 'kit'))) {
+    const parsed = parse(path);
+    for (const [name, statements] of parsed.decls)
+      out[name] = sha(statements.map((s) => show(s, parsed.file)).join('\u0001'));
+  }
+  return out;
+}
+
+/** The fingerprint of each item id `family.key` in the tree at `root` (the folder `.../ladders/pointer`). */
+export function fingerprints(root: string, ids: readonly string[]): Record<string, string> {
+  const program = programOf(root);
+  const result: Record<string, string> = {};
+  for (const id of ids) {
+    const dot = id.indexOf('.');
+    const key = id.slice(dot + 1);
+    const file = FAMILY_FILES[id.slice(0, dot)] ?? id.slice(0, dot);
+    const spec = specOf(parse(join(root, 'bank/specs', `${file}.ts`)).file, key);
+    const reached = reach(root, id, program);
+    if (!reached) {
+      result[id] = sha(`missing:${spec}`);
+      continue;
+    }
+    const pieces = [...reached.pieces.values()].sort();
+    result[id] = sha([show(reached.entry, reached.file), spec, ...pieces].join('\u0002'));
+  }
+  return result;
+}
+
+/** The top-level declarations an item reaches, as `file:name`, for the tests that name them. */
+export function reachedNames(root: string, id: string): string[] {
+  const reached = reach(root, id, programOf(root));
+  if (!reached) return [];
+  const names: string[] = [];
+  for (const text of reached.pieces.values()) {
+    const m = /^(?:export\s+)?(?:async\s+)?(?:function\s+|const\s+|let\s+|class\s+)([A-Za-z0-9_]+)/.exec(
+      text.trimStart(),
+    );
+    if (m) names.push(m[1] as string);
+  }
+  return names.sort();
+}
+
+/** The printed declarations an item reaches, by name (to read what changed between two trees). */
+export function reachedText(root: string, id: string): Record<string, string> {
+  const reached = reach(root, id, programOf(root));
+  if (!reached) return {};
+  const out: Record<string, string> = { '@entry': show(reached.entry, reached.file) };
+  for (const [name, text] of reached.pieces)
+    out[name.split(':')[0] + ':' + text.slice(0, 60).replace(/\s+/g, ' ')] = text;
+  return out;
 }

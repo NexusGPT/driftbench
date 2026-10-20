@@ -1,18 +1,28 @@
 /**
- * Writes the fingerprints of the items labelled blind: validators/pointer/blind-fingerprints.json.
- * Run it only after reading each changed item: an item whose fingerprint moved is no longer blind and belongs in
- * REPAIRED in packages/validators/src/ladders/pointer/bank/specs/provenance.ts.
- * Usage: pnpm tsx tools/pointer-provenance.ts
+ * Writes the blind record: the fingerprint of each of the 402 items and of each kit helper as they were at the blind
+ * commit, from a checkout of that commit. Usage:
+ *   git worktree add ../blind cf184f594 && pnpm tsx tools/pointer-provenance.ts ../blind
+ * Prints the ids whose fingerprint differs today, the list REPAIRED in
+ * packages/validators/src/ladders/pointer/bank/specs/provenance.ts must equal.
  */
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { pointerBank } from '../packages/validators/src/ladders/pointer/bank/index';
-import { fingerprints } from '../packages/validators/test/pointer/fingerprint';
+import { fingerprints, kitHelpers } from '../packages/validators/test/pointer/fingerprint';
 
-const ids = pointerBank()
-  .filter((item) => item.provenance === 'blind')
-  .map((item) => item.id)
-  .sort();
-const target = resolve('validators/pointer/blind-fingerprints.json');
-writeFileSync(target, `${JSON.stringify(fingerprints(ids), null, 2)}\n`);
-process.stdout.write(`wrote ${ids.length} fingerprints to ${target}\n`);
+const POINTER = 'packages/validators/src/ladders/pointer';
+const blind = resolve(process.argv[2] ?? '', POINTER);
+const here = resolve(POINTER);
+const idsFile = resolve('validators/pointer/blind-record.json');
+let ids: string[];
+try {
+  ids = Object.keys((JSON.parse(readFileSync(idsFile, 'utf8')) as { items: Record<string, string> }).items);
+} catch {
+  ids = JSON.parse(readFileSync(resolve(process.argv[3] ?? 'ids.json'), 'utf8')) as string[];
+}
+const old = fingerprints(blind, ids);
+writeFileSync(
+  idsFile,
+  `${JSON.stringify({ commit: 'cf184f5943fdccc6e1c7670e2d74e3c70a31f691', items: old, helpers: kitHelpers(blind) }, null, 1)}\n`,
+);
+const now = fingerprints(here, ids);
+process.stdout.write(`${ids.filter((id) => old[id] !== now[id]).join('\n')}\n`);

@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { bankSummary, formatItems } from '../../src/bank';
 import { runSeeds } from '../../src/ladder';
 import { BLIND_PROVENANCE, blindLevels } from '../../src/ladders/pointer/bank/blind';
 import { pointerBank, pointerBankLadder } from '../../src/ladders/pointer/bank/index';
-import { fingerprints, repairingCalls } from './fingerprint';
+import { fingerprints, kitHelpers, reachedNames } from './fingerprint';
 import { referenceSut } from './reference/index';
 
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
@@ -12,8 +13,8 @@ const count = (label: string) => pointerBank().filter((i) => i.provenance === la
 describe('the provenance of the first bank', () => {
   it('labels every item, and the three labels cover the 419 items', () => {
     expect(pointerBank()).toHaveLength(419);
-    expect(count('blind')).toBe(77);
-    expect(count('maintainer-repaired')).toBe(325);
+    expect(count('blind')).toBe(75);
+    expect(count('maintainer-repaired')).toBe(327);
     expect(count('maintainer-added')).toBe(17);
   });
 
@@ -29,7 +30,40 @@ describe('the provenance of the first bank', () => {
 });
 
 describe('an item that changed after the blind commit is not labelled blind', () => {
-  const blind = pointerBank().filter((i) => i.provenance === 'blind');
+  const record = JSON.parse(
+    readFileSync(new URL('../../../../validators/pointer/blind-record.json', import.meta.url), 'utf8'),
+  ) as { items: Record<string, string>; helpers: Record<string, string> };
+  const root = fileURLToPath(new URL('../../src/ladders/pointer', import.meta.url));
+  const ids = Object.keys(record.items);
+  const now = fingerprints(root, ids);
+  const label = (id: string) => pointerBank().find((i) => i.id === id)?.provenance;
+
+  it('records the 402 items of the blind commit', () => {
+    expect(ids).toHaveLength(402);
+  });
+
+  it('labels an item blind exactly when what its runner reaches is the text of the blind commit', () => {
+    const wrong = ids.filter((id) => (now[id] === record.items[id]) !== (label(id) === 'blind'));
+    expect(wrong).toEqual([]);
+  });
+
+  it('labels repaired the two items the line scan missed: a changed tail of a runner and a changed helper call', () => {
+    expect(label('labels.prompt-examples-max-three')).toBe('maintainer-repaired');
+    expect(label('adversarial.label-named-like-prototype')).toBe('maintainer-repaired');
+  });
+
+  it('labels repaired an item that reaches a changed helper only through other helpers: re-anchoring.noop', () => {
+    expect(reachedNames(root, 're-anchoring.noop')).toContain('eventNow');
+    expect(kitHelpers(root).eventNow).not.toBe(record.helpers.eventNow);
+    expect(label('re-anchoring.noop')).toBe('maintainer-repaired');
+  });
+
+  it('does not count a helper whose body is unchanged: liveOf, privateEstate and strings', () => {
+    const helpers = kitHelpers(root);
+    for (const name of ['liveOf', 'privateEstate', 'strings'])
+      expect(helpers[name], name).toBe(record.helpers[name]);
+    expect(Object.keys(helpers)).toContain('liveOf');
+  });
 
   it('labels the repaired replay items maintainer-repaired', () => {
     for (const key of [
@@ -45,42 +79,8 @@ describe('an item that changed after the blind commit is not labelled blind', ()
       'fixture-miss-names-questions-part',
       'fixture-miss-names-cut-digest',
       'fixture-replay-twice-identical',
-    ]) {
-      expect(pointerBank().find((i) => i.id === `replay.${key}`)?.provenance, key).toBe(
-        'maintainer-repaired',
-      );
-    }
-  });
-
-  it('keeps each blind item as it was recorded: its entry and spec row match the fingerprint file', () => {
-    const recorded = JSON.parse(
-      readFileSync(
-        new URL('../../../../validators/pointer/blind-fingerprints.json', import.meta.url),
-        'utf8',
-      ),
-    ) as Record<string, string>;
-    const now = fingerprints(blind.map((i) => i.id));
-    const moved = blind.filter((i) => recorded[i.id] !== now[i.id]).map((i) => i.id);
-    expect(moved).toEqual([]);
-  });
-
-  it('labels an item repaired when its runner reaches a repairing helper only through other helpers', () => {
-    // re-anchoring.noop calls `same`, which calls `anchorCase`, which reaches `eventNow`; a missing-events reader
-    // passed it before and fails it now.
-    expect(repairingCalls('re-anchoring.noop')).toContain('eventNow');
-    expect(pointerBank().find((i) => i.id === 're-anchoring.noop')?.provenance).toBe('maintainer-repaired');
-  });
-
-  it('labels every item that reaches a repairing helper maintainer-repaired', () => {
-    const wrong = pointerBank()
-      .filter((i) => i.provenance === 'blind' && repairingCalls(i.id).length > 0)
-      .map((i) => i.id);
-    expect(wrong).toEqual([]);
-  });
-
-  it('keeps blind items away from the helpers whose change moved a pass condition', () => {
-    const routed = blind.filter((i) => repairingCalls(i.id).length > 0).map((i) => i.id);
-    expect(routed).toEqual([]);
+    ])
+      expect(label(`replay.${key}`), key).toBe('maintainer-repaired');
   });
 });
 

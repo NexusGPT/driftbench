@@ -2,9 +2,7 @@
  * Who wrote each item of the bank and whether it changed afterwards. The first 402 items were written blind, from
  * the design page alone (commit cf184f594). Later commits by the maintainer changed the inputs, expected values
  * or pass conditions of some of them ("maintainer-repaired") and added others ("maintainer-added"). Every other
- * item is "blind". An item counts as repaired when its runner entry or its spec row (the cause tag aside) changed, or
- * when its runner reaches, through any chain of helper calls, a helper whose change moved a pass condition
- * (`REPAIRING_HELPERS` in the provenance test). A reader of the report must not take a repaired or added item as blind.
+ * item is "blind". An item counts as repaired when the executable text its runner reaches differs from the text at the blind commit: the entry, the spec row (the cause tag aside), and every declaration of the family file or the kit that the entry reaches through the compiler's own symbols, printed from the syntax tree without comments or white space (`validators/pointer/blind-record.json`, `test/pointer/fingerprint.ts`). A reader of the report must not take a repaired or added item as blind.
  */
 export type Provenance = 'blind' | 'maintainer-repaired' | 'maintainer-added';
 
@@ -22,6 +20,7 @@ const REPAIRED: ReadonlySet<string> = new Set([
   'adversarial.heading-decoy',
   'adversarial.hostile-file-names',
   'adversarial.identical-files-100',
+  'adversarial.label-named-like-prototype',
   'adversarial.length-decoy',
   'adversarial.many-empty-headings',
   'adversarial.mixed-decoys-100',
@@ -138,6 +137,7 @@ const REPAIRED: ReadonlySet<string> = new Set([
   'labels.none-labeller',
   'labels.perfect-atoms-exact',
   'labels.perfect-labels-recovered',
+  'labels.prompt-examples-max-three',
   'labels.prompt-generic-template',
   'labels.prompt-header-and-enum',
   'labels.prompt-one-line-per-unit',

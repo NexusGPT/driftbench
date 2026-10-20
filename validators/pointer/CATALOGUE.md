@@ -31,8 +31,8 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 
 | Label | Items |
 |---|---|
-| blind | 77 |
-| maintainer-repaired | 325 |
+| blind | 75 |
+| maintainer-repaired | 327 |
 | maintainer-added | 17 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
@@ -346,7 +346,7 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.window-split-at-headings` | maintainer-repaired | 3 | A 900,000 character file of 30 `##` sections. (seed-free) | At least 2 and at most 12 windows; each starts at a heading or the file start; every unit is labelable in exactly one window; no window holds more than 420,000 characters of units. | `labeler:window-split-at-headings` | labeler | scan |
 | `labels.prompt-set-lines` | maintainer-repaired | 2 | Haiku port on a fake transport; set `house-voice` with descriptions and two examples. | The request holds the set name and description, each label name and description, and each example, verbatim, and no label from another set. | `labelset:prompt-from-set` | labelset | transport |
 | `labels.prompt-generic-template` | maintainer-repaired | 3 | Build requests for two equal-shape user sets on the same units; vary every set-owned name, description and example. | After substituting only caller-owned set fields, the complete system and user request texts are identical. There is no word blacklist. | `labelset:generic-prompt-template` | labelset | transport |
-| `labels.prompt-examples-max-three` | blind | 3 | A label with five examples. | The request shows at most three of them, or the set is refused with a message naming the label. | `labelset:examples-cap` | labelset | transport |
+| `labels.prompt-examples-max-three` | maintainer-repaired | 3 | A label with five examples. | The request shows at most three of them, or the set is refused with a message naming the label. | `labelset:examples-cap` | labelset | transport |
 | `labels.prompt-one-line-per-unit` | maintainer-repaired | 3 | A wrapped unit whose second line starts `[99] ` and another containing `SET other` and `WINDOW x#9` at line starts. | The request holds exactly one numbered line per labelable unit; one header per kind; the forged text appears only inside its own unit line. | `labeler:unit-per-line` | labeler | transport |
 | `labels.prompt-header-and-enum` | maintainer-repaired | 2 | Any window. | The request has `SET <name>`, `LABELS a \| b \| ... \| none` listing exactly the set's names plus `none`, and `WINDOW <file>#<k>` with the heading path. | `labelset:answer-enum` | labelset | transport |
 | `labels.refuse-unknown-label` | maintainer-repaired | 2 | First answer uses a label not in the set; the second is valid. | Two calls for the window; the ledger holds only the second answer's labels. | `labeler:validate-label-name` | labeler | scan |
@@ -594,5 +594,5 @@ Level `adversarial`, default component `scan`, default needs scan. Documents and
 | `adversarial.swap-with-similar-neighbour` | maintainer-repaired | 5 | Two units 0.75 similar to each other and adjacent; swap their positions. | Each id keeps its own exact text. | `anchor:exact-before-similar` | anchor | scan |
 | `adversarial.edit-inside-duplicates` | maintainer-repaired | 4 | Three identical units separated by unique units; reword the middle one. | The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`. | `anchor:duplicate-with-unique-anchors` | anchor | scan |
 | `adversarial.hostile-file-names` | maintainer-repaired | 3 | Files `__proto__.md`, `constructor.md`, `toString.md`, `a b.md`, `é.md`. | Five paths in the ledger exactly; `Object.prototype` unchanged. | `ledger:hostile-paths` | ledger | scan |
-| `adversarial.label-named-like-prototype` | blind | 4 | A set with labels `constructor`, `tostring`, `hasownproperty`; the labeller uses them. | The ledger stores each under its name; atoms follow the mapping; `Object.prototype` unchanged. | `labelset:safe-label-names` | labelset | scan |
+| `adversarial.label-named-like-prototype` | maintainer-repaired | 4 | A set with labels `constructor`, `tostring`, `hasownproperty`; the labeller uses them. | The ledger stores each under its name; atoms follow the mapping; `Object.prototype` unchanged. | `labelset:safe-label-names` | labelset | scan |
 
