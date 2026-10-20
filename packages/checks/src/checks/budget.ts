@@ -74,9 +74,14 @@ function costOf(observed: Observed): number | undefined {
   return parts.length === 0 ? undefined : parts.reduce((sum, part) => sum + part, 0);
 }
 
-/** How far over a limit a fail is: the excess and its share of the limit. Empty when the value passes. */
+/**
+ * How far over a limit a fail is: the excess and its share of the limit, or, at a limit of 0 that has no
+ * share, the excess alone. Empty when the value passes.
+ */
 function overBy(excess: number, limit: number, unit: string, passes: boolean): string {
-  if (passes || limit === 0) return '';
+  if (passes) return '';
+  const over = `${Number(excess.toFixed(4))} ${unit}`;
+  if (limit === 0) return `, over by ${over} (the limit is 0)`;
   const share = Math.round((excess / limit) * 100);
-  return `, over by ${Number(excess.toFixed(4))} ${unit} (${share}% above the limit)`;
+  return `, over by ${over} (${share}% above the limit)`;
 }

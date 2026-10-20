@@ -71,7 +71,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | Kind | What it says | Acme |
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
-| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move | 14 |
+| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move. The map's reachability, the t-wise target and the cover builder count only these two: a use whose subject is a value of any other kind of dimension (a persona, a channel) opens no cell of a tool failure | 14 |
 | `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
@@ -287,7 +287,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have. Each walk declares, for perturbed mode, every class whose recovery keeps the conversation where it is |
 | `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call. After coverage, one restated slot per tool input a move fills from a slot (`gen-restated-NNN`): just before the move, the user asks for the tool with one value (the call carries the move's arguments with that value, and the reply reports the tool's returned fields as the move's does); then the move's turn states another value, and the move expects the latest one. The other value is one no single slip of the first reaches in the tool's schema (the next enum member or the first one, the integer one either side) whenever the values allow it, so an agent that keeps the first value and also slips once still fails the move. Only when every phrase of that move states the slot, and never for a side-effecting tool |
-| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it. Then a class whose recovery moves the conversation elsewhere (a goal shift goes back to the stage that owns the goal), which no clean walk can declare for perturbed mode, gets one walk of its flow cut at the latest stage before the last that can take it (`gen-deviation-cut-NNN`) when no complete spec declares it that way: the perturbation is said after the walk's last turn, its recovery is the Then, and the walk has no end state |
+| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class placed fewer than a third as often as the most placed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it; see [Balance of stages and classes](#balance-of-stages-classes-and-behaviours). Then a class whose recovery moves the conversation elsewhere (a goal shift goes back to the stage that owns the goal), which no clean walk can declare for perturbed mode, gets one walk of its flow cut at the latest stage before the last that can take it (`gen-deviation-cut-NNN`) when no complete spec declares it that way: the perturbation is said after the walk's last turn, its recovery is the Then, and the walk has no end state |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
 | `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons. Then each approved phrase of a behaviour, a flow or a tool value that no complete spec says gets one spec (`gen-phrase-NNN`): a walk's moves reach a stage and the user says the phrase there; the Then is that stage, plus no run of a side-effecting tool, or for another tool's returned value one run whose reply reports the returned fields as the flow's `states` relations do, said after a move that already ran the tool. The phrases of one dimension go to distinct stages while the walks have stages left; a phrase whose only fitting stage another phrase holds takes it when that phrase can move to a free one, so every phrase some free stage fits is said. A behaviour phrase uses only a path of a flow that lists the behaviour in the inventory, at a stage that path reaches. Without an inventory, an explicit `path.behaviours` entry supplies that ownership. A missing owner or an owning flow with no usable path is reported, including when the map has no approved paths. An approved phrase no walk can say is listed under `no_phrase` with the reasons (`unsaid`), including a behaviour whose call conditions cannot hold on any approved walk. When `--max` stops this seeder, every eligible phrase still waiting is reported with `cut by --max`, including phrases not visited yet. A phrase that states slot values (`binds` or a `{slot}`) is left out, since a stage-only Then cannot judge them |
@@ -305,11 +305,26 @@ can occur only on a flow that lists it. Pairs and triples must fit one such flow
 and deviation recoveries. When inventory ownership excludes cells that the relation-only target admits,
 `coverage.reachability` lists every excluded pair and triple with its reason, plus allowed counts before
 and after for each strength. A reachable cell that cannot be built stays in `coverage.actual[].uncovered`
-and in `cover.unbuilt`; missing phrases or an output budget never remove it from the target.
+and in `cover.unbuilt`; missing phrases or an output budget never remove it from the target. Each candidate
+cell is checked against the written and derived constraints, and each excluded cell finds its reasons, through
+an index keyed by the picks the constraints forbid, so these checks do not slow down as constraints accumulate.
 
 In `metadata.generated.blocks`, a move records the stage it reaches. A deviation records the stage where
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.
+
+### Balance of stages, classes and behaviours
+
+Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.
+
+The generator keeps the allocation even. No stage, deviation class or behaviour is placed fewer than a third as often as the most placed value of its kind. It counts the suite as it builds it, and it fills a shortfall in this order:
+
+1. A walk that declares perturbations places them where the suite has the least. A recovery that was drawn moves to a rarer stage with the same wording when its flow recovers from the class there. Further recoveries, at most one per class and walk, are added at the rarest stage the walk reaches: before its first turn for a class a first message can carry, between turns, or after its last turn. Only a class whose flow recovers in place (the conversation stays where it arrived) is declared this way, with the wording and the Then the map approves. This adds no block, no random draw and no spec. A probe for a class goes to the stage where the suite gains most, counting the moves before it when the walk ends there.
+2. When the declared recoveries do not reach the floor, short approved walks fill the rarest stage (`gen-stage-balance-NNN`): a path cut after the stage, or the whole path for the last stage. Of the paths through the stage, the walk that leaves stages and classes nearest balance is written, and only when it brings them nearer. A walk written to balance declares only what the balance adds, because every other walk already declares one drawn class and a tool failure at the stages it crosses.
+3. Walks for the behaviours a few specs cover (`gen-behaviour-balance-NNN`) go on a path of a flow that holds the behaviour.
+4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or when the allocation has added as many specs as the seeders wrote.
+
+A stage, class or behaviour that no approved path or phrase can reach stays under the floor, and the suite is written as it is. The count follows `driftbench coverage`, so a stage placed by a declared perturbation is a placed stage.
 
 ### The machine Then in every block
 
@@ -411,9 +426,9 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3116 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 948 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
@@ -421,10 +436,10 @@ Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
 boundary         85     183        13          72
-deviation        21     111        21           0
+deviation       139     570       139           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            27     142        27           0
+cover            11      50        11           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -462,13 +477,21 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 507 files to generated.
+Wrote 609 files to generated.
 exit 1
 ```
 
 The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase and the approved phrases no walk could say (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+
+### Stems: shared openings written once
+
+Many generated specs open the same way: the same first blocks, with the same When, Given and Then. `driftbench generate` writes each such opening once, as a stem under `specs/stems/`, and each spec starts from its stem with `parent: <stem id>#<block id>` on its block 0, its perturbations and end verdict shifted to match. `stems-map.csv` maps every block as generated (`old_spec,old_index,old_block`) to where it is now (`new_spec,new_block`), with how many specs share it. `generate-report.json` counts the stems, the specs that start from one, and the blocks written once. `--no-stems` writes every spec whole.
+
+Two specs share an opening only when they share the keys the run reads (kind, channel, lang, target, Given defaults, stages, rules) and the definitions of the criteria the shared blocks name. A spec never shares its last block, nor a block at or after a perturbation or its end verdict, so it keeps its own end state, criteria and perturbations. Loaded with its folder, or from a seeder folder with `specs/stems/` beside it, a spec is written back out whole and means what it meant: the runner replays the stem's blocks first, unscored, and blocks the spec when one of them does not pass. A stem is run and scored as a spec of its own; coverage and the pilot count the specs it opens, never the stem. See [a parent in another spec](concepts/given-when-then.md#a-parent-in-another-spec).
+
+On the approved Acme map, the committed suite has 101 stems: 212 of the 437 complete specs start from one, and 296 blocks are written once instead of once per spec. Loaded as a folder, each of the 437 specs is written back out to the blocks it had. On the Acme sales agent, in modes T and F, all 874 cells keep their state and the verdicts of their own blocks, and all 202 stem cells pass. The streaming writer, `generateSuiteToDisk`, reads one spec at a time and writes every spec whole; `generateSuite` writes stems with `stems: true`.
 
 ## Streaming generation to disk
 
@@ -905,7 +928,7 @@ Intake builds the set of real user turns a simulated user is compared against. I
 
 ```
 $ pnpm -s driftbench intake logs _captures/docs3/generating/intake/conversations.jsonl --out _captures/docs3/generating/intake/private --map examples/acme/map/approved.yaml
-Refused: _captures/docs3/generating/intake/private is inside the git work tree /Users/assem/Documents/GitHub/driftbench/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
+Refused: _captures/docs3/generating/intake/private is inside the git work tree <repo>/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
 exit 2
 ```
 

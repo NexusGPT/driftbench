@@ -1,4 +1,4 @@
-import { checkSpec, type Issue, type LoadResult, type Spec } from '@agent-nexus/driftbench-core';
+import { checkSpec, type Issue, type LoadResult, type Spec, stemOf } from '@agent-nexus/driftbench-core';
 import {
   assertGridSize,
   type CompiledSpace,
@@ -12,8 +12,10 @@ import {
   resolveT,
   tupleValues,
 } from '@agent-nexus/driftbench-space';
-import { stringify } from 'yaml';
+import { parse as parseYaml, stringify } from 'yaml';
+import { ForbidIndex } from '../extract/forbid-index';
 import { seedFolderName } from '../families/instances';
+import { Allocation } from '../seed/allocation';
 import {
   generatedSpecText,
   NO_THEN_CRITERION,
@@ -48,6 +50,8 @@ import {
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
 import { TerminalPerturbations } from '../seed/terminal-perturbation';
+import { stringifyGeneratedYaml } from '../seed/yaml';
+import { stemMapCsv, stemPass } from '../stems/post-pass';
 import { formatJson } from './json';
 import { capSpecPool, type SpecCapMode, type SpecCapReport, seederOf } from './spec-cap';
 
@@ -95,6 +99,12 @@ export type GenerateOptions = {
    * since a family's oracle runs asynchronously. A flow with a task family and none given has no specs.
    */
   tasks?: TaskInput[];
+  /**
+   * The stem post-pass: openings that complete specs share are written once under `specs/stems/`, each spec
+   * starting from its stem on block 0, with the old-to-new table in `stems-map.csv`. Default off here, so the
+   * eager and the streaming writers write the same files; `driftbench generate` turns it on (`--no-stems` off).
+   */
+  stems?: boolean;
 };
 
 /** A file the suite writes: text, or bytes for a seed file that is not text (then `text` is empty). */
@@ -115,6 +125,8 @@ export type SeederTotals = {
 
 export type GenerateReport = {
   generator: 'driftbench generate';
+  /** The stem post-pass, when it ran: stems written, specs that start from one, blocks written once. */
+  stems?: { stems: number; specs: number; saved: number };
   map: {
     path: string;
     agent: string;
@@ -234,12 +246,14 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const t = options.t ?? DEFAULT_T;
   const seed = options.seed ?? DEFAULT_SEED;
   const max = options.max ?? Number.POSITIVE_INFINITY;
+  const allocation = new Allocation(prepared);
   const context: SeedContext = {
     seed,
     t,
     max,
     pathValues: indexPathValues(prepared),
     dimensionIndex: indexDimensions(prepared),
+    allocation,
   };
   const run: RunIdentity = { seed, mapPath: options.mapPath };
 
@@ -303,6 +317,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       cut: cut[seeder],
     };
     for (const draft of list) {
+      context.allocation?.observeDraft(draft);
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const renderText = () => generatedSpecText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
@@ -377,6 +392,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     all.push(loaded.spec);
     complete.push(loaded.spec);
     keep('task', loaded.spec);
+    context.allocation?.observeSpec(loaded.spec);
     const path = `${COMPLETE_DIR}/task/${id}.yaml`;
     if (options.specCap !== undefined) cappedText.set(path, renderText);
     addFile(id, { path, text });
@@ -447,7 +463,18 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const terminal = new TerminalPerturbations(prepared);
   for (const spec of complete) terminal.observe(spec);
   for (const draft of terminal.drafts(context)) {
-    for (const spec of renderSeeder('deviation', [draft])) terminal.observe(spec);
+    for (const spec of renderSeeder('deviation', [draft])) {
+      terminal.observe(spec);
+      balance.observe(spec);
+    }
+  }
+  // Allocation: stages and behaviours placed less than a third as often as the most placed one get approved
+  // walks, alternating with class probes until all hold.
+  for (const draft of allocation.rounds(context, () => all.length, balance)) {
+    for (const spec of renderSeeder('deviation', [draft])) {
+      terminal.observe(spec);
+      balance.observe(spec);
+    }
   }
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
@@ -518,8 +545,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     (seeders[seeder] as SeederTotals).measures = seederMeasures(prepared, completeBy[seeder] ?? []);
   }
   const totals = Object.values(seeders);
+  const stems = options.stems === true ? stemFiles(files, options.mapPath, seed, prepared.hash) : undefined;
   const report: GenerateReport = {
     generator: 'driftbench generate',
+    ...(stems ? { stems } : {}),
     map: {
       path: options.mapPath,
       agent: prepared.agent,
@@ -689,6 +718,9 @@ export function reachabilityReport(
   const before = { ...prepared, axisMap: reachability.before };
   const counts: Array<{ t: number; before: number; after: number }> = [];
   const excluded: Array<{ cell: Record<string, string>; reasons: string[] }> = [];
+  // The excluding constraints, looked up by the picks they forbid, in list order: one lookup per cell.
+  const index = new ForbidIndex();
+  for (const { forbid } of reachability.excluded) index.add(forbid);
   for (const strength of new Set([2, 3].map((t) => Math.min(t, prepared.axisMap.dimensions.length)))) {
     const original = cellsOf(before, [], strength);
     const current = cellsOf(prepared, [], strength);
@@ -696,9 +728,9 @@ export function reachabilityReport(
     counts.push({ t: strength, before: original.length, after: current.length });
     for (const { values } of original) {
       if (retained.has(cellKey(values))) continue;
-      const reasons = reachability.excluded
-        .filter(({ forbid }) => Object.entries(forbid).every(([key, value]) => values[key] === value))
-        .map(({ reason }) => reason);
+      const reasons = index
+        .within(values)
+        .map((at) => (reachability.excluded[at] as (typeof reachability.excluded)[number]).reason);
       excluded.push({
         cell: values,
         reasons:
@@ -913,4 +945,50 @@ export function renderSummary(report: GenerateReport): string {
     );
   }
   return `${lines.join('\n')}\n`;
+}
+
+/** The file of the old-to-new table the stem post-pass writes beside the report. */
+export const STEM_MAP_FILE = 'stems-map.csv';
+
+/**
+ * The stem post-pass over the written suite: the complete specs (`specs/<seeder>/<id>.yaml`) are read back, the
+ * openings they share become stem files under `specs/stems/`, the specs that start from one are written again,
+ * their header kept, and the old-to-new table is written to STEM_MAP_FILE. Undefined when nothing is shared.
+ */
+function stemFiles(
+  files: GeneratedFile[],
+  mapPath: string,
+  seed: number,
+  hash: string,
+): { stems: number; specs: number; saved: number } | undefined {
+  const specFile = new RegExp(`^${COMPLETE_DIR}/[^/]+/[^/]+\\.yaml$`);
+  const read = files
+    .filter((file) => specFile.test(file.path) && file.text !== '')
+    .map((file) => ({ file, raw: parseYaml(file.text) as Spec }));
+  const pass = stemPass(read.map((entry) => entry.raw));
+  if (pass.stems.length === 0) return undefined;
+  pass.specs.forEach((spec, index) => {
+    const entry = read[index];
+    if (!entry || spec === entry.raw) return;
+    const header = entry.file.text.split('\n').filter((line) => line.startsWith('#'));
+    entry.file.text = `${[...header, `# Starts from the stem ${String((spec.metadata?.generated as { parent?: { stem?: string } } | undefined)?.parent?.stem)}: see ${STEM_MAP_FILE}.`].join('\n')}\n${stringifyGeneratedYaml(spec)}`;
+  });
+  for (const stem of pass.stems) {
+    const members = stemOf(stem) ?? [];
+    const header = [
+      `# Generated by driftbench generate (stem post-pass, seed ${seed}) from ${mapPath}, map hash ${hash}.`,
+      `# The opening ${members.length} specs share, written once; each starts from it with parent: <this id>#<block id>.`,
+      '# Do not edit it by hand: change the map and generate again. Fictional data only.',
+    ];
+    files.push({
+      path: `${COMPLETE_DIR}/stems/${stem.id}.yaml`,
+      text: `${header.join('\n')}\n${stringifyGeneratedYaml(stem)}`,
+    });
+  }
+  files.push({ path: STEM_MAP_FILE, text: stemMapCsv(pass.rows) });
+  return {
+    stems: pass.stems.length,
+    specs: pass.specs.filter((spec, index) => spec !== read[index]?.raw).length,
+    saved: pass.saved,
+  };
 }

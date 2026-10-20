@@ -55,7 +55,15 @@ function generated(
   const spec = Spec.parse({
     id: 'cell-probe',
     kind: 'conversation',
-    blocks: [{ id: 'block', when: { user: 'Hello.' }, expect: { stage: hidden.start } }],
+    // The block expects the stage its cell names, else a stage a move reaches: the item places a block on the
+    // stage it expects, and no conversation expects its start stage with no deviation.
+    blocks: [
+      {
+        id: 'block',
+        when: { user: 'Hello.' },
+        expect: { stage: cell.stage ?? required(hidden.paths[0]?.stages[1]) },
+      },
+    ],
     metadata: { generated: { seeder, cell: {}, blocks: [{ block: 'block', cell }] } },
   });
   const loaded: LoadedSpec = {
@@ -85,15 +93,22 @@ function dataFor(seed: number, value: Generation): SeedData {
 }
 
 describe('diff.feasible reads the impossible pairs and every seeder', () => {
-  it('seed 2: a cover block claiming D1 on a behaviour whose flows never recover D1 fails (the reported case)', async () => {
-    const hidden = hiddenSpec(2);
+  it('seed 18: a cover block claiming D1 on a behaviour whose flows never recover D1 fails (the reported case)', async () => {
+    // Seed 18 draws a behaviour (B-004, save a file) that only status-check owns, and status-check never
+    // recovers D1. Seed 2 once showed the same shape for the off-topic behaviour itself; the hidden
+    // specification now gives that behaviour an owner that recovers D1, so seed 2 has no such pair left.
+    const hidden = hiddenSpec(18);
     const pair = required(
       impossibleOnly(hidden).find(
-        (entry) => entry.forbid.behaviour === 'B-001' && entry.forbid.deviation === 'D1_off_topic',
+        (entry) => entry.forbid.behaviour === 'B-004' && entry.forbid.deviation === 'D1_off_topic',
       ),
     );
-    const cell = { flow: 'change-request', behaviour: 'B-001', deviation: 'D1_off_topic', stage: 'choice' };
-    const result = await item('cover').check(dataFor(2, generated(hidden, 2, 'cover', cell)));
+    // A flow that owns the behaviour and a stage its path reaches: a cell naming a flow that does not own the
+    // behaviour, or a stage the flow never reaches, is no position of the map.
+    const flow = required(hidden.flows.find((entry) => entry.behaviours.includes('B-004'))).id;
+    const stage = required(hidden.paths.find((path) => path.flow === flow)?.stages[1]);
+    const cell = { flow, behaviour: 'B-004', deviation: 'D1_off_topic', stage };
+    const result = await item('cover').check(dataFor(18, generated(hidden, 18, 'cover', cell)));
     expect(result).toEqual({
       pass: false,
       detail: `1 blocks sit in a cell a hidden constraint forbids: cell-probe#block (${pair.reason})`,

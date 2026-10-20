@@ -2,6 +2,12 @@
 
 Rewritten by the executor every iteration (docs/validators.md section 10). A stranger continues from this file alone. The level table is written by `driftbench validate stats --journal <row.json>` from the last journal row.
 
+## Current gate review, 2026-10-18
+
+The expanded bank has 910 items and no fresh pilot. The historical 651-item builder pilot fails the section 12.4 contract (100 / 0.4 / 100) and meets the numerical provisional bar (70 / 0.7 / 60). Neither establishes the expanded bank's gate: historical rows have no bank fingerprint, and all four independent audit checks are pending. See [GATE.md](GATE.md), [audit.md](audit.md) and [the evidence report](evidence/gate-review.md).
+
+The earlier executor results below retain their original commit and bank size; they are not current-bank measurements. A new pilot must capture `bankHash` from `validate stats --items --json` and supply that unchanged hash when appending each measured journal row. Never backfill the historical rows with the live bank's hash.
+
 ## Level per seed
 
 <!-- level-table:start -->

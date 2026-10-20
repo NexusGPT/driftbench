@@ -29,9 +29,9 @@ for (const item of items.filter((item) => !item.id.startsWith('exact.source.')))
   byFunction.set(name, [...(byFunction.get(name) ?? []), item]);
 }
 
-/** Multiplies every non-integer number in a result by 1.002. */
+/** Multiplies every numeric result by 1.002, including integer-valued custom statistics. */
 function nudge(value: unknown): unknown {
-  if (typeof value === 'number') return Number.isInteger(value) ? value : value * 1.002;
+  if (typeof value === 'number') return value * 1.002;
   if (Array.isArray(value)) return value.map(nudge);
   if (value !== null && typeof value === 'object')
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, nudge(v)]));
@@ -46,7 +46,7 @@ const FAULTS: Record<string, (real: Fn) => Fn> = {
     () =>
     (...a) =>
       (a[0] as number[]).reduce((sum, x) => sum + x, 0) / (a[0] as number[]).length,
-  // Boundary probabilities 0 and 1 do not move under the generic nudge.
+  // Zero boundary probabilities do not move under multiplication.
   incompleteBeta:
     (f) =>
     (...a) =>
@@ -222,6 +222,96 @@ describe('source guards are source checks, not exported functions', () => {
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+  // The ways round a lexical scan that the cheater audit's review found: the same fixture through a data import
+  // or through a link out of the folder, and the stack or the validator's name written in pieces.
+  const bypasses = [
+    ['reads-files', "import expected from './answers.json';"],
+    ['reads-files', "import expected from './answers.json' with { type: 'json' };"],
+    ['reads-files', "import expected from './answers.json' assert { type: 'json' };"],
+    ['reads-files', "import './answers.bin';"],
+    ['reads-call-stack', "const stack = new Error()['st' + 'ack'];"],
+    ['reads-call-stack', 'const probe = new Error();'],
+    ['names-the-validator', "const dir = 'valid' + 'ators';"],
+  ];
+
+  it.each(bypasses)('rejects the way round the scan: %s %s', async (id, source) => {
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-source-'));
+    try {
+      const src = join(root, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      const item = guards.find((item) => item.id === `exact.source.${id}`) as BankItem;
+      writeFileSync(join(src, 'index.ts'), source as string);
+      const result = await runItem(item, 1, root, real);
+      expect(result.pass, result.detail).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('keeps a relative import of a module, with or without its extension', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-source-'));
+    try {
+      const src = join(root, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      writeFileSync(join(src, 'helper.ts'), 'export const twice = (x: number) => 2 * x;');
+      writeFileSync(
+        join(src, 'index.ts'),
+        "import { twice } from './helper'; import { twice as again } from './helper.js'; export const f = (x: number) => twice(again(x));",
+      );
+      for (const id of ['reads-files', 'reads-call-stack']) {
+        const item = guards.find((item) => item.id === `exact.source.${id}`) as BankItem;
+        const result = await runItem(item, 1, root, real);
+        expect(result.pass, result.detail).toBe(true);
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects a link out of the package folder, whether or not a module imports it', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-source-'));
+    try {
+      const src = join(root, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      writeFileSync(join(root, 'answers.json'), '{"zFor":1.96}');
+      writeFileSync(join(src, 'index.ts'), 'export const identity = (x: number) => x;');
+      const item = guards.find((item) => item.id === 'exact.source.reads-files') as BankItem;
+      expect((await runItem(item, 1, root, real)).pass).toBe(true);
+      // A link to a file of the package folder itself stays allowed.
+      symlinkSync(join(src, 'index.ts'), join(src, 'alias.ts'));
+      expect((await runItem(item, 1, root, real)).pass).toBe(true);
+      // A link to a file outside, under a neutral name, with no import at all.
+      symlinkSync(join(root, 'answers.json'), join(src, 'table.json'));
+      const linked = await runItem(item, 1, root, real);
+      expect(linked.pass, linked.detail).toBe(false);
+      expect(linked.detail).toContain('table.json');
+      // The same link, imported by a module.
+      writeFileSync(
+        join(src, 'cheat.ts'),
+        "import table from './table.json'; export const n = Object.keys(table).length;",
+      );
+      const imported = await runItem(item, 1, root, real);
+      expect(imported.pass, imported.detail).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('does not follow a link to a folder that leads back into the package', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-source-'));
+    try {
+      const src = join(root, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      writeFileSync(join(src, 'index.ts'), 'export const identity = (x: number) => x;');
+      symlinkSync(src, join(src, 'loop'));
+      const item = guards.find((item) => item.id === 'exact.source.reads-files') as BankItem;
+      const result = await runItem(item, 1, root, real);
+      expect(result.pass, result.detail).toBe(true);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 /**
@@ -266,7 +356,8 @@ describe('the exact-value items of the report', { timeout: 180_000 }, () => {
     [
       'every run its own tree',
       'headline.ts',
-      (t) => t.replace('groupBy(runs, treeOf)', 'groupBy(runs, (run) => run.runId)'),
+      // The key of a run read as a whole is its tree; here each run is its own tree.
+      (t) => t.replace('const key = treeOf(run);', 'const key = run.runId;'),
       'exact.suiteHeadline.tree-key',
     ],
     [

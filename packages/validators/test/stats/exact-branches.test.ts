@@ -324,8 +324,8 @@ const MUTANTS: Mutant[] = [
   {
     name: 'zFor is one-sided',
     file: 'intervals.ts',
-    from: 'return normalQuantile(1 - alpha / 2);',
-    to: 'return normalQuantile(1 - alpha);',
+    from: 'return -normalQuantileFromLogP(Math.log(alpha) - Math.LN2);',
+    to: 'return -normalQuantileFromLogP(Math.log(alpha));',
     fails: ['zFor.levels', 'zFor.far-tail', 'zFor.monotone'],
   },
   {

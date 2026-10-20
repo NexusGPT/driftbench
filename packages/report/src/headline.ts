@@ -1,4 +1,4 @@
-import { type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunResult, runOutcome, type Spec } from '@agent-nexus/driftbench-core';
 import { hierarchicalBetaBinomial, mde } from '@agent-nexus/driftbench-stats';
 import { groupBy, runPassed, scoredRuns } from './data';
 import type { Estimate } from './estimate';
@@ -10,23 +10,25 @@ export const HEADLINE_POWER = 0.8;
  * The headline of a suite: its pass rate as the mean over trees, with the hierarchical Beta-Bernoulli interval,
  * and what a reader needs to judge it.
  *
- * A tree is the group of runs that cannot be told apart as independent evidence: today the repeats of one
- * golden (one spec in one mode, one perturbation in P). Every tree weighs the same, whatever its repeats, so a
- * golden with ten repeats does not outvote one with two. The interval widens when trees disagree and narrows
- * when they agree; it is the one to quote for a suite.
+ * Without parent links a tree is the repeats of one golden (one spec in one mode, one perturbation in P).
+ * With links it is one root family within that golden: the root and every descendant contribute one all-pass
+ * outcome per repeat. Every tree weighs the same, whatever its repeats. The interval widens when trees
+ * disagree and narrows when they agree; it is the one to quote for a suite.
  */
 export type SuiteHeadline = Estimate & {
   method: 'hierarchical' | 'none';
-  /** The trees: goldens with at least one scored run. */
+  /** Linked specs contribute one outcome per root tree and repeat: `n` counts those, `runs` the scored runs. */
+  unit?: 'tree-run';
+  /** The trees: root families for linked specs, otherwise goldens, with at least one scored outcome. */
   trees: number;
   /** Scored runs in all trees: a run not run or blocked (no block failed) is no measurement and is left out. */
   runs: number;
-  /** The pass rate over all runs pooled, each run counting once. Differs from `estimate` when trees have unequal repeats. */
+  /** The pass rate over all outcomes pooled (tree-runs for linked specs). Differs when trees have unequal repeats. */
   pooledRate: number;
   /** Design effect of the pooled rate across trees and the runs it is worth: the same clustering, Wilson on n_eff. */
   designEffect: number;
   effectiveRuns: number;
-  /** True when every run passed or every run failed: the spread between goldens is zero, so each golden counts once. */
+  /** True when every outcome passed or every outcome failed: no spread, so each tree counts once. */
   degenerate: boolean;
   /** The smallest drop in the tree-level rate two suites like this one detect at 80% power; null when none is. */
   detectableDrop: number | null;
@@ -65,6 +67,45 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
   return { effective, designEffect: runs / effective, degenerate };
 }
 
+/** What the headline reads besides the runs. */
+export type SuiteHeadlineOptions = {
+  /**
+   * The spec's parent links of a run, child block id to parent block id. A run need not record every
+   * ancestor (a replayed ancestor adds no block), so the links name the root the run alone cannot.
+   */
+  parentsOf?: (run: RunResult) => ReadonlyMap<string, string> | undefined;
+  /**
+   * The root blocks of a run's spec. A run that failed and measured no block fails each of these families
+   * once; without them the roots are read from `parentsOf` and the recorded blocks.
+   */
+  rootsOf?: (run: RunResult) => readonly string[] | undefined;
+};
+
+const LINKS = new WeakMap<Spec, ReadonlyMap<string, string>>();
+
+/** A spec's parent links, child block id to parent block id; undefined when no block has a parent. */
+export function parentLinks(spec: Spec | undefined): ReadonlyMap<string, string> | undefined {
+  if (!spec) return undefined;
+  let links = LINKS.get(spec);
+  if (!links) {
+    links = new Map(
+      spec.blocks.flatMap((block) =>
+        block.id !== undefined && block.parent !== undefined ? [[block.id, block.parent] as const] : [],
+      ),
+    );
+    LINKS.set(spec, links);
+  }
+  return links.size > 0 ? links : undefined;
+}
+
+/** A spec's root blocks (no parent), by id, else `block <index>`; undefined when no block has a parent. */
+export function specRoots(spec: Spec | undefined): readonly string[] | undefined {
+  if (!parentLinks(spec)) return undefined;
+  return (spec as Spec).blocks.flatMap((block, index) =>
+    block.parent === undefined ? [block.id ?? `block ${index}`] : [],
+  );
+}
+
 /**
  * The suite headline of runs, grouped into trees by `treeOf`, over the scored runs (pass or fail). Undefined
  * with no scored run.
@@ -72,20 +113,88 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
 export function suiteHeadline(
   all: readonly RunResult[],
   treeOf: (run: RunResult) => string,
+  options: SuiteHeadlineOptions = {},
 ): SuiteHeadline | undefined {
+  // Only scored runs count, linked or not: a run not run or blocked (no failure) is left out of every rate
+  // and count, whatever trees inside it were measured.
   const runs = scoredRuns(all);
   if (runs.length === 0) return undefined;
-  const groups = [...groupBy(runs, treeOf).values()];
-  const counts = groups.map((group) => ({ n: group.length, k: group.filter(runPassed).length }));
+  // A run is read as a forest when its spec has parent links or one of its blocks names a parent: a subset
+  // run that recorded only roots still belongs to those roots, not to the golden as a whole.
+  const forest = (run: RunResult) =>
+    (options.parentsOf?.(run)?.size ?? 0) > 0 || run.blocks.some((block) => block.parent !== undefined);
+  const linked = runs.some(forest);
+  const samples = new Map<string, boolean[]>();
+  for (const run of runs) {
+    if (!forest(run)) {
+      const key = treeOf(run);
+      samples.set(key, [...(samples.get(key) ?? []), runPassed(run)]);
+      continue;
+    }
+    const ids = new Map(run.blocks.map((block) => [block.blockId, block]));
+    const links = options.parentsOf?.(run);
+    // The root of a family is its topmost ancestor: the spec's links name it, else the recorded blocks do. An
+    // ancestor the run did not record still names the family, so a rerun of a leaf joins its root's tree.
+    const parentOf = (id: string): string | undefined => links?.get(id) ?? ids.get(id)?.parent;
+    const trees = groupBy(
+      run.blocks.filter((block) => block.specIndex !== undefined),
+      (block) => {
+        let root = block.blockId ?? `block ${block.specIndex ?? block.index}`;
+        let parent = (block.blockId === undefined ? undefined : links?.get(block.blockId)) ?? block.parent;
+        const seen = new Set<string>([root]);
+        while (parent !== undefined && !seen.has(parent)) {
+          seen.add(parent);
+          root = parent;
+          parent = parentOf(parent);
+        }
+        return root;
+      },
+    );
+    const outcomes: Array<{ root: string; failed: boolean }> = [];
+    for (const [root, blocks] of trees) {
+      const statuses = blocks.map(blockStatus);
+      const failed = statuses.includes('fail');
+      if (!failed && statuses.some((status) => status === 'not_run' || status === 'blocked')) continue;
+      outcomes.push({ root, failed });
+    }
+    // A run that failed as a whole (incomplete, a failed end verdict or end state) with no failing block
+    // fails every tree it measured: the failure belongs to no one tree.
+    const whole = !runPassed(run) && !outcomes.some((outcome) => outcome.failed);
+    for (const { root, failed } of outcomes) {
+      const key = JSON.stringify([treeOf(run), root]);
+      samples.set(key, [...(samples.get(key) ?? []), !(failed || whole)]);
+    }
+    // A run that failed and measured no tree (it died before its first block, or every block was not run)
+    // fails each root family of its spec once, so a dead run weighs as many failures as the spec has families.
+    if (outcomes.length === 0 && !runPassed(run)) {
+      const roots = new Set(options.rootsOf?.(run) ?? []);
+      if (roots.size === 0) {
+        for (const parent of links?.values() ?? []) if (parentOf(parent) === undefined) roots.add(parent);
+        for (const root of trees.keys()) roots.add(root);
+      }
+      const keys =
+        roots.size > 0 ? [...roots].map((root) => JSON.stringify([treeOf(run), root])) : [treeOf(run)];
+      for (const key of keys) samples.set(key, [...(samples.get(key) ?? []), false]);
+    }
+  }
+  const counts = [...samples.values()].map((group) => ({ n: group.length, k: group.filter(Boolean).length }));
+  const measured = counts.reduce((sum, count) => sum + count.n, 0);
+  if (measured === 0) return undefined;
   const outcomes = all.map((run) => runOutcome(run));
   const shares = {
     incomplete: all.filter((run) => run.status !== 'completed').length / all.length,
     blocked: outcomes.filter((outcome) => outcome === 'blocked').length / all.length,
     notRun: outcomes.filter((outcome) => outcome === 'not_run').length / all.length,
   };
-  const pooled = counts.reduce((sum, c) => sum + c.k, 0) / runs.length;
-  const base = { trees: groups.length, runs: runs.length, shares, pooledRate: pooled };
-  if (groups.length < 2) {
+  const pooled = counts.reduce((sum, c) => sum + c.k, 0) / measured;
+  const base = {
+    trees: counts.length,
+    runs: runs.length,
+    shares,
+    pooledRate: pooled,
+    ...(linked ? { unit: 'tree-run' as const } : {}),
+  };
+  if (counts.length < 2) {
     // One tree: the spread between trees cannot be measured, so no interval is drawn.
     const only = counts[0] as { n: number; k: number };
     const estimate = only.k / only.n;
@@ -95,18 +204,18 @@ export function suiteHeadline(
       lower: estimate,
       upper: estimate,
       method: 'none',
-      n: runs.length,
+      n: measured,
       clusters: 1,
       designEffect: 1,
-      effectiveRuns: runs.length,
+      effectiveRuns: measured,
       degenerate: false,
       detectableDrop: null,
     };
   }
   const interval = hierarchicalBetaBinomial(counts);
-  const effective = meanEffective(counts, interval.estimate, runs.length);
+  const effective = meanEffective(counts, interval.estimate, measured);
   // Kept inside (0, 1) so a suite where everything passes still has a detectable drop, as `compare` does.
-  const rate = Math.min(Math.max(interval.estimate, 0.5 / runs.length), 1 - 0.5 / runs.length);
+  const rate = Math.min(Math.max(interval.estimate, 0.5 / measured), 1 - 0.5 / measured);
   const detectable = mde({ n: effective.effective, baselineRate: rate, power: HEADLINE_POWER });
   return {
     ...base,
@@ -114,8 +223,8 @@ export function suiteHeadline(
     lower: interval.lower,
     upper: interval.upper,
     method: 'hierarchical',
-    n: runs.length,
-    clusters: groups.length,
+    n: measured,
+    clusters: counts.length,
     designEffect: effective.designEffect,
     effectiveRuns: effective.effective,
     degenerate: effective.degenerate,

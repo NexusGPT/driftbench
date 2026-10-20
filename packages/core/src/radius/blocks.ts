@@ -27,6 +27,8 @@ export function planBlockRerun(
   now: Date,
 ): { indices: Set<number>; carried: Map<number, BlockResult> } | { reason: string } {
   const { source, manifest } = reuse;
+  if (spec.blocks.some((block) => block.parent !== undefined))
+    return { reason: 'parent-linked blocks require a full tree replay' };
   const fail = (reason: string) => ({ reason });
   if (options.mode !== 'T' || source.mode !== 'T' || options.adapter.capabilities().sandbox)
     return fail('only independent mode T cells support block reruns');
@@ -66,6 +68,7 @@ export function planBlockRerun(
     { campaignId: reuse.fromCampaign, runs: [source], provenance: reuse.baselineProvenance },
     {
       now,
+      rescoreObservations: true,
       maxCarry: reuse.maxCarry,
       maxAgeDays: reuse.maxAgeDays,
       currentProvenance: () => runProvenance({ ...options, target }),

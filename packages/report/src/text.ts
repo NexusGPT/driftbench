@@ -97,7 +97,9 @@ export function compareText(result: CompareResult): string {
   if (result.carried) {
     lines.push(
       '',
-      `Carried, not paired: ${count(result.carried.carried, 'run')} of the candidate are results copied from an earlier campaign. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`,
+      result.carried.rescoredRuns
+        ? `Reused observations, not paired: ${count(result.carried.carried, 'run')} of the candidate use observations from an earlier campaign. These observations supply no fresh agent pairs. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`
+        : `Carried, not paired: ${count(result.carried.carried, 'run')} of the candidate are results copied from an earlier campaign. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`,
       ...carriedLines(result.carried).slice(1),
     );
   }
@@ -136,6 +138,11 @@ export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[
  * method, then what stands behind it (see headlineNote).
  */
 export function headlineText(mode: string, headline: SuiteHeadline): string {
-  const method = headline.method === 'hierarchical' ? 'hierarchical 95% interval' : 'one golden';
+  const method =
+    headline.method === 'hierarchical'
+      ? 'hierarchical 95% interval'
+      : headline.unit
+        ? 'one parent tree'
+        : 'one golden';
   return `Suite pass rate, mode ${mode}: ${pct(headline.estimate)} ${interval(headline, pct)} (${method}); ${headlineNote(headline)}.`;
 }

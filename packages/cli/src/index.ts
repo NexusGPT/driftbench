@@ -8,6 +8,10 @@ export {
   definePlugin,
   type PluginAdapterFactory,
   type PluginApi,
+  type PluginFunction,
+  type PluginImpl,
+  type PluginKind,
+  type PluginPromptTemplate,
   type PluginScope,
 } from './plugins';
 export { VERSION } from './version';
