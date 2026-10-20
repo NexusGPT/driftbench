@@ -56,7 +56,7 @@ const CALL_MS = 300_000;
  * three processes computing the same million rows on a few cores cost more than they show. Run A and run C make it; B
  * and D make it too when it returns a function, so they hold the same handles.
  */
-const HEAVY_ELEMENTS = 50_000;
+const HEAVY_ELEMENTS = 5_000;
 
 /** The number of array elements in a value, counted up to a little over the limit. */
 function weigh(value: unknown, limit = HEAVY_ELEMENTS): number {
