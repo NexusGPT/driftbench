@@ -42,8 +42,11 @@ describe('compose as it was at the blind commit gives the same verdicts and deta
       clearSeedFreeCache();
       try {
         const out: Record<string, { pass: boolean; detail: string }> = {};
-        for (const item of pointerBank().filter((i) => ids.has(i.id)))
-          out[item.id] = await runItem(item, 1, referenceSut());
+        for (const item of pointerBank().filter((i) => ids.has(i.id))) {
+          const result = await runItem(item, 1, referenceSut());
+          // A measured time is the one part of a detail that is not the same twice: "1157 units in 12 ms".
+          out[item.id] = { pass: result.pass, detail: result.detail.replace(/\d+(?:\.\d+)? ?ms/g, 'N ms') };
+        }
         return out;
       } finally {
         if (before === undefined) delete process.env.DRIFTBENCH_POINTER_SUT;
