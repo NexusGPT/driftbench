@@ -31,38 +31,9 @@
           "quote": "**R18.** Never approve a credit note above 500.00 EUR without naming the finance lead who agreed to it.",
           "hash": "0f351e680b605a72a1ab7d4133bbc4d806ca10ed7e40a9068d02a20ba5e104c7"
         }
-      },
-      {
-        "id": "instruction.standing.r19-when-r18-applies-and-the",
-        "kind": "instruction",
-        "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
-        "producedBy": "model",
-        "approved": false,
-        "at": {
-          "file": "CLAUDE.md",
-          "startLine": 27,
-          "endLine": 27,
-          "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
-          "hash": "b4c7c249ad14081291611bf02ef62151b789f72904fad86f513589dbf4035da8"
-        }
       }
     ],
-    "removed": [
-      {
-        "id": "instruction.standing.r12-when-r2-applies-and-the",
-        "kind": "instruction",
-        "title": "R12. When R2 applies and the user has not answered, keep the draft and do not send it.",
-        "producedBy": "model",
-        "approved": true,
-        "at": {
-          "file": "CLAUDE.md",
-          "startLine": 20,
-          "endLine": 20,
-          "quote": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
-          "hash": "168c97bbfbd0dd3be1eb31a7e33feff407c7db78600ba2eb34c120a3167c73ac"
-        }
-      }
-    ],
+    "removed": [],
     "changed": [
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
@@ -105,6 +76,28 @@
           "hash": "1badb6cce16da9f43f0bb898ca94ca9aade1d7061e0eb533285b852ede3c1126"
         },
         "fields": ["title", "situation", "fields"]
+      },
+      {
+        "id": "instruction.standing.r12-when-r2-applies-and-the",
+        "kind": "instruction",
+        "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
+        "change": "semantic",
+        "before": {
+          "file": "CLAUDE.md",
+          "startLine": 20,
+          "endLine": 20,
+          "quote": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
+          "hash": "168c97bbfbd0dd3be1eb31a7e33feff407c7db78600ba2eb34c120a3167c73ac"
+        },
+        "after": {
+          "file": "CLAUDE.md",
+          "startLine": 27,
+          "endLine": 27,
+          "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+          "hash": "b4c7c249ad14081291611bf02ef62151b789f72904fad86f513589dbf4035da8"
+        },
+        "fields": ["title"],
+        "now": "instruction.standing.r19-when-r18-applies-and-the"
       }
     ],
     "moved": [
@@ -539,10 +532,10 @@
     }
   ],
   "summary": {
-    "added": 2,
-    "removed": 1,
+    "added": 1,
+    "removed": 0,
     "whitespace": 0,
-    "semantic": 2,
+    "semantic": 3,
     "moved": 23,
     "restated": 2,
     "unchanged": 100,

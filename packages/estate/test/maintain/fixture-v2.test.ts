@@ -65,12 +65,15 @@ describe('the fixture-v2 estate', () => {
 
   it('diffs against the first version with every planted case and nothing else', async () => {
     const diff = await fresh();
-    expect(diff.atoms.changed.map((entry) => [entry.id, entry.change])).toEqual([
-      [R7, 'semantic'],
-      [ROUTE, 'semantic'],
+    // R12 is removed and R19 added at the same line of the standing file, and the ledger keeps the unit there:
+    // a rule removed and another added at the same ledger unit read as one changed rule, under R12's id.
+    expect(diff.atoms.changed.map((entry) => [entry.id, entry.change, entry.now ?? null])).toEqual([
+      [R7, 'semantic', null],
+      [ROUTE, 'semantic', null],
+      [R12, 'semantic', R19],
     ]);
-    expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([R12]);
-    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18, R19]);
+    expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([]);
+    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18]);
     expect(diff.edges.added).toEqual([{ from: R19, to: R18, kind: 'cites' }]);
     expect(diff.edges.removed).toEqual([]);
     expect(diff.guards?.filter((entry) => entry.move !== 'unchanged')).toEqual([
@@ -94,13 +97,13 @@ describe('the fixture-v2 estate', () => {
       ['invariant.standing.the-standing-instructions-stay-under-40000', ['fields']],
     ]);
     expect(diff.summary).toEqual({
-      added: 2,
-      removed: 1,
+      added: 1,
+      removed: 0,
       whitespace: 0,
-      semantic: 2,
+      semantic: 3,
       moved: 23,
       restated: 2,
-      unchanged: 99,
+      unchanged: 100,
       edgesAdded: 1,
       edgesRemoved: 0,
     });
@@ -121,25 +124,20 @@ describe('the fixture-v2 estate', () => {
     expect(report).toEqual(committed);
 
     expect(report.regenerate.map((entry) => [entry.test, entry.atoms.map((item) => item.why)])).toEqual([
-      ['northwind-draft-pair', ['removed']],
+      ['northwind-draft-pair', ['semantic']],
       ['northwind-late-shipment', ['semantic']],
       ['northwind-ledger-archive', ['guard_state']],
       ['northwind-route-planner', ['semantic']],
+      ['northwind-unsent-draft', ['semantic']],
     ]);
+    // The tests of R12 are rerun and wait for re-approval, as for any changed rule; none is retired.
     expect(report.reapprove.map((entry) => [entry.atom, entry.tests])).toEqual([
       [R7, ['northwind-late-shipment']],
       [ROUTE, ['northwind-route-planner']],
+      [R12, ['northwind-draft-pair', 'northwind-unsent-draft']],
     ]);
-    expect(report.retire).toEqual([
-      {
-        test: 'northwind-unsent-draft',
-        file: 'unsent-draft.yaml',
-        atoms: [R12],
-        reason: `atom ${R12} removed`,
-        state: 'to_write',
-      },
-    ]);
-    expect(report.new.map((entry) => entry.atom)).toEqual([R18, R19]);
+    expect(report.retire).toEqual([]);
+    expect(report.new.map((entry) => entry.atom)).toEqual([R18]);
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);

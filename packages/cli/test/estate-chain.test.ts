@@ -99,7 +99,13 @@ type DiffJson = {
   atoms: {
     added: Array<{ id: string }>;
     removed: Array<{ id: string }>;
-    changed: Array<{ id: string; change: 'whitespace' | 'semantic'; before: Change; after: Change }>;
+    changed: Array<{
+      id: string;
+      change: 'whitespace' | 'semantic';
+      before: Change;
+      after: Change;
+      now?: string;
+    }>;
     moved: Array<{ id: string; from: { startLine: number }; to: { startLine: number } }>;
     restated: Array<{ id: string }>;
   };
@@ -1090,18 +1096,19 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
 
       // The changes of section 8 of docs/estate.md.
       const semantic = diff.atoms.changed.filter((change) => change.change === 'semantic');
-      expect(sorted(semantic.map((change) => change.id))).toEqual(sorted([ROUTE_PLAN, R7]));
+      // R12 is removed and R19 written at its line: the ledger keeps the unit, so they read as one changed rule.
+      expect(sorted(semantic.map((change) => change.id))).toEqual(sorted([ROUTE_PLAN, R7, R12]));
+      expect(semantic.find((change) => change.id === R12)?.now).toBe(
+        'instruction.standing.r19-when-r18-applies-and-the',
+      );
       // The labelers read R2 as no atom in either version, so its wrap is no change of the map.
       expect(
         diff.atoms.changed.filter((change) => change.change === 'whitespace').map((change) => change.id),
       ).toEqual([]);
-      expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([R12]);
-      expect(sorted(diff.atoms.added.map((atom) => atom.id))).toEqual(
-        sorted([
-          'instruction.standing.r18-never-approve-a-credit-note',
-          'instruction.standing.r19-when-r18-applies-and-the',
-        ]),
-      );
+      expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([]);
+      expect(diff.atoms.added.map((atom) => atom.id)).toEqual([
+        'instruction.standing.r18-never-approve-a-credit-note',
+      ]);
       expect(diff.atoms.moved).toHaveLength(23);
       expect(diff.atoms.restated.map((atom) => atom.id)).toEqual([
         'instruction.standing.r11-never-paste-the-contents-of',
@@ -1111,10 +1118,10 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         { guard: LEDGER_GUARD, move: 'promoted', from: 'warn', to: 'enforce' },
       ]);
       expect(diff.summary).toMatchObject({
-        added: 2,
-        removed: 1,
+        added: 1,
+        removed: 0,
         whitespace: 0,
-        semantic: 2,
+        semantic: 3,
         moved: 23,
         restated: 2,
       });
@@ -1190,9 +1197,9 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         impact.reapprove.length,
         impact.retire.length,
         impact.new.length,
-      ]).toEqual([4, 2, 1, 2]);
+      ]).toEqual([5, 3, 0, 1]);
       expect(impact.needsPerson).toHaveLength(4);
-      expect(impact.unaffected).toEqual({ moved: diff.atoms.moved.length, tests: impact.tests.live - 4 - 1 });
+      expect(impact.unaffected).toEqual({ moved: diff.atoms.moved.length, tests: impact.tests.live - 5 });
       for (const entry of impact.regenerate) {
         // Each regenerated test names, in its own metadata, an atom the diff changed, for the reason given.
         const test = parseYaml(await readFile(join(V2, 'tests', entry.file), 'utf8')) as {
@@ -1209,12 +1216,16 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         'northwind-late-shipment',
         'northwind-ledger-archive',
         'northwind-route-planner',
+        'northwind-unsent-draft',
       ]);
       expect(sorted(impact.reapprove.map((entry) => entry.atom))).toEqual(sorted(semantic));
       expect(impact.reapprove.find((entry) => entry.atom === R7)?.tests).toEqual(['northwind-late-shipment']);
-      expect(impact.retire).toMatchObject([
-        { test: 'northwind-unsent-draft', atoms: [R12], state: 'to_write' },
+      // R12's tests are regenerated and wait for re-approval, as for any changed rule; none is retired.
+      expect(impact.reapprove.find((entry) => entry.atom === R12)?.tests).toEqual([
+        'northwind-draft-pair',
+        'northwind-unsent-draft',
       ]);
+      expect(impact.retire).toEqual([]);
       expect(sorted(impact.new.map((entry) => entry.atom))).toEqual(
         sorted(diff.atoms.added.map((atom) => atom.id)),
       );

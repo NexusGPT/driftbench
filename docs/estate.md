@@ -24,7 +24,7 @@ Every number on this page comes from the commands run on the fixture estates of 
 | Folder | What it holds |
 |---|---|
 | [`examples/estates/fixture`](../examples/estates/fixture/README.md) | The Northwind ops assistant, a fictional Claude Code estate written by hand: a standing file with 17 labelled rules (R1 to R17), a routing table, a process paragraph and output rules; two memory files; four skills; three helper agents; a settings file with a model, permissions, environment keys and guards on four events; five guard scripts in `.claude/guards/` and a check registry; a step list. Defects are planted for the lint. Beside it: the recorded model answers (`answers.yaml`), the scanned map (`map.yaml`), the approved map (`approved.yaml`), its space map (`space.yaml`), the plan (`plan.yaml`, `plan.summary.json`), the phrase bank (`phrases.yaml`), three recorded sessions (`sessions/`) and the generated suite (`generated/`). |
-| [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, two changed in meaning, one removed, two added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
+| [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, three changed in meaning (one rewritten at the same ledger unit), one added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
 | `examples/estates/sessions` | Six synthetic sessions of another fictional estate (a shop build) with their guard decision logs, step feeds and seven replay specs, for `driftbench replay`. |
 
 No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
@@ -1142,20 +1142,19 @@ An atom with the same hash whose evidence, enforcement, situation, title, role o
 
 An atom id names the file the atom was read in, so a fact several files state once, such as a tool two helpers declare, changes its id when the file it was anchored in leaves. An atom that leaves under one id while an atom of the same kind, title, words and fields arrives under another is the same atom, renamed: it is listed under `renamed` (and counted in `summary.renamed`) instead of as removed and added, and its tests are regenerated against the new id, never retired. Both keys are absent when nothing was renamed.
 
+A rule removed and another added at the same ledger unit read as one changed rule. An atom the pointer reader built names its ledger unit (`fields.unit`), and the ledger keeps a unit's id when its text is edited in place. So when one atom leaves a unit and one atom of the same kind arrives on it, the diff lists one semantic change under the old id, with the new id in `now`, and impact regenerates its tests and asks for re-approval, never a retirement. In the Northwind version 2, R12 ("keep the draft and do not send it") is removed and R19 ("keep the credit note as a draft") is written at its line: the diff below reads `instruction.standing.r12-when-r2-applies-and-the` changed, now `instruction.standing.r19-when-r18-applies-and-the`, and its two tests wait for re-approval.
+
 The diff of the Northwind estate against its second version, with the guard state of the first version named:
 
 ```
 $ pnpm -s driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out _captures/docs3/estate/diff.json
-Estate diff: examples/estates/fixture/approved.yaml (7e588ad44bef) to examples/estates/fixture-v2/map.yaml (413ac5407563).
-  Atoms: 2 added, 1 removed, 2 changed (0 white space only, 2 semantic), 23 moved with the same quote, 2 restated, 99 unchanged.
+Estate diff: examples/estates/fixture/approved.yaml (6197cb823bdd) to examples/estates/fixture-v2/map.yaml (c7c7969dbbbb).
+  Atoms: 1 added, 0 removed, 3 changed (0 white space only, 3 semantic), 23 moved with the same quote, 2 restated, 100 unchanged.
   Edges: 1 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
-  + instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
-Removed:
-  - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
@@ -1165,6 +1164,10 @@ Changed, semantic:
       was: plan the delivery routes for tomorrow | the `route-planner` agent
       now: plan the delivery routes for the next two days | the `route-planner` agent
       also: title, situation, fields
+  ~ instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:27, now instruction.standing.r19-when-r18-applies-and-the
+      was: **R12.** When R2 applies and the user has not answered, keep the draft and do not send it.
+      now: **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
+      also: title
 Moved, same quote:
   > instruction.standing.r3-read-a-file-before-you CLAUDE.md:11 to 12
   > instruction.standing.r4-never-delete-a-file-under CLAUDE.md:12 to 13
@@ -1202,7 +1205,7 @@ The JSON it writes equals the committed `examples/estates/fixture-v2/maintain/di
 Two limits of the atom ids:
 
 * An id is `kind.scope.slug`, and two atoms with the same slug get a `-2` suffix in scan order. A new atom with the same slug, inserted above an existing one, swaps their ids, and the diff reads a change and an addition. The Northwind fixture avoids it.
-* A semantic change to the first six words of a model atom's title, or of a code atom's quote, changes its id: the diff shows a removal and an addition, and impact retires the old tests and asks for new ones. Pairing them as a rename is not built.
+* A semantic change to the first six words of a model atom's title, or of a code atom's quote, changes its id: the diff shows a removal and an addition, and impact retires the old tests and asks for new ones, unless both atoms sit on the same ledger unit (above).
 
 ### Enforcement state as data
 
@@ -1241,44 +1244,33 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
-Impact of the estate diff 7e588ad44bef to 413ac5407563 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff 6197cb823bdd to c7c7969dbbbb on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 5, re-approve 3, retire 0, new 1; 3 tests untouched, 23 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
+  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
 Re-approve, the meaning changed:
   instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
   route.standing.an-ask-to-plan-the-delivery (route): plan the delivery routes for the next two days | the `route-planner` agent
       tests: northwind-route-planner
-Retire:
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
+  instruction.standing.r12-when-r2-applies-and-the (instruction): **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
+      tests: northwind-draft-pair, northwind-unsent-draft
 New atoms with no test:
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
-  instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
 Needs a person: 4.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+  - re-approve instruction.standing.r12-when-r2-applies-and-the: its meaning changed; 2 tests wait
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
-  - approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet
 ```
 
-It exits 1 for the four items. `--write` writes each retirement reason into its spec as `metadata.retired`, keeping comments and layout, and loads the spec again before writing; a second run finds it written. Without `--write`, impact writes nothing and reports each retirement "to write". On a copy of the version 1 tests (the first line and the retirement line of each output):
-
-```
-$ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
-Impact of the estate diff 7e588ad44bef to 413ac5407563 on 8 live estate tests (0 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [written]
-$ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
-Impact of the estate diff 7e588ad44bef to 413ac5407563 on 7 live estate tests (1 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [already written]
-```
-
-The spec then holds `retired: atom instruction.standing.r12-when-r2-applies-and-the removed` under `metadata`.
+It exits 1 for the four items. Version 2 retires no test: R12's tests are regenerated, as above. A test whose atoms are all removed is retired: `--write` writes each retirement reason into its spec as `metadata.retired` (`retired: atom <id> removed`), keeping comments and layout, and loads the spec again before writing; a second run finds it written. Without `--write`, impact writes nothing and reports each retirement "to write".
 
 ### The radius on the ledger
 

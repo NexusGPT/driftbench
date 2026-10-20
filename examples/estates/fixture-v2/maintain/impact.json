@@ -16,7 +16,7 @@
       "atoms": [
         {
           "atom": "instruction.standing.r12-when-r2-applies-and-the",
-          "why": "removed"
+          "why": "semantic"
         }
       ]
     },
@@ -49,6 +49,16 @@
           "why": "semantic"
         }
       ]
+    },
+    {
+      "test": "northwind-unsent-draft",
+      "file": "unsent-draft.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r12-when-r2-applies-and-the",
+          "why": "semantic"
+        }
+      ]
     }
   ],
   "reapprove": [
@@ -65,17 +75,16 @@
       "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
       "quote": "plan the delivery routes for the next two days | the `route-planner` agent",
       "tests": ["northwind-route-planner"]
-    }
-  ],
-  "retire": [
+    },
     {
-      "test": "northwind-unsent-draft",
-      "file": "unsent-draft.yaml",
-      "atoms": ["instruction.standing.r12-when-r2-applies-and-the"],
-      "reason": "atom instruction.standing.r12-when-r2-applies-and-the removed",
-      "state": "to_write"
+      "atom": "instruction.standing.r12-when-r2-applies-and-the",
+      "kind": "instruction",
+      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
+      "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+      "tests": ["northwind-draft-pair", "northwind-unsent-draft"]
     }
   ],
+  "retire": [],
   "new": [
     {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
@@ -83,13 +92,6 @@
       "title": "R18. Never approve a credit note above 500.00 EUR without naming the finance lead who agr…",
       "file": "CLAUDE.md",
       "line": 26
-    },
-    {
-      "atom": "instruction.standing.r19-when-r18-applies-and-the",
-      "kind": "instruction",
-      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
-      "file": "CLAUDE.md",
-      "line": 27
     }
   ],
   "guards": [
@@ -109,7 +111,7 @@
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
-    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet"
+    "re-approve instruction.standing.r12-when-r2-applies-and-the: its meaning changed; 2 tests wait",
+    "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet"
   ]
 }
