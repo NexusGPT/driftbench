@@ -8,8 +8,8 @@ import type { View } from './view';
  * variables that some valid row can hold. Three layers set the strength:
  *
  * - own: every `min(3, n)` variables of a rule that names n variables, all their value combinations;
- * - shared: every pair of the axes that two or more rules name, counting only the rules that name two variables
- *   or more (a rule that names one variable relates it to nothing);
+ * - shared (the floor): every pair of approved axes, whether or not a rule joins them, except a pair a group of
+ *   a rule holds already;
  * - single: every value of the variables no group names yet.
  *
  * A set of variables that several layers ask for is one group and keeps the first layer, in that order.
@@ -72,19 +72,15 @@ export function buildGroups(view: View, rules: readonly StoreRule[]): Group[] {
         pick.map((at) => variables[at] as number),
       );
   }
-  // A rule that names one variable relates it to nothing, so it does not make the variable shared.
-  const named = new Map<number, number>();
-  for (const variables of members.filter((entry) => entry.length >= 2))
-    for (const variable of variables) named.set(variable, (named.get(variable) ?? 0) + 1);
-  const sharedAxes = [...named]
-    .filter(([variable, count]) => count >= 2 && view.variables[variable]?.role === 'axis')
-    .map(([variable]) => variable)
-    .sort((a, b) => a - b);
-  for (const pick of combinations(sharedAxes.length, 2))
-    add(
-      'shared',
-      pick.map((at) => sharedAxes[at] as number),
-    );
+  // The floor: every pair of approved axes, whether or not a rule joins them, except a pair that a group of a
+  // rule holds already (a rule group of two or three variables contains its own pairs).
+  const own = groups.map((group) => new Set(group.variables));
+  const axes = view.variables.flatMap((variable, at) => (variable.role === 'axis' ? [at] : []));
+  for (const pick of combinations(axes.length, 2)) {
+    const pair = pick.map((at) => axes[at] as number);
+    if (own.some((group) => pair.every((variable) => group.has(variable)))) continue;
+    add('shared', pair);
+  }
   const inGroup = new Set(groups.flatMap((group) => group.variables));
   view.variables.forEach((_, variable) => {
     if (!inGroup.has(variable)) add('single', [variable]);

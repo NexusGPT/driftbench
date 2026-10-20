@@ -1,5 +1,10 @@
 {
   "generator": "driftbench generate",
+  "stems": {
+    "stems": 101,
+    "specs": 212,
+    "saved": 296
+  },
   "map": {
     "path": "../map/approved.yaml",
     "agent": "acme",

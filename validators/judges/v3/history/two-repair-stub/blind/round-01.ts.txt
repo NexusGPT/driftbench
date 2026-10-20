@@ -1,0 +1,74 @@
+/** One nominal class. Names are compared exactly; descriptions participate in replay identity. */
+export interface LabelDefinition {
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface LabelSet {
+  readonly name: string;
+  readonly labels: readonly LabelDefinition[];
+}
+
+export interface LabellerRequest {
+  readonly text: string;
+  readonly labelSet: LabelSet;
+  readonly context?: string;
+}
+
+/** `none` is a valid class; only null abstains. Other strings can be recorded but score invalid. */
+export type LabellerAnswer = string | null;
+
+export interface Labeller {
+  readonly id: string;
+  label(request: LabellerRequest): Promise<LabellerAnswer> | LabellerAnswer;
+}
+
+export interface LabellerScore {
+  readonly total: number;
+  readonly correct: number;
+  readonly agreement: number;
+  readonly kappa: number;
+  readonly abstentions: number;
+  readonly invalid: number;
+  /** Valid class answers / all observations, including the implicit `none` class. */
+  readonly coverage: number;
+}
+
+export interface LabellerReplayEntry {
+  readonly request: LabellerRequest;
+  readonly labellerId: string;
+  readonly answer: LabellerAnswer;
+}
+
+export function labelSetHash(_set: LabelSet): string { return 'unimplemented'; }
+export function labellerRequestKey(_request: LabellerRequest, _labellerId: string): string { return 'unimplemented'; }
+export function scoreLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet): LabellerScore {
+  if (gold.length !== answers.length) throw new Error('Gold and answers must have equal length');
+  const total = gold.length;
+  if (total === 0) return { total: 0, correct: 0, agreement: 0, kappa: 0, abstentions: 0, invalid: 0, coverage: 0 };
+  const valid = new Set(['none', ...labelSet.labels.map(label => label.name)]);
+  const actualCounts = new Map<string, number>();
+  const answerCounts = new Map<string, number>();
+  let correct = 0;
+  let abstentions = 0;
+  let invalid = 0;
+  for (let i = 0; i < total; i++) {
+    const actual = gold[i];
+    const answer = answers[i];
+    actualCounts.set(actual, (actualCounts.get(actual) ?? 0) + 1);
+    if (answer === null) abstentions++;
+    else if (!valid.has(answer)) invalid++;
+    else {
+      answerCounts.set(answer, (answerCounts.get(answer) ?? 0) + 1);
+      if (answer === actual) correct++;
+    }
+  }
+  const agreement = correct / total;
+  let expected = 0;
+  for (const [label, count] of actualCounts) expected += count * (answerCounts.get(label) ?? 0) / (total * total);
+  const kappa = expected === 1 ? (agreement === 1 ? 1 : 0) : (agreement - expected) / (1 - expected);
+  return { total, correct, agreement, kappa, abstentions, invalid, coverage: (total - abstentions - invalid) / total };
+}
+export function createLabellerReplay(_entries: readonly LabellerReplayEntry[], id: string): Labeller {
+  return { id, label() { throw new Error('replay not implemented'); } };
+}

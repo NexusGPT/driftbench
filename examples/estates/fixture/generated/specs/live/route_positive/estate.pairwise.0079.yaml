@@ -92,3 +92,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0079
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: language_switch
+          deviation: D5_language_switch
+          estate_hazard: process_restart
+          atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -53,3 +53,31 @@ metadata:
     ask: code
     askFrom: route.weekly-report.an-ask-that-fits-weekly-report (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: misroute.route.weekly-report.an-ask-that-fits-weekly-report
+        values:
+          ask_shape: concrete
+          atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

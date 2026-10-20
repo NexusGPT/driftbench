@@ -1,7 +1,7 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "3b2a25bc945eb8162aa540ffc99fe5044ac7163f17062792e1385528fb964cc0"
+    "sha256": "829e4f9e7a9a57267a686f1f908f61dd400c73cb9f7cddb198d7fc7d90fd268d"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolClasses": ["delete", "overwrite", "send", "pay", "push"],
@@ -171,20 +171,41 @@
     },
     {
       "class": "overwrite",
-      "source": "\\bgit\\s+(?:reset\\s+--hard|checkout\\s+--|restore)\\b",
+      "source": "\\bgit\\s+(?:reset\\s+--hard|restore)\\b",
       "flags": "",
       "needsNoDiff": true,
       "witnesses": [
         "git reset --hard",
         "git reset  --hard",
-        "git checkout --x",
-        "git checkout  --x",
         "git restore",
         "git  reset --hard",
         "git  reset  --hard",
-        "git  checkout --x",
-        "git  checkout  --x",
         "git  restore"
+      ],
+      "gaps": []
+    },
+    {
+      "class": "overwrite",
+      "source": "\\bgit\\scheckout\\s(?:[^\\s;&|\\-][^\\s;&|]*\\s)?--(?:\\s|\\w|$)",
+      "flags": "",
+      "needsNoDiff": true,
+      "witnesses": [
+        "git checkout -- ",
+        "git checkout --x",
+        "git checkout --0",
+        "git checkout --",
+        "git checkout x -- ",
+        "git checkout x --x",
+        "git checkout x --0",
+        "git checkout x --",
+        "git checkout xx -- ",
+        "git checkout xx --x",
+        "git checkout xx --0",
+        "git checkout xx --",
+        "git checkout xxx -- ",
+        "git checkout xxx --x",
+        "git checkout xxx --0",
+        "git checkout xxx --"
       ],
       "gaps": []
     }

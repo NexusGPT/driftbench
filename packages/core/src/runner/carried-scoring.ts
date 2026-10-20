@@ -1,5 +1,6 @@
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckContext, CheckSet } from '../contracts/check';
+import { type DiagnosticBudget, runDiagnostics, runRunDiagnostics } from '../diagnostics/run';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import {
@@ -30,7 +31,14 @@ import { succession } from './succession';
 export type BlockScoring = { used: UsedObject[]; plan: ScoringPlan };
 type ScoredFields = Pick<
   BlockResult,
-  'verdicts' | 'resolved' | 'stageObserved' | 'ledgerCheck' | 'drift' | 'pass'
+  | 'verdicts'
+  | 'resolved'
+  | 'stageObserved'
+  | 'ledgerCheck'
+  | 'drift'
+  | 'pass'
+  | 'diagnoses'
+  | 'skippedForBudget'
 >;
 type ScoreState = {
   previous?: string;
@@ -51,6 +59,7 @@ export async function scoreBlockObservation(
   ctx: CheckContext,
   scoring: BlockScoring,
   state: ScoreState,
+  diagnosticBudget?: DiagnosticBudget,
 ): Promise<ScoredFields> {
   const verdicts = await applyScoringPlan(scoring.plan, ctx);
   const reading = readStage(ctx.spec, ctx.observed, {
@@ -63,10 +72,17 @@ export async function scoreBlockObservation(
   const flow = flowBy ? stamp(flowVerdicts(ctx.spec, ctx.expect, reading, state.previous), flowBy) : [];
   const ledger = ledgerVerdicts(ctx.ledger, ctx.observed, state.users);
   const all = [...verdicts, ...flow, ...(ledgerBy ? stamp(ledger.verdicts, ledgerBy) : [])];
+  const diagnosed = await runDiagnostics(
+    scoring.used.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+    { check: ctx, verdicts: all, objects: scoring.used },
+    diagnosticBudget,
+  );
   const resolved = resolvedRecord(scoring.used);
   const contradictions = [...state.contradictions, ...ledger.contradictions.map(describeContradiction)];
   return {
     verdicts: all,
+    ...(diagnosed.diagnoses.length ? { diagnoses: diagnosed.diagnoses } : {}),
+    ...(diagnosed.skippedForBudget ? { skippedForBudget: diagnosed.skippedForBudget } : {}),
     ...(resolved ? { resolved } : {}),
     ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
     ledgerCheck: { ok: contradictions.length === 0, contradictions },
@@ -95,6 +111,7 @@ export async function rescoreCarriedBlock(
   scoring: BlockScoring,
   endState: unknown,
   artifacts?: ArtifactReaderRegistry,
+  diagnosticBudget?: DiagnosticBudget,
 ): Promise<BlockResult> {
   const block = spec.blocks[result.index];
   if (!block) throw new Error(`cannot re-score carried block ${result.index}: spec block missing`);
@@ -128,6 +145,7 @@ export async function rescoreCarriedBlock(
       ),
       contradictions: facts.contradictions,
     },
+    diagnosticBudget,
   );
   return replaceScoring(result, scored);
 }
@@ -136,6 +154,7 @@ export type CarriedScoringOptions = {
   checks: CheckSet;
   objects?: ObjectContext;
   artifacts?: ArtifactReaderRegistry;
+  diagnosticBudget?: DiagnosticBudget;
 };
 
 /** Re-score a proven whole-cell carry. No adapter is accepted and historical observation cost is not billed. */
@@ -169,6 +188,7 @@ export async function rescoreCarriedRun(
       plan: scoringPlan(options.checks, used.find((entry) => entry.key === 'check_set')?.object),
     };
   });
+  const spanning = resolveBlockObjects(spec, -1, context);
   const signatures = stageSignatures(spec);
   let state = initialGiven(spec);
   let prefix: Message[] = [];
@@ -236,14 +256,28 @@ export async function rescoreCarriedRun(
     const history = source.mode === 'T' ? [] : blocks;
     const previous =
       source.mode === 'T' ? canonicalPreviousStage(spec, item.ctx.blockIndex) : blocks.at(-1)?.stageObserved;
-    const scored = await scoreBlockObservation({ ...item.ctx, history }, item.scoring, {
-      previous,
-      signatures,
-      users: item.users,
-      contradictions: item.contradictions,
-    });
+    const scored = await scoreBlockObservation(
+      { ...item.ctx, history },
+      item.scoring,
+      {
+        previous,
+        signatures,
+        users: item.users,
+        contradictions: item.contradictions,
+      },
+      options.diagnosticBudget,
+    );
     blocks.push(replaceScoring(item.source, scored));
   }
-  const result = { ...source, blocks, succession: succession(blocks), cost: 0, latencyMs: 0 };
+  const { diagnoses: _diagnoses, skippedForBudget: _skippedForBudget, ...measured } = source;
+  const result: RunResult = { ...measured, blocks, succession: succession(blocks), cost: 0, latencyMs: 0 };
+  const diagnosed = await runRunDiagnostics(
+    spanning.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+    result,
+    spanning,
+    options.diagnosticBudget,
+  );
+  if (diagnosed.diagnoses.length) result.diagnoses = diagnosed.diagnoses;
+  if (diagnosed.skippedForBudget) result.skippedForBudget = diagnosed.skippedForBudget;
   return source.provenance ? { ...result, provenanceDigest: provenanceDigest(result) } : result;
 }

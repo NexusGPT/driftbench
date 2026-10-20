@@ -2719,7 +2719,16 @@ function campaignItems(): BankItem[] {
           dir,
         );
         const json = tryJson(c.out) as
-          | { cells?: { cellId: string; specHash: string; target: unknown; mode: string; repeat: number }[] }
+          | {
+              cells?: {
+                cellId: string;
+                specHash: string;
+                identityHash?: string;
+                target: unknown;
+                mode: string;
+                repeat: number;
+              }[];
+            }
           | undefined;
         if (!json?.cells?.length) return fail(`no cells; got ${shown(c)}`);
         const bad = json.cells.filter(
@@ -2727,7 +2736,8 @@ function campaignItems(): BankItem[] {
             sha256(
               JSON.stringify(
                 canonical({
-                  specHash: cell.specHash,
+                  // The hash without the spec's version label; the spec hash itself for a spec with none.
+                  specHash: cell.identityHash ?? cell.specHash,
                   target: cell.target,
                   mode: cell.mode,
                   repeat: cell.repeat,

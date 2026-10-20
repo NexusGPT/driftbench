@@ -130,3 +130,62 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-057
+        values:
+          behaviour: B-002
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: plan-not-in-catalog
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: account_lookup=plan-not-in-catalog
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-057
+        values:
+          behaviour: B-002
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: plan-not-in-catalog
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: identify-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

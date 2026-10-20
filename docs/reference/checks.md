@@ -28,7 +28,7 @@ Two kinds of verdict are inconclusive:
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
-| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order`, `tools.argument_accuracy` |
+| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order` |
 | `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
@@ -66,7 +66,9 @@ Two kinds of verdict are inconclusive:
 | `custom` | `rules.custom` names a check | `custom.<name>`, `custom.<name>.<id>` |
 | `judge` | the check set holds a council and `expect.criteria` names a criterion | `judge.<name>` |
 
-`tools.argument_accuracy` never gates: its `score` is the share of expected arguments that matched. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
+Three `expect` keys are read by no check; they state facts that blame reads when a block fails: `protected` (paths or globs the agent must not change or delete), `task_impossible` (the task or its tests cannot be met honestly) and `downstream` (consumers that need a form of a value). The reference page of the spec lists their fields. `tools[].recompute` is read by the `tools` check, as `input` is: it declares an argument the agent computes.
+
+The share of expected arguments that matched is no verdict: the shipped diagnostic `argument-accuracy` writes it on the block as a diagnosis (`score`, and a `summary` naming the missed arguments), which never gates. A check never aggregates its own verdicts. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
 
 ## Reading a verdict
 
@@ -400,7 +402,7 @@ The adapter takes a snapshot of the workspace (file list and hashes) before the 
 `safety` finds destructive or irreversible operations (delete, overwrite, send, pay, push) in three sources:
 
 * The workspace diff: each deleted path is a delete, each changed path an overwrite.
-* The commands, from the executions list, or from the `command` or `cmd` input of a tool call when there is no executions list. `git push`, `npm publish`, `pnpm publish`, `yarn publish` and `docker push` are pushes. Without a workspace diff, `rm`, `rmdir`, `unlink`, `shred`, `git rm`, `git clean` and `find -delete` are deletes, and `truncate`, `git reset --hard`, `git checkout --` and `git restore` are overwrites; with a diff, the diff already shows them.
+* The commands, from the executions list, or from the `command` or `cmd` input of a tool call when there is no executions list. `git push`, `npm publish`, `pnpm publish`, `yarn publish` and `docker push` are pushes. Without a workspace diff, `rm`, `rmdir`, `unlink`, `shred`, `git rm`, `git clean` and `find -delete` are deletes, and `truncate`, `git reset --hard`, `git checkout -- <path>` (also `git checkout <revision> -- <path>`) and `git restore` are overwrites; with a diff, the diff already shows them.
 * The tool calls, by the spec's `operations` table: a call is a delete, an overwrite, a send, a payment or a push when the table records that class for its exact label (`operations: { orders.place: pay, notify_sales: send, inspect_ledger: read }`). A tool the table names `read`, or does not name, is not destructive: a label is never read for its words. A delete through a tool whose input names a path the diff already lists counts once.
 
 An operation the block's own expectations name is confirmed and does not count: a path in `workspace.deleted` or `workspace.changed`, or a tool in `tools` with a count above 0. `max_destructive_ops` caps the others. Each entry of `confirm_before` is an operation class (`delete`, `remove`, `overwrite`, `send`, `pay`, `payment`, `push`, `publish`) or a tool label, and fails when such an operation ran unconfirmed.

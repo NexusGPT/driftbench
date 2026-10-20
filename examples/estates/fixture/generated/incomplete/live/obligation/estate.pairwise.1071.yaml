@@ -69,3 +69,28 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.invoice-reconcile.a-line-matches-on-article-code
         detail: "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.a-line-matches-on-article-code
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1071
+        values:
+          ask_class: chat
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D9_out_of_scope
+          estate_hazard: process_restart
+          atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

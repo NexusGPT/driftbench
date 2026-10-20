@@ -81,8 +81,10 @@ describe('the traffic weight of a row', () => {
   it('orders rows whose linear weight has underflowed to zero, because it adds logarithms', () => {
     // 200 variables; a value of share 0.97, 0.02 or 0.01 in each. The all-0.02 row weighs 1e-340, the all-0.01 row
     // 1e-400: both are 0 as a product of doubles, and different as sums of logarithms.
+    // Details, so that no pair of axes asks for the floor: the test is about the order of rows, not about covering.
     const variables: VariableSpec[] = Array.from({ length: 200 }, (_, at) => ({
       id: `v${at}`,
+      role: 'detail' as const,
       values: [
         { id: `v${at}_common`, weight: 97 },
         { id: `v${at}_rare`, weight: 2 },

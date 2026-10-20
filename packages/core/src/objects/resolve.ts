@@ -21,12 +21,18 @@ export type KindDef = {
   itemsKey?: string;
   /** Top-level fields the kind accepts beyond the envelope, each optional; checked strictly. */
   fields?: z.ZodRawShape;
+  /** True when an item may only name an implementation registered for this kind (a diagnostic's steps). */
+  ownImpls?: boolean;
+  /** A check of the resolved object the schema cannot make (names in it that must exist); a message refuses it. */
+  check?: (object: ResolvedObject, registry: ObjectRegistry) => string | undefined;
 };
 
-/** What an implementation declares: the schema its item's params must pass. */
+/** What an implementation declares: the schema its item's params must pass, and the kinds it serves. */
 export type ImplDef = {
   params: z.ZodType;
   summary?: string;
+  /** The kinds whose items may name it. Absent: any kind without `ownImpls`. */
+  kinds?: readonly string[];
 };
 
 /** What `ObjectRegistry.snapshot` copies: the kinds, implementations and shipped objects, by name. */
@@ -45,12 +51,19 @@ export class ObjectRegistry {
   readonly #kinds = new Map<string, KindDef>();
   readonly #impls = new Map<string, ImplDef>();
   readonly #shipped = new Map<string, { raw: unknown; path: string }>();
+  #revision = 0;
+
+  /** Changes each time a kind, an implementation or a shipped object is registered, or a snapshot restored. */
+  get revision(): number {
+    return this.#revision;
+  }
 
   registerKind(def: KindDef): this {
     if (this.#kinds.has(def.kind)) throw new Error(`the object kind ${def.kind} is already registered`);
     const parsed = Envelope.shape.kind.safeParse(def.kind);
     if (!parsed.success) throw new Error(`${def.kind}: ${parsed.error.issues[0]?.message ?? 'invalid kind'}`);
     this.#kinds.set(def.kind, def);
+    this.#revision++;
     return this;
   }
 
@@ -59,6 +72,7 @@ export class ObjectRegistry {
       throw new Error(`an implementation is named builtin:<name> or plugin:<name>: ${name}`);
     if (this.#impls.has(name)) throw new Error(`the implementation ${name} is already registered`);
     this.#impls.set(name, def);
+    this.#revision++;
     return this;
   }
 
@@ -71,6 +85,7 @@ export class ObjectRegistry {
     const key = `${head.data.kind}:${head.data.id}`;
     if (this.#shipped.has(key)) throw new Error(`the shipped object ${key} is already registered`);
     this.#shipped.set(key, { raw, path });
+    this.#revision++;
     return this;
   }
 
@@ -90,6 +105,16 @@ export class ObjectRegistry {
     for (const [key, value] of snapshot.impls) this.#impls.set(key, value);
     this.#shipped.clear();
     for (const [key, value] of snapshot.shipped) this.#shipped.set(key, value);
+    this.#revision++;
+  }
+
+  /** A registry holding everything this one holds; registrations on either stay apart afterwards. */
+  clone(): ObjectRegistry {
+    const copy = new ObjectRegistry();
+    for (const def of this.#kinds.values()) copy.registerKind(def);
+    for (const [name, def] of this.#impls) copy.registerImpl(name, def);
+    for (const { raw, path } of this.#shipped.values()) copy.registerShipped(raw, path);
+    return copy;
   }
 
   kind(name: string): KindDef | undefined {
@@ -149,6 +174,56 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
     summary: 'A procedure that runs after the checks and writes a diagnosis.',
     agentFacing: false,
     itemsKey: 'steps',
+    ownImpls: true,
+    fields: {
+      scope: z.enum(['block', 'run', 'campaign']).optional(),
+      when: z
+        .strictObject({
+          always: z.literal(true).optional(),
+          any_verdict: z
+            .strictObject({
+              name: z.string().min(1).optional(),
+              outcome: z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']).optional(),
+              id_contains: z.string().min(1).optional(),
+              gating: z.boolean().optional(),
+            })
+            .optional(),
+          any_diagnosis: z
+            .strictObject({
+              diagnostic: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              step: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              disposition: z
+                .union([
+                  z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned']),
+                  z.array(z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned'])),
+                ])
+                .optional(),
+              confidence: z
+                .union([
+                  z.enum(['static', 'undecided', 'confirmed']),
+                  z.array(z.enum(['static', 'undecided', 'confirmed'])),
+                ])
+                .optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+      reads: z.array(z.string().min(1)).optional(),
+      output: z.strictObject({ fields: z.array(z.string().min(1)) }).optional(),
+      default: z.boolean().optional(),
+      cost: z
+        .strictObject({
+          model_calls: z.enum(['none', 'conditional', 'always']).optional(),
+          agent_runs: z.enum(['none', 'conditional', 'always']).optional(),
+        })
+        .optional(),
+    },
+    check: (object, registry) => {
+      const unknown = ((object.fields.reads as string[] | undefined) ?? []).filter(
+        (kind) => !registry.kind(kind),
+      );
+      return unknown.length === 0 ? undefined : `reads names unknown kinds ${unknown.join(', ')}`;
+    },
   },
   {
     kind: 'prompt-template',
@@ -254,20 +329,33 @@ export function parseObjectText(text: string, path: string): { raw: unknown; lin
  * at the project, suite, spec, block and command-line layers. A kind and id defined at several layers resolves
  * to the strongest; the same kind and id twice at one layer, or a shipped one defined again, is refused.
  */
+/** Shipped entries already read, by the object's raw value: see `ObjectStore.#shippedEntry`. */
+const SHIPPED_ENTRIES = new WeakMap<object, { def: KindDef; path: string; entry: Entry }>();
+
 export class ObjectStore {
   readonly registry: ObjectRegistry;
   readonly #entries = new Map<string, Entry[]>();
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
-  constructor(registry: ObjectRegistry = objectRegistry) {
+  /**
+   * A store of the registry's shipped objects. With `base`, a store of the same registry, it starts from what
+   * `base` holds and shares its resolutions until something is added to it; `base` never sees what is added here.
+   */
+  constructor(registry: ObjectRegistry = objectRegistry, base?: ObjectStore) {
     if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
+    if (base !== undefined && base.registry === registry) {
+      for (const [key, entries] of base.#entries) this.#entries.set(key, [...entries]);
+      this.#resolved = base.#resolved;
+      return;
+    }
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }
 
   /** Adds an object file's parsed content at a layer. */
   add(raw: unknown, layer: Layer, source: ObjectSource, rank = 0): void {
-    const entry = this.#entryOf(raw, layer, source, rank);
+    const entry =
+      layer === 'shipped' ? this.#shippedEntry(raw, source) : this.#entryOf(raw, layer, source, rank);
     const key = `${entry.kind}:${entry.id}`;
     const known = this.#entries.get(key) ?? [];
     const shipped = known.find((other) => other.layer === 'shipped');
@@ -365,6 +453,20 @@ export class ObjectStore {
     return this.#resolveEntry(entry, [], base);
   }
 
+  /**
+   * A shipped object is read once per kind definition: every store holds the same shipped objects, and reading
+   * one again parses and checks the same data again. An entry is never changed after it is made.
+   */
+  #shippedEntry(raw: unknown, source: ObjectSource): Entry {
+    if (!isPlainObject(raw) || source.lines !== undefined) return this.#entryOf(raw, 'shipped', source, 0);
+    const def = typeof raw.kind === 'string' ? this.registry.kind(raw.kind) : undefined;
+    const cached = SHIPPED_ENTRIES.get(raw);
+    if (cached && cached.def === def && cached.path === source.path) return cached.entry;
+    const entry = this.#entryOf(raw, 'shipped', source, 0);
+    if (def) SHIPPED_ENTRIES.set(raw, { def, path: source.path, entry });
+    return entry;
+  }
+
   #entryOf(raw: unknown, layer: Layer, source: ObjectSource, rank: number): Entry {
     if (!isPlainObject(raw))
       throw new ObjectError(`${source.path}: an object file is a mapping`, 'OBJECT_INVALID');
@@ -435,7 +537,11 @@ export class ObjectStore {
     const found = below ? entries.find((entry) => strength(entry) < strength(below)) : entries[0];
     if (!found) {
       throw new ObjectError(
-        `unknown object ${kind}:${id}; searched layers ${LAYERS.join(', ')}`,
+        `unknown object ${kind}:${id}; searched layers ${LAYERS.join(', ')}; known ids for ${kind}: ${
+          this.list(kind)
+            .map((entry) => entry.id)
+            .join(', ') || '(none)'
+        }`,
         'OBJECT_UNKNOWN',
       );
     }
@@ -526,6 +632,12 @@ export class ObjectStore {
           'OBJECT_IMPL_UNKNOWN',
         );
       }
+      if (impl.kinds ? !impl.kinds.includes(entry.kind) : def.ownImpls === true) {
+        throw new ObjectError(
+          `${name}: item ${item.id} names ${item.impl}, which is no ${entry.kind} implementation${impl.kinds ? ` (it serves ${impl.kinds.join(', ')})` : ''} (${item.from})`,
+          'OBJECT_IMPL_UNKNOWN',
+        );
+      }
       const checked = impl.params.safeParse(item.params);
       if (!checked.success) {
         throw new ObjectError(
@@ -554,6 +666,8 @@ export class ObjectStore {
       chain: [name, ...(parent?.chain ?? [])],
       ...(parent === undefined ? {} : { parent }),
     };
+    const problem = def.check?.(resolved, this.registry);
+    if (problem !== undefined) throw new ObjectError(`${name}: ${problem} (${entry.path})`, 'OBJECT_INVALID');
     this.#resolved.set(entry, resolved);
     return resolved;
   }

@@ -22,6 +22,7 @@ import {
   type Generation,
   type GeneratorParts,
   generatedCells,
+  generatedPositions,
   generateFrom,
   generation,
   killsUnder,
@@ -34,6 +35,7 @@ import {
   STABILITY_OFFSETS,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
+import { cellText, jointlyPossible, positionOf } from './possible';
 import {
   hiddenInventory,
   hiddenProposal,
@@ -622,9 +624,21 @@ function differentialItems(): BankItem[] {
             const why = forbidden(generated.hidden, block.cell);
             return why ? [`${block.key} (${why})`] : [];
           });
+        const written = `${bad.length} blocks sit in a cell a hidden constraint forbids: ${bad.slice(0, 4).join('; ')}`;
+        // A cell no written constraint forbids can still sit where no single position of the map carries it.
+        const stray = generatedPositions(generated)
+          .filter((block) => block.seeder === seeder && forbidden(generated.hidden, block.cell) === undefined)
+          .flatMap((block) => {
+            const position = positionOf(block.cell);
+            return position && !jointlyPossible(generated.hidden, position)
+              ? [`${block.key} (${cellText(position)})`]
+              : [];
+          });
         return verdict(
-          bad.length === 0,
-          `${bad.length} blocks sit in a cell a hidden constraint forbids: ${bad.slice(0, 4).join('; ')}`,
+          bad.length === 0 && stray.length === 0,
+          stray.length === 0
+            ? written
+            : `${written}; ${stray.length} blocks sit where no one position of the hidden map carries their whole cell: ${stray.slice(0, 4).join('; ')}`,
         );
       },
     });
@@ -1961,6 +1975,16 @@ async function hiddenCoverage(data: SeedData, t: number): Promise<SpaceCoverage>
   });
 }
 
+/** The placements of a suite whose values on these axes no single position of the hidden map carries. */
+function strayPlacements(generated: Generation, dims: readonly string[]): string[] {
+  const seen = new Set<string>();
+  for (const block of generatedPositions(generated)) {
+    const position = positionOf(block.cell, dims);
+    if (position && !jointlyPossible(generated.hidden, position)) seen.add(cellText(position));
+  }
+  return [...seen];
+}
+
 function coverageItems(): BankItem[] {
   const items: BankItem[] = [];
   for (const [t, size, tier] of [
@@ -1976,9 +2000,14 @@ function coverageItems(): BankItem[] {
         component: dims.includes('stage') ? C.scenario : `${C.seeders}#twiseSeeder`,
         async check(data) {
           const report = await hiddenCoverage(data, t);
+          const hidden = (await data.generated()).hidden;
+          // A triple is a target only when one position of the hidden map carries all three values: each
+          // pair of it having a position of its own is not enough. A pair is judged by the map itself.
           const cells = report.grid.cells.filter(
             (cell) =>
-              dims.every((dim) => dim in cell.values) && Object.keys(cell.values).length === dims.length,
+              dims.every((dim) => dim in cell.values) &&
+              Object.keys(cell.values).length === dims.length &&
+              (t === 2 || jointlyPossible(hidden, cell.values)),
           );
           const missing = cells.filter(
             (cell) =>
@@ -1991,16 +2020,20 @@ function coverageItems(): BankItem[] {
                 cell.count > 0,
               ),
           );
+          const stray = t === 2 ? [] : strayPlacements(await data.generated(), dims);
+          const detail = `${missing.length} of ${cells.length} allowed cells of ${dims.join(' x ')} are covered by no complete spec: ${missing
+            .slice(0, 4)
+            .map((cell) =>
+              Object.entries(cell.values)
+                .map(([key, value]) => `${key}=${value}`)
+                .join('+'),
+            )
+            .join('; ')}`;
           return verdict(
-            cells.length > 0 && missing.length === 0,
-            `${missing.length} of ${cells.length} allowed cells of ${dims.join(' x ')} are covered by no complete spec: ${missing
-              .slice(0, 4)
-              .map((cell) =>
-                Object.entries(cell.values)
-                  .map(([key, value]) => `${key}=${value}`)
-                  .join('+'),
-              )
-              .join('; ')}`,
+            cells.length > 0 && missing.length === 0 && stray.length === 0,
+            stray.length === 0
+              ? detail
+              : `${detail}; ${stray.length} placements sit in a cell of ${dims.join(' x ')} that no one position of the hidden map carries: ${stray.slice(0, 4).join('; ')}`,
           );
         },
       });
@@ -2063,8 +2096,12 @@ export function vectorOf(block: BlockRun): string {
   return vector;
 }
 
-/** A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. */
-function removeBlock(spec: Spec, index: number): Spec {
+/**
+ * A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. Nor a link: a
+ * `metadata.links` entry of the deleted block goes with it, and a link by index to a later block moves down
+ * one, so the reduced spec stays valid (a link to a block the spec does not have is LINK_BLOCK_UNKNOWN).
+ */
+export function removeBlock(spec: Spec, index: number): Spec {
   const reduced = structuredClone(spec);
   const removed = reduced.blocks.splice(index, 1)[0];
   reduced.perturbations = reduced.perturbations?.filter((entry) => entry.inject_at !== index);
@@ -2072,6 +2109,18 @@ function removeBlock(spec: Spec, index: number): Spec {
   const metadata = reduced.metadata?.generated as { blocks?: Array<{ block?: string }> } | undefined;
   if (removed?.id !== undefined && Array.isArray(metadata?.blocks))
     metadata.blocks = metadata.blocks.filter((entry) => entry?.block !== removed.id);
+  const links = reduced.metadata?.links;
+  if (reduced.metadata && Array.isArray(links)) {
+    reduced.metadata.links = links.flatMap((link) => {
+      const block = (link as { block?: unknown }).block;
+      if (block === undefined) return [link];
+      if (typeof block === 'number') {
+        if (block === index) return [];
+        return [block > index ? { ...(link as object), block: block - 1 } : link];
+      }
+      return removed?.id !== undefined && block === removed.id ? [] : [link];
+    });
+  }
   return reduced;
 }
 

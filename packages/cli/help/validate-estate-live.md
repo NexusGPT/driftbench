@@ -4,6 +4,7 @@ summary: Run generated estate specs live through the runtime in a sandboxed copy
 commands:
   - estate run
   - estate mutate
+  - estate prove
 see_also:
   - validate-estate-generate
   - validate-estate-unit
@@ -31,7 +32,17 @@ actions from the estate copy it runs in; with `FAKE_MANIFEST` set to an absolute
 `estate mutate <map> --atom <id>` copies the estate and either deletes one atom's quoted span (`--delete`) or
 replaces it by its negation from a fixed table of forms (`--invert`), and writes the copy, its `map.yaml` and
 `mutant.json`. The tests derived from that atom must then go red, live, in replay, unit or static runs, while
-the others stay as they were. That is how you prove a test suite can fail.
+the others stay as they were. That is how you prove a test suite can fail. `--delete <id>` (or `--invert <id>`)
+names the atom in place of `--atom`; the id is an atom id or the ledger id of the unit the atom was read from.
+
+`estate prove <specs...> --mutant <dir> --original <store> --mutated <store>` proves the links of the specs to
+the rule the mutant removed. Each block of a generated spec links its rules in `metadata.links`. A block flips
+when it passes in the run on the original estate and fails in the run on the mutant. A `verifies` link of a
+block to the rule becomes `verified` when the block flips and `refuted` when the block passes on both. A block
+that flips with no link to the rule is reported as an unlinked flip. A block that fails on the original, or did
+not run, proves nothing and keeps its link as it is. A negative control's links `exercise` the rule: a deletion
+cannot flip them, so they are left alone. On an agent that follows its rules, the blocks that flip are exactly
+the linked blocks.
 
 ## When to use it
 
@@ -40,12 +51,16 @@ the others stay as they were. That is how you prove a test suite can fail.
   times repeats times the cost of one block; cap it with `--max-budget-usd` and `--max-turns`.
 * `estate mutate`: after generating a suite, to measure whether its tests catch the loss or the inversion of
   each atom.
+* `estate prove`: after running a suite on the original and on a mutant, to mark which links the deletion
+  verified and which it refuted, and to find the blocks a rule matters to that do not link it.
 
 ## Commands and every option
 
 ```
 driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
-driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
+driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
+driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
+driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
 `estate run`:
@@ -83,12 +98,23 @@ driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--f
 | Option | Default | Meaning |
 |---|---|---|
 | `<map>` | required | the approved estate map |
-| `--atom <id>` | required | the atom to mutate |
-| `--delete` | one of the two | remove the quoted span from its file |
-| `--invert` | one of the two | replace the quote by its negation, by the fixed table of forms |
+| `--atom <id>` | required unless the mutation names it | the atom to mutate: an atom id, or the ledger id of its unit |
+| `--delete [id]` | one of the two | remove the quoted span from its file; an id here stands for `--atom` |
+| `--invert [id]` | one of the two | replace the quote by its negation, by the fixed table of forms; an id here stands for `--atom` |
 | `--to <dir>` | required | the folder of the mutant: it receives the copy, `map.yaml` and `mutant.json` |
 | `--force` | off | replace an earlier mutant in the folder |
 | `--json` | off | print the result as JSON |
+
+`estate prove`:
+
+| Option | Default | Meaning |
+|---|---|---|
+| `<specs...>` | required | the spec files or folders that ran on both estates |
+| `--mutant <dir>` | required | the mutant folder of `estate mutate`; its `mutant.json` names the rule and the mutation |
+| `--original <store>` | required | the store of the run on the original estate |
+| `--mutated <store>` | required | the store of the run on the mutant |
+| `--write` | off | write the `verified` and `refuted` statuses, with their evidence, into the spec files; the spec hashes do not move |
+| `--json` | off | print the proof as JSON: `counts`, one row per block, and the updated links |
 
 ## Inputs
 
@@ -106,6 +132,13 @@ not pinned to a map, a spec whose judged criteria are inconclusive with no judge
 whose only non-passing checks are not applicable (a stage check with no stage record) counts as
 `notApplicable`, not as a failure. Exit 0 every spec passes, 1 a spec fails, 2 a usage or input error
 (nothing runs). The runs are in the store: read them with `driftbench report` (the results topics).
+
+`estate prove` prints one count per verdict (`verified`, `refuted`, `unproved`, `unlinked`, and `exercised`
+for the links of negative controls), one line per refuted, unlinked or unproved block
+(`<verdict> <spec> <block>: <original> -> <mutant>`), then `The blocks that flip are the linked blocks.` or
+`The blocks that flip and the linked blocks differ.` Exit 0 when they are the same and every link is verified,
+1 when they differ, 2 a usage or input error (a folder with no `mutant.json`, a missing store, an invalid spec,
+specs with no `verifies` link to the rule), with nothing written.
 
 `estate mutate` prints the atom and its file, the line before and after, the map hash before and after,
 any collateral atom the mutation also changes, and `Wrote <dir>: the estate copy, map.yaml and mutant.json.`
@@ -188,6 +221,10 @@ the estate copy.
 | `does not match the map` (exit 2) | the estate changed since the map named with `--map` | scan again, or drop `--map` |
 | `the session state <s> has no operation in the state library; add one, or run the spec without it` | a spec plants a state and no `--states` library covers it | pass `--states examples/estates/fixture/live/states/library.json` or your own |
 | `Name one mutation: --delete or --invert.` (exit 2) | neither or both | exactly one |
-| `Atom <id> is not in the map.` (exit 2) | a misspelt atom id | copy it from the map or from `estate approve` |
+| `Atom <id> is not in the map.` (exit 2) | a misspelt atom id or ledger id | copy it from the map or from `estate approve` |
+| `The ledger id <id> names <n> atoms (...): name one by its atom id.` (exit 2) | several atoms were read from one unit | name the atom by its atom id |
+| `Name the atom once: --atom <a> and <b> differ.` (exit 2) | `--atom` and the id after `--delete` or `--invert` name two atoms | give one of them |
+| `No block of these specs links <rule> with the relation verifies: nothing to prove.` (exit 2) | the specs are not the ones that test the rule | pass the specs that link it, such as the whole suite |
+| `The blocks that flip and the linked blocks differ.` (exit 1) | a link is refuted, a block flips with no link, or a block did not pass on the original | read the lines above it: fix the generator's links or the tests, or the run on the original |
 | `<dir> is not empty; pass --force to replace an earlier mutant.` (exit 2) | the folder holds a mutant | another folder, or `--force` |
 | a mutant changes no test result | no test covers that atom, or the runner cannot see its effect | a gap in the suite: add a phrase or a check for the atom |
