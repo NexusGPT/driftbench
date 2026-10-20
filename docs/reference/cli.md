@@ -680,9 +680,10 @@ exit 1
 
 ```
 driftbench simulate <spec> --persona <file> (--model | --recording <file>) [--target <adapter[:agent]>] [--turns <n>] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench simulate <spec> (--model [--record-cassette <file>] | --cassette <file>...) [--trials <k>] [--seed <seed>] [--labeller model|patterns] [--freeze <file>] [--target <adapter[:agent]>] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
-A simulated user plays the persona on the spec, through the model port or a recording. Options, output and exit codes on the [simulated user](../simulated-user.md) page.
+A simulated user plays the persona on the spec, through the model port or a recording. The second form runs a spec whose blocks define the simulated user (`when.simulated_user`): k trials per simulator family, pass^k, the rerun flip rate, the flip flag and a calibration report. Options, output and exit codes on the [simulated user](../simulated-user.md) page.
 
 ## `driftbench attack`
 

@@ -35,6 +35,9 @@ The loader rewrites these forms before it validates a spec.
 * [Stimulus injection](#stimulus-injection)
 * [DeviationClass](#deviationclass)
 * [ClassRef](#classref)
+* [SimulatedUserSpec](#simulateduserspec)
+* [SimulatedUserEngine](#simulateduserengine)
+* [SimulatedUserSpec recorded](#simulateduserspec-recorded)
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
@@ -268,6 +271,7 @@ Write one of these forms.
 |---|---|---|---|---|
 | `user` | string | yes |  | The message, or the instruction to a task agent. |
 | `class` | [ClassRef](#classref) | no |  | The utterance class this message stands for. The message itself is the class seed. |
+| `simulated_user` | [SimulatedUserSpec](#simulateduserspec) | no |  | A simulated user that plays this block. Absent, the user text is sent as written. |
 
 ## Stimulus injection
 
@@ -305,6 +309,52 @@ The utterance class of a user message: its id and the hash of its frozen realisa
 |---|---|---|---|---|
 | `id` | string matching `^[a-z0-9][a-z0-9._-]*$` | yes |  | The class id, as its class file names it. |
 | `set` | string matching `^[0-9a-f]{12}$` | yes |  | The hash of the frozen realisation set the block is measured over (12 hex characters). |
+
+## SimulatedUserSpec
+
+A simulated user defined in the block: exact, simulated or replay.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `mode` | one of `exact`, `simulated`, `replay` | yes |  | exact: send the user text as written. simulated: the agenda engine plans the message, a model writes it. replay: send the user text, a message frozen from a simulated run. |
+| `persona` | string, not empty | no |  | Who the person is and how they write. Fictional. |
+| `goal` | string, not empty | no |  | What the person wants. Absent, the first simulated block's user text is the goal. |
+| `hidden_knowledge` | map of string to string, not empty | no |  | What the person knows, by name. A value reaches the model only once it is planned. |
+| `reveal` | map of string to `on_request` or `volunteer` | no |  | For each fact: on_request (the default) gives it only once the agent asks; volunteer may give it in the opening message. |
+| `ask_patterns` | map of string to list of strings, each not empty, at least 1 item | no |  | For each fact, patterns (case-insensitive) of an agent reply that asks for it. Used when no model reads the agent turns. |
+| `stop` | string, not empty | no |  | What the person says when the goal is met or given up. |
+| `trials` | integer, at least 1 | no |  | How many times a simulated run plays the spec, for pass^k and the rerun flip rate. |
+| `seed` | string, not empty or integer | no |  | The seed of the engine. Absent, the spec id. |
+| `engine` | [SimulatedUserEngine](#simulateduserengine) | no |  | The agenda engine's parameters. |
+| `recorded` | [SimulatedUserSpec recorded](#simulateduserspec-recorded) | no |  | replay: where the frozen text came from. A text that does not match its hash is refused. |
+
+## SimulatedUserEngine
+
+The agenda engine's parameters for a simulated user.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `acts_per_turn` | list of numbers, each 0 to 1, at least 1 item | no |  | The chance of 1, 2, 3 ... dialogue acts in one message, in order. They must sum to 1. |
+| `volunteer_share` | number, 0 to 1 | no |  | The chance that the opening message also gives each fact whose reveal is volunteer. |
+| `opening_detail_share` | number, 0 to 1 | no |  | The chance that the opening message also states the specific problem, not only the request. |
+| `short_turn_share` | number, 0 to 1 | no |  | The share of messages of at most three words. |
+| `polite_turn_share` | number, 0 to 1 | no |  | The share of messages planned as polite. |
+| `uncertainty_turn_share` | number, 0 to 1 | no |  | The share of messages planned as unsure. |
+| `question_turn_share` | number, 0 to 1 | no |  | The share of messages planned as a question. |
+| `repeat_after_refusal` | integer, at least 0 | no |  | How many times the person repeats the request after the agent says it cannot. |
+| `turn_budget` | integer, at least 1 | no |  | The most messages the person writes before giving up. |
+| `engagement_initial` | number, 0 to 1 | no |  | Engagement at the start. |
+| `decay_per_unhelpful_turn` | number, 0 to 1 | no |  | Engagement lost on each unhelpful agent turn. |
+| `disengage_below` | number, 0 to 1 | no |  | Below this engagement the person gives up. |
+
+## SimulatedUserSpec recorded
+
+replay: where the frozen text came from. A text that does not match its hash is refused.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The SHA-256 of the canonical JSON of the frozen text. |
+| `from` | string, not empty | no |  | The run the text was frozen from. |
 
 ## Given
 
