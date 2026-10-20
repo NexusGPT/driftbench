@@ -91,8 +91,8 @@ describe('the plan is byte-stable', () => {
     ).toEqual([
       'row.001 ebb/flashing/night',
       'row.002 ebb/steady/day',
-      'row.003 flood/steady/day',
-      'row.004 flood/flashing/night',
+      'row.003 flood/steady/night',
+      'row.004 flood/flashing/day',
     ]);
     // ln(2/3) + ln(1/2) + ln(1/2) for the ebb rows, ln(1/3) + ln(1/2) + ln(1/2) for the flood rows.
     expect(plan.rows.map((row) => Number(row.logWeight.toFixed(9)))).toEqual([

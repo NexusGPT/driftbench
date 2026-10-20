@@ -812,3 +812,58 @@ variables:
 
 Fix: Copy the passage from the file again, or remove the entry.
 
+#### `VARIABLES_POINTER_UNRESOLVED`
+
+The check of the entries (`verifyVariableQuotes`) reads the file of a `structure` entry and finds nothing at its place: the pointer names no value, the lines are past the end of the file, or the file is not valid JSON or YAML.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        provenance:
+          - kind: structure
+            path: ../estates/fixture/.claude/settings.json
+            pointer: /permissions/ask/9
+            hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - id: phone
+        title: Phone
+```
+
+Fix: Point at a value the file holds (here `/permissions/ask/0`), or fix the line range. Rebuild the store from the estate when the file has been restructured.
+
+#### `VARIABLES_HASH_MISMATCH`
+
+The place a `structure` entry names exists, but holds something other than when the entry was written: the file changed since. The `hash` is the SHA-256 of the canonical JSON of the value (or of the lines).
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        provenance:
+          - kind: structure
+            path: ../estates/fixture/.claude/settings.json
+            pointer: /model
+            hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - id: phone
+        title: Phone
+```
+
+Fix: Read the place again. If the change is wanted, write the hash of the new value; if not, restore the file. Rebuilding the store from the estate rewrites every hash.

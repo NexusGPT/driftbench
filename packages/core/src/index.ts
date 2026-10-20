@@ -289,6 +289,7 @@ export {
   eventLogSink,
   flowVerdicts,
   type GivenLayers,
+  heldRun,
   type IntervalEstimate,
   type IntervalFn,
   initialGiven,
@@ -349,6 +350,7 @@ export {
   wrapEndState,
 } from './runner';
 export { rescoreCarriedRun } from './runner/carried-scoring';
+export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
@@ -467,7 +469,7 @@ export {
 export * as script from './script';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
-export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
+export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity, specIdentityHash } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
 export { givenIssues, lintSpec } from './spec/lint';
 export {
@@ -484,6 +486,14 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export {
+  resolveSpecParents,
+  type SpecParentRecord,
+  type SpecParentRef,
+  specParentRecord,
+  specParentRef,
+  stemOf,
+} from './spec/spec-parents';
 export {
   type GivenFinding,
   type VerifyGivenOptions,

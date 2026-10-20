@@ -1,0 +1,4 @@
+version: 1
+triggers:
+  drafts: false
+  frequency: oncePerPr
