@@ -302,3 +302,59 @@ describe('catch items never make a gate easier to pass', () => {
     expect(h.iteration0.score).toBeCloseTo(75 / 345, 10);
   });
 });
+
+describe('relabelling and losing items are not progress', () => {
+  const TIERS600 = { '1': 120, '2': 120, '3': 120, '4': 120, '5': 120 };
+  /** 600 hardness items passing 100 to 110 (one more each round) and 40 catch items that all pass. */
+  const steady = () =>
+    rows(
+      Array.from({ length: 11 }, (_, i) => 100 + i),
+      600,
+      TIERS600,
+    ).map((row) => JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: 40 } }));
+
+  it('fails a journal whose catch set shrinks after iteration 0, though the hardness passing rises with no product change', () => {
+    // 20 always-passing catch items become hardness items from iteration 1: the hardness bank and its passing
+    // both gain 20, with no change in the product. On the old gate the forecast read 163 and the gate held.
+    const relabelled = steady().map((row, i) =>
+      i === 0
+        ? row
+        : JournalRowSchema.parse({
+            ...row,
+            bankSize: row.bankSize + 20,
+            passing: row.passing + 20,
+            bankByFamilyTier: { core: { ...TIERS600, '1': 140 } },
+            catchItems: { size: 20, passing: 20 },
+          }),
+    );
+    const h = hard(relabelled);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'the catch items are frozen at iteration 0 (40): iteration 1 holds 20; moving an item between the hardness and the catch role is not progress',
+    );
+    expect(hard(steady()).gate).toEqual({ holds: true, reasons: [] });
+  });
+
+  it('fails a pilot whose items passing over every item fall in one round, though the end figure is higher', () => {
+    // 104 + 40 = 144 at iteration 4, 101 + 40 = 141 at iteration 5: a loss that the first and last rows hide.
+    const dip = rows([100, 101, 102, 103, 104, 101, 106, 107, 108, 109, 110], 600, TIERS600).map((row) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: 40 } }),
+    );
+    const h = hard(dip);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'items passing over every item fall from 144 at iteration 4 to 141 at iteration 5 (builder): a pilot that loses items is not progress',
+    );
+  });
+
+  it('fails when the forecast over every item is undefined, whatever the hardness items gain', () => {
+    const losing = steady().map((row, i) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: Math.max(0, 40 - 2 * i) } }),
+    );
+    const h = hard(losing);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'the forecast over every item, catch items included, is undefined: the pilot fixed nothing over all items together',
+    );
+  });
+});

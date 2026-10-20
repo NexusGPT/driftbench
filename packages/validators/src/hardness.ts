@@ -283,6 +283,36 @@ export function measureHardness(
       break;
     }
   }
+  // The catch set is frozen at iteration 0: a row that holds more or fewer catch items than the baseline moved items
+  // between the two roles, and relabelling is not progress (the hardness passing rises with no product change).
+  const frozen = zero.catchItems?.size ?? 0;
+  const moved = rows.find((row) => (row.catchItems?.size ?? 0) !== frozen);
+  if (moved)
+    reasons.push(
+      `the catch items are frozen at iteration 0 (${frozen}): iteration ${moved.iteration} holds ${moved.catchItems?.size ?? 0}; moving an item between the hardness and the catch role is not progress`,
+    );
+  // Every item together must make progress: an undefined all-items forecast (nothing fixed over the pilot, or a
+  // loss) never stands aside for the hardness-only forecast.
+  if (
+    forecastOf(remaining, fixedPerIteration) !== null &&
+    forecastOf(chosen.measure.allRemaining, chosen.measure.allFixedPerIteration) === null
+  )
+    reasons.push(
+      `the forecast over every item, catch items included, is undefined: ${label} fixed nothing over all items together`,
+    );
+  // No loss: the passing items of a pilot, counted over every item, never fall from one iteration to the next.
+  for (const executor of ['builder', 'blind'] as const) {
+    const own = rows.filter((row) => executorOf(row) === executor).sort((a, b) => a.iteration - b.iteration);
+    const drop = own.find(
+      (row, index) => index > 0 && allPassing(row) < allPassing(own[index - 1] as JournalRow),
+    );
+    if (drop) {
+      const before = own[own.indexOf(drop) - 1] as JournalRow;
+      reasons.push(
+        `items passing over every item fall from ${allPassing(before)} at iteration ${before.iteration} to ${allPassing(drop)} at iteration ${drop.iteration} (${executor}): a pilot that loses items is not progress`,
+      );
+    }
+  }
   const audit = options.audit === undefined ? null : parseAudit(options.audit);
   if (!audit) reasons.push('audit.md is absent: no validator merges without the audit (12.7)');
   for (const entry of audit ?? []) {
