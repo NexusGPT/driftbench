@@ -83,6 +83,27 @@ export type FeedConditionsInput = {
     /** The variables whose values are candidates, by id. Default: every variable. */
     variables?: readonly string[];
     decide?: Pick<DecideOptions, 'yesAt' | 'noAt'>;
+    /** The question put to system 1 for one candidate value. Default: `defaultQuestionText`. */
+    questionText?: (variable: { id: string; title: string }, value: { id: string; title: string }) => string;
+    /**
+     * When system 2 is called. `all-no` (default): only when every candidate got a decided no. `no-yes`: whenever
+     * no candidate got a yes and every answer was read, unsure ones included.
+     */
+    propose?: 'all-no' | 'no-yes';
+    /** False: a proposal under a variable the store lacks is refused (a new variable is the owner's call). Default true. */
+    newVariables?: boolean;
+    /**
+     * After system 2 proposes a value under a variable the store has, system 1 reads the proposed value's title
+     * against every value of that variable. `refuse`: a yes refuses the proposal as equivalent to that value.
+     * `match`: a yes takes the span under that value instead. Default: no check.
+     */
+    checkProposals?: 'refuse' | 'match';
+    /**
+     * A span system 1 took is also put to system 2. When system 2 proposes a value under the same variable and
+     * system 1 does not read the proposed title as a value it took, the span is `unsure`, not matched: its
+     * condition may be a neighbour of the value, not the value. Default false.
+     */
+    crossCheck?: boolean;
   };
 };
 
@@ -93,11 +114,20 @@ type Value = Variable['values'][number];
 
 const pair = (variable: Variable, value: Value) => `${variable.id}/${value.id}`;
 
-function questionFor(variable: Variable, value: Value): YesNoQuestion {
+/** The default wording of the yes or no question about one candidate value. */
+export function defaultQuestionText(variable: { title: string }, value: { title: string }): string {
+  return `Does this text say when this applies: ${variable.title}: ${value.title}? Answer for the text itself.`;
+}
+
+function questionFor(
+  variable: Variable,
+  value: Value,
+  text: (variable: Variable, value: Value) => string,
+): YesNoQuestion {
   return {
     name: pair(variable, value),
     kind: 'yesno',
-    text: `Does this text say when this applies: ${variable.title}: ${value.title}? Answer for the text itself.`,
+    text: text(variable, value),
     yes: 'yes',
     no: 'no',
   };
@@ -133,6 +163,8 @@ function attach(value: Value, span: ConditionSpan): void {
 export async function feedFromConditions(input: FeedConditionsInput): Promise<FeedConditionsResult> {
   const { spans, texts, reader, proposer } = input;
   const thresholds = { ...DEFAULT_DECIDE, ...input.options?.decide };
+  const questionText = input.options?.questionText ?? defaultQuestionText;
+  const proposeWhen = input.options?.propose ?? 'all-no';
   const only = input.options?.variables === undefined ? undefined : new Set(input.options.variables);
   if (only !== undefined) {
     for (const id of only) {
@@ -151,6 +183,22 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
   const outcomes: ConditionOutcome[] = [];
   let proposerCalls = 0;
 
+  /** The values among `values` that system 1 reads `text` as (a decided yes). A failed read gives none. */
+  const readsAs = async (text: string, variable: Variable, values: readonly Value[]): Promise<Value[]> => {
+    const qs = values.map((value) => questionFor(variable, value, questionText));
+    if (qs.length === 0) return [];
+    try {
+      const answers = await reader.read(text, qs as ReaderQuestion[]);
+      return values.filter((_, i) => {
+        const q = qs[i] as YesNoQuestion;
+        const d = decide(q, answers[q.name], thresholds);
+        return d.kind === 'value' && d.value === 'yes';
+      });
+    } catch {
+      return [];
+    }
+  };
+
   for (const span of spans) {
     const why = refusal(span, texts);
     if (why !== undefined) {
@@ -161,7 +209,7 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
     const asked: Array<{ variable: Variable; value: Value; question: YesNoQuestion }> = [];
     for (const variable of candidates) {
       for (const value of variable.values)
-        asked.push({ variable, value, question: questionFor(variable, value) });
+        asked.push({ variable, value, question: questionFor(variable, value, questionText) });
     }
 
     let decisions: Decision[] = [];
@@ -189,6 +237,37 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
       return d?.kind === 'value' && d.value === 'yes';
     });
     if (taken.length > 0) {
+      if (input.options?.crossCheck === true && proposer !== undefined) {
+        proposerCalls++;
+        let alt: ConditionProposal | undefined;
+        try {
+          alt = await proposer.propose(span.quote, store);
+        } catch {
+          alt = undefined;
+        }
+        const near = alt === undefined ? [] : taken.filter((t) => t.variable.id === alt?.variable.id);
+        const first = near[0];
+        if (alt !== undefined && first !== undefined) {
+          const same =
+            near.some((t) => t.value.id === alt?.value.id) ||
+            (
+              await readsAs(
+                alt.value.title,
+                first.variable,
+                near.map((t) => t.value),
+              )
+            ).length > 0;
+          if (!same) {
+            outcomes.push({
+              span: span.id,
+              status: 'unsure',
+              values: [],
+              reason: `system 2 reads a neighbour of ${pair(first.variable, first.value)}, which system 1 does not read as that value`,
+            });
+            continue;
+          }
+        }
+      }
       for (const hit of taken) attach(hit.value, span);
       outcomes.push({
         span: span.id,
@@ -198,7 +277,7 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
       continue;
     }
     // A candidate the reader could not settle might still be the right one: do not propose over it.
-    if (decisions.some((d) => d.kind !== 'value')) {
+    if (decisions.some((d) => (proposeWhen === 'no-yes' ? d.kind === 'unread' : d.kind !== 'value'))) {
       outcomes.push({
         span: span.id,
         status: 'unsure',
@@ -228,8 +307,36 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
       outcomes.push({ span: span.id, status: 'unmatched', values: [] });
       continue;
     }
+    const known = store.variables.find((variable) => variable.id === proposal.variable.id);
+    if (known !== undefined && input.options?.checkProposals !== undefined) {
+      const same = await readsAs(proposal.value.title, known, known.values);
+      const hit = same[0];
+      if (hit !== undefined) {
+        if (input.options.checkProposals === 'match') {
+          attach(hit, span);
+          outcomes.push({ span: span.id, status: 'matched', values: [pair(known, hit)] });
+        } else {
+          outcomes.push({
+            span: span.id,
+            status: 'refused',
+            values: [],
+            reason: `the proposal ${proposal.variable.id}/${proposal.value.id} reads as ${pair(known, hit)}`,
+          });
+        }
+        continue;
+      }
+    }
     const next = structuredClone(store);
     const existing = next.variables.find((variable) => variable.id === proposal.variable.id);
+    if (existing === undefined && input.options?.newVariables === false) {
+      outcomes.push({
+        span: span.id,
+        status: 'refused',
+        values: [],
+        reason: `the proposal names the variable ${proposal.variable.id}, which the store lacks`,
+      });
+      continue;
+    }
     const value: Value = {
       id: proposal.value.id,
       title: proposal.value.title,
@@ -375,6 +482,37 @@ export function replayConditions(recording: ConditionsRecording): {
         if (!(key in recording.proposals)) throw new Error('the recording has no proposal for this clause');
         return recording.proposals[key] ?? undefined;
       },
+    },
+  };
+}
+
+/**
+ * A reader that asks the same candidates in several wordings and averages the probabilities of yes. A reader
+ * answers a question with some noise that depends on its wording; the mean of a few wordings moves less. Each
+ * `rewrite` maps a question to the same question in another wording (the name stays). A question left
+ * unanswered in any wording stays unanswered.
+ */
+export function averageReader(
+  inner: ConversationReader,
+  rewrites: ReadonlyArray<(question: ReaderQuestion) => ReaderQuestion>,
+): ConversationReader {
+  return {
+    id: `${inner.id}*${rewrites.length}`,
+    family: inner.family,
+    ...(inner.model !== undefined ? { model: inner.model } : {}),
+    async read(clause, questions) {
+      const rounds = await Promise.all(rewrites.map((rewrite) => inner.read(clause, questions.map(rewrite))));
+      const out: Record<string, ReaderAnswer | undefined> = {};
+      for (const question of questions) {
+        const ps = rounds.map((round) => {
+          const a = round[question.name];
+          return a !== undefined && 'yes' in a ? a.yes : undefined;
+        });
+        out[question.name] = ps.every((p) => p !== undefined)
+          ? { yes: (ps as number[]).reduce((x, y) => x + y, 0) / ps.length }
+          : undefined;
+      }
+      return out;
     },
   };
 }

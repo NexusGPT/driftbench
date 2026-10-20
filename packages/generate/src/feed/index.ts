@@ -1,4 +1,5 @@
 export {
+  averageReader,
   type ConditionOutcome,
   type ConditionProposal,
   type ConditionProposer,

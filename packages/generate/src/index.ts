@@ -367,6 +367,7 @@ export {
 } from './families';
 export {
   assertOutsideRepository,
+  averageReader,
   type CalibrationItem,
   type ChoiceQuestion,
   type ConditionOutcome,

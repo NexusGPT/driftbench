@@ -1687,6 +1687,7 @@
       "askedTo": "value",
       "assertOutsideRepository": "value",
       "auditFamily": "value",
+      "averageReader": "value",
       "axisGrid": "value",
       "baseSlots": "value",
       "blockCell": "value",

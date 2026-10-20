@@ -1,6 +1,7 @@
 import { mulberry32 } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import {
+  averageReader,
   type ConditionProposal,
   type ConditionProposer,
   type ConditionSpan,
@@ -382,5 +383,204 @@ describe('feedFromConditions: recorded and replayed', () => {
     });
     expect(report.failed).toBe(1);
     expect(report.outcomes[0]?.reason).toMatch(/no read/);
+  });
+});
+
+describe('feedFromConditions: the tuned options', () => {
+  const noOne: ConversationReader = {
+    id: 'no',
+    family: 'test',
+    async read(_c, questions) {
+      return Object.fromEntries(questions.map((q, i) => [q.name, { yes: i === 0 ? 0.5 : 0.04 }]));
+    },
+  };
+
+  it('propose "no-yes" calls system 2 for a span with an unsure candidate, "all-no" does not', async () => {
+    const { planted, texts } = plant();
+    const sim = simulated(planted, 1);
+    const span = planted[30]?.span as ConditionSpan;
+    const run = (propose: 'all-no' | 'no-yes') =>
+      feedFromConditions({
+        store: fixtureStore(),
+        spans: [span],
+        texts,
+        reader: noOne,
+        proposer: sim.proposer,
+        options: { propose },
+      });
+    expect((await run('all-no')).report.outcomes[0]?.status).toBe('unsure');
+    expect((await run('no-yes')).report.outcomes[0]?.status).toBe('proposed');
+  });
+
+  it('newVariables false refuses a proposal under a variable the store lacks, and keeps the store', async () => {
+    const { planted, texts } = plant();
+    const sim = simulated(planted, 1);
+    const span = planted[30]?.span as ConditionSpan;
+    const { report, store } = await feedFromConditions({
+      store: fixtureStore(),
+      spans: [span],
+      texts,
+      reader: noOne,
+      proposer: sim.proposer,
+      options: { propose: 'no-yes', newVariables: false },
+    });
+    expect(report.outcomes[0]?.status).toBe('refused');
+    expect(store).toEqual(fixtureStore());
+  });
+
+  it('questionText sets the wording of the question each candidate gets', async () => {
+    const { planted, texts } = plant();
+    const seen: string[] = [];
+    const reader: ConversationReader = {
+      id: 'spy',
+      family: 'test',
+      async read(_c, questions) {
+        seen.push(...questions.map((q) => q.text));
+        return Object.fromEntries(questions.map((q) => [q.name, { yes: 0.04 }]));
+      },
+    };
+    await feedFromConditions({
+      store: fixtureStore(),
+      spans: [planted[0]?.span as ConditionSpan],
+      texts,
+      reader,
+      options: { questionText: (v, x) => `Q ${v.id}/${x.id}` },
+    });
+    expect(seen.length).toBeGreaterThan(5);
+    expect(seen.every((t) => t.startsWith('Q '))).toBe(true);
+  });
+});
+
+describe('averageReader', () => {
+  it('averages the probability of yes over the wordings, and leaves a question unanswered in any wording unanswered', async () => {
+    const inner: ConversationReader = {
+      id: 'inner',
+      family: 'test',
+      async read(_c, questions) {
+        return Object.fromEntries(
+          questions.map((q) => [
+            q.name,
+            q.text === 'a' ? { yes: 0.2 } : q.name === 'x' ? undefined : { yes: 0.8 },
+          ]),
+        );
+      },
+    };
+    const reader = averageReader(inner, [(q) => ({ ...q, text: 'a' }), (q) => ({ ...q, text: 'b' })]);
+    const out = await reader.read('c', [
+      { name: 'y', kind: 'yesno', text: 'q', yes: 'yes', no: 'no' },
+      { name: 'x', kind: 'yesno', text: 'q', yes: 'yes', no: 'no' },
+    ]);
+    expect(out.y).toEqual({ yes: 0.5 });
+    expect(out.x).toBeUndefined();
+  });
+});
+
+describe('feedFromConditions: checking proposals against existing values', () => {
+  // A reader that says yes only to the question for `channel/email`, whatever the text, and no to the rest,
+  // unless the text is the clause itself (then it says no to everything).
+  const readerFor = (clause: string): ConversationReader => ({
+    id: 'check',
+    family: 'test',
+    async read(text, questions) {
+      return Object.fromEntries(
+        questions.map((q) => [q.name, { yes: text !== clause && q.name === 'channel/email' ? 0.9 : 0.04 }]),
+      );
+    },
+  });
+  const proposal: ConditionProposal = {
+    variable: { id: 'channel', title: 'the channel the conversation happens on' },
+    value: { id: 'mail', title: 'mail' },
+  };
+  const proposer: ConditionProposer = { id: 'p', propose: async () => proposal };
+  const run = async (checkProposals?: 'refuse' | 'match') => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    return feedFromConditions({
+      store: fixtureStore(),
+      spans: [span],
+      texts,
+      reader: readerFor(span.quote),
+      proposer,
+      options: { propose: 'no-yes', ...(checkProposals ? { checkProposals } : {}) },
+    });
+  };
+
+  it('without the check the proposal is written', async () => {
+    expect((await run()).report.outcomes[0]?.status).toBe('proposed');
+  });
+
+  it('"refuse" refuses a proposal that system 1 reads as an existing value, and keeps the store', async () => {
+    const { report, store } = await run('refuse');
+    expect(report.outcomes[0]?.status).toBe('refused');
+    expect(report.outcomes[0]?.reason).toContain('channel/email');
+    expect(store).toEqual(fixtureStore());
+  });
+
+  it('"match" takes the span under the existing value', async () => {
+    const { report, store } = await run('match');
+    expect(report.outcomes[0]).toMatchObject({ status: 'matched', values: ['channel/email'] });
+    const email = store.variables.find((v) => v.id === 'channel')?.values.find((v) => v.id === 'email');
+    expect(email?.provenance?.length).toBe(1);
+  });
+});
+
+describe('feedFromConditions: crossCheck', () => {
+  const yesToEmail = (title: string): ConversationReader => ({
+    id: 'x',
+    family: 'test',
+    async read(text, questions) {
+      return Object.fromEntries(
+        questions.map((q) => [
+          q.name,
+          { yes: q.name === 'channel/email' && (text === title || text.includes('Rule')) ? 0.9 : 0.04 },
+        ]),
+      );
+    },
+  });
+
+  it('puts a span in doubt when system 2 sees a new case of the variable that system 1 does not read as the value it took', async () => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    const proposer: ConditionProposer = {
+      id: 'p',
+      propose: async () => ({
+        variable: { id: 'channel', title: 'the channel the conversation happens on' },
+        value: { id: 'fax', title: 'fax' },
+      }),
+    };
+    const run = (crossCheck: boolean) =>
+      feedFromConditions({
+        store: fixtureStore(),
+        spans: [span],
+        texts,
+        reader: yesToEmail('never'),
+        proposer,
+        options: { crossCheck },
+      });
+    expect((await run(false)).report.outcomes[0]?.status).toBe('matched');
+    const checked = await run(true);
+    expect(checked.report.outcomes[0]?.status).toBe('unsure');
+    expect(checked.store).toEqual(fixtureStore());
+  });
+
+  it('keeps the match when system 1 reads the proposed title as the value it took', async () => {
+    const { planted, texts } = plant();
+    const span = planted[0]?.span as ConditionSpan;
+    const proposer: ConditionProposer = {
+      id: 'p',
+      propose: async () => ({
+        variable: { id: 'channel', title: 'the channel the conversation happens on' },
+        value: { id: 'fax', title: 'electronic mail' },
+      }),
+    };
+    const { report } = await feedFromConditions({
+      store: fixtureStore(),
+      spans: [span],
+      texts,
+      reader: yesToEmail('electronic mail'),
+      proposer,
+      options: { crossCheck: true },
+    });
+    expect(report.outcomes[0]?.status).toBe('matched');
   });
 });
