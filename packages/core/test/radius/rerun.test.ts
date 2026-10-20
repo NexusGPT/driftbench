@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { blockRerun } from '../../src/radius/links';
 import { rerunMarks } from '../../src/radius/rerun';
 import { type SectionRegistry, sectionsFromHeadings } from '../../src/radius/sections';
-import { sectionSelection } from '../../src/radius/select';
+import { sectionSelection, unitSelection } from '../../src/radius/select';
 import { RerunMarks } from '../../src/schema/links';
 import type { Spec } from '../../src/schema/spec';
 
@@ -144,5 +144,54 @@ describe('the procedures that mark a block', () => {
     ]);
     const reversed = rerunMarks({ baseline, mutants: [...mutants].reverse(), excluded: new Set(['c']) });
     expect(reversed.map((mark) => mark.block)).toEqual(['b', 'a']);
+  });
+});
+
+describe('the unit selection reads the marks too', () => {
+  const unitSpec = (metadata: Record<string, unknown>): Spec =>
+    ({
+      id: 'chat',
+      kind: 'conversation',
+      blocks: [
+        { id: 'a', when: { user: '.' } },
+        { id: 'b', when: { user: '.' } },
+        { id: 'c', when: { user: '.' } },
+      ],
+      metadata: {
+        links: [
+          { block: 'a', to: { kind: 'estate_unit', unit: 'u1' }, status: 'declared' },
+          { block: 'b', to: { kind: 'estate_unit', unit: 'u2' }, status: 'declared' },
+          { block: 'c', to: { kind: 'estate_unit', unit: 'u2' }, status: 'declared' },
+        ],
+        ...metadata,
+      },
+    }) as Spec;
+  const manifest = { from: 'v1', to: 'v2', changes: [{ kind: 'unit', id: 'u2' }] };
+  const run = (metadata: Record<string, unknown>) =>
+    unitSelection([{ hash: 'h', spec: unitSpec(metadata) }], manifest).specs[0]?.blocks.map((block) => [
+      block.id,
+      block.state,
+      block.why,
+    ]);
+
+  it('selects a marked block on a change to a unit it has no link to, and says why', () => {
+    expect(run({})).toEqual([
+      ['a', 'out', []],
+      ['b', 'direct', ['link:unit:u2 (declared)']],
+      ['c', 'direct', ['link:unit:u2 (declared)']],
+    ]);
+    expect(run({ rerun: [{ block: 'a', reason: 'fragile' }] })).toEqual([
+      ['a', 'direct', ['rerun:fragile']],
+      ['b', 'direct', ['link:unit:u2 (declared)']],
+      ['c', 'direct', ['link:unit:u2 (declared)']],
+    ]);
+  });
+
+  it('marks nothing when no unit changed', () => {
+    const none = unitSelection(
+      [{ hash: 'h', spec: unitSpec({ rerun: [{ block: 'a', reason: 'fragile' }] }) }],
+      { from: 'v1', to: 'v2', changes: [] },
+    );
+    expect(none.specs[0]?.blocks.every((block) => block.state === 'out')).toBe(true);
   });
 });
