@@ -200,5 +200,5 @@ runner. Independent merge audits and the actual reader pilot remain pending in
 
 This bank sits under `pointer/blind` and is registered in the pointer validator as five levels `blind-1` to `blind-5`,
 after the levels of the first bank; its ids carry the prefix `blind/` and its families the prefix `blind-`, and its
-entries carry the provenance label `blind-bank-759`. `pointer/bank/blind.ts` binds the transport vocabulary above to
-the reader port. Only `cut` has a port call today; the items of every other operation fail until the port serves it.
+entries carry the provenance label `blind-bank-759`. `pointer/bank/blind.ts` runs the items through `pointer/sut/blind-binding/`, which binds the transport vocabulary above to the
+reader exports. An operation the reader lacks fails its items with the reason in the detail.
