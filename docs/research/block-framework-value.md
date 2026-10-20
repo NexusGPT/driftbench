@@ -30,6 +30,7 @@ The experiments cost 3.80 USD of a 12 USD cap. The pre-registration was pushed b
 * On `gemini-3.6-flash` both designs are perfect, so the item set does not separate them on the stronger model.
 * Read-first needed its second comparison call in 64% (luna) and 67% (gemini) of judgments. Code alone settles a minority.
 * Contentless values were accepted in 0 of 108 judgments in every cell.
+* The near-miss phones of HF7 were renamed after the data were taken. In the words of the experiment record: "The bank had eight "two digits swapped" phone candidates whose line number (for example `0131` swapped to `1031`) fell outside 0100 to 0199, which the leak guard reads as real numbers." The numbers were changed one to one in the stored judgments (96 places) and in the judge cache (297 places in 240 rows, each cache key recomputed from its renamed inputs). "The recorded model answers are the ones given to the original numbers; the models did not see the new ones." No model was run again, and no figure above changed. The 1 read-first and 6 of the 7 side-by-side false accepts of `gpt-6-luna` are on phones of the two-digit-swap kind, the kind that was renamed.
 
 ## HF8: blame rules as data
 
@@ -50,3 +51,4 @@ The experiments cost 3.80 USD of a 12 USD cap. The pre-registration was pushed b
 * One agent (`claude-haiku-5-5`), 10 blocks, one language. Two labellers in HF5 and two judge models in HF7; one reply classifier (`gpt-6-luna`) in HF8.
 * The hand table was built with a script plus a hand check. The automatic path shares one declared input with it.
 * Two secondary analyses were added after the data. Both sit outside every verdict and are labelled secondary.
+* The eight two-digit-swap phone candidates of HF7 and their cache inputs were renamed after measurement, to stay in the fictional range, without running the models again ("the models did not see the new ones"). The HF7 figures for phones therefore rest on answers given to the original numbers.
