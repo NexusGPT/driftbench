@@ -688,6 +688,52 @@ function hostileItems(module: string): BankItem[] {
 }
 
 /**
+ * R8 (docs/variables.md:426): in the thirty-percent-covered, half-covered and ninety-percent-covered benchmark
+ * cases, seed credit must reduce the new-row count compared with the same unseeded plan. A benchmark case is an
+ * unconstrained space (no impossible pair, no detail). The seeds are the first rows of the unseeded plan, so they
+ * hold a known part of what it covers. On the other stores of this family the clause does not apply:
+ * docs/variables.md:338 says "The array is not minimal" (a greedy plan), so a seeded plan may need as many rows.
+ */
+const BENCHMARK: Shape = { name: 'benchmark', tier: 3, axes: 6, detail: false, rules: [3], forbids: 0 };
+
+function benchmarkItems(module: string): BankItem[] {
+  return [30, 50, 90].map((percent) => ({
+    id: `planner.seeds-reduce-new-rows.${percent}`,
+    family: FAMILY,
+    tier: 3 as Tier,
+    level: LEVEL,
+    component: FILES.groups,
+    cause: `${FILES.groups}: count the tuples a seed holds as covered, so the plan needs fewer new rows`,
+    async check(data: SeedData) {
+      const scenario = draw(data.seed, BENCHMARK);
+      const frame = isolate<{ planV2: PlanFn }>({
+        module,
+        seed: data.seed,
+        tag: `planner:benchmark:${percent}`,
+      });
+      try {
+        const plan = frame.product.planV2;
+        const bare = plan(scenario.store, { seed: 1 });
+        const planned = bare.rows.filter((row) => row.source === 'planned');
+        const seeds = planned
+          .slice(0, Math.max(1, Math.floor((planned.length * percent) / 100)))
+          .map((row, index) => ({ id: `b${index}`, values: row.values }));
+        const seeded = plan(scenario.store, { seed: 1, seeds });
+        const fresh = seeded.rows.filter((row) => row.source === 'planned').length;
+        const divergence = frame.divergence();
+        return verdict(
+          divergence === undefined && fresh < planned.length,
+          divergence ??
+            `${seeds.length} seeds from the first ${percent} percent of ${planned.length} rows: ${fresh} new rows with seeds, ${planned.length} without`,
+        );
+      } finally {
+        frame.close();
+      }
+    },
+  }));
+}
+
+/**
  * The items of the planner v2 family, one per stem and scenario that fits it, and the hostile ones. `module` is
  * the product: the planner's own module unless a test puts a planted fault in its place; `only` keeps the
  * scenarios of those names (a test of a planted fault runs few).
@@ -714,5 +760,5 @@ export function plannerItems(module: string = PLANNER_MODULE, only?: readonly st
       });
     }
   }
-  return [...items, ...hostileItems(module)];
+  return [...items, ...hostileItems(module), ...benchmarkItems(module)];
 }
