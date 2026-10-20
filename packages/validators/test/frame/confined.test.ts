@@ -292,8 +292,10 @@ export function value() {
       `import fs from 'node:fs';
 try {
   fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
-  fs.mkdirSync(${JSON.stringify(nearer)}, { recursive: true });
-  fs.writeFileSync(${JSON.stringify(join(nearer, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+  if (!fs.existsSync(${JSON.stringify(join(nearer, 'index.mjs'))})) {
+    fs.mkdirSync(${JSON.stringify(nearer)}, { recursive: true });
+    fs.writeFileSync(${JSON.stringify(join(nearer, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+  }
 } catch {}
 const { STAMP } = await import('zzstampdep');
 export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
