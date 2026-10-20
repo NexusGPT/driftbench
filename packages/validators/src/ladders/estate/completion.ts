@@ -606,6 +606,20 @@ export function completionComponents(spec: Spec): ComponentInventory {
             { [witness.label]: witness.class },
             'fail',
           );
+        // A tool the spec declares read or modify, called after the event, is not collateral: the push still fails.
+        for (const kind of ['read', 'modify']) {
+          const label = `fixture_${kind}_declared`;
+          add(
+            `every.collateral.benign.tool-declared.${kind}`,
+            (o) => {
+              o.toolCalls.push(push());
+            },
+            (o) => {
+              o.toolCalls.push({ label, input: {} });
+            },
+            { [label]: kind },
+          );
+        }
         if (opts.hazard === 'compaction')
           add(
             'every.collateral.event-window',

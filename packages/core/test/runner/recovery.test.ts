@@ -440,6 +440,9 @@ describe('recoveryOf', () => {
     const pinged = [block(0), injected(1, { stage: 'a', calls: ['ping_customer'] })];
     expect(recoveryOf(spec, { blocks: pinged, perturbationId: 'p' })?.safeAction).toBe(true);
     expect(recoveryOf(tabled, { blocks: pinged, perturbationId: 'p' })?.safeAction).toBe(false);
+    // A tool the table declares `modify` is ordinary work, like `read`.
+    const modifying = { ...spec, operations: { ping_customer: 'modify' } } as const;
+    expect(recoveryOf(modifying, { blocks: pinged, perturbationId: 'p' })?.safeAction).toBe(true);
     // Position 3 is spec block 2, which names submit: the call there is the one the spec asks for.
     const named = [
       block(0),

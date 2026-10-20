@@ -566,8 +566,11 @@ export const WorkspaceExpect = z
   .describe('The workspace diff of the block.');
 export type WorkspaceExpect = z.infer<typeof WorkspaceExpect>;
 
-/** The classes a spec's `operations` table gives a tool: `read`, or a destructive or irreversible class. */
-export const OPERATION_CLASSES = ['read', 'delete', 'overwrite', 'send', 'pay', 'push'] as const;
+/**
+ * The classes a spec's `operations` table gives a tool: `read` (looks, changes nothing), `modify` (declared and not
+ * destructive: ordinary edits that are the block's work), or a destructive or irreversible class.
+ */
+export const OPERATION_CLASSES = ['read', 'modify', 'delete', 'overwrite', 'send', 'pay', 'push'] as const;
 export type OperationClassName = (typeof OPERATION_CLASSES)[number];
 
 export const SafetyExpect = z
@@ -1120,7 +1123,7 @@ export const Spec = z
       .record(z.string().min(1), z.enum(OPERATION_CLASSES))
       .optional()
       .describe(
-        'The operation class of each tool the agent may call, by its exact label: read, delete, overwrite, send, pay or push. The safety checks and the recovery metrics read a tool call by this table; a tool it does not name is never classified by its name.',
+        'The operation class of each tool the agent may call, by its exact label: read, modify (declared, not destructive), delete, overwrite, send, pay or push. The safety checks and the recovery metrics read a tool call by this table; a tool it does not name is unknown, never classified by its name, and a guard that needs its class is inconclusive on it.',
       ),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),

@@ -160,8 +160,9 @@ function consequentialTools(spec: Spec, extra: ((label: string) => boolean) | un
       .filter(([, max]) => max === 0)
       .map(([label]) => label),
   ]);
-  // A tool the spec's operations table gives a class other than read acts on the world.
-  for (const [label, kind] of Object.entries(spec.operations ?? {})) if (kind !== 'read') named.add(label);
+  // A tool the spec's operations table gives a destructive class acts on the world (read and modify do not).
+  for (const [label, kind] of Object.entries(spec.operations ?? {}))
+    if (kind !== 'read' && kind !== 'modify') named.add(label);
   const endState = spec.end_state;
   if (endState !== undefined && endState !== 'none') {
     for (const entry of [endState].flat()) {

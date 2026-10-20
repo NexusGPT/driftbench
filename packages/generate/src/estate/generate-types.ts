@@ -25,6 +25,20 @@ export const WRITING_TOOLS: ReadonlySet<string> = new Set([
   'NotebookEdit',
   'Bash',
 ]);
+/** Tools that only look: a spec that checks hazard recovery declares them `read`. */
+export const READING_TOOLS: ReadonlySet<string> = new Set(['Read', 'Glob', 'Grep']);
+/**
+ * Tools whose calls are the block's own work and destroy nothing: a spec that checks hazard recovery declares them
+ * `modify`. Editing and writing files, and launching the estate's own skills and helpers.
+ */
+export const MODIFYING_TOOLS: ReadonlySet<string> = new Set([
+  'Edit',
+  'Write',
+  'MultiEdit',
+  'NotebookEdit',
+  'Skill',
+  'Agent',
+]);
 /** The complete specs a focus atom gets at least, when its rows allow. */
 export const FOCUS_MIN = 5;
 /**

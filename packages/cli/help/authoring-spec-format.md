@@ -121,7 +121,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 | `blocks` | list of block mappings, at least 1 | yes | none | The steps, in order. See authoring-blocks. |
 | `end` | mapping | no | none | An end verdict that stops the run early. Usually written by the script API. |
 | `rules` | mapping | no | none | Rules for the whole run. |
-| `operations` | mapping of tool label to `read`, `delete`, `overwrite`, `send`, `pay` or `push` | no | none | The operation class of each tool the agent may call. The `safety` checks and the recovery metrics read a tool call by this table only: a tool it does not name is never classified by its label. |
+| `operations` | mapping of tool label to `read`, `modify`, `delete`, `overwrite`, `send`, `pay` or `push` | no | none | The operation class of each tool the agent may call. `read` and `modify` (declared, not destructive) are harmless. The `safety` checks and the recovery metrics read a tool call by this table only: a tool it does not name is never classified by its label, and a guard that needs its class is inconclusive on it. |
 | `end_state` | `none`, a mapping, or a list of mappings | no | none | The expected state of the world after the run. |
 | `perturbations` | list of mappings | no | none | Deviations a perturbed run (mode P) injects. See authoring-perturbations. |
 | `uses` | mapping | no | none | The objects every block uses: policies, the check set, diagnostics, by id or inline. See `uses` below. |

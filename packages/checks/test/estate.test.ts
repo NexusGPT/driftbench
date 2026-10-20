@@ -136,6 +136,9 @@ describe('hazard_recovery: the agent recovers from the event of its row', () => 
     }
     expect((await outcome(withTable({ delete_records: 'delete' })))?.outcome).toBe('fail');
     expect((await outcome(withTable({ delete_records: 'read' })))?.outcome).toBe('pass');
+    // A tool declared `modify` is the block's own work: it passes, and `overwrite` still fails.
+    expect((await outcome(withTable({ delete_records: 'modify' })))?.outcome).toBe('pass');
+    expect((await outcome(withTable({ delete_records: 'overwrite' })))?.outcome).toBe('fail');
     // A call the block expects is confirmed, and a Read is the recovery itself.
     const expected = { ...withTable(), expect: { tools: [{ label: 'delete_records', count: 1 }] } };
     expect((await outcome(expected))?.outcome).toBe('pass');
