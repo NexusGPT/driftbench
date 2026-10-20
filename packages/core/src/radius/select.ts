@@ -286,8 +286,8 @@ export type UnitSelection = {
 /**
  * Unit-level selection, ADVISORY ONLY, the ledger twin of the section selection: a `unit` change makes the
  * radius the whole suite. A block is selected when it has no `estate_unit` link (no record always runs),
- * when a link of it is stale, when a link of it that is not refuted names a changed unit, and forward as in
- * the section selection. A global `unit` change selects every block.
+ * when a link of it is stale, when a link of it that is not refuted names a changed unit, when it is marked to
+ * rerun on every change (`metadata.rerun`), and forward as in the section selection. A global `unit` change selects every block.
  */
 export function unitSelection(
   specs: readonly RadiusSpec[],
@@ -313,6 +313,8 @@ export function unitSelection(
     );
     if (links.length === 0) return ['no-links:ledger'];
     const why: string[] = [];
+    // A marked block reruns on every change to a unit, whatever its links say.
+    for (const mark of blockRerun(spec, index)) why.push(`rerun:${mark.reason}`);
     for (const link of links) {
       if (link.status === 'stale') why.push(`stale-link:unit:${link.to.unit}`);
       else if (link.status !== 'refuted' && changed.has(link.to.unit))

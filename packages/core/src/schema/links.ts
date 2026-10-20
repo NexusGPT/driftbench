@@ -50,20 +50,6 @@ export const SourceTurnTarget = z
   })
   .describe('A turn of a past conversation the block was derived from or observed in.');
 
-export const EstateUnitTarget = z
-  .strictObject({
-    kind: z.literal('estate_unit'),
-    unit: z.string().min(1).describe('The unit id in the estate ledger.'),
-    fp: z
-      .string()
-      .min(1)
-      .optional()
-      .describe('The fingerprint of the unit when the link was made or last accepted.'),
-  })
-  .describe(
-    'A unit of an estate prose file, by its persistent id in the ledger (`estate scan --pointer --ledger`).',
-  );
-
 export const RuleTarget = z
   .strictObject({
     kind: z.literal('rule'),
@@ -95,14 +81,27 @@ export const PlanRowTarget = z
       .describe("The values of the row's cell, by variable, with the values the block adds."),
   })
   .describe('The row of a plan a generator wrote the block for, with its values.');
+export const EstateUnitTarget = z
+  .strictObject({
+    kind: z.literal('estate_unit'),
+    unit: z.string().min(1).describe('The unit id in the estate ledger.'),
+    fp: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The fingerprint of the unit when the link was made or last accepted.'),
+  })
+  .describe(
+    'A unit of an estate prose file, by its persistent id in the ledger (`estate scan --pointer --ledger`).',
+  );
 
 export const LinkTarget = z.discriminatedUnion('kind', [
   PromptSectionTarget,
   SpecClauseTarget,
   SourceTurnTarget,
-  EstateUnitTarget,
   RuleTarget,
   PlanRowTarget,
+  EstateUnitTarget,
 ]);
 export type LinkTarget = z.infer<typeof LinkTarget>;
 
