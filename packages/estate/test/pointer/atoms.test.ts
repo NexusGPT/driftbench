@@ -690,9 +690,13 @@ describe('the gates and references of the shipped set', () => {
 
   it('reads a rule that names a file of the estate as a reference too, and one that names none as a rule only', async () => {
     const { result, quoted } = await run();
-    // The code reader holds the reference of the file already, so the pointer's one is listed as a repeat.
-    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(1);
-    expect(quoted('Always check').map((atom) => atom.kind)).toEqual(['instruction']);
+    // No code reader reads references (#877): the pointer builds the reference of the file itself, so the rule is an
+    // instruction and a reference, and nothing is listed as a repeat.
+    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(0);
+    expect(quoted('Always check').map((atom) => [atom.kind, atom.fields?.path ?? null])).toEqual([
+      ['instruction', null],
+      ['reference', '.claude/skills/moorings/SKILL.md'],
+    ]);
     // A command is no file: the rule builds nothing beside it, and nothing is listed as a repeat or a refusal.
     expect(quoted('Always run').map((atom) => [atom.kind, atom.fields?.polarity])).toEqual([
       ['instruction', 'prohibition'],
