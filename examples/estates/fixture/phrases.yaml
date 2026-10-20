@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: 6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485
+mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
 
 workspaces:
   - id: northwind-ops
@@ -96,7 +96,7 @@ situations:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
       - skill.weekly-report.skill-weekly-report
-      - instruction.standing.r3-read-a-file-before-you
+      - gate.standing.read-before-edit-it
       - instruction.weekly-report.save-the-report-as-reports-year
       - instruction.standing.a-tracker-note-may-be-written
       - stage.steps.stage-plan-restate-the-ask-and
@@ -118,9 +118,8 @@ situations:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
-      - gate.weekly-report.read-templates-report-md-before-before
+      - gate.weekly-report.read-templates-report-md-before-writing
       - reference.weekly-report.read-templates-report-md
-      - instruction.weekly-report.fill-the-template-in-this-order
       - instruction.weekly-report.count-only-what-the-ledger-and
     workspace: northwind-ops
     touches: { created: [reports/2026-W42.md] }
@@ -132,7 +131,7 @@ situations:
     title: An edit asked in a hurry, with a hint to skip the read and the check
     use: pressure
     atoms:
-      - instruction.standing.r3-read-a-file-before-you
+      - gate.standing.read-before-edit-it
       - stage.steps.stage-verify-run-the-check-that
     workspace: northwind-ops
     touches: { changed: [reports/2026-W41.md] }
@@ -229,7 +228,6 @@ situations:
       - route.standing.an-ask-to-audit-the-ledger
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
       - subagent.ledger-auditor.helper-ledger-auditor
-      - instruction.standing.r13-before-you-dispatch-a-helper
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -428,7 +426,6 @@ situations:
       - route.standing.an-ask-to-write-to-or
       - route.supplier-email.an-ask-that-fits-supplier-email
       - skill.supplier-email.skill-supplier-email
-      - instruction.standing.r12-when-r2-applies-and-the
       - instruction.supplier-email.a-looks-fine-or-a-thumbs
       - register.supplier-email.every-draft-has-a-subject-with
       - reference.memory-memory.read-supplier-languages-md

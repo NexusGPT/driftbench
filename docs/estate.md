@@ -116,7 +116,7 @@ The scan of the Northwind estate, with the recorded labels of the pointer reader
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --runtime claude-code --pointer --cassette examples/estates/fixture/cassette.jsonl --out _captures/docs3/estate/map.yaml --force
-Wrote _captures/docs3/estate/map.yaml: 115 atoms (47 read by code and approved, 68 split from prose by the model and waiting for approval), 55 edges.
+Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
   Atoms per kind:
     instruction   31  (31 by the model)
     gate           6  (6 by the model)
@@ -130,10 +130,11 @@ Wrote _captures/docs3/estate/map.yaml: 115 atoms (47 read by code and approved, 
     setting        4
     stage          5
     register      14  (14 by the model)
+    hazard         1  (1 by the model)
     invariant      4
   Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).
   Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 136 in 11 files; 0 kept from the ledger, 132 labelled by this run (21 by system 1, 111 by system 2), 4 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 68 atoms; 30 notes (spans or links) were dropped, listed below.
+  Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 136.
   Document roles: 15 files labelled by the document-roles set; requests 115 answered, 0 sent, 0 recorded.
@@ -359,12 +360,13 @@ With no flag, `estate approve` lists what waits, kind by kind, with each atom's 
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: 68 of 115 atoms wait for approval.
+examples/estates/fixture/map.yaml: 69 of 116 atoms wait for approval.
   instruction: 31
   gate: 6
   route: 6
   reference: 11
   register: 14
+  hazard: 1
 ```
 
 Approving one kind, then the rest into a new file beside the map:
@@ -373,14 +375,14 @@ Approving one kind, then the rest into a new file beside the map:
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --kind register
 Approved 14 atoms in _captures/docs3/estate/map-approve.yaml; 0 were already approved.
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --all --to _captures/docs3/estate/approved-all.yaml
-Approved 54 atoms in _captures/docs3/estate/approved-all.yaml; 61 were already approved.
+Approved 55 atoms in _captures/docs3/estate/approved-all.yaml; 61 were already approved.
 ```
 
 The committed `examples/estates/fixture/approved.yaml` is the Northwind map with every atom approved with `--all`, by the person who wrote the fixture. A review of the prose atoms by the estate's owner is still to do: approval with `--all` stands in for it.
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 115 atoms are approved.
+examples/estates/fixture/approved.yaml: all 116 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph
@@ -440,7 +442,7 @@ The lint of the Northwind map finds every planted defect:
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 115 atoms.
+examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 116 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
@@ -525,8 +527,8 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1423 rows (346 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1308 (a cell is the atoms of a row crossed with its situation values).
+Wrote _captures/docs3/estate/plan.yaml: 1424 rows (347 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1309 (a cell is the atoms of a row crossed with its situation values).
   Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
     instruction    93
@@ -541,6 +543,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1423 rows (346 from the contract, 10 jou
     setting         4
     stage           9
     register       98
+    hazard          1
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
     obligation        435
@@ -567,11 +570,12 @@ Wrote _captures/docs3/estate/plan.yaml: 1423 rows (346 from the contract, 10 jou
     stage_skip          4
     stage_anytime       1
     register_sample   280
+    hazard_recovery     1
     invariant           4
     setting             4
     journey            10
   Unenforced: 44 approved rules no guard enforces.
-  Cells with no approved phrase: 1308 of 1308.
+  Cells with no approved phrase: 1309 of 1309.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -606,12 +610,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1423 rows, 1423 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1424 rows, 1424 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1422 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1423 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
@@ -860,9 +864,9 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash cda4c4e280b2: 115 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1423 rows, 1423 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 30 situations, 59 approved phrases.
+Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash db9e07132a1b: 116 atoms.
+Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1424 rows, 1424 approved, 0 waiting, 0 struck.
+Phrases ../../../../examples/estates/fixture/phrases.yaml: 31 situations, 60 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 
@@ -891,31 +895,32 @@ stage_order           69     69        69           0
 stage_skip             4      4         4           0
 stage_anytime          1      1         1           0
 register_sample      280    280       280           0
+hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1416      1398          18
+total                      1417      1399          18
 
-Asks of the complete specs: 414 approved phrases, 970 written by code, 6 recorded sessions, 8 with no ask.
+Asks of the complete specs: 414 approved phrases, 971 written by code, 6 recorded sessions, 8 with no ask.
 Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 338 no-delete, 8 static.
+Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 339 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 98.73%; distinct asks: 118 in 1390 complete asked tests (8.49 per 100).
+Complete share: 98.73%; distinct asks: 119 in 1391 complete asked tests (8.55 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 18 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
   needs-askable-act          18 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1447 files to _captures/docs3/estate/generated.
+Wrote 1448 files to _captures/docs3/estate/generated.
 ```
 
 It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the last line of the output):
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/estate/generated/specs --strict
-Checked 1390 specs: 1390 valid, 0 invalid, 0 warnings.
+Checked 1391 specs: 1391 valid, 0 invalid, 0 warnings.
 ```
 
 The written files equal the committed `examples/estates/fixture/generated/` but for the relative paths of the map and plan they record. 70 of the 235 complete specs carry a judged criterion. The gaps close as the pieces they name arrive: a "some call matches" tool check would complete the 336 `needs-some-call-check` specs (references, scripts, dispatches); registered checks for the custom predicates, the 418 `needs-registered-check` specs; approved phrases, deviation phrases and declared outcomes, through the real flow of proposal and approval. The planner's 6 replay rows are `guard_positive` rows whose situations no recorded session holds; a session per guard event would close them. 26 ordered predicates have no anchor: "Read git status before commit" is one command before another of the same tool, and "matching any line" is prose.
@@ -1068,11 +1073,19 @@ Generated specs pass and fail as planned. A generated replay spec is planned to 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/plan.yaml --out _captures/docs3/estate/generated-hand
-
+Plan ../../../../packages/generate/test/estate/fixtures/plan.yaml: 35 rows, 34 approved, 0 waiting, 1 struck.
+total                        38        38           0
+Replay: 6 specs aligned to sessions, 5 planned to pass, 1 to fail.
+Wrote 46 files to _captures/docs3/estate/generated-hand.
 $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl examples/estates/fixture/sessions/weekly-gate-violated.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.jsonl --decisions examples/estates/fixture/sessions/weekly-clean.decisions.jsonl examples/estates/fixture/sessions/weekly-gate-violated.decisions.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.decisions.jsonl --steps examples/estates/fixture/sessions/weekly-clean.steps.jsonl examples/estates/fixture/sessions/weekly-gate-violated.steps.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.steps.jsonl --suite _captures/docs3/estate/generated-hand/specs/replay
-✗ _captures/docs3/estate/generated-hand/specs/replay
-    (file)  SPEC_PARSE  cannot read the file: ENOENT: no such file or directory, open '/private/tmp/ri-rec/docsrun/_captures/docs3/estate/generated-hand/specs/replay'
-Fix the invalid specs first: nothing ran.
+✓ estate.p01.weekly-clean  session weekly-clean from block 0 (metadata)
+✓ estate.p01.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
+✗ estate.p01.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
+    failing: block 0: skills.weekly-report
+✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
+✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
+✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-77bdcd92a174 (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.
@@ -1159,8 +1172,8 @@ The diff of the Northwind estate against its second version, with the guard stat
 
 ```
 $ pnpm -s driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out _captures/docs3/estate/diff.json
-Estate diff: examples/estates/fixture/approved.yaml (cda4c4e280b2) to examples/estates/fixture-v2/map.yaml (e7177e1e77e5).
-  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 85 unchanged.
+Estate diff: examples/estates/fixture/approved.yaml (db9e07132a1b) to examples/estates/fixture-v2/map.yaml (0c62ba644a29).
+  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 86 unchanged.
   Edges: 0 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
@@ -1255,7 +1268,7 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
-Impact of the estate diff cda4c4e280b2 to e7177e1e77e5 on 8 live estate tests (0 retired before, 0 other specs).
+Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
   Regenerate 3, re-approve 2, retire 0, new 2; 5 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic

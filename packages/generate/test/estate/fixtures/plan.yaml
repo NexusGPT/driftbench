@@ -3,7 +3,7 @@
 # every row approved but one struck. The summary counts the rows below; no covering array was computed.
 # Fictional data only.
 version: 1
-mapHash: 6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485
+mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
 rows:
   - id: p01
     atomIds:
@@ -149,7 +149,7 @@ rows:
     weight: 1
   - id: p13
     atomIds:
-      - instruction.standing.r3-read-a-file-before-you
+      - gate.standing.read-before-edit-it
     cell:
       ask_class: operate
       ask_shape: prescribed
@@ -433,7 +433,7 @@ rows:
     atomIds:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
-      - gate.weekly-report.read-templates-report-md-before-before
+      - gate.weekly-report.read-templates-report-md-before-writing
       - reference.weekly-report.read-templates-report-md
     cell:
       ask_class: build

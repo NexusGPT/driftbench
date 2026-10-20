@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485",
-    "new": "c7c7969dbbbbea2166fbcbbc9b7e5e85475dbbe730372ba870f436ae1db62bf9"
+    "old": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
+    "new": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260"
   },
   "tests": {
     "live": 8,
@@ -10,16 +10,6 @@
     "other": 0
   },
   "regenerate": [
-    {
-      "test": "northwind-draft-pair",
-      "file": "draft-pair.yaml",
-      "atoms": [
-        {
-          "atom": "instruction.standing.r12-when-r2-applies-and-the",
-          "why": "semantic"
-        }
-      ]
-    },
     {
       "test": "northwind-late-shipment",
       "file": "late-shipment.yaml",
@@ -49,16 +39,6 @@
           "why": "semantic"
         }
       ]
-    },
-    {
-      "test": "northwind-unsent-draft",
-      "file": "unsent-draft.yaml",
-      "atoms": [
-        {
-          "atom": "instruction.standing.r12-when-r2-applies-and-the",
-          "why": "semantic"
-        }
-      ]
     }
   ],
   "reapprove": [
@@ -75,17 +55,17 @@
       "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
       "quote": "plan the delivery routes for the next two days | the `route-planner` agent",
       "tests": ["northwind-route-planner"]
-    },
-    {
-      "atom": "instruction.standing.r12-when-r2-applies-and-the",
-      "kind": "instruction",
-      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
-      "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
-      "tests": ["northwind-draft-pair", "northwind-unsent-draft"]
     }
   ],
   "retire": [],
   "new": [
+    {
+      "atom": "register.weekly-report.fill-the-template-in-this-order",
+      "kind": "register",
+      "title": "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…",
+      "file": ".claude/skills/weekly-report/SKILL.md",
+      "line": 11
+    },
     {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
       "kind": "instruction",
@@ -105,13 +85,13 @@
     }
   ],
   "unaffected": {
-    "moved": 23,
-    "tests": 3
+    "moved": 25,
+    "tests": 5
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "re-approve instruction.standing.r12-when-r2-applies-and-the: its meaning changed; 2 tests wait",
+    "approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet"
   ]
 }

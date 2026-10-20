@@ -4,7 +4,7 @@
   "testType": "guard_positive",
   "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
   "title": "PostToolUse Bash guard ledger-guard.py",
-  "mapHash": "6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485",
+  "mapHash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
   "target": {
     "kind": "guard",
     "name": "ledger-guard.py",

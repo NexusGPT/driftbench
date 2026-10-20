@@ -1,26 +1,27 @@
-Estate diff: examples/estates/fixture/approved.yaml (6197cb823bdd) to examples/estates/fixture-v2/map.yaml (c7c7969dbbbb).
-  Atoms: 1 added, 0 removed, 3 changed (0 white space only, 3 semantic), 23 moved with the same quote, 2 restated, 100 unchanged.
-  Edges: 1 added, 0 removed.
+Estate diff: examples/estates/fixture/approved.yaml (db9e07132a1b) to examples/estates/fixture-v2/map.yaml (0c62ba644a29).
+  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 86 unchanged.
+  Edges: 0 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
+  + register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
+Changed, white space only:
+  ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
-      also: title
+      also: title, situation, fields
   ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
       was: plan the delivery routes for tomorrow | the `route-planner` agent
       now: plan the delivery routes for the next two days | the `route-planner` agent
       also: title, situation, fields
-  ~ instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:27, now instruction.standing.r19-when-r18-applies-and-the
-      was: **R12.** When R2 applies and the user has not answered, keep the draft and do not send it.
-      now: **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
-      also: title
 Moved, same quote:
-  > instruction.standing.r3-read-a-file-before-you CLAUDE.md:11 to 12
+  > gate.standing.read-before-edit-it CLAUDE.md:11 to 12
   > instruction.standing.r4-never-delete-a-file-under CLAUDE.md:12 to 13
+  > gate.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
+  > reference.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
   > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
   > register.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
@@ -43,8 +44,7 @@ Moved, same quote:
   > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
   > reference.standing.read-claude-memory-memory-md CLAUDE.md:50 to 52
 Restated, same quote:
-  * instruction.standing.r11-never-paste-the-contents-of: evidence, fields
+  * instruction.standing.r8-do-not-invent-order-numbers: situation, evidence, fields
+  * instruction.standing.r17-report-a-number-only-when: situation, fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
-Edges added:
-  + instruction.standing.r19-when-r18-applies-and-the cites instruction.standing.r18-never-approve-a-credit-note
 Wrote examples/estates/fixture-v2/maintain/diff.json.

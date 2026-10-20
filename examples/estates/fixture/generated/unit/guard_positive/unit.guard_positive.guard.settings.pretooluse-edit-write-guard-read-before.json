@@ -1,0 +1,41 @@
+{
+  "id": "unit.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
+  "planRow": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
+  "testType": "guard_positive",
+  "atom": "guard.settings.pretooluse-edit-write-guard-read-before",
+  "title": "PreToolUse Edit|Write guard read-before-edit.py",
+  "mapHash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
+  "target": {
+    "kind": "guard",
+    "name": "read-before-edit.py",
+    "event": "PreToolUse",
+    "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/read-before-edit.py",
+    "matcher": "Edit|Write",
+    "timeout": 5
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "tool_name": "Edit",
+        "tool_input": {
+          "file_path": ".claude/skills/invoice-reconcile/references/matching-rules.md",
+          "old_string": "a",
+          "new_string": "b"
+        }
+      },
+      "material": ".claude/skills/invoice-reconcile/references/matching-rules.md"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "tool_name": "Write",
+        "tool_input": {
+          "file_path": ".claude/skills/invoice-reconcile/references/matching-rules.md",
+          "content": "x"
+        }
+      },
+      "material": ".claude/skills/invoice-reconcile/references/matching-rules.md"
+    }
+  ]
+}

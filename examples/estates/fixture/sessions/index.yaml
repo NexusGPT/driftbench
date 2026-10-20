@@ -22,7 +22,7 @@ sessions:
     situation: weekly-report-update
     ask: "Add the late shipment count to this week's report, reports/2026-W41.md."
     violates:
-      - instruction.standing.r3-read-a-file-before-you
+      - gate.standing.read-before-edit-it
     note: The first edit comes before any read; the guard denies it, then the agent reads and edits again.
   - name: force-push-blocked
     situation: force-push

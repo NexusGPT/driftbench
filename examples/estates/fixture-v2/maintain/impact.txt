@@ -1,25 +1,21 @@
-Impact of the estate diff 6197cb823bdd to c7c7969dbbbb on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 5, re-approve 3, retire 0, new 1; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 3, re-approve 2, retire 0, new 2; 5 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
-  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
 Re-approve, the meaning changed:
   instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
   route.standing.an-ask-to-plan-the-delivery (route): plan the delivery routes for the next two days | the `route-planner` agent
       tests: northwind-route-planner
-  instruction.standing.r12-when-r2-applies-and-the (instruction): **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
-      tests: northwind-draft-pair, northwind-unsent-draft
 New atoms with no test:
+  register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
 Needs a person: 4.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
-  - re-approve instruction.standing.r12-when-r2-applies-and-the: its meaning changed; 2 tests wait
+  - approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
-Wrote examples/estates/fixture-v2/maintain/impact.json.
