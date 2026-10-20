@@ -5331,13 +5331,13 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1201,
-        "comparisons": 2402,
+        "inputs": 2033,
+        "comparisons": 4066,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "cc137a020068424d212fcabc5f9aa8257cef398dff89efde5ed9c35534b34b79",
+        "inputDigest": "85b12b477af0dc0bdcf3f8b5bc80f6fb63b2eb0e46d30c3054749d25ffebe587",
         "differences": []
       }
     },
@@ -14129,13 +14129,13 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1201,
-        "comparisons": 2402,
+        "inputs": 2033,
+        "comparisons": 4066,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "588a77967a5f0e94711ee6b28f62d3795708ff2ee3298ccd7c1c827c0e3a2cf6",
+        "inputDigest": "0363c45a105d9e6971c481ad187798194a7278a052234680fe39711e3e63b21b",
         "differences": []
       }
     },
@@ -23139,13 +23139,13 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1201,
-        "comparisons": 2402,
+        "inputs": 2033,
+        "comparisons": 4066,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "9e8eb97d97d9829547b020bce2eb3d7d664328cd2f3d1868b27cb5a87c23badd",
+        "inputDigest": "9c6a9e46443ce54367c7448b0d0935e369640b0aeac04c201449d92e824f3371",
         "differences": []
       }
     },
@@ -31756,13 +31756,13 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1201,
-        "comparisons": 2402,
+        "inputs": 2033,
+        "comparisons": 4066,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "68160f91cef476ca924839290858e1e77d570fcac19ee8eb12813d74305c9794",
+        "inputDigest": "6e349dd9bba9c1e9a4fd386eea9590bed3339f1b760bd4b0ad0e151b9c713b3d",
         "differences": []
       }
     },

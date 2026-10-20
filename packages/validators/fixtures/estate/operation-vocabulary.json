@@ -1,7 +1,7 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "137e440a48138c27cd80188c8e6af3987f07988d5e2da2161ad6100e13bde3ca"
+    "sha256": "6347a797515d19c4f5bdf9b42b36ff70f5bc6728ba6ce216b7659d2bd42f1092"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolClasses": ["delete", "overwrite", "send", "pay", "push"],
