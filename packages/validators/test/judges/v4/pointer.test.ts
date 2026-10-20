@@ -754,3 +754,65 @@ describe('the child of a built package', () => {
     expect(built.slice(-2)).toEqual(['1', ROOT]);
   });
 });
+
+// The gold-set item judges the stack on its labels, its deciders and its kappa. Each part is planted alone, so
+// removing one comparison from the item turns exactly one of these red.
+describe('the gold-set item fails each part alone', () => {
+  const goldItem = bank.find((i) => i.id === 'pointer/gold-set/gold-set') as PointerItem;
+  const withExpect = (change: (expect: Record<string, any>) => void): typeof fixtures => {
+    const copy = structuredClone(fixtures) as typeof fixtures;
+    for (const c of copy['stack.goldset'] ?? []) change(c.expect);
+    return copy;
+  };
+  const misses = async (impl: PointerImpl, which: typeof fixtures) =>
+    goldItem.run(impl, which, 1, ROOT);
+
+  it('passes on the shipped stack and the true table', async () => {
+    expect(await misses(await loadPointerImpl(), fixtures)).toEqual([]);
+  });
+
+  it('fails a table whose labels differ and whose deciders and kappa are right', async () => {
+    const got = await misses(
+      await loadPointerImpl(),
+      withExpect((e) => {
+        e.labels = [e.labels[1], ...e.labels.slice(1)];
+      }),
+    );
+    expect(got.some((m) => m.startsWith('labels '))).toBe(true);
+    expect(got.some((m) => m.startsWith('deciders '))).toBe(false);
+    expect(got.some((m) => m.startsWith('kappa '))).toBe(false);
+  });
+
+  it('fails a table whose kappa differs and whose labels and deciders are right', async () => {
+    const got = await misses(
+      await loadPointerImpl(),
+      withExpect((e) => {
+        e.kappa = e.kappa - 0.125;
+      }),
+    );
+    expect(got.some((m) => m.startsWith('kappa '))).toBe(true);
+    expect(got.some((m) => m.startsWith('labels '))).toBe(false);
+    expect(got.some((m) => m.startsWith('deciders '))).toBe(false);
+  });
+
+  it('fails a stack that returns a wrong label for one gold unit', async () => {
+    const shipped = await loadPointerImpl();
+    const planted = {
+      ...shipped,
+      stackedLabelling: (...args: Parameters<PointerImpl['stackedLabelling']>) => {
+        const real = shipped.stackedLabelling(...args);
+        let seen = 0;
+        return {
+          ...real,
+          decide: (...a: Parameters<typeof real.decide>) => {
+            const d = real.decide(...a);
+            seen++;
+            return seen === 7 && d ? { ...d, label: d.label === 'none' ? 'price-claim' : 'none' } : d;
+          },
+        };
+      },
+    } as PointerImpl;
+    const got = await misses(planted, fixtures);
+    expect(got.some((m) => m.startsWith('labels '))).toBe(true);
+  });
+});
