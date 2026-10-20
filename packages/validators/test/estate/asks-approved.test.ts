@@ -64,7 +64,8 @@ describe('gen.asks.asks-approved', { timeout: 300_000 }, () => {
     // Only the ask changes: the row, plan row, atoms, test type and tag, the disclosure and its source stay.
     const specs = structuredClone(run.specs);
     const target = specs.find((spec) => spec.loaded?.spec.id === 'estate.pairwise.033');
-    const block = (target?.loaded?.spec as unknown as Loaded).blocks[0];
+    if (!target?.loaded) throw new Error('no spec estate.pairwise.033 in the copy');
+    const block = (target.loaded.spec as unknown as Loaded).blocks[0];
     if (!block?.when) throw new Error('no ask on block 0');
     block.when.user = 'Please please.';
     const out = await verdict(1, { ...run, specs });
