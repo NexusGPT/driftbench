@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import {
   allFailingItems,
@@ -30,6 +30,7 @@ import {
   ladderVersion,
   loopFolder,
   measureHardness,
+  mergeSeedRuns,
   PROTECTED_PATHS,
   parseSeeds,
   protectedChanges,
@@ -40,6 +41,8 @@ import {
   registeredLadders,
   researchFile,
   researchTemplate,
+  type SeedRun,
+  seedLabel,
   seedSpecs,
   setLevelTable,
   writeFloors,
@@ -99,6 +102,13 @@ export async function validateCommand(
     );
     return USAGE_EXIT;
   }
+  if (
+    options.levels !== undefined &&
+    (options.brief || options.journal !== undefined || options.checkHandover || options.hardness)
+  ) {
+    io.err('--levels goes with a run, not with --brief, --journal, --check-handover or --hardness.\n');
+    return USAGE_EXIT;
+  }
   if (options.fresh && !options.brief) {
     io.err('--fresh goes with --brief.\n');
     return USAGE_EXIT;
@@ -112,21 +122,48 @@ export async function validateCommand(
     return journalCommand(chosen[0] as Ladder, options.journal, floors, root, io);
   }
   if (options.checkHandover) return handoverCheckCommand(chosen, root, io);
-  const visible = parseSeeds(options);
+  if (options.reports !== undefined) return reportsCommand(chosen, ladders, floors, options, deps, root, io);
+  if (options.hiddenOnly && !options.hidden) {
+    io.err('--hidden-only goes with --hidden.\n');
+    return USAGE_EXIT;
+  }
+  if (options.hiddenOnly && (options.seed !== undefined || options.seeds !== undefined)) {
+    io.err('--hidden-only runs the hidden seed alone: leave out --seed and --seeds.\n');
+    return USAGE_EXIT;
+  }
+  const visible = options.hiddenOnly ? [] : parseSeeds(options);
   if (typeof visible === 'string') {
     io.err(`${visible}\n`);
     return USAGE_EXIT;
   }
   const hidden = options.hidden ? hiddenSeed(root, deps.readHead) : undefined;
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
+  const slice = options.levels === undefined ? undefined : parseSlice(options.levels);
+  if (typeof slice === 'string') {
+    io.err(`${slice}\n`);
+    return USAGE_EXIT;
+  }
+  if (slice && (component === 'all' || slice.to > (chosen[0] as Ladder).levels.length)) {
+    io.err(
+      component === 'all'
+        ? '--levels takes one component, not all.\n'
+        : `--levels ${options.levels} is above the top of ${component} (${(chosen[0] as Ladder).levels.length}).\n`,
+    );
+    return USAGE_EXIT;
+  }
   const reports: LadderReport[] = [];
   const measure = async () => {
     for (const ladder of chosen) {
       const floor = options.checkFloor ? floorOf(floors, ladder.component, ladderVersion(ladder)) : 0;
+      // Invalid floors keep the existing checkFloors diagnostic instead of throwing in runLadder.
+      const through = floor > 0 && floor <= ladder.levels.length ? floor : undefined;
       const report = await measuredSeeds(ladder, seedSpecs(visible, hidden), root, {
-        full: Boolean(options.items || options.allLevels),
-        // Invalid floors keep the existing checkFloors diagnostic instead of throwing in runLadder.
-        ...(floor > 0 && floor <= ladder.levels.length ? { maxLevel: floor } : {}),
+        full: Boolean(options.items || options.allLevels || slice),
+        ...(slice
+          ? { fromLevel: slice.from, maxLevel: Math.min(slice.to, through ?? slice.to) }
+          : through
+            ? { maxLevel: through }
+            : {}),
       });
       reports.push(options.blind ? blindReport(report) : report);
     }
@@ -136,6 +173,31 @@ export async function validateCommand(
   if (options.brief)
     return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
   print(reports, component === 'all', hidden, floors, options, io);
+  // A slice holds some levels of the ladder: the join in --reports reads its level, this run reads none.
+  if (slice) return 0;
+  return verdict(reports, floors, ladders, component, options, io);
+}
+
+/** `--levels a..b`: the first and last level of a slice, or the message that names the problem. */
+function parseSlice(text: string): { from: number; to: number } | string {
+  const match = /^\s*(\d+)\s*\.\.\s*(\d+)\s*$/.exec(text);
+  const from = match ? Number(match[1]) : 0;
+  const to = match ? Number(match[2]) : 0;
+  if (!match || from < 1 || from > to) {
+    return `--levels takes a..b with whole numbers 1 <= a <= b, such as 3..5, not "${text}".`;
+  }
+  return { from, to };
+}
+
+/** The exit code of a run: the lowest level, or with --check-floor 1 when a floor is not held. */
+function verdict(
+  reports: LadderReport[],
+  floors: FloorsFile,
+  ladders: Record<string, Ladder>,
+  component: string,
+  options: ValidateCommandOptions,
+  io: Io,
+): number {
   if (!options.checkFloor) return Math.min(...reports.map((report) => report.level));
   const tops = Object.fromEntries(
     Object.entries(ladders).map(([name, ladder]) => [
@@ -149,6 +211,175 @@ export async function validateCommand(
   for (const check of below)
     io.err(`${check.component} is at level ${check.level}, below its floor ${check.floor}.\n`);
   return below.length > 0 || (component === 'all' && problems.length > 0) ? 1 : 0;
+}
+
+/**
+ * `validate <component|all> --reports <dir>`: joins the `--json` reports of earlier runs (a CI leg each: one seed,
+ * or one slice of levels of one seed) into one report per validator, whose level is the minimum over its seeds,
+ * then prints and checks the floors exactly as one run on all those seeds would. `--seeds` and `--hidden` name the
+ * seeds the join must hold; `--check-floor` says the legs ran through the floor. A missing, repeated or foreign
+ * seed or level exits with the usage code, so a lost leg never passes.
+ */
+function reportsCommand(
+  chosen: Ladder[],
+  ladders: Record<string, Ladder>,
+  floors: FloorsFile,
+  options: ValidateCommandOptions,
+  deps: ValidateDeps,
+  root: string,
+  io: Io,
+): number {
+  const alone = [options.brief, options.journal !== undefined, options.checkHandover, options.hardness];
+  if (alone.some(Boolean) || options.blind || options.hiddenOnly || options.levels !== undefined) {
+    io.err(
+      '--reports goes with a component, --seed, --seeds, --hidden, --json, --items, --all-levels and --check-floor only.\n',
+    );
+    return USAGE_EXIT;
+  }
+  const expectSeeds = options.seed !== undefined || options.seeds !== undefined;
+  const visible = expectSeeds ? parseSeeds(options) : [];
+  if (typeof visible === 'string') {
+    io.err(`${visible}\n`);
+    return USAGE_EXIT;
+  }
+  const hidden = options.hidden ? hiddenSeed(root, deps.readHead) : undefined;
+  const read = readLegs(resolve(io.cwd, options.reports as string), chosen, io);
+  if (!read) return USAGE_EXIT;
+  const reports: LadderReport[] = [];
+  for (const ladder of chosen) {
+    const legs = read.legs.get(ladder.component);
+    if (!legs) {
+      io.err(`No report for ${ladder.component} in ${options.reports}.\n`);
+      return USAGE_EXIT;
+    }
+    if (legs.some((leg) => leg.ladderVersion !== ladderVersion(ladder) || leg.top !== ladder.levels.length)) {
+      io.err(`The reports of ${ladder.component} are for another ladder than the one registered here.\n`);
+      return USAGE_EXIT;
+    }
+    const floor = options.checkFloor ? floorOf(floors, ladder.component, ladderVersion(ladder)) : 0;
+    const through = floor > 0 && floor <= ladder.levels.length ? floor : ladder.levels.length;
+    const joined = joinLegs(ladder, legs, through, Boolean(options.items || options.allLevels));
+    if (typeof joined === 'string') {
+      io.err(`${ladder.component}: ${joined}.\n`);
+      return USAGE_EXIT;
+    }
+    if (expectSeeds || hidden) {
+      const have = joined.seeds.map(seedLabel).join(' ');
+      const want = seedSpecs(visible, hidden).map(seedLabel).join(' ');
+      const hiddenRun = joined.seeds.find((run) => run.hidden);
+      if (have !== want || (hidden && hiddenRun?.seed !== hidden.seed)) {
+        io.err(`The reports of ${ladder.component} hold the seeds [${have}], expected [${want}].\n`);
+        return USAGE_EXIT;
+      }
+    }
+    reports.push(joined);
+  }
+  const component = chosen.length > 1 ? 'all' : (chosen[0] as Ladder).component;
+  print(reports, component === 'all', read.hidden, floors, options, io);
+  return verdict(reports, floors, ladders, component, options, io);
+}
+
+/** One `--json` run of one validator, as a leg wrote it. */
+type Leg = LadderReport & { hiddenSeed?: HiddenSeed };
+
+/** Joins the legs of one validator: the slices of each seed become the run of that seed, in seed order. */
+function joinLegs(
+  ladder: Ladder,
+  legs: readonly Leg[],
+  through: number,
+  full: boolean,
+): LadderReport | string {
+  const bySeed = new Map<string, SeedRun[]>();
+  for (const leg of legs) {
+    for (const run of leg.seeds) {
+      const key = seedLabel(run);
+      bySeed.set(key, [...(bySeed.get(key) ?? []), run]);
+    }
+  }
+  const runs: SeedRun[] = [];
+  for (const slices of bySeed.values()) {
+    const run = mergeSeedRuns(slices, through, full);
+    if (typeof run === 'string') return run;
+    runs.push(run);
+  }
+  runs.sort((a, b) => Number(a.hidden) - Number(b.hidden) || a.seed - b.seed);
+  return {
+    component: ladder.component,
+    ladderVersion: ladderVersion(ladder),
+    level: Math.min(...runs.map((run) => run.level)),
+    top: ladder.levels.length,
+    seeds: runs,
+  };
+}
+
+/** Reads every `*.json` of a folder: one run of one validator each, or the `reports` of an `all` run. */
+function readLegs(
+  dir: string,
+  chosen: Ladder[],
+  io: Io,
+): { legs: Map<string, Leg[]>; hidden?: HiddenSeed } | undefined {
+  let names: string[];
+  try {
+    names = readdirSync(dir)
+      .filter((name) => name.endsWith('.json'))
+      .sort();
+  } catch (cause) {
+    io.err(`Cannot read the reports folder ${dir}: ${message(cause)}\n`);
+    return undefined;
+  }
+  if (names.length === 0) {
+    io.err(`${dir} holds no .json report.\n`);
+    return undefined;
+  }
+  const wanted = new Set(chosen.map((ladder) => ladder.component));
+  const legs = new Map<string, Leg[]>();
+  let hidden: HiddenSeed | undefined;
+  for (const name of names) {
+    let value: unknown;
+    try {
+      value = JSON.parse(readFileSync(join(dir, name), 'utf8'));
+    } catch (cause) {
+      io.err(`Cannot read the report ${name}: ${message(cause)}\n`);
+      return undefined;
+    }
+    const list = isRecord(value) && Array.isArray(value.reports) ? value.reports : [value];
+    for (const item of list) {
+      if (!isLeg(item)) {
+        io.err(`${name} is not a validate --json report.\n`);
+        return undefined;
+      }
+      if (!wanted.has(item.component)) continue;
+      legs.set(item.component, [...(legs.get(item.component) ?? []), item]);
+      hidden = item.hiddenSeed ?? hidden;
+    }
+  }
+  return { legs, ...(hidden ? { hidden } : {}) };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isLeg(value: unknown): value is Leg {
+  return (
+    isRecord(value) &&
+    typeof value.component === 'string' &&
+    typeof value.ladderVersion === 'number' &&
+    typeof value.top === 'number' &&
+    Array.isArray(value.seeds) &&
+    value.seeds.length > 0 &&
+    value.seeds.every(
+      (run) =>
+        isRecord(run) &&
+        typeof run.seed === 'number' &&
+        typeof run.hidden === 'boolean' &&
+        typeof run.level === 'number' &&
+        typeof run.top === 'number' &&
+        Array.isArray(run.rows) &&
+        run.rows.length === run.top &&
+        run.rows.every((row) => isRecord(row) && (row.pass === null || typeof row.pass === 'boolean')),
+    )
+  );
 }
 
 /** `validate protect --branch <name> --base <ref>`: exit 1 when an executor branch changes a protected file. */
