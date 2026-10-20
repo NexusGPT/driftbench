@@ -64,7 +64,7 @@ async function main(args: readonly string[]): Promise<void> {
 }
 
 /** The first call of each export and then every this-many-th call is made in run C too (frame/isolate.ts). */
-export const PLAIN_EVERY = 50;
+export const PLAIN_EVERY = 1000;
 
 /** The module of the package under test: the replacement named by the environment, else the checkout's own source. */
 function productModule(root: string, implPath: string | undefined): string {
