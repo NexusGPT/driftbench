@@ -46,3 +46,18 @@ condition = "AND"
 paths = ['''^examples/judge-benchmarks/experiments/ledger-rb/''']
 regexTarget = "line"
 regexes = ['''^[+\s]*"(?:key|callKey|probeCallKey)"\s*:\s*"[0-9a-f]{12,64}",?\s*$''', '''^[+\s]*"\.cache/ledger-rb/audit-token-loss\.py"\s*:\s*"[0-9a-f]{64}",?\s*$''']
+
+# Estate cassettes. A pointer-reader cassette stores each recorded labeler answer under a 64-character request hash in
+# a field named "key", and the other hashes of the request (cutDigest, setHash, part.*) beside it. The generic-api-key
+# rule reads those hashes as secrets. The exception reads the whole line and passes only a line that has the exact
+# shape of one cassette entry: the answer (labels or probabilities, a model name, a stop reason and the token
+# counts), then "key" with exactly 64 lowercase hex characters, then the readable request fields, each value in a
+# narrow character class (no digit or underscore in a path, lowercase model names of at most 24 characters). A line
+# with another field, a longer or non-hex key, or a token of any known format in a value is not that shape and is
+# still reported, as is the same line in any other file.
+[[rules.allowlists]]
+description = "estate cassettes: a line that is exactly one recorded answer under a 64-hex request key"
+condition = "AND"
+paths = ['''^examples/estates/[^/]+/(?:[a-z-]+-)?cassette\.jsonl$''']
+regexTarget = "line"
+regexes = ['''^[+\s]*\{"answer":\{"(?:labels":\[(?:\{"label":"[a-z-]{1,30}"(?:,"target":[0-9]{1,3})?,"units":"[0-9-]{1,9}"\},?)*\]|probabilities":\{(?:"u[0-9]{1,4}__[a-z-]{1,30}":[0-9](?:\.[0-9]{1,17})?,?)*\}),"returnedModel":"[a-z0-9.-]{1,24}","stopReason":"[a-z_]{1,20}","usage":\{"input":[0-9]{1,7},"output":[0-9]{1,7}\}\},"key":"[0-9a-f]{64}","readable":\{"cls":"system[12]","cutDigest":"[0-9a-f]{64}","labeler":"[a-z0-9-]{1,24}","model":"[a-z0-9.-]{1,24}",(?:"part\.[a-zA-Z_]{1,16}":"[0-9a-f]{12}",)+"path":"(?:\.?[a-z-]+/)*[A-Za-z-]{1,30}\.(?:md|json|sh|py)","promptVersion":"p[0-9]{1,2}","run":"[0-9]{1,2}","schemaVersion":"s[0-9]{1,2}","set":"[a-z-]{1,30}","setHash":"[0-9a-f]{16}","window":"(?:\.?[a-z-]+/)*[A-Za-z-]{1,30}\.(?:md|json|sh|py)#[0-9]{1,4}"\}\}\s*$''']

@@ -129,7 +129,75 @@ for (const [kind, make] of Object.entries(tokens)) {
   ]);
 }
 
+// An estate cassette line, as the pointer reader writes it: the answer, the 64-hex request key, the readable fields.
+const cassetteLine = (over = {}) => {
+  const answer =
+    over.answer ??
+    '{"labels":[{"label":"rule","units":"1"},{"label":"condition","target":1,"units":"2"}],"returnedModel":"claude-haiku-5-5","stopReason":"end_turn","usage":{"input":435,"output":54}}';
+  const key = over.key ?? hex(64);
+  const readable = `{"cls":"system2","cutDigest":"${hex(64)}","labeler":"anthropic","model":"claude-haiku-5-5","part.messages":"${hex(12)}","part.model":"${hex(12)}","path":"${over.path ?? '.claude/skills/moorings/SKILL.md'}","promptVersion":"p1","run":"1","schemaVersion":"s1","set":"agent-rules","setHash":"${hex(16)}","window":".claude/skills/moorings/SKILL.md#1"}`;
+  return `{"answer":${answer},"key":"${key}","readable":${readable}}`;
+};
+// Each case has an estate folder of its own: two cases never write the same file.
+let estates = 0;
+const es = (file = 'cassette.jsonl') => `examples/estates/c${estates++}/${file}`;
+const answerWith = (value) =>
+  `{"labels":[{"label":"rule","units":"1"}],"returnedModel":"${value}","stopReason":"end_turn","usage":{"input":1,"output":2}}`;
+const cassetteCases = [
+  ['estate cassette line', es(), cassetteLine(), false],
+  ['estate cassette line, a named cassette', es('settings-cassette.jsonl'), cassetteLine(), false],
+  [
+    'estate cassette line with a probabilities answer',
+    es(),
+    cassetteLine({
+      answer:
+        '{"probabilities":{"u1__rule":0.24000000000000002,"u1__none":0.5},"returnedModel":"jev-1.13.0","stopReason":"answered","usage":{"input":1840,"output":485}}',
+    }),
+    false,
+  ],
+  ['estate cassette line in another file name', es('notes.jsonl'), cassetteLine(), true],
+  ['estate cassette line outside examples/estates', 'examples/other/cassette.jsonl', cassetteLine(), true],
+  ['estate cassette line in a nested folder', es('sub/cassette.jsonl'), cassetteLine(), true],
+  ['estate cassette line with a longer key', es(), cassetteLine({ key: hex(80) }), true],
+  ['estate cassette line with a non-hex key', es(), cassetteLine({ key: word(64) }), true],
+  ['estate cassette line with a key of capitals', es(), cassetteLine({ key: hex(64).toUpperCase() }), true],
+];
+for (const [kind, make] of Object.entries(tokens)) {
+  const bad = make();
+  cassetteCases.push([
+    `estate cassette line with a ${kind} token in the answer`,
+    es(),
+    cassetteLine({ answer: answerWith(bad) }),
+    true,
+    bad,
+  ]);
+  cassetteCases.push([
+    `estate cassette line with a ${kind} token in a path`,
+    es(),
+    cassetteLine({ path: bad }),
+    true,
+    bad,
+  ]);
+}
+{
+  const bad = word(40);
+  cassetteCases.push([
+    'estate cassette line with a password in the answer',
+    es(),
+    cassetteLine({ answer: answerWith(`password = ${bad}`) }),
+    true,
+    bad,
+  ]);
+  cassetteCases.push([
+    'estate cassette line followed by a second field',
+    es(),
+    cassetteLine().replace(/\}$/, `,"api_key":"${hex(40)}"}`),
+    true,
+  ]);
+}
+
 const cases = [
+  ...cassetteCases,
   ['ledger-rb key, single-field line', RB + 'ok/a.json', `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
   ['ledger-rb callKey in JSONL', RB + 'ok/b.jsonl', `{"callKey":"${hex(64)}","status":"ok"}`, false],
   ['ledger-rb probeCallKey in JSONL', RB + 'ok/c.jsonl', `{"n":1,"probeCallKey":"${hex(64)}"}`, false],
