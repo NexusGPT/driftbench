@@ -78,6 +78,14 @@ describe('a span kind nested in another', () => {
         /is not inside a span of the kind act/,
       ],
       [
+        'a span that starts inside the parent and ends after it',
+        [
+          { kind: 'act', ...at('Check the tide table') },
+          { kind: 'first-call', ...at('tide table before') },
+        ],
+        /is not inside a span of the kind act/,
+      ],
+      [
         'two nested spans that overlap',
         [
           { kind: 'act', from: 0, to: TEXT.length },
@@ -142,5 +150,31 @@ describe('a span kind nested in another', () => {
       '- first-call: the call that must come first (inside the act span)',
     );
     expect(denseUser(load(NESTED.replaceAll(', within: act', '')), window)).not.toContain('inside the');
+  });
+
+  it('lets a span lie inside every ancestor of its kind, to any depth', () => {
+    const deep = load(
+      NESTED.replace(
+        'within: act }\n      - { name: second-call, description: the call that must come second, within: act }',
+        'within: act }\n      - { name: second-call, description: the call that must come second, within: first-call }',
+      ),
+    );
+    const checked = checkAnswer(deep, window, [
+      {
+        units: '1',
+        label: 'gate',
+        spans: [
+          { kind: 'act', from: 0, to: TEXT.length },
+          { kind: 'first-call', ...at('Check the tide table before you cast off') },
+          { kind: 'second-call', ...at('cast off') },
+        ] as never,
+      },
+    ]);
+    expect(checked.refusals).toEqual([]);
+    expect(checked.accepted.get(1)?.spans?.map((span) => span.kind)).toEqual([
+      'act',
+      'first-call',
+      'second-call',
+    ]);
   });
 });
