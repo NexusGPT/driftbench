@@ -33,7 +33,7 @@ describe('the blind bank bound to the reader', () => {
         } else counts.differs += 1;
       }
     }
-    expect(counts).toEqual({ pass: 256, differs: 6, unsupported: 79, error: 0 });
+    expect(counts).toEqual({ pass: 262, differs: 0, unsupported: 79, error: 0 });
     expect([...reasons].sort()).toEqual([
       'unsupported: group:carry',
       'unsupported: labels:rerecord',
@@ -120,6 +120,41 @@ describe('the blind bank bound to the reader', () => {
     );
     for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
     expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
+  }, 120_000);
+
+  // The six spec-changed fence and comment items plant: no key read, no fetch, no cache lookup, nothing stored.
+  const OPAQUE_ONLY = ['fence', 'comment'].flatMap((placement) =>
+    ['record', 'ci-hit', 'ci-miss'].map((mode) => `blind/privacy.${placement}.${mode}`),
+  );
+
+  async function privacyLevel() {
+    const level = blindLevels(async () => realReader())[3];
+    const measure = await level?.compute({ seed: 1, hidden: false, root: process.cwd() });
+    return new Map((measure?.bank ?? []).map((entry) => [entry.id, entry.pass]));
+  }
+
+  it('passes the six opaque-only privacy items on the real reader, which sends nothing for them', async () => {
+    const passes = await privacyLevel();
+    for (const id of OPAQUE_ONLY) expect(passes.get(id), id).toBe(true);
+  }, 120_000);
+
+  it('loses those six items, and no other privacy item, when the reader sends the opaque unit anyway', async () => {
+    const real = await realExports();
+    const passes = await withReplacedExports(
+      {
+        // A reader that makes a window of a source with no unit to label: the key is read, a request is sent.
+        windowsOf: (...args: unknown[]) => {
+          const windows = real.windowsOf(...args);
+          return windows.length > 0
+            ? windows
+            : [{ id: 'w', path: 'p', headingPath: [], units: [{ n: 1, text: 'x', index: 0 }] }];
+        },
+      },
+      () => privacyLevel(),
+    );
+    for (const id of OPAQUE_ONLY) expect(passes.get(id), id).toBe(false);
+    for (const [id, pass] of passes)
+      if (id.startsWith('blind/privacy.') && !OPAQUE_ONLY.includes(id)) expect(pass, id).toBe(true);
   }, 120_000);
 
   it('counts a cutter that throws on an opaque unit as adapter errors, so the zero-error assertion goes red', async () => {

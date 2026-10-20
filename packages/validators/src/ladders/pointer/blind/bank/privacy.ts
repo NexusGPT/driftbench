@@ -12,6 +12,8 @@ const placements = [
   'inline-code',
   'html',
 ] as const;
+/** The placements whose text is opaque: no unit of it can be labelled. */
+const OPAQUE = new Set<string>(['fence', 'comment']);
 const wrap = (kind: string, text: string): string => {
   switch (kind) {
     case 'heading':
@@ -65,8 +67,12 @@ export function privacyItems(): BankItem[] {
         level: 4,
         component: 'pointer.private-recording',
         title: `${placement} private text stays out of ${mode} surfaces`,
-        cause: `privacy:${placement}-text-and-key-egress`,
-        design: '5: stored answer, modes, where; 8; 11: private counts-only plan',
+        cause: OPAQUE.has(placement)
+          ? `privacy:${placement}-text-and-key-egress-and-no-request-for-opaque-only-spec-changed`
+          : `privacy:${placement}-text-and-key-egress`,
+        design: OPAQUE.has(placement)
+          ? '2 (lines 102, 231): an opaque unit is never labelled; 5 (lines 294, 445): only a window with a unit to label is sent; 8; 11: private counts-only plan'
+          : '5: stored answer, modes, where; 8; 11: private counts-only plan',
         generate(seed) {
           const probes: Probe[] = [0, 1].map((arm) => {
             const salt = p * 6 + m * 2 + arm;
@@ -81,17 +87,34 @@ export function privacyItems(): BankItem[] {
               stop_reason: 'end_turn',
               usage: { input_tokens: 31 + arm, output_tokens: 6 },
             };
-            const writes = mode === 'record' ? [{ path: '.cache/', value: [answer], committed: false }] : [];
-            const expected: Json = {
-              labels: mode === 'ci-miss' ? [] : answer.labels,
-              leaked: false,
-              networkCalls: mode === 'record' ? 1 : 0,
-              keyReads: mode === 'record' ? 1 : 0,
-              cacheConsulted: mode === 'record' ? null : true,
-              writes,
-              status: mode === 'ci-miss' ? 'miss' : 'ok',
-              plans: [{ characters: source.length }],
-            };
+            // spec-changed: a source whose only units are opaque (arm 0 of a fence or a comment) holds nothing to
+            // label, so the reader sends no request (docs/estate-pointer-reader.md lines 102, 231, 294 and 445). The
+            // planted truth was one request; it is now no key read, no fetch, no cache lookup and nothing stored.
+            // Arm 1 adds a public paragraph and keeps the request.
+            const nothing = OPAQUE.has(placement) && arm === 0;
+            const writes =
+              mode === 'record' && !nothing ? [{ path: '.cache/', value: [answer], committed: false }] : [];
+            const expected: Json = nothing
+              ? {
+                  labels: [],
+                  leaked: false,
+                  networkCalls: 0,
+                  keyReads: 0,
+                  cacheConsulted: false,
+                  writes: [],
+                  status: 'ok',
+                  plans: [{ characters: source.length }],
+                }
+              : {
+                  labels: mode === 'ci-miss' ? [] : answer.labels,
+                  leaked: false,
+                  networkCalls: mode === 'record' ? 1 : 0,
+                  keyReads: mode === 'record' ? 1 : 0,
+                  cacheConsulted: mode === 'record' ? null : true,
+                  writes,
+                  status: mode === 'ci-miss' ? 'miss' : 'ok',
+                  plans: [{ characters: source.length }],
+                };
             return {
               request: {
                 operation: 'privacy',
@@ -106,24 +129,28 @@ export function privacyItems(): BankItem[] {
               },
               setup: { key, answer, cached: mode === 'ci-hit' ? answer : null },
               expected,
-              sample: {
-                labels: mode === 'ci-miss' ? [] : answer.labels,
-                status: mode === 'ci-miss' ? 'miss' : 'ok',
-              },
+              sample: nothing
+                ? { labels: [], status: 'ok' }
+                : {
+                    labels: mode === 'ci-miss' ? [] : answer.labels,
+                    status: mode === 'ci-miss' ? 'miss' : 'ok',
+                  },
               sampleEffects: [
                 { kind: 'plan', value: { characters: source.length } },
-                ...(mode === 'record'
-                  ? [
-                      { kind: 'key' as const },
-                      { kind: 'fetch' as const },
-                      {
-                        kind: 'write' as const,
-                        path: '.cache/cassette.jsonl',
-                        value: [answer],
-                        committed: false,
-                      },
-                    ]
-                  : [{ kind: 'cache' as const }]),
+                ...(nothing
+                  ? []
+                  : mode === 'record'
+                    ? [
+                        { kind: 'key' as const },
+                        { kind: 'fetch' as const },
+                        {
+                          kind: 'write' as const,
+                          path: '.cache/cassette.jsonl',
+                          value: [answer],
+                          committed: false,
+                        },
+                      ]
+                    : [{ kind: 'cache' as const }]),
               ],
               observe(actual, trace) {
                 if (!actual || typeof actual !== 'object') return null;
@@ -137,7 +164,8 @@ export function privacyItems(): BankItem[] {
                   ),
                   networkCalls: trace.networkCalls,
                   keyReads: trace.keyReads,
-                  cacheConsulted: mode === 'record' ? null : trace.cacheReads > 0,
+                  // A source with nothing to label must not even consult the cache: it is checked in every mode.
+                  cacheConsulted: mode === 'record' && !nothing ? null : trace.cacheReads > 0,
                   writes: trace.writes.map((write) => ({
                     ...write,
                     path:

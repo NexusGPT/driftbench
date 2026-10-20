@@ -53,9 +53,16 @@ the two input sets, but must not infer a cache miss when the reader returned a h
 The source fixture uses `output` as its normalized output-settings field.
 
 Privacy observations exercise the transport recorder and its public plan, before
-semantic label validation. A canned answer about a fenced source is recorder
-input, not a claim that the scanner should accept a label on an opaque unit.
-Opaque-label refusal is checked separately by the adversarial family.
+semantic label validation. A canned answer about a source with a unit to label is
+recorder input. The 6 items `privacy.fence.*` and `privacy.comment.*` are `spec-changed`:
+a fence or a comment is opaque, so a source whose only units are opaque holds nothing to
+label, and the reader sends no request for it (`docs/estate-pointer-reader.md` lines 102,
+231, 294 and 445: an opaque unit cannot be pointed at, and only a window with a unit to
+label is sent). Their first probe (the source with no public paragraph) therefore plants
+no key read, no fetch, no cache lookup, nothing stored, an empty label list and status
+`ok`, in every mode, with the usual counts-only plan; their second probe adds a public
+paragraph and keeps the request. Opaque-label refusal is checked separately by the
+adversarial family.
 
 ### Harness-owned privacy IO
 

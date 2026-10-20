@@ -1,5 +1,5 @@
 import type { PointerIO } from '../../blind/bank/index';
-import { type Obj, pointerExports, Unsupported } from './reader';
+import { type Obj, pointerExports } from './reader';
 
 const answerOf = (recorded: Obj) => ({
   labels: recorded.labels,
@@ -15,9 +15,6 @@ const recordedOf = (answer: Obj) => ({
   usage: { input: answer.usage.input_tokens, output: answer.usage.output_tokens },
 });
 
-/** The status of a scan that sent no request. */
-export const NO_REQUEST = 'no-request';
-
 /**
  * `privacy`: the real `pointerScan` over the private file. The reader reads the key itself (its labeler factory
  * reads `ANTHROPIC_API_KEY` from `env`, a getter that asks the harness), sends the request itself (`fetch` is the
@@ -26,13 +23,22 @@ export const NO_REQUEST = 'no-request';
  * and plans is returned beside the labels, so the leak check reads it. Nothing is derived from the requested mode
  * except which of the reader's two scan modes runs.
  *
- * A file the scan sends no request for (a fence or a comment is opaque) never reaches the recorder: the result
- * carries the status `no-request` and the item differs from the contract, which expects a request.
+ * A source with nothing to label (its only units are a fence or a comment, which are opaque) has no window: the
+ * reader sends no request for it (`windowsOf` over the reader's own cut is empty). The call then neither builds
+ * the labelling, which would read the key, nor asks the cache, and nothing is stored. The contract plants exactly
+ * that (`blind/CONTRACT.md`, the `spec-changed` fence and comment items).
  */
 export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<unknown> {
   if (!io) throw new Error('the privacy operation needs the harness callbacks');
   const pointer = await pointerExports();
   const record = input.mode === 'record';
+  const cut = pointer.cut(String(input.source)) as { units: Array<{ container: string }> };
+  if (
+    (pointer.windowsOf(String(input.file), cut.units, pointer.DEFAULT_WINDOW_UNITS) as unknown[]).length === 0
+  ) {
+    io.plan({ characters: String(input.source).length });
+    return { labels: [], status: 'ok', stored: '', readerPlan: { windows: 0 } };
+  }
   const env = {
     get ANTHROPIC_API_KEY(): string {
       return io.readKey();
@@ -93,10 +99,6 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
   } catch (thrown) {
     if (!(thrown instanceof pointer.CassetteMiss)) throw thrown;
   }
-  const windows = ((plan?.members ?? []) as Obj[]).reduce((sum, entry) => sum + Number(entry.windows), 0);
-  // The contract expects the recorder to be reached for any file; a scan with no window sends no request. That is
-  // the reader's behaviour, reported as an observation that differs, not as a missing call.
-  if (windows === 0) return { labels: [], status: NO_REQUEST, stored: cassette.render(), readerPlan: plan };
   io.plan({ characters: String(input.source).length });
   const labels = record
     ? ((stored[0]?.answer as Obj | undefined)?.labels ?? [])
