@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import {
   type RadiusCount,
@@ -12,10 +13,11 @@ import {
 import { textTable as table } from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { loadValidSpecs } from './campaign';
+import { type CampaignDeps, loadValidSpecs } from './campaign';
 import { loadRadiusChangeManifest } from './radius-change';
 import { registerRadiusLedger } from './radius-ledger';
 import { registerRadiusLocalize } from './radius-localize';
+import { registerRadiusMutate } from './radius-mutate';
 import { registerRadiusAuto } from './radius-prompt';
 import { readRegistry, registerRadiusSections } from './radius-sections';
 
@@ -25,6 +27,7 @@ type RadiusCommandOptions = {
   json?: boolean;
   explain?: boolean;
   sections?: string[];
+  gate?: string;
 };
 
 /**
@@ -34,7 +37,12 @@ type RadiusCommandOptions = {
  * cells saves against the whole suite. Exit 0 when the radius is smaller than the suite, 1 when it is the
  * whole suite, 2 on bad input.
  */
-export function registerRadiusCommand(program: Command, io: Io, setExit: (code: number) => void): void {
+export function registerRadiusCommand(
+  program: Command,
+  io: Io,
+  setExit: (code: number) => void,
+  deps?: CampaignDeps,
+): void {
   const radius = program
     .command('radius')
     .description('Print the blast radius of a change: the blocks it can affect, against the whole suite')
@@ -50,6 +58,10 @@ export function registerRadiusCommand(program: Command, io: Io, setExit: (code: 
       '--sections <registries...>',
       'section registries: print the advisory selection of prompt_section changes (nothing is skipped)',
     )
+    .option(
+      '--gate <file>',
+      'a selection gate record (radius mutate score --gate-out): when it passed, prompt_section changes skip the blocks their verified links leave out',
+    )
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RadiusCommandOptions) => {
       setExit(await radiusCommand(paths, options, io));
@@ -58,6 +70,7 @@ export function registerRadiusCommand(program: Command, io: Io, setExit: (code: 
   registerRadiusLedger(radius, io, setExit);
   registerRadiusSections(radius, io, setExit);
   registerRadiusLocalize(radius, io, setExit);
+  registerRadiusMutate(radius, io, setExit, deps);
 }
 
 export async function radiusCommand(paths: string[], options: RadiusCommandOptions, io: Io): Promise<number> {
@@ -88,6 +101,17 @@ export async function radiusCommand(paths: string[], options: RadiusCommandOptio
     if (!registry) return 2;
     registries.push(registry);
   }
+  let gate: unknown;
+  if (options.gate !== undefined) {
+    try {
+      gate = JSON.parse(await readFile(resolve(io.cwd, options.gate), 'utf8'));
+    } catch (cause) {
+      io.err(
+        `Cannot read the gate ${options.gate}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+      );
+      return 2;
+    }
+  }
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const shown = (path: string) => {
@@ -97,7 +121,11 @@ export async function radiusCommand(paths: string[], options: RadiusCommandOptio
   const report = radiusOf(
     loaded.map((entry) => ({ spec: entry.spec, hash: entry.hash, path: shown(entry.path) })),
     manifest.manifest,
-    { modes, ...(options.sections === undefined ? {} : { sections: registries }) },
+    {
+      modes,
+      ...(options.sections === undefined ? {} : { sections: registries }),
+      ...(gate === undefined ? {} : { gate }),
+    },
   );
   if (options.json) {
     io.out(
@@ -106,7 +134,14 @@ export async function radiusCommand(paths: string[], options: RadiusCommandOptio
   } else {
     io.out(renderRadius(report, manifest.hash));
     if (report.unitAdvisory) io.out(renderUnitAdvisory(report.unitAdvisory, options.explain === true));
-    if (report.advisory) io.out(renderAdvisory(report.advisory, options.explain === true));
+    if (report.sectionGate)
+      io.out(
+        report.sectionGate.used
+          ? `Section selection skips blocks: ${report.sectionGate.reason}.\n`
+          : `The gate does not let section selection skip blocks: ${report.sectionGate.reason}.\n`,
+      );
+    if (report.advisory && !report.sectionGate?.used)
+      io.out(renderAdvisory(report.advisory, options.explain === true));
     else if (sectionChanges(manifest.manifest).length > 0)
       io.out('Pass --sections <registries> to see which blocks selection by section links would run.\n');
     if (options.explain) {
