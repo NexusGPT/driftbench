@@ -494,7 +494,7 @@ describe('reanchor never returns two live sections that overlap', () => {
     const after = 'PYABCXDEFZ';
     const registry = manual(
       before,
-      { span: [2, 5], prefix: 'Y' },
+      { span: [2, 5], prefix: 'PY' },
       { span: [7, 15], prefix: 'Q', quote: 'YABCXDEF' },
     );
     const result = reanchor(registry, before, after);
