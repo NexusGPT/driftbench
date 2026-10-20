@@ -292,7 +292,7 @@ blocks:
 - **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
 - **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/NexusGPT/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them ship. Parent execution ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/NexusGPT/driftbench/pull/416). Rule files and verdict stamps ship (see [Rule files](#rule-files-change-the-rule-and-score-the-run-again)). The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them ship. Parent execution ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/NexusGPT/driftbench/pull/416). Rule files and verdict stamps ship (see [Rule files](#rule-files-change-the-rule-and-score-the-run-again)). Fault finding ships as rule files and a runner; no command runs it yet (see [Fixing the block that failed](#fixing-the-block-that-failed)).</sub>
 
 <details><summary>See it in YAML</summary>
 
@@ -331,7 +331,7 @@ blocks:
 - **Why no other framework does it.** A trace records what the agent did. Tracing a failure to instructions also needs links from tests to their sources. Our [comparison](docs/comparison.md) covers test units and traces, but does not establish exclusivity for source diagnosis.
 - **Measured impact.** In the [fault study](https://github.com/NexusGPT/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/NexusGPT/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
 
-<sub>Block links to prompt sections, advisory selection and section ranking ship. Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
+<sub>Block links to prompt sections, advisory selection and section ranking ship. Fault finding ships as rule files and a runner; no command runs it yet (see [Fixing the block that failed](#fixing-the-block-that-failed)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
 
 <details><summary>See it in YAML</summary>
 
@@ -419,12 +419,11 @@ metadata:
 - **Why no other framework does it.** [Simulated users appear in other tools](docs/comparison.md); they are not unique to driftbench. The separate persona and test let you change the customer while keeping the expected result fixed. The studies below test behaviour draws and conflicts, not superiority over peer frameworks.
 - **Measured impact.** In the [human simulation study](https://github.com/NexusGPT/driftbench/pull/418), the engine produced short turns 38.0 percent of the time. Human dialogues had 38.2 percent; prompting alone had 2.0 percent. In the [persona study](https://github.com/NexusGPT/driftbench/pull/444), negating a language rule flipped 10 of 11 French cells and 0 of 11 English cells. The loader refused all 30 planted conflicts and none of 30 clean cases. The original grid flag failed its control. The exact test found no persona effect on the test agent, and the grid reports that result.
 
-<sub>Persona integration is on its way ([#418](https://github.com/NexusGPT/driftbench/pull/418), [#444](https://github.com/NexusGPT/driftbench/pull/444)). Basic simulated users already ship. The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
+<sub>Basic simulated users ship, and a spec can define the simulated user in its blocks (see below). Persona and scenario objects, and numeric behaviour draws, are not built yet ([#418](https://github.com/NexusGPT/driftbench/pull/418), [#444](https://github.com/NexusGPT/driftbench/pull/444) hold the studies). The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Basic simulated users ship on main. Numeric behaviour draws are coming in [#418](https://github.com/NexusGPT/driftbench/pull/418).
-The persona file points to the spec through `spec`. Main has no block `persona` key.
+The persona file points to the spec through `spec`. A block has no `persona` key yet: a block defines its own user with `simulated_user`, shown after this example.
 Select this file with `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none`.
 The model option makes paid calls; `--agent-family none` applies to the scripted Acme demo.
 
@@ -449,6 +448,39 @@ blocks: # One exchange per entry
     expect:
       must: [refund] # Check the visible reply
 ```
+
+</details>
+
+<details>
+<summary>Define the simulated user in the block, and measure a block over a class of messages</summary>
+
+A block can carry its own simulated user. `mode: exact` sends the block's text as written, `simulated` has an agenda engine plan the message and a model write it, and `replay` sends a message frozen from an earlier run after checking its hash. The engine decides what the person says outside the model, keeps a ledger of every fact it gives, and repeats the spec `trials` times per model family.
+
+```text
+blocks:
+  - when:
+      user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+      simulated_user: &sam
+        mode: simulated
+        persona: Sam Rivera. A busy Acme mobile customer. Writes short, friendly messages.
+        goal: Move the current Acme phone plan to one with more data, and place the change.
+        hidden_knowledge: { email: sam.rivera@example.com }
+        reveal: { email: on_request }
+        stop: '###STOP###'
+        trials: 4
+  - when: { user: "It's sam.rivera@example.com", simulated_user: *sam }
+```
+
+Played from the two recorded cassettes of `examples/acme/simulated`, with no model call, the run prints per block the passes, pass^k and the rerun flip rate, then compares the simulated messages with human customer rates:
+
+```text
+Simulate: acme-plan-upgrade-simulated on function:acme-sales, the simulated user of its blocks, 4 trials per family (openai, google).
+  openai trial 0: 4 of 5 blocks pass, completed
+  openai trial 2: 4 of 4 blocks pass, completed, the user said goodbye at block 4
+  google trial 2: 0 of 5 blocks pass, completed
+```
+
+A pass here is a rate over trials, and a plain rerun flips simulated verdicts as often as a change of simulator family (see [simulated users](docs/simulated-user.md#the-disclosure-ledger-trials-and-the-flip-flag)). `--freeze <file>` writes the first failing run as `replay` blocks, so a found failure becomes fixed turns. The same block can also name a class of messages with `when: { user: <seed>, class: { id, set } }`: `driftbench class plan`, `realise`, `audit`, `expand` and `envelope` plan a covering array over the spellings of each value, gate every candidate, freeze the accepted set under a hash, and report the block over all of them, with the single-string blocks counted apart ([utterance classes](packages/cli/help/authoring-classes.md)). The full output is in [the help topic](packages/cli/help/running-simulate.md).
 
 </details>
 
@@ -878,7 +910,7 @@ spec: refund.spec.yaml # The spec this persona plays
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
 - [Block rules and fault finding](#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
 
-<sub>Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
+<sub>Fault finding ships as rule files and a runner; no command runs it yet (see [Fixing the block that failed](#fixing-the-block-that-failed)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
@@ -1257,7 +1289,7 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
 
-<sub>The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
+<sub>The fault finder ships as rule files and a runner: five diagnostics (`code-agent-liability`, `fix-plan`, `flaky-block`, `liability-confirm`, `value-mismatch`) and the blame and placement rules they read ([reference](docs/reference/blame.md)), and a scorecard that shows two scores and a ranked fix list when it is given diagnoses. No command runs a diagnostic yet: a program registers the steps and calls `runSpec` ([diagnostics](packages/cli/help/running-diagnostics.md)).</sub>
 
 ### Rerunning the blast radius
 
