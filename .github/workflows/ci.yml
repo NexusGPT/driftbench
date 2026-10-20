@@ -199,7 +199,7 @@ jobs:
   # its own test files and no others (tools/ci/run-shard.mjs): every test file runs in exactly one shard. `checks`
   # runs lint, typecheck, the docs checks and the CLI smoke. A dispatch that names `build` or `checks` runs `prepare`.
   prepare:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',prepare,') || contains(format(',{0},', inputs.jobs), ',build,') || contains(format(',{0},', inputs.jobs), ',checks,')))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',prepare,') || contains(format(',{0},', inputs.jobs), ',build,') || contains(format(',{0},', inputs.jobs), ',checks,')))
     name: prepare (node ${{ matrix.node }})
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     strategy:
@@ -233,7 +233,7 @@ jobs:
           include-hidden-files: true
 
   checks:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',checks,'))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',checks,'))
     name: checks (node ${{ matrix.node }})
     needs: prepare
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -289,7 +289,7 @@ jobs:
       - run: node tools/ci/run-shard.mjs --plan shard-plan.json --index ${{ matrix.shard }}
 
   timing:
-    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',timing,'))
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',timing,'))
     name: timing tests (hosted)
     # Pinned to a GitHub-hosted machine: these tests compare processor time, and the ratio they assert on
     # moves with the CPU (tools/ci/timing-tests.txt). Every other job skips them.
