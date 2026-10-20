@@ -28,7 +28,7 @@ Cost: generator 0.06, suite runs and confirmations 8.46 (16,065 conversation run
 
 * Gate reason: all 26 failed the same rule, the duplicate rule of the PREREG ("a body already drawn for the same section and operator in this sample, a body of the 90, or the section text of any of the 290"). None failed the validity gate of the 90. Each had its 6 tries (the seed and 5 retries, 156 failed tries in all: 126 `negate`, 30 `rephrase`) and every try gave a text already used. The seeded generator gives the same body again for a short rule, so the sections with short bodies lost the most.
 * The sample holds 129 measured negations, not the planned 150, and 145 measured rephrasings, not 150.
-* Worst case: had all 26 left-out mutants missed, the rate would be 26 of 300, 8.7%. They were never measured, and the PREREG fixed the rule that leaves them out before the run.
+* Worst case: had all 26 left-out mutants missed, the rate would be 26 of 300, 8.7% observed, and the Wilson 95% upper bound 12.4% (the figure comparable with the bar). They were never measured, and the PREREG fixed the rule that leaves them out before the run.
 
 | Operator | Measured | With a confirmed flip | Misses | Wilson 95% upper bound |
 |---|---|---|---|---|
