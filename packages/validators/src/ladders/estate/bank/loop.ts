@@ -18,7 +18,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
-import { atomWords, readsAsCodeAsk } from '../reference-ask';
+import { atomTexts, readsAsCodeAsk } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -765,7 +765,7 @@ const ASKS: AskCheck[] = [
         const referenced = [...new Set(rowAtoms.flatMap((atom) => idsIn(atom?.fields)))].map((id) =>
           atomsById.get(id),
         );
-        const fromAtoms = atomWords(
+        const fromAtoms = atomTexts(
           [...rowAtoms, ...referenced].filter((atom): atom is NonNullable<typeof atom> => atom !== undefined),
         );
         return asksOfSpec(v).every(
