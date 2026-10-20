@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {labelSetHash,labellerRequestKey,createLabellerReplay} from './candidate';
+const set={name:'traffic',labels:[{name:'red',description:'stop'}]};
+const request={text:'hello',labelSet:set};
+assert.match(labelSetHash(set),/^[a-f0-9]{64}$/);
+assert.notEqual(labellerRequestKey(request,'a'),labellerRequestKey({...request,context:''},'a'));
+const entries=[{request,labellerId:'a',answer:'red'}];const replay=createLabellerReplay(entries,'a');
+const original=structuredClone(request);request.text='changed';set.labels[0].description='changed';entries[0].answer='none';
+assert.equal(replay.label(original),'red');assert.throws(()=>replay.label(request));
+assert.throws(()=>createLabellerReplay([{request:original,labellerId:'a',answer:'red'},{request:original,labellerId:'a',answer:null}],'a'));
+assert.throws(()=>createLabellerReplay([{request:original,labellerId:'a',answer:'red'}],'b').label(original));
+console.log('immutable replay regression passed');

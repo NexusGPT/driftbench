@@ -1,0 +1,13 @@
+id: acme.planted.b8
+intent: "The customer gives the address where they want home internet."
+seed: "The address is 7 Quarry Lane, Acmeville."
+context:
+  last_reply: "Sure. Which address should I check?"
+slots:
+  - name: address
+    format: text
+    surface_forms:
+      - { form: "7 Quarry Lane, Acmeville", approved: true }
+      - { form: "7 Quarry Ln, Acmeville", approved: true }
+      - { form: "7 quarry lane", approved: true }
+    minimal: ["17 Quarry Lane, Acmeville"]

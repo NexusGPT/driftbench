@@ -53,3 +53,25 @@ metadata:
       - b1-value
     needs_then_why:
       - no approved path needs home_plans=several-plans
+  links:
+    - block: b1-value
+      to:
+        kind: rule
+        rule: home_plans=several-plans
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-value
+      to:
+        kind: plan_row
+        row: gen-boundary-068
+        values:
+          home_plans: several-plans
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: none
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

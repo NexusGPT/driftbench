@@ -87,3 +87,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.lead-with-the-result
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0165
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: after_restart
+          owner_signal: frustration
+          deviation: none
+          estate_hazard: stale_tracker
+          atoms.register: register.standing.lead-with-the-result
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -83,3 +83,29 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.weekly-report.read-templates-report-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.weekly-report.read-templates-report-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -96,3 +96,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.replies-under-1-200-characters
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0938
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: after_restart
+          owner_signal: frustration
+          deviation: D5_language_switch
+          estate_hazard: process_restart
+          atoms.register: register.standing.replies-under-1-200-characters
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

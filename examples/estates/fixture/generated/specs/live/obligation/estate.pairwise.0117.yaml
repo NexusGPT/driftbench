@@ -64,3 +64,28 @@ metadata:
     ask: code
     askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.ask-for-the-tracking-number-when
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0117
+        values:
+          ask_class: build
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: stop
+          deviation: D1_off_topic
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

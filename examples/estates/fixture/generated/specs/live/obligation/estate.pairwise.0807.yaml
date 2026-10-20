@@ -90,3 +90,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.tell-the-user-about-a-late
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0807
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D2_goal_shift
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.tell-the-user-about-a-late
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

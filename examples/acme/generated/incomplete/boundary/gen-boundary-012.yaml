@@ -110,3 +110,57 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.out.customer
         value: catalog.search.out.customer.present
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-012
+        values:
+          catalog.search.out.customer: catalog.search.out.customer.present
+          catalog.search.out.plans: catalog.search.out.plans.empty
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: catalog.search.out.customer=catalog.search.out.customer.present
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-012
+        values:
+          catalog.search.out.customer: catalog.search.out.customer.present
+          catalog.search.out.plans: catalog.search.out.plans.empty
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

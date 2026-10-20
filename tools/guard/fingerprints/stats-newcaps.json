@@ -1,0 +1,10 @@
+{
+  "comment": "Numbers computed by packages/validators/fixtures/stats/make_newcaps_multiplicity.py, not phone numbers: 1 - 0.99^5 = 0.0490099501, the Sidak adjustment of the p-value 0.01 in a family of five. Entries are kind plus sha256 of the exact matched text.",
+  "entries": [
+    {
+      "kind": "phone",
+      "sha256": "027e891685bae3aeb89df01cf69a844a0e610987b01b89641db916ef0a2a3ce1",
+      "reason": "1 - 0.99^5 = 0.0490099501 in the multiplicity fixture and its page (docs/statistics/multiplicity.md)."
+    }
+  ]
+}

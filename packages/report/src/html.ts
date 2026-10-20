@@ -23,6 +23,7 @@ import {
   verdictOf,
 } from './format';
 import type { SuiteHeadline } from './headline';
+import { attributionZone, diagnosesTable, nonDefaultBadge } from './html-attribution';
 import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
@@ -63,6 +64,7 @@ export function renderHtml(card: Scorecard, options: RenderOptions = {}): string
   const sections = [
     options.nav ?? '',
     overview(m),
+    ...(card.attribution === undefined ? [] : [attributionZone(card.attribution)]),
     versionsZone(m),
     chartsZone(m),
     testsZone(m),
@@ -663,13 +665,13 @@ function blockDetail(block: BlockDetail, extra = ''): string {
   const verdict = verdictOf(blockStatus(block));
   const reason = unscoredReason(block);
   return `<div class="block ${verdict.cls === 'ok' ? 'block-pass' : verdict.cls === 'skip' ? 'block-skip' : 'block-fail'}" id="block-${block.index}">
-${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
+${block.rejudged ? `<p>${block.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${esc(block.rejudged.criteria.join(', '))}`}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
 ${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="skip-reason">${esc(reason)}</p>\n`}${block.stimulus === undefined ? '' : `<p class="label">${block.realized === undefined ? 'User' : 'User, as written'}</p><pre class="msg">${esc(block.stimulus)}</pre>`}${block.realized === undefined ? '' : `\n<p class="label">User, as sent</p><pre class="msg">${esc(block.realized.text ?? notStored(block.realized.hash))}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
 <p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
-${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}
+${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${block.diagnoses === undefined ? '' : `\n${diagnosesTable(block.diagnoses)}`}${extra === '' ? '' : `\n${extra}`}
 </div>`;
 }
 
@@ -684,11 +686,15 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const s = run.succession;
   const facts = [
     `status ${run.status}`,
-    ...(run.carried
+    ...(run.rejudged
       ? [
-          `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+          `${run.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${run.rejudged.criteria.join(', ')}`}; observations from ${run.rejudged.fromCampaign}`,
         ]
-      : []),
+      : run.carried
+        ? [
+            `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+          ]
+        : []),
     `${count(run.blocks.length, 'block')}`,
     `first drift ${s.firstDriftBlock === undefined ? 'none' : `block ${s.firstDriftBlock}`}`,
     `${s.driftCount} drifting`,
@@ -761,7 +767,7 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
   );
   return `<section id="run">
 <h2 class="mono">${esc(name)}</h2>
-${header.replace('</details>', '')}
+${run.nonDefault === undefined ? '' : `${nonDefaultBadge(run.nonDefault)}\n`}${header.replace('</details>', '')}
 ${parentCausesHtml(run.causes)}${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
 ${stoppedSection(run.stopped)}

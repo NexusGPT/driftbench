@@ -65,3 +65,28 @@ metadata:
     ask: code
     askFrom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0780
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

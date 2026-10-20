@@ -188,3 +188,137 @@ metadata:
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-151
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: order.create
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: plan_row
+        row: gen-twise-151
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: order.create
+          stage_transition: identify-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-recap
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-recap
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-recap
+      to:
+        kind: plan_row
+        row: gen-twise-151
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: order.create
+          stage_transition: offer-to-recap
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D8_tool_failure
+      to:
+        kind: rule
+        rule: deviation=D8_tool_failure
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D8_tool_failure
+      to:
+        kind: rule
+        rule: stage_transition=recap-to-order_placed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D8_tool_failure
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D8_tool_failure
+      to:
+        kind: plan_row
+        row: gen-twise-151
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: order.create
+          deviation: D8_tool_failure
+          stage_transition: recap-to-order_placed
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

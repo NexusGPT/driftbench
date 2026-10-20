@@ -661,7 +661,7 @@ describe('driftbench campaign run on a pool, with a budget', () => {
           deps,
         );
         expect(capped.out).toContain('run fresh: 3 misses.');
-        expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+        expect(capped.out).toContain('gen-twise-040: the audit run did not finish');
       },
       SLOW,
     );
@@ -695,7 +695,7 @@ describe('driftbench campaign run on a pool, with a budget', () => {
         );
         expect(capped.err).toBe('');
         expect(capped.out).toContain('run fresh: 3 misses.');
-        expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+        expect(capped.out).toContain('gen-twise-040: the audit run did not finish');
       },
       SLOW,
     );

@@ -56,3 +56,30 @@ metadata:
     ask: code
     askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+        values:
+          atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
