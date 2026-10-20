@@ -446,7 +446,9 @@ const BINOMIAL_SUM_LIMIT = 50;
 export function binomialCdf(k: number, n: number, p: number): number {
   if (k < 0) return 0;
   if (k >= n) return 1;
-  if (n > BINOMIAL_SUM_LIMIT && p > 0 && p < 1) {
+  if (p === 0) return 1;
+  if (p === 1) return 0;
+  if (n > BINOMIAL_SUM_LIMIT) {
     // P(X <= k) = I_{1-p}(n - k, k + 1), with p kept apart from 1 - p so a tiny p survives: O(sqrt(n)) work, and no sum
     // of n pmf terms each carrying a logGamma error.
     const j = Math.floor(k);

@@ -67,9 +67,9 @@ export type StatsLadderOptions = {
 };
 
 /** The ladder version this bank is (docs/validators.md section 12.5: floors are per ladder version). */
-export const STATS_LADDER_VERSION = 2;
+export const STATS_LADDER_VERSION = 3;
 
-/** What each level of version 2 checks, for the table. */
+/** What each level of version 3 checks, for the table. */
 const LEVEL_TEXT: Record<BankLevel, { name: string; metric: string }> = {
   reference: { name: 'reference values', metric: 'fixture groups matching scipy and numpy / groups' },
   degenerate: {
@@ -104,7 +104,7 @@ const LEVEL_TEXT: Record<BankLevel, { name: string; metric: string }> = {
 };
 
 /**
- * The statistics validator, ladder version 2 (docs/validators.md sections 7 and 12): a bank of items in eight
+ * The statistics validator, ladder version 3 (docs/validators.md sections 7 and 12): a bank of items in eight
  * sub-banks, each a level with threshold 1. A seed's whole bank runs once, in child processes that stop an item
  * past its budget, and each level reads its items from that run. Version 1's levels are its first items.
  */
