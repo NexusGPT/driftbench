@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
 
-export const subcommands = [
+const subcommands = [
   ['.claude/hooks/lib/audit.py', 'status'],
   ['.claude/lib/tool.py', 'check'],
   ['.claude/hooks/dry-run.py', 'staged'],

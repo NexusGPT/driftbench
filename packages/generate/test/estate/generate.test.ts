@@ -169,7 +169,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       },
     ]);
     // Every instruction the labelers read carries no check of its own, so its spec is judged from its words.
-    expect(result.report.summary.judged).toBe(11);
+    expect(result.report.summary.judged).toBe(10);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -467,7 +467,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1631);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1633);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -479,11 +479,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1624,
-      blocks: 1619,
-      complete: 1595,
+      specs: 1626,
+      blocks: 1621,
+      complete: 1597,
       incomplete: 29,
-      judged: 1000,
+      judged: 999,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
