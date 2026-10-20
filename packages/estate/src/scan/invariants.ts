@@ -61,6 +61,7 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
     const proseFiles = [...new Set(raw.prose.map((chunk) => chunk.file))];
     const pointed = await pointerScan({
       ...options.pointer,
+      atoms: builder.atoms.map((atom) => ({ id: atom.id, kind: atom.kind, title: atom.title })),
       files: proseFiles.map((path) => ({ path, text: files.get(path)?.text ?? '' })),
     });
     const built = pointerAtoms(
