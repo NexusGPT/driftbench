@@ -20,7 +20,7 @@ import { type BankItem, exported, fail, type ItemOutcome, ok, show, type Tier } 
  *   axes asks at its own strength that a suite of rows holds. Not built and not on a page yet: the contract
  *   below, owed to docs/statistics/ as well.
  *
- * All four are the last level, `capabilities`, so a missing capability never hides a regression below.
+ * All four are at the `analytic` level, with the planned capabilities (a missing statistic fails with the signature to add).
  */
 
 const DOC_JUDGES = 'docs/concepts/statistics.md, "Judges"';
@@ -40,7 +40,8 @@ const DOC_OWED =
  * 100000) is reached. When the observed shares are a mix of linearly independent components, the result is that
  * mix. `logLikelihood` is the value at the returned weights. A `RangeError` for: no component, a component of
  * another length than `counts`, an entry outside [0, 1] or a row not summing to 1, a count that is not a
- * non-negative integer, and counts that are all 0.
+ * non-negative integer, and counts that are all 0. The message of a `RangeError` starts with `mixtureWeights` and names
+ * the argument to fix (`components` or `counts`).
  *
  * The contract of `mixedStrengthCoverage` (owed to a page):
  * `mixedStrengthCoverage(rows: number[][], groups: { axes: number[]; strength: number }[], levels: number[])`
@@ -51,7 +52,8 @@ const DOC_OWED =
  * required; the totals add the groups (a tuple asked by two groups counts in each). A `RangeError` for: no
  * group, a row of another length than `levels`, a value that is not an integer in [0, levels[a] - 1], a level
  * count that is not a positive integer, an axis out of range or repeated in a group, and a strength below 1 or
- * above the group's axis count.
+ * above the group's axis count. The message of a `RangeError` starts with `mixedStrengthCoverage` and names the
+ * argument to fix (`rows`, `groups` or `levels`).
  */
 
 // ---------------------------------------------------------------------------------------------------------
@@ -94,7 +96,18 @@ function item(
   cause: string,
   check: BankItem['check'],
 ): BankItem {
-  return { id: `weights.${id}`, family, tier, level: 'capabilities', component, cause, check };
+  return { id: `weights.${id}`, family, tier, level: 'analytic', component, cause, check };
+}
+
+/** A refusal passes when its message starts with the function and names the argument to fix. */
+function messageNames(message: string, fn: string, argument: string): ItemOutcome {
+  // The singular stem counts: "component 0 sums to 0.9" names `components`.
+  const stem = argument.replace(/s$/, '');
+  return message.startsWith(fn) && message.includes(stem)
+    ? ok()
+    : fail(
+        `the RangeError says ${show(message)}, want it to start with ${fn} and name the argument ${argument}`,
+      );
 }
 
 const between = (rng: () => number, lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
@@ -342,6 +355,53 @@ function mixtureOf(s: Parameters<BankItem['check']>[0]['s']): MixtureFn | undefi
   return exported(s, 'mixtureWeights') as MixtureFn | undefined;
 }
 
+/** The expectation-maximisation fixed point from equal weights, in binary64 (the maximum-likelihood mix). */
+function emReference(components: number[][], counts: number[]): { weights: number[]; logLikelihood: number } {
+  const m = components.length;
+  const N = counts.reduce((x, y) => x + y, 0);
+  let w = new Array<number>(m).fill(1 / m);
+  for (let step = 0; step < 2_000_000; step += 1) {
+    const next = new Array<number>(m).fill(0);
+    counts.forEach((k, i) => {
+      if (k === 0) return;
+      const mixture = w.reduce((sum, wj, j) => sum + wj * ((components[j] as number[])[i] as number), 0);
+      w.forEach((wj, j) => {
+        next[j] = (next[j] as number) + (k * wj * ((components[j] as number[])[i] as number)) / mixture;
+      });
+    });
+    const updated = next.map((v) => v / N);
+    const moved = updated.reduce((x, v, j) => Math.max(x, Math.abs(v - (w[j] as number))), 0);
+    w = updated;
+    if (moved < 1e-15) break;
+  }
+  const logLikelihood = counts.reduce((sum, k, i) => {
+    if (k === 0) return sum;
+    return sum + k * Math.log(w.reduce((a, wj, j) => a + wj * ((components[j] as number[])[i] as number), 0));
+  }, 0);
+  return { weights: w, logLikelihood };
+}
+
+/** The result must be the maximum-likelihood mix: weights within 1e-6 and the log-likelihood within 1e-9 relative. */
+function compareEm(mix: MixtureFn, components: number[][], counts: number[]): ItemOutcome {
+  let got: ReturnType<MixtureFn>;
+  try {
+    got = mix(components, counts);
+  } catch (cause) {
+    return fail(
+      `mixtureWeights threw ${String(cause)} on ${components.length} components over ${counts.length} categories`,
+    );
+  }
+  const want = emReference(components, counts);
+  const off = want.weights.findIndex((w, j) => !(Math.abs((got.weights?.[j] ?? Number.NaN) - w) <= 1e-6));
+  if (off >= 0)
+    return fail(
+      `mixtureWeights returned ${show(got.weights)} for ${counts.length} counts, which is not the maximum-likelihood mix (component ${off} is off by more than 1e-6) (${DOC_OWED})`,
+    );
+  return Math.abs(got.logLikelihood - want.logLikelihood) <= 1e-9 * Math.max(1, Math.abs(want.logLikelihood))
+    ? ok()
+    : fail(`mixtureWeights gives a logLikelihood that is not the maximum of the likelihood (${DOC_OWED})`);
+}
+
 function mixtureItems(): BankItem[] {
   const out: BankItem[] = [];
   const family = 'weights-mixture';
@@ -402,15 +462,90 @@ function mixtureItems(): BankItem[] {
           ),
         );
       }
-  const refusals: Array<[string, (rng: () => number) => [number[][], number[]]]> = [
-    ['no-component', () => [[], [1, 2]]],
-    ['length-mismatch', () => [[[0.5, 0.5]], [1, 2, 3]]],
-    ['row-not-one', () => [[[0.5, 0.4]], [1, 2]]],
-    ['entry-outside', () => [[[1.5, -0.5]], [1, 2]]],
-    ['fractional-count', () => [[[0.5, 0.5]], [1.5, 2]]],
-    ['all-zero', () => [[[0.5, 0.5]], [0, 0]]],
+  // Counts that are not an exact mix: any consistent estimator passes the items above, only the maximum
+  // likelihood answer passes these. The reference is expectation-maximisation in binary64 run to a fixed point.
+  const emCases: Array<{ id: string; m: number; extra: number; size: 'small' | 'large' }> = [];
+  for (const m of [2, 3, 4])
+    for (const extra of [1, 2])
+      for (const size of ['small', 'large'] as const)
+        emCases.push({ id: `${m}.${extra}.${size}`, m, extra, size });
+  for (const spec of emCases) {
+    out.push(
+      item(
+        `em.${spec.id}`,
+        family,
+        (spec.m >= 4 ? 4 : 3) as Tier,
+        'packages/stats/src/mixture.ts',
+        MIXTURE_CAUSE,
+        ({ s, rng }) => {
+          const mix = mixtureOf(s);
+          if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+          const c = spec.m + spec.extra;
+          const components = Array.from({ length: spec.m }, (_, j) => {
+            const row = Array.from({ length: c }, () => 1 + rng() * 6);
+            row[j] = (row[j] as number) + 14;
+            const total = row.reduce((x, y) => x + y, 0);
+            return row.map((v) => v / total);
+          });
+          const planted = Array.from({ length: spec.m }, () => 1 + rng() * 8);
+          const pt = planted.reduce((x, y) => x + y, 0);
+          const draws = spec.size === 'small' ? between(rng, 30, 80) : between(rng, 600, 2000);
+          const counts = new Array<number>(c).fill(0);
+          for (let d = 0; d < draws; d += 1) {
+            let u = rng() * pt;
+            let j = 0;
+            while (j < spec.m - 1 && u >= (planted[j] as number)) {
+              u -= planted[j] as number;
+              j += 1;
+            }
+            let v = rng();
+            let i = 0;
+            while (i < c - 1 && v >= ((components[j] as number[])[i] as number)) {
+              v -= (components[j] as number[])[i] as number;
+              i += 1;
+            }
+            counts[i] = (counts[i] as number) + 1;
+          }
+          return compareEm(mix, components, counts);
+        },
+      ),
+    );
+  }
+  out.push(
+    item('em.audit-mix', family, 2, 'packages/stats/src/mixture.ts', MIXTURE_CAUSE, ({ s }) => {
+      const mix = mixtureOf(s);
+      if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+      return compareEm(
+        mix,
+        [
+          [0.7, 0.2, 0.1],
+          [0.1, 0.3, 0.6],
+        ],
+        [50, 25, 25],
+      );
+    }),
+    item('em.boundary', family, 2, 'packages/stats/src/mixture.ts', MIXTURE_CAUSE, ({ s }) => {
+      const mix = mixtureOf(s);
+      if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+      return compareEm(
+        mix,
+        [
+          [0.9, 0.1],
+          [0.2, 0.8],
+        ],
+        [97, 3],
+      );
+    }),
+  );
+  const refusals: Array<[string, string, (rng: () => number) => [number[][], number[]]]> = [
+    ['no-component', 'components', () => [[], [1, 2]]],
+    ['length-mismatch', 'components', () => [[[0.5, 0.5]], [1, 2, 3]]],
+    ['row-not-one', 'components', () => [[[0.5, 0.4]], [1, 2]]],
+    ['entry-outside', 'components', () => [[[1.5, -0.5]], [1, 2]]],
+    ['fractional-count', 'counts', () => [[[0.5, 0.5]], [1.5, 2]]],
+    ['all-zero', 'counts', () => [[[0.5, 0.5]], [0, 0]]],
   ];
-  for (const [what, make] of refusals) {
+  for (const [what, argument, make] of refusals) {
     out.push(
       item(`refuse.${what}`, family, 1, 'packages/stats/src/mixture.ts', MIXTURE_CAUSE, ({ s, rng }) => {
         const mix = mixtureOf(s);
@@ -422,9 +557,9 @@ function mixtureItems(): BankItem[] {
             `mixtureWeights(${show(components)}, ${show(counts)}) returned ${show(value)}, want a RangeError`,
           );
         } catch (cause) {
-          return cause instanceof RangeError
-            ? ok()
-            : fail(`mixtureWeights threw ${String(cause)}, want a RangeError (${DOC_OWED})`);
+          if (!(cause instanceof RangeError))
+            return fail(`mixtureWeights threw ${String(cause)}, want a RangeError (${DOC_OWED})`);
+          return messageNames(cause.message, 'mixtureWeights', argument);
         }
       }),
     );
@@ -540,15 +675,15 @@ function coverageItems(): BankItem[] {
           ),
         );
       }
-  const refusals: Array<[string, [number[][], Group[], number[]]]> = [
-    ['no-group', [[[0, 1]], [], [2, 2]]],
-    ['row-length', [[[0, 1, 0]], [{ axes: [0, 1], strength: 2 }], [2, 2]]],
-    ['value-outside', [[[0, 2]], [{ axes: [0, 1], strength: 2 }], [2, 2]]],
-    ['axis-repeated', [[[0, 1]], [{ axes: [0, 0], strength: 2 }], [2, 2]]],
-    ['strength-above', [[[0, 1]], [{ axes: [0, 1], strength: 3 }], [2, 2]]],
-    ['level-zero', [[[0, 0]], [{ axes: [0, 1], strength: 1 }], [2, 0]]],
+  const refusals: Array<[string, string, [number[][], Group[], number[]]]> = [
+    ['no-group', 'groups', [[[0, 1]], [], [2, 2]]],
+    ['row-length', 'rows', [[[0, 1, 0]], [{ axes: [0, 1], strength: 2 }], [2, 2]]],
+    ['value-outside', 'rows', [[[0, 2]], [{ axes: [0, 1], strength: 2 }], [2, 2]]],
+    ['axis-repeated', 'groups', [[[0, 1]], [{ axes: [0, 0], strength: 2 }], [2, 2]]],
+    ['strength-above', 'groups', [[[0, 1]], [{ axes: [0, 1], strength: 3 }], [2, 2]]],
+    ['level-zero', 'levels', [[[0, 0]], [{ axes: [0, 1], strength: 1 }], [2, 0]]],
   ];
-  for (const [what, args] of refusals) {
+  for (const [what, argument, args] of refusals) {
     out.push(
       item(
         `refuse.${what}`,
@@ -563,9 +698,9 @@ function coverageItems(): BankItem[] {
             const value = fn(...args);
             return fail(`mixedStrengthCoverage(${show(args)}) returned ${show(value)}, want a RangeError`);
           } catch (cause) {
-            return cause instanceof RangeError
-              ? ok()
-              : fail(`mixedStrengthCoverage threw ${String(cause)}, want a RangeError (${DOC_OWED})`);
+            if (!(cause instanceof RangeError))
+              return fail(`mixedStrengthCoverage threw ${String(cause)}, want a RangeError (${DOC_OWED})`);
+            return messageNames(cause.message, 'mixedStrengthCoverage', argument);
           }
         },
       ),

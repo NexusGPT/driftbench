@@ -21,19 +21,19 @@ each estimator, draws from a population whose truth is known, counting how often
 truth, whether planted variance shares are recovered, whether unseen-mass estimates match the true
 covered probability, and whether a predicted power matches the simulated one.
 
-The ladder (version 3), from `driftbench validate stats`:
+The ladder (version 4), from `driftbench validate stats`:
 
 | Level | Id | Name | Items | Families |
 |---|---|---|---|---|
 | 1 | `reference` | reference values | 31 | reference |
 | 2 | `degenerate` | degenerate inputs | 201 | degenerate-domain, degenerate-empty, degenerate-nonfinite, degenerate-single-equal |
 | 3 | `reproducibility` | reproducibility | 22 | reproducibility |
-| 4 | `analytic` | analytic truth | 494 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
+| 4 | `analytic` | analytic truth | 640 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
 | 5 | `simulation` | simulation coverage | 40 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
 
-904 items in all (counted from `--items --json` on seed 1). What each level asks:
+1050 items in all (counted from `--items --json` on seed 1). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
@@ -54,7 +54,7 @@ The ladder (version 3), from `driftbench validate stats`:
 * `roadmap`: methods the research dossiers name that a product page needs, matching scipy, degenerate-safe
   and scaling.
 
-Ladder version 3 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 3 adds items for defects and for statistics the docs define and the package lacks; the stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
+Ladder version 4 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 146 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
 
 ## When to use it
 
@@ -155,7 +155,7 @@ pnpm -s driftbench validate stats
 ```
 
 ```text
-Validator stats (ladder version 3)
+Validator stats (ladder version 4)
 Level  Name                 Metric                                                                                      Threshold  seed 1
 1      reference values     fixture groups matching scipy and numpy / groups                                            >= 1       1 pass
 2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases             >= 1       1 pass
@@ -170,7 +170,7 @@ Floor: 0. At or above the floor.
 Items of the first failing level: 46 items, every one a defect item or a missing statistic (see below).
 ```
 
-It exited 3, the level reached: the 46 items of ladder version 3 for sweep defects and for four statistics the docs define fail until the stats-fix pull requests land. The hardness measurement of this bank is in
+It exited 3, the level reached: the failing items of ladder versions 3 and 4 (sweep defects, statistics the docs define, and the weights family) fail until the stats-fix pull requests land. The hardness measurement of this bank is in
 `validate-executor-loop`.
 
 ## Common errors
