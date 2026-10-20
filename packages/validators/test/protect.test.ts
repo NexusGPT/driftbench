@@ -26,6 +26,11 @@ describe('protectedChanges', () => {
     expect(protectedChanges('lane/validators', files)).toEqual([]);
     expect(protectedChanges('executor/x', files)).toEqual([]);
   });
+  it('protects the tools that plan and run the CI shards', () => {
+    const ci = ['tools/ci/shard-plan.mjs', 'tools/ci/run-shard.mjs', 'tools/ci/test-durations.json'];
+    expect(protectedChanges('exec/ci', [...ci, 'tools/cinema/x.mjs', 'tools/c/shard-plan.mjs'])).toEqual(ci);
+    expect(PROTECTED_PATHS).toContain('tools/ci/');
+  });
   it('covers the three paths the design names', () => {
     for (const path of [
       'packages/validators/src/ladders/x.ts',
@@ -868,19 +873,29 @@ describe('merge train enforcement', () => {
     const job = workflow.jobs['train-gate'];
     const others = [
       TRAIN_PR,
+      RELEASE_PR,
       MAIN_PUSH,
       dispatchOn('refs/heads/train/9a', 'build'),
       dispatchOn('refs/heads/main', 'build'),
     ];
     // the job passes on an ordinary PR under another name, so no job check named `train gate` can turn green there
     expect(evaluateTemplate(job.name, ORDINARY_PR)).not.toBe('train gate');
+    // the release PR is judged under the real name, as a train PR is; a feature PR into the release branch is not
+    expect(evaluateTemplate(job.name, RELEASE_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, TRAIN_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, FEATURE_PR)).not.toBe('train gate');
+    for (const ctx of LOOKALIKE_PRS)
+      expect(evaluateTemplate(job.name, ctx), ctx.headRef).not.toBe('train gate');
     // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
     const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
     expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
+    expect(Boolean(evaluate(gate.if, FEATURE_PR))).toBe(false);
     for (const ctx of others) expect(Boolean(evaluate(gate.if, ctx))).toBe(true);
     // the status named `train gate` is held pending, with its text, on an ordinary PR and nowhere else
     const hold = job.steps.find((s: { name?: string }) => s.name?.startsWith('Hold the train gate pending'));
     expect(Boolean(evaluate(hold.if, ORDINARY_PR))).toBe(true);
+    expect(Boolean(evaluate(hold.if, FEATURE_PR))).toBe(true);
+    for (const ctx of LOOKALIKE_PRS) expect(Boolean(evaluate(hold.if, ctx)), ctx.headRef).toBe(true);
     for (const ctx of others) expect(Boolean(evaluate(hold.if, ctx))).toBe(false);
     expect(hold.run).toContain('state=pending');
     expect(hold.run).toContain("context='train gate'");

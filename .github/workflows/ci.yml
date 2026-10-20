@@ -110,7 +110,7 @@ jobs:
     # The check named `train gate` is the merge-train requirement, and it must never pass on a head that is not a
     # train. On an ordinary pull request this job is therefore named differently and passes, and the check named
     # `train gate` is a commit status held pending ("waits for the merge train"): yellow, never red, never green.
-    name: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && 'train gate (ordinary PR)' || 'train gate' }}
+    name: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && 'train gate (ordinary PR)' || 'train gate' }}
     if: always()
     permissions:
       contents: read
@@ -119,7 +119,7 @@ jobs:
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
-        if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/')
+        if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/')
         env:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.head_ref }}
@@ -167,7 +167,7 @@ jobs:
             exit 1
           fi
       - name: Hold the train gate pending on an ordinary pull request
-        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
+        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
