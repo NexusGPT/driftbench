@@ -238,6 +238,8 @@ $ driftbench generate --map examples/acme/map/approved.yaml --out out/authoring-
 |---|---|---|
 | `MAP_NOT_APPROVED` | entries of the proposal are not approved | `driftbench extract approve <map> --all`, or approve entries one by one |
 | `MAP_INVALID` with `this reader knows proposal version 1` | a space map was passed | pass the approved proposal; space maps are for `space` commands |
+| `MAP_TOOLS_UNREADABLE` (`the tools file <path> cannot be read: <why>`) | a `tools` source of the proposal is missing or fails the rules of the `--tools` file (codes `TOOLS_PARSE`, `TOOLS_NOT_FOUND`, `TOOLS_INVALID`, `TOOLS_DUPLICATE`, topic authoring-extract) | put the file where the proposal's `sources` path says, or fix it |
+| `MAP_INVENTORY_INVALID` (`the inventory <path> is invalid: ...`) | the `inventory` source of the proposal does not load | fix the inventory (topic authoring-inventory) |
 | `<report> already exists: an earlier run wrote this folder. Pass --force to replace its output.` | the folder holds an earlier run | `--force`, or another `--out` |
 | `--out names <path>, which is a file: give a folder.` | `--out` is a file | give a folder |
 | `Cannot generate: --spec-cap <n> is below the <p> protected structural, fault and incomplete specs; none can be trimmed` | the cap is under the protected count | raise the cap |

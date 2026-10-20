@@ -32,6 +32,26 @@ export function registeredErrors(root = join(ROOT, 'packages')): string[] {
       }
       if (!entry.name.endsWith('.ts')) continue;
       const source = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true);
+      // Code unions: `export type XCode = 'A' | 'B'` and a `code: 'A' | 'B'` member of an error shape.
+      const literals = (node: ts.TypeNode | undefined): string[] =>
+        node && ts.isUnionTypeNode(node)
+          ? node.types.flatMap((member) => literals(member))
+          : node && ts.isLiteralTypeNode(node) && ts.isStringLiteral(node.literal)
+            ? [node.literal.text]
+            : [];
+      const scan = (node: ts.Node): void => {
+        if (
+          ts.isTypeAliasDeclaration(node) &&
+          node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) &&
+          /(Issue|Warning|Error)Codes?$/.test(node.name.text)
+        )
+          for (const code of literals(node.type)) codes.add(code);
+        if (ts.isPropertySignature(node) && node.name.getText(source) === 'code')
+          for (const code of literals(node.type))
+            if (/^[A-Z][A-Z0-9]*(_[A-Z0-9]+)+$/.test(code)) codes.add(code);
+        ts.forEachChild(node, scan);
+      };
+      scan(source);
       for (const statement of source.statements) {
         if (
           !ts.isVariableStatement(statement) ||
