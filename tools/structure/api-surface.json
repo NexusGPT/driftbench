@@ -359,6 +359,7 @@
       "workspace": "value"
     },
     "cli": {
+      "BUILTIN_PLUGINS": "value",
       "CampaignDeps": "type",
       "CampaignScope": "type",
       "CoverageOptions": "type",
@@ -1872,6 +1873,7 @@
       "EscalationConfig": "type",
       "EscalationRecord": "type",
       "EscalationTrigger": "type",
+      "EvidenceSpan": "type",
       "ExtractedAnswer": "type",
       "FACT_LEDGER_POINTWISE": "value",
       "FROZEN_BENCHMARK_REASONING": "value",
@@ -2044,6 +2046,7 @@
       "fixtureRequest": "value",
       "googleResponseSchema": "value",
       "groundEvidence": "value",
+      "groundEvidenceSpan": "value",
       "inconclusive": "value",
       "isStructured": "value",
       "judgeAnswerAudit": "value",

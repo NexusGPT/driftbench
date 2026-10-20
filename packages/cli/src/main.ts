@@ -194,7 +194,7 @@ function rootProgram(io: Io): Command {
       // Read before the arguments are parsed (see ./plugins), wherever it stands; listed here for the help.
       .option(
         '--plugin <module>',
-        'load a plugin before the command runs: a module path or a package name; repeat for several',
+        'load a plugin before the command runs: a module path, a package name, or a built-in such as driftbench:stated_length; repeat for several',
       )
       .addHelpText('after', '\nHelp topics, each capability and how to use it: driftbench help')
       .exitOverride()

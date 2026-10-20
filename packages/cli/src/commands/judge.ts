@@ -46,6 +46,7 @@ import {
   judgeSettingsFrom,
 } from '../judge-settings';
 import { optionNumber } from '../number';
+import { registerJudgeTools } from './judge-tools';
 
 const MODES: readonly CouncilMode[] = ['system1', 'hybrid', 'llm'];
 
@@ -203,6 +204,8 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
     .action(async (dir: string, options: { json?: boolean }) => {
       setExit(await judgeCheckCommand(dir, options, io));
     });
+
+  registerJudgeTools(judge, io, setExit);
 }
 
 type FixtureRow = {
@@ -675,6 +678,21 @@ function describeCalibration(criterion: CriterionCalibration, report: Calibratio
   lines.push(
     `    alpha across judges ${criterion.alpha === undefined ? 'n/a' : criterion.alpha.toFixed(2)}; bar: ${report.repeats}/${report.repeats} separation and kappa ${report.kappaMin}`,
   );
+  for (const group of criterion.labelConflicts ?? []) {
+    lines.push(`    label conflict: ${group.join(', ')} hold one slice under both labels`);
+  }
+  if (criterion.fixtureLeaks && criterion.fixtureLeaks.length > 0) {
+    lines.push(
+      `    fixture leak: ${criterion.fixtureLeaks.join(', ')} equal a fixture of the criterion, which inflates agreement`,
+    );
+  }
+  for (const warning of criterion.warnings ?? []) {
+    lines.push(
+      warning === 'few-labels'
+        ? '    warning few-labels: a class has fewer than 5 labelled blocks, so kappa is loose'
+        : `    warning ${warning}`,
+    );
+  }
   return `${lines.join('\n')}\n`;
 }
 

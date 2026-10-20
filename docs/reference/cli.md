@@ -1008,6 +1008,42 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 | 1 | a criterion is not separated, or a judge gave no answer | a gating criterion stays unassigned, or a judge gave no answer; the table is still written | a file has an issue |
 | 2 | bad input | bad input | the folder cannot be read |
 
+`judge calibrate` also prints the label hygiene of each criterion in its text output: a `label conflict` (blocks that hold one slice under both labels), a `fixture leak` (a labelled block equal to a fixture, which inflates agreement) and the `few-labels` warning (a class with fewer than 5 labelled blocks). `--json` carries them as `labelConflicts`, `fixtureLeaks` and `warnings`.
+
+### Judge tools
+
+None of these calls a model.
+
+```
+driftbench judge ground --quote <text> (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--source <place>] [--json]
+driftbench judge lint <paths...> [--json]
+driftbench judge prompt (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--json]
+driftbench judge cassette inspect <file> [--criteria <dir> [--labels <dir>]] [--json]
+driftbench judge cassette rekey <file> --from <dir> --criteria <dir> [--labels <dir>] [--rename <old=new>...] --out <file> [--json]
+```
+
+| Command | Does | Exit |
+|---|---|---|
+| `judge ground` | checks a quote against the data a judge saw, as the council checks evidence: the transcript entries, the artifact, the Given, the inputs, the reference. Prints the place that holds it; `--source` looks in one place only | 0 grounded, 1 not grounded, 2 bad input |
+| `judge lint` | lists the defects of each rubric and its pictures (`two-questions`, `subjective`, `no-fail-picture` and the other codes), for criterion files, spec files, or folders of them | 0 none, 1 a defect, 2 bad input |
+| `judge prompt` | prints the exact system and user text a judge receives for one request | 0, or 2 on bad input |
+| `judge cassette inspect` | prints the judges of a cassette, its entries per judge and per criterion, the answer contracts and decoder versions. With `--criteria`, counts the fixture requests (and with `--labels`, the labelled blocks) the cassette answers, and the entries no request matches | 0, or 2 on bad input |
+| `judge cassette rekey` | moves recorded answers to the keys of changed criteria (`--from` the folder the cassette was recorded with, `--criteria` the changed one). It refuses, writes nothing and exits 1 when any moved request gives the judge another prompt: then record again. A change the judge does not read, such as a line break inside a rubric, is re-keyed | 0 written, 1 refused, 2 bad input |
+
+A request file is a judge request as JSON: `criterion` (`name`, `rubric`, optional `pass`, `fail`, `scope`) and `transcript` (entries with `role` and `text`), with optional `artifact`, `given`, `inputs` and `reference`.
+
+## `driftbench bench`
+
+The judge benchmark of the repository, the same code and options as `pnpm bench`. It reads the slices, cassettes, evidence and floors under `benchmarks/` of a repository checkout: `--root <path>` names it, else the checkout around the working folder. See [benchmarks](../benchmarks.md).
+
+```
+driftbench bench replay [--slice <name>|all] [--model <id>] [--root <path>] [--store <file>] [--check-floor] [--json]
+driftbench bench record --model <id> --spend-cap-usd <usd> [--slice <name>|all] [--root <path>] [--store <file>] [--spend-ledger <path>] [--concurrency <n>] [--resume] [--json]
+driftbench bench floors [model] [--root <path>] [--raise <slice> --evidence <json>] [--json]
+```
+
+`bench replay` makes no network call and needs no key. `bench record` makes paid calls under its spend cap.
+
 ## `driftbench family`
 
 Code-agent task families: a family builds instances from a seed, each with corner-case variants and oracle expectations, and the reference build verifies them. See [generating](../generating.md).

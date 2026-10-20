@@ -469,7 +469,7 @@ rules:
 
 ### Stated length
 
-`stated_length` is an opt-in custom check for writing tasks. It reads a total length stated in the request and fails a reply far under it. Register it, then name it under `rules.custom`.
+`stated_length` is an opt-in custom check for writing tasks. It reads a total length stated in the request and fails a reply far under it. Load it from the CLI with the built-in plugin `--plugin driftbench:stated_length` (or `driftbench:stated_length` in the `plugins` list of `driftbench.yaml`), or register it in code; then name it under `rules.custom`.
 
 ```ts
 import { registerCheck, statedLength } from '@agent-nexus/driftbench-checks';

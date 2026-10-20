@@ -522,6 +522,17 @@ export async function applyPlugins(
   return undefined;
 }
 
+/**
+ * The plugins that ship with the CLI, named `driftbench:<name>` where a module goes. Each adds what the CLI
+ * holds but does not register by default, so a run without it is unchanged.
+ */
+export const BUILTIN_PLUGINS: Readonly<Record<string, DriftbenchPlugin>> = {
+  /** The `stated_length` check: a reply far under a length the request states fails. Name it under `rules.custom`. */
+  'driftbench:stated_length': async (api) => {
+    api.check('stated_length', (await import('@agent-nexus/driftbench-checks')).statedLength);
+  },
+};
+
 /** One plugin to load: the module as written, and the folder a relative path starts from. */
 export type PluginSource = { module: string; from: string };
 
@@ -536,6 +547,17 @@ export async function loadPlugins(
   const seen = new Set<string>();
   for (const source of sources) {
     // A module named twice, in the config and by the flag, is one plugin: it runs once.
+    if (source.module.startsWith('driftbench:')) {
+      const builtin = BUILTIN_PLUGINS[source.module];
+      if (builtin === undefined) {
+        return `No built-in plugin ${source.module}: the built-in plugins are ${Object.keys(BUILTIN_PLUGINS).join(', ')}`;
+      }
+      if (seen.has(source.module)) continue;
+      seen.add(source.module);
+      const failure = await runPlugin(builtin, cwd, source.module);
+      if (failure !== undefined) return failure;
+      continue;
+    }
     const where = locate(source);
     if (seen.has(where)) continue;
     seen.add(where);

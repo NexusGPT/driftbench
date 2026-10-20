@@ -49,6 +49,7 @@ Run the agent
 
 Judge
   driftbench judge       run, check and calibrate judged criteria
+  driftbench bench       replay the judge benchmark, record a model, show or raise the floors
   driftbench queue       the review queue of blocks for people to label
 
 Read and gate the results
