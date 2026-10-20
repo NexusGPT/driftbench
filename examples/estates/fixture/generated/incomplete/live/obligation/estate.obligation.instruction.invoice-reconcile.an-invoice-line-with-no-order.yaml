@@ -53,3 +53,22 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.invoice-reconcile.an-invoice-line-with-no-order
         detail: "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.an-invoice-line-with-no-order
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.invoice-reconcile.an-invoice-line-with-no-order
+        values:
+          atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -103,6 +103,16 @@ describe('the blind pilot in --hardness', () => {
     expect(h.pilots.blind?.fixedPerIteration).toBe(2);
   });
 
+  it('reports the iteration 0 of the pilot it measures with, the blind one when it has its own', () => {
+    const rows = journal(BUILDER, [20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40], 0);
+    const h = hard(rows);
+    expect(h.source).toBe('blind');
+    expect(h.iteration0.passing).toBe(20);
+    expect(formatHardness('x', h)).toContain('Score at iteration 0: 0.06667 (20 of 300).');
+    const builderOnly = hard(rows.filter((row) => row.executor !== 'blind'));
+    expect(builderOnly.iteration0.passing).toBe(30);
+  });
+
   it('keeps the builder pilot as the source without blind rows', () => {
     const h = hard(journal(BUILDER, []));
     expect(h.source).toBe('builder');

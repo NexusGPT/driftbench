@@ -81,7 +81,7 @@ Arguments:
 
 | Argument | Meaning |
 |---|---|
-| `<component>` | a registered component (`estate`, `generator`, `judges`, `map`, `stats`, `system`, `variables`), `all`, `floors` or `protect` |
+| `<component>` | a registered component (`estate`, `generator`, `judges`, `map`, `pointer`, `stats`, `system`, `variables`), `all`, `floors` or `protect` |
 | `[level]` | only with `floors --raise`: the level to raise the floor to. Any other use exits 64 |
 
 Options of a run (this topic):
@@ -122,7 +122,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -211,7 +211,7 @@ From a folder with no `validators/floors.json` above it, and then the errors:
 
 ```text
 Floors (validators/floors.json): none.
-No validator is registered for "nosuch". Registered: estate, generator, judges, map, stats, system, variables.
+No validator is registered for "nosuch". Registered: estate, generator, judges, map, pointer, stats, system, variables.
 --seeds takes a..b with whole numbers a <= b, such as 1..20, not "3..1".
 Unexpected argument "2": a level is only taken by floors --raise.
 ```

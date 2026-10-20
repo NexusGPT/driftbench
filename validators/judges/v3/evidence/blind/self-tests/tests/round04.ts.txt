@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';
+import {binaryLabellerPabak as pabak} from '../candidate';
+assert.deepEqual(pabak(['x','x','x','y'],['x','x','x','x'],['x','y']),{total:4,agreement:.75,pabak:.5});
+assert.equal(pabak(['x','y'],['y','x'],['x','y']).pabak,-1);
+assert.equal(pabak(['none'],['none'],['none','x']).pabak,1);
+for(const args of [[[],[],['x','y']],[['x'],[null],['x','y']],[['none'],['none'],['x','y']],[['x'],['x'],['x','x']],[['x'],['x'],['x','y','z']]]) assert.throws(()=>pabak(...args as any));
+console.log('round04 binary PABAK passed');

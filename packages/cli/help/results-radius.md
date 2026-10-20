@@ -9,6 +9,7 @@ see_also:
   - authoring-prompt-sections
   - results-compare
   - results-statistics
+  - validate-section-mutants
 next:
   - results-select
 ---
@@ -41,7 +42,8 @@ changes:
 | `fixture` | a fixture name, a workspace file, `family:<id>`, or a literal value | blocks whose Given or expectations name it |
 | `criterion` | a judged criterion | blocks whose criteria name it |
 | `model`, `agent` | none | the whole suite |
-| `prompt_section` | `<prompt-id>#<section-id>` | the whole suite: selection by section links is advisory until links are verified by mutation |
+| `prompt_section` | `<prompt-id>#<section-id>` | the whole suite: selection by section links is advisory until links are verified by mutation. With `radius --gate` and a passing verified-link gate record: the blocks the verified links select |
+| `unit` | a ledger unit id | the whole suite: selection by `estate_unit` links is advisory too; `radius` prints which blocks it would run |
 
 `global: true` on any change makes it the whole suite.
 
@@ -51,7 +53,9 @@ blocks linked to the changed sections or to sections that reference, override or
 block with no link or a stale link, and every later block of the same conversation. It is a report only:
 the radius stays the whole suite and every block runs. On the H7 mutation suite, declared links alone
 missed a block a mutant flipped in 3 of 90 single-section mutants and 9 of 110 with two-section ones;
-with the forward closure, 2 of 90 and 4 of 110.
+with the forward closure, 2 of 90 and 4 of 110. Section mutants (`radius mutate`, validate-section-mutants)
+mark links verified or refuted, and a passing verified-link gate, given as `radius --gate`, lets the
+selection skip blocks.
 
 `radius localize` reads a stored campaign and ranks the local sections whose linked blocks failed, with
 inherited failures dropped (authoring-prompt-sections).
@@ -76,6 +80,9 @@ whole.
   and carry the stored runs of the others. `--audit <n>` checks the carry on a sample.
 * With `ci --change`: gate on the radius only (see `results-ci`).
 * With `radius auto`: turn an edit of a prompt file into a manifest from the approved map's evidence quotes.
+* With `radius ledger`: turn an edit of an estate's prose into a manifest from the ledger of the last scan
+  (authoring-blast-radius). On the H7 mutation suite, unit links missed what section links miss, 2 of 90
+  and 4 of 110 mutants, so a `unit` change stays advisory.
 
 ## Commands and every option
 

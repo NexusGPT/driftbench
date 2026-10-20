@@ -2,7 +2,7 @@ import type { BlockLink } from '../schema/links';
 import type { Spec } from '../schema/spec';
 import { isPlainObject } from '../spec/normalize';
 import type { ChangeManifest } from './change';
-import { linkHolds, registriesByPrompt, sectionLinkStatus, specLinks } from './links';
+import { blockRerun, linkHolds, registriesByPrompt, sectionLinkStatus, specLinks } from './links';
 import type { RadiusSpec } from './radius';
 import type { Reanchoring, SectionRegistry } from './sections';
 
@@ -18,7 +18,8 @@ import type { Reanchoring, SectionRegistry } from './sections';
  * 2. a link of it to that prompt is stale, or names a section the registry lacks or holds as stale;
  * 3. a link of it, not refuted, names a section in the closure of the change: the changed sections,
  *    every section that references or overrides one of them (transitively), and their duplicates;
- * 4. forward: it comes after a selected block of the same conversation (the same spec), or its spec
+ * 4. it is marked to rerun on every change (`metadata.rerun`: it fails at baseline, or it is fragile);
+ * 5. forward: it comes after a selected block of the same conversation (the same spec), or its spec
  *    starts from a parent block at or after a selected block (descendants across parent edges).
  * A change to a global section, to a section the registry does not hold, or to a prompt with no
  * registry selects every block.
@@ -33,7 +34,7 @@ export type SectionSelectionBlock = {
   id: string;
   index: number;
   state: SectionBlockState;
-  /** Why the block is selected: `no-links`, `stale-link:<p#s>`, `link:<p#s> (<status>)`, `after <block>`, `via <spec>#<block>`. */
+  /** Why the block is selected: `no-links`, `stale-link:<p#s>`, `link:<p#s> (<status>)`, `rerun:<reason>`, `after <block>`, `via <spec>#<block>`. */
   why: string[];
 };
 
@@ -86,6 +87,25 @@ export function sectionChanges(
     });
 }
 
+/** The sections a change to `changed` reaches: those and the sections that reference, override or duplicate them. */
+export function sectionClosure(registry: SectionRegistry, changed: Iterable<string>): Set<string> {
+  return closureOf(registry, new Set(changed));
+}
+
+/**
+ * For each section, the other sections whose change reaches it through the registry (it references, overrides
+ * or duplicates them, transitively): a block that tests the section also depends on them.
+ */
+export function sectionsReaching(registry: SectionRegistry): Map<string, string[]> {
+  const reaching = new Map<string, string[]>(registry.sections.map((section) => [section.id, []]));
+  for (const source of registry.sections) {
+    for (const reached of closureOf(registry, new Set([source.id]))) {
+      if (reached !== source.id) reaching.get(reached)?.push(source.id);
+    }
+  }
+  return reaching;
+}
+
 /** The changed sections and the sections that reference, override or duplicate them, transitively. */
 function closureOf(registry: SectionRegistry, changed: Set<string>): Set<string> {
   const out = new Set(changed);
@@ -110,6 +130,57 @@ function closureOf(registry: SectionRegistry, changed: Set<string>): Set<string>
     }
   }
   return out;
+}
+
+/**
+ * The forward closure of a selection, in place: within a conversation, then across parent edges, to a
+ * fixed point. Returns the counts of the blocks by state.
+ */
+function closeForward(
+  reports: SectionSelectionSpec[],
+  specs: readonly RadiusSpec[],
+  parentOf: (spec: Spec) => ParentRef | undefined,
+): SectionSelection['counts'] {
+  // Forward closure: within a conversation, then across parent edges, to a fixed point.
+  const forwardFrom = (report: SectionSelectionSpec, from: number, why: string) => {
+    let changed = false;
+    for (const block of report.blocks) {
+      if (block.index < from || block.state !== 'out') continue;
+      block.state = 'forward';
+      block.why = [why];
+      changed = true;
+    }
+    return changed;
+  };
+  const bySpec = new Map(reports.map((report) => [report.specId, report]));
+  for (let moved = true; moved; ) {
+    moved = false;
+    for (const [at, report] of reports.entries()) {
+      const first = report.blocks.find((block) => block.state !== 'out');
+      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
+      const spec = specs[at]?.spec;
+      const parent = spec ? parentOf(spec) : undefined;
+      const source = parent ? bySpec.get(parent.spec) : undefined;
+      if (!parent || !source) continue;
+      const end = source.blocks.findIndex((block) =>
+        typeof parent.block === 'number' ? block.index === parent.block : block.id === parent.block,
+      );
+      const reached = source.blocks.some((block) => block.state !== 'out' && block.index <= end);
+      if (end >= 0 && reached) moved = forwardFrom(report, 0, `via ${parent.spec}#${parent.block}`) || moved;
+    }
+  }
+
+  const counts = { selected: 0, direct: 0, forward: 0, skipped: 0, total: 0 };
+  for (const report of reports)
+    for (const block of report.blocks) {
+      counts.total++;
+      if (block.state === 'out') counts.skipped++;
+      else {
+        counts.selected++;
+        counts[block.state]++;
+      }
+    }
+  return counts;
 }
 
 /** The advisory section selection of a manifest's `prompt_section` changes over the specs. */
@@ -172,6 +243,9 @@ export function sectionSelection(
           why.push(`link:${target} (${status})`);
       }
     }
+    // A marked block reruns on every change to a section, whatever its links say.
+    if (changedByPrompt.size > 0)
+      for (const mark of blockRerun(spec, index)) why.push(`rerun:${mark.reason}`);
     return [...new Set(why)];
   };
 
@@ -183,45 +257,7 @@ export function sectionSelection(
     return { specId: spec.id, ...(path === undefined ? {} : { path }), blocks };
   });
 
-  // Forward closure: within a conversation, then across parent edges, to a fixed point.
-  const forwardFrom = (report: SectionSelectionSpec, from: number, why: string) => {
-    let changed = false;
-    for (const block of report.blocks) {
-      if (block.index < from || block.state !== 'out') continue;
-      block.state = 'forward';
-      block.why = [why];
-      changed = true;
-    }
-    return changed;
-  };
-  const bySpec = new Map(reports.map((report) => [report.specId, report]));
-  for (let moved = true; moved; ) {
-    moved = false;
-    for (const [at, report] of reports.entries()) {
-      const first = report.blocks.find((block) => block.state !== 'out');
-      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
-      const spec = specs[at]?.spec;
-      const parent = spec ? parentOf(spec) : undefined;
-      const source = parent ? bySpec.get(parent.spec) : undefined;
-      if (!parent || !source) continue;
-      const end = source.blocks.findIndex((block) =>
-        typeof parent.block === 'number' ? block.index === parent.block : block.id === parent.block,
-      );
-      const reached = source.blocks.some((block) => block.state !== 'out' && block.index <= end);
-      if (end >= 0 && reached) moved = forwardFrom(report, 0, `via ${parent.spec}#${parent.block}`) || moved;
-    }
-  }
-
-  const counts = { selected: 0, direct: 0, forward: 0, skipped: 0, total: 0 };
-  for (const report of reports)
-    for (const block of report.blocks) {
-      counts.total++;
-      if (block.state === 'out') counts.skipped++;
-      else {
-        counts.selected++;
-        counts[block.state]++;
-      }
-    }
+  const counts = closeForward(reports, specs, parentOf);
   const flat = (map: Map<string, Set<string>>) =>
     [...map].flatMap(([prompt, ids]) => [...ids].map((id) => key(prompt, id)));
   return {
@@ -232,6 +268,70 @@ export function sectionSelection(
     specs: reports,
     counts,
   };
+}
+
+export const UNIT_SELECTION_ADVISORY =
+  'unit selection is advisory until links are verified by mutation: the whole suite runs';
+
+export type UnitSelection = {
+  advisory: true;
+  /** The changed units, by ledger id. */
+  changed: string[];
+  /** Set when every block is selected, with the reason. */
+  all: string | null;
+  specs: SectionSelectionSpec[];
+  counts: SectionSelection['counts'];
+};
+
+/**
+ * Unit-level selection, ADVISORY ONLY, the ledger twin of the section selection: a `unit` change makes the
+ * radius the whole suite. A block is selected when it has no `estate_unit` link (no record always runs),
+ * when a link of it is stale, when a link of it that is not refuted names a changed unit, when it is marked to
+ * rerun on every change (`metadata.rerun`), and forward as in the section selection. A global `unit` change selects every block.
+ */
+export function unitSelection(
+  specs: readonly RadiusSpec[],
+  manifest: ChangeManifest,
+  options: { parentOf?: (spec: Spec) => ParentRef | undefined } = {},
+): UnitSelection {
+  const parentOf = options.parentOf ?? defaultParentOf;
+  const changes = manifest.changes.filter((change) => change.kind === 'unit');
+  let all: string | null = null;
+  const changed = new Set<string>();
+  for (const change of changes) {
+    if (change.global === true)
+      all ??= `unit${change.id === undefined ? '' : ` ${change.id}`} is declared global`;
+    else if (change.id === undefined) all ??= 'a unit change names no unit';
+    else changed.add(change.id);
+  }
+  const reasons = (spec: Spec, index: number): string[] => {
+    if (all !== null) return [`all: ${all}`];
+    if (changed.size === 0) return [];
+    const links = specLinks(spec).filter(
+      (link): link is BlockLink & { to: { kind: 'estate_unit' } } =>
+        link.to.kind === 'estate_unit' && linkHolds(spec, link, index),
+    );
+    if (links.length === 0) return ['no-links:ledger'];
+    const why: string[] = [];
+    // A marked block reruns on every change to a unit, whatever its links say.
+    for (const mark of blockRerun(spec, index)) why.push(`rerun:${mark.reason}`);
+    for (const link of links) {
+      if (link.status === 'stale') why.push(`stale-link:unit:${link.to.unit}`);
+      else if (link.status !== 'refuted' && changed.has(link.to.unit))
+        why.push(`link:unit:${link.to.unit} (${link.status})`);
+    }
+    return [...new Set(why)];
+  };
+  const reports: SectionSelectionSpec[] = specs.map(({ spec, path }) => ({
+    specId: spec.id,
+    ...(path === undefined ? {} : { path }),
+    blocks: spec.blocks.map((block, index) => {
+      const why = reasons(spec, index);
+      return { id: block.id ?? `block ${index}`, index, state: why.length > 0 ? 'direct' : 'out', why };
+    }),
+  }));
+  const counts = closeForward(reports, specs, parentOf);
+  return { advisory: true, changed: [...changed].sort(), all, specs: reports, counts };
 }
 
 /**

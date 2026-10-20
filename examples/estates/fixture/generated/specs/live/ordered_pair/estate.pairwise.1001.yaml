@@ -99,3 +99,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.write-a-helper-s-brief-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1001
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: long
+          owner_signal: language_switch
+          deviation: D7_silence_or_burst
+          estate_hazard: stale_tracker
+          atoms.gate: gate.standing.write-a-helper-s-brief-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

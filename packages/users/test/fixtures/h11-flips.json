@@ -1,0 +1,93 @@
+{
+  "source": "research/block-sim h11/results.json (per_block O and G trial outcomes; O = gpt-5.4-nano, G = gemini-3.5-flash-lite; 8 trials each). Numbers only.",
+  "families": {
+    "O": "gpt-5.4-nano",
+    "G": "gemini-3.5-flash-lite"
+  },
+  "registered": {
+    "cross": 0.15000000000000002,
+    "within": 0.2
+  },
+  "trials": {
+    "1539": {
+      "O": [true, true, true, false, true, true, true, true],
+      "G": [false, false, true, false, false, true, false, false]
+    },
+    "2062": {
+      "O": [true, true, false, true, true, true, true, true],
+      "G": [true, true, false, true, true, true, true, true]
+    },
+    "2463": {
+      "O": [true, false, true, false, true, true, false, true],
+      "G": [true, true, false, true, true, true, true, false]
+    },
+    "2929": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [false, false, false, false, false, false, false, false]
+    },
+    "3079": {
+      "O": [false, false, false, true, false, false, false, false],
+      "G": [false, false, false, false, false, false, true, false]
+    },
+    "3630": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [false, false, false, false, false, false, false, false]
+    },
+    "5440": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "5795": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "6275": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [true, false, false, false, false, false, false, false]
+    },
+    "6771": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [false, false, false, false, false, false, false, false]
+    },
+    "6798": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "7077": {
+      "O": [true, true, true, true, true, true, false, true],
+      "G": [false, true, false, true, true, true, true, true]
+    },
+    "7279": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "7321": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "7666": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [false, false, false, false, false, false, false, false]
+    },
+    "7860": {
+      "O": [true, true, true, true, false, true, true, false],
+      "G": [true, true, true, true, true, true, true, true]
+    },
+    "8032": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, false, true, true, true]
+    },
+    "8115": {
+      "O": [false, false, false, false, false, false, false, false],
+      "G": [false, false, false, false, false, false, false, false]
+    },
+    "8196": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, false, false, true, true, true, true]
+    },
+    "10341": {
+      "O": [true, true, true, true, true, true, true, true],
+      "G": [true, true, true, true, true, true, true, true]
+    }
+  }
+}

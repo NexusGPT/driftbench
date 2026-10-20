@@ -1,0 +1,13 @@
+id: acme.planted.b1
+intent: "The customer gives the address where they want home internet."
+seed: "88 Summit Avenue, Acmeville"
+context:
+  last_reply: "Welcome to Acme! What address would you like home internet at?"
+slots:
+  - name: address
+    format: text
+    surface_forms:
+      - { form: "88 Summit Avenue, Acmeville", approved: true }
+      - { form: "88 Summit Ave, Acmeville", approved: true }
+      - { form: "88 summit avenue", approved: true }
+    minimal: ["8 Summit Avenue, Acmeville"]

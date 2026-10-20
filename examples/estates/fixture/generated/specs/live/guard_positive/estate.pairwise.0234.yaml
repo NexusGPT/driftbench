@@ -66,3 +66,28 @@ metadata:
     ask: code
     askFrom: instruction.standing.never-delete-a-ledger-file-archive (enforced by guard.settings.posttooluse-bash-guard-ledger-guard-py)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0234
+        values:
+          ask_class: operate
+          ask_shape: correction
+          session_state: long
+          owner_signal: language_switch
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

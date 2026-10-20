@@ -106,3 +106,53 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.out.customer
         value: catalog.search.out.customer.absent
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-014
+        values:
+          catalog.search.out.customer: catalog.search.out.customer.absent
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: catalog.search.out.customer=catalog.search.out.customer.absent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-014
+        values:
+          catalog.search.out.customer: catalog.search.out.customer.absent
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

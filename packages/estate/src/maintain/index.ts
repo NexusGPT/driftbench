@@ -19,6 +19,8 @@ export {
   type ParsedDiff,
   parseEstateDiff,
   renderEstateDiff,
+  UnitsDiff,
+  unitsDiff,
 } from './diff';
 export {
   checkGuardState,

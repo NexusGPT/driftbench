@@ -260,3 +260,217 @@ metadata:
       stem: stem-89730322d132
       block: b1-needs-to-port_number
       replaced: 1
+  links:
+    - block: stem-89730322d132#b1-needs-to-port_number
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-port_number
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-89730322d132#b1-needs-to-port_number
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: needs-to-port_number
+          stage: port_number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D10_return
+      to:
+        kind: rule
+        rule: deviation=D10_return
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D10_return
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          deviation: D10_return
+          stage: port_number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-port_number-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=port_number-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-port_number-to-offer
+      to:
+        kind: rule
+        rule: port_result=locked
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-port_number-to-offer
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: port_number-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-offer-to-details
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-details
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-offer-to-details
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: offer-to-details
+          stage: details
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-details-to-recap
+      to:
+        kind: rule
+        rule: stage_transition=details-to-recap
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-details-to-recap
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: details-to-recap
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: stage_transition=recap-to-order_placed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: port_result=locked
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: customer_details=name-and-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: recap-to-order_placed
+          stage: order_placed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b7-order_placed-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=order_placed-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b7-order_placed-to-closing
+      to:
+        kind: plan_row
+        row: gen-twise-087
+        values:
+          behaviour: B-007
+          channel: chat
+          user_type: new-customer
+          coverage_result: none
+          flow: porting
+          port_result: locked
+          plan_choice: names-one
+          customer_details: name-and-email
+          stage_transition: order_placed-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

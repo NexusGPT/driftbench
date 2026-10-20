@@ -4,6 +4,12 @@ import type { GeneratorParts } from './measure';
 import { type ScaleReport, scaleReport } from './scale';
 
 export { acmeItems, acmeRun } from './acme';
+
+/**
+ * The ladder version of the generator bank (docs/validators.md section 12.5: a floor holds per version). Version 2
+ * adds the planner v2 family: strength 3 on the rules, seed rows, traffic order and budget cuts.
+ */
+export const GENERATOR_LADDER_VERSION = 2;
 export {
   BANK_COMPONENTS,
   BANK_LEVELS,
@@ -57,6 +63,7 @@ export {
   runAll,
   runContext,
 } from './measure';
+export { plannerItems } from './planner-v2';
 export * from './render';
 export { SCALE_BUDGET_MS, type ScaleReport, scaledSpec, scaleReport } from './scale';
 
@@ -144,6 +151,7 @@ export function generatorLadder(options: GeneratorLadderOptions = {}): Ladder {
   };
   return defineLadder({
     component: 'generator',
+    version: GENERATOR_LADDER_VERSION,
     levels: BANK_LEVELS.map((level) => {
       const own = items.filter((item) => item.level === level.id);
       return {
