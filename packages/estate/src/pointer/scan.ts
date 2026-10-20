@@ -267,10 +267,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         candidates: Object.fromEntries(
           (set.links ?? []).map((kind) => [
             kind.name,
-            (input.atoms ?? [])
-              .filter((atom) => kind.to.includes(atom.kind))
-              .map((atom) => ({ id: atom.id, label: atom.title }))
-              .sort((a, b) => a.id.localeCompare(b.id)),
+            kind.values
+              ? kind.values.map((value) => ({ id: value, label: value }))
+              : (input.atoms ?? [])
+                  .filter((atom) => kind.to?.includes(atom.kind))
+                  .map((atom) => ({ id: atom.id, label: atom.title }))
+                  .sort((a, b) => a.id.localeCompare(b.id)),
           ]),
         ),
       },

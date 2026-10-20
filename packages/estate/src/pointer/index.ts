@@ -47,6 +47,8 @@ export {
   type LabelSetsResult,
   type LinkAnswer,
   LinkKind,
+  locateSpanText,
+  offsetSpans,
   parseLabelSets,
   type SpanAnswer,
   SpanKind,

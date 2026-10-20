@@ -1,5 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
+import { EvidencePredicate } from '../schema';
 import { sha } from './cut';
 
 /**
@@ -16,19 +17,46 @@ export const SpanKind = z.strictObject({
   description: z.string().min(1),
   /** The spans of this kind carry a polarity, obligation or prohibition. */
   polarity: z.literal(true).optional(),
-  /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
-  within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
 /** A kind of link from a unit to an atom the request listed as a candidate. */
-export const LinkKind = z.strictObject({
-  name: z.string().regex(LABEL_NAME, { error: 'a link kind name is lower case letters, digits and hyphens' }),
-  description: z.string().min(1),
-  /** The kinds of atom a link of this kind may name. */
-  to: z.array(z.string().min(1)).min(1),
-});
+export const LinkKind = z
+  .strictObject({
+    name: z
+      .string()
+      .regex(LABEL_NAME, { error: 'a link kind name is lower case letters, digits and hyphens' }),
+    description: z.string().min(1),
+    /** The kinds of atom a link of this kind may name. */
+    to: z.array(z.string().min(1)).min(1).optional(),
+    /** Or a closed list of values the set declares, such as the names of a runtime's tools. */
+    values: z.array(z.string().min(1)).min(1).optional(),
+  })
+  .refine((kind) => (kind.to === undefined) !== (kind.values === undefined), {
+    error: 'a link kind names `to` (atom kinds) or `values` (a closed list), one of the two',
+  });
 export type LinkKind = z.infer<typeof LinkKind>;
+
+const AtomBase = z.strictObject({
+  kind: z.string().min(1),
+  polarity: z.enum(['obligation', 'prohibition']).optional(),
+  /** The title of the atom, in words of the unit: a placeholder or a string. Default: the unit text. */
+  title: z.string().min(1).optional(),
+  /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
+  situation: z.string().min(1).optional(),
+  /** Fields the set puts on every atom of this label, such as the id of a hazard. */
+  fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+  /** Checks the set puts on every atom of this label, after the review check the scan adds. */
+  evidence: z.array(EvidencePredicate).optional(),
+  /** Resolve the first code span of the unit as a file of the estate: the atom gets its path and whether it exists. */
+  locate: z.literal(true).optional(),
+  /** Build this atom only when the first code span of the unit leads to a file of the estate. */
+  whenFile: z.literal(true).optional(),
+});
+
+/** What a label builds: one atom, and the further atoms the same unit also is (a gate that also names a file). */
+export const AtomMapping = AtomBase.extend({ also: z.array(AtomBase).min(1).optional() });
+export type AtomMapping = z.infer<typeof AtomMapping>;
 
 export const Label = z.strictObject({
   name: z
@@ -46,9 +74,7 @@ export const Label = z.strictObject({
   spans: z.array(z.string().min(1)).min(1).optional(),
   /** The link kinds a unit with this label may carry. */
   links: z.array(z.string().min(1)).min(1).optional(),
-  atom: z
-    .strictObject({ kind: z.string().min(1), polarity: z.enum(['obligation', 'prohibition']).optional() })
-    .optional(),
+  atom: AtomMapping.optional(),
 });
 export type Label = z.infer<typeof Label>;
 
@@ -103,8 +129,6 @@ export function parseLabelSets(text: string): LabelSetsResult {
         return { ok: false, message: `the set ${set.set} declares the span kind ${kind.name} twice` };
       spanKinds.add(kind.name);
     }
-    const nesting = nestingProblem(set);
-    if (nesting) return { ok: false, message: nesting };
     const linkKinds = new Set<string>();
     for (const kind of set.links ?? []) {
       if (linkKinds.has(kind.name))
@@ -129,15 +153,6 @@ export function parseLabelSets(text: string): LabelSetsResult {
           };
         }
       }
-      for (const kind of label.spans ?? []) {
-        const parent = set.spans?.find((candidate) => candidate.name === kind)?.within;
-        if (parent && !label.spans?.includes(parent)) {
-          return {
-            ok: false,
-            message: `the label ${label.name} carries the span kind ${kind}, which is within ${parent}, and not ${parent}`,
-          };
-        }
-      }
       if (names.has(label.name))
         return { ok: false, message: `the set ${set.set} declares ${label.name} twice` };
       names.add(label.name);
@@ -155,32 +170,6 @@ export function parseLabelSets(text: string): LabelSetsResult {
   return { ok: true, sets: parsed.data.labels };
 }
 
-/** True when `outer` is the parent of `kind`, or its parent's parent, and so on up the chain. */
-function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: string): boolean {
-  let up = kinds.get(kind)?.within;
-  for (let step = 0; up !== undefined && step < kinds.size; step += 1) {
-    if (up === outer) return true;
-    up = kinds.get(up)?.within;
-  }
-  return false;
-}
-
-/** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
-function nestingProblem(set: LabelSet): string | undefined {
-  const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
-  for (const [name, parent] of parents) {
-    if (parent === undefined) continue;
-    if (parent === name) return `the span kind ${name} is within itself`;
-    if (!parents.has(parent))
-      return `the span kind ${name} is within ${parent}, which the set does not declare`;
-    // The chain above a kind has at most as many steps as there are kinds; a longer one loops.
-    let up: string | undefined = parent;
-    for (let step = 0; up !== undefined && step < parents.size; step += 1) up = parents.get(up);
-    if (up !== undefined) return `the span kinds ${name} and ${parent} are within each other`;
-  }
-  return undefined;
-}
-
 /** The hash of a set's canonical form: editing one label changes only that set's hash. */
 export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 16);
 
@@ -195,12 +184,18 @@ export type Labelled = {
   units: string;
   label: string;
   target?: number;
-  spans?: SpanAnswer[];
+  spans?: SpanInput[];
   links?: LinkAnswer[];
 };
 
 /** A span as answered: offsets into the text of one unit, `to` exclusive. */
 export type SpanAnswer = { kind: string; from: number; to: number; polarity?: string };
+
+/** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
+export type SpanInput = { kind: string; polarity?: string } & (
+  | { from: number; to: number; unlocated?: string }
+  | { text: string }
+);
 
 /** A link as answered: a kind and the id of a candidate atom (or `none`). */
 export type LinkAnswer = { kind: string; to: string };
@@ -300,12 +295,6 @@ export function checkAnswer(
 const POLARITIES = new Set(['obligation', 'prohibition']);
 
 /**
- * The spans and links of one entry, checked. A span is offsets into the text of one unit: integers, from under
- * to, inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
- * overlapping another span of the unit. A link names a kind the label may carry and a candidate the request
- * listed (or `none`). Any failure refuses the whole entry: the reason is returned as a string.
- */
-/**
  * A unit as the labeler reads it: runs of white space become one space and the ends are trimmed. `at[i]` is the
  * offset in the unit of the character `i` of the shown text, so an offset counted on the shown text is carried
  * back to the unit's own text, which the atom quotes.
@@ -331,6 +320,54 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
+/**
+ * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
+ * kept is the unit's own text, never the copy. `reason` says why not.
+ */
+export function locateSpanText(
+  unitText: string,
+  words: string,
+): { from: number; to: number } | { reason: string } {
+  const lower = unitText.toLowerCase();
+  const wanted = words.toLowerCase();
+  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
+  if (first < 0) return { reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  return { from: first, to: first + wanted.length };
+}
+
+/**
+ * Turns the spans a labeler wrote as words into offsets, so the words never reach a cassette. A text that cannot
+ * be located becomes an offset pair that no unit holds, with the reason code gave, and the check of the answer
+ * refuses it with that reason.
+ */
+export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
+  return entries.map((entry) => {
+    if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
+    const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
+    if (!unit) return entry;
+    return {
+      ...entry,
+      spans: entry.spans.map((span) => {
+        if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
+          return span;
+        const { text, ...rest } = span;
+        const found = locateSpanText(flatten(unit.text).text, text);
+        return 'reason' in found
+          ? { ...rest, from: -1, to: -1, unlocated: found.reason }
+          : { ...rest, ...found };
+      }),
+    };
+  });
+}
+
+/**
+ * The spans and links of one entry, checked. A span is the words of a clause, or offsets, on the text the labeler
+ * was shown: inside the unit, of a kind the label may carry, with a polarity only where the kind has one, and never
+ * overlapping another span of the unit. The offsets kept are those of the unit's own text. A link names a kind the
+ * label may carry and a candidate the request listed (or `none`). Any failure refuses the whole entry: the reason
+ * is returned as a string.
+ */
 function checkExtras(
   set: LabelSet,
   window: Window,
@@ -348,7 +385,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
-    const counted: Array<{ kind: string; from: number; to: number }> = [];
+    const counted: Array<[number, number]> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -356,45 +393,43 @@ function checkExtras(
       if (!kind || !label.spans.includes(kind.name)) {
         return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
       }
-      if (!Number.isInteger(span.from) || !Number.isInteger(span.to)) return `${where}: offsets are integers`;
-      // The offsets are counted on the text the labeler was shown (white space made one space).
+      // The words of the clause are located in the text the labeler was shown (white space made one space) by code:
+      // found exactly once, else refused. The model is bad at counting characters and good at copying; a copied
+      // text enters nowhere unless it is a slice.
       const shown = flatten(unit.text);
-      if (span.from < 0 || span.to > shown.text.length || span.from >= span.to) {
-        return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
+      let from: number;
+      let to: number;
+      if ('text' in span && typeof span.text === 'string') {
+        const found = locateSpanText(shown.text, span.text);
+        if ('reason' in found) return `${where}: ${found.reason}`;
+        ({ from, to } = found);
+      } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+        if ('unlocated' in span && typeof span.unlocated === 'string') return `${where}: ${span.unlocated}`;
+        ({ from, to } = span);
+        if (from < 0 || to > shown.text.length || from >= to) {
+          return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
+        }
+      } else {
+        return `${where}: offsets are integers, or the text is a string`;
       }
-      if (span.polarity !== undefined) {
+      if (span.polarity !== undefined && span.polarity !== null) {
         if (!kind.polarity) return `${where}: the kind ${kind.name} carries no polarity`;
         if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry.
-      const outer = kind.within;
-      if (
-        outer !== undefined &&
-        !entry.spans.some((other) => other?.kind === outer && other.from <= span.from && span.to <= other.to)
-      ) {
-        return `${where} is not inside a span of the kind ${outer}`;
-      }
-      if (
-        counted.some(
-          (other) =>
-            span.from < other.to &&
-            other.from < span.to &&
-            !(ancestor(kinds, span.kind, other.kind) || ancestor(kinds, other.kind, span.kind)),
-        )
-      ) {
+      if (counted.some(([a, b]) => from < b && a < to)) {
         return `${where} overlaps another span of the unit`;
       }
-      counted.push({ kind: span.kind, from: span.from, to: span.to });
+      counted.push([from, to]);
       seen.push({
         kind: span.kind,
-        from: shown.at[span.from] as number,
-        to: (shown.at[span.to - 1] as number) + 1,
-        ...(span.polarity !== undefined ? { polarity: span.polarity } : {}),
+        from: shown.at[from] as number,
+        to: (shown.at[to - 1] as number) + 1,
+        ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }
-    out.spans = seen.sort((a, b) => a.from - b.from || b.to - a.to);
+    out.spans = seen.sort((a, b) => a.from - b.from);
   }
   if (entry.links !== undefined) {
     if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
