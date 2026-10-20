@@ -749,12 +749,12 @@ const ASKS: AskCheck[] = [
         if (!bankIsShort(run, row)) return false;
         // The disclosure is the generator's word about itself, so the words are checked too: an ask outside the
         // approved phrases must be the text code writes from the row's atoms, else it is an unapproved ask.
-        const atoms = row.atomIds.map((id) => atomsById.get(id));
-        if (atoms.some((atom) => atom === undefined)) return false;
+        const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
+        if (rowAtoms.some((atom) => atom === undefined)) return false;
         const focus = (estateMeta(v.spec) as { focusVariant?: unknown }).focusVariant;
         const written = codeAsk(
           useOfRow(row) as Parameters<typeof codeAsk>[0],
-          atoms as NonNullable<(typeof atoms)[number]>[],
+          rowAtoms as NonNullable<(typeof rowAtoms)[number]>[],
           [],
           row.testType === 'twin',
           (id) => atomsById.get(id),
