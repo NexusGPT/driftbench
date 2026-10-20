@@ -66,6 +66,11 @@ A golden here is one spec, one target and one mode, with one perturbation in P. 
 between runs is a new golden. A headline needs at least two goldens: with one, there is no spread to
 measure, and the line says `no interval: one cluster` and `(one golden)`.
 
+When the blocks of a spec name a `parent`, the tree is the family (the root and all its descendants), not the
+golden or each child: the family gives one outcome per repeat, which fails when one of its measured blocks
+fails. On simulated suites of families that move together this held the true rate 95.8% of the time; reading
+every child as a tree held it 84.2%.
+
 ### Wilson on n_eff
 
 A rate pooled over clustered units takes the Wilson score interval on `n_eff` in place of the unit count.
