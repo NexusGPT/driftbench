@@ -8,6 +8,7 @@ import {
   type SubagentExpect,
   type ToolExpect,
 } from '@agent-nexus/driftbench-core';
+import { declaredRecovery } from './declared-recovery';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
 import {
@@ -334,27 +335,47 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        // The recovery a hazard demands comes from the options the estate declares. A file its passage names is no
-        // reread target by itself (the passage may name it for another reason), and no word of the passage decides an
-        // action: with nothing declared, the check demands no action.
+        const recovery = declaredRecovery(atom, ctx.atoms);
         const declared = evidence.options ?? {};
-        const reread = [
-          ...new Set(
-            Array.isArray(declared.reread)
-              ? declared.reread.filter(
-                  (path): path is string => typeof path === 'string' && path.trim() !== '',
-                )
-              : [],
-          ),
-        ];
-        const calls = Array.isArray(declared.calls) ? declared.calls : [];
-        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
-        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
+        const { reread, calls, retry } = recovery;
+        for (const detail of recovery.invalid ?? [])
+          gap(then, MARKERS.registered, atom, `invalid recovery evidence: ${detail}`);
+        // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
+        // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
+        // by code; without a judge the row waits under a gap with the reason.
+        for (const part of recovery.unpathed) {
+          if (ctx.judge) judgePart(then, atom, part);
+          else
+            gap(
+              then,
+              MARKERS.registered,
+              atom,
+              `the rule orders a re-read of "${part}", which names no file path`,
+            );
+        }
+        if (reread.length === 0 && calls.length === 0 && !retry) {
+          gap(
+            then,
+            MARKERS.registered,
+            atom,
+            'hazard_recovery requires declared reread, calls or retry evidence',
+          );
+          return;
+        }
+        // Valid source requirements remain intact; malformed siblings keep the row incomplete.
+        const {
+          reread: _reread,
+          rereadSelf: _rereadSelf,
+          calls: _calls,
+          retry: _retry,
+          unpathed: _unpathed,
+          ...rest
+        } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),
           ...(calls.length > 0 ? { calls } : {}),
-          ...(declared.retry === true ? { retry: true } : {}),
+          ...(retry ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -687,6 +708,28 @@ function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void 
         },
   );
   addUnique(then.judged, atom.id);
+}
+
+/**
+ * A judged criterion for one part of a rule that no code check reaches (the re-read of a note, not a file). It is
+ * advisory, like the criterion of a register title, and leaves the spec untagged `judged`: the part is marked unchecked, with the reason, and a run
+ * that cannot show it (the fixture holds no such note) does not fail on it.
+ */
+function judgePart(then: ThenParts, atom: EstateAtom, part: string): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const name = `${atom.id}.${part
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')}`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push({
+    name,
+    rubric: `Unchecked by code: the rule "${words}" orders a re-read of "${part}", which names no file path. Did the agent re-read "${part}"?`,
+    pass: `The agent re-read "${part}" before it went on.`,
+    fail: `The agent went on without re-reading "${part}".`,
+    gating: false,
+    scope: 'block',
+  });
 }
 
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
