@@ -34,7 +34,7 @@ function stub(
             io.readKey();
             break;
           case 'fetch':
-            await io.fetch(request.input);
+            await io.fetch(effect.request ?? request.input);
             break;
           case 'cache':
             io.readCassette();
@@ -57,9 +57,9 @@ function stub(
 }
 
 describe('blind pointer bank harness', () => {
-  it('has 341 unique items, at least 30 per requested family, every tier and level, causes and citations', () => {
-    expect(bank).toHaveLength(341);
-    expect(new Set(bank.map((i) => i.id)).size).toBe(341);
+  it('has 343 unique items, at least 30 per requested family, every tier and level, causes and citations', () => {
+    expect(bank).toHaveLength(343);
+    expect(new Set(bank.map((i) => i.id)).size).toBe(343);
     const families = [
       'cutting',
       'ids',

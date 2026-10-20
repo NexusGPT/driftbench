@@ -138,17 +138,16 @@ describe('the blind bank bound to the reader', () => {
     for (const id of OPAQUE_ONLY) expect(passes.get(id), id).toBe(true);
   }, 120_000);
 
-  it('loses those six items, and no other privacy item, when the reader sends the opaque unit anyway', async () => {
+  it('loses those six items when the reader scan reads the key and sends for a source with nothing to label', async () => {
     const real = await realExports();
     const passes = await withReplacedExports(
       {
-        // A reader that makes a window of a source with no unit to label: the key is read, a request is sent.
-        windowsOf: (...args: unknown[]) => {
-          const windows = real.windowsOf(...args);
-          return windows.length > 0
-            ? windows
-            : [{ id: 'w', path: 'p', headingPath: [], units: [{ n: 1, text: 'x', index: 0 }] }];
-        },
+        // A planted scan: the same reader, but it labels a public paragraph it adds to every source, so it sends.
+        pointerScan: (input: { files: Array<{ path: string; text: string }> }) =>
+          real.pointerScan({
+            ...input,
+            files: input.files.map((file) => ({ ...file, text: `${file.text}\n\nA public paragraph.` })),
+          }),
       },
       () => privacyLevel(),
     );

@@ -56,8 +56,117 @@ export function leaksPrivateFragment(value: unknown, markers: readonly string[])
   return markers.some((marker) => [...marker].some((character) => decoded.includes(character)));
 }
 
+/**
+ * Line endings. A source that uses a lone CR for its line ends holds a fence or a comment as well as one with LF: the
+ * reader shows an opaque unit to the model by its kind and first line only (docs/estate-pointer-reader.md line 102),
+ * so the private body behind the first line is never sent, whatever the line endings. The probes carry public prose
+ * around the opaque unit, so a request is sent; the harness keeps the request it received and the secret is not in it.
+ */
+const ENDINGS = [
+  { name: 'fence-cr', wrap: (secret: string) => `\`\`\`text\r${secret}\r\`\`\`` },
+  { name: 'comment-cr', wrap: (secret: string) => `<!-- note\r${secret}\r-->` },
+] as const;
+
+function lineEndingItems(): BankItem[] {
+  return ENDINGS.map(
+    (ending, e): BankItem => ({
+      id: `privacy.${ending.name}.record`,
+      family: 'privacy',
+      tier: (3 + e) as 3 | 4,
+      level: 4,
+      component: 'pointer.private-recording',
+      title: `${ending.name}: the private body behind the first line of an opaque unit is never sent`,
+      cause: `privacy:${ending.name}-body-never-sent`,
+      design:
+        '2 (line 102): an opaque unit is shown by its kind and first line only; 5; 8; 11: private counts-only plan',
+      generate(seed) {
+        const probes: Probe[] = [0, 1].map((arm) => {
+          const salt = 200 + e * 2 + arm;
+          const t = token(seed, salt);
+          const secret = privateMarker(seed, salt);
+          const key = privateMarker(seed, salt + 31);
+          const label = `class-${t}`;
+          const source = [
+            'Fictional public lead.',
+            ending.wrap(secret),
+            `Fictional public padding ${arm}.`,
+          ].join('\r\r');
+          const answer = {
+            labels: [{ units: '1', label }],
+            model: `model-${t}`,
+            stop_reason: 'end_turn',
+            usage: { input_tokens: 31 + arm, output_tokens: 6 },
+          };
+          return {
+            request: {
+              operation: 'privacy',
+              input: {
+                mode: 'record',
+                private: true,
+                file: `fictional-${t}.md`,
+                source,
+                request: { system: 'Process', messages: [{ role: 'user', content: source }] },
+                cassettePresent: false,
+              },
+            },
+            setup: { key, answer, cached: null },
+            expected: {
+              labels: answer.labels,
+              leaked: false,
+              sentBody: false,
+              networkCalls: 1,
+              keyReads: 1,
+              cacheConsulted: null,
+              writes: [{ path: '.cache/', value: [answer], committed: false }],
+              status: 'ok',
+              plans: [{ characters: source.length }],
+            },
+            sample: { labels: answer.labels, status: 'ok' },
+            sampleEffects: [
+              { kind: 'plan', value: { characters: source.length } },
+              { kind: 'key' },
+              { kind: 'fetch', request: { body: { prompt: 'Fictional public lead.' } } },
+              { kind: 'write', path: '.cache/cassette.jsonl', value: [answer], committed: false },
+            ],
+            observe(actual, trace) {
+              if (!actual || typeof actual !== 'object') return null;
+              const r = actual as Record<string, Json>;
+              return {
+                labels: r.labels,
+                leaked: leaksPrivateFragment(
+                  { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
+                  [secret, key],
+                ),
+                // The request the model received: the private body behind the first line must not be in it.
+                sentBody: leaksPrivateFragment(trace.requests, [secret]),
+                networkCalls: trace.networkCalls,
+                keyReads: trace.keyReads,
+                cacheConsulted: null,
+                writes: trace.writes.map((write) => ({
+                  ...write,
+                  path:
+                    write.path.startsWith('.cache/') && !write.path.split('/').includes('..')
+                      ? '.cache/'
+                      : write.path,
+                })),
+                status: r.status,
+                plans: trace.plans,
+              };
+            },
+          };
+        });
+        return { probes };
+      },
+    }),
+  );
+}
+
 /** Public effects are measured by harness-owned sinks, never returned counters. */
 export function privacyItems(): BankItem[] {
+  return [...baseItems(), ...lineEndingItems()];
+}
+
+function baseItems(): BankItem[] {
   return placements.flatMap((placement, p) =>
     ['record', 'ci-hit', 'ci-miss'].map(
       (mode, m): BankItem => ({

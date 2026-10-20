@@ -7,6 +7,8 @@ export type IOTrace = {
   keyReads: number;
   networkCalls: number;
   cacheReads: number;
+  /** The requests handed to `fetch`, as the harness received them. */
+  requests: Json[];
   writes: Write[];
   logs: Json[];
   plans: Json[];
@@ -23,7 +25,15 @@ export interface PointerIO {
 /** Frozen callbacks own all counters and sinks. No adapter can replace the trace. */
 export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace } {
   const fixture = setup && structuredClone(setup);
-  const trace: IOTrace = { keyReads: 0, networkCalls: 0, cacheReads: 0, writes: [], logs: [], plans: [] };
+  const trace: IOTrace = {
+    keyReads: 0,
+    networkCalls: 0,
+    cacheReads: 0,
+    requests: [],
+    writes: [],
+    logs: [],
+    plans: [],
+  };
   function configured(): IOSetup {
     if (!fixture) throw new Error('transport fixture absent');
     return fixture;
@@ -33,8 +43,9 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
       trace.keyReads++;
       return configured().key;
     },
-    async fetch(_request: Json) {
+    async fetch(request: Json) {
       trace.networkCalls++;
+      trace.requests.push(structuredClone(request));
       return structuredClone(configured().answer);
     },
     readCassette() {
@@ -56,6 +67,7 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
 
 /** Only a scripted positive TEST stub consumes these actions, never the adapter. */
 export type SampleEffect =
-  | { kind: 'key' | 'fetch' | 'cache' }
+  | { kind: 'key' | 'cache' }
+  | { kind: 'fetch'; request?: Json }
   | ({ kind: 'write' } & Write)
   | { kind: 'log' | 'plan'; value: Json };
