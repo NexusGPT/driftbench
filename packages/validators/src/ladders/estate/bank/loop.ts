@@ -310,6 +310,27 @@ function asksOfSpec(verdict: SpecVerdict): string[] {
   );
 }
 
+/**
+ * Whether an ask names the primitive a misroute situation declares: the situation has use `misroute`, lists the
+ * route under test and declares `names`, and the ask holds that value verbatim. A code-written ask, a session
+ * ask, a phrase of another use and a misroute situation with no declared name are not.
+ */
+export function declaredMisroute(
+  from: { bank?: unknown } | undefined,
+  situations: ReadonlyArray<{ id: string; use: string; atoms: readonly string[]; names?: string }>,
+  route: string,
+  ask: string,
+): boolean {
+  const situation = situations.find((entry) => entry.id === from?.bank);
+  return (
+    situation?.use === 'misroute' &&
+    situation.atoms.includes(route) &&
+    situation.names !== undefined &&
+    situation.names !== '' &&
+    ask.includes(situation.names)
+  );
+}
+
 function routePositives(
   run: EstateRun,
   all: SpecVerdict[],
@@ -396,8 +417,13 @@ const ASKS: AskCheck[] = [
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const bad = all.filter((v) => {
         if (v.spec.record.testType !== 'misroute' || !v.complete) return false;
-        const target = String(atoms.get(estateMeta(v.spec).atoms?.[0] ?? '')?.fields?.target ?? '');
-        return asksOfSpec(v).some((ask) => ask.includes(target) || !/\b(skill|agent|helper)\b/.test(ask));
+        const route = estateMeta(v.spec).atoms?.[0] ?? '';
+        const target = String(atoms.get(route)?.fields?.target ?? '');
+        const from = (estateMeta(v.spec) as { from?: { bank?: unknown } }).from;
+        return asksOfSpec(v).some(
+          (ask) =>
+            !declaredMisroute(from, run.bank.situations, route, ask) || target === '' || ask.includes(target),
+        );
       });
       return bad.length === 0 ? undefined : `${bad.length} misroutes name their own target or no primitive`;
     },

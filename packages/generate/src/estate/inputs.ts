@@ -147,6 +147,13 @@ export const Situation = z.strictObject({
     .optional()
     .describe('Situation axis values the phrases express; a plan row must agree with each of them'),
   workspace: Slug.optional().describe('The workspace seed the ask starts from'),
+  names: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      'For a misroute: the skill or helper the phrases name in place of the target, written as the phrases write it.',
+    ),
   touches: Touches.optional(),
   phrases: z
     .array(BankPhrase)

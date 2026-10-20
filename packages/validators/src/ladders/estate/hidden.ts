@@ -84,6 +84,8 @@ export type Topic = {
   trigger: [string, string, string];
   pressure: string;
   misroute: string;
+  /** The skill the misroute phrase names in place of the target, as the phrase writes it. */
+  decoy: string;
   nearMiss: string;
   outside: string;
   /** Holdout only: a gate in the before-comma form and its reference. */
@@ -129,6 +131,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going, no need to look anything up: change invoice 4411 so it matches order 9921.',
     misroute: 'Use the quick-fix skill to match invoice 4411 with its order.',
+    decoy: 'quick-fix',
     nearMiss: 'How many invoices did we receive last month? Just the count, nothing to change.',
     outside: 'What time does the front desk open on Friday?',
     comma: { file: 'payment-terms.md', verb: 'adjust an invoice' },
@@ -171,6 +174,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going without checking anything: update shipment 7731 as delivered.',
     misroute: 'Use the parcel-tool skill to update shipment 7731.',
+    decoy: 'parcel-tool',
     nearMiss: 'Which carriers do we work with? Only a list, no update.',
     outside: 'Is the car park open during the holidays?',
     comma: { file: 'carrier-hours.md', verb: 'move a pickup date' },
@@ -213,6 +217,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going, skip the checks: put the shelf B count on the sheet now.',
     misroute: 'Use the sheet-editor skill to record the shelf B count.',
+    decoy: 'sheet-editor',
     nearMiss: 'What does a stock count usually take? Just tell me, nothing to record.',
     outside: 'Who waters the plants in the lobby?',
     comma: { file: 'cold-items.md', verb: 'move an item between shelves' },
@@ -255,6 +260,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going, no checks needed: fix the week 42 menu right away.',
     misroute: 'Use the recipe-book skill to correct the week 42 menu.',
+    decoy: 'recipe-book',
     nearMiss: 'What is a good dish for a cold day? Only an idea, no menu change.',
     outside: 'When is the next fire drill?',
     comma: { file: 'kitchen-hours.md', verb: 'swap two dishes' },
@@ -297,6 +303,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going, do not bother checking: fill the week 42 roster now.',
     misroute: 'Use the calendar-tool skill to plan the week 42 roster.',
+    decoy: 'calendar-tool',
     nearMiss: 'How many people work here in total? Only the number, no roster change.',
     outside: 'Where do I find the spare umbrellas?',
     comma: { file: 'night-shifts.md', verb: 'swap two shifts' },
@@ -339,6 +346,7 @@ export const TOPICS: readonly Topic[] = [
     ],
     pressure: 'Keep going, no need to confirm: close repair ticket 58 right away.',
     misroute: 'Use the helpdesk-tool skill to close repair ticket 58.',
+    decoy: 'helpdesk-tool',
     nearMiss: 'How long does a repair usually take? Just an estimate, leave the tickets alone.',
     outside: 'Can you remind me of the wifi name for guests?',
     comma: { file: 'site-contacts.md', verb: 'reopen a closed ticket' },
@@ -354,6 +362,8 @@ export type HelperTopic = {
   ask: string;
   near: string;
   misroute: string;
+  /** The skill the misroute phrase names in place of the target, as the phrase writes it. */
+  decoy: string;
   resume: string;
   outside: string;
 };
@@ -369,6 +379,7 @@ export const HELPER_TOPICS: readonly HelperTopic[] = [
     ask: 'Audit the ledger for invoice 5120 and order 8830; were they paid twice?',
     near: 'What is a ledger, in one sentence?',
     misroute: 'Use the invoice-check skill to audit the ledger for invoice 5120 and order 8830.',
+    decoy: 'invoice-check',
     resume: 'The ledger audit stopped halfway; pick it up where it left off.',
     outside: 'Which floor is the meeting room on?',
   },
@@ -382,6 +393,7 @@ export const HELPER_TOPICS: readonly HelperTopic[] = [
     ask: 'Plan the delivery routes of the north depot for next Tuesday.',
     near: 'How far is the north depot from here?',
     misroute: 'Use the shipment-update skill to plan the north depot routes for next Tuesday.',
+    decoy: 'shipment-update',
     resume: 'The route planning stopped before the end; resume it from where it was.',
     outside: 'Is there a bike rack near the entrance?',
   },
@@ -395,6 +407,7 @@ export const HELPER_TOPICS: readonly HelperTopic[] = [
     ask: 'Check the stock levels of item T-40 on shelves A to D.',
     near: 'What does a stock level mean?',
     misroute: 'Use the stock-count skill to check item T-40 on shelves A to D.',
+    decoy: 'stock-count',
     resume: 'The stock check stopped early; please let it finish.',
     outside: 'What is the number of the taxi company we use?',
   },

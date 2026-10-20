@@ -189,6 +189,7 @@ situations:
       - route.standing.an-ask-to-know-where-a
       - route.shipment-tracker.an-ask-that-fits-shipment-tracker
     workspace: northwind-ops
+    names: supplier email
     touches: {}
     phrases:
       - { text: 'Use the supplier email skill to find out where shipment NW-55012 is.', lang: en, approved: true }

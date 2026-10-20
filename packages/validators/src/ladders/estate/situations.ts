@@ -34,6 +34,8 @@ export type HiddenSituation = {
   atoms: string[];
   touches: { created: string[]; changed: string[]; deleted: string[] };
   workspace?: string;
+  /** The primitive a misroute phrase names in place of the target. */
+  names?: string;
   phrases: string[];
 };
 
@@ -146,6 +148,7 @@ export function situationsOf(estate: HiddenEstate): HiddenSituation[] {
       atoms: [skill.hid, `route:desc:${name}`, `route:table:${name}`],
       touches,
       workspace,
+      names: topic.decoy,
       phrases: [topic.misroute],
     });
     out.push({
@@ -194,6 +197,7 @@ export function situationsOf(estate: HiddenEstate): HiddenSituation[] {
       act: { type: 'helper', helper: topic.name },
       atoms: helperAtoms(helper),
       touches: NONE,
+      names: topic.decoy,
       phrases: [topic.misroute],
     });
     out.push({
@@ -357,6 +361,7 @@ export function phraseBank(
           use: situation.use,
           atoms,
           ...(situation.workspace ? { workspace: situation.workspace } : {}),
+          ...(situation.names ? { names: situation.names } : {}),
           touches: {
             created: [...situation.touches.created],
             changed: [...situation.touches.changed],
