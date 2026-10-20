@@ -17,23 +17,25 @@ const recordedOf = (answer: Obj) => ({
 
 /**
  * `privacy`: the real `pointerScan` over the private file, for every source, an opaque-only one included. The
- * reader sends the request through its own HTTP client; `fetch` is the harness callback behind it, and the key is
- * read there, when a request is sent (the labeler's own `x-api-key` header is a constant here). It stores the
+ * labelling is built the way the command builds it (`buildLabelling`, `env` with the key behind a getter that asks
+ * the harness), so the reader reads the key itself, when a request leaves: a scan that sends nothing never reads it.
+ * The reader sends the request through its own HTTP client; `fetch` is the harness callback behind it. It stores the
  * answer itself (`Cassette.put`, whose `onPut` writes to the harness). A replay asks a cassette that reads the
- * harness cache when the reader asks it. What the reader stores and plans is returned beside the labels, so the
- * leak check reads it. Nothing is derived from the requested mode except which of the reader's two scan modes runs,
- * and nothing is decided before the scan: a source with nothing to label sends no request, reads no key and asks
- * no cache because the reader does not, and a reader that does is seen doing it (`blind/CONTRACT.md`, the
- * `spec-changed` fence and comment items).
+ * harness cache when the reader asks it. What the reader stores and plans is returned beside the labels, so the leak
+ * check reads it. Nothing is derived from the requested mode except which of the reader's two scan modes runs, and
+ * nothing is decided before the scan (`blind/CONTRACT.md`, the `spec-changed` fence and comment items).
  */
 export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<unknown> {
   if (!io) throw new Error('the privacy operation needs the harness callbacks');
   const pointer = await pointerExports();
   const record = input.mode === 'record';
+  const env = {
+    get ANTHROPIC_API_KEY(): string {
+      return io.readKey();
+    },
+  };
   const fetchLike = async (url: string, init: RequestInit): Promise<Response> => {
     const body = JSON.parse(String(init.body)) as Obj;
-    // The key is read where the request leaves: the reader hands the transport a request, the harness holds the key.
-    io.readKey();
     const answer = (await io.fetch({ url, headers: init.headers as never, body } as never)) as Obj;
     return new Response(
       JSON.stringify({
@@ -45,13 +47,16 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
       { status: 200, headers: { 'content-type': 'application/json' } },
     );
   };
-  // One run per window: the harness plants one answer, and the reader's default asks the window three times.
-  const labeler = pointer.createAnthropicLabeler({
-    runs: 1,
+  const built = await pointer.buildLabelling([{ cls: 'system2', client: 'anthropic' }], {
+    env,
+    record,
+    cwd: '.',
     fetch: fetchLike,
-    ...(record ? { key: 'recording' } : {}),
   });
-  const labelling = pointer.singleLabelling(labeler);
+  if (!built.ok) throw new Error(built.message);
+  const [member] = built.labelling.members as Obj[];
+  // One run per window: the harness plants one answer, and the reader's default asks the window three times.
+  const labelling = pointer.singleLabelling({ ...member, runs: 1 });
   const cassette = new pointer.Cassette();
   const stored: Obj[] = [];
   let hit: Obj | undefined;
