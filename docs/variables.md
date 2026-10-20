@@ -225,6 +225,8 @@ The held-out result is under the 0.95 bar, so the claim that the feed finds plan
 | Second round, both halves (tuned on) | 136 | 111 | 110 | 104 | 0.945 | 0.937 |
 | Second round, fresh batch (measured once) | 73 | 60 | 61 | 50 | 0.820 | 0.833 |
 
+The fresh batch was written with deliberate near-misses (clauses close to an existing value, and clauses on topics next to the store's variables), so it is harder than the first held-out half; the two measurements are not on one scale.
+
 Status: the feed does not reach 0.95 precision and recall with the real systems. The best unbiased measurement is the fresh batch, 0.820 and 0.833. Two groups of errors account for most of it: a new case of a variable that system 1 reads as a neighbouring existing value (five clauses), and a value proposed under an existing variable for a clause that states no condition of the store (five clauses). Smaller groups are an existing value that system 1 did not recognise (three clauses) and a proposal refused as equivalent to an existing value (two clauses, one of them a real new case). Tuning gains on the tuning sets did not carry to new clauses, so the open question is not a threshold. The row stays open.
 
 Not built here: producing the spans. They come from the labels of the pointer reader (the condition label), which this feed takes as plain spans; until that reader is in, a caller supplies them.
