@@ -1,635 +1,635 @@
 [
- {
-  "id": "d-001",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "With an explicit yes from the user in hand, the email may be sent without another question.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_given"
+  {
+    "id": "d-001",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "With an explicit yes from the user in hand, the email may be sent without another question.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_given"
+    }
+  },
+  {
+    "id": "d-002",
+    "path": "CLAUDE.md",
+    "quote": "A helper agent that was killed by a timeout counts as dead; do not build on its partial output.",
+    "truth": {
+      "variable": "helper",
+      "value": "helper_died"
+    }
+  },
+  {
+    "id": "d-003",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "Mention the delay in the subject line whenever the delivery is more than a day late.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_one_day"
+    }
+  },
+  {
+    "id": "d-004",
+    "path": "CLAUDE.md",
+    "quote": "After the session is forked from an older one, read the tracker note first.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW",
+      "proposed_hint": "after_fork"
+    }
+  },
+  {
+    "id": "d-005",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "In a chase email, state how many days past the promised date the goods are, but only when that is over two.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_two_days"
+    }
+  },
+  {
+    "id": "d-006",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "When the ledger auditor dies in the middle of a check, report that and offer to run it again.",
+    "truth": {
+      "variable": "helper",
+      "value": "helper_died"
+    }
+  },
+  {
+    "id": "d-007",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "Never ask a supplier to speed up a delivery that the carrier has declared lost.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "lost"
+    }
+  },
+  {
+    "id": "d-008",
+    "path": "CLAUDE.md",
+    "quote": "Voordat de factuur wordt verwijderd, ask the user once.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW",
+      "proposed_hint": "before_invoice_delete"
+    }
+  },
+  {
+    "id": "d-009",
+    "path": "CLAUDE.md",
+    "quote": "Een levering die langer dan twee dagen te laat is, krijgt a phone call, not a mail.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_two_days"
+    }
+  },
+  {
+    "id": "d-010",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "Treat a parcel as overdue for the digest once it is past its date by more than 48 hours.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_two_days"
+    }
+  },
+  {
+    "id": "d-011",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "A supplier that you cannot find in this table is written to in English.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_not_in_table"
+    }
+  },
+  {
+    "id": "d-012",
+    "path": ".claude/agents/inbox-triager.md",
+    "quote": "When a message has an attachment, do not open it.",
+    "truth": "none"
+  },
+  {
+    "id": "d-013",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "Past one day of delay, replace the ETA line with the new date from the carrier.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_one_day"
+    }
+  },
+  {
+    "id": "d-014",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "If the carrier is Wingtip Freight, use the Wingtip Freight tracking page.",
+    "truth": "none"
+  },
+  {
+    "id": "d-015",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "When a parcel arrives damaged, take a photo of each box before anything else.",
+    "truth": "none"
+  },
+  {
+    "id": "d-016",
+    "path": "CLAUDE.md",
+    "quote": "If the manager stays silent on the credit note, keep it as a draft and ask again tomorrow.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_unanswered"
+    }
+  },
+  {
+    "id": "d-017",
+    "path": ".claude/skills/parcel-claims/SKILL.md",
+    "quote": "When a parcel weighs more than 20 kg, plan a van with a lift.",
+    "truth": "none"
+  },
+  {
+    "id": "d-018",
+    "path": ".claude/agents/ledger-auditor.md",
+    "quote": "Do not suggest a correction to an invoice file that someone is about to edit.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "before_invoice_edit"
+    }
+  },
+  {
+    "id": "d-019",
+    "path": ".claude/skills/parcel-claims/references/claim-rules.md",
+    "quote": "When the report has no late shipments, write none under that heading.",
+    "truth": "none"
+  },
+  {
+    "id": "d-020",
+    "path": "CLAUDE.md",
+    "quote": "When a helper agent is named in the routing table, use its exact name.",
+    "truth": "none"
+  },
+  {
+    "id": "d-021",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "A supplier with a row in this table is always addressed in the language of that row.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_in_table"
+    }
+  },
+  {
+    "id": "d-022",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "When the user gives a conditional yes, such as a yes if the date changes, send nothing yet.",
+    "truth": {
+      "variable": "approval",
+      "value": "NEW",
+      "proposed_hint": "approval_conditional"
+    }
+  },
+  {
+    "id": "d-023",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "Do not reuse a tracking number from memory after the context has been compacted; ask again.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_compaction"
+    }
+  },
+  {
+    "id": "d-024",
+    "path": ".claude/skills/weekly-report/SKILL.md",
+    "quote": "If a helper answers after the report is already filed, ignore the answer.",
+    "truth": {
+      "variable": "helper",
+      "value": "NEW",
+      "proposed_hint": "helper_answer_late"
+    }
+  },
+  {
+    "id": "d-025",
+    "path": "CLAUDE.md",
+    "quote": "Do not retry a tracking call by hand when the carrier has answered with an error; report it.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_error"
+    }
+  },
+  {
+    "id": "d-026",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "When the supplier is Fabrikam Housewares, sign with the team name.",
+    "truth": "none"
+  },
+  {
+    "id": "d-027",
+    "path": "CLAUDE.md",
+    "quote": "If the supplier has no row in supplier-languages.md, say so to the user and use English.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_not_in_table"
+    }
+  },
+  {
+    "id": "d-028",
+    "path": ".claude/agents/ledger-auditor.md",
+    "quote": "Each time you are about to dispatch a helper, check that its brief states the answer shape.",
+    "truth": {
+      "variable": "helper",
+      "value": "before_helper_dispatch"
+    }
+  },
+  {
+    "id": "d-029",
+    "path": ".claude/skills/weekly-report/SKILL.md",
+    "quote": "Mark a shipment unknown, not late, when the carrier's reply was an error.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_error"
+    }
+  },
+  {
+    "id": "d-030",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "When a shipment is exactly two days late, send the reminder, not the escalation.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW",
+      "proposed_hint": "late_exactly_two_days"
+    }
+  },
+  {
+    "id": "d-031",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "Directly after a restart, reopen the last draft instead of writing a new one.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_restart"
+    }
+  },
+  {
+    "id": "d-032",
+    "path": ".claude/skills/weekly-report/SKILL.md",
+    "quote": "The report never edits an invoice; if it ever must, read the matching rules the moment before.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "before_invoice_edit"
+    }
+  },
+  {
+    "id": "d-033",
+    "path": ".claude/skills/weekly-report/SKILL.md",
+    "quote": "A delivery that is not even one day behind schedule stays out of the late table; a longer delay goes in.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "late_over_one_day"
+    }
+  },
+  {
+    "id": "d-034",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "If one invoice line alone differs by more than 50 EUR, mark that line.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW",
+      "proposed_hint": "invoice_line_diff_over_50"
+    }
+  },
+  {
+    "id": "d-035",
+    "path": ".claude/memory/MEMORY.md",
+    "quote": "When the session has just been compacted twice in a row, ask the user to start a new one.",
+    "truth": {
+      "variable": "session_state",
+      "value": "NEW",
+      "proposed_hint": "after_double_compaction"
+    }
+  },
+  {
+    "id": "d-036",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "Skip the extra review whenever the total difference stays at or under 50.00 EUR; above it, ask for one.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "invoice_diff_over_50"
+    }
+  },
+  {
+    "id": "d-037",
+    "path": "CLAUDE.md",
+    "quote": "Zodra de eigenaar ja heeft gezegd, apply the correction and show the result.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_given"
+    }
+  },
+  {
+    "id": "d-038",
+    "path": ".claude/agents/ledger-auditor.md",
+    "quote": "When a helper agent was dispatched twice for the same invoice, stop the second one.",
+    "truth": {
+      "variable": "helper",
+      "value": "NEW",
+      "proposed_hint": "helper_dispatched_twice"
+    }
+  },
+  {
+    "id": "d-039",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "If the total difference on the invoice exceeds fifty (50) euros, link the shipment log in the note.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "invoice_diff_over_50"
+    }
+  },
+  {
+    "id": "d-040",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "When an invoice is older than 30 days, put it first in the list.",
+    "truth": "none"
+  },
+  {
+    "id": "d-041",
+    "path": ".claude/agents/ledger-auditor.md",
+    "quote": "If the same amount appears three times, add a note to the findings.",
+    "truth": "none"
+  },
+  {
+    "id": "d-042",
+    "path": "CLAUDE.md",
+    "quote": "When invoice and order differ by more than 50 EUR in total, the finance lead sees the case the same day.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "invoice_diff_over_50"
+    }
+  },
+  {
+    "id": "d-043",
+    "path": "CLAUDE.md",
+    "quote": "Following a compaction of the conversation, list the open questions again before you answer.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_compaction"
+    }
+  },
+  {
+    "id": "d-044",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "When the carrier answers with a status and an error in the same reply, show both.",
+    "truth": {
+      "variable": "carrier",
+      "value": "NEW",
+      "proposed_hint": "carrier_status_and_error"
+    }
+  },
+  {
+    "id": "d-045",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "When a supplier has two languages listed, write in the first one.",
+    "truth": {
+      "variable": "supplier",
+      "value": "NEW",
+      "proposed_hint": "supplier_two_languages"
+    }
+  },
+  {
+    "id": "d-046",
+    "path": "CLAUDE.md",
+    "quote": "If the user sounds upset, start with one sentence of apology.",
+    "truth": "none"
+  },
+  {
+    "id": "d-047",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "If the supplier's row in the table has no language filled in, ask the user.",
+    "truth": {
+      "variable": "supplier",
+      "value": "NEW",
+      "proposed_hint": "supplier_row_empty"
+    }
+  },
+  {
+    "id": "d-048",
+    "path": "CLAUDE.md",
+    "quote": "A manager who answered yes in writing counts as approval; proceed and note who said it.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_given"
+    }
+  },
+  {
+    "id": "d-049",
+    "path": "CLAUDE.md",
+    "quote": "If the order total is above 5,000 EUR, mention it in the report.",
+    "truth": "none"
+  },
+  {
+    "id": "d-050",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "A parcel more than two working days late gets a second email.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW",
+      "proposed_hint": "late_over_two_working_days"
+    }
+  },
+  {
+    "id": "d-051",
+    "path": ".claude/memory/MEMORY.md",
+    "quote": "On Mondays, give the weekly numbers before anything else.",
+    "truth": "none"
+  },
+  {
+    "id": "d-052",
+    "path": "CLAUDE.md",
+    "quote": "Just before editing an invoice file, state in one line what you will change and why.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "before_invoice_edit"
+    }
+  },
+  {
+    "id": "d-053",
+    "path": ".claude/memory/MEMORY.md",
+    "quote": "Voordat een helper wordt gestart, schrijf de brief; no brief, no helper.",
+    "truth": {
+      "variable": "helper",
+      "value": "before_helper_dispatch"
+    }
+  },
+  {
+    "id": "d-054",
+    "path": "CLAUDE.md",
+    "quote": "If a delivery is more than 36 hours late, check the carrier page.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "NEW",
+      "proposed_hint": "late_over_36_hours"
+    }
+  },
+  {
+    "id": "d-055",
+    "path": "CLAUDE.md",
+    "quote": "You may not start a helper agent before its brief names the files it may touch.",
+    "truth": {
+      "variable": "helper",
+      "value": "before_helper_dispatch"
+    }
+  },
+  {
+    "id": "d-056",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "If the carrier sends back an error instead of a scan, repeat the error text to the user unchanged.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_error"
+    }
+  },
+  {
+    "id": "d-057",
+    "path": ".claude/agents/route-planner.md",
+    "quote": "Lorsqu'un helper agent est tombé, plan the routes yourself and say so.",
+    "truth": {
+      "variable": "helper",
+      "value": "helper_died"
+    }
+  },
+  {
+    "id": "d-058",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "A total difference of exactly 50.00 EUR is logged but not escalated.",
+    "truth": {
+      "variable": "invoice_work",
+      "value": "NEW",
+      "proposed_hint": "invoice_diff_exactly_50"
+    }
+  },
+  {
+    "id": "d-059",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "Do not send the draft while the user's answer is still outstanding.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_unanswered"
+    }
+  },
+  {
+    "id": "d-060",
+    "path": ".claude/agents/route-planner.md",
+    "quote": "If the context was just compacted, the first thing to do is to rebuild the stop list.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_compaction"
+    }
+  },
+  {
+    "id": "d-061",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "When the carrier replies with a status, cite it in the chase email instead of the promised date.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_status"
+    }
+  },
+  {
+    "id": "d-062",
+    "path": "CLAUDE.md",
+    "quote": "Do not translate the draft by yourself when the supplier is listed with a language.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_in_table"
+    }
+  },
+  {
+    "id": "d-063",
+    "path": ".claude/skills/weekly-report/SKILL.md",
+    "quote": "A shipment that vanished in transit is reported once, in the Lost line, and never in Shipments late.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "lost"
+    }
+  },
+  {
+    "id": "d-064",
+    "path": ".claude/skills/parcel-claims/references/claim-rules.md",
+    "quote": "Quote the table language next to every supplier that has a row in it.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_in_table"
+    }
+  },
+  {
+    "id": "d-065",
+    "path": ".claude/skills/parcel-claims/references/claim-rules.md",
+    "quote": "Hold the weekly report back as long as the reviewer has not replied.",
+    "truth": {
+      "variable": "approval",
+      "value": "approval_unanswered"
+    }
+  },
+  {
+    "id": "d-066",
+    "path": "CLAUDE.md",
+    "quote": "If a second person must also approve, wait for both answers.",
+    "truth": {
+      "variable": "approval",
+      "value": "NEW",
+      "proposed_hint": "approval_needs_two"
+    }
+  },
+  {
+    "id": "d-067",
+    "path": "CLAUDE.md",
+    "quote": "Je viens de redémarrer la session? Then re-read the rules before you act.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_restart"
+    }
+  },
+  {
+    "id": "d-068",
+    "path": ".claude/skills/shipment-tracker/SKILL.md",
+    "quote": "Copy the carrier's status text into the answer whenever the carrier gives one.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_status"
+    }
+  },
+  {
+    "id": "d-069",
+    "path": ".claude/skills/supplier-email/SKILL.md",
+    "quote": "For an unlisted supplier, do not pick a language by the country of the email address.",
+    "truth": {
+      "variable": "supplier",
+      "value": "supplier_not_in_table"
+    }
+  },
+  {
+    "id": "d-070",
+    "path": ".claude/memory/supplier-languages.md",
+    "quote": "If the supplier's price changed since the last order, show both prices in the draft.",
+    "truth": "none"
+  },
+  {
+    "id": "d-071",
+    "path": ".claude/skills/parcel-claims/SKILL.md",
+    "quote": "Drop the stop from tomorrow's plan if the parcel for it is lost.",
+    "truth": {
+      "variable": "shipment_delay",
+      "value": "lost"
+    }
+  },
+  {
+    "id": "d-072",
+    "path": ".claude/skills/invoice-reconcile/SKILL.md",
+    "quote": "After the session has been restarted, do not trust a half-finished reconcile summary.",
+    "truth": {
+      "variable": "session_state",
+      "value": "after_restart"
+    }
+  },
+  {
+    "id": "d-073",
+    "path": "CLAUDE.md",
+    "quote": "Als de carrier een status teruggeeft, lead with it in the first line.",
+    "truth": {
+      "variable": "carrier",
+      "value": "carrier_status"
+    }
   }
- },
- {
-  "id": "d-002",
-  "path": "CLAUDE.md",
-  "quote": "A helper agent that was killed by a timeout counts as dead; do not build on its partial output.",
-  "truth": {
-   "variable": "helper",
-   "value": "helper_died"
-  }
- },
- {
-  "id": "d-003",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "Mention the delay in the subject line whenever the delivery is more than a day late.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_one_day"
-  }
- },
- {
-  "id": "d-004",
-  "path": "CLAUDE.md",
-  "quote": "After the session is forked from an older one, read the tracker note first.",
-  "truth": {
-   "variable": "session_state",
-   "value": "NEW",
-   "proposed_hint": "after_fork"
-  }
- },
- {
-  "id": "d-005",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "In a chase email, state how many days past the promised date the goods are, but only when that is over two.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_two_days"
-  }
- },
- {
-  "id": "d-006",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "When the ledger auditor dies in the middle of a check, report that and offer to run it again.",
-  "truth": {
-   "variable": "helper",
-   "value": "helper_died"
-  }
- },
- {
-  "id": "d-007",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "Never ask a supplier to speed up a delivery that the carrier has declared lost.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "lost"
-  }
- },
- {
-  "id": "d-008",
-  "path": "CLAUDE.md",
-  "quote": "Voordat de factuur wordt verwijderd, ask the user once.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "NEW",
-   "proposed_hint": "before_invoice_delete"
-  }
- },
- {
-  "id": "d-009",
-  "path": "CLAUDE.md",
-  "quote": "Een levering die langer dan twee dagen te laat is, krijgt a phone call, not a mail.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_two_days"
-  }
- },
- {
-  "id": "d-010",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "Treat a parcel as overdue for the digest once it is past its date by more than 48 hours.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_two_days"
-  }
- },
- {
-  "id": "d-011",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "A supplier that you cannot find in this table is written to in English.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_not_in_table"
-  }
- },
- {
-  "id": "d-012",
-  "path": ".claude/agents/inbox-triager.md",
-  "quote": "When a message has an attachment, do not open it.",
-  "truth": "none"
- },
- {
-  "id": "d-013",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "Past one day of delay, replace the ETA line with the new date from the carrier.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_one_day"
-  }
- },
- {
-  "id": "d-014",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "If the carrier is Wingtip Freight, use the Wingtip Freight tracking page.",
-  "truth": "none"
- },
- {
-  "id": "d-015",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "When a parcel arrives damaged, take a photo of each box before anything else.",
-  "truth": "none"
- },
- {
-  "id": "d-016",
-  "path": "CLAUDE.md",
-  "quote": "If the manager stays silent on the credit note, keep it as a draft and ask again tomorrow.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_unanswered"
-  }
- },
- {
-  "id": "d-017",
-  "path": ".claude/skills/parcel-claims/SKILL.md",
-  "quote": "When a parcel weighs more than 20 kg, plan a van with a lift.",
-  "truth": "none"
- },
- {
-  "id": "d-018",
-  "path": ".claude/agents/ledger-auditor.md",
-  "quote": "Do not suggest a correction to an invoice file that someone is about to edit.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "before_invoice_edit"
-  }
- },
- {
-  "id": "d-019",
-  "path": ".claude/skills/parcel-claims/references/claim-rules.md",
-  "quote": "When the report has no late shipments, write none under that heading.",
-  "truth": "none"
- },
- {
-  "id": "d-020",
-  "path": "CLAUDE.md",
-  "quote": "When a helper agent is named in the routing table, use its exact name.",
-  "truth": "none"
- },
- {
-  "id": "d-021",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "A supplier with a row in this table is always addressed in the language of that row.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_in_table"
-  }
- },
- {
-  "id": "d-022",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "When the user gives a conditional yes, such as a yes if the date changes, send nothing yet.",
-  "truth": {
-   "variable": "approval",
-   "value": "NEW",
-   "proposed_hint": "approval_conditional"
-  }
- },
- {
-  "id": "d-023",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "Do not reuse a tracking number from memory after the context has been compacted; ask again.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_compaction"
-  }
- },
- {
-  "id": "d-024",
-  "path": ".claude/skills/weekly-report/SKILL.md",
-  "quote": "If a helper answers after the report is already filed, ignore the answer.",
-  "truth": {
-   "variable": "helper",
-   "value": "NEW",
-   "proposed_hint": "helper_answer_late"
-  }
- },
- {
-  "id": "d-025",
-  "path": "CLAUDE.md",
-  "quote": "Do not retry a tracking call by hand when the carrier has answered with an error; report it.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_error"
-  }
- },
- {
-  "id": "d-026",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "When the supplier is Fabrikam Housewares, sign with the team name.",
-  "truth": "none"
- },
- {
-  "id": "d-027",
-  "path": "CLAUDE.md",
-  "quote": "If the supplier has no row in supplier-languages.md, say so to the user and use English.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_not_in_table"
-  }
- },
- {
-  "id": "d-028",
-  "path": ".claude/agents/ledger-auditor.md",
-  "quote": "Each time you are about to dispatch a helper, check that its brief states the answer shape.",
-  "truth": {
-   "variable": "helper",
-   "value": "before_helper_dispatch"
-  }
- },
- {
-  "id": "d-029",
-  "path": ".claude/skills/weekly-report/SKILL.md",
-  "quote": "Mark a shipment unknown, not late, when the carrier's reply was an error.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_error"
-  }
- },
- {
-  "id": "d-030",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "When a shipment is exactly two days late, send the reminder, not the escalation.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "NEW",
-   "proposed_hint": "late_exactly_two_days"
-  }
- },
- {
-  "id": "d-031",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "Directly after a restart, reopen the last draft instead of writing a new one.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_restart"
-  }
- },
- {
-  "id": "d-032",
-  "path": ".claude/skills/weekly-report/SKILL.md",
-  "quote": "The report never edits an invoice; if it ever must, read the matching rules the moment before.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "before_invoice_edit"
-  }
- },
- {
-  "id": "d-033",
-  "path": ".claude/skills/weekly-report/SKILL.md",
-  "quote": "A delivery that is not even one day behind schedule stays out of the late table; a longer delay goes in.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "late_over_one_day"
-  }
- },
- {
-  "id": "d-034",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "If one invoice line alone differs by more than 50 EUR, mark that line.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "NEW",
-   "proposed_hint": "invoice_line_diff_over_50"
-  }
- },
- {
-  "id": "d-035",
-  "path": ".claude/memory/MEMORY.md",
-  "quote": "When the session has just been compacted twice in a row, ask the user to start a new one.",
-  "truth": {
-   "variable": "session_state",
-   "value": "NEW",
-   "proposed_hint": "after_double_compaction"
-  }
- },
- {
-  "id": "d-036",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "Skip the extra review whenever the total difference stays at or under 50.00 EUR; above it, ask for one.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "invoice_diff_over_50"
-  }
- },
- {
-  "id": "d-037",
-  "path": "CLAUDE.md",
-  "quote": "Zodra de eigenaar ja heeft gezegd, apply the correction and show the result.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_given"
-  }
- },
- {
-  "id": "d-038",
-  "path": ".claude/agents/ledger-auditor.md",
-  "quote": "When a helper agent was dispatched twice for the same invoice, stop the second one.",
-  "truth": {
-   "variable": "helper",
-   "value": "NEW",
-   "proposed_hint": "helper_dispatched_twice"
-  }
- },
- {
-  "id": "d-039",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "If the total difference on the invoice exceeds fifty (50) euros, link the shipment log in the note.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "invoice_diff_over_50"
-  }
- },
- {
-  "id": "d-040",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "When an invoice is older than 30 days, put it first in the list.",
-  "truth": "none"
- },
- {
-  "id": "d-041",
-  "path": ".claude/agents/ledger-auditor.md",
-  "quote": "If the same amount appears three times, add a note to the findings.",
-  "truth": "none"
- },
- {
-  "id": "d-042",
-  "path": "CLAUDE.md",
-  "quote": "When invoice and order differ by more than 50 EUR in total, the finance lead sees the case the same day.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "invoice_diff_over_50"
-  }
- },
- {
-  "id": "d-043",
-  "path": "CLAUDE.md",
-  "quote": "Following a compaction of the conversation, list the open questions again before you answer.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_compaction"
-  }
- },
- {
-  "id": "d-044",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "When the carrier answers with a status and an error in the same reply, show both.",
-  "truth": {
-   "variable": "carrier",
-   "value": "NEW",
-   "proposed_hint": "carrier_status_and_error"
-  }
- },
- {
-  "id": "d-045",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "When a supplier has two languages listed, write in the first one.",
-  "truth": {
-   "variable": "supplier",
-   "value": "NEW",
-   "proposed_hint": "supplier_two_languages"
-  }
- },
- {
-  "id": "d-046",
-  "path": "CLAUDE.md",
-  "quote": "If the user sounds upset, start with one sentence of apology.",
-  "truth": "none"
- },
- {
-  "id": "d-047",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "If the supplier's row in the table has no language filled in, ask the user.",
-  "truth": {
-   "variable": "supplier",
-   "value": "NEW",
-   "proposed_hint": "supplier_row_empty"
-  }
- },
- {
-  "id": "d-048",
-  "path": "CLAUDE.md",
-  "quote": "A manager who answered yes in writing counts as approval; proceed and note who said it.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_given"
-  }
- },
- {
-  "id": "d-049",
-  "path": "CLAUDE.md",
-  "quote": "If the order total is above 5,000 EUR, mention it in the report.",
-  "truth": "none"
- },
- {
-  "id": "d-050",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "A parcel more than two working days late gets a second email.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "NEW",
-   "proposed_hint": "late_over_two_working_days"
-  }
- },
- {
-  "id": "d-051",
-  "path": ".claude/memory/MEMORY.md",
-  "quote": "On Mondays, give the weekly numbers before anything else.",
-  "truth": "none"
- },
- {
-  "id": "d-052",
-  "path": "CLAUDE.md",
-  "quote": "Just before editing an invoice file, state in one line what you will change and why.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "before_invoice_edit"
-  }
- },
- {
-  "id": "d-053",
-  "path": ".claude/memory/MEMORY.md",
-  "quote": "Voordat een helper wordt gestart, schrijf de brief; no brief, no helper.",
-  "truth": {
-   "variable": "helper",
-   "value": "before_helper_dispatch"
-  }
- },
- {
-  "id": "d-054",
-  "path": "CLAUDE.md",
-  "quote": "If a delivery is more than 36 hours late, check the carrier page.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "NEW",
-   "proposed_hint": "late_over_36_hours"
-  }
- },
- {
-  "id": "d-055",
-  "path": "CLAUDE.md",
-  "quote": "You may not start a helper agent before its brief names the files it may touch.",
-  "truth": {
-   "variable": "helper",
-   "value": "before_helper_dispatch"
-  }
- },
- {
-  "id": "d-056",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "If the carrier sends back an error instead of a scan, repeat the error text to the user unchanged.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_error"
-  }
- },
- {
-  "id": "d-057",
-  "path": ".claude/agents/route-planner.md",
-  "quote": "Lorsqu'un helper agent est tombé, plan the routes yourself and say so.",
-  "truth": {
-   "variable": "helper",
-   "value": "helper_died"
-  }
- },
- {
-  "id": "d-058",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "A total difference of exactly 50.00 EUR is logged but not escalated.",
-  "truth": {
-   "variable": "invoice_work",
-   "value": "NEW",
-   "proposed_hint": "invoice_diff_exactly_50"
-  }
- },
- {
-  "id": "d-059",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "Do not send the draft while the user's answer is still outstanding.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_unanswered"
-  }
- },
- {
-  "id": "d-060",
-  "path": ".claude/agents/route-planner.md",
-  "quote": "If the context was just compacted, the first thing to do is to rebuild the stop list.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_compaction"
-  }
- },
- {
-  "id": "d-061",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "When the carrier replies with a status, cite it in the chase email instead of the promised date.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_status"
-  }
- },
- {
-  "id": "d-062",
-  "path": "CLAUDE.md",
-  "quote": "Do not translate the draft by yourself when the supplier is listed with a language.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_in_table"
-  }
- },
- {
-  "id": "d-063",
-  "path": ".claude/skills/weekly-report/SKILL.md",
-  "quote": "A shipment that vanished in transit is reported once, in the Lost line, and never in Shipments late.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "lost"
-  }
- },
- {
-  "id": "d-064",
-  "path": ".claude/skills/parcel-claims/references/claim-rules.md",
-  "quote": "Quote the table language next to every supplier that has a row in it.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_in_table"
-  }
- },
- {
-  "id": "d-065",
-  "path": ".claude/skills/parcel-claims/references/claim-rules.md",
-  "quote": "Hold the weekly report back as long as the reviewer has not replied.",
-  "truth": {
-   "variable": "approval",
-   "value": "approval_unanswered"
-  }
- },
- {
-  "id": "d-066",
-  "path": "CLAUDE.md",
-  "quote": "If a second person must also approve, wait for both answers.",
-  "truth": {
-   "variable": "approval",
-   "value": "NEW",
-   "proposed_hint": "approval_needs_two"
-  }
- },
- {
-  "id": "d-067",
-  "path": "CLAUDE.md",
-  "quote": "Je viens de redémarrer la session? Then re-read the rules before you act.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_restart"
-  }
- },
- {
-  "id": "d-068",
-  "path": ".claude/skills/shipment-tracker/SKILL.md",
-  "quote": "Copy the carrier's status text into the answer whenever the carrier gives one.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_status"
-  }
- },
- {
-  "id": "d-069",
-  "path": ".claude/skills/supplier-email/SKILL.md",
-  "quote": "For an unlisted supplier, do not pick a language by the country of the email address.",
-  "truth": {
-   "variable": "supplier",
-   "value": "supplier_not_in_table"
-  }
- },
- {
-  "id": "d-070",
-  "path": ".claude/memory/supplier-languages.md",
-  "quote": "If the supplier's price changed since the last order, show both prices in the draft.",
-  "truth": "none"
- },
- {
-  "id": "d-071",
-  "path": ".claude/skills/parcel-claims/SKILL.md",
-  "quote": "Drop the stop from tomorrow's plan if the parcel for it is lost.",
-  "truth": {
-   "variable": "shipment_delay",
-   "value": "lost"
-  }
- },
- {
-  "id": "d-072",
-  "path": ".claude/skills/invoice-reconcile/SKILL.md",
-  "quote": "After the session has been restarted, do not trust a half-finished reconcile summary.",
-  "truth": {
-   "variable": "session_state",
-   "value": "after_restart"
-  }
- },
- {
-  "id": "d-073",
-  "path": "CLAUDE.md",
-  "quote": "Als de carrier een status teruggeeft, lead with it in the first line.",
-  "truth": {
-   "variable": "carrier",
-   "value": "carrier_status"
-  }
- }
 ]
