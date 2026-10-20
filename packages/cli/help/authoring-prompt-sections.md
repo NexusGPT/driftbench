@@ -11,6 +11,7 @@ see_also:
   - authoring-spec-check
   - authoring-spec-format
   - results-radius
+  - validate-section-mutants
 next:
   - authoring-blast-radius
 ---
@@ -24,7 +25,7 @@ Each section has:
 - an `id`, never reused for other text;
 - a `scope`: `global` when the section can reach every block (persona, language, tone), `local` when it reaches only the blocks linked to it;
 - a `span` and the `sha256` of its text;
-- an `anchor`: a quote inside the section, unique in the prompt, with the text just before and after it;
+- an `anchor`: a quote inside the section, with the text just before and after it. The quote is unique in the prompt. When the prompt repeats the text of the section, it is not: the anchor then carries an `occurrence`, from 1 in text order, that names the copy of the quote lying in this section;
 - optional `references` (sections it refers to), `overrides` (sections it narrows or extends) and `duplicates` (sections that state the same rule).
 
 Offsets are UTF-16 code units after NFC and CRLF or CR to LF, end exclusive: the same unit as the anchors of `radius auto`. A model never writes an offset: a link names a section by id.
@@ -51,7 +52,7 @@ A target is a `prompt_section`, a `spec_clause` (`spec`, `clause`, optional `sha
 
 `metadata.links` and `metadata.provenance` stay out of the spec hash. A link added, promoted or refuted never changes the hash, a run id, a cache key, a carry or a rejudge. A spec without them hashes exactly as before.
 
-**Re-anchoring** finds each section again in the next version of the prompt. In order: the same text found once (`same_hash`). Else the anchor quote found once, with the old text at the same distance from it (`quote`). Else the prefix, quote and suffix window found once, the same way (`window`). Else the section is `stale`. A section is only ever placed where its text hashes as before. An edit inside a section makes it stale. It is never anchored to the wrong text. Text that changed outside every section, whitespace aside, is reported, because it can reach any block.
+**Re-anchoring** finds each section again in the next version of the prompt. In order: the same text found once (`same_hash`). Else, when the old prompt repeats the text (identical sections) and the new prompt holds as many copies, the same copy number (`occurrence`): the first copy stays the first and the second the second, whatever was inserted above them. Else the anchor quote found once, with the old text at the same distance from it (`quote`). Else the prefix, quote and suffix window found once, the same way (`window`). For repeated text, a quote or a window counts only when it names one copy in the old prompt too. Else the section is `stale`. A section is only ever placed where its text hashes as before, and two sections never hold one place. An edit inside a section makes it stale. It is never anchored to the wrong text. Text that changed outside every section, whitespace aside, is reported, because it can reach any block.
 
 **Advisory section selection.** `radius sections reanchor --change-out` writes a change manifest. It holds one `prompt_section` change (`<prompt-id>#<section-id>`) per stale or reordered section, and one global `prompt` change when text changed outside every section. `radius <specs> --change <manifest> --sections <registries>` then prints which blocks selection by section links would run:
 
@@ -62,11 +63,13 @@ A target is a `prompt_section`, a `spec_clause` (`spec`, `clause`, optional `sha
 - once parents exist, the blocks of every spec whose first block starts from a selected parent block (`given.parent: <spec>#<block>`);
 - every block, when a changed section is `global`, is in no registry, or its prompt has no registry.
 
-It is a report, never a filter. A `prompt_section` change makes the radius the whole suite, so `campaign run --change`, `ci --change` and block reruns run every block. The H7 mutation suite has 30 sections, 37 blocks and 9,690 runs. There, declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants (Wilson 95% upper bound 9.3%). They missed one in 9 of 110 two-section mutants. The forward closure brings that to 2 of 90 and 4 of 110, at a selection ratio of 0.23. Selection may skip blocks only after links verified by mutation pass that gate below 5%, two-section mutants included.
+It is a report, never a filter. A `prompt_section` change makes the radius the whole suite, so `campaign run --change`, `ci --change` and block reruns run every block. The H7 mutation suite has 30 sections, 37 blocks and 9,690 runs. There, declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants (Wilson 95% upper bound 9.3%). They missed one in 9 of 110 two-section mutants. The forward closure brings that to 2 of 90 and 4 of 110, at a selection ratio of 0.23. Selection may skip blocks only with a passing verified-link gate: section mutants verify or refute the links, and the gate reruns selection on the verified links alone against a later mutation run, two-section mutants included, with its 95% Wilson upper bound at or below 5%. `radius --gate <record>` then skips the blocks the verified links leave out (validate-section-mutants).
 
 **Localisation.** `radius localize` ranks the local sections of a prompt by how likely they are to cause the failures of a stored campaign. It uses Ochiai suspiciousness (Abreu et al. 2007). A prompt has no execution trace, so a block covers the sections it links to. For each section, `failed` sums the failure rate of the blocks linked to it over the suite runs. `passed` sums their pass rate. The score is `failed / sqrt(total failure weight x (failed + passed))`, 0 when nothing linked failed. A block's failure is dropped when an earlier block of its conversation failed in the same run. Across a parent edge, the parent block or its ancestors count as earlier. Such a failure is inherited, not evidence. A block that passes after a failing one stays a row, because it clears the sections it links to. Global sections are listed apart and never ranked: a section that reaches every block scores the same whatever it says. Ties print as a rank range.
 
-On the H7 mutation suite this rule ranked the planted section worse than counting every block flat on 3 of 98 faults. It ranked it better on 5. Dropping every block after a failing one ranked worse on 18 of 98. There, a block that fails in every baseline run removed the passing blocks that cleared the innocent sections. Ranking each block against its own baseline verdict, and mutation to verify links, come with the mutation runner.
+On the H7 mutation suite this rule ranked the planted section worse than counting every block flat on 3 of 98 faults. It ranked it better on 5. Dropping every block after a failing one ranked worse on 18 of 98. There, a block that fails in every baseline run removed the passing blocks that cleared the innocent sections.
+
+`--counting relative --baseline <campaign>` reads each block against its own baseline verdict: the majority of its runs in a campaign of the unchanged agent. A block that fails there is no row, so it blames no section; a block with a tie is no row either. A block that passes there is a row, and a failure of it is a flip. Inherited failures are dropped as in grouped counting. On the H7 runs, relative counting ranked the planted section worse than flat counting over the same rows on 2 of 84 faults and better on 3. Against flat counting over every block it is worse on 14 of 98: flat counting credits the sections the always-failing block links to, mutant or not, and 9 of the 14 are faults whose mutant flipped no block. `grouped` stays the default.
 
 **Anthropic Citations** count `start_char_index` and `end_char_index` in code points, not UTF-16 units. On a text with two emoji before the cited sentence, the API gave 23 where UTF-16 gives 25. Any citation pointer is converted before it is compared with a span (`codePointToUtf16`, `citationSpan` and `sectionOfCitation` in `@agent-nexus/driftbench-core`). A prompt sent as a custom-content document with one block per section (`sectionDocument`) needs no offset: the citation's block index names the section.
 
@@ -84,7 +87,7 @@ On the H7 mutation suite this rule ranked the planted section worse than countin
 driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]
 ```
 
-Writes a first registry: one section per markdown heading of level 1 to `--level`, from the heading to the next one. Trailing whitespace is left out. Text before the first heading is the section `preamble`. Ids are the slugged titles, with `_2`, `_3` for repeats. Every section starts `global`, the safe reading. Mark local the sections that reach only the blocks linked to them, and add `references`, `overrides` and `duplicates` by hand.
+Writes a first registry: one section per CommonMark heading of level 1 to `--level`, from the heading to the next one. A heading is an ATX heading (`#` to `######`, indented up to three spaces, its closing `#` sequence dropped) or a setext heading (a paragraph underlined with `=` or `-`). A `#` line inside a fenced code block is code, also when the fence opens on a list or quote line. A leading YAML front matter block (`---` to `---`) is not read for headings. HTML blocks and indented code are not parsed. Trailing whitespace is left out. Text before the first heading is the section `preamble`. Ids are the slugged titles, with `_2`, `_3` for repeats: a repeat takes the next free number, so two ids are never equal. Two sections with the same text keep an entry each, and their anchors carry an `occurrence`. A section with no word of its own, such as an empty heading next to another, is folded into the section before it. Every section starts `global`, the safe reading. Mark local the sections that reach only the blocks linked to them, and add `references`, `overrides` and `duplicates` by hand.
 
 | Option | Meaning | Default |
 |---|---|---|
@@ -94,7 +97,7 @@ Writes a first registry: one section per markdown heading of level 1 to `--level
 | `--level <n>` | The deepest heading level that starts a section, 1 to 6. | `2` |
 | `--out <file>` | Write the registry here. | print the YAML |
 
-Exit 0 when written. Exit 2 when the prompt cannot be read, `--level` is not 1 to 6, or a section has no quote unique in the prompt.
+Exit 0 when written. Exit 2 when the prompt cannot be read, `--level` is not 1 to 6, or the prompt has no section.
 
 ### driftbench radius sections check
 
@@ -102,7 +105,7 @@ Exit 0 when written. Exit 2 when the prompt cannot be read, `--level` is not 1 t
 driftbench radius sections check <registry> --prompt <file> [--json]
 ```
 
-Checks that the registry describes the prompt. It checks the whole-text hash, each section's span and hash, each anchor found once and inside its section, no two sections overlapping. Stale sections are listed, not checked.
+Checks that the registry describes the prompt. It checks the whole-text hash, each section's span and hash, each anchor found once and inside its section (with an `occurrence`: found at least that often, and that copy inside its section), no two sections overlapping. Stale sections are listed, not checked.
 
 | Option | Meaning | Default |
 |---|---|---|
@@ -134,7 +137,7 @@ Exit 0 when every section was found again in order and nothing changed outside t
 ### driftbench radius localize
 
 ```
-driftbench radius localize <paths...> --store <file> --campaign <id> --sections <registries...> [--prompt <prompt-id>] [--mode <mode>] [--counting <rule>] [--top <n>] [--json]
+driftbench radius localize <paths...> --store <file> --campaign <id> --sections <registries...> [--prompt <prompt-id>] [--mode <mode>] [--counting <rule>] [--baseline <campaign>] [--top <n>] [--json]
 ```
 
 Reads the campaign's runs and the specs' links, and prints the local sections of one prompt, most suspicious first.
@@ -147,7 +150,8 @@ Reads the campaign's runs and the specs' links, and prints the local sections of
 | `--sections <registries...>` (required) | Section registries. | none |
 | `--prompt <prompt-id>` | The prompt to rank, when several registries are given. | the only registry |
 | `--mode <mode>` | The run mode to read: `T`, `F` or `P`. In `T` a block starts from its canonical Given and inherits nothing; in `F` and `P` it inherits the earlier blocks of its conversation. | the only mode of the campaign |
-| `--counting <rule>` | `grouped`: drop inherited failures only. `flat`: count every block, for comparison. | `grouped` |
+| `--counting <rule>` | `grouped`: drop inherited failures only. `flat`: count every block, for comparison. `relative`: flips against each block's baseline verdict; needs `--baseline`. | `grouped` |
+| `--baseline <campaign>` | relative counting only: the campaign of the unchanged agent, in the same store, read for each block's baseline verdict. | none |
 | `--top <n>` | How many sections to print; `0` prints all. | `10` |
 | `--json` | Print `{prompt, version, mode, localization, suiteRuns, skipped}`. | off |
 
@@ -170,7 +174,7 @@ sections:
     scope: local               # local or global
     span: {start: 5332, end: 5604}
     sha256: 9b1f...            # SHA-256 of the section text, 64 hex
-    anchor: {quote: "Place an order only after", prefix: "...", suffix: "..."}
+    anchor: {quote: "Place an order only after", prefix: "...", suffix: "..."}   # occurrence: 2 (optional): which copy of a repeated quote
     references: [recap]        # optional
     overrides: []              # optional
     duplicates: []             # optional
@@ -181,7 +185,7 @@ sections:
 
 ## Outputs and how to read them
 
-`radius localize` prints a header: the prompt, the mode, the number of suite runs and the counting. Then it prints the block rows counted, the total failure weight and the inherited failures dropped. Then a table: `rank` (a range on ties), `section`, `ochiai`, `failed`, `passed`, and `blocks` (the linked blocks that were rows). Then it prints the failing roots (blocks that failed as a row; with `--counting flat`, every failing block). It also prints the global sections left out, and every skipped run with its reason. JSON: `localization.sections[]` holds `section`, `score`, `failed`, `passed`, `linked`, `best`, `worst`; `localization` also holds `global`, `failureWeight`, `rows`, `inherited`, `roots`, `counting`.
+`radius localize` prints a header: the prompt, the mode, the number of suite runs and the counting. Then it prints the block rows counted, the total failure weight and the inherited failures dropped. Then a table: `rank` (a range on ties), `section`, `ochiai`, `failed`, `passed`, and `blocks` (the linked blocks that were rows). Then it prints the failing roots (blocks that failed as a row; with `--counting flat`, every failing block). It also prints the global sections left out, and every skipped run with its reason. JSON: `localization.sections[]` holds `section`, `score`, `failed`, `passed`, `linked`, `best`, `worst`; `localization` also holds `global`, `failureWeight`, `rows`, `inherited`, `roots`, `counting`, and with relative counting `baseline` (`failing`, `unstable`). Relative counting adds a line after the header: the blocks failing in the baseline and the blocks with no baseline verdict.
 
 `radius --sections` adds, after the radius, `Advisory section selection (<changes>)`, the sections the closure adds, and `Would run <n> of <m> blocks (<d> by links, <f> forward) and would skip <k>`. It then adds one row per spec with a selected block: its count, its first selected block and the links that drove it. Links read `link:<prompt>#<section> (<status>)`, `no-links:<prompt>` or `stale-link:<prompt>#<section>`. A forward block reads `after <block>` or `via <spec>#<block>`. `Every block would run: <reason>` when a change is global or unknown. See authoring-blast-radius for `--explain` and `--json`.
 
@@ -189,7 +193,7 @@ sections:
 
 `radius sections check` prints `<prompt> <version>: <n> sections match the prompt.`, with `; <k> stale: <ids>` when some are stale, or one line per problem.
 
-`radius sections reanchor` prints `<prompt> <old version> to <new version>: <k> kept, <m> moved, <s> stale.` Then it prints one line per stale section with its reason, and the sections that changed order. It prints one line per change outside every section: `changed outside every section, between <a> and <b>: can reach any block`. A stale reason is either `the anchor is found but the section text changed: edited inside` or `neither the text nor the anchor is found once: edited or removed`.
+`radius sections reanchor` prints `<prompt> <old version> to <new version>: <k> kept, <m> moved, <s> stale.` Then it prints one line per stale section with its reason, and the sections that changed order. It prints one line per change outside every section: `changed outside every section, between <a> and <b>: can reach any block`. A stale reason is `the anchor is found but the section text changed: edited inside`, or `neither the text nor the anchor is found once: edited or removed`, or, for repeated text, `its text occurs <k> times in the old prompt and <m> in the new one, and its surroundings do not tell which copy it is`, or `its text is repeated and its surroundings fit the same copy as <ids>: nothing tells which section it is`.
 
 ## Worked example
 
@@ -300,7 +304,7 @@ Counted per root, the sections of the two first failures tie at the top. `explic
 
 - `text_sha256: the registry does not describe this prompt text`: the prompt changed since the registry was written. Re-anchor from the version the registry describes.
 - `the registry does not describe the old prompt text (text_sha256 differs)` from `reanchor`: the first `--prompt` file is not the version of the registry.
-- `<id>: no quote inside the section is unique in the prompt` from `init`: two sections hold the same text. Make one differ, or write that entry by hand.
+- Two sections hold the same text: `init` keeps both. Their ids are `<slug>` and `<slug>_2`, and their anchors carry an `occurrence`. `reanchor` keeps them in order when the number of copies is unchanged. When a copy was added, removed or edited, a copy comes out stale unless its surroundings name it.
 - A section that stays stale after every re-anchoring: declare its span again (`span`, `sha256`, `anchor`) and remove `stale`.
 - `radius localize needs --sections <registries...>`: give the registry of the prompt to rank.
 - `The campaign holds runs in modes F, T: name one with --mode`: localisation reads one mode at a time.

@@ -94,3 +94,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-prepare-the-weekly
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0224
+        values:
+          ask_class: operate
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D5_language_switch
+          estate_hazard: stale_tracker
+          atoms.route: route.standing.an-ask-to-prepare-the-weekly
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

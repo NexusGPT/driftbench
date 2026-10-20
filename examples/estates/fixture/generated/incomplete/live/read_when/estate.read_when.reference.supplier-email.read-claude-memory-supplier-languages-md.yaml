@@ -59,3 +59,29 @@ metadata:
       - marker: needs-askable-act
         atom: reference.supplier-email.read-claude-memory-supplier-languages-md
         detail: "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.supplier-email.read-claude-memory-supplier-languages-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.supplier-email.read-claude-memory-supplier-languages-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

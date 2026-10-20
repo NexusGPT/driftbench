@@ -93,3 +93,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1188
+        values:
+          ask_class: debug
+          ask_shape: correction
+          session_state: resumed
+          owner_signal: no_questions
+          deviation: D12_prompt_extraction
+          estate_hazard: rate_wave
+          atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

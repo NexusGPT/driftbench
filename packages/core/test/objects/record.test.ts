@@ -164,7 +164,10 @@ describe('every verdict carries by', () => {
             block.resolved?.objects.map((entry) => [entry.key, entry.kind, entry.id, entry.setAt]),
           ).toEqual([
             ['value_check', 'policy/value-check', 'default', 'shipped'],
+            ['blame', 'policy/blame', 'default', 'shipped'],
+            ['placement', 'policy/placement', 'default', 'shipped'],
             ['check_set', 'check-set', 'default', 'shipped'],
+            ['diagnostics', 'diagnostic', 'argument-accuracy', 'shipped'],
           ]);
           for (const verdict of block.verdicts) {
             verdicts += 1;
@@ -180,7 +183,8 @@ describe('every verdict carries by', () => {
         }
       }
     }
-    expect(verdicts).toBe(978);
+    // The 978 verdicts main wrote, less the 22 argument-accuracy aggregates that are diagnoses now.
+    expect(verdicts).toBe(956);
     // Twelve families: eleven checks and the runner's ledger verdicts.
     expect([...kinds].sort()).toEqual([
       'budget',
@@ -271,7 +275,22 @@ describe('the check set chooses the checks', () => {
         hash: expect.any(String),
         setAt: 'shipped',
       },
+      { key: 'blame', kind: 'policy/blame', id: 'default', hash: expect.any(String), setAt: 'shipped' },
+      {
+        key: 'placement',
+        kind: 'policy/placement',
+        id: 'default',
+        hash: expect.any(String),
+        setAt: 'shipped',
+      },
       { key: 'check_set', kind: 'check-set', id: 'acme', hash: expect.any(String), setAt: 'spec' },
+      {
+        key: 'diagnostics',
+        kind: 'diagnostic',
+        id: 'argument-accuracy',
+        hash: expect.any(String),
+        setAt: 'shipped',
+      },
     ]);
   });
 

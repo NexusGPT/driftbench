@@ -92,3 +92,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-plan-the-delivery
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1153
+        values:
+          ask_class: research
+          ask_shape: problem
+          session_state: fresh
+          owner_signal: frustration
+          deviation: D11_pii_leak
+          estate_hazard: no_hazard
+          atoms.route: route.standing.an-ask-to-plan-the-delivery
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

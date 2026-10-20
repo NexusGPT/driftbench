@@ -5,7 +5,7 @@
 
 import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
 import { wilson, zFor } from './intervals';
-import { binomialCdf, chiSquareSf, incompleteBeta, normalSf } from './special';
+import { binomialCdf, binomialPmf, chiSquareSf, incompleteBeta, normalSf } from './special';
 
 export interface McNemarResult {
   /** The exact test reports min(b, c); the chi-square test reports the corrected chi-square. */
@@ -39,6 +39,26 @@ export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McN
   const diff = Math.max(0, Math.abs(b - c) - 1);
   const statistic = (diff * diff) / n;
   return { statistic, pValue: chiSquareSf(statistic, 1), method: 'chi-square', b, c };
+}
+
+export interface McNemarMidPResult {
+  readonly pValue: number;
+  readonly b: number;
+  readonly c: number;
+}
+
+/**
+ * Two-sided mid-p McNemar test: 2 P(X < k) + P(X = k), capped at 1, where
+ * X ~ Binomial(b + c, 0.5) and k = min(b, c). No discordant pairs give p = 1.
+ */
+export function mcnemarMidP(b: number, c: number): McNemarMidPResult {
+  assertCount('mcnemarMidP', 'b', b);
+  assertCount('mcnemarMidP', 'c', c);
+  const n = b + c;
+  if (n === 0) return { pValue: 1, b, c };
+  const k = Math.min(b, c);
+  const pValue = Math.min(1, 2 * binomialCdf(k - 1, n, 0.5) + binomialPmf(k, n, 0.5));
+  return { pValue, b, c };
 }
 
 export type WilcoxonMethod = 'exact' | 'permutation' | 'asymptotic';

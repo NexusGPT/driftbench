@@ -1,6 +1,7 @@
 import { type Message, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { createToolsCheck } from '../src/checks/tools';
+import { createToolsCheck, replayInputValues } from '../src/checks/tools';
+import { DEFAULT_VALUE_POLICY } from '../src/value-check/ladder';
 import { context, GIVEN, observed, run } from './support/context';
 
 /**
@@ -55,5 +56,29 @@ describe('the tools check collects the user texts only when a rung reads them', 
     ]);
     await run(createToolsCheck(), context(spec(), 0, seen, { given: { ...GIVEN, prefix } }));
     expect(passes()).toBe(1);
+  });
+});
+
+describe('a replay of one input verdict reads the user texts when a rung asks', () => {
+  it('finds the value the user gave and fails the agent that changed it', async () => {
+    const parsed = validateSpec({
+      id: 'user-texts-replay',
+      blocks: [
+        {
+          user: 'Reach me at sam.rivera@example.com',
+          expect: { tools: [{ label: 'notify_sales', input: { email: 'sam.rivera@example.com' } }] },
+        },
+      ],
+    });
+    if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+    const seen = observed('Done', [{ label: 'notify_sales', input: { email: 'Sam.Rivera@example.com' } }]);
+    const replayed = await replayInputValues(
+      context(parsed.spec, 0, seen),
+      'tools.notify_sales.input.email',
+      DEFAULT_VALUE_POLICY,
+      {},
+    );
+    expect(replayed).toHaveLength(1);
+    expect(replayed[0]?.leaves[0]?.result).toMatchObject({ outcome: 'fail', rung: 'rung2b_as_given' });
   });
 });

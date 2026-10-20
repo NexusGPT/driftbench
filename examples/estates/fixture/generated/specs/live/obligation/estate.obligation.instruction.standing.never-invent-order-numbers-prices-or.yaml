@@ -50,3 +50,22 @@ metadata:
     ask: code
     askFrom: instruction.standing.never-invent-order-numbers-prices-or (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-invent-order-numbers-prices-or
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.standing.never-invent-order-numbers-prices-or
+        values:
+          atoms.instruction: instruction.standing.never-invent-order-numbers-prices-or
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

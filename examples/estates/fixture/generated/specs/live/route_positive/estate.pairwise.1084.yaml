@@ -93,3 +93,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-know-where-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1084
+        values:
+          ask_class: operate
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D9_out_of_scope
+          estate_hazard: dead_helper
+          atoms.route: route.standing.an-ask-to-know-where-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -17,13 +17,17 @@ export {
   type BankSummary,
   type BankVerdict,
   bankSummary,
+  type CatchList,
+  type CatchSummary,
   causeKey,
   formatItems,
   LEVEL_FAMILY,
   NO_FAMILY,
   NO_TIER,
 } from './bank';
+export { statsBankHash } from './bank-fingerprint';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
+export { CatchFileSchema, catchFile, readCatchList } from './catch';
 export {
   checkFloors,
   emptyFloors,
@@ -64,6 +68,7 @@ export {
   BLIND_SLOWDOWN,
   formatHardness,
   type GateBar,
+  HARDNESS_MAX_CATCH_SHARE,
   HARDNESS_MAX_SCORE,
   HARDNESS_MIN_CAUSES,
   HARDNESS_MIN_FORECAST,
@@ -110,7 +115,7 @@ export {
   seedLabel,
   type Tier,
 } from './ladder';
-export { registeredLadders } from './ladders/index';
+export { registeredLadders, registeredLadderVersions } from './ladders/index';
 export { judgesBankChild } from './ladders/judges/v2/run-child';
 export {
   REFERENCE_TOLERANCE,

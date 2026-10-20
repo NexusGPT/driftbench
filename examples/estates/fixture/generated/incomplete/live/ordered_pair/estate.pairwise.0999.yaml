@@ -99,3 +99,28 @@ metadata:
       - marker: needs-ordered-anchor
         atom: gate.invoice-reconcile.read-references-matching-rules-md-before
         detail: 'Read before matching any line: "matching any line" is no tool label, skill or stage'
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.invoice-reconcile.read-references-matching-rules-md-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0999
+        values:
+          ask_class: build
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: go
+          deviation: D7_silence_or_burst
+          estate_hazard: compaction_mid_task
+          atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -56,3 +56,30 @@ metadata:
     ask: code
     askFrom: skill.supplier-email.skill-supplier-email (asks it names)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.no-price-or-date-in-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.supplier-email.no-price-or-date-in-a
+        values:
+          atoms.instruction: instruction.supplier-email.no-price-or-date-in-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

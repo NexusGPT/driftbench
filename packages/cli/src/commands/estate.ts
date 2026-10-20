@@ -37,6 +37,7 @@ import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
 import { type EstatePointerOptions, openPointer, pointerLines } from './estate-pointer';
+import { registerEstateProveCommand } from './estate-prove';
 import { registerEstateStaticCommand } from './estate-static';
 import { registerEstateStatsCommand } from './estate-stats';
 import { registerEstateUnitCommand } from './estate-unit';
@@ -123,8 +124,9 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--jobs <n>', 'with --pointer: requests in flight at once (default 4)')
     .option(
       '--ledger <file>',
-      'with --pointer: the ledger of unit ids beside the estate; read, then rewritten',
+      'with --pointer: the ledger of unit ids beside the estate; read, and written with --update',
     )
+    .option('--update', 'with --pointer and --ledger: write the ledger of the files as they are now')
     .option('--ledger-check', 'with --pointer: fail when the ledger is out of date; write nothing')
     .action(async (root: string, options: EstateScanOptions) => {
       setExit(await estateScanCommand(root, options, io));
@@ -171,6 +173,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateMaintainCommands(estate, io, setExit);
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
+  registerEstateProveCommand(estate, io, setExit);
   registerEstateStaticCommand(estate, io, setExit);
   registerEstateStatsCommand(estate, io, setExit);
   registerEstateUnitCommand(estate, io, setExit);
@@ -209,11 +212,14 @@ export async function estateScanCommand(
     (options.cassette ||
       options.record ||
       options.ledger ||
+      options.update ||
       options.labels ||
       options.labeler?.length ||
       options.jobs)
   ) {
-    io.err('error: --cassette, --record, --ledger, --labels, --labeler and --jobs need --pointer\n');
+    io.err(
+      'error: --cassette, --record, --ledger, --update, --labels, --labeler and --jobs need --pointer\n',
+    );
     return 2;
   }
   const ceiling = parseCeiling(options.ceiling, io);
@@ -251,7 +257,7 @@ export async function estateScanCommand(
   }
 
   const handle = options.pointer
-    ? await openPointer(options, io, deps.env ?? process.env, deps.fetch)
+    ? await openPointer(options, io, deps.env ?? process.env, deps.fetch, root)
     : undefined;
   if (options.pointer && !handle) return 2;
 

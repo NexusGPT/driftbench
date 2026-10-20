@@ -4,6 +4,7 @@ summary: 'Compute which blocks of a suite a change to the agent can affect. The 
 commands:
   - radius
   - radius auto
+  - radius ledger
 see_also:
   - results-radius
   - authoring-prompt-sections
@@ -29,7 +30,9 @@ You describe the change in a change manifest: the agent version before (`from`),
 
 `driftbench radius auto` writes a change manifest for you from two versions of a prompt file and an approved map whose entries carry evidence quotes. A change inside exactly one approved quote becomes a narrow change. Any doubt becomes a whole-suite change.
 
-A prompt can also carry a section registry, which names its sections by stable ids. Blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is always the whole suite. Selection by section links is advisory until links are verified by mutation. `radius --sections` only prints what it would skip.
+`driftbench radius ledger` writes a change manifest from an edit of an estate's prose. It reads the ledger of the last pointer scan and the files as they are now. Each unit falls in one edit class, and each class has a fixed rerun set (see below). No labeler is called.
+
+A prompt can also carry a section registry, which names its sections by stable ids. Blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is the whole suite. Selection by section links is advisory until links are verified by mutation: `radius --sections` only prints what it would skip, and only `radius --gate <record>`, with a passing verified-link gate (validate-section-mutants), lets it skip blocks.
 
 Each block of each spec gets one state per mode:
 
@@ -78,7 +81,7 @@ Do not use it as proof that the new agent equals the old one outside the radius.
 ### driftbench radius
 
 ```
-driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [--json] [--sections <registries...>]
+driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [--json] [--sections <registries...>] [--gate <file>]
 ```
 
 | Option | Meaning | Default |
@@ -89,6 +92,7 @@ driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [-
 | `--explain` | after the normal output, print one line per manifest change (`<kind>:<id or global>: <note>`, or `declared in the manifest` when the change has no note). Then print one line per block of every spec: `<specId>/<blockId>: <state JSON>: <reasons>`. Ignored with `--json` | off |
 | `--json` | print one JSON document instead of the text | off |
 | `--sections <registries...>` | section registries (authoring-prompt-sections). When the manifest holds `prompt_section` changes, print the advisory section selection after the radius. It lists the blocks selection by section links would run and the ones it would skip. Nothing is skipped: the radius stays the whole suite. With `--explain`, one `<specId>/<blockId>: advisory <state>: <reasons>` line per block; with `--json`, the key `advisory` | off |
+| `--gate <file>` | a selection gate record, written by `radius mutate score --gate-out` (validate-section-mutants). With `--sections`, when the record passed and is not stale for these specs and registries, a `prompt_section` change selects the blocks its verified links select, with forward closure, and the radius skips the rest: each such block's reasons start with `prompt_section:`. A record covers its own prompt only: a change that names another prompt, or a section id with no prompt while another prompt's registry is given, keeps the whole suite. Otherwise the radius stays the whole suite and the reason says why the gate does not apply. A global section still selects every block. Prints `Section selection skips blocks: <why>` or `The gate does not let section selection skip blocks: <why>`; with `--json`, the key `sectionGate` (`used`, `reason`) | none |
 
 Exit codes:
 
@@ -151,6 +155,42 @@ Exit codes:
 | 1 | the map does not parse as a map proposal: an uncaught validation error with a stack trace |
 | 2 | `--prompt` without exactly two files, a missing required option, a source the map does not declare, a file that cannot be read |
 
+### driftbench radius ledger
+
+```
+driftbench radius ledger <map> [--ledger <file>] [--from-version <version>] [--to-version <version>] [--out <file>]
+```
+
+| Argument or option | Meaning | Default |
+|---|---|---|
+| `<map>` (required) | the estate map of the last scan. It names the estate folder, the runtime and the ignore list, and its atoms say which atom sits on which unit (`fields.unit`, `fields.condition`) | none |
+| `--ledger <file>` | the ledger of the last scan, written by `estate scan --pointer --ledger <file> --update` | the `ledger:` of `driftbench.estate.yaml` in the estate folder, relative to it |
+| `--from-version <version>` | the `from` of the manifest | the first 12 characters of the map hash |
+| `--to-version <version>` | the `to` of the manifest | `working` |
+| `--out <file>` | write the manifest YAML to this file, and print the count of each edit class | print the YAML on stdout |
+
+The command cuts the prose files the scan reads, follows the old units into them as the scan does, and puts each unit in one edit class. The rerun set of each class is fixed:
+
+| Edit class | What happened to the unit | What reruns |
+|---|---|---|
+| `unchanged` | the same text and the same neighbours | nothing |
+| `context` | the same text, other neighbours or another heading path | nothing; the unit is advisory |
+| `moved` | the same text in another file | nothing; the unit is advisory |
+| `changed` | the text changed | the unit |
+| `deleted` | the unit is gone | the unit |
+| `new` | no old unit is followed into it | the old units of its section: the units under the same headings in the same file, else under the nearest heading above, else every unit of the file. A new unit in a file the ledger did not hold is the whole suite |
+
+A split keeps the old id on its first piece (`changed`) and mints the others (`new`). A merge keeps the first old id (`changed`) and ends the second (`deleted`). An ambiguous copy keeps the old id on its first match and mints the others (`new`). So their rerun set is the union of these classes.
+
+A unit that reruns becomes changes in the manifest. A unit with atoms on it becomes one `prompt` change per atom: the tests that name the atom rerun, as for any atom. A unit with no atom becomes a `unit` change with its ledger id; a `unit` change makes the radius the whole suite (see the kinds below). The `note` of each change names the class.
+
+Exit codes:
+
+| Code | When |
+|---|---|
+| 0 | a manifest was written or printed. A whole-suite manifest also exits 0: read its `changes` |
+| 2 | the map is not a valid estate map, no ledger is named, the ledger cannot be read or is not a ledger, the runtime is unknown, the estate folder is missing |
+
 ## Inputs
 
 ### The change manifest
@@ -169,7 +209,7 @@ YAML or JSON. Strict: an unknown key is an error at every level.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`, `prompt_section`. Any other string is accepted and makes the radius the whole suite |
+| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`, `prompt_section`, `unit`. Any other string is accepted and makes the radius the whole suite |
 | `id` | string, not empty | no | which one (see the table below). Without it, every kind is the whole suite |
 | `part` | `input`, `result`, `description` or `presence` | no | for a tool: which part changed. Absent: any part, the widest reading |
 | `global` | boolean | no | `true` when the change applies to every block, such as a tone rule: the whole suite |
@@ -195,7 +235,8 @@ What each kind selects:
 | `fixture` | a name or a literal value | blocks whose Given (spec and blocks up to this one) names it as a world store key, a fixture name, a workspace file or `workspace.from`. It also selects specs of family `<id>` as `family:<id>` (from `metadata.family.id` or a `family:` tag). It also selects names in `metadata.depends.fixtures`. It also selects blocks whose When, expected tool inputs, Given or end state hold the literal text |
 | `criterion` | a criterion name | blocks whose `expect.criteria` name it |
 | `model`, `agent` | none | the whole suite |
-| `prompt_section` | `<prompt-id>#<section-id>`, or a section id alone for any prompt | the whole suite, with the reason `section selection is advisory until links are verified by mutation`. `--sections` prints which blocks the section links would select (authoring-prompt-sections) |
+| `prompt_section` | `<prompt-id>#<section-id>`, or a section id alone for any prompt | the whole suite, with the reason `section selection is advisory until links are verified by mutation`. `--sections` prints which blocks the section links would select (authoring-prompt-sections). With `--gate` and a passing gate record: the blocks the verified links select (validate-section-mutants) |
+| `unit` | a ledger unit id | the whole suite, with the reason `unit selection is advisory until links are verified by mutation: the whole suite runs`. `radius` then prints which blocks the `estate_unit` links would select (authoring-block-links) |
 
 What a tool change selects, by `part`:
 
@@ -331,6 +372,7 @@ After the text output: one line per change, `<kind>:<id or global>: <note or "de
 | `specs[].cells[]` | `mode`, `perturbationId` (mode P), `in`, `why` (the reasons of the first direct block, or of the perturbation) |
 | `totals.<mode>` | `in` (direct plus forward), `direct`, `forward`, `out`, `total` (scored blocks). `unknown` (scored blocks with unknown dependencies), `cells.in`, `cells.total`, `sent` (scored blocks of the cells in the radius) |
 | `advisory` | with `--sections` and `prompt_section` changes only: `{ advisory: true, changed, closure, all, specs[].blocks[] (id, index, state, why), counts (selected, direct, forward, skipped, total) }`. See authoring-prompt-sections |
+| `sectionGate` | with `--gate` and `prompt_section` changes only: `{ used, reason }`. `used` is true when the gate let section selection skip blocks |
 
 `radius` writes no file.
 

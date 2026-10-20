@@ -102,3 +102,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.weekly-report.fill-the-report-sections-in-the
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.fill-the-report-sections-in-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0441
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: limit_word
+          deviation: D2_goal_shift
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

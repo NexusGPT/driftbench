@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {labellerKappaInterval as ci} from '../candidate';
+const set={name:'s',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const g=[...Array(50).fill('a'),...Array(50).fill('b')];
+const a=[...Array(40).fill('a'),...Array(10).fill('b'),...Array(10).fill('a'),...Array(40).fill('b')];
+const x=ci(g,a,set); assert.equal(x.status,'estimated');assert.ok(Math.abs(x.estimate-.6)<1e-12); assert.ok(Math.abs(x.varianceFactor!-.64)<1e-12); assert.ok(Math.abs(x.standardError!-.08)<1e-12); assert.ok(Math.abs(x.lower!-.4432028812)<1e-8);
+const perfect=ci(['a','a'],['a','a'],set); assert.equal(perfect.status,'degenerate'); assert.equal(perfect.lower,null); assert.equal(perfect.varianceFactor,null);
+assert.throws(()=>ci(g,a,set,1));assert.throws(()=>ci(g,a,set,0));
+const high=ci(g,a,set,1-Number.EPSILON);assert.ok(Number.isFinite(high.lower));
+const low=ci(g,a,set,1e-10);assert.ok(low.lower!<low.estimate);
+console.log('round07 multinomial delta interval passed');

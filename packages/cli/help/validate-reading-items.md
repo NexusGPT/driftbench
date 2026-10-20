@@ -86,7 +86,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -116,7 +116,7 @@ follows the floor line.
 After the table:
 
 ```text
-Bank of stats: 651 items in 20 families, 651 pass on every seed (score 1).
+Bank of stats: 834 items in 22 families, 834 pass on every seed (score 1).
 Failing: 0 items, 0 distinct causes (0 items name no cause and count as their own).
 
 Family agreement-analytic: 20 items, 0 failing, 0 distinct failing causes; per tier 2: 13, 3: 7
@@ -133,7 +133,7 @@ analytic.agreement.kappa-linear.5      2     4 analytic  packages/stats/src/agre
 * A level that returns no bank counts as one item of the family `levels`.
 
 With `--json` the report gains `bank`:
-`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingWithoutCause,
+`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingComposite, failingWithoutCause,
 failingCausesByFamily, rows }`, where each row is
 `{ level, levelId, id, component, family, tier, cause, perSeed: ["pass" | "fail" | "not run", ...],
 passEverySeed }`. These are the numbers an executor's journal row copies (`validate-executor-loop`).
@@ -231,10 +231,10 @@ The same ladder without `--blind`, earlier on the same machine, printed the hint
 The two runs failed different scale items (4 items, then 3): both ran while the machine was heavily
 loaded, which is the timing caveat above. The exit status was 19, the level reached.
 
-The bank listing, `pnpm -s driftbench validate stats --items`, prints 727 lines; its first family:
+The bank listing, `pnpm -s driftbench validate stats --items`, prints 916 lines; its first family:
 
 ```text
-Bank of stats: 651 items in 20 families, 651 pass on every seed (score 1).
+Bank of stats: 834 items in 22 families, 834 pass on every seed (score 1).
 Failing: 0 items, 0 distinct causes (0 items name no cause and count as their own).
 
 Family agreement-analytic: 20 items, 0 failing, 0 distinct failing causes; per tier 2: 13, 3: 7

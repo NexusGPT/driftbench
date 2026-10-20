@@ -175,7 +175,7 @@ export const protected_changed: EvidenceProvider = {
   name: 'protected_changed',
   cost: 'static',
   values: ['boolean'],
-  from: "a path of the block's protected list changed or deleted in the net workspace diff",
+  from: "a path of the block's `expect.protected` list changed or deleted in the net workspace diff",
   compute: (input) => {
     const globs = (input.expect?.protected ?? []).map(globRegex);
     if (globs.length === 0) return false;

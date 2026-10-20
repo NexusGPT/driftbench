@@ -1351,6 +1351,29 @@ Gaps closed in this pass:
 
 Total gaps before this pass: 92 (55 and 37). After: 0.
 
+## Third pass: a key is named in the section of its object
+
+The second pass looked for a key anywhere in the owning topics, so a key added to one object passed when another
+object of the same topic already named that word (a new run key `reason` passed because `blockRerun.reason` is
+documented). `help-schema-coverage.test.ts` now finds the units that document each object and reads only those:
+
+* a heading that names the object (`### \`criteria\` (one entry)`): its text, and the first cell of each table row;
+* a table whose label line ends in a colon and names the object (`\`observed\` fields:`): the whole table;
+* a table row that opens with the object's key: that row, for an object kept inside one entry of its parent;
+* an explicit entry in the test for an object none of these finds (the roots, the prefix message, the vote);
+* otherwise the units of the nearest ancestor key. A pinned entry that no longer resolves fails the test.
+
+The docs gained what the check needed:
+
+| Topic | Added |
+|---|---|
+| `authoring-blocks` | `count` as `{ min?, max? }` on `skills`, `guards`, `references`, `subagents` and `cards`; the keys of `when.injection` (`class`, `user`) are read from the paragraph that defines the injection form |
+| `running-store`, run record | `endState` (`match`, `diff[]`), `realizedTextStripped`, the corrected `provenanceDigest`, `safeAction` and `clarified` conditions |
+| `running-store`, block | its own paragraph: `parent`, `specIndex`, `injected`, `realized`, `realizedTextStripped`, `provenance`, `ledgerCheck.ok`, `ledgerCheck.contradictions`, `status`, `notRun`, `blocked`; and the block `provenance` with `endState`, `artifacts[]` and `carried.measuredAt` |
+| `running-store`, campaign | `campaignId`, `specs[]`, `modes`, `budgetUsd`, `judge`, `createdAt`, `agentVersion`, `sources[]`, and the keys inside `radius` (`whole`, `refused[]`, `audit.missed[]`) |
+
+A target (`target`, `targets[]`) is documented once, as the `target` of a spec.
+
 ## Verification contract
 
 `help-coverage.test.ts` discovers the Commander tree and exported error-code arrays on each run.

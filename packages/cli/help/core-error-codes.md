@@ -252,6 +252,7 @@ that the agent failed its task. Do not print API keys while diagnosing these err
 | `exhausted` | A fake model port has no recorded answer left for the next request. | Add a fixture answer for each expected call, or fix an unexpected extra call. This is not an HTTP retry limit. |
 | `network` | The transport cannot reach the model endpoint. | Check the base URL, DNS, proxy and connection. Retry after connectivity is restored. |
 | `refusal` | The provider refuses the request or reports a content filter stop. | Review the request and remove unintended sensitive content. Do not treat a refusal as generated test text. |
+| `reasoning-budget-exhausted` | The `claude` judge ran out of output budget before it wrote an answer, and the one recovery with a lower effort did not settle it. The recovery is skipped when it would pass the spend cap or the submission ceiling. | Run again with a smaller request (fewer or shorter entries per call), or a higher `--judge-budget` when the cap skipped the recovery. |
 | `truncated` | The provider stops at the answer's token limit. | Reduce the requested output, or raise the output limit where the calling operation supports it. |
 | `config` | The model port lacks required configuration, such as an API key or OpenAI model name. | Set the required environment values for that provider. See `core-configuration`. |
 | `http` | The provider returns an unsuccessful HTTP status. | Read the status and provider message. Fix credentials or request details for permanent errors; retry temporary failures later. |

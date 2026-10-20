@@ -129,7 +129,26 @@ for (const [kind, make] of Object.entries(tokens)) {
   ]);
 }
 
+const SC = 'examples/estates/fixture/settings-cassette.jsonl';
 const cases = [
+  [
+    'estate settings cassette: a 64-hex key in JSONL',
+    SC,
+    `{"answer":{"n":1},"key":"${hex(64)}","readable":{"n":2}}`,
+    false,
+  ],
+  [
+    'a settings-cassette in another folder',
+    'examples/estates/other/settings-cassette.jsonl',
+    `{"key":"${hex(64)}","v":2}`,
+    true,
+  ],
+  [
+    'estate settings cassette folder, another file',
+    'examples/estates/fixture/other.jsonl',
+    `{"key":"${hex(64)}","v":2}`,
+    true,
+  ],
   ['ledger-rb key, single-field line', RB + 'ok/a.json', `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
   ['ledger-rb callKey in JSONL', RB + 'ok/b.jsonl', `{"callKey":"${hex(64)}","status":"ok"}`, false],
   ['ledger-rb probeCallKey in JSONL', RB + 'ok/c.jsonl', `{"n":1,"probeCallKey":"${hex(64)}"}`, false],

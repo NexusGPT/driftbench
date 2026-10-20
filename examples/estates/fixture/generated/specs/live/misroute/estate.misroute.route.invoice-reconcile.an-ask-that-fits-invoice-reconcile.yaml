@@ -53,3 +53,31 @@ metadata:
     ask: code
     askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: misroute.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+        values:
+          ask_shape: concrete
+          atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
