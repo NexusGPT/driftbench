@@ -1,6 +1,6 @@
 # Pointer validator bank: catalogue
 
-The first 402 items were written blind from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12; nothing under `packages/estate/src/pointer/`, `estate-pointer.ts` or the reader branches was opened. Later maintainer commits changed some of those items and added others. The section Provenance names which, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
+The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
 Bank: **419 items**, 11 families, 256 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
@@ -25,14 +25,14 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 
 ## Provenance
 
-- **blind**: written from the design page alone, unchanged since (the commit that added the first 402 items).
-- **maintainer-repaired**: one of those 402, whose input, expected value or pass condition a later maintainer commit changed. Its blind record no longer holds.
+- **blind**: reserved for the separate blind bank of PR 759; no item of this bank carries it.
+- **maintainer-repaired**: every one of the first 402 items. Each runs through harness or oracle code that a maintainer commit changed after the blind commit, so none is a blind item.
 - **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items). Never blind.
 
 | Label | Items |
 |---|---|
-| blind | 17 |
-| maintainer-repaired | 385 |
+| blind | 0 |
+| maintainer-repaired | 402 |
 | maintainer-added | 17 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
@@ -534,11 +534,11 @@ Level `scale`, default component `perf`, default needs scan, child. Cutting, sca
 
 | id | provenance | tier | generator | oracle | cause | component | needs |
 |---|---|---|---|---|---|---|---|
-| `scale.cut-1x` | blind | 1 | Mixed document of 300 units. (seed-free) | Exact cut; under 1 s; peak memory under 300 MB. | `perf:cut-linear` | perf | scan,child |
-| `scale.cut-10x` | blind | 2 | Mixed document of 3,000 units over 10 files. (seed-free) | Exact cut per file; under 4 s total; under 400 MB. | `perf:cut-linear` | perf | scan,child |
-| `scale.cut-100x` | blind | 3 | Mixed documents of 30,000 units over 100 files. (seed-free) | Exact cut per file; under 25 s total; under 1.2 GB. | `perf:cut-linear` | perf | scan,child |
-| `scale.scan-10x` | blind | 3 | 3,000 units over 10 files, labeller answers the truth. (seed-free) | Ledger labels and atoms equal the truth; one call per window and set; under 8 s. | `perf:scan-linear` | perf | scan,child |
-| `scale.scan-100x` | blind | 4 | 30,000 units over 100 files. (seed-free) | Same oracle; under 60 s; under 1.5 GB. | `perf:scan-linear` | perf | scan,child |
+| `scale.cut-1x` | maintainer-repaired | 1 | Mixed document of 300 units. (seed-free) | Exact cut; under 1 s; peak memory under 300 MB. | `perf:cut-linear` | perf | scan,child |
+| `scale.cut-10x` | maintainer-repaired | 2 | Mixed document of 3,000 units over 10 files. (seed-free) | Exact cut per file; under 4 s total; under 400 MB. | `perf:cut-linear` | perf | scan,child |
+| `scale.cut-100x` | maintainer-repaired | 3 | Mixed documents of 30,000 units over 100 files. (seed-free) | Exact cut per file; under 25 s total; under 1.2 GB. | `perf:cut-linear` | perf | scan,child |
+| `scale.scan-10x` | maintainer-repaired | 3 | 3,000 units over 10 files, labeller answers the truth. (seed-free) | Ledger labels and atoms equal the truth; one call per window and set; under 8 s. | `perf:scan-linear` | perf | scan,child |
+| `scale.scan-100x` | maintainer-repaired | 4 | 30,000 units over 100 files. (seed-free) | Same oracle; under 60 s; under 1.5 GB. | `perf:scan-linear` | perf | scan,child |
 | `scale.rescan-unchanged-100x` | maintainer-repaired | 3 | Scan, then rescan with the ledger. (seed-free) | Zero labeller calls; ledger text equal; under 30 s. | `perf:rescan-linear` | perf | scan,child |
 | `scale.rescan-edit-1pct-10x` | maintainer-repaired | 3 | 3,000 units; reword 30, rescan. (seed-free) | Statuses exact (30 `changed`, rest `unchanged`); calls equal the dirty windows; under 8 s. | `perf:rescan-linear` | perf | scan,child |
 | `scale.rescan-edit-1pct-100x` | maintainer-repaired | 4 | 30,000 units; reword 300, rescan. (seed-free) | Same oracle; under 40 s. | `perf:rescan-linear` | perf | scan,child |
@@ -547,15 +547,15 @@ Level `scale`, default component `perf`, default needs scan, child. Cutting, sca
 | `scale.rescan-rewrite-10pct-10x` | maintainer-repaired | 4 | 300 units replaced by unrelated text. (seed-free) | 300 `deleted`, 300 fresh, zero wrong anchors; under 30 s. | `perf:rewrite-pairing-candidate-pruning` | perf | scan,child |
 | `scale.rescan-rewrite-10pct-100x` | maintainer-repaired | 5 | 3,000 units replaced by unrelated text. (seed-free) | Same oracle; under 120 s (a pairwise scoring of all residue pairs does not fit). | `perf:rewrite-pairing-candidate-pruning` | perf | scan,child |
 | `scale.ledger-canonical-100x` | maintainer-repaired | 3 | Scan 30,000 units twice from scratch. (seed-free) | Identical ledger text; keys sorted; serialisation inside 10 s. | `perf:ledger-serialise` | perf | scan,child |
-| `scale.links-100x` | blind | 4 | 30,000 rules, 30,000 links, 1 percent edited. (seed-free) | States exact (300 suspect); under 20 s. | `perf:links-100x` | perf | scan,links,child |
-| `scale.radius-100x` | blind | 4 | 30,000 rules, 50,000 blocks; delete 100 rules. (seed-free) | Rerun set equals the linked blocks; under 20 s. | `perf:radius-100x` | perf | scan,links,child |
+| `scale.links-100x` | maintainer-repaired | 4 | 30,000 rules, 30,000 links, 1 percent edited. (seed-free) | States exact (300 suspect); under 20 s. | `perf:links-100x` | perf | scan,links,child |
+| `scale.radius-100x` | maintainer-repaired | 4 | 30,000 rules, 50,000 blocks; delete 100 rules. (seed-free) | Rerun set equals the linked blocks; under 20 s. | `perf:radius-100x` | perf | scan,links,child |
 | `scale.replay-100x` | maintainer-repaired | 4 | Record 30,000 units on a fake transport, replay. (seed-free) | Ledger equal to the recording run; zero calls; replay under 40 s. | `perf:replay-index` | perf | transport,cassette,child |
-| `scale.long-paragraph` | blind | 4 | A 1 MB paragraph of 12,000 sentences. (seed-free) | Exact cut of 12,000 units; under 10 s. | `perf:sentence-segmentation-linear` | perf | scan,child |
-| `scale.wide-table` | blind | 4 | 100 rows by 100 columns. (seed-free) | 10,000 cell units; under 10 s. | `perf:table-cells-linear` | perf | scan,child |
-| `scale.many-small-files` | blind | 4 | 5,000 files of 6 units. (seed-free) | Ledger holds 30,000 entries; under 60 s; under 1.5 GB. | `perf:many-files` | perf | scan,child |
-| `scale.long-units-fingerprint` | blind | 4 | 3,000 units of 5,000 characters. (seed-free) | Exact cut; under 15 s. | `perf:fingerprint-long-units` | perf | scan,child |
-| `scale.memory-cut-100x` | blind | 4 | Same as cut-100x, memory only. (seed-free) | Peak resident memory under 1.2 GB. | `perf:cut-linear` | perf | scan,child |
-| `scale.memory-scan-100x` | blind | 5 | Same as scan-100x. (seed-free) | Peak resident memory under 1.5 GB. | `perf:scan-linear` | perf | scan,child |
+| `scale.long-paragraph` | maintainer-repaired | 4 | A 1 MB paragraph of 12,000 sentences. (seed-free) | Exact cut of 12,000 units; under 10 s. | `perf:sentence-segmentation-linear` | perf | scan,child |
+| `scale.wide-table` | maintainer-repaired | 4 | 100 rows by 100 columns. (seed-free) | 10,000 cell units; under 10 s. | `perf:table-cells-linear` | perf | scan,child |
+| `scale.many-small-files` | maintainer-repaired | 4 | 5,000 files of 6 units. (seed-free) | Ledger holds 30,000 entries; under 60 s; under 1.5 GB. | `perf:many-files` | perf | scan,child |
+| `scale.long-units-fingerprint` | maintainer-repaired | 4 | 3,000 units of 5,000 characters. (seed-free) | Exact cut; under 15 s. | `perf:fingerprint-long-units` | perf | scan,child |
+| `scale.memory-cut-100x` | maintainer-repaired | 4 | Same as cut-100x, memory only. (seed-free) | Peak resident memory under 1.2 GB. | `perf:cut-linear` | perf | scan,child |
+| `scale.memory-scan-100x` | maintainer-repaired | 5 | Same as scan-100x. (seed-free) | Peak resident memory under 1.5 GB. | `perf:scan-linear` | perf | scan,child |
 | `scale.growth-cut` | maintainer-repaired | 5 | Cut 3,000 and 30,000 units. (seed-free) | When the 3,000-unit run takes over 0.3 s, the 30,000-unit run takes at most 40 times as long. | `perf:cut-linear` | perf | scan,child |
 | `scale.growth-rescan` | maintainer-repaired | 5 | Rescan 3,000 and 30,000 units with 1 percent edits. (seed-free) | The same ratio bound. | `perf:rescan-linear` | perf | scan,child |
 
@@ -577,9 +577,9 @@ Level `adversarial`, default component `scan`, default needs scan. Documents and
 | `adversarial.example-imperatives` | maintainer-repaired | 3 | Units labelled `example` (no atom mapping) full of imperatives. | No atom; ledger entries exist. | `scan:honor-labeller-decisions` | scan | scan |
 | `adversarial.rules-inside-fences-and-comments` | maintainer-repaired | 2 | Rule-like sentences in a fence and in an HTML comment between labelled rules. | Atoms exactly the outside rules; the planted labeller was never offered the fenced or commented text as a labelable unit. | `scan:opaque-units-not-offered` | scan | scan |
 | `adversarial.mixed-decoys-100` | maintainer-repaired | 4 | All the decoys above in one seeded document of 100 units. | Atom set equals the planted set (precision and recall 1). | `scan:honor-labeller-decisions` | scan | scan |
-| `adversarial.yaml-alias-bomb` | blind | 5 | Front matter with nine levels of aliases each repeating the previous ten times, plus a normal sentence. | The scan returns inside 10 s with memory under 1 GB; the sentence is still a unit; no crash. | `cutter:yaml-alias-limit` | cutter | scan,child |
+| `adversarial.yaml-alias-bomb` | maintainer-repaired | 5 | Front matter with nine levels of aliases each repeating the previous ten times, plus a normal sentence. | The scan returns inside 10 s with memory under 1 GB; the sentence is still a unit; no crash. | `cutter:yaml-alias-limit` | cutter | scan,child |
 | `adversarial.yaml-custom-tags` | maintainer-repaired | 4 | Front matter values tagged `!!js/function`, `!!python/object/apply:os.system`, `!!binary`, plus a canary path. | No file appears at the canary path; the scan finishes; the plain values are still units. | `cutter:yaml-safe-schema` | cutter | scan,child |
-| `adversarial.deep-nested-lists` | blind | 5 | A list nested 3,000 levels deep. | The cut returns inside 10 s with 3,000 list item units or a clear failure message for that file only; other files unaffected. | `cutter:nesting-depth-limit` | cutter | scan,child |
+| `adversarial.deep-nested-lists` | maintainer-repaired | 5 | A list nested 3,000 levels deep. | The cut returns inside 10 s with 3,000 list item units or a clear failure message for that file only; other files unaffected. | `cutter:nesting-depth-limit` | cutter | scan,child |
 | `adversarial.deep-nested-quotes` | maintainer-repaired | 5 | 1,000 `>` markers on one line. | Same oracle with one quote unit or a clear failure. | `cutter:nesting-depth-limit` | cutter | scan,child |
 | `adversarial.binary-and-invalid-utf8` | maintainer-repaired | 3 | A file of NUL bytes and invalid sequences among normal files. | The normal files are scanned exactly; the bad file is skipped with a note or cut consistently with offsets that slice the decoded text. | `cutter:invalid-bytes` | cutter | scan |
 | `adversarial.bom-in-middle` | maintainer-repaired | 3 | U+FEFF in the middle of a sentence and at the start of a second paragraph. | It stays in the unit text; offsets exact. | `cutter:bom-only-leading` | cutter | scan |
@@ -588,8 +588,8 @@ Level `adversarial`, default component `scan`, default needs scan. Documents and
 | `adversarial.emoji-zwj-sequences` | maintainer-repaired | 3 | Family and flag emoji (ZWJ and regional indicator sequences) before and after full stops. | Exact cut, offsets count UTF-16 units. | `cutter:grapheme-sequences` | cutter | scan |
 | `adversarial.huge-heading-text` | maintainer-repaired | 3 | Six nested headings of 10,000 characters each with a sentence below. | Exact cut; the sentence path holds six entries; ids and `ctxFp` present. | `cutter:long-headings` | cutter | scan |
 | `adversarial.identical-files-100` | maintainer-repaired | 4 | 100 copies of one 8-unit file under different names. | 800 distinct ids; twin marks on all copies; identical bytes on a rescan. | `ids:path-in-hash` | ids | scan |
-| `adversarial.huge-single-line` | blind | 4 | A single paragraph line of 500,000 characters with 6,000 sentences. | Exact cut inside 10 s. | `perf:sentence-segmentation-linear` | cutter | scan,child |
-| `adversarial.giant-front-matter` | blind | 4 | Front matter with 20,000 string keys. | 20,000 units, distinct paths, inside 10 s. | `cutter:large-front-matter` | cutter | scan,child |
+| `adversarial.huge-single-line` | maintainer-repaired | 4 | A single paragraph line of 500,000 characters with 6,000 sentences. | Exact cut inside 10 s. | `perf:sentence-segmentation-linear` | cutter | scan,child |
+| `adversarial.giant-front-matter` | maintainer-repaired | 4 | Front matter with 20,000 string keys. | 20,000 units, distinct paths, inside 10 s. | `cutter:large-front-matter` | cutter | scan,child |
 | `adversarial.swap-texts-in-place` | maintainer-repaired | 4 | Exchange the texts of two long units that sit 10 units apart; everything else stays. | Each id keeps its own text (both `moved`), neither is `changed` or `deleted`. | `anchor:exact-match-moved` | anchor | scan |
 | `adversarial.swap-with-similar-neighbour` | maintainer-repaired | 5 | Two units 0.75 similar to each other and adjacent; swap their positions. | Each id keeps its own exact text. | `anchor:exact-before-similar` | anchor | scan |
 | `adversarial.edit-inside-duplicates` | maintainer-repaired | 4 | Three identical units separated by unique units; reword the middle one. | The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`. | `anchor:duplicate-with-unique-anchors` | anchor | scan |
