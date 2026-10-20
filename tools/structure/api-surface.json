@@ -948,6 +948,7 @@
       "sha256Hex": "value",
       "shippedObjectContext": "value",
       "skipReason": "value",
+      "specAsAuthored": "value",
       "specBlocks": "value",
       "specHash": "value",
       "specIdentity": "value",

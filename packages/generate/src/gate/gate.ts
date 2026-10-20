@@ -4,6 +4,7 @@ import {
   type Observed,
   type RunResult,
   type Spec,
+  specParentRecord,
 } from '@agent-nexus/driftbench-core';
 import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
@@ -166,7 +167,10 @@ export async function runGate(input: GateInput): Promise<GateResult> {
   const records: BlockRecord[] = [];
   for (const candidate of candidates) {
     const target = input.targetOf(candidate.spec);
+    // The opening a child replays from a stem is gated once, in the stem: the child's records are its own blocks.
+    const replayed = specParentRecord(candidate.spec)?.replayed ?? 0;
     candidate.spec.blocks.forEach((block, index) => {
+      if (index < replayed) return;
       const observed = observedStage(candidate.spec, index, options.wording);
       const leakage = leakageStage(candidate.spec, index, options, origin);
       const deviation = deviationOf(candidate.spec, index);
@@ -301,7 +305,10 @@ type SpecRuns = {
 };
 
 async function runCandidate(candidate: Candidate, input: GateInput): Promise<SpecRuns> {
-  const { spec } = candidate;
+  // A child runs whole, every block scored, as the same blocks written inline: a fault that breaks its opening
+  // would otherwise block its own blocks, and the gate could not see whether their Then reads that fault. The
+  // opening is gated in its stem; only the child's own blocks are read from these runs.
+  const spec = withoutReplay(candidate.spec);
   const target = input.targetOf(spec);
   const reference = input.references.get(target);
   if (!reference) throw new Error(`no reference adapter for ${target}, the target of ${spec.id}`);
@@ -619,9 +626,21 @@ function labelAudit(records: BlockRecord[], options: GateOptions): void {
 function freshness(records: BlockRecord[], candidates: readonly Candidate[], options: GateOptions): void {
   const specs = new Map(candidates.map((candidate) => [candidate.spec.id, candidate.spec]));
   const accepted = records.filter((record) => record.status === 'accepted');
+  // A stem and every spec that starts from it share their opening: they are drawn together, by the root
+  // stem's id, so no opening is both in the dev split and in the holdout.
+  const rootOf = (id: string): string => {
+    const seen = new Set<string>();
+    let at = id;
+    for (;;) {
+      const from = specParentRecord(specs.get(at) as Spec)?.from.split('#')[0];
+      if (from === undefined || seen.has(from) || !specs.has(from)) return at;
+      seen.add(at);
+      at = from;
+    }
+  };
   const holdout = new Set<string>();
   for (const id of new Set(accepted.map((record) => record.spec))) {
-    const draw = mulberry32(streamSeed(options.seed, `holdout:${id}`))();
+    const draw = mulberry32(streamSeed(options.seed, `holdout:${rootOf(id)}`))();
     if (draw < options.holdoutShare) holdout.add(id);
   }
   for (const record of accepted) {
@@ -842,4 +861,11 @@ async function pool<T>(items: readonly T[], size: number, work: (item: T) => Pro
     }
   });
   await Promise.all(workers);
+}
+
+/** The spec with no replay record: the runner then runs and scores every block, the opening included. */
+function withoutReplay(spec: Spec): Spec {
+  if (!specParentRecord(spec)) return spec;
+  const { parent: _parent, ...metadata } = spec.metadata ?? {};
+  return { ...spec, metadata };
 }
