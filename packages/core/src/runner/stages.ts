@@ -118,10 +118,10 @@ export function readStage(
 /**
  * The flow verdicts of a block, family `flow` (drift class X3_flow):
  * - `flow.stage`, when the stage came from the step classifier and the block expects one: gating when
- *   the tools decided it, non-gating and inconclusive when the stage is only carried or assumed. A
- *   runtime-reported stage gets none: the stage check judges it.
- * - `flow.order`, when the block expects no stage: the stage it reached is earlier in the catalogue than
- *   the one before it, so the flow went back with nothing in the spec asking for it.
+ *   the tools decided it, non-gating and inconclusive when the stage is only carried or assumed.
+ * - `flow.order`, when the block expects no stage and the step classifier read the stage: the stage it reached
+ *   is earlier in the catalogue than the one before it, so the flow went back with nothing in the spec asking
+ *   for it. A runtime-reported stage gets none.
  * The evidence says whether the agent skipped ahead, went back, or reached a stage off the catalogue.
  */
 export function flowVerdicts(
@@ -130,11 +130,11 @@ export function flowVerdicts(
   reading: StageReading | undefined,
   previous: string | undefined,
 ): Verdict[] {
-  if (!reading) return [];
+  // A stage the runtime reported gets no flow verdict, with or without an expected stage: the stage check judges it.
+  if (!reading || reading.source === 'runtime' || reading.source === 'runtime-carried') return [];
   const catalogue = spec.stages ?? [];
   const expected = expect.stage;
   if (expected !== undefined) {
-    if (reading.source === 'runtime' || reading.source === 'runtime-carried') return [];
     const ok = reading.stage === expected;
     const confident = reading.source === 'tools';
     const evidence = `reached ${reading.stage} (${reading.evidence}), expected ${expected}${ok ? '' : `: ${movement(catalogue, reading.stage, expected)}`}`;
