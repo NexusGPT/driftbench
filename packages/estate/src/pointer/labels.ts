@@ -17,6 +17,8 @@ export const SpanKind = z.strictObject({
   description: z.string().min(1),
   /** The spans of this kind carry a polarity, obligation or prohibition. */
   polarity: z.literal(true).optional(),
+  /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
+  within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
@@ -129,6 +131,8 @@ export function parseLabelSets(text: string): LabelSetsResult {
         return { ok: false, message: `the set ${set.set} declares the span kind ${kind.name} twice` };
       spanKinds.add(kind.name);
     }
+    const nesting = nestingProblem(set);
+    if (nesting) return { ok: false, message: nesting };
     const linkKinds = new Set<string>();
     for (const kind of set.links ?? []) {
       if (linkKinds.has(kind.name))
@@ -153,6 +157,15 @@ export function parseLabelSets(text: string): LabelSetsResult {
           };
         }
       }
+      for (const kind of label.spans ?? []) {
+        const parent = set.spans?.find((candidate) => candidate.name === kind)?.within;
+        if (parent && !label.spans?.includes(parent)) {
+          return {
+            ok: false,
+            message: `the label ${label.name} carries the span kind ${kind}, which is within ${parent}, and not ${parent}`,
+          };
+        }
+      }
       if (names.has(label.name))
         return { ok: false, message: `the set ${set.set} declares ${label.name} twice` };
       names.add(label.name);
@@ -168,6 +181,23 @@ export function parseLabelSets(text: string): LabelSetsResult {
     }
   }
   return { ok: true, sets: parsed.data.labels };
+}
+
+/** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
+function nestingProblem(set: LabelSet): string | undefined {
+  const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
+  for (const [name, parent] of parents) {
+    if (parent === undefined) continue;
+    if (parent === name) return `the span kind ${name} is within itself`;
+    if (!parents.has(parent))
+      return `the span kind ${name} is within ${parent}, which the set does not declare`;
+    const seen = new Set([name]);
+    for (let up: string | undefined = parent; up !== undefined; up = parents.get(up)) {
+      if (seen.has(up)) return `the span kinds ${name} and ${parent} are within each other`;
+      seen.add(up);
+    }
+  }
+  return undefined;
 }
 
 /** The hash of a set's canonical form: editing one label changes only that set's hash. */
@@ -382,7 +412,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
-    const counted: Array<[number, number]> = [];
+    const counted: Array<{ kind: string; from: number; to: number; where: string }> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -414,10 +444,7 @@ function checkExtras(
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (counted.some(([a, b]) => from < b && a < to)) {
-        return `${where} overlaps another span of the unit`;
-      }
-      counted.push([from, to]);
+      counted.push({ kind: span.kind, from, to, where });
       seen.push({
         kind: span.kind,
         from: shown.at[from] as number,
@@ -425,7 +452,28 @@ function checkExtras(
         ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }
-    out.spans = seen.sort((a, b) => a.from - b.from);
+    // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
+    // any other span a span may not overlap.
+    for (const [index, span] of counted.entries()) {
+      const outer = kinds.get(span.kind)?.within;
+      if (
+        outer !== undefined &&
+        !counted.some((o) => o.kind === outer && o.from <= span.from && span.to <= o.to)
+      ) {
+        return `${span.where} is not inside a span of the kind ${outer}`;
+      }
+      const clash = counted
+        .slice(index + 1)
+        .some(
+          (o) =>
+            span.from < o.to &&
+            o.from < span.to &&
+            kinds.get(span.kind)?.within !== o.kind &&
+            kinds.get(o.kind)?.within !== span.kind,
+        );
+      if (clash) return `${span.where} overlaps another span of the unit`;
+    }
+    out.spans = seen.sort((a, b) => a.from - b.from || b.to - a.to);
   }
   if (entry.links !== undefined) {
     if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
