@@ -4,6 +4,7 @@ summary: 'Write a rule file: an object that extends another and changes one rule
 commands:
   - spec validate
 see_also:
+  - core-objects
   - authoring-spec-format
   - authoring-blocks
   - authoring-spec-check
@@ -58,7 +59,7 @@ From weakest to strongest:
 | suite | `_driftbench/<kind>/<id>.yaml` in a spec folder or a folder above it, up to the project. A nearer folder is stronger. |
 | spec | `uses:` at the top of a spec |
 | block | `uses:` on a block |
-| command line | flags of the object commands, where they exist |
+| command line | `--use <kind>/<id>` and `--set <kind>[/<id>]#<item>.<param>=<value>` of `object explain` (see core-objects) |
 
 The project is the nearest folder above the spec that holds `driftbench.yaml`. Without one, the search stops at the folder that holds `.git`, and only suite folders count.
 
@@ -76,7 +77,7 @@ Do not copy a parent and edit the copy. Extend it, so a later change to the pare
 
 ## Commands and every option
 
-The rule files have no command of their own in this release. Every command that loads specs reads them: `spec validate`, `spec lint`, `campaign run` and the others. `spec validate` is the way to check them: a spec whose objects do not resolve is invalid.
+Every command that loads specs reads the rule files: `spec validate`, `spec lint`, `campaign run` and the others. `spec validate <paths...>` (see authoring-spec-check) checks them through the specs that use them: a spec whose objects do not resolve is invalid, exit 1.
 
 ```
 driftbench spec validate [options] <paths...>
@@ -87,7 +88,15 @@ driftbench spec validate [options] <paths...>
 | `<paths...>` (required) | spec files or folders | none |
 | `--json` | print one JSON document | off |
 
-Exit 0 when every spec is valid, 1 when one is invalid. Its other codes are in authoring-spec-check.
+`spec validate` exits 0 when every spec is valid, 1 when one is invalid. Its other codes are in authoring-spec-check.
+
+The `object` commands work on the rule files themselves (see core-objects):
+
+- `object init` starts a child of a parent.
+- `object validate` checks every rule file the folder sees.
+- `object show` prints one object, resolved.
+- `object explain` shows which layer set each item, for one block.
+- `object diff` compares two objects.
 
 `spec validate` and every folder search skip `_driftbench/` folders, and a `driftbench/` folder that sits beside a `driftbench.yaml`: rule files are never read as specs.
 
@@ -209,7 +218,7 @@ The spec hash records `uses`. The block cache key and the re-judge compatibility
 
 ### `objects:` in `driftbench.yaml`
 
-A list of whole objects, at the project layer, each as it would be written in its own file. In this release, `report` and `ci` refuse this key as unknown (exit 2). Use the folder form `driftbench/<kind>/<id>.yaml` in a project that runs `report` or `ci`.
+A list of whole objects, at the project layer, each as it would be written in its own file. `report` and `ci` accept the key, and still refuse an unknown one beside it (see core-configuration).
 
 ## Outputs and how to read them
 
@@ -376,6 +385,9 @@ blocks:
 driftbench spec validate specs/ok specs/suite
 driftbench spec validate specs/bad # exit 1
 driftbench spec validate broken/specs # exit 1
+driftbench object show policy/value-check/strict
+driftbench object explain policy/value-check --at specs/ok/upgrade.yaml#email
+driftbench object explain policy/value-check --at specs/suite/plain.yaml
 ```
 
 ```text
@@ -400,9 +412,25 @@ $ driftbench spec validate broken/specs
     (file)  OBJECT_INVALID  spec broken-plain: broken/driftbench/policy/blame/acme.yaml: holds policy/blame:team, so it belongs at policy/blame/team.yaml in broken/driftbench
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 (exit 1)
+$ driftbench object show policy/value-check/strict
+policy/value-check -> strict@c4860d58 (extends base@7c97fb4b)
+  digits  disabled  strip [ , -, .]        project driftbench/policy/value-check/strict.yaml:7
+  exact   disabled  case_insensitive true  project driftbench/policy/value-check/strict.yaml:5
+project driftbench/policy/value-check/strict.yaml; extends policy/value-check:base.
+(exit 0)
+$ driftbench object explain policy/value-check --at specs/ok/upgrade.yaml#email
+policy/value-check at specs/ok/upgrade.yaml#email -> (block)@cc5a5b0b (extends strict@c4860d58)
+  digits  disabled  strip [ , .]           block blocks.1.uses.value_check.items.0
+  exact   disabled  case_insensitive true  project driftbench/policy/value-check/strict.yaml:5
+(exit 0)
+$ driftbench object explain policy/value-check --at specs/suite/plain.yaml
+policy/value-check at specs/suite/plain.yaml -> strict@c4860d58 (extends base@7c97fb4b)
+  digits  disabled  strip [ , -, .]        project driftbench/policy/value-check/strict.yaml:7
+  exact   disabled  case_insensitive true  project driftbench/policy/value-check/strict.yaml:5
+(exit 0)
 ```
 
-The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`. The wrong-path message names the rule file by its absolute path; the output above shows it relative to the working folder.
+The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. `object show` prints `digits` before `exact`, with `strip [ , -, .]`. `object explain` at block `email` shows the inline object, with `strip [ , .]` set at the block layer. The suite spec gets `strict` from the suite `uses.yaml`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`.
 
 ## Common errors
 

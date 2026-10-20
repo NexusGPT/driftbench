@@ -71,7 +71,7 @@ A plugin that cannot be loaded, exports no function or throws stops the command 
 
 ## Run the example
 
-[`examples/plugins`](https://github.com/achammah/driftbench/tree/main/examples/plugins) holds the plugin above, a spec whose target is `echo:demo`, and a `driftbench.yaml` that lists the plugin. From the repository root:
+[`examples/plugins`](https://github.com/NexusGPT/driftbench/tree/main/examples/plugins) holds the plugin above, a spec whose target is `echo:demo`, and a `driftbench.yaml` that lists the plugin. From the repository root:
 
 ```sh
 pnpm -s driftbench campaign run examples/plugins/specs/hello.yaml --plugin examples/plugins/plugin.mjs

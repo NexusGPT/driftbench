@@ -2,7 +2,7 @@
 
 Run a driftbench spec inside a vitest suite: `describeSpec(path, target)` registers one test per block, with the evidence of each failing verdict.
 
-Part of [driftbench](https://github.com/achammah/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
+Part of [driftbench](https://github.com/NexusGPT/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
 
 ## Install
 
@@ -26,7 +26,7 @@ The spec runs once, free-running, with the scripted driver and the default machi
 
 ## Documentation
 
-[vitest](https://github.com/achammah/driftbench/blob/main/docs/vitest.md), and the [docs index](https://github.com/achammah/driftbench/blob/main/docs/index.md).
+[vitest](https://github.com/NexusGPT/driftbench/blob/main/docs/vitest.md), and the [docs index](https://github.com/NexusGPT/driftbench/blob/main/docs/index.md).
 
 ## License
 

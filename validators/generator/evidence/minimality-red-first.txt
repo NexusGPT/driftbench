@@ -1,6 +1,6 @@
 Original regression before the fix:
 
- RUN  v5.0.3 /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sol-gen-maint/wt
+ RUN  v5.0.3 <scratchpad>/sol-gen-maint/wt
 
  ❯ packages/validators/test/generator/minimality-prefix.test.ts (10 tests | 6 failed) 14445ms
    ❯ minimality proves removability instead of treating shared setup as redundancy (6)
@@ -96,7 +96,7 @@ AssertionError: expected { pass: false, …(1) } to match object { pass: true }
 
 Final regression against the unchanged base oracle:
 
- RUN  v5.0.3 /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sol-gen-maint/wt
+ RUN  v5.0.3 <scratchpad>/sol-gen-maint/wt
 
  ❯ packages/validators/test/generator/minimality-prefix.test.ts (11 tests | 7 failed) 11008ms
    ❯ minimality proves removability instead of treating shared setup as redundancy (7)
@@ -242,7 +242,7 @@ AssertionError: 6 blocks kill X3.stay; 1 groups are redundant (same Then, same o
 
 Fault-preservation guard disabled (subsequently restored):
 
- RUN  v5.0.3 /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sol-gen-maint/wt
+ RUN  v5.0.3 <scratchpad>/sol-gen-maint/wt
 
  ❯ packages/validators/test/generator/minimality-prefix.test.ts (11 tests | 1 failed | 10 skipped) 73ms
    ❯ minimality proves removability instead of treating shared setup as redundancy (7)

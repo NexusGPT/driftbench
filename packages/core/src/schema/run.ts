@@ -540,6 +540,8 @@ export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
+  /** The spec hash without the version label, the one the run id was made from. Absent in a run stored before it. */
+  identityHash: z.string().min(1).optional(),
   target: TargetRef,
   mode: RunMode,
   repeat: z.number().int().min(0),
