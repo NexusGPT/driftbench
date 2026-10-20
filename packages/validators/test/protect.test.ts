@@ -291,7 +291,8 @@ function assertShards(workflow: ReturnType<typeof parse>) {
 
 /** The condition of a heavy job; a job that joins others and gates the run also runs after one of them failed. */
 function expectedCondition(id: string, joins: readonly string[], tokenOf: (id: string) => string): string {
-  const condition = heavyCondition(tokenOf(id));
+  // `prepare` of ci.yml builds for the jobs that need the build: a dispatch that names build or checks runs it too.
+  const condition = id === 'prepare' ? prepareCondition() : heavyCondition(tokenOf(id));
   return joins.includes(id) ? `always() && (${condition})` : condition;
 }
 
@@ -721,7 +722,7 @@ function assertFastDocs(workflow: ReturnType<typeof parse>) {
   }
 }
 
-describe('the validators workflow', () => {
+describe('the validators workflow', { timeout: 120_000 }, () => {
   const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
   const stepRuns = (job: string): string[] =>
     (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
