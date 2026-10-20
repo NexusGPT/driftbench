@@ -65,6 +65,16 @@ describe('the planner v2 family', () => {
     expect(lost.some((id) => id.startsWith(expected))).toBe(true);
   });
 
+  it('a planner that plans an omitted budget as zero loses each of the seven layers-agree items', async () => {
+    const module = fileURLToPath(
+      new URL('./fixtures/planner-mutants/omitted-budget-is-zero.ts', import.meta.url),
+    );
+    const items = plannerItems(module).filter((item) => item.id.startsWith('planner.layers-agree.'));
+    expect(items).toHaveLength(7);
+    const out = await run(items, 1);
+    expect(caught(out).sort()).toEqual(items.map((item) => item.id).sort());
+  });
+
   it('a module that does not load fails the family and is caught by no item', async () => {
     const module = fileURLToPath(new URL('./fixtures/planner-mutants/throws-on-load.ts', import.meta.url));
     const out = await run(plannerItems(module, ['rule-of-four']), 1);
