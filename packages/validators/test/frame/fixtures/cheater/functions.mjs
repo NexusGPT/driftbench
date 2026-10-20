@@ -9,9 +9,13 @@ export const counter = (start) => {
 export const apply = (values, statistic) => statistic(values);
 export const useCounter = (next) => next() + next();
 export const busy = (ms) => {
-  const end = performance.now() + ms;
+  const start = process.cpuUsage();
   let x = 0;
-  while (performance.now() < end) x += 1;
+  for (;;) {
+    const used = process.cpuUsage(start);
+    if ((used.user + used.system) / 1000 >= ms) break;
+    x += 1;
+  }
   return x > 0;
 };
 export const LIMIT = 7;

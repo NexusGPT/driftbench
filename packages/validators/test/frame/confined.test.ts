@@ -199,7 +199,7 @@ describe('functions across the frame', () => {
   it('reports the processor time the product used, measured in its own process', () => {
     const frame = frameOf();
     frame.product.busy(150);
-    expect(frame.cpuSince(0)).toBeGreaterThan(100);
+    expect(frame.cpuSince(0)).toBeGreaterThanOrEqual(150);
     expect(frame.cpuSince(1)).toBe(0);
   });
 });
