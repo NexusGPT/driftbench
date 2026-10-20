@@ -745,3 +745,48 @@ describe('the gates and references of the shipped set', () => {
     );
   });
 });
+
+describe('where the pointer reader looks for a file', () => {
+  const MOORINGS = '.claude/skills/moorings/SKILL.md';
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // The code reader skips a forbidden mention, so the reference below is the pointer's own atom.
+  const files = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Never open `REF/SKILL.md` in a gale',
+      '- Never open `skills/moorings/SKILL.md` at night',
+      '',
+    ].join('\n'),
+    [MOORINGS]: FILES[MOORINGS],
+    '.claude/skills/tides/SKILL.md': '# Tides\n\nTide table.\n',
+    'driftbench.estate.yaml': 'aliases:\n  REF: .claude/skills/moorings\n',
+  };
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'reference' },
+      { units: '3', label: 'reference' },
+      { units: '4', label: 'reference' },
+    ] as pointer.Labelled[],
+  };
+  const referenceOf = async (text: string) => {
+    const { result } = await scan(rows, { sets }, files);
+    return result.map.atoms.find(
+      (atom) => atom.fields?.extraction === 'pointer' && atom.provenance.quote.includes(text),
+    );
+  };
+
+  it('follows an alias of the estate, and says it did', async () => {
+    const atom = await referenceOf('REF/SKILL.md');
+    expect(atom?.kind).toBe('reference');
+    // Without the alias the name `SKILL.md` ends two files, so the ending leads nowhere.
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true, resolvedBy: 'alias' });
+  });
+
+  it('follows a base folder of the estate: a place, not a guess by ending', async () => {
+    const atom = await referenceOf('skills/moorings/SKILL.md');
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true });
+    expect(atom?.fields).not.toHaveProperty('resolvedBy');
+  });
+});
