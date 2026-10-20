@@ -338,6 +338,24 @@ describe('a stack decides as a cascade', () => {
     expect(stack.decide([one('none', { order: 0.3, remark: 0.1 }), undefined], DUTY)).toBeUndefined();
   });
 
+  it("never takes system 1's sure none for a unit system 2 has no opinion on, when the set has labels system 1 is not asked", () => {
+    // DUTY holds `pair`, a label with a target that system 1 is never offered: its none means "none of order and
+    // remark", so with no opinion of system 2 (its runs split, or every answer was refused) the unit stays unlabeled.
+    expect(stack.decide([one('none', { order: 0.01, remark: 0.01 }), undefined], DUTY)).toBeUndefined();
+    // A sure label system 1 was asked about still decides alone.
+    expect(stack.decide([one('order', { order: 0.95, remark: 0 }), undefined], DUTY)).toMatchObject({
+      label: 'order',
+      by: 'system1',
+    });
+    // A set whose every label system 1 is asked keeps the sure none as a decision.
+    const asked = { ...DUTY, labels: DUTY.labels.filter((label) => label.target !== 'required' && !label.spans && !label.links) };
+    expect(stack.decide([one('none', { order: 0.01, remark: 0.01 }), undefined], asked)).toMatchObject({
+      label: 'none',
+      by: 'system1',
+      fallback: true,
+    });
+  });
+
   it('lists the cassette keys the label comes from', () => {
     expect(stack.decide([one('order', { order: 0.45, remark: 0 }), two('order')], DUTY)?.sources).toEqual([
       'aaaaaaaaaaaa',
