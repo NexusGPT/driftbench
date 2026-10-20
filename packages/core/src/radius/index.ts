@@ -47,6 +47,7 @@ export {
 } from './depends';
 export {
   blockLinks,
+  blockRerun,
   checkSpecLinks,
   linkHolds,
   registriesByPrompt,
@@ -147,6 +148,7 @@ export {
   rejudgeRun,
   rescoreRun,
 } from './rejudge';
+export { type RerunInput, rerunMarks } from './rerun';
 export {
   checkSectionRegistry,
   loadSectionRegistry,

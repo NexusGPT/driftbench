@@ -2,7 +2,7 @@ import type { BlockLink } from '../schema/links';
 import type { Spec } from '../schema/spec';
 import { isPlainObject } from '../spec/normalize';
 import type { ChangeManifest } from './change';
-import { linkHolds, registriesByPrompt, sectionLinkStatus, specLinks } from './links';
+import { blockRerun, linkHolds, registriesByPrompt, sectionLinkStatus, specLinks } from './links';
 import type { RadiusSpec } from './radius';
 import type { Reanchoring, SectionRegistry } from './sections';
 
@@ -18,7 +18,8 @@ import type { Reanchoring, SectionRegistry } from './sections';
  * 2. a link of it to that prompt is stale, or names a section the registry lacks or holds as stale;
  * 3. a link of it, not refuted, names a section in the closure of the change: the changed sections,
  *    every section that references or overrides one of them (transitively), and their duplicates;
- * 4. forward: it comes after a selected block of the same conversation (the same spec), or its spec
+ * 4. it is marked to rerun on every change (`metadata.rerun`: it fails at baseline, or it is fragile);
+ * 5. forward: it comes after a selected block of the same conversation (the same spec), or its spec
  *    starts from a parent block at or after a selected block (descendants across parent edges).
  * A change to a global section, to a section the registry does not hold, or to a prompt with no
  * registry selects every block.
@@ -33,7 +34,7 @@ export type SectionSelectionBlock = {
   id: string;
   index: number;
   state: SectionBlockState;
-  /** Why the block is selected: `no-links`, `stale-link:<p#s>`, `link:<p#s> (<status>)`, `after <block>`, `via <spec>#<block>`. */
+  /** Why the block is selected: `no-links`, `stale-link:<p#s>`, `link:<p#s> (<status>)`, `rerun:<reason>`, `after <block>`, `via <spec>#<block>`. */
   why: string[];
 };
 
@@ -242,6 +243,9 @@ export function sectionSelection(
           why.push(`link:${target} (${status})`);
       }
     }
+    // A marked block reruns on every change to a section, whatever its links say.
+    if (changedByPrompt.size > 0)
+      for (const mark of blockRerun(spec, index)) why.push(`rerun:${mark.reason}`);
     return [...new Set(why)];
   };
 
