@@ -139,10 +139,70 @@ describe('generate with a section registry of the prompt', () => {
       ).toBe(false);
     const elsewhere = blockSections([{ path: 'other.md', text: ZED_PROMPT, registry }]);
     const none = parsed(generateSuite(prepared, { mapPath: '../map.yaml', sections: elsewhere }).files);
+    // No quote is found in another file, so no section is linked for a rule; a tool a prompt names still is.
     for (const spec of none)
       expect(
-        ((spec.metadata?.links ?? []) as BlockLink[]).some((link) => link.to.kind === 'prompt_section'),
+        ((spec.metadata?.links ?? []) as BlockLink[]).some(
+          (link) => link.to.kind === 'prompt_section' && link.relation !== 'exercises',
+        ),
       ).toBe(false);
+  });
+
+  it('links a block that expects a tool call to the sections that name the tool', () => {
+    const prepared = prepareMap(zedWithQuotes(), { tools: ZED_TOOLS });
+    const specs = parsed(generateSuite(prepared, { mapPath: '../map.yaml', sections }).files);
+    const expecting = (spec: Spec, block: string) =>
+      (spec.blocks.find((each) => each.id === block)?.expect?.tools ?? []).map(
+        (tool: { label: string }) => tool.label,
+      );
+    let named = 0;
+    let unnamed = 0;
+    for (const spec of specs) {
+      for (const block of spec.blocks) {
+        const id = block.id as string;
+        const labels = expecting(spec, id);
+        const byTool = sectionLinks(spec, id).filter((link) => link.relation === 'exercises');
+        if (labels.includes('lookup')) {
+          named++;
+          const link = byTool.find(
+            (each) => each.to.kind === 'prompt_section' && each.to.section === 'balance',
+          );
+          expect(link, `${spec.id} ${id}`).toMatchObject({
+            to: { kind: 'prompt_section', prompt: 'zed', section: 'balance' },
+            relation: 'exercises',
+            status: 'declared',
+            created_by: 'generator',
+            evidence: { declared: { through: 'lookup' } },
+          });
+        } else if (labels.length === 0) {
+          unnamed++;
+          expect(byTool, `${spec.id} ${id}`).toEqual([]);
+        }
+      }
+    }
+    expect(named).toBeGreaterThan(0);
+    expect(unnamed).toBeGreaterThan(0);
+  });
+
+  it('finds the sections that name a declared identifier as written, never a stale one or a part of a word', () => {
+    expect(sections.naming('lookup').map((ref) => ref.section)).toEqual(['balance']);
+    expect(sections.naming('look')).toEqual([]);
+    expect(sections.naming('lookups')).toEqual([]);
+    expect(sections.naming('')).toEqual([]);
+    expect(sections.naming('nosuchtool')).toEqual([]);
+    const stale = blockSections([
+      {
+        path: 'prompt.md',
+        text: ZED_PROMPT,
+        registry: {
+          ...registry,
+          sections: registry.sections.map((section) =>
+            section.id === 'balance' ? { ...section, stale: true } : section,
+          ),
+        },
+      },
+    ]);
+    expect(stale.naming('lookup')).toEqual([]);
   });
 });
 
