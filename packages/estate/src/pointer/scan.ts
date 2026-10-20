@@ -15,6 +15,7 @@ import {
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
+  type ShownLine,
   type SpanAnswer,
   setHash,
   type Window,
@@ -142,31 +143,51 @@ export type PointerResult = {
 export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
   let current: Window['units'] = [];
+  let shown: ShownLine[] = [];
   let first: Unit | undefined;
   const flush = () => {
-    if (current.length === 0) return;
+    // A run with no unit to label is not a window: an opaque unit alone sends nothing.
+    if (current.length === 0) {
+      shown = [];
+      return;
+    }
     windows.push({
       id: `${path}#${windows.length + 1}`,
       path,
       headingPath: first?.path ?? [],
       units: current,
+      ...(shown.length > 0 ? { shown } : {}),
     });
     current = [];
+    shown = [];
     first = undefined;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: it is never shown to the labeler, so no label can point at it.
-    if (unit.container === 'opaque') continue;
+    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
+    // first line (design: "shown to the labeler as the fence kind and its first line only").
+    if (unit.container === 'opaque') {
+      const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
+      shown.push({
+        after: current.length,
+        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+      });
+      continue;
+    }
+    // A window filled to its cap is flushed only when the next unit to label arrives, so that an opaque unit that
+    // follows it still attaches to it as trailing context; a cell of the same table row as the last unit stays with
+    // it, so a row is never split across two windows.
+    const last = current.at(-1);
+    const previous = last === undefined ? undefined : units[last.index];
+    const sameRow =
+      source !== undefined &&
+      previous?.container === 'table_cell' &&
+      unit.container === 'table_cell' &&
+      !source.slice(previous.end, unit.start).includes('\n');
+    if (current.length >= size && !sameRow) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
-    const next = units[index + 1];
-    const sameRow =
-      source !== undefined &&
-      unit.container === 'table_cell' &&
-      next?.container === 'table_cell' &&
-      !source.slice(unit.end, next.start).includes('\n');
-    if (current.length >= size && !sameRow) flush();
   }
   flush();
   return windows;
@@ -436,15 +457,28 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     const half = Math.ceil(window.units.length / 2);
     const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
+    // The shown lines follow their units: the first half keeps those up to the split, the second the rest.
+    const shownIn = (from: number, to: number): { shown?: ShownLine[] } => {
+      const lines = (window.shown ?? [])
+        .filter(
+          (line) =>
+            line.after >= from && (line.after < to || (to === window.units.length && line.after === to)),
+        )
+        .map((line) => ({ ...line, after: line.after - from }));
+      return lines.length > 0 ? { shown: lines } : {};
+    };
+    const { shown: _shown, ...bare } = window;
     const first = await resolve(task, {
-      ...window,
+      ...bare,
       id: `${window.id}a`,
       units: renumber(window.units.slice(0, half)),
+      ...shownIn(0, half),
     });
     const second = await resolve(task, {
-      ...window,
+      ...bare,
       id: `${window.id}b`,
       units: renumber(window.units.slice(half)),
+      ...shownIn(half, window.units.length),
     });
     return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
   }

@@ -144,7 +144,9 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 | `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes the label that two of the three runs give, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
-likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone
+likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. System 1's `none` covers only
+the labels it is offered: on a unit system 2 has no opinion on, it decides nothing and the unit stays unlabeled.
+Either class runs alone
 with one `--labeler`. The ledger records which class
 decided each unit, and the report counts them.
 
