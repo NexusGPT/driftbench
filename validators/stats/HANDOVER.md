@@ -15,7 +15,7 @@ The earlier executor results below retain their original commit and bank size; t
 |---|---|
 | 1 | 1 |
 <!-- level-table:end -->
-The stats validator is ladder version 3 (version 2 was 834 items; version 3 adds 24 closure items and 46 items for sweep defects and for four statistics the docs define, 904 in all). Version 2: 834 items in seven levels (651 when the pilot ran, which is what the counts below measure; later batches added items that pass on every seed tried: four clustered-interval items, `simulation.hierarchical.*` and `simulation.wilson-effective.*`, 60 exact-value items (batch 7) and 118 branch items (batch 8), 22 families in all), each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
+The stats validator is ladder version 4 (version 3 plus the weights family: 187 items, 1353 in all after the merge with #771; see `validators/stats/audit-weights/audit.md`). Version 3 (version 2 was 834 items; version 3 adds 24 closure items and 46 items for sweep defects and for four statistics the docs define, 904 in all). Version 2: 834 items in seven levels (651 when the pilot ran, which is what the counts below measure; later batches added items that pass on every seed tried: four clustered-interval items, `simulation.hierarchical.*` and `simulation.wilson-effective.*`, 60 exact-value items (batch 7) and 118 branch items (batch 8), 22 families in all), each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
 ## State (executor exec/stats-v3, PR 107): final report
 
