@@ -1,6 +1,6 @@
 # Audit of the weights family of the statistics bank (docs/validators.md section 12.7), ladder version 4
 
-The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
+The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), weights-mixture and weights-coverage at the `capabilities` level, weights-agreement and weights-wilson at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
 
 ## Round 2: version 4 (audited at head ac80be2dc, 181 items; the 6 items added after are covered by the findings below)
 
@@ -77,6 +77,10 @@ The seat missed two bugs, which became six items (the audit rule: a missed bug b
 |---|---|---|
 | C5 coverage axis check `a >= levels.length` becomes `a > levels.length` | `weights.mixed-strength.refuse.axis-equal-levels` (also `axis-negative`, `axis-fraction`) | the pilot passes all three; with C5 planted, `axis-equal-levels` fails |
 | K2b `cohenKappa` returns 0 when the expected agreement is 1 (two identical constant raters) | `weights.kappa.constant-identical.{string,number,boolean}`, each unweighted and weighted linear and quadratic | the pilot passes all three; with K2b planted, all three fail |
+
+### Review finding, mixture shape
+
+An independent review found that a product returning the right weights plus an extra weight of 0.25 (m + 1 weights summing to 1.25) passed all 49 mixture items, because the recovery and the expectation-maximisation checks compared only the expected prefix. Every mixture item now checks the shape first: exactly m weights, each a finite number in [0, 1], summing to 1 within 1e-9. `weights.test.ts` holds four shaped readers (an extra weight 0.25, one weight too few, weights summing to 0.9, a weight above 1); each loses every recover and em item on seeds 1, 2, 977 and 4242, and the correct reader passes. Red first: under the previous items the extra-weight reader passed them all, and the test failed.
 
 ### Advice from the cause reviewer, for the next round
 

@@ -95,7 +95,7 @@
 "self-tests","system: planted-truth items, CI floor level 9","[2385,9]","validators/system/HANDOVER.md, validators/floors.json"
 "self-tests","generator: planted-truth items, no floor yet","[2033,null]","validators/generator/GATE.md, validators/floors.json"
 "self-tests","estate: planted-truth items, no floor yet","[1170,null]","validators/estate/GATE.md, validators/floors.json"
-"self-tests","stats: planted-truth items, CI floor level 7","[1166,7]","validators/stats/GATE.md, validators/floors.json"
+"self-tests","stats: planted-truth items, CI floor level 3","[1166,3]","validators/stats/GATE.md, validators/floors.json"
 "self-tests","judges: planted-truth items, CI floor level 20","[638,20]","validators/judges/GATE.md, validators/floors.json"
 "self-tests","map: planted-truth items, CI floor level 8","[578,8]","validators/map/GATE.md, validators/floors.json"
 "capability-matrix","deepeval: documented in full, in part, not found, of 30","[12,14,4]","docs/comparison.md"

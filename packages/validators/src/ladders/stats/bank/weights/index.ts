@@ -20,7 +20,8 @@ import { type BankItem, exported, fail, type ItemOutcome, ok, show, type Tier } 
  *   axes asks at its own strength that a suite of rows holds. Not built and not on a page yet: the contract
  *   below, owed to docs/statistics/ as well.
  *
- * All four are at the `analytic` level, with the planned capabilities (a missing statistic fails with the signature to add).
+ * Mixture and coverage are at the `capabilities` level (the functions are missing from the package; the item fails
+ * with the signature to add); agreement and Wilson are at the `analytic` level.
  */
 
 const DOC_JUDGES = 'docs/concepts/statistics.md, "Judges"';
@@ -96,7 +97,24 @@ function item(
   cause: string,
   check: BankItem['check'],
 ): BankItem {
-  return { id: `weights.${id}`, family, tier, level: 'analytic', component, cause, check };
+  // Mixture and coverage test functions the package lacks: the `capabilities` level. Agreement and Wilson test
+  // functions it has: `analytic`.
+  const level = family === 'weights-mixture' || family === 'weights-coverage' ? 'capabilities' : 'analytic';
+  return { id: `weights.${id}`, family, tier, level, component, cause, check };
+}
+
+/**
+ * The shape of a mixture result: exactly one weight per component, each a finite number in [0, 1], summing to 1.
+ * Every mixture item checks this before it compares values, so an extra, a missing or an unnormalised weight fails.
+ */
+function weightsShape(weights: unknown, m: number): string | undefined {
+  if (!Array.isArray(weights)) return 'the result has no weights array';
+  if (weights.length !== m) return `the result has ${weights.length} weights for ${m} components`;
+  if (weights.some((w) => typeof w !== 'number' || !Number.isFinite(w) || w < 0 || w > 1))
+    return 'a weight is not a finite number in [0, 1]';
+  const sum = (weights as number[]).reduce((x, y) => x + y, 0);
+  if (!(Math.abs(sum - 1) <= 1e-9)) return `the weights sum to ${sum}, not 1`;
+  return undefined;
 }
 
 /** A refusal passes when its message starts with the function and names the argument to fix. */
@@ -415,6 +433,8 @@ function compareEm(mix: MixtureFn, components: number[][], counts: number[]): It
       `mixtureWeights threw ${String(cause)} on ${components.length} components over ${counts.length} categories`,
     );
   }
+  const bad = weightsShape(got.weights, components.length);
+  if (bad !== undefined) return fail(`mixtureWeights: ${bad} (${DOC_OWED})`);
   const want = emReference(components, counts);
   const off = want.weights.findIndex((w, j) => !(Math.abs((got.weights?.[j] ?? Number.NaN) - w) <= 1e-6));
   if (off >= 0)
@@ -470,6 +490,8 @@ function mixtureItems(): BankItem[] {
               } catch (cause) {
                 return fail(`mixtureWeights threw ${String(cause)} on ${m} components over ${c} categories`);
               }
+              const shape = weightsShape(got.weights, m);
+              if (shape !== undefined) return fail(`mixtureWeights: ${shape} (${DOC_OWED})`);
               const want = b.map((v) => v / B);
               const off = want.findIndex((w, j) => !(Math.abs((got.weights?.[j] ?? Number.NaN) - w) <= 1e-7));
               if (off >= 0)
