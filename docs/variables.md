@@ -10,7 +10,7 @@ Three sources feed it:
 | Past conversations | the values they show, and how often | counts and a hash of the private set, never a line of text |
 | The owner | a value that is missing, a combination that cannot occur, a weight | the owner's words and the day they said them |
 
-Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote and structure entry against its file, the feed that fills a store from an estate map ([below](#from-an-estate)), a planner that builds test rows from a store (`planV2`, opt-in), and an interview that fills a store from the owner ([below](#filling-a-store-from-an-interview)). Not built yet: the readers that fill a store from past conversations; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
+Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote and structure entry against its file, the feed that fills a store from an estate map ([below](#from-an-estate)), a planner that builds test rows from a store (`planV2`, opt-in), an interview that fills a store from the owner ([below](#filling-a-store-from-an-interview)), and a feed that fills the weights from past conversations ([below](#weights-from-past-conversations)). Not built yet: the reader that fills a store from an estate by itself; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
 
 ## The file
 
@@ -144,6 +144,35 @@ An `owner` entry holds the `words`, at most 1,000 characters and not blank, and 
 A value that has a weight and a `conversations` entry should agree: the weight is the count over the total, up to the factor the weights share. The loader does not compare them.
 
 A quote copies text of the agent's files. A store built from a private estate is private too: keep it outside the repository, as the conversations are.
+
+## Weights from past conversations
+
+`feedVariables` (package `@agent-nexus/driftbench-generate`) fills the `weight` of the values from a set of past conversations. A reader answers one question about each conversation for each variable, and the answers are counted:
+
+| Variable | Question | Answer read as |
+|---|---|---|
+| two or more values | one choice question with an option for each value and one for "none of these" | the top option when its probability is at least 0.5, else unsure; "none of these" is absent |
+
+A variable with two values gets the same choice question as one with more: a conversation can show neither value, and a yes or no question about the first value would count that conversation as the second. The yes or no question (`yesno`, a probability of yes, read as the first value at 0.75 or more and the second at 0.25 or less) stays a kind a reader may be asked, but the feed no longer builds one.
+
+The questions use only the title of the variable and the titles of its values, never conversation text. The reader is a port: any object with a `read` method can stand in, and `createJevReader` is one that calls a system 1 service (one request per conversation, with the questions of all variables in the same request). The thresholds (0.75 and 0.25 for yes or no, 0.5 for a choice) are settings and the report records them.
+
+A reader is not exact, so the shares are corrected when a calibration set is given: conversations whose value a person knows, read by the same reader. The correction estimates how the reader confuses the values (and how often it is unsure), finds the shares that explain the decisions under that confusion, and draws an interval from posterior draws of both the decisions and the confusion (a Dirichlet distribution with a half added to every cell), so a value that no conversation showed keeps an open upper bound instead of closing at zero. Without a calibration set the shares are those of the decisions, with a Wilson interval that covers sampling only; a biased reader then gives intervals that miss. The correction is measured on a fictional mix with a reader that errs 10 to 22 percent on some values: the 95 percent interval held the true share for 97.1 percent of 4,400 (value, seed) checks over 400 seeds, and 62.1 percent without the correction. At a rare share (0.99 and 0.01, 100 conversations, 100 calibration conversations per value, a perfect reader) it held the true share in 99.5 percent of 1,000 trials; a share of 0.5 with 100 conversations and a share of 0.02 with 300 gave 94.8 percent each.
+
+What the store keeps is what the format allows. Each fitted value gets its `weight` (the share, relative to the other values of the variable) and a `conversations` entry: `count` is the conversations decided as this value, `total` the conversations read for the variable, and `set_hash` the SHA-256 of the set (sorted per-conversation hashes, so it does not depend on order). When a calibration set corrected the shares, the weight is the corrected share and so differs from `count` over `total`; the `prior.source` text says so. The store's `prior` becomes `fitted`. A quote a value already had stays; an earlier `conversations` entry is replaced. A variable with fewer than 20 decided conversations keeps its weights and is reported as skipped.
+
+The report (`FeedReport`) holds counts, shares, intervals and settings. `privateCountsOf` / `writePrivateCounts` keep the numbers beside the private set, by default in `~/.driftbench/private/` (`DRIFTBENCH_PRIVATE_DIR` moves it). The counts file is numbers and fixed keys: a variable and a value are named by their position in the store, and the only strings are two SHA-256 digests, of the agent name and of the set, so no string the caller wrote is stored. The file is named by the first 12 characters of each digest. The writer checks its input at run time and refuses any other key or string. It resolves symlinks before it checks that the folder is outside every git repository, refuses a counts file that is a symlink, and writes a new file with mode 0600 and renames it over the old one, so every write is owner-only. No line of text, no file name and no person is in the store, the report or the counts file.
+
+### From intake logs
+
+`feedFromLogs` feeds `feedVariables` from the output of `intakeLogs` (the `kept` list), so the reader sees the anonymised text of a log and never the raw one. It reads a variable at the scope the store declares for it (the `scope` of the variable, `conversation` when it states none):
+
+| Scope | The reader is asked | The reader sees | `total` and `count` in the store |
+|---|---|---|---|
+| `conversation` (the default) | once per conversation | the whole conversation, one line per turn, `role: text` | conversations |
+| `turn` | once per turn of the roles in `turnRoles` (default: the user) | that turn's text alone | turns |
+
+Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The call can override a scope with `scopes` (a variable id to `conversation` or `turn`); `overrides` in the result lists each override that changed a scope, with the scope the store declares and the one used. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. The store-level `prior` of the result names every group that was read, with its count in its own unit (conversations or turns) and its set hash. For a turn-scoped variable each turn is one draw, so turns of one conversation, which are likely to agree, make the interval narrower than a count of conversations would, and the `minDecided` floor can be met by few conversations; read it with that in mind. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
 
 Advice. The loader reports `VARIABLES_UNSOURCED` for each value, boundary and constraint that has no provenance. It never makes a store invalid: a store converted from a space map names no source at all.
 
