@@ -83,6 +83,15 @@ export type FeedConditionsInput = {
     /** The variables whose values are candidates, by id. Default: every variable. */
     variables?: readonly string[];
     decide?: Pick<DecideOptions, 'yesAt' | 'noAt'>;
+    /** The question put to system 1 for one candidate value. Default: `defaultQuestionText`. */
+    questionText?: (variable: { id: string; title: string }, value: { id: string; title: string }) => string;
+    /**
+     * When system 2 is called. `all-no` (default): only when every candidate got a decided no. `no-yes`: whenever
+     * no candidate got a yes and every answer was read, unsure ones included.
+     */
+    propose?: 'all-no' | 'no-yes';
+    /** False: a proposal under a variable the store lacks is refused (a new variable is the owner's call). Default true. */
+    newVariables?: boolean;
   };
 };
 
@@ -93,11 +102,20 @@ type Value = Variable['values'][number];
 
 const pair = (variable: Variable, value: Value) => `${variable.id}/${value.id}`;
 
-function questionFor(variable: Variable, value: Value): YesNoQuestion {
+/** The default wording of the yes or no question about one candidate value. */
+export function defaultQuestionText(variable: { title: string }, value: { title: string }): string {
+  return `Does this text say when this applies: ${variable.title}: ${value.title}? Answer for the text itself.`;
+}
+
+function questionFor(
+  variable: Variable,
+  value: Value,
+  text: (variable: Variable, value: Value) => string,
+): YesNoQuestion {
   return {
     name: pair(variable, value),
     kind: 'yesno',
-    text: `Does this text say when this applies: ${variable.title}: ${value.title}? Answer for the text itself.`,
+    text: text(variable, value),
     yes: 'yes',
     no: 'no',
   };
@@ -133,6 +151,8 @@ function attach(value: Value, span: ConditionSpan): void {
 export async function feedFromConditions(input: FeedConditionsInput): Promise<FeedConditionsResult> {
   const { spans, texts, reader, proposer } = input;
   const thresholds = { ...DEFAULT_DECIDE, ...input.options?.decide };
+  const questionText = input.options?.questionText ?? defaultQuestionText;
+  const proposeWhen = input.options?.propose ?? 'all-no';
   const only = input.options?.variables === undefined ? undefined : new Set(input.options.variables);
   if (only !== undefined) {
     for (const id of only) {
@@ -161,7 +181,7 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
     const asked: Array<{ variable: Variable; value: Value; question: YesNoQuestion }> = [];
     for (const variable of candidates) {
       for (const value of variable.values)
-        asked.push({ variable, value, question: questionFor(variable, value) });
+        asked.push({ variable, value, question: questionFor(variable, value, questionText) });
     }
 
     let decisions: Decision[] = [];
@@ -198,7 +218,7 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
       continue;
     }
     // A candidate the reader could not settle might still be the right one: do not propose over it.
-    if (decisions.some((d) => d.kind !== 'value')) {
+    if (decisions.some((d) => (proposeWhen === 'no-yes' ? d.kind === 'unread' : d.kind !== 'value'))) {
       outcomes.push({
         span: span.id,
         status: 'unsure',
@@ -230,6 +250,15 @@ export async function feedFromConditions(input: FeedConditionsInput): Promise<Fe
     }
     const next = structuredClone(store);
     const existing = next.variables.find((variable) => variable.id === proposal.variable.id);
+    if (existing === undefined && input.options?.newVariables === false) {
+      outcomes.push({
+        span: span.id,
+        status: 'refused',
+        values: [],
+        reason: `the proposal names the variable ${proposal.variable.id}, which the store lacks`,
+      });
+      continue;
+    }
     const value: Value = {
       id: proposal.value.id,
       title: proposal.value.title,
@@ -375,6 +404,37 @@ export function replayConditions(recording: ConditionsRecording): {
         if (!(key in recording.proposals)) throw new Error('the recording has no proposal for this clause');
         return recording.proposals[key] ?? undefined;
       },
+    },
+  };
+}
+
+/**
+ * A reader that asks the same candidates in several wordings and averages the probabilities of yes. A reader
+ * answers a question with some noise that depends on its wording; the mean of a few wordings moves less. Each
+ * `rewrite` maps a question to the same question in another wording (the name stays). A question left
+ * unanswered in any wording stays unanswered.
+ */
+export function averageReader(
+  inner: ConversationReader,
+  rewrites: ReadonlyArray<(question: ReaderQuestion) => ReaderQuestion>,
+): ConversationReader {
+  return {
+    id: `${inner.id}*${rewrites.length}`,
+    family: inner.family,
+    ...(inner.model !== undefined ? { model: inner.model } : {}),
+    async read(clause, questions) {
+      const rounds = await Promise.all(rewrites.map((rewrite) => inner.read(clause, questions.map(rewrite))));
+      const out: Record<string, ReaderAnswer | undefined> = {};
+      for (const question of questions) {
+        const ps = rounds.map((round) => {
+          const a = round[question.name];
+          return a !== undefined && 'yes' in a ? a.yes : undefined;
+        });
+        out[question.name] = ps.every((p) => p !== undefined)
+          ? { yes: (ps as number[]).reduce((x, y) => x + y, 0) / ps.length }
+          : undefined;
+      }
+      return out;
     },
   };
 }

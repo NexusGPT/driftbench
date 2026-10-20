@@ -15,7 +15,30 @@ const SYSTEM = [
   'If the clause states no situation, answer null.',
 ].join('\n');
 
-export function createModelProposer(port: ModelPort, id?: string): ConditionProposer {
+const EXISTING_SYSTEM = [
+  'You read one clause from the instructions of an AI agent. A clause may state when something applies: a situation that has to hold before the agent acts.',
+  'A list of variables follows. Each variable is a kind of situation, with the values it already has.',
+  'If the clause states a situation that is a new case of one of the listed variables, answer one JSON object and nothing else:',
+  '{"variable":{"id":"<the id of that variable>","title":"<its title, exactly as listed>"},"value":{"id":"<a new id>","title":"<the situation, as a plain phrase>"}}',
+  'A clause is a case of a variable when it is about the same topic as that variable, even when it names a limit or a condition the variable does not list yet. Choose the variable by topic, not by the exact wording of its values.',
+  'Ids use lower case letters, digits and underscores. If the clause is about a topic that no listed variable covers, or states no situation, answer null.',
+].join('\n');
+
+export type ModelProposerOptions = {
+  id?: string;
+  /** `existing`: a proposal goes under a listed variable, and the model answers null for any other kind of situation. Default `any`. */
+  scope?: 'any' | 'existing';
+};
+
+export function createModelProposer(
+  port: ModelPort,
+  options: ModelProposerOptions | string = {},
+): ConditionProposer {
+  const { id, scope } =
+    typeof options === 'string'
+      ? { id: options, scope: 'any' as const }
+      : { id: options.id, scope: options.scope ?? 'any' };
+  const system = scope === 'existing' ? EXISTING_SYSTEM : SYSTEM;
   return {
     id: id ?? `${port.family}:${port.model ?? 'unknown'}`,
     async propose(clause, store) {
@@ -24,7 +47,7 @@ export function createModelProposer(port: ModelPort, id?: string): ConditionProp
           `- ${variable.id}: ${variable.title} (values: ${variable.values.map((v) => v.id).join(', ')})`,
       );
       const user = `Variables so far:\n${listed.join('\n')}\n\nClause:\n${clause}`;
-      const text = await port.complete({ system: SYSTEM, user, maxTokens: 400 });
+      const text = await port.complete({ system, user, maxTokens: 2000 });
       return parseProposal(text);
     },
   };
