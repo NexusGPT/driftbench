@@ -155,3 +155,22 @@ it('keeps the legacy check:{} fallback while excluding lint evidence', async () 
 it('does not treat undeclared inputs as expected when a check has an empty tools list', async () => {
   expect(await accuracy([input('lookup.input.stray', 'fail')], check({ tools: [] }))).toBeUndefined();
 });
+
+it('counts a recompute argument as an expected argument, like an input one', async () => {
+  const ctx = check({
+    tools: [
+      {
+        label: 'quote',
+        input: { plan: 'm' },
+        recompute: { total: { formula: '=a*2', inputs: { a: 2 } } },
+      },
+    ],
+  } as Expect);
+  const verdicts = [
+    machineVerdict('tools', 'quote.input.plan', 'pass', 'ok'),
+    machineVerdict('tools', 'quote.input.total', 'fail', 'wrong'),
+  ];
+  const out = await accuracy(verdicts, ctx);
+  expect(out?.score).toBe(0.5);
+  expect(out?.evidence).toMatchObject({ matched: 1, expected: 2, missed: ['quote input.total'] });
+});

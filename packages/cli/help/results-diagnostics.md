@@ -18,7 +18,7 @@ that tests compare with the data:
 | Diagnostic | Scope | Steps | What it writes |
 |---|---|---|---|
 | `code-agent-liability` | block | `chain`, `evidence`, `attribute`, `place` | for each failing gating verdict: `fault` (agent, skill, tool, test, env, setup), `disposition` (agent, shared, setup, excluded, credited, unassigned), `fix_location`, `fix_target`, `fix_action`, `fix_forms`, and the blame item and the placement item that decided it |
-| `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. This diagnostic does not read the value check's record yet, so no blame item is applied |
+| `value-mismatch` | block | `chain`, `evidence`, `attribute` | the same fields, for the failing verdicts on a tool input only: the value check's record of each value, and a value the check could not decide decided again with the services given |
 | `fix-plan` | campaign | `recurrence`, `replace`, `merge`, `rank` | one fix per target and action, ranked by the failing blocks it explains (the agent's first), then cost; a core fix that replaces local fixes lists them as copies to remove |
 | `liability-confirm` | campaign | `plan`, `run`, `store`, `rejudge` | the cheapest run that could change each open diagnosis, made only within its budget, then `code-agent-liability` again |
 | `flaky-block` | campaign | `disagreement` | blocks whose repeats both pass and fail, with their pass share |
@@ -118,8 +118,22 @@ location, disable `place` and set `emit: true` on `attribute`.
   commands with exit codes, guard decisions and the workspace diff.
 * For an estate spec: the atoms it enforces (`metadata.estate.atoms`) and the estate map (`metadata.estate.map`).
   The map gives each rule's file and line, kind, situation and enforcing guards.
-* For a value failure: the value check's record of each failing value (`valueCheck` on the verdict), when the value check ran.
+* The value check's record of each failing tool input (`valueCheck` on the verdict): the rung that decided each value, its outcome and, for a computed value, whether it failed only on changed inputs. The value is read from the stored call and the gold from `expect`; the tool definitions are `metadata.tool_schemas`.
+* What the block declares for the integrity and setup rules: `expect.protected` (paths the agent must not change), `expect.task_impossible`, and `expect.downstream` (consumers that need a form of a value). A project can also declare consumers on its blame policy: `downstream_consumers` on the item `R5b`.
 * For `liability-confirm`: a runner. A stand-in command runs free; a reference target is billed.
+
+### What needs a service
+
+The CLI makes no model call, so four rules cannot match from a CLI run alone. A caller that runs diagnostics from code gives them what they need with `blame.useBlameServices({ value, reply })`, which returns a function that puts the earlier services back:
+
+| Rule | Needs | Why |
+|---|---|---|
+| `R5`, `R5b` | `value: { judge }` | the check compared the value exactly because no judge was configured; the diagnostic asks the judge again, and a pass means the test demanded a form nobody states |
+| `I4`, `I4b` | `reply: (turn) => { task_flagged }` | whether the agent stopped and said the task is impossible is a reading of the reply, made by a classifier or a judge you own |
+
+The services belong to the block, not to a diagnostic: `code-agent-liability` and `value-mismatch` decide a verdict the same way, in any order. A service that throws does not drop the block's diagnoses: the reading stays unknown, the rules that need it do not match, and one more diagnosis, flagged `error:reply_reader_failed` or `error:value_service_failed`, names the error.
+
+Every other rule reads the stored run, the spec and the estate map only.
 
 ## Outputs and how to read them
 

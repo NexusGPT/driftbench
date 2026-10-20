@@ -117,7 +117,7 @@ diagnostic          fix-plan              shipped  3733339c
 diagnostic          flaky-block           shipped  eb0bc971
 diagnostic          liability-confirm     shipped  bd538cfe
 diagnostic          value-mismatch        shipped  65345513
-policy/blame        default               shipped  47a04623
+policy/blame        default               shipped  b568c994
 policy/placement    default               shipped  59475833
 policy/routing      intent                shipped  36c5829b
 policy/value-check  default               shipped  cf504563

@@ -379,7 +379,7 @@ tsx blame.mts
 
 ```text
 $ tsx blame.mts
-policy/blame:default@47a04623: 32 items
+policy/blame:default@b568c994: 32 items
 policy/blame:acme@8ecbfff3: 33 items, chain policy/blame:acme then policy/blame:default
 seed_defect sits at 6, R5 at 7
 guard caught: default agent, acme credited

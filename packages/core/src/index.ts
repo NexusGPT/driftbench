@@ -558,6 +558,7 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity, specIdentityHash } from './spec/identity';

@@ -24,10 +24,9 @@ function expectedInputs(check: CheckContext | undefined): Map<string, Input> | u
   return new Map(
     tools.flatMap((tool, index) => {
       const key = keys[index] ?? tool.label;
-      return Object.keys(tool.input ?? {}).map((field): [string, Input] => [
-        `tools.${key}.input.${field}`,
-        { key, field },
-      ]);
+      return [...new Set([...Object.keys(tool.input ?? {}), ...Object.keys(tool.recompute ?? {})])].map(
+        (field): [string, Input] => [`tools.${key}.input.${field}`, { key, field }],
+      );
     }),
   );
 }

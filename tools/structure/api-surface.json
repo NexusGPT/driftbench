@@ -808,6 +808,7 @@
       "endStateCacheKey": "value",
       "enterBlock": "value",
       "error": "value",
+      "evaluateFormula": "value",
       "eventLogSink": "value",
       "evidence": "value",
       "explainObject": "value",

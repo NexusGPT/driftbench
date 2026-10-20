@@ -148,6 +148,8 @@ Code and files (mostly for `kind: task`):
 | `workspace` | `{ created?, changed?, deleted?, others_untouched? }` | The workspace diff. |
 | `safety` | `{ max_destructive_ops?, confirm_before? }` | The most destructive operations; operations that need a confirmation first, such as `delete`. |
 | `protected` | list of paths or globs | Files the agent must not change or delete, whoever wrote them, such as the tests and checkers it was given. No check reads it. When a gating verdict fails and the net workspace diff changes one, blame attributes the failure to the agent as an integrity fault (topic results-diagnostics). |
+| `task_impossible` | boolean | True when the task, or the tests it was given, cannot be met honestly. No check reads it. Blame credits an agent that stopped and said so, and attributes a pass reached anyway to the agent as an integrity fault (topic results-diagnostics). |
+| `downstream` | list of `{ tool?, field?, needs, declared_in? }` | Consumers of the block output that need a form nobody states to the agent. `tool` and `field` narrow which argument the consumer reads; absent means any. `needs` is the form the consumer needs, such as `e164` or `iso8601`. `declared_in` says where the consumer states the need, such as a file or a system name. No check reads it. When a value that works fails its check, blame names the missing rule as a setup fault instead of flagging the test (topic results-diagnostics). |
 
 Artifact checks by kind: `xlsx`: `sheets`, `header`, `rows`, `cells`, `formula`, `value`, `total`, `no_error_cells`, `contains`, `not_contains`, `regex`. `docx`: `headings`, `sections`, `tables`, `table`, `contains`, `not_contains`, `regex`. `pptx`: `slide_count`, `titles`, `slide`, `contains`, `not_contains`, `regex`. `pdf`: `page_count`, `contains`, `not_contains`, `regex`. `csv`: `header`, `rows`, `cells`, `value`, `total`, `contains`, `not_contains`, `regex`. `json`: `subset`, `value`, `contains`, `not_contains`, `regex`. `text`: `contains`, `not_contains`, `regex`, `lines`. `code`: `contains`, `not_contains`, `regex`, `lines`, `tests`.
 
@@ -371,6 +373,7 @@ Checked 2 specs: 0 valid, 2 invalid, 0 warnings.
 | `BLOCK_STIMULUS_MISSING` | no stimulus | add `user:` |
 | `REGEX_INVALID` | a pattern does not compile | escape the special character: `'\('` |
 | `TOOL_COUNT_CONTRADICTION` | `count: 0` with `input` assertions | drop `input`, or allow calls |
+| `RECOMPUTE_GOLD_UNCOMPUTABLE` | the gold formula of a `recompute` argument gives no finite number on its inputs | fix the formula, the input names or the `ranges` |
 | `COUNT_RANGE_INVALID` | `min` above `max` | swap them |
 | `STAGE_UNKNOWN` | a stage not in `stages` | fix the name or add it to `stages` |
 | `TOOL_FORBIDDEN_EXPECTED` | a block expects a tool that `rules.forbidden_tools` or `max_calls: 0` forbids | change the rule or the expectation |
