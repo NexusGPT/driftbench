@@ -441,7 +441,7 @@ describe('reanchor never returns two live sections that overlap', () => {
   function manual(
     text: string,
     short: { span: [number, number]; prefix: string },
-    long: { span: [number, number]; prefix: string },
+    long: { span: [number, number]; prefix: string; quote?: string },
   ): SectionRegistry {
     const part = (
       id: string,
@@ -463,7 +463,7 @@ describe('reanchor never returns two live sections that overlap', () => {
       text_sha256: sha(text),
       sections: [
         part('short', 'ABC', short.span, short.prefix, 'X', 1),
-        part('long', 'ABCXDEF', long.span, long.prefix, 'Z'),
+        part('long', long.quote ?? 'ABCXDEF', long.span, long.prefix, 'Z'),
       ],
     };
     const parsed = parseSectionRegistry(registry);
@@ -492,11 +492,14 @@ describe('reanchor never returns two live sections that overlap', () => {
   it('gives up both when the short text starts inside the longer one (nested start)', () => {
     const before = 'PYABCXQYABCXDEFZ';
     const after = 'PYABCXDEFZ';
-    const registry = manual(before, { span: [2, 5], prefix: 'Y' }, { span: [8, 15], prefix: 'Y' });
+    const registry = manual(
+      before,
+      { span: [2, 5], prefix: 'Y' },
+      { span: [7, 15], prefix: 'Q', quote: 'YABCXDEF' },
+    );
     const result = reanchor(registry, before, after);
-    // Whatever it keeps, the registry holds no two live sections whose places overlap.
     expect(checkSectionRegistry(result.registry, after)).toEqual([]);
-    expect(live(result.registry).length).toBeLessThan(2);
+    expect(live(result.registry)).toEqual([]);
   });
 
   it('keeps both when their new places do not meet', () => {
