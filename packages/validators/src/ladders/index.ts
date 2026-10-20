@@ -6,6 +6,7 @@ import { mapLadder } from './map';
 import { pointerLadder } from './pointer/index';
 import { statsLadder } from './stats';
 import { systemLadder } from './system';
+import { variablesLadder } from './variables';
 
 /** Every registered validator, by component. CI runs each of them; the file is protected on executor branches. */
 export function registeredLadders(): Record<string, Ladder> {
@@ -17,5 +18,6 @@ export function registeredLadders(): Record<string, Ladder> {
     pointer: pointerLadder(),
     stats: statsLadder(),
     system: systemLadder(),
+    variables: variablesLadder(),
   };
 }

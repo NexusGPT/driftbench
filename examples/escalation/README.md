@@ -68,7 +68,7 @@ their recorded call positions. It does not invent a missing judgement.
 ## Provenance and extraction
 
 The scoring source is
-[`140f406a55a8ce46b24f1b51c5c32c23daf035b7:examples/council/stack/mm_stack.py`](https://github.com/achammah/driftbench/blob/140f406a55a8ce46b24f1b51c5c32c23daf035b7/examples/council/stack/mm_stack.py).
+[`140f406a55a8ce46b24f1b51c5c32c23daf035b7:examples/council/stack/mm_stack.py`](https://github.com/NexusGPT/driftbench/blob/140f406a55a8ce46b24f1b51c5c32c23daf035b7/examples/council/stack/mm_stack.py).
 Its cascade assertion is in `examples/council/results/mm-stack-replay.json` at the same commit.
 Council IDs, later-seat raw recordings, Jev per-seat outcomes and labels come from that commit.
 
