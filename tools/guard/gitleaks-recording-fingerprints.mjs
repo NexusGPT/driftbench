@@ -27,11 +27,14 @@ export const FOLDERS = [
     fields: ['key', 'callKey', 'probeCallKey'],
     min: 12,
   },
+  // The pointer reader's own cassette of the settings example: each recorded answer under a 64-hex request key.
+  { path: /^examples\/estates\/fixture\/settings-cassette\.jsonl$/, fields: ['key'], min: 64 },
 ];
 export const PATHSPECS = [
   'examples/all-peers-public/cells/calls-parts',
   'examples/ledger-verify',
   'examples/judge-benchmarks/experiments/ledger-rb',
+  'examples/estates/fixture/settings-cassette.jsonl',
 ];
 export const BEGIN =
   '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';
