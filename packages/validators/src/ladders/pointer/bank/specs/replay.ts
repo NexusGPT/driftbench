@@ -339,7 +339,7 @@ export const replay: FamilySpec = {
       'A one-field stale part.questions is refused after a complete jev-unit replay',
       "Replay the committed jev-unit fixture; change exactly one entry's readable part.questions, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.questions.',
-      'cassette:miss-names-field',
+      'jev-unit:request-matches-the-committed-cassette',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(

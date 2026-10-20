@@ -44,6 +44,8 @@ export type LabelDef = {
   description: string;
   examples?: string[];
   target?: 'required';
+  /** The unit states when its target applies; it builds no atom (docs, section 6). */
+  condition?: true;
   atom?: AtomMapping;
 };
 
@@ -137,6 +139,8 @@ export type Atom = {
   quote: string;
   producedBy: string;
   approved: boolean;
+  /** The conditions of the unit it was built from, joined in file order; absent when it has none. */
+  situation?: string;
   fields: { extraction: string; unit: string; labelSet: string; cassette?: string };
   evidence: Array<{ type: string; name: string; reviewRequired?: boolean }>;
 };
@@ -208,6 +212,39 @@ export interface LinksApi {
   ): { rerun: string[]; advisory: string[] };
 }
 
+/* ----- the settings of an estate (docs/estate-pointer-reader.md, section 1) ----- */
+
+export type SettingsResult =
+  | { ok: true; thresholds: Record<string, number> }
+  | { ok: false; errors: string[] };
+
+export interface SettingsApi {
+  /** Reads the YAML text of the settings file. */
+  parse(text: string): SettingsResult | Promise<SettingsResult>;
+}
+
+/* ----- the rerun rule (docs/estate-pointer-reader.md, "Rerun after an edit") ----- */
+
+export type EditClass = 'unchanged' | 'context' | 'moved' | 'changed' | 'deleted' | 'new';
+
+export interface RerunApi {
+  /** The class of every unit between two ledgers: live units of the current ledger, then the units that are gone. */
+  classify(
+    previous: LedgerView,
+    current: LedgerView,
+  ): Array<{ id: string; class: EditClass }> | Promise<Array<{ id: string; class: EditClass }>>;
+  /**
+   * The old units whose links rerun (`units`), those whose links are only reported (`advisory`), and the reason
+   * the whole suite reruns when it does (`whole`, null otherwise).
+   */
+  rerun(
+    previous: LedgerView,
+    current: LedgerView,
+  ):
+    | { units: string[]; advisory: string[]; whole: string | null }
+    | Promise<{ units: string[]; advisory: string[]; whole: string | null }>;
+}
+
 /** A validator-facing observation seam for the product stack (no voting in the adapter). */
 export type StackRequest = {
   probabilities: Record<string, number>;
@@ -227,11 +264,20 @@ export interface StackApi {
 /** The system under test. */
 export interface PointerSut {
   readonly name: string;
+  /**
+   * True when a call of this SUT may never return (the real reader): the runner then serves the items from a child
+   * process that it stops when an item overruns, and fails that one item.
+   */
+  readonly isolate?: boolean;
   /** Loads what the SUT needs, outside any item clock: a load that is slow on a busy machine must not decide an item. */
   ready?(): Promise<void>;
   cut(file: SourceFile): Promise<CutResult>;
   scan(request: ScanRequest): Promise<ScanResult>;
   links?: LinksApi;
+  /** The rerun rule of the ledger; absent when the reader does not export it. */
+  rerun?: RerunApi;
+  /** The reader of the settings file; absent when the reader does not export it. */
+  settings?: SettingsApi;
   stack?: StackApi;
 }
 

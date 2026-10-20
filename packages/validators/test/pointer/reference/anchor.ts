@@ -255,8 +255,9 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
       list.push(g);
       newsByPath.set((news[g] as NewUnit).path, list);
     }
-    const candidatesFor = (entry: LedgerEntry): number[] =>
-      leftNew.length <= 400 ? leftNew : (newsByPath.get(entry.path) ?? []);
+    // The residue is scored within the unit's own file: a unit that left its file is followed by its exact text
+    // (step 2), never by a similarity score against another file's units.
+    const candidatesFor = (entry: LedgerEntry): number[] => newsByPath.get(entry.path) ?? [];
     const scored: Array<{ entry: LedgerEntry; g: number; text: number; score: number }> = [];
     for (const entry of leftOld) {
       const oldText = norm(entry.quote);

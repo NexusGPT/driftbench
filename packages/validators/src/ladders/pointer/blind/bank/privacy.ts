@@ -65,7 +65,12 @@ export function privacyItems(): BankItem[] {
         level: 4,
         component: 'pointer.private-recording',
         title: `${placement} private text stays out of ${mode} surfaces`,
-        cause: `privacy:${placement}-text-and-key-egress`,
+        // A fence-only or comment-only file is opaque: the scan sends no request for it, so the miss mode cannot
+        // see one. The failure says so, and its repair is not an egress repair.
+        cause:
+          mode === 'ci-miss' && (placement === 'fence' || placement === 'comment')
+            ? 'privacy:opaque-only-file-sends-a-request'
+            : `privacy:${placement}-text-and-key-egress`,
         design: '5: stored answer, modes, where; 8; 11: private counts-only plan',
         generate(seed) {
           const probes: Probe[] = [0, 1].map((arm) => {

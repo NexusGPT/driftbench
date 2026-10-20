@@ -2,24 +2,24 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **419 items**, 11 families, 256 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **433 items**, 11 families, 271 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
 | Family | Level | Items | T1 | T2 | T3 | T4 | T5 |
 |---|---|---|---|---|---|---|---|
-| cutting | cut | 66 | 9 | 27 | 25 | 4 | 1 |
-| ids | ids | 41 | 11 | 20 | 9 | 1 | 0 |
-| re-anchoring | anchor | 53 | 5 | 12 | 22 | 10 | 4 |
-| grouping | labels | 24 | 5 | 12 | 6 | 1 | 0 |
-| labels | labels | 70 | 4 | 34 | 31 | 1 | 0 |
+| cutting | cut | 67 | 9 | 27 | 26 | 4 | 1 |
+| ids | ids | 44 | 11 | 21 | 11 | 1 | 0 |
+| re-anchoring | anchor | 56 | 5 | 12 | 25 | 10 | 4 |
+| grouping | labels | 26 | 5 | 12 | 8 | 1 | 0 |
+| labels | labels | 71 | 4 | 35 | 31 | 1 | 0 |
 | replay | replay | 42 | 3 | 8 | 22 | 9 | 0 |
-| privacy | privacy | 21 | 2 | 8 | 10 | 1 | 0 |
+| privacy | privacy | 22 | 2 | 8 | 11 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
-| radius | links | 23 | 4 | 6 | 9 | 3 | 1 |
+| radius | links | 26 | 4 | 6 | 12 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **419** | **47** | **138** | **167** | **53** | **14** |
+| **all** | | **433** | **47** | **140** | **179** | **53** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -27,13 +27,13 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 
 - **blind**: reserved for the separate blind bank of PR 759; no item of this bank carries it.
 - **maintainer-repaired**: every one of the first 402 items. Each runs through harness or oracle code that a maintainer commit changed after the blind commit, so none is a blind item.
-- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items). Never blind.
+- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items, and the items the four audits added, each red on a defect or a cheat an audit wrote). Never blind.
 
 | Label | Items |
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 17 |
+| maintainer-added | 31 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -72,6 +72,8 @@ The items call one port, `PointerSut`; a single adapter file maps the real reade
 - cassette: record and replay, with the cassette text in and out
 - prompt: the request the port builds
 - links: classify, clear, verify, coverage, blast radius
+- settings: the settings file of an estate, text in, thresholds or errors out
+- rerun: the class of each unit after an edit, and the units whose links rerun or are only reported
 - child: the run happens in a child process with sandbox HOME, TMPDIR and cwd
 - cli: the command line
 - stack: the product stack seam (margin and decision) over planted probabilities and votes
@@ -172,6 +174,7 @@ Level `cut`, default component `cutter`, default needs cut. The cutter turns a f
 | `cutting.digest-reorder` | maintainer-repaired | 2 | Swap two paragraphs. | The digests differ (the digest hashes the ordered list). | `cutter:cut-digest-ordered` | cutter | cut |
 | `cutting.digest-cosmetic` | maintainer-repaired | 3 | Rewrap, CRLF and bullet swap on one document. | The digests are equal. | `cutter:cut-digest-cosmetic-stable` | cutter | cut |
 | `cutting.cut-pure` | maintainer-repaired | 2 | Cut A, cut B, cut A again. | Both cuts of A deep-equal. | `cutter:no-state-between-files` | cutter | cut |
+| `cutting.url-query-capital-after-mark` | maintainer-added | 3 | A sentence that holds `https://shop.example/<word>?<Key>=<n>&<Key>=<word>` in the middle, then a second sentence. | Two units; the first holds the whole URL and ends at its own full stop. A cutter that does not mask the URL splits at the `?` before the capital key. | `cutter:mask-urls-before-segmenting` | cutter | cut |
 
 ## ids
 
@@ -220,6 +223,9 @@ Level `ids`, default component `ids`, default needs scan. Fingerprints decide wh
 | `ids.ledger-labels-per-set` | maintainer-repaired | 2 | Two sets labelling the same units. | Each entry holds one object per set with label, source and setHash; the setHash is equal within a set and different between sets. | `ledger:labels-per-set` | ledger | scan |
 | `ids.ledger-status-live` | maintainer-repaired | 1 | Scan 20 units. | Every entry has status `live` and a last lineage event. | `ledger:status-live` | ledger | scan |
 | `ids.ledger-safe-set-names` | maintainer-repaired | 4 | Sets named `__proto__`, `constructor` and `hasOwnProperty`. | Each set's label is stored under its own name after a JSON round trip, and `Object.prototype` is not polluted. | `ledger:safe-set-names` | ledger | scan |
+| `ids.lineage-is-history` | maintainer-added | 3 | One file of eight units scanned four times: fresh, unchanged, one unit reworded, one unit deleted. | Every entry shows lineage; the unchanged rescan writes the same ledger bytes; the reworded entry ends with `changed` and the deleted one with `deleted`; every other entry still holds only `new`. | `ledger:lineage-appends-true-events` | ledger | scan |
+| `ids.entry-slices-with-bom-and-crlf` | maintainer-added | 3 | A file with a BOM and CRLF holding a heading, a paragraph whose sentences wrap over two lines, and a list. | For every live entry, `source.slice(hint.start, hint.end)` equals the quote, and prefix + quote + suffix occurs in the source. | `ledger:quote-is-the-source-slice` | ledger | scan |
+| `ids.id-unique-for-repeated-text` | maintainer-added | 2 | One file holding the same long sentence in fifty paragraphs, scanned in a child process that is killed after 120 s. (seed-free) | The scan ends; fifty live entries; fifty distinct ids. A reader that never ends fails this one item. | `ids:occurrence-in-the-id` | ids | scan,child |
 
 ## re-anchoring
 
@@ -280,6 +286,9 @@ Level `anchor`, default component `anchor`, default needs scan. An old unit must
 | `re-anchoring.script-mixed-20` | maintainer-repaired | 5 | Segment script of 20 edits (all kinds including merge) among 100 kept units, same constraint. | Same oracle. | `anchor:mixed-edit-script` | anchor | scan |
 | `re-anchoring.script-multi-file` | maintainer-repaired | 5 | 10 files and about 165 units; 15 edits including three moves to another file. | Same oracle, with the path of each moved unit. | `anchor:multi-file-anchoring` | anchor | scan |
 | `re-anchoring.no-wrong-anchors-fuzz` | maintainer-repaired | 5 | 100 seeded random edit pairs (keep, reword, rewrite, delete, copy, reverse, insert) on documents of 8 units. | For every carried id the new quote is exact old text or has normalised similarity at least 0.3 to the old quote; ids unique; every new unit has exactly one live entry. | `anchor:no-wrong-anchor-invariant` | anchor | scan |
+| `re-anchoring.events-follow-the-text` | maintainer-added | 3 | Two files of eight units. One unit moves to the other file, one is reworded by one word, one is deleted, one is added. | `moved` for the moved unit, `changed` for the reworded one, `deleted` for the deleted one, `unchanged` for the others, `new` for the added one; a reader that calls every surviving id `unchanged` fails. | `anchor:events-from-the-ladder` | anchor | scan |
+| `re-anchoring.neighbour-edit-relabels` | maintainer-added | 3 | One file of twelve units; the unit in the middle is reworded; the second scan flips the answer for its two neighbours. | The two neighbours keep their ids and their text and take the new answer; units farther away keep their old label. | `ledger:labels-carry-only-with-context` | ledger | scan |
+| `re-anchoring.short-repeated-text-stays-in-file` | maintainer-added | 3 | Three files; two hold the same five-letter sentence; the copy of the first file is removed and the third file gains it. | The third file takes a fresh id; the id of the removed copy is deleted; the copy of the second file keeps its id. | `anchor:short-text-needs-to-be-unique` | anchor | scan |
 
 ## grouping
 
@@ -311,6 +320,8 @@ Level `labels`, default component `atoms`, default needs scan. Ranges label cons
 | `grouping.atom-unit-id-survives-edit` | maintainer-repaired | 3 | Scan, reword one labelled unit, rescan. | The atom's fields.unit is the same id; its quote is the new text. | `ids:persist-through-change` | atoms | scan |
 | `grouping.atom-count-equals-mapped-units` | maintainer-repaired | 2 | A seeded 80-unit document with 5 labels. | Atom count equals the number of units with a mapped label (a gate counts once). | `atoms:one-atom-per-unit` | atoms | scan |
 | `grouping.atom-order-deterministic` | maintainer-repaired | 2 | Three files, labels everywhere. | Atoms are ordered by file path then start position, identically on two scans. | `atoms:deterministic-order` | atoms | scan |
+| `grouping.same-unit-in-two-sets-is-one-atom` | maintainer-added | 3 | Two sets, each with a label that maps to the instruction atom; both label every unit of a file. | One atom per unit and one `duplicate` diagnostic per unit; no unit has two atoms of one kind on its lines. | `atoms:report-repeated-atoms` | atoms | scan |
+| `grouping.conditions-join-in-file-order` | maintainer-added | 3 | Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`. | One instruction atom; its situation is the text of the first condition, a space, the text of the second; no atom for a condition. | `atoms:conditions-in-file-order` | atoms | scan |
 
 ## labels
 
@@ -388,6 +399,7 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.haiku-thinking-block-first` | maintainer-repaired | 3 | A response whose first block is a thinking block with unrelated text and whose second is the answer. | The answer is read and applied; the thinking text is ignored. | `haiku:read-blocks-by-type` | haiku | transport |
 | `labels.haiku-stop-reason-refused` | maintainer-repaired | 3 | First response has stop_reason `max_tokens`, another `refusal`; second responses valid. | Each is refused and retried once; only the valid answer applies. | `haiku:validate-response` | haiku | transport |
 | `labels.haiku-refuse-wrong-window-or-set` | maintainer-repaired | 3 | First answer echoes another window id; another time another set name. | Each is refused and retried once. | `haiku:validate-response` | haiku | transport |
+| `labels.settings-threshold-range-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: <n> }` for each of the four keys, with n in 1.5, 2, -0.1 and 100, then 0, 0.4 and 1. (seed-free) | Each value outside 0 to 1 gives a refusal that names the key; each value inside gives no refusal and is returned as written. | `settings:threshold-between-zero-and-one` | settings | settings |
 
 ## replay
 
@@ -434,7 +446,7 @@ Level `replay`, default component `cassette`, default needs transport, cassette.
 | `replay.fixture-miss-names-set-hash` | maintainer-repaired | 4 | Replay the committed haiku fixture; change exactly one entry's readable setHash, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names setHash. | `cassette:miss-names-field` | cassette | scan,cassette,transport |
 | `replay.fixture-miss-names-labeler` | maintainer-repaired | 4 | Replay the committed haiku fixture; change exactly one entry's readable labeler, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names labeler. | `cassette:miss-names-labeler` | cassette | scan,cassette,transport |
 | `replay.fixture-miss-names-system-part` | maintainer-repaired | 4 | Replay the committed haiku fixture; change exactly one entry's readable part.system, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.system. | `cassette:miss-names-field` | cassette | scan,cassette,transport |
-| `replay.fixture-miss-names-questions-part` | maintainer-repaired | 4 | Replay the committed jev-unit fixture; change exactly one entry's readable part.questions, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.questions. | `cassette:miss-names-field` | cassette | scan,cassette,transport |
+| `replay.fixture-miss-names-questions-part` | maintainer-repaired | 4 | Replay the committed jev-unit fixture; change exactly one entry's readable part.questions, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.questions. | `jev-unit:request-matches-the-committed-cassette` | cassette | scan,cassette,transport |
 | `replay.fixture-miss-names-cut-digest` | maintainer-repaired | 4 | Replay the committed haiku fixture; change exactly one entry's readable cutDigest, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names cutDigest. The error includes Node and ICU versions. | `cassette:cut-digest-error-versions` | cassette | scan,cassette,transport |
 | `replay.replay-env-independent` | maintainer-repaired | 3 | Replay the committed fixture in three child environments with distinct TZ and LANG values and working folders. | Every child retains every authored label and the baseline ledger bytes. | `cassette:env-independent` | cassette | transport,cassette,child |
 
@@ -448,7 +460,7 @@ Level `privacy`, default component `privacy`, default needs scan, child. A plant
 | `privacy.secret-not-in-output` | maintainer-repaired | 3 | Same estate; capture stdout and stderr of a successful scan and of a scan with one failing window. | The secret is absent from both streams in both runs. | `privacy:output-counts-only` | privacy | transport,child |
 | `privacy.writes-stay-inside-root` | maintainer-repaired | 2 | Snapshot HOME, TMPDIR, the working folder and its parents before and after a scan and an update. | Every new or changed file is under the estate root or the given ledger and cassette paths. | `privacy:writes-stay-inside-root` | privacy | scan,child |
 | `privacy.ledger-only-where-asked` | maintainer-repaired | 2 | Scan with the ledger path set to `<root>/ledger.json`. | No second ledger-like file (JSON with ids and quotes) exists anywhere else in the sandbox. | `privacy:writes-stay-inside-root` | privacy | scan,child |
-| `privacy.model-key-never-in-outputs` | maintainer-repaired | 2 | Key files with a planted key value placed under the sandbox `~/.nexus-secrets/` under four plausible names; Haiku port on a fake transport. | The key value is absent from the cassette, ledger, atoms, stdout, stderr and thrown errors. | `privacy:key-never-printed` | privacy | transport,cassette,child |
+| `privacy.model-key-never-in-outputs` | maintainer-repaired | 2 | Key files with a planted key value placed under the sandbox `~/.nexus-secrets/` under four plausible names; Haiku port on a fake transport. | The key value is absent from the cassette, ledger, atoms, stdout, stderr and thrown errors. | `transport:scan-completes-with-the-key-present` | privacy | transport,cassette,child |
 | `privacy.env-secret-not-printed` | maintainer-repaired | 3 | Environment variables named like keys hold planted values; run a successful scan and a failing one. | The values are absent from every output and file. | `privacy:env-not-printed` | privacy | transport,child |
 | `privacy.no-headers-in-cassette` | maintainer-repaired | 3 | A transport that echoes the request headers (authorization, api-key) in its response body. | No header value appears in the cassette. | `privacy:no-headers-in-cassette` | privacy | transport,cassette,child |
 | `privacy.thinking-text-not-stored` | maintainer-repaired | 3 | A response with a thinking block that repeats a unit containing the secret, then the answer. | The secret is absent from the cassette. | `privacy:parsed-answer-only` | privacy | transport,cassette,child |
@@ -465,6 +477,7 @@ Level `privacy`, default component `privacy`, default needs scan, child. A plant
 | `privacy.error-messages-quote-no-unit-text` | maintainer-repaired | 3 | A window refused twice whose units hold the secret. | The failure output names the window and the reason; the secret is absent. | `privacy:output-counts-only` | privacy | transport,child |
 | `privacy.estate-files-unchanged` | maintainer-repaired | 2 | Hash every private file before and after record, replay and update runs. | All hashes equal. | `ledger:estate-files-untouched` | privacy | scan,child |
 | `privacy.label-set-text-only-in-requests` | maintainer-repaired | 3 | A label description holding a planted phrase. | The phrase is in the request and the set hash input only; absent from stdout and stderr. | `privacy:output-counts-only` | privacy | transport,child |
+| `privacy.warning-names-models-not-units` | maintainer-added | 3 | The committed Haiku fixture re-recorded against a cassette whose models are `m-1` while the transport answers `m-2`. | The scan succeeds; the warnings are not empty; one names `m-1` and `m-2`; none holds a stretch of unit text. | `scan:warn-on-returned-model-mismatch` | scan | scan,child |
 
 ## links
 
@@ -527,6 +540,9 @@ Level `links`, default component `radius`, default needs scan, links. The set of
 | `radius.world-negate-30` | maintainer-repaired | 4 | Same world, one negation mutant per rule. | All 30 rerun sets equal the truth. | `radius:suspect-tests` | radius | scan,links |
 | `radius.world-mixed-precision-recall` | maintainer-repaired | 5 | 100 rules, 150 blocks, 60 seeded mutants of delete, negate, reword, cosmetic and move. | Precision and recall against the planted truth are both 1.0. | `radius:suspect-tests` | radius | scan,links |
 | `radius.output-sorted-unique` | maintainer-repaired | 2 | Any world. | Rerun and advisory lists are sorted ascending by test id and hold no duplicate. | `radius:sorted-unique` | radius | scan,links |
+| `radius.deleted-unit-reruns-its-links` | maintainer-added | 3 | A world of rules with linked blocks; one linked rule is deleted. | The rerun set is exactly the owners of the links on the deleted rule. | `radius:deleted-units-rerun` | radius | scan,rerun |
+| `radius.new-unit-falls-back-to-whole-file` | maintainer-added | 3 | A world of rules with linked blocks; a new unit is added under a new top-level heading of a file the ledger holds. | The rerun set is the owners of the links on every old unit of that file. | `radius:new-unit-section-fallback` | radius | scan,rerun |
+| `radius.context-edit-is-advisory` | maintainer-added | 3 | A world of rules with linked blocks; one rule is reworded, so the rules beside it change only their context. | The owners of the neighbours are advisory and are not in the rerun set; the reworded rule reruns its owners. | `radius:context-change-is-advisory` | radius | scan,rerun |
 
 ## scale
 

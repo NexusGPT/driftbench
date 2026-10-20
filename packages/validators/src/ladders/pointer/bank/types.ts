@@ -44,6 +44,10 @@ export type PointerItem = {
   needs: Need[];
   /** The input does not depend on the seed: judged once per process. */
   seedFree: boolean;
+  /** The longest the item may take, in milliseconds; absent means the runner's default for the family. */
+  capMs?: number;
+  /** `catch`: the item guards a capability and counts for no hardness (docs/validators.md section 12.4). */
+  role?: 'catch';
   run(ctx: ItemContext): Promise<Outcome>;
 };
 

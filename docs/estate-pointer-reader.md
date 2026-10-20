@@ -70,6 +70,7 @@ Fields:
 | `labels[].description` | One or two sentences. Becomes part of the labeler's prompt. |
 | `labels[].examples` | Optional. Up to three short strings shown to the labeler. They are user text, not repo text. |
 | `labels[].target` | Optional: `required` when the label links two units (a gate). Default: none. |
+| `labels[].condition` | Optional: `true` for a label whose unit states when its target unit applies. It needs `target: required` and takes no `atom`. |
 | `labels[].atom` | Optional. If present, a unit with this label becomes an estate atom of this kind (and polarity). A label without `atom` is stored in the ledger and can be linked to tests, but builds no atom. |
 
 Rules:
@@ -78,6 +79,8 @@ Rules:
 - Several sets may label the same units. Each set is labelled in its own request and stored apart in the ledger (section 4).
 - Each set has a **set hash**: the hash of its canonical form (names, descriptions, examples, targets, atom mappings). The set hash is part of the cassette key. Editing one label of one set changes only that set's hash, so only that set is re-labelled; other sets and the units' ids are untouched.
 - The default `agent-rules` set above is data in a shipped file, loaded the same way as a user set. No label name is known to the core.
+
+The settings file of an estate may carry a `threshold` mapping with the keys `labeler`, `pass_at`, `fail_at` and `margin_cut`. Each is a number from 0 to 1, bounds included. A value outside that range, or one that is not a number, is refused, and the refusal names the key.
 
 ## 2. Layer A: cutting
 
@@ -304,6 +307,10 @@ For a label with an `atom` mapping, code builds the estate atom:
 
 A label without an `atom` mapping builds no atom. Its ledger entry exists so a test can link to the span.
 
+A label marked `condition` builds no atom. Its unit states when its target unit applies: the text of the unit becomes the `situation` of the atom built from the target. Several conditions of one target are joined in file order, each trimmed, with one space between them.
+
+Two labels that map one unit to one atom kind build one atom: an atom of the same kind on the same lines with the same quote as an atom already built is a repeat. The scan builds nothing for it and reports a `duplicate` diagnostic that names the unit.
+
 ## 7. Layer C: links and monitoring
 
 A test or block links to a span with `{ span: <ledger id>, fp, relation, createdBy, accepted }`. `fp` is the span fingerprint at the last accept; offsets are never stored in a link. Each scan classifies every link:
@@ -316,6 +323,21 @@ A test or block links to a span with `{ span: <ledger id>, fp, relation, created
 | `ambiguous` | The span matches in several places. |
 
 The **blast radius** of an edit is the set of tests with `suspect` links, plus a separately reported advisory set (tests linked to the same section) for references a precise link may hide ("except as described above"). Only links with `createdBy: verified` count towards a claim; a link becomes verified by mutation (deleting or negating the span flips the test). Clearing a suspect link records a reason (`cosmetic`, `semantic-still-covered`, `test-updated`). Coverage reports the inverse: spans labelled with an `atom` mapping and no verified link.
+
+### Rerun after an edit
+
+Unit ids persist across edits, so the ledger before an edit and the ledger after it name the same unit by the same id. Each unit falls in one class:
+
+| Class | Meaning | Its links |
+|---|---|---|
+| `unchanged` | The same text and the same neighbours. | Nothing reruns. |
+| `context` | The same text, other neighbours or another heading path. | Reported as advisory; nothing reruns. |
+| `moved` | The same text in another file. | Reported as advisory; nothing reruns. |
+| `changed` | The text changed. | Rerun. |
+| `deleted` | The unit is gone. | Rerun. |
+| `new` | No old unit is followed into it. | The links of the old units of its section rerun: the units under the same headings in the same file, else under the nearest heading above that an old unit of the file sits under, else every old unit of the file. A new unit in a file the old ledger did not hold reruns the whole suite. |
+
+A split keeps the old id on its first piece (`changed`) and mints the others (`new`); a merge keeps the first old id (`changed`) and ends the second (`deleted`).
 
 ## 8. How the validators replay it
 
