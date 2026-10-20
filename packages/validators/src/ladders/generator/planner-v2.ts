@@ -347,8 +347,8 @@ const STEMS: {
         a.scenario.variables.some((variable) => !variable.values.includes(row.values[variable.id] as string)),
       );
       return verdict(
-        bad.length === 0,
-        `${bad.length} new rows miss a variable or hold a value outside the store`,
+        bad.length === 0 && logOf(a.full).length > 0,
+        `${bad.length} new rows miss a variable or hold a value outside the store; ${logOf(a.full).length} new rows`,
       );
     },
   },
@@ -392,8 +392,20 @@ const STEMS: {
     cause: `${FILES.plan}: number the new rows in plan order`,
     when: () => true,
     check: (a) => {
+      // The ids the planner documents: `seed.<id>` for a seed, then `row.001`, `row.002` ... in plan order, the
+      // number padded to at least three places. A repeated, empty or out-of-order id is wrong.
+      const planned = logOf(a.full);
+      const width = Math.max(3, String(planned.length).length);
+      const wanted = planned.map((_, at) => `row.${String(at + 1).padStart(width, '0')}`);
+      const got = planned.map((row) => row.id);
       const ids = a.full.rows.map((row) => row.id);
-      return verdict(new Set(ids).size === ids.length, `${ids.length - new Set(ids).size} row ids repeat`);
+      return verdict(
+        planned.length > 0 &&
+          new Set(ids).size === ids.length &&
+          got.length === wanted.length &&
+          got.every((id, at) => id === wanted[at]),
+        `${ids.length - new Set(ids).size} ids repeat; the new rows are ${JSON.stringify(got.slice(0, 3))} where ${JSON.stringify(wanted.slice(0, 3))} is wanted`,
+      );
     },
   },
   {
@@ -403,12 +415,14 @@ const STEMS: {
     check: (a) => {
       const { seeds, plan } = a.seeded;
       const head = plan.rows.slice(0, seeds.length);
-      const ok = head.every(
-        (row, index) =>
-          row.source === 'seed' &&
-          row.id.endsWith(seeds[index]?.id as string) &&
-          JSON.stringify(row.values) === JSON.stringify(seeds[index]?.values),
-      );
+      const ok =
+        head.length === seeds.length &&
+        head.every(
+          (row, index) =>
+            row.source === 'seed' &&
+            row.id === `seed.${seeds[index]?.id}` &&
+            JSON.stringify(row.values) === JSON.stringify(seeds[index]?.values),
+        );
       const planned = plan.rows.slice(seeds.length).every((row) => row.source === 'planned');
       return verdict(ok && planned, 'the seeds do not lead the plan in order with their values');
     },
@@ -506,9 +520,16 @@ const STEMS: {
     tier: 4,
     check: (a) => {
       const bad = logOf(a.full).filter(
-        (row) => Math.abs(row.logWeight - a.oracle.logWeight(row.values)) > 1e-6,
+        // Fails closed: a weight that is not a finite number is wrong, and a comparison with NaN is never true.
+        (row) =>
+          !(
+            Number.isFinite(row.logWeight) && Math.abs(row.logWeight - a.oracle.logWeight(row.values)) <= 1e-6
+          ),
       ).length;
-      return verdict(bad === 0, `${bad} rows carry a weight other than the sum of log shares`);
+      return verdict(
+        bad === 0 && logOf(a.full).length > 0,
+        `${bad} rows carry a weight other than the sum of log shares`,
+      );
     },
   },
   {
@@ -517,12 +538,24 @@ const STEMS: {
     when: () => true,
     tier: 3,
     check: (a) => {
+      // The report must carry each of the three layers once, and the own layer must count the tuples of the rules.
+      const names = a.full.layers.map((layer) => layer.layer);
+      const once = ['own', 'shared', 'single'].every(
+        (name) => names.filter((found) => found === name).length === 1,
+      );
       const bad = a.full.layers.filter(
         (layer) => layer.uncovered !== 0 || layer.covered + layer.uncovered !== layer.targets,
       );
+      const own = a.full.layers.find((layer) => layer.layer === 'own');
+      const ownTuples = new Set(
+        a.oracle
+          .groups('own')
+          .flatMap((group) => a.oracle.tuples(group))
+          .map((tuple) => JSON.stringify(tuple)),
+      ).size;
       return verdict(
-        bad.length === 0,
-        `${bad.length} layers report uncovered targets on a plan with no budget`,
+        once && names.length === 3 && bad.length === 0 && own?.targets === ownTuples,
+        `layers ${JSON.stringify(names)}; ${bad.length} report uncovered targets on a plan with no budget; own targets ${own?.targets} against ${ownTuples}`,
       );
     },
   },
