@@ -16,6 +16,29 @@ const ALSO_REFERENCE = `          also:
                 - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
 `;
 
+/**
+ * How a tie between the runs of a labeler is broken for the shipped set. `rule` is the generic label: a unit that
+ * tells the reader to do something. A gate, a hazard and a condition are the specific forms of the same unit. When
+ * the runs in step split evenly between `rule` and one specific label (two runs at least on each side), the specific
+ * label wins: the runs agree the unit is an instruction and half of them name which kind. Any other tie stays
+ * unlabeled.
+ */
+export const AGENT_RULES_TIE_BREAK: { readonly generic: string; readonly specific: readonly string[] } = {
+  generic: 'rule',
+  specific: [
+    'gate',
+    'gate-same',
+    'gate-command',
+    'gate-calls',
+    'hazard-compaction',
+    'hazard-new-session',
+    'hazard-notification',
+    'hazard-nudge',
+    'hazard-rate-limit',
+    'hazard-restart',
+  ],
+};
+
 export const AGENT_RULES_SET = `labels:
   - set: agent-rules
     description: What an instruction file asks of the agent that reads it.

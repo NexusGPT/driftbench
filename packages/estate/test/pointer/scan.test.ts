@@ -547,6 +547,117 @@ describe('what the cassette key holds', () => {
   });
 });
 
+describe('an even split of the runs between the generic rule and a specific label', () => {
+  // The shipped set's name carries its tie break; the labels are the shipped names, the text invented.
+  const TIED = `labels:
+  - set: agent-rules
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: rule
+        description: A unit that tells the skipper to do something.
+      - name: gate
+        description: A unit that sets one act before another.
+      - name: hazard-compaction
+        description: A unit about what the skipper does after the log was cut short.
+      - name: prohibition
+        description: A unit that forbids.
+      - name: condition
+        description: A unit that only says when another unit applies.
+        target: required
+`;
+  /** Four runs; run k answers labels[k - 1] on the first unit of every window and rule on the others. */
+  const runs = (labels: string[], target?: number) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const first = labels[call - 1] as string;
+        return window.units.map((unit) =>
+          unit.n === 1
+            ? ({
+                units: '1',
+                label: first,
+                ...(first === 'condition' ? { target: target ?? 2 } : {}),
+              } as Labelled)
+            : ({ units: String(unit.n), label: 'rule' } as Labelled),
+        );
+      },
+      [],
+      { runs: 4 },
+    );
+  };
+  const firstLabel = async (labels: string[]) => {
+    const result = await pointerScan(input(runs(labels), new Cassette(), { sets: load(TIED) }));
+    return result.ledger.entries
+      .filter((entry) => entry.index === 0)
+      .map((entry) => entry.labels['agent-rules']?.label);
+  };
+
+  it('gives the unit the specific label when the runs split two and two between rule and a gate or a hazard', async () => {
+    expect(await firstLabel(['rule', 'hazard-compaction', 'hazard-compaction', 'rule'])).toEqual([
+      'hazard-compaction',
+      'hazard-compaction',
+    ]);
+    expect(await firstLabel(['gate', 'rule', 'rule', 'gate'])).toEqual(['gate', 'gate']);
+  });
+
+  it('leaves a three-way tie unlabeled', async () => {
+    expect(await firstLabel(['rule', 'hazard-compaction', 'gate', 'prohibition'])).toEqual([
+      undefined,
+      undefined,
+    ]);
+  });
+
+  it('leaves a tie between two specific labels unlabeled', async () => {
+    expect(await firstLabel(['gate', 'hazard-compaction', 'gate', 'hazard-compaction'])).toEqual([
+      undefined,
+      undefined,
+    ]);
+  });
+
+  it('leaves a tie between rule and condition unlabeled: a condition gives no instruction of its own', async () => {
+    expect(await firstLabel(['rule', 'condition', 'condition', 'rule'])).toEqual([undefined, undefined]);
+  });
+
+  it('leaves a split of one run on each side unlabeled', async () => {
+    // Two runs give the unit nothing: one rule and one hazard are a single run per side.
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const rest = window.units
+          .filter((unit) => unit.n > 1)
+          .map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled);
+        if (call === 1) return [{ units: '1', label: 'rule' } as Labelled, ...rest];
+        if (call === 2) return [{ units: '1', label: 'hazard-compaction' } as Labelled, ...rest];
+        return rest;
+      },
+      [],
+      { runs: 4 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(TIED) }));
+    expect(
+      result.ledger.entries
+        .filter((entry) => entry.index === 0)
+        .map((entry) => entry.labels['agent-rules']?.label),
+    ).toEqual([undefined, undefined]);
+  });
+
+  it('breaks no tie in a set of another name', async () => {
+    const other = TIED.replace('set: agent-rules', 'set: harbour');
+    const result = await pointerScan(
+      input(runs(['rule', 'hazard-compaction', 'hazard-compaction', 'rule']), new Cassette(), {
+        sets: load(other),
+      }),
+    );
+    expect(
+      result.ledger.entries.filter((entry) => entry.index === 0).map((entry) => entry.labels.harbour?.label),
+    ).toEqual([undefined, undefined]);
+  });
+});
+
 describe('a run out of step with the units of its window', () => {
   const SPANNED = `labels:
   - set: duty

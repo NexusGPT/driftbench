@@ -116,13 +116,13 @@ The scan of the Northwind estate, with the recorded labels of the pointer reader
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --runtime claude-code --pointer --cassette examples/estates/fixture/cassette.jsonl --out _captures/docs3/estate/map.yaml --force
-Wrote _captures/docs3/estate/map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
+Wrote _captures/docs3/estate/map.yaml: 115 atoms (47 read by code and approved, 68 split from prose by the model and waiting for approval), 55 edges.
   Atoms per kind:
-    instruction   45  (45 by the model)
-    gate           5  (5 by the model)
+    instruction   31  (31 by the model)
+    gate           6  (6 by the model)
     route         13  (6 by the model)
     skill          4
-    reference      8  (8 by the model)
+    reference     11  (11 by the model)
     script         2
     subagent       3
     guard          6
@@ -130,76 +130,95 @@ Wrote _captures/docs3/estate/map.yaml: 126 atoms (47 read by code and approved, 
     setting        4
     stage          5
     register      14  (14 by the model)
-    hazard         1  (1 by the model)
     invariant      4
-  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
-  Pointer reader: system 1 <choice labeler> then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 151 in 14 files; 0 kept from the ledger, 149 labelled by this run (52 by system 1, 97 by system 2, 1 of them because the other labeler gave no opinion), 2 unlabeled; the runs drew the spans of 3 units differently, and the first run's spans stand; 79 atoms.
-  Requests: 73 answered, 0 sent, 0 recorded.
-  Units since the last ledger: new 151.
+  Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).
+  Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
+  Units: 136 in 11 files; 0 kept from the ledger, 132 labelled by this run (21 by system 1, 111 by system 2), 4 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 68 atoms; 30 notes (spans or links) were dropped, listed below.
+  Requests: 91 answered, 0 sent, 0 recorded.
+  Units since the last ledger: new 136.
+  Document roles: 15 files labelled by the document-roles set; requests 115 answered, 0 sent, 0 recorded.
     refused: .claude/skills/invoice-reconcile/SKILL.md#2: the label condition needs a target unit inside the window
-    refused: .claude/skills/invoice-reconcile/SKILL.md#2: the label condition needs a target unit inside the window
-    refused: .claude/skills/shipment-tracker/SKILL.md#2: the label condition needs a target unit inside the window
-    refused: .claude/skills/shipment-tracker/SKILL.md#2: the label condition needs a target unit inside the window
-    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
-    refused: CLAUDE.md#1: the label prohibition carries no spans
-    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
-    refused: CLAUDE.md#1: unit [48] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 62) or are empty
-    refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate needs a span, a link or a code span that the unit does not give
-    refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate): the label gate locates a file, and the unit names none
-    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate needs a span, a link or a code span that the unit does not give
-    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate locates a file, and the unit names none
+    refused: .claude/skills/supplier-email/SKILL.md#1: the label condition needs a target unit inside the window
+    refused: .claude/skills/supplier-email/SKILL.md#1: the label condition needs a target unit inside the window
+    refused: .claude/memory/supplier-languages.md unit wppif4nijv (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit 6ozmrzxzbf (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit srafha2fbv (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit 5ngeuzbg3y (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit p767q4i6tm (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit c45r7sr26k (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit l232ytzark (reference): the label reference locates a file, and the unit names none
+    refused: .claude/memory/supplier-languages.md unit miootlwo6q (reference): the label reference locates a file, and the unit names none
+    refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (gate): the label gate needs a span, a link or a code span that the unit does not give
+    refused: .claude/skills/supplier-email/SKILL.md unit dgwysklcdn (gate): the label gate needs a span, a link or a code span that the unit does not give
+    refused: .claude/skills/supplier-email/SKILL.md unit h2cbsa3ka7 (gate-same): the label gate-same needs a span, a link or a code span that the unit does not give
+    dropped: .claude/agents/route-planner.md#1: unit [7] span {"from":0,"kind":"governed-action","to":38}: the kind "governed-action" is not one the label rule may carry
+    dropped: .claude/agents/route-planner.md#1: unit [7] span {"from":0,"kind":"ask-text","polarity":"positive","to":38}: the kind ask-text carries no polarity
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: unit [3] span {"from":0,"kind":"situation","to":30}: the kind "situation" is not one the label gate may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "4" link {"kind":"act-tool","to":"Bash"}: the kind "act-tool" is not one the label rule may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "5" link {"kind":"act-tool","to":"Edit"}: the kind "act-tool" is not one the label prohibition may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "6" link {"kind":"act-tool","to":"Agent"}: the kind "act-tool" is not one the label dispatch may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: unit [4] span {"from":0,"kind":"governed-action","to":52}: the kind "governed-action" is not one the label rule may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "4" link {"kind":"act-tool","to":"Bash"}: the kind "act-tool" is not one the label rule may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: unit [5] span {"from":6,"kind":"governed-action","to":36}: the kind "governed-action" is not one the label prohibition may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "5" link {"kind":"act-tool","to":"Edit"}: the kind "act-tool" is not one the label prohibition may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: units "6" link {"kind":"act-tool","to":"Agent"}: the kind "act-tool" is not one the label dispatch may carry
+    dropped: .claude/skills/invoice-reconcile/SKILL.md#2: unit [3] span {"from":0,"kind":"situation","to":30}: the kind "situation" is not one the label gate may carry
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [2] span {"from":28,"kind":"situation","polarity":"positive","to":52}: the kind situation carries no polarity
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [2] span {"from":28,"kind":"situation","polarity":"positive","to":52}: the kind situation carries no polarity
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [5] span {"from":0,"kind":"situation","polarity":"positive","to":38}: the kind situation carries no polarity
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [2] span {"from":28,"kind":"situation","polarity":"positive","to":52}: the kind situation carries no polarity
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [2] span {"from":28,"kind":"situation","polarity":"positive","to":52}: the kind situation carries no polarity
+    dropped: .claude/skills/shipment-tracker/SKILL.md#2: unit [2] span {"from":28,"kind":"situation","polarity":"positive","to":52}: the kind situation carries no polarity
+    dropped: .claude/skills/supplier-email/SKILL.md#2: unit [6] span {"from":44,"kind":"ask-text","polarity":"","to":57}: the kind ask-text carries no polarity
+    dropped: .claude/skills/weekly-report/SKILL.md#2: unit [3] span {"from":-1,"kind":"governed-action","to":-1,"unlocated":"the text is not in the unit"}: the text is not in the unit
+    dropped: CLAUDE.md#1: unit [7] span {"from":8,"kind":"ask-text","polarity":"negative","to":119}: the kind ask-text carries no polarity
+    dropped: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1,"unlocated":"the text is not in the unit"}: the text is not in the unit
+    dropped: CLAUDE.md#1: unit [11] span {"from":-1,"kind":"ask-text","polarity":"negative","to":-1,"unlocated":"the text is not in the unit"}: the text is not in the unit
+    dropped: CLAUDE.md#1: unit [41] span {"from":0,"kind":"ask-text","polarity":"negative","to":62}: the kind ask-text carries no polarity
+    dropped: CLAUDE.md#1: unit [7] span {"from":8,"kind":"ask-text","polarity":"negative","to":118}: the kind ask-text carries no polarity
+    dropped: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1,"unlocated":"the text is not in the unit"}: the text is not in the unit
+    dropped: CLAUDE.md#1: unit [15] span {"from":-1,"kind":"ask-text","to":-1,"unlocated":"the text is found twice in the unit"}: the text is found twice in the unit
+    dropped: CLAUDE.md#1: unit [7] span {"from":8,"kind":"situation","polarity":"negative","to":118}: the kind situation carries no polarity
+    dropped: CLAUDE.md#1: unit [8] span {"from":-1,"kind":"governed-action","to":-1,"unlocated":"the text is not in the unit"}: the text is not in the unit
+    dropped: CLAUDE.md#1: unit [15] span {"from":-1,"kind":"ask-text","to":-1,"unlocated":"the text is found twice in the unit"}: the text is found twice in the unit
+    out of step: CLAUDE.md#1 run 2 of anthropic: 7 of 22 quoted clauses are not in their unit; the run is left out of the vote
   Ignored: none.
-  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 58 of 64 rules have no guard.
-    register.inbox-triager.haiku
+  Unenforced: 44 of 51 rules have no guard.
     instruction.inbox-triager.you-sort-messages-into-three-folders
     instruction.inbox-triager.a-message-that-fits-none-goes
     instruction.inbox-triager.never-answer-a-message-yourself-and
-    instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
     instruction.ledger-auditor.you-never-edit-a-file-you
     instruction.ledger-auditor.look-for-the-same-invoice-number
     register.ledger-auditor.answer-with-one-json-object-and
-    instruction.route-planner.plans-tomorrow-s-delivery-routes-from
     instruction.route-planner.read-the-open-orders-and-the
     instruction.route-planner.never-put-more-than-the-van
     instruction.route-planner.never-plan-a-delivery-on-a
     register.route-planner.answer-with-a-table-van-stops
-    instruction.memory-memory.the-operations-team-wants-the-weekly
     instruction.memory-memory.never-schedule-a-delivery-on-a
     register.memory-supplier-languages.write-to-each-supplier-in-the
-    instruction.memory-supplier-languages.when-a-supplier-is-not-in
-    instruction.invoice-reconcile.an-invoice-line-matches-an-order
-    instruction.invoice-reconcile.a-line-on-the-invoice-with
-    instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
+    register.memory-supplier-languages.when-a-supplier-is-not-in
     gate.invoice-reconcile.read-references-matching-rules-md-before
     instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
     instruction.invoice-reconcile.never-change-an-amount-on-an
     instruction.invoice-reconcile.when-the-total-difference-is-above
     register.invoice-reconcile.end-with-one-line-per-invoice
-    instruction.shipment-tracker.look-up-where-a-shipment-is
     instruction.shipment-tracker.ask-for-the-tracking-number-when
     instruction.shipment-tracker.when-the-carrier-answers-with-an
-    instruction.supplier-email.draft-answer-or-chase-an-email
-    gate.supplier-email.read-claude-memory-supplier-languages-md
     register.supplier-email.every-draft-has-a-subject-with
     register.supplier-email.keep-a-draft-under-120-words
     instruction.supplier-email.a-looks-fine-or-a-thumbs
     instruction.supplier-email.never-copy-a-price-or-a
-    instruction.weekly-report.prepare-the-weekly-operations-report-from
-    instruction.weekly-report.read-write-bash-python3
-    gate.weekly-report.read-templates-report-md-before-before
-    instruction.weekly-report.fill-the-template-in-this-order
+    gate.weekly-report.read-templates-report-md-before-writing
     instruction.weekly-report.count-only-what-the-ledger-and
     instruction.weekly-report.save-the-report-as-reports-year
     register.standing.r1-always-answer-in-the-language
+    instruction.standing.r2-never-send-an-email-to
     instruction.standing.r7-when-a-shipment-is-late
     instruction.standing.r8-do-not-invent-order-numbers
     register.standing.r9-ask-at-most-one-question
     instruction.standing.r11-never-paste-the-contents-of
-    instruction.standing.r12-when-r2-applies-and-the
-    instruction.standing.r13-before-you-dispatch-a-helper
     gate.standing.read-git-status-before-commit-to
     instruction.standing.r16-if-a-tool-fails-twice
     instruction.standing.r17-report-a-number-only-when
@@ -218,7 +237,7 @@ The written map equals the committed `examples/estates/fixture/map.yaml` but for
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/estate/map-nomodel.yaml --force
-Wrote _captures/docs3/estate/map-nomodel.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
+Wrote _captures/docs3/estate/map-nomodel.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
   Atoms per kind:
     route        7
     skill        4
@@ -230,8 +249,8 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 47 atoms (47 read by code and app
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
-  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
-  Unanswered prose chunks (no model call): 14, 6835 characters.
+  Prose: 15 chunks, 6961 characters (standing 1, memory 2, skill bodies 4, skill files 5, helper bodies 3).
+  Unanswered prose chunks (no model call): 15, 6961 characters.
     CLAUDE.md  2782 characters
     .claude/agents/inbox-triager.md  169 characters
     .claude/agents/ledger-auditor.md  519 characters
@@ -245,6 +264,7 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 47 atoms (47 read by code and app
     .claude/skills/shipment-tracker/SKILL.md  400 characters
     .claude/skills/supplier-email/SKILL.md  507 characters
     .claude/skills/weekly-report/SKILL.md  419 characters
+    .claude/skills/weekly-report/templates/report.md  126 characters
     .claude/skills/shipment-tracker/data/shipments.txt  136 characters
   Refused: none.
   Ignored: none.
@@ -274,7 +294,7 @@ driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-casset
 
 * **Units.** A unit is a sentence, a list item, a table cell, a paragraph of a block quote, a heading or a value of the front matter. A fence or a comment is opaque: it is never sent, so no label can point at it. Sentences are cut from the text with the inline code, the links and the emphasis marks masked, and the cutter joins when it is unsure, so a wrong cut costs a coarser unit and never a wrong quote.
 * **Label sets.** A label set is a named list of labels, each with a description, up to three examples, an optional `target: required` for a label that links two units, and optional `spans` and `links` (clauses of one unit by character offsets, each an exact slice of the file, and links to atoms the request lists; the labeler writes no text), an optional `atom` mapping that says which kind of atom a unit with that label becomes, and an optional `condition: true` (with `target: required`, and no `atom`) for a label whose unit states when its target applies: the text of that unit becomes the `situation` of the target's atom. The shipped set `agent-rules` (rule, prohibition, gate, reply rule, example, description) is data in the same format as a set of your own, given with `--labels`. The words of the request come from the set, not from the code, so the same code labels a style guide for a bakery.
-* **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked five times: a unit takes the label (and the same target) that three of the five runs give; this costs about 5/3 of the system 2 calls of three runs per window. A run whose unit numbers slipped (more than a quarter of the clauses it quotes, and at least four, are not in their unit) is left out of that window's vote, and the report lists it under `out of step`. Unanimity was tried first and dropped units the model reads two ways run after run (a prohibition or a plain rule; a gate or a plain rule): on the Northwind fixture it left 38 of 151 units unlabeled, 3 with the vote. A run that leaves a unit out counts for no label. A unit with no label that two runs share stays unlabeled, and the report counts it. Spans and links are those of the first run that gave the label with any. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. System 1 is offered only the labels it can answer (none with a target, spans or links), so its `none` means none of those: when system 2 has no opinion on a unit (its runs split, or every answer was refused), that `none` decides nothing and the unit stays unlabeled. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
+* **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked five times: a unit takes the label (and the same target) that three of the five runs give; this costs about 5/3 of the system 2 calls of three runs per window. A run whose unit numbers slipped (more than a quarter of the clauses it quotes, and at least four, are not in their unit) is left out of that window's vote, and the report lists it under `out of step`. In the shipped set, `rule` is the generic label and a gate or a hazard a specific form of it: when the runs in step split evenly between `rule` and one gate or hazard label, two runs at least on each side, the specific label wins. Any other tie stays unlabeled, a tie between `rule` and `condition` included: a condition gives no instruction of its own. Unanimity was tried first and dropped units the model reads two ways run after run (a prohibition or a plain rule; a gate or a plain rule): on the Northwind fixture it left 38 of 151 units unlabeled, 3 with the vote. A run that leaves a unit out counts for no label. A unit with no label that two runs share stays unlabeled, and the report counts it. Spans and links are those of the first run that gave the label with any. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. System 1 is offered only the labels it can answer (none with a target, spans or links), so its `none` means none of those: when system 2 has no opinion on a unit (its runs split, or every answer was refused), that `none` decides nothing and the unit stays unlabeled. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
 * **A labeler of your own.** `--labeler system2:http:<url>` or `--labeler system1:module:<path>` puts your endpoint or your module behind the same port. Its answers are recorded and replayed like the others, and its id is part of every cassette key. The contract suite `@agent-nexus/driftbench-estate/labeler-contract` checks it in a vitest test file: `labelerContract(name, make, { cls })` holds it to the port the built-in labelers pass, record then replay with no call included (topic `validate-estate-scan`).
 * **The cassette.** Every answer is recorded with the hash of the whole request as its key, so a scan without `--record` needs no key and no network, and a changed prompt, set (labels, atom mappings and conditions included), model, labeler, cut or run misses and names the field that differs. The models cannot be pinned to one answer, so the cassette is where the scan is deterministic. It holds file names, hashes and answers, never the text of a unit. `--record` appends each answer as it arrives, so a run that stops keeps what it paid for.
 * **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--update` writes the ledger; without it the scan reads the ledger and leaves it as it is. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
@@ -339,13 +359,12 @@ With no flag, `estate approve` lists what waits, kind by kind, with each atom's 
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: 79 of 126 atoms wait for approval.
-  instruction: 45
-  gate: 5
+examples/estates/fixture/map.yaml: 68 of 115 atoms wait for approval.
+  instruction: 31
+  gate: 6
   route: 6
-  reference: 8
+  reference: 11
   register: 14
-  hazard: 1
 ```
 
 Approving one kind, then the rest into a new file beside the map:
@@ -354,14 +373,14 @@ Approving one kind, then the rest into a new file beside the map:
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --kind register
 Approved 14 atoms in _captures/docs3/estate/map-approve.yaml; 0 were already approved.
 $ pnpm -s driftbench estate approve _captures/docs3/estate/map-approve.yaml --all --to _captures/docs3/estate/approved-all.yaml
-Approved 65 atoms in _captures/docs3/estate/approved-all.yaml; 61 were already approved.
+Approved 54 atoms in _captures/docs3/estate/approved-all.yaml; 61 were already approved.
 ```
 
 The committed `examples/estates/fixture/approved.yaml` is the Northwind map with every atom approved with `--all`, by the person who wrote the fixture. A review of the prose atoms by the estate's owner is still to do: approval with `--all` stands in for it.
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 126 atoms are approved.
+examples/estates/fixture/approved.yaml: all 115 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph
@@ -421,17 +440,16 @@ The lint of the Northwind map finds every planted defect:
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/map.yaml
-examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 126 atoms.
-  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
+examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 115 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  58 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  44 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-7 findings.
+6 findings.
 ```
 
 It exits 1.
@@ -456,8 +474,8 @@ The space map accepts only the twelve classes as deviation values, so the estate
 
 ```
 $ pnpm -s driftbench estate map examples/estates/fixture/approved.yaml --to _captures/docs3/estate/space.yaml
-Wrote _captures/docs3/estate/space.yaml: 6 situation axes, 8 target dimensions (instruction 45, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 14), 3 constraints.
-  The full grid holds 2318150016000 cells: plan on t-wise coverage, not the full grid.
+Wrote _captures/docs3/estate/space.yaml: 6 situation axes, 8 target dimensions (instruction 31, gate 6, route 13, skill 4, subagent 3, guard 6, stage 5, register 14), 3 constraints.
+  The full grid holds 1916337346560 cells: plan on t-wise coverage, not the full grid.
 ```
 
 The committed `examples/estates/fixture/space.yaml` is the same file written with `--agent northwind`. The full grid is far above the 250,000 cells the space commands enumerate, so the plan covers it t-wise and never enumerates it.
@@ -507,55 +525,53 @@ The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1076 rows (386 from the contract, 10 journeys, 680 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 933 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 680 rows, t = 2, 3635 of 3635 allowed 2-tuples covered; the full grid of 2318150016000 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1423 rows (346 from the contract, 10 journeys, 1067 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1308 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 1067 rows, t = 2, 4632 of 4632 allowed 2-tuples covered; the full grid of 1916337346560 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction   135
-    gate           10
+    instruction    93
+    gate           12
     route          65
-    skill         135
-    reference       7
+    skill         114
+    reference       8
     script          2
-    subagent       85
+    subagent       72
     guard          30
     tool           12
     setting         4
     stage           9
     register       98
-    hazard          1
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        370
-    outside_trigger    45
-    twin               45
-    ordered_pair       40
-    skip_pressure       5
-    route_positive    160
+    obligation        435
+    outside_trigger    31
+    twin               31
+    ordered_pair       84
+    skip_pressure       6
+    route_positive    260
     route_near_miss    13
     misroute           13
-    read_when           7
+    read_when           8
     script_fixture      2
-    dispatch           26
+    dispatch           42
     contract_alone      3
     stop_resume         3
-    guard_positive     48
+    guard_positive     84
     guard_negative      6
     guard_hostile       6
     guard_speed         6
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        39
+    stage_order        69
     stage_skip          4
     stage_anytime       1
-    register_sample   197
-    hazard_recovery     1
+    register_sample   280
     invariant           4
     setting             4
     journey            10
-  Unenforced: 58 approved rules no guard enforces.
-  Cells with no approved phrase: 933 of 933.
+  Unenforced: 44 approved rules no guard enforces.
+  Cells with no approved phrase: 1308 of 1308.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -565,16 +581,16 @@ Wrote _captures/docs3/estate/plan.yaml: 1076 rows (386 from the contract, 10 jou
     route.supplier-email.an-ask-that-fits-supplier-email route skill.supplier-email.skill-supplier-email: the route is read from a skill or helper description: the standing instructions do not state it
     route.weekly-report.an-ask-that-fits-weekly-report route skill.weekly-report.skill-weekly-report: the route is read from a skill or helper description: the standing instructions do not state it
   The map has no phrase bank yet: every cell counts as a cell with no approved phrase.
-  session_state=after_compaction: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  session_state=after_restart: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  owner_signal=hold: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  owner_signal=frustration: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  deviation=D6_instruction_in_data: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  deviation=D10_return: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  deviation=D11_pii_leak: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  estate_hazard=compaction_mid_task: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-  estate_hazard=process_restart: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
-    and 2 more, all in _captures/docs3/estate/plan.summary.json under "notes".
+  session_state=resumed: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  session_state=after_compaction: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  session_state=after_restart: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  session_state=helpers_running: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  owner_signal=hold: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  owner_signal=no_questions: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  owner_signal=keep_going: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  owner_signal=stop: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+  owner_signal=language_switch: relevance is unresolved (no typed data of the estate names the atoms it acts on), so the declared combinations are retained.
+    and 20 more, all in _captures/docs3/estate/plan.summary.json under "notes".
 Next: driftbench estate plan approve _captures/docs3/estate/plan.yaml --all, or strike rows with --row <id> --strike
 ```
 
@@ -590,12 +606,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1076 rows, 1076 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1423 rows, 1423 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1075 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1422 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
@@ -844,27 +860,27 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash 7e588ad44bef: 126 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1631 rows, 1631 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 31 situations, 60 approved phrases.
+Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash cda4c4e280b2: 115 atoms.
+Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1423 rows, 1423 approved, 0 waiting, 0 struck.
+Phrases ../../../../examples/estates/fixture/phrases.yaml: 30 situations, 59 approved phrases.
 Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 9.
 Seed 1; custom checks the runner registers: absence, grounded_values, guard_finished, guard_message, hazard_recovery, max_words, no_delete_under, ordered, permission, some_call, stage_seen.
 
 Test type           rows  specs  complete  incomplete
-obligation           630    630       630           0
-outside_trigger       45     45        45           0
-twin                  45     45        44           1
-ordered_pair          70     70        56          14
-skip_pressure          5      5         4           1
+obligation           435    435       435           0
+outside_trigger       31     31        31           0
+twin                  31     31        30           1
+ordered_pair          84     84        70          14
+skip_pressure          6      6         5           1
 route_positive       260    253       253           0
 route_near_miss       13     13        13           0
 misroute              13     13        13           0
-read_when              7      7         7           0
+read_when              8      8         8           0
 script_fixture         2      2         2           0
 dispatch              42     42        42           0
 contract_alone         3      3         3           0
 stop_resume            3      3         3           0
-guard_positive        84     84        73          11
+guard_positive        84     84        84           0
 guard_negative         6      6         4           2
 guard_hostile          6      6         6           0
 guard_speed            6      6         6           0
@@ -875,32 +891,31 @@ stage_order           69     69        69           0
 stage_skip             4      4         4           0
 stage_anytime          1      1         1           0
 register_sample      280    280       280           0
-hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1624      1595          29
+total                      1416      1398          18
 
-Asks of the complete specs: 433 approved phrases, 1148 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 719 complete specs.
-Outcomes of the complete specs: 956 bank, 26 no-change:guard, 58 no-change:negative, 137 no-change:read-only, 410 no-delete, 8 static.
+Asks of the complete specs: 414 approved phrases, 970 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
+Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 338 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
-Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 50 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 98.21%; distinct asks: 108 in 1587 complete asked tests (6.81 per 100).
+Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
+Complete share: 98.73%; distinct asks: 118 in 1390 complete asked tests (8.49 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 29 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Missing pieces: 18 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          29 specs
+  needs-askable-act          18 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1652 files to _captures/docs3/estate/generated.
+Wrote 1447 files to _captures/docs3/estate/generated.
 ```
 
 It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the last line of the output):
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/estate/generated/specs --strict
-Checked 1587 specs: 1587 valid, 0 invalid, 0 warnings.
+Checked 1390 specs: 1390 valid, 0 invalid, 0 warnings.
 ```
 
 The written files equal the committed `examples/estates/fixture/generated/` but for the relative paths of the map and plan they record. 70 of the 235 complete specs carry a judged criterion. The gaps close as the pieces they name arrive: a "some call matches" tool check would complete the 336 `needs-some-call-check` specs (references, scripts, dispatches); registered checks for the custom predicates, the 418 `needs-registered-check` specs; approved phrases, deviation phrases and declared outcomes, through the real flow of proposal and approval. The planner's 6 replay rows are `guard_positive` rows whose situations no recorded session holds; a session per guard event would close them. 26 ordered predicates have no anchor: "Read git status before commit" is one command before another of the same tool, and "matching any line" is prose.
@@ -1053,19 +1068,11 @@ Generated specs pass and fail as planned. A generated replay spec is planned to 
 
 ```
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/plan.yaml --out _captures/docs3/estate/generated-hand
-Plan ../../../../packages/generate/test/estate/fixtures/plan.yaml: 35 rows, 34 approved, 0 waiting, 1 struck.
-total                        38        38           0
-Replay: 6 specs aligned to sessions, 5 planned to pass, 1 to fail.
-Wrote 44 files to _captures/docs3/estate/generated-hand.
+
 $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl examples/estates/fixture/sessions/weekly-gate-violated.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.jsonl --decisions examples/estates/fixture/sessions/weekly-clean.decisions.jsonl examples/estates/fixture/sessions/weekly-gate-violated.decisions.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.decisions.jsonl --steps examples/estates/fixture/sessions/weekly-clean.steps.jsonl examples/estates/fixture/sessions/weekly-gate-violated.steps.jsonl examples/estates/fixture/sessions/weekly-skill-skipped.steps.jsonl --suite _captures/docs3/estate/generated-hand/specs/replay
-✓ estate.p01.weekly-clean  session weekly-clean from block 0 (metadata)
-✓ estate.p01.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
-✗ estate.p01.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-    failing: block 0: skills.weekly-report
-✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
-✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
-✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-0794e6ec6f6d (in memory).
+✗ _captures/docs3/estate/generated-hand/specs/replay
+    (file)  SPEC_PARSE  cannot read the file: ENOENT: no such file or directory, open '/private/tmp/ri-rec/docsrun/_captures/docs3/estate/generated-hand/specs/replay'
+Fix the invalid specs first: nothing ran.
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.
@@ -1152,29 +1159,30 @@ The diff of the Northwind estate against its second version, with the guard stat
 
 ```
 $ pnpm -s driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out _captures/docs3/estate/diff.json
-Estate diff: examples/estates/fixture/approved.yaml (6197cb823bdd) to examples/estates/fixture-v2/map.yaml (c7c7969dbbbb).
-  Atoms: 1 added, 0 removed, 3 changed (0 white space only, 3 semantic), 23 moved with the same quote, 2 restated, 100 unchanged.
-  Edges: 1 added, 0 removed.
+Estate diff: examples/estates/fixture/approved.yaml (cda4c4e280b2) to examples/estates/fixture-v2/map.yaml (e7177e1e77e5).
+  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 85 unchanged.
+  Edges: 0 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
+  + register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
+Changed, white space only:
+  ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
 Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
-      also: title
+      also: title, situation, fields
   ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
       was: plan the delivery routes for tomorrow | the `route-planner` agent
       now: plan the delivery routes for the next two days | the `route-planner` agent
       also: title, situation, fields
-  ~ instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:27, now instruction.standing.r19-when-r18-applies-and-the
-      was: **R12.** When R2 applies and the user has not answered, keep the draft and do not send it.
-      now: **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
-      also: title
 Moved, same quote:
-  > instruction.standing.r3-read-a-file-before-you CLAUDE.md:11 to 12
+  > gate.standing.read-before-edit-it CLAUDE.md:11 to 12
   > instruction.standing.r4-never-delete-a-file-under CLAUDE.md:12 to 13
+  > gate.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
+  > reference.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
   > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
   > register.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
@@ -1197,10 +1205,9 @@ Moved, same quote:
   > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
   > reference.standing.read-claude-memory-memory-md CLAUDE.md:50 to 52
 Restated, same quote:
-  * instruction.standing.r11-never-paste-the-contents-of: evidence, fields
+  * instruction.standing.r8-do-not-invent-order-numbers: situation, evidence, fields
+  * instruction.standing.r17-report-a-number-only-when: situation, fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
-Edges added:
-  + instruction.standing.r19-when-r18-applies-and-the cites instruction.standing.r18-never-approve-a-credit-note
 Wrote _captures/docs3/estate/diff.json.
 ```
 
@@ -1248,29 +1255,26 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
-Impact of the estate diff 6197cb823bdd to c7c7969dbbbb on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 5, re-approve 3, retire 0, new 1; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff cda4c4e280b2 to e7177e1e77e5 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 3, re-approve 2, retire 0, new 2; 5 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
-  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the semantic
 Re-approve, the meaning changed:
   instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
   route.standing.an-ask-to-plan-the-delivery (route): plan the delivery routes for the next two days | the `route-planner` agent
       tests: northwind-route-planner
-  instruction.standing.r12-when-r2-applies-and-the (instruction): **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.
-      tests: northwind-draft-pair, northwind-unsent-draft
 New atoms with no test:
+  register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
 Needs a person: 4.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
-  - re-approve instruction.standing.r12-when-r2-applies-and-the: its meaning changed; 2 tests wait
+  - approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
 ```
 

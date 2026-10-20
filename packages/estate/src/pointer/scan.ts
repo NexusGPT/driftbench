@@ -22,6 +22,7 @@ import {
 } from './labels';
 import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
 import type { Labelling } from './stack';
+import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 
 /**
  * The pointer scan: cut each prose file into units, follow the units through the ledger, send the windows
@@ -574,7 +575,29 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   let split = 0;
   let spanSplit = 0;
   let voted = 0;
-  const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
+  /**
+   * The specific side of an even split between the generic label and one specific label, two runs at least on each
+   * side; undefined for any other tally (three labels, two specific ones, a single run on a side).
+   */
+  const tieBroken = (tally: ReadonlyMap<string, Opinion[]>, set: LabelSet): Opinion[] | undefined => {
+    const rule = tieBreaks[set.set];
+    const groups = [...tally.values()];
+    if (!rule || groups.length !== 2) return undefined;
+    const [one, two] = groups as [Opinion[], Opinion[]];
+    if (one.length !== two.length || one.length < 2) return undefined;
+    const generic = (group: Opinion[]) => group[0]?.label === rule.generic;
+    const specific = (group: Opinion[]) => rule.specific.includes(group[0]?.label ?? '');
+    if (generic(one) && specific(two)) return two;
+    if (generic(two) && specific(one)) return one;
+    return undefined;
+  };
+  /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
+  const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  const opinionOf = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+  ): Opinion | undefined => {
     const given = runs.map((run) => run.get(index));
     const first = given[0];
     if (given.length === 1) return first;
@@ -583,7 +606,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const tally = new Map<string, Opinion[]>();
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
-    const majority = [...tally.values()].find((group) => group.length * 2 > given.length);
+    const majority =
+      [...tally.values()].find((group) => group.length * 2 > given.length) ?? tieBroken(tally, set);
     const winners = unanimous ? present : majority;
     if (!winners?.[0]) {
       if (present.length === given.length) split++;
@@ -618,7 +642,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index)),
+          byMember.map((runs) => opinionOf(runs, index, set)),
           set,
         );
         if (!decision) {
