@@ -1008,6 +1008,42 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 | 1 | a criterion is not separated, or a judge gave no answer | a gating criterion stays unassigned, or a judge gave no answer; the table is still written | a file has an issue |
 | 2 | bad input | bad input | the folder cannot be read |
 
+`judge calibrate` also prints the label hygiene of each criterion in its text output: a `label conflict` (blocks that hold one slice under both labels), a `fixture leak` (a labelled block equal to a fixture, which inflates agreement) and the `few-labels` warning (a class with fewer than 5 labelled blocks). `--json` carries them as `labelConflicts`, `fixtureLeaks` and `warnings`.
+
+### Judge tools
+
+None of these calls a model.
+
+```
+driftbench judge ground --quote <text> (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--source <place>] [--json]
+driftbench judge lint <paths...> [--json]
+driftbench judge prompt (--request <file> | --criteria <dir> --criterion <name> [--fixture pass|fail]) [--json]
+driftbench judge cassette inspect <file> [--criteria <dir> [--labels <dir>]] [--json]
+driftbench judge cassette rekey <file> --from <dir> --criteria <dir> [--labels <dir>] [--rename <old=new>...] --out <file> [--json]
+```
+
+| Command | Does | Exit |
+|---|---|---|
+| `judge ground` | checks a quote against the data a judge saw, as the council checks evidence: the transcript entries, the artifact, the Given, the inputs, the reference. Prints the place that holds it; `--source` looks in one place only | 0 grounded, 1 not grounded, 2 bad input |
+| `judge lint` | lists the defects of each rubric and its pictures (`two-questions`, `subjective`, `no-fail-picture` and the other codes), for criterion files, spec files, or folders of them | 0 none, 1 a defect, 2 bad input |
+| `judge prompt` | prints the exact system and user text a judge receives for one request | 0, or 2 on bad input |
+| `judge cassette inspect` | prints the judges of a cassette, its entries per judge and per criterion, the answer contracts and decoder versions. With `--criteria`, counts the fixture requests (and with `--labels`, the labelled blocks) the cassette answers, and the entries no request matches | 0, or 2 on bad input |
+| `judge cassette rekey` | moves recorded answers to the keys of changed criteria (`--from` the folder the cassette was recorded with, `--criteria` the changed one). It refuses, writes nothing and exits 1 when any moved request gives the judge another prompt: then record again. A change the judge does not read, such as a line break inside a rubric, is re-keyed | 0 written, 1 refused, 2 bad input |
+
+A request file is a judge request as JSON: `criterion` (`name`, `rubric`, optional `pass`, `fail`, `scope`) and `transcript` (entries with `role` and `text`), with optional `artifact`, `given`, `inputs` and `reference`.
+
+## `driftbench bench`
+
+The judge benchmark of the repository, the same code and options as `pnpm bench`. It reads the slices, cassettes, evidence and floors under `benchmarks/` of a repository checkout: `--root <path>` names it, else the checkout around the working folder. See [benchmarks](../benchmarks.md).
+
+```
+driftbench bench replay [--slice <name>|all] [--model <id>] [--root <path>] [--store <file>] [--check-floor] [--json]
+driftbench bench record --model <id> --spend-cap-usd <usd> [--slice <name>|all] [--root <path>] [--store <file>] [--spend-ledger <path>] [--concurrency <n>] [--resume] [--json]
+driftbench bench floors [model] [--root <path>] [--raise <slice> --evidence <json>] [--json]
+```
+
+`bench replay` makes no network call and needs no key. `bench record` makes paid calls under its spend cap.
+
 ## `driftbench family`
 
 Code-agent task families: a family builds instances from a seed, each with corner-case variants and oracle expectations, and the reference build verifies them. See [generating](../generating.md).
@@ -1813,7 +1849,7 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 `driftbench radius ledger <map> [--ledger <file>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from an edit of an estate's prose: it reads the ledger of the last scan and the files as they are now, and calls no labeler. A changed or deleted unit reruns, a new unit reruns the old units of its section, and a unit whose neighbours changed or that moved to another file is advisory only. A unit with atoms becomes a `prompt` change per atom; a unit with none becomes a `unit` change, which keeps the radius the whole suite. It exits 0 when the manifest is written or printed and 2 on invalid input. See [the radius on the ledger](../estate.md#the-radius-on-the-ledger).
 
-`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat|relative] [--baseline <campaign>] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; `--counting relative` needs `--baseline` and reads each block against its baseline verdict; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. `driftbench radius mutate plan --prompt <file> --registry <file> --out <file> [--responses <file>] [--requests-out <file>] [--rephrase] [--only <sections...>] [--pairs 20] [--seed 20261014]` writes the section mutants (exit 0, 2 on bad input); `driftbench radius mutate run <specs> --prompt <file> --registry <file> --mutants <file> --usd-per-run <usd> --budget-usd <usd> --out <file> [--target <adapter[:agent]>] [--mode F] [--runs 3] [--cache <file>]` runs the suite against the baseline and each mutant (exit 0, 1 when the projected cost is above the budget and nothing was sent, 2 on bad input); `driftbench radius mutate score <specs> --run <file> --registry <file> [--write] [--gate-out <file>] [--json]` marks links verified or refuted, lists untested sections and scores the verified-link gate (exit 0, 1 when the gate was scored and failed, 2 on bad input). `driftbench radius <specs> --change <manifest> --sections <registries...> --gate <record>` skips the blocks the verified links leave out only while the gate record passes and matches. See [section mutants, verified links and the gate](../concepts/blast-radius.md#section-mutants-verified-links-and-the-gate). Defaults and exits of the section registry commands:
 
 * `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
 * `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.
