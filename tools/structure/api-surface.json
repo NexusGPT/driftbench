@@ -751,6 +751,7 @@
       "enterBlock": "value",
       "error": "value",
       "eventLogSink": "value",
+      "evidence": "value",
       "explainObject": "value",
       "explainRows": "value",
       "findSpecFiles": "value",

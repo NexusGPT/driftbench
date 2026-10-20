@@ -199,6 +199,9 @@ const CLASS_PROOFS: Record<
       'packages/checks/src/checks/subagents.ts: const expected = ctx.expect.subagents ?? [];',
       "packages/checks/src/checks/subagents.ts: countAllows(helper.count, count) ? 'pass' : 'fail',",
       'packages/checks/src/checks/subagents.ts: `${which} dispatched ${times(count)}, expected ${describeCount(helper.count)}; helpers dispatched in this block: ${listed(shown)}`,',
+      // The evidence provider collects the skill names an `expect.skills` list holds. It reads `name`s and never a
+      // `count`, so an absent count and `{ min: 1 }` give the same names.
+      'packages/core/src/evidence/rule.ts: const out = new Set(input.expect?.skills ?? []);',
       "packages/core/src/radius/depends.ts: if ((expect.skills?.length ?? 0) > 0) fields.add('skills');",
       "packages/core/src/radius/depends.ts: if ((expect.guards?.length ?? 0) > 0) fields.add('guards');",
       'packages/core/src/spec/semantics.ts: for (const [index, skill] of (expect.skills ?? []).entries()) {',
