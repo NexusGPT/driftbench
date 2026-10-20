@@ -130,7 +130,29 @@ for (const [kind, make] of Object.entries(tokens)) {
 }
 
 const SC = 'examples/estates/fixture/settings-cassette.jsonl';
+// One request key, allowed where a pointer cassette records it and reported anywhere else: the allowance is the
+// exact commit, file, rule and line of the key field, never the value.
+const POINTER_KEY = hex(64);
 const cases = [
+  [
+    'estate pointer cassette: the key field of a recorded answer',
+    'examples/estates/fixture/cassette.jsonl',
+    `{"answer":{"n":1},"key":"${POINTER_KEY}","readable":{"n":2}}`,
+    false,
+  ],
+  [
+    'the same pointer cassette key value, copied into another file',
+    'examples/estates/other/copied-key.json',
+    `{\n  "key": "${POINTER_KEY}"\n}`,
+    true,
+    POINTER_KEY,
+  ],
+  [
+    'estate pointer cassette: a 64-hex value in a field other than key',
+    'examples/estates/reader-cases/cassette.jsonl',
+    `{"answer":{"n":1},"note":"${hex(64)}","readable":{"n":2}}`,
+    true,
+  ],
   [
     'estate settings cassette: a 64-hex key in JSONL',
     SC,
