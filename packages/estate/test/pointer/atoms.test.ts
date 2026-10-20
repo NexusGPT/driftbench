@@ -957,8 +957,7 @@ describe('the ordered pair of the shipped set', () => {
     expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
   });
 
-  // Fails until #926 puts the order-key link in the set; then this test passes and `it.fails` must go.
-  it.fails('names the input that both calls share, from the order-key link of #926', () => {
+  it('names the input that both calls share, from the order-key link of #926', () => {
     expect(sets[0]?.links?.map((link) => link.name)).toContain('order-key');
   });
 });

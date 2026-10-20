@@ -48,6 +48,7 @@ describe('label sets', () => {
       'dispatch',
       'prohibition',
       'gate',
+      'gate-same',
       'gate-command',
       'gate-calls',
       'reference',
@@ -165,6 +166,7 @@ describe('the shipped set and the hazards it names', () => {
               item: { label: 'Bash', input: { command: { contains: '$item' } } },
             },
             'retry?': '$has.retry',
+            'unpathed?': '$spans.reread-other',
           },
         },
       ]);

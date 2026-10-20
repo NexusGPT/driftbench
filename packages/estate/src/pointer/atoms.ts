@@ -78,7 +78,7 @@ function fill(value: unknown, template: Template): unknown {
             ? true
             : undefined
           : match[5]
-            ? template.spans(match[5])
+            ? nonEmpty(template.spans(match[5]))
             : value === '$code'
               ? template.code()
               : value === '$named'
@@ -136,6 +136,9 @@ function fill(value: unknown, template: Template): unknown {
   }
   return value;
 }
+
+/** A list placeholder that found nothing does not fill: `$spans.<kind>` with no span of that kind. */
+const nonEmpty = (list: string[]): string[] | undefined => (list.length > 0 ? list : undefined);
 
 /** The text between the first pair of backticks of a unit: a code span, by Markdown structure. */
 const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
