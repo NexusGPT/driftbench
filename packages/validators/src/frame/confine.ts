@@ -5,7 +5,6 @@ import {
   readdirSync,
   readFileSync,
   realpathSync,
-  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
@@ -199,17 +198,18 @@ export function seal(
 }
 
 /**
- * A guard on everything the unconfined run C could write and a later run could read: the product's source tree, the
- * trees it is built from, and every path it is granted. Run C is the user-shaped run and may read the expected
- * values, so it must not carry them to a later run or frame by writing them into a file, or by creating one. The
- * guard takes an inventory at the start (every file, recursively, with its bytes); `check` after an unconfined run
- * puts back any file that changed, restores any that was removed, deletes any that was added, and says which.
+ * A read-only watch on everything the unconfined run C could write and a later frame could read: the product's
+ * source tree, the extra source trees, every path it is granted, and the files the bundle was built from. Run C is
+ * the user-shaped run and may read the expected values, so a file it wrote (a stamp in the source, a new file in a
+ * granted folder, a nearer node_modules package) would reach the confined runs of the next frame. The watch takes an
+ * inventory at the start (every file, recursively, with a hash of its bytes); `diff` lists what was added, removed
+ * or changed. It never writes, restores or deletes anything: the user's tree is theirs. What it finds is kept in a
+ * mark (see `setMark`) that makes every later frame of the same tree refuse to start until the tree is restored.
  */
-export class SourceGuard {
-  private readonly saved = new Map<string, Buffer | string>();
+export class TreeWatch {
+  private readonly before = new Map<string, string>();
   private readonly roots: string[] = [];
-  private static readonly LIMIT = 20_000;
-  private static readonly BIG = 8 * 1024 * 1024;
+  static readonly LIMIT = 200_000;
 
   constructor(paths: readonly string[]) {
     for (const path of paths) {
@@ -220,63 +220,73 @@ export class SourceGuard {
       const real = realOf(path);
       if (this.roots.some((root) => under(real, root))) continue;
       this.roots.push(real);
-      this.scan(real, (file) => {
-        if (this.saved.size >= SourceGuard.LIMIT) return;
-        const bytes = readFileSync(file);
-        this.saved.set(
-          file,
-          bytes.length > SourceGuard.BIG ? createHash('sha256').update(bytes).digest('hex') : bytes,
-        );
-      });
     }
+    for (const root of this.roots)
+      for (const [file, hash] of this.inventory(root)) this.before.set(file, hash);
   }
 
-  private scan(path: string, visit: (file: string) => void): void {
-    let stat: ReturnType<typeof statSync>;
-    try {
-      stat = statSync(path);
-    } catch {
-      return;
-    }
-    if (stat.isDirectory()) {
-      for (const name of readdirSync(path))
-        if (name !== 'node_modules' && name !== '.git') this.scan(join(path, name), visit);
-    } else if (stat.isFile()) visit(path);
+  private inventory(root: string): Map<string, string> {
+    const found = new Map<string, string>();
+    const walk = (path: string): void => {
+      let stat: ReturnType<typeof statSync>;
+      try {
+        stat = statSync(path);
+      } catch {
+        return;
+      }
+      if (stat.isDirectory()) {
+        for (const name of readdirSync(path)) if (name !== '.git') walk(join(path, name));
+      } else if (stat.isFile()) {
+        if (found.size >= TreeWatch.LIMIT)
+          throw new FrameError(
+            `the tree ${root} holds more than ${TreeWatch.LIMIT} files: name a smaller folder for the product, or put the rest in \`sources\``,
+          );
+        found.set(path, createHash('sha256').update(readFileSync(path)).digest('hex'));
+      }
+    };
+    walk(root);
+    return found;
   }
 
-  /** The paths that differ from the start (added, removed or changed), put back as they were. */
-  check(): string[] {
+  /** The paths that differ from the start (added, removed or changed). Nothing is touched. */
+  diff(): string[] {
+    const now = new Map<string, string>();
+    for (const root of this.roots)
+      for (const [file, hash] of existsSync(root) ? this.inventory(root) : []) now.set(file, hash);
     const changed: string[] = [];
-    const now = new Set<string>();
-    for (const root of this.roots) {
-      if (!existsSync(root)) continue;
-      this.scan(root, (file) => {
-        now.add(file);
-        const was = this.saved.get(file);
-        if (was === undefined) {
-          rmSync(file, { force: true });
-          changed.push(`${file} (added)`);
-          return;
-        }
-        const bytes = readFileSync(file);
-        const same =
-          typeof was === 'string'
-            ? createHash('sha256').update(bytes).digest('hex') === was
-            : was.equals(bytes);
-        if (!same) {
-          changed.push(`${file} (changed)`);
-          if (typeof was !== 'string') writeFileSync(file, was);
-        }
-      });
+    for (const [file, hash] of now) {
+      const was = this.before.get(file);
+      if (was === undefined) changed.push(`${file} (added)`);
+      else if (was !== hash) changed.push(`${file} (changed)`);
     }
-    for (const [file, was] of this.saved) {
-      if (now.has(file) || typeof was === 'string') continue;
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, was);
-      changed.push(`${file} (removed)`);
-    }
+    for (const file of this.before.keys()) if (!now.has(file)) changed.push(`${file} (removed)`);
     return changed;
   }
+}
+
+/** The mark of a tree that an unconfined run changed: a file of the validator's own cache, never in the user's tree. */
+export function markPath(cache: string, tree: string): string {
+  return join(cache, 'frame-marks', createHash('sha1').update(realOf(tree)).digest('hex'));
+}
+
+/** Refuses to start a frame on a tree that an earlier unconfined run changed. */
+export function checkMark(file: string, tree: string): void {
+  if (!existsSync(file)) return;
+  let what = '';
+  try {
+    what = (JSON.parse(readFileSync(file, 'utf8')) as { message?: string }).message ?? '';
+  } catch {
+    // an unreadable mark still refuses
+  }
+  throw new FrameError(
+    `an earlier run C changed the tree ${tree} (${what}): restore it, then delete ${file}; the frame never changes the user's tree`,
+  );
+}
+
+/** Marks a tree an unconfined run changed. */
+export function setMark(file: string, message: string): void {
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify({ message }));
 }
 
 /** The folder of a sealed bundle. */

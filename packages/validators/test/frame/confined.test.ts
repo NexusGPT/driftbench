@@ -11,7 +11,7 @@ import {
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate, isolateCommand } from '../../src/frame';
 import { findRoot } from '../../src/root';
 
@@ -166,14 +166,20 @@ describe('the confined command', () => {
 });
 
 describe('a product that carries a stamp from run C to a later frame', () => {
-  it('fails every frame, and its source is put back as it was', () => {
+  it('fails every frame, and the validator leaves the stamped source as the product wrote it', () => {
     const file = plant('stamp');
-    const before = readFileSync(file, 'utf8');
     for (const seed of [1, 2, 3, 4]) {
-      const result = framed('stamp', seed);
-      expect(result.pass, `seed ${seed}`).toBe(false);
+      let pass = true;
+      try {
+        pass = framed('stamp', seed).pass;
+      } catch {
+        // a tree an unconfined run changed starts no frame
+        pass = false;
+      }
+      expect(pass, `seed ${seed}`).toBe(false);
     }
-    expect(readFileSync(file, 'utf8')).toBe(before);
+    // The validator never writes, restores or deletes in the user's tree: the stamp is still there.
+    expect(readFileSync(file, 'utf8')).toMatch(/const STAMP = [1-9]\d+;/);
   });
 });
 
@@ -183,10 +189,11 @@ describe('a product that carries a stamp from run C to a later frame', () => {
  * product; and a correct product reading its data through import.meta.url failed once sealed.
  */
 describe('the second review of PR 969', () => {
+  // A tree an unconfined run changed is marked and starts no frame, so each test has a tree of its own.
   let area = '';
   let sources = '';
   let oracles = '';
-  beforeAll(() => {
+  beforeEach(() => {
     area = realpathSync(mkdtempSync(join(work, 'second-')));
     sources = join(area, 'product');
     oracles = join(area, 'oracle');
@@ -266,7 +273,8 @@ export function value() {
       return result.value === 137 && result.error === null && result.divergence === null;
     });
     expect(rows).toEqual([false, false, false, false]);
-    expect(existsSync(copied)).toBe(false);
+    // The validator does not delete what the product wrote: the file is left for the user to see.
+    expect(existsSync(copied)).toBe(true);
   });
 
   it('lets a correct product read data granted in reads through import.meta.url', () => {

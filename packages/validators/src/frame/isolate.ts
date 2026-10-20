@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { confine, SourceGuard, seal } from './confine';
+import { checkMark, confine, markPath, seal, setMark, TreeWatch } from './confine';
 import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
@@ -209,8 +209,26 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     sources: options.sources ?? [],
     reads: options.reads ?? [],
   });
-  // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
-  const guard = new SourceGuard([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
+  // Run C is unconfined and can read the expected values: a file it wrote would reach the confined runs of a later
+  // frame. The watch is read-only; what it finds marks the tree, and a marked tree starts no frame (confine.ts).
+  const mark = markPath(projectCache(), tree);
+  checkMark(mark, tree);
+  const watch = new TreeWatch([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
+  let dirty = false;
+  const settle = (): void => {
+    if (!dirty) return;
+    dirty = false;
+    const changed = watch.diff();
+    if (changed.length === 0) return;
+    const message = `run C changed the product's tree or its grants (${changed
+      .slice(0, 3)
+      .map((path) => path.split('/').slice(-2).join('/'))
+      .join(
+        ', ',
+      )}${changed.length > 3 ? `, and ${changed.length - 3} more` : ''}); the tree is left as it is`;
+    first ??= message;
+    setMark(mark, message);
+  };
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
@@ -247,6 +265,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const close = () => {
     if (closed) return;
     closed = true;
+    settle();
     try {
       relay.port.postMessage({ close: true });
       wait(relay, 10_000, 'close');
@@ -306,9 +325,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if (!('dead' in c)) entry.plain = c;
       if (first === undefined && kept(a) !== kept(c))
         first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
-      const changed = guard.check();
-      if (first === undefined && changed.length > 0)
-        first = `${head}: run C wrote the product's files (${changed.map((path) => path.split('/').slice(-2).join('/')).join(', ')}); they are put back`;
+      dirty = true;
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret);
@@ -322,7 +339,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       },
     },
   ) as T;
-  return { product, tape, divergence: () => first, close };
+  return {
+    product,
+    tape,
+    divergence: () => {
+      settle();
+      return first;
+    },
+    close,
+  };
 }
 
 export type CommandOptions = {
@@ -364,7 +389,9 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     inputs,
     tree,
   } = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
-  const guard = new SourceGuard([tree, ...inputs]);
+  const mark = markPath(projectCache(), tree);
+  checkMark(mark, tree);
+  const watch = new TreeWatch([tree, ...inputs]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
@@ -436,9 +463,11 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     (typeof results)[number],
   ];
   let divergence: string | undefined;
-  const changedByC = guard.check();
-  if (changedByC.length > 0)
-    divergence = `run C wrote the command's files (${changedByC.join(', ')}); they are put back`;
+  const changedByC = watch.diff();
+  if (changedByC.length > 0) {
+    divergence = `run C changed the command's tree (${changedByC.slice(0, 3).join(', ')}); the tree is left as it is`;
+    setMark(mark, divergence);
+  }
   const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
       divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
