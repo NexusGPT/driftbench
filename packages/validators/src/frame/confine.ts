@@ -148,6 +148,8 @@ function packageOf(file: string): string | undefined {
   const parts = file.split(sep);
   const at = parts.lastIndexOf('node_modules');
   if (at < 0 || at + 1 >= parts.length) return undefined;
+  // The project's cache folder lives in a node_modules but is not a package: other frames write in it all the time.
+  if (parts[at + 1] === '.cache') return undefined;
   const scoped = (parts[at + 1] as string).startsWith('@') ? 2 : 1;
   if (at + scoped >= parts.length) return undefined;
   return parts.slice(0, at + 1 + scoped).join(sep);
