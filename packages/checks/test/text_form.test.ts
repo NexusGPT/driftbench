@@ -60,6 +60,13 @@ describe('markup sql (syntax check against SQLite)', () => {
     const open = await run(markup, block("SELECT 'a;b FROM plans;", { markup: 'sql' }));
     expect(outcomes(open)).toEqual({ 'markup.valid': 'fail' });
   });
+  it('reads a semicolon inside a comment as text', async () => {
+    const verdicts = await run(
+      markup,
+      block('-- one; two\nSELECT 2 /* a; b */ FROM plans;', { markup: 'sql' }),
+    );
+    expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
+  });
   it('still passes a statement that names a table no schema holds', async () => {
     const verdicts = await run(markup, block('SELECT x FROM nowhere WHERE y = 1;', { markup: 'sql' }));
     expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
