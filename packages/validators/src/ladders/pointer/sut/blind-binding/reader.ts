@@ -5,12 +5,25 @@
 export type Pointer = Record<string, any>;
 
 let loaded: Promise<Pointer> | undefined;
+let replaced: Pointer = {};
 
-export function pointerExports(): Promise<Pointer> {
+export async function pointerExports(): Promise<Pointer> {
   loaded ??= import(/* @vite-ignore */ '@agent-nexus/driftbench-estate').then(
     (mod) => (mod as { pointer: Pointer }).pointer,
   );
-  return loaded;
+  const real = await loaded;
+  return Object.keys(replaced).length === 0 ? real : { ...real, ...replaced };
+}
+
+/** Runs `run` with some reader exports replaced in memory: a planted-bug reader for the tests of the binding. */
+export async function withReplacedExports<T>(patch: Pointer, run: () => Promise<T>): Promise<T> {
+  const before = replaced;
+  replaced = { ...before, ...patch };
+  try {
+    return await run();
+  } finally {
+    replaced = before;
+  }
 }
 
 /** The reader has no call for this part of the operation; the reason is written in the message. */

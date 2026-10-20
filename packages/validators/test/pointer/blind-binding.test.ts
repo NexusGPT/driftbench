@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { blindLevels } from '../../src/ladders/pointer/bank/blind';
+import { withReplacedExports } from '../../src/ladders/pointer/sut/blind-binding/reader';
+import type { PointerSut } from '../../src/ladders/pointer/sut/port';
 import { assertReaderAvailable, realReader } from '../../src/ladders/pointer/sut/reader';
 
 /**
@@ -7,6 +9,10 @@ import { assertReaderAvailable, realReader } from '../../src/ladders/pointer/sut
  * items whose observation differs from the planted truth (behaviour of the reader against the design), and items
  * the reader has no call for (the detail says so). A change of the reader or the binding moves them.
  */
+async function realExports(): Promise<Record<string, any>> {
+  return (await import('@agent-nexus/driftbench-estate')).pointer as Record<string, any>;
+}
+
 describe('the blind bank bound to the reader', () => {
   // The reader loads once, with a long bound, before any item runs: a slow import on a loaded host cannot move a count.
   beforeAll(async () => {
@@ -20,6 +26,7 @@ describe('the blind bank bound to the reader', () => {
       const measure = await level.compute({ seed: 1, hidden: false, root: process.cwd() });
       for (const entry of measure.bank ?? []) {
         if (entry.pass) counts.pass += 1;
+        else if (/adapter, projection, or fixture failed/.test(entry.detail ?? '')) counts.error += 1;
         else if (/adapter gap, not a reader defect/.test(entry.detail ?? '')) {
           counts.unsupported += 1;
           reasons.add((entry.detail ?? '').replace(/^.*?: (unsupported: [a-z]+(?::[a-z]+)?).*$/s, '$1'));
@@ -35,5 +42,88 @@ describe('the blind bank bound to the reader', () => {
       'unsupported: reanchor',
       'unsupported: replay',
     ]);
+  }, 300_000);
+
+  // Planted-bug readers, run through the binding itself: each must move the bank.
+  const MATERIALIZING = [
+    'obligation',
+    'prohibition',
+    'custom-label',
+    'gate-forward',
+    'gate-backward',
+    'unicode-quote',
+  ].map((name) => `blind/labels.materialize.${name}`);
+
+  async function labelsLevel(resolve: () => Promise<PointerSut> = async () => realReader()) {
+    const level = blindLevels(resolve)[2];
+    const measure = await level?.compute({ seed: 1, hidden: false, root: process.cwd() });
+    return new Map((measure?.bank ?? []).map((entry) => [entry.id, entry.pass]));
+  }
+
+  it('keeps the seven materialization items green on the real reader, the no-mapping control included', async () => {
+    const passes = await labelsLevel();
+    for (const id of [...MATERIALIZING, 'blind/labels.materialize.no-mapping'])
+      expect(passes.get(id), id).toBe(true);
+  }, 120_000);
+
+  it('loses the six atom-building materialization items when the reader drops every atom predicate', async () => {
+    const real = await realExports();
+    const passes = await withReplacedExports(
+      {
+        pointerAtoms: (...args: unknown[]) => {
+          const out = real.pointerAtoms(...args);
+          return {
+            ...out,
+            accepted: out.accepted.map((atom: Record<string, unknown>) => ({ ...atom, evidence: [] })),
+          };
+        },
+      },
+      () => labelsLevel(),
+    );
+    for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
+    expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
+  }, 120_000);
+
+  it('loses the six atom-building materialization items when the reader sets reviewRequired to false', async () => {
+    const real = await realExports();
+    const passes = await withReplacedExports(
+      {
+        pointerAtoms: (...args: unknown[]) => {
+          const out = real.pointerAtoms(...args);
+          return {
+            ...out,
+            accepted: out.accepted.map((atom: { evidence: Array<{ options?: object }> }) => ({
+              ...atom,
+              evidence: atom.evidence.map((p) => ({
+                ...p,
+                options: { ...p.options, reviewRequired: false },
+              })),
+            })),
+          };
+        },
+      },
+      () => labelsLevel(),
+    );
+    for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
+    expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
+  }, 120_000);
+
+  it('counts a cutter that throws on an opaque unit as adapter errors, so the zero-error assertion goes red', async () => {
+    const real = realReader();
+    const throwing: PointerSut = {
+      ...real,
+      cut: async (file) => {
+        const cut = await real.cut(file);
+        if (cut.units.some((unit) => unit.opaque)) throw new Error('the cutter met an opaque unit');
+        return cut;
+      },
+    };
+    let errors = 0;
+    for (const level of blindLevels(async () => throwing)) {
+      const measure = await level.compute({ seed: 1, hidden: false, root: process.cwd() });
+      for (const entry of measure.bank ?? [])
+        if (!entry.pass && /adapter, projection, or fixture failed/.test(entry.detail ?? '')) errors += 1;
+    }
+    expect(errors).toBeGreaterThan(0);
   }, 300_000);
 });
