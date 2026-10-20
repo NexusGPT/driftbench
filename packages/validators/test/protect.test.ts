@@ -37,9 +37,13 @@ describe('protectedChanges', () => {
   });
 });
 
-const TRAIN_CONDITION = "github.event_name == 'push' || startsWith(github.head_ref, 'train/')";
+const TRAIN_CONDITION =
+  "github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/')";
 
-/** A heavy job runs on main pushes, on train PRs, and on a dispatch on a train branch that lists its id. */
+/**
+ * A heavy job runs on main pushes, on train PRs, on release PRs (the one PR that carries a release branch to main)
+ * and on a dispatch on a train branch that lists its id.
+ */
 function heavyCondition(id: string): string {
   return `${TRAIN_CONDITION} || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',${id},'))`;
 }
@@ -51,8 +55,9 @@ const FAST_CONDITION =
 /** The fast job is the train entry gate and runs in about 3 minutes: 10 is its limit. */
 const FAST_TIMEOUT = 10;
 
-/** pr affected reports the tests a pull request affects. It runs on non-train pull requests only. */
-const AFFECTED_CONDITION = "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')";
+/** pr affected reports the tests a pull request affects. It runs on pull requests from neither a train nor a release. */
+const AFFECTED_CONDITION =
+  "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')";
 const AFFECTED_TIMEOUT = 45;
 const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
 
@@ -113,6 +118,12 @@ const runs = (ctx: Ctx, id: string, workflow: ReturnType<typeof parse>): boolean
 const MAIN_PUSH: Ctx = { event: 'push', ref: 'refs/heads/main' };
 const TRAIN_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/9/merge', headRef: 'train/9' };
 const ORDINARY_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/8/merge', headRef: 'fix/ordinary' };
+const RELEASE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/7/merge', headRef: 'release/next' };
+const FEATURE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/6/merge', headRef: 'feature/release-notes' };
+const LOOKALIKE_PRS: Ctx[] = [
+  { event: 'pull_request', ref: 'refs/pull/5/merge', headRef: 'release-lookalike' },
+  { event: 'pull_request', ref: 'refs/pull/4/merge', headRef: 'feature/release/next' },
+];
 const dispatchOn = (ref: string, jobs: string): Ctx => ({ event: 'workflow_dispatch', ref, jobs });
 
 /** Behaviour of the heavy-job conditions, as GitHub would evaluate them. */
@@ -122,6 +133,10 @@ function assertDispatchBehaviour(workflow: ReturnType<typeof parse>, ids: string
     expect(runs(MAIN_PUSH, id, workflow)).toBe(true);
     expect(runs(TRAIN_PR, id, workflow)).toBe(true);
     expect(runs(ORDINARY_PR, id, workflow)).toBe(false);
+    // the release PR runs every heavy job; a feature PR into the release branch, or a look-alike head, runs none
+    expect(runs(RELEASE_PR, id, workflow)).toBe(true);
+    expect(runs(FEATURE_PR, id, workflow)).toBe(false);
+    for (const ctx of LOOKALIKE_PRS) expect(runs(ctx, id, workflow), ctx.headRef).toBe(false);
     // a dispatch on a train branch runs exactly the listed jobs
     expect(runs(dispatchOn('refs/heads/train/9a', ids.join(',')), id, workflow)).toBe(true);
     expect(runs(dispatchOn('refs/heads/train/9a', ''), id, workflow)).toBe(false);
@@ -157,6 +172,8 @@ function assertConcurrency(workflow: ReturnType<typeof parse>) {
     expect(cancel(ctx)).toBe(false);
   expect(cancel(ORDINARY_PR)).toBe(true);
   expect(cancel(TRAIN_PR)).toBe(false);
+  expect(cancel(RELEASE_PR)).toBe(false);
+  expect(cancel(FEATURE_PR)).toBe(true);
   expect(group(ORDINARY_PR)).toBe(group({ ...ORDINARY_PR, runId: '77' }));
 }
 
@@ -270,6 +287,12 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
   ['push', '', 'main', '', OK, 0],
   ['pull_request', 'fix/ordinary', '', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
   ['pull_request', 'train-lookalike', '', '', OK, 1],
+  // the release PR counts like a train PR; a feature PR into the release branch does not
+  ['pull_request', 'release/next', '', '', OK, 0],
+  ['pull_request', 'release/next', '', '', ONE_RED, 1],
+  ['pull_request', 'release-lookalike', '', '', OK, 1],
+  ['pull_request', 'feature/release/next', '', '', OK, 1],
+  ['pull_request', 'feature/release-notes', '', '', SKIPPED, 1],
   [
     'workflow_dispatch',
     '',
@@ -412,6 +435,8 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   const affected = (ctx: Ctx) => runs(ctx, 'pr-affected', workflow);
   expect(affected(ORDINARY_PR)).toBe(true);
   expect(affected(TRAIN_PR)).toBe(false);
+  expect(affected(RELEASE_PR)).toBe(false);
+  expect(affected(FEATURE_PR)).toBe(true);
   expect(affected(MAIN_PUSH)).toBe(false);
   for (const jobs of ['fast', 'build', 'fast,build', ''])
     expect(affected(dispatchOn('refs/heads/train/pre-9', jobs))).toBe(false);
@@ -522,7 +547,7 @@ describe('the validators workflow', () => {
       'refs/tags/train/9',
     ])
       expect(on(dispatchOn(ref, 'pointer-measure,pointer-measure-full')), ref).toBe(false);
-    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR]) expect(on(ctx)).toBe(false);
+    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR, RELEASE_PR]) expect(on(ctx)).toBe(false);
     // the shards: three for the trial, one for a single seed, ten for the gate measurement
     const shards = (jobs: string) =>
       evaluateTemplate(job.strategy.matrix.include, dispatchOn(train, jobs)) as {
