@@ -73,8 +73,13 @@ describe('the plugin API of the rules framework', () => {
       const loaded = await loadSpecFile(path);
       if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
       const uses = resolveBlockObjects(loaded.spec, 0, objectContextFor(path));
-      // The shipped value-check policy applies to every block; the spec sets the other two.
-      expect(uses.filter((use) => use.setAt === 'shipped').map((use) => use.key)).toEqual(['value_check']);
+      // The shipped value-check policy applies to every block. The spec runs a diagnostic, so the shipped blame and
+      // placement policies apply to the block too (a block records them only when a diagnostic ran on it).
+      expect(uses.filter((use) => use.setAt === 'shipped').map((use) => use.key)).toEqual([
+        'value_check',
+        'blame',
+        'placement',
+      ]);
       const used = uses
         .filter((use) => use.setAt !== 'shipped')
         .map((use) => [
