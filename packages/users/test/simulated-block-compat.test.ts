@@ -84,7 +84,9 @@ async function lines(): Promise<{ lines: { file: string; value: string }[] }> {
 }
 
 describe('when.simulated_user is invisible to specs that do not use it', () => {
-  it('every example spec of the fixture keeps its spec hash and its block cache keys', { timeout: 600_000 }, async () => {
+  it('every example spec of the fixture keeps its spec hash and its block cache keys', {
+    timeout: 600_000,
+  }, async () => {
     const now = await lines();
     const current = Object.fromEntries(now.lines.map((line) => [line.file, line.value]));
     if (process.env.DRIFTBENCH_WRITE_COMPAT === '1') {
