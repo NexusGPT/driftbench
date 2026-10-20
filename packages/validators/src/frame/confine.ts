@@ -273,6 +273,102 @@ export function seal(
   };
 }
 
+/** What a bundle is, for the child processes of one invocation: the file, its hash, and what it was built from. */
+export type SealDescriptor = {
+  file: string;
+  sha256: string;
+  tree: string;
+  inputs: string[];
+  influences: Sealed['influences'];
+  /** Writes the bundle bytes back to `file` (the invocation keeps them in memory); not sent to children. */
+  refresh?: () => void;
+};
+
+type SealRecord = Sealed & { bytes: Buffer; sha256: string };
+const SEALS = new Map<string, SealRecord>();
+
+const sealKey = (
+  module: string,
+  grants: { sources?: readonly string[]; reads?: readonly string[] },
+): string =>
+  [
+    realOf(resolve(module)),
+    ...(grants.sources ?? []).map((path) => resolve(path)),
+    '|',
+    ...(grants.reads ?? []).map((path) => resolve(path)),
+  ].join('\0');
+
+/** Forgets every sealed product of this process: a test that rewrites a product and wants the new code bundled. */
+export function forgetSealedProducts(): void {
+  SEALS.clear();
+}
+
+/**
+ * The bundle of a product, built once per invocation of the validator and never again (reviews of PR 969: run C is
+ * unconfined and can write anything a later bundle reads, and no list of the files a bundle reads is complete). The
+ * first frame bundles the tree; the bytes stay in this process's memory; every later frame of the invocation writes
+ * those bytes into its own folder and runs them, whatever the tree has become. A child process of the invocation is
+ * given the descriptor of the parent's bundle and checks its hash. A new invocation bundles the tree as it finds it, as
+ * after an edit of the builder's.
+ */
+export function sealOnce(
+  module: string,
+  into: string,
+  name: string,
+  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+  given?: SealDescriptor,
+): Sealed {
+  mkdirSync(into, { recursive: true });
+  const outfile = join(realOf(into), `${name}.mjs`);
+  let record: SealRecord | undefined;
+  if (given) {
+    const bytes = readFileSync(given.file);
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    if (sha256 !== given.sha256)
+      throw new FrameError(
+        `the sealed bundle ${given.file} is not the one this invocation sealed: it changed`,
+      );
+    record = {
+      file: given.file,
+      inputs: given.inputs,
+      tree: given.tree,
+      influences: given.influences,
+      bytes,
+      sha256,
+    };
+  } else {
+    const key = sealKey(module, grants);
+    record = SEALS.get(key);
+    if (!record) {
+      const built = seal(module, into, name, grants);
+      const bytes = readFileSync(built.file);
+      record = { ...built, bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
+      SEALS.set(key, record);
+    }
+  }
+  writeFileSync(outfile, record.bytes);
+  return { file: outfile, inputs: record.inputs, tree: record.tree, influences: record.influences };
+}
+
+/** The descriptor of this process's bundle of a product, for its children; seals the product first if needed. */
+export function describeSeal(
+  module: string,
+  folder: string,
+  grants: { sources?: readonly string[]; reads?: readonly string[] } = {},
+): SealDescriptor {
+  const sealed = sealOnce(module, folder, 'sealed', grants);
+  const record = SEALS.get(sealKey(module, grants)) as SealRecord;
+  const refresh = () => writeFileSync(sealed.file, record.bytes);
+  return {
+    file: sealed.file,
+    sha256: record.sha256,
+    tree: record.tree,
+    inputs: record.inputs,
+    influences: record.influences,
+    refresh,
+  };
+}
+
 /**
  * A read-only watch on everything the unconfined run C could write and a later frame could read: the product's
  * source tree, the extra source trees, every path it is granted, and the files the bundle was built from. Run C is

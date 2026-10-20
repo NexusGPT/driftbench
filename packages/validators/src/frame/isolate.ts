@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { checkMark, confine, markPath, seal, setMark, TreeWatch } from './confine';
+import { checkMark, confine, markPath, type SealDescriptor, sealOnce, setMark, TreeWatch } from './confine';
 import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
@@ -60,6 +60,11 @@ export type IsolateOptions = {
   keep?: Keep;
   /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
   plain?: boolean;
+  /**
+   * The bundle the invocation sealed (confine.ts `describeSeal`), when this frame runs in a child process of the
+   * invocation: the frame runs that bundle, after checking its hash, and builds none.
+   */
+  sealed?: SealDescriptor;
   /**
    * Source folders besides the product's own that the bundle may be built from (a workspace package the product
    * imports). A file outside the product's tree and these folders is refused when the product is bundled.
@@ -206,10 +211,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     inputs,
     tree,
     influences,
-  } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`), {
-    sources: options.sources ?? [],
-    reads: options.reads ?? [],
-  });
+  } = sealOnce(
+    module,
+    sealFolder,
+    drawnFolder(options.seed, `bundle:${tag}`),
+    { sources: options.sources ?? [], reads: options.reads ?? [] },
+    options.sealed,
+  );
   // Run C is unconfined and can read the expected values: a file it wrote would reach the confined runs of a later
   // frame. The watch is read-only; what it finds marks the tree, and a marked tree starts no frame (confine.ts).
   const mark = markPath(projectCache(), tree);
@@ -395,7 +403,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     inputs,
     tree,
     influences,
-  } = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
+  } = sealOnce(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
   const watch = new TreeWatch([tree, ...inputs, ...influences.files], influences.packages);
