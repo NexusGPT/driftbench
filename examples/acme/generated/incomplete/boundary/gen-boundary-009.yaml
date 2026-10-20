@@ -108,3 +108,57 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.out.plans
         value: catalog.search.out.plans.empty
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-009
+        values:
+          catalog.search.out.plans: catalog.search.out.plans.empty
+          catalog.search.out.customer: catalog.search.out.customer.absent
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: catalog.search.out.plans=catalog.search.out.plans.empty
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-009
+        values:
+          catalog.search.out.plans: catalog.search.out.plans.empty
+          catalog.search.out.customer: catalog.search.out.customer.absent
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

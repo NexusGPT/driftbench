@@ -1,4 +1,6 @@
 import { initializeShippedObjects as initializeCoreObjects } from '@agent-nexus/driftbench-core';
+import { registerArgumentAccuracy } from './argument-accuracy';
+import { registerBlameObjects } from './blame/objects';
 import { registerCheckSet } from './check-set';
 import { registerValueCheck } from './value-check/ladder';
 
@@ -7,4 +9,6 @@ export function initializeShippedObjects(): void {
   initializeCoreObjects();
   registerCheckSet();
   registerValueCheck();
+  registerBlameObjects();
+  registerArgumentAccuracy();
 }

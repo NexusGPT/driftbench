@@ -1,0 +1,13 @@
+id: acme.planted.b3
+intent: "The customer gives the phone number they want to port to Acme."
+seed: "It's +1 202 555 0150"
+context:
+  last_reply: "Happy to help you keep your number. Which number would you like to bring over?"
+slots:
+  - name: phone
+    format: phone
+    surface_forms:
+      - { form: "+1 202 555 0150", approved: true }
+      - { form: "(202) 555-0150", approved: true }
+      - { form: "2025550150", approved: true }
+    minimal: ["+1 202 555 0105"]

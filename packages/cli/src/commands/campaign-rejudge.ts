@@ -151,7 +151,11 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         data.campaign.modes,
         data.campaign.repeats,
       ).cells;
-      if (expected.some((cell) => !data.runs.some((run) => run.runId === cell.cellId)))
+      if (
+        expected.some(
+          (cell) => !data.runs.some((run) => run.runId === cell.cellId || run.runId === cell.legacyCellId),
+        )
+      )
         throw new Error('Baseline campaign is incomplete; rerun the agent.');
     }
     if (!prepared.length) throw new Error('Baseline campaign contains no observations; rerun the agent.');

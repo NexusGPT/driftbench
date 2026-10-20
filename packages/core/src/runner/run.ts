@@ -5,6 +5,7 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, extendHistory, freezeHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { type DiagnosticBudget, runRunDiagnostics } from '../diagnostics/run';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
@@ -24,8 +25,9 @@ import {
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson } from '../spec/hash';
-import { specHash as specHashOf } from '../spec/identity';
+import { specHash as specHashOf, specIdentityHash } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
+import { specParentRecord, specParentRef } from '../spec/spec-parents';
 import { type GivenFinding, parentIndices, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
 import {
@@ -104,6 +106,8 @@ export type RunOptions = {
    * and every block records the objects it resolved to.
    */
   objects?: ObjectContext;
+  /** What the diagnostics of each block may spend: the number of `run` and `model` steps. Default 0: static steps only. */
+  diagnosticBudget?: DiagnosticBudget;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
    *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
    *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
@@ -165,6 +169,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
+  if (specParentRef(spec.blocks[0]?.parent))
+    throw new RunnerError(
+      `${spec.id}: block 0 starts from another spec's block; load the specs together (loadSpecs) so the loader writes the parent's blocks out first`,
+    );
   const objects = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
   spec = bindObjectContext({ ...spec }, objects);
   const objectErrors = checkSpecObjects(spec, objects);
@@ -175,7 +183,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const linked = spec.blocks.some((block) => block.parent !== undefined);
   const now = options.now ?? (() => new Date());
   const specHash = specHashOf(spec);
-  // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
+  // The run id leaves out the spec's version: a free label that plays no part (docs/running.md, "The cache and
+  // replay"), so relabelling a spec keeps its run ids. The cache key leaves out the version label and the spec's
+  // scoring-only `uses` (cacheSpecHash).
+  const identityHash = specIdentityHash(spec);
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // Every block's objects resolve before any call reaches the adapter: a reference that cannot resolve fails here.
@@ -284,6 +295,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     selectedBlocks,
     requestedBlocks: options.blocks,
     replayOnly,
+    replayed: specParentRecord(spec)?.replayed ?? 0,
     parentOrder: linked ? parents.order : undefined,
     blockRerunReason,
     carriedBlocks,
@@ -291,6 +303,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
+    identityHash,
     cacheSpecHash,
     target,
     mode: options.mode,
@@ -301,6 +314,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     scoringOf,
+    diagnosticBudget: options.diagnosticBudget ?? {},
     toolPolicy: options.toolPolicy,
     onEvent: reportEvent,
     cache,
@@ -316,6 +330,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       options.runId ??
       cellId({
         specHash,
+        identityHash,
         target,
         mode: options.mode,
         repeat: options.repeat,
@@ -340,6 +355,16 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     replayed ??
     (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
+  // Run-scope diagnostics read every block's verdicts once the run is done; they never change a pass.
+  const spanning = scoringOf(-1).used;
+  const runScoped = await runRunDiagnostics(
+    spanning.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+    result,
+    spanning,
+    options.diagnosticBudget,
+  );
+  if (runScoped.diagnoses.length > 0) result.diagnoses = runScoped.diagnoses;
+  if (runScoped.skippedForBudget > 0) result.skippedForBudget = runScoped.skippedForBudget;
   reportEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
   const parsed = RunResult.parse(
@@ -355,6 +380,8 @@ type RunContext = {
   /** The block subset as asked for, before a parent-linked subset adds the ancestors it replays. */
   requestedBlocks: ReadonlySet<number> | undefined;
   replayOnly: ReadonlySet<number> | undefined;
+  /** The leading blocks a parent in another spec wrote out (`metadata.parent`): replayed, never scored. */
+  replayed: number;
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
@@ -365,6 +392,8 @@ type RunContext = {
   provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
+  /** The spec hash without its version label, which the run id is made from. */
+  identityHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
   cacheSpecHash: string;
   target: TargetRef;
@@ -379,6 +408,7 @@ type RunContext = {
   checks: CheckSet;
   /** The objects and the scoring plan of a spec block; -1 for a step the driver injected, which reads the spec's. */
   scoringOf: (blockIndex: number) => BlockScoring;
+  diagnosticBudget: DiagnosticBudget;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
@@ -568,6 +598,24 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let error: string | undefined;
   /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
   let prefixWritten = false;
+  /**
+   * The parent's opening a child of another spec replays (`run.replayed` leading blocks): its results, never
+   * scored, and the first of them that did not pass, which blocks every block of the child.
+   */
+  const replay: { from?: number; results: Set<BlockResult>; failure?: { by: string; root: string } } = {
+    results: new Set(),
+  };
+  const settleReplay = () => {
+    if (replay.from === undefined) return;
+    for (const result of blocks.slice(replay.from)) {
+      replay.results.add(result);
+      if (replay.failure === undefined && blockStatus(result) !== 'pass') {
+        const by = result.blockId ?? `block ${result.index}`;
+        replay.failure = { by, root: result.blocked?.root ?? by };
+      }
+    }
+    replay.from = undefined;
+  };
 
   try {
     for (let position = 0; ; position++) {
@@ -588,6 +636,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         }
         break;
       }
+      settleReplay();
+      if (replay.failure) {
+        // The parent's opening did not pass: the child is blocked, never sent and never failed.
+        const from = Math.max(step.kind === 'block' ? step.blockIndex : step.beforeBlock, run.replayed);
+        for (let index = from; index < spec.blocks.length; index++, position++)
+          blocks.push(replayBlocked(run, spec, position, index, replay.failure));
+        break;
+      }
+      replay.from = step.kind === 'block' && step.blockIndex < run.replayed ? blocks.length : undefined;
       const planned = planStep(spec, step);
       const perturbation =
         step.kind === 'injected'
@@ -631,6 +688,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               run.scoringOf(step.blockIndex),
               planned.lastSpecBlock && composed ? endStateValue(run.endState, sources, composed) : undefined,
               run.artifacts,
+              run.diagnosticBudget,
             ),
           );
         }
@@ -928,7 +986,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = freezeHistory(history, [...user, cloneJson(assistantMessage(observed))]);
+      history = freezeHistory(history, [...user, replyMessage(observed)]);
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -990,6 +1048,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           users,
           contradictions: facts.contradictions,
         },
+        run.diagnosticBudget,
       );
       const block = {
         index: position,
@@ -1095,14 +1154,17 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         };
   }
 
+  settleReplay();
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
   // A replayed ancestor gave its end state to the blocks asked for; it is no measurement of this run, so
   // it adds no verdict or count. What it cost stays in the run's cost.
   const executed = blocks;
-  const measured = run.replayOnly?.size
-    ? executed.filter((block) => block.specIndex === undefined || !run.replayOnly?.has(block.specIndex))
-    : executed;
+  const measured = executed.filter(
+    (block) =>
+      !replay.results.has(block) &&
+      (!run.replayOnly?.size || block.specIndex === undefined || !run.replayOnly.has(block.specIndex)),
+  );
   const recovery =
     run.mode === 'P'
       ? recoveryOf(spec, { blocks: measured, perturbationId: run.perturbationId }, run.recovery)
@@ -1133,6 +1195,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
+    identityHash: run.identityHash,
     target: run.target,
     mode: run.mode,
     repeat: run.repeat,
@@ -1383,12 +1446,12 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history = extendHistory(current.history, [
-        freezeMessage(cloneJson(assistantMessage(parsed.data))),
-      ]) as Message[];
+      const message = freezeMessage(cloneJson(assistantMessage(parsed.data)));
+      current.history = extendHistory(current.history, [message]) as Message[];
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);
+      validatedReplies.set(parsed.data.toolCalls, { text: parsed.data.text, message });
       return gateObserved(parsed.data, run.toolPolicy);
     },
     async endState(sources, key) {
@@ -1414,6 +1477,21 @@ function liveChannel(run: RunContext): Channel {
       return notes.length > 0 ? notes.join('; ') : undefined;
     },
   };
+}
+
+/**
+ * The assistant message the live channel built, validated and froze for the session, by the tool-call list of the
+ * Observed it returned. The run's own history takes that same message for the block when the text and the list
+ * are still the ones it was made from; each entry is read once.
+ */
+const validatedReplies = new WeakMap<object, { text: string; message: Message }>();
+
+/** The block's assistant message for the run's history: the session's own when it holds, else a new copy. */
+function replyMessage(observed: Observed): Message {
+  const known = validatedReplies.get(observed.toolCalls);
+  validatedReplies.delete(observed.toolCalls);
+  if (known && known.text === observed.text) return known.message;
+  return cloneJson(assistantMessage(observed));
 }
 
 /** A value written as JSON and read back. */
@@ -1500,4 +1578,36 @@ function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | u
 
 function userMessagesOf(messages: readonly Message[]): Message[] {
   return messages.filter((message) => message.role === 'user');
+}
+
+/** A block of a child whose parent's opening, replayed from another spec, did not pass: never sent, never failed. */
+function replayBlocked(
+  run: RunContext,
+  spec: Spec,
+  position: number,
+  index: number,
+  { by, root }: { by: string; root: string },
+): BlockResult {
+  const block = spec.blocks[index];
+  const from = specParentRecord(spec)?.from ?? by;
+  run.onEvent?.({ type: 'block_start', index: position, at: run.now().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'blocked',
+    at: run.now().toISOString(),
+  });
+  return {
+    index: position,
+    ...(block?.id === undefined ? {} : { blockId: block.id }),
+    givenHash: resolveGiven(initialGiven(spec), [], run.target).hash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'blocked',
+    blocked: { by, root, reason: `the opening from ${from} did not pass at ${by}` },
+  };
 }

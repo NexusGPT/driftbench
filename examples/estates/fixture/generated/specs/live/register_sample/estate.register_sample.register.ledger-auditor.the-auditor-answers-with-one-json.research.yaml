@@ -88,3 +88,31 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.ledger-auditor.the-auditor-answers-with-one-json.research
+        values:
+          ask_class: research
+          atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

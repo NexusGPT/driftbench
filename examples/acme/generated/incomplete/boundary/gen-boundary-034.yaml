@@ -107,3 +107,57 @@ metadata:
     needs_phrase:
       - dimension: port.check.out.reason
         value: port.check.out.reason.present
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-034
+        values:
+          port.check.out.reason: port.check.out.reason.present
+          port.check.out.eligible: port.check.out.eligible.false
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: port.check.out.reason=port.check.out.reason.present
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-034
+        values:
+          port.check.out.reason: port.check.out.reason.present
+          port.check.out.eligible: port.check.out.eligible.false
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: found
+          plan_choice: names-one
+          channel: chat
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

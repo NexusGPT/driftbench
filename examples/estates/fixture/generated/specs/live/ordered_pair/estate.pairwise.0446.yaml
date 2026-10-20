@@ -100,3 +100,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.weekly-report.read-templates-report-md-before-writing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0446
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: go
+          deviation: D10_return
+          estate_hazard: rate_wave
+          atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

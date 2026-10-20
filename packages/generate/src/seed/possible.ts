@@ -1,4 +1,5 @@
 import { NONE } from '@agent-nexus/driftbench-space';
+import { failableBehaviourTurns } from '../extract/behaviour-turns';
 import type { PathRelation } from '../extract/proposal';
 import { PENDING_STAGE } from '../extract/proposal';
 import { behaviourSubject, type PreparedMap } from './map';
@@ -66,13 +67,26 @@ export function impossibleConstraints(
   const calls = (flow: string, from: string, tool: string | undefined) =>
     relations.usesTools.some(
       (use) =>
-        // A behaviour's call is made in its own phrase turn, never on a move.
-        !behaviourSubject(prepared, use.subject) &&
+        // A move's call is the flow's own. A behaviour's call is made in its own phrase turn, and a use of any
+        // other kind of value (a persona, a channel) is made only in a cell that holds that value, which the
+        // reachability the map derives (extract/derive.ts) does not assume: the target counts what it counts.
+        use.subject.dimension === 'flow' &&
+        use.subject.value === flow &&
         use.stage === from &&
-        (use.subject.dimension === 'flow'
-          ? use.subject.value === flow
-          : flowsOfBehaviour(prepared, use.subject.value).includes(flow)) &&
         (tool === undefined || use.tool === tool),
+    );
+  // The turns that ask a behaviour whose tool can fail: one rule for the map, the target and the builder.
+  const askedTurns = failableBehaviourTurns({
+    relations,
+    phrases: prepared.phrases,
+    inventory: prepared.inventory,
+    isBehaviour: (dimension) => behaviourSubject(prepared, { dimension }),
+  });
+  /** A staying turn that asks a behaviour whose own read tool fails: it holds at any stage after the start. */
+  const asks = (flow: string, stage: string, tool: string | undefined) =>
+    askedTurns.some(
+      ({ use, flows }) =>
+        use.stage === stage && (tool === undefined || use.tool === tool) && flows.includes(flow),
     );
   const said = (path: PathRelation, index: number, cls: string): boolean => {
     const stage = path.stages[index] as string;
@@ -80,8 +94,9 @@ export function impossibleConstraints(
     const recoveries = recoveriesOf(cls, path.flow);
     if (recoveries.length === 0) return false;
     if (cls === 'D8_tool_failure') {
-      if (last) return false;
-      return recoveries.some((entry) => calls(path.flow, stage, entry.tool));
+      // A move that calls a recovered tool, or a turn that asks a behaviour whose read tool the flow recovers.
+      if (!last && recoveries.some((entry) => calls(path.flow, stage, entry.tool))) return true;
+      return index >= 1 && recoveries.some((entry) => asks(path.flow, stage, entry.tool));
     }
     if (!deviationPhrases.has(cls)) return false;
     if (index === 0 && !FIRST_TURN.has(cls)) return false;

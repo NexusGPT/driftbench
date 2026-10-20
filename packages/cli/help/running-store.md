@@ -62,7 +62,11 @@ What the store holds, one table each:
 | `units` | measured cost units per adapter, read by `campaign plan` for its projection. No command records units during a run; code puts them with the store's `putUnit`. |
 | `blobs`, `versions` | the registry of datasets and prompts: each file once by its SHA-256, and one immutable row per version (`dataset` and `prompt` commands). |
 
-A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`, and on newer records `resolved` (the objects the block was scored with and one hash over them) and `diagnoses`. Each verdict of a newer record carries `by`: the object (`kind:id@hash8`), the item, the implementation and the layer that produced it. For a tool input decided by a value-check policy, `by.object` names that resolved policy, `by.layer` names the policy's origin, and `by.item` names the deciding rung. An aggregate failure names the first failing value's rung; an inconclusive aggregate names the first inconclusive value's rung. A passing aggregate names the latest (loosest) deciding rung in the policy's item order. `valueCheck[]` retains every value's decision in call and path order. If no rung decides a differing value, `by.item` is `exact_fallback` and `by.impl` is `builtin:value-check/exact`. A policy supplied directly by code carries its resolved reference, or a hash of its contents when no reference is supplied, at the `cli` layer. Verdict IDs and counts do not change. Artifact metadata does not contain file bytes. A partial rerun runs artifact-dependent blocks fresh; whole-cell re-scoring refuses an observation that needs unstored artifact bytes.
+A run record holds `runId`, `specId`, `specHash`, `identityHash` (the spec hash without its `version` label, which the run id is made from; absent in a run stored before it), `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. More fields are in the table below.
+
+Each block (`blocks[]`) holds `index`, `blockId`, `parent` (the authored parent id, when the block has one), `specIndex` (its authored position, when parent scheduling changes the order), `injected` (true on a block the run added, such as a perturbation), `realized` (present when the text the driver sent differs from the text the spec wrote: `hash`, and `text` only when the run asked for it), `realizedTextStripped` (on a copy whose text was dropped by the destination's privacy policy: `fromRun`, and `fromCampaign` when it is known; topic running-realized-text), `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `provenance` (the stamps below), `resolved` (on newer records: the objects the block was scored with and one hash over them), `diagnoses`, `ledgerCheck` (`ok`, and `contradictions`, the ledger facts that contradict an earlier one), `drift` (the drift classes of a failing block), `skippedForBudget` (diagnostic steps left out for want of budget; below) and `pass`. An unmeasured block also holds `status` (`not_run` or `blocked`) with `notRun` (`kind`, `layer`, `check`, `expected`, `got`) or `blocked` (`by`, `root`, `reason`); topics running-not-run and authoring-parent-blocks. A block copied from another run holds `carried`, and a re-judged block `rejudged`.
+
+Each verdict of a newer record carries `by`: the object (`kind:id@hash8`), the item, the implementation and the layer that produced it. For a tool input decided by a value-check policy, `by.object` names that resolved policy, `by.layer` names the policy's origin, and `by.item` names the deciding rung. An aggregate failure names the first failing value's rung; an inconclusive aggregate names the first inconclusive value's rung. A passing aggregate names the latest (loosest) deciding rung in the policy's item order. `valueCheck[]` retains every value's decision in call and path order. If no rung decides a differing value, `by.item` is `exact_fallback` and `by.impl` is `builtin:value-check/exact`. A policy supplied directly by code carries its resolved reference, or a hash of its contents when no reference is supplied, at the `cli` layer. Verdict IDs and counts do not change. Artifact metadata does not contain file bytes. A partial rerun runs artifact-dependent blocks fresh; whole-cell re-scoring refuses an observation that needs unstored artifact bytes.
 
 ### Run record, field by field
 
@@ -70,15 +74,19 @@ The record is JSON in the `json` column of `runs`. A field marked optional is ab
 
 | Field | Holds |
 |---|---|
+| `endState` | The end state check: `match` (true when the observed end state equals the expected one) and `diff`, a list of `{ field, expected, observed }`, one per field that differs. Optional. |
+| `realizedTextStripped` | Present on a copy whose driver text was dropped: `fromRun`, and `fromCampaign` when it is known. Topic running-realized-text. Optional. |
 | `endVerdict` | `success`, `failure` or `inconclusive`: the end verdict of the driver or the spec. `inconclusive` means the run could not be judged. Optional. |
 | `endStateValue` | The end state the adapter returned for the end-state checks, as the checks saw it. `null` when its source recorded nothing. Absent when no end state was read, and on runs stored before the field existed. |
 | `blockRerun` | Present on a run that reran only some blocks (`--block-reruns`) or replayed parent blocks. `selected` lists the block indexes asked for. `downstreamNotRerun` lists the later indexes taken from the baseline instead of rerun. `reason` says why (topic authoring-parent-blocks). |
+| `diagnoses` | What the run-scope diagnostics wrote over the whole run: the same entries as a block's `diagnoses`, below. They never change a pass. Absent when none ran. Optional. |
+| `skippedForBudget` | A whole number, at least 1: run-scope diagnostic steps skipped because their run or model budget was spent. Absent when none. Optional. |
 | `provenance` | The execution stamp, below. Optional; a run without it cannot be carried or re-judged. |
-| `provenanceDigest` | A SHA-256 over the run stamp and the stamp of every block (index, `blockId`, `parent`, `specIndex`, `injected`, `realized`, `givenHash` and the block `provenance`). A change to any stamp changes it. Optional. |
+| `provenanceDigest` | A SHA-256 over the run stamp and the stamp of every block (index, `blockId`, `parent`, `specIndex`, `injected`, `realized`, `realizedTextStripped`, `givenHash` and the block `provenance`), and the `realizedTextStripped` of the run. A change to any stamp changes it. Optional. |
 | `rejudged` | Present on a run made by `campaign rejudge`: the stamp below. |
 | `carried` | Present on a run copied by `--change`: `fromCampaign`, `fromRun`, `agentVersion` (the version that produced the result, when named) and `age` (`campaigns`, `days`). Topic running-change-carry. |
 | `succession` | Drift over the blocks: `driftCount` (failing blocks), `driftRate` (failing blocks divided by blocks that passed or failed), `firstDriftBlock` (index of the first failing block; absent when none fails), `longestClean` (longest stretch of passing blocks) and `minOverBlocks` (true when the run has blocks and every one passes). A `not_run` or `blocked` block is left out of the rate and ends a clean stretch. |
-| `recovery` | Mode P, when the perturbation writes `recovery`: `injectedAt` (index of the injected block), `turnsToRecover` (blocks after the injection until a block passes every gating check and reaches its target stage; 0 is the injected block itself; absent when it never recovered), `label` (`immediate`, `late` or `never`), `collateral` (with a free-running reference run: blocks after the injection that fail a check they passed there; without one: blocks after the recovery that fail again), `safeAction` (false when a detour block made a call the spec forbids or a consequential call it does not name) and `clarified` (true when the detour asks a question before its first consequential call). |
+| `recovery` | Mode P, when the perturbation writes `recovery`: `injectedAt` (index of the injected block), `turnsToRecover` (blocks after the injection until a block passes every gating check and reaches its target stage; 0 is the injected block itself; absent when it never recovered), `label` (`immediate`, `late` or `never`), `collateral` (with a free-running reference run: blocks after the injection that fail a check they passed there; without one: blocks after the recovery that fail again), `safeAction` (false when a detour block made a call the spec forbids, made a consequential call it does not name, or failed a gating `forbidden` or `safety` verdict) and `clarified` (true when the detour asks a question before its first consequential call, or asks one and makes none). |
 
 `provenance` fields (version 2):
 
@@ -94,7 +102,7 @@ The record is JSON in the `json` column of `runs`. A field marked optional is ab
 | `agentVersionLabelHash` | Hash of the `--agent-version` label. `null` when none was given. Optional. |
 | `executionHash` | Hash of everything that decides what the agent receives: driver, adapter, the rest of the target, mode, repeat, perturbation id, tool policy, retry and step limit. |
 
-Each block also holds the block `provenance`: `specIndex` (the authored position), `stimulusHash` (hash of the stimulus sent), `ledgerHash` (hash of the ledger at the block), `artifacts` (`pathHash` and `sha256` of each file a check read; `sha256` is `null` when no digest is known) and `endState` (a snapshot, kept when `--record-end-state-snapshots` is on). A block taken from another run adds `carried.measuredAt`, the time it was measured, which `--max-age` reads. The block `rejudged` stamp has the same fields as the run one.
+Each block also holds the block `provenance`: `specIndex` (the authored position), `stimulusHash` (hash of the stimulus sent), `ledgerHash` (hash of the ledger at the block), `artifacts` (a list of `{ pathHash, sha256 }`: the hash of the path of each file a check read, and the SHA-256 of its bytes; `sha256` is `null` when no digest is known) and `endState`, the end state a check read, kept when `--record-end-state-snapshots` is on. `endState` is `{ kind: unavailable }` when nothing could be read, or `{ kind: read, values }`, with one `{ source, kind, value }` per source: `kind` is `value` (with the `value`) or `undefined` (the source held nothing). A block taken from another run adds `carried`: `fromCampaign`, `fromRun`, `agentVersion`, `age` (as in the run `carried`) and `measuredAt`, the time it was measured, which `--max-age` reads. The block `rejudged` stamp has the same fields as the run one.
 
 The `rejudged` stamp, on a run and on a block, proves the stored observation still fits the new spec:
 
@@ -111,15 +119,26 @@ The `rejudged` stamp, on a run and on a block, proves the stored observation sti
 
 | Field | Holds |
 |---|---|
+| `campaignId` | The campaign id. |
+| `specs` | The pinned specs, as `{ id, hash, target }`: the spec id, its content hash, and the one target the spec runs on (without it, the spec runs on every target of the campaign). |
 | `targets` | The targets of the campaign (adapter, agent, variant and so on). |
 | `repeats` | Repeats per mode, as `{ T, F, P }`. |
+| `modes` | The run modes of the campaign: `T`, `F`, `P`. |
+| `budgetUsd` | The budget in USD; 0 means none. |
+| `judge` | How judged criteria are scored: `mode` (`system1`, `hybrid` or `llm`), `judges` (the judge names) and `assignment` (optional). |
+| `createdAt` | When the campaign was created. |
+| `agentVersion` | The explicit agent version the block cache uses, kept when the campaign resumes. Optional. |
+| `sources` | The registry versions the campaign ran, as `{ kind, name, version, hash }`: `kind` is `dataset` or `prompt`, `version` is the registry version, `hash` the SHA-256 of its content. Optional. |
 | `provenance` | `version` 2; `endStateSnapshots: true` when the campaign records end-state snapshots; `realizedText: true` when it stores the text a driver sent; `adapters`, one entry per adapter with `idHash`, `versionHash`, `cacheIdentityHash`, `requiresCacheIdentity`, `targetHash` and `agentVersionHash`, hashed as in a run. |
 | `rejudged` | One stamp per re-judged run, as above. |
-| `radius` | Present on a campaign run with `--change`: `manifest` (hash of the change manifest), `fromVersion` and `toVersion` (the agent versions the manifest goes between), `changes`, `from` (the campaign the carried runs came from), `whole` (set, with the reason, when the radius was the whole suite), `fresh`, `carried` and `outside` (cell counts), `refused` (reasons a cell outside the radius ran fresh, with counts) and `audit` (`sampled`, `misses`, `seed`, `missed`). Topic running-change-carry. |
+| `diagnoses` | What the campaign-scope diagnostics wrote over the runs, when the command that wrote the record ran them: the same entries as a block's `diagnoses`, in the table below. Optional. |
+| `radius` | Present on a campaign run with `--change`: `manifest` (hash of the change manifest), `fromVersion` and `toVersion` (the agent versions the manifest goes between), `changes`, `from` (the campaign the carried runs came from), `whole` (set when the radius was the whole suite: `change` and `reason`), `fresh`, `carried` and `outside` (cell counts), `refused` (why cells outside the radius ran fresh, as `{ reason, cells }`) and `audit` (`sampled`, `misses`, `seed`, and `missed`, the cells whose fresh run disagreed with the stored one, as `{ specId, cellId, differing }`). Topic running-change-carry. |
 
 ### Block record: observed, verdicts and events
 
 Each block of a run holds `observed` (what the agent did) and `verdicts` (what the checks and judges made of it). The run holds `events`. A field marked optional is absent when the adapter or the runtime does not report it.
+
+`observed` fields:
 
 | `observed` field | Holds |
 |---|---|
@@ -165,9 +184,57 @@ A `verdicts` entry is one check on one block:
 | `reasoning` | The judge's reasoning. Optional. |
 | `by` | What produced the verdict: the object (`kind:id@hash8`), its item, the implementation and the layer. Absent on older records. |
 | `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
-| `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. Absent when every value equalled the gold or the assertion compares as written. |
+| `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. `changedInputsFail` is true on a computed value (`recompute`) that is right on the given inputs and wrong on changed inputs; blame reads it as special-casing. Absent when every value equalled the gold or the assertion compares as written. |
 
-A block of a newer record also holds `resolved` (the objects it was scored with, one per `uses` key, and one hash over them), `diagnoses` (what the diagnostics wrote after the checks; they never change `pass`) and `skippedForBudget` (how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent; absent when none).
+A block of a newer record also holds `resolved`, `diagnoses` and `skippedForBudget`, described next.
+
+`skippedForBudget` is a whole number, at least 1: how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent. It is absent when none was left out.
+
+The `by` of a verdict or a diagnosis says what produced it:
+
+| Field | Holds |
+|---|---|
+| `object` | The resolved object as `kind:id@hash8`: a check set, a policy or a diagnostic. |
+| `item` | The rule inside the object. Optional. |
+| `impl` | The implementation that ran the rule, such as `builtin:check/outcome`. |
+| `layer` | The layer that last set the item: `shipped`, `project`, `suite`, `spec`, `block` or `cli`. |
+
+The `resolved` field of a block names the objects the block was scored with:
+
+| Field | Holds |
+|---|---|
+| `objects` | One entry per `uses` key that resolved. |
+| `objects[].key` | The `uses` key, such as `check_set`, `value_check`, `blame` or `diagnostics`. |
+| `objects[].kind`, `objects[].id` | The kind and the id of the resolved object. |
+| `objects[].hash` | The content hash of that object. |
+| `objects[].setAt` | The layer whose reference chose it. It is `shipped` when no layer named one. |
+| `hash` | One content hash over `objects`. Equal objects give equal hashes, run after run. |
+
+Each entry of `diagnoses` is what a diagnostic wrote about the block after its checks. A diagnosis explains a verdict. It never changes `pass`. Only `diagnostic`, `summary` and `by` are always present:
+
+| Field | Holds |
+|---|---|
+| `diagnostic` | `diagnostic:<id>@hash8` of the diagnostic that wrote it. |
+| `step` | The step of that diagnostic. Optional. |
+| `verdictRef` | The verdict the diagnosis is about. Optional. |
+| `rule` | The rule that fired, as `kind:id@hash8#item`. Optional. |
+| `fault` | A list of names, the faults the diagnostic attributes. Optional. |
+| `fixLocation` | Where the fix goes, a text. Optional. |
+| `flags` | A list of names, the flags the diagnostic raised. Optional. |
+| `score` | A measure the diagnosis reports, such as the share of expected arguments that matched. Optional. |
+| `summary` | One line a reader can act on. |
+| `evidence` | A map of what the diagnostic saw. Optional. |
+| `rankedCauses` | A list of causes, each with a score. Optional. |
+| `rankedCauses[].cause`, `rankedCauses[].score` | The cause, and its score. |
+| `rankedCauses[].by` | What ranked it. Optional. |
+| `inherits` | On a chained verdict: the id of the verdict it takes its fault from. Optional. |
+| `disposition` | Who the fault is attributed to: `agent`, `shared`, `setup`, `excluded`, `credited` or `unassigned`. Optional. |
+| `fixTarget`, `fixAction`, `fixForms` | What the fix changes, what it does there, and the forms it may take. Optional. |
+| `placement` | The placement rule that chose where the fix goes, as `kind:id@hash8#item`. Optional. |
+| `confidence` | How sure the attribution is: `static` (read statically), `undecided` or `confirmed` (by a rerun). Optional. |
+| `removeCopies` | The local copies a shared fix makes redundant. Optional. |
+| `by` | What produced the diagnosis, as above. |
+| `via` | The executing diagnostic step, when `by` names a more specific deciding rule. It has the fields of `by`. Optional. |
 
 A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
 
@@ -209,7 +276,7 @@ Campaign second, created 2026-10-14T13:54:31.870Z.
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
 
-The folder `stores` was created. The store now holds two campaigns, each with a run whose id is `d44b9dfe9d1cf87a` (the cell id), and the cache entries of the first campaign's blocks.
+The folder `stores` was created. The store now holds two campaigns, each with a run whose id is `fab7e9a89a94b309` (the cell id), and the cache entries of the first campaign's blocks.
 
 ## Common errors
 
@@ -219,3 +286,19 @@ The folder `stores` was created. The store now holds two campaigns, each with a 
 * `the store at <path> has schema version <n>; this version of driftbench reads 3 and older` The store was written by a newer driftbench. Upgrade driftbench.
 * `The store at <path> holds no campaign. Run one with: driftbench campaign run <paths...>` (exit 2) The file exists but holds no campaign; `campaign plan --store` creates such empty files.
 * Results from an earlier agent version replayed into a new campaign: the cache lives in the store. Use `--agent-version`, `--cache-suite` or `--no-cache` (topic running-cache).
+
+Every store message starts with `store:` and carries one of these codes. A command prints the message; the code is what code that calls the store branches on (`StoreError.code`).
+
+| Code | Message starts with | Cause | Fix |
+|---|---|---|---|
+| `NODE_VERSION` | `node:sqlite is not available in Node.js <version>` | This Node.js has no `node:sqlite`. | Use Node.js 22.13 or newer. |
+| `OPEN_FAILED` | `cannot open the store at <path>` | The file is not a SQLite database, or the folder cannot be written. | Check the path and the folder. |
+| `SCHEMA_VERSION` | `the store at <path> has schema version <n>` (or `the bundle at <folder> has ...`) | The store or an exported bundle was written by a newer driftbench. | Upgrade driftbench. |
+| `INVALID_RECORD` | `putSpec refused ...`, `putRun refused ...`, `putCampaign refused ...`, `cachePut refused ...`, `"<name>" is not a registry name ...` | A call passed a record that does not match its schema. Nothing was written. | Fix the record the message names; for a registry name use letters, digits, dots, underscores and hyphens. |
+| `CORRUPT_ROW` | `... holds corrupt JSON in column <column>` | A stored row holds JSON that does not parse, does not match its schema, or does not match its key. | Restore the store from a copy or an export; do not edit rows by hand. |
+| `CAMPAIGN_CONFLICT` | `campaign <id> is already stored with other content` | A campaign is immutable. `campaign run` reports this as `Campaign <id> already exists. Resume it with: driftbench campaign resume <id>` (exit 2). | Give the re-run a new campaign id, or resume the old one. |
+| `CAMPAIGN_MISSING` | `exportCampaign: campaign <id> is not in the store` | The campaign to export is not in the store, or a run is put before its campaign (`putRun: campaign <id> is not in the store; put the campaign before its runs`). | Check the id with `campaign status`; put the campaign before its runs. |
+| `VERSION_CONFLICT` | `<dataset or prompt> ... in this store holds other content than the bundle's` | An import would replace a registry version, and versions are immutable. | Import into another store. |
+| `RUN_AMBIGUOUS` | `run <id> is in <n> campaigns` | The same run id is held by more than one campaign and the call did not say which. | Name the campaign. |
+| `BUNDLE_INVALID` | `the bundle at <folder> is invalid`, `campaign <id> records <kind> <name>@<version>, which this store does not hold`, `runs <a> and <b> would share one file name on a case-insensitive disk` | An exported bundle is incomplete or inconsistent. | Export it again. |
+| `CLOSED` | `the store at <path> is closed` | A call used a store after `close`. | Open the store again. |

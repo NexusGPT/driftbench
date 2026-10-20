@@ -88,6 +88,18 @@ describe('schema_strict', () => {
     expect(validateStrict({ n: 'ab' }, pair)).toHaveLength(1);
   });
 
+  it('reads a function-style schema by its parameters, flat or nested: a declared call passes, an extra key fails', async () => {
+    const flat = { type: 'function', name: 'order.create', parameters: orderCreate };
+    const nested = { type: 'function', function: { name: 'order.create', parameters: orderCreate } };
+    for (const definition of [flat, nested]) {
+      const wrapped: Spec = { ...porting, metadata: { tool_schemas: { 'order.create': definition } } };
+      const call = (input: Record<string, unknown>) =>
+        run(schemaStrict, context(wrapped, 4, observed('Done.', [{ label: 'order.create', input }])));
+      expect(outcomes(await call({ ...payload }))).toEqual({ 'schema_strict.order.create.1': 'pass' });
+      expect(outcomes(await call({ ...payload, x: 1 }))).toEqual({ 'schema_strict.order.create.1': 'fail' });
+    }
+  });
+
   it('reads OpenAI-style functions and is inconclusive, never gating, on a tool with no schema', async () => {
     const wrapped: Spec = {
       ...porting,

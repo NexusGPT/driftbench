@@ -82,3 +82,22 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.standing.never-force-push
+        values:
+          atoms.instruction: instruction.standing.never-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

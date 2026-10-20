@@ -95,3 +95,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0453
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D12_prompt_extraction
+          estate_hazard: dead_helper
+          atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

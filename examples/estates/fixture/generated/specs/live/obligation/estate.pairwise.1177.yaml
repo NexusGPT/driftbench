@@ -99,3 +99,28 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1177
+        values:
+          ask_class: research
+          ask_shape: problem
+          session_state: fresh
+          owner_signal: limit_word
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

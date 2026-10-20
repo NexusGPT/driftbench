@@ -10,6 +10,7 @@ see_also:
   - authoring-map
   - authoring-space-coverage
   - authoring-gate
+  - authoring-classes
 next:
   - authoring-gate
 ---
@@ -30,6 +31,11 @@ Two options change how many rows there are:
 - `--spec-cap N` limits the total written specs. It keeps every graph, boundary, deviation, metamorphic, task and incomplete spec (the protected specs) and selects complete t-wise and cover specs by their actual coverage. `--spec-cap-mode tuples` (default) tries to keep every pair and triple; `pairs` keeps pairs and allows reported triple losses.
 
 Seeds: every seeded choice (array construction, shuffles, phrase choice, task-family draws) comes from `--seed`, default 1. The same map and seed give the same files, byte for byte. Another seed gives another valid suite.
+
+The same construction plans the realisations of an utterance class (`driftbench class plan`, see
+authoring-classes): its axes are `slot_surface`, which approved spelling each slot value takes and which is
+always an axis, and the style axes the class file declares. A class is planned at strength 2 by default; its
+exclusions go to the planner, so an excluded combination is never written and is not counted as required.
 
 ## When to use it
 
