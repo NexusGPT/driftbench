@@ -54,7 +54,7 @@ The ladder (version 4), from `driftbench validate stats`:
 * `roadmap`: methods the research dossiers name that a product page needs, matching scipy, degenerate-safe
   and scaling.
 
-Ladder version 4 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 187 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
+The floor of ladder version 4 is 3, the level the blind pilot reached on seeds 1 to 20 and the hidden seed (levels 1 to 3 pass; level 4 holds the failing items). The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 187 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
 
 ## When to use it
 

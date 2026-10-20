@@ -3,19 +3,24 @@
   "ladderVersion": {
     "judges": 2,
     "map": 2,
-    "stats": 2,
+    "stats": 4,
     "system": 5
   },
   "floors": {
     "judges": 20,
     "map": 8,
-    "stats": 7,
+    "stats": 3,
     "system": 9
   },
   "evidence": {
     "judges": {
       "level": 20,
-      "seeds": ["1", "2", "3", "hidden"],
+      "seeds": [
+        "1",
+        "2",
+        "3",
+        "hidden"
+      ],
       "hiddenSeed": 336760492,
       "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
       "ladderVersion": 2
@@ -50,7 +55,7 @@
       "ladderVersion": 2
     },
     "stats": {
-      "level": 7,
+      "level": 3,
       "seeds": [
         "1",
         "2",
@@ -74,9 +79,9 @@
         "20",
         "hidden"
       ],
-      "hiddenSeed": 268931216,
-      "head": "c2c8ac50127402309e1bd7548186280dd9f63622",
-      "ladderVersion": 2
+      "hiddenSeed": 510401233,
+      "head": "1e5cd89162c005faecf5aaef693cbf3be12a2e15",
+      "ladderVersion": 4
     },
     "system": {
       "level": 9,
@@ -176,6 +181,39 @@
           "hiddenSeed": 707151630,
           "head": "2a1704ce6f752251b12985a23e109056de8c6953",
           "ladderVersion": 1
+        }
+      },
+      {
+        "ladderVersion": 2,
+        "floor": 7,
+        "evidence": {
+          "level": 7,
+          "seeds": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "hidden"
+          ],
+          "hiddenSeed": 268931216,
+          "head": "c2c8ac50127402309e1bd7548186280dd9f63622",
+          "ladderVersion": 2
         }
       }
     ]

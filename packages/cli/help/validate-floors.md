@@ -27,7 +27,7 @@ Two commands use the floors:
 The floors at the time of writing, from `validate floors` at the repository root:
 
 ```text
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 `estate` and `generator` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
