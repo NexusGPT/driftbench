@@ -333,7 +333,7 @@ metadata:
       at_version: v1                # the prompt version the link was made at
 ```
 
-* `to` has one of three kinds: `prompt_section` (`prompt`, `section`), `spec_clause` (`spec`, `clause`, optional `sha256`) or `source_turn` (`conversation`, `turn`, optional `cluster` and `redacted`).
+* `to` has one of five kinds: `prompt_section` (`prompt`, `section`), `spec_clause` (`spec`, `clause`, optional `sha256`), `source_turn` (`conversation`, `turn`, optional `cluster` and `redacted`), `rule` (`rule`, optional `ledger`) or `plan_row` (`row`, `values`). The generators write `rule`, `plan_row` and `source_turn` links.
 * `relation` is `verifies`, `exercises`, `derived_from` or `observed_in`.
 * `status` is `declared`, `attributed`, `verified`, `refuted` or `stale`, and is required.
 * `created_by` is `generator`, `author`, `attribution`, `citation`, `ir` or `mutation`.

@@ -102,3 +102,60 @@ metadata:
       stem: stem-1dfdd4792b6a
       block: b1-needs-to-address
       replaced: 1
+  links:
+    - block: stem-1dfdd4792b6a#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-1dfdd4792b6a#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-078
+        values:
+          behaviour: B-011
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: rule
+        rule: stage_transition=address-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: rule
+        rule: coverage_result=not-in-map
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-address
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-078
+        values:
+          behaviour: B-011
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: whatsapp
+          stage_transition: address-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

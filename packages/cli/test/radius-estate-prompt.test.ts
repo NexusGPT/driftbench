@@ -11,9 +11,13 @@ import {
   type Spec,
 } from '@agent-nexus/driftbench-core';
 import { type Atom, type EstateMap, mapHash, provenanceHash } from '@agent-nexus/driftbench-estate';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
 import { main } from '../src/index';
+
+// A radius over the 1,323 live Northwind specs loads every spec and its block links; under a parallel suite one
+// call can pass the 5 s default.
+vi.setConfig({ testTimeout: 60_000 });
 
 const rule = 'When a shipment is late by more than two days, tell the user.';
 const other = 'Always read the file before editing it.';

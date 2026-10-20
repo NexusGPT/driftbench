@@ -313,6 +313,33 @@ In `metadata.generated.blocks`, a move records the stage it reaches. A deviation
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.
 
+`driftbench generate` and `driftbench estate generate` write their blocks through one block writer
+(`writeBlocks`). It writes `metadata.links`, and every block gets these links:
+
+* a `rule` link for each value the block carries, by `dimension=value` (a block that carries none links the
+  behaviours the spec covers). A task family's blocks link the flow and the behaviours the spec covers;
+* a `plan_row` link: the row the block was written for, with the values of the spec's cell and the values the
+  block adds. The members of a metamorphic family share the row of the family;
+* a `source_turn` link when the phrase copies a kept user turn: its evidence `source` is `<conversation>#<turn>`,
+  the id `intake logs` gives the turn.
+
+Each link is `declared` by the `generator`, at the map hash. The links stay out of the spec hash.
+
+`writeBlocks(inputs, version, { reaches })` also links, for each rule a block names, the rules whose change
+reaches it. For a prompt with a section registry, `sectionsReaching(registry)` of `@agent-nexus/driftbench-core`
+gives them: the sections a section references, overrides or duplicates, transitively. A recap section that
+references `explicit_confirm` makes every recap block link `explicit_confirm` too, with
+`evidence: { declared: { through: recap } }`. On the H7 suite of the Acme prompt, the two references the prompt
+states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
+flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
+
+`driftbench generate --sections <registry>` and `driftbench estate generate --sections <registry>` pass a
+prompt's section registry to the generators. A rule read from that prompt (a value's evidence quote, an
+atom's provenance quote) then gives each block a `prompt_section` link to the section that holds the quote,
+and a link to each section that reaches it through the registry, with `evidence: { declared: { through } }`.
+The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
+that does not describe the prompt's text is refused with exit 2.
+
 ### Balance of stages, classes and behaviours
 
 Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.

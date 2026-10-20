@@ -220,3 +220,153 @@ metadata:
       stem: stem-98c326e3eb91
       block: b1-needs-to-address
       replaced: 1
+  links:
+    - block: stem-98c326e3eb91#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-98c326e3eb91#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-metamorphic-018
+        values:
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          flow: order
+          user_type: existing-customer
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: coverage_result=fiber
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: plan_row
+        row: gen-metamorphic-018
+        values:
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          flow: order
+          user_type: existing-customer
+          stage_transition: address-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-details
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-details
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-details
+      to:
+        kind: plan_row
+        row: gen-metamorphic-018
+        values:
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          flow: order
+          user_type: existing-customer
+          stage_transition: offer-to-details
+          stage: details
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-details-to-recap
+      to:
+        kind: rule
+        rule: stage_transition=details-to-recap
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-details-to-recap
+      to:
+        kind: plan_row
+        row: gen-metamorphic-018
+        values:
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          flow: order
+          user_type: existing-customer
+          stage_transition: details-to-recap
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-recap-to-order_placed
+      to:
+        kind: rule
+        rule: stage_transition=recap-to-order_placed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-recap-to-order_placed
+      to:
+        kind: rule
+        rule: coverage_result=fiber
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-recap-to-order_placed
+      to:
+        kind: rule
+        rule: customer_details=name-and-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-recap-to-order_placed
+      to:
+        kind: plan_row
+        row: gen-metamorphic-018
+        values:
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          flow: order
+          user_type: existing-customer
+          stage_transition: recap-to-order_placed
+          stage: order_placed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

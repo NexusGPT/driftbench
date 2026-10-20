@@ -6,6 +6,24 @@ export * as classes from './classes';
 export const packageName = '@agent-nexus/driftbench-generate';
 
 export {
+  type BlockSections,
+  blockSections,
+  type PromptSections,
+  type SectionRef,
+} from './blocks/sections';
+export {
+  type BlockInput,
+  type BlockOrigin,
+  linksOf,
+  type RuleRef,
+  type SourceTurn,
+  type SpecBlock,
+  turnOfSource,
+  type WriteOptions,
+  type WrittenBlocks,
+  writeBlocks,
+} from './blocks/writer';
+export {
   approveDrafts,
   type DraftOptions,
   type DraftTrace,

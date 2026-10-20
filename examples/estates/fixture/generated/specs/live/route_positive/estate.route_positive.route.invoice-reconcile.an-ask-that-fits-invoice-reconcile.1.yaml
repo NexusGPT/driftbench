@@ -78,3 +78,30 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1
+        values:
+          atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

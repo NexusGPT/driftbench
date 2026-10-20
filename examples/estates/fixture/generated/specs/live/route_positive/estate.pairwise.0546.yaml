@@ -93,3 +93,28 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0546
+        values:
+          ask_class: change_estate
+          ask_shape: concrete
+          session_state: after_restart
+          owner_signal: frustration
+          deviation: D11_pii_leak
+          estate_hazard: rate_wave
+          atoms.skill: skill.shipment-tracker.skill-shipment-tracker
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

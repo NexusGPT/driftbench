@@ -91,3 +91,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.never-use-obviously-or-simply
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1165
+        values:
+          ask_class: build
+          ask_shape: problem
+          session_state: helpers_running
+          owner_signal: stop
+          deviation: D11_pii_leak
+          estate_hazard: compaction_mid_task
+          atoms.register: register.standing.never-use-obviously-or-simply
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

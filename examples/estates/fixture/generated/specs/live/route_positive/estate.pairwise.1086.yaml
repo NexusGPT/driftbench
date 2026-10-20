@@ -92,3 +92,28 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1086
+        values:
+          ask_class: research
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: no_questions
+          deviation: D9_out_of_scope
+          estate_hazard: no_hazard
+          atoms.skill: skill.shipment-tracker.skill-shipment-tracker
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
