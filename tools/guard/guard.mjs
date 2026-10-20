@@ -5,7 +5,7 @@
  * Refuses a tree that carries personal data or client identifiers: IBANs with a valid
  * checksum, Belgian national register numbers, phone numbers, real email addresses, and
  * any term on a private denylist. Fictional data passes: emails at example.com, .test,
- * .invalid, .example or localhost, and phones in the reserved NANP range 555-0100 to
+ * .invalid, .example or .localhost, and phones in the reserved NANP range 555-0100 to
  * 555-0199.
  *
  * Usage:  node tools/guard/guard.mjs [paths...] [--json] [--canary]
@@ -182,7 +182,7 @@ export function isFictionalPhone(digits) {
   return /^1(\d{3})?55501\d{2}$/.test(digits);
 }
 
-const ALLOWED_EMAIL_DOMAINS = new Set(['example.com', 'example.org', 'example.net', 'localhost']);
+const ALLOWED_EMAIL_DOMAINS = new Set(['example.com', 'example.org', 'example.net']);
 const ALLOWED_EMAIL_SUFFIXES = ['.example', '.test', '.invalid', '.localhost', 'users.noreply.github.com'];
 const ALLOWED_EMAILS = new Set(['git@github.com']);
 
