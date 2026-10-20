@@ -12,6 +12,9 @@ import {
   type SectionSelection,
   sectionChanges,
   sectionSelection,
+  UNIT_SELECTION_ADVISORY,
+  type UnitSelection,
+  unitSelection,
 } from './select';
 
 /**
@@ -97,6 +100,11 @@ export type RadiusReport = {
    * radius above is the whole suite and nothing is skipped. Present only with `sections`.
    */
   advisory?: SectionSelection;
+  /**
+   * What selection by `estate_unit` links would run for the manifest's `unit` changes. Advisory: the radius
+   * above is the whole suite and nothing is skipped. Present when the manifest holds a `unit` change.
+   */
+  unitAdvisory?: UnitSelection;
 };
 
 const deviationMatches = (carried: string | undefined, id: string): boolean =>
@@ -181,6 +189,9 @@ function matcher(change: Change): { match: Match; needs?: 'cell' | 'atoms' } | W
     case 'prompt_section':
       // Selection by section links is advisory (select.ts): the whole suite runs until links are verified.
       return { whole: SECTION_SELECTION_ADVISORY };
+    case 'unit':
+      // Selection by unit links is advisory too (select.ts): on the H7 suite it misses what section links miss.
+      return { whole: UNIT_SELECTION_ADVISORY };
     default:
       return { whole: `the kind ${change.kind} is not one the radius can map` };
   }
@@ -429,6 +440,9 @@ export function radiusOf(
     options.sections !== undefined && sectionChanges(manifest).length > 0
       ? sectionSelection(specs, manifest, options.sections, { parentOf: options.parentOf })
       : undefined;
+  const unitAdvisory = manifest.changes.some((change) => change.kind === 'unit')
+    ? unitSelection(specs, manifest, { parentOf: options.parentOf })
+    : undefined;
   return {
     manifest: { from: manifest.from, to: manifest.to, changes: manifest.changes.map(changeLabel) },
     modes,
@@ -436,5 +450,6 @@ export function radiusOf(
     specs: reports,
     totals,
     ...(advisory === undefined ? {} : { advisory }),
+    ...(unitAdvisory === undefined ? {} : { unitAdvisory }),
   };
 }

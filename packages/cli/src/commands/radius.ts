@@ -7,12 +7,14 @@ import {
   type SectionRegistry,
   type SectionSelection,
   sectionChanges,
+  type UnitSelection,
 } from '@agent-nexus/driftbench-core';
 import { textTable as table } from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
 import { loadRadiusChangeManifest } from './radius-change';
+import { registerRadiusLedger } from './radius-ledger';
 import { registerRadiusLocalize } from './radius-localize';
 import { registerRadiusAuto } from './radius-prompt';
 import { readRegistry, registerRadiusSections } from './radius-sections';
@@ -53,6 +55,7 @@ export function registerRadiusCommand(program: Command, io: Io, setExit: (code: 
       setExit(await radiusCommand(paths, options, io));
     });
   registerRadiusAuto(radius, io, setExit);
+  registerRadiusLedger(radius, io, setExit);
   registerRadiusSections(radius, io, setExit);
   registerRadiusLocalize(radius, io, setExit);
 }
@@ -102,6 +105,7 @@ export async function radiusCommand(paths: string[], options: RadiusCommandOptio
     );
   } else {
     io.out(renderRadius(report, manifest.hash));
+    if (report.unitAdvisory) io.out(renderUnitAdvisory(report.unitAdvisory, options.explain === true));
     if (report.advisory) io.out(renderAdvisory(report.advisory, options.explain === true));
     else if (sectionChanges(manifest.manifest).length > 0)
       io.out('Pass --sections <registries> to see which blocks selection by section links would run.\n');
@@ -208,16 +212,38 @@ export function renderRadius(report: RadiusReport, hash: string): string {
 
 /** The advisory section selection as lines a person reads: nothing is skipped, the whole suite runs. */
 export function renderAdvisory(selection: SectionSelection, explain: boolean): string {
+  const extra = selection.closure.filter((id) => !selection.changed.includes(id));
+  return advisoryLines(selection, explain, {
+    head: `Advisory section selection (${selection.changed.join(', ')})`,
+    ...(extra.length > 0
+      ? { closure: `  With references, overrides and duplicates: ${extra.join(', ')}.` }
+      : {}),
+    none: 'no link to a changed section',
+  });
+}
+
+/** The advisory unit selection of a ledger manifest, as lines: nothing is skipped, the whole suite runs. */
+export function renderUnitAdvisory(selection: UnitSelection, explain: boolean): string {
+  return advisoryLines(selection, explain, {
+    head: `Advisory unit selection (${plural(selection.changed.length, 'changed unit')})`,
+    none: 'no link to a changed unit',
+  });
+}
+
+function advisoryLines(
+  selection: SectionSelection | UnitSelection,
+  explain: boolean,
+  words: { head: string; closure?: string; none: string },
+): string {
   const { counts } = selection;
   const lines = [
-    `Advisory section selection (${selection.changed.join(', ')}): nothing is skipped, the whole suite runs until links are verified by mutation.`,
+    `${words.head}: nothing is skipped, the whole suite runs until links are verified by mutation.`,
   ];
   if (selection.all !== null) {
     lines.push(`  Every block would run: ${selection.all}.`);
     return `${lines.join('\n')}\n`;
   }
-  const extra = selection.closure.filter((id) => !selection.changed.includes(id));
-  if (extra.length > 0) lines.push(`  With references, overrides and duplicates: ${extra.join(', ')}.`);
+  if (words.closure !== undefined) lines.push(words.closure);
   lines.push(
     `  Would run ${counts.selected} of ${plural(counts.total, 'block')} (${counts.direct} by links, ${counts.forward} forward) and would skip ${counts.skipped}: ${share(counts.skipped, counts.total)} of the suite.`,
   );
@@ -239,7 +265,7 @@ export function renderAdvisory(selection: SectionSelection, explain: boolean): s
     for (const spec of selection.specs)
       for (const block of spec.blocks)
         lines.push(
-          `${spec.specId}/${block.id}: advisory ${block.state}: ${block.why.join(', ') || 'no link to a changed section'}`,
+          `${spec.specId}/${block.id}: advisory ${block.state}: ${block.why.join(', ') || words.none}`,
         );
   return `${lines.join('\n')}\n`;
 }

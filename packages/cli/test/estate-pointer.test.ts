@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { pointer } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 import { estateScanCommand } from '../src/commands/estate';
 import { type Io, main } from '../src/index';
 
@@ -126,6 +127,7 @@ async function record(root: string, over: string[] = []) {
       cassette: 'cassette.jsonl',
       record: true,
       ledger: 'ledger.json',
+      update: true,
       jobs: '3',
       ...(over.length ? { labeler: over } : {}),
     },
@@ -208,6 +210,7 @@ describe('driftbench estate scan --pointer', () => {
         cassette: 'split.jsonl',
         record: true,
         ledger: 'ledger.json',
+        update: true,
         jobs: '1',
       },
       io,
@@ -328,6 +331,49 @@ describe('driftbench estate scan --pointer', () => {
     await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md']}\n- Close the harbour office at six\n`);
     const stale = await run([...base, '--out', 'two.yaml'], root);
     expect(stale.code).not.toBe(0);
+  });
+
+  it('writes the ledger with --update only, and refuses --update without a ledger', async () => {
+    const root = await estate();
+    await record(root);
+    const written = await readFile(join(root, 'ledger.json'), 'utf8');
+    await writeFile(join(root, 'CLAUDE.md'), `${FILES['CLAUDE.md']}\n- Close the harbour office at six\n`);
+    const base = ['estate', 'scan', '.', '--pointer', '--cassette', 'cassette.jsonl', '--force'];
+    // The cassette misses on the new unit: record it, with the same fake services.
+    const { io, output } = capture(root);
+    const read = await estateScanCommand(
+      '.',
+      {
+        out: 'read.yaml',
+        pointer: true,
+        cassette: 'cassette.jsonl',
+        record: true,
+        ledger: 'ledger.json',
+        force: true,
+      },
+      io,
+      { env: KEYS, fetch: services },
+    );
+    expect(read).toBe(0);
+    expect(output.out).toContain('The ledger ledger.json is not written: pass --update to write it.');
+    expect(await readFile(join(root, 'ledger.json'), 'utf8')).toBe(written);
+    const updated = await run(
+      [...base, '--ledger', 'ledger.json', '--update', '--out', 'updated.yaml'],
+      root,
+    );
+    expect(updated.code).toBe(0);
+    const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));
+    expect(
+      ledger.entries.some((entry: { quote: string }) => entry.quote === 'Close the harbour office at six'),
+    ).toBe(true);
+    const check = await run(
+      [...base, '--ledger', 'ledger.json', '--ledger-check', '--out', 'checked.yaml'],
+      root,
+    );
+    expect(check.code).toBe(0);
+    const alone = await run([...base, '--update', '--out', 'alone.yaml'], root);
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--update needs --ledger <file>');
   });
 
   it('stops on a cassette miss, names the field that differs, and writes no map', async () => {
@@ -498,5 +544,123 @@ describe('driftbench estate scan --pointer', () => {
     const root = await estate();
     const result = await run(['estate', 'scan', '.', '--no-model', '--out', 'map.yaml'], root);
     expect(result.out).not.toContain('Pointer reader');
+  });
+});
+
+describe('the radius on the ledger', () => {
+  const spec = (id: string, atoms: string[]) =>
+    [
+      `id: ${id}`,
+      'kind: task',
+      'target: { adapter: claude-code }',
+      'metadata:',
+      `  estate: { atoms: [${atoms.join(', ')}] }`,
+      'blocks:',
+      '  - user: Tie up the blue boat.',
+      '    expect: { skills: [{ name: moorings, count: { min: 1 } }] }',
+      '',
+    ].join('\n');
+
+  it('reads one edit the same way in radius ledger, estate diff, estate impact and radius', async () => {
+    const root = await estate();
+    expect((await record(root)).code).toBe(0);
+    const v1 = await readFile(join(root, 'ledger.json'), 'utf8');
+    await writeFile(join(root, 'ledger-v1.json'), v1);
+    const ledger = pointer.parseLedger(v1);
+    const unitOf = (quote: string) => ledger?.entries.find((entry) => entry.quote === quote)?.id;
+    const unit = unitOf('Never leave the gate open');
+    expect(unit).toBeDefined();
+    const atoms = (
+      parseYaml(await readFile(join(root, 'recorded.yaml'), 'utf8')) as {
+        atoms: { id: string; fields?: { unit?: string } }[];
+      }
+    ).atoms;
+    const atomOf = (quote: string) => atoms.find((atom) => atom.fields?.unit === unitOf(quote))?.id;
+    const gate = atomOf('Never leave the gate open');
+    expect(gate).toMatch(/^instruction\.standing\./);
+
+    // The edit, read from the ledger of the last scan and the files as they are now, with no labeler.
+    await writeFile(
+      join(root, 'CLAUDE.md'),
+      FILES['CLAUDE.md']?.replace('the gate open', 'the gate open after dusk') ?? '',
+    );
+    const working = await run(
+      ['radius', 'ledger', 'recorded.yaml', '--ledger', 'ledger-v1.json', '--out', 'working.yaml'],
+      root,
+    );
+    expect(working.err).toBe('');
+    expect(working.code).toBe(0);
+    expect(working.out).toMatch(/Units: \d+ unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new\./);
+    const workingManifest = await readFile(join(root, 'working.yaml'), 'utf8');
+    expect(workingManifest).toContain(`kind: prompt\n    id: ${gate}\n    note: "unit ${unit}: changed"`);
+
+    // The rescan writes the new ledger; the diff of the two maps reads both ledgers.
+    const { io, output } = capture(root);
+    const rescanned = await estateScanCommand(
+      '.',
+      {
+        out: 'v2.yaml',
+        pointer: true,
+        cassette: 'cassette.jsonl',
+        record: true,
+        ledger: 'ledger.json',
+        update: true,
+      },
+      io,
+      { env: KEYS, fetch: services },
+    );
+    expect(output.err).toBe('');
+    expect(rescanned).toBe(0);
+    const diffed = await run(
+      [
+        'estate',
+        'diff',
+        'recorded.yaml',
+        'v2.yaml',
+        '--old-ledger',
+        'ledger-v1.json',
+        '--new-ledger',
+        'ledger.json',
+        '--out',
+        'diff.json',
+        '--change-out',
+        'change.yaml',
+      ],
+      root,
+    );
+    expect(diffed.code).toBe(0);
+    const diff = JSON.parse(await readFile(join(root, 'diff.json'), 'utf8'));
+    const renamed = diff.atoms.changed.find((change: { id: string }) => change.id === gate);
+    expect(renamed).toMatchObject({ change: 'semantic' });
+    expect(renamed.now).toMatch(/^instruction\.standing\./);
+    expect(renamed.now).not.toBe(gate);
+    expect(diff.atoms.removed).toEqual([]);
+    expect(diff.atoms.added).toEqual([]);
+    expect(diff.units.counts).toMatchObject({ changed: 1, context: 2, new: 0, deleted: 0 });
+    expect(diff.units.rerun).toEqual([{ unit, why: ['changed'], atoms: [gate] }]);
+    const change = await readFile(join(root, 'change.yaml'), 'utf8');
+    // The same changes as the working manifest: only the versions differ.
+    expect(change.slice(change.indexOf('changes:'))).toBe(
+      workingManifest.slice(workingManifest.indexOf('changes:')),
+    );
+
+    // The tests that name the old atom are regenerated, and only they are in the radius.
+    await mkdir(join(root, 'tests'));
+    await writeFile(join(root, 'tests', 'gate.yaml'), spec('harbour-gate', [gate as string]));
+    const other = atomOf('Tie the bow line first.');
+    expect(other).toBeDefined();
+    await writeFile(join(root, 'tests', 'bow.yaml'), spec('harbour-bow', [other as string]));
+    const impact = await run(['estate', 'impact', 'diff.json', '--tests', 'tests', '--json'], root);
+    expect(impact.err).toBe('');
+    const report = JSON.parse(impact.out);
+    expect(report.regenerate.map((entry: { test: string }) => entry.test)).toEqual(['harbour-gate']);
+    expect(report.units).toEqual({ rerun: [], advisory: [] });
+    const radius = await run(['radius', 'tests', '--change', 'change.yaml', '--json'], root);
+    expect(radius.code).toBe(0);
+    const inRadius = JSON.parse(radius.out).specs.filter(
+      (entry: { blocks: { state: Record<string, string> }[] }) =>
+        entry.blocks.some((block) => block.state.F !== 'out'),
+    );
+    expect(inRadius.map((entry: { specId: string }) => entry.specId)).toEqual(['harbour-gate']);
   });
 });

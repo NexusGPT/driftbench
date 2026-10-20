@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 /**
- * Links from a block to what it tests: a prompt section, a clause of a written spec, or a past
- * conversation turn. Links live in the spec's `metadata.links` and are kept out of the spec hash
+ * Links from a block to what it tests: a prompt section, a clause of a written spec, a past
+ * conversation turn, or a unit of an estate's prose by its ledger id. Links live in the spec's `metadata.links` and are kept out of the spec hash
  * (spec/identity.ts), so adding, promoting or refuting a link never invalidates a recorded run, a
  * carry or a rejudge.
  *
@@ -49,10 +49,25 @@ export const SourceTurnTarget = z
   })
   .describe('A turn of a past conversation the block was derived from or observed in.');
 
+export const EstateUnitTarget = z
+  .strictObject({
+    kind: z.literal('estate_unit'),
+    unit: z.string().min(1).describe('The unit id in the estate ledger.'),
+    fp: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The fingerprint of the unit when the link was made or last accepted.'),
+  })
+  .describe(
+    'A unit of an estate prose file, by its persistent id in the ledger (`estate scan --pointer --ledger`).',
+  );
+
 export const LinkTarget = z.discriminatedUnion('kind', [
   PromptSectionTarget,
   SpecClauseTarget,
   SourceTurnTarget,
+  EstateUnitTarget,
 ]);
 export type LinkTarget = z.infer<typeof LinkTarget>;
 
@@ -83,7 +98,9 @@ export const BlockLink = z
       .optional()
       .describe('What supports the status, keyed by status, such as verified: {mutant, runs, flips}.'),
   })
-  .describe('One link from a block of the spec to a prompt section, a spec clause or a past turn.');
+  .describe(
+    'One link from a block of the spec to a prompt section, a spec clause, a past turn or an estate unit.',
+  );
 export type BlockLink = z.infer<typeof BlockLink>;
 
 export const BlockLinks = z.array(BlockLink).describe('The links of the blocks of a spec.');
