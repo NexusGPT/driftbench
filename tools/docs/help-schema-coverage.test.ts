@@ -69,6 +69,8 @@ const SPEC_UNITS: Record<string, UnitOverride[]> = {
   '(root)': [{ topic: 'authoring-spec-format', heading: 'Top-level keys' }],
   'blocks[]': [{ topic: 'authoring-blocks', heading: 'Block keys' }],
   'blocks[].when.injection': [{ topic: 'authoring-blocks', paragraph: 'A block takes exactly one of' }],
+  'blocks[].expect.tools[].compare': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
+  'blocks[].expect.tools[].compare{}': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
   'blocks[].given.prefix[]': [{ topic: 'authoring-prefixes', heading: 'A message of the prefix' }],
   'blocks[].given.prefix[].tool_calls[]': [
     { topic: 'authoring-prefixes', heading: 'A tool call in a prefix' },
@@ -97,8 +99,11 @@ function undocumented(
 
 describe('spec help', () => {
   it('documents every key of every object of the spec schema, in the section of that object', () => {
-    // A perturbation takes the expectations of a block; its path would repeat every key.
-    expect(undocumented(Spec, SPEC_TOPICS, SPEC_UNITS, /^perturbations\[\]\.expect/)).toEqual([]);
+    // A perturbation takes the expectations of a block; its path would repeat every key. An inline object of
+    // `uses` has the keys of an object file; the 'object help' tests below check those once, in their own tables.
+    expect(
+      undocumented(Spec, SPEC_TOPICS, SPEC_UNITS, /^perturbations\[\]\.expect|(^|\.)uses\.[a-z_]+(\[\]|\.|$)/),
+    ).toEqual([]);
   });
 });
 
@@ -117,6 +122,7 @@ const RECORD_TOPICS = [
 ];
 const BLOCK_KEYS = { topic: 'running-store', paragraph: 'Each block (`blocks[]`) holds' };
 const BLOCK_STAMPS = { topic: 'running-store', paragraph: 'Each block also holds the block `provenance`' };
+const DIAGNOSIS = { topic: 'running-store', label: 'Each entry of `diagnoses`' };
 const RUN_UNITS: Record<string, UnitOverride[]> = {
   '(root)': [
     { topic: 'running-store', paragraph: 'A run record holds' },
@@ -135,6 +141,12 @@ const RUN_UNITS: Record<string, UnitOverride[]> = {
   'blocks[].observed.executions[].approval': [
     { topic: 'running-store', paragraph: 'An `executions` record holds' },
   ],
+  'blocks[].verdicts[].by': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'blocks[].diagnoses[].by': [{ topic: 'running-store', label: 'The `by` of a verdict or a diagnosis' }],
+  'blocks[].resolved': [{ topic: 'running-store', label: 'The `resolved` field of a block' }],
+  'blocks[].resolved.objects[]': [{ topic: 'running-store', label: 'The `resolved` field of a block' }],
+  'blocks[].diagnoses[]': [DIAGNOSIS],
+  'blocks[].diagnoses[].rankedCauses[]': [DIAGNOSIS],
   'blocks[].verdicts[].judge.votes[]': [
     { topic: 'running-store', paragraph: 'A vote in `judge.votes` holds' },
   ],

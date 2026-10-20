@@ -64,7 +64,7 @@ What the store holds, one table each:
 
 A run record holds `runId`, `specId`, `specHash`, `identityHash` (the spec hash without its `version` label, which the run id is made from; absent in a run stored before it), `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. More fields are in the table below.
 
-Each block (`blocks[]`) holds `index`, `blockId`, `parent` (the authored parent id, when the block has one), `specIndex` (its authored position, when parent scheduling changes the order), `injected` (true on a block the run added, such as a perturbation), `realized` (present when the text the driver sent differs from the text the spec wrote: `hash`, and `text` only when the run asked for it), `realizedTextStripped` (on a copy whose text was dropped by the destination's privacy policy: `fromRun`, and `fromCampaign` when it is known; topic running-realized-text), `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `provenance` (the stamps below), `resolved` (on newer records: the objects the block was scored with and one hash over them), `diagnoses`, `ledgerCheck` (`ok`, and `contradictions`, the ledger facts that contradict an earlier one), `drift` (the drift classes of a failing block) and `pass`. An unmeasured block also holds `status` (`not_run` or `blocked`) with `notRun` (`kind`, `layer`, `check`, `expected`, `got`) or `blocked` (`by`, `root`, `reason`); topics running-not-run and authoring-parent-blocks. A block copied from another run holds `carried`, and a re-judged block `rejudged`.
+Each block (`blocks[]`) holds `index`, `blockId`, `parent` (the authored parent id, when the block has one), `specIndex` (its authored position, when parent scheduling changes the order), `injected` (true on a block the run added, such as a perturbation), `realized` (present when the text the driver sent differs from the text the spec wrote: `hash`, and `text` only when the run asked for it), `realizedTextStripped` (on a copy whose text was dropped by the destination's privacy policy: `fromRun`, and `fromCampaign` when it is known; topic running-realized-text), `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `provenance` (the stamps below), `resolved` (on newer records: the objects the block was scored with and one hash over them), `diagnoses`, `ledgerCheck` (`ok`, and `contradictions`, the ledger facts that contradict an earlier one), `drift` (the drift classes of a failing block), `skippedForBudget` (diagnostic steps left out for want of budget; below) and `pass`. An unmeasured block also holds `status` (`not_run` or `blocked`) with `notRun` (`kind`, `layer`, `check`, `expected`, `got`) or `blocked` (`by`, `root`, `reason`); topics running-not-run and authoring-parent-blocks. A block copied from another run holds `carried`, and a re-judged block `rejudged`.
 
 Each verdict of a newer record carries `by`: the object (`kind:id@hash8`), the item, the implementation and the layer that produced it. For a tool input decided by a value-check policy, `by.object` names that resolved policy, `by.layer` names the policy's origin, and `by.item` names the deciding rung. An aggregate failure names the first failing value's rung; an inconclusive aggregate names the first inconclusive value's rung. A passing aggregate names the latest (loosest) deciding rung in the policy's item order. `valueCheck[]` retains every value's decision in call and path order. If no rung decides a differing value, `by.item` is `exact_fallback` and `by.impl` is `builtin:value-check/exact`. A policy supplied directly by code carries its resolved reference, or a hash of its contents when no reference is supplied, at the `cli` layer. Verdict IDs and counts do not change. Artifact metadata does not contain file bytes. A partial rerun runs artifact-dependent blocks fresh; whole-cell re-scoring refuses an observation that needs unstored artifact bytes.
 
@@ -183,7 +183,54 @@ A `verdicts` entry is one check on one block:
 | `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
 | `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. Absent when every value equalled the gold or the assertion compares as written. |
 
-A block of a newer record also holds `resolved` (the objects it was scored with, one per `uses` key, and one hash over them), `diagnoses` (what the diagnostics wrote after the checks; they never change `pass`) and `skippedForBudget` (how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent; absent when none).
+A block of a newer record also holds `resolved`, `diagnoses` and `skippedForBudget`, described next.
+
+`skippedForBudget` is a whole number, at least 1: how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent. It is absent when none was left out.
+
+The `by` of a verdict or a diagnosis says what produced it:
+
+| Field | Holds |
+|---|---|
+| `object` | The resolved object as `kind:id@hash8`: a check set, a policy or a diagnostic. |
+| `item` | The rule inside the object. Optional. |
+| `impl` | The implementation that ran the rule, such as `builtin:check/outcome`. |
+| `layer` | The layer that last set the item: `shipped`, `project`, `suite`, `spec`, `block` or `cli`. |
+
+The `resolved` field of a block names the objects the block was scored with:
+
+| Field | Holds |
+|---|---|
+| `objects` | One entry per `uses` key that resolved. |
+| `objects[].key` | The `uses` key, such as `check_set`, `value_check`, `blame` or `diagnostics`. |
+| `objects[].kind`, `objects[].id` | The kind and the id of the resolved object. |
+| `objects[].hash` | The content hash of that object. |
+| `objects[].setAt` | The layer whose reference chose it. It is `shipped` when no layer named one. |
+| `hash` | One content hash over `objects`. Equal objects give equal hashes, run after run. |
+
+Each entry of `diagnoses` is what a diagnostic wrote about the block after its checks. A diagnosis explains a verdict. It never changes `pass`. Only `diagnostic`, `summary` and `by` are always present:
+
+| Field | Holds |
+|---|---|
+| `diagnostic` | `diagnostic:<id>@hash8` of the diagnostic that wrote it. |
+| `step` | The step of that diagnostic. Optional. |
+| `verdictRef` | The verdict the diagnosis is about. Optional. |
+| `rule` | The rule that fired, as `kind:id@hash8#item`. Optional. |
+| `fault` | A list of names, the faults the diagnostic attributes. Optional. |
+| `fixLocation` | Where the fix goes, a text. Optional. |
+| `flags` | A list of names, the flags the diagnostic raised. Optional. |
+| `score` | A measure the diagnosis reports, such as the share of expected arguments that matched. Optional. |
+| `summary` | One line a reader can act on. |
+| `evidence` | A map of what the diagnostic saw. Optional. |
+| `rankedCauses` | A list of causes, each with a score. Optional. |
+| `rankedCauses[].cause`, `rankedCauses[].score` | The cause, and its score. |
+| `rankedCauses[].by` | What ranked it. Optional. |
+| `inherits` | On a chained verdict: the id of the verdict it takes its fault from. Optional. |
+| `disposition` | Who the fault is attributed to: `agent`, `shared`, `setup`, `excluded`, `credited` or `unassigned`. Optional. |
+| `fixTarget`, `fixAction`, `fixForms` | What the fix changes, what it does there, and the forms it may take. Optional. |
+| `placement` | The placement rule that chose where the fix goes, as `kind:id@hash8#item`. Optional. |
+| `confidence` | How sure the attribution is: `static` (read statically), `undecided` or `confirmed` (by a rerun). Optional. |
+| `removeCopies` | The local copies a shared fix makes redundant. Optional. |
+| `by` | What produced the diagnosis, as above. |
 
 A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
 
