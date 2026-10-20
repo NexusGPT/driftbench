@@ -91,7 +91,8 @@ export type Truth = {
 };
 
 /** The windows the labeller answered: the file, the units it held and the characters of their text. */
-export type WindowLog = Array<{ file: string; units: number; characters: number }>;
+/** Every window the scan sent, whatever its set: the chunk-size checks read all of them. */
+export type WindowLog = Array<{ file: string; set: string; units: number; characters: number }>;
 
 export type TruthPointer = PointerScanOptions & { windows: WindowLog };
 
@@ -180,13 +181,25 @@ export function truthPointer(truth: Truth): TruthPointer {
       };
     },
     opinions: pointer.denseOpinions,
-    async call(_wire, _set, window) {
-      const file = truth.files[window.path] ?? '';
+    async call(_wire, set, window) {
+      // Every window is logged with its set before anything is answered: a scan that sends a file too large in a
+      // set this labeller has no answer for is still seen by the chunk-size checks.
       windows.push({
         file: window.path,
+        set: set.set,
         units: window.units.length,
         characters: window.units.reduce((sum, unit) => sum + unit.text.length, 0),
       });
+      // Another set (the document roles the scan asks first) has no planted answer: every unit is none.
+      if (set.set !== SET_NAME) {
+        return {
+          labels: window.units.map((unit) => ({ units: String(unit.n), label: 'none' })),
+          returnedModel: 'planted-truth-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
+      const file = truth.files[window.path] ?? '';
       const used = new Set<string>();
       const context = contexts.get(window.id);
       const routed = new Set<unknown>();
