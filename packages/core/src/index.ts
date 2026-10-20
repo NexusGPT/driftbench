@@ -541,6 +541,8 @@ export {
   SafetyExpect,
   SharedFact,
   SimilarityExpect,
+  SimulatedUserEngine,
+  SimulatedUserSpec,
   SkillExpect,
   SPEC_SCHEMA_VERSION,
   Spec,
