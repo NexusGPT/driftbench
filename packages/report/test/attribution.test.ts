@@ -4,8 +4,10 @@ import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   type AttributionOptions,
+  attributes,
   attributionOf,
   blockOutcome,
+  nonDefaultOf,
   type ReportDiagnosis,
   type ReportFix,
 } from '../src/attribution';
@@ -324,5 +326,23 @@ describe('unassigned stays in the machine denominator and outside the agent-attr
     expect(summary?.unmeasuredRuns).toEqual({ notRun: 0, blocked: 0 });
     expect(attributionText(summary).join('\n')).not.toContain('Not measured');
     expect(attributionZone(summary)).not.toContain('Not measured');
+  });
+});
+
+describe('a shipped object alone never switches the second score on', () => {
+  it('lists an object resolved at the shipped layer as a default, whatever its id', () => {
+    const run = fault.runs[0] as RunResult;
+    const objects = [
+      { kind: 'diagnostic', id: 'argument-accuracy', hash: 'c45c26acf370', setAt: 'shipped' },
+      { kind: 'policy/blame', id: 'northwind', hash: '0123456789abcdef', setAt: 'project' },
+    ];
+    expect(nonDefaultOf(run, { objects })).toEqual(['policy/blame:northwind@0123456789abcdef']);
+  });
+
+  it('keeps a measure-only shipped diagnosis from attributing, and lets a disposition do it', () => {
+    const measure: ReportDiagnosis = { by: { layer: 'shipped' } };
+    expect(attributes(measure)).toBe(false);
+    expect(attributes({ ...measure, disposition: 'agent' })).toBe(true);
+    expect(attributes({ by: { layer: 'project' } })).toBe(true);
   });
 });

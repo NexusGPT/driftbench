@@ -21,6 +21,7 @@ import { type AggregateCriterion, type AggregateResult, evaluateAggregates } fro
 import {
   type AttributionOptions,
   type AttributionSummary,
+  attributes,
   attributionOf,
   blockDiagnoses,
   nonDefaultOf,
@@ -456,8 +457,8 @@ export function runDetailOf(
         ...optional('cacheKey', result.cacheKey),
         ...(timelineEvents.length > 0 ? { timelineEvents } : {}),
         verdicts: result.verdicts,
-        ...(blockDiagnoses(run, result, attribution).length > 0
-          ? { diagnoses: [...blockDiagnoses(run, result, attribution)] }
+        ...(blockDiagnoses(run, result, attribution).some(attributes)
+          ? { diagnoses: blockDiagnoses(run, result, attribution).filter(attributes) }
           : {}),
       };
     }),

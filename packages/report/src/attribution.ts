@@ -24,6 +24,8 @@ export type ReportDiagnosis = {
   fixAction?: string;
   placement?: string;
   confidence?: string;
+  /** What wrote it; a stored diagnosis carries it. */
+  by?: { layer?: string };
 };
 
 /** One fix of a campaign's fix plan, as the report lists it. */
@@ -41,7 +43,7 @@ export type ReportFix = {
 };
 
 /** An object a block was scored with, as `BlockResult.resolved` records it. */
-export type ReportObject = { kind: string; id: string; hash?: string };
+export type ReportObject = { kind: string; id: string; hash?: string; setAt?: string };
 
 export type AttributionOptions = {
   /** Diagnoses by run id and block index, for runs whose records do not carry them. */
@@ -94,13 +96,17 @@ type Block = RunResult['blocks'][number] & {
   resolved?: { objects?: ReportObject[] };
 };
 
-/** The diagnoses of one block: its own record, else the ones given. */
+/** The diagnoses of one block: its own record when it attributes, else the ones given. */
 export function blockDiagnoses(
   run: RunResult,
   block: RunResult['blocks'][number],
   options: AttributionOptions,
 ): readonly ReportDiagnosis[] {
-  return (block as Block).diagnoses ?? options.diagnoses?.[run.runId]?.[block.index] ?? [];
+  const own = (block as Block).diagnoses;
+  const given = options.diagnoses?.[run.runId]?.[block.index];
+  // A record that holds only measures (no attributed fault) leaves the given diagnoses to attribute.
+  if (own !== undefined && (own.some(attributes) || given === undefined)) return own;
+  return given ?? own ?? [];
 }
 
 /** How a block counts for the agent: its machine pass stands (a block not run or blocked counts as a pass); a failing block passes when every failure is set aside. */
@@ -142,9 +148,21 @@ function blockDisposition(
   return 'unassigned';
 }
 
-/** Whether a resolved object is a shipped default: the id `default`. */
+/** Whether a resolved object is a shipped default: the id `default`, or any object resolved at the shipped layer. */
 function isDefault(object: ReportObject): boolean {
-  return object.id === 'default';
+  return object.id === 'default' || object.setAt === 'shipped';
+}
+
+/**
+ * Whether a diagnosis puts the attribution on. A diagnosis that attributes a fault (it names a disposition), or one
+ * written by a non-shipped object, does. A shipped diagnostic that only reports a measure (the argument accuracy)
+ * does not: a shipped object alone never switches the second score on.
+ */
+export function attributes(diagnosis: ReportDiagnosis): boolean {
+  return (
+    diagnosis.disposition !== undefined ||
+    (diagnosis.by?.layer !== undefined && diagnosis.by.layer !== 'shipped')
+  );
 }
 
 function showObject(object: ReportObject): string {
@@ -187,7 +205,9 @@ export function attributionOf(
     if (outcome === 'not_run') unmeasuredRuns.notRun += 1;
     else if (outcome === 'blocked') unmeasuredRuns.blocked += 1;
   }
-  const any = runs.some((run) => run.blocks.some((block) => blockDiagnoses(run, block, options).length > 0));
+  const any = runs.some((run) =>
+    run.blocks.some((block) => blockDiagnoses(run, block, options).some(attributes)),
+  );
   if (!any && options.fixes === undefined) return undefined;
   let agentPass = 0;
   let decided = 0;
