@@ -17,6 +17,7 @@ import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from '
 import { findRoot } from '../root';
 import { confine, SourceGuard, seal, tsxPath } from './confine';
 import { plainBatchEntry, plainCodec, RELAY, twinDriver, wrapperModule } from './driver';
+import { type FifoRun, fifoAvailable, pipesOf, receive, send, startRun, stop } from './fifo';
 import {
   canonical,
   decode,

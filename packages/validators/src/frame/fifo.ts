@@ -54,7 +54,6 @@ export function startRun(plan: TwinPlan, errFd: number, deadlineMs: number): Fif
   const child = spawn(process.execPath, [join(plan.driverDir, plan.driverFile), ...plan.argvTail], {
     cwd: plan.cwd ?? process.cwd(),
     env: plan.env ?? process.env,
-    execArgv: [],
     // A stdin pipe nobody writes to: the run's stdin is a pipe, as in the relay's runs.
     stdio: ['pipe', 'ignore', errFd],
   });
