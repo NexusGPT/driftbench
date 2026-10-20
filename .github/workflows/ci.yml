@@ -39,7 +39,16 @@ jobs:
     # large diff run in `pr affected` instead, because they overran any limit here and blocked the PR.
     timeout-minutes: 10
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -80,7 +89,16 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -165,7 +183,14 @@ jobs:
     name: benchmark replay and floors
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -181,7 +206,16 @@ jobs:
     name: research replays
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -209,7 +243,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -242,7 +283,14 @@ jobs:
       matrix:
         node: [22, 24]
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -275,7 +323,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -297,7 +352,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: only
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -323,7 +385,14 @@ jobs:
       matrix:
         python: ['3.11', '3.12']
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -356,7 +425,14 @@ jobs:
     name: offline comparison replay
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -375,7 +451,14 @@ jobs:
     name: viewer journey (chromium)
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -416,7 +499,16 @@ jobs:
     # Pinned to a GitHub-hosted machine: this job holds the GUARD_DENYLIST secret.
     runs-on: ubuntu-latest
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v7
