@@ -1,7 +1,7 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "604c2ad853890d07398b94445efbf12e5674e9a065bc80e4e1bd4ae8801de515"
+    "sha256": "cffd4817e91ab62fab6ec61b32d64327b0e3af08c97e1e1b05a18e8751762664"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolWords": [
@@ -223,26 +223,68 @@
     },
     {
       "class": "overwrite",
-      "source": "\\bgit\\scheckout\\s(?:-[^\\s;&|]+\\s)*(?:[^\\s;&|-][^\\s;&|]*\\s)?--\\s+[^\\s;|]",
+      "source": "\\bgit\\scheckout\\s(?:-[^\\s;&|]+\\s)*(?:[^\\s;&|\\-][^\\s;&|]*\\s)?--\\s+[^\\s;|]",
       "flags": "",
       "needsNoDiff": true,
       "witnesses": [
         "git checkout -- x",
         "git checkout --  x",
+        "git checkout x -- x",
+        "git checkout x --  x",
+        "git checkout xx -- x",
+        "git checkout xx --  x",
+        "git checkout xxx -- x",
+        "git checkout xxx --  x",
         "git checkout -x -- x",
         "git checkout -x --  x",
+        "git checkout -x x -- x",
+        "git checkout -x x --  x",
+        "git checkout -x xx -- x",
+        "git checkout -x xx --  x",
+        "git checkout -x xxx -- x",
+        "git checkout -x xxx --  x",
         "git checkout -xx -- x",
         "git checkout -xx --  x",
+        "git checkout -xx x -- x",
+        "git checkout -xx x --  x",
+        "git checkout -xx xx -- x",
+        "git checkout -xx xx --  x",
+        "git checkout -xx xxx -- x",
+        "git checkout -xx xxx --  x",
         "git checkout -x -x -- x",
         "git checkout -x -x --  x",
+        "git checkout -x -x x -- x",
+        "git checkout -x -x x --  x",
+        "git checkout -x -x xx -- x",
+        "git checkout -x -x xx --  x",
+        "git checkout -x -x xxx -- x",
+        "git checkout -x -x xxx --  x",
         "git checkout -x -xx -- x",
         "git checkout -x -xx --  x",
+        "git checkout -x -xx x -- x",
+        "git checkout -x -xx x --  x",
+        "git checkout -x -xx xx -- x",
+        "git checkout -x -xx xx --  x",
+        "git checkout -x -xx xxx -- x",
+        "git checkout -x -xx xxx --  x",
         "git checkout -xx -x -- x",
         "git checkout -xx -x --  x",
+        "git checkout -xx -x x -- x",
+        "git checkout -xx -x x --  x",
+        "git checkout -xx -x xx -- x",
+        "git checkout -xx -x xx --  x",
+        "git checkout -xx -x xxx -- x",
+        "git checkout -xx -x xxx --  x",
         "git checkout -xx -xx -- x",
-        "git checkout -xx -xx --  x"
+        "git checkout -xx -xx --  x",
+        "git checkout -xx -xx x -- x",
+        "git checkout -xx -xx x --  x",
+        "git checkout -xx -xx xx -- x",
+        "git checkout -xx -xx xx --  x",
+        "git checkout -xx -xx xxx -- x",
+        "git checkout -xx -xx xxx --  x"
       ],
-      "gaps": ["45:unsupported-character-range"]
+      "gaps": []
     },
     {
       "class": "overwrite",
@@ -336,5 +378,5 @@
       "gaps": []
     }
   ],
-  "gaps": ["COMMAND_RULES.8:45:unsupported-character-range"]
+  "gaps": []
 }
