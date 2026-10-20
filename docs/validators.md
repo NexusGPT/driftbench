@@ -306,7 +306,7 @@ Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times 
 A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.
 
 * stats, ladder version 3: score after the pilot at most 0.85, forecast at least 9, at least 80 distinct failing causes. The blind pilot on the iteration-0 copy of the package measured 0.8263, a forecast of 9.87 and 85 causes on a bank of 904 items. The reason: a forecast of 100 at the 15.9 items the pilot fixed per iteration needs about 1590 failing items, more than the bank holds, and the package (the differential sweep covered its 57 exports) has 11 causes from defects and from statistics the docs define; the rest are guards, limits and coverage designs. Padding the bank with methods no page asks for is ruled out by 12.1. The numbers and the starting package are in `validators/stats/GATE.md`.
-* stats, ladder version 4: the weights family (146 items) joins the bank of version 3. The bar of version 3 stands until the version 4 pilot is measured; the audit is pending and no floor is set yet.
+* stats, ladder version 4: the weights family (181 items) joins the bank of version 3. The bar of version 3 stands until the version 4 pilot is measured; the audit is pending and no floor is set yet.
 
 ## Measurement cache during system sweeps
 

@@ -154,29 +154,51 @@ function kappaRef(
   return expected === 0n ? q(1n) : sub(q(1n), q(n * observed, expected));
 }
 
-/** Exact Krippendorff's alpha from its definition over pairable values (integer values). */
-function alphaRef(matrix: Array<Array<number | null>>, level: 'nominal' | 'interval'): Q | undefined {
-  const units = matrix[0]?.length ?? 0;
-  const delta = (x: number, y: number): bigint =>
-    x === y ? 0n : level === 'nominal' ? 1n : BigInt((x - y) * (x - y));
-  let disagreement = q(0n);
-  const pool: number[] = [];
+type AlphaLevel = 'nominal' | 'interval' | 'ordinal' | 'ratio';
+
+/**
+ * Exact Krippendorff's alpha from its definition over pairable values (positive integer values), with the
+ * difference function of each level: nominal 0 or 1, interval (x - y)^2, ratio ((x - y) / (x + y))^2, and ordinal
+ * (the number of pairable values from x to y, less half of the counts of x and y)^2.
+ */
+function alphaRef(matrix: Array<Array<number | null | undefined>>, level: AlphaLevel): Q | undefined {
+  const units = Math.max(...matrix.map((row) => row.length));
+  const unitsValues: number[][] = [];
   for (let u = 0; u < units; u += 1) {
     const vals = matrix.map((row) => row[u]).filter((v): v is number => v !== null && v !== undefined);
-    if (vals.length < 2) continue;
-    pool.push(...vals);
-    let s = 0n;
+    if (vals.length >= 2) unitsValues.push(vals);
+  }
+  const pool = unitsValues.flat();
+  const distinct = [...new Set(pool)].sort((x, y) => x - y);
+  const count = new Map(distinct.map((v) => [v, pool.filter((x) => x === v).length]));
+  const delta = (x: number, y: number): Q => {
+    if (x === y) return q(0n);
+    if (level === 'nominal') return q(1n);
+    if (level === 'interval') return q(BigInt((x - y) * (x - y)));
+    if (level === 'ratio') return q(BigInt((x - y) * (x - y)), BigInt((x + y) * (x + y)));
+    const lo = Math.min(x, y);
+    const hi = Math.max(x, y);
+    const between2 = distinct
+      .filter((v) => v >= lo && v <= hi)
+      .reduce((sum, v) => sum + (count.get(v) as number), 0);
+    const half = q(BigInt(2 * between2 - (count.get(x) as number) - (count.get(y) as number)), 2n);
+    return mul(half, half);
+  };
+  let disagreement = q(0n);
+  for (const vals of unitsValues) {
+    let sum = q(0n);
     for (let i = 0; i < vals.length; i += 1)
-      for (let j = 0; j < vals.length; j += 1) if (i !== j) s += delta(vals[i] as number, vals[j] as number);
-    disagreement = add(disagreement, q(s, BigInt(vals.length - 1)));
+      for (let j = 0; j < vals.length; j += 1)
+        if (i !== j) sum = add(sum, delta(vals[i] as number, vals[j] as number));
+    disagreement = add(disagreement, div(sum, q(BigInt(vals.length - 1))));
   }
   const n = BigInt(pool.length);
-  let chance = 0n;
+  let chance = q(0n);
   for (let i = 0; i < pool.length; i += 1)
     for (let j = 0; j < pool.length; j += 1)
-      if (i !== j) chance += delta(pool[i] as number, pool[j] as number);
-  if (chance === 0n) return undefined;
-  return sub(q(1n), div(mul(q(n - 1n), disagreement), q(chance)));
+      if (i !== j) chance = add(chance, delta(pool[i] as number, pool[j] as number));
+  if (chance.n === 0n) return undefined;
+  return sub(q(1n), div(mul(q(n - 1n), disagreement), chance));
 }
 
 function agreementItems(): BankItem[] {
@@ -220,7 +242,7 @@ function agreementItems(): BankItem[] {
               return relNear(got, want, 1e-11)
                 ? ok()
                 : fail(
-                    `cohenKappa over ${n} items, ${k} categories (${shape}), weights ${weights}: got ${got}, want ${want} (${DOC_JUDGES})`,
+                    `cohenKappa over ${n} items, ${k} categories (${shape}), weights ${weights}: got ${got}, which differs from the reference by more than a relative 1e-11 (${DOC_JUDGES})`,
                   );
             },
           ),
@@ -240,13 +262,16 @@ function agreementItems(): BankItem[] {
             ({ s, rng }) => {
               const units = between(rng, 12, 40);
               const values = between(rng, 3, 6);
-              const matrix: Array<Array<number | null>> = Array.from({ length: raters }, () => []);
+              const matrix: Array<Array<number | null | undefined>> = Array.from(
+                { length: raters },
+                () => [],
+              );
               for (let u = 0; u < units; u += 1) {
                 const truth = between(rng, 1, values);
                 for (let r = 0; r < raters; r += 1) {
                   const gone = missing === 'some' && rng() < 0.3;
                   const v = rng() < 0.7 ? truth : between(rng, 1, values);
-                  (matrix[r] as Array<number | null>).push(gone ? null : v);
+                  (matrix[r] as Array<number | null | undefined>).push(gone ? null : v);
                 }
               }
               const want = alphaRef(matrix, level);
@@ -260,7 +285,7 @@ function agreementItems(): BankItem[] {
               return relNear(got, toNumber(want), 1e-11)
                 ? ok()
                 : fail(
-                    `krippendorffAlpha over ${raters} raters and ${units} units (${missing} missing), level ${level}: got ${got}, want ${toNumber(want)} (${DOC_JUDGES})`,
+                    `krippendorffAlpha over ${raters} raters and ${units} units (${missing} missing), level ${level}: got ${got}, which differs from the reference by more than a relative 1e-11 (${DOC_JUDGES})`,
                   );
             },
           ),
@@ -307,10 +332,9 @@ function wilsonItems(): BankItem[] {
               const lower = 1 - want;
               if (!(Math.abs(got.lower - lower) <= ULP_ONE))
                 checks.push(
-                  `lower is ${got.lower}, want ${lower} within ${ULP_ONE} (one unit in the last place of 1)`,
+                  `lower is ${got.lower}, which is not within ${ULP_ONE} (one unit in the last place of 1) of the cancellation-free value`,
                 );
-              if (gap === 0 && got.upper !== 1)
-                checks.push(`upper is ${got.upper}, want exactly 1 for k = n`);
+              if (gap === 0 && got.upper !== 1) checks.push(`upper is ${got.upper}, not exactly 1 for k = n`);
               return checks.length === 0
                 ? ok()
                 : fail(`wilson(${k}, ${n}, ${z}): ${checks.join('; ')} (${DOC_INTERVALS})`);
@@ -332,7 +356,7 @@ function wilsonItems(): BankItem[] {
           return relNear(low.upper, small, 1e-11) && Math.abs(high.lower - (1 - small)) <= ULP_ONE
             ? ok()
             : fail(
-                `wilson(${n - k}, ${n}).upper is ${low.upper}, want ${small} within a relative 1e-11; wilson(${k}, ${n}).lower is ${high.lower}, want ${1 - small} within ${ULP_ONE} (${DOC_INTERVALS})`,
+                `wilson(${n - k}, ${n}).upper is ${low.upper} and wilson(${k}, ${n}).lower is ${high.lower}; they do not mirror each other to a relative 1e-11 and ${ULP_ONE} (${DOC_INTERVALS})`,
               );
         }),
       );
@@ -450,14 +474,16 @@ function mixtureItems(): BankItem[] {
               const off = want.findIndex((w, j) => !(Math.abs((got.weights?.[j] ?? Number.NaN) - w) <= 1e-7));
               if (off >= 0)
                 return fail(
-                  `mixtureWeights recovered ${show(got.weights)}, the planted mix is ${show(want)} (component ${off}) (${DOC_OWED})`,
+                  `mixtureWeights recovered ${show(got.weights)}; component ${off} is off the planted mix by more than 1e-7 (${DOC_OWED})`,
                 );
               // The log-likelihood at the planted mix, sum_i counts_i log(share_i).
               const N = counts.reduce((x, y) => x + y, 0);
               const ll = counts.reduce((sum, k) => (k === 0 ? sum : sum + k * Math.log(k / N)), 0);
               return Math.abs(got.logLikelihood - ll) <= 1e-6 * Math.max(1, Math.abs(ll))
                 ? ok()
-                : fail(`mixtureWeights gives logLikelihood ${got.logLikelihood}, want ${ll} (${DOC_OWED})`);
+                : fail(
+                    `mixtureWeights gives logLikelihood ${got.logLikelihood}, which is off the log-likelihood at the planted mix by more than a relative 1e-6 (${DOC_OWED})`,
+                  );
             },
           ),
         );
@@ -664,12 +690,10 @@ function coverageItems(): BankItem[] {
                   h.required !== g.required ||
                   !(Math.abs(h.coverage - g.coverage) <= 1e-15)
                 )
-                  bad.push(`group ${i}: got ${show(h)}, want ${show(g)}`);
+                  bad.push(`group ${i}: got ${show(h)}, which differs from the brute-force count`);
               });
               if (got.covered !== want.covered || got.required !== want.required)
-                bad.push(
-                  `totals ${got.covered} of ${got.required}, want ${want.covered} of ${want.required}`,
-                );
+                bad.push(`totals ${got.covered} of ${got.required} differ from the brute-force count`);
               return bad.length === 0 ? ok() : fail(`mixedStrengthCoverage: ${bad.join('; ')} (${DOC_OWED})`);
             },
           ),
@@ -682,6 +706,8 @@ function coverageItems(): BankItem[] {
     ['axis-repeated', 'groups', [[[0, 1]], [{ axes: [0, 0], strength: 2 }], [2, 2]]],
     ['strength-above', 'groups', [[[0, 1]], [{ axes: [0, 1], strength: 3 }], [2, 2]]],
     ['level-zero', 'levels', [[[0, 0]], [{ axes: [0, 1], strength: 1 }], [2, 0]]],
+    ['level-zero-no-rows', 'levels', [[], [{ axes: [0, 1], strength: 1 }], [2, 0]]],
+    ['level-fractional', 'levels', [[], [{ axes: [0, 1], strength: 1 }], [2, 1.5]]],
   ];
   for (const [what, argument, args] of refusals) {
     out.push(
@@ -709,7 +735,420 @@ function coverageItems(): BankItem[] {
   return out;
 }
 
+// ---------------------------------------------------------------------------------------------------------
+// Closure items: behaviour a page states, found missing by the planted-bug round of the audit.
+
+const CLOSURE_AGREEMENT_CAUSE =
+  'krippendorffAlpha or cohenKappa departs from the page on a case the first items did not reach (levels, undefined and ragged data, constant data, default order)';
+
+function closureItems(): BankItem[] {
+  const out: BankItem[] = [];
+  const family = 'weights-agreement';
+  const agreement = 'packages/stats/src/agreement.ts';
+  const kappaOf = (s: Parameters<BankItem['check']>[0]['s'], a: unknown[], b: unknown[], options: unknown) =>
+    (s.cohenKappa as unknown as (a: unknown[], b: unknown[], o: unknown) => { kappa: number })(a, b, options)
+      .kappa;
+
+  // Weighted kappa when both raters are constant: the chance term is 0 and kappa is 1.
+  for (const weights of ['linear', 'quadratic'] as const)
+    out.push(
+      item(`kappa.constant.${weights}`, family, 2, agreement, CLOSURE_AGREEMENT_CAUSE, ({ s, rng }) => {
+        const label = between(rng, 1, 9);
+        const n = between(rng, 2, 6);
+        const a = Array.from({ length: n }, () => label);
+        try {
+          const got = kappaOf(s, a, [...a], { weights });
+          return got === 1
+            ? ok()
+            : fail(
+                `cohenKappa of two constant raters (n ${n}, weights ${weights}) is ${got}, not 1 (${DOC_JUDGES})`,
+              );
+        } catch (cause) {
+          return fail(`cohenKappa of two constant raters threw ${String(cause)}`);
+        }
+      }),
+    );
+  // The default order of number labels is numeric, not string order (1, 2, 10 and not 1, 10, 2).
+  for (const weights of ['linear', 'quadratic'] as const)
+    for (const variant of [0, 1]) {
+      out.push(
+        item(
+          `kappa.default-order.numbers.${weights}.${variant}`,
+          family,
+          3,
+          agreement,
+          CLOSURE_AGREEMENT_CAUSE,
+          ({ s, rng }) => {
+            const labels = variant === 0 ? [1, 2, 10] : [3, 12, 100, 21, 5];
+            const n = between(rng, 24, 60);
+            const a = Array.from({ length: n }, () => labels[between(rng, 0, labels.length - 1)] as number);
+            const b = a.map((x) =>
+              rng() < 0.6 ? x : (labels[between(rng, 0, labels.length - 1)] as number),
+            );
+            const order = [...new Set([...a, ...b])].sort((x, y) => x - y);
+            const want = toNumber(kappaRef(a, b, order, weights));
+            try {
+              const got = kappaOf(s, a, b, { weights });
+              return relNear(got, want, 1e-11)
+                ? ok()
+                : fail(
+                    `cohenKappa with number labels and no categories (weights ${weights}): got ${got}, which is not the value over the numeric order (${DOC_JUDGES})`,
+                  );
+            } catch (cause) {
+              return fail(`cohenKappa with number labels threw ${String(cause)}`);
+            }
+          },
+        ),
+      );
+    }
+  // Mixed number and string labels have no numeric order: the default is the string order of the labels.
+  for (const weights of ['linear', 'quadratic'] as const)
+    out.push(
+      item(
+        `kappa.default-order.mixed.${weights}`,
+        family,
+        3,
+        agreement,
+        CLOSURE_AGREEMENT_CAUSE,
+        ({ s, rng }) => {
+          const labels: Array<number | string> = [12, 3, 'b', 'a'];
+          const n = between(rng, 24, 60);
+          const a = Array.from(
+            { length: n },
+            () => labels[between(rng, 0, labels.length - 1)] as number | string,
+          );
+          const b = a.map((x) =>
+            rng() < 0.6 ? x : (labels[between(rng, 0, labels.length - 1)] as number | string),
+          );
+          const order = [...new Set([...a, ...b])].sort((x, y) => String(x).localeCompare(String(y)));
+          const index = new Map(order.map((l, i) => [l, i]));
+          const want = toNumber(
+            kappaRef(
+              a.map((l) => index.get(l) as number),
+              b.map((l) => index.get(l) as number),
+              order.map((_, i) => i),
+              weights,
+            ),
+          );
+          try {
+            const got = kappaOf(s, a, b, { weights });
+            return relNear(got, want, 1e-11)
+              ? ok()
+              : fail(
+                  `cohenKappa with mixed labels and no categories (weights ${weights}): got ${got}, which is not the value over the string order (${DOC_JUDGES})`,
+                );
+          } catch (cause) {
+            return fail(`cohenKappa with mixed labels threw ${String(cause)}`);
+          }
+        },
+      ),
+    );
+
+  const alphaOf = (s: Parameters<BankItem['check']>[0]['s'], matrix: unknown, level: AlphaLevel) =>
+    (s.krippendorffAlpha as unknown as (m: unknown, o: unknown) => { alpha: number })(matrix, { level })
+      .alpha;
+  const alphaMatrix = (
+    rng: () => number,
+    raters: number,
+    gaps: 'null' | 'undefined' | 'none',
+    positiveOnly = true,
+  ) => {
+    const units = between(rng, 10, 30);
+    const values = between(rng, 3, 6);
+    const matrix: Array<Array<number | null | undefined>> = Array.from({ length: raters }, () => []);
+    for (let u = 0; u < units; u += 1) {
+      const truth = between(rng, positiveOnly ? 1 : 0, values);
+      for (let r = 0; r < raters; r += 1) {
+        const gone = gaps !== 'none' && rng() < 0.3;
+        const v = rng() < 0.65 ? truth : between(rng, positiveOnly ? 1 : 0, values);
+        (matrix[r] as Array<number | null | undefined>).push(gone ? (gaps === 'null' ? null : undefined) : v);
+      }
+    }
+    return matrix;
+  };
+  const compareAlpha = (
+    s: Parameters<BankItem['check']>[0]['s'],
+    given: unknown,
+    reference: Array<Array<number | null | undefined>>,
+    level: AlphaLevel,
+    what: string,
+  ): ItemOutcome => {
+    const want = alphaRef(reference, level);
+    if (want === undefined) return ok('no expected disagreement on this draw');
+    try {
+      const got = alphaOf(s, given, level);
+      return relNear(got, toNumber(want), 1e-11)
+        ? ok()
+        : fail(
+            `krippendorffAlpha (${what}, level ${level}): got ${got}, which differs from the reference by more than a relative 1e-11 (${DOC_JUDGES})`,
+          );
+    } catch (cause) {
+      return fail(`krippendorffAlpha (${what}, level ${level}) threw ${String(cause)}`);
+    }
+  };
+  // The ordinal and ratio levels.
+  for (const level of ['ordinal', 'ratio'] as const)
+    for (const raters of [2, 3])
+      out.push(
+        item(`alpha.${level}.${raters}`, family, 3, agreement, CLOSURE_AGREEMENT_CAUSE, ({ s, rng }) => {
+          const matrix = alphaMatrix(rng, raters, 'null');
+          return compareAlpha(s, matrix, matrix, level, `${raters} raters`);
+        }),
+      );
+  // undefined marks a missing value as null does.
+  for (const level of ['nominal', 'interval'] as const)
+    out.push(
+      item(`alpha.undefined-holes.${level}`, family, 3, agreement, CLOSURE_AGREEMENT_CAUSE, ({ s, rng }) => {
+        const matrix = alphaMatrix(rng, 3, 'undefined');
+        return compareAlpha(s, matrix, matrix, level, 'undefined holes');
+      }),
+    );
+  // Rows of different lengths: a row that stops early has missing values for the later units.
+  for (const level of ['nominal', 'interval'] as const)
+    out.push(
+      item(`alpha.ragged.${level}`, family, 3, agreement, CLOSURE_AGREEMENT_CAUSE, ({ s, rng }) => {
+        const matrix = alphaMatrix(rng, 3, 'none');
+        // The first rows stop early; the last row is the longest, so the units are not those of the first row.
+        const ragged = matrix.map((row, r) =>
+          row.slice(0, row.length - (r === matrix.length - 1 ? 0 : between(rng, 1, 4))),
+        );
+        return compareAlpha(s, ragged, ragged, level, 'rows of different lengths');
+      }),
+    );
+  // Constant data: the chance disagreement is 0 and alpha is 1.
+  out.push(
+    item('alpha.constant', family, 2, agreement, CLOSURE_AGREEMENT_CAUSE, ({ s, rng }) => {
+      const v = between(rng, 1, 9);
+      const matrix = [
+        [v, v, v],
+        [v, v, v],
+      ];
+      for (const level of ['nominal', 'interval', 'ordinal', 'ratio'] as const) {
+        try {
+          const got = alphaOf(s, matrix, level);
+          if (got !== 1)
+            return fail(
+              `krippendorffAlpha of constant data at level ${level} is ${got}, not 1 (${DOC_JUDGES})`,
+            );
+        } catch (cause) {
+          return fail(`krippendorffAlpha of constant data at level ${level} threw ${String(cause)}`);
+        }
+      }
+      return ok();
+    }),
+  );
+
+  // Wilson at k = 0: the lower bound is exactly 0 for every n, the large ones included.
+  out.push(
+    item(
+      'wilson.k0-lower',
+      'weights-wilson',
+      3,
+      'packages/stats/src/intervals.ts',
+      'wilson does not return a lower bound of exactly 0 at k = 0',
+      ({ s, rng }) => {
+        for (const exponent of [0, 2, 6, 9, 12]) {
+          const n = 10 ** exponent + between(rng, 0, 99);
+          for (const z of [1, 1.959963984540054, 3]) {
+            const got = s.wilson(0, n, z);
+            if (got.lower !== 0)
+              return fail(`wilson(0, ${n}, ${z}).lower is ${got.lower}, not exactly 0 (${DOC_INTERVALS})`);
+          }
+        }
+        return ok();
+      },
+    ),
+  );
+  // Wilson z: a z that is not above 0, or not finite, is refused with a message that names z.
+  for (const [what, z] of [
+    ['zero', 0],
+    ['negative', -1.96],
+    ['nan', Number.NaN],
+    ['infinite', Number.POSITIVE_INFINITY],
+  ] as const)
+    out.push(
+      item(
+        `wilson.refuse.z-${what}`,
+        'weights-wilson',
+        1,
+        'packages/stats/src/intervals.ts',
+        'wilson accepts a z that is not above 0',
+        ({ s }) => {
+          try {
+            const got = s.wilson(3, 10, z);
+            return fail(`wilson(3, 10, ${z}) returned ${show(got)}, want a RangeError (${DOC_INTERVALS})`);
+          } catch (cause) {
+            if (!(cause instanceof RangeError))
+              return fail(`wilson threw ${String(cause)}, want a RangeError`);
+            return messageNames(cause.message, 'wilson', 'z');
+          }
+        },
+      ),
+    );
+
+  // Mixture: the row sum tolerance is 1e-12, and categories no component reaches give no NaN.
+  for (const [what, row] of [
+    ['above', [0.5005, 0.5]],
+    ['below', [0.4999999, 0.5]],
+    ['tiny', [0.5 + 1e-9, 0.5]],
+  ] as const)
+    out.push(
+      item(
+        `mixture.refuse.sum-${what}`,
+        'weights-mixture',
+        1,
+        'packages/stats/src/mixture.ts',
+        MIXTURE_CAUSE,
+        ({ s }) => {
+          const mix = mixtureOf(s);
+          if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+          try {
+            const value = mix([[...row]], [3, 2]);
+            return fail(
+              `mixtureWeights with a component summing to ${(row[0] ?? 0) + (row[1] ?? 0)} returned ${show(value)}, want a RangeError (${DOC_OWED})`,
+            );
+          } catch (cause) {
+            if (!(cause instanceof RangeError))
+              return fail(`mixtureWeights threw ${String(cause)}, want a RangeError`);
+            return messageNames(cause.message, 'mixtureWeights', 'components');
+          }
+        },
+      ),
+    );
+  out.push(
+    item(
+      'mixture.unreachable-count',
+      'weights-mixture',
+      2,
+      'packages/stats/src/mixture.ts',
+      MIXTURE_CAUSE,
+      ({ s }) => {
+        const mix = mixtureOf(s);
+        if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+        // A count in a category no component can produce: the likelihood is 0 for every mix. A RangeError is right;
+        // so is a finite mix over the reachable categories. NaN is not.
+        try {
+          const got = mix(
+            [
+              [1, 0],
+              [1, 0],
+            ],
+            [3, 2],
+          );
+          const sum = (got.weights ?? []).reduce((x, y) => x + y, 0);
+          return got.weights?.length === 2 &&
+            got.weights.every((w) => Number.isFinite(w) && w >= 0) &&
+            Math.abs(sum - 1) <= 1e-9
+            ? ok()
+            : fail(
+                `mixtureWeights with a count in a category no component reaches returned weights ${show(got.weights)}; want a RangeError or finite weights summing to 1 (${DOC_OWED})`,
+              );
+        } catch (cause) {
+          return cause instanceof RangeError
+            ? messageNames(cause.message, 'mixtureWeights', 'counts')
+            : fail(`mixtureWeights threw ${String(cause)}`);
+        }
+      },
+    ),
+    item(
+      'mixture.unreachable-empty',
+      'weights-mixture',
+      2,
+      'packages/stats/src/mixture.ts',
+      MIXTURE_CAUSE,
+      ({ s }) => {
+        const mix = mixtureOf(s);
+        if (!mix) return fail(`mixtureWeights is not exported (${DOC_OWED})`);
+        // A category with count 0 that no component reaches takes no part: the mix is the one over the others.
+        return compareEm(
+          mix,
+          [
+            [0.6, 0.4, 0],
+            [0.1, 0.9, 0],
+          ],
+          [30, 70, 0],
+        );
+      },
+    ),
+  );
+
+  // Coverage: a tuple key must not collide when levels reach 10, and the total coverage is covered over required.
+  for (const variant of [0, 1, 2])
+    out.push(
+      item(
+        `mixed-strength.wide-levels.${variant}`,
+        'weights-coverage',
+        3,
+        'packages/stats/src/coverage.ts',
+        COVERAGE_CAUSE,
+        ({ s, rng }) => {
+          const fn = exported(s, 'mixedStrengthCoverage') as CoverageFn | undefined;
+          if (!fn) return fail(`mixedStrengthCoverage is not exported (${DOC_OWED})`);
+          const axesCount = 3 + variant;
+          const levels = Array.from({ length: axesCount }, () => between(rng, 12, 15));
+          const rows = Array.from({ length: between(rng, 20, 60) }, () =>
+            levels.map((l) => between(rng, 0, l - 1)),
+          );
+          // Rows that would collide under a key joined without a separator: [1, 11] and [11, 1].
+          rows.push(
+            levels.map((_, a) => (a === 0 ? 1 : a === 1 ? 11 : 0)),
+            levels.map((_, a) => (a === 0 ? 11 : a === 1 ? 1 : 0)),
+          );
+          const groups: Group[] = [{ axes: Array.from({ length: axesCount }, (_, a) => a), strength: 2 }];
+          const want = coverageRef(rows, groups, levels);
+          let got: ReturnType<CoverageFn>;
+          try {
+            got = fn(rows, groups, levels);
+          } catch (cause) {
+            return fail(`mixedStrengthCoverage threw ${String(cause)}`);
+          }
+          return got.covered === want.covered && got.required === want.required
+            ? ok()
+            : fail(
+                `mixedStrengthCoverage with levels above 9: ${got.covered} of ${got.required} differ from the brute-force count (${DOC_OWED})`,
+              );
+        },
+      ),
+    );
+  for (const variant of [0, 1, 2])
+    out.push(
+      item(
+        `mixed-strength.total-ratio.${variant}`,
+        'weights-coverage',
+        3,
+        'packages/stats/src/coverage.ts',
+        COVERAGE_CAUSE,
+        ({ s, rng }) => {
+          const fn = exported(s, 'mixedStrengthCoverage') as CoverageFn | undefined;
+          if (!fn) return fail(`mixedStrengthCoverage is not exported (${DOC_OWED})`);
+          const levels = [between(rng, 2, 4), between(rng, 2, 4), between(rng, 2, 4), between(rng, 2, 3)];
+          const rows = Array.from({ length: between(rng, 3, 8) }, () =>
+            levels.map((l) => between(rng, 0, l - 1)),
+          );
+          // A pair group and a triple group have different required counts, so the mean of the two ratios is not the total ratio.
+          const groups: Group[] = [
+            { axes: [0, 1], strength: 2 },
+            { axes: [0, 1, 2, 3], strength: 3 },
+          ];
+          const want = coverageRef(rows, groups, levels);
+          let got: ReturnType<CoverageFn>;
+          try {
+            got = fn(rows, groups, levels);
+          } catch (cause) {
+            return fail(`mixedStrengthCoverage threw ${String(cause)}`);
+          }
+          return Math.abs(got.coverage - want.coverage) <= 1e-15
+            ? ok()
+            : fail(
+                `mixedStrengthCoverage total coverage is ${got.coverage}, which is not the covered over the required tuples of all groups (${DOC_OWED})`,
+              );
+        },
+      ),
+    );
+  return out;
+}
+
 /** Every item of the weights lane. */
 export function weightsItems(): BankItem[] {
-  return [...agreementItems(), ...wilsonItems(), ...mixtureItems(), ...coverageItems()];
+  return [...agreementItems(), ...wilsonItems(), ...mixtureItems(), ...coverageItems(), ...closureItems()];
 }

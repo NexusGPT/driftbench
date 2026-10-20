@@ -2,7 +2,7 @@
 
 ## Ladder version 4: the weights family
 
-Version 4 adds the 146 items of the weights family to the bank of version 3 (1050 items). The recorded bar below stays the one of version 3 until the version 4 pilot is measured: the independent blind pilot reads the failing list of the whole bank, and `driftbench validate stats --hardness` prints the score, the forecast and the distinct causes it measured. The audit of the family (four checks, round 2) is pending in [audit-weights/audit.md](audit-weights/audit.md), so the gate is not met. No floor is set for version 4 yet: it is set at the level the pilot reaches, with that evidence.
+Version 4 adds the 181 items of the weights family to the bank of version 3 (1085 items). The recorded bar below stays the one of version 3 until the version 4 pilot is measured: the independent blind pilot reads the failing list of the whole bank, and `driftbench validate stats --hardness` prints the score, the forecast and the distinct causes it measured. The audit of the family (four checks, round 2) is pending in [audit-weights/audit.md](audit-weights/audit.md), so the gate is not met. No floor is set for version 4 yet: it is set at the level the pilot reaches, with that evidence.
 
 ## Ladder version 3: the recorded bar
 

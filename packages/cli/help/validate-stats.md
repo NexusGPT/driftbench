@@ -28,12 +28,12 @@ The ladder (version 4), from `driftbench validate stats`:
 | 1 | `reference` | reference values | 31 | reference |
 | 2 | `degenerate` | degenerate inputs | 201 | degenerate-domain, degenerate-empty, degenerate-nonfinite, degenerate-single-equal |
 | 3 | `reproducibility` | reproducibility | 22 | reproducibility |
-| 4 | `analytic` | analytic truth | 640 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
+| 4 | `analytic` | analytic truth | 675 | agreement-analytic, allocation-bruteforce, binomial-exact, drift-analytic, edge-accuracy, estimators-distributions, exact-estimators, exact-special, product, tests-calibration, unseen-known, variance-simulation |
 | 5 | `simulation` | simulation coverage | 40 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
 
-1050 items in all (counted from `--items --json` on seed 1). What each level asks:
+1085 items in all (counted from `--items --json` on seed 1). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
@@ -54,7 +54,7 @@ The ladder (version 4), from `driftbench validate stats`:
 * `roadmap`: methods the research dossiers name that a product page needs, matching scipy, degenerate-safe
   and scaling.
 
-Ladder version 4 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 146 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
+Ladder version 4 has no floor yet. The floor of 7 belonged to ladder version 2 and is history in `validators/floors.json`. Version 4 adds the weights family: 181 items for weighted agreement, the Wilson bounds next to 1, mixture weights recovered from planted counts, and coverage at mixed strength. The stats-fix pull requests make them pass, and the floor is raised with evidence when they have landed.
 
 ## When to use it
 

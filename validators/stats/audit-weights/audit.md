@@ -1,6 +1,6 @@
 # Audit of the weights family of the statistics bank (docs/validators.md section 12.7), ladder version 4
 
-The family is `packages/validators/src/ladders/stats/bank/weights/`: 146 items in four families (weights-agreement 42, weights-wilson 30, weights-mixture 44, weights-coverage 30), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
+The family is `packages/validators/src/ladders/stats/bank/weights/`: 181 items in four families (weights-agreement 59, weights-wilson 35, weights-mixture 49, weights-coverage 38), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
 
 ## Round 2: version 4 (pending)
 
@@ -29,18 +29,38 @@ Round 1 found a failing cheater and 16 missed planted bugs. Version 4 closes the
 * Fourteen `weights.em.*` items plant counts that are not an exact mix (a seeded draw over components, 2 to 4 components over 3 to 6 categories, a small and a large sample, the audit's two named cases) and compare with an expectation-maximisation reference run to a fixed point (weights within 1e-6, log-likelihood within 1e-9 relative). A least-squares mixture passes the 24 exact-mix items and fails 12 or 13 of these 14 on seeds 1, 2, 977 and 4242; the pilot of `exec/stats-weights-pilot` passes all 14.
 * The twelve refusal items of mixtureWeights and mixedStrengthCoverage check that the message starts with the function and names the argument to fix (`components`, `counts`, `rows`, `groups` or `levels`, singular stems allowed), not only the class. The pilot of `exec/stats-weights-pilot` passes all 12 (its messages start with the function and name the argument).
 
-Still owed from round 1: an item for each of the other misses whose behaviour a page states (alpha with undefined or ragged data, ordinal and ratio levels, constant-data returns, the default numeric kappa order, the wilson z refusal, the mixture sum tolerance and NaN, the coverage key collision and total ratio); failure details that do not print the planted mix or the expected coverage; and the frame fix that runs the product in a child process so a caller cannot be sniffed (the version 3 frame already runs items in child processes with a trap; the seat checks whether sniffing still works).
+The other round 1 misses are closed by 35 more items (`closureItems()` in the family's `index.ts`), and the failure details no longer print the planted or expected values (they say the result differs from the reference, and by how the check measures):
+
+| Round 1 bug | Closed by |
+|---|---|
+| B5 weighted kappa of constant raters is 1 | `weights.kappa.constant.*` |
+| B7, B8 default order: numbers ascending; mixed labels in string order | `weights.kappa.default-order.*` |
+| B10 `undefined` marks a missing value | `weights.alpha.undefined-holes.*` |
+| B12, B13 ratio and ordinal alpha, against exact rationals | `weights.alpha.ratio.*`, `weights.alpha.ordinal.*` |
+| B15 alpha of constant data is 1 at every level | `weights.alpha.constant` |
+| B16 rows of different lengths | `weights.alpha.ragged.*` |
+| B21 wilson lower bound at k = 0 is exactly 0 | `weights.wilson.k0-lower` |
+| B23 wilson refuses a z that is not above 0, with a message naming z | `weights.wilson.refuse.z-*` |
+| B26 mixture row sum tolerance | `weights.mixture.refuse.sum-*` |
+| B28 a count in a category no component reaches gives no NaN and weights summing to 1 | `weights.mixture.unreachable-count`, `weights.mixture.unreachable-empty` |
+| B33 coverage tuple key for levels above 9 | `weights.mixed-strength.wide-levels.*` |
+| B34 total coverage is covered over required | `weights.mixed-strength.total-ratio.*` |
+| B39 a level of 0 with no rows is refused, naming levels | `weights.refuse.level-zero-no-rows`, `weights.refuse.level-fractional` |
+
+Measured by the builder (not a verdict): the pilot of `exec/stats-weights-pilot` plus the base agreement code passes 180 of the 181 items on seeds 1, 2, 977 and 4242; the one it fails, `weights.mixture.unreachable-count`, is a real defect of that pilot (B28: it skips the category and returns weights [0.3, 0.3] that do not sum to 1). Each of the 15 round 1 misses above, planted one at a time in the pilot, loses at least one of the new items. The agreement mutants are in `packages/validators/test/stats/weights.test.ts`; the others were run on the pilot's files and are not committed, since the pilot is not in this tree.
+
+Still owed from round 1: the frame fix that runs the product in a child process so a caller cannot be sniffed (the version 3 frame already runs items in child processes with a trap; the seat checks whether sniffing still works).
 
 ## The builder's measurement (not a verdict)
 
 | Family | Items | Failing on the base product, seeds 1 to 20 | Cause |
 |---|---|---|---|
-| weights-agreement | 42 | 0 | (regression items: cohenKappa weights over the given category order, krippendorffAlpha with missing values) |
-| weights-wilson | 30 | 6 | wilson gives an upper bound below 1 for k = n (0.9999999999999998 for wilson(1000325, 1000325)) |
-| weights-mixture | 44 | 44 | mixtureWeights is missing from @agent-nexus/driftbench-stats |
-| weights-coverage | 30 | 30 | mixedStrengthCoverage is missing from @agent-nexus/driftbench-stats |
+| weights-agreement | 59 | 0 | (regression items: cohenKappa weights over the given category order, krippendorffAlpha with missing values) |
+| weights-wilson | 35 | 6 | wilson gives an upper bound below 1 for k = n (0.9999999999999998 for wilson(1000325, 1000325)) |
+| weights-mixture | 49 | 49 | mixtureWeights is missing from @agent-nexus/driftbench-stats |
+| weights-coverage | 38 | 38 | mixedStrengthCoverage is missing from @agent-nexus/driftbench-stats |
 
-Three causes in 146 items. The family alone cannot meet section 12.4: 3 causes against the gate's 100 (the gate reads the whole bank).
+Three causes in 181 items. The family alone cannot meet section 12.4: 3 causes against the gate's 100 (the gate reads the whole bank).
 
 ## Doc sentences owed (docs/statistics/ belongs to its page owner)
 

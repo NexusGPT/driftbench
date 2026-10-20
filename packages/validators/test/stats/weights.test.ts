@@ -1,3 +1,4 @@
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { statsBank } from '../../src/ladders/stats/bank';
 import { runItem } from '../../src/ladders/stats/bank/index';
@@ -107,6 +108,103 @@ describe('the weights-mixture items tell the maximum-likelihood mix from a consi
       expect(await failing(leastSquares, seed, 'weights.recover.')).toMatchObject({ failed: 0 });
       const emItems = await failing(leastSquares, seed, 'weights.em.');
       expect(emItems.failed).toBeGreaterThanOrEqual(Math.floor(emItems.of * 0.8));
+    });
+  }
+});
+
+describe('the agreement closure items kill the planted agreement bugs of the audit', () => {
+  // The repository's own agreement code is the good product; each mutant plants one bug of the audit's round 1.
+  const good = stats as unknown as Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  const kappa = (...args: unknown[]) => good.cohenKappa?.(...args) as { kappa: number };
+  const alpha = (...args: unknown[]) =>
+    good.krippendorffAlpha?.(...args) as { alpha: number; expected: number };
+  const allEqual = (a: unknown[], b: unknown[]) => new Set([...a, ...b]).size === 1;
+  const stringOrder = (a: unknown[], b: unknown[]) =>
+    [...new Set([...a, ...b])].sort((x, y) => String(x).localeCompare(String(y)));
+  const mutants: Record<string, { impl: Record<string, unknown>; killedBy: string }> = {
+    B5: {
+      killedBy: 'weights.kappa.constant.',
+      impl: {
+        cohenKappa: (a: unknown[], b: unknown[], o: { weights?: string } = {}) =>
+          o.weights && o.weights !== 'none' && allEqual(a, b) ? { kappa: 0 } : kappa(a, b, o),
+      },
+    },
+    B7: {
+      killedBy: 'weights.kappa.default-order.numbers.',
+      impl: {
+        cohenKappa: (a: unknown[], b: unknown[], o: { weights?: string; categories?: unknown[] } = {}) =>
+          !o.categories && o.weights && o.weights !== 'none'
+            ? kappa(a, b, { ...o, categories: stringOrder(a, b) })
+            : kappa(a, b, o),
+      },
+    },
+    B10: {
+      killedBy: 'weights.alpha.undefined-holes.',
+      impl: {
+        krippendorffAlpha: (m: unknown[][], o: unknown) =>
+          alpha(
+            m.map((row) => row.map((v) => (v === undefined ? 0 : v))),
+            o,
+          ),
+      },
+    },
+    B12: {
+      killedBy: 'weights.alpha.ratio.',
+      impl: {
+        krippendorffAlpha: (m: unknown, o: { level?: string } = {}) =>
+          alpha(m, o.level === 'ratio' ? { level: 'interval' } : o),
+      },
+    },
+    B13: {
+      killedBy: 'weights.alpha.ordinal.',
+      impl: {
+        krippendorffAlpha: (m: unknown, o: { level?: string } = {}) =>
+          alpha(m, o.level === 'ordinal' ? { level: 'interval' } : o),
+      },
+    },
+    B15: {
+      killedBy: 'weights.alpha.constant',
+      impl: {
+        krippendorffAlpha: (m: unknown, o: unknown) => {
+          const r = alpha(m, o);
+          return r.expected === 0 ? { ...r, alpha: 0 } : r;
+        },
+      },
+    },
+    B16: {
+      killedBy: 'weights.alpha.ragged.',
+      impl: {
+        krippendorffAlpha: (m: unknown[][], o: unknown) =>
+          alpha(
+            m.map((row) => row.slice(0, (m[0] as unknown[]).length)),
+            o,
+          ),
+      },
+    },
+  };
+  const closure = statsBank(ROOT).filter(
+    (item) => item.id.startsWith('weights.kappa.') || item.id.startsWith('weights.alpha.'),
+  );
+
+  async function failingIds(impl: Record<string, unknown>, seed: number): Promise<Set<string>> {
+    const out = new Set<string>();
+    for (const item of closure) {
+      const outcome = await runItem(item, seed, ROOT, { ...stats, ...impl } as unknown as StatsImpl);
+      if (!outcome.pass) out.add(item.id);
+    }
+    return out;
+  }
+
+  it('the repository code passes every kappa and alpha item', async () => {
+    for (const seed of SEEDS) expect([...(await failingIds({}, seed))]).toEqual([]);
+  });
+
+  for (const [name, mutant] of Object.entries(mutants)) {
+    it(`${name} loses an item of ${mutant.killedBy}`, async () => {
+      for (const seed of SEEDS) {
+        const lost = [...(await failingIds(mutant.impl, seed))];
+        expect(lost.some((id) => id.startsWith(mutant.killedBy))).toBe(true);
+      }
     });
   }
 });
