@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { appendFileSync } from 'node:fs';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
@@ -478,9 +479,11 @@ describe('a run of 2,500 blocks costs little more than hashing its history', () 
       await blocksCpu(25, mode, 1);
       const run = await blocksCpu(BLOCKS, mode, 3);
       const ratio = run / Math.max(floor, 1);
-      console.info(
-        `history ratio, mode ${mode}: run ${run.toFixed(1)} ms, floor ${floor.toFixed(1)} ms, ratio ${ratio.toFixed(2)}`,
-      );
+      const line = `history ratio, mode ${mode}: run ${run.toFixed(1)} ms, floor ${floor.toFixed(1)} ms, ratio ${ratio.toFixed(2)}`;
+      console.info(line);
+      // The timing job sets this path to print the ratios as plain lines after the run.
+      if (process.env.DRIFTBENCH_TIMING_REPORT)
+        appendFileSync(process.env.DRIFTBENCH_TIMING_REPORT, `${line}\n`);
       expect(ratio).toBeLessThan(10);
     },
     180_000,

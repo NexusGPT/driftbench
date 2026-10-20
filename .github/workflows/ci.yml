@@ -239,8 +239,15 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Timing tests, with the ratios printed
+      - name: Timing tests
+        env:
+          DRIFTBENCH_TIMING_REPORT: timing-ratios.txt
         run: pnpm test --maxWorkers=2
+      - name: Timing ratios (history-incremental, limit 10)
+        if: always()
+        run: |
+          cat timing-ratios.txt
+          cat timing-ratios.txt >> "$GITHUB_STEP_SUMMARY"
 
   python:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
