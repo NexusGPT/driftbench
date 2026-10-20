@@ -97,3 +97,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.ledger-auditor.you-never-edit-a-file-you
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.you-never-edit-a-file-you
+        ledger: wf65yszjnc
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0038
+        values:
+          ask_class: chat
+          ask_shape: ambiguous
+          session_state: helpers_running
+          owner_signal: no_questions
+          deviation: none
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.ledger-auditor.you-never-edit-a-file-you
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

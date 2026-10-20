@@ -1,0 +1,13 @@
+id: acme.planted.b4
+intent: "The customer gives the email address of their Acme account so the agent can look up bigger plans."
+seed: "It's sam.rivera@example.com"
+context:
+  last_reply: "I can look at plans with more data. What email is your account under?"
+slots:
+  - name: email
+    format: email
+    surface_forms:
+      - { form: "sam.rivera@example.com", approved: true }
+      - { form: "Sam.Rivera@example.com", approved: true }
+      - { form: "SAM.RIVERA@EXAMPLE.COM", approved: true }
+    minimal: ["sam.rivers@example.com"]

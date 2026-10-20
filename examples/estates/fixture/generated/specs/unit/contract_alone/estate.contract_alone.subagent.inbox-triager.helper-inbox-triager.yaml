@@ -74,3 +74,22 @@ metadata:
         name: inbox-triager
         file: .claude/agents/inbox-triager.md
       cases: []
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: contract_alone.subagent.inbox-triager.helper-inbox-triager
+        values:
+          atoms.subagent: subagent.inbox-triager.helper-inbox-triager
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

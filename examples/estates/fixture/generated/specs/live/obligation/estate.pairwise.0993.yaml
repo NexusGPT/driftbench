@@ -73,3 +73,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.never-report-a-task-as-done
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-report-a-task-as-done
+        ledger: i7uw67ztqh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0993
+        values:
+          ask_class: operate
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: frustration
+          deviation: D6_instruction_in_data
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.standing.never-report-a-task-as-done
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

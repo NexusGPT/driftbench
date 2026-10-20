@@ -106,3 +106,37 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.weekly-report.read-templates-report-md-before-before
+        ledger: kb4qkuf4z2
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0380
+        values:
+          ask_class: research
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: stop
+          deviation: D6_instruction_in_data
+          estate_hazard: compaction_mid_task
+          atoms.gate: gate.weekly-report.read-templates-report-md-before-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

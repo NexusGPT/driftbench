@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.look-up-where-a-shipment-is
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.look-up-where-a-shipment-is
+        ledger: ew32upricl
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0109
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: helpers_running
+          owner_signal: keep_going
+          deviation: D10_return
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.shipment-tracker.look-up-where-a-shipment-is
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

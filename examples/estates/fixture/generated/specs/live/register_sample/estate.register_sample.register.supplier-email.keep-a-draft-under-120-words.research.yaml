@@ -60,3 +60,32 @@ metadata:
     ask: code
     askFrom: skill.supplier-email.skill-supplier-email (asks it names)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.supplier-email.keep-a-draft-under-120-words
+        ledger: 2hpjnbkcu3
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.supplier-email.keep-a-draft-under-120-words.research
+        values:
+          ask_class: research
+          atoms.register: register.supplier-email.keep-a-draft-under-120-words
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

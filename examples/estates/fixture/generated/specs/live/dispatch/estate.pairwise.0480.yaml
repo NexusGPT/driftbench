@@ -92,3 +92,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0480
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: limit_word
+          deviation: D7_silence_or_burst
+          estate_hazard: rate_wave
+          atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

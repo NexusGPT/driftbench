@@ -95,3 +95,37 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-know-where-a
+        ledger: bt4ppn3ukn
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0900
+        values:
+          ask_class: chat
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: hold
+          deviation: D3_contradiction
+          estate_hazard: rate_wave
+          atoms.route: route.standing.an-ask-to-know-where-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

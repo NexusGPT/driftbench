@@ -79,3 +79,31 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker
+        values:
+          ask_shape: concrete
+          atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

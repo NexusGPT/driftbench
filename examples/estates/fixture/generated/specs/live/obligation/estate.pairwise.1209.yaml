@@ -93,3 +93,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.route-planner.never-put-more-than-the-van
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.never-put-more-than-the-van
+        ledger: cyfolf3scw
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1209
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: long
+          owner_signal: stop
+          deviation: D12_prompt_extraction
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.route-planner.never-put-more-than-the-van
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

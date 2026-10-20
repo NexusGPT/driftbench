@@ -92,3 +92,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-note-write-a-tracker-note
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0162
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: long
+          owner_signal: go
+          deviation: D1_off_topic
+          estate_hazard: process_restart
+          atoms.stage: stage.steps.stage-note-write-a-tracker-note
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

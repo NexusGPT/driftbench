@@ -63,3 +63,32 @@ metadata:
     ask: code
     askFrom: gate.weekly-report.read-templates-report-md-before-before (governed clause)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.weekly-report.read-templates-report-md-before-before
+        ledger: kb4qkuf4z2
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.weekly-report.read-templates-report-md-before-before
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.weekly-report.read-templates-report-md-before-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

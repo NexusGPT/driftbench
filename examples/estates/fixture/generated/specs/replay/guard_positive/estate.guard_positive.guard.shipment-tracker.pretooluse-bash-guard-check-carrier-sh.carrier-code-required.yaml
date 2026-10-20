@@ -88,3 +88,38 @@ metadata:
   replay:
     session: carrier-code-required
     from_block: 0
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+        values:
+          atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: source_turn
+        conversation: carrier-code-required
+        turn: 0
+      relation: derived_from
+      status: declared
+      created_by: generator

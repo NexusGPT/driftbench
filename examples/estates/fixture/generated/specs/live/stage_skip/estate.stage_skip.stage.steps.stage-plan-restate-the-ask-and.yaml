@@ -60,3 +60,23 @@ metadata:
     ask: code
     askFrom: stage.steps.stage-plan-restate-the-ask-and (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-plan-restate-the-ask-and
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: stage_skip.stage.steps.stage-plan-restate-the-ask-and
+        values:
+          owner_signal: keep_going
+          atoms.stage: stage.steps.stage-plan-restate-the-ask-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

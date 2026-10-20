@@ -82,3 +82,30 @@ metadata:
   replay:
     session: ledger-file-removed
     from_block: 0
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py
+        values:
+          atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: source_turn
+        conversation: ledger-file-removed
+        turn: 0
+      relation: derived_from
+      status: declared
+      created_by: generator

@@ -52,3 +52,32 @@ metadata:
     ask: code
     askFrom: route.standing.an-ask-to-prepare-the-weekly (situation)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-prepare-the-weekly
+        ledger: exnaqevdtv
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.standing.an-ask-to-prepare-the-weekly
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.standing.an-ask-to-prepare-the-weekly
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -87,3 +87,29 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.write-amounts-with-the-currency-code
+        ledger: uhveskza77
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0502
+        values:
+          ask_class: compose
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: no_questions
+          deviation: none
+          estate_hazard: dead_helper
+          atoms.register: register.standing.write-amounts-with-the-currency-code
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

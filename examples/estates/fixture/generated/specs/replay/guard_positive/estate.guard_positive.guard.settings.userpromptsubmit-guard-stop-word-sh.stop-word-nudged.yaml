@@ -82,3 +82,30 @@ metadata:
   replay:
     session: stop-word-nudged
     from_block: 0
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh
+        values:
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: source_turn
+        conversation: stop-word-nudged
+        turn: 0
+      relation: derived_from
+      status: declared
+      created_by: generator

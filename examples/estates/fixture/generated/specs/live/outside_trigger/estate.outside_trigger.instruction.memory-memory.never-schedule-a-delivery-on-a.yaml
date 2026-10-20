@@ -58,3 +58,23 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.memory-memory.never-schedule-a-delivery-on-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.never-schedule-a-delivery-on-a
+        ledger: 7wqtvpz2nv
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.memory-memory.never-schedule-a-delivery-on-a
+        values:
+          atoms.instruction: instruction.memory-memory.never-schedule-a-delivery-on-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

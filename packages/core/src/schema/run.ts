@@ -281,6 +281,11 @@ export const Verdict = z.strictObject({
         path: z.string().min(1),
         rung: z.string().min(1),
         outcome: Outcome,
+        /**
+         * Set by the recompute rung: true when the computed value matched the gold on the given inputs and
+         * differed on changed ones, false when it matched on both.
+         */
+        changedInputsFail: z.boolean().optional(),
       }),
     )
     .optional(),
@@ -349,6 +354,8 @@ export const Diagnosis = z.strictObject({
   /** The local copies a shared fix makes redundant, to remove. */
   removeCopies: z.array(z.string().min(1)).optional(),
   by: By,
+  /** The executing diagnostic step, when `by` names a more specific deciding rule. */
+  via: By.optional(),
 });
 export type Diagnosis = z.infer<typeof Diagnosis>;
 
@@ -538,6 +545,8 @@ export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
+  /** The spec hash without the version label, the one the run id was made from. Absent in a run stored before it. */
+  identityHash: z.string().min(1).optional(),
   target: TargetRef,
   mode: RunMode,
   repeat: z.number().int().min(0),
@@ -547,6 +556,10 @@ export const RunResult = z.strictObject({
   endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
+  /** What the run-scope diagnostics wrote over the whole run. Absent when none ran; never changes a pass. */
+  diagnoses: z.array(Diagnosis).optional(),
+  /** Run-scope diagnostic steps skipped because their run/model budget was exhausted. Absent when none. */
+  skippedForBudget: z.number().int().min(1).optional(),
   succession: Succession,
   recovery: Recovery.optional(),
   endState: z
@@ -632,6 +645,8 @@ export type CampaignRadius = z.infer<typeof CampaignRadius>;
 export const Campaign = z.strictObject({
   provenance: CampaignProvenance.optional(),
   rejudged: z.array(RejudgedFrom).optional(),
+  /** What the campaign-scope diagnostics wrote over the runs, when the command that wrote this record ran them. */
+  diagnoses: z.array(Diagnosis).optional(),
   campaignId: z.string().min(1),
   specs: z
     .array(

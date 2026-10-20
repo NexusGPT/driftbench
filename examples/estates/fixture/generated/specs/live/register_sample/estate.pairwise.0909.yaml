@@ -95,3 +95,29 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.use-a-bullet-list-for-three
+        ledger: akbpjlr55w
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0909
+        values:
+          ask_class: debug
+          ask_shape: problem
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D3_contradiction
+          estate_hazard: compaction_mid_task
+          atoms.register: register.standing.use-a-bullet-list-for-three
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

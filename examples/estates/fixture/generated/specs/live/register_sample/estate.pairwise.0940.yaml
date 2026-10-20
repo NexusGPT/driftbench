@@ -94,3 +94,29 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.lead-with-the-result-in-the
+        ledger: pjmwg6jomd
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0940
+        values:
+          ask_class: change_estate
+          ask_shape: problem
+          session_state: long
+          owner_signal: keep_going
+          deviation: D4_loose_confirmation
+          estate_hazard: dead_helper
+          atoms.register: register.standing.lead-with-the-result-in-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

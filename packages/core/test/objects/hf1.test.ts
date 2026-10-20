@@ -53,6 +53,20 @@ function keysDigest(spec: Spec, specHash: string): string {
 }
 
 type Loaded = { file: string; bytes: Buffer; spec: Spec; hash: string };
+
+/**
+ * The file as it was before the generators wrote block links: its `metadata.links` block removed. Links stay out
+ * of the spec hash and the cache keys, so a generated file whose only change since the baseline is its links is
+ * still compared, and must still give the baseline's hash and keys.
+ */
+function withoutLinks(bytes: Buffer): string {
+  const lines = bytes.toString('utf8').split('\n');
+  const at = lines.indexOf('  links:');
+  if (at < 0) return bytes.toString('utf8');
+  let end = at + 1;
+  while (end < lines.length && (lines[end] ?? '').startsWith('    ')) end++;
+  return [...lines.slice(0, at), ...lines.slice(end)].join('\n');
+}
 const loaded: Loaded[] = [];
 /** Every example file the loader refused, with its first error: a baseline spec among them fails HF1. */
 const refused = new Map<string, string>();
@@ -90,8 +104,8 @@ describe('HF1: backward compatibility over examples/', () => {
       .split('\n')
       .filter((line) => line !== '' && !line.startsWith('#'))
       .map((line) => line.split('\t') as [string, string, string, string, string]);
-    expect(rows.length).toBe(1280);
-    expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(3306);
+    expect(rows.length).toBe(2560);
+    expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(4546);
     const byFile = new Map(loaded.map((entry) => [entry.file, entry]));
     // A file main deleted after the baseline is not a spec the framework lost: it is gone from the disk.
     const deleted = rows.filter(
@@ -109,7 +123,7 @@ describe('HF1: backward compatibility over examples/', () => {
     const changed: string[] = [];
     for (const [file, fileSha, hash, keys, count] of rows) {
       const now = byFile.get(file);
-      if (!now || sha(now.bytes) !== fileSha) continue;
+      if (!now || (sha(now.bytes) !== fileSha && sha(withoutLinks(now.bytes)) !== fileSha)) continue;
       if (now.spec.blocks.length !== Number(count))
         changed.push(`${file}: ${count} blocks -> ${now.spec.blocks.length}`);
       compared += 1;

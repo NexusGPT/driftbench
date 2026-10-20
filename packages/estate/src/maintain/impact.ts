@@ -33,6 +33,10 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
  * A static test (an invariant or a setting, a JSON record beside the specs) names the one atom it checks and
  * is a test like any spec: it is indexed, regenerated and retired with the atoms it names. Its retirement
  * reason is the record's own `retired` field.
+ *
+ * With the units of a diff read from the ledgers: a test that names an atom on a unit whose links rerun (a
+ * new unit landed in its section) and is not regenerated or retired already is a test to rerun, as is; a
+ * test that names an atom on an advisory unit (other neighbours, another file) is listed as advisory only.
  */
 
 export const EstateTestMeta = z.looseObject({
@@ -151,6 +155,14 @@ export const RegenerateWhy = z.enum([
 ]);
 export type RegenerateWhy = z.infer<typeof RegenerateWhy>;
 
+const UnitTest = z.strictObject({
+  test: z.string().min(1),
+  file: z.string().min(1),
+  atoms: z.array(
+    z.strictObject({ atom: z.string().min(1), unit: z.string().min(1), why: z.array(z.string().min(1)) }),
+  ),
+});
+
 export const ImpactReport = z.strictObject({
   version: z.literal(1),
   diff: z.strictObject({ old: z.string().min(1), new: z.string().min(1) }),
@@ -207,6 +219,13 @@ export const ImpactReport = z.strictObject({
       }),
     )
     .describe('Guards whose enforcement state changed'),
+  units: z
+    .strictObject({
+      rerun: z.array(UnitTest).describe('Tests to rerun as they are: a unit their atoms sit on reruns'),
+      advisory: z.array(UnitTest).describe('Tests reported only: a unit their atoms sit on is advisory'),
+    })
+    .optional()
+    .describe('What the ledger units of the diff do to the tests; present when the diff read the ledgers'),
   unaffected: z.strictObject({
     moved: z.number().int().min(0).describe('Atoms moved with the same quote: no test changes'),
     tests: z.number().int().min(0).describe('Live tests the diff does not touch'),
@@ -274,6 +293,25 @@ export function estateImpact(
     if (atoms.length > 0) regenerate.push({ test: test.id, file: test.file, atoms });
     else untouched++;
   }
+  const touched = new Set([...regenerate, ...retire].map((entry) => `${entry.file}\0${entry.test}`));
+  const unitTests = (refs: NonNullable<EstateDiff['units']>['rerun']) => {
+    const out: z.infer<typeof UnitTest>[] = [];
+    for (const test of live) {
+      if (touched.has(`${test.file}\0${test.id}`)) continue;
+      const atoms = refs.flatMap((ref) =>
+        ref.atoms
+          .filter((atom) => test.atoms.includes(atom))
+          .map((atom) => ({ atom, unit: ref.unit, why: ref.why })),
+      );
+      if (atoms.length > 0) out.push({ test: test.id, file: test.file, atoms });
+    }
+    return out;
+  };
+  const units = diff.units
+    ? { rerun: unitTests(diff.units.rerun), advisory: unitTests(diff.units.advisory) }
+    : undefined;
+  untouched -= units?.rerun.length ?? 0;
+
   for (const test of tests) {
     if (test.retired === undefined) continue;
     const gone = test.atoms.filter((atom) => removed.has(atom));
@@ -336,6 +374,7 @@ export function estateImpact(
     retire,
     new: fresh,
     guards,
+    ...(units === undefined ? {} : { units }),
     unaffected: { moved: diff.atoms.moved.length, tests: untouched },
     ...(options.regression ? { regression: options.regression } : {}),
     needsPerson,
@@ -456,6 +495,22 @@ export function renderImpact(report: ImpactReport): string {
       lines.push(
         `  ${entry.move} ${entry.guard}: ${entry.from ?? 'no state'} to ${entry.to ?? 'no state'}${tests}`,
       );
+    }
+  }
+  if (report.units) {
+    if (report.units.rerun.length > 0) {
+      lines.push('Rerun as they are, a unit their atoms sit on reruns:');
+      for (const entry of report.units.rerun)
+        lines.push(
+          `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}, ${item.why.join('; ')}`).join(', ')}`,
+        );
+    }
+    if (report.units.advisory.length > 0) {
+      lines.push('Advisory only, a unit their atoms sit on has other neighbours or moved:');
+      for (const entry of report.units.advisory)
+        lines.push(
+          `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}`).join(', ')}`,
+        );
     }
   }
   if (report.regression) lines.push(...renderRegression(report.regression));

@@ -94,3 +94,36 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.route-planner.an-ask-that-fits-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0388
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: after_restart
+          owner_signal: go
+          deviation: D4_loose_confirmation
+          estate_hazard: stale_tracker
+          atoms.route: route.route-planner.an-ask-that-fits-route-planner
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

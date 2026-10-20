@@ -37,6 +37,24 @@ export function characters(text: string): number {
 /** The default ceiling on the standing instructions (standing files and memory), in characters. */
 export const DEFAULT_STANDING_CEILING = 40_000;
 
+/**
+ * The numeric limits the invariant checks measure, declared beside the checks that make the atoms: the check,
+ * the field of its atom that holds the limit, how the measured quantity is compared with the limit for the
+ * invariant to hold, and the unit. A reader of the map (the variable store feed) takes a limit from any
+ * invariant whose check is declared here, and names no check itself. A check that measures a new limit adds its
+ * row here.
+ */
+export type InvariantLimit = {
+  check: string;
+  limit: string;
+  comparison: 'lt' | 'le' | 'gt' | 'ge';
+  unit?: string;
+};
+
+export const INVARIANT_LIMITS: readonly InvariantLimit[] = [
+  { check: 'standing_size', limit: 'ceiling', comparison: 'le', unit: 'characters' },
+];
+
 /** The pointer reader's inputs but the files, which the scan takes from the estate's prose. */
 export type PointerScanOptions = Omit<PointerInput, 'files'>;
 
@@ -62,7 +80,12 @@ export type ScanAtoms = {
 export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}): Promise<ScanAtoms> {
   raw = normativeEstate(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
-  const builder = new AtomBuilder(files);
+  const builder = new AtomBuilder(files, {
+    bases: raw.bases ?? [],
+    aliases: raw.aliases ?? {},
+    externals: raw.externals ?? [],
+    skipped: new Set(raw.ignored?.paths ?? []),
+  });
   codeAtoms(raw, builder);
   const chunks: ChunkRun[] = [];
   const refusals: ProseRefusal[] = [];

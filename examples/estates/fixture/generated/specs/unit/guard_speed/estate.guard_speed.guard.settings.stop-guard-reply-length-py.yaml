@@ -96,3 +96,22 @@ metadata:
             last_reply: Keep every reply under 1,200 characters unless the user asks for detail.
           material: Keep every reply under 1,200 characters unless the user asks for detail.
       budgetMs: 60000
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_speed.guard.settings.stop-guard-reply-length-py
+        values:
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

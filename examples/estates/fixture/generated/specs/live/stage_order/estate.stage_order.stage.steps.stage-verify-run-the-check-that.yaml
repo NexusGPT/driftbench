@@ -89,3 +89,22 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-verify-run-the-check-that
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: stage_order.stage.steps.stage-verify-run-the-check-that
+        values:
+          atoms.stage: stage.steps.stage-verify-run-the-check-that
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

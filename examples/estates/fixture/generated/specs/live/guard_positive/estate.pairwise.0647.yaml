@@ -66,3 +66,28 @@ metadata:
     ask: code
     askFrom: guard.settings.posttooluse-bash-guard-ledger-guard-py (ruleText)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0647
+        values:
+          ask_class: chat
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: frustration
+          deviation: D1_off_topic
+          estate_hazard: stale_tracker
+          atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

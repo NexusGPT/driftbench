@@ -100,3 +100,37 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.ledger-auditor.answer-with-one-json-object-and
+        ledger: pk2dvdlukx
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0001
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: after_restart
+          owner_signal: go
+          deviation: D10_return
+          estate_hazard: no_hazard
+          atoms.register: register.ledger-auditor.answer-with-one-json-object-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

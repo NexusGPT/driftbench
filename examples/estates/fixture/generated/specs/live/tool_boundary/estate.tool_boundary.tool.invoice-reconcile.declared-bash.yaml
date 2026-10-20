@@ -84,3 +84,29 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.invoice-reconcile.declared-bash
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_boundary.tool.invoice-reconcile.declared-bash
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

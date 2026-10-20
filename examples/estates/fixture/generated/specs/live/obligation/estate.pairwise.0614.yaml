@@ -73,3 +73,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.r8-do-not-invent-order-numbers
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r8-do-not-invent-order-numbers
+        ledger: jixkl7ilvt
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0614
+        values:
+          ask_class: chat
+          ask_shape: correction
+          session_state: helpers_running
+          owner_signal: go
+          deviation: D2_goal_shift
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.r8-do-not-invent-order-numbers
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

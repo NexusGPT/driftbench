@@ -95,3 +95,36 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1035
+        values:
+          ask_class: chat
+          ask_shape: prescribed
+          session_state: after_restart
+          owner_signal: limit_word
+          deviation: D7_silence_or_burst
+          estate_hazard: process_restart
+          atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

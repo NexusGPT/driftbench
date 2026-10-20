@@ -79,3 +79,37 @@ metadata:
     outcome: no-change:read-only
     judged:
       - instruction.supplier-email.never-copy-a-price-or-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.never-copy-a-price-or-a
+        ledger: xxhhucduvn
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0802
+        values:
+          ask_class: chat
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.supplier-email.never-copy-a-price-or-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

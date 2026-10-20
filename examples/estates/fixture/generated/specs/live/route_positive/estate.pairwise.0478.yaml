@@ -92,3 +92,28 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0478
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: go
+          deviation: D4_loose_confirmation
+          estate_hazard: compaction_mid_task
+          atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

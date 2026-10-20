@@ -73,6 +73,8 @@ export {
   renderRegression,
   retirementReason,
   runPassed,
+  UnitsDiff,
+  unitsDiff,
   writeRetirements,
 } from './maintain';
 export {
@@ -287,3 +289,4 @@ export {
   type UnitRun,
   type UnitRunOptions,
 } from './unit';
+export * as variables from './variables';

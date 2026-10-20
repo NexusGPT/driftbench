@@ -11,13 +11,14 @@ see_also:
   - authoring-deviation-classes
   - authoring-blocks
   - authoring-spec-format
+  - redteam-user
 next:
   - authoring-blast-radius
 ---
 
 ## What it is
 
-A run sends the agent one stimulus per block. A user driver decides what each stimulus is, and when the run stops. There are four drivers.
+A run sends the agent one stimulus per block. A user driver decides what each stimulus is, and when the run stops. There are five drivers.
 
 | Driver | Id in output | Writes the turns from | Reached by |
 |---|---|---|---|
@@ -25,6 +26,7 @@ A run sends the agent one stimulus per block. A user driver decides what each st
 | simulated | `simulated:<family>` | A persona played by a model, or a recording of answers. | `simulate`, `campaign run --driver simulated`. |
 | perturbing | `perturbing:<perturbation id>` | A base driver (scripted or simulated), plus one deviation injected before block `inject_at`. | `campaign run --mode P`, `perturb`, `attack`. |
 | attacker | (the `attack` command) | Deviations picked round by round from the agent's last replies and drawn from the red-team pack. | `attack`. |
+| red-team user | `redteam:<strategy>:<family>`, or `redteam:<strategy>:replay` | One objective pressed every turn by Crescendo or GOAT, or a recording of those turns. | `redteam run`, and `createRedTeamUser` in code. |
 
 Scripted driver. It replays block i with that block's stimulus and stops after the last block. When the spec has an `end` (`verdict`: `success` or `failure`, optional `reason`, optional `atBlock`: the index of the last block that runs, `-1` for none), it stops after `atBlock` (the last block when absent) with that verdict.
 
@@ -37,7 +39,7 @@ The answers come from one of two sources:
 
 Perturbing driver. It plays the base driver's blocks and injects one deviation: a user message or a burst goes in as its own block before block `inject_at`; a world-only deviation (a tool result or error, a workspace file) changes block `inject_at` itself. In `campaign run --driver simulated` mode P, the simulated user is the base. See authoring-perturbations.
 
-Attacker. `attack` runs the spec free, then up to `--rounds` attacks, each one deviation class picked from the agent's last replies, and reads the recovery record. Without `--model` it draws phrasings from the red-team pack (free). With `--model`, a model writes the attacks a user message carries; the same family rules apply. The library also exports `createRedTeamUser` (strategies `crescendo` and `goat`), a multi-turn red-team user; no CLI command reaches it.
+Attacker. `attack` runs the spec free, then up to `--rounds` attacks, each one deviation class picked from the agent's last replies, and reads the recovery record. Without `--model` it draws phrasings from the red-team pack (free). With `--model`, a model writes the attacks a user message carries; the same family rules apply. Red-team user. `createRedTeamUser` (strategies `crescendo` and `goat`) writes every turn toward one objective and scores each reply; `redteam run` drives it. See redteam-user.
 
 ## When to use it
 
@@ -46,6 +48,7 @@ Attacker. `attack` runs the spec free, then up to `--rounds` attacks, each one d
 - Simulated with `--model`: to explore wording you did not script (paid; the budget of `campaign run` does not count simulated-user calls).
 - Perturbing: to measure recovery after a deviation (authoring-perturbations).
 - Attacker: to search for the deviation that breaks the agent.
+- Red-team user: to press one objective for a whole conversation.
 
 ## Commands and every option
 
@@ -69,7 +72,7 @@ driftbench simulate <spec> --persona <file> (--model | --recording <file>) [--ta
 | `--judge-family <family>` | A judge's model family. Repeat it. | none |
 | `--json` | One JSON document. | off |
 
-The run is mode F, once, with the simulated driver.
+The run is mode F, once, with the simulated driver. Without `--persona`, on a spec whose blocks define the simulated user, `simulate` runs block mode instead: k trials per family from `--model` or `--cassette` (topic running-simulate).
 
 | Exit code | When |
 |---|---|
@@ -129,13 +132,25 @@ answers:
 
 Write the answers for the agent's real replies: an answer that holds a fact before the agent asked for it fails the run.
 
+### The cassette (JSON), for a simulated user defined in the blocks
+
+Written by `simulate --model --record-cassette <file>` and read by `simulate --cassette <file>`, when the spec's blocks define the simulated user (`when.simulated_user`, topic authoring-personas).
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `family` | string, not empty | yes | The model family recorded: the simulated user's family, so it must differ from the agent's and the judges'. |
+| `model` | string, not empty | yes | The model recorded. |
+| `entries` | map of 64-hex key to string | yes | Each response (the realiser's message or the labeller's JSON) by the SHA-256 of its request: its seed, how many times the same request came before in that run, the system and user text, and the token cap. |
+
+A trial replays its own responses even when a model answered the same request differently in another trial. A request the cassette does not hold fails the run with its key: a changed prompt, seed or agent reply needs a new recording. `examples/acme/simulated/cassettes/` holds two, recorded from `gpt-5.4-nano` and `gemini-3.5-flash-lite`.
+
 ### The attack recording (JSON), for `attack --replay`
 
 Written by `attack --record`. It must hold `version: 1`, `spec` (string), `specHash` (string), `seed` (number) and `rounds`, a list where each round has `class` (a deviation class), `inject_at` (number) and `phrasing` (object); `--record` also writes each round's `cue`.
 
 ### The spec
 
-The scripted driver reads each block's `when` stimulus and the spec's optional `end`. The simulated driver reads each block's words as a hint (a `user` message, a `burst` joined with ` / `, or an injected message).
+The scripted driver reads each block's `when` stimulus and the spec's optional `end`. It sends the user text of an `exact` or `replay` block as written, without its `simulated_user`, and refuses a `simulated` block. The simulated driver reads each block's words as a hint (a `user` message, a `burst` joined with ` / `, or an injected message).
 
 ## Outputs and how to read them
 

@@ -102,3 +102,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r3-read-a-file-before-you
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r3-read-a-file-before-you
+        ledger: oeowulj3qm
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1173
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: hold
+          deviation: D11_pii_leak
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.standing.r3-read-a-file-before-you
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

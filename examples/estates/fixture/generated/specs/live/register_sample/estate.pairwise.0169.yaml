@@ -95,3 +95,29 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.r1-always-answer-in-the-language
+        ledger: 7c77n3lgl5
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0169
+        values:
+          ask_class: build
+          ask_shape: ambiguous
+          session_state: fresh
+          owner_signal: language_switch
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.register: register.standing.r1-always-answer-in-the-language
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

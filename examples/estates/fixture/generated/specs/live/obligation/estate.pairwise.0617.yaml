@@ -99,3 +99,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r13-before-you-dispatch-a-helper
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r13-before-you-dispatch-a-helper
+        ledger: nm5qvlsrod
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0617
+        values:
+          ask_class: chat
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: frustration
+          deviation: D4_loose_confirmation
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.standing.r13-before-you-dispatch-a-helper
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

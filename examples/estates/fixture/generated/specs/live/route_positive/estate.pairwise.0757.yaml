@@ -68,3 +68,36 @@ metadata:
     ask: code
     askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0757
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: helpers_running
+          owner_signal: limit_word
+          deviation: D11_pii_leak
+          estate_hazard: compaction_mid_task
+          atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

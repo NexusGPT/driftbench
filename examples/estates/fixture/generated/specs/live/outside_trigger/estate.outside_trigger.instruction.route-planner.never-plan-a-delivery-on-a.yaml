@@ -63,3 +63,31 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.route-planner.never-plan-a-delivery-on-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.never-plan-a-delivery-on-a
+        ledger: 3j7thuawtp
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.route-planner.never-plan-a-delivery-on-a
+        values:
+          atoms.instruction: instruction.route-planner.never-plan-a-delivery-on-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

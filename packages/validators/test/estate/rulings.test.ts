@@ -32,6 +32,25 @@ async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChec
   }
 }
 
+/**
+ * The run with only the specs of one item's class, for a measure that reads that one item. An item's result
+ * comes from its own specs' replays; the one reading across specs, `distinct`, compares a route_positive ask
+ * with earlier asks of the same route, so a subset that drops such an earlier ask is refused here.
+ */
+function ownRun(run: pipeline.EstateRun, key: string): pipeline.EstateRun {
+  const own = run.specs.filter((s) => suffix(run, s) === key);
+  const route = (s: pipeline.GeneratedSpec) => String(estateMeta(s).atoms?.[0] ?? s.record.row);
+  const positive = (s: pipeline.GeneratedSpec) => s.record.row.startsWith('route_positive.');
+  const routes = new Set(own.filter(positive).map(route));
+  const shared = run.specs.filter((s) => !own.includes(s) && positive(s) && routes.has(route(s)));
+  expect(
+    shared.map((s) => s.record.id),
+    `${key}: a route_positive ask of another class`,
+  ).toEqual([]);
+  expect(own.length, key).toBeGreaterThan(0);
+  return { ...run, specs: own };
+}
+
 describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
   it('records the real product result: every one of the fourteen items holds on seed 1', async () => {
     const result = await genCompleteFamily().evaluate(1);
@@ -61,12 +80,18 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
         gaps,
         clauses: components.map((c) => c.id),
       });
+      // Each mutant is measured on the specs of its own class, the only ones its item reads.
+      const own = ownRun(run, key);
+      expect((await measure(own)).get(`gen.complete.${key}`), `${key} own`).toEqual({
+        pass: true,
+        detail: 'holds',
+      });
       // Product-output deletion operators derive from check structure, not item names.
       const shapes = [...new Map(components.map((c) => [`${c.channel}.${c.check}`, c])).values()];
       for (const component of shapes) {
         const mutant = {
-          ...run,
-          specs: run.specs.map((s) => {
+          ...own,
+          specs: own.specs.map((s) => {
             if (!sources.includes(s) || !s.loaded) return s;
             const copy = structuredClone(s);
             const spec = required(copy.loaded).spec;
@@ -108,11 +133,18 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       const result = await required(ESTATE_CHECKS.hazard_recovery)(ctx, options);
       return (Array.isArray(result) ? result : [result]).filter((v) => !v.id.endsWith('collateral'));
     };
-    const first = await measure({ ...run }, referenceChecks(true, { guard_message: firstOnly }));
-    const collateral = await measure({ ...run }, referenceChecks(true, { hazard_recovery: noCollateral }));
+    const first = await measure(
+      ownRun(run, 'guard_register-guard-read-before-edit-py'),
+      referenceChecks(true, { guard_message: firstOnly }),
+    );
+    const collateral = await measure(
+      ownRun(run, 'hazard_recovery-hazard-after-compaction'),
+      referenceChecks(true, { hazard_recovery: noCollateral }),
+    );
+    const denials = ownRun(run, 'tool_denied-tool-deny');
     const noCall = {
-      ...run,
-      specs: run.specs.map((s) => {
+      ...denials,
+      specs: denials.specs.map((s) => {
         if (!s.loaded) return s;
         const copy = structuredClone(s);
         for (const block of required(copy.loaded).spec.blocks)
@@ -169,9 +201,10 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       },
     ];
     for (const mutant of mutants) {
+      const own = ownRun(run, mutant.key);
       const changed = {
-        ...run,
-        specs: run.specs.map((s) => {
+        ...own,
+        specs: own.specs.map((s) => {
           if (suffix(run, s) !== mutant.key || !s.loaded) return s;
           const copy = structuredClone(s);
           mutant.change(required(copy.loaded).spec);
@@ -184,7 +217,9 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       });
     }
     expect(
-      (await measure({ ...run }, referenceChecks(false))).get('gen.complete.tool_boundary-tool-ask'),
+      (await measure(ownRun(run, 'tool_boundary-tool-ask'), referenceChecks(false))).get(
+        'gen.complete.tool_boundary-tool-ask',
+      ),
     ).toMatchObject({ pass: false, detail: expect.stringContaining('permission_decision') });
     const restored = await measure({ ...run });
     for (const key of [...mutants.map((m) => m.key), 'tool_boundary-tool-ask'])
@@ -335,7 +370,7 @@ describe('hazard_recovery demands the reread its passage names', { timeout: 900_
       if (sources.length === 0) continue;
       judged += 1;
       // The product's own spec holds, and the same spec without its reread fails on the reread.
-      expect((await measure(raw)).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toEqual({
+      expect((await measure(ownRun(raw, HAZARD))).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toEqual({
         pass: true,
         detail: 'holds',
       });
@@ -349,7 +384,10 @@ describe('hazard_recovery demands the reread its passage names', { timeout: 900_
           return copy;
         }),
       };
-      expect((await measure(dropped)).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toMatchObject({
+      expect(
+        (await measure(ownRun(dropped, HAZARD))).get(`gen.complete.${HAZARD}`),
+        `seed ${seed}`,
+      ).toMatchObject({
         pass: false,
         detail: expect.stringContaining('reread'),
       });
@@ -362,7 +400,7 @@ describe('hazard_recovery demands the reread its passage names', { timeout: 900_
       const run = referenceRun(await pipeline.generationRun(seed));
       const specs = hazardSpecs(run);
       if (specs.length === 0) continue;
-      expect((await measure(run)).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toEqual({
+      expect((await measure(ownRun(run, HAZARD))).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toEqual({
         pass: true,
         detail: 'holds',
       });

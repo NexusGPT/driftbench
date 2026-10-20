@@ -97,3 +97,36 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0140
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

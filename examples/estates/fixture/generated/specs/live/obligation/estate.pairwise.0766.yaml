@@ -66,3 +66,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.memory-supplier-languages.when-a-supplier-is-not-in
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-supplier-languages.when-a-supplier-is-not-in
+        ledger: vbhqgyxxpc
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0766
+        values:
+          ask_class: build
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: none
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.memory-supplier-languages.when-a-supplier-is-not-in
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

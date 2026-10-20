@@ -17,6 +17,8 @@ export const SpanKind = z.strictObject({
   description: z.string().min(1),
   /** The spans of this kind carry a polarity, obligation or prohibition. */
   polarity: z.literal(true).optional(),
+  /** A span of this kind lies inside a span of the named kind, given in the same answer entry. */
+  within: z.string().regex(LABEL_NAME, { error: 'within names a span kind' }).optional(),
 });
 export type SpanKind = z.infer<typeof SpanKind>;
 
@@ -129,6 +131,8 @@ export function parseLabelSets(text: string): LabelSetsResult {
         return { ok: false, message: `the set ${set.set} declares the span kind ${kind.name} twice` };
       spanKinds.add(kind.name);
     }
+    const nesting = nestingProblem(set);
+    if (nesting) return { ok: false, message: nesting };
     const linkKinds = new Set<string>();
     for (const kind of set.links ?? []) {
       if (linkKinds.has(kind.name))
@@ -153,6 +157,15 @@ export function parseLabelSets(text: string): LabelSetsResult {
           };
         }
       }
+      for (const kind of label.spans ?? []) {
+        const parent = set.spans?.find((candidate) => candidate.name === kind)?.within;
+        if (parent && !label.spans?.includes(parent)) {
+          return {
+            ok: false,
+            message: `the label ${label.name} carries the span kind ${kind}, which is within ${parent}, and not ${parent}`,
+          };
+        }
+      }
       if (names.has(label.name))
         return { ok: false, message: `the set ${set.set} declares ${label.name} twice` };
       names.add(label.name);
@@ -168,6 +181,32 @@ export function parseLabelSets(text: string): LabelSetsResult {
     }
   }
   return { ok: true, sets: parsed.data.labels };
+}
+
+/** True when `outer` is the parent of `kind`, or its parent's parent, and so on up the chain. */
+function ancestor(kinds: ReadonlyMap<string, SpanKind>, kind: string, outer: string): boolean {
+  let up = kinds.get(kind)?.within;
+  for (let step = 0; up !== undefined && step < kinds.size; step += 1) {
+    if (up === outer) return true;
+    up = kinds.get(up)?.within;
+  }
+  return false;
+}
+
+/** Why the `within` of the span kinds of a set cannot be followed, or undefined when it can. */
+function nestingProblem(set: LabelSet): string | undefined {
+  const parents = new Map((set.spans ?? []).map((kind) => [kind.name, kind.within]));
+  for (const [name, parent] of parents) {
+    if (parent === undefined) continue;
+    if (parent === name) return `the span kind ${name} is within itself`;
+    if (!parents.has(parent))
+      return `the span kind ${name} is within ${parent}, which the set does not declare`;
+    // The chain above a kind has at most as many steps as there are kinds; a longer one loops.
+    let up: string | undefined = parent;
+    for (let step = 0; up !== undefined && step < parents.size; step += 1) up = parents.get(up);
+    if (up !== undefined) return `the span kinds ${name} and ${parent} are within each other`;
+  }
+  return undefined;
 }
 
 /** The hash of a set's canonical form: editing one label changes only that set's hash. */
@@ -193,7 +232,7 @@ export type SpanAnswer = { kind: string; from: number; to: number; polarity?: st
 
 /** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
 export type SpanInput = { kind: string; polarity?: string } & (
-  | { from: number; to: number }
+  | { from: number; to: number; unlocated?: string }
   | { text: string }
 );
 
@@ -338,7 +377,8 @@ export function locateSpanText(
 
 /**
  * Turns the spans a labeler wrote as words into offsets, so the words never reach a cassette. A text that cannot
- * be located becomes an offset pair that no unit holds, which the check of the answer refuses.
+ * be located becomes an offset pair that no unit holds, with the reason code gave, and the check of the answer
+ * refuses it with that reason.
  */
 export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
   return entries.map((entry) => {
@@ -352,7 +392,9 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
           return span;
         const { text, ...rest } = span;
         const found = locateSpanText(flatten(unit.text).text, text);
-        return 'reason' in found ? { ...rest, from: -1, to: -1 } : { ...rest, ...found };
+        return 'reason' in found
+          ? { ...rest, from: -1, to: -1, unlocated: found.reason }
+          : { ...rest, ...found };
       }),
     };
   });
@@ -382,7 +424,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
-    const counted: Array<[number, number]> = [];
+    const counted: Array<{ kind: string; from: number; to: number }> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -401,6 +443,7 @@ function checkExtras(
         if ('reason' in found) return `${where}: ${found.reason}`;
         ({ from, to } = found);
       } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+        if ('unlocated' in span && typeof span.unlocated === 'string') return `${where}: ${span.unlocated}`;
         ({ from, to } = span);
         if (from < 0 || to > shown.text.length || from >= to) {
           return `${where}: offsets leave the unit (length ${shown.text.length}) or are empty`;
@@ -414,10 +457,17 @@ function checkExtras(
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (counted.some(([a, b]) => from < b && a < to)) {
+      if (
+        counted.some(
+          (other) =>
+            from < other.to &&
+            other.from < to &&
+            !(ancestor(kinds, span.kind, other.kind) || ancestor(kinds, other.kind, span.kind)),
+        )
+      ) {
         return `${where} overlaps another span of the unit`;
       }
-      counted.push([from, to]);
+      counted.push({ kind: span.kind, from, to });
       seen.push({
         kind: span.kind,
         from: shown.at[from] as number,
@@ -425,7 +475,17 @@ function checkExtras(
         ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }
-    out.spans = seen.sort((a, b) => a.from - b.from);
+    // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry.
+    for (const inner of counted) {
+      const outer = kinds.get(inner.kind)?.within;
+      if (
+        outer !== undefined &&
+        !counted.some((other) => other.kind === outer && other.from <= inner.from && inner.to <= other.to)
+      ) {
+        return `unit [${unit.n}] has a span of the kind ${inner.kind} that is not inside a span of the kind ${outer}`;
+      }
+    }
+    out.spans = seen.sort((a, b) => a.from - b.from || b.to - a.to);
   }
   if (entry.links !== undefined) {
     if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';

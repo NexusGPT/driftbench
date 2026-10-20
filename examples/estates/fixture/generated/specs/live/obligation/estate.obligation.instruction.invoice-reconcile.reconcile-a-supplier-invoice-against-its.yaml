@@ -64,3 +64,31 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
+        ledger: 4irijjz2pq
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
+        values:
+          atoms.instruction: instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

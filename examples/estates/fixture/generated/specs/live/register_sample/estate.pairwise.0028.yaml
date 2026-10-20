@@ -95,3 +95,29 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.r9-ask-at-most-one-question
+        ledger: h7d22dl6s4
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0028
+        values:
+          ask_class: compose
+          ask_shape: problem
+          session_state: after_restart
+          owner_signal: stop
+          deviation: D3_contradiction
+          estate_hazard: dead_helper
+          atoms.register: register.standing.r9-ask-at-most-one-question
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

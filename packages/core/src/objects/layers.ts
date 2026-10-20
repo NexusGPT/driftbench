@@ -88,8 +88,24 @@ export function objectContextFor(specPath: string, registry: ObjectRegistry = ob
 }
 
 /** A context with the shipped objects only: what a spec read from text, with no folder, resolves against. */
+/** The shipped store of each registry, kept while the registry's revision holds: see `shippedObjectContext`. */
+const SHIPPED_STORES = new WeakMap<ObjectRegistry, { revision: number; store: ObjectStore }>();
+
+/**
+ * The objects a spec sees with no project or suite file: the shipped ones. Every run asks for it, so one store
+ * per registry is kept, with its resolutions, until a kind, an implementation or a shipped object is registered
+ * or a snapshot is restored. Each call gets its own store started from it, so a caller that adds objects changes
+ * no other call's store.
+ */
 export function shippedObjectContext(registry: ObjectRegistry = objectRegistry): ObjectContext {
-  return { store: new ObjectStore(registry), uses: [], problems: [] };
+  if (registry === objectRegistry) initializeShippedObjects();
+  const kept = SHIPPED_STORES.get(registry);
+  let base = kept?.revision === registry.revision ? kept.store : undefined;
+  if (base === undefined) {
+    base = new ObjectStore(registry);
+    SHIPPED_STORES.set(registry, { revision: registry.revision, store: base });
+  }
+  return { store: new ObjectStore(registry, base), uses: [], problems: [] };
 }
 
 function discover(dir: string): Discovered {
@@ -224,7 +240,8 @@ function referenceOf(
 /**
  * The objects one block uses, key by key: the command line, then the block, the spec, the suite and project
  * `uses.yaml` files; a key no layer sets resolves to the shipped `default` of its kind, when one is
- * registered. `explicitOnly` resolves only what a layer names, as the loader checks it.
+ * registered, and `diagnostics` to every shipped diagnostic marked `default: true`. `explicitOnly` resolves
+ * only what a layer names, as the loader checks it.
  */
 export function resolveBlockObjects(
   spec: Pick<Spec, 'uses' | 'blocks'>,
@@ -278,7 +295,17 @@ export function resolveBlockObjects(
         ? { ref: key === 'diagnostics' ? [cliId] : cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
-      const ids = (reference?.ref as string[] | undefined) ?? [];
+      // No layer names a list: the shipped diagnostics marked `default: true` run. `diagnostics: []` runs none.
+      const ids =
+        (reference?.ref as string[] | undefined) ??
+        (options.explicitOnly &&
+        !(context.cli?.set ?? []).some((set) => set.kind === kind && set.id === undefined)
+          ? []
+          : context.store
+              .list(kind)
+              .filter((entry) => entry.layer === 'shipped')
+              .map((entry) => entry.id)
+              .filter((id) => context.store.resolve(kind, id).fields.default === true));
       const unresolved = (context.cli?.set ?? []).find(
         (set) => set.kind === kind && (set.id === undefined ? ids.length === 0 : /^\([a-z]+\)$/.test(set.id)),
       );

@@ -83,3 +83,31 @@ metadata:
       planRows:
         - route_positive.route.standing.an-ask-to-write-to-or.1
         - route_positive.route.standing.an-ask-to-write-to-or.3
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-write-to-or
+        ledger: umxazowctg
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_positive.route.standing.an-ask-to-write-to-or.1
+        values:
+          atoms.route: route.standing.an-ask-to-write-to-or
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

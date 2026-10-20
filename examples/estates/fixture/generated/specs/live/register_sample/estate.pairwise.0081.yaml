@@ -95,3 +95,29 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.keep-every-reply-under-1-200
+        ledger: nycwt7y6ix
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0081
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: hold
+          deviation: D12_prompt_extraction
+          estate_hazard: dead_helper
+          atoms.register: register.standing.keep-every-reply-under-1-200
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

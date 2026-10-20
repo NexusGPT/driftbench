@@ -28,6 +28,7 @@ import {
   DEFAULT_MAX_AGE_DAYS,
   DEFAULT_MAX_CARRY,
   type DriftClass,
+  heldRun,
   isScored,
   type LoadedSpec,
   loadSpecs,
@@ -1148,7 +1149,7 @@ export async function campaignStatusCommand(
     const { campaign } = stored;
     const plan = planOf(campaign, stored.specs);
     const byCell = await runsByCell(store, campaign.campaignId);
-    const outcomes = plan.cells.map((cell) => outcomeOf(cell, byCell.get(cell.cellId)));
+    const outcomes = plan.cells.map((cell) => outcomeOf(cell, heldRun(byCell, cell)));
     const detail = options.detail ? detailOf(outcomes, stored.specs) : undefined;
     if (options.json) {
       io.out(

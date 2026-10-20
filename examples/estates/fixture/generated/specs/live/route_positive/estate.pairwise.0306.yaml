@@ -95,3 +95,37 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-write-to-or
+        ledger: umxazowctg
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0306
+        values:
+          ask_class: debug
+          ask_shape: concrete
+          session_state: after_restart
+          owner_signal: go
+          deviation: D10_return
+          estate_hazard: compaction_mid_task
+          atoms.route: route.standing.an-ask-to-write-to-or
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -1,18 +1,16 @@
 // Writes hf1-baseline.tsv: for every example spec, the sha of its file, its spec hash and a digest of its block
 // cache keys, as the checkout it runs in computes them. Run it on the commit the baseline names, from the repo root:
 //   pnpm exec tsx packages/core/test/fixtures/framework/make-hf1-baseline.ts > hf1-baseline.tsv
-// It uses only APIs main already had, and main's cache-key rule (the spec without its version), so the file it
-// writes on main is the reference the framework must reproduce (hf1.test.ts).
-// To refresh it after the examples change, keep the rule and move the files: build core at the commit the baseline
-// names, run this script from a folder that holds the newer examples/, and keep only the files the previous
-// baseline listed (a newer file can use a later hash rule, such as metadata.links, that the old core does not know).
+// It uses the cache-key rule of the checkout it runs in (cacheSpecHash: the spec without its version and its
+// scoring-only keys), the same rule hf1.test.ts and blast-blame-shipped-objects.test.ts apply, so the file it writes
+// is the reference they must reproduce.
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { extname, relative } from 'node:path';
 import {
   blockCacheKey,
+  cacheSpecHash,
   canonicalGiven,
-  contentHash,
   findSpecFiles,
   parseSpecText,
   resolveGiven,
@@ -53,13 +51,12 @@ for (const file of files) {
     file,
   );
   if (!loaded.ok) continue;
-  const { version: _version, ...unlabelled } = loaded.spec;
   rows.push(
     [
       relative('.', file),
       sha(bytes),
       loaded.hash,
-      sha(blockKeys(loaded.spec, contentHash(unlabelled)).join('\n')),
+      sha(blockKeys(loaded.spec, cacheSpecHash(loaded.spec)).join('\n')),
       loaded.spec.blocks.length,
     ].join('\t'),
   );

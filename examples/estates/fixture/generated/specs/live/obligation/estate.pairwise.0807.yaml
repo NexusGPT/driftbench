@@ -73,3 +73,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.r10-when-the-user-says-stop
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r10-when-the-user-says-stop
+        ledger: hexjxf5hak
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0807
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: after_restart
+          owner_signal: hold
+          deviation: D1_off_topic
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.standing.r10-when-the-user-says-stop
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

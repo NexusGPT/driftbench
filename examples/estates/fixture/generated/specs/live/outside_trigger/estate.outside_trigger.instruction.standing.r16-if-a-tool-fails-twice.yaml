@@ -58,3 +58,23 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.r16-if-a-tool-fails-twice
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r16-if-a-tool-fails-twice
+        ledger: ggatj5jijq
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.r16-if-a-tool-fails-twice
+        values:
+          atoms.instruction: instruction.standing.r16-if-a-tool-fails-twice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -56,7 +56,7 @@ complete check registry), and a setting must still be declared with its value.
 ## Commands and every option
 
 ```
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--sections <registry>]... [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime claude-code] [--ceiling <characters>] [--json]
 ```
 
@@ -71,6 +71,7 @@ driftbench estate static <tests...> --estate <root> [--runtime claude-code] [--c
 | `--phrases <file>` | `phrases.yaml` beside the map | the approved phrase bank; with none, every ask is written by code |
 | `--sessions <file>` | `sessions/index.yaml` beside the map, when present | the index of recorded sessions for replay rows |
 | `--focus <file>` | none | atom ids, one per line, whose complete specs come first in `run-order.txt` |
+| `--sections <registry>` | none | a section registry of a prompt of the estate, such as `CLAUDE.md` (beside it as `<name>.sections.yaml`, or `<registry>=<prompt>`): each block links the prompt sections that hold its atoms' quotes and the sections that reach them; repeat it. A registry that does not describe its prompt's text is refused, exit 2 |
 | `--no-fallback` | off | write no ask by code and read no outcome from the atoms: a row the bank does not cover stays incomplete |
 | `--no-judge` | off | judge no domain predicate: a rule no code checks stays `needs-registered-check` |
 | `--force` | off | replace the output of an earlier run in the folder |

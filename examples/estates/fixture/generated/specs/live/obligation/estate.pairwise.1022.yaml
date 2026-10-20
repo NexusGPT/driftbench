@@ -78,3 +78,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.route-planner.never-plan-a-delivery-on-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.never-plan-a-delivery-on-a
+        ledger: 3j7thuawtp
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1022
+        values:
+          ask_class: operate
+          ask_shape: correction
+          session_state: resumed
+          owner_signal: limit_word
+          deviation: D7_silence_or_burst
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.route-planner.never-plan-a-delivery-on-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

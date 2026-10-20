@@ -99,3 +99,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r10-when-the-user-says-stop
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r10-when-the-user-says-stop
+        ledger: hexjxf5hak
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0083
+        values:
+          ask_class: change_estate
+          ask_shape: prescribed
+          session_state: fresh
+          owner_signal: stop
+          deviation: D4_loose_confirmation
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.r10-when-the-user-says-stop
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

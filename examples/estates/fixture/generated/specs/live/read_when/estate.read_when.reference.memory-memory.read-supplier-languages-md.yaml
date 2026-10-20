@@ -75,3 +75,22 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.memory-memory.read-supplier-languages-md
+        ledger: gv2geffhvz
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.memory-memory.read-supplier-languages-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

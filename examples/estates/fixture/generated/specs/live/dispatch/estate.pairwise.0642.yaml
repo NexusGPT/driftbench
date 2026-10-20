@@ -87,3 +87,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0642
+        values:
+          ask_class: chat
+          ask_shape: prescribed
+          session_state: fresh
+          owner_signal: language_switch
+          deviation: D6_instruction_in_data
+          estate_hazard: no_hazard
+          atoms.subagent: subagent.inbox-triager.helper-inbox-triager
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

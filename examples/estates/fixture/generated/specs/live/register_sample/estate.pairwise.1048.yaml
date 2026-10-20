@@ -95,3 +95,29 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.never-use-the-words-obviously-or
+        ledger: w5v46k2lbi
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1048
+        values:
+          ask_class: compose
+          ask_shape: problem
+          session_state: long
+          owner_signal: keep_going
+          deviation: D7_silence_or_burst
+          estate_hazard: rate_wave
+          atoms.register: register.standing.never-use-the-words-obviously-or
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

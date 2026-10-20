@@ -105,3 +105,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.shipment-tracker.always-pass-the-carrier-code-to
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+        ledger: 2pgcgb6enm
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0193
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D5_language_switch
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

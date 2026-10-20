@@ -63,3 +63,31 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.weekly-report.read-write-bash-python3
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.read-write-bash-python3
+        ledger: k7zmu74mwi
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.weekly-report.read-write-bash-python3
+        values:
+          atoms.instruction: instruction.weekly-report.read-write-bash-python3
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

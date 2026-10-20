@@ -79,3 +79,37 @@ metadata:
     outcome: no-change:read-only
     judged:
       - instruction.inbox-triager.a-message-that-fits-none-goes
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.a-message-that-fits-none-goes
+        ledger: ucqzvfeiik
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0340
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: after_restart
+          owner_signal: go
+          deviation: D2_goal_shift
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.inbox-triager.a-message-that-fits-none-goes
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

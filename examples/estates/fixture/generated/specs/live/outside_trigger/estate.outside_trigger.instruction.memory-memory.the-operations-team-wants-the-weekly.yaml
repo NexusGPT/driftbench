@@ -58,3 +58,23 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.memory-memory.the-operations-team-wants-the-weekly
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.the-operations-team-wants-the-weekly
+        ledger: uy66cc5nh7
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.memory-memory.the-operations-team-wants-the-weekly
+        values:
+          atoms.instruction: instruction.memory-memory.the-operations-team-wants-the-weekly
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

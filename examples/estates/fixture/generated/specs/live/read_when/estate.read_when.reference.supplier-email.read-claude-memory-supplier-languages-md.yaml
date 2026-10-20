@@ -55,3 +55,30 @@ metadata:
     ask: code
     askFrom: skill.supplier-email.skill-supplier-email (asks it names)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.supplier-email.read-claude-memory-supplier-languages-md
+        ledger: dgwysklcdn
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.supplier-email.read-claude-memory-supplier-languages-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

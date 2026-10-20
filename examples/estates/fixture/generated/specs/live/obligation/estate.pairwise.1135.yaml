@@ -108,3 +108,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.weekly-report.fill-the-template-in-this-order
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.fill-the-template-in-this-order
+        ledger: zccykz54pt
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1135
+        values:
+          ask_class: build
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: go
+          deviation: D10_return
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.weekly-report.fill-the-template-in-this-order
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -77,3 +77,21 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.settings.deny-webfetch
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_denied.tool.settings.deny-webfetch
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

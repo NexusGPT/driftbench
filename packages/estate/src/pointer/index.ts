@@ -71,6 +71,20 @@ export {
   unitKey,
 } from './ledger';
 export {
+  atomsByUnit,
+  EDIT_CLASSES,
+  type EditClass,
+  editCounts,
+  ledgerChangeManifest,
+  ledgerChanges,
+  type ManifestOptions,
+  proseLedger,
+  RERUN_RULE,
+  type Rerun,
+  rerunOf,
+  type UnitChange,
+} from './radius';
+export {
   DEFAULT_WINDOW_UNITS,
   type LabelerUsage,
   type LabelledUnit,
@@ -81,6 +95,14 @@ export {
   pointerScan,
   windowsOf,
 } from './scan';
+export {
+  MODEL_VARIABLES,
+  type PointerSettings,
+  parsePointerSettings,
+  readPointerSettings,
+  SETTINGS_FILE,
+  type SettingsResult,
+} from './settings';
 export {
   buildLabelling,
   DEFAULT_FAIL_AT,

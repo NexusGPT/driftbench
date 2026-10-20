@@ -76,3 +76,29 @@ metadata:
     ask: code
     askFrom: gate.standing.read-git-status-before-commit-to (governed clause)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-git-status-before-commit-to
+        ledger: zuie2qo5us
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1219
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: hold
+          deviation: D12_prompt_extraction
+          estate_hazard: compaction_mid_task
+          atoms.gate: gate.standing.read-git-status-before-commit-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

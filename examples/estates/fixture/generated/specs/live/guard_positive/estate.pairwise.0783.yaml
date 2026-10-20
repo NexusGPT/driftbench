@@ -85,3 +85,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0783
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: frustration
+          deviation: none
+          estate_hazard: process_restart
+          atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

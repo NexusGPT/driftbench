@@ -78,3 +78,22 @@ metadata:
         name: ledger-auditor
         file: .claude/agents/ledger-auditor.md
       cases: []
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: contract_alone.subagent.ledger-auditor.helper-ledger-auditor
+        values:
+          atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

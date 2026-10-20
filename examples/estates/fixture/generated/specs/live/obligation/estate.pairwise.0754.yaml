@@ -98,3 +98,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r4-never-delete-a-file-under
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r4-never-delete-a-file-under
+        ledger: woijaqquri
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0754
+        values:
+          ask_class: research
+          ask_shape: problem
+          session_state: resumed
+          owner_signal: limit_word
+          deviation: D5_language_switch
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.standing.r4-never-delete-a-file-under
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.route-planner.an-ask-that-fits-route-planner
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.route-planner.an-ask-that-fits-route-planner
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.route-planner.an-ask-that-fits-route-planner
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

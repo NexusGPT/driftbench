@@ -72,3 +72,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.memory-memory.never-schedule-a-delivery-on-a
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.never-schedule-a-delivery-on-a
+        ledger: 7wqtvpz2nv
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0945
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D5_language_switch
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.memory-memory.never-schedule-a-delivery-on-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

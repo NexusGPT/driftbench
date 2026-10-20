@@ -58,3 +58,23 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.r11-never-paste-the-contents-of
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r11-never-paste-the-contents-of
+        ledger: xi6od5jvxp
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.standing.r11-never-paste-the-contents-of
+        values:
+          atoms.instruction: instruction.standing.r11-never-paste-the-contents-of
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

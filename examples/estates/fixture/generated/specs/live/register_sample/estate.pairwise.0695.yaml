@@ -101,3 +101,37 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.invoice-reconcile.end-with-one-line-per-invoice
+        ledger: hkxeghi3ug
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0695
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D8_tool_failure
+          estate_hazard: rate_wave
+          atoms.register: register.invoice-reconcile.end-with-one-line-per-invoice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

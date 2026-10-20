@@ -79,3 +79,37 @@ metadata:
     outcome: no-change:read-only
     judged:
       - instruction.supplier-email.draft-answer-or-chase-an-email
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.draft-answer-or-chase-an-email
+        ledger: i7zk3vid52
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0714
+        values:
+          ask_class: change_estate
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: stop
+          deviation: D1_off_topic
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.supplier-email.draft-answer-or-chase-an-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

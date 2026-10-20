@@ -348,7 +348,9 @@ export async function replayOnFollower(
     });
     sessions.set(key, original);
   }
-  const mapped = structuredClone(original);
+  // The replay adapter reads its blocks and sends a copy of each, so the cached session serves a replay as it is.
+  // A counterexample changes the observations: it gets copies of the blocks, cloned together, never the cache's.
+  const mapped = counterexample ? { ...original, blocks: structuredClone(original.blocks) } : original;
   if (counterexample) for (const block of mapped.blocks) counterexample(block.observed);
   const result = await runSpec(spec.spec, {
     adapter: replayAdapter({ session: mapped }),

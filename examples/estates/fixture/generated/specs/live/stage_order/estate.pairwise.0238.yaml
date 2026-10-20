@@ -102,3 +102,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-plan-restate-the-ask-and
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0238
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: long
+          owner_signal: frustration
+          deviation: D3_contradiction
+          estate_hazard: no_hazard
+          atoms.stage: stage.steps.stage-plan-restate-the-ask-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -79,3 +79,37 @@ metadata:
     outcome: no-change:read-only
     judged:
       - instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
+        ledger: vevrrb6dx5
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0342
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D5_language_switch
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

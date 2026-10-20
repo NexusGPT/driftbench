@@ -86,3 +86,32 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.supplier-email.every-draft-has-a-subject-with
+        ledger: lnoao4ftra
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.supplier-email.every-draft-has-a-subject-with.build
+        values:
+          ask_class: build
+          atoms.register: register.supplier-email.every-draft-has-a-subject-with
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

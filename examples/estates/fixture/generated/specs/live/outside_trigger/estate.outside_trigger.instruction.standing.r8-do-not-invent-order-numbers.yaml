@@ -58,3 +58,23 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.r8-do-not-invent-order-numbers
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r8-do-not-invent-order-numbers
+        ledger: jixkl7ilvt
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.r8-do-not-invent-order-numbers
+        values:
+          atoms.instruction: instruction.standing.r8-do-not-invent-order-numbers
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -83,3 +83,30 @@ metadata:
       planRows:
         - route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.1
         - route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.3
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.1
+        values:
+          atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

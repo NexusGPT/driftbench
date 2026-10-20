@@ -109,3 +109,55 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.out.plans
         value: catalog.search.out.plans.several-items
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-011
+        values:
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          catalog.search.out.customer: catalog.search.out.customer.present
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: chat
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: catalog.search.out.plans=catalog.search.out.plans.several-items
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-011
+        values:
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          catalog.search.out.customer: catalog.search.out.customer.present
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: chat
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

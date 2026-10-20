@@ -167,6 +167,7 @@ export function generateEstateSuite(
     routes: unitRoutes(input.map.atoms, input.map.edges),
     navigation: navigationFiles(input.map.documents),
     paths: options.paths,
+    ...(options.sections ? { sections: options.sections } : {}),
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
     files: new Set(options.files ?? mapFiles(input.map)),

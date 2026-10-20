@@ -39,7 +39,7 @@ function spanLines(set: LabelSet, context: LabelContext): string[] {
       'SPAN KINDS:',
       ...set.spans.map(
         (kind) =>
-          `- ${kind.name}: ${kind.description}${kind.polarity ? ' (give "polarity": obligation or prohibition)' : ''}`,
+          `- ${kind.name}: ${kind.description}${kind.polarity ? ' (give "polarity": obligation or prohibition)' : ''}${kind.within ? ` (inside the ${kind.within} span)` : ''}`,
       ),
     );
   }

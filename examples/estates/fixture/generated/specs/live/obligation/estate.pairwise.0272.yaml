@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.ask-for-the-tracking-number-when
+        ledger: kwkaapewgh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0272
+        values:
+          ask_class: debug
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: language_switch
+          deviation: D12_prompt_extraction
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

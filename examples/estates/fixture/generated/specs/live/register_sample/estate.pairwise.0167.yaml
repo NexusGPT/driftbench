@@ -101,3 +101,37 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.supplier-email.every-draft-has-a-subject-with
+        ledger: lnoao4ftra
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0167
+        values:
+          ask_class: build
+          ask_shape: correction
+          session_state: fresh
+          owner_signal: no_questions
+          deviation: D7_silence_or_burst
+          estate_hazard: rate_wave
+          atoms.register: register.supplier-email.every-draft-has-a-subject-with
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

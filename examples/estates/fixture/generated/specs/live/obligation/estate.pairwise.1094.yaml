@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.weekly-report.prepare-the-weekly-operations-report-from
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.prepare-the-weekly-operations-report-from
+        ledger: razzzppalt
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1094
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: after_restart
+          owner_signal: frustration
+          deviation: D9_out_of_scope
+          estate_hazard: process_restart
+          atoms.instruction: instruction.weekly-report.prepare-the-weekly-operations-report-from
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

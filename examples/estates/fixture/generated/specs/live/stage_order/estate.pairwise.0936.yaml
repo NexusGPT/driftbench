@@ -104,3 +104,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-verify-run-the-check-that
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0936
+        values:
+          ask_class: operate
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D4_loose_confirmation
+          estate_hazard: compaction_mid_task
+          atoms.stage: stage.steps.stage-verify-run-the-check-that
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

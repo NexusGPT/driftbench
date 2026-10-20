@@ -106,3 +106,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.ledger-auditor.look-for-the-same-invoice-number
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.look-for-the-same-invoice-number
+        ledger: upb7zb4y7y
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1208
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: fresh
+          owner_signal: language_switch
+          deviation: D12_prompt_extraction
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.ledger-auditor.look-for-the-same-invoice-number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

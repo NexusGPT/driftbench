@@ -102,3 +102,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.a-tracker-note-may-be-written
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.a-tracker-note-may-be-written
+        ledger: ceowdbcrfy
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0542
+        values:
+          ask_class: change_estate
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D12_prompt_extraction
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.standing.a-tracker-note-may-be-written
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -108,3 +108,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.weekly-report.save-the-report-as-reports-year
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.save-the-report-as-reports-year
+        ledger: 4u2gwiyt2j
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0281
+        values:
+          ask_class: debug
+          ask_shape: problem
+          session_state: fresh
+          owner_signal: hold
+          deviation: D9_out_of_scope
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.weekly-report.save-the-report-as-reports-year
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

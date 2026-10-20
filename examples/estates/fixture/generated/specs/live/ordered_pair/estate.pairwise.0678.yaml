@@ -103,3 +103,37 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.invoice-reconcile.read-references-matching-rules-md-before
+        ledger: 4wfcnk2irw
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0678
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D5_language_switch
+          estate_hazard: rate_wave
+          atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

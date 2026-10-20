@@ -63,3 +63,32 @@ metadata:
     ask: code
     askFrom: gate.supplier-email.read-claude-memory-supplier-languages-md (governed clause)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.supplier-email.read-claude-memory-supplier-languages-md
+        ledger: dgwysklcdn
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.supplier-email.read-claude-memory-supplier-languages-md
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.supplier-email.read-claude-memory-supplier-languages-md
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

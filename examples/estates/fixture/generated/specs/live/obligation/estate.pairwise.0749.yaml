@@ -72,3 +72,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.an-invoice-line-matches-an-order
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.an-invoice-line-matches-an-order
+        ledger: ipa3rn57ax
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0749
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: none
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.invoice-reconcile.an-invoice-line-matches-an-order
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

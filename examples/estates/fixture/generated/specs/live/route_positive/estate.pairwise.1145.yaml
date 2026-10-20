@@ -95,3 +95,37 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-reconcile-an-invoice
+        ledger: cku6elyza2
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1145
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: stop
+          deviation: D10_return
+          estate_hazard: stale_tracker
+          atoms.route: route.standing.an-ask-to-reconcile-an-invoice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

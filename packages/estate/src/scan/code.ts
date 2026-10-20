@@ -42,7 +42,18 @@ export class AtomBuilder {
   private readonly suffixes = new Map<string, number>();
   private readonly byFile = new Map<string, Atom[]>();
 
-  constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
+  private names?: ReadonlyMap<string, readonly string[]>;
+
+  /** `places` are the estate's own: its base folders, aliases, external folders and skipped paths. */
+  constructor(
+    private readonly files: ReadonlyMap<string, EstateFile>,
+    private readonly places: Pick<NamedPlaces, 'bases' | 'aliases' | 'externals' | 'skipped'> = {},
+  ) {}
+
+  private place(path: string, from: string): NamedTarget {
+    this.names ??= fileNames(this.files);
+    return locateNamed(path, from, this.files, { ...this.places, byName: this.names });
+  }
 
   /** The file of the estate that a path written in `from` leads to; the path as resolved when none is found. */
   locate(path: string, from: string): string {
@@ -62,14 +73,17 @@ export class AtomBuilder {
     bare = false,
   ): NamedTarget & { exists: boolean; ignored: boolean; unresolved: boolean; concrete: boolean } {
     const raw = this.estate;
-    const skipped = raw ? skippedOf(raw) : new Set<string>();
-    const target = locateNamed(path, from, this.files, {
-      bases: raw?.bases ?? [],
-      skipped,
-      aliases: raw?.aliases ?? {},
-      byName: raw ? names(raw, this.files) : fileNames(this.files),
-      externals: raw?.externals ?? [],
-    });
+    // A configured estate gives its own places; otherwise the places the builder was made with.
+    const skipped = raw ? skippedOf(raw) : (this.places.skipped ?? new Set<string>());
+    const target = raw
+      ? locateNamed(path, from, this.files, {
+          bases: raw.bases ?? [],
+          skipped,
+          aliases: raw.aliases ?? {},
+          byName: names(raw, this.files),
+          externals: raw.externals ?? [],
+        })
+      : this.place(path, from);
     const present = this.files.has(target.path);
     // A name with no separator that resolves nowhere has no place. Quoted, backticked or linked with an
     // extension, it designates a file beside its source and is concrete; a loose word, or a name with no
@@ -592,6 +606,15 @@ export function isExternal(path: string, externals: readonly string[] = []): boo
   return externals.some((root) => clean === root || clean.startsWith(root.endsWith('/') ? root : `${root}/`));
 }
 
+/** The places of an estate that a named path is looked for in. */
+export type NamedPlaces = {
+  bases?: readonly string[];
+  skipped?: ReadonlySet<string>;
+  aliases?: Readonly<Record<string, readonly string[]>>;
+  byName?: ReadonlyMap<string, readonly string[]>;
+  externals?: readonly string[];
+};
+
 /**
  * A bare name tries its exact local folder, then its local subtree, before the estate root. Other
  * named paths resolve as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
@@ -603,13 +626,7 @@ export function locateNamed(
   path: string,
   from: string,
   files: ReadonlyMap<string, EstateFile>,
-  options: {
-    bases?: readonly string[];
-    skipped?: ReadonlySet<string>;
-    aliases?: Readonly<Record<string, readonly string[]>>;
-    byName?: ReadonlyMap<string, readonly string[]>;
-    externals?: readonly string[];
-  } = {},
+  options: NamedPlaces = {},
 ): NamedTarget {
   const skipped = options.skipped ?? new Set<string>();
   const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);

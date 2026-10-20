@@ -95,3 +95,36 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0017
+        values:
+          ask_class: debug
+          ask_shape: multi_part
+          session_state: helpers_running
+          owner_signal: stop
+          deviation: D2_goal_shift
+          estate_hazard: process_restart
+          atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -67,3 +67,22 @@ metadata:
       - marker: needs-askable-act
         atom: guard.settings.userpromptsubmit-guard-stop-word-sh
         detail: "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near"
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh
+        values:
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

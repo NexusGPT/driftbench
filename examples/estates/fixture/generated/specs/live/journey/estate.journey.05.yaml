@@ -92,3 +92,39 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-prepare-the-weekly
+        ledger: exnaqevdtv
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.weekly-report.read-references-kpi-definitions-md
+        ledger: 47fkb6hjzb
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: journey.05
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -99,3 +99,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r6-never-run-git-push-force
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r6-never-run-git-push-force
+        ledger: josrxaogo4
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0951
+        values:
+          ask_class: research
+          ask_shape: correction
+          session_state: long
+          owner_signal: frustration
+          deviation: D5_language_switch
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.standing.r6-never-run-git-push-force
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

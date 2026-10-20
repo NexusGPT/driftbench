@@ -78,3 +78,22 @@ metadata:
         name: route-planner
         file: .claude/agents/route-planner.md
       cases: []
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: contract_alone.subagent.route-planner.helper-route-planner
+        values:
+          atoms.subagent: subagent.route-planner.helper-route-planner
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -99,3 +99,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r7-when-a-shipment-is-late
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r7-when-a-shipment-is-late
+        ledger: emz6tmbir7
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0988
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: helpers_running
+          owner_signal: stop
+          deviation: D6_instruction_in_data
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.standing.r7-when-a-shipment-is-late
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

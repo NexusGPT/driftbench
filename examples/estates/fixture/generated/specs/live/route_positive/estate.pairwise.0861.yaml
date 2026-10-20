@@ -97,3 +97,37 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-prepare-the-weekly
+        ledger: exnaqevdtv
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0861
+        values:
+          ask_class: compose
+          ask_shape: multi_part
+          session_state: resumed
+          owner_signal: frustration
+          deviation: D2_goal_shift
+          estate_hazard: compaction_mid_task
+          atoms.route: route.standing.an-ask-to-prepare-the-weekly
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

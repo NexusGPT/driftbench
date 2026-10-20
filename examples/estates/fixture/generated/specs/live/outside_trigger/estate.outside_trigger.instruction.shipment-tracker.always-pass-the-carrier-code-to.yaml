@@ -63,3 +63,31 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.shipment-tracker.always-pass-the-carrier-code-to
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+        ledger: 2pgcgb6enm
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.shipment-tracker.always-pass-the-carrier-code-to
+        values:
+          atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

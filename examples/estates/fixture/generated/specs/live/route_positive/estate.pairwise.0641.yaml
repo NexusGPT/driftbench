@@ -95,3 +95,28 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0641
+        values:
+          ask_class: chat
+          ask_shape: ambiguous
+          session_state: helpers_running
+          owner_signal: hold
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.skill: skill.weekly-report.skill-weekly-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -68,3 +68,29 @@ metadata:
     ask: code
     askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.memory-supplier-languages.write-to-each-supplier-in-the
+        ledger: klbhgsbv5o
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0495
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: fresh
+          owner_signal: hold
+          deviation: D10_return
+          estate_hazard: rate_wave
+          atoms.register: register.memory-supplier-languages.write-to-each-supplier-in-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

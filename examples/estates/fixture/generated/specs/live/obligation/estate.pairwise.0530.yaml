@@ -107,3 +107,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.weekly-report.count-only-what-the-ledger-and
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.count-only-what-the-ledger-and
+        ledger: wrl4c7wlvb
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0530
+        values:
+          ask_class: change_estate
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D5_language_switch
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.weekly-report.count-only-what-the-ledger-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

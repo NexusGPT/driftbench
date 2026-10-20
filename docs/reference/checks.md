@@ -28,7 +28,7 @@ Two kinds of verdict are inconclusive:
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
-| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order`, `tools.argument_accuracy` |
+| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order` |
 | `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
@@ -66,7 +66,9 @@ Two kinds of verdict are inconclusive:
 | `custom` | `rules.custom` names a check | `custom.<name>`, `custom.<name>.<id>` |
 | `judge` | the check set holds a council and `expect.criteria` names a criterion | `judge.<name>` |
 
-`tools.argument_accuracy` never gates: its `score` is the share of expected arguments that matched. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
+Three `expect` keys are read by no check; they state facts that blame reads when a block fails: `protected` (paths or globs the agent must not change or delete), `task_impossible` (the task or its tests cannot be met honestly) and `downstream` (consumers that need a form of a value). The reference page of the spec lists their fields. `tools[].recompute` is read by the `tools` check, as `input` is: it declares an argument the agent computes.
+
+The share of expected arguments that matched is no verdict: the shipped diagnostic `argument-accuracy` writes it on the block as a diagnosis (`score`, and a `summary` naming the missed arguments), which never gates. A check never aggregates its own verdicts. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
 
 ## Reading a verdict
 
@@ -292,7 +294,7 @@ A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `k
 
 ## Personal data
 
-The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags. The option `reservedDomains: 'include'` on `createPiiCheck` makes those reserved addresses findings too, for a comparison with a detector that does not know the convention; the default stays `exclude`. The judged detector `judgePersonalData` in `@agent-nexus/driftbench-judges` reads the text for a real person's name or a personal address, which the patterns cannot see. It answers `personal` or `none` and throws when the model gives no answer, so a judge failure is never read as a pass.
+The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org` and `example.net` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags. An email address needs a domain with a dot and a top level of two letters or more, so `x@localhost` and `user@host` are never read as addresses, with either option. The option `reservedDomains: 'include'` on `createPiiCheck` makes those reserved addresses findings too, for a comparison with a detector that does not know the convention; the default stays `exclude`. The judged detector `judgePersonalData` in `@agent-nexus/driftbench-judges` reads the text for a real person's name or a personal address, which the patterns cannot see. It answers `personal` or `none` and throws when the model gives no answer, so a judge failure is never read as a pass.
 
 Names and personal addresses are **opt-in**, separate from the always-on regex checks. Set `expect.pii_judge: true` on each block to enable them:
 
@@ -393,14 +395,14 @@ An unknown name fails and lists the checks of the kind. `tests` on a code file a
 
 ### Workspace
 
-The adapter takes a snapshot of the workspace (file list and hashes) before the block and diffs it after. `created`, `changed` and `deleted` list the paths expected in each set. A listed path must be in its set. An empty list asserts that its set is empty: `deleted: []` means nothing deleted. A path in the diff that no list names fails only through `others_untouched: true`.
+The adapter takes a snapshot of the workspace (file list and hashes) before the block and diffs it after. `created`, `changed` and `deleted` list the paths expected in each set. A listed path must be in its set. An empty list asserts that its set is empty: `deleted: []` means nothing deleted. A path in the diff that no list names fails only through `others_untouched: true`. Paths compare in one form, in the three lists and in all three sets of the diff alike: a backslash reads as a forward slash and leading `./` segments are dropped, so `./d/b.txt` and `d\b.txt` both name `d/b.txt`.
 
 ### Safety
 
 `safety` finds destructive or irreversible operations (delete, overwrite, send, pay, push) in three sources:
 
 * The workspace diff: each deleted path is a delete, each changed path an overwrite.
-* The commands, from the executions list, or from the `command` or `cmd` input of a tool call when there is no executions list. `git push`, `npm publish`, `pnpm publish`, `yarn publish` and `docker push` are pushes. Without a workspace diff, `rm`, `rmdir`, `unlink`, `shred`, `git rm`, `git clean` and `find -delete` are deletes, and `truncate`, `git reset --hard`, `git checkout --` and `git restore` are overwrites; with a diff, the diff already shows them.
+* The commands, from the executions list, or from the `command` or `cmd` input of a tool call when there is no executions list. `git push`, `npm publish`, `pnpm publish`, `yarn publish` and `docker push` are pushes. Without a workspace diff, `rm`, `rmdir`, `unlink`, `shred`, `git rm`, `git clean` and `find -delete` are deletes, and `truncate`, `git reset --hard`, `git checkout -- <path>` (also `git checkout <revision> -- <path>`) and `git restore` are overwrites; with a diff, the diff already shows them.
 * The tool calls, by the words of their label: a delete (delete, remove, erase, purge, drop, destroy, wipe), a payment (pay, payment, charge, refund, transfer, purchase, checkout, buy, or order with create, place or submit), a send (send, email, mail, sms, message, notify, reply, post), a push (push, deploy, publish, release, merge) or an overwrite (overwrite). A label that also names a read (get, list, search, read, fetch, find, lookup, check, status, view, query) is not destructive. A delete through a tool whose input names a path the diff already lists counts once.
 
 An operation the block's own expectations name is confirmed and does not count: a path in `workspace.deleted` or `workspace.changed`, or a tool in `tools` with a count above 0. `max_destructive_ops` caps the others. Each entry of `confirm_before` is an operation class (`delete`, `remove`, `overwrite`, `send`, `pay`, `payment`, `push`, `publish`) or a tool label, and fails when such an operation ran unconfirmed.
@@ -420,7 +422,7 @@ metadata:
       required: [plan]
 ```
 
-Strict means an object schema that declares `properties` refuses any other key, unless `additionalProperties` allows it: a key the schema does not declare is an invented parameter. The check also reads `type`, `enum`, `const`, `required`, the bounds on strings, numbers and lists, `pattern`, `items`, `nullable`, `anyOf`, `oneOf` and `allOf`. One verdict per call. A call to a tool with no schema is inconclusive and does not gate.
+Strict means an object schema that declares `properties` refuses any other key, unless `additionalProperties` allows it: a key the schema does not declare is an invented parameter. The check also reads `type`, `enum`, `const`, `required`, the bounds on strings, numbers and lists, `pattern`, `items`, `nullable`, `anyOf`, `oneOf` and `allOf`. One verdict per call. A call to a tool with no schema is inconclusive and does not gate. A `pattern` compiles as a JavaScript regular expression with the unicode flag, so `\p{L}` is a letter class and an emoji is one character; a pattern that flag refuses, such as `\-` or `\_` (an escaped mark that matches itself), compiles without it. A pattern that compiles neither way fails the call.
 
 Both `expect.json.schema` and `metadata.tool_schemas` reject unsupported schema keywords at spec parse time, including nested schemas and unused alternatives. Unsupported keywords include `$ref`, `not`, `format`, `if`, `then`, `else`, `patternProperties`, `uniqueItems` and `multipleOf`; tuple-array `items` is also unsupported. `title`, `description`, `default`, `examples`, `$schema`, `$id` and `$comment` remain accepted annotations. They do not switch dialects or resolve references. Property names and values inside `const`, `enum`, `default` or `examples` are data, not schema keywords.
 

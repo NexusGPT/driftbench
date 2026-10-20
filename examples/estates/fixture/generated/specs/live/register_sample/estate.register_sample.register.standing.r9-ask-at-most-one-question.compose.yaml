@@ -80,3 +80,24 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.r9-ask-at-most-one-question
+        ledger: h7d22dl6s4
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.standing.r9-ask-at-most-one-question.compose
+        values:
+          ask_class: compose
+          atoms.register: register.standing.r9-ask-at-most-one-question
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

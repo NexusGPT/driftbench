@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.route-planner.plans-tomorrow-s-delivery-routes-from
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.plans-tomorrow-s-delivery-routes-from
+        ledger: cykbruoznz
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0699
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D6_instruction_in_data
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.route-planner.plans-tomorrow-s-delivery-routes-from
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

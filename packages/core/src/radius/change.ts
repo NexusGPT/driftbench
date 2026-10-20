@@ -24,6 +24,7 @@ export const CHANGE_KINDS = [
   'model',
   'agent',
   'prompt_section',
+  'unit',
 ] as const;
 export type ChangeKind = (typeof CHANGE_KINDS)[number];
 
@@ -42,7 +43,7 @@ export const Change = z
       .min(1)
       .optional()
       .describe(
-        'Which one: a stage, a tool label, a rule (states@<stage>, recovery:<class>, uses_tool:<tool>, path:<id>, reply_language, or a spec rule name), a deviation class, an estate atom id, dimension=value of the map, a fixture name or value, a criterion name, or a prompt section as <prompt-id>#<section-id>.',
+        'Which one: a stage, a tool label, a rule (states@<stage>, recovery:<class>, uses_tool:<tool>, path:<id>, reply_language, or a spec rule name), a deviation class, an estate atom id, dimension=value of the map, a fixture name or value, a criterion name, a prompt section as <prompt-id>#<section-id>, or an estate unit by its ledger id.',
       ),
     part: ToolPart.optional().describe(
       'For a tool: input, result, description or presence. Absent: any part.',

@@ -83,3 +83,31 @@ metadata:
       planRows:
         - route_positive.route.standing.an-ask-to-plan-the-delivery.1
         - route_positive.route.standing.an-ask-to-plan-the-delivery.3
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-plan-the-delivery
+        ledger: bmndxkevkn
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_positive.route.standing.an-ask-to-plan-the-delivery.1
+        values:
+          atoms.route: route.standing.an-ask-to-plan-the-delivery
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

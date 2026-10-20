@@ -643,3 +643,150 @@ describe('the condition label of the shipped set', () => {
     ).rejects.toThrow(/differs in: .*setHash/);
   });
 });
+
+describe('the gates and references of the shipped set', () => {
+  const MOORINGS = '.claude/skills/moorings/SKILL.md';
+  const GATES = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      `- Always check \`${MOORINGS}\` when you plan a trip`,
+      '- Always run `make lamp` at dusk',
+      '- Charts are kept in `docs/charts/atlas.pdf`',
+      `- Read \`${MOORINGS}\` before you plan a trip`,
+      '- Run `make lamp` before you sail',
+      '',
+    ].join('\n'),
+    [MOORINGS]: FILES[MOORINGS],
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Units of CLAUDE.md: 1 heading, 2 check, 3 lamp, 4 charts, 5 gate, 6 gate-command.
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'rule' },
+      { units: '3', label: 'prohibition' },
+      { units: '4', label: 'reference' },
+      {
+        units: '5',
+        label: 'gate',
+        spans: [{ kind: 'governed-action', text: 'plan a trip' }],
+        links: [{ kind: 'act-tool', to: 'Edit' }],
+      },
+      {
+        units: '6',
+        label: 'gate-command',
+        spans: [{ kind: 'governed-action', text: 'sail' }],
+        links: [{ kind: 'act-tool', to: 'Agent' }],
+      },
+    ] as pointer.Labelled[],
+  };
+  const run = async () => {
+    const { result } = await scan(rows, { sets }, GATES);
+    const atoms = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+    const quoted = (text: string) => atoms.filter((atom) => atom.provenance.quote.includes(text));
+    return { result, atoms, quoted };
+  };
+
+  it('reads a rule that names a file of the estate as a reference too, and one that names none as a rule only', async () => {
+    const { result, quoted } = await run();
+    // The code reader holds the reference of the file already, so the pointer's one is listed as a repeat.
+    expect(result.duplicates.filter((line) => /\(rule\) repeats reference\./.test(line))).toHaveLength(1);
+    expect(quoted('Always check').map((atom) => atom.kind)).toEqual(['instruction']);
+    // A command is no file: the rule builds nothing beside it, and nothing is listed as a repeat or a refusal.
+    expect(quoted('Always run').map((atom) => [atom.kind, atom.fields?.polarity])).toEqual([
+      ['instruction', 'prohibition'],
+    ]);
+    expect(result.duplicates.some((line) => /\(prohibition\)/.test(line))).toBe(false);
+    expect(
+      result.map.atoms.some(
+        (atom) => atom.kind === 'reference' && atom.provenance.quote.includes('make lamp'),
+      ),
+    ).toBe(false);
+  });
+
+  it('builds a reference from the reference label, and marks a file outside the estate as external', async () => {
+    const { quoted } = await run();
+    const charts = quoted('Charts are kept');
+    expect(charts.map((atom) => atom.kind)).toEqual(['reference']);
+    expect(charts[0]?.title).toBe('Read docs/charts/atlas.pdf');
+    expect(charts[0]?.fields).toMatchObject({
+      path: 'docs/charts/atlas.pdf',
+      exists: false,
+      external: true,
+      from: 'CLAUDE.md',
+    });
+  });
+
+  it('builds a gate over a file from the code span, the act span and the act tool link', async () => {
+    const { atoms } = await run();
+    const gate = atoms.find((atom) => atom.kind === 'gate' && atom.provenance.quote.includes('plan a trip'));
+    expect(gate?.title).toBe(`Read ${MOORINGS} before plan a trip`);
+    expect(gate?.situation).toBe('plan a trip');
+    expect(gate?.fields).toMatchObject({ first: MOORINGS, trigger: 'plan a trip', path: MOORINGS });
+    expect(gate?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'ordered', before: 'Read', after: 'Edit' },
+        { type: 'tool_called', label: 'Read', input: { file_path: { contains: MOORINGS } } },
+      ]),
+    );
+  });
+
+  it('builds a gate over a command from the code span and the act tool link', async () => {
+    const { atoms } = await run();
+    const gate = atoms.find((atom) => atom.kind === 'gate' && atom.provenance.quote.includes('make lamp'));
+    expect(gate?.fields).toMatchObject({ first: 'make lamp', trigger: 'sail' });
+    expect(gate?.situation).toBe('sail');
+    expect(gate?.evidence).toEqual(
+      expect.arrayContaining([
+        { type: 'ordered', before: 'Bash', after: 'Agent' },
+        { type: 'tool_called', label: 'Bash', input: { command: { contains: 'make lamp' } } },
+      ]),
+    );
+  });
+});
+
+describe('where the pointer reader looks for a file', () => {
+  const MOORINGS = '.claude/skills/moorings/SKILL.md';
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // The code reader skips a forbidden mention, so the reference below is the pointer's own atom.
+  const files = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Never open `REF/SKILL.md` in a gale',
+      '- Never open `skills/moorings/SKILL.md` at night',
+      '',
+    ].join('\n'),
+    [MOORINGS]: FILES[MOORINGS],
+    '.claude/skills/tides/SKILL.md': '# Tides\n\nTide table.\n',
+    'driftbench.estate.yaml': 'aliases:\n  REF: .claude/skills/moorings\n',
+  };
+  const rows = {
+    'CLAUDE.md': [
+      { units: '2', label: 'reference' },
+      { units: '3', label: 'reference' },
+      { units: '4', label: 'reference' },
+    ] as pointer.Labelled[],
+  };
+  const referenceOf = async (text: string) => {
+    const { result } = await scan(rows, { sets }, files);
+    return result.map.atoms.find(
+      (atom) => atom.fields?.extraction === 'pointer' && atom.provenance.quote.includes(text),
+    );
+  };
+
+  it('follows an alias of the estate, and says it did', async () => {
+    const atom = await referenceOf('REF/SKILL.md');
+    expect(atom?.kind).toBe('reference');
+    // Without the alias the name `SKILL.md` ends two files, so the ending leads nowhere.
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true, resolvedBy: 'alias' });
+  });
+
+  it('follows a base folder of the estate: a place, not a guess by ending', async () => {
+    const atom = await referenceOf('skills/moorings/SKILL.md');
+    expect(atom?.fields).toMatchObject({ path: MOORINGS, exists: true });
+    expect(atom?.fields).not.toHaveProperty('resolvedBy');
+  });
+});

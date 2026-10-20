@@ -106,3 +106,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.shipment-tracker.when-the-carrier-answers-with-an
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.when-the-carrier-answers-with-an
+        ledger: iax6q7xbmz
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0274
+        values:
+          ask_class: debug
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: stop
+          deviation: D12_prompt_extraction
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.shipment-tracker.when-the-carrier-answers-with-an
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

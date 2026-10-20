@@ -58,3 +58,23 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.a-tracker-note-may-be-written
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.a-tracker-note-may-be-written
+        ledger: ceowdbcrfy
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.a-tracker-note-may-be-written
+        values:
+          atoms.instruction: instruction.standing.a-tracker-note-may-be-written
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

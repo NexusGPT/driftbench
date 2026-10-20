@@ -60,3 +60,32 @@ metadata:
     ask: code
     askFrom: subagent.route-planner.helper-route-planner (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.route-planner.answer-with-a-table-van-stops
+        ledger: vf6mmyr3dx
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.route-planner.answer-with-a-table-van-stops.build
+        values:
+          ask_class: build
+          atoms.register: register.route-planner.answer-with-a-table-van-stops
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

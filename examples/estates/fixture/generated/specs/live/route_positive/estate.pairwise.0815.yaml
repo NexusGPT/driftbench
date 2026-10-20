@@ -96,3 +96,36 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0815
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: stale_tracker
+          atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

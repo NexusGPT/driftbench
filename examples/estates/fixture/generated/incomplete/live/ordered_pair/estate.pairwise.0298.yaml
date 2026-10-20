@@ -75,3 +75,29 @@ metadata:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-memory-memory-md-before
         detail: "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-claude-memory-memory-md-before
+        ledger: 2z5lfdx7uu
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0298
+        values:
+          ask_class: debug
+          ask_shape: ambiguous
+          session_state: fresh
+          owner_signal: no_questions
+          deviation: D4_loose_confirmation
+          estate_hazard: process_restart
+          atoms.gate: gate.standing.read-claude-memory-memory-md-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

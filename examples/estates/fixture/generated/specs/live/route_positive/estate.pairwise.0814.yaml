@@ -94,3 +94,36 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0814
+        values:
+          ask_class: operate
+          ask_shape: ambiguous
+          session_state: resumed
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: process_restart
+          atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -22,10 +22,158 @@ import { Uses } from './object';
  * Then (the expected output and state delta, under `expect`).
  */
 
+/**
+ * The utterance class a block's message belongs to: the class id and the hash of its frozen realisation set. The
+ * block still sends its own `user` text when run as written; `driftbench class expand` writes one copy of the
+ * spec per frozen realisation. The key enters the spec hash and the block cache key only when present.
+ */
+export const ClassRef = z
+  .strictObject({
+    id: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]*$/)
+      .describe('The class id, as its class file names it.'),
+    set: z
+      .string()
+      .regex(/^[0-9a-f]{12}$/)
+      .describe('The hash of the frozen realisation set the block is measured over (12 hex characters).'),
+  })
+  .describe('The utterance class of a user message: its id and the hash of its frozen realisation set.');
+export type ClassRef = z.infer<typeof ClassRef>;
+
+const Share = z.number().min(0).max(1);
+
+/** The agenda engine's parameters. Every field is optional: absent, the engine's default applies. */
+export const SimulatedUserEngine = z
+  .strictObject({
+    acts_per_turn: z
+      .array(Share)
+      .min(1)
+      .optional()
+      .describe('The chance of 1, 2, 3 ... dialogue acts in one message, in order. They must sum to 1.'),
+    volunteer_share: Share.optional().describe(
+      'The chance that the opening message also gives each fact whose reveal is volunteer.',
+    ),
+    opening_detail_share: Share.optional().describe(
+      'The chance that the opening message also states the specific problem, not only the request.',
+    ),
+    short_turn_share: Share.optional().describe('The share of messages of at most three words.'),
+    polite_turn_share: Share.optional().describe('The share of messages planned as polite.'),
+    uncertainty_turn_share: Share.optional().describe('The share of messages planned as unsure.'),
+    question_turn_share: Share.optional().describe('The share of messages planned as a question.'),
+    repeat_after_refusal: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('How many times the person repeats the request after the agent says it cannot.'),
+    turn_budget: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('The most messages the person writes before giving up.'),
+    engagement_initial: Share.optional().describe('Engagement at the start.'),
+    decay_per_unhelpful_turn: Share.optional().describe('Engagement lost on each unhelpful agent turn.'),
+    disengage_below: Share.optional().describe('Below this engagement the person gives up.'),
+  })
+  .describe("The agenda engine's parameters for a simulated user.");
+export type SimulatedUserEngine = z.infer<typeof SimulatedUserEngine>;
+
+/**
+ * A simulated user defined in the block. `exact` sends `user` as written; `simulated` has the agenda engine
+ * plan the message and a model write it; `replay` sends `user`, a message a simulated run wrote and a
+ * freeze stored.
+ */
+export const SimulatedUserSpec = z
+  .strictObject({
+    mode: z
+      .enum(['exact', 'simulated', 'replay'])
+      .describe(
+        'exact: send the user text as written. simulated: the agenda engine plans the message, a model writes it. replay: send the user text, a message frozen from a simulated run.',
+      ),
+    persona: z.string().min(1).optional().describe('Who the person is and how they write. Fictional.'),
+    goal: z
+      .string()
+      .min(1)
+      .optional()
+      .describe("What the person wants. Absent, the first simulated block's user text is the goal."),
+    hidden_knowledge: z
+      .record(z.string(), z.string().min(1))
+      .optional()
+      .describe('What the person knows, by name. A value reaches the model only once it is planned.'),
+    reveal: z
+      .record(z.string(), z.enum(['on_request', 'volunteer']))
+      .optional()
+      .describe(
+        'For each fact: on_request (the default) gives it only once the agent asks; volunteer may give it in the opening message.',
+      ),
+    ask_patterns: z
+      .record(z.string(), z.array(z.string().min(1)).min(1))
+      .optional()
+      .describe(
+        'For each fact, patterns (case-insensitive) of an agent reply that asks for it. Used when no model reads the agent turns.',
+      ),
+    stop: z.string().min(1).optional().describe('What the person says when the goal is met or given up.'),
+    trials: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('How many times a simulated run plays the spec, for pass^k and the rerun flip rate.'),
+    seed: z
+      .union([z.string().min(1), z.number().int()])
+      .optional()
+      .describe('The seed of the engine. Absent, the spec id.'),
+    engine: SimulatedUserEngine.optional().describe("The agenda engine's parameters."),
+    recorded: z
+      .strictObject({
+        hash: z
+          .string()
+          .regex(/^[0-9a-f]{64}$/)
+          .describe('The SHA-256 of the canonical JSON of the frozen text.'),
+        from: z.string().min(1).optional().describe('The run the text was frozen from.'),
+      })
+      .optional()
+      .describe('replay: where the frozen text came from. A text that does not match its hash is refused.'),
+  })
+  .superRefine((user, ctx) => {
+    const facts = user.hidden_knowledge ?? {};
+    for (const key of ['reveal', 'ask_patterns'] as const) {
+      for (const name of Object.keys(user[key] ?? {})) {
+        if (!Object.hasOwn(facts, name))
+          ctx.addIssue({
+            code: 'custom',
+            path: [key, name],
+            message: `${key} names ${name}, which is not in hidden_knowledge`,
+          });
+      }
+    }
+    const shares = user.engine?.acts_per_turn;
+    if (shares && Math.abs(shares.reduce((sum, share) => sum + share, 0) - 1) > 1e-9)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['engine', 'acts_per_turn'],
+        message: 'acts_per_turn must sum to 1',
+      });
+  })
+  .describe('A simulated user defined in the block: exact, simulated or replay.');
+export type SimulatedUserSpec = z.infer<typeof SimulatedUserSpec>;
+
 /** What reaches the agent in one block. */
 export const Stimulus = z
   .union([
-    z.strictObject({ user: z.string() }).describe('One user message, or one instruction to a task agent.'),
+    z
+      .strictObject({
+        user: z.string().describe('The message, or the instruction to a task agent.'),
+        class: ClassRef.optional().describe(
+          'The utterance class this message stands for. The message itself is the class seed.',
+        ),
+        simulated_user: SimulatedUserSpec.optional().describe(
+          'A simulated user that plays this block. Absent, the user text is sent as written.',
+        ),
+      })
+      .describe('One user message, or one instruction to a task agent.'),
     z
       .strictObject({ burst: z.array(z.string()).min(2) })
       .describe('Two or more messages that arrive together.'),
@@ -142,6 +290,31 @@ export const CompareMode = z
   .describe('How one value is compared: auto, a rung name, or exact with its reason.');
 export type CompareMode = z.infer<typeof CompareMode>;
 
+/**
+ * A computed argument: the agent writes a formula or a number, and the value-check ladder recomputes the gold
+ * formula and the agent's value on the given inputs and on changed inputs.
+ */
+export const RecomputeExpect = z
+  .strictObject({
+    formula: z
+      .string()
+      .min(1)
+      .describe(
+        'The gold computation, a spreadsheet formula over the named inputs, such as =SUM(C2:C5). Numbers, names, + - * / ^, parentheses and SUM, MIN, MAX, AVERAGE, ROUND, ABS are supported.',
+      ),
+    inputs: z
+      .record(z.string(), z.number())
+      .describe('The inputs the agent was given, by name: C2: 10. The formulas are first run on these.'),
+    ranges: z
+      .record(z.string(), z.tuple([z.number(), z.number()]))
+      .optional()
+      .describe(
+        'The range [low, high] each input is drawn from on changed inputs. An input without one varies around its given value.',
+      ),
+  })
+  .describe('The gold computation of an argument the agent computes, and the inputs it runs on.');
+export type RecomputeExpect = z.infer<typeof RecomputeExpect>;
+
 export const ToolExpect = z
   .strictObject({
     label: z.string().min(1).describe('The tool name.'),
@@ -162,6 +335,16 @@ export const ToolExpect = z
       .describe(
         'How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing.',
       ),
+    recompute: z
+      .record(z.string(), RecomputeExpect)
+      .optional()
+      .describe(
+        'Arguments the agent computes, by argument name. The agent writes a formula (a text that starts with =) or a number; the recompute rung runs it and the gold formula on the given inputs and on changed inputs, and fails a value that is right only on the given ones. An argument named here is not also named in input.',
+      ),
+  })
+  .refine((tool) => Object.keys(tool.recompute ?? {}).every((name) => tool.input?.[name] === undefined), {
+    message: 'an argument is named in input or in recompute, not both',
+    path: ['recompute'],
   })
   .describe('One expected tool call.');
 export type ToolExpect = z.infer<typeof ToolExpect>;
@@ -358,6 +541,28 @@ export const ArtifactExpect = z
   .describe('A file the block must produce.');
 export type ArtifactExpect = z.infer<typeof ArtifactExpect>;
 
+export const DownstreamExpect = z
+  .strictObject({
+    tool: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The tool whose input the consumer reads. Absent means any tool.'),
+    field: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The argument the consumer reads. Absent means every argument.'),
+    needs: z.string().min(1).describe('The form the consumer needs, such as e164 or iso8601.'),
+    declared_in: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('Where the consumer states the need, such as a file or a system name.'),
+  })
+  .describe('A consumer that needs a form of a value.');
+export type DownstreamExpect = z.infer<typeof DownstreamExpect>;
+
 export const WorkspaceExpect = z
   .strictObject({
     created: z.array(z.string()).optional().describe('Paths the block creates.'),
@@ -543,6 +748,24 @@ export const Expect = z
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),
+    task_impossible: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when the task, or the tests it was given, cannot be met honestly. The checks do not read it. Blame credits an agent that stopped and said so, and attributes a pass reached anyway to the agent as an integrity fault.',
+      ),
+    downstream: z
+      .array(DownstreamExpect)
+      .optional()
+      .describe(
+        'Consumers of the block output that need a form nobody states to the agent. The checks do not read it. When a value that works fails its check, blame names the missing rule as a setup fault instead of flagging the test.',
+      ),
+    protected: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Paths or globs the agent must not change or delete, whoever wrote them: the tests, checkers and source-of-truth files it was given. The checks do not read it. When a gating verdict fails and the net workspace diff holds one, blame attributes the failure to the agent as an integrity fault.',
+      ),
     safety: SafetyExpect.optional().describe('Limits on destructive operations.'),
   })
   .describe('The expected output and state delta of a block. Every field is optional.');

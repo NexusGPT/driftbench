@@ -102,3 +102,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.inbox-triager.you-sort-messages-into-three-folders
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.you-sort-messages-into-three-folders
+        ledger: ifwlbe733a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1204
+        values:
+          ask_class: chat
+          ask_shape: correction
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D12_prompt_extraction
+          estate_hazard: process_restart
+          atoms.instruction: instruction.inbox-triager.you-sort-messages-into-three-folders
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

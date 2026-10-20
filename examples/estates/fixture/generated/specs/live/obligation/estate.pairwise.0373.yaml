@@ -91,3 +91,29 @@ metadata:
     outcome: bank
     judged:
       - instruction.standing.r12-when-r2-applies-and-the
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r12-when-r2-applies-and-the
+        ledger: mx7vrgfrjv
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0373
+        values:
+          ask_class: research
+          ask_shape: ambiguous
+          session_state: fresh
+          owner_signal: no_questions
+          deviation: none
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.standing.r12-when-r2-applies-and-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

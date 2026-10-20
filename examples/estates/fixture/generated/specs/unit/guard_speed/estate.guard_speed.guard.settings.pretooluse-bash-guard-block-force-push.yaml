@@ -99,3 +99,22 @@ metadata:
               description: unit test
           material: git push --force
       budgetMs: 60000
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_speed.guard.settings.pretooluse-bash-guard-block-force-push
+        values:
+          atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

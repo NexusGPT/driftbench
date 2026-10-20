@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.weekly-report.read-write-bash-python3
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.read-write-bash-python3
+        ledger: k7zmu74mwi
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1028
+        values:
+          ask_class: compose
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D7_silence_or_burst
+          estate_hazard: process_restart
+          atoms.instruction: instruction.weekly-report.read-write-bash-python3
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

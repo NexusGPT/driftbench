@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.ledger-auditor.an-ask-that-fits-ledger-auditor
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

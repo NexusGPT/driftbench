@@ -71,3 +71,28 @@ metadata:
       - marker: needs-askable-act
         atom: guard.settings.userpromptsubmit-guard-stop-word-sh
         detail: "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0235
+        values:
+          ask_class: operate
+          ask_shape: problem
+          session_state: fresh
+          owner_signal: go
+          deviation: D9_out_of_scope
+          estate_hazard: process_restart
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

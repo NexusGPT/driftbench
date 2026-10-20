@@ -84,3 +84,22 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_speed.guard.settings.pretooluse-edit-write-guard-read-before
+        values:
+          atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -74,3 +74,37 @@ metadata:
     ask: code
     askFrom: subagent.inbox-triager.helper-inbox-triager (description)
     outcome: no-change:read-only
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.inbox-triager.haiku
+        ledger: g3tryct7pc
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1044
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: hold
+          deviation: D7_silence_or_burst
+          estate_hazard: stale_tracker
+          atoms.register: register.inbox-triager.haiku
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

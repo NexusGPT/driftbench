@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.never-change-an-amount-on-an
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.never-change-an-amount-on-an
+        ledger: ldaywjqflr
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1089
+        values:
+          ask_class: build
+          ask_shape: multi_part
+          session_state: after_restart
+          owner_signal: no_questions
+          deviation: D9_out_of_scope
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.invoice-reconcile.never-change-an-amount-on-an
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

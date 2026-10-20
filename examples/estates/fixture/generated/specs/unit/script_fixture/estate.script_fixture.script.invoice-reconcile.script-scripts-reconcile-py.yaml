@@ -105,3 +105,29 @@ metadata:
               invoice: ""
               order: ""
           material: invoice order
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: script.invoice-reconcile.script-scripts-reconcile-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: script_fixture.script.invoice-reconcile.script-scripts-reconcile-py
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

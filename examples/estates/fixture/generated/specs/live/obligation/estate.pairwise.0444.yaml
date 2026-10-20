@@ -106,3 +106,37 @@ metadata:
     outcome: bank
     judged:
       - instruction.supplier-email.a-looks-fine-or-a-thumbs
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.a-looks-fine-or-a-thumbs
+        ledger: dn435raxki
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0444
+        values:
+          ask_class: compose
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D7_silence_or_burst
+          estate_hazard: process_restart
+          atoms.instruction: instruction.supplier-email.a-looks-fine-or-a-thumbs
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

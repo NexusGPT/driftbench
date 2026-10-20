@@ -85,3 +85,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0228
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: limit_word
+          deviation: none
+          estate_hazard: compaction_mid_task
+          atoms.skill: skill.supplier-email.skill-supplier-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

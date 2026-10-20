@@ -175,3 +175,22 @@ metadata:
               interrupted: false
           material: echo ok && ledger/archive/
       budgetMs: 60000
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py
+        values:
+          atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

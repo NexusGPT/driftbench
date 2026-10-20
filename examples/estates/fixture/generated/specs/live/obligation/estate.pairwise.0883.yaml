@@ -79,3 +79,37 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.a-line-on-the-invoice-with
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.a-line-on-the-invoice-with
+        ledger: l2du4zrlr4
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0883
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D3_contradiction
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.invoice-reconcile.a-line-on-the-invoice-with
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

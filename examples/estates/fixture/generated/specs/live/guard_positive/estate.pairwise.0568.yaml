@@ -92,3 +92,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0568
+        values:
+          ask_class: change_estate
+          ask_shape: multi_part
+          session_state: long
+          owner_signal: stop
+          deviation: D4_loose_confirmation
+          estate_hazard: compaction_mid_task
+          atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

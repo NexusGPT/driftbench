@@ -73,3 +73,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.r16-if-a-tool-fails-twice
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r16-if-a-tool-fails-twice
+        ledger: ggatj5jijq
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0618
+        values:
+          ask_class: chat
+          ask_shape: ambiguous
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D9_out_of_scope
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.r16-if-a-tool-fails-twice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

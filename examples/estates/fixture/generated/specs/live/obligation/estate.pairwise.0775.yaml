@@ -66,3 +66,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.every-task-follows-the-step-list
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.every-task-follows-the-step-list
+        ledger: mnlr5rno4r
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0775
+        values:
+          ask_class: build
+          ask_shape: problem
+          session_state: helpers_running
+          owner_signal: keep_going
+          deviation: none
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.standing.every-task-follows-the-step-list
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

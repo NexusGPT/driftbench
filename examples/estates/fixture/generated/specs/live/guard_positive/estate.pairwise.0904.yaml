@@ -93,3 +93,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0904
+        values:
+          ask_class: chat
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D3_contradiction
+          estate_hazard: rate_wave
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

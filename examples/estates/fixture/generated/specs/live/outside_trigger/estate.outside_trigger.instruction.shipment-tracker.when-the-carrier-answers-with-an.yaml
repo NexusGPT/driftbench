@@ -63,3 +63,31 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.shipment-tracker.when-the-carrier-answers-with-an
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.when-the-carrier-answers-with-an
+        ledger: iax6q7xbmz
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.shipment-tracker.when-the-carrier-answers-with-an
+        values:
+          atoms.instruction: instruction.shipment-tracker.when-the-carrier-answers-with-an
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

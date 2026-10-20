@@ -190,6 +190,9 @@ const CLASS_PROOFS: Record<
       'packages/checks/src/checks/estate.ts: const count = (entry.count ?? { min: 1 }) as Count;',
       "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
       'packages/checks/src/checks/estate.ts: `${plural(matching.length, `${entry.label} call`)} after the ${hazard}, expected ${describeCount(entry.count)}`,',
+      // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
+      // `count`, so an absent count and `{ min: 1 }` give the same names.
+      'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
       'packages/checks/src/checks/guards.ts: applies: (ctx) => (ctx.expect.guards?.length ?? 0) > 0,',
       'packages/checks/src/checks/guards.ts: const expected = ctx.expect.guards ?? [];',
       "packages/checks/src/checks/guards.ts: countAllows(guard.count, count) ? 'pass' : 'fail',",
@@ -206,6 +209,9 @@ const CLASS_PROOFS: Record<
       'packages/checks/src/checks/subagents.ts: const expected = ctx.expect.subagents ?? [];',
       "packages/checks/src/checks/subagents.ts: countAllows(helper.count, count) ? 'pass' : 'fail',",
       'packages/checks/src/checks/subagents.ts: `${which} dispatched ${times(count)}, expected ${describeCount(helper.count)}; helpers dispatched in this block: ${listed(shown)}`,',
+      // The evidence provider collects the skill names an `expect.skills` list holds. It reads `name`s and never a
+      // `count`, so an absent count and `{ min: 1 }` give the same names.
+      'packages/core/src/evidence/rule.ts: const out = new Set(input.expect?.skills ?? []);',
       "packages/core/src/radius/depends.ts: if ((expect.skills?.length ?? 0) > 0) fields.add('skills');",
       "packages/core/src/radius/depends.ts: if ((expect.guards?.length ?? 0) > 0) fields.add('guards');",
       'packages/core/src/spec/semantics.ts: for (const [index, skill] of (expect.skills ?? []).entries()) {',
@@ -245,6 +251,7 @@ const CLASS_PROOFS: Record<
       'packages/core/src/radius/rejudge.ts: const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);',
       'packages/core/src/spec/lint.ts: for (const ref of expect?.criteria ?? []) {',
       'packages/core/src/spec/semantics.ts: expect.criteria?.forEach((ref, index) => {',
+      "packages/core/src/spec/spec-parents.ts: chain.flatMap((block) => (block.expect?.criteria ?? []).map((ref) => ref.replace(/@gating$/, ''))),",
       'packages/validators/test/estate/ruling-reference.ts: if (block.expect?.criteria)',
       "packages/validators/test/estate/ruling-reference.ts: block.expect.criteria = block.expect.criteria.filter((c) => c !== 'needs-registered-check');",
     ],

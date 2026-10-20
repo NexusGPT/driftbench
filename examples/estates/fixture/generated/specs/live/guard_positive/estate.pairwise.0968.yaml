@@ -92,3 +92,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0968
+        values:
+          ask_class: debug
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: frustration
+          deviation: D5_language_switch
+          estate_hazard: process_restart
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

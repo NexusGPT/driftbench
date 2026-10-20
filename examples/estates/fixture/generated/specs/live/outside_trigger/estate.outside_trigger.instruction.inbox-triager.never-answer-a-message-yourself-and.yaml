@@ -63,3 +63,31 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.inbox-triager.never-answer-a-message-yourself-and
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.inbox-triager.never-answer-a-message-yourself-and
+        ledger: e5orfrbvw4
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.inbox-triager.never-answer-a-message-yourself-and
+        values:
+          atoms.instruction: instruction.inbox-triager.never-answer-a-message-yourself-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

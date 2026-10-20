@@ -73,3 +73,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.standing.r17-report-a-number-only-when
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.r17-report-a-number-only-when
+        ledger: snwqcymbbi
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0376
+        values:
+          ask_class: research
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: go
+          deviation: D12_prompt_extraction
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.standing.r17-report-a-number-only-when
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

@@ -87,3 +87,31 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.ledger-auditor.look-for-the-same-invoice-number
         detail: 'no usable situation (subagent.ledger-auditor.helper-ledger-auditor (description)): the situation holds code ({"status":): "When either is missing, answer with {"status": "blocked", "missing""'
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.look-for-the-same-invoice-number
+        ledger: upb7zb4y7y
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: twin.instruction.ledger-auditor.look-for-the-same-invoice-number
+        values:
+          atoms.instruction: instruction.ledger-auditor.look-for-the-same-invoice-number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

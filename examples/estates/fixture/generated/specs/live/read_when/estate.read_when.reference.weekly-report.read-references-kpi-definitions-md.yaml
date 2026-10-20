@@ -62,3 +62,30 @@ metadata:
     ask: code
     askFrom: skill.weekly-report.skill-weekly-report (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.weekly-report.read-references-kpi-definitions-md
+        ledger: 47fkb6hjzb
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.weekly-report.read-references-kpi-definitions-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

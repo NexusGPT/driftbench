@@ -72,3 +72,29 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.memory-supplier-languages.when-a-supplier-is-not-in
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-supplier-languages.when-a-supplier-is-not-in
+        ledger: vbhqgyxxpc
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0515
+        values:
+          ask_class: change_estate
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: no_questions
+          deviation: D6_instruction_in_data
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.memory-supplier-languages.when-a-supplier-is-not-in
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

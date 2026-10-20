@@ -4,7 +4,15 @@ import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
 import { degenerateItems } from './degenerate';
 import { designBoundItems, edgeItems, ruleItems } from './edges';
+import { exactItems } from './exact';
+import { branchItems } from './exact-branches';
+import { capabilityItems } from './exact-capabilities';
+import { clopperAlphaItems } from './exact-clopper-alpha';
+import { defectItems } from './exact-defects';
+import { logAlphaItems } from './exact-log-alpha';
+import { userCapabilityItems } from './exact-user-capabilities';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
+import { newcapItems } from './newcaps';
 import { productItems } from './product';
 import { rateItems } from './rates';
 import { referenceItems } from './reference';
@@ -12,6 +20,8 @@ import { reproducibilityItems } from './reproducibility';
 import { roadmapItems } from './roadmap';
 import { scaleItems, stabilityItems } from './scale';
 import { simulationItems } from './simulation';
+import { sourceGuardItems } from './source-guards';
+import { weightsItems } from './weights';
 
 export { BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, type Tier } from './item';
 
@@ -58,6 +68,15 @@ export function statsBank(root: string): BankItem[] {
     ...degenerateItems(),
     ...reproducibilityItems(),
     ...analyticItems(),
+    ...exactItems(),
+    ...branchItems(),
+    ...sourceGuardItems(),
+    ...defectItems(),
+    ...logAlphaItems(),
+    ...clopperAlphaItems(),
+    ...newcapItems(root),
+    ...capabilityItems(),
+    ...userCapabilityItems(),
     ...edgeItems(root),
     ...designBoundItems(),
     ...ruleItems(),
@@ -67,6 +86,7 @@ export function statsBank(root: string): BankItem[] {
     ...scaleItems(),
     ...stabilityItems(),
     ...roadmapItems(root),
+    ...weightsItems(),
   ];
   const order = new Map<BankLevel, number>(BANK_LEVELS.map((level, i) => [level, i]));
   return (

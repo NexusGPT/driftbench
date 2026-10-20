@@ -94,3 +94,37 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-audit-the-ledger
+        ledger: d3pn74rs46
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0019
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: helpers_running
+          owner_signal: hold
+          deviation: D1_off_topic
+          estate_hazard: rate_wave
+          atoms.route: route.standing.an-ask-to-audit-the-ledger
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

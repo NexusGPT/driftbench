@@ -54,3 +54,24 @@ metadata:
     ask: code
     askFrom: hazard.standing.r15-after-a-compaction-re-read (hazard)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: hazard.standing.r15-after-a-compaction-re-read
+        ledger: ndszu34jlz
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: hazard_recovery.hazard.standing.r15-after-a-compaction-re-read
+        values:
+          session_state: long
+          estate_hazard: compaction_mid_task
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

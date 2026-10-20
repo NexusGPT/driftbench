@@ -69,6 +69,37 @@ describe('schema_strict', () => {
     ]);
   });
 
+  it('keeps a Unicode-aware pattern Unicode-aware: \\p{L} and an astral character with the unicode flag', () => {
+    const letters = { type: 'object', properties: { n: { type: 'string', pattern: '^\\p{L}+$' } } };
+    expect(validateStrict({ n: '\u00e9t\u00e9' }, letters)).toEqual([]);
+    expect(validateStrict({ n: 'abc' }, letters)).toEqual([]);
+    expect(validateStrict({ n: 'a1' }, letters)).toHaveLength(1);
+    const one = { type: 'object', properties: { n: { type: 'string', pattern: '^.{1}$' } } };
+    expect(validateStrict({ n: '\u{1F600}' }, one)).toEqual([]);
+    expect(validateStrict({ n: 'ab' }, one)).toHaveLength(1);
+  });
+
+  it('compiles a pattern the unicode flag refuses, such as \\- or \\_, without the flag', () => {
+    const phone = { type: 'object', properties: { n: { type: 'string', pattern: '^\\d{3}\\-\\d{4}$' } } };
+    expect(validateStrict({ n: '555-0131' }, phone)).toEqual([]);
+    expect(validateStrict({ n: '5550131' }, phone)).toHaveLength(1);
+    const pair = { type: 'object', properties: { n: { type: 'string', pattern: '^[a-z]\\_[a-z]$' } } };
+    expect(validateStrict({ n: 'a_b' }, pair)).toEqual([]);
+    expect(validateStrict({ n: 'ab' }, pair)).toHaveLength(1);
+  });
+
+  it('reads a function-style schema by its parameters, flat or nested: a declared call passes, an extra key fails', async () => {
+    const flat = { type: 'function', name: 'order.create', parameters: orderCreate };
+    const nested = { type: 'function', function: { name: 'order.create', parameters: orderCreate } };
+    for (const definition of [flat, nested]) {
+      const wrapped: Spec = { ...porting, metadata: { tool_schemas: { 'order.create': definition } } };
+      const call = (input: Record<string, unknown>) =>
+        run(schemaStrict, context(wrapped, 4, observed('Done.', [{ label: 'order.create', input }])));
+      expect(outcomes(await call({ ...payload }))).toEqual({ 'schema_strict.order.create.1': 'pass' });
+      expect(outcomes(await call({ ...payload, x: 1 }))).toEqual({ 'schema_strict.order.create.1': 'fail' });
+    }
+  });
+
   it('reads OpenAI-style functions and is inconclusive, never gating, on a tool with no schema', async () => {
     const wrapped: Spec = {
       ...porting,

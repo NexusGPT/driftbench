@@ -52,3 +52,32 @@ metadata:
     ask: code
     askFrom: route.standing.an-ask-to-audit-the-ledger (situation)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-audit-the-ledger
+        ledger: d3pn74rs46
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.standing.an-ask-to-audit-the-ledger
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.standing.an-ask-to-audit-the-ledger
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd

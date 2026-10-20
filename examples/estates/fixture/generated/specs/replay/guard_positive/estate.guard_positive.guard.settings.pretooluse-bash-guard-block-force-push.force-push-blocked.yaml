@@ -82,3 +82,30 @@ metadata:
   replay:
     session: force-push-blocked
     from_block: 0
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.pretooluse-bash-guard-block-force-push
+        values:
+          atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: source_turn
+        conversation: force-push-blocked
+        turn: 0
+      relation: derived_from
+      status: declared
+      created_by: generator

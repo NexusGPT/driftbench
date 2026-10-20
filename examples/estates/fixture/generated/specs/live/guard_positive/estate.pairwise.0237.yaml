@@ -72,3 +72,36 @@ metadata:
     ask: code
     askFrom: instruction.shipment-tracker.always-pass-the-carrier-code-to (enforced by guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh)
     outcome: no-change:guard
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0237
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: fresh
+          owner_signal: keep_going
+          deviation: D2_goal_shift
+          estate_hazard: rate_wave
+          atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 6197cb823bdd
