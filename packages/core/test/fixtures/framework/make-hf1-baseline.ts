@@ -3,6 +3,9 @@
 //   pnpm exec tsx packages/core/test/fixtures/framework/make-hf1-baseline.ts > hf1-baseline.tsv
 // It uses only APIs main already had, and main's cache-key rule (the spec without its version), so the file it
 // writes on main is the reference the framework must reproduce (hf1.test.ts).
+// To refresh it after the examples change, keep the rule and move the files: build core at the commit the baseline
+// names, run this script from a folder that holds the newer examples/, and keep only the files the previous
+// baseline listed (a newer file can use a later hash rule, such as metadata.links, that the old core does not know).
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { extname, relative } from 'node:path';
