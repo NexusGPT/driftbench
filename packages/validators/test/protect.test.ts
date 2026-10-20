@@ -64,6 +64,7 @@ const CI_HEAVY = [
   'comparison-replay',
   'viewer-journey',
   'guard',
+  'timing',
 ];
 const VALIDATORS_HEAVY = ['ladders', 'system-full'];
 
@@ -215,21 +216,28 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   expect(system).toContain('test "$status" -eq 11');
 }
 
-const OK = 'success,success,success,success,success,success,success';
-const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped';
-const ONE_RED = 'success,failure,success,success,success,success,success';
+const OK = 'success,success,success,success,success,success,success,success';
+const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped';
+const ONE_RED = 'success,failure,success,success,success,success,success,success';
 const GATE_CASES: [string, string, string, string, string, number][] = [
   // event, head ref, ref name, jobs, needs results, expected exit code
   ['pull_request', 'train/ci-speed', '', '', OK, 0],
   ['push', '', 'main', '', OK, 0],
-  ['pull_request', 'fix/ordinary', '', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  [
+    'pull_request',
+    'fix/ordinary',
+    '',
+    '',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
   ['pull_request', 'train-lookalike', '', '', OK, 1],
   [
     'workflow_dispatch',
     '',
     'train/9a',
     'build',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -237,10 +245,17 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,python',
-    'skipped,skipped,success,success,skipped,skipped,skipped',
+    'skipped,skipped,success,success,skipped,skipped,skipped,skipped',
     0,
   ],
-  ['workflow_dispatch', '', 'train/9a', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    '',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    1,
+  ],
   ['workflow_dispatch', '', 'train/9a', '', OK, 1],
   // a pre-flight dispatch (fast only, or no heavy job) never counts as a train pass
   ['workflow_dispatch', '', 'train/pre-9', 'fast', SKIPPED, 1],
@@ -255,7 +270,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,nonsense',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   [
@@ -263,7 +278,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'BUILD',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -271,7 +286,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,fast',
-    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped,skipped',
     0,
   ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
@@ -280,14 +295,21 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
   ['workflow_dispatch', '', 'feature/train/9', 'build', OK, 1],
   // a red or cancelled heavy job turns the gate red, on every kind of run that can count
   ['pull_request', 'train/ci-speed', '', '', ONE_RED, 1],
-  ['pull_request', 'train/ci-speed', '', '', 'success,success,cancelled,success,success,success,success', 1],
+  [
+    'pull_request',
+    'train/ci-speed',
+    '',
+    '',
+    'success,success,cancelled,success,success,success,success,success',
+    1,
+  ],
   ['push', '', 'main', '', ONE_RED, 1],
   [
     'workflow_dispatch',
     '',
     'train/9a',
     'build',
-    'skipped,skipped,failure,skipped,skipped,skipped,skipped',
+    'skipped,skipped,failure,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   [
@@ -295,7 +317,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build',
-    'skipped,skipped,cancelled,skipped,skipped,skipped,skipped',
+    'skipped,skipped,cancelled,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
 ];

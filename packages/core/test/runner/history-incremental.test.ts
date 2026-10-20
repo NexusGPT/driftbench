@@ -477,7 +477,11 @@ describe('a run of 2,500 blocks costs little more than hashing its history', () 
       }
       await blocksCpu(25, mode, 1);
       const run = await blocksCpu(BLOCKS, mode, 3);
-      expect(run / Math.max(floor, 1)).toBeLessThan(10);
+      const ratio = run / Math.max(floor, 1);
+      console.info(
+        `history ratio, mode ${mode}: run ${run.toFixed(1)} ms, floor ${floor.toFixed(1)} ms, ratio ${ratio.toFixed(2)}`,
+      );
+      expect(ratio).toBeLessThan(10);
     },
     180_000,
   );
