@@ -435,8 +435,9 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   // a leg of the ladders job caps at the floor of its validator; a system leg runs every level
   expect(stepRuns('ladders-leg').join('\n')).toContain('validate "$COMPONENT" $FLAGS --check-floor --json');
   expect(stepRuns('system-leg').join('\n')).not.toContain('--check-floor');
-  // the tail runs after the legs whose reports it reads, and only for a generator seed
-  expect(workflow.jobs['ladders-tail'].needs).toBe('ladders-leg');
+  // the tail legs (one level of one generator seed each) start with the others: they wait for no leg, because the
+  // join drops every level above the first failing one, as a single run that stopped there would
+  expect(workflow.jobs['ladders-tail'].needs).toBeUndefined();
   // every leg uploads its report after a failure too, under the name its join downloads
   for (const [job, prefix] of [
     ['ladders-leg', 'ladders-'],

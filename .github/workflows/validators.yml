@@ -237,9 +237,9 @@ jobs:
           retention-days: 3
 
   ladders-tail:
-    # Levels 20 to 22 of the generator cost most of an hour in one leg and a single run reaches them only when
-    # every level below passes. The leg reads the reports of the slices below it and walks on only then.
-    needs: ladders-leg
+    # Levels 20 to 22 of the generator cost most of an hour in one leg. Each level of each seed is a leg of its own
+    # and starts with the rest, not after the slices below it: a single run stops at its first failing level, and
+    # the join does the same, keeping only the levels up to the first failing one (a level above it is dropped).
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -248,22 +248,54 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - id: generator-s1-tail
-            name: generator seed 1 levels 20 to 22
-            component: generator-s1
-            flags: --seed 1 --levels 20..22
-          - id: generator-s2-tail
-            name: generator seed 2 levels 20 to 22
-            component: generator-s2
-            flags: --seed 2 --levels 20..22
-          - id: generator-s3-tail
-            name: generator seed 3 levels 20 to 22
-            component: generator-s3
-            flags: --seed 3 --levels 20..22
-          - id: generator-hidden-tail
-            name: generator seed hidden levels 20 to 22
-            component: generator-hidden
-            flags: --hidden --hidden-only --levels 20..22
+          - id: generator-1-level-20
+            name: generator seed 1 level 20
+            component: generator
+            flags: --seed 1 --levels 20..20
+          - id: generator-1-level-21
+            name: generator seed 1 level 21
+            component: generator
+            flags: --seed 1 --levels 21..21
+          - id: generator-1-level-22
+            name: generator seed 1 level 22
+            component: generator
+            flags: --seed 1 --levels 22..22
+          - id: generator-2-level-20
+            name: generator seed 2 level 20
+            component: generator
+            flags: --seed 2 --levels 20..20
+          - id: generator-2-level-21
+            name: generator seed 2 level 21
+            component: generator
+            flags: --seed 2 --levels 21..21
+          - id: generator-2-level-22
+            name: generator seed 2 level 22
+            component: generator
+            flags: --seed 2 --levels 22..22
+          - id: generator-3-level-20
+            name: generator seed 3 level 20
+            component: generator
+            flags: --seed 3 --levels 20..20
+          - id: generator-3-level-21
+            name: generator seed 3 level 21
+            component: generator
+            flags: --seed 3 --levels 21..21
+          - id: generator-3-level-22
+            name: generator seed 3 level 22
+            component: generator
+            flags: --seed 3 --levels 22..22
+          - id: generator-hidden-level-20
+            name: generator seed hidden level 20
+            component: generator
+            flags: --hidden --hidden-only --levels 20..20
+          - id: generator-hidden-level-21
+            name: generator seed hidden level 21
+            component: generator
+            flags: --hidden --hidden-only --levels 21..21
+          - id: generator-hidden-level-22
+            name: generator seed hidden level 22
+            component: generator
+            flags: --hidden --hidden-only --levels 22..22
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -273,23 +305,13 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: ladders-generator-*
-          path: heads
-          merge-multiple: true
-      - name: Run this leg when every level below it passes
+      - name: Run this level
         shell: bash
         env:
           FLAGS: ${{ matrix.flags }}
-          HEADS: ${{ matrix.component }}
           LEG: ${{ matrix.id }}
         run: |
           mkdir -p report
-          if jq -e 'any(.seeds[].rows[]; .pass == false)' heads/"$HEADS"-*.json > /dev/null; then
-            echo "A level below this slice fails on this seed. A single run stops at it and never computes these levels."
-            exit 0
-          fi
           pnpm -s driftbench validate generator $FLAGS --json > "report/$LEG.json"
       - uses: actions/upload-artifact@v4
         if: always()
