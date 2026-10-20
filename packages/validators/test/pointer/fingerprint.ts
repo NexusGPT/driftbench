@@ -107,7 +107,7 @@ type Reach = { entry: ts.Node; file: ts.SourceFile; pieces: Map<string, string> 
  * The entry of an item and the top-level declarations of the family file or the kit it reaches, resolved with the
  * compiler's own symbol table (a local variable that shares a helper's name does not reach the helper).
  */
-function reach(root: string, id: string, program: ts.Program): Reach | undefined {
+function reach(root: string, id: string, program: ts.Program, keepExcluded = false): Reach | undefined {
   const dot = id.indexOf('.');
   const family = id.slice(0, dot);
   const key = id.slice(dot + 1);
@@ -150,7 +150,7 @@ function reach(root: string, id: string, program: ts.Program): Reach | undefined
           if (!statement || seen.has(statement)) continue;
           if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) continue;
           seen.add(statement);
-          if (declarationNames(statement).some((n) => READ_AND_UNCHANGED.has(n))) continue;
+          if (!keepExcluded && declarationNames(statement).some((n) => READ_AND_UNCHANGED.has(n))) continue;
           const name = `${statement.getSourceFile().fileName.split('/').pop()}:${statement.getStart()}`;
           pieces.set(name, show(statement, statement.getSourceFile()));
           queue.push(statement);
@@ -218,7 +218,8 @@ export function fingerprints(root: string, ids: readonly string[]): Record<strin
 
 /** The top-level declarations an item reaches, as `file:name`, for the tests that name them. */
 export function reachedNames(root: string, id: string): string[] {
-  const reached = reach(root, id, programOf(root));
+  // The excluded declarations are named too: this is how the equivalence test finds the items that reach them.
+  const reached = reach(root, id, programOf(root), true);
   if (!reached) return [];
   const names: string[] = [];
   for (const text of reached.pieces.values()) {
