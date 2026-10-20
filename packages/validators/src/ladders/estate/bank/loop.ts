@@ -5,7 +5,7 @@ import {
   estateImpact,
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
-import { codeAsk, generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
 import { completionComponents, componentSpec } from '../completion';
 import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
@@ -18,6 +18,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
+import { atomWords, readsAsCodeAsk } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -314,6 +315,15 @@ const USE_OF_TEST: Readonly<Record<string, string>> = {
   stage_skip: 'pressure',
 };
 const NO_ASK = new Set(['invariant', 'setting']);
+
+/** The ids of other atoms that the fields of an atom name (a guard names the rule it enforces). */
+function idsIn(value: unknown, depth = 0): string[] {
+  if (typeof value === 'string') return /^[a-z][a-z0-9_.-]*\.[a-z0-9_.-]+$/.test(value) ? [value] : [];
+  if (Array.isArray(value) && depth < 3) return value.flatMap((item) => idsIn(item, depth + 1));
+  if (value !== null && typeof value === 'object' && depth < 3)
+    return Object.values(value).flatMap((item) => idsIn(item, depth + 1));
+  return [];
+}
 
 /** The situation use a plan row is asked in: a live guard_positive is asked in a `forced` situation. */
 function useOfRow(row: { testType: string; mode: string }): string {
@@ -747,20 +757,20 @@ const ASKS: AskCheck[] = [
         )
           return false;
         if (!bankIsShort(run, row)) return false;
-        // The disclosure is the generator's word about itself, so the words are checked too: an ask outside the
-        // approved phrases must be the text code writes from the row's atoms, else it is an unapproved ask.
+        // The disclosure is the generator's word about itself, so the words are checked too, by the validator's
+        // own reading of section 5 (reference-ask.ts), never by the product's `codeAsk`: an ask outside the
+        // approved phrases must have the shape the document gives and take its words from the row's atoms.
         const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
         if (rowAtoms.some((atom) => atom === undefined)) return false;
-        const focus = (estateMeta(v.spec) as { focusVariant?: unknown }).focusVariant;
-        const written = codeAsk(
-          useOfRow(row) as Parameters<typeof codeAsk>[0],
-          rowAtoms as NonNullable<(typeof rowAtoms)[number]>[],
-          [],
-          row.testType === 'twin',
-          (id) => atomsById.get(id),
-          typeof focus === 'number' ? focus : undefined,
-        ).text;
-        return asksOfSpec(v).every((ask) => ask === '' || approved.has(ask) || ask === written);
+        const referenced = [...new Set(rowAtoms.flatMap((atom) => idsIn(atom?.fields)))].map((id) =>
+          atomsById.get(id),
+        );
+        const fromAtoms = atomWords(
+          [...rowAtoms, ...referenced].filter((atom): atom is NonNullable<typeof atom> => atom !== undefined),
+        );
+        return asksOfSpec(v).every(
+          (ask) => ask === '' || approved.has(ask) || readsAsCodeAsk(ask, fromAtoms),
+        );
       };
       const bad = all.filter(
         (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
