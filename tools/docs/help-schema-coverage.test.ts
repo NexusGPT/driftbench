@@ -6,7 +6,7 @@ import { objectRegistry } from '../../packages/core/src/objects';
 import { WorldState } from '../../packages/core/src/schema/common';
 import { CampaignConfig, CampaignRetryConfig } from '../../packages/core/src/schema/config';
 import { LINK_CREATORS, LINK_RELATIONS, LINK_STATUSES } from '../../packages/core/src/schema/links';
-import { AppliesTo, Envelope, Item, ItemPatch } from '../../packages/core/src/schema/object';
+import { AppliesTo, Envelope, Item, ItemPatch, Uses } from '../../packages/core/src/schema/object';
 import { BlockStatus, Campaign, NotRun, RunResult } from '../../packages/core/src/schema/run';
 import { BlockSpec, GivenDefaults, GivenOverride, Spec } from '../../packages/core/src/schema/spec';
 import { documentsKey, schemaObjects, section, type UnitOverride, unitsForObject } from './help-coverage';
@@ -267,6 +267,23 @@ describe('object help', () => {
       expect(missing).toEqual([]);
     });
   }
+
+  it('names every key of every inline object of uses, in the tables of an object file, an item and an operation', () => {
+    // The spec test skips the objects under `uses.<kind>`; their keys are checked here, from the live schema.
+    const tables = OBJECT_UNITS.map(([, , heading]) => subsection(objectTopic?.body ?? '', heading)).join(
+      '\n',
+    );
+    const inline = schemaObjects(Uses).filter(
+      ({ path }) => /^[a-z_]+(\[\]|\.|$)/.test(path) && path !== '(root)',
+    );
+    expect(inline.length, 'the inline objects of uses were found').toBeGreaterThan(0);
+    const missing = inline.flatMap(({ path, keys }) =>
+      keys
+        .filter((key) => !documentsKey(path.endsWith('applies_to') ? (objectTopic?.body ?? '') : tables, key))
+        .map((key) => `uses.${path}.${key}`),
+    );
+    expect(missing).toEqual([]);
+  });
 
   it('names every key of applies_to', () => {
     const text = objectTopic?.body ?? '';
