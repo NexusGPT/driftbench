@@ -152,7 +152,7 @@ export function sha256WithList(head: string, items: readonly unknown[], tail: st
   let state: Hash;
   let text: string;
   let start: number;
-  if (from && from.items.length >= (textFrom?.items.length ?? 0)) {
+  if (from) {
     state = from.state.copy();
     text = from.text;
     start = from.items.length;
