@@ -17,7 +17,6 @@ import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from '
 import { findRoot } from '../root';
 import { confine, SourceGuard, seal, tsxPath } from './confine';
 import { plainBatchEntry, plainCodec, RELAY, twinDriver, wrapperModule } from './driver';
-import { type FifoRun, fifoAvailable, pipesOf, receive, send, startRun, stop } from './fifo';
 import {
   canonical,
   decode,
@@ -51,26 +50,6 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 
 const START_MS = 120_000;
 const CALL_MS = 300_000;
-/**
- * A call whose arguments hold more than this many array elements is heavy (a million rows): runs B and D skip it, since
- * three processes computing the same million rows on a few cores cost more than they show. Run A and run C make it; B
- * and D make it too when it returns a function, so they hold the same handles.
- */
-const HEAVY_ELEMENTS = 5_000;
-
-/** The number of array elements in a value, counted up to a little over the limit. */
-function weigh(value: unknown, limit = HEAVY_ELEMENTS): number {
-  let count = 0;
-  const walk = (v: unknown): void => {
-    if (count > limit || v === null || typeof v !== 'object') return;
-    if (Array.isArray(v)) {
-      count += v.length;
-      for (const each of v) if (typeof each === 'object') walk(each);
-    } else for (const key of Object.keys(v)) walk((v as Record<string, unknown>)[key]);
-  };
-  walk(value);
-  return count;
-}
 /** The time run C may take to make all the calls of a frame. */
 const BATCH_MS = 1_800_000;
 
@@ -102,12 +81,6 @@ export type IsolateOptions = {
    * function the product returned is always a handle and is sent back as one.
    */
   functions?: 'source';
-  /**
-   * How the validator talks to the confined runs: `'fifo'` (named pipes and blocking reads, the default where
-   * `mkfifo` works) or `'relay'` (a thread that carries lines over the runs' stdin and stdout; the fallback, used
-   * where there are no named pipes, and by the tests that pin it).
-   */
-  channel?: 'fifo' | 'relay';
   /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
@@ -309,67 +282,36 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const { file: sealed, inputs } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
   // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
   const guard = new SourceGuard([...inputs, ...(options.reads ?? [])]);
-  const useFifo = options.channel !== 'relay' && fifoAvailable(sealFolder);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
-      { ...plan, setup: { module: sealed } },
-      {
-        reads: [dirname(sealed), ...(options.reads ?? [])],
-        writes: useFifo ? [pipesOf(plan.driverDir).res] : [],
-      },
+      { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
+      { reads: [dirname(sealed), ...(options.reads ?? [])] },
     );
-    const driverSource = twinDriver(
-      options.seed,
-      `${tag}:${plan.run}`,
-      useFifo ? pipesOf(confined.driverDir) : undefined,
-    );
-    if (!plan.wrap) return { ...confined, driverSource };
+    if (!plan.wrap) return confined;
     // Run D reaches the product through a wrapper module of the run's own folder.
     const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
     const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
     writeFileSync(file, wrapper.source);
-    return { ...confined, driverSource, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
+    return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
-  const relay: Relay | undefined = useFifo
-    ? undefined
-    : {
-        // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
-        worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
-          execArgv: [],
-          workerData: { port: port2, signal, plans, setup },
-          transferList: [port2],
-          stderr: false,
-        }),
-        port: port1,
-        flag: new Int32Array(signal),
-      };
-  relay?.worker.unref();
+  const relay: Relay = {
+    // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
+    worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
+      execArgv: [],
+      workerData: { port: port2, signal, plans, setup },
+      transferList: [port2],
+      stderr: false,
+    }),
+    port: port1,
+    flag: new Int32Array(signal),
+  };
+  relay.worker.unref();
   port1.unref();
-  // The named-pipe channel: the runs are started here, the setup of each is its first request.
-  let pipes: FifoRun[] = [];
-  let callId = 0;
-  if (useFifo) {
-    for (const plan of plans)
-      writeFileSync(join(plan.driverDir, plan.driverFile), plan.driverSource as string);
-    try {
-      pipes = plans.map((plan) =>
-        startRun(plan, openSync(join(plan.driverDir, 'errors.log'), 'w'), START_MS),
-      );
-    } catch (cause) {
-      for (const run of pipes) stop(run);
-      throw cause;
-    }
-    for (const [index, plan] of plans.entries())
-      send(
-        pipes[index] as FifoRun,
-        JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }),
-      );
-  }
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
@@ -383,16 +325,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       // a flush that fails leaves the finding it made
     }
     closed = true;
-    if (relay) {
-      try {
-        relay.port.postMessage({ close: true });
-        wait(relay, 10_000, 'close');
-      } catch {
-        // the runs are ended by terminate below
-      }
-      void relay.worker.terminate();
+    try {
+      relay.port.postMessage({ close: true });
+      wait(relay, 10_000, 'close');
+    } catch {
+      // the runs are ended by terminate below
     }
-    for (const run of pipes) stop(run);
+    void relay.worker.terminate();
     for (const plan of plans) {
       rmSync(plan.driverDir, { recursive: true, force: true });
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
@@ -400,11 +339,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
-  const started = (
-    relay
-      ? wait(relay, START_MS, 'the start of the product')
-      : { ready: pipes.map((run) => receive(run, token)) }
-  ) as {
+  const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{
       ready?: boolean;
       error?: string;
@@ -472,31 +407,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
-    const heavy = weigh(sent) > HEAVY_ELEMENTS;
-    let answers: Array<Outcome | { dead: string }>;
-    if (relay) {
-      relay.port.postMessage({ call: name, args: sent, heavy });
-      answers = (wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> }).answers;
-    } else {
-      callId += 1;
-      const line = JSON.stringify({ id: callId, call: name, args: sent });
-      const [runA, runB, runD] = pipes as [FifoRun, FifoRun, FifoRun];
-      // The runs work at the same time: every request is sent before the first answer is read.
-      send(runA, line);
-      if (!heavy) {
-        send(runB, line);
-        send(runD, line);
-      }
-      const firstAnswer = receive(runA, token) as Outcome | { dead: string };
-      answers = [firstAnswer];
-      if (!heavy) answers.push(receive(runB, token) as Outcome, receive(runD, token) as Outcome);
-      else if (JSON.stringify(firstAnswer).includes('"$handle"')) {
-        // A heavy call that returned a function: the other runs must hold the handle too.
-        send(runB, line);
-        send(runD, line);
-        answers.push(receive(runB, token) as Outcome, receive(runD, token) as Outcome);
-      }
-    }
+    relay.port.postMessage({ call: name, args: sent });
+    const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
@@ -506,17 +418,16 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     each.ms += took;
     if (took > 50) each.slow += 1;
     byName.set(name, each);
-    // A heavy call was made by run A alone (the relay), so runs B and D have no answer to it.
     const [a, b, d] = answers as [
       Outcome | { dead: string },
-      (Outcome | { dead: string })?,
-      (Outcome | { dead: string })?,
+      Outcome | { dead: string },
+      Outcome | { dead: string },
     ];
     if ('dead' in a) throw new FrameError(a.dead);
     const entry: Entry = { call: name, args: sent, ...a };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
-    if (b && !('dead' in b)) entry.twin = b;
-    if (d && !('dead' in d)) entry.wrapped = d;
+    if (!('dead' in b)) entry.twin = b;
+    if (!('dead' in d)) entry.wrapped = d;
     tape.push(entry);
     const kept = (outcome: Outcome | { dead: string }): string => {
       if ('dead' in outcome) return `dead`;
@@ -530,7 +441,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      if (other !== undefined && kept(a) !== kept(other)) {
+      if (kept(a) !== kept(other)) {
         const message = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
         found.push({ at: tape.length - 1, message });
         first ??= message;

@@ -99,8 +99,8 @@ const «pending» = [];
 const «waiters» = [];
 let «rest» = '';
 let «ended» = false;
-«channelHead»
-«input».«listen»('data', («chunk») => {
+process.stdin.setEncoding('utf8');
+process.stdin.«listen»('data', («chunk») => {
   «rest» += «chunk»;
   for (let «at» = «rest».indexOf('\n'); «at» >= 0; «at» = «rest».indexOf('\n')) {
     const «line» = «rest».slice(0, «at»);
@@ -110,7 +110,7 @@ let «ended» = false;
     else «pending».push(«line»);
   }
 });
-«input».«listen»('end', () => {
+process.stdin.«listen»('end', () => {
   «ended» = true;
   for (const «waiter» of «waiters».splice(0)) «waiter»(undefined);
 });
@@ -121,7 +121,7 @@ const «next» = () =>
       ? Promise.resolve(undefined)
       : new Promise((«resolveIt») => «waiters».push(«resolveIt»));
 const «setup» = JSON.parse(await «next»());
-const «write» = «writer»;
+const «write» = process.stdout.write.bind(process.stdout);
 const «cpuNow» = process.cpuUsage.bind(process);
 const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
 
@@ -180,32 +180,14 @@ if («setup».command) {
 }
 `;
 
-/**
- * The twin driver of one run, its identifiers and its stdin listener drawn from the seed and the tag. With `fifo`,
- * the run reads its requests from the named pipe `req` and writes its answers to the named pipe `res` with blocking
- * writes, so the validator talks to it through the file system and waits for the answer with one blocking read
- * (fifo.ts); without, it reads its stdin and writes its stdout, and a relay thread carries the lines.
- */
-export function twinDriver(seed: number, tag: string, fifo?: { req: string; res: string }): string {
+/** The twin driver of one run, its identifiers and its stdin listener drawn from the seed and the tag. */
+export function twinDriver(seed: number, tag: string): string {
   const name = namer(seed, `twin:${tag}`);
   const listen = rngOf(seed, `listen:${tag}`)() < 0.5 ? 'on' : 'addListener';
   const codec = fill(CODEC, name);
-  const head = fifo
-    ? [
-        "import { createReadStream as «fsStream», openSync as «fsOpen», writeSync as «fsWrite» } from 'node:fs';",
-        `const «outFd» = «fsOpen»(${JSON.stringify(fifo.res)}, 'w');`,
-        `const «input» = «fsStream»(${JSON.stringify(fifo.req)}, { encoding: 'utf8' });`,
-      ].join('\n')
-    : "const «input» = process.stdin;\n«input».setEncoding('utf8');";
-  const writer = fifo
-    ? '(«text») => { const «bytes» = Buffer.from(«text»); for (let «at» = 0; «at» < «bytes».length; ) «at» += «fsWrite»(«outFd», «bytes», «at»); }'
-    : 'process.stdout.write.bind(process.stdout)';
   // Function replacers: the codec holds '$', which a replacement string would read as a pattern.
   return fill(
-    TWIN.replace('«codec»', () => codec)
-      .replace('«channelHead»', () => head)
-      .replace('«writer»', () => writer)
-      .replace(/«listen»/g, () => listen),
+    TWIN.replace('«codec»', () => codec).replace(/«listen»/g, () => listen),
     name,
   );
 }
@@ -337,17 +319,6 @@ port.on('message', async (message) => {
   }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args });
-  if (message.heavy) {
-    // A heavy call is made by run A alone, unless it returned a function: the other runs must hold that handle too.
-    const first = await ask(runs[0], line);
-    if (!JSON.stringify(first).includes('"$handle"')) {
-      reply({ answers: [first] });
-      return;
-    }
-    const rest = await Promise.all(runs.slice(1).map((run) => ask(run, line)));
-    reply({ answers: [first, ...rest] });
-    return;
-  }
   const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });
