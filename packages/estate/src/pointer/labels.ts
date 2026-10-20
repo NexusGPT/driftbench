@@ -226,8 +226,20 @@ export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 1
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
 
-/** A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. */
-export type Window = { id: string; path: string; headingPath: string[]; units: WindowUnit[] };
+/** A line the labeler reads and cannot label: an opaque unit (a fence or a comment) shown by its kind and first line. */
+export type ShownLine = { after: number; text: string };
+
+/**
+ * A run of units, cut at headings, that one request labels. `index` is the unit's place in its file. `shown` holds
+ * the display-only lines of the opaque units in the run: `after` is the number of labelable units before the line.
+ */
+export type Window = {
+  id: string;
+  path: string;
+  headingPath: string[];
+  units: WindowUnit[];
+  shown?: ShownLine[];
+};
 
 /** What a labeler says about a window: a label per unit or range, and a target for a label that needs one. */
 export type Labelled = {

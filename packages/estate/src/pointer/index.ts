@@ -50,6 +50,7 @@ export {
   locateSpanText,
   offsetSpans,
   parseLabelSets,
+  type ShownLine,
   type SpanAnswer,
   SpanKind,
   setHash,
