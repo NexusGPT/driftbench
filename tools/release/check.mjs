@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const SCOPE = '@agent-nexus/driftbench';
 const LICENSE = 'MIT';
-const REPO_URL = 'git+https://github.com/achammah/driftbench.git';
+const REPO_URL = 'git+https://github.com/NexusGPT/driftbench.git';
 
 const JUNK = [
   [/(^|\/)(test|tests|__tests__|fixtures?)\//, 'test or fixture folder'],

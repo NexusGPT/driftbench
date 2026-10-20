@@ -84,3 +84,30 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.supplier-email.a-draft-stays-under-120-words
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.supplier-email.a-draft-stays-under-120-words
+        values:
+          atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

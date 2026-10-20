@@ -71,7 +71,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | Kind | What it says | Acme |
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
-| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move | 14 |
+| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move. The map's reachability, the t-wise target and the cover builder count only these two: a use whose subject is a value of any other kind of dimension (a persona, a channel) opens no cell of a tool failure | 14 |
 | `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
@@ -313,6 +313,37 @@ In `metadata.generated.blocks`, a move records the stage it reaches. A deviation
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.
 
+`driftbench generate` and `driftbench estate generate` write their blocks through one block writer
+(`writeBlocks`). It writes `metadata.links`, and every block gets these links:
+
+* a `rule` link for each value the block carries, by `dimension=value` (a block that carries none links the
+  behaviours the spec covers). A task family's blocks link the flow and the behaviours the spec covers;
+* a `plan_row` link: the row the block was written for, with the values of the spec's cell and the values the
+  block adds. The members of a metamorphic family share the row of the family;
+* a `source_turn` link when the phrase copies a kept user turn: its evidence `source` is `<conversation>#<turn>`,
+  the id `intake logs` gives the turn.
+
+Each link is `declared` by the `generator`, at the map hash. The links stay out of the spec hash.
+
+`writeBlocks(inputs, version, { reaches })` also links, for each rule a block names, the rules whose change
+reaches it. For a prompt with a section registry, `sectionsReaching(registry)` of `@agent-nexus/driftbench-core`
+gives them: the sections a section references, overrides or duplicates, transitively. A recap section that
+references `explicit_confirm` makes every recap block link `explicit_confirm` too, with
+`evidence: { declared: { through: recap } }`. On the H7 suite of the Acme prompt, the two references the prompt
+states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
+flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
+
+`driftbench generate --sections <registry>` and `driftbench estate generate --sections <registry>` pass a
+prompt's section registry to the generators. A rule read from that prompt (a value's evidence quote, an
+atom's provenance quote) then gives each block a `prompt_section` link to the section that holds the quote,
+and a link to each section that reaches it through the registry, with `evidence: { declared: { through } }`.
+The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
+that does not describe the prompt's text is refused with exit 2.
+
+### A tool failure on a turn that asks a behaviour
+
+A move of a walk is not the only turn that runs a tool. A behaviour whose own text names a read tool runs it when the user asks for the behaviour, at any stage after the start and without leaving the stage. When the flow recovers from that tool's failure, such a turn is a place for a `D8_tool_failure` probe, the last stage of a path included, which no move reaches. The `cover` seeder builds it for a cell that names a deviation of that class and a stage: the user asks for a behaviour of the flow that reads a recovered tool, the tool fails, the recovery holds the stage, and the user asks again with the tool answering. The behaviour the cell names is the one the spec covers; when it reads nothing, another behaviour of the flow is only said. One rule decides which turns qualify (`extract/behaviour-turns.ts`), and the derived reachability, the t-wise target and the builder all read it, so they agree on which cells exist. A turn qualifies when the tool is not the end state a path writes (a write is never failed and asked again), the behaviour has an approved phrase that states no slot and binds none (that is what the turn says), and a flow that holds the behaviour recovers from the tool's failure.
+
 ### Balance of stages, classes and behaviours
 
 Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.
@@ -484,6 +515,14 @@ exit 1
 The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase and the approved phrases no walk could say (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+
+### Stems: shared openings written once
+
+Many generated specs open the same way: the same first blocks, with the same When, Given and Then. `driftbench generate` writes each such opening once, as a stem under `specs/stems/`, and each spec starts from its stem with `parent: <stem id>#<block id>` on its block 0, its perturbations and end verdict shifted to match. `stems-map.csv` maps every block as generated (`old_spec,old_index,old_block`) to where it is now (`new_spec,new_block`), with how many specs share it. `generate-report.json` counts the stems, the specs that start from one, and the blocks written once. `--no-stems` writes every spec whole.
+
+Two specs share an opening only when they share the keys the run reads (kind, channel, lang, target, Given defaults, stages, rules) and the definitions of the criteria the shared blocks name. A spec never shares its last block, nor a block at or after a perturbation or its end verdict, so it keeps its own end state, criteria and perturbations. Loaded with its folder, or from a seeder folder with `specs/stems/` beside it, a spec is written back out whole and means what it meant: the runner replays the stem's blocks first, unscored, and blocks the spec when one of them does not pass. A stem is run and scored as a spec of its own; coverage and the pilot count the specs it opens, never the stem. See [a parent in another spec](concepts/given-when-then.md#a-parent-in-another-spec).
+
+On the approved Acme map, the committed suite has 101 stems: 212 of the 437 complete specs start from one, and 296 blocks are written once instead of once per spec. Loaded as a folder, each of the 437 specs is written back out to the blocks it had. On the Acme sales agent, in modes T and F, all 874 cells keep their state and the verdicts of their own blocks, and all 202 stem cells pass. The streaming writer, `generateSuiteToDisk`, reads one spec at a time and writes every spec whole; `generateSuite` writes stems with `stems: true`.
 
 ## Streaming generation to disk
 
@@ -920,7 +959,7 @@ Intake builds the set of real user turns a simulated user is compared against. I
 
 ```
 $ pnpm -s driftbench intake logs _captures/docs3/generating/intake/conversations.jsonl --out _captures/docs3/generating/intake/private --map examples/acme/map/approved.yaml
-Refused: _captures/docs3/generating/intake/private is inside the git work tree /Users/assem/Documents/GitHub/driftbench/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
+Refused: _captures/docs3/generating/intake/private is inside the git work tree <repo>/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
 exit 2
 ```
 

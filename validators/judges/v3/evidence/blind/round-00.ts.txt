@@ -1,0 +1,106 @@
+/** One nominal class. Names are compared exactly; descriptions participate in replay identity. */
+export interface LabelDefinition {
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface LabelSet {
+  readonly name: string;
+  readonly labels: readonly LabelDefinition[];
+}
+
+export interface LabellerRequest {
+  readonly text: string;
+  readonly labelSet: LabelSet;
+  readonly context?: string;
+}
+
+/** `none` is a valid class; only null abstains. Other strings can be recorded but score invalid. */
+export type LabellerAnswer = string | null;
+
+export interface Labeller {
+  readonly id: string;
+  label(request: LabellerRequest): Promise<LabellerAnswer> | LabellerAnswer;
+}
+
+export interface LabellerScore {
+  readonly total: number;
+  readonly correct: number;
+  readonly agreement: number;
+  readonly kappa: number;
+  readonly abstentions: number;
+  readonly invalid: number;
+  /** Valid class answers / all observations, including the implicit `none` class. */
+  readonly coverage: number;
+}
+
+export interface LabellerReplayEntry {
+  readonly request: LabellerRequest;
+  readonly labellerId: string;
+  readonly answer: LabellerAnswer;
+}
+
+export function labelSetHash(_set: LabelSet): string { return 'unimplemented'; }
+export function labellerRequestKey(_request: LabellerRequest, _labellerId: string): string { return 'unimplemented'; }
+export function scoreLabeller(gold: readonly string[], _answers: readonly LabellerAnswer[], _labelSet: LabelSet): LabellerScore {
+  return { total: gold.length, correct: 0, agreement: 0, kappa: 0, abstentions: 0, invalid: 0, coverage: 0 };
+}
+export function createLabellerReplay(_entries: readonly LabellerReplayEntry[], id: string): Labeller {
+  return { id, label() { throw new Error('replay not implemented'); } };
+}
+
+/** Advanced labeller agreement analysis. Statistical methods and limitations are documented per API. */
+interface Interval { estimate: number; lower: number; upper: number }
+interface KappaResult { kappa: number; observed: number; expected: number; n: number }
+
+export interface LabellerKappaInterval {
+  estimate: number; lower: number | null; upper: number | null;
+  standardError: number | null; varianceFactor: number | null;
+  confidence: number; total: number; status: 'estimated' | 'degenerate';
+  method: 'multinomial-delta';
+}
+export function labellerKappaInterval(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet, confidence?: number): LabellerKappaInterval { throw new Error("labeller analysis not implemented"); }
+export function binaryLabellerPabak(gold: readonly string[], answers: readonly LabellerAnswer[], categories: readonly [string, string]): { total: number; agreement: number; pabak: number } { throw new Error("labeller analysis not implemented"); }
+export function weightedLabellerKappa(gold: readonly string[], answers: readonly LabellerAnswer[], orderedLabels: readonly string[], weights?: 'linear' | 'quadratic'): KappaResult { throw new Error("labeller analysis not implemented"); }
+export interface LabellerAlphaResult {
+  alpha: number | null; observed: number | null; expected: number | null;
+  pairable: number; units: number; raters: number; missing: number;
+  unpairableUnits: number; status: 'estimated' | 'insufficient';
+}
+export function labellerNominalAlpha(ratings: readonly (readonly LabellerAnswer[])[], labelSet: LabelSet): LabellerAlphaResult { throw new Error("labeller analysis not implemented"); }
+export type LabellerPredictionColumn = { kind: 'label'; label: string } | { kind: 'abstain' } | { kind: 'invalid' };
+export interface LabellerClassMetrics {
+  label: string; support: number; predicted: number; tp: number; fp: number; fn: number;
+  precision: number | null; recall: number | null; f1: number | null;
+}
+export interface LabellerConfusion {
+  score: LabellerScore; labels: readonly string[];
+  predictionColumns: readonly LabellerPredictionColumn[];
+  confusion: readonly (readonly number[])[]; byLabel: readonly LabellerClassMetrics[];
+}
+export function labellerConfusion(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet): LabellerConfusion { throw new Error("labeller analysis not implemented"); }
+export interface ScoredLabellerObservation { gold: string; answer: LabellerAnswer; confidence: number }
+export interface LabellerCoveragePoint {
+  threshold: number; total: number; accepted: number; correct: number;
+  coverage: number; acceptedAccuracy: number | null; acceptedAccuracyInterval: Interval | null;
+  abstentions: number; invalid: number; belowThreshold: number;
+}
+export function labellerCoverageCurve(observations: readonly ScoredLabellerObservation[], labelSet: LabelSet, thresholds: readonly number[], confidence?: number): LabellerCoveragePoint[] { throw new Error("labeller analysis not implemented"); }
+export interface LabellerThresholdOptions { thresholds: readonly number[]; minAccuracy: number; minCoverage?: number; confidence?: number }
+export function selectLabellerThreshold(observations: readonly ScoredLabellerObservation[], labelSet: LabelSet, options: LabellerThresholdOptions): LabellerCoveragePoint | null { throw new Error("labeller analysis not implemented"); }
+export interface LabellerLabelMapping { source: string; target: string }
+export interface LabellerMappingOptions {
+  goldSet: LabelSet; answerSet: LabelSet; targetSet: LabelSet;
+  goldMap: readonly LabellerLabelMapping[]; answerMap: readonly LabellerLabelMapping[];
+}
+export function scoreMappedLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], options: LabellerMappingOptions): LabellerScore { throw new Error("labeller analysis not implemented"); }
+export interface LabellerSamplePlan {
+  sampleSize: number; kappa: number; varianceFactor: number; confidence: number; margin: number;
+  method: 'multinomial-delta'; assumption: 'iid-fixed-joint';
+}
+export function planLabellerKappaSample(joint: readonly (readonly number[])[], options: { margin: number; confidence?: number }): LabellerSamplePlan { throw new Error("labeller analysis not implemented"); }
+export interface LabellerExactTest {
+  kappa: number; pValue: number; permutations: number; extreme: number;
+  alternative: 'greater' | 'less' | 'two-sided'; method: 'exact-fixed-margin-permutation';
+}
+export function exactLabellerKappaTest(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet, alternative?: 'greater' | 'less' | 'two-sided'): LabellerExactTest { throw new Error("labeller analysis not implemented"); }

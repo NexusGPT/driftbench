@@ -12,7 +12,11 @@ import {
   type SectionSelection,
   sectionChanges,
   sectionSelection,
+  UNIT_SELECTION_ADVISORY,
+  type UnitSelection,
+  unitSelection,
 } from './select';
+import { checkSelectionGate, verifiedOnly } from './selection-gate';
 
 /**
  * The blast radius of a change manifest over a set of specs: the blocks the change can affect.
@@ -38,6 +42,12 @@ export type RadiusOptions = {
   sections?: readonly SectionRegistry[];
   /** The parent block a spec starts from, for the advisory forward closure. Default: `given.parent` of block 0. */
   parentOf?: (spec: Spec) => ParentRef | undefined;
+  /**
+   * A selection gate record (selection-gate.ts). When it passed and is not stale for these specs and
+   * `sections`, a `prompt_section` change selects the blocks its verified links select, with forward
+   * closure, and the radius skips the rest. Otherwise the radius stays the whole suite, with why.
+   */
+  gate?: unknown;
 };
 
 export type BlockState = 'direct' | 'forward' | 'out';
@@ -97,6 +107,17 @@ export type RadiusReport = {
    * radius above is the whole suite and nothing is skipped. Present only with `sections`.
    */
   advisory?: SectionSelection;
+  /**
+   * What selection by `estate_unit` links would run for the manifest's `unit` changes. Advisory: the radius
+   * above is the whole suite and nothing is skipped. Present when the manifest holds a `unit` change.
+   */
+  unitAdvisory?: UnitSelection;
+
+  /**
+   * Present when a gate record was given with a `prompt_section` change: whether it let the section
+   * selection skip blocks, and why not when it did not.
+   */
+  sectionGate?: { used: boolean; reason: string };
 };
 
 const deviationMatches = (carried: string | undefined, id: string): boolean =>
@@ -181,6 +202,9 @@ function matcher(change: Change): { match: Match; needs?: 'cell' | 'atoms' } | W
     case 'prompt_section':
       // Selection by section links is advisory (select.ts): the whole suite runs until links are verified.
       return { whole: SECTION_SELECTION_ADVISORY };
+    case 'unit':
+      // Selection by unit links is advisory too (select.ts): on the H7 suite it misses what section links miss.
+      return { whole: UNIT_SELECTION_ADVISORY };
     default:
       return { whole: `the kind ${change.kind} is not one the radius can map` };
   }
@@ -281,6 +305,53 @@ export function radiusOf(
     (spec.perturbations ?? []).map((each) => ({ each, deps: perturbationDependencies(spec, each) })),
   );
 
+  // A passing gate turns the advisory section selection into the radius of the `prompt_section` changes.
+  const sectioned = sectionChanges(manifest).length > 0;
+  let sectionGate: RadiusReport['sectionGate'];
+  let gated: SectionSelection | undefined;
+  if (sectioned && options.gate !== undefined) {
+    const check = options.sections
+      ? checkSelectionGate(options.gate, specs, options.sections)
+      : ({ ok: false, reason: 'no section registry was given' } as const);
+    // A gate checks the links of its own prompt only: a change that names, or resolves to, another prompt
+    // keeps the whole suite, or blocks would be skipped on that prompt's unverified links.
+    const gatePrompt = check.ok ? check.gate.prompt.id : '';
+    const registered = (options.sections ?? []).map((registry) => registry.prompt_id);
+    const ungated = [
+      ...new Set(
+        sectionChanges(manifest).flatMap((change) =>
+          change.prompt === '*'
+            ? registered.filter((prompt) => prompt !== gatePrompt)
+            : change.prompt === gatePrompt
+              ? []
+              : [change.prompt],
+        ),
+      ),
+    ];
+    if (check.ok && ungated.length > 0)
+      sectionGate = {
+        used: false,
+        reason: `the gate is for ${gatePrompt}; ${ungated.join(', ')} has no verified-link gate`,
+      };
+    else if (check.ok) {
+      gated = sectionSelection(verifiedOnly(specs, check.gate.prompt.id), manifest, options.sections ?? [], {
+        parentOf: options.parentOf,
+      });
+      sectionGate = gated.all
+        ? { used: false, reason: gated.all }
+        : { used: true, reason: `the verified-link gate passed: ${check.gate.reason}` };
+    } else sectionGate = { used: false, reason: check.reason };
+  }
+  const selectedBy = new Map<string, Map<number, string[]>>();
+  if (gated && gated.all === null)
+    for (const report of gated.specs)
+      selectedBy.set(
+        report.specId,
+        new Map(
+          report.blocks.filter((block) => block.state !== 'out').map((block) => [block.index, block.why]),
+        ),
+      );
+
   let whole: RadiusReport['whole'] = null;
   if (manifest.changes.length === 0 && manifest.from !== manifest.to && !hasValidatedPromptNoop(manifest)) {
     whole = { change: '(none)', reason: 'the manifest lists no change between two different versions' };
@@ -288,7 +359,11 @@ export function radiusOf(
   const selectors: { label: string; match: Match; needs?: 'cell' | 'atoms' }[] = [];
   for (const change of manifest.changes) {
     const label = changeLabel(change);
-    const made = matcher(change);
+    if (change.kind === 'prompt_section' && change.global !== true && selectedBy.size > 0) continue;
+    const made =
+      change.kind === 'prompt_section' && sectionGate !== undefined && !sectionGate.used
+        ? { whole: `${SECTION_SELECTION_ADVISORY} (${sectionGate.reason})` }
+        : matcher(change);
     if ('whole' in made) {
       whole ??= { change: label, reason: made.whole };
       continue;
@@ -322,7 +397,12 @@ export function radiusOf(
       id: block.id ?? `block ${index}`,
       index,
       scored: block.id === undefined || !rejected.has(block.id),
-      why: whole ? [`whole:${whole.change}`] : reasons(deps[index] as BlockDependencies),
+      why: whole
+        ? [`whole:${whole.change}`]
+        : [
+            ...reasons(deps[index] as BlockDependencies),
+            ...(selectedBy.get(spec.id)?.get(index) ?? []).map((why) => `prompt_section:${why}`),
+          ],
       state: {},
     }));
     const linked = spec.blocks.some((block) => block.parent !== undefined);
@@ -429,6 +509,9 @@ export function radiusOf(
     options.sections !== undefined && sectionChanges(manifest).length > 0
       ? sectionSelection(specs, manifest, options.sections, { parentOf: options.parentOf })
       : undefined;
+  const unitAdvisory = manifest.changes.some((change) => change.kind === 'unit')
+    ? unitSelection(specs, manifest, { parentOf: options.parentOf })
+    : undefined;
   return {
     manifest: { from: manifest.from, to: manifest.to, changes: manifest.changes.map(changeLabel) },
     modes,
@@ -436,5 +519,7 @@ export function radiusOf(
     specs: reports,
     totals,
     ...(advisory === undefined ? {} : { advisory }),
+    ...(unitAdvisory === undefined ? {} : { unitAdvisory }),
+    ...(sectionGate === undefined ? {} : { sectionGate }),
   };
 }

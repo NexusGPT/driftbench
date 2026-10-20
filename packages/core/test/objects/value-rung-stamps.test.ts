@@ -118,7 +118,6 @@ async function scored(
     'tools.lookup.count',
     'tools.lookup.input.profile',
     ...(options.fallback ? ['tools.lookup.input.profile.no_decider'] : []),
-    'tools.argument_accuracy',
   ]);
   return { verdict: verdicts[1] as Verdict, ref: resolved.ref, verdicts };
 }

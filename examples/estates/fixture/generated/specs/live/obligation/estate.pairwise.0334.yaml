@@ -91,3 +91,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0334
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: fresh
+          owner_signal: no_questions
+          deviation: D3_contradiction
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

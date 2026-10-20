@@ -42,6 +42,23 @@ function cpuMs<T>(run: () => T): number {
   return (used.user + used.system) / 1000;
 }
 
+/**
+ * The growth of CPU time from the small input to the large one. Both inputs run once before they are timed. Then
+ * five rounds time one run of each, and the fastest run of each size counts: a loaded machine slows both sides alike,
+ * and the fastest run is the one it disturbed least. A slow algorithm is slow in every round.
+ */
+function growth(small: () => unknown, large: () => unknown, rounds = 5): number {
+  cpuMs(small);
+  cpuMs(large);
+  let least = Number.POSITIVE_INFINITY;
+  let most = Number.POSITIVE_INFINITY;
+  for (let round = 0; round < rounds; round += 1) {
+    least = Math.min(least, cpuMs(small));
+    most = Math.min(most, cpuMs(large));
+  }
+  return most / Math.max(least, 1);
+}
+
 describe('the section anchor quote is the one the search found before', () => {
   function check(text: string, start: number, end: number): void {
     const old = oldUniqueQuote(text, start, end);
@@ -100,14 +117,11 @@ describe('the section anchor takes linear CPU time on repeated lines', () => {
   });
 
   it('four times the text takes about four times the time', () => {
-    const make = (size: number) => {
+    const run = (size: number) => {
       const text = `## Rules\n${'x line\n'.repeat(size)}`;
-      return cpuMs(() => entryOf(text, 0, text.length));
+      return () => entryOf(text, 0, text.length);
     };
-    make(2000);
-    const small = Math.max(make(10000), 1);
-    const large = make(40000);
-    expect(large / small).toBeLessThan(16);
+    expect(growth(run(10000), run(40000))).toBeLessThan(16);
   });
 });
 
@@ -130,44 +144,37 @@ describe('a registry of many sections takes CPU time near linear in the sections
     expect(ms).toBeLessThan(BUDGET_MS);
   });
 
-  // A heading whose section holds no unique quote is folded into the section before it (docs/concepts/blast-radius.md,
-  // radius sections init), so identical sections fold, one by one, into the single section the whole prompt is.
-  it.each([2000, 8000])('%d identical sections, which have no unique quote and fold into one', (count) => {
+  // Two sections with the same text are neither folded nor refused (docs/concepts/blast-radius.md): each keeps an
+  // entry, numbered by its occurrence, so identical sections stay apart one by one.
+  it.each([2000, 8000])('%d identical sections keep an entry each, numbered by occurrence', (count) => {
     const text = identical(count);
     const result = sectionsFromHeadings(text, { promptId: 'p', version: '1' });
     if (!result.ok) throw new Error(`refused: ${result.errors.join('; ')}`);
     const sections = result.registry.sections;
-    expect(sections).toHaveLength(1);
-    const [only] = sections;
-    expect(only?.span.start).toBe(0);
-    expect(text.slice(only?.span.end).trim()).toBe('');
-    const quote = only?.anchor.quote ?? '';
-    expect(text.indexOf(quote)).toBe(text.lastIndexOf(quote));
+    expect(sections).toHaveLength(count);
+    expect(new Set(sections.map((each) => each.id)).size).toBe(count);
+    expect(sections.map((each) => each.anchor.occurrence)).toEqual(
+      Array.from({ length: count }, (_, index) => index + 1),
+    );
+    expect(sections[0]?.span.start).toBe(0);
+    expect(text.slice(sections[count - 1]?.span.end).trim()).toBe('');
   });
 
-  // Folding re-anchors a neighbour after every fold. The time is compared, not budgeted: the best of three CPU runs at
-  // each size, so a loaded machine slows both sides of the ratio alike.
-  it('four times the identical sections take about four times the time to fold', () => {
-    const best = (count: number) => {
+  // Each identical section is numbered by its occurrence. The time is compared, not budgeted: the fastest of five CPU runs
+  // at each size, so a loaded machine slows both sides of the ratio alike.
+  it('four times the identical sections take about four times the time to keep apart', () => {
+    const run = (count: number) => {
       const text = identical(count);
-      return Math.min(
-        ...[0, 1, 2].map(() => cpuMs(() => sectionsFromHeadings(text, { promptId: 'p', version: '1' }))),
-      );
+      return () => sectionsFromHeadings(text, { promptId: 'p', version: '1' });
     };
-    best(500);
-    const small = Math.max(best(2000), 1);
-    const large = best(8000);
-    expect(large / small).toBeLessThan(10);
+    expect(growth(run(2000), run(8000))).toBeLessThan(10);
   });
 
   it('four times the distinct sections take about four times the time', () => {
-    const make = (count: number) => {
+    const run = (count: number) => {
       const text = distinct(count);
-      return cpuMs(() => sectionsFromHeadings(text, { promptId: 'p', version: '1' }));
+      return () => sectionsFromHeadings(text, { promptId: 'p', version: '1' });
     };
-    make(500);
-    const small = Math.max(make(2000), 1);
-    const large = make(8000);
-    expect(large / small).toBeLessThan(10);
+    expect(growth(run(2000), run(8000))).toBeLessThan(10);
   });
 });

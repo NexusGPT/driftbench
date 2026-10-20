@@ -1,0 +1,13 @@
+id: acme.planted.b6
+intent: "The customer asks whether home internet is available at a named address."
+seed: "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+context:
+  last_reply: ""
+slots:
+  - name: address
+    format: text
+    surface_forms:
+      - { form: "3 Orchard Way, Acmeville", approved: true }
+      - { form: "3 Orchard Way Acmeville", approved: true }
+      - { form: "3 orchard way", approved: true }
+    minimal: ["13 Orchard Way, Acmeville"]

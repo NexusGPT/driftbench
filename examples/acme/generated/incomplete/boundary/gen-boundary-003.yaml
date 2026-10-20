@@ -105,3 +105,57 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.in.customer_email
         value: catalog.search.in.customer_email.below-min-length
+  links:
+    - block: b1-needs-to-port_number
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-port_number
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-port_number
+      to:
+        kind: plan_row
+        row: gen-boundary-003
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.below-min-length
+          flow: porting
+          user_type: new-customer
+          port_result: can-move
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-port_number
+          stage: port_number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: catalog.search.in.customer_email=catalog.search.in.customer_email.below-min-length
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-003
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.below-min-length
+          flow: porting
+          user_type: new-customer
+          port_result: can-move
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: chat
+          coverage_result: none
+          stage: port_number
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

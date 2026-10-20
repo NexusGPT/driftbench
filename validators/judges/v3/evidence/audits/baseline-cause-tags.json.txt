@@ -1,0 +1,122 @@
+[
+  {
+    "id": "labeller/agreement/negation/tier-1",
+    "cause": "apply the supplied label predicates to the confirmed evidence"
+  },
+  {
+    "id": "labeller/abstain/erased-value/tier-1",
+    "cause": "abstain on unavailable evidence without treating abstention as agreement"
+  },
+  {
+    "id": "labeller/none/above-domain/tier-1",
+    "cause": "return none for evidence outside every supplied label predicate"
+  },
+  {
+    "id": "labeller/label-set-change/definition/tier-1",
+    "cause": "reclassify against the changed label definitions and invalidate stale recordings"
+  },
+  {
+    "id": "labeller/near-miss/case/tier-1",
+    "cause": "preserve exact label identity instead of normalising similar names"
+  },
+  {
+    "id": "labeller/order-bias/reverse-labels/tier-1",
+    "cause": "classify evidence independently of label and evidence positions"
+  },
+  {
+    "id": "labeller/length-bias/long-definition/tier-1",
+    "cause": "classify evidence independently of irrelevant text length"
+  },
+  {
+    "id": "labeller/adversarial-label/fake-system/tier-1",
+    "cause": "treat instructions naming labels inside the unit as untrusted data"
+  },
+  {
+    "id": "labeller/replay/cloned-object/tier-1",
+    "cause": "return the same correct answer across repeated and interleaved requests"
+  },
+  {
+    "id": "labeller/cache-key/context/tier-1",
+    "cause": "include text, context, labeller identity and the complete ordered label set in replay keys"
+  },
+  {
+    "id": "labeller/advanced/pabak-skewed-prevalence",
+    "cause": "apply binary prevalence adjustment to raw agreement"
+  },
+  {
+    "id": "labeller/advanced/confusion-orientation",
+    "cause": "orient confusion rows by gold and columns by predictions"
+  },
+  {
+    "id": "labeller/advanced/ci-balanced-delta",
+    "cause": "compute multinomial kappa delta variance including marginal coupling"
+  },
+  {
+    "id": "labeller/advanced/ci-degenerate-no-false-certainty",
+    "cause": "report degenerate kappa uncertainty as unavailable"
+  },
+  {
+    "id": "labeller/advanced/weighted-linear-distance",
+    "cause": "score explicit ordinal disagreement distances"
+  },
+  {
+    "id": "labeller/advanced/weighted-explicit-domain",
+    "cause": "validate ordinal domain before weighted scoring"
+  },
+  {
+    "id": "labeller/advanced/coverage-inclusive-and-selective-denominator",
+    "cause": "accept only valid predictions at or above the confidence threshold"
+  },
+  {
+    "id": "labeller/advanced/mapping-renamed-vocabularies",
+    "cause": "map both label vocabularies explicitly into a common domain"
+  },
+  {
+    "id": "labeller/advanced/ci-missing-prediction-marginals",
+    "cause": "retain missing and invalid prediction mass in kappa uncertainty"
+  },
+  {
+    "id": "labeller/advanced/alpha-complete-multiple-raters",
+    "cause": "compute nominal coincidence agreement for multiple raters"
+  },
+  {
+    "id": "labeller/advanced/confusion-none-abstain-invalid",
+    "cause": "separate none, abstention and invalid prediction columns"
+  },
+  {
+    "id": "labeller/advanced/coverage-exact-binomial-boundaries",
+    "cause": "report exact accepted-accuracy uncertainty at zero and full successes"
+  },
+  {
+    "id": "labeller/advanced/threshold-max-coverage-and-tie",
+    "cause": "select greatest feasible coverage with lower-threshold tie break"
+  },
+  {
+    "id": "labeller/advanced/mapping-total-and-unambiguous",
+    "cause": "reject incomplete and ambiguous cross-version mappings"
+  },
+  {
+    "id": "labeller/advanced/sample-plan-delta-margin",
+    "cause": "plan kappa precision from the specified joint distribution"
+  },
+  {
+    "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+    "cause": "reject invalid or degenerate kappa precision designs"
+  },
+  {
+    "id": "labeller/advanced/exact-fixed-margin-perfect",
+    "cause": "enumerate distinct fixed-margin permutations exactly"
+  },
+  {
+    "id": "labeller/advanced/alpha-singletons-not-marginals",
+    "cause": "exclude unpairable units from alpha marginals"
+  },
+  {
+    "id": "labeller/advanced/mapping-source-validity-before-target",
+    "cause": "preserve invalid source answers and abstentions across mapping"
+  },
+  {
+    "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+    "cause": "include tied permutations in the specified kappa tail"
+  }
+]

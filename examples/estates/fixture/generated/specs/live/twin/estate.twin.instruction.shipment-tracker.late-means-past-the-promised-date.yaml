@@ -90,3 +90,30 @@ metadata:
     outcome: bank
     judged:
       - instruction.shipment-tracker.late-means-past-the-promised-date
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.late-means-past-the-promised-date
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: twin.instruction.shipment-tracker.late-means-past-the-promised-date
+        values:
+          atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

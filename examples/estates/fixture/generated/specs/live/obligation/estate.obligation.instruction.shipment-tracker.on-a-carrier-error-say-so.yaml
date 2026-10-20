@@ -64,3 +64,30 @@ metadata:
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.on-a-carrier-error-say-so
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.on-a-carrier-error-say-so
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.shipment-tracker.on-a-carrier-error-say-so
+        values:
+          atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

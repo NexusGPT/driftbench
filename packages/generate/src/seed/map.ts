@@ -71,6 +71,8 @@ export type PreparedMap = {
   relations: Relations;
   /** Approved numeric ranges, sampled only by budget mode and delivered as runtime vars. */
   numericSettings?: readonly NumericSetting[];
+  /** The source and quote of each approved value, by `dimension=value`: where the value is read from. */
+  quotes?: ReadonlyMap<string, { source: string; quote: string }>;
 };
 
 /** The dimension id the extractor gives the stage graph's edges, `<from>-to-<to>` (extract handoff). */
@@ -200,6 +202,13 @@ export function prepareMap(
     transition: find('behaviour', TRANSITION_DIMENSION),
     relations,
     ...(numericSettings.length === 0 ? {} : { numericSettings }),
+    quotes: new Map(
+      proposal.dimensions.flatMap((dimension) =>
+        dimension.values
+          .filter((value) => value.approved !== false)
+          .map((value) => [phraseKey(dimension.id, value.id), value.evidence] as const),
+      ),
+    ),
   };
 }
 

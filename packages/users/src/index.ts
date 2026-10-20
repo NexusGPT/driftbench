@@ -1,6 +1,67 @@
 /** User drivers: scripted (phase 1), perturbing and simulated (phase 3), the red-team pack, recovery and the multi-turn red-team user. */
 export const packageName = '@agent-nexus/driftbench-users';
 export {
+  ABCD_CUSTOMERS,
+  type CalibrationReport,
+  calibrationReport,
+  calibrationSelfCheck,
+  type HumanReference,
+  METRIC_SOURCE,
+  METRICS,
+  type Metric,
+  type Rates,
+} from './agenda/calibration';
+export {
+  cassettePort,
+  loadUserCassette,
+  recordingCassettePort,
+  UserCassette,
+  writeUserCassette,
+} from './agenda/cassette';
+export {
+  type BlockUser,
+  type BlockUserOptions,
+  createBlockUser,
+  type LedgerTurn,
+  leaks,
+  simulatedUserOf,
+} from './agenda/driver';
+export {
+  AgendaEngine,
+  type AgentActs,
+  ENGINE_DEFAULTS,
+  ENGINE_VERSION,
+  type EngineInput,
+  type EngineParams,
+  engineParams,
+  NO_AGENT_ACTS,
+  type Plan,
+  type PlannedAct,
+  type PlannedStyle,
+} from './agenda/engine';
+export {
+  type BlockFlips,
+  batchFlipShares,
+  blockFlips,
+  crossFlipRate,
+  type FamilyTrials,
+  type FlipOptions,
+  fisherExact,
+  flipReport,
+  passHatK,
+  rerunFlipRate,
+} from './agenda/flips';
+export { simulatedUserFromPersona } from './agenda/persona';
+export {
+  type AgentActLabeller,
+  type Exchange,
+  modelLabeller,
+  patternLabeller,
+  REALISER_SYSTEM,
+  TEMPLATE_HASH,
+} from './agenda/realiser';
+export { freezeSimulatedRun } from './agenda/replay';
+export {
   AttackError,
   type AttackOptions,
   type AttackRecording,

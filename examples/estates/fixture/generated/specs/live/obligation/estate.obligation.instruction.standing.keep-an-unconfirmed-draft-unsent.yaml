@@ -75,3 +75,22 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: obligation.instruction.standing.keep-an-unconfirmed-draft-unsent
+        values:
+          atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -12,31 +12,31 @@ const example = (name: string) =>
  */
 const EXPECTED = {
   acme: {
-    rows: 4,
+    rows: 13,
     rules: 16,
     layers: [
       { layer: 'own', groups: 6, targets: 18, infeasible: 4, covered: 18 },
-      { layer: 'shared', groups: 0, targets: 0, infeasible: 0, covered: 0 },
+      { layer: 'shared', groups: 5, targets: 40, infeasible: 7, covered: 40 },
       { layer: 'single', groups: 0, targets: 0, infeasible: 0, covered: 0 },
     ],
     unreachable: ['channel=whatsapp'],
   },
   northwind: {
-    rows: 6,
+    rows: 33,
     rules: 3,
     layers: [
       { layer: 'own', groups: 3, targets: 9, infeasible: 0, covered: 9 },
-      { layer: 'shared', groups: 0, targets: 0, infeasible: 0, covered: 0 },
-      { layer: 'single', groups: 2, targets: 12, infeasible: 0, covered: 12 },
+      { layer: 'shared', groups: 1, targets: 33, infeasible: 3, covered: 33 },
+      { layer: 'single', groups: 0, targets: 0, infeasible: 0, covered: 0 },
     ],
     unreachable: [],
   },
   tidewater: {
-    rows: 9,
+    rows: 10,
     rules: 8,
     layers: [
       { layer: 'own', groups: 6, targets: 27, infeasible: 2, covered: 27 },
-      { layer: 'shared', groups: 0, targets: 0, infeasible: 0, covered: 0 },
+      { layer: 'shared', groups: 2, targets: 12, infeasible: 0, covered: 12 },
       { layer: 'single', groups: 0, targets: 0, infeasible: 0, covered: 0 },
     ],
     unreachable: [],

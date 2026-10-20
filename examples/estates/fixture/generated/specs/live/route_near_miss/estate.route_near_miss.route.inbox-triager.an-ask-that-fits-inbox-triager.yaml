@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.inbox-triager.helper-inbox-triager
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.inbox-triager.an-ask-that-fits-inbox-triager
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
