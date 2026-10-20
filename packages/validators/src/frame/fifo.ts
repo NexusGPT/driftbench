@@ -106,11 +106,12 @@ export function send(run: FifoRun, line: string): void {
 }
 
 const BLOCK = 1024 * 1024;
+/** One block for every read: the validator reads one answer at a time, and a block per call costs a megabyte of zeros. */
+const block = Buffer.allocUnsafe(BLOCK);
 
 /** The next answer of a run: the JSON of its next line that starts with the token, or `dead` when it ended. */
 export function receive(run: FifoRun, token: string): Answer {
   const prefix = `${token} `;
-  const block = Buffer.alloc(BLOCK);
   for (;;) {
     const at = run.rest.indexOf(10);
     if (at >= 0) {
