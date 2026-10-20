@@ -11,6 +11,7 @@ import {
 import { createRequire } from 'node:module';
 import { delimiter, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parse as parseYaml } from 'yaml';
 import { findRoot } from '../root';
 import { FrameError } from './tape';
 import type { TwinPlan } from './twins';
@@ -194,6 +195,45 @@ export type Sealed = {
 };
 
 /**
+ * The source folders of the workspace packages the project root declares in its pnpm-workspace.yaml (`dir/*` or a
+ * folder): a product of the repository imports its sibling packages (`planV2` imports core), and they are part of it.
+ * Only the `src` folder of each is taken, and never the validators' own package, which holds the expected values.
+ */
+function workspaceSources(base: string): string[] {
+  const file = join(base, 'pnpm-workspace.yaml');
+  if (!existsSync(file)) return [];
+  const own = realOf(join(dirname(fileURLToPath(import.meta.url)), '..', '..'));
+  let patterns: string[] = [];
+  try {
+    const parsed = parseYaml(readFileSync(file, 'utf8')) as { packages?: unknown };
+    patterns = Array.isArray(parsed?.packages)
+      ? parsed.packages.filter((each): each is string => typeof each === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+  const packages: string[] = [];
+  for (const pattern of patterns) {
+    if (pattern.startsWith('!') || pattern.includes('**')) continue;
+    if (pattern.endsWith('/*')) {
+      const parent = join(base, pattern.slice(0, -2));
+      let names: string[] = [];
+      try {
+        names = readdirSync(parent);
+      } catch {
+        names = [];
+      }
+      for (const name of names) packages.push(join(parent, name));
+    } else if (!pattern.includes('*')) packages.push(join(base, pattern));
+  }
+  return packages
+    .filter((dir) => existsSync(join(dir, 'package.json')) && existsSync(join(dir, 'src')))
+    .map((dir) => realOf(dir))
+    .filter((dir) => dir !== own)
+    .map((dir) => join(dir, 'src'));
+}
+
+/**
  * Bundles the product module with all it imports into `${into}/${name}.mjs`. The folder holds nothing else of the
  * project, so a run that may read only this folder has the product and nothing around it. The bundle is built only
  * from code of the product's own source tree, the extra trees named in `sources`, and the packages in a
@@ -249,7 +289,11 @@ export function seal(
     .filter((path) => existsSync(path))
     .map(realOf);
   const tree = realOf(productTree(module));
-  const trees = [tree, ...(grants.sources ?? []).map((path) => realOf(resolve(path)))];
+  const trees = [
+    tree,
+    ...(grants.sources ?? []).map((path) => realOf(resolve(path))),
+    ...workspaceSources(base),
+  ];
   const granted = (grants.reads ?? []).map((path) => realOf(resolve(path)));
   for (const input of inputs) {
     // A package of node_modules is a dependency; the project's cache folder inside it is not.

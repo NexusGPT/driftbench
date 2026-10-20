@@ -8,6 +8,7 @@ import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from '
 import { findRoot } from '../root';
 import { checkMark, confine, markPath, type SealDescriptor, sealOnce, setMark, TreeWatch } from './confine';
 import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
+import { runTag, spawnGrouped } from './group';
 import {
   canonical,
   decode,
@@ -174,13 +175,18 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
       plain.codecNames,
     ),
   );
-  const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
-    cwd: findRoot(dirname(module)),
-    env: plain.env,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: CALL_MS,
-  });
+  const ran = spawnGrouped(
+    process.execPath,
+    [...loaderOption(), entry],
+    runTag(seed, `${tag}:${plain.count}`),
+    {
+      cwd: findRoot(dirname(module)),
+      env: plain.env,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: CALL_MS,
+    },
+  );
   try {
     if (!existsSync(out))
       return {
@@ -433,13 +439,18 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       }
       let ran: ReturnType<typeof spawnSync>;
       if (plan === 'C') {
-        ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
-          cwd: work,
-          env: plainRun.env,
-          encoding: 'utf8',
-          stdio: ['ignore', 'pipe', 'pipe'],
-          timeout: options.timeoutMs ?? CALL_MS,
-        });
+        ran = spawnGrouped(
+          process.execPath,
+          [...loaderOption(), resolve(script), ...args],
+          runTag(options.seed, `${tag}:command`),
+          {
+            cwd: work,
+            env: plainRun.env,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
+            timeout: options.timeoutMs ?? CALL_MS,
+          },
+        );
       } else {
         const driver = join(plan.driverDir, plan.driverFile);
         writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
