@@ -236,6 +236,28 @@ describe('safety', () => {
     }
   });
 
+  it('reads a number after the -- as a path, with or without a space after it, and a descriptor with a redirect as none', () => {
+    for (const command of [
+      'git checkout -- 7',
+      'git checkout -- 7 ',
+      'git checkout -- 12',
+      'git checkout main -- 5',
+      'git -C repo checkout -- 9',
+      'git checkout -- 7 > out.log',
+      'git checkout -- 7; echo done',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+    for (const command of [
+      'git checkout -- 12>out.log',
+      'git checkout -- 10>&1',
+      'git checkout -- 7>&2 ',
+      'git checkout main -- 2>&1',
+    ]) {
+      expect(classifyCommand(command, false), command).not.toContain('overwrite');
+    }
+  });
+
   it('pins a word glued to the --, which is read as before, and a tab or several spaces after it', () => {
     for (const command of [
       'git checkout --force main',

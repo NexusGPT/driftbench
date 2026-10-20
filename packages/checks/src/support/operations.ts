@@ -52,8 +52,8 @@ export type Operation = {
  * or `--orphan` together with paths, so no option is left out. The words stop at a shell separator, so the `--`
  * of a later command is not this one's. A path is a word that is not a shell separator or a redirect (`>`, `<`,
  * `2>&1`, `&>`): `git checkout main --` and `git checkout -- >/dev/null` check nothing out. One whitespace
- * character stands between words; any number may follow the `--`. A path of one digit that ends the command is
- * not read.
+ * character stands between words; any number may follow the `--`. A number is a path unless a redirect
+ * follows its digits (`2>`, `12>out.log`, `10>&1`), with or without a space after it.
  */
 const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff: boolean }> = [
   { class: 'push', pattern: /\bgit\s+push\b/, needsNoDiff: false },
@@ -66,7 +66,8 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
   {
     class: 'overwrite',
-    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|\-][^\s;&|]*\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
+    pattern:
+      /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|-][^\s;&|]*\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
     needsNoDiff: true,
   },
   {
@@ -76,12 +77,12 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   },
   {
     class: 'overwrite',
-    pattern: /\bgit\s-[Cc]\s[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
+    pattern: /\bgit\s-[Cc]\s[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
     needsNoDiff: true,
   },
   {
     class: 'overwrite',
-    pattern: /\bgit\s--[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d[^<>&])/,
+    pattern: /\bgit\s--[^\s;&|]+\scheckout\s(?:[^\s;&|]+\s)?--\s+(?:[^\s;&|<>\d]|\d+(?:[^<>&\d]|&&|$))/,
     needsNoDiff: true,
   },
 ];
