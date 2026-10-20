@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';import {labellerKappaInterval as ci} from './candidate';
+const set={name:'x',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const g=['a','a','a','a','b','b','b','b'],a=['a','a','a','b','a','b','b','b'];const r=ci(g,a,set);
+assert.equal(r.estimate,.5);assert.ok(Math.abs(r.varianceFactor!-.75)<1e-12);assert.ok(Math.abs(r.standardError!-Math.sqrt(.75/8))<1e-12);
+assert.ok(Math.abs(r.lower!-(.5-1.959963984540054*Math.sqrt(.75/8)))<1e-8);assert.equal(r.upper,1);
+assert.equal(ci(['a'],['a'],set).status,'degenerate');assert.equal(ci(g,g,set).lower,null);
+assert.throws(()=>ci(g,a,set,1));assert.ok(Number.isFinite(ci(g,a,set,1-Number.EPSILON).lower));
+assert.ok(ci(g,a,set,1e-12).upper!>ci(g,a,set,1e-12).lower!);console.log('delta kappa interval regression passed');

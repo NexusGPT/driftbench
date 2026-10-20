@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';import {labellerConfusion} from './candidate';
+const set={name:'x',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const c=labellerConfusion(['a','b','a','none'],['b','b',null,'bad'],set);
+assert.deepEqual(c.labels,['a','b','none']);assert.deepEqual(c.confusion,[[0,1,0,1,0],[0,1,0,0,0],[0,0,0,0,1]]);
+assert.deepEqual(c.byLabel[1],{label:'b',support:1,predicted:2,tp:1,fp:1,fn:0,precision:.5,recall:1,f1:2/3});
+assert.equal(c.byLabel[0].precision,null);assert.equal(c.byLabel[0].recall,0);
+assert.deepEqual(c.predictionColumns.slice(-2),[{kind:'abstain'},{kind:'invalid'}]);console.log('confusion regression passed');

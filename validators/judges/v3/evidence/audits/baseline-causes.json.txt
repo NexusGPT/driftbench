@@ -1,0 +1,651 @@
+{
+  "frozen_pre_tag": {
+    "created_at_utc": "2026-10-18T00:56:01.681655+00:00",
+    "reviewer": "Inherited Codex; substitutes prescribed Sonnet",
+    "checkpoint": "6579b72536697bc99bccb5c138d007d4e3a4a44d",
+    "hidden_seed": "703475557",
+    "permitted_sources": [
+      "/tmp/astra-judges-expanded-blind/results/round-00.feedback.json",
+      "/tmp/astra-judges-expanded-blind/BASE.md",
+      "/tmp/astra-judges-expanded-blind/ADVANCED.md"
+    ],
+    "baseline_feedback_sha256": "02d31a21578f49a5f10cf9e67aa754ed4e929517c6f3511dcd9198962c3f2866",
+    "baseline": {
+      "passing": 0,
+      "bank_size": 334,
+      "failing": 334
+    },
+    "selection": {
+      "reviewed_failures": 30,
+      "base": 10,
+      "advanced": 20,
+      "method": "One base item per each of ten families; twenty advanced items span every advanced API. Selected using visible item identifiers and contract coverage, not random sampling."
+    },
+    "public_rule": "A helper samples 30 failing items and writes, for each, the fix it would make, without seeing the builder’s cause tag. Agreement below 0.8 with the builder’s tags fails the audit; the reviewed count of distinct causes replaces the declared one.",
+    "epistemic_limit": "Feedback shows common zero scoring and explicit missing replay/analysis APIs. Item names identify scenarios, not independently proven causes. Concrete contract-directed fixes are not claims of 30 distinct defects.",
+    "items": [
+      {
+        "ordinal": 1,
+        "id": "labeller/abstain/erased-value/tier-1",
+        "stratum": "base",
+        "family": "abstain",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/41; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 0.975609756097561; scoring kappa: got 0, expected 0.9523809523809523; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.975609756097561; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.25; diagnostic abstentions: got 0, expected 2; diagnostic coverage: got 0, expected 0.6; diagnostic abstentions: got 0, expected 3; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Implement observed exact-match counts and null abstention counts. Keep every observation in raw agreement and empirical kappa; coverage uses valid answers divided by all observations. The diagnostic expects two abstentions and coverage 0.6, so filtering nulls is wrong.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "The all-zero output supports missing scoring/accounting; it does not establish erased-value semantic misclassification.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 2,
+        "id": "labeller/adversarial-label/fake-system/tier-1",
+        "stratum": "base",
+        "family": "adversarial-label",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Replace zero scoring with exact answer-versus-gold counting and empirical marginals. The reported supplied answers should yield 40 correct, agreement 1, kappa 1, and coverage 1. Do not add an instruction-word classifier.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "Feedback does not show an actual injected instruction changing a prediction; a prompt-security repair is not independently established.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 3,
+        "id": "labeller/agreement/negation/tier-1",
+        "stratum": "base",
+        "family": "agreement",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic kappa: got 0, expected -1; diagnostic coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Compute Cohen kappa as (po-pe)/(1-pe) from retained observations; preserve a negative result. The diagnostic must return -1 while the scoring series returns agreement and kappa 1.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "Shared zero scoring is evident; a negation-understanding failure is not established.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 4,
+        "id": "labeller/cache-key/context/tier-1",
+        "stratum": "base",
+        "family": "cache-key",
+        "tier": 1,
+        "baseline_feedback": "item error: replay not implemented",
+        "proposed_fix": "Implement replay lookup using a deterministic request key containing label-set hash, exact text, optional context, and labeller ID. Distinct contexts must not hit the same entry; a missing entry must throw.",
+        "repair_cluster": "replay-and-identity",
+        "diagnostic_limit": "Replay is explicitly unimplemented. Context-key omission is a contract-directed risk, not a demonstrated implemented-code defect.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 5,
+        "id": "labeller/label-set-change/definition/tier-1",
+        "stratum": "base",
+        "family": "label-set-change",
+        "tier": 1,
+        "baseline_feedback": "item error: replay not implemented",
+        "proposed_fix": "Implement replay with SHA-256 identity over set name, ordered label names, and their definitions. Definition changes must change identity and prevent reuse of an old recorded answer.",
+        "repair_cluster": "replay-and-identity",
+        "diagnostic_limit": "Replay is explicitly unimplemented; definition-sensitive hashing is required before the named scenario can be evaluated.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 6,
+        "id": "labeller/length-bias/long-definition/tier-1",
+        "stratum": "base",
+        "family": "length-bias",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Implement exact answer scoring so the reported series produces 40 correct and full agreement/coverage. Label definition length must not alter nominal score accounting; do not introduce text-length heuristics.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "The same zero-scoring signature appears elsewhere; no observed length-dependent prediction error is isolated.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 7,
+        "id": "labeller/near-miss/case/tier-1",
+        "stratum": "base",
+        "family": "near-miss",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Compare names exactly without case folding, trimming, or prefix matching. Count nonmatching undeclared strings as invalid, retaining them in the denominator; implement the missing score aggregation.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "Contract supports exact comparison; feedback alone does not reveal which near-miss prediction, if any, is present.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 8,
+        "id": "labeller/none/above-domain/tier-1",
+        "stratum": "base",
+        "family": "none",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Treat literal none as a valid implicit nominal class and count matching none answers as correct. Keep null abstention and undeclared-string invalid outcomes separate, then compute scores from observed counts.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "No input text is visible, so an above-domain semantic classifier fix is not justified.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 9,
+        "id": "labeller/order-bias/reverse-labels/tier-1",
+        "stratum": "base",
+        "family": "order-bias",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8",
+        "proposed_fix": "Aggregate nominal agreement by exact label identity rather than index or first-listed position. Compute marginals over the same identities so reordering declarations does not change the score of unchanged gold and answers.",
+        "repair_cluster": "score-and-answer-accounting",
+        "diagnostic_limit": "Current all-zero scores demonstrate a prerequisite failure, not an isolated order-bias mechanism.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 10,
+        "id": "labeller/replay/cloned-object/tier-1",
+        "stratum": "base",
+        "family": "replay",
+        "tier": 1,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/40; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 40; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 1 bars: raw >= 0.9, kappa >= 0.8; recording failed: replay not implemented",
+        "proposed_fix": "Implement an immutable snapshot replay map keyed by serialized request content rather than object identity. Cloned equivalent requests must replay the same answer; validate labeller ID, reject conflicting entries, and throw on misses.",
+        "repair_cluster": "replay-and-identity",
+        "diagnostic_limit": "Recording explicitly fails because replay is unimplemented; clone stability is a contract-directed implementation requirement.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 11,
+        "id": "labeller/advanced/confusion-orientation",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 2,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/48; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 48; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 3; diagnostic agreement: got 0, expected 1; diagnostic kappa: got 0, expected 1; diagnostic coverage: got 0, expected 1; below tier 2 bars: raw >= 0.92, kappa >= 0.85; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement confusion with gold labels as rows and prediction descriptors as columns in declared order plus implicit none. Increment cell [gold][prediction], derive TP/FP/FN and score from the same retained observations.",
+        "repair_cluster": "confusion",
+        "diagnostic_limit": "The API is unimplemented; the orientation defect is a targeted contract risk rather than an isolated numerical observation.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 12,
+        "id": "labeller/advanced/pabak-skewed-prevalence",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 2,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/48; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 48; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.5; diagnostic kappa: got 0, expected 0.3333333333333333; diagnostic invalid: got 0, expected 2; diagnostic coverage: got 0, expected 0.5; below tier 2 bars: raw >= 0.92, kappa >= 0.85; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement binary-domain validation followed by PABAK = 2*(exact matches/n)-1. Do not substitute empirical Cohen kappa under skewed class prevalence; reject null, unknown, or multiclass inputs.",
+        "repair_cluster": "pabak",
+        "diagnostic_limit": "The advanced API is unimplemented and base scoring also fails; the formula repair is contract-directed.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 13,
+        "id": "labeller/advanced/ci-balanced-delta",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 3,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/56; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 56; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.5; diagnostic coverage: got 0, expected 1; below tier 3 bars: raw >= 0.94, kappa >= 0.9; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement the stated multinomial cell gradient, V = E[g squared] - E[g] squared, and SE = sqrt(V/n). Return kappa plus/minus the two-sided normal critical value times SE, clipped to [-1,1], using default confidence 0.95.",
+        "repair_cluster": "kappa-delta",
+        "diagnostic_limit": "No advanced computed interval is visible; this is an implementation prescription for a missing API.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 14,
+        "id": "labeller/advanced/ci-degenerate-no-false-certainty",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 3,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/56; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 56; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 3; diagnostic agreement: got 0, expected 1; diagnostic kappa: got 0, expected 1; diagnostic coverage: got 0, expected 1; below tier 3 bars: raw >= 0.94, kappa >= 0.9; advanced=labeller analysis not implemented",
+        "proposed_fix": "Handle n<2, pe=1, or V<=1e-15 before interval division. Preserve the base kappa estimate but return degenerate status and null lower, upper, SE, and varianceFactor.",
+        "repair_cluster": "kappa-delta",
+        "diagnostic_limit": "The missing API masks whether any particular degeneracy branch is otherwise wrong.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 15,
+        "id": "labeller/advanced/weighted-linear-distance",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 3,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/56; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 56; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.11764705882352945; diagnostic coverage: got 0, expected 1; below tier 3 bars: raw >= 0.94, kappa >= 0.9; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement linear ordinal disagreement abs(i-j) using supplied label positions. Derive weighted kappa from observed and independent-marginal expected disagreement; normalize returned observed/expected agreement by K-1.",
+        "repair_cluster": "weighted-kappa",
+        "diagnostic_limit": "The contract permits direct documented mathematics; no advanced result is available to isolate a narrower bug.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 16,
+        "id": "labeller/advanced/alpha-complete-multiple-raters",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/64; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.25; diagnostic abstentions: got 0, expected 2; diagnostic coverage: got 0, expected 0.6; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement nominal multi-rater alpha over the raters-by-units matrix, with pairable-unit coincidence counts and chance disagreement from pooled coincidence marginals. Validate rectangular shape and at least two raters; return all required counts.",
+        "repair_cluster": "nominal-alpha",
+        "diagnostic_limit": "Advanced alpha is absent, rather than a demonstrated error on one specific matrix.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 17,
+        "id": "labeller/advanced/ci-missing-prediction-marginals",
+        "stratum": "advanced",
+        "family": "abstain",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/65; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 0.9846153846153847; scoring kappa: got 0, expected 0.980808975494538; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.9846153846153847; diagnostic kappa: got 0, expected -1; diagnostic coverage: got 0, expected 1; diagnostic abstentions: got 0, expected 3; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Retain null and invalid outputs as separate prediction-only categories when constructing the full empirical joint distribution for kappa and its delta gradient. Give both zero gold marginal; never drop these observations or merge them into none.",
+        "repair_cluster": "kappa-delta",
+        "diagnostic_limit": "The missing implementation prevents determining whether filtering or category collision is the original finer-grained cause.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 18,
+        "id": "labeller/advanced/coverage-inclusive-and-selective-denominator",
+        "stratum": "advanced",
+        "family": "abstain",
+        "tier": 3,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/57; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 56; scoring agreement: got 0, expected 0.9824561403508771; scoring kappa: got 0, expected 0.9767441860465116; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.9824561403508771; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.11764705882352945; diagnostic coverage: got 0, expected 1; diagnostic abstentions: got 0, expected 3; below tier 3 bars: raw >= 0.94, kappa >= 0.9; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement acceptance as valid class AND confidence>=threshold. Compute coverage accepted/all observations and accepted accuracy correct/accepted, with null accuracy and interval at accepted=0; separately count abstain, invalid, and below-threshold observations.",
+        "repair_cluster": "coverage",
+        "diagnostic_limit": "This is the contract-required missing method; no existing selective denominator calculation is observed.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 19,
+        "id": "labeller/advanced/coverage-exact-binomial-boundaries",
+        "stratum": "advanced",
+        "family": "abstain",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/65; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 0.9846153846153847; scoring kappa: got 0, expected 0.980808975494538; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.9846153846153847; diagnostic kappa: got 0, expected -1; diagnostic coverage: got 0, expected 1; diagnostic abstentions: got 0, expected 3; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement exact Clopper-Pearson bounds for accepted correct/accepted using requested confidence, including zero-success and all-success boundary formulas. Return null bounds with no accepted cases; preserve finite endpoint-near confidence calculations.",
+        "repair_cluster": "coverage",
+        "diagnostic_limit": "No computed bounds exist in feedback; the proposal targets the named contract branch.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 20,
+        "id": "labeller/advanced/threshold-max-coverage-and-tie",
+        "stratum": "advanced",
+        "family": "abstain",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/65; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 0.9846153846153847; scoring kappa: got 0, expected 0.980808975494538; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.9846153846153847; diagnostic correct: got 0, expected 3; diagnostic agreement: got 0, expected 1; diagnostic kappa: got 0, expected 1; diagnostic coverage: got 0, expected 1; diagnostic abstentions: got 0, expected 3; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Validate and deduplicate/sort thresholds, calculate coverage points, and retain accepted>0 points satisfying empirical minAccuracy and minCoverage. Choose highest coverage, breaking ties with the lower threshold; return null when none qualify.",
+        "repair_cluster": "coverage",
+        "diagnostic_limit": "The selector is unimplemented; no evidence supports changing the contract to optimize accuracy instead.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 21,
+        "id": "labeller/advanced/alpha-singletons-not-marginals",
+        "stratum": "advanced",
+        "family": "abstain",
+        "tier": 5,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/73; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 72; scoring agreement: got 0, expected 0.9863013698630136; scoring kappa: got 0, expected 0.9836065573770492; scoring abstentions: got 0, expected 1; scoring coverage: got 0, expected 0.9863013698630136; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.11764705882352945; diagnostic coverage: got 0, expected 1; diagnostic abstentions: got 0, expected 3; below tier 5 bars: raw >= 0.96, kappa >= 0.94; advanced=labeller analysis not implemented",
+        "proposed_fix": "Exclude units with fewer than two observed ratings from alpha coincidence counts and their marginals, while counting those units and null ratings in diagnostics. Return insufficient/null metrics if no pairable units remain.",
+        "repair_cluster": "nominal-alpha",
+        "diagnostic_limit": "This is a prerequisite implementation choice; the absent method has no visible singleton-specific numerical output.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 22,
+        "id": "labeller/advanced/mapping-renamed-vocabularies",
+        "stratum": "advanced",
+        "family": "label-set-change",
+        "tier": 3,
+        "baseline_feedback": "item error: replay not implemented; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement explicit total gold and answer vocabulary maps into a common target set, including none. Apply the respective map to valid source labels, preserve null/invalid statuses, and score the mapped arrays. Implement replay identity as the separately observed prerequisite.",
+        "repair_cluster": "mapped-score",
+        "diagnostic_limit": "Both replay and advanced analysis are unimplemented; a rename-only mapping defect cannot be isolated yet.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 23,
+        "id": "labeller/advanced/mapping-total-and-unambiguous",
+        "stratum": "advanced",
+        "family": "label-set-change",
+        "tier": 4,
+        "baseline_feedback": "item error: replay not implemented; advanced=labeller analysis not implemented",
+        "proposed_fix": "Before mapping observations, validate exactly one row per source label including none, known source and target labels, no missing rows, and no duplicate source rows even with identical targets. Reject ambiguous mappings rather than choosing one row.",
+        "repair_cluster": "mapped-score",
+        "diagnostic_limit": "The absent API and replay block hide specific validation behavior; these are required checks, not observed branch defects.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 24,
+        "id": "labeller/advanced/mapping-source-validity-before-target",
+        "stratum": "advanced",
+        "family": "label-set-change",
+        "tier": 5,
+        "baseline_feedback": "item error: replay not implemented; advanced=labeller analysis not implemented",
+        "proposed_fix": "Validate each gold label against goldSet before mapping. Classify each answer against answerSet before target lookup; an unknown source string remains invalid even if it names a valid target label. Preserve null as abstain.",
+        "repair_cluster": "mapped-score",
+        "diagnostic_limit": "The API is absent; the feedback does not contain a concrete source/target collision.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 25,
+        "id": "labeller/advanced/sample-plan-delta-margin",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/64; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 3; diagnostic agreement: got 0, expected 1; diagnostic kappa: got 0, expected 1; diagnostic coverage: got 0, expected 1; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Compute the same multinomial delta V from the supplied square joint probability matrix, then n=max(2,ceil(z squared*V/margin squared)). Return the assumed kappa, variance, confidence, margin and iid-fixed-joint assumption; reject unsafe calculated sizes.",
+        "repair_cluster": "kappa-delta",
+        "diagnostic_limit": "No sample-plan output exists; this is a formula implementation prescription.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 26,
+        "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/64; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.25; diagnostic abstentions: got 0, expected 2; diagnostic coverage: got 0, expected 0.6; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Validate square dimension>=2, finite nonnegative probabilities, sum within 1e-10 of 1 without renormalizing, confidence/margin strictly between 0 and 1. Reject pe=1 and V<=1e-15 as unidentified precision designs.",
+        "repair_cluster": "kappa-delta",
+        "diagnostic_limit": "The missing API is the observed blocker; no invalid matrix-specific failure has been isolated.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 27,
+        "id": "labeller/advanced/exact-fixed-margin-perfect",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/64; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.5; diagnostic coverage: got 0, expected 1; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Implement exhaustive distinct permutations of the predicted multiset for 1..9 observations with gold fixed. Compute each statistic under fixed marginals and return extreme/permutation count, observed kappa, and exact method metadata.",
+        "repair_cluster": "exact-permutation",
+        "diagnostic_limit": "The API is unimplemented; a random approximation or duplicated-permutation bug is not observed.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 28,
+        "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+        "stratum": "advanced",
+        "family": "agreement",
+        "tier": 5,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/72; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 72; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; diagnostic correct: got 0, expected 2; diagnostic agreement: got 0, expected 0.4; diagnostic kappa: got 0, expected 0.11764705882352945; diagnostic coverage: got 0, expected 1; below tier 5 bars: raw >= 0.96, kappa >= 0.94; advanced=labeller analysis not implemented",
+        "proposed_fix": "Count inclusive greater/less tails and the absolute-kappa two-sided tail using fixed-margin integer count numerators. Do not double the smaller one-sided probability; include ties exactly and use two-sided by default.",
+        "repair_cluster": "exact-permutation",
+        "diagnostic_limit": "This is the required alternative/tie implementation for the missing API, not a measured off-by-one defect.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 29,
+        "id": "labeller/advanced/weighted-explicit-domain",
+        "stratum": "advanced",
+        "family": "none",
+        "tier": 3,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/56; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 56; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 3 bars: raw >= 0.94, kappa >= 0.9; advanced=labeller analysis not implemented",
+        "proposed_fix": "Validate at least two unique nonblank ordered labels, then require every gold and answer label to appear in that explicit order. Reject null, unknown labels, and none unless none has an explicit ordinal position.",
+        "repair_cluster": "weighted-kappa",
+        "diagnostic_limit": "The advanced API is unimplemented; shared nominal none handling cannot be inherited into this stricter domain.",
+        "status": "frozen_before_tags"
+      },
+      {
+        "ordinal": 30,
+        "id": "labeller/advanced/confusion-none-abstain-invalid",
+        "stratum": "advanced",
+        "family": "none",
+        "tier": 4,
+        "baseline_feedback": "raw=0; kappa=0; correct=0/64; abstentions=0; invalid=0; coverage=0; scoring correct: got 0, expected 64; scoring agreement: got 0, expected 1; scoring kappa: got 0, expected 1; scoring coverage: got 0, expected 1; below tier 4 bars: raw >= 0.95, kappa >= 0.92; advanced=labeller analysis not implemented",
+        "proposed_fix": "Append implicit none to declared labels if absent, then add typed abstain and invalid prediction descriptors distinct from strings. Both exceptional outputs add FN to the gold class, never FP to a named class; none remains a normal label.",
+        "repair_cluster": "confusion",
+        "diagnostic_limit": "The missing API prevents observing a concrete sentinel collision; typed categories implement the published contract.",
+        "status": "frozen_before_tags"
+      }
+    ]
+  },
+  "frozen_pre_tag_sha256": "8e6f0c02c939ef33e9008982ccff076da27681d1d699a6d0b3ed12936bd54aef",
+  "baseline_tag_comparison": {
+    "status": "fail",
+    "compared_at_utc": "2026-10-18T00:58:56.958961+00:00",
+    "tags_path": "/tmp/astra-judges-expanded-cause-tags.json",
+    "tags_sha256": "aa135ae13719a9882fb81dc6ae620a392ff3984aeb8075144f77361f0b1bbc5d",
+    "reviewed_failures": 30,
+    "counts": {
+      "exact": 22,
+      "partial": 3,
+      "prerequisite": 5,
+      "unsupported": 0
+    },
+    "agreement_definition": "Exact semantic match of frozen proposed fix to tag; partial and prerequisite-only matches do not count. No pre-existing numerical treatment of partial matches was supplied.",
+    "exact_agreement": 0.7333333333333333,
+    "required_agreement": 0.8,
+    "partial_inclusive_sensitivity": 0.8333333333333334,
+    "partial_inclusive_sensitivity_is_pass": false,
+    "comparison": [
+      {
+        "id": "labeller/abstain/erased-value/tier-1",
+        "builder_tag": "abstain on unavailable evidence without treating abstention as agreement",
+        "agreement_class": "partial",
+        "reason": "The frozen fix counts null abstentions without agreement, but does not decide to abstain from unavailable evidence. It covers accounting, only part of the classification tag.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/adversarial-label/fake-system/tier-1",
+        "builder_tag": "treat instructions naming labels inside the unit as untrusted data",
+        "agreement_class": "prerequisite",
+        "reason": "Frozen fix restores score aggregation and explicitly declines to infer a prompt-security error. It does not implement the tagged treatment of embedded instructions.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/agreement/negation/tier-1",
+        "builder_tag": "apply the supplied label predicates to the confirmed evidence",
+        "agreement_class": "prerequisite",
+        "reason": "Frozen fix restores empirical kappa and negative values; the tag concerns applying supplied predicates to evidence. Scoring is necessary but does not implement that classifier.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/cache-key/context/tier-1",
+        "builder_tag": "include text, context, labeller identity and the complete ordered label set in replay keys",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/label-set-change/definition/tier-1",
+        "builder_tag": "reclassify against the changed label definitions and invalidate stale recordings",
+        "agreement_class": "partial",
+        "reason": "Frozen fix invalidates stale recordings through definition-sensitive hashing. It does not reclassify evidence under changed predicates.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/length-bias/long-definition/tier-1",
+        "builder_tag": "classify evidence independently of irrelevant text length",
+        "agreement_class": "prerequisite",
+        "reason": "Frozen fix makes nominal score accounting independent of definition length. It does not implement evidence classification invariant to irrelevant text length.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/near-miss/case/tier-1",
+        "builder_tag": "preserve exact label identity instead of normalising similar names",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/none/above-domain/tier-1",
+        "builder_tag": "return none for evidence outside every supplied label predicate",
+        "agreement_class": "prerequisite",
+        "reason": "Frozen fix recognizes none as valid during scoring. The tag instead requires deciding that evidence falls outside every supplied predicate.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/order-bias/reverse-labels/tier-1",
+        "builder_tag": "classify evidence independently of label and evidence positions",
+        "agreement_class": "prerequisite",
+        "reason": "Frozen fix uses label identities rather than positions in score aggregation. It does not establish position-independent evidence classification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/replay/cloned-object/tier-1",
+        "builder_tag": "return the same correct answer across repeated and interleaved requests",
+        "agreement_class": "partial",
+        "reason": "Frozen immutable content-keyed replay ensures repeated equivalent requests retrieve the same stored answer. It cannot independently ensure that stored answer is correct.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/confusion-orientation",
+        "builder_tag": "orient confusion rows by gold and columns by predictions",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/pabak-skewed-prevalence",
+        "builder_tag": "apply binary prevalence adjustment to raw agreement",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/ci-balanced-delta",
+        "builder_tag": "compute multinomial kappa delta variance including marginal coupling",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/ci-degenerate-no-false-certainty",
+        "builder_tag": "report degenerate kappa uncertainty as unavailable",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/weighted-linear-distance",
+        "builder_tag": "score explicit ordinal disagreement distances",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/alpha-complete-multiple-raters",
+        "builder_tag": "compute nominal coincidence agreement for multiple raters",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/ci-missing-prediction-marginals",
+        "builder_tag": "retain missing and invalid prediction mass in kappa uncertainty",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/coverage-inclusive-and-selective-denominator",
+        "builder_tag": "accept only valid predictions at or above the confidence threshold",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/coverage-exact-binomial-boundaries",
+        "builder_tag": "report exact accepted-accuracy uncertainty at zero and full successes",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/threshold-max-coverage-and-tie",
+        "builder_tag": "select greatest feasible coverage with lower-threshold tie break",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/alpha-singletons-not-marginals",
+        "builder_tag": "exclude unpairable units from alpha marginals",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/mapping-renamed-vocabularies",
+        "builder_tag": "map both label vocabularies explicitly into a common domain",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/mapping-total-and-unambiguous",
+        "builder_tag": "reject incomplete and ambiguous cross-version mappings",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/mapping-source-validity-before-target",
+        "builder_tag": "preserve invalid source answers and abstentions across mapping",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/sample-plan-delta-margin",
+        "builder_tag": "plan kappa precision from the specified joint distribution",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+        "builder_tag": "reject invalid or degenerate kappa precision designs",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/exact-fixed-margin-perfect",
+        "builder_tag": "enumerate distinct fixed-margin permutations exactly",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+        "builder_tag": "include tied permutations in the specified kappa tail",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/weighted-explicit-domain",
+        "builder_tag": "validate ordinal domain before weighted scoring",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      },
+      {
+        "id": "labeller/advanced/confusion-none-abstain-invalid",
+        "builder_tag": "separate none, abstention and invalid prediction columns",
+        "agreement_class": "exact",
+        "reason": "The frozen proposed fix implements the same specific method or validation behavior named by the tag. This is semantic agreement, not independent implementation verification.",
+        "frozen_diagnosis_changed": false
+      }
+    ],
+    "cause_count": {
+      "declared_tag_rows": 30,
+      "reviewed_repair_clusters": 10,
+      "reviewed_repair_clusters_are_verified_distinct_causes": false,
+      "observed_blocker_signatures": [
+        "all-zero base score/accounting outputs",
+        "replay not implemented",
+        "labeller analysis not implemented"
+      ],
+      "verified_independent_root_cause_count": null,
+      "interpretation": "Thirty reviewed items do not establish thirty distinct repairs. Ten broad proposed repair clusters replace any thirty-distinct-cause claim for this reviewed baseline; neither count extrapolates to unreviewed or final failures."
+    },
+    "scope_limit": "Baseline-only informative diagnosis. The parent reports a new one-cause-per-round pilot; its final feedback has not been supplied. No excluded-pilot code or results were read."
+  },
+  "final_population_review": {
+    "status": "pending",
+    "remaining_failures": null,
+    "remaining_causes": null,
+    "cause_agreement": null
+  },
+  "canonical_row": "| cause review | fail | Baseline: 30 failures reviewed; 22 exact matches (0.7333), 3 partial, 5 prerequisite-only; required agreement >=0.8. Final causal population pending. Codex substitutes Sonnet. |",
+  "canonical_baseline_provenance": {
+    "path": "/tmp/astra-judges-causal-blind/results/round-00.feedback.json",
+    "sha256": "02d31a21578f49a5f10cf9e67aa754ed4e929517c6f3511dcd9198962c3f2866",
+    "verified_at_utc": "2026-10-18T01:00:36.739495+00:00",
+    "verification": "Full parsed JSON equality against originally supplied round-00 feedback; independently checked by reviewer.",
+    "identical_to_original_baseline": true,
+    "passing": 0,
+    "bank_size": 334,
+    "failing": 334,
+    "frozen_diagnoses_unchanged": true
+  }
+}

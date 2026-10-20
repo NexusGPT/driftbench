@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { scoreLabeller } from '../candidate';
+const set={name:'trial',labels:[{name:'A',description:''},{name:'B',description:''}]};
+assert.deepEqual(scoreLabeller(['A','B','none','A'],['A',null,'none','wat'],set), {total:4,correct:2,agreement:.5,kappa:5/13,abstentions:1,invalid:1,coverage:.5});
+assert.equal(scoreLabeller(['A','B'],['B','A'],set).kappa,-1);
+assert.equal(scoreLabeller(['A'],['A'],set).kappa,1);
+assert.throws(()=>scoreLabeller([],[],set));
+assert.throws(()=>scoreLabeller(['A'],[],set));
+assert.throws(()=>scoreLabeller(['C'],['A'],set));
+assert.throws(()=>scoreLabeller(['A'],['A'],{...set,labels:[]}));
+console.log('round01 nominal scoring passed');
