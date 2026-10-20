@@ -6,7 +6,8 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { plainCodec, plainEntry, RELAY, twinDriver } from './driver';
+import { confine, seal } from './confine';
+import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
   decode,
@@ -41,17 +42,6 @@ import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
 const START_MS = 120_000;
 const CALL_MS = 300_000;
 
-/** The loader for TypeScript sources, registered inside the driver so that no node option shows in the runs. */
-function loaderPath(): string | undefined {
-  try {
-    const cjs = createRequire(import.meta.url).resolve('tsx/esm/api');
-    const esm = cjs.replace(/\.cjs$/, '.mjs');
-    return existsSync(esm) ? esm : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function projectCache(): string {
   return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
 }
@@ -70,6 +60,11 @@ export type IsolateOptions = {
   keep?: Keep;
   /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
   plain?: boolean;
+  /**
+   * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
+   * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
+   */
+  reads?: string[];
 };
 
 export type Frame<T> = {
@@ -98,8 +93,10 @@ const describeRun = (plan: TwinPlan | 'C') =>
   plan === 'C'
     ? "run C (user-shaped: a plain entry file per call under the tsx loader, the user's environment)"
     : plan.run === 'A'
-      ? 'run A (the validator folder and environment)'
-      : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
+      ? 'run A (confined: the validator folder and environment)'
+      : plan.run === 'B'
+        ? `run B (confined: a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`
+        : 'run D (confined: behind a neutral wrapper module, a fresh folder, neutral arguments)';
 
 /** The tsx loader as a node option for run C, when tsx is installed. */
 function loaderOption(): string[] {
@@ -109,6 +106,15 @@ function loaderOption(): string[] {
   } catch {
     return [];
   }
+}
+
+/** A folder name drawn from the seed and the tag: letters only, six to thirteen of them. */
+function drawnFolder(seed: number, tag: string): string {
+  const rng = rngOf(seed, tag);
+  let folder = '';
+  while (folder.length < 6 + Math.floor(rng() * 8))
+    folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
+  return folder;
 }
 
 type PlainRun = {
@@ -186,13 +192,25 @@ const outcomeText = (outcome: Outcome | { dead: string }) =>
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
-  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => ({
-    ...plan,
-    driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
-  }));
-  const token = randomBytes(16).toString('hex');
   const module = resolve(options.module);
-  const setup = { token, module, loader: loaderPath() };
+  // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
+  // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
+  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
+  const sealed = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
+    const confined = confine(
+      { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
+      { reads: [dirname(sealed), ...(options.reads ?? [])] },
+    );
+    if (!plan.wrap) return confined;
+    // Run D reaches the product through a wrapper module of the run's own folder.
+    const wrapper = wrapperModule(options.seed, `${tag}:${plan.run}`, pathToFileURL(sealed).href);
+    const file = join(confined.driverDir, `${drawnFolder(options.seed, `wrapper:${tag}`)}.mjs`);
+    writeFileSync(file, wrapper.source);
+    return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
+  });
+  const token = randomBytes(16).toString('hex');
+  const setup = { token, module: sealed };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
@@ -226,6 +244,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       rmSync(plan.driverDir, { recursive: true, force: true });
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
     }
+    rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
@@ -243,10 +262,15 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const sent = encode(args, true, `${name}(arguments)`);
     relay.port.postMessage({ call: name, args: sent });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
-    const [a, b] = answers as [Outcome | { dead: string }, Outcome | { dead: string }];
+    const [a, b, d] = answers as [
+      Outcome | { dead: string },
+      Outcome | { dead: string },
+      Outcome | { dead: string },
+    ];
     if ('dead' in a) throw new FrameError(a.dead);
     const entry: Entry = { call: name, args: sent, ...a };
     if (!('dead' in b)) entry.twin = b;
+    if (!('dead' in d)) entry.wrapped = d;
     tape.push(entry);
     const kept = (outcome: Outcome | { dead: string }): string => {
       if ('dead' in outcome) return `dead`;
@@ -255,8 +279,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
     };
     const head = `${name}(${shortText(sent as Json, 80)}): ${describeRun(plans[0] as TwinPlan)} answered ${outcomeText(a)}`;
-    if (first === undefined && kept(a) !== kept(b))
-      first = `${head}, ${describeRun(plans[1] as TwinPlan)} answered ${outcomeText(b)}`;
+    // The runs are compared with run A in turn; the first difference found is the frame's finding.
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (first === undefined && kept(a) !== kept(other))
+        first = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
+    }
     if (plain) {
       const c = plainCall(plain, options.seed, tag, module, name, sent);
       if (!('dead' in c)) entry.plain = c;
@@ -301,17 +331,25 @@ export type CommandRun = {
 };
 
 /**
- * Runs a product command under the frame: three times, each in a fresh working folder of its own. Runs A and B go
- * through drawn drivers with the twin differences of twins.ts (environment, uptime, the driver's place); run C is the
+ * Runs a product command under the frame: four times, each in a fresh working folder of its own. Runs A and B go
+ * through drawn drivers with the twin differences of twins.ts (environment, uptime, the driver's place); run D is a third twin; run C is the
  * plain command, `node [--import tsx] <script> <args>`, as a user types it. Each run sees the command's own argv.
  * The working folder's path is written `<work>` in what is recorded, so the runs compare. The validator reads run A.
  */
 export function isolateCommand(options: CommandOptions): CommandRun {
   const [script, ...args] = options.command;
   const tag = options.tag ?? script;
-  const plans = twinPlans(options.seed, tag, projectCache());
+  // The command runs from a bundle, in processes that read that folder and their own working folder, write that
+  // working folder and start no process (confine.ts); run C is the plain command, unconfined.
+  const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
+  const sealed = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
+  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
+    confine(
+      { ...plan, setup: { command: sealed, script: resolve(script) } },
+      { reads: [dirname(sealed)], writes: [join(plan.driverDir, 'w')] },
+    ),
+  );
   const token = randomBytes(16).toString('hex');
-  const loader = loaderPath();
   const plainRun = openPlain(options.seed, `${tag}:command`);
   const plainDir = plainRun.dir;
   const runs: Array<TwinPlan | 'C'> = [...plans, 'C'];
@@ -341,9 +379,8 @@ export function isolateCommand(options: CommandOptions): CommandRun {
         writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
         const setup = {
           token,
-          command: resolve(script),
           args,
-          loader,
+          ...plan.setup,
           uptimeShift: plan.uptimeShift,
           depth: 0,
         };
@@ -369,13 +406,19 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       rmSync(home, { recursive: true, force: true });
     }
   });
-  const [a, b, c] = results as [(typeof results)[number], (typeof results)[number], (typeof results)[number]];
+  rmSync(sealFolder, { recursive: true, force: true });
+  const [a, b, d, c] = results as [
+    (typeof results)[number],
+    (typeof results)[number],
+    (typeof results)[number],
+    (typeof results)[number],
+  ];
   let divergence: string | undefined;
   const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
       divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
   };
-  for (const other of [b, c]) {
+  for (const other of [b, d, c]) {
     differ('status', other)(a.status, other.status);
     differ('stdout', other)(a.stdout, other.stdout);
     for (const path of options.collect ?? []) differ(path, other)(a.files[path], other.files[path]);
@@ -392,6 +435,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       args: encode(options.command),
       ret: encode(recorded(a)),
       twin: { ret: encode(recorded(b)) },
+      wrapped: { ret: encode(recorded(d)) },
       plain: { ret: encode(recorded(c)) },
     },
   ];
