@@ -216,6 +216,21 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   expect(system).toContain('test "$status" -eq 11');
 }
 
+/**
+ * The timing tests run in the `timing` job and nowhere else: that job keeps the mode `only` on a GitHub-hosted
+ * runner, and the jobs that run the whole suite keep the mode `skip`. A job set to `skip` there would leave the
+ * seven timing tests running nowhere while every gate stays green.
+ */
+function assertTimingGuard(workflow: ReturnType<typeof parse>) {
+  const timing = workflow.jobs.timing;
+  expect(timing.env?.DRIFTBENCH_TIMING_TESTS).toBe('only');
+  expect(timing['runs-on']).toBe('ubuntu-latest');
+  for (const id of ['build', 'pr-affected'])
+    expect(workflow.jobs[id].env?.DRIFTBENCH_TIMING_TESTS, id).toBe('skip');
+  for (const [id, job] of Object.entries(workflow.jobs) as [string, { env?: Record<string, string> }][])
+    if (id !== 'timing') expect(job.env?.DRIFTBENCH_TIMING_TESTS, id).not.toBe('only');
+}
+
 const OK = 'success,success,success,success,success,success,success,success';
 const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped';
 const ONE_RED = 'success,failure,success,success,success,success,success,success';
@@ -287,6 +302,15 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'train/9a',
     'build,fast',
     'skipped,skipped,success,skipped,skipped,skipped,skipped,skipped',
+    0,
+  ],
+  // the timing job is a heavy job a dispatch can list
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'timing',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,success',
     0,
   ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
@@ -492,6 +516,27 @@ describe('merge train enforcement', () => {
     assertWorkflowPolicy(workflow, CI_HEAVY);
     expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
+  });
+  it('runs the timing tests in the timing job only, and lets a dispatch list that job', () => {
+    assertTimingGuard(workflow);
+    const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
+    expect(command).toContain(',guard,timing,fast,');
+  });
+  it('rejects a timing job that skips the timing tests, a pool that runs them, and a dispatch list without the job', () => {
+    const skipping = structuredClone(workflow);
+    skipping.jobs.timing.env.DRIFTBENCH_TIMING_TESTS = 'skip';
+    expect(() => assertTimingGuard(skipping)).toThrow();
+    const unset = structuredClone(workflow);
+    delete unset.jobs.timing.env;
+    expect(() => assertTimingGuard(unset)).toThrow();
+    const onPool = structuredClone(workflow);
+    onPool.jobs.timing['runs-on'] = "${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}";
+    expect(() => assertTimingGuard(onPool)).toThrow();
+    const buildRunsThem = structuredClone(workflow);
+    delete buildRunsThem.jobs.build.env;
+    expect(() => assertTimingGuard(buildRunsThem)).toThrow();
+    const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
+    expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
     const target = structuredClone(workflow);
