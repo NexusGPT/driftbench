@@ -218,6 +218,75 @@ class Oracle {
       .flatMap((group) => this.tuples(group))
       .filter((tuple) => !rows.some((row) => holds(row, tuple)));
   }
+  /**
+   * The groups of each report layer, as docs/variables.md and the planner's own header describe them: `own` has
+   * every min(3, n) variables of each rule; `shared` has every pair of approved axes except a pair that a group of
+   * a rule holds already; `single` has each variable that no group names yet. A set of variables is one group.
+   */
+  layerGroups(): Record<'own' | 'shared' | 'single', string[][]> {
+    const { scenario } = this;
+    const order = new Map(scenario.variables.map((variable, at) => [variable.id, at]));
+    const sorted = (group: string[]) =>
+      [...group].sort((a, b) => (order.get(a) as number) - (order.get(b) as number));
+    const keys = new Set<string>();
+    const fresh = (group: string[]) => {
+      const key = sorted(group).join(',');
+      if (keys.has(key)) return false;
+      keys.add(key);
+      return true;
+    };
+    const own = scenario.rules
+      .flatMap((rule) => subsets(rule.variables, Math.min(3, rule.variables.length)))
+      .map(sorted)
+      .filter(fresh);
+    const axes = scenario.variables
+      .filter((variable) => variable.role === 'axis')
+      .map((variable) => variable.id);
+    const shared = subsets(axes, 2)
+      .filter((pair) => !own.some((group) => pair.every((id) => group.includes(id))))
+      .map(sorted)
+      .filter(fresh);
+    const named = new Set([...own, ...shared].flat());
+    const single = scenario.variables
+      .filter((variable) => !named.has(variable.id))
+      .map((variable) => [variable.id]);
+    return { own, shared, single };
+  }
+  /**
+   * What the report must say about each layer for a plan whose rows are `rows` and whose seeds are `seeds`:
+   * the groups, the value combinations a valid row can hold (targets), those none can (infeasible), the targets
+   * the seeds hold, the targets the rows hold and the rest.
+   */
+  expectedLayers(rows: readonly Cell[], seeds: readonly Cell[]) {
+    const strength = { own: 3, shared: 2, single: 1 } as const;
+    const groups = this.layerGroups();
+    const sizes = new Map(this.scenario.variables.map((variable) => [variable.id, variable.values.length]));
+    return (['own', 'shared', 'single'] as const).map((layer) => {
+      let targets = 0;
+      let infeasible = 0;
+      let seeded = 0;
+      let covered = 0;
+      for (const group of groups[layer]) {
+        const tuples = this.tuples(group);
+        targets += tuples.length;
+        infeasible += group.reduce((product, id) => product * (sizes.get(id) as number), 1) - tuples.length;
+        for (const tuple of tuples) {
+          if (seeds.some((row) => holds(row, tuple))) seeded += 1;
+          if (rows.some((row) => holds(row, tuple))) covered += 1;
+        }
+      }
+      return {
+        layer,
+        strength: strength[layer],
+        groups: groups[layer].length,
+        targets,
+        infeasible,
+        seeded,
+        covered,
+        uncovered: targets - covered,
+      };
+    });
+  }
   /** The natural logarithm of the share of each value, over its variable's weights; equal shares with none. */
   logWeight(row: Cell): number {
     let sum = 0;
@@ -245,6 +314,28 @@ type Answers = {
 };
 
 const rowsOf = (plan: PlanV2): Cell[] => plan.rows.map((row) => row.values);
+
+/**
+ * Every field of the report, layer by layer, against the oracle's count: the layers must be exactly the three,
+ * once each, in order, and a field that is zeroed, blank or missing differs from the count and is named.
+ */
+function layerVerdict(plan: PlanV2, a: Answers, seeds: readonly Cell[]): Verdict {
+  const want = a.oracle.expectedLayers(rowsOf(plan), seeds);
+  const got = plan.layers;
+  if (!Array.isArray(got) || got.length !== want.length)
+    return verdict(
+      false,
+      `the report has ${Array.isArray(got) ? got.length : 'no'} layers where ${want.length} are wanted`,
+    );
+  const wrong: string[] = [];
+  want.forEach((expected, at) => {
+    const found = got[at] as unknown as Record<string, unknown> | undefined;
+    for (const [field, value] of Object.entries(expected))
+      if (found?.[field] !== value)
+        wrong.push(`${expected.layer}.${field} is ${String(found?.[field])}, wanted ${value}`);
+  });
+  return verdict(wrong.length === 0, wrong.slice(0, 4).join('; '));
+}
 
 async function answers(data: SeedData, shape: Shape, module: string): Promise<Answers> {
   return data.memoized(`planner:${shape.name}:${module}`, async () => {
@@ -534,50 +625,83 @@ const STEMS: {
   },
   {
     id: 'layers-agree',
-    cause: `${FILES.plan}: the report counts the tuples each layer left uncovered`,
+    cause: `${FILES.plan}: the report counts the groups and tuples of each layer, and those the rows hold`,
     when: () => true,
     tier: 3,
-    check: (a) => {
-      // The report must carry each of the three layers once, and the own layer must count the tuples of the rules.
-      const names = a.full.layers.map((layer) => layer.layer);
-      const once = ['own', 'shared', 'single'].every(
-        (name) => names.filter((found) => found === name).length === 1,
-      );
-      const bad = a.full.layers.filter(
-        (layer) => layer.uncovered !== 0 || layer.covered + layer.uncovered !== layer.targets,
-      );
-      const own = a.full.layers.find((layer) => layer.layer === 'own');
-      const ownTuples = new Set(
-        a.oracle
-          .groups('own')
-          .flatMap((group) => a.oracle.tuples(group))
-          .map((tuple) => JSON.stringify(tuple)),
-      ).size;
-      return verdict(
-        once && names.length === 3 && bad.length === 0 && own?.targets === ownTuples,
-        `layers ${JSON.stringify(names)}; ${bad.length} report uncovered targets on a plan with no budget; own targets ${own?.targets} against ${ownTuples}`,
-      );
-    },
+    check: (a) => layerVerdict(a.full, a, []),
   },
   {
     id: 'budget-uncovered-reported',
     cause: `${FILES.plan}: the report counts the tuples of each layer that a budget left uncovered`,
-    when: (shape) => shape.rules.length > 0,
+    when: () => true,
     tier: 4,
     check: (a) => {
-      const cut = a.budgets.get(1) as PlanV2;
-      const own = new Set(
-        a.oracle
-          .groups('own')
-          .flatMap((group) => a.oracle.tuples(group))
-          .map((tuple) => JSON.stringify(tuple)),
+      for (const [budget, plan] of a.budgets) {
+        const found = layerVerdict(plan, a, []);
+        if (!found.pass) return verdict(false, `at a budget of ${budget}: ${found.detail}`);
+      }
+      return verdict(true, 'every budgeted report matches the count');
+    },
+  },
+  {
+    id: 'layers-with-seeds',
+    cause: `${FILES.plan}: the report counts the targets the seeds hold, and those the seeds and the new rows hold`,
+    when: () => true,
+    tier: 4,
+    check: (a) => {
+      const seeds = a.seeded.seeds.map((seed) => seed.values);
+      const free = layerVerdict(a.seeded.plan, a, seeds);
+      if (!free.pass) return verdict(false, `with seeds: ${free.detail}`);
+      const tight = layerVerdict(
+        a.tight.plan,
+        a,
+        a.tight.seeds.map((seed) => seed.values),
       );
-      const left = new Set(a.oracle.uncovered('own', rowsOf(cut)).map((tuple) => JSON.stringify(tuple)));
-      const layer = cut.layers.find((entry) => entry.layer === 'own');
-      return verdict(
-        layer?.targets === own.size && layer.uncovered === left.size,
-        `the own layer reports ${layer?.targets} targets and ${layer?.uncovered} uncovered at a budget of 1; the count is ${own.size} and ${left.size}`,
+      return verdict(tight.pass, `with seeds and a budget of 1: ${tight.detail}`);
+    },
+  },
+  {
+    id: 'report-header',
+    cause: `${FILES.plan}: echo the agent, version, seed and budget, count the rows built and cut, list the rules and the unreachable values`,
+    when: () => true,
+    tier: 3,
+    check: (a) => {
+      const { store } = a.scenario;
+      const wrong: string[] = [];
+      const plan = a.full;
+      if (plan.agent !== store.agent) wrong.push(`agent ${plan.agent}`);
+      if (plan.version !== store.version) wrong.push(`version ${plan.version}`);
+      if (plan.seed !== 1) wrong.push(`seed ${plan.seed}`);
+      if (a.other.seed !== 2) wrong.push(`other seed ${a.other.seed}`);
+      if (plan.budget !== undefined) wrong.push(`budget ${plan.budget} on a plan without one`);
+      const planned = logOf(plan).length;
+      if (plan.generated !== planned || plan.cut !== 0)
+        wrong.push(`generated ${plan.generated}, cut ${plan.cut}, ${planned} rows`);
+      for (const [budget, cut] of a.budgets)
+        if (cut.budget !== budget) wrong.push(`budget ${cut.budget} echoed for ${budget}`);
+      const rules = plan.rules ?? [];
+      const wanted = a.scenario.rules.map((rule) => [...rule.variables].sort().join(','));
+      const found = rules.map((rule) => [...(rule.variables ?? [])].sort().join(','));
+      if (rules.length !== wanted.length || [...found].sort().join('|') !== [...wanted].sort().join('|'))
+        wrong.push(`rules ${JSON.stringify(found)} where ${JSON.stringify(wanted)} are wanted`);
+      if (
+        rules.some(
+          (rule, at) => rule.id !== `rule.${at + 1}` || typeof rule.label !== 'string' || rule.label === '',
+        )
+      )
+        wrong.push('a rule has no id rule.N in order or no label');
+      // A value no valid row can hold is reported once, and nothing else is: these stores have no seeds.
+      const unreachable = a.scenario.variables.flatMap((variable) =>
+        variable.values
+          .filter((value) => !a.oracle.cells.some((cell) => cell[variable.id] === value))
+          .map((value) => `${variable.id}=${value}`),
       );
+      const warned = plan.warnings.map((warning) =>
+        warning.code === 'value_unreachable' ? `${warning.variable}=${warning.value}` : warning.code,
+      );
+      if ([...warned].sort().join('|') !== [...unreachable].sort().join('|'))
+        wrong.push(`warnings ${JSON.stringify(warned)} where ${JSON.stringify(unreachable)} are wanted`);
+      return verdict(wrong.length === 0, wrong.join('; '));
     },
   },
 ];
@@ -630,6 +754,36 @@ function hostileItems(module: string): BankItem[] {
           ok && divergence === undefined,
           divergence ??
             `${out.rows.length} rows and warnings ${out.warnings.map((w) => w.code).join(',')} for a store with nothing approved (${scenario.name})`,
+        );
+      },
+    },
+    {
+      id: 'planner.hostile.unreachable-value-warned',
+      family: FAMILY,
+      tier: 4,
+      level: LEVEL,
+      component: FILES.plan,
+      cause: `${FILES.plan}: warn value_unreachable once for a value no valid row can hold, and plan no row with it`,
+      async check(data) {
+        const { out, scenario, divergence } = await call(data, 'unreachable', (s) => {
+          const [a, b] = s.variables as [Variable, Variable];
+          // Every value of b is forbidden next to the first value of a, so that value can be in no row.
+          const forbids = b.values.map((value) => ({
+            forbid: { [a.id]: a.values[0] as string, [b.id]: value },
+            reason: 'drawn for the item',
+            approved: true,
+          }));
+          return [{ ...s.store, constraints: [...s.store.constraints, ...forbids] }, {}];
+        });
+        const [a] = scenario.variables as [Variable];
+        const target = `${a.id}=${a.values[0]}`;
+        const warned = out.warnings
+          .filter((w) => w.code === 'value_unreachable')
+          .map((w) => `${(w as { variable: string }).variable}=${(w as { value: string }).value}`);
+        const held = out.rows.filter((row) => row.values[a.id] === a.values[0]).length;
+        return verdict(
+          divergence === undefined && warned.join('|') === target && held === 0,
+          divergence ?? `warned ${JSON.stringify(warned)} where ${target} is wanted; ${held} rows hold it`,
         );
       },
     },
