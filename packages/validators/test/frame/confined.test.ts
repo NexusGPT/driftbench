@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -164,5 +164,109 @@ describe('a product that carries a stamp from run C to a later frame', () => {
       expect(result.pass, `seed ${seed}`).toBe(false);
     }
     expect(readFileSync(file, 'utf8')).toBe(before);
+  });
+});
+
+/**
+ * The second review of PR 969 (codex-review-stats and codex-review-validators): run C created a new file in a granted
+ * folder that a later frame read; a static import of an ungranted file of expected values was bundled into the
+ * product; and a correct product reading its data through import.meta.url failed once sealed.
+ */
+describe('the second review of PR 969', () => {
+  let area = '';
+  let sources = '';
+  let oracles = '';
+  beforeAll(() => {
+    area = realpathSync(mkdtempSync(join(work, 'second-')));
+    sources = join(area, 'product');
+    oracles = join(area, 'oracle');
+    mkdirSync(sources);
+    mkdirSync(oracles);
+  });
+
+  function run(module: string, seed: number, reads: string[] = []) {
+    let frame: Frame<{ value: () => number }> | undefined;
+    let value: number | null = null;
+    let error: string | null = null;
+    try {
+      frame = isolate({ module, seed, reads });
+      try {
+        value = frame.product.value();
+      } catch (cause) {
+        error = cause instanceof Error ? cause.message : String(cause);
+      }
+      return { value, error, divergence: frame.divergence() ?? null };
+    } catch (cause) {
+      return { value, error: cause instanceof Error ? cause.message : String(cause), divergence: null };
+    } finally {
+      frame?.close();
+    }
+  }
+
+  it('accepts a normal pure product as the positive control', () => {
+    const module = join(sources, 'good.mjs');
+    writeFileSync(module, 'export function value() { return 137; }\n');
+    expect(run(module, 71)).toMatchObject({ value: 137, error: null, divergence: null });
+  });
+
+  it('refuses to bundle an import of a file outside the product tree', () => {
+    writeFileSync(join(oracles, 'expected.mjs'), 'export const expected = 137;\n');
+    const module = join(sources, 'static.mjs');
+    writeFileSync(
+      module,
+      'import { expected } from "../oracle/expected.mjs";\nexport function value() { return expected; }\n',
+    );
+    const result = run(module, 72);
+    expect(result.value).not.toBe(137);
+    expect(result.error).toMatch(/outside its source tree/);
+  });
+
+  it('refuses to bundle a data file that is not granted', () => {
+    writeFileSync(join(sources, 'data.json'), '{"expected":137}\n');
+    const module = join(sources, 'datajson.mjs');
+    writeFileSync(
+      module,
+      'import data from "./data.json" with { type: "json" };\nexport function value() { return data.expected; }\n',
+    );
+    expect(run(module, 74).error).toMatch(/data file/);
+  });
+
+  it('does not carry oracle bytes through a new file in a granted folder, on any later frame', () => {
+    const cache = join(area, 'data');
+    mkdirSync(cache);
+    const copied = join(cache, 'new.json');
+    const oracle = join(oracles, 'expected.json');
+    writeFileSync(oracle, '{"expected":137}\n');
+    const module = join(sources, 'cache.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+const cache = ${JSON.stringify(copied)};
+const oracle = ${JSON.stringify(oracle)};
+export function value() {
+  let value = 0;
+  try { value = JSON.parse(fs.readFileSync(cache, 'utf8')).expected; } catch {}
+  try { fs.writeFileSync(cache, fs.readFileSync(oracle, 'utf8')); } catch {}
+  return value;
+}
+`,
+    );
+    const rows = [1, 2, 3, 4].map((seed) => {
+      const result = run(module, seed, [cache]);
+      return result.value === 137 && result.error === null && result.divergence === null;
+    });
+    expect(rows).toEqual([false, false, false, false]);
+    expect(existsSync(copied)).toBe(false);
+  });
+
+  it('lets a correct product read data granted in reads through import.meta.url', () => {
+    const data = join(sources, 'granted.json');
+    writeFileSync(data, '{"expected":137}\n');
+    const module = join(sources, 'granted.mjs');
+    writeFileSync(
+      module,
+      'import fs from "node:fs";\nexport function value() { return JSON.parse(fs.readFileSync(new URL("./granted.json", import.meta.url), "utf8")).expected; }\n',
+    );
+    expect(run(module, 73, [data])).toMatchObject({ value: 137, error: null, divergence: null });
   });
 });
