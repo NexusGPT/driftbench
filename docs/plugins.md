@@ -25,24 +25,20 @@ A plugin module exports one function as its default export (or under the name `p
 
 ```js
 // plugin.mjs
-import { functionAdapter } from '@agent-nexus/driftbench-adapters';
-import { machineVerdict } from '@agent-nexus/driftbench-core';
-
-function echoAgent(messages) {
-  const text = `You said: ${messages.at(-1)?.content ?? ''}`;
-  return { segments: [{ type: 'text', text }], text, toolCalls: [], cost: {}, latencyMs: 0 };
-}
-
 export default function plugin(api) {
-  api.adapter('echo', () => functionAdapter({ respond: echoAgent, deterministic: true }));
-
-  api.check('polite', (ctx, options) => {
-    const banned = Array.isArray(options?.banned) ? options.banned : [];
-    const text = ctx.observed.text.toLowerCase();
-    const hit = banned.find((word) => text.includes(String(word).toLowerCase()));
-    return machineVerdict('polite', 'banned', hit === undefined ? 'pass' : 'fail',
-      hit === undefined ? 'no banned word' : `the reply holds the banned word ${hit}`);
-  });
+  api.kind('policy/routing', { summary: 'Which team a conversation goes to.' });
+  api.rule('policy/routing', 'route-by-intent', { run: () => 'sales' });
+  api.rule('check-set', 'acme-tone', { params: toneParams, run: () => [] });
+  api.evidence('check-set', 'tone_score', () => 0.5);
+  api.diagnosticStep('acme-dedup', () => ({ duplicates: 0 }));
+  api.promptTemplate(
+    'linker/acme',
+    { system: 'You link blocks to prompt units.', rubric: 'One unit per line.' },
+    (answer) => answer.split('\n'),
+  );
+  api.object('objects/policy-routing-intent.yaml');
+  api.object('objects/check-set-acme.yaml');
+  api.object('objects/diagnostic-acme-dedup.yaml');
 }
 ```
 
@@ -75,9 +71,9 @@ export default function plugin(api) {
 }
 ```
 
-`toneParams` is an object with a `safeParse` method, as zod's schemas have: it refuses a `tone` that is not `plain` or `warm`. The object file `objects/check-set-acme.yaml` names the rule in an item:
+`toneParams` (defined above `plugin` in the file) is an object with a `safeParse` method, as zod's schemas have: it refuses a `tone` that is not `plain` or `warm`. The object file `objects/check-set-acme.yaml` names the rule in an item:
 
-```text
+```yaml
 # file: objects/check-set-acme.yaml
 kind: check-set
 id: acme
@@ -93,7 +89,7 @@ items:
 
 A spec names the object under `uses`:
 
-```text
+```yaml
 # file: specs/routed.yaml
 id: routed
 target: { adapter: function, agent: acme-sales }
@@ -121,7 +117,7 @@ policy/value-check  default     shipped  cf504563
 
 Without the plugin, the same spec is invalid: `OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme`.
 
-* A plugin never replaces what driftbench ships or what another plugin registered. A kind, an implementation, an evidence name, a template id or an object `kind:id` already held is refused with exit code 2 and a line naming both plugins. To change a shipped object, ship an object that extends it.
+* A plugin never replaces what driftbench ships or what another plugin registered. A kind, an implementation, an evidence name, a template id or an object `kind:id` already held is refused with exit code 2 and a line naming the plugin and what already holds the name: the other plugin, or driftbench. To change a shipped object, ship an object that extends it.
 * A plugin's objects join the shipped layer, and they resolve when the plugin loads.
 * Everything a plugin registers is forgotten when its command ends.
 * Limit. The loader registers and checks these parts. A run does not execute a rule, a step, an evidence function or a template parser a plugin registers yet: `campaign run` on the spec above runs the shipped checks only.

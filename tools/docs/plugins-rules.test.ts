@@ -67,4 +67,15 @@ describe('docs/plugins.md, the rule framework plugin example', () => {
     expect(page).toContain('`OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme`');
     expect(bare.out).toContain('OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme');
   }, 120_000);
+  it('shows only API calls that the example plugin makes', async () => {
+    const page = await readFile(`${ROOT}/docs/plugins.md`, 'utf8');
+    const plugin = await readFile(`${EXAMPLE}/plugin.mjs`, 'utf8');
+    const snippet = /```js\n\/\/ plugin\.mjs\n([\s\S]*?)\n```/.exec(page)?.[1] ?? '';
+    const lines = snippet
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '');
+    expect(lines.length).toBeGreaterThanOrEqual(10);
+    for (const line of lines) expect(plugin, line).toContain(line);
+  });
 });
