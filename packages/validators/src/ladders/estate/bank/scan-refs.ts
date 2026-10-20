@@ -16,6 +16,18 @@ const COMPONENT = 'packages/estate/src/scan/claude-code.ts';
 const FAMILY = 'scan.reference-prose';
 export const MAX_CHUNK = 40_000;
 
+/** Every request the scan sent for the file, in any set, is at most `MAX_CHUNK` characters, and there is one. */
+export function chunkCapCheck(path: string): Check {
+  return (scan) => {
+    const sent = scan.requests.filter((request) => request.file === path);
+    if (sent.length === 0) return 'the reference never reached the splitter';
+    const over = sent.filter((request) => request.characters > MAX_CHUNK);
+    return over.length === 0
+      ? undefined
+      : `${over.length} chunks over ${MAX_CHUNK} characters (largest ${Math.max(...over.map((r) => r.characters))})`;
+  };
+}
+
 type Context = { estate: PlantedEstate; seed: number; owner: string; noun: string; verb: string };
 type Shape = {
   key: string;
@@ -112,16 +124,7 @@ const SHAPES: Shape[] = [
         plantRule(w, c, tag);
       }
     },
-    checks: (_c, path) => [
-      (scan) => {
-        const sent = scan.requests.filter((request) => request.file === path);
-        if (sent.length === 0) return 'the reference never reached the splitter';
-        const over = sent.filter((request) => request.characters > MAX_CHUNK);
-        return over.length === 0
-          ? undefined
-          : `${over.length} chunks over ${MAX_CHUNK} characters (largest ${Math.max(...over.map((r) => r.characters))})`;
-      },
-    ],
+    checks: (_c, path) => [chunkCapCheck(path)],
   },
   {
     key: 'nested-folder',
