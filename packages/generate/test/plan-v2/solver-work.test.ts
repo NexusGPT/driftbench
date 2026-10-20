@@ -10,6 +10,18 @@ import { viewOf } from '../../src/plan-v2/view';
  * variables of four values has 6n impossible pairs and a tenth of the variables as axes.
  */
 
+/** A seeded stream of whole numbers below a bound (mulberry32: the low bits of a power-of-two LCG repeat). */
+function stream(seed: number) {
+  let state = seed >>> 0;
+  return (modulo: number) => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return Math.floor((((t ^ (t >>> 14)) >>> 0) / 4294967296) * modulo);
+  };
+}
+
 function store(n: number) {
   const variables = Array.from({ length: n }, (_, k) => ({
     id: `v${k}`,
@@ -19,11 +31,7 @@ function store(n: number) {
     approved: true,
     values: Array.from({ length: 4 }, (_, j) => ({ id: `v${k}x${j}`, title: `x${j}` })),
   }));
-  let state = 12345;
-  const next = (modulo: number) => {
-    state = (state * 1103515245 + 12345) % 2147483648;
-    return state % modulo;
-  };
+  const next = stream(12345);
   const seen = new Set<string>();
   const constraints: object[] = [];
   while (constraints.length < 6 * n) {
@@ -71,11 +79,7 @@ describe('the work of planner v2 with many impossible pairs', () => {
 
 /** Small stores with constraints of one, two and three entries, and their answers by enumeration. */
 function small(seed: number) {
-  let state = seed * 2654435761 + 7;
-  const next = (modulo: number) => {
-    state = (state * 1103515245 + 12345) % 2147483648;
-    return state % modulo;
-  };
+  const next = stream(seed * 7919 + 7);
   const n = 4 + next(3);
   const widths = Array.from({ length: n }, () => 2 + next(2));
   const variables = widths.map((width, k) => ({
