@@ -193,11 +193,12 @@ export function plantEffect(
   seed: number,
   campaigns = EFFECT_CAMPAIGNS,
   clusteredCampaigns = CLUSTERED_CAMPAIGNS,
+  rho = CLUSTER_RHO,
 ): EffectPlant {
   const behaviours = new Map<string, Behaviour>();
   const effect: EffectCampaign[] = [];
   const clustered: ClusterCampaign[] = [];
-  const delta = Math.sqrt(CLUSTER_RHO * CLUSTER_RATE * (1 - CLUSTER_RATE));
+  const delta = Math.sqrt(rho * CLUSTER_RATE * (1 - CLUSTER_RATE));
   for (let c = 0; c < campaigns; c += 1) {
     const rng = rngFor(seed, `effect-${c}`);
     const specs: RawSpec[] = [];
