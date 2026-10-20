@@ -11,6 +11,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
@@ -197,13 +198,55 @@ function* linesOf(path: string): Generator<string> {
   }
 }
 
-/** The answers a replay wrote to a file, one per call, padded with `dead` when the process ended before it wrote them. */
-function answersOf(path: string, count: number, dead: string): Array<Outcome | { dead: string }> {
-  const answers: Array<Outcome | { dead: string }> = [];
-  if (existsSync(path)) for (const line of linesOf(path)) answers.push(JSON.parse(line) as Outcome);
-  const lost = { dead: `${dead} after ${answers.length} of ${count} calls` };
-  while (answers.length < count) answers.push(lost);
-  return answers;
+/**
+ * Run C: one fresh process that makes every call recorded in `plain.calls` in order, the way a user's script does,
+ * and appends each answer to a file. Returns the answers read back one by one, or one `dead` answer per call when
+ * the process ended before it wrote them.
+ */
+function plainRunAll(
+  plain: PlainRun,
+  seed: number,
+  tag: string,
+  module: string,
+  count: number,
+): Array<Outcome | { dead: string }> {
+  plain.count += 1;
+  const stem = `${tag.length.toString(36)}${plain.count}`;
+  // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
+  const entry = join(plain.dir, `${stem}.mts`);
+  const out = join(plain.dir, `${stem}.out.jsonl`);
+  writeFileSync(
+    entry,
+    plainBatchEntry(
+      seed,
+      `${tag}:${plain.count}`,
+      {
+        module: pathToFileURL(module).href,
+        codec: pathToFileURL(plain.codec).href,
+        calls: pathToFileURL(plain.calls).href,
+        out: pathToFileURL(out).href,
+      },
+      plain.codecNames,
+    ),
+  );
+  const ran = spawnSync(process.execPath, [...loaderOption(module), entry], {
+    cwd: findRoot(dirname(module)),
+    env: plain.env,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: BATCH_MS,
+  });
+  try {
+    const answers: Array<Outcome | { dead: string }> = [];
+    if (existsSync(out)) for (const line of linesOf(out)) answers.push(JSON.parse(line) as Outcome);
+    const dead = {
+      dead: `run C ended (${ran.status ?? ran.signal}) after ${answers.length} of ${count} calls: ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
+    };
+    while (answers.length < count) answers.push(dead);
+    return answers;
+  } finally {
+    for (const file of [entry, out]) rmSync(file, { force: true });
+  }
 }
 
 /** How a call is compared between runs: what the caller keeps of the answer, or the throw. */
@@ -247,9 +290,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   });
   const token = randomBytes(16).toString('hex');
   const setup = { token, module: sealed };
-  // The calls are kept in a file as they are made: the other runs make them later, from it.
-  const plain = openPlain(options.seed, tag);
-  const runC = options.plain !== false;
+  const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
   const relay: Relay = {
@@ -290,7 +331,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
     }
     rmSync(sealFolder, { recursive: true, force: true });
-    rmSync(plain.dir, { recursive: true, force: true });
+    if (plain) rmSync(plain.dir, { recursive: true, force: true });
   };
   const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{
@@ -324,92 +365,27 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const recorded: Recorded[] = [];
   let compared = 0;
   /**
-   * Makes the calls not yet compared in the other runs. Runs B and D are processes that stay up: they make the new
-   * calls in order. Run C is one fresh process that makes every call of the frame from the start, as a user's script
-   * would. The three go at the same time, and their answers are compared with the ones of run A. They make them in
-   * order, not as a set: a product keeps state from call to call (a generator it returned, a cache) and run A kept it.
+   * Makes every call of the frame in run C, in one fresh process and in order, and compares the answers not yet
+   * compared with the ones of run A. Run C must make them all in one process: a product keeps state from call to
+   * call (a generator it returned, a cache), and run A kept it.
    */
   const flushPlain = (): void => {
-    if (compared >= recorded.length) return;
+    if (!plain || compared >= recorded.length) return;
     const t3 = performance.now();
-    const total = recorded.length;
-    const count = total - compared;
-    plain.count += 1;
-    const stem = `${tag.length.toString(36)}${plain.count}`;
-    const outB = join(plain.dir, `${stem}.b.jsonl`);
-    const outD = join(plain.dir, `${stem}.d.jsonl`);
-    const outC = join(plain.dir, `${stem}.c.jsonl`);
-    // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
-    const entry = join(plain.dir, `${stem}.mts`);
-    let spec: { cmd: string; args: string[]; cwd: string; env: Record<string, string> } | undefined;
-    if (runC) {
-      writeFileSync(
-        entry,
-        plainBatchEntry(
-          options.seed,
-          `${tag}:${plain.count}`,
-          {
-            module: pathToFileURL(module).href,
-            codec: pathToFileURL(plain.codec).href,
-            calls: pathToFileURL(plain.calls).href,
-            out: pathToFileURL(outC).href,
-          },
-          plain.codecNames,
-        ),
-      );
-      spec = {
-        cmd: process.execPath,
-        args: [...loaderOption(module), entry],
-        cwd: findRoot(dirname(module)),
-        env: plain.env,
-      };
-    }
-    relay.port.postMessage({
-      replay: true,
-      calls: plain.calls,
-      skip: compared,
-      outs: [outB, outD],
-      plain: spec,
-    });
-    const done = wait(relay, BATCH_MS, 'the replay of the calls') as {
-      plain?: { status: number | null; signal: string | null; stderr: string };
-    };
-    const ranC = done.plain;
-    const answersB = answersOf(outB, count, 'run B ended');
-    const answersD = answersOf(outD, count, 'run D ended');
-    // Run C makes every call from the start: its first `compared` answers were compared by an earlier flush.
-    const answersC = runC
-      ? answersOf(
-          outC,
-          total,
-          `run C ended (${ranC?.status ?? ranC?.signal}): ${(ranC?.stderr ?? '').split('\n').slice(-6).join(' ')}`,
-        ).slice(compared)
-      : [];
-    for (let k = 0; k < count; k += 1) {
-      const held = recorded[compared + k] as Recorded;
-      const others: Array<[Outcome | { dead: string } | undefined, TwinPlan | 'C']> = [
-        [answersB[k], plans[1] as TwinPlan],
-        [answersD[k], plans[2] as TwinPlan],
-        [answersC[k], 'C'],
-      ];
-      for (const [other, plan] of others) {
-        if (other === undefined) continue;
-        if (!('dead' in other)) {
-          if (plan === 'C') held.entry.plain = other;
-          else if (plan.run === 'B') held.entry.twin = other;
-          else held.entry.wrapped = other;
-        }
-        if (keptOf(other, options.keep?.[held.call]) !== held.expected) {
-          const message = `${held.head}, ${describeRun(plan)} answered ${outcomeText(other)}`;
-          found.push({ at: held.at, message });
-          first ??= message;
-          taint ??= message;
-        }
+    const answers = plainRunAll(plain, options.seed, tag, module, recorded.length);
+    spent.plainMs += performance.now() - t3;
+    for (let index = compared; index < recorded.length; index += 1) {
+      const held = recorded[index] as Recorded;
+      const c = answers[index] as Outcome | { dead: string };
+      if (!('dead' in c)) held.entry.plain = c;
+      if (keptOf(c, options.keep?.[held.call]) !== held.expected) {
+        const message = `${held.head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+        found.push({ at: held.at, message });
+        first ??= message;
+        taint ??= message;
       }
     }
-    for (const file of [entry, outB, outD, outC]) rmSync(file, { force: true });
-    compared = total;
-    spent.plainMs += performance.now() - t3;
+    compared = recorded.length;
     // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
     const changed = guard.check();
     if (changed.length > 0) {
@@ -429,21 +405,46 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
     spent.relayMs += performance.now() - t1;
-    const a = (answers as Array<Outcome | { dead: string }>)[0] as Outcome | { dead: string };
+    const [a, b, d] = answers as [
+      Outcome | { dead: string },
+      Outcome | { dead: string },
+      Outcome | { dead: string },
+    ];
     if ('dead' in a) throw new FrameError(a.dead);
     const entry: Entry = { call: name, args: sent, ...a };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
+    if (!('dead' in b)) entry.twin = b;
+    if (!('dead' in d)) entry.wrapped = d;
     tape.push(entry);
+    const kept = (outcome: Outcome | { dead: string }): string => {
+      if ('dead' in outcome) return `dead`;
+      if ('throws' in outcome) return `throws ${canonical(outcome.throws)}`;
+      const keep = options.keep?.[name];
+      return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
+    };
     const head = `${name}(${shortText(sent as Json, 80)}): ${describeRun(plans[0] as TwinPlan)} answered ${outcomeText(a)}`;
-    // The other runs make this call later, with all the others, in order; the answer of run A is kept.
-    appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
-    recorded.push({
-      call: name,
-      entry,
-      expected: keptOf(a, options.keep?.[name]),
-      head,
-      at: tape.length - 1,
-    });
+    // The runs are compared with run A in turn; the first difference found is the frame's finding.
+    for (const [other, plan] of [
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      if (kept(a) !== kept(other)) {
+        const message = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
+        found.push({ at: tape.length - 1, message });
+        first ??= message;
+      }
+    }
+    if (plain) {
+      // Run C makes this call later, with all the others, in one fresh process; the answer of run A is kept.
+      appendFileSync(plain.calls, `${JSON.stringify({ call: name, args: sent })}\n`);
+      recorded.push({
+        call: name,
+        entry,
+        expected: keptOf(a, options.keep?.[name]),
+        head,
+        at: tape.length - 1,
+      });
+    }
     if ('throws' in a) throw decode(a.throws);
     const t2 = performance.now();
     const value = decode(a.ret, revive);

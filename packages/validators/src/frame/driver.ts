@@ -268,8 +268,7 @@ export function plainBatchEntry(
  */
 export const RELAY = String.raw`
 import { spawn } from 'node:child_process';
-import { appendFileSync, createReadStream, mkdirSync, writeFileSync } from 'node:fs';
-import { once } from 'node:events';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { workerData } from 'node:worker_threads';
@@ -311,36 +310,6 @@ const ask = (run, line) =>
   });
 const ready = await Promise.all(runs.map((run) => ask(run)));
 reply({ ready });
-// Run A answers each call as it is made. The other runs make the same calls later, in order, from the file of calls,
-// and write each answer to a file of their own: the item waits for one process, not for three.
-const replay = async (run, file, out, skip) => {
-  let pending = 0;
-  let seen = 0;
-  let reading = true;
-  let finished;
-  const done = new Promise((resolve) => { finished = resolve; });
-  const settle = () => { if (!reading && pending === 0) finished(); };
-  for await (const line of createInterface({ input: createReadStream(file) })) {
-    if (seen++ < skip) continue;
-    pending += 1;
-    ask(run, line).then((message) => {
-      appendFileSync(out, JSON.stringify(message) + '\n');
-      pending -= 1;
-      settle();
-    });
-    if (!run.exited && run.child.stdin.writableLength > 67108864) await once(run.child.stdin, 'drain');
-  }
-  reading = false;
-  settle();
-  await done;
-};
-const plainRun = (spec) =>
-  new Promise((resolve) => {
-    const child = spawn(spec.cmd, spec.args, { cwd: spec.cwd, env: spec.env, stdio: ['ignore', 'ignore', 'pipe'] });
-    let stderr = '';
-    child.stderr.on('data', (chunk) => { stderr = (stderr + chunk).slice(-4000); });
-    child.on('exit', (code, sig) => resolve({ status: code, signal: sig, stderr }));
-  });
 let id = 0;
 port.on('message', async (message) => {
   if (message.close) {
@@ -348,19 +317,9 @@ port.on('message', async (message) => {
     reply({ closed: true });
     return;
   }
-  if (message.replay) {
-    const [, b, d] = runs;
-    const [, , plain] = await Promise.all([
-      replay(b, message.calls, message.outs[0], message.skip),
-      replay(d, message.calls, message.outs[1], message.skip),
-      message.plain ? plainRun(message.plain) : Promise.resolve(undefined),
-    ]);
-    reply({ replayed: true, plain });
-    return;
-  }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args });
-  const answers = [await ask(runs[0], line)];
+  const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });
 `;
