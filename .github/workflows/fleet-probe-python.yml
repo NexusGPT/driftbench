@@ -32,3 +32,34 @@ jobs:
         run: python -c 'import sys; print(sys.version)'
       - name: With a scrubbed environment (the test_agent.py case)
         run: env -i PATH="$PATH" "$pythonLocation/bin/python" -c 'import sys; print(sys.executable, sys.version)'
+
+  node-module-load:
+    name: module-load.test.mjs on node ${{ matrix.node }} (on hetzner-driftbench)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: hetzner-driftbench
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['24', '24.21.0']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: node --version
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: One measured child, its status and stderr (the test discards stderr on a status failure)
+        run: |
+          cat > /tmp/one-child.mjs <<'JS'
+          import { runNode, writeProbe } from './tools/perf-baseline.mjs';
+          import { join } from 'node:path';
+          writeProbe();
+          const r = runNode(['--import', 'tsx', '--input-type=module', '--eval', 'await import(process.argv[1]);', join(process.cwd(), 'packages/artifacts/src/index.ts')], { probe: 'full' });
+          console.log('status', r.status, 'report', r.report ? 'present' : 'absent');
+          console.log('stderr<<<' + r.stderr + '>>>');
+          JS
+          cp /tmp/one-child.mjs ./one-child.mjs && node ./one-child.mjs
+      - run: pnpm exec vitest run tools/perf/module-load.test.mjs
