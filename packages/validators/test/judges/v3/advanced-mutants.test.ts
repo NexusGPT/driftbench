@@ -685,7 +685,7 @@ afterAll(() => {
       '',
       ...rows.map((row) => `- ${row.name}: ${row.firstDetail ?? 'No bank-item loss.'}`),
       '',
-      'Command: `/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/slots/run.sh pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts packages/validators/test/judges/v3/advanced-mutants.test.ts --maxWorkers=2 --reporter=verbose`.',
+      'Command: `pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts packages/validators/test/judges/v3/advanced-mutants.test.ts --maxWorkers=2 --reporter=verbose`.',
       '',
       'Scope: the actual combined bank at seed 71 and the explicit independent edge witnesses. This does not establish other seeds, live-model quality, or the remaining hardness-audit sections.',
     ].join('\n'),

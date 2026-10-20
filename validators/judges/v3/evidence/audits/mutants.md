@@ -74,7 +74,7 @@ One semantic source defect per isolated module. Delegated alpha defects mutate a
 - exact two-sided tail becomes one-sided: raw=1; kappa=1; correct=64/64; abstentions=0; invalid=0; coverage=1; advanced=default absolute two-sided probability: got 0.16666666666666666, expected 0.3333333333333333
 - exact permutation discards null predictions: raw=0.9863013698630136; kappa=0.9836065573770492; correct=72/73; abstentions=1; invalid=0; coverage=0.9863013698630136; advanced=exact kappa: got 0, expected -0.2857142857142857
 
-Command: `/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/slots/run.sh pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts packages/validators/test/judges/v3/advanced-mutants.test.ts --maxWorkers=2 --reporter=verbose`.
+Command: `pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts packages/validators/test/judges/v3/advanced-mutants.test.ts --maxWorkers=2 --reporter=verbose`.
 
 Scope: the actual combined bank at seed 71 and the explicit independent edge witnesses. This does not establish other seeds, live-model quality, or the remaining hardness-audit sections.
 
