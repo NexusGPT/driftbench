@@ -2,7 +2,7 @@
 
 Judge clients, the judge council, calibration, the prompt kit and cassettes for judged criteria in driftbench.
 
-Part of [driftbench](https://github.com/achammah/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
+Part of [driftbench](https://github.com/NexusGPT/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
 
 ## Install
 
@@ -178,7 +178,7 @@ or `combineVerdicts`; gating machine failures stay failures.
 ## Opt-in conformance judging
 
 `judgeConformance` audits one criterion against a trusted transcript and a separate reference. It uses
-the frozen conformance prompt from [PR 109](https://github.com/achammah/driftbench/pull/109), verbatim.
+the frozen conformance prompt from [PR 109](https://github.com/NexusGPT/driftbench/pull/109), verbatim.
 The default requirement ledger is unchanged.
 
 ```ts
@@ -308,7 +308,7 @@ condition or read each one correctly.
 
 ## Documentation
 
-[Judges](https://github.com/achammah/driftbench/blob/main/docs/concepts/judges.md), and the [docs index](https://github.com/achammah/driftbench/blob/main/docs/index.md).
+[Judges](https://github.com/NexusGPT/driftbench/blob/main/docs/concepts/judges.md), and the [docs index](https://github.com/NexusGPT/driftbench/blob/main/docs/index.md).
 
 ## License
 
@@ -322,4 +322,4 @@ code passes only when every fact is `match` and `unsupported` is empty. The defa
 judge is unchanged. Add `grounding: 'strict'` inside `assessment` to reject copied
 text that cannot be grounded in its reference or reply.
 
-See the [API and recorded results](https://github.com/achammah/driftbench/blob/main/docs/concepts/judges.md#pointwise-fact-ledger-against-a-trusted-reference).
+See the [API and recorded results](https://github.com/NexusGPT/driftbench/blob/main/docs/concepts/judges.md#pointwise-fact-ledger-against-a-trusted-reference).

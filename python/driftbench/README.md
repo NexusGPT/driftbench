@@ -2,7 +2,7 @@
 
 Runs driftbench specs from Python through the driftbench CLI, gives the results as typed dataclasses, and
 adds a pytest plugin. No runtime dependency beyond the standard library. See
-[the Python page](https://github.com/achammah/driftbench/blob/main/docs/python.md).
+[the Python page](https://github.com/NexusGPT/driftbench/blob/main/docs/python.md).
 
 ## Install
 

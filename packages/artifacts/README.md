@@ -2,7 +2,7 @@
 
 Readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json, text, code), answering artifact checks with evidence.
 
-Part of [driftbench](https://github.com/achammah/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
+Part of [driftbench](https://github.com/NexusGPT/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
 
 ## Install
 
@@ -24,7 +24,7 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## Documentation
 
-[Checks reference](https://github.com/achammah/driftbench/blob/main/docs/reference/checks.md), and the [docs index](https://github.com/achammah/driftbench/blob/main/docs/index.md).
+[Checks reference](https://github.com/NexusGPT/driftbench/blob/main/docs/reference/checks.md), and the [docs index](https://github.com/NexusGPT/driftbench/blob/main/docs/index.md).
 
 ## License
 

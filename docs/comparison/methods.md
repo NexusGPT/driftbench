@@ -10,7 +10,7 @@ The matrix counts what each tool's public docs or source show, one cited page pe
 
 ## MM-Eval: a panel, only when unsure
 
-* The 1,212 items were sealed before the first call and scored once. The seal, the exclusions and every recorded call are in the [research write-up](https://github.com/achammah/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md); provenance of the copied result file is in [docs/assets/data](../assets/data/README.md).
+* The 1,212 items were sealed before the first call and scored once. The seal, the exclusions and every recorded call are in the [research write-up](https://github.com/NexusGPT/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md); provenance of the copied result file is in [docs/assets/data](../assets/data/README.md).
 * The gain is 2.05 points, 95 percent interval 1.02 to 3.29, from a paired bootstrap with 20,000 draws; 36 items won and 2 lost.
 * Three of the five subset gains have intervals that touch zero.
 * Both arms are driftbench: the chart shows what escalation adds. It is not a comparison with another tool.

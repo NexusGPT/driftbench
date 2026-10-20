@@ -34,6 +34,7 @@ export {
   REPORT_FILE,
   renderSummary,
   type SeederTotals,
+  STEM_MAP_FILE,
 } from './generate';
 export { formatJson } from './json';
 export { loadApprovedMap, type MapLoad } from './load';
