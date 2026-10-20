@@ -646,3 +646,43 @@ describe('a judge that throws is reported, not read as no decider', () => {
     expect(error?.summary).toContain('judge endpoint down');
   });
 });
+
+describe('a spec names its estate map relative to the spec file', () => {
+  write({
+    'driftbench.yaml': 'plugins: []\n',
+    'estate/map.yaml': [
+      'atoms:',
+      '  - id: instruction.standing.tell-the-user-about-a-late',
+      '    kind: instruction',
+      '    title: Tell the user about a late shipment',
+      '    provenance: { file: CLAUDE.md, startLine: 15, endLine: 15, quote: tell the user, hash: h }',
+      '    producedBy: model',
+      '    role: axis',
+      '    approved: true',
+      '    evidence: [{ type: text, must: [late] }]',
+      '    enforcement: []',
+      '    fields: { polarity: obligation }',
+      'edges: []',
+      '',
+    ].join('\n'),
+    'estate/specs/late.yaml': [
+      'id: estate-late',
+      'uses: { diagnostics: [code-agent-liability] }',
+      'metadata:',
+      '  estate:',
+      '    atoms: [instruction.standing.tell-the-user-about-a-late]',
+      '    map: ../map.yaml',
+      'blocks:',
+      '  - user: Where is shipment NW-55012?',
+      '    expect: { must: [late] }',
+      '',
+    ].join('\n'),
+  });
+
+  it('reads the map from the spec folder, not from the working folder, and names the rule', async () => {
+    const stored = await run('estate/specs/late.yaml', { text: 'It is on the way.' });
+    const diagnosis = diagnosisOf(stored, 'must.0');
+    expect(diagnosis.disposition).toBe('agent');
+    expect(diagnosis.fixTarget ?? diagnosis.fixLocation).toContain('CLAUDE.md');
+  });
+});

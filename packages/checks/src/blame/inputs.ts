@@ -5,6 +5,7 @@ import {
   type Expect,
   type evidence,
   type Observed,
+  objectContextOfSpec,
   parseObjectText,
   type Spec,
   type Verdict,
@@ -93,6 +94,8 @@ export type BlockInputSource = {
   spec?: Pick<Spec, 'metadata'>;
   /** The spec file, to resolve a relative map path; else the map path resolves from the working folder. */
   specPath?: string;
+  /** The folder of the spec file, when the file itself is not known. */
+  specDir?: string;
   map?: EstateMapView;
   /** Confirm evidence stored for this block, by verdict id. */
   confirm?: Readonly<Record<string, evidence.ConfirmEvidence>>;
@@ -109,8 +112,8 @@ export function blockEvidenceInputs(source: BlockInputSource): (verdict: Verdict
   const meta = source.spec === undefined ? { atoms: [] as string[] } : estateMetadata(source.spec);
   let map = source.map;
   if (map === undefined && meta.map !== undefined) {
-    const path =
-      source.specPath === undefined ? resolve(meta.map) : resolve(dirname(source.specPath), meta.map);
+    const base = source.specDir ?? (source.specPath === undefined ? undefined : dirname(source.specPath));
+    const path = base === undefined ? resolve(meta.map) : resolve(base, meta.map);
     if (existsSync(path)) map = readEstateMap(path);
   }
   const planRows = source.planRows ?? meta.planRows;
@@ -158,8 +161,11 @@ export function checkEvidenceInputs(
   extra: Omit<BlockInputSource, 'observed' | 'verdicts' | 'expect' | 'spec' | 'user'> = {},
 ): (verdict: Verdict) => evidence.EvidenceInput {
   const user = sentUser(ctx);
+  // A map path a spec names is relative to the spec file; the object context the loader bound knows that folder.
+  const specDir = extra.specDir ?? objectContextOfSpec(ctx.spec)?.dir;
   return blockEvidenceInputs({
     ...extra,
+    ...(specDir === undefined ? {} : { specDir }),
     observed: ctx.observed,
     verdicts,
     expect: ctx.expect,
