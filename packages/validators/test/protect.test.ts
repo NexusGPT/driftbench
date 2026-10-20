@@ -67,6 +67,7 @@ const CI_HEAVY = [
   'prepare',
   'checks',
   'build',
+  'emission-manifest',
   'python',
   'comparison-replay',
   'viewer-journey',
@@ -249,6 +250,25 @@ function assertShards(workflow: ReturnType<typeof parse>) {
     ).toHaveLength(1);
   // the shards
   expect(build.needs).toBe('prepare');
+  // the pooled expectations of the emission enumeration run on the parts of all four seeds, after the shards
+  const manifest = workflow.jobs['emission-manifest'];
+  expect(manifest.needs).toBe('build');
+  expect(manifest.strategy.matrix.node).toEqual([22, 24]);
+  expect(manifest.if).toBe(build.if);
+  const manifestRun = manifest.steps.find((step: Step) =>
+    step.run?.includes('emission-mutations-manifest.test.ts'),
+  );
+  expect(manifestRun.run).toBe(
+    'pnpm exec vitest run packages/validators/test/estate/emission-mutations-manifest.test.ts',
+  );
+  expect(manifestRun.env).toEqual({ EMISSION_AGGREGATE: '1' });
+  const parts = manifest.steps.find((step: Step) => step.uses?.startsWith('actions/download-artifact@'));
+  expect(parts.with.pattern).toBe('emission-part-node${{ matrix.node }}-shard*');
+  expect(parts.with['merge-multiple']).toBe(true);
+  expect(parts.with.path).toBe('validators/estate/emission-mutation-parts');
+  const partsUpload = build.steps.find((step: Step) => step.uses?.startsWith('actions/upload-artifact@'));
+  expect(partsUpload.with.name).toBe('emission-part-node${{ matrix.node }}-shard${{ matrix.shard }}');
+  expect(partsUpload.with.path).toBe('validators/estate/emission-mutation-parts');
   expect(build.strategy.matrix.node).toEqual([22, 24]);
   expect(build.strategy.matrix.shard).toEqual(Array.from({ length: SHARDS }, (_, at) => at + 1));
   expect(build.name).toBe(`build (node \${{ matrix.node }}, shard \${{ matrix.shard }}/${SHARDS})`);
@@ -267,7 +287,9 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
   assertConcurrency(workflow);
   assertDispatchBehaviour(workflow, ids);
   for (const id of ids) {
-    expect(workflow.jobs[id].if).toBe(id === 'prepare' ? prepareCondition() : heavyCondition(id));
+    expect(workflow.jobs[id].if).toBe(
+      id === 'prepare' ? prepareCondition() : heavyCondition(id === 'emission-manifest' ? 'build' : id),
+    );
     for (const step of workflow.jobs[id].steps) {
       // A step condition may only keep artifacts after a failure; it may never skip work.
       if (step.if !== undefined) expect(step.if).toBe('always()');
@@ -288,9 +310,9 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
   expect(system).toContain('test "$status" -eq 11');
 }
 
-const OK = 'success,success,success,success,success,success,success,success,success';
-const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped';
-const ONE_RED = 'success,failure,success,success,success,success,success,success,success';
+const OK = 'success,success,success,success,success,success,success,success,success,success';
+const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped';
+const ONE_RED = 'success,failure,success,success,success,success,success,success,success,success';
 const GATE_CASES: [string, string, string, string, string, number][] = [
   // event, head ref, ref name, jobs, needs results, expected exit code
   ['pull_request', 'train/ci-speed', '', '', OK, 0],
@@ -300,7 +322,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'fix/ordinary',
     '',
     '',
-    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   ['pull_request', 'train-lookalike', '', '', OK, 1],
@@ -309,7 +331,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build',
-    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -317,7 +339,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,python',
-    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,success,skipped,skipped,skipped',
     0,
   ],
   [
@@ -325,7 +347,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     '',
-    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
+    'skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   ['workflow_dispatch', '', 'train/9a', '', OK, 1],
@@ -342,7 +364,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,nonsense',
-    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped,skipped',
     1,
   ],
   [
@@ -350,7 +372,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'BUILD',
-    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped,skipped',
     0,
   ],
   [
@@ -358,7 +380,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build,fast',
-    'skipped,skipped,success,skipped,success,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,success,success,skipped,skipped,skipped,skipped',
     0,
   ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
@@ -372,7 +394,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     'train/ci-speed',
     '',
     '',
-    'success,success,success,success,cancelled,success,success,success,success',
+    'success,success,success,success,cancelled,skipped,success,success,success,success',
     1,
   ],
   ['push', '', 'main', '', ONE_RED, 1],
@@ -381,7 +403,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build',
-    'skipped,skipped,success,skipped,failure,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,failure,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
   [
@@ -389,7 +411,7 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     '',
     'train/9a',
     'build',
-    'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped',
+    'skipped,skipped,success,skipped,cancelled,skipped,skipped,skipped,skipped,skipped',
     1,
   ],
 ];
@@ -694,8 +716,32 @@ describe('merge train enforcement', () => {
           ),
         command,
       ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs['emission-manifest'].needs = [];
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs['emission-manifest'].steps.find((each: Step) => each.run?.includes('manifest.test')).env =
+            {};
+        }),
+      ),
+    ).toThrow();
+    expect(() =>
+      assertShards(
+        mutate((c) => {
+          c.jobs.build.steps = c.jobs.build.steps.filter(
+            (each: Step) => !each.uses?.startsWith('actions/upload-artifact@'),
+          );
+        }),
+      ),
+    ).toThrow();
     // the gate waits for prepare and checks: a failed prepare skips every shard, and a skipped job passes the gate
-    for (const id of ['prepare', 'checks'])
+    for (const id of ['prepare', 'checks', 'emission-manifest'])
       expect(() =>
         assertGateWaits(
           mutate((c) => {
