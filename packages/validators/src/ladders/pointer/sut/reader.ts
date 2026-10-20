@@ -201,16 +201,21 @@ export async function loadReaderExports(
   }
 }
 
-function load(): Promise<ReaderExports> {
+function load(timeoutMs?: number): Promise<ReaderExports> {
   loaded ??= loadReaderExports(
     async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
-  );
+    timeoutMs,
+  ).catch((cause) => {
+    // A failed load is not kept: the next call tries again.
+    loaded = undefined;
+    throw cause;
+  });
   return loaded;
 }
 
 /** A real baseline requires the actual reader exports before it runs any item or writes any score. */
-export async function assertReaderAvailable(): Promise<void> {
-  await load();
+export async function assertReaderAvailable(timeoutMs?: number): Promise<void> {
+  await load(timeoutMs);
 }
 
 /* ----- cut ----- */

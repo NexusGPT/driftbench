@@ -52,7 +52,9 @@ describe('the second bank beside the first', () => {
     const measure = await level?.compute({ seed: 1, hidden: false, root: '.' });
     const bank = measure?.bank ?? [];
     const of = (family: string) => bank.filter((e) => e.family === family);
+    expect(of('blind-cutting').length).toBeGreaterThan(0);
     expect(of('blind-cutting').every((e) => e.pass)).toBe(true);
+    expect(of('blind-scale').length).toBeGreaterThan(0);
     expect(of('blind-scale').every((e) => e.pass)).toBe(true);
     expect(of('blind-links').length).toBeGreaterThan(0);
     expect(of('blind-links').every((e) => !e.pass && /adapter gap/.test(e.detail ?? ''))).toBe(true);
