@@ -52,10 +52,17 @@ describe('driftbench object list and show', () => {
     expect(await run(['object', 'list'])).toEqual({
       code: 0,
       out: lines(
-        'check-set           default      shipped  c6d980a7',
-        'check-set           no-accuracy  project  2bf086d2  driftbench.yaml#objects.0',
-        'policy/value-check  acme         project  b4997f3e  driftbench/policy/value-check/acme.yaml',
-        'policy/value-check  default      shipped  f35db486',
+        'check-set           default               shipped  c6d980a7',
+        'check-set           no-accuracy           project  2bf086d2  driftbench.yaml#objects.0',
+        'diagnostic          code-agent-liability  shipped  c5c80f0e',
+        'diagnostic          fix-plan              shipped  3733339c',
+        'diagnostic          flaky-block           shipped  eb0bc971',
+        'diagnostic          liability-confirm     shipped  bd538cfe',
+        'diagnostic          value-mismatch        shipped  65345513',
+        'policy/blame        default               shipped  47a04623',
+        'policy/placement    default               shipped  59475833',
+        'policy/value-check  acme                  project  b4997f3e  driftbench/policy/value-check/acme.yaml',
+        'policy/value-check  default               shipped  f35db486',
       ),
       err: '',
     });
@@ -89,7 +96,7 @@ describe('driftbench object list and show', () => {
     expect(await run(['object', 'show', 'check-set/nope'])).toEqual({
       code: 2,
       out: '',
-      err: 'unknown object check-set:nope; searched layers shipped, project, suite, spec, block, cli\n',
+      err: 'unknown object check-set:nope; searched layers shipped, project, suite, spec, block, cli; known ids for check-set: default, no-accuracy\n',
     });
     const kind = await run(['object', 'show', 'policy/nope/x']);
     expect(kind.code).toBe(2);
@@ -256,9 +263,13 @@ describe('driftbench object diff and graph', () => {
         'refund-late-order (specs/refund-late-order.yaml)',
         '  b1',
         '    value_check -> policy/value-check:(block)@73b22b4a  (block blocks.0.uses.value_check, extends policy/value-check:acme -> policy/value-check:default)',
+        '    blame -> policy/blame:default@47a04623  (shipped default)',
+        '    placement -> policy/placement:default@59475833  (shipped default)',
         '    check_set -> check-set:no-accuracy@2bf086d2  (block blocks.0.uses.check_set, extends check-set:default)',
         '  b2',
         '    value_check -> policy/value-check:acme@b4997f3e  (spec uses.value_check, extends policy/value-check:default)',
+        '    blame -> policy/blame:default@47a04623  (shipped default)',
+        '    placement -> policy/placement:default@59475833  (shipped default)',
         '    check_set -> check-set:default@c6d980a7  (shipped default)',
       ),
       err: '',
@@ -318,7 +329,7 @@ describe('driftbench object init', () => {
       err: 'policy/value-check/acme already exists (project driftbench/policy/value-check/acme.yaml): pick another id.\n',
     });
     expect((await run(['object', 'init', 'check-set', 'mine', '--from', 'nope'], cwd)).err).toBe(
-      'unknown object check-set:nope; searched layers shipped, project, suite, spec, block, cli\n',
+      'unknown object check-set:nope; searched layers shipped, project, suite, spec, block, cli; known ids for check-set: default, no-accuracy\n',
     );
     await writeFile(join(cwd, 'mine.yaml'), 'kept\n');
     expect(
@@ -335,9 +346,16 @@ describe('driftbench object validate', () => {
       out: lines(
         '✓ check-set:default@c6d980a7  shipped',
         '✓ check-set:no-accuracy@2bf086d2  driftbench.yaml#objects.0',
+        '✓ diagnostic:code-agent-liability@c5c80f0e  shipped',
+        '✓ diagnostic:fix-plan@3733339c  shipped',
+        '✓ diagnostic:flaky-block@eb0bc971  shipped',
+        '✓ diagnostic:liability-confirm@bd538cfe  shipped',
+        '✓ diagnostic:value-mismatch@65345513  shipped',
+        '✓ policy/blame:default@47a04623  shipped',
+        '✓ policy/placement:default@59475833  shipped',
         '✓ policy/value-check:acme@b4997f3e  driftbench/policy/value-check/acme.yaml',
         '✓ policy/value-check:default@f35db486  shipped',
-        '4 objects valid.',
+        '11 objects valid.',
       ),
       err: '',
     });
