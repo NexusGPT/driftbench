@@ -495,14 +495,13 @@ describe('the committed suite', () => {
     expect(checking.length).toBeGreaterThan(0);
     for (const spec of checking)
       expect(spec.operations, spec.id).toEqual({
-        Agent: 'modify',
         Edit: 'modify',
         Glob: 'read',
         Grep: 'read',
         MultiEdit: 'modify',
         NotebookEdit: 'modify',
         Read: 'read',
-        Skill: 'modify',
+        Skill: 'read',
         Write: 'modify',
       });
     for (const spec of written)
