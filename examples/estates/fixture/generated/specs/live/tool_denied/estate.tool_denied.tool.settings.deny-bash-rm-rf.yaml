@@ -52,3 +52,21 @@ metadata:
     ask: code
     askFrom: tool.settings.deny-bash-rm-rf (tool rule)
     outcome: no-change:denied
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.settings.deny-bash-rm-rf
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_denied.tool.settings.deny-bash-rm-rf
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

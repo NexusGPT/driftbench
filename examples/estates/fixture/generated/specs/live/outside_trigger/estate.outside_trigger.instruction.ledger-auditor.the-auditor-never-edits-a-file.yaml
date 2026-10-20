@@ -63,3 +63,30 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.ledger-auditor.the-auditor-never-edits-a-file
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.ledger-auditor.the-auditor-never-edits-a-file
+        values:
+          atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

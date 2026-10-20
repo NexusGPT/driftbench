@@ -1,6 +1,6 @@
 ---
 title: campaign rejudge
-summary: "Judge again, under changed criterion text, the stored observations of a campaign with no agent call: the blocks that name the changed criteria are re-judged and every other result is carried."
+summary: "Judge again, under changed criterion text, the stored observations of a campaign with no agent call. The blocks that name the changed criteria are re-judged. Every other result is carried."
 commands:
   - campaign rejudge
 see_also:
@@ -16,14 +16,17 @@ next:
 
 ## What it is
 
-`driftbench campaign rejudge` takes a stored baseline campaign and a new version of its specs in which only criterion text changed: `rubric`, `pass`, `fail`, `gating`, `scope`, `judge_class` or `repeat_reducer`. It calls the judge on the stored observations of the blocks that name the selected criteria, and calls the agent zero times. Every other result is carried from the baseline with its source and age. The result is a new campaign in the same store; its report labels re-judged and carried blocks.
+`driftbench campaign rejudge` takes a stored baseline campaign and a new version of its specs in which only criterion text changed. The fields are `rubric`, `pass`, `fail`, `gating`, `scope`, `judge_class` and `repeat_reducer`. It calls the judge on the stored observations of the blocks that name the selected criteria, and calls the agent zero times. Every other result is carried from the baseline with its source and age. The result is a new campaign in the same store. Its report labels re-judged and carried blocks.
 
-Before any judge call, it proves the stored observations still fit the new specs. An observation-compatibility hash covers everything that can change what the agent receives or does: givens, stimuli, tools, target, adapter, modes, perturbations, user driver, seeds, stages and block order. Only the seven criterion fields above are left out of it. A change to anything else, a machine check or an expected output included, needs a full agent run with `campaign run`.
+With `--use <kind>/<id>` or `--set <kind>[/<id>]#<item>.<param>=<value>` instead of `--change`, it re-scores. Every stored observation is checked again under the changed objects (a check set, a policy), with no agent call and no judge call. `uses` and every object it names are scoring-only, so the same compatibility proof holds. An agent-facing object on the command line (a persona, a run profile) is refused. It changes what the agent receives, so the agent must run again.
+
+Before any judge call, it proves the stored observations still fit the new specs. An observation-compatibility hash covers everything that can change what the agent receives or does. That is givens, stimuli, tools, target, adapter, modes, perturbations, user driver, seeds, stages and block order. Only the seven criterion fields above are left out of it. A change to anything else, a machine check or an expected output included, needs a full agent run with `campaign run`.
 
 ## When to use it
 
 * A rubric was sharpened, for example after calibration, and the old runs must be judged again under it without new agent calls.
 * A criterion became gating, or changed scope or judge class.
+* A project or suite object changed, such as a check disabled in a check set or a policy item set. Or you try one with `--use`. The stored runs are then scored under it with no new agent call.
 * Not for a new prompt, model, tool, check or spec structure: use `campaign run`, with `--change` for the blast radius.
 * Legacy, partial, injected or adaptive runs, unknown seeds and task artifact reads are refused with a full-rerun instruction.
 
@@ -31,6 +34,7 @@ Before any judge call, it proves the stored observations still fit the new specs
 
 ```
 driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> --change <manifest> --judge claude:<model> [--judge-command <path>] [--judge-budget <usd>] [--max-carry <n>] [--max-age <days>] [--record-realized-text] [--json]
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> (--use <kind/id> | --set <kind[/id]#item.param=value>)... [--max-carry <n>] [--max-age <days>] [--json]
 ```
 
 | Option | Meaning | Default |
@@ -39,8 +43,10 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 | `--from <campaign>` | Required. The baseline campaign id, stored with complete execution provenance. | none |
 | `--campaign <id>` | Required. The new campaign id; refused when it already exists in the store. | none |
 | `--store <file>` | Required. The store that holds the baseline; the new campaign is written there. | none |
-| `--change <manifest>` | Required. A change manifest whose `changes` are all `kind: criterion` with an `id`, and whose `from` and `to` agent versions are equal. | none |
-| `--judge <judge>` | Select a judge provider and model. Alternatively use `--judges <cassette>`. See `judging-judge-options` for every provider and shared option. Live providers can be billed. | none |
+| `--change <manifest>` | Required to re-judge. A change manifest whose `changes` are all `kind: criterion` with an `id`, and whose `from` and `to` agent versions are equal. Not with `--use` or `--set`. | none |
+| `--use <kind/id>` | Re-score under this object instead of the one the layers choose, such as `check-set/quiet`. Repeat it for several kinds. Scoring-only kinds only. | none |
+| `--set <kind[/id]#item.param=value>` | Re-score with one item parameter set at the command-line layer, such as `policy/blame#R3.recovery_ok=[asked_user]`. Repeat it. | none |
+| `--judge <judge>` | Required to re-judge (or `--judges <cassette>`): selects a judge provider and model. See `judging-judge-options` for every provider and shared option. Live providers can be billed. | none |
 | `--judge-command <path>` | The command the judge runs. | `claude` |
 | `--judge-budget <usd>` | Stop judging at this spend; required for a billed judge. | none |
 | `--max-carry <n>` | The most campaigns in a row a result may be carried, a whole number from 0. | `5` |
@@ -78,13 +84,14 @@ changes:
 ## Outputs and how to read them
 
 * Text: `Campaign <id>: <r> blocks re-judged, <c> carried; 0 agent calls. Judge cost <usd> USD.`, with `, <n> not run or blocked (left as they were)` before the semicolon when a block was not run, then `Runs: <p> pass, <f> fail.` (with the not run and blocked counts when there are any), then one line per block not run or blocked with its reason.
+* Text, re-score: `Campaign <id>: <n> blocks re-scored under <flags>; 0 agent calls, 0 judge calls.` With `--json`: `campaign`, `from`, `agentCalls` (always 0), `rescored`, `use`, `set`. Each re-scored block keeps its observation, gets new verdicts stamped with the objects that scored them (`by`), records those objects in `resolved`, and carries a `rejudged` stamp with no criterion; judge verdicts and the runner's flow and ledger verdicts are kept.
 * `--json`: `campaign`, `from`, `agentCalls` (always 0), `rejudged`, `carried` (scored blocks only), `unmeasured` (each block not run or blocked: spec, mode, repeat, block, status, reason; absent when none), `runs` (`pass`, `fail`, `notRun`, `blocked`), `judgeCostUsd`.
 * The store gains the new specs, the new campaign (judge mode `llm`, the judge label, a `rejudged` stamp per run) and one run per baseline run. Judge calls count in the new runs' cost; the agent's historical cost is not charged again.
 * Errors print the reason on stderr with exit 2.
 
 ## Worked example
 
-A baseline stored offline; a re-judge refused because the manifest is a model change; then a real re-judge after one sentence is added to the rubric of `no_invented_data`. The stand-in judge fails any prompt that mentions a public holiday, so the re-judged gating criterion fails, and no model is called:
+The example stores a baseline offline. Then a re-judge is refused because the manifest is a model change. Then a real re-judge runs after one sentence is added to the rubric of `no_invented_data`. The stand-in judge fails any prompt that mentions a public holiday, so the re-judged gating criterion fails, and no model is called:
 
 ```sh setup
 mkdir -p rejudge
@@ -116,7 +123,7 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
 Re-judge needs a criterion-only manifest with identical from/to agent versions; otherwise rerun the agent.
 (exit 2)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
-Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0060 USD.
 Runs: 0 pass, 1 fail.
 (exit 1)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json
@@ -132,12 +139,47 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
     "notRun": 0,
     "blocked": 0
   },
-  "judgeCostUsd": 0.003
+  "judgeCostUsd": 0.006
 }
 (exit 1)
 ```
 
-`no_invented_data` is named by 2 of the 5 blocks, so those 2 are re-judged and 3 carried. The stand-in reports 0.0015 USD per call.
+`no_invented_data` is named by 2 of the 5 blocks, so those 2 are re-judged and 3 carried. The stand-in reports 0.0015 USD per call; the 2 re-judged blocks make 4 calls, 0.0060 USD.
+
+A re-score: a project check set leaves out `must`, and a baseline is stored under it. The same campaign is then re-scored with `--use`, with no agent and no judge call:
+
+```sh setup
+mkdir -p rescore/specs rescore/driftbench/check-set
+cp examples/acme/specs/conversations/plan-upgrade.yaml rescore/specs/plan-upgrade.yaml
+```
+
+```yaml file=rescore/driftbench.yaml
+plugins: []
+```
+
+```yaml file=rescore/driftbench/check-set/quiet.yaml
+kind: check-set
+id: quiet
+extends: default
+items:
+  - { id: must, enabled: false }
+```
+
+```sh
+driftbench campaign run rescore/specs/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-full --store rescore/runs.db
+driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-quiet --store rescore/runs.db --use check-set/quiet
+driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-refused --store rescore/runs.db --use run-profile/fast  # exit 2
+```
+
+```text
+$ driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-quiet --store rescore/runs.db --use check-set/quiet
+Re-scored; observations from acme-full.
+Campaign acme-quiet: 5 blocks re-scored under check-set/quiet; 0 agent calls, 0 judge calls.
+(exit 0)
+$ driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-refused --store rescore/runs.db --use run-profile/fast
+run-profile is agent-facing: a change to it changes what the agent receives; rerun the agent in a full campaign.
+(exit 2)
+```
 
 ## Common errors
 
@@ -149,4 +191,8 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
 * `Legacy campaign has missing, incomplete or inconsistent execution provenance; run a new full campaign before re-judging.` (exit 2). The baseline was stored by an older version, or without provenance.
 * `Baseline campaign is incomplete; rerun the agent.` (exit 2). A planned cell has no run.
 * `Carry limits must be nonnegative; --max-carry must be a whole number.` (exit 2).
+* `<kind> is agent-facing: a change to it changes what the agent receives; rerun the agent in a full campaign.` (exit 2). `--use` or `--set` named a persona, a scenario, a run profile or a deviation class. Use `campaign run`.
+* `Re-score with --use or --set, or re-judge criteria with --change: one at a time.` (exit 2). Run them as two re-judges.
+* `Re-judge needs --change <manifest> (criteria), or --use / --set (a scoring-only object change).` (exit 2).
+* `--use <flag>: expected <kind>/<id>, such as policy/blame/acme` (exit 2). Name a known kind and an id.
 * `error: a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>` (exit 2). Add a budget.

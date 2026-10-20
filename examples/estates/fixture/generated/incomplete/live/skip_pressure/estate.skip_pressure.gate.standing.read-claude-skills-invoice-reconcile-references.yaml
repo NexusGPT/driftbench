@@ -61,3 +61,23 @@ metadata:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-skills-invoice-reconcile-references
         detail: "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-claude-skills-invoice-reconcile-references
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

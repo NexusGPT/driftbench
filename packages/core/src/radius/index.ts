@@ -47,6 +47,7 @@ export {
 } from './depends';
 export {
   blockLinks,
+  blockRerun,
   checkSpecLinks,
   linkHolds,
   registriesByPrompt,
@@ -61,9 +62,65 @@ export {
   localizeRows,
   localizeRuns,
   ochiaiLocalize,
+  relativeLocalize,
   type SectionSuspicion,
 } from './localize';
+export {
+  applySectionEdits,
+  baselineVerdicts,
+  type ConversationRunner,
+  flipCounts,
+  MUTATION_CONTROLS,
+  MUTATION_OPERATORS,
+  MUTATOR_INSTRUCTIONS,
+  type Mutant,
+  type MutantOp,
+  type MutantPlan,
+  MutationBudgetError,
+  type MutationCache,
+  type MutationControl,
+  type MutationCost,
+  type MutationOperator,
+  type MutationRecord,
+  type MutationRecordMutant,
+  type Mutator,
+  MutatorMissError,
+  type MutatorOp,
+  type MutatorRequest,
+  mutationCost,
+  mutationRecordId,
+  mutatorRequestKey,
+  planMutants,
+  punctuationControl,
+  realiseMutants,
+  recordedMutator,
+  runMutation,
+  type SuiteRun,
+} from './mutants';
+export {
+  analyseMutation,
+  type BlockNull,
+  type ControlState,
+  controlStates,
+  type LinkChange,
+  type LinkPromotion,
+  type MutantEffect,
+  type MutationAnalysis,
+  promoteLinks,
+  untestedSections,
+} from './mutation-analysis';
 export { type PromptAnchor, promptChangeManifest } from './prompt';
+export {
+  type BlockProof,
+  type BlockProofVerdict,
+  blockOutcomes,
+  type LinkProof,
+  linksRule,
+  type ProofMutant,
+  type ProofOutcome,
+  type ProofRule,
+  proveRuleLinks,
+} from './prove';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   completeBaselineProvenance,
@@ -84,9 +141,14 @@ export {
   observationCompatibilityHash,
   type PreparedRejudge,
   prepareRejudge,
+  prepareRescore,
   type RejudgeOptions,
+  type RescoreOptions,
+  refuseAgentFacing,
   rejudgeRun,
+  rescoreRun,
 } from './rejudge';
+export { type RerunInput, rerunMarks } from './rerun';
 export {
   checkSectionRegistry,
   loadSectionRegistry,
@@ -114,6 +176,21 @@ export {
   type SectionSelectionSpec,
   sectionChangeManifest,
   sectionChanges,
+  sectionClosure,
   sectionSelection,
+  sectionsReaching,
+  UNIT_SELECTION_ADVISORY,
+  type UnitSelection,
+  unitSelection,
 } from './select';
+export {
+  checkSelectionGate,
+  GATE_LIMIT,
+  type GateCheck,
+  type GateViolation,
+  gateSuiteDigest,
+  type SelectionGate,
+  selectionGate,
+  verifiedOnly,
+} from './selection-gate';
 export { agentVersionOf, withAgentVersion } from './version';

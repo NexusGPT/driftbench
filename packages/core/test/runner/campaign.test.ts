@@ -44,6 +44,7 @@ describe('planCampaign', () => {
     expect(first.cellId).toBe(
       cellId({
         specHash: first.specHash,
+        identityHash: first.identityHash,
         target: { agent: 'acme', adapter: 'function' },
         mode: 'F',
         repeat: 0,

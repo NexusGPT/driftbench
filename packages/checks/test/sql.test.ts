@@ -88,6 +88,66 @@ describe('sql: the query the agent ran returns the same rows as the golden query
     ).toBe('pass');
   });
 
+  it('reads statements as SQLite does: a doubled final semicolon leaves one read statement', async () => {
+    const verdicts = await check("SELECT id FROM chargebacks WHERE merchant = 'Other';;", {
+      golden: "SELECT id FROM chargebacks WHERE merchant = 'Other'",
+    });
+    expect(outcomes(verdicts)).toEqual({ 'sql.0': 'pass' });
+  });
+
+  it('reads a leading comment as text, and a comment before a write does not hide it', async () => {
+    const own = { golden: "SELECT id FROM chargebacks WHERE merchant = 'Other'" };
+    const read = await check("-- one; two\nSELECT id FROM chargebacks WHERE merchant = 'Other'", own);
+    expect(outcomes(read)).toEqual({ 'sql.0': 'pass' });
+    const block = await check("/* a; b */ SELECT id FROM chargebacks WHERE merchant = 'Other'", own);
+    expect(outcomes(block)).toEqual({ 'sql.0': 'pass' });
+    const write = await check('-- harmless\nDELETE FROM chargebacks', own);
+    expect(verdict(write, 'sql.0').evidence).toMatch(/not a read-only query/);
+  });
+
+  it('reads a semicolon inside a string literal as text, and refuses a second statement after it', async () => {
+    const own = { golden: "SELECT id FROM chargebacks WHERE merchant = 'Other'" };
+    const inString = await check(
+      "SELECT id FROM chargebacks WHERE merchant = 'a;b' OR merchant = 'Other'",
+      own,
+    );
+    expect(outcomes(inString)).toEqual({ 'sql.0': 'pass' });
+    const two = await check(
+      "SELECT id FROM chargebacks WHERE merchant = 'a;b'; DELETE FROM chargebacks",
+      own,
+    );
+    expect(verdict(two, 'sql.0').evidence).toMatch(/not a read-only query/);
+  });
+
+  it('leaves the order free when the only ORDER BY of the golden query sits in a string or a comment', async () => {
+    const inString = {
+      golden: "SELECT id FROM chargebacks WHERE merchant <> 'order by hand'",
+    };
+    const inComment = { golden: 'SELECT id FROM chargebacks /* order by id */ WHERE merchant <> 1' };
+    const query = "SELECT id FROM chargebacks WHERE merchant <> 'order by hand' ORDER BY id DESC";
+    expect(outcomes(await check(query, inString))).toEqual({ 'sql.0': 'pass' });
+    expect(
+      outcomes(await check('SELECT id FROM chargebacks WHERE merchant <> 1 ORDER BY id DESC', inComment)),
+    ).toEqual({ 'sql.0': 'pass' });
+  });
+
+  it('is inconclusive and does not gate when the golden query or its database cannot decide', async () => {
+    const own = 'SELECT id FROM chargebacks';
+    const cases = [
+      await check(own, { golden: 'SELECT id FROM missing_table' }),
+      await check(own, { golden: 'SELECT id FROM chargebacks; SELECT 1' }),
+      await check(own, { database: join(dir, 'absent.db') }),
+    ];
+    for (const verdicts of cases) {
+      expect(verdict(verdicts, 'sql.0')).toMatchObject({ outcome: 'inconclusive', gating: false });
+    }
+  });
+
+  it('still gates an agent query that fails', async () => {
+    const verdicts = await check('SELECT id FROM missing_table', { golden: 'SELECT id FROM chargebacks' });
+    expect(verdict(verdicts, 'sql.0')).toMatchObject({ outcome: 'fail', gating: true });
+  });
+
   it('applies only to a block that names a golden query', async () => {
     const ctx = context(spec, 1, sqlFor('SELECT 1'));
     expect(outcomes(await run(sqlEquivalence, ctx))).toEqual({});

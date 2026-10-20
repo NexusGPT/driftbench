@@ -90,3 +90,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0330
+        values:
+          ask_class: research
+          ask_shape: correction
+          session_state: resumed
+          owner_signal: stop
+          deviation: none
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.never-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -90,3 +90,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.supplier-email.show-the-draft-and-get-an
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0963
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D6_instruction_in_data
+          estate_hazard: no_hazard
+          atoms.gate: gate.supplier-email.show-the-draft-and-get-an
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

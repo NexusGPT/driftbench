@@ -35,6 +35,26 @@ describe('JSON Schema keyword validation', () => {
   );
 
   it.each([
+    {
+      type: 'function',
+      name: 'lookup',
+      parameters: { type: 'object', properties: { id: { type: 'string' } } },
+    },
+    {
+      type: 'function',
+      function: { name: 'lookup', parameters: { type: 'object', properties: { id: { type: 'string' } } } },
+    },
+    { type: 'function', function: { name: 'lookup' } },
+  ])('reads a function-style tool schema by its parameters: %j', (tool) => {
+    expect(Spec.safeParse({ ...base, metadata: { tool_schemas: { lookup: tool } } }).success).toBe(true);
+    const bad = JSON.parse(JSON.stringify(tool).replace('"string"', '"string","format":"email"'));
+    if (JSON.stringify(tool).includes('"string"')) {
+      const result = Spec.safeParse({ ...base, metadata: { tool_schemas: { lookup: bad } } });
+      expect(result.success).toBe(false);
+    }
+  });
+
+  it.each([
     { properties: { unused: { not: {} } } },
     { items: { not: {} } },
     { additionalProperties: { not: {} } },

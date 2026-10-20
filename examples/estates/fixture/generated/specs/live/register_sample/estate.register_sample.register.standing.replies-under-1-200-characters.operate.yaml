@@ -82,3 +82,23 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.replies-under-1-200-characters
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.standing.replies-under-1-200-characters.operate
+        values:
+          ask_class: operate
+          atoms.register: register.standing.replies-under-1-200-characters
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

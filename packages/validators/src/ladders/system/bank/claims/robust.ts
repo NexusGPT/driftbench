@@ -3871,8 +3871,9 @@ function versionItems(): BankItem[] {
       );
       return expectAll([
         [
-          plan.cells[0]?.cellId === old.run.runId,
-          `expected today's cell id ${plan.cells[0]?.cellId} to be the stored run id ${old.run.runId}`,
+          // A spec with a version label has a cell id without it; the id the schema 1 store gave is its legacy id.
+          (plan.cells[0]?.legacyCellId ?? plan.cells[0]?.cellId) === old.run.runId,
+          `expected today's cell id ${plan.cells[0]?.cellId} (legacy ${plan.cells[0]?.legacyCellId}) to name the stored run id ${old.run.runId}`,
         ],
         [outcomes[0]?.reused === true, `expected the stored run reused, got reused ${outcomes[0]?.reused}`],
         [calls === 0, `expected no block sent to the agent, got ${calls}`],

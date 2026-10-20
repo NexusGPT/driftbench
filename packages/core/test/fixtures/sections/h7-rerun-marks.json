@@ -1,0 +1,9 @@
+{
+  "source": "rerunMarks (packages/core/src/radius/rerun.ts) on the calibration set: h7-baseline.json (12 repeats of the unmutated suite) and the 290 mutants of h7-selection-300.json selected by the declared links plus the tool-name links; flaky blocks af1 and d1 left out. Frozen before the fresh sample; the fresh sample never changes it.",
+  "marks": [
+    { "block": "p1", "reason": "fails_at_baseline", "evidence": { "failed": 12, "repeats": 12 } },
+    { "block": "of1", "reason": "fragile", "evidence": { "mutants": 2, "of": 290 } },
+    { "block": "of2", "reason": "fragile", "evidence": { "mutants": 2, "of": 290 } },
+    { "block": "pl3", "reason": "fragile", "evidence": { "mutants": 2, "of": 290 } }
+  ]
+}

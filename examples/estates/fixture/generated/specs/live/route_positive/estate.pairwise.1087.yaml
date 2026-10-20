@@ -93,3 +93,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1087
+        values:
+          ask_class: change_estate
+          ask_shape: correction
+          session_state: after_compaction
+          owner_signal: language_switch
+          deviation: D9_out_of_scope
+          estate_hazard: rate_wave
+          atoms.skill: skill.supplier-email.skill-supplier-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

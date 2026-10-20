@@ -556,6 +556,93 @@ describe('the red-team start topic matches the CLI', () => {
   });
 });
 
+describe('the red-team user topic matches the driver and the CLI', () => {
+  const topic = TOPICS.find((each) => each.id === 'redteam-user');
+  const body = topic?.body ?? '';
+  const SOURCE = join(ROOT, 'packages/users/src/redteam-agent.ts');
+
+  /** The fields of one exported type of the red-team user source, by name. */
+  function fieldsOf(type: string): string[] {
+    const text = readFileSync(SOURCE, 'utf8');
+    const start = text.indexOf(`export type ${type} = {`);
+    const end = text.indexOf('\n};', start);
+    return [...text.slice(start, end).matchAll(/^ {2}(?:readonly )?([a-zA-Z]+)\??:/gm)].map(
+      (m) => m[1] as string,
+    );
+  }
+
+  it('names every key of the driver options in its code table', () => {
+    const keys = fieldsOf('RedTeamUserOptions');
+    expect(keys.length).toBeGreaterThanOrEqual(15);
+    const options = section(body, 'Commands and every option');
+    for (const key of keys) expect(options, key).toContain(`| \`${key}\` |`);
+  });
+
+  it('names every field of a recording in its table and every field of a turn in its paragraph', () => {
+    const outputs = section(body, 'Outputs and how to read them');
+    for (const field of fieldsOf('RedTeamRecording')) expect(outputs, field).toContain(`| \`${field}\` |`);
+    const start = outputs.indexOf('Each turn holds');
+    const turns = outputs.slice(start, outputs.indexOf('\n\n', start));
+    expect(start, 'the paragraph that starts "Each turn holds"').toBeGreaterThan(-1);
+    for (const field of fieldsOf('RedTeamTurn')) expect(turns, field).toContain(`\`${field}\``);
+  });
+
+  it('gives the outcome and the exit code redteam run prints for each recording', async () => {
+    const outputs = section(body, 'Outputs and how to read them');
+    const scratch = mkdtempSync(join(tmpdir(), 'driftbench-help-redteam-user-'));
+    try {
+      const fixture = JSON.parse(
+        readFileSync(join(ROOT, 'packages/cli/test/fixtures/redteam-goat.json'), 'utf8'),
+      ) as { totalTurns: number; turns: Record<string, unknown>[] };
+      const scored = (score: number | undefined) => ({
+        ...fixture,
+        turns: fixture.turns.map(({ gradingError: _error, scoredBy: _by, ...turn }) =>
+          score === undefined ? turn : { ...turn, score, scoredBy: 'recording' },
+        ),
+      });
+      const recordings: Record<string, unknown> = {
+        'shipped.json': fixture,
+        'unscored.json': scored(undefined),
+        'low.json': scored(1),
+        'high.json': scored(10),
+        'short.json': { ...scored(1), totalTurns: 2, turns: scored(1).turns.slice(0, 2) },
+      };
+      const seen = new Set<string>();
+      for (const [name, recording] of Object.entries(recordings)) {
+        writeFileSync(join(scratch, name), JSON.stringify(recording));
+        const io = capture();
+        const argv = [
+          'redteam',
+          'run',
+          'packages/cli/test/fixtures/redteam-acme.spec.json',
+          '--replay',
+          join(scratch, name),
+        ];
+        // The short recording asks for one turn more than it holds: the driver fails, the outcome is incomplete.
+        const code = await main(name === 'short.json' ? [...argv, '--turns', '3'] : argv, io);
+        const word = /^Red-team \w+: (\w+)\./.exec(io.stdout())?.[1] ?? '';
+        seen.add(word);
+        const row = outputs.split('\n').find((line) => line.startsWith(`| \`${word}\``));
+        expect(row, `${name} prints ${word}; the outcome table should hold its row`).toBeDefined();
+        const exits = (row as string).split('|').at(-2) ?? '';
+        expect(exits, `${name} prints ${word} and exits ${code}; its row reads "${exits.trim()}"`).toContain(
+          `${code}`,
+        );
+      }
+      expect([...seen].sort()).toEqual(['breached', 'grading_error', 'incomplete', 'resisted', 'unscored']);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it('is the user driver authoring-users names, and the start topic points to it', () => {
+    const users = TOPICS.find((each) => each.id === 'authoring-users');
+    expect(users?.body).toMatch(/^\| red-team user \|.*`redteam run`/m);
+    expect(users?.see_also).toContain('redteam-user');
+    expect(TOPICS.find((each) => each.id === 'redteam-overview')?.see_also).toContain('redteam-user');
+  });
+});
+
 /**
  * One step of a worked example, in document order: a driftbench command run through `main`, a shell line of
  * a `sh setup` block run with bash, or a file a block with `file=<path>` in its info string writes.
@@ -660,6 +747,62 @@ function words(line: string): string[] {
     (match) => match[1] ?? match[2] ?? match[3] ?? '',
   );
 }
+
+/**
+ * The topics whose worked example is also compared with what it prints: every line of a `text` block must be
+ * a line the commands printed, in the order of the blocks. Placeholder lines (with `<`) and `...` are skipped.
+ */
+const OUTPUT_CHECKED = ['validate-estate-settings'];
+
+describe('every worked example prints what its text blocks show', () => {
+  for (const id of OUTPUT_CHECKED) {
+    it(id, async () => {
+      const topic = TOPICS.find((each) => each.id === id);
+      expect(topic, id).toBeDefined();
+      const body = topic?.body ?? '';
+      const scratch = mkdtempSync(join(tmpdir(), `driftbench-help-output-${id}-`));
+      try {
+        symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
+        symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
+        let printed = '';
+        for (const step of workedExample(body)) {
+          if (step.kind === 'file') {
+            const path = scratchPath(scratch, step.path);
+            mkdirSync(dirname(path), { recursive: true });
+            writeFileSync(path, step.content);
+          } else if (step.kind === 'shell') {
+            const run = spawnSync('bash', ['-c', step.command], {
+              cwd: scratch,
+              encoding: 'utf8',
+              env: { ...process.env, HOME: scratch, INIT_CWD: scratch, PWD: scratch },
+            });
+            expect(run.status, `${step.line}\n${run.stdout}${run.stderr}`).toBe(step.exit);
+          } else {
+            const io = capture(scratch);
+            expect(await inScratch(scratch, () => main(step.argv, io)), `${step.line}\n${io.stderr()}`).toBe(
+              step.exit,
+            );
+            printed += io.stdout();
+          }
+        }
+        const lines = printed.split('\n').map((line) => line.trimEnd());
+        const shown = [...section(body, 'Worked example').matchAll(/^```text\n([\s\S]*?)^```/gm)].flatMap(
+          (block) => (block[1] as string).split('\n'),
+        );
+        expect(shown.length).toBeGreaterThan(0);
+        let at = 0;
+        for (const line of shown) {
+          if (line.trim() === '' || line.includes('<') || line.trim() === '...') continue;
+          const found = lines.indexOf(line.trimEnd(), at);
+          expect(found, `printed, after the lines before it: ${line}`).toBeGreaterThanOrEqual(0);
+          at = found + 1;
+        }
+      } finally {
+        rmSync(scratch, { recursive: true, force: true });
+      }
+    }, 600_000);
+  }
+});
 
 describe('every worked example runs', () => {
   for (const topic of TOPICS) {

@@ -22,6 +22,12 @@ import { defaultParentOf, type ParentRef } from './select';
  * - Ochiai(s) = n_cf / sqrt(N_F (n_cf + n_cs)); 0 when n_cf or N_F is 0.
  * - Global sections are excluded: a section linked to every block scores the same whatever it says.
  * - Ties are reported as a range: best rank and worst rank.
+ *
+ * Relative counting (`relative`, H5): each block is read against its own baseline verdict, the majority
+ * of the baseline runs. A block that fails in the baseline is not evidence against any section and is no
+ * row; nor is a block with a tie, or one the caller marks flaky. A block that passes in the baseline is a
+ * row, and a failure of it is a flip. Inherited failures are dropped as in grouped counting, and a block
+ * whose failing ancestor is no row (it fails in the baseline) is a root of its own.
  */
 
 /** One block: its key, the local sections it links to, and the blocks whose failure it inherits. */
@@ -56,7 +62,9 @@ export type Localization = {
   inherited: number;
   /** Blocks that failed as a row at least once: the roots of the failures. */
   roots: string[];
-  counting: 'grouped' | 'flat';
+  counting: 'grouped' | 'flat' | 'relative';
+  /** Relative counting only: blocks that fail in the baseline, and blocks with no baseline verdict (a tie). */
+  baseline?: { failing: string[]; unstable: string[] };
 };
 
 /**
@@ -184,6 +192,43 @@ export function localizeRows(
   });
 }
 
+/**
+ * Relative counting: each run read as flips against the baseline verdict of each block, then counted as
+ * grouped. See the module comment.
+ */
+export function relativeLocalize(
+  rows: readonly LocalizeRow[],
+  baseline: readonly LocalizeRun[],
+  runs: readonly LocalizeRun[],
+  sections: { local: readonly string[]; global?: readonly string[] },
+  options: { exclude?: Iterable<string> } = {},
+): Localization {
+  const exclude = new Set(options.exclude ?? []);
+  const passing = new Set<string>();
+  const failing: string[] = [];
+  const unstable: string[] = [];
+  for (const row of rows) {
+    let failed = 0;
+    let n = 0;
+    for (const run of baseline) {
+      const value = run.get(row.key);
+      if (value === undefined) continue;
+      n++;
+      if (value) failed++;
+    }
+    if (n === 0) continue;
+    if (failed * 2 === n || exclude.has(row.key)) unstable.push(row.key);
+    else if (failed * 2 > n) failing.push(row.key);
+    else passing.add(row.key);
+  }
+  const flips = runs.map((run) => new Map([...run].filter(([key]) => passing.has(key))));
+  return {
+    ...ochiaiLocalize(rows, flips, sections, 'grouped'),
+    counting: 'relative',
+    baseline: { failing, unstable },
+  };
+}
+
 export type LocalizeCampaign = {
   localization: Localization;
   /** The suite runs pooled: one per target, mode, repeat and perturbation. */
@@ -204,21 +249,48 @@ export function localizeRuns(
   registry: SectionRegistry,
   options: {
     mode: 'T' | 'F' | 'P';
-    counting?: 'grouped' | 'flat';
+    counting?: 'grouped' | 'flat' | 'relative';
     parentOf?: (spec: Spec) => ParentRef | undefined;
+    /** Relative counting: the runs of the unchanged agent, read for each block's baseline verdict. */
+    baseline?: readonly RunResult[];
   },
 ): LocalizeCampaign {
+  if (options.counting === 'relative' && options.baseline === undefined)
+    throw new RangeError('localizeRuns: relative counting needs the baseline runs');
+  const skipped: LocalizeCampaign['skipped'] = [];
+  const suite = suiteRuns(specs, runs, options.mode, skipped);
+  const rows = localizeRows(specs, registry, options.mode, options.parentOf);
+  const local = registry.sections.filter((s) => s.scope === 'local' && s.stale !== true).map((s) => s.id);
+  const global = registry.sections.filter((s) => s.scope === 'global').map((s) => s.id);
+  const localization =
+    options.counting === 'relative'
+      ? relativeLocalize(
+          rows,
+          [...suiteRuns(specs, options.baseline ?? [], options.mode, skipped).values()],
+          [...suite.values()],
+          { local, global },
+        )
+      : ochiaiLocalize(rows, [...suite.values()], { local, global }, options.counting);
+  return { localization, suiteRuns: suite.size, skipped };
+}
+
+/** The scored block verdicts of stored runs, one map per suite run (target, mode, repeat, perturbation). */
+function suiteRuns(
+  specs: readonly Spec[],
+  runs: readonly RunResult[],
+  mode: 'T' | 'F' | 'P',
+  skipped: LocalizeCampaign['skipped'],
+): Map<string, Map<string, boolean>> {
   const byId = new Map(specs.map((spec) => [spec.id, spec]));
   const suite = new Map<string, Map<string, boolean>>();
-  const skipped: LocalizeCampaign['skipped'] = [];
   for (const run of runs) {
     const spec = byId.get(run.specId);
     if (!spec) {
       skipped.push({ runId: run.runId, reason: `the spec ${run.specId} was not given` });
       continue;
     }
-    if (run.mode !== options.mode) {
-      skipped.push({ runId: run.runId, reason: `mode ${run.mode}, not ${options.mode}` });
+    if (run.mode !== mode) {
+      skipped.push({ runId: run.runId, reason: `mode ${run.mode}, not ${mode}` });
       continue;
     }
     if (run.specHash !== specHash(spec)) {
@@ -238,12 +310,5 @@ export function localizeRuns(
     }
     suite.set(group, verdicts);
   }
-  const rows = localizeRows(specs, registry, options.mode, options.parentOf);
-  const local = registry.sections.filter((s) => s.scope === 'local' && s.stale !== true).map((s) => s.id);
-  const global = registry.sections.filter((s) => s.scope === 'global').map((s) => s.id);
-  return {
-    localization: ochiaiLocalize(rows, [...suite.values()], { local, global }, options.counting),
-    suiteRuns: suite.size,
-    skipped,
-  };
+  return suite;
 }
