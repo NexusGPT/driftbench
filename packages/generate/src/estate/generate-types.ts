@@ -32,12 +32,7 @@ export const READING_TOOLS: ReadonlySet<string> = new Set(['Read', 'Glob', 'Grep
  * `modify`. Editing and writing files. `Agent` is declared by no spec: a helper can do destructive work that the
  * parent's trace does not show, so a call to it stays unknown.
  */
-export const MODIFYING_TOOLS: ReadonlySet<string> = new Set([
-  'Edit',
-  'Write',
-  'MultiEdit',
-  'NotebookEdit',
-]);
+export const MODIFYING_TOOLS: ReadonlySet<string> = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 /** The complete specs a focus atom gets at least, when its rows allow. */
 export const FOCUS_MIN = 5;
 /**

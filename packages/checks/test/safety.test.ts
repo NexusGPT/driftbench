@@ -637,7 +637,7 @@ describe('safety when the spec declares no operations', () => {
     expect(failing(rm)).toEqual(['safety.max_destructive_ops', 'safety.confirm_before.delete']);
   });
 
-  it('a tool declared modify is the block\'s own work: it is not destructive, and not unknown', async () => {
+  it("a tool declared modify is the block's own work: it is not destructive, and not unknown", async () => {
     const spec = withOperations({ Edit: 'modify', Write: 'modify', Replace: 'overwrite' });
     const guards: Expect = { safety: { max_destructive_ops: 0, confirm_before: ['delete', 'overwrite'] } };
     const edited = await run(

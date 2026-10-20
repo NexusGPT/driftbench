@@ -149,7 +149,9 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
           spec: {
             ...ctx.spec,
             operations: Object.fromEntries(
-              Object.entries(ctx.spec.operations ?? {}).filter(([, kind]) => kind === 'read' || kind === 'modify'),
+              Object.entries(ctx.spec.operations ?? {}).filter(
+                ([, kind]) => kind === 'read' || kind === 'modify',
+              ),
             ),
           },
         },
