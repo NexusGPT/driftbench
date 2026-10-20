@@ -221,7 +221,7 @@ describe('the pointer scan', () => {
     expect(result.unlabeled).toBeGreaterThan(0);
   });
 
-  it('retries an unreadable answer once, then lists the window as failed and records nothing', async () => {
+  it('retries an unreadable answer once, then lists the window as failed and records the failure', async () => {
     const log: string[] = [];
     const cassette = new Cassette();
     const result = await pointerScan(
@@ -236,8 +236,17 @@ describe('the pointer scan', () => {
     expect(log.filter((entry) => entry.startsWith('office.md'))).toHaveLength(4);
     expect(result.failed).toHaveLength(2);
     expect(result.failed[0]).toContain('the answer is not JSON');
-    expect([...cassette.entries.values()].every((entry) => entry.readable.path === 'quay.md')).toBe(true);
+    // The failure is an entry of the cassette, so a replay lists the same window with no call and no miss.
+    const office = [...cassette.entries.values()].filter((entry) => entry.readable.path === 'office.md');
+    expect(office).toHaveLength(2);
+    expect(office.every((entry) => entry.answer.refused === 'unreadable')).toBe(true);
     expect(result.labelled.every((item) => item.path === 'quay.md')).toBe(true);
+    const replay = await pointerScan(
+      input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), { mode: 'replay' }),
+    );
+    expect(replay.calls).toBe(0);
+    expect(replay.failed).toEqual(result.failed);
+    expect(renderLedger(replay.ledger)).toBe(renderLedger(result.ledger));
   });
 
   it('does not retry a refusal', async () => {

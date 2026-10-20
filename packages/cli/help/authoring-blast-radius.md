@@ -4,6 +4,7 @@ summary: 'Compute which blocks of a suite a change to the agent can affect. The 
 commands:
   - radius
   - radius auto
+  - radius ledger
 see_also:
   - results-radius
   - authoring-prompt-sections
@@ -28,6 +29,8 @@ You describe the change in a change manifest: the agent version before (`from`),
 `driftbench radius` reads the specs and the manifest. It prints, per run mode, which blocks are in the radius and how much a rerun saves against the whole suite. It is read only: it writes nothing.
 
 `driftbench radius auto` writes a change manifest for you from two versions of a prompt file and an approved map whose entries carry evidence quotes. A change inside exactly one approved quote becomes a narrow change. Any doubt becomes a whole-suite change.
+
+`driftbench radius ledger` writes a change manifest from an edit of an estate's prose. It reads the ledger of the last pointer scan and the files as they are now. Each unit falls in one edit class, and each class has a fixed rerun set (see below). No labeler is called.
 
 A prompt can also carry a section registry, which names its sections by stable ids. Blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is always the whole suite. Selection by section links is advisory until links are verified by mutation. `radius --sections` only prints what it would skip.
 
@@ -151,6 +154,42 @@ Exit codes:
 | 1 | the map does not parse as a map proposal: an uncaught validation error with a stack trace |
 | 2 | `--prompt` without exactly two files, a missing required option, a source the map does not declare, a file that cannot be read |
 
+### driftbench radius ledger
+
+```
+driftbench radius ledger <map> --ledger <file> [--from-version <version>] [--to-version <version>] [--out <file>]
+```
+
+| Argument or option | Meaning | Default |
+|---|---|---|
+| `<map>` (required) | the estate map of the last scan. It names the estate folder, the runtime and the ignore list, and its atoms say which atom sits on which unit (`fields.unit`, `fields.condition`) | none |
+| `--ledger <file>` (required) | the ledger of the last scan, written by `estate scan --pointer --ledger <file> --update` | none |
+| `--from-version <version>` | the `from` of the manifest | the first 12 characters of the map hash |
+| `--to-version <version>` | the `to` of the manifest | `working` |
+| `--out <file>` | write the manifest YAML to this file, and print the count of each edit class | print the YAML on stdout |
+
+The command cuts the prose files the scan reads, follows the old units into them as the scan does, and puts each unit in one edit class. The rerun set of each class is fixed:
+
+| Edit class | What happened to the unit | What reruns |
+|---|---|---|
+| `unchanged` | the same text and the same neighbours | nothing |
+| `context` | the same text, other neighbours or another heading path | nothing; the unit is advisory |
+| `moved` | the same text in another file | nothing; the unit is advisory |
+| `changed` | the text changed | the unit |
+| `deleted` | the unit is gone | the unit |
+| `new` | no old unit is followed into it | the old units of its section: the units under the same headings in the same file, else under the nearest heading above, else every unit of the file. A new unit in a file the ledger did not hold is the whole suite |
+
+A split keeps the old id on its first piece (`changed`) and mints the others (`new`). A merge keeps the first old id (`changed`) and ends the second (`deleted`). An ambiguous copy keeps the old id on its first match and mints the others (`new`). So their rerun set is the union of these classes.
+
+A unit that reruns becomes changes in the manifest. A unit with atoms on it becomes one `prompt` change per atom: the tests that name the atom rerun, as for any atom. A unit with no atom becomes a `unit` change with its ledger id; a `unit` change makes the radius the whole suite (see the kinds below). The `note` of each change names the class.
+
+Exit codes:
+
+| Code | When |
+|---|---|
+| 0 | a manifest was written or printed. A whole-suite manifest also exits 0: read its `changes` |
+| 2 | the map is not a valid estate map, the ledger cannot be read or is not a ledger, the runtime is unknown, the estate folder is missing |
+
 ## Inputs
 
 ### The change manifest
@@ -169,7 +208,7 @@ YAML or JSON. Strict: an unknown key is an error at every level.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`, `prompt_section`. Any other string is accepted and makes the radius the whole suite |
+| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`, `prompt_section`, `unit`. Any other string is accepted and makes the radius the whole suite |
 | `id` | string, not empty | no | which one (see the table below). Without it, every kind is the whole suite |
 | `part` | `input`, `result`, `description` or `presence` | no | for a tool: which part changed. Absent: any part, the widest reading |
 | `global` | boolean | no | `true` when the change applies to every block, such as a tone rule: the whole suite |
@@ -196,6 +235,7 @@ What each kind selects:
 | `criterion` | a criterion name | blocks whose `expect.criteria` name it |
 | `model`, `agent` | none | the whole suite |
 | `prompt_section` | `<prompt-id>#<section-id>`, or a section id alone for any prompt | the whole suite, with the reason `section selection is advisory until links are verified by mutation`. `--sections` prints which blocks the section links would select (authoring-prompt-sections) |
+| `unit` | a ledger unit id | the whole suite, with the reason `unit selection is advisory until links are verified by mutation: the whole suite runs`. `radius` then prints which blocks the `estate_unit` links would select (authoring-block-links) |
 
 What a tool change selects, by `part`:
 

@@ -132,6 +132,57 @@ function closureOf(registry: SectionRegistry, changed: Set<string>): Set<string>
   return out;
 }
 
+/**
+ * The forward closure of a selection, in place: within a conversation, then across parent edges, to a
+ * fixed point. Returns the counts of the blocks by state.
+ */
+function closeForward(
+  reports: SectionSelectionSpec[],
+  specs: readonly RadiusSpec[],
+  parentOf: (spec: Spec) => ParentRef | undefined,
+): SectionSelection['counts'] {
+  // Forward closure: within a conversation, then across parent edges, to a fixed point.
+  const forwardFrom = (report: SectionSelectionSpec, from: number, why: string) => {
+    let changed = false;
+    for (const block of report.blocks) {
+      if (block.index < from || block.state !== 'out') continue;
+      block.state = 'forward';
+      block.why = [why];
+      changed = true;
+    }
+    return changed;
+  };
+  const bySpec = new Map(reports.map((report) => [report.specId, report]));
+  for (let moved = true; moved; ) {
+    moved = false;
+    for (const [at, report] of reports.entries()) {
+      const first = report.blocks.find((block) => block.state !== 'out');
+      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
+      const spec = specs[at]?.spec;
+      const parent = spec ? parentOf(spec) : undefined;
+      const source = parent ? bySpec.get(parent.spec) : undefined;
+      if (!parent || !source) continue;
+      const end = source.blocks.findIndex((block) =>
+        typeof parent.block === 'number' ? block.index === parent.block : block.id === parent.block,
+      );
+      const reached = source.blocks.some((block) => block.state !== 'out' && block.index <= end);
+      if (end >= 0 && reached) moved = forwardFrom(report, 0, `via ${parent.spec}#${parent.block}`) || moved;
+    }
+  }
+
+  const counts = { selected: 0, direct: 0, forward: 0, skipped: 0, total: 0 };
+  for (const report of reports)
+    for (const block of report.blocks) {
+      counts.total++;
+      if (block.state === 'out') counts.skipped++;
+      else {
+        counts.selected++;
+        counts[block.state]++;
+      }
+    }
+  return counts;
+}
+
 /** The advisory section selection of a manifest's `prompt_section` changes over the specs. */
 export function sectionSelection(
   specs: readonly RadiusSpec[],
@@ -206,45 +257,7 @@ export function sectionSelection(
     return { specId: spec.id, ...(path === undefined ? {} : { path }), blocks };
   });
 
-  // Forward closure: within a conversation, then across parent edges, to a fixed point.
-  const forwardFrom = (report: SectionSelectionSpec, from: number, why: string) => {
-    let changed = false;
-    for (const block of report.blocks) {
-      if (block.index < from || block.state !== 'out') continue;
-      block.state = 'forward';
-      block.why = [why];
-      changed = true;
-    }
-    return changed;
-  };
-  const bySpec = new Map(reports.map((report) => [report.specId, report]));
-  for (let moved = true; moved; ) {
-    moved = false;
-    for (const [at, report] of reports.entries()) {
-      const first = report.blocks.find((block) => block.state !== 'out');
-      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
-      const spec = specs[at]?.spec;
-      const parent = spec ? parentOf(spec) : undefined;
-      const source = parent ? bySpec.get(parent.spec) : undefined;
-      if (!parent || !source) continue;
-      const end = source.blocks.findIndex((block) =>
-        typeof parent.block === 'number' ? block.index === parent.block : block.id === parent.block,
-      );
-      const reached = source.blocks.some((block) => block.state !== 'out' && block.index <= end);
-      if (end >= 0 && reached) moved = forwardFrom(report, 0, `via ${parent.spec}#${parent.block}`) || moved;
-    }
-  }
-
-  const counts = { selected: 0, direct: 0, forward: 0, skipped: 0, total: 0 };
-  for (const report of reports)
-    for (const block of report.blocks) {
-      counts.total++;
-      if (block.state === 'out') counts.skipped++;
-      else {
-        counts.selected++;
-        counts[block.state]++;
-      }
-    }
+  const counts = closeForward(reports, specs, parentOf);
   const flat = (map: Map<string, Set<string>>) =>
     [...map].flatMap(([prompt, ids]) => [...ids].map((id) => key(prompt, id)));
   return {
@@ -255,6 +268,68 @@ export function sectionSelection(
     specs: reports,
     counts,
   };
+}
+
+export const UNIT_SELECTION_ADVISORY =
+  'unit selection is advisory until links are verified by mutation: the whole suite runs';
+
+export type UnitSelection = {
+  advisory: true;
+  /** The changed units, by ledger id. */
+  changed: string[];
+  /** Set when every block is selected, with the reason. */
+  all: string | null;
+  specs: SectionSelectionSpec[];
+  counts: SectionSelection['counts'];
+};
+
+/**
+ * Unit-level selection, ADVISORY ONLY, the ledger twin of the section selection: a `unit` change makes the
+ * radius the whole suite. A block is selected when it has no `estate_unit` link (no record always runs),
+ * when a link of it is stale, when a link of it that is not refuted names a changed unit, and forward as in
+ * the section selection. A global `unit` change selects every block.
+ */
+export function unitSelection(
+  specs: readonly RadiusSpec[],
+  manifest: ChangeManifest,
+  options: { parentOf?: (spec: Spec) => ParentRef | undefined } = {},
+): UnitSelection {
+  const parentOf = options.parentOf ?? defaultParentOf;
+  const changes = manifest.changes.filter((change) => change.kind === 'unit');
+  let all: string | null = null;
+  const changed = new Set<string>();
+  for (const change of changes) {
+    if (change.global === true)
+      all ??= `unit${change.id === undefined ? '' : ` ${change.id}`} is declared global`;
+    else if (change.id === undefined) all ??= 'a unit change names no unit';
+    else changed.add(change.id);
+  }
+  const reasons = (spec: Spec, index: number): string[] => {
+    if (all !== null) return [`all: ${all}`];
+    if (changed.size === 0) return [];
+    const links = specLinks(spec).filter(
+      (link): link is BlockLink & { to: { kind: 'estate_unit' } } =>
+        link.to.kind === 'estate_unit' && linkHolds(spec, link, index),
+    );
+    if (links.length === 0) return ['no-links:ledger'];
+    const why: string[] = [];
+    for (const link of links) {
+      if (link.status === 'stale') why.push(`stale-link:unit:${link.to.unit}`);
+      else if (link.status !== 'refuted' && changed.has(link.to.unit))
+        why.push(`link:unit:${link.to.unit} (${link.status})`);
+    }
+    return [...new Set(why)];
+  };
+  const reports: SectionSelectionSpec[] = specs.map(({ spec, path }) => ({
+    specId: spec.id,
+    ...(path === undefined ? {} : { path }),
+    blocks: spec.blocks.map((block, index) => {
+      const why = reasons(spec, index);
+      return { id: block.id ?? `block ${index}`, index, state: why.length > 0 ? 'direct' : 'out', why };
+    }),
+  }));
+  const counts = closeForward(reports, specs, parentOf);
+  return { advisory: true, changed: [...changed].sort(), all, specs: reports, counts };
 }
 
 /**

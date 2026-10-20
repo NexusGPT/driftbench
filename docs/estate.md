@@ -202,7 +202,7 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 The model pass above asks a model to quote the rules it finds, and code then looks for each quote in the file. The pointer reader turns that around. Code cuts every prose file into units by its structure, a labeler is shown the units with a number each, and it answers a label for each number. It writes no text, so every quote of an atom is a slice of the file at its lines. No list of words and no grammar rule decides what is a rule: what a label means is data the user declares.
 
 ```
-driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-cassette.jsonl --ledger pointer-ledger.json
+driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-cassette.jsonl --ledger pointer-ledger.json --update
 ```
 
 * **Units.** A unit is a sentence, a list item, a table cell, a paragraph of a block quote, a heading or a value of the front matter. A fence or a comment is opaque: it is never sent, so no label can point at it. Sentences are cut from the text with the inline code, the links and the emphasis marks masked, and the cutter joins when it is unsure, so a wrong cut costs a coarser unit and never a wrong quote.
@@ -210,7 +210,7 @@ driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-casset
 * **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked three times: a unit takes a label only when all three runs give it the same label (and the same target). A unit the runs split on, or that a run leaves out, stays unlabeled, and the report counts it. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
 * **A labeler of your own.** `--labeler system2:http:<url>` or `--labeler system1:module:<path>` puts your endpoint or your module behind the same port. Its answers are recorded and replayed like the others, and its id is part of every cassette key.
 * **The cassette.** Every answer is recorded with the hash of the whole request as its key, so a scan without `--record` needs no key and no network, and a changed prompt, set (labels, atom mappings and conditions included), model, labeler, cut or run misses and names the field that differs. The models cannot be pinned to one answer, so the cassette is where the scan is deterministic. It holds file names, hashes and answers, never the text of a unit. `--record` appends each answer as it arrives, so a run that stops keeps what it paid for.
-* **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
+* **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--update` writes the ledger; without it the scan reads the ledger and leaves it as it is. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
 * **The atoms.** A unit with a label that has an `atom` mapping becomes an unapproved atom of that kind, with `fields.extraction: pointer`, the unit id, the set, the label and the class that decided it, and one `prose_pointer` check that a person reviews before the atom is approved.
 
 The report names the classes and clients, counts the units kept from the ledger, the units labelled by this run and which class decided them, and prints the tokens each service reported. The topic `validate-estate-scan` lists every option and the shape of a user labeler's request and answer.
@@ -971,6 +971,30 @@ Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 7 live estate tests (1
 ```
 
 The spec then holds `retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed` under `metadata`.
+
+### The radius on the ledger
+
+The ledger of the last scan names every unit of the prose by an id that survives an edit. So an edit can be read unit by unit, with no model:
+
+```
+driftbench radius ledger map.yaml --ledger pointer-ledger.json --out change.yaml
+driftbench estate diff map.yaml map-v2.yaml --old-ledger pointer-ledger.v1.json --new-ledger pointer-ledger.json --out diff.json --change-out change.yaml
+```
+
+`radius ledger` reads the files as they are now. `estate diff` reads two scans. Both put each unit in one edit class, and each class has one rerun set:
+
+| Edit class | What reruns |
+|---|---|
+| unchanged | nothing |
+| context: the same text, other neighbours or headings | nothing; the unit is advisory |
+| moved: the same text in another file | nothing; the unit is advisory |
+| changed | the unit |
+| deleted | the unit |
+| new | the old units of its section; in a file the ledger did not hold, the whole suite |
+
+A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only.
+
+A `unit` change keeps the radius the whole suite. The H7 study of [blast radius](concepts/blast-radius.md#advisory-section-selection) was repeated with block links to units: they missed a flipped block on 2 of 90 mutants and on 4 of 110, the same mutants as section links, with Wilson 95% upper bounds of 7.7% and 9.0%. That is above the 5% the selection needs to become a filter. `packages/estate/test/pointer/h7-ledger.test.ts` reruns the study.
 
 ### Regression: replay over the corpus
 

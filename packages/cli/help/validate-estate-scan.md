@@ -45,7 +45,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -74,12 +74,13 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--labeler-key <variable>` | none | the environment variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>` | `4` | requests in flight at once; the labels, the ledger and the cassette bytes do not depend on it |
 | `--labels <file>` | the shipped `agent-rules` set | the label sets, a YAML file |
-| `--ledger <file>` | none | the ledger of unit ids; read at the start, rewritten at the end |
-| `--ledger-check` | off | with `--ledger`: write nothing, and exit 1 when the ledger is out of date |
+| `--ledger <file>` | none | the ledger of unit ids; read at the start. Without `--update` it is not written: the scan says so when the files changed |
+| `--update` | off | with `--ledger`: write the ledger of the files as they are now. Commit it: `radius ledger` and `estate diff --old-ledger` read it as the last scan |
+| `--ledger-check` | off | with `--ledger`: write nothing, and exit 1 when the ledger is out of date. It does not go with `--update` |
 
 `--replay` and `--no-model` do not go together. With neither, the scan calls a model and needs a key.
 `--pointer` replaces the model call: it does not go with `--replay` or `--no-model`, and `--cassette`,
-`--record`, `--labels`, `--labeler`, `--jobs` and `--ledger` need it.
+`--record`, `--labels`, `--labeler`, `--jobs`, `--ledger` and `--update` need it.
 
 ### The pointer reader
 
@@ -103,6 +104,8 @@ No word list and no grammar rule decides what is a rule.
 * The cassette keeps every labeler answer, keyed by the hash of the whole request and of what identifies it: the labeler, its model, the set, the versions of the prompt, the cut and the run.
   A changed prompt, set, model, labeler or cut misses, and the error names the field that differs from the
   nearest entry. A scan without `--record` never calls a labeler, so a replay needs no key and no network.
+  An answer that cannot be read after two asks is recorded as a failed window, so a replay lists the same window
+  with no call; delete that entry to ask again.
 * The answer is checked: a label not in the set, a unit not in the window, a unit named twice, a target that
   is no unit number, a target on `none` or where none is allowed, or choice probabilities that do not sum to 1
   is refused and listed (probabilities are never normalised). A unit no accepted answer names is counted as unlabeled.

@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 /**
  * Links from a block to what it tests: a prompt section, a clause of a written spec, a rule of a map, the
- * plan row the block was written for, or a past conversation turn. Links live in the spec's `metadata.links` and are kept out of the spec hash
+ * plan row the block was written for, a past conversation turn, or a unit of an estate's prose by its ledger id.
+ * Links live in the spec's `metadata.links` and are kept out of the spec hash
  * (spec/identity.ts), so adding, promoting or refuting a link never invalidates a recorded run, a
  * carry or a rejudge.
  *
@@ -80,6 +81,19 @@ export const PlanRowTarget = z
       .describe("The values of the row's cell, by variable, with the values the block adds."),
   })
   .describe('The row of a plan a generator wrote the block for, with its values.');
+export const EstateUnitTarget = z
+  .strictObject({
+    kind: z.literal('estate_unit'),
+    unit: z.string().min(1).describe('The unit id in the estate ledger.'),
+    fp: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The fingerprint of the unit when the link was made or last accepted.'),
+  })
+  .describe(
+    'A unit of an estate prose file, by its persistent id in the ledger (`estate scan --pointer --ledger`).',
+  );
 
 export const LinkTarget = z.discriminatedUnion('kind', [
   PromptSectionTarget,
@@ -87,6 +101,7 @@ export const LinkTarget = z.discriminatedUnion('kind', [
   SourceTurnTarget,
   RuleTarget,
   PlanRowTarget,
+  EstateUnitTarget,
 ]);
 export type LinkTarget = z.infer<typeof LinkTarget>;
 
@@ -118,7 +133,7 @@ export const BlockLink = z
       .describe('What supports the status, keyed by status, such as verified: {mutant, runs, flips}.'),
   })
   .describe(
-    'One link from a block of the spec to a prompt section, a spec clause, a rule, a plan row or a past turn.',
+    'One link from a block of the spec to a prompt section, a spec clause, a rule, a plan row, a past turn or an estate unit.',
   );
 export type BlockLink = z.infer<typeof BlockLink>;
 
