@@ -1,3 +1,7 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { plan, weights } from './shard-plan.mjs';
 
@@ -44,4 +48,46 @@ describe('the shard plan', () => {
       plan(files.slice(0, 3), durations, 5).shards.filter((shard) => shard.files.length === 0),
     ).toHaveLength(2);
   });
+});
+
+describe('the shard plan the CI writes', () => {
+  it('holds every test file vitest lists, .ts and .mjs, each in exactly one shard', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'shard-plan-'));
+    try {
+      const out = join(dir, 'plan.json');
+      const written = spawnSync(
+        process.execPath,
+        ['tools/ci/shard-plan.mjs', '--count', '32', '--out', out],
+        {
+          encoding: 'utf8',
+        },
+      );
+      expect(written.status, written.stderr).toBe(0);
+      // The listing is read here from vitest itself, with no filter of ours between it and the comparison.
+      const listed = spawnSync('pnpm', ['exec', 'vitest', 'list', '--filesOnly'], {
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      expect(listed.status, listed.stderr).toBe(0);
+      const all = listed.stdout
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line !== '');
+      expect(all.some((file) => file.endsWith('.mjs'))).toBe(true);
+      expect(all.some((file) => file.endsWith('.ts'))).toBe(true);
+      const planned = JSON.parse(readFileSync(out, 'utf8')).shards.flatMap((shard) => shard.files);
+      const duplicated = planned.filter((file, at) => planned.indexOf(file) !== at);
+      expect(duplicated, 'planned more than once').toEqual([]);
+      expect(
+        all.filter((file) => !planned.includes(file)),
+        'listed, in no shard',
+      ).toEqual([]);
+      expect(
+        planned.filter((file) => !all.includes(file)),
+        'planned, not listed',
+      ).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 120_000);
 });
