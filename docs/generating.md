@@ -71,7 +71,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | Kind | What it says | Acme |
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
-| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move | 14 |
+| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move. The map's reachability, the t-wise target and the cover builder count only these two: a use whose subject is a value of any other kind of dimension (a persona, a channel) opens no cell of a tool failure | 14 |
 | `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
@@ -512,6 +512,14 @@ The files match the committed `examples/acme/generated`, apart from the relative
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase and the approved phrases no walk could say (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
+### Stems: shared openings written once
+
+Many generated specs open the same way: the same first blocks, with the same When, Given and Then. `driftbench generate` writes each such opening once, as a stem under `specs/stems/`, and each spec starts from its stem with `parent: <stem id>#<block id>` on its block 0, its perturbations and end verdict shifted to match. `stems-map.csv` maps every block as generated (`old_spec,old_index,old_block`) to where it is now (`new_spec,new_block`), with how many specs share it. `generate-report.json` counts the stems, the specs that start from one, and the blocks written once. `--no-stems` writes every spec whole.
+
+Two specs share an opening only when they share the keys the run reads (kind, channel, lang, target, Given defaults, stages, rules) and the definitions of the criteria the shared blocks name. A spec never shares its last block, nor a block at or after a perturbation or its end verdict, so it keeps its own end state, criteria and perturbations. Loaded with its folder, or from a seeder folder with `specs/stems/` beside it, a spec is written back out whole and means what it meant: the runner replays the stem's blocks first, unscored, and blocks the spec when one of them does not pass. A stem is run and scored as a spec of its own; coverage and the pilot count the specs it opens, never the stem. See [a parent in another spec](concepts/given-when-then.md#a-parent-in-another-spec).
+
+On the approved Acme map, the committed suite has 101 stems: 212 of the 437 complete specs start from one, and 296 blocks are written once instead of once per spec. Loaded as a folder, each of the 437 specs is written back out to the blocks it had. On the Acme sales agent, in modes T and F, all 874 cells keep their state and the verdicts of their own blocks, and all 202 stem cells pass. The streaming writer, `generateSuiteToDisk`, reads one spec at a time and writes every spec whole; `generateSuite` writes stems with `stems: true`.
+
 ## Streaming generation to disk
 
 The package API `generateSuiteToDisk(prepared, { mapPath, outputDir, seed, t })` writes each spec as it is rendered. It returns `reportPath`, `summary` and `fileCount`; read the full report from `reportPath`. It writes the same spec files as `generateSuite` with the same options, and a report with the same fields and diagnostics in compact JSON.
@@ -947,7 +955,7 @@ Intake builds the set of real user turns a simulated user is compared against. I
 
 ```
 $ pnpm -s driftbench intake logs _captures/docs3/generating/intake/conversations.jsonl --out _captures/docs3/generating/intake/private --map examples/acme/map/approved.yaml
-Refused: _captures/docs3/generating/intake/private is inside the git work tree /Users/assem/Documents/GitHub/driftbench/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
+Refused: _captures/docs3/generating/intake/private is inside the git work tree <repo>/.worktrees/docs3. Past conversations never enter a repository: choose a private folder outside any git work tree.
 exit 2
 ```
 

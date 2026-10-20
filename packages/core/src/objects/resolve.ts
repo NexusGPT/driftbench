@@ -45,12 +45,19 @@ export class ObjectRegistry {
   readonly #kinds = new Map<string, KindDef>();
   readonly #impls = new Map<string, ImplDef>();
   readonly #shipped = new Map<string, { raw: unknown; path: string }>();
+  #revision = 0;
+
+  /** Changes each time a kind, an implementation or a shipped object is registered, or a snapshot restored. */
+  get revision(): number {
+    return this.#revision;
+  }
 
   registerKind(def: KindDef): this {
     if (this.#kinds.has(def.kind)) throw new Error(`the object kind ${def.kind} is already registered`);
     const parsed = Envelope.shape.kind.safeParse(def.kind);
     if (!parsed.success) throw new Error(`${def.kind}: ${parsed.error.issues[0]?.message ?? 'invalid kind'}`);
     this.#kinds.set(def.kind, def);
+    this.#revision++;
     return this;
   }
 
@@ -59,6 +66,7 @@ export class ObjectRegistry {
       throw new Error(`an implementation is named builtin:<name> or plugin:<name>: ${name}`);
     if (this.#impls.has(name)) throw new Error(`the implementation ${name} is already registered`);
     this.#impls.set(name, def);
+    this.#revision++;
     return this;
   }
 
@@ -71,6 +79,7 @@ export class ObjectRegistry {
     const key = `${head.data.kind}:${head.data.id}`;
     if (this.#shipped.has(key)) throw new Error(`the shipped object ${key} is already registered`);
     this.#shipped.set(key, { raw, path });
+    this.#revision++;
     return this;
   }
 
@@ -90,6 +99,7 @@ export class ObjectRegistry {
     for (const [key, value] of snapshot.impls) this.#impls.set(key, value);
     this.#shipped.clear();
     for (const [key, value] of snapshot.shipped) this.#shipped.set(key, value);
+    this.#revision++;
   }
 
   kind(name: string): KindDef | undefined {
@@ -254,20 +264,33 @@ export function parseObjectText(text: string, path: string): { raw: unknown; lin
  * at the project, suite, spec, block and command-line layers. A kind and id defined at several layers resolves
  * to the strongest; the same kind and id twice at one layer, or a shipped one defined again, is refused.
  */
+/** Shipped entries already read, by the object's raw value: see `ObjectStore.#shippedEntry`. */
+const SHIPPED_ENTRIES = new WeakMap<object, { def: KindDef; path: string; entry: Entry }>();
+
 export class ObjectStore {
   readonly registry: ObjectRegistry;
   readonly #entries = new Map<string, Entry[]>();
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
-  constructor(registry: ObjectRegistry = objectRegistry) {
+  /**
+   * A store of the registry's shipped objects. With `base`, a store of the same registry, it starts from what
+   * `base` holds and shares its resolutions until something is added to it; `base` never sees what is added here.
+   */
+  constructor(registry: ObjectRegistry = objectRegistry, base?: ObjectStore) {
     if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
+    if (base !== undefined && base.registry === registry) {
+      for (const [key, entries] of base.#entries) this.#entries.set(key, [...entries]);
+      this.#resolved = base.#resolved;
+      return;
+    }
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }
 
   /** Adds an object file's parsed content at a layer. */
   add(raw: unknown, layer: Layer, source: ObjectSource, rank = 0): void {
-    const entry = this.#entryOf(raw, layer, source, rank);
+    const entry =
+      layer === 'shipped' ? this.#shippedEntry(raw, source) : this.#entryOf(raw, layer, source, rank);
     const key = `${entry.kind}:${entry.id}`;
     const known = this.#entries.get(key) ?? [];
     const shipped = known.find((other) => other.layer === 'shipped');
@@ -363,6 +386,20 @@ export class ObjectStore {
       places: patches.map((patch) => `${place} --set ${base.kind}#${patch.id}`),
     };
     return this.#resolveEntry(entry, [], base);
+  }
+
+  /**
+   * A shipped object is read once per kind definition: every store holds the same shipped objects, and reading
+   * one again parses and checks the same data again. An entry is never changed after it is made.
+   */
+  #shippedEntry(raw: unknown, source: ObjectSource): Entry {
+    if (!isPlainObject(raw) || source.lines !== undefined) return this.#entryOf(raw, 'shipped', source, 0);
+    const def = typeof raw.kind === 'string' ? this.registry.kind(raw.kind) : undefined;
+    const cached = SHIPPED_ENTRIES.get(raw);
+    if (cached && cached.def === def && cached.path === source.path) return cached.entry;
+    const entry = this.#entryOf(raw, 'shipped', source, 0);
+    if (def) SHIPPED_ENTRIES.set(raw, { def, path: source.path, entry });
+    return entry;
   }
 
   #entryOf(raw: unknown, layer: Layer, source: ObjectSource, rank: number): Entry {

@@ -74,6 +74,7 @@ export {
   SEEDERS,
   type Seeder,
   type SeederTotals,
+  STEM_MAP_FILE,
   type StageGraph,
   selectBudget,
   slicedLhs,
@@ -555,11 +556,13 @@ export {
   createAnthropicPort,
   createOpenAiPort,
   DEFAULT_ANTHROPIC_MODEL,
+  errorText,
   type FakeAnswer,
   FakeModelPort,
   type FetchLike,
   familyOf,
   type HttpOptions,
+  isRecord,
   ModelError,
   type ModelErrorCode,
   ModelErrorCodes,
@@ -569,6 +572,7 @@ export {
   PROVIDERS,
   type Provider,
   portFromEnv,
+  postJson,
 } from './model';
 export {
   analysePilot,
@@ -654,3 +658,17 @@ export {
   specOfKey,
   spendQuery,
 } from './select';
+export {
+  STEM_MAP_HEADER,
+  type StemMapRow,
+  type StemPassResult,
+  stemMapCsv,
+  stemPass,
+} from './stems/post-pass';
+export {
+  type StemForest,
+  type StemForestOptions,
+  type StemNode,
+  type StemRow,
+  stemForest,
+} from './stems/trie';
