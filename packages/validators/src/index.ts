@@ -11,6 +11,7 @@ export {
   formatAllFailing,
   stripCauseTag,
   stripHint,
+  stripOwnCause,
 } from './audit';
 export {
   type BankRow,
