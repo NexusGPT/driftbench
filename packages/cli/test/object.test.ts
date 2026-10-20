@@ -54,6 +54,7 @@ describe('driftbench object list and show', () => {
       out: lines(
         'check-set           default               shipped  c6d980a7',
         'check-set           no-accuracy           project  2bf086d2  driftbench.yaml#objects.0',
+        'diagnostic          argument-accuracy     shipped  c45c26ac',
         'diagnostic          code-agent-liability  shipped  c5c80f0e',
         'diagnostic          fix-plan              shipped  3733339c',
         'diagnostic          flaky-block           shipped  eb0bc971',
@@ -266,11 +267,13 @@ describe('driftbench object diff and graph', () => {
         '    blame -> policy/blame:default@47a04623  (shipped default)',
         '    placement -> policy/placement:default@59475833  (shipped default)',
         '    check_set -> check-set:no-accuracy@2bf086d2  (block blocks.0.uses.check_set, extends check-set:default)',
+        '    diagnostics -> diagnostic:argument-accuracy@c45c26ac  (shipped default)',
         '  b2',
         '    value_check -> policy/value-check:acme@b4997f3e  (spec uses.value_check, extends policy/value-check:default)',
         '    blame -> policy/blame:default@47a04623  (shipped default)',
         '    placement -> policy/placement:default@59475833  (shipped default)',
         '    check_set -> check-set:default@c6d980a7  (shipped default)',
+        '    diagnostics -> diagnostic:argument-accuracy@c45c26ac  (shipped default)',
       ),
       err: '',
     });
@@ -346,6 +349,7 @@ describe('driftbench object validate', () => {
       out: lines(
         '✓ check-set:default@c6d980a7  shipped',
         '✓ check-set:no-accuracy@2bf086d2  driftbench.yaml#objects.0',
+        '✓ diagnostic:argument-accuracy@c45c26ac  shipped',
         '✓ diagnostic:code-agent-liability@c5c80f0e  shipped',
         '✓ diagnostic:fix-plan@3733339c  shipped',
         '✓ diagnostic:flaky-block@eb0bc971  shipped',
@@ -355,7 +359,7 @@ describe('driftbench object validate', () => {
         '✓ policy/placement:default@59475833  shipped',
         '✓ policy/value-check:acme@b4997f3e  driftbench/policy/value-check/acme.yaml',
         '✓ policy/value-check:default@f35db486  shipped',
-        '11 objects valid.',
+        '12 objects valid.',
       ),
       err: '',
     });
