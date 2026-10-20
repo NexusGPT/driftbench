@@ -2,16 +2,18 @@
 
 The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
 
-## Round 2: version 4 (pending)
+## Round 2: version 4 (audited at head ac80be2dc, 181 items; the 6 items added after are covered by the findings below)
 
 Verdicts are written by the audit helpers only, never by the builder. Each seat is a fresh Sonnet helper at medium effort that has not read the family's `index.ts` items or the builder's handoff (the contract comment at the head of `index.ts` is allowed). Every seat starts from a clean clone of the head under audit and runs from the repository root. The iteration-0 package is the `packages/stats` of that head: it lacks `mixtureWeights` and `mixedStrengthCoverage`, and its `wilson` returns an upper bound below 1 at k = n.
 
 | Check | Verdict | Note |
 |---|---|---|
-| blind pilot | pending | |
-| cheater | pending | |
-| cause review | pending | |
-| planted bugs | pending | |
+| blind pilot | pass | 181 of 181 on 21 seeds after 3 iterations |
+| cheater | fail | value cheats fail; a stack or argv sniff and a read through a native frame gain 87 to 89 items on the full bank. Frame holes for every ladder: assigned to the frame lane (`next-frame-guard`), not fixed here. Dense coverage items that a full-coverage stub passed: fixed here |
+| cause review | pass | 30 of 30 agree with the builder's tags; 4 distinct causes reviewed |
+| planted bugs | fail | 18 of 20 caught; the 2 missed (C5, K2b) are now items |
+
+The two fails do not hold this PR in place of fixes: the planted-bugs check reruns on a fresh set of bugs, and the frame holes are fixed for all ladders by the frame lane.
 
 ### Commands per seat
 
@@ -56,11 +58,11 @@ Still owed from round 1: the frame fix that runs the product in a child process 
 | Family | Items | Failing on the base product, seeds 1 to 20 | Cause |
 |---|---|---|---|
 | weights-agreement | 62 | 0 | (regression items: cohenKappa weights over the given category order, krippendorffAlpha with missing values) |
-| weights-wilson | 35 | 6 | wilson gives an upper bound below 1 for k = n (0.9999999999999998 for wilson(1000325, 1000325)) |
+| weights-wilson | 35 | 7 | wilson gives an upper bound below 1 for k = n (0.9999999999999998 for wilson(1000325, 1000325)), and a lower bound above 0 at k = 0 (6 and 1 items) |
 | weights-mixture | 49 | 49 | mixtureWeights is missing from @agent-nexus/driftbench-stats |
 | weights-coverage | 41 | 41 | mixedStrengthCoverage is missing from @agent-nexus/driftbench-stats |
 
-Three causes in 187 items. The family alone cannot meet section 12.4: 3 causes against the gate's 100 (the gate reads the whole bank).
+Four causes in 187 items (mixtureWeights missing, mixedStrengthCoverage missing, the Wilson upper bound at k = n, the Wilson lower bound at k = 0). The family alone cannot meet section 12.4: 4 causes against the gate's 100 (the gate reads the whole bank).
 
 ## Doc sentences owed (docs/statistics/ belongs to its page owner)
 
@@ -75,6 +77,12 @@ The seat missed two bugs, which became six items (the audit rule: a missed bug b
 |---|---|---|
 | C5 coverage axis check `a >= levels.length` becomes `a > levels.length` | `weights.mixed-strength.refuse.axis-equal-levels` (also `axis-negative`, `axis-fraction`) | the pilot passes all three; with C5 planted, `axis-equal-levels` fails |
 | K2b `cohenKappa` returns 0 when the expected agreement is 1 (two identical constant raters) | `weights.kappa.constant-identical.{string,number,boolean}`, each unweighted and weighted linear and quadratic | the pilot passes all three; with K2b planted, all three fail |
+
+### Advice from the cause reviewer, for the next round
+
+* Stratify the 30-item sample by cause. A random 30 of 94 missed the one-item Wilson k = 0 cause.
+* Run the cause review on the pilot product, not on iteration 0. On iteration 0, 92 of the 94 failing weights items fail for the same reason (two functions are missing), so agreement of 1.0 says little about the diagnostic quality of the items; failures on a pilot product are real defects (the unreachable-count case is one).
+* `--blind` still prints the cause: every failing detail starts with `[family, tier N, cause: ...]`, so the check cannot run blind as written. The leak goes to the frame lane (`next-frame-guard`); a test must show no blind detail contains `cause:`.
 
 ### Round 2 findings, cheater and blind pilot seats
 
