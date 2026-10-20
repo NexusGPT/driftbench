@@ -1,4 +1,4 @@
-Impact of the estate diff 7e588ad44bef to 413ac5407563 on 8 live estate tests (0 retired before, 0 other specs).
+Impact of the estate diff 6197cb823bdd to c7c7969dbbbb on 8 live estate tests (0 retired before, 0 other specs).
   Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 23 atoms moved with the same quote.
 Regenerate:
   northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed

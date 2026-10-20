@@ -30,7 +30,6 @@ const REMOVED: Record<string, readonly string[]> = {
     'HISTORY_VERB',
     'REFERENCE_ACT',
     'scriptInvocation',
-    'namedReferences',
     'referenceClauses',
     'gateClauses',
     'directiveHead',

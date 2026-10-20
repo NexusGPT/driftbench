@@ -38,9 +38,8 @@ describe('file names containing spaces', () => {
       lintEstate(map, raw).findings.filter((f) => f.code === 'MISSING_REFERENCE' || f.code === 'ORPHAN'),
     ).toEqual([]);
   });
-  it('keeps a simple execution or command example separate from a literal file name', () => {
-    expect(namedPaths('Run `cat notes.md`.')).toEqual([]);
-    expect(namedPaths('Example: `cat notes.md`.')).toEqual([]);
-    expect(namedPaths('Read `cat notes.md`.')).toEqual(['cat notes.md']);
+  it('keeps a command led by a plain word apart from a file name, whatever the words around it', () => {
+    for (const line of ['Run `cat notes.md`.', 'Example: `cat notes.md`.', 'Read `cat notes.md`.'])
+      expect(namedPaths(line)).toEqual([]);
   });
 });

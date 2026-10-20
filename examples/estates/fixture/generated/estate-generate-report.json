@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
-    "atoms": 126
+    "hash": "6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485",
+    "atoms": 127
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1631,
-    "approved": 1631,
+    "rows": 1633,
+    "approved": 1633,
     "proposed": 0,
     "struck": 0
   },
@@ -42,11 +42,11 @@
     "judge": true
   },
   "summary": {
-    "specs": 1624,
-    "blocks": 1619,
-    "complete": 1595,
+    "specs": 1626,
+    "blocks": 1621,
+    "complete": 1597,
     "incomplete": 29,
-    "judged": 1000
+    "judged": 999
   },
   "incomplete": [
     {
@@ -482,17 +482,17 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9821428571428571,
-    "askedTests": 1587,
-    "distinctAsks": 108,
-    "distinctAsksPer100": 6.805293005671078
+    "completeShare": 0.9821648216482165,
+    "askedTests": 1589,
+    "distinctAsks": 104,
+    "distinctAsksPer100": 6.544996853366897
   },
   "unit": {
     "tests": 26,
     "guards": 6,
     "scripts": 2,
     "helpers": 3,
-    "cases": 50,
+    "cases": 47,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -506,17 +506,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 1148,
+      "bank": 434,
+      "code": 1149,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 956,
+      "bank": 957,
       "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 137,
-      "no-delete": 410,
+      "no-delete": 411,
       "static": 8
     },
     "judged": 719
@@ -572,9 +572,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 7,
-      "specs": 7,
-      "complete": 7,
+      "rows": 8,
+      "specs": 8,
+      "complete": 8,
       "incomplete": 0
     },
     "script_fixture": {
@@ -686,9 +686,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 10,
-      "specs": 10,
-      "complete": 10,
+      "rows": 11,
+      "specs": 11,
+      "complete": 11,
       "incomplete": 0
     }
   },
@@ -706,9 +706,9 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1588,
-      "specs": 1581,
-      "complete": 1554,
+      "rows": 1590,
+      "specs": 1583,
+      "complete": 1556,
       "incomplete": 27
     }
   },

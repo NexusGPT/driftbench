@@ -4,7 +4,7 @@
   "testType": "guard_positive",
   "atom": "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
   "title": "PreToolUse Bash guard check-carrier.sh",
-  "mapHash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
+  "mapHash": "6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485",
   "target": {
     "kind": "guard",
     "name": "check-carrier.sh",
@@ -18,22 +18,11 @@
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "./scripts/track.sh 123",
+          "command": "./scripts/track.sh NWX 123",
           "description": "unit test"
         }
       },
-      "material": "./scripts/track.sh 123"
-    },
-    {
-      "id": "case-02",
-      "payload": {
-        "tool_name": "Bash",
-        "tool_input": {
-          "command": "./scripts/track.sh NWX",
-          "description": "unit test"
-        }
-      },
-      "material": "./scripts/track.sh NWX"
+      "material": "./scripts/track.sh NWX 123"
     }
   ]
 }

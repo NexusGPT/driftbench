@@ -38,10 +38,8 @@ function headingRole(title: string): DocumentRole | undefined {
  * check mark or a label such as right, good or correct closes it on the same line.
  */
 const WRONG_MARK = String.raw`(?:[✗✘❌]|×|\b(?:wrong|bad|incorrect|anti-?pattern|counter-?example)\b\s*[:：])`;
-const RIGHT_MARK = String.raw`(?:[✓✔✅]|\b(?:right|good|correct|fixed|better)\b\s*[:：])`;
 /** What may precede a marker at the start of a line: a quote, a list bullet or number, a table cell, bold. */
 const LEAD = String.raw`\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?(?:\|\s*)?(?:\*\*|__)?`;
-const WRONG_AT_START = new RegExp(`^(${LEAD})${WRONG_MARK}`, 'iu');
 /** A line holding only the marker: the counter-example is the block that follows. */
 const WRONG_STANDALONE = new RegExp(String.raw`^${LEAD}${WRONG_MARK}(?:\*\*|__)?\s*$`, 'iu');
 
@@ -240,33 +238,6 @@ export function normativeRanges(
   return ranges;
 }
 
-/** A counter-example that opens a line is blanked up to its right marker, or to the end of the line. */
-function maskCounterExamples(line: string): string {
-  const opaque = line.replace(/`[^`]*`/g, (part) => ' '.repeat(part.length));
-  const found = WRONG_AT_START.exec(opaque);
-  if (!found) return line;
-  const start = found[1]?.length ?? 0;
-  const right = new RegExp(RIGHT_MARK, 'iu').exec(opaque.slice(found[0].length));
-  const end = right ? found[0].length + right.index : line.length;
-  return line.slice(0, start) + ' '.repeat(end - start) + line.slice(end);
-}
-
-/** An illustrative prefix ends at an unquoted semicolon; the independent live clause stays visible. */
-export function maskIllustrativePrefixes(text: string): string {
-  return text
-    .split('\n')
-    .map((line) => maskCounterExamples(line))
-    .map((line) => {
-      if (!/^\s*(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line)) return line;
-      const opaque = line.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>
-        ' '.repeat(part.length),
-      );
-      const end = opaque.indexOf(';');
-      return end < 0 ? line : ' '.repeat(end + 1) + line.slice(end + 1);
-    })
-    .join('\n');
-}
-
 /** Apply the same authority boundary to readers of any runtime, including supplied raw estates. */
 export function normativeEstate(raw: RawEstate): RawEstate {
   const unitOf = (path: string) => owningUnit(raw, path);
@@ -291,19 +262,18 @@ export function normativeEstate(raw: RawEstate): RawEstate {
     const file = files.get(chunk.file);
     if (!file) return [chunk];
     const ranges = normativeRanges(file, chunk.startLine, chunk.endLine);
-    const text = maskIllustrativePrefixes(chunk.text);
     if (
       ranges.length === 1 &&
       ranges[0]?.startLine === chunk.startLine &&
       ranges[0].endLine === chunk.endLine
     )
-      return text === chunk.text ? [chunk] : [{ ...chunk, text }];
+      return [chunk];
     return ranges
       .map((range) => ({
         ...chunk,
         id: `${chunk.id}@${range.startLine}`,
         ...range,
-        text: text
+        text: chunk.text
           .split('\n')
           .slice(range.startLine - chunk.startLine, range.endLine - chunk.startLine + 1)
           .join('\n'),

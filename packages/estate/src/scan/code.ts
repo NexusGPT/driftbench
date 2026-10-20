@@ -1,6 +1,6 @@
 import { basename, posix } from 'node:path';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
-import { isNormative, maskIllustrativePrefixes, normativeEstate } from './document-roles';
+import { isNormative, normativeEstate } from './document-roles';
 import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import { ignoredReference, pathReference } from './reference-role';
@@ -490,14 +490,15 @@ export type NamedReference = {
 
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
-  return namedReferences(line).map(({ path }) => path);
+  return pathMentions(line).map(({ path }) => path);
 }
 
-export function namedReferences(line: string): NamedReference[] {
+export function pathMentions(line: string): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
   // `spaced`: the notation delimits the whole name (a link destination, a quotation), so a file name may hold
-  // spaces. A code span or a loose token holds none: a span with a space is a command, not a file name.
+  // spaces. A code span or a loose token holds one only when its first word is itself a path (`references/team notes.md`);
+  // a span led by a plain word (`python3 run.py`) is a command, not a file name.
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
@@ -519,7 +520,7 @@ export function namedReferences(line: string): NamedReference[] {
       /^[a-z]+:/i.test(path) ||
       /[<>*?{}$|;&]/.test(path) ||
       /\s--?\w/.test(path) ||
-      (!options.spaced && /\s/.test(path)) ||
+      (!options.spaced && /\s/.test(path) && !/^[^\s]*[/.][^\s]*\s/.test(path)) ||
       !/\.[A-Za-z0-9]+$/.test(path)
     )
       return;
@@ -776,14 +777,14 @@ function maskedChunkLines(
         ? readFrontmatter(source.text).bodyLine
         : 1;
       const original = source.text.split('\n');
-      lines = maskIllustrativePrefixes(
-        blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')),
-      ).split('\n');
+      lines = blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')).split(
+        '\n',
+      );
       MASKED_PROSE.set(source, lines);
     }
     masked = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n');
   } else masked = blankFences(chunk.text);
-  // The quote is the line as written in the file: masking a counter-example or an illustration never edits it.
+  // The quote is the line as written in the file: masking never edits it.
   const original = source
     ? source.text.split('\n').slice(chunk.startLine - 1, chunk.endLine)
     : chunk.text.split('\n');

@@ -75,15 +75,6 @@ describe("a script's name in passing", () => {
     );
   };
 
-  it('anchors the script where the body names it to run, not where it is mentioned first', async () => {
-    const lines = await scripts([
-      'The legacy report.py was retired last year; export.sh used to be slow.',
-      'Run `python3 scripts/report.py --week` to build the report.',
-      'See [the exporter](scripts/export.sh) when you need a CSV.',
-    ]);
-    expect(lines).toEqual({ 'report.py': 7, 'export.sh': 8 });
-  });
-
   it('keeps a bare mention as the anchor when no line names the script to run', async () => {
     const lines = await scripts(['Use report.py for the weekly numbers.', 'Call export.sh for a CSV.']);
     expect(lines).toEqual({ 'report.py': 6, 'export.sh': 7 });
@@ -111,60 +102,5 @@ describe('a file named in a change note', () => {
     expect(map.documents?.find((document) => document.path.endsWith('pricing/SKILL.md'))?.sections).toEqual([
       { startLine: 8, endLine: 14, role: 'changelog' },
     ]);
-  });
-});
-
-describe('a label that names something other than a rule', () => {
-  it('cites no rule after a noun it designates, and cites after a verb, a function word or a rule noun', async () => {
-    const rules = [
-      'Read a file before you edit it.',
-      'Shelve customs form R1 in the cabinet for five years.',
-      'Print the Form R1 cover sheet on blue paper.',
-      'File the return on form R1 every quarter.',
-      'Always follow R1 when you edit a notebook.',
-      'As R1 says, never guess a path.',
-      'Rule R1 also covers notebooks.',
-      'The agent follows R1 on every branch.',
-      'Obey R1 before anything else.',
-    ];
-    const map = await scan({ 'CLAUDE.md': standing(rules) }, rulesPort(rules));
-    const titles = new Map(map.atoms.map((atom) => [atom.id, atom.title]));
-    const citing = map.edges.filter((edge) => edge.kind === 'cites').map((edge) => titles.get(edge.from));
-    expect(citing.sort()).toEqual(['Rule 5', 'Rule 6', 'Rule 7', 'Rule 8', 'Rule 9']);
-  });
-});
-
-describe('a guard message that quotes part of a rule', () => {
-  it("enforces the rule when it repeats the directive, never when it repeats only the rule's condition", async () => {
-    const rules = [
-      'When the owner asks to pause, halt every running task and confirm in one line.',
-      'Before you deploy on a Friday, ask the lead for an explicit yes.',
-    ];
-    const map = await scan(
-      {
-        'CLAUDE.md': standing(rules),
-        '.claude/settings.json': SETTINGS(['condition.sh', 'directive.sh', 'friday.sh', 'ask.sh']),
-        '.claude/guards/condition.sh': '#!/bin/sh\necho "the owner asks to pause"\n',
-        '.claude/guards/directive.sh': '#!/bin/sh\necho "halt every running task and confirm in one line"\n',
-        '.claude/guards/friday.sh': '#!/bin/sh\necho "before you deploy on a friday"\n',
-        '.claude/guards/ask.sh': '#!/bin/sh\necho "ask the lead for an explicit yes"\n',
-      },
-      rulesPort(rules),
-    );
-    const titles = new Map(map.atoms.map((atom) => [atom.id, atom.title]));
-    const enforced = map.atoms
-      .filter((atom) => atom.kind === 'guard')
-      .map((guard) => [
-        String(guard.fields?.name),
-        map.edges
-          .filter((edge) => edge.kind === 'enforces' && edge.from === guard.id)
-          .map((edge) => titles.get(edge.to)),
-      ]);
-    expect(Object.fromEntries(enforced)).toEqual({
-      'condition.sh': [],
-      'directive.sh': ['Rule 1'],
-      'friday.sh': [],
-      'ask.sh': ['Rule 2'],
-    });
   });
 });

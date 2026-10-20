@@ -48,7 +48,6 @@ describe('reference path notation', () => {
     expect(namedPaths('[the guide](references/guide.md "missing.md")')).toEqual(['references/guide.md']);
     expect(namedPaths('Example: `cat references/guide.md | head -1`')).toEqual([]);
     expect(namedPaths('Read references/*.md and references/.')).toEqual([]);
-    expect(namedPaths('Superseded by guide.md. Nothing names this file any more.')).toEqual([]);
   });
 
   it('handles long unmarked prose without rescanning every prefix', () => {

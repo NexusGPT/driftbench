@@ -1,5 +1,5 @@
 import { foldQuote } from '@agent-nexus/driftbench-generate';
-import { type AtomBuilder, namedPaths, namedReferences } from '../scan/code';
+import { type AtomBuilder, namedPaths, pathMentions } from '../scan/code';
 import { PROSE_KINDS } from '../scan/prose';
 import { type Located, lineAt, quoteAtSpan } from '../scan/text';
 import type { Atom } from '../schema';
@@ -183,7 +183,7 @@ export function pointerAtoms(
       builder.kindOf(item.path) === 'standing' &&
       item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
     const bareNames = new Set(
-      namedReferences(item.unit.text)
+      pathMentions(item.unit.text)
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );

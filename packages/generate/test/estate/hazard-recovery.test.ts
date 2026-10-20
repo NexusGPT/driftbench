@@ -3,32 +3,54 @@ import { type CheckContext, type Observed, parseSpecText, type ToolCall } from '
 import { describe, expect, it } from 'vitest';
 import { type EstateGenerateInput, generateEstateSuite } from '../../src/estate/generate';
 
+// The recovery a hazard demands is declared data (the options of its hazard_recovery evidence): the quote beside
+// each sample is what a word reader would have read the same action from, and it decides nothing.
 const samples = [
-  { kind: 'compaction', quote: 'After compaction, re-read this file before continuing.', read: 'POLICY.md' },
+  {
+    kind: 'compaction',
+    quote: 'After compaction, re-read this file before continuing.',
+    read: 'POLICY.md',
+    declared: { reread: ['POLICY.md'] },
+  },
   {
     kind: 'restart',
     quote: 'After a process restart, run `node tools/recover.mjs`.',
     command: 'node tools/recover.mjs',
+    declared: { calls: [{ label: 'Bash', input: { command: { contains: 'node tools/recover.mjs' } } }] },
   },
-  { kind: 'rate_wave', quote: 'After a rate limit, retry the failed request.', retry: true },
+  {
+    kind: 'rate_wave',
+    quote: 'After a rate limit, retry the failed request.',
+    retry: true,
+    declared: { retry: true },
+  },
   {
     kind: 'session_boundary',
     quote: 'At the start of every session, read `notes/context.md`.',
     read: 'notes/context.md',
+    declared: { reread: ['notes/context.md'] },
   },
   {
     kind: 'notification',
     quote: 'On a helper notification, read `notes/helper.md`.',
     read: 'notes/helper.md',
+    declared: { reread: ['notes/helper.md'] },
   },
   {
     kind: 'nudge_storm',
     quote: 'After repeated nudges, execute `node tools/inspect.mjs`.',
     command: 'node tools/inspect.mjs',
+    declared: { calls: [{ label: 'Bash', input: { command: { contains: 'node tools/inspect.mjs' } } }] },
   },
 ] as const;
 
-function generate(kind: string, quote: string, seed = 1, declared: Record<string, unknown> = {}) {
+function generate(
+  kind: string,
+  quote: string,
+  seed = 1,
+  declared: Record<string, unknown> = {},
+  files?: readonly string[],
+) {
   const atom = {
     id: 'hazard.archive.recovery',
     kind: 'hazard',
@@ -75,6 +97,7 @@ function generate(kind: string, quote: string, seed = 1, declared: Record<string
     seed,
     judge: false,
     paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' },
+    ...(files ? { files } : {}),
   });
   const file = generated.files.find((f) => f.path.endsWith('.yaml'));
   if (!file) throw new Error('missing generated spec');
@@ -118,7 +141,7 @@ async function evaluate(
 describe('handwritten archive hazards assert recovery, not a generic continuation', () => {
   it('keeps quoted retry targets on their original tool instead of inventing a shell command', async () => {
     for (const target of ['https://example.invalid/catalogue', 'Fetch']) {
-      const { spec } = generate('rate_wave', `After a rate limit, retry \`${target}\`.`);
+      const { spec } = generate('rate_wave', `After a rate limit, retry \`${target}\`.`, 1, { retry: true });
       const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
       expect(options.calls).toBeUndefined();
       const request = { url: 'https://example.invalid/catalogue' };
@@ -131,13 +154,23 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       ).toBe(true);
     }
   });
-  it('retains bare recovery filenames with arbitrary extensions and multiple dots', () => {
-    const { generated, spec } = generate(
+  it('rereads only what is declared: a file the passage names and the estate holds is no reread by itself', () => {
+    const named = generate(
       'session_boundary',
-      'At each session boundary, read notes/archive.index.CFG.',
+      'At each session boundary, read `notes/archive.index.CFG`.',
+      1,
+      {},
+      ['POLICY.md', 'notes/archive.index.CFG'],
     );
-    expect(generated.specs[0]?.complete).toBe(true);
-    expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/archive.index.CFG'] });
+    const options = named.spec.rules?.custom?.hazard_recovery as Record<string, unknown> | undefined;
+    expect(options?.reread).toBeUndefined();
+    const declared = generate('session_boundary', 'Resume the session.', 1, {
+      reread: ['notes/archive.index.CFG'],
+    });
+    expect(declared.generated.specs[0]?.complete).toBe(true);
+    expect(declared.spec.rules?.custom?.hazard_recovery).toMatchObject({
+      reread: ['notes/archive.index.CFG'],
+    });
   });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
     const { generated, spec } = generate('restart', 'Resume safely.', 1, {
@@ -151,7 +184,7 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
   for (const sample of samples) {
     it(sample.kind, async () => {
       for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 1019]) {
-        const { generated, spec } = generate(sample.kind, sample.quote, seed);
+        const { generated, spec } = generate(sample.kind, sample.quote, seed, sample.declared);
         expect(generated.specs[0]?.complete).toBe(true);
         const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
         expect(!!options.reread || !!options.calls || options.retry === true).toBe(true);
@@ -184,6 +217,15 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       expect(options.retry).toBeUndefined();
     });
   }
+  for (const sample of samples)
+    it(`${sample.kind}: reads no action from the words of its passage when none is declared`, () => {
+      const { spec } = generate(sample.kind, sample.quote, 1, {}, ['POLICY.md']);
+      const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
+      expect(options.calls).toBeUndefined();
+      expect(options.retry).toBeUndefined();
+      // Only a file the estate holds is reread: POLICY.md is never named by these passages.
+      expect(options.reread).toBeUndefined();
+    });
   for (const quote of [
     'After restart, never run `node tools/unsafe.mjs`.',
     'After restart, do not blindly run `node tools/unsafe.mjs`.',
@@ -199,7 +241,9 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       expect(options.retry).toBeUndefined();
     });
   it('does not accept a different input as retrying the failed request', async () => {
-    const { spec } = generate('rate_wave', 'After a rate limit, retry the failed request.');
+    const { spec } = generate('rate_wave', 'After a rate limit, retry the failed request.', 1, {
+      retry: true,
+    });
     const verdicts = await evaluate(
       'rate_wave',
       spec.rules?.custom?.hazard_recovery,

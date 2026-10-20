@@ -190,18 +190,18 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
     expect(out.source).toBe('skill.harbour.skill (asks it names)');
   });
 
-  it('asks the work of the route nearest a standing rule, and no route when it shares no word', () => {
+  it('asks the work of the first route for a standing rule, whatever words the rule shares with another route', () => {
     const shared = atom('instruction.standing.quay-fees', {
       title: 'Quote the fee of a quay in euros',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
     });
-    expect(ask([shared]).text).toBe('Please book a quay for a visiting vessel.');
+    // The fee rule shares "quay" with the second route: a word reader would ask for that route's work.
+    expect(ask([shared]).text).toBe('Please read the tide table for a port.');
     const none = atom('instruction.standing.greet', {
       title: 'Greet the harbour master first',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
     });
-    expect(ask([none]).text).toBeUndefined();
-    expect(ask([none]).refused).toMatch(/describes the unit/);
+    expect(ask([none]).text).toBe('Please read the tide table for a port.');
   });
 
   it('asks what the trigger of a gate names, and refuses a rule when no route gives work', () => {
@@ -211,11 +211,12 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       fields: { trigger: 'pay a berth fee' },
     });
     expect(ask([gate]).text).toBe('Please pay a berth fee.');
-    // A trigger that names its act as a gerund asks for the act: editing -> edit, writing -> write, committing -> commit.
+    // A trigger in another verb form is not rewritten from its spelling: a word reader would turn "editing" into
+    // "edit". With no unit that carries the gate, no route is its work and it waits for a phrase.
     for (const [trigger, asked] of [
-      ['editing any berth file', 'Please edit any berth file.'],
-      ['writing the harbour report', 'Please write the harbour report.'],
-      ['committing the berth plan', 'Please commit the berth plan.'],
+      ['editing any berth file', undefined],
+      ['writing the harbour report', undefined],
+      ['committing the berth plan', undefined],
       ['the berth fee', undefined],
     ] as const) {
       const timed = atom('gate.standing.timed', {
@@ -240,7 +241,7 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
     });
     expect(ask([actless]).text).toBeUndefined();
     expect(ask([actless]).refused).toMatch(/no task/);
-    // A standing instruction takes the work of the route that shares a word with it, and of no unrelated route.
+    // A standing instruction takes the work of the first route.
     const standing = atom('instruction.standing.log-first', {
       title: 'Check the tide table before you answer',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
@@ -250,7 +251,7 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       title: 'Check the harbour log before you answer',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
     });
-    expect(ask([unrelated]).text).toBeUndefined();
+    expect(ask([unrelated]).text).toBe('Please read the tide table for a port.');
     const bare = atom('instruction.standing.log', { title: 'Log every mooring change in the harbour book' });
     expect(codeAsk('trigger', [bare], []).refused).toMatch(/no task/);
   });

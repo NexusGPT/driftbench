@@ -4,7 +4,7 @@
   "testType": "guard_negative",
   "atom": "guard.settings.pretooluse-edit-write-guard-read-before",
   "title": "PreToolUse Edit|Write guard read-before-edit.py",
-  "mapHash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
+  "mapHash": "6197cb823bdde3e6cf5aab624b4e1e28f0d53570c554f629e8834b2dc4e0e485",
   "target": {
     "kind": "guard",
     "name": "read-before-edit.py",

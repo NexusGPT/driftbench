@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-19T09:23:59.531Z
+readAt: 2026-10-20T06:43:21.359Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -1758,6 +1758,34 @@ atoms:
       polarity: obligation
       spans:
         - ./scripts/track.sh NWX 123
+  - id: reference.shipment-tracker.read-track-sh
+    kind: reference
+    title: Read track.sh
+    provenance:
+      file: .claude/skills/shipment-tracker/SKILL.md
+      startLine: 16
+      endLine: 16
+      quote: Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`.
+      hash: 93ecbd29ff3507a287a46df73bd37d0fe3fa5f26e297e404a880119f7aca992a
+    producedBy: model
+    role: detail
+    approved: false
+    situation: Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2pgcgb6enm, set: agent-rules, label: rule } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/shipment-tracker/scripts/track.sh } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/shipment-tracker/scripts/track.sh
+      exists: true
+      resolvedBy: suffix
+      readWhen: Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`.
+      from: .claude/skills/shipment-tracker/SKILL.md
+      extraction: pointer
+      unit: 2pgcgb6enm
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
   - id: instruction.shipment-tracker.when-the-carrier-answers-with-an
     kind: instruction
     title: When the carrier answers with an error, say so and give the carrier's own tracking page;…
@@ -3259,6 +3287,7 @@ edges:
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.invoice-reconcile.declared-bash, kind: allows }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.settings.allow-read, kind: allows }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: reference.shipment-tracker.read-data-shipments-txt, kind: reference }
+  - { from: skill.shipment-tracker.skill-shipment-tracker, to: reference.shipment-tracker.read-track-sh, kind: reference }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: script.shipment-tracker.script-scripts-track-sh, kind: script }
   - { from: skill.supplier-email.skill-supplier-email, to: reference.supplier-email.read-claude-memory-supplier-languages-md, kind: reference }
   - { from: skill.weekly-report.skill-weekly-report, to: tool.invoice-reconcile.declared-bash, kind: allows }
@@ -3280,5 +3309,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-19T09:23:59.531Z
-hash: 413ac5407563cd4d7b1680d03643cf668d4947e1e7a54767a19f6415b8c0e3ef
+  at: 2026-10-20T06:43:21.359Z
+hash: c7c7969dbbbbea2166fbcbbc9b7e5e85475dbbe730372ba870f436ae1db62bf9
