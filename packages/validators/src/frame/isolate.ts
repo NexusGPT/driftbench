@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { confine, seal } from './confine';
+import { confine, SourceGuard, seal } from './confine';
 import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
@@ -196,7 +196,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
-  const sealed = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  const { file: sealed, inputs } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`));
+  // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
+  const guard = new SourceGuard([...inputs, ...(options.reads ?? [])]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
@@ -292,6 +294,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       if (!('dead' in c)) entry.plain = c;
       if (first === undefined && kept(a) !== kept(c))
         first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+      const changed = guard.check();
+      if (first === undefined && changed.length > 0)
+        first = `${head}: run C wrote the product's files (${changed.map((path) => path.split('/').slice(-2).join('/')).join(', ')}); they are put back`;
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret);
@@ -342,7 +347,12 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
-  const sealed = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
+  const { file: sealed, inputs } = seal(
+    resolve(script),
+    sealFolder,
+    drawnFolder(options.seed, `bundle:${tag}:command`),
+  );
+  const guard = new SourceGuard(inputs);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
@@ -414,6 +424,9 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     (typeof results)[number],
   ];
   let divergence: string | undefined;
+  const changedByC = guard.check();
+  if (changedByC.length > 0)
+    divergence = `run C wrote the command's files (${changedByC.join(', ')}); they are put back`;
   const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
       divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
