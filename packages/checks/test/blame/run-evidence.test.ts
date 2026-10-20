@@ -685,4 +685,28 @@ describe('a spec names its estate map relative to the spec file', () => {
     expect(diagnosis.disposition).toBe('agent');
     expect(diagnosis.fixTarget ?? diagnosis.fixLocation).toContain('CLAUDE.md');
   });
+
+  it('says so when the map the spec names is not there, and still attributes what it can', async () => {
+    write({
+      'estate/specs/lost.yaml': [
+        'id: estate-lost',
+        'uses: { diagnostics: [code-agent-liability] }',
+        'metadata:',
+        '  estate:',
+        '    atoms: [instruction.standing.tell-the-user-about-a-late]',
+        '    map: ../missing-map.yaml',
+        'blocks:',
+        '  - user: Where is shipment NW-55012?',
+        '    expect: { must: [late] }',
+        '',
+      ].join('\n'),
+    });
+    const stored = await run('estate/specs/lost.yaml', { text: 'It is on the way.' });
+    const error = (stored.blocks[0]?.diagnoses ?? []).find((one) =>
+      one.flags?.includes('error:estate_map_not_found'),
+    );
+    expect(error?.summary).toContain(join(root, 'estate', 'missing-map.yaml'));
+    expect(error?.confidence).toBe('undecided');
+    expect(diagnosisOf(stored, 'must.0').disposition).toBe('unassigned');
+  });
 });

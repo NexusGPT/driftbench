@@ -85,6 +85,17 @@ export function expectView(expect: Expect | undefined): evidence.BlockExpect {
   };
 }
 
+/** The resolved path of the estate map a spec names, when the file is not there. */
+export function missingEstateMap(
+  spec: Pick<Spec, 'metadata'>,
+  specDir: string | undefined,
+): string | undefined {
+  const named = estateMetadata(spec).map;
+  if (named === undefined) return undefined;
+  const path = specDir === undefined ? resolve(named) : resolve(specDir, named);
+  return existsSync(path) ? undefined : path;
+}
+
 export type BlockInputSource = {
   observed: Observed;
   verdicts: readonly Verdict[];
