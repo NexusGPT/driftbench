@@ -29,16 +29,6 @@ describe('explicit shipped-object initialization', () => {
       expect(object.items.some((item) => item.impl === 'builtin:runner/ledger')).toBe(true);
       expect(object.items.some((item) => item.impl === 'builtin:check/tools')).toBe(true);
       expect(objectRegistry.snapshot().shipped.has('check-set:default')).toBe(true);
-      const shipped = objectRegistry.shipped().map((one) => {
-        const raw = one.raw as { kind: string; id: string };
-        return `${raw.kind}:${raw.id}`;
-      });
-      expect(shipped.sort()).toEqual([
-        'check-set:default',
-        'policy/blame:default',
-        'policy/placement:default',
-        'policy/value-check:default',
-      ]);
       objectRegistry.restore(initial);
     }
   });

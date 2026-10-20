@@ -1,12 +1,8 @@
-import {
-  initializeShippedObjects,
-  ObjectRegistry,
-  ObjectStore,
-  objectRegistry,
-  parseObjectText,
-} from '@agent-nexus/driftbench-core';
+import { ObjectRegistry, ObjectStore, objectRegistry, parseObjectText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { blame } from '../../src';
+import { blame, initializeShippedObjects } from '../../src';
+
+initializeShippedObjects();
 
 /**
  * The shipped blame and placement files are data that resolve through the object framework: 32 blame items and
@@ -15,7 +11,6 @@ import { blame } from '../../src';
  */
 
 function store(): ObjectStore {
-  initializeShippedObjects();
   const registry = new ObjectRegistry();
   for (const kind of objectRegistry.kinds()) registry.registerKind(kind);
   blame.registerBlameObjects(registry);
@@ -24,6 +19,44 @@ function store(): ObjectStore {
 
 const add = (target: ObjectStore, text: string) =>
   target.add(parseObjectText(text, 'project.yaml').raw, 'project', { path: 'project.yaml' });
+
+describe('registerBlameObjects', () => {
+  const freshRegistry = (): ObjectRegistry => {
+    const registry = new ObjectRegistry();
+    for (const kind of objectRegistry.kinds()) registry.registerKind(kind);
+    return registry;
+  };
+
+  it('registers nothing more on a second call, on a fresh registry', () => {
+    const registry = freshRegistry();
+    blame.registerBlameObjects(registry);
+    const first = registry.snapshot();
+    expect(first.shipped.size).toBeGreaterThan(0);
+    expect(first.impls.size).toBeGreaterThan(0);
+    expect(() => blame.registerBlameObjects(registry)).not.toThrow();
+    const second = registry.snapshot();
+    expect([...second.shipped.keys()]).toEqual([...first.shipped.keys()]);
+    expect([...second.impls.keys()]).toEqual([...first.impls.keys()]);
+    expect(registry.shipped()).toHaveLength(first.shipped.size);
+  });
+
+  it('registers again after a restore, and not twice on the shared registry', () => {
+    const initial = objectRegistry.snapshot();
+    try {
+      objectRegistry.restore({ ...initial, shipped: new Map(), impls: new Map() });
+      blame.registerBlameObjects();
+      const once = objectRegistry.snapshot();
+      blame.registerBlameObjects();
+      const twice = objectRegistry.snapshot();
+      expect(once.shipped.size).toBeGreaterThan(0);
+      expect([...twice.shipped.keys()]).toEqual([...once.shipped.keys()]);
+      expect([...twice.impls.keys()]).toEqual([...once.impls.keys()]);
+      expect(objectRegistry.shipped()).toHaveLength(once.shipped.size);
+    } finally {
+      objectRegistry.restore(initial);
+    }
+  });
+});
 
 describe('policy/blame:default and policy/placement:default', () => {
   it('ship 32 blame items and 13 placement items, in the order of the design', () => {

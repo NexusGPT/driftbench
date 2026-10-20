@@ -5,6 +5,7 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, extendHistory, freezeHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { type DiagnosticBudget, runRunDiagnostics } from '../diagnostics/run';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
@@ -105,6 +106,8 @@ export type RunOptions = {
    * and every block records the objects it resolved to.
    */
   objects?: ObjectContext;
+  /** What the diagnostics of each block may spend: the number of `run` and `model` steps. Default 0: static steps only. */
+  diagnosticBudget?: DiagnosticBudget;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
    *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
    *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
@@ -311,6 +314,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     scoringOf,
+    diagnosticBudget: options.diagnosticBudget ?? {},
     toolPolicy: options.toolPolicy,
     onEvent: reportEvent,
     cache,
@@ -351,6 +355,16 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     replayed ??
     (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
+  // Run-scope diagnostics read every block's verdicts once the run is done; they never change a pass.
+  const spanning = scoringOf(-1).used;
+  const runScoped = await runRunDiagnostics(
+    spanning.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+    result,
+    spanning,
+    options.diagnosticBudget,
+  );
+  if (runScoped.diagnoses.length > 0) result.diagnoses = runScoped.diagnoses;
+  if (runScoped.skippedForBudget > 0) result.skippedForBudget = runScoped.skippedForBudget;
   reportEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
   const parsed = RunResult.parse(
@@ -394,6 +408,7 @@ type RunContext = {
   checks: CheckSet;
   /** The objects and the scoring plan of a spec block; -1 for a step the driver injected, which reads the spec's. */
   scoringOf: (blockIndex: number) => BlockScoring;
+  diagnosticBudget: DiagnosticBudget;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
@@ -673,6 +688,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               run.scoringOf(step.blockIndex),
               planned.lastSpecBlock && composed ? endStateValue(run.endState, sources, composed) : undefined,
               run.artifacts,
+              run.diagnosticBudget,
             ),
           );
         }
@@ -1032,6 +1048,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           users,
           contradictions: facts.contradictions,
         },
+        run.diagnosticBudget,
       );
       const block = {
         index: position,
