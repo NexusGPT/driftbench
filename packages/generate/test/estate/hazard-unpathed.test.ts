@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { declaredRecovery } from '../../src/estate/declared-recovery';
 import { type EstateGenerateInput, generateEstateSuite } from '../../src/estate/generate';
-import { recoveryAction } from '../../src/estate/recovery';
 
 const atomOf = (quote: string, recovery: Record<string, unknown> = {}) => ({
   id: 'hazard.garden.recovery',
@@ -60,7 +60,7 @@ const RULE = 'After a compaction, re-read this file and the open seed ledger bef
 
 describe('a re-read the rule orders that names no file path', () => {
   it('reads the file and the unpathed part apart', () => {
-    const action = recoveryAction(
+    const action = declaredRecovery(
       atomOf(RULE, { reread: ['GARDEN.md'], unpathed: ['the open seed ledger'] }),
     );
     expect(action.reread).toEqual(['GARDEN.md']);
@@ -69,12 +69,12 @@ describe('a re-read the rule orders that names no file path', () => {
 
   it('finds no unpathed part in a rule whose every object is a path or this file', () => {
     expect(
-      recoveryAction(
+      declaredRecovery(
         atomOf('After a compaction, re-read this file before continuing.', { reread: ['GARDEN.md'] }),
       ).unpathed,
     ).toEqual([]);
     expect(
-      recoveryAction(
+      declaredRecovery(
         atomOf('After a compaction, re-read `notes/plan.md` and `notes/seeds.md` before you go on.', {
           reread: ['notes/plan.md', 'notes/seeds.md'],
         }),
@@ -104,7 +104,7 @@ describe('a re-read the rule orders that names no file path', () => {
 });
 
 it('does not read the moment of a re-read as a thing to read', () => {
-  const action = recoveryAction(
+  const action = declaredRecovery(
     atomOf('Read `notes/garden.md` at the start of every session.', { reread: ['notes/garden.md'] }),
   );
   expect(action.reread).toEqual(['notes/garden.md']);
