@@ -9,8 +9,9 @@ import { renderMap } from '../../src/ladders/generator/render';
 
 describe('readable export task family', () => {
   it('plants physical file changes and does not resurrect deleted input on later turns', async () => {
-    expect(bankItems()).toHaveLength(2036);
-    expect(BANK_LEVELS).toHaveLength(22);
+    // 2175 items in 23 levels: the planner v2 family adds the level `planner` (generator ladder version 2) and its items.
+    expect(bankItems()).toHaveLength(2175);
+    expect(BANK_LEVELS).toHaveLength(23);
     const hidden = hiddenSpec(1);
     const world = {
       workspace: { files: { 'input.json': JSON.stringify({ records: [{ agent: 'task-input-value' }] }) } },
