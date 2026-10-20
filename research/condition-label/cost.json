@@ -1,0 +1,94 @@
+{
+ "source": "usage recorded in each run's cassette (claude-haiku-5-5: input 0.10, output 0.50 USD per million tokens); no key, no request body",
+ "total_usd": 0.0737,
+ "runs": {
+  "base1": {
+   "calls": 54,
+   "input_tokens": 33759,
+   "output_tokens": 6529,
+   "usd": 0.00664,
+   "refusals_dev": 12,
+   "refusals_held_out": 2
+  },
+  "base2": {
+   "calls": 54,
+   "input_tokens": 33759,
+   "output_tokens": 6084,
+   "usd": 0.00642,
+   "refusals_dev": 13,
+   "refusals_held_out": 3
+  },
+  "base3": {
+   "calls": 54,
+   "input_tokens": 33759,
+   "output_tokens": 6311,
+   "usd": 0.00653,
+   "refusals_dev": 9,
+   "refusals_held_out": 4
+  },
+  "base4": {
+   "calls": 54,
+   "input_tokens": 33759,
+   "output_tokens": 6233,
+   "usd": 0.00649,
+   "refusals_dev": 11,
+   "refusals_held_out": 2
+  },
+  "cA1": {
+   "calls": 54,
+   "input_tokens": 37323,
+   "output_tokens": 5952,
+   "usd": 0.00671,
+   "refusals_dev": 8,
+   "refusals_held_out": 2
+  },
+  "cA2": {
+   "calls": 54,
+   "input_tokens": 37323,
+   "output_tokens": 5980,
+   "usd": 0.00672,
+   "refusals_dev": 7,
+   "refusals_held_out": 4
+  },
+  "cB1": {
+   "calls": 54,
+   "input_tokens": 37215,
+   "output_tokens": 6068,
+   "usd": 0.00676,
+   "refusals_dev": 15,
+   "refusals_held_out": 1
+  },
+  "cB2": {
+   "calls": 54,
+   "input_tokens": 37215,
+   "output_tokens": 6277,
+   "usd": 0.00686,
+   "refusals_dev": 16,
+   "refusals_held_out": 2
+  },
+  "cC1": {
+   "calls": 54,
+   "input_tokens": 39105,
+   "output_tokens": 6061,
+   "usd": 0.00694,
+   "refusals_dev": 2,
+   "refusals_held_out": 0
+  },
+  "cC2": {
+   "calls": 54,
+   "input_tokens": 39105,
+   "output_tokens": 5805,
+   "usd": 0.00681,
+   "refusals_dev": 0,
+   "refusals_held_out": 0
+  },
+  "cC3": {
+   "calls": 54,
+   "input_tokens": 39142,
+   "output_tokens": 5862,
+   "usd": 0.00685,
+   "refusals_dev": 2,
+   "refusals_held_out": 0
+  }
+ }
+}

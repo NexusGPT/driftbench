@@ -1,0 +1,24 @@
+labels:
+  - set: agent-rules
+    description: What an instruction file asks of the agent that reads it.
+    labels:
+      - name: rule
+        description: A unit that tells the reader what to do.
+        atom: { kind: instruction, polarity: obligation }
+      - name: prohibition
+        description: A unit that tells the reader what never to do.
+        atom: { kind: instruction, polarity: prohibition }
+      - name: gate
+        description: A unit that sets an order, one act before another. The unit itself holds both acts, so a gate takes no target.
+        atom: { kind: gate }
+      - name: reply-rule
+        description: A unit that sets the language, length, format, words or tone of the reader's reply.
+        atom: { kind: register }
+      - name: condition
+        description: A unit that only says when another unit applies, such as a circumstance, a state of the world or a kind of request, and tells the reader nothing to do by itself. Give as the target the number of the unit in this window that it scopes, which must be a unit that tells the reader what to do or never to do. If no such unit is in this window, the unit is not a condition. A line that says what a file is for or when to use it, such as a line of front matter, is a description and never a condition.
+        target: required
+        condition: true
+      - name: example
+        description: A unit that shows a case and is not itself an instruction.
+      - name: description
+        description: A unit that states how something is, with no instruction.
