@@ -183,7 +183,8 @@ export function seal(
   const trees = [tree, ...(grants.sources ?? []).map((path) => realOf(resolve(path)))];
   const granted = (grants.reads ?? []).map((path) => realOf(resolve(path)));
   for (const input of inputs) {
-    if (/[\\/]node_modules[\\/]/.test(input)) continue;
+    // A package of node_modules is a dependency; the project's cache folder inside it is not.
+    if (/[\\/]node_modules[\\/](?!\.cache[\\/])/.test(input)) continue;
     const isGranted = granted.some((folder) => under(input, folder));
     if (!isGranted && !trees.some((folder) => under(input, folder)))
       throw new FrameError(
