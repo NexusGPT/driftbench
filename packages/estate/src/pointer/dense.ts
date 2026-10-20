@@ -14,6 +14,7 @@ import {
   type LabelContext,
   type Labelled,
   type LabelSet,
+  offsetSpans,
   type Window,
 } from './labels';
 
@@ -26,9 +27,9 @@ const squash = (text: string): string => flatten(text).text;
 
 /** Added to the system text only for a set that declares spans or links, so other sets keep their requests. */
 export const SPAN_RULE =
-  'A label that lists span kinds may carry "spans": [{"kind", "from", "to", "polarity"?}] on an entry that names ONE unit: ' +
-  'from and to are character offsets into the text of that unit after "[n] ", to exclusive, and the slice is the clause. ' +
-  'Never write the clause. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
+  'A label that lists span kinds may carry "spans": [{"kind", "text", "polarity"?}] on an entry that names ONE unit: ' +
+  'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
+  'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
 
 /** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
 function spanLines(set: LabelSet, context: LabelContext): string[] {
@@ -151,10 +152,10 @@ export function denseLabels(value: unknown): Labelled[] {
       label: entry.label,
       ...(target === undefined || target === null ? {} : { target: target as number }),
       // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
-      ...(entry.spans === undefined || entry.spans === null
+      ...(!Array.isArray(entry.spans) || entry.spans.length === 0
         ? {}
         : { spans: entry.spans as Labelled['spans'] }),
-      ...(entry.links === undefined || entry.links === null
+      ...(!Array.isArray(entry.links) || entry.links.length === 0
         ? {}
         : { links: entry.links as Labelled['links'] }),
     });
@@ -228,7 +229,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
   if (!key) return labeler;
   return {
     ...labeler,
-    async call(wire, _set, _window, attempt = 1) {
+    async call(wire, _set, window, attempt = 1) {
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
       const body =
         attempt > 1
@@ -257,7 +258,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         .map((block) => block.text)
         .join('');
       return {
-        labels: parseDenseAnswer(text),
+        labels: offsetSpans(parseDenseAnswer(text), window),
         returnedModel: String(payload.model ?? model),
         stopReason: stop,
         usage: usageOf(payload),

@@ -242,6 +242,55 @@ describe('the dense request for a set with spans and links', () => {
     expect(user).toContain('(may carry spans of kind clause) (may carry links of kind topic)');
   });
 
+  it('tells the model to copy the words of a clause from one unit, found once, and to link by id', () => {
+    expect(SPAN_RULE).toContain('"spans": [{"kind", "text", "polarity"?}]');
+    expect(SPAN_RULE).toContain('ONE unit');
+    expect(SPAN_RULE).toContain('copied word for word from that unit');
+    expect(SPAN_RULE).toContain('found once in the unit');
+    expect(SPAN_RULE).toContain('refuses a text that is not in the unit');
+    expect(SPAN_RULE).toContain('"links": [{"kind", "to"}]');
+    expect(SPAN_RULE).toContain('an id listed under that kind, or none');
+    expect(SPAN_RULE).not.toMatch(/from.*to.*offset|count characters/i);
+  });
+
+  it('gives the spans an answer wrote as words back as offsets, so the words never reach a cassette', async () => {
+    const window = {
+      ...windowOf(2),
+      units: [
+        { n: 1, text: 'Welcome every customer by name.', index: 0 },
+        { n: 2, text: 'Closed on Sundays.', index: 1 },
+      ],
+    };
+    const text = JSON.stringify({
+      labels: [
+        {
+          units: '1',
+          label: 'greeting',
+          spans: [{ kind: 'clause', text: 'Welcome every customer', polarity: 'obligation' }],
+        },
+        { units: '2', label: 'none' },
+      ],
+    });
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'claude-haiku-5-5',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const recorded = await labeler.call?.(labeler.render(WITH, window, context), WITH, window);
+    expect(recorded?.labels?.[0]?.spans).toEqual([
+      { kind: 'clause', from: 0, to: 22, polarity: 'obligation' },
+    ]);
+    expect(JSON.stringify(recorded)).not.toContain('Welcome every customer');
+  });
+
   it('changes the request with the candidates it lists', () => {
     const labeler = createAnthropicLabeler();
     expect(labeler.render(WITH, windowOf(2), context)).not.toEqual(labeler.render(WITH, windowOf(2)));

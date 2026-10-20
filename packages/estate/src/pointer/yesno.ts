@@ -38,10 +38,11 @@ export function yesNoText(window: Window): string {
  * system 2 labeler.
  */
 export function askedLabels(set: LabelSet, skipTargetLabels: boolean): readonly Label[] {
-  const asked = set.labels.filter((label) => label.target !== 'required');
+  // A probability names no other unit, no clause and no atom: a label that needs one of them is system 2's.
+  const asked = set.labels.filter((label) => label.target !== 'required' && !label.spans && !label.links);
   if (asked.length < set.labels.length && !skipTargetLabels) {
     throw new LabelerConfigError(
-      `the set ${set.set} has a label with a target; a yes or no model cannot name a target unit: add a system 2 labeler`,
+      `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,
     );
   }
   if (asked.length === 0) {

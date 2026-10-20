@@ -54,8 +54,8 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave ten answers the checks refuse (a condition with no usable target, a span no unit holds): each is counted.
-    expect(result.pointer?.refusals.length).toBe(10);
+    // The recorded labeller gave 24 answers the checks refuse: each is counted.
+    expect(result.pointer?.refusals.length).toBe(24);
     // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.split).toBeGreaterThan(0);
@@ -121,7 +121,7 @@ describe('the fixture through its committed cassettes', () => {
     // System 2 alone leaves unlabeled the units its runs split on, and the entries the check refused.
     expect(two.result.pointer?.unlabeled).toBeGreaterThanOrEqual(two.result.pointer?.split ?? 0);
     expect(two.result.pointer?.decidedBy).toEqual({ system1: 0, system2: two.result.pointer?.decided });
-    await expect(replay(['system1:jev'])).rejects.toThrow(/a yes or no model cannot name/);
+    await expect(replay(['system1:jev'])).rejects.toThrow(/a yes or no model cannot name any of them/);
   });
 
   it('moves units between the classes with the margin cut, from the same cassette, with no call', async () => {

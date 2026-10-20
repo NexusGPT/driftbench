@@ -97,14 +97,23 @@ No word list and no grammar rule decides what is a rule.
   A set may declare `spans:` (kinds of clause a labeler points at inside one unit, by character offsets, each
   with an optional polarity) and `links:` (kinds of link from a unit to an atom the request lists, such as the
   skill a unit is about); a label lists the kinds it may carry. A span is an exact slice of the unit: the
-  labeler writes no text, and an offset that leaves the unit, an empty or overlapping span, an undeclared kind
-  or a link to an atom the request did not list refuses the whole entry. The atom keeps them in
+  labeler gives the words of the clause, copied from the unit; code finds them (once, without regard to case)
+  and keeps offsets, so no clause text reaches the cassette. A text not in the unit or found twice, an empty or
+  overlapping span, an undeclared kind or a link to an atom the request did not list refuses the whole entry.
+  A label with spans, links or a target is answered by system 2 only: system 1 alone refuses such a set. The atom keeps them in
   `fields.labelSpans` (offsets into its quote) and `fields.labelLinks`. Only system 2 gives them; the runs must
   agree on them or the unit keeps its label without them.
   An optional `condition: true` (needs `target: required`, takes no `atom`) marks a label whose unit states
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.
-  The shipped set `agent-rules` is data in this format; it has a `condition` label for a unit that only says when another unit applies (system 2 gives the target). `none` is reserved.
+  An `atom` mapping may also give `situation` (what the atom is about, in words), `fields` (fields put on every
+  atom of the label) and `evidence` (checks put after the review check). A value of those three that is exactly
+  `$link.<kind>`, `$span.<kind>`, `$code` or `$path` is filled from the unit: the value the labeller gave a link,
+  the text of the first span of that kind, the first inline code span, that code span as the file of the estate
+  it leads to. A placeholder the unit does not fill refuses the atom. A link kind names `to` (atom kinds) or
+  `values` (a closed list the set declares, such as a runtime's tool names). The shipped set `agent-rules` is data
+  in this format; it has one label per hazard of a long-running agent (compaction, restart, rate limit, new
+  session, helper notification, repeated nudge). `none` is reserved.
 * Each unit has a ledger id: ten characters, derived once from the file, the unit's fingerprint and its
   occurrence, then kept in the ledger file as the text changes. The ledger follows a unit through an edit
   (unchanged, moved, changed, split, merged, deleted). It writes no times, so equal ledgers are equal bytes.
