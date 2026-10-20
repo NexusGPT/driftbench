@@ -52,3 +52,21 @@ metadata:
     ask: code
     askFrom: tool.settings.allow-read (tool rule)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.settings.allow-read
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_boundary.tool.settings.allow-read
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

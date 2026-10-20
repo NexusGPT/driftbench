@@ -65,7 +65,29 @@ export class AtomBuilder {
   readonly atoms: Atom[] = [];
   private readonly ids = new Set<string>();
 
-  constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
+  private names?: ReadonlyMap<string, readonly string[]>;
+
+  /** `places` are the estate's own: its base folders, aliases, external folders and skipped paths. */
+  constructor(
+    private readonly files: ReadonlyMap<string, EstateFile>,
+    private readonly places: Pick<NamedPlaces, 'bases' | 'aliases' | 'externals' | 'skipped'> = {},
+  ) {}
+
+  private place(path: string, from: string): NamedTarget {
+    this.names ??= fileNames(this.files);
+    return locateNamed(path, from, this.files, { ...this.places, byName: this.names });
+  }
+
+  /** The file of the estate that a path written in `from` leads to; the path as resolved when none is found. */
+  locate(path: string, from: string): string {
+    return this.place(path, from).path;
+  }
+
+  /** Where a path written in `from` leads, how it was found, and whether the file is one of the estate. */
+  resolve(path: string, from: string): NamedTarget & { exists: boolean } {
+    const target = this.place(path, from);
+    return { ...target, exists: this.files.has(target.path) };
+  }
 
   scopeOf(path: string): string {
     const file = this.files.get(path);
@@ -482,6 +504,15 @@ export function isExternal(path: string, externals: readonly string[] = []): boo
   return externals.some((root) => clean.startsWith(root.endsWith('/') ? root : `${root}/`));
 }
 
+/** The places of an estate that a named path is looked for in. */
+export type NamedPlaces = {
+  bases?: readonly string[];
+  skipped?: ReadonlySet<string>;
+  aliases?: Readonly<Record<string, readonly string[]>>;
+  byName?: ReadonlyMap<string, readonly string[]>;
+  externals?: readonly string[];
+};
+
 /**
  * A bare name tries its exact local folder, then its local subtree, before the estate root. Other
  * named paths resolve as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
@@ -493,13 +524,7 @@ export function locateNamed(
   path: string,
   from: string,
   files: ReadonlyMap<string, EstateFile>,
-  options: {
-    bases?: readonly string[];
-    skipped?: ReadonlySet<string>;
-    aliases?: Readonly<Record<string, readonly string[]>>;
-    byName?: ReadonlyMap<string, readonly string[]>;
-    externals?: readonly string[];
-  } = {},
+  options: NamedPlaces = {},
 ): NamedTarget {
   const skipped = options.skipped ?? new Set<string>();
   const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);

@@ -157,11 +157,6 @@ export function cut(rawSource: string): Cut {
     });
   };
 
-  const firstLineEnd = (from: number, to: number): number => {
-    const newline = source.indexOf('\n', from);
-    return newline === -1 || newline > to ? to : newline;
-  };
-
   const frontMatter = (start: number, end: number) => {
     const block = source.slice(start, end);
     const opening = /^---\r?\n/.exec(block)?.[0] ?? '';
@@ -184,7 +179,7 @@ export function cut(rawSource: string): Cut {
       };
       walk(document.contents, '$');
     } catch {
-      add('opaque', start, firstLineEnd(start, end), []);
+      add('opaque', start, end, []);
     }
   };
 
@@ -197,7 +192,7 @@ export function cut(rawSource: string): Cut {
     const htmlBlock = (from: number, to: number) => {
       const block = text.slice(from, to);
       if (/^\s*<!--/.test(block)) {
-        add('opaque', at(from), at(from) + (block.split('\n')[0] ?? '').length, here());
+        add('opaque', at(from), at(to), here());
         return;
       }
       // Lines that hold only a tag separate chunks; the markdown between them is cut like any prose.
@@ -244,11 +239,11 @@ export function cut(rawSource: string): Cut {
           return;
         }
         case 'code':
-          // A fence is opaque: its first line only, never a unit a label can point at.
-          return add('opaque', at(start), at(firstLineEnd(start, end)), here());
+          // A fence is one opaque unit over all its lines: never shown to a labeler, so no label points at it.
+          return add('opaque', at(start), at(end), here());
         case 'html': {
           // An html block that holds an html block of its own and does not shrink is cut as opaque, so the parse ends.
-          if (depth >= 2) return add('opaque', at(start), at(firstLineEnd(start, end)), here());
+          if (depth >= 2) return add('opaque', at(start), at(end), here());
           return htmlBlock(start, end);
         }
         case 'tableCell': {

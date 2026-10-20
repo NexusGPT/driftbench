@@ -94,3 +94,28 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.count-only-the-last-seven-days
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0659
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: hold
+          deviation: D11_pii_leak
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

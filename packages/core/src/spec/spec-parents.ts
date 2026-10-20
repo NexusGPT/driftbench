@@ -191,3 +191,32 @@ export function stemOf(spec: Spec): string[] | undefined {
   const specs = (spec.metadata?.stem as { specs?: unknown } | undefined)?.specs;
   return Array.isArray(specs) && specs.every((entry) => typeof entry === 'string') ? specs : undefined;
 }
+
+/**
+ * A child the loader wrote out, as it was authored: its own blocks, block 0 naming its parent again, its
+ * perturbations and end verdict shifted back, and no replay record. Any other spec comes back as it is.
+ */
+export function specAsAuthored(spec: Spec): Spec {
+  const record = specParentRecord(spec);
+  if (!record) return spec;
+  const shift = record.replayed;
+  const [first, ...rest] = cloneJson(spec.blocks.slice(shift));
+  const { parent: _record, ...metadata } = cloneJson(spec.metadata ?? {});
+  const { metadata: _metadata, ...own } = cloneJson(spec);
+  return {
+    ...own,
+    blocks: [{ ...(first as BlockSpec), parent: record.from }, ...rest],
+    ...(spec.perturbations
+      ? {
+          perturbations: spec.perturbations.map((entry) => ({
+            ...cloneJson(entry),
+            inject_at: entry.inject_at - shift,
+          })),
+        }
+      : {}),
+    ...(spec.end?.atBlock === undefined
+      ? {}
+      : { end: { ...cloneJson(spec.end), atBlock: spec.end.atBlock - shift } }),
+    ...(Object.keys(metadata).length === 0 ? {} : { metadata }),
+  };
+}

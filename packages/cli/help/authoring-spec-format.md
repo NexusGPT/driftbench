@@ -6,6 +6,7 @@ commands:
   - spec lint
   - spec coverage
 see_also:
+  - authoring-objects
   - running-campaign-run
   - authoring-blocks
   - authoring-prefixes
@@ -231,6 +232,8 @@ Free, with these keys read by tools:
 | `generated`, `gate`, `family`, `imported`, `estate`, `retired`, `pilot` | written by `generate`, `gate`, `family instances`, `import`, `estate`; do not edit by hand. |
 
 ### `uses`
+
+The file format of an object, its keys, the kinds and the shipped rungs are in topic authoring-objects.
 
 Every rule driftbench applies is an object. It has a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
 

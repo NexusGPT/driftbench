@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.keep-an-unconfirmed-draft-unsent
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.keep-an-unconfirmed-draft-unsent
+        values:
+          atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

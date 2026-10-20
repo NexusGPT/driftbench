@@ -68,3 +68,28 @@ metadata:
       - marker: needs-askable-act
         atom: register.route-planner.the-plan-is-a-table-of
         detail: "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.route-planner.the-plan-is-a-table-of
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0841
+        values:
+          ask_class: operate
+          ask_shape: prescribed
+          session_state: helpers_running
+          owner_signal: frustration
+          deviation: D2_goal_shift
+          estate_hazard: dead_helper
+          atoms.register: register.route-planner.the-plan-is-a-table-of
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

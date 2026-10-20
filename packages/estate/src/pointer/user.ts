@@ -3,9 +3,9 @@ import { pathToFileURL } from 'node:url';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
-import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser } from './dense';
+import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser, SPAN_RULE } from './dense';
 import { type Labeler, type LabelerClass, LabelerConfigError, LabelerError, usageOf } from './labeler';
-import type { LabelSet, Window } from './labels';
+import { type LabelContext, type LabelSet, offsetSpans, type Window } from './labels';
 import {
   askedLabels,
   DEFAULT_MAX_QUESTIONS,
@@ -45,6 +45,7 @@ export function userRequest(
   set: LabelSet,
   window: Window,
   skipTargetLabels: boolean,
+  context: LabelContext = {},
 ): Record<string, unknown> {
   const setBody = {
     name: set.set,
@@ -55,7 +56,11 @@ export function userRequest(
       ...(label.examples ? { examples: label.examples } : {}),
       ...(label.target ? { target: label.target } : {}),
       ...(label.condition ? { condition: true } : {}),
+      ...(label.spans ? { spans: label.spans } : {}),
+      ...(label.links ? { links: label.links } : {}),
     })),
+    ...(set.spans ? { spans: set.spans } : {}),
+    ...(set.links ? { links: set.links } : {}),
   };
   const windowBody = {
     id: window.id,
@@ -67,7 +72,10 @@ export function userRequest(
     return {
       set: setBody,
       window: windowBody,
-      prompt: { system: DENSE_SYSTEM, user: denseUser(set, window) },
+      prompt: {
+        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        user: denseUser(set, window, context),
+      },
     };
   }
   return {
@@ -79,14 +87,17 @@ export function userRequest(
 }
 
 /** Reads an answer in the shape of the class; anything else is an answer that cannot be read. */
-export function userAnswer(cls: LabelerClass, payload: unknown, model: string): Recorded {
+export function userAnswer(cls: LabelerClass, payload: unknown, model: string, window?: Window): Recorded {
   if (!isRecord(payload)) throw new LabelerError('the answer is not a JSON object');
   const common = {
     returnedModel: typeof payload.model === 'string' ? payload.model : model,
     stopReason: 'answered',
     usage: usageOf(payload),
   };
-  if (cls === 'system2') return { labels: denseLabels(payload), ...common };
+  if (cls === 'system2') {
+    const labels = denseLabels(payload);
+    return { labels: window ? offsetSpans(labels, window) : labels, ...common };
+  }
   const probabilities = payload.probabilities;
   if (!isRecord(probabilities)) throw new LabelerError('the answer has no probabilities object');
   const checked: Record<string, number> = {};
@@ -120,18 +131,21 @@ function labelerOf(core: Core, options: UserOptions): Labeler {
       core.cls === 'system2'
         ? wanted
         : Math.max(1, Math.min(wanted, Math.floor(cap / askedLabels(set, skip).length))),
-    render: (set, window) => ({ labeler: core.id, body: userRequest(core.cls, set, window, skip) }),
-    opinions: (answer, set, window) =>
+    render: (set, window, context) => ({
+      labeler: core.id,
+      body: userRequest(core.cls, set, window, skip, context),
+    }),
+    opinions: (answer, set, window, context) =>
       core.cls === 'system2'
-        ? denseOpinions(answer, set, window)
+        ? denseOpinions(answer, set, window, context)
         : yesNoOpinions(answer, window, askedLabels(set, skip), threshold),
   };
   const send = core.send;
   if (!send) return base;
   return {
     ...base,
-    async call(wire) {
-      return userAnswer(core.cls, await send(wire.body), core.model);
+    async call(wire, _set, window) {
+      return userAnswer(core.cls, await send(wire.body), core.model, window);
     },
   };
 }

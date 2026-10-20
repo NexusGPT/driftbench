@@ -97,3 +97,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0593
+        values:
+          ask_class: chat
+          ask_shape: multi_part
+          session_state: helpers_running
+          owner_signal: go
+          deviation: D1_off_topic
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

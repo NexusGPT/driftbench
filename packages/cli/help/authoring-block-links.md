@@ -66,7 +66,7 @@ metadata:
       at_version: v1              # optional: the prompt version the link was made at
 ```
 
-Other targets are `{ kind: spec_clause, spec, clause, sha256? }` and `{ kind: source_turn, conversation, turn, cluster?, redacted? }`. `spec lint --sections` checks only `prompt_section` links.
+Other targets are `{ kind: spec_clause, spec, clause, sha256? }`, `{ kind: source_turn, conversation, turn, cluster?, redacted? }`, `{ kind: rule, rule, ledger? }` (a rule of a map: an estate atom id or a prompt map `dimension=value`, with the ledger id of its unit when the reader gave one), `{ kind: plan_row, row, values }` (the plan row a generator wrote the block for, with its values) and `{ kind: estate_unit, unit, fp? }`. An `estate_unit` link names a unit of an estate's prose by its id in the ledger (`estate scan --pointer --ledger`), and `fp` its fingerprint when the link was made. A `unit` change reads these links (authoring-blast-radius). `driftbench generate` and `estate generate` write the `rule`, `plan_row` and `source_turn` links of every block. `spec lint --sections` checks only `prompt_section` links.
 
 For `--sections`: the section registry of each prompt, such as `examples/acme/prompts/acme-sales.sections.yaml`.
 

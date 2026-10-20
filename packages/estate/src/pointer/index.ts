@@ -20,6 +20,7 @@ export {
   denseOpinions,
   denseUser,
   parseDenseAnswer,
+  SPAN_RULE,
   windowLines,
 } from './dense';
 export {
@@ -40,10 +41,17 @@ export {
   checkAnswer,
   expandUnits,
   Label,
+  type LabelContext,
   type Labelled,
   LabelSet,
   type LabelSetsResult,
+  type LinkAnswer,
+  LinkKind,
+  locateSpanText,
+  offsetSpans,
   parseLabelSets,
+  type SpanAnswer,
+  SpanKind,
   setHash,
   type Window,
   type WindowUnit,
@@ -63,6 +71,20 @@ export {
   unitKey,
 } from './ledger';
 export {
+  atomsByUnit,
+  EDIT_CLASSES,
+  type EditClass,
+  editCounts,
+  ledgerChangeManifest,
+  ledgerChanges,
+  type ManifestOptions,
+  proseLedger,
+  RERUN_RULE,
+  type Rerun,
+  rerunOf,
+  type UnitChange,
+} from './radius';
+export {
   DEFAULT_WINDOW_UNITS,
   type LabelerUsage,
   type LabelledUnit,
@@ -73,6 +95,14 @@ export {
   pointerScan,
   windowsOf,
 } from './scan';
+export {
+  MODEL_VARIABLES,
+  type PointerSettings,
+  parsePointerSettings,
+  readPointerSettings,
+  SETTINGS_FILE,
+  type SettingsResult,
+} from './settings';
 export {
   buildLabelling,
   DEFAULT_FAIL_AT,

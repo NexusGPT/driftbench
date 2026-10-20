@@ -58,3 +58,28 @@ metadata:
     ask: code
     askFrom: instruction.standing.report-only-numbers-read-during-the (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.report-only-numbers-read-during-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0337
+        values:
+          ask_class: research
+          ask_shape: multi_part
+          session_state: after_restart
+          owner_signal: limit_word
+          deviation: none
+          estate_hazard: process_restart
+          atoms.instruction: instruction.standing.report-only-numbers-read-during-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
