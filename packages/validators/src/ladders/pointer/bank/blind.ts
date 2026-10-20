@@ -1,7 +1,7 @@
 import { type BankEntry, bankMeasure, type LevelDef } from '../../../ladder';
 import { type BankItem, pointerBank as blindItems, type PointerAdapter, runItem } from '../blind/bank/index';
 import { blindBinding } from '../sut/blind-binding/index';
-import { Unsupported } from '../sut/blind-binding/reader';
+import { pointerExports, Unsupported } from '../sut/blind-binding/reader';
 import type { PointerSut } from '../sut/port';
 
 /**
@@ -47,6 +47,9 @@ export function blindLevels(resolve: () => Promise<PointerSut>): LevelDef[] {
       threshold: 1,
       compute: async ({ seed }) => {
         const entries: BankEntry[] = [];
+        // The reader is loaded before the first item clock starts: a slow load decides no item.
+        await (await resolve()).ready?.();
+        await pointerExports();
         for (const item of own) {
           unsupported = undefined;
           const outcome = await runItem(item, seed, adapter);

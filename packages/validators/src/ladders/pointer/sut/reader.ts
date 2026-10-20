@@ -165,6 +165,7 @@ let loaded: Promise<ReaderExports> | undefined;
 export async function loadReaderExports(
   importer: () => Promise<Record<string, unknown>>,
   timeoutMs = 5_000,
+  timeout: (message: string) => Error = (message) => new ReaderNotReachable(message),
 ): Promise<ReaderExports> {
   let timer: NodeJS.Timeout | undefined;
   const importing = (async () => {
@@ -187,7 +188,7 @@ export async function loadReaderExports(
     timer = setTimeout(
       () =>
         reject(
-          new ReaderNotReachable(
+          timeout(
             `${SPECIFIER} import did not settle within ${timeoutMs} ms; the reader component must be available before a baseline`,
           ),
         ),
@@ -201,10 +202,38 @@ export async function loadReaderExports(
   }
 }
 
+/** The import did not settle in time. The import goes on in the background, so another attempt can succeed. */
+class ReaderLoadTimeout extends ReaderNotReachable {}
+
+/**
+ * Loads the reader, trying again when the import is slow. A slow load is a property of the machine (a busy one
+ * transforms the package for longer than one bound), never of the reader; any other failure is final.
+ */
+export async function loadReaderWithRetry(
+  importer: () => Promise<Record<string, unknown>>,
+  timeoutMs = 5_000,
+  attempts = 12,
+): Promise<ReaderExports> {
+  let last: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await loadReaderExports(importer, timeoutMs, (message) => new ReaderLoadTimeout(message));
+    } catch (cause) {
+      if (!(cause instanceof ReaderLoadTimeout)) throw cause;
+      last = cause;
+    }
+  }
+  throw last;
+}
+
 function load(): Promise<ReaderExports> {
-  loaded ??= loadReaderExports(
+  // A failed load is not kept: the next call tries again instead of failing every later item the same way.
+  loaded ??= loadReaderWithRetry(
     async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
-  );
+  ).catch((cause: unknown) => {
+    loaded = undefined;
+    throw cause;
+  });
   return loaded;
 }
 
@@ -502,6 +531,9 @@ function atomOf(atom: RAtom): Atom {
 export function realReader(): PointerSut {
   return {
     name: 'pointer-reader',
+    ready: async () => {
+      await load();
+    },
     async cut(file: SourceFile): Promise<CutResult> {
       const reader = await load();
       const out = reader.cut(file.text);

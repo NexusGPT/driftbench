@@ -7,9 +7,12 @@ export type Pointer = Record<string, any>;
 let loaded: Promise<Pointer> | undefined;
 
 export function pointerExports(): Promise<Pointer> {
-  loaded ??= import(/* @vite-ignore */ '@agent-nexus/driftbench-estate').then(
-    (mod) => (mod as { pointer: Pointer }).pointer,
-  );
+  loaded ??= import(/* @vite-ignore */ '@agent-nexus/driftbench-estate')
+    .then((mod) => (mod as { pointer: Pointer }).pointer)
+    .catch((cause: unknown) => {
+      loaded = undefined;
+      throw cause;
+    });
   return loaded;
 }
 

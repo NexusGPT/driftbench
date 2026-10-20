@@ -227,6 +227,8 @@ export interface StackApi {
 /** The system under test. */
 export interface PointerSut {
   readonly name: string;
+  /** Loads what the SUT needs, outside any item clock: a load that is slow on a busy machine must not decide an item. */
+  ready?(): Promise<void>;
   cut(file: SourceFile): Promise<CutResult>;
   scan(request: ScanRequest): Promise<ScanResult>;
   links?: LinksApi;
