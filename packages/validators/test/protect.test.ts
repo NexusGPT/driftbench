@@ -26,6 +26,11 @@ describe('protectedChanges', () => {
     expect(protectedChanges('lane/validators', files)).toEqual([]);
     expect(protectedChanges('executor/x', files)).toEqual([]);
   });
+  it('protects the tools that plan and run the CI shards', () => {
+    const ci = ['tools/ci/shard-plan.mjs', 'tools/ci/run-shard.mjs', 'tools/ci/test-durations.json'];
+    expect(protectedChanges('exec/ci', [...ci, 'tools/cinema/x.mjs', 'tools/c/shard-plan.mjs'])).toEqual(ci);
+    expect(PROTECTED_PATHS).toContain('tools/ci/');
+  });
   it('covers the three paths the design names', () => {
     for (const path of [
       'packages/validators/src/ladders/x.ts',

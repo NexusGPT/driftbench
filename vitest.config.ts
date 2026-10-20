@@ -50,6 +50,8 @@ export default defineConfig({
             'examples/*/test/**/*.test.ts',
             'tools/**/*.test.mjs',
             'tools/**/*.test.ts',
+            // The blind pointer bank sits beside its source; CI ran it nowhere before.
+            'packages/validators/src/ladders/pointer/blind/**/*.test.ts',
           ],
     exclude: timingMode === 'skip' ? [...configDefaults.exclude, ...timingTests] : configDefaults.exclude,
     environment: 'node',
