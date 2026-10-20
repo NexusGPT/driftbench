@@ -1,3 +1,17 @@
+export {
+  type ConditionOutcome,
+  type ConditionProposal,
+  type ConditionProposer,
+  type ConditionSpan,
+  type ConditionsRecording,
+  type ConditionsReport,
+  emptyRecording,
+  type FeedConditionsInput,
+  type FeedConditionsResult,
+  feedFromConditions,
+  recordConditions,
+  replayConditions,
+} from './conditions';
 export { DEFAULT_DECIDE, type DecideOptions, type Decision, decide } from './decide';
 export {
   type ConfusionCounts,

@@ -10,7 +10,7 @@ Three sources feed it:
 | Past conversations | the values they show, and how often | counts and a hash of the private set, never a line of text |
 | The owner | a value that is missing, a combination that cannot occur, a weight | the owner's words and the day they said them |
 
-Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote and structure entry against its file, the feed that fills a store from an estate map ([below](#from-an-estate)), a planner that builds test rows from a store (`planV2`, opt-in), an interview that fills a store from the owner ([below](#filling-a-store-from-an-interview)), and a feed that fills the weights from past conversations ([below](#weights-from-past-conversations)). Not built yet: the reader that fills a store from an estate by itself; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
+Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote and structure entry against its file, the feed that fills a store from an estate map ([below](#from-an-estate)), a planner that builds test rows from a store (`planV2`, opt-in), an interview that fills a store from the owner ([below](#filling-a-store-from-an-interview)), and a feed that fills the weights from past conversations ([below](#weights-from-past-conversations)), and a feed that turns condition spans into values ([below](#conditions-from-an-estate)). Not built yet: the reader that fills a store from an estate by itself; the ledger that gives the ids (the store checks only their shape); the generator reading a plan; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
 
 ## The file
 
@@ -175,6 +175,30 @@ The report (`FeedReport`) holds counts, shares, intervals and settings. `private
 Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The call can override a scope with `scopes` (a variable id to `conversation` or `turn`); `overrides` in the result lists each override that changed a scope, with the scope the store declares and the one used. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. The store-level `prior` of the result names every group that was read, with its count in its own unit (conversations or turns) and its set hash. For a turn-scoped variable each turn is one draw, so turns of one conversation, which are likely to agree, make the interval narrower than a count of conversations would, and the `minDecided` floor can be met by few conversations; read it with that in mind. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
 
 Advice. The loader reports `VARIABLES_UNSOURCED` for each value, boundary and constraint that has no provenance. It never makes a store invalid: a store converted from a space map names no source at all.
+
+## Conditions from an estate
+
+`feedFromConditions` (package `@agent-nexus/driftbench-generate`) turns the condition spans of an estate into values of a store. A condition span is a clause of the agent's own files that says when a situation applies: its `id`, its file (`path`), the `quote` copied word for word, and optionally the `ledger` id of its prose unit. Each span goes through two systems, in this order:
+
+| Step | Who | What happens |
+|---|---|---|
+| 1 | System 1, a reader | One yes or no question per known candidate (each value of each variable of the store): does this text say when `<variable>: <value>` applies? The reader sees only the clause. A decided yes (0.75 or more) attaches the span, as a `quote` entry, to that value. |
+| 2 | System 2, a proposer | Called only for a span that no candidate took, when every candidate got a decided no. It proposes one value, and a variable when none fits. Code checks the proposal and writes the value with `approved: false` and `produced_by: model`. |
+
+A span with a yes never calls system 2. A span with a candidate the reader could not settle (an answer between 0.25 and 0.75, or none) is reported `unsure` and is not proposed over: the right candidate may be the one that is unsure.
+
+* Every value stands on a quote. Before any question, code checks that the quote is not empty, is at most 1,000 characters and is in its file (`texts`, the text of every file by path). A span that fails is `refused`, with the reason, and nobody is called.
+* A proposal is checked by code: it must not name a value that exists and was not taken, and the store with the proposal must still validate (id form included). A proposal that fails is `refused` and the store keeps what it had.
+* Code reads no word of a clause. The questions are built from the titles of the store; the clause is the text the reader sees.
+* A reader or proposer that throws leaves its span `failed` (the first 200 characters of the message) and the run goes on.
+
+The report (`ConditionsReport`) holds the counts per status, `proposerCalls`, the thresholds, the reader, and one outcome per span with the `variable/value` it stands under. Spans are read one after another, so a value proposed for one span is a candidate for the next.
+
+**Recorded and replayed.** `recordConditions(recording, reader, proposer)` wraps the two systems so each answer lands in `recording` (a plain JSON object, keyed by a hash of the clause and the questions). `replayConditions(recording)` answers from it with no model and no network, and a read or proposal the recording lacks fails that span, so a question that drifted is a failed run, never a silent gap.
+
+**Measured on planted conditions.** The test plants 40 fictional clauses: 30 about a value the store has, 10 about a value and a variable it lacks. The simulated reader gives a false yes 0.2 percent of the time and misses a true one 2 percent; the simulated proposer finds the planted proposal 98 percent of the time. Over 20 seeds (800 planted clauses): 778 of 794 assigned values are the planted one (precision 0.980) and 778 of 800 planted values are found (recall 0.973); the test requires 0.95 for both. A reader that says yes to everything and a run without system 2 both fall under the bar in the same test.
+
+Not built here: producing the spans. They come from the labels of the pointer reader (the condition label), which this feed takes as plain spans; until that reader is in, a caller supplies them.
 
 ## Impossible combinations
 
