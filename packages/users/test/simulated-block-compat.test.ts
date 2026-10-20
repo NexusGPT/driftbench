@@ -15,15 +15,14 @@ import { createScriptedDriver } from '../src/index';
 
 /**
  * Backward compatibility of `when.simulated_user`: a spec that does not use the key loads, hashes and gets
- * the same block cache keys as before it existed. The fixture holds one digest over every example spec,
- * written on main before the key was added (2026-10-18, a5aaf542f). A change that alters any spec hash or
- * any block cache key of the scripted driver changes the digest.
- *
- * To see which file moved, recompute the per-file lines below on both commits and diff them.
+ * the same block cache keys as before it existed. The fixture holds one line per example spec (spec hash and a digest of its block cache keys), written
+ * before the key was added. A change that alters any spec hash or any block cache key of the scripted driver
+ * moves a line, and the failure names the file. A spec added later is not in the fixture and is not checked.
  */
 
 const ROOT = resolve(__dirname, '../../..');
 const FIXTURE = join(__dirname, 'fixtures', 'simulated-block-compat.json');
+const FIXTURE_COMMIT = '35bc8cb87';
 
 /** A Given that stays fixed: the key's other parts are what this check is about. */
 const GIVEN: ResolvedGiven = {
@@ -46,31 +45,23 @@ async function specFiles(dir: string): Promise<string[]> {
   return out.sort();
 }
 
-async function lines(): Promise<{ specs: number; blocks: number; located: number; lines: string[] }> {
+async function lines(): Promise<{ lines: { file: string; value: string }[] }> {
   const files = await specFiles(join(ROOT, 'examples'));
   const driver = createScriptedDriver();
-  const out: string[] = [];
-  let specs = 0;
-  let blocks = 0;
-  let located = 0;
+  const out: { file: string; value: string }[] = [];
   for (const file of files) {
     const loaded = await loadSpecFile(file);
     if (!loaded.ok) continue;
     const spec: Spec = loaded.spec;
     // A spec that names a folder of the checkout (a workspace seed read from disk) hashes its absolute path:
     // its hash moves with the checkout, not with this change, so it is left out and counted.
-    if (JSON.stringify(spec).includes(ROOT)) {
-      located += 1;
-      continue;
-    }
-    specs += 1;
+    if (JSON.stringify(spec).includes(ROOT)) continue;
     const { version: _version, ...unlabelled } = specIdentity(spec);
     const cacheSpecHash = contentHash(unlabelled);
     const keys: string[] = [];
     for (let index = 0; index < spec.blocks.length; index += 1) {
       const step = await driver.next({ spec, mode: 'F', blockIndex: index, history: [] });
       if (step.kind !== 'block') continue;
-      blocks += 1;
       keys.push(
         blockCacheKey({
           specHash: cacheSpecHash,
@@ -84,32 +75,27 @@ async function lines(): Promise<{ specs: number; blocks: number; located: number
         }),
       );
     }
-    out.push(
-      `${relative(ROOT, file)} ${specHash(spec)} ${createHash('sha256').update(keys.join(',')).digest('hex')}`,
-    );
+    out.push({
+      file: relative(ROOT, file),
+      value: `${specHash(spec)} ${createHash('sha256').update(keys.join(',')).digest('hex')}`,
+    });
   }
-  return { specs, blocks, located, lines: out };
+  return { lines: out };
 }
 
 describe('when.simulated_user is invisible to specs that do not use it', () => {
-  it('every example spec keeps its spec hash and its block cache keys', { timeout: 600_000 }, async () => {
+  it('every example spec of the fixture keeps its spec hash and its block cache keys', { timeout: 600_000 }, async () => {
     const now = await lines();
-    const digest = createHash('sha256').update(now.lines.join('\n')).digest('hex');
+    const current = Object.fromEntries(now.lines.map((line) => [line.file, line.value]));
     if (process.env.DRIFTBENCH_WRITE_COMPAT === '1') {
-      await writeFile(
-        FIXTURE,
-        `${JSON.stringify({ commit: 'a5aaf542f', specs: now.specs, blocks: now.blocks, located: now.located, digest }, null, 2)}\n`,
-      );
+      const sorted = Object.fromEntries(Object.entries(current).sort(([a], [b]) => (a < b ? -1 : 1)));
+      await writeFile(FIXTURE, `${JSON.stringify({ commit: FIXTURE_COMMIT, files: sorted }, null, 1)}\n`);
     }
-    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8')) as {
-      specs: number;
-      blocks: number;
-      located: number;
-      digest: string;
-    };
-    expect(now.specs).toBe(fixture.specs);
-    expect(now.blocks).toBe(fixture.blocks);
-    expect(now.located).toBe(fixture.located);
-    expect(digest).toBe(fixture.digest);
+    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8')) as { files: Record<string, string> };
+    const moved = Object.entries(fixture.files)
+      .filter(([file, value]) => current[file] !== value)
+      .map(([file]) => file);
+    expect(Object.keys(fixture.files).length).toBeGreaterThan(1900);
+    expect(moved).toEqual([]);
   });
 });
