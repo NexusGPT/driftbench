@@ -25,9 +25,14 @@ function cpu(blocks: number, linked: boolean): number {
   return (used.user + used.system) / 1000;
 }
 
-/** The growth from `small` to `large` blocks: the best of several samples at each size, so load cannot decide it. */
+/**
+ * The growth from `small` to `large` blocks: the best of several samples at each size, so load cannot decide it.
+ * Both sizes run once before they are timed, and each sample times one run of each size.
+ */
 function growth(linked: boolean, small: number, large: number, samples = 5): number {
   cpu(200, linked);
+  cpu(small, linked);
+  cpu(large, linked);
   let least = Number.POSITIVE_INFINITY;
   let most = Number.POSITIVE_INFINITY;
   for (let again = 0; again < samples; again += 1) {
@@ -38,9 +43,11 @@ function growth(linked: boolean, small: number, large: number, samples = 5): num
 }
 
 describe('retention facts in a long spec', () => {
-  it('are checked in time linear in the blocks of a spec without parents', () => {
-    // Linear growth is ten times; a scan of every block for every block is a hundred.
-    expect(growth(false, 2000, 20000)).toBeLessThan(30);
+  it('are checked in time linear in the blocks of a spec without parents', { timeout: 120_000 }, () => {
+    // Linear growth is ten times; a scan of every block for every block is a hundred. The small size takes long
+    // enough (tens of milliseconds) that the clock and one disturbed run cannot move the ratio by a third. The
+    // runs of the large size need more than the default time limit of a test on a loaded machine.
+    expect(growth(false, 5000, 50000)).toBeLessThan(30);
   });
 
   it('are resolved through the ancestors of a parent-linked block, and through nothing else', () => {

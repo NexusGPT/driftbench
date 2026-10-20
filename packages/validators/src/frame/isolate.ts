@@ -1,0 +1,406 @@
+import { spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
+import { findRoot } from '../root';
+import { plainCodec, plainEntry, RELAY, twinDriver } from './driver';
+import {
+  canonical,
+  decode,
+  type Entry,
+  encode,
+  FrameError,
+  type Json,
+  type Outcome,
+  shortText,
+  type Tape,
+} from './tape';
+import { rngOf, type TwinPlan, twinPlans, userEnv } from './twins';
+
+/**
+ * The frame: the product runs apart, the parent decides (docs/validators.md, the section of that name). The
+ * cheater audits of the system, blocks and estate ladders found products that gave the right answer only when they
+ * saw a validator run them: by its process arguments, its loader, its working folder, its environment, its call
+ * stack or its uptime. No check that runs the product in the validator's own process can hide those. The frame
+ * runs the product in two child processes that differ in each of them (twins.ts), records every call and both
+ * answers on a tape, and gives the item the answers as data, so the item's verdict is computed in the parent from
+ * recorded outputs only. A call whose two answers differ is the frame's own finding: the product's answer depends
+ * on how it is run.
+ *
+ * Both twins are still programs the frame wrote, and a review of this frame found products keyed on what the twins
+ * share (an .mjs entry, a stdin that is no terminal, no node options). So each call is made a third time, in run C:
+ * a fresh process per call that loads the product through a plain entry file, as a user's own script does (a
+ * TypeScript entry under the tsx loader, no stdin protocol, the answer written to a file). Run C answering
+ * differently from run A is a finding too. No run makes the validator indistinguishable from a user; run C narrows
+ * the gap (docs/validators.md section 12.9).
+ */
+
+const START_MS = 120_000;
+const CALL_MS = 300_000;
+
+/** The loader for TypeScript sources, registered inside the driver so that no node option shows in the runs. */
+function loaderPath(): string | undefined {
+  try {
+    const cjs = createRequire(import.meta.url).resolve('tsx/esm/api');
+    const esm = cjs.replace(/\.cjs$/, '.mjs');
+    return existsSync(esm) ? esm : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function projectCache(): string {
+  return join(findRoot(dirname(new URL(import.meta.url).pathname)), 'node_modules', '.cache');
+}
+
+/** What the validator keeps of an answer before the two runs are compared, by export name. */
+export type Keep = Record<string, (value: unknown) => unknown>;
+
+export type IsolateOptions = {
+  /** The absolute path of the product module (a .ts source is loaded through tsx). */
+  module: string;
+  /** The item's seed: it draws the two runs. */
+  seed: number;
+  /** A tag that separates the frames of one seed (the item id). */
+  tag?: string;
+  /** What to keep of an answer before the runs are compared: drop what is allowed to differ, such as a clock. */
+  keep?: Keep;
+  /** Make each call in run C too (default true): one process per call, so it costs a process start per call. */
+  plain?: boolean;
+};
+
+export type Frame<T> = {
+  /** The product, as the item calls it: each call goes to both runs and answers what run A answered. */
+  product: T;
+  /** Every call so far, with the answers of both runs. */
+  tape: Tape;
+  /** The first call whose two runs answered differently, as a message, or undefined. */
+  divergence(): string | undefined;
+  /** Ends both runs and removes their files. */
+  close(): void;
+};
+
+type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
+
+function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
+  const waited = Atomics.wait(relay.flag, 0, 0, ms);
+  const reply = receiveMessageOnPort(relay.port)?.message as Record<string, unknown> | undefined;
+  Atomics.store(relay.flag, 0, 0);
+  if (waited === 'timed-out' || reply === undefined)
+    throw new FrameError(`no answer to ${what} within ${ms / 1000} s`);
+  return reply;
+}
+
+const describeRun = (plan: TwinPlan | 'C') =>
+  plan === 'C'
+    ? "run C (user-shaped: a plain entry file per call under the tsx loader, the user's environment)"
+    : plan.run === 'A'
+      ? 'run A (the validator folder and environment)'
+      : `run B (a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`;
+
+/** The tsx loader as a node option for run C, when tsx is installed. */
+function loaderOption(): string[] {
+  try {
+    createRequire(import.meta.url).resolve('tsx');
+    return ['--import', 'tsx'];
+  } catch {
+    return [];
+  }
+}
+
+type PlainRun = {
+  dir: string;
+  codec: string;
+  codecNames: { encode: string; decode: string };
+  count: number;
+  /** Run C's environment: the user's (`userEnv`). */
+  env: Record<string, string>;
+};
+
+/** Opens run C: a drawn folder in the project's cache, holding the codec module. */
+function openPlain(seed: number, tag: string): PlainRun {
+  const rng = rngOf(seed, `plain:${tag}`);
+  let folder = '';
+  while (folder.length < 6 + Math.floor(rng() * 8))
+    folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
+  const dir = join(projectCache(), folder);
+  mkdirSync(dir, { recursive: true });
+  const codec = plainCodec(seed, tag);
+  const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
+  writeFileSync(codecPath, codec.source);
+  return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
+}
+
+/** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
+function plainCall(plain: PlainRun, seed: number, tag: string, module: string, name: string, sent: Json) {
+  plain.count += 1;
+  const stem = `${tag.length.toString(36)}${plain.count}`;
+  // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
+  const entry = join(plain.dir, `${stem}.mts`);
+  const args = join(plain.dir, `${stem}.json`);
+  const out = join(plain.dir, `${stem}.out.json`);
+  writeFileSync(args, JSON.stringify(sent));
+  writeFileSync(
+    entry,
+    plainEntry(
+      seed,
+      `${tag}:${plain.count}`,
+      {
+        module: pathToFileURL(module).href,
+        codec: pathToFileURL(plain.codec).href,
+        args: pathToFileURL(args).href,
+        out: pathToFileURL(out).href,
+      },
+      name,
+      plain.codecNames,
+    ),
+  );
+  const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
+    cwd: findRoot(dirname(module)),
+    env: plain.env,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: CALL_MS,
+  });
+  try {
+    if (!existsSync(out))
+      return {
+        dead: `run C ended (${ran.status ?? ran.signal}): ${(ran.stderr ?? '').split('\n').slice(-6).join(' ')}`,
+      };
+    return JSON.parse(readFileSync(out, 'utf8')) as Outcome;
+  } finally {
+    for (const file of [entry, args, out]) rmSync(file, { force: true });
+  }
+}
+
+const outcomeText = (outcome: Outcome | { dead: string }) =>
+  'dead' in outcome
+    ? outcome.dead
+    : 'throws' in outcome
+      ? `threw ${shortText(outcome.throws, 80)}`
+      : shortText(outcome.ret, 80);
+
+/** Runs the product module under the frame. Close the frame when the item is done. */
+export function isolate<T>(options: IsolateOptions): Frame<T> {
+  const tag = options.tag ?? options.module;
+  const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => ({
+    ...plan,
+    driverSource: twinDriver(options.seed, `${tag}:${plan.run}`),
+  }));
+  const token = randomBytes(16).toString('hex');
+  const module = resolve(options.module);
+  const setup = { token, module, loader: loaderPath() };
+  const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
+  const { port1, port2 } = new MessageChannel();
+  const signal = new SharedArrayBuffer(4);
+  const relay: Relay = {
+    // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
+    worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
+      execArgv: [],
+      workerData: { port: port2, signal, plans, setup },
+      transferList: [port2],
+      stderr: false,
+    }),
+    port: port1,
+    flag: new Int32Array(signal),
+  };
+  relay.worker.unref();
+  port1.unref();
+  const tape: Tape = [];
+  let first: string | undefined;
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    try {
+      relay.port.postMessage({ close: true });
+      wait(relay, 10_000, 'close');
+    } catch {
+      // the runs are ended by terminate below
+    }
+    void relay.worker.terminate();
+    for (const plan of plans) {
+      rmSync(plan.driverDir, { recursive: true, force: true });
+      if (plan.cwd) rmSync(plan.cwd, { recursive: true, force: true });
+    }
+    if (plain) rmSync(plain.dir, { recursive: true, force: true });
+  };
+  const started = wait(relay, START_MS, 'the start of the product') as {
+    ready: Array<{ ready?: boolean; error?: string; dead?: string }>;
+  };
+  const failed = started.ready.find((each) => each.ready !== true);
+  if (failed) {
+    close();
+    throw new FrameError(
+      `the product did not load: ${(failed.error ?? failed.dead ?? '').split('\n').slice(0, 4).join(' ')}`,
+    );
+  }
+  const call = (name: string, args: unknown[]): unknown => {
+    if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
+    const sent = encode(args, true, `${name}(arguments)`);
+    relay.port.postMessage({ call: name, args: sent });
+    const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
+    const [a, b] = answers as [Outcome | { dead: string }, Outcome | { dead: string }];
+    if ('dead' in a) throw new FrameError(a.dead);
+    const entry: Entry = { call: name, args: sent, ...a };
+    if (!('dead' in b)) entry.twin = b;
+    tape.push(entry);
+    const kept = (outcome: Outcome | { dead: string }): string => {
+      if ('dead' in outcome) return `dead`;
+      if ('throws' in outcome) return `throws ${canonical(outcome.throws)}`;
+      const keep = options.keep?.[name];
+      return canonical(keep ? encode(keep(decode(outcome.ret))) : outcome.ret);
+    };
+    const head = `${name}(${shortText(sent as Json, 80)}): ${describeRun(plans[0] as TwinPlan)} answered ${outcomeText(a)}`;
+    if (first === undefined && kept(a) !== kept(b))
+      first = `${head}, ${describeRun(plans[1] as TwinPlan)} answered ${outcomeText(b)}`;
+    if (plain) {
+      const c = plainCall(plain, options.seed, tag, module, name, sent);
+      if (!('dead' in c)) entry.plain = c;
+      if (first === undefined && kept(a) !== kept(c))
+        first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
+    }
+    if ('throws' in a) throw decode(a.throws);
+    return decode(a.ret);
+  };
+  const product = new Proxy(
+    {},
+    {
+      get(_target, name) {
+        if (typeof name !== 'string' || name === 'then') return undefined;
+        return (...args: unknown[]) => call(name, args);
+      },
+    },
+  ) as T;
+  return { product, tape, divergence: () => first, close };
+}
+
+export type CommandOptions = {
+  /** The command: a script path (.js, .mjs or .ts) and its arguments, as a user types them after `node`. */
+  command: [string, ...string[]];
+  seed: number;
+  tag?: string;
+  /** The files to write into the working folder before the command runs, by path relative to it. */
+  files?: Record<string, string>;
+  /** The files to read back from the working folder after it ran. */
+  collect?: string[];
+  timeoutMs?: number;
+};
+
+export type CommandRun = {
+  status: number | null;
+  stdout: string;
+  stderr: string;
+  files: Record<string, string | null>;
+  /** The first difference between the two runs (status, stdout or a collected file), or undefined. */
+  divergence?: string;
+  tape: Tape;
+};
+
+/**
+ * Runs a product command under the frame: three times, each in a fresh working folder of its own. Runs A and B go
+ * through drawn drivers with the twin differences of twins.ts (environment, uptime, the driver's place); run C is the
+ * plain command, `node [--import tsx] <script> <args>`, as a user types it. Each run sees the command's own argv.
+ * The working folder's path is written `<work>` in what is recorded, so the runs compare. The validator reads run A.
+ */
+export function isolateCommand(options: CommandOptions): CommandRun {
+  const [script, ...args] = options.command;
+  const tag = options.tag ?? script;
+  const plans = twinPlans(options.seed, tag, projectCache());
+  const token = randomBytes(16).toString('hex');
+  const loader = loaderPath();
+  const plainRun = openPlain(options.seed, `${tag}:command`);
+  const plainDir = plainRun.dir;
+  const runs: Array<TwinPlan | 'C'> = [...plans, 'C'];
+  const results = runs.map((plan) => {
+    const home = plan === 'C' ? plainDir : plan.driverDir;
+    const work = join(home, 'w');
+    mkdirSync(work, { recursive: true });
+    if (plan !== 'C' && plan.home) mkdirSync(plan.home, { recursive: true });
+    try {
+      for (const [path, text] of Object.entries(options.files ?? {})) {
+        const target = resolve(work, path);
+        if (!target.startsWith(work)) throw new FrameError(`the file ${path} is outside the working folder`);
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, text);
+      }
+      let ran: ReturnType<typeof spawnSync>;
+      if (plan === 'C') {
+        ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
+          cwd: work,
+          env: plainRun.env,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+          timeout: options.timeoutMs ?? CALL_MS,
+        });
+      } else {
+        const driver = join(plan.driverDir, plan.driverFile);
+        writeFileSync(driver, twinDriver(options.seed, `${tag}:command:${plan.run}`));
+        const setup = {
+          token,
+          command: resolve(script),
+          args,
+          loader,
+          uptimeShift: plan.uptimeShift,
+          depth: 0,
+        };
+        ran = spawnSync(process.execPath, [driver], {
+          cwd: work,
+          env: plan.env ?? process.env,
+          input: `${JSON.stringify(setup)}\n`,
+          encoding: 'utf8',
+          timeout: options.timeoutMs ?? CALL_MS,
+        });
+      }
+      const clean = (text: string | Buffer | null | undefined) =>
+        String(text ?? '')
+          .split(work)
+          .join('<work>');
+      const files: Record<string, string | null> = {};
+      for (const path of options.collect ?? []) {
+        const target = resolve(work, path);
+        files[path] = existsSync(target) ? clean(readFileSync(target, 'utf8')) : null;
+      }
+      return { plan, status: ran.status, stdout: clean(ran.stdout), stderr: clean(ran.stderr), files };
+    } finally {
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
+  const [a, b, c] = results as [(typeof results)[number], (typeof results)[number], (typeof results)[number]];
+  let divergence: string | undefined;
+  const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
+    if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
+      divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;
+  };
+  for (const other of [b, c]) {
+    differ('status', other)(a.status, other.status);
+    differ('stdout', other)(a.stdout, other.stdout);
+    for (const path of options.collect ?? []) differ(path, other)(a.files[path], other.files[path]);
+  }
+  const recorded = (run: typeof a) => ({
+    status: run.status,
+    stdout: run.stdout,
+    stderr: run.stderr,
+    files: run.files,
+  });
+  const tape: Tape = [
+    {
+      call: 'command',
+      args: encode(options.command),
+      ret: encode(recorded(a)),
+      twin: { ret: encode(recorded(b)) },
+      plain: { ret: encode(recorded(c)) },
+    },
+  ];
+  return {
+    status: a.status,
+    stdout: a.stdout,
+    stderr: a.stderr,
+    files: a.files,
+    ...(divergence ? { divergence } : {}),
+    tape,
+  };
+}

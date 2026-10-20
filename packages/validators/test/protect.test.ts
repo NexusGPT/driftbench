@@ -89,6 +89,7 @@ function evaluate(expression: string, ctx: Ctx): unknown {
   const contains = (a: string, b: string) => String(a).toLowerCase().includes(String(b).toLowerCase());
   const format = (pattern: string, ...args: unknown[]) =>
     pattern.replace(/\{(\d+)\}/g, (_, index) => String(args[Number(index)]));
+  const fromJSON = (text: string) => JSON.parse(text);
   return new Function(
     'github',
     'inputs',
@@ -96,8 +97,9 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     'startsWith',
     'contains',
     'format',
+    'fromJSON',
     `return (${expression});`,
-  )(github, inputs, always, startsWith, contains, format);
+  )(github, inputs, always, startsWith, contains, format, fromJSON);
 }
 
 function evaluateTemplate(text: unknown, ctx: Ctx): unknown {
@@ -457,6 +459,52 @@ describe('the validators workflow', () => {
     const sharedGroup = structuredClone(workflow);
     sharedGroup.concurrency.group = 'validators-${{ github.ref }}';
     expect(() => assertConcurrency(sharedGroup)).toThrow();
+  });
+  it('measures the pointer bank on a dispatch on a train branch that names it, and nowhere else', () => {
+    const job = workflow.jobs['pointer-measure'];
+    const on = (ctx: Ctx) => runs(ctx, 'pointer-measure', workflow);
+    const train = 'refs/heads/train/9a';
+    for (const jobs of [
+      'pointer-measure',
+      'pointer-measure-one',
+      'pointer-measure-full',
+      'build,pointer-measure',
+      'POINTER-MEASURE-ONE',
+    ])
+      expect(on(dispatchOn(train, jobs)), jobs).toBe(true);
+    for (const jobs of ['', 'pointer', 'pointer-measure-docs', 'xpointer-measure', 'ladders,system-full'])
+      expect(on(dispatchOn(train, jobs)), jobs).toBe(false);
+    for (const ref of [
+      'refs/heads/main',
+      'refs/heads/train-lookalike',
+      'refs/heads/feature/train/9',
+      'refs/tags/train/9',
+    ])
+      expect(on(dispatchOn(ref, 'pointer-measure,pointer-measure-full')), ref).toBe(false);
+    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR]) expect(on(ctx)).toBe(false);
+    // the shards: three for the trial, one for a single seed, ten for the gate measurement
+    const shards = (jobs: string) =>
+      evaluateTemplate(job.strategy.matrix.include, dispatchOn(train, jobs)) as {
+        seeds: string;
+        hidden: boolean;
+      }[];
+    expect(shards('pointer-measure').map((shard) => shard.seeds)).toEqual(['1..1', '2..2', '3..3']);
+    expect(shards('pointer-measure').filter((shard) => shard.hidden)).toHaveLength(1);
+    expect(shards('pointer-measure-one')).toEqual([{ seeds: '1..1', hidden: false }]);
+    const full = shards('pointer-measure-full');
+    expect(full).toHaveLength(10);
+    expect(full.filter((shard) => shard.hidden)).toHaveLength(1);
+    expect(full.flatMap((shard) => shard.seeds.split('..').map(Number))).toEqual(
+      Array.from({ length: 20 }, (_, index) => index + 1),
+    );
+    // the report is the one `--items --all-levels --json` prints, and a level never fails the job
+    const runsText = stepRuns('pointer-measure').join('\n');
+    expect(runsText).toContain(
+      'driftbench validate pointer --seeds "$SEEDS" $HIDDEN --items --all-levels --json',
+    );
+    expect(runsText).toContain('|| status=$?');
+    expect(job['timeout-minutes']).toBe(300);
+    for (const step of job.steps) expect(step.if).toBeUndefined();
   });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
