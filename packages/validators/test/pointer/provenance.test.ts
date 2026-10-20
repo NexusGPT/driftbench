@@ -148,7 +148,6 @@ describe('the second bank beside the first', () => {
     };
     const report = await runSeeds(ladder, [{ seed: 1, hidden: false }], process.cwd(), { full: true });
     const text = formatItems(bankSummary(report), 'pointer');
-    expect(text).toContain('Provenance blind:');
     expect(text).toContain('Provenance maintainer-repaired:');
     expect(text).toContain('Provenance maintainer-added:');
     expect(text).toContain(`Provenance ${BLIND_PROVENANCE}:`);
