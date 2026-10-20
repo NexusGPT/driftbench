@@ -69,8 +69,21 @@ for (const c of clauses) {
   unit.truths.push(c.truth);
   units.set(key, unit);
 }
+// Each clause is a line inserted into the real file of the first example estate that has the path, so the quote
+// sits among real surrounding text; a path no estate has is the clauses alone.
 const texts = new Map<string, string>();
-for (const u of units.values()) texts.set(u.path, `${texts.get(u.path) ?? ''}${u.quote}\n`);
+for (const u of units.values()) {
+  if (!texts.has(u.path)) {
+    const real = ['fixture', 'fixture-v2', 'reader-cases']
+      .map((e) => join(here, '../../estates', e, u.path))
+      .find((f) => existsSync(f));
+    texts.set(u.path, real ? readFileSync(real, 'utf8') : '');
+  }
+  texts.set(
+    u.path,
+    `${texts.get(u.path)}${texts.get(u.path)?.endsWith('\n') || texts.get(u.path) === '' ? '' : '\n'}${u.quote}\n`,
+  );
+}
 
 type Cache = { reads: Record<string, unknown>; proposals: Record<string, unknown> };
 const cache: Cache = existsSync(cachePath)
