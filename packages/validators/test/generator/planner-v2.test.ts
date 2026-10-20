@@ -8,6 +8,8 @@ vi.setConfig({ testTimeout: 1_800_000 });
 const MUTANTS = [
   ['drops-last-row', 'planner.own-rule-tuples'],
   ['ignores-seeds', 'planner.seeds-lead'],
+  ['ignores-seeds', 'planner.seeds-reduce-new-rows.mostly'],
+  ['ignores-seeds', 'planner.seeds-reduce-new-rows.30'],
   ['ignores-budget', 'planner.budget-prefix'],
   ['reverses-order', 'planner.rarest-cut-first'],
   ['cuts-seeds', 'planner.budget-keeps-seeds'],
