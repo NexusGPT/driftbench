@@ -1,14 +1,4 @@
-import { createHash } from 'node:crypto';
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -118,9 +108,7 @@ const under = (path: string, folder: string): boolean => path === folder || path
 
 export type Sealed = {
   file: string;
-  /** Every file the bundle was built from. */
-  inputs: string[];
-  /** The source tree of the product, which the unconfined run must not change. */
+  /** The source tree of the product. */
   tree: string;
 };
 
@@ -195,88 +183,34 @@ export function seal(
         `the product imports ${input}, a data file: grant it in \`reads\`, or the file of expected values it may be is bundled into the product`,
       );
   }
-  return { file: outfile, inputs: [...new Set([realOf(resolve(module)), ...inputs])], tree };
+  return { file: outfile, tree };
 }
 
 /**
- * A guard on everything the unconfined run C could write and a later run could read: the product's source tree, the
- * trees it is built from, and every path it is granted. Run C is the user-shaped run and may read the expected
- * values, so it must not carry them to a later run or frame by writing them into a file, or by creating one. The
- * guard takes an inventory at the start (every file, recursively, with its bytes); `check` after an unconfined run
- * puts back any file that changed, restores any that was removed, deletes any that was added, and says which.
+ * The environment of run C. Run C is the user-shaped run: unconfined for reads, so it can read the expected values and
+ * a product that does is told apart from the confined runs. It must not be able to write, though: anything it wrote
+ * (a stamp in the product's files, a new file in a granted folder, a nearer node_modules) would reach the confined
+ * runs of the next frame. So run C starts under the Node.js permission model with every read allowed and writes
+ * allowed only in `writes` (its own folder). The options go through NODE_OPTIONS, so `process.execArgv` is empty as
+ * for a user; the prelude of the entry puts NODE_OPTIONS back and hides `process.permission`.
  */
-export class SourceGuard {
-  private readonly saved = new Map<string, Buffer | string>();
-  private readonly roots: string[] = [];
-  private static readonly LIMIT = 20_000;
-  private static readonly BIG = 8 * 1024 * 1024;
-
-  constructor(paths: readonly string[]) {
-    for (const path of paths) {
-      if (!existsSync(path)) {
-        this.roots.push(path);
-        continue;
-      }
-      const real = realOf(path);
-      if (this.roots.some((root) => under(real, root))) continue;
-      this.roots.push(real);
-      this.scan(real, (file) => {
-        if (this.saved.size >= SourceGuard.LIMIT) return;
-        const bytes = readFileSync(file);
-        this.saved.set(
-          file,
-          bytes.length > SourceGuard.BIG ? createHash('sha256').update(bytes).digest('hex') : bytes,
-        );
-      });
-    }
-  }
-
-  private scan(path: string, visit: (file: string) => void): void {
-    let stat: ReturnType<typeof statSync>;
-    try {
-      stat = statSync(path);
-    } catch {
-      return;
-    }
-    if (stat.isDirectory()) {
-      for (const name of readdirSync(path))
-        if (name !== 'node_modules' && name !== '.git') this.scan(join(path, name), visit);
-    } else if (stat.isFile()) visit(path);
-  }
-
-  /** The paths that differ from the start (added, removed or changed), put back as they were. */
-  check(): string[] {
-    const changed: string[] = [];
-    const now = new Set<string>();
-    for (const root of this.roots) {
-      if (!existsSync(root)) continue;
-      this.scan(root, (file) => {
-        now.add(file);
-        const was = this.saved.get(file);
-        if (was === undefined) {
-          rmSync(file, { force: true });
-          changed.push(`${file} (added)`);
-          return;
-        }
-        const bytes = readFileSync(file);
-        const same =
-          typeof was === 'string'
-            ? createHash('sha256').update(bytes).digest('hex') === was
-            : was.equals(bytes);
-        if (!same) {
-          changed.push(`${file} (changed)`);
-          if (typeof was !== 'string') writeFileSync(file, was);
-        }
-      });
-    }
-    for (const [file, was] of this.saved) {
-      if (now.has(file) || typeof was === 'string') continue;
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, was);
-      changed.push(`${file} (removed)`);
-    }
-    return changed;
-  }
+export function plainEnv(
+  env: Record<string, string>,
+  writes: readonly string[],
+): { env: Record<string, string>; original: string | null } {
+  const original = env.NODE_OPTIONS ?? null;
+  const ours = [
+    permissionFlag(),
+    '--allow-fs-read=*',
+    ...writes.map((path) => `--allow-fs-write=${quote(realOf(path))}`),
+  ];
+  return {
+    env: {
+      ...env,
+      NODE_OPTIONS: [original, ...ours].filter((part) => part !== null && part !== '').join(' '),
+    },
+    original,
+  };
 }
 
 /** The folder of a sealed bundle. */

@@ -1,13 +1,12 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { confine, SourceGuard, seal } from './confine';
-import { plainCodec, plainEntry, RELAY, twinDriver, wrapperModule } from './driver';
+import { confine, plainEnv, seal } from './confine';
+import { plainCodec, plainEntry, plainPrelude, RELAY, twinDriver, wrapperModule } from './driver';
 import {
   canonical,
   decode,
@@ -103,16 +102,6 @@ const describeRun = (plan: TwinPlan | 'C') =>
         ? `run B (confined: a fresh folder, a bare environment, uptime +${plan.uptimeShift} s)`
         : 'run D (confined: behind a neutral wrapper module, a fresh folder, neutral arguments)';
 
-/** The tsx loader as a node option for run C, when tsx is installed. */
-function loaderOption(): string[] {
-  try {
-    createRequire(import.meta.url).resolve('tsx');
-    return ['--import', 'tsx'];
-  } catch {
-    return [];
-  }
-}
-
 /** A folder name drawn from the seed and the tag: letters only, six to thirteen of them. */
 function drawnFolder(seed: number, tag: string): string {
   const rng = rngOf(seed, tag);
@@ -126,9 +115,13 @@ type PlainRun = {
   dir: string;
   codec: string;
   codecNames: { encode: string; decode: string };
+  /** The first module of run C (see plainPrelude). */
+  prelude: string;
   count: number;
-  /** Run C's environment: the user's (`userEnv`). */
+  /** Run C's environment: the user's (`userEnv`), under the permission model for writes (see plainEnv). */
   env: Record<string, string>;
+  /** The NODE_OPTIONS the user's environment had, which the prelude puts back. */
+  original: string | null;
 };
 
 /** Opens run C: a drawn folder in the project's cache, holding the codec module. */
@@ -139,18 +132,31 @@ function openPlain(seed: number, tag: string): PlainRun {
     folder += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rng() * 26)];
   const dir = join(projectCache(), folder);
   mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'package.json'), '{"type":"module"}');
   const codec = plainCodec(seed, tag);
   const codecPath = join(dir, `${folder.slice(0, 4)}${Math.floor(rng() * 1000)}.mjs`);
   writeFileSync(codecPath, codec.source);
-  return { dir, codec: codecPath, codecNames: codec, count: 0, env: userEnv() };
+  // Run C may write only in its own folder: what it wrote elsewhere would reach the confined runs of a later frame.
+  const { env, original } = plainEnv(userEnv(), [dir]);
+  const prelude = join(dir, `${folder.slice(0, 4)}p${Math.floor(rng() * 1000)}.mjs`);
+  writeFileSync(prelude, plainPrelude(original));
+  return { dir, codec: codecPath, codecNames: codec, prelude, count: 0, env, original };
 }
 
 /** One call in run C: a fresh process that runs a plain entry file and answers through a file. */
-function plainCall(plain: PlainRun, seed: number, tag: string, module: string, name: string, sent: Json) {
+function plainCall(
+  plain: PlainRun,
+  seed: number,
+  tag: string,
+  module: string,
+  cwd: string,
+  name: string,
+  sent: Json,
+) {
   plain.count += 1;
   const stem = `${tag.length.toString(36)}${plain.count}`;
-  // .mts: an ES module whatever the folder's package type, so the entry may await at its top level.
-  const entry = join(plain.dir, `${stem}.mts`);
+  // .js in a folder of type module: an ES module that may await at its top level, and not an .mjs as the confined runs' entry is.
+  const entry = join(plain.dir, `${stem}.js`);
   const args = join(plain.dir, `${stem}.json`);
   const out = join(plain.dir, `${stem}.out.json`);
   writeFileSync(args, JSON.stringify(sent));
@@ -160,6 +166,7 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
       seed,
       `${tag}:${plain.count}`,
       {
+        prelude: pathToFileURL(plain.prelude).href,
         module: pathToFileURL(module).href,
         codec: pathToFileURL(plain.codec).href,
         args: pathToFileURL(args).href,
@@ -169,8 +176,8 @@ function plainCall(plain: PlainRun, seed: number, tag: string, module: string, n
       plain.codecNames,
     ),
   );
-  const ran = spawnSync(process.execPath, [...loaderOption(), entry], {
-    cwd: findRoot(dirname(module)),
+  const ran = spawnSync(process.execPath, [entry], {
+    cwd,
     env: plain.env,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -201,16 +208,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}`));
-  const {
-    file: sealed,
-    inputs,
-    tree,
-  } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`), {
+  const { file: sealed } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`), {
     sources: options.sources ?? [],
     reads: options.reads ?? [],
   });
-  // Run C is unconfined and can read the expected values: it must not leave them in a file a later run reads.
-  const guard = new SourceGuard([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) => {
     const confined = confine(
       { ...plan, driverSource: twinDriver(options.seed, `${tag}:${plan.run}`), setup: { module: sealed } },
@@ -302,13 +303,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         first = `${head}, ${describeRun(plan as TwinPlan)} answered ${outcomeText(other)}`;
     }
     if (plain) {
-      const c = plainCall(plain, options.seed, tag, module, name, sent);
+      const c = plainCall(plain, options.seed, tag, sealed, findRoot(dirname(module)), name, sent);
       if (!('dead' in c)) entry.plain = c;
       if (first === undefined && kept(a) !== kept(c))
         first = `${head}, ${describeRun('C')} answered ${outcomeText(c)}`;
-      const changed = guard.check();
-      if (first === undefined && changed.length > 0)
-        first = `${head}: run C wrote the product's files (${changed.map((path) => path.split('/').slice(-2).join('/')).join(', ')}); they are put back`;
     }
     if ('throws' in a) throw decode(a.throws);
     return decode(a.ret);
@@ -359,12 +357,11 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   // The command runs from a bundle, in processes that read that folder and their own working folder, write that
   // working folder and start no process (confine.ts); run C is the plain command, unconfined.
   const sealFolder = join(projectCache(), drawnFolder(options.seed, `seal:${tag}:command`));
-  const {
-    file: sealed,
-    inputs,
-    tree,
-  } = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
-  const guard = new SourceGuard([tree, ...inputs]);
+  const { file: sealed } = seal(
+    resolve(script),
+    sealFolder,
+    drawnFolder(options.seed, `bundle:${tag}:command`),
+  );
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
@@ -389,7 +386,15 @@ export function isolateCommand(options: CommandOptions): CommandRun {
       }
       let ran: ReturnType<typeof spawnSync>;
       if (plan === 'C') {
-        ran = spawnSync(process.execPath, [...loaderOption(), resolve(script), ...args], {
+        // The command is the sealed bundle, started through a first module that sets its arguments as a user's would be.
+        const wrapper = join(plainRun.dir, 'command.js');
+        const prelude = join(plainRun.dir, 'command-prelude.mjs');
+        writeFileSync(prelude, plainPrelude(plainRun.original, [resolve(script), ...args]));
+        writeFileSync(
+          wrapper,
+          `import ${JSON.stringify(pathToFileURL(prelude).href)};\nawait import(${JSON.stringify(pathToFileURL(sealed).href)});\n`,
+        );
+        ran = spawnSync(process.execPath, [wrapper], {
           cwd: work,
           env: plainRun.env,
           encoding: 'utf8',
@@ -436,9 +441,6 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     (typeof results)[number],
   ];
   let divergence: string | undefined;
-  const changedByC = guard.check();
-  if (changedByC.length > 0)
-    divergence = `run C wrote the command's files (${changedByC.join(', ')}); they are put back`;
   const differ = (what: string, other: typeof a) => (x: unknown, y: unknown) => {
     if (divergence === undefined && canonical(encode(x)) !== canonical(encode(y)))
       divergence = `${what}: ${describeRun(a.plan)} gave ${shortText(encode(x), 80)}, ${describeRun(other.plan)} gave ${shortText(encode(y), 80)}`;

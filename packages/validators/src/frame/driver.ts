@@ -210,13 +210,30 @@ export function plainCodec(seed: number, tag: string): { source: string; encode:
 }
 
 /**
+ * The first module of run C: it puts NODE_OPTIONS back to what the user's environment had (run C starts under the
+ * permission model through it), hides `process.permission`, and sets the arguments of a command. Run C then looks to
+ * the product as a user's process does.
+ */
+export function plainPrelude(original: string | null, argv?: string[]): string {
+  return [
+    original === null
+      ? 'delete process.env.NODE_OPTIONS;'
+      : `process.env.NODE_OPTIONS = ${JSON.stringify(original)};`,
+    'try { delete process.permission; } catch {}',
+    "try { Object.defineProperty(process, 'permission', { value: undefined, configurable: true, writable: true }); } catch {}",
+    ...(argv ? [`process.argv = [process.argv[0], ...${JSON.stringify(argv)}];`] : []),
+    '',
+  ].join('\n');
+}
+
+/**
  * The entry of run C for one call: it imports the product and the codec, reads the arguments from a file, makes the
  * call and writes the answer to a file. Paths are file URLs and the call's name is a string literal.
  */
 export function plainEntry(
   seed: number,
   tag: string,
-  paths: { module: string; codec: string; args: string; out: string },
+  paths: { prelude: string; module: string; codec: string; args: string; out: string },
   call: string,
   codec: { encode: string; decode: string },
 ): string {
@@ -225,6 +242,7 @@ export function plainEntry(
   const out = name('out');
   const error = name('error');
   return [
+    `import ${JSON.stringify(paths.prelude)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { readFileSync as ${name('read')}, writeFileSync as ${name('write')} } from 'node:fs';`,
     `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')} } from ${JSON.stringify(paths.codec)};`,
