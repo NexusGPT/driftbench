@@ -1,64 +1,78 @@
-import type { IOSetup, IOTrace, PointerIO, SampleEffect } from './io';
-
-/** Bank-owned integration boundary. No reader implementation is imported. */
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
-export type Tier = 1 | 2 | 3 | 4 | 5;
-export type Operation =
-  | 'cut'
-  | 'fingerprint'
-  | 'ledger'
-  | 'reanchor'
-  | 'group'
-  | 'labels'
-  | 'replay'
-  | 'privacy'
-  | 'links'
-  | 'radius';
-export type Request = { operation: Operation; input: Json };
+import type { Rng } from '../kit/words';
+import type { PointerSut } from '../sut/port';
+import type { Provenance } from './specs/provenance';
+import type { Need } from './specs/types';
 
 /**
- * Translate this bank's observations to the public reader port. Each call is isolated;
- * histories belong in input, never in shared adapter state. Return observed values only.
- * Do not import the bank/oracles or infer answers from fixture names. See CONTRACT.md.
+ * The bank of the pointer validator (docs/validators.md section 12). An item is one capability the pointer reader
+ * must have, written as code: an id, a family, a difficulty tier, a seeded generator that builds the input and
+ * the truth it must give, an exact oracle, and the one component it points at.
  */
-export interface PointerAdapter {
-  execute(request: Request, io?: PointerIO): unknown | Promise<unknown>;
-}
 
-export type Probe = {
-  request: Request;
-  /** Exact planted observable, never passed to the adapter. */
-  expected: Json;
-  /** Optional projection for unspecified hash bytes, ordering, or raw span witnesses. */
-  observe?: (actual: unknown, effects: IOTrace) => unknown;
-  /** Harness-only transport fixture; absent from the request. */
-  setup?: IOSetup;
-  sampleEffects?: SampleEffect[];
-  /** Only the harness tests use this representative raw response. It is not a reader. */
-  sample?: Json;
+export type Tier = 1 | 2 | 3 | 4 | 5;
+
+export type Outcome = { pass: boolean; detail: string };
+
+/** What an item runs with. */
+export type ItemContext = {
+  seed: number;
+  id: string;
+  sut: PointerSut;
+  /** A stream named by the seed and the item. */
+  rng: Rng;
 };
 
-export type Plant = { probes: Probe[]; budgetMs?: number; budgetBytes?: number };
-export type BankItem = {
+export type PointerItem = {
+  /** `<family>.<key>`, unique in the bank. */
   id: string;
   family: string;
   tier: Tier;
+  /** The ladder level, 1 to LEVELS.length. */
   level: number;
+  /** The one component a failure points at. */
   component: string;
   title: string;
+  /** The one change that would make the item pass (docs/validators.md section 12.4). */
   cause: string;
-  /** Design section supporting the oracle; never an implementation citation. */
-  design: string;
-  generate(seed: number): Plant;
+  /** Omitted means author-declared atomic; a composite check contributes no distinct-cause credit. */
+  causeKind?: CauseKind;
+  /** Who wrote the item and whether it changed afterwards. */
+  provenance?: Provenance;
+  /** How the input is built and what the oracle checks, as printed in the catalogue. */
+  gen: string;
+  oracle: string;
+  needs: Need[];
+  /** The input does not depend on the seed: judged once per process. */
+  seedFree: boolean;
+  run(ctx: ItemContext): Promise<Outcome>;
 };
 
-/** Seeded fictional identifiers, not a word list or a label classifier. */
-export function token(seed: number, salt = 0): string {
-  let n = (seed ^ Math.imul(salt + 1, 0x9e3779b1)) >>> 0;
-  n = Math.imul(n ^ (n >>> 16), 0x85ebca6b) >>> 0;
-  return `v${n.toString(36)}`;
+/** What a family file provides for each of its spec rows. */
+export type Run = (ctx: ItemContext) => Promise<Outcome>;
+
+/** The ladder levels of the bank, in order of the cost of diagnosing a failure. */
+export const LEVELS = [
+  { id: 'cut', name: 'cutting', what: 'layer A turns files into units' },
+  { id: 'ids', name: 'ids and ledger', what: 'fingerprints, ids, the canonical sidecar' },
+  { id: 'anchor', name: 're-anchoring', what: 'old units find their new selves' },
+  { id: 'labels', name: 'labels and atoms', what: 'windows, answers, carry-forward, ports, atoms' },
+  { id: 'replay', name: 'cassette and replay', what: 'determinism lives in the cassette' },
+  { id: 'links', name: 'links and blast radius', what: 'layer C' },
+  { id: 'privacy', name: 'private estates', what: 'a secret stays in its folder' },
+  { id: 'scale', name: 'scale', what: '10 and 100 times the size, time and memory' },
+  { id: 'adversarial', name: 'adversarial', what: 'decoys, hostile inputs, ladder traps' },
+] as const;
+
+export function levelOf(id: string): number {
+  const index = LEVELS.findIndex((level) => level.id === id);
+  if (index < 0) throw new Error(`no level ${id}`);
+  return index + 1;
 }
 
-export function probe(operation: Operation, input: Json, expected: Json): Probe {
-  return { request: { operation, input }, expected };
-}
+/** A failure an item reports in words: thrown by helpers, caught by the runner, shown without a stack. */
+export class Problem extends Error {}
+
+export const pass = (detail: string): Outcome => ({ pass: true, detail });
+export const fail = (detail: string): Outcome => ({ pass: false, detail });
+
+import type { CauseKind } from '../../../ladder';

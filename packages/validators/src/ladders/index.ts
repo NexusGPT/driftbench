@@ -4,6 +4,7 @@ import { generatorLadder } from './generator/index';
 import { judgesLadderV2 } from './judges/v2/index';
 import { judgesLadderV3 } from './judges/v3/index';
 import { mapLadder } from './map';
+import { pointerLadder } from './pointer/index';
 import { statsLadder } from './stats';
 import { systemLadder } from './system';
 import { variablesLadder } from './variables';
@@ -15,6 +16,7 @@ export function registeredLadders(): Record<string, Ladder> {
     generator: generatorLadder(),
     judges: judgesLadderV2(),
     map: mapLadder(),
+    pointer: pointerLadder(),
     stats: statsLadder(),
     system: systemLadder(),
     variables: variablesLadder(),

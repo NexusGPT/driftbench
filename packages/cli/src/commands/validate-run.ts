@@ -524,7 +524,13 @@ function print(
 function shownBank(report: LadderReport, options: ValidateCommandOptions) {
   const bank = bankSummary(report);
   if (!options.blind) return bank;
-  const { failingCauses: _c, failingWithoutCause: _w, failingCausesByFamily: _f, ...rest } = bank;
+  const {
+    failingCauses: _c,
+    failingComposite: _k,
+    failingWithoutCause: _w,
+    failingCausesByFamily: _f,
+    ...rest
+  } = bank;
   return { ...rest, rows: rest.rows.map(({ cause: _cause, ...row }) => row) };
 }
 
