@@ -180,7 +180,17 @@ export function truthPointer(truth: Truth): TruthPointer {
       };
     },
     opinions: pointer.denseOpinions,
-    async call(_wire, _set, window) {
+    async call(_wire, set, window) {
+      // Another set (the document roles the scan asks first) has no planted answer: every unit is none, and the
+      // window is not one of the planted set's, so it is not logged.
+      if (set.set !== SET_NAME) {
+        return {
+          labels: window.units.map((unit) => ({ units: String(unit.n), label: 'none' })),
+          returnedModel: 'planted-truth-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
       const file = truth.files[window.path] ?? '';
       windows.push({
         file: window.path,
