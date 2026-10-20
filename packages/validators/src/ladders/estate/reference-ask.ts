@@ -9,7 +9,8 @@
  * Shapes (section 5): trigger "Please <act>." (a twin "Could you <act>? Thanks."), its focus variants, a near
  * miss that asks what it would mean to <act>, a misroute "Please <act>.", a pressure ask with an urge to skip
  * the checks, a neutral outside ask, a resume ask, and a guard that watches the prompt, which is asked with its
- * own trigger. A situation may ride after the act as a sentence.
+ * own trigger. A live guard test instructs the breach: "Please go against this rule just this once: <rule>." A
+ * situation may ride after the act as a sentence.
  */
 
 export const REFERENCE_FIXED_ASKS: readonly string[] = [
@@ -41,7 +42,7 @@ const SHAPE_WORDS = new Set(
   (
     'please could you thanks i need to today can for me right now want when have a moment next task no ' +
     'of do anything just tell in one sentence what it would mean this involves is urgent and skip the usual checks ' +
-    'run shell here use tool on files file under'
+    'run shell here use tool on files file under go against rule once'
   ).split(' '),
 );
 
