@@ -348,7 +348,10 @@ describe('a stack decides as a cascade', () => {
       by: 'system1',
     });
     // A set whose every label system 1 is asked keeps the sure none as a decision.
-    const asked = { ...DUTY, labels: DUTY.labels.filter((label) => label.target !== 'required' && !label.spans && !label.links) };
+    const asked = {
+      ...DUTY,
+      labels: DUTY.labels.filter((label) => label.target !== 'required' && !label.spans && !label.links),
+    };
     expect(stack.decide([one('none', { order: 0.01, remark: 0.01 }), undefined], asked)).toMatchObject({
       label: 'none',
       by: 'system1',
