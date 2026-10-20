@@ -55,7 +55,15 @@ function generated(
   const spec = Spec.parse({
     id: 'cell-probe',
     kind: 'conversation',
-    blocks: [{ id: 'block', when: { user: 'Hello.' }, expect: { stage: hidden.start } }],
+    // The block expects the stage its cell names, else a stage a move reaches: the item places a block on the
+    // stage it expects, and no conversation expects its start stage with no deviation.
+    blocks: [
+      {
+        id: 'block',
+        when: { user: 'Hello.' },
+        expect: { stage: cell.stage ?? required(hidden.paths[0]?.stages[1]) },
+      },
+    ],
     metadata: { generated: { seeder, cell: {}, blocks: [{ block: 'block', cell }] } },
   });
   const loaded: LoadedSpec = {

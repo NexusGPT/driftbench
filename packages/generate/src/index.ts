@@ -56,6 +56,7 @@ export {
   SEEDERS,
   type Seeder,
   type SeederTotals,
+  STEM_MAP_FILE,
   type StageGraph,
   selectBudget,
   slicedLhs,
@@ -469,6 +470,7 @@ export {
   intakeFiles,
   intakeLogs,
   intentDimension,
+  interviewVariables,
   isFictionalEmail,
   isFictionalPhone,
   isValidBelgianNationalNumber,
@@ -484,6 +486,7 @@ export {
   loadIntakeMap,
   loadTurnRecording,
   loadTurns,
+  loadVariableRecording,
   luhn,
   MAX_TURN_LENGTH,
   type MapResult,
@@ -500,6 +503,7 @@ export {
   parseInterview,
   parseLogs,
   parseReferenceAnswer,
+  parseVariableRecording,
   planCells,
   REFERENCE_PROMPT,
   Redactor,
@@ -511,6 +515,7 @@ export {
   renderApproval,
   renderQuestionnaire,
   renderReferenceSet,
+  replayAsker,
   SECOND_PASSES,
   type SecondPass,
   sampleIds,
@@ -518,6 +523,14 @@ export {
   type TurnText,
   totalVariation,
   turnRecordingPort,
+  type VariableAsker,
+  type VariableInterviewEntry,
+  type VariableInterviewOptions,
+  type VariableInterviewResult,
+  type VariableQuestion,
+  VariableRecording,
+  type VariableRecordingResult,
+  type VariableReplayAsker,
   wordsOf,
 } from './intake';
 export {
@@ -586,6 +599,18 @@ export {
   runPilot,
   type WordingSensitivity,
 } from './pilot';
+export {
+  type PlanSeedRow,
+  type PlanV2,
+  type PlanV2Layer,
+  type PlanV2Options,
+  type PlanV2Row,
+  type PlanV2Warning,
+  planV2,
+  renderPlanV2,
+  type StoreRule,
+  storeRules,
+} from './plan-v2';
 export { mapDigest, type ProposeOptions, parseProposals, proposeSpecs, type SpecProposal } from './propose';
 export { buildTaskInputs, type TaskInput, type TaskVariant, taskSpecs } from './seed/tasks';
 export {
@@ -615,3 +640,17 @@ export {
   specOfKey,
   spendQuery,
 } from './select';
+export {
+  STEM_MAP_HEADER,
+  type StemMapRow,
+  type StemPassResult,
+  stemMapCsv,
+  stemPass,
+} from './stems/post-pass';
+export {
+  type StemForest,
+  type StemForestOptions,
+  type StemNode,
+  type StemRow,
+  stemForest,
+} from './stems/trie';

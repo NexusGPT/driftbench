@@ -260,7 +260,7 @@ afterAll(() => {
       '',
       ...observations.filter((row) => row.firstDetail).map((row) => `- ${row.name}: ${row.firstDetail}`),
       '',
-      'Command: `/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/slots/run.sh pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts --maxWorkers=2 --reporter=verbose`.',
+      'Command: `pnpm exec vitest run packages/validators/test/judges/v3/scoring-mutants.test.ts --maxWorkers=2 --reporter=verbose`.',
       '',
       'Scope: deterministic labellerBank at the reported seed and the explicit edge witnesses; no live models, private data, word lists, or commits. This is not the full four-part hardness audit.',
     ].join('\n'),

@@ -72,6 +72,18 @@ describe('custom', () => {
     expect(outcomes(verdicts)).toEqual({ 'custom.no_narration.reply': 'pass' });
   });
 
+  it('takes a name that starts with a dot, an underscore or a hyphen, and refuses one with a slash', async () => {
+    for (const name of ['.dotted', '_under', '-hyphen', 'a.b_c-d']) {
+      const registered = new CheckRegistry().register(name, () => machineVerdict(name, 'ok', 'pass', 'ran'));
+      const named: Spec = { ...spec, rules: { ...spec.rules, custom: { [name]: {} } } };
+      const verdicts = await run(createCustomCheck(registered), context(named, 1, observed(reply)));
+      expect(outcomes(verdicts)).toEqual({ [`custom.${name}.ok`]: 'pass' });
+    }
+    for (const name of ['a/b', '', 'a b']) {
+      expect(() => new CheckRegistry().register(name, () => [])).toThrow(/letters, digits, dots/);
+    }
+  });
+
   it('does not apply when rules.custom names nothing', () => {
     expect(
       createCustomCheck(registry()).applies(context(acme('acme-plan-upgrade'), 1, observed(reply))),
