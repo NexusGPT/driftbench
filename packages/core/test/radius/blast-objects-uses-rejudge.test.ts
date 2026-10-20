@@ -3,7 +3,10 @@
 // observation (observationCompatibilityHash, consumed by prepareRejudge).
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
-import { shippedObjectContext } from '../../src/objects';
+import { bindObjectContext, objectContextOfSpec } from '../../src/objects/context';
+import { checkSpecObjects } from '../../src/objects/index';
+import { type ObjectContext, resolveBlockObjects } from '../../src/objects/layers';
+import { ObjectStore, objectRegistry } from '../../src/objects/resolve';
 import { prepareRejudge, rejudgeRun } from '../../src/radius/rejudge';
 import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
@@ -48,33 +51,50 @@ const stored = () =>
     now: () => new Date('2026-10-13T00:00:00Z'),
   });
 
-const withUses = (): Spec => ({
-  ...original,
-  uses: { blame: 'acme', judges: 'council-3' },
-  blocks: original.blocks.map((block, index) =>
-    index === 0 ? { ...block, uses: { value_check: 'strict', diagnostics: ['value-mismatch'] } } : block,
-  ),
-});
-
-/** The objects `withUses` names: a re-judge resolves them before it judges, so each must exist (project layer). */
-function usesContext() {
-  const context = shippedObjectContext();
-  for (const [kind, id] of [
-    ['policy/blame', 'acme'],
-    ['judge-council', 'council-3'],
-    ['policy/value-check', 'strict'],
-    ['diagnostic', 'value-mismatch'],
-  ] as const)
-    context.store.add({ kind, id, ...(kind === 'diagnostic' ? { steps: [] } : { items: [] }) }, 'project', {
-      path: `fixture/${kind}/${id}.yaml`,
-    });
-  return context;
+/** Real project objects for the scoring-only references this fixture changes. */
+function projectObjects(): ObjectContext {
+  const store = new ObjectStore(objectRegistry.clone());
+  const definitions = [
+    { kind: 'policy/value-check', id: 'strict', extends: 'default', items: [] },
+    { kind: 'policy/blame', id: 'acme', items: [] },
+    { kind: 'judge-council', id: 'council-3', items: [] },
+    { kind: 'diagnostic', id: 'value-mismatch-fixture', scope: 'block', steps: [] },
+  ];
+  for (const object of definitions) {
+    store.add(object, 'project', { path: `fixture/${object.kind}/${object.id}.yaml` });
+  }
+  return { store, uses: [], problems: [] };
 }
+
+const withUses = (): Spec =>
+  bindObjectContext(
+    {
+      ...original,
+      uses: { blame: 'acme', judges: 'council-3' },
+      blocks: original.blocks.map((block, index) =>
+        index === 0
+          ? { ...block, uses: { value_check: 'strict', diagnostics: ['value-mismatch-fixture'] } }
+          : block,
+      ),
+    },
+    projectObjects(),
+  );
 
 describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', () => {
   it('prepares and runs the re-judge with the stored observations, and stamps the new spec hash', async () => {
     const run = await stored();
     const next = withUses();
+    const objects = objectContextOfSpec(next);
+    if (!objects) throw new Error('the fixture lost its object context');
+    expect(checkSpecObjects(next, objects)).toEqual([]);
+    expect(resolveBlockObjects(next, 0, objects).map(({ key, object }) => [key, object.id])).toEqual(
+      expect.arrayContaining([
+        ['value_check', 'strict'],
+        ['blame', 'acme'],
+        ['judges', 'council-3'],
+        ['diagnostics', 'value-mismatch-fixture'],
+      ]),
+    );
     const prepared = prepareRejudge(original, next, run, options);
     expect(prepared.contexts).toHaveLength(2);
     const result = await rejudgeRun(
@@ -88,7 +108,7 @@ describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', 
       },
       () => 0,
       false,
-      usesContext(),
+      objects,
     );
     expect(result.blocks.map((block) => block.observed)).toEqual(run.blocks.map((block) => block.observed));
     expect(result.rejudged?.oldSpecHash).toBe(run.specHash);

@@ -1,5 +1,6 @@
 import type { Check, CheckContext, CheckSet } from '../contracts/check';
-import { bindObjectContext } from '../objects/context';
+import { type DiagnosticBudget, runDiagnostics, runRunDiagnostics } from '../diagnostics/run';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import {
   type CliOverrides,
@@ -262,33 +263,58 @@ function prepareStored(
 
 /**
  * No adapter is accepted: only the selected judge runs. Historical agent cost is not billed again. The judge's
- * verdicts are stamped with the `judge` item of each block's check set, resolved against `objects` (the shipped
- * objects when absent).
+ * verdicts are stamped with the `judge` item of each block's check set, resolved against `objects` (the spec's own
+ * objects, else the shipped objects, when absent); the diagnostics run against the same objects within
+ * `diagnosticBudget`.
  */
 export async function rejudgeRun(
   prepared: PreparedRejudge,
   judge: Check,
   spent: () => number,
   recordRealizedText = false,
-  objects: ObjectContext = shippedObjectContext(),
+  objects?: ObjectContext,
+  diagnosticBudget: DiagnosticBudget = {},
 ): Promise<RunResult> {
-  const { source, spec, contexts, stamp, carried } = prepared;
+  const { source, contexts, stamp, carried } = prepared;
   // The sink of every door that prepared this re-judge: the contexts were built from the block order.
-  refuseParentLinked(spec);
+  // It refuses before any object of the spec is resolved.
+  refuseParentLinked(prepared.spec);
+  const context = objects ?? objectContextOfSpec(prepared.spec) ?? shippedObjectContext();
+  const spec = bindObjectContext({ ...prepared.spec }, context);
+  const errors = checkSpecObjects(spec, context);
+  if (errors.length) throw new Error(errors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
+  // Resolve every scope before calling the judge, with the same current context for checks and diagnostics.
+  const usedByBlock = contexts.map((ctx) => resolveBlockObjects(spec, ctx.blockIndex, context));
+  const spanning = resolveBlockObjects(spec, -1, context);
   const before = spent();
   const blocks: BlockResult[] = [];
-  for (const ctx of contexts) {
+  for (const previous of contexts) {
+    const ctx = { ...previous, spec, history: source.mode === 'T' ? [] : [...blocks] };
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
+    const { diagnoses: _diagnoses, skippedForBudget: _skipped, ...clean } = original;
+    const used = usedByBlock[ctx.blockIndex] ?? [];
+    const refresh = async (block: BlockResult): Promise<BlockResult> => {
+      const diagnostic = await runDiagnostics(
+        used.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+        { check: { ...ctx, expect: ctx.block.expect ?? {} }, verdicts: block.verdicts, objects: used },
+        diagnosticBudget,
+      );
+      return {
+        ...block,
+        ...(diagnostic.diagnoses.length ? { diagnoses: diagnostic.diagnoses } : {}),
+        ...(diagnostic.skippedForBudget ? { skippedForBudget: diagnostic.skippedForBudget } : {}),
+      };
+    };
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
     // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
     if (!selected.length || !isScored(original)) {
-      const { rejudged: _previousJudge, ...unchanged } = original;
-      blocks.push({ ...unchanged, carried });
+      const { rejudged: _previousJudge, ...unchanged } = clean;
+      blocks.push(await refresh({ ...unchanged, carried }));
       continue;
     }
     const blockSpend = spent();
-    const by = blockPlan(spec, ctx.blockIndex, [judge], objects).plan.steps[0]?.by;
+    const by = blockPlan(spec, ctx.blockIndex, [judge], context).plan.steps[0]?.by;
     const judged = (await judge.evaluate(ctx)).map((v) => Verdict.parse(by ? { ...v, by } : v));
     if (
       judged.some((v) => v.kind !== 'judge' || !selected.includes(v.name)) ||
@@ -299,17 +325,25 @@ export async function rejudgeRun(
     if (judged.some((v) => kept.some((k) => k.id === v.id)))
       return refuse('Judge verdict ids collide with carried checks');
     const verdicts = [...kept, ...judged];
-    const { carried: _carried, rejudged: _rejudged, ...rest } = original;
-    blocks.push({
-      ...rest,
-      verdicts,
-      pass: verdicts.every((v) => !v.gating || v.outcome === 'pass'),
-      drift: driftOf(verdicts),
-      rejudged: { ...stamp, criteria: selected, judgeCostUsd: spent() - blockSpend },
-    });
+    const { carried: _carried, rejudged: _rejudged, ...rest } = clean;
+    blocks.push(
+      await refresh({
+        ...rest,
+        verdicts,
+        pass: verdicts.every((v) => !v.gating || v.outcome === 'pass'),
+        drift: driftOf(verdicts),
+        rejudged: { ...stamp, criteria: selected, judgeCostUsd: spent() - blockSpend },
+      }),
+    );
   }
-  const { carried: _carried, events: _events, ...rest } = source;
-  const updated = {
+  const {
+    carried: _carried,
+    events: _events,
+    diagnoses: _diagnoses,
+    skippedForBudget: _skipped,
+    ...rest
+  } = source;
+  const updated: RunResult = {
     ...rest,
     specHash: specHash(spec),
     identityHash: specIdentityHash(spec),
@@ -320,7 +354,17 @@ export async function rejudgeRun(
     cost: spent() - before,
     cacheHit: false,
   };
-  return applyRealizedTextPolicy({ ...updated, runId: cellId(updated) }, recordRealizedText, {
+  updated.runId = cellId(updated);
+  const diagnostic = await runRunDiagnostics(
+    spanning.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+    updated,
+    spanning,
+    diagnosticBudget,
+  );
+  if (diagnostic.diagnoses.length) updated.diagnoses = diagnostic.diagnoses;
+  if (diagnostic.skippedForBudget) updated.skippedForBudget = diagnostic.skippedForBudget;
+  updated.cost = spent() - before;
+  return applyRealizedTextPolicy(updated, recordRealizedText, {
     fromRun: source.runId,
     fromCampaign: stamp.fromCampaign,
   });
