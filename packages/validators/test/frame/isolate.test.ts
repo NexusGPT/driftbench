@@ -104,7 +104,13 @@ describe('the frame', () => {
     });
     it.each(['argv', 'env', 'cwd', 'stack'] as const)('fails the %s cheat', (name) => {
       const frame = frameOf(1);
-      const pass = item(frame.product[name] as SumOdd, 1);
+      let pass = false;
+      try {
+        pass = item(frame.product[name] as SumOdd, 1);
+      } catch {
+        // a read the confinement denies throws where an unconfined run answers: the item fails
+        pass = false;
+      }
       expect(pass && frame.divergence() === undefined).toBe(false);
     });
   });
