@@ -28,6 +28,13 @@ export class Frontier {
   private readonly free: Int32Array;
   private violated = 0;
   private steps = 0;
+  /**
+   * A full row no constraint forbids that agrees with every variable set so far, or null when none is known.
+   * Setting a variable to the value the witness holds keeps it; to another value, the witness is kept when only
+   * the constraints that name that variable could fire and none does. A candidate value is then answered from
+   * the witness without a search.
+   */
+  private witness: Int16Array | null = null;
 
   constructor(
     private readonly solver: Solver,
@@ -77,6 +84,10 @@ export class Frontier {
    * entry set here was the one short, the constraint holds all its entries, blocks nothing and forbids the row.
    */
   set(variable: number, value: number): void {
+    if (this.witness && this.witness[variable] !== value) {
+      if (this.keepsWitness(variable, value)) this.witness[variable] = value;
+      else this.witness = null;
+    }
     const entries = this.solver.entriesOf[variable] ?? [];
     for (const entry of entries) {
       counters.work += 1;
@@ -128,21 +139,54 @@ export class Frontier {
 
   /** Whether the row, with the variable set to the value, can be completed into a row that breaks no constraint. */
   completes(variable: number, value: number): boolean {
+    if (
+      !this.violates &&
+      this.witness &&
+      (this.witness[variable] === value || this.keepsWitness(variable, value))
+    )
+      return true;
     this.set(variable, value);
     const ok = !this.violates && this.finish();
     this.clear(variable);
     return ok;
   }
 
+  /** Whether the witness, with the variable at the value, still breaks no constraint (only its constraints can fire). */
+  private keepsWitness(variable: number, value: number): boolean {
+    const witness = this.witness as Int16Array;
+    const { view } = this.solver;
+    for (const entry of this.solver.entriesOf[variable] ?? []) {
+      counters.work += 1;
+      if (entry.value !== value) continue;
+      const constraint = view.constraints[entry.constraint];
+      if (!constraint) continue;
+      let fires = true;
+      for (let at = 0; at < constraint.variables.length; at += 1) {
+        const other = constraint.variables[at] as number;
+        if (other !== variable && witness[other] !== constraint.values[at]) {
+          fires = false;
+          break;
+        }
+      }
+      if (fires) return false;
+    }
+    return true;
+  }
+
   /** Whether the row as it is can be completed. */
   finish(): boolean {
     if (this.violates) return false;
+    if (this.witness) return true;
     this.steps = 0;
     return this.search(this.solver.constrained.filter((variable) => this.row[variable] === -1));
   }
 
   private search(unset: number[]): boolean {
-    if (unset.length === 0) return true;
+    if (unset.length === 0) {
+      // Every constrained variable is set and no constraint fires: the others are free. Keep the row as the witness.
+      this.witness = Int16Array.from(this.row, (value) => Math.max(value, 0));
+      return true;
+    }
     this.steps += 1;
     counters.work += unset.length;
     if (this.steps > MAX_SOLVER_STEPS)
