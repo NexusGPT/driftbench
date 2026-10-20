@@ -37,6 +37,7 @@ The settings file, `driftbench.estate.yaml`. Every key is optional.
 | `ignore` | `estate scan`, `estate lint` | globs of paths the scan skips, beside the defaults | `ignore: [logs/, drafts/**]` |
 | `externals` | `estate scan` | folders outside the estate a path may name | `externals: [docs/]` |
 | `aliases` | `estate scan` | an alias and the folder it stands for | `aliases: { REF: .claude/skills/x/references }` |
+| `documents` | `estate scan` | a glob and the role of the documents it matches; it wins over the recorded label and over structure | `documents: { 'archive/**': archive, 'forms/*.md': template }` |
 | `scripts` | `estate unit` | the fixtures of each script the unit runner runs | `scripts: { .claude/guards/check.py: [{ args: [--dry-run], expect: { exitCode: 0 } }] }` |
 | `labels` | `estate scan --pointer` | the label sets: a file, or the sets inline | `labels: labels.yaml` |
 | `labeler` | `estate scan --pointer` | one labeler per class, `<class>:<client>`, never a model; without it, the default stack of both classes | `labeler: [system1:openai-decisions, system2:anthropic]` |
