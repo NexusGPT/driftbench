@@ -75,13 +75,13 @@ describe('blind pointer bank harness', () => {
     ];
     for (const family of families)
       expect(bank.filter((i) => i.family === family)).toHaveLength(
-        family === 'labels' ? 40 : family === 'adversarial' ? 31 : 30,
+        family === 'labels' ? 40 : family === 'adversarial' ? 31 : family === 'privacy' ? 32 : 30,
       );
     for (const n of [1, 2, 3, 4, 5]) {
       expect(bank.some((i) => i.tier === n)).toBe(true);
       expect(bank.some((i) => i.level === n)).toBe(true);
     }
-    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 72, 72, 73]);
+    expect([1, 2, 3, 4, 5].map((n) => bank.filter((i) => i.tier === n).length)).toEqual([62, 62, 73, 73, 73]);
     for (const item of bank) {
       expect(item.cause.length).toBeGreaterThan(5);
       expect(item.design.length).toBeGreaterThan(0);
