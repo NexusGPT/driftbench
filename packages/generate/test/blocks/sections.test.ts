@@ -7,7 +7,7 @@ import {
   sectionsFromHeadings,
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { blockSections } from '../../src/blocks/sections';
+import { blockSections, sectionsNamingTools } from '../../src/blocks/sections';
 import { generateSuite } from '../../src/enumerate/generate';
 import { generateEstateSuite } from '../../src/estate/generate';
 import { prepareMap } from '../../src/seed/map';
@@ -203,6 +203,29 @@ describe('generate with a section registry of the prompt', () => {
       },
     ]);
     expect(stale.naming('lookup')).toEqual([]);
+  });
+
+  it('names a tool only as a whole identifier: a longer name that ends or starts with it does not count', () => {
+    const text =
+      '# Bot\n\n## Ends\nCall prelookup first.\n\n## Starts\nCall lookup_all first.\n\n## Whole\nCall (lookup) first.\n';
+    const made = sectionsFromHeadings(text, { promptId: 'bot', version: 'v1' });
+    if (!made.ok) throw new Error(made.errors.join('\n'));
+    const holder = blockSections([{ path: 'bot.md', text, registry: made.registry }]);
+    const named = holder
+      .naming('lookup')
+      .map((ref) => made.registry.sections.find((each) => each.id === ref.section)?.title);
+    expect(named).toEqual(['Whole']);
+  });
+
+  it('links only the tools the map declares, even when a prompt names another identifier', () => {
+    const named = (labels: string[], declared: (label: string) => boolean) =>
+      sectionsNamingTools(sections, labels, declared).map((ref) => [ref.section, ref.through, ref.relation]);
+    // `CONFIRM` is in the Cards section of the Zed prompt, but no tool of the map has that name.
+    expect(named(['CONFIRM'], () => false)).toEqual([]);
+    expect(named(['CONFIRM'], () => true).map(([section]) => section)).toEqual(['cards', 'confirmation']);
+    expect(named(['lookup', 'CONFIRM'], (label) => label === 'lookup')).toEqual([
+      ['balance', 'lookup', 'exercises'],
+    ]);
   });
 });
 

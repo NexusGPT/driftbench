@@ -4,6 +4,8 @@ import {
   type ChangeManifest,
   parseSectionRegistry,
   type RadiusSpec,
+  type RerunMark,
+  rerunMarks,
   type Spec,
   sectionSelection,
 } from '@agent-nexus/driftbench-core';
@@ -47,7 +49,7 @@ const flaky = new Set(h7.flaky);
 const stable = h7.conversations.flatMap((c) => c.blocks.map((b) => b.id)).filter((id) => !flaky.has(id));
 
 /** The suite with the links of each block: declared, then (when asked) the sections naming its tools. */
-function specsWith(withTools: boolean): RadiusSpec[] {
+function specsWith(withTools: boolean, marks: readonly RerunMark[] = []): RadiusSpec[] {
   return h7.conversations.map((conversation) => ({
     hash: conversation.id,
     spec: {
@@ -55,6 +57,7 @@ function specsWith(withTools: boolean): RadiusSpec[] {
       kind: 'conversation',
       blocks: conversation.blocks.map((block) => ({ id: block.id, when: { user: '.' } })),
       metadata: {
+        rerun: marks.filter((mark) => conversation.blocks.some((block) => block.id === mark.block)),
         links: conversation.blocks.flatMap((block) => {
           const own = [...block.links, ...globals].map((section) => ({ section }));
           const named = withTools
@@ -75,8 +78,8 @@ function specsWith(withTools: boolean): RadiusSpec[] {
   }));
 }
 
-function study(rows: Mutants, withTools: boolean) {
-  const specs = specsWith(withTools);
+function study(rows: Mutants, withTools: boolean, marks: readonly RerunMark[] = []) {
+  const specs = specsWith(withTools, marks);
   const misses: string[] = [];
   let ratio = 0;
   for (const mutant of rows) {
@@ -102,6 +105,36 @@ function study(rows: Mutants, withTools: boolean) {
   };
 }
 
+/** The blocks the links alone select for each mutant: the input of the fragile procedure. */
+function selectedByLinks(rows: Mutants) {
+  const specs = specsWith(true);
+  return rows.map((mutant) => {
+    const manifest: ChangeManifest = {
+      from: 'v1',
+      to: 'mutant',
+      changes: mutant.sections.map((section) => ({ kind: 'prompt_section', id: `acme-sales#${section}` })),
+    };
+    const selection = sectionSelection(specs, manifest, [registry]);
+    return {
+      id: mutant.variant,
+      flipped: mutant.E,
+      selected: selection.specs.flatMap((spec) =>
+        spec.blocks.filter((b) => b.state !== 'out').map((b) => b.id),
+      ),
+    };
+  });
+}
+const baseline: { repeats: number; fails: Record<string, boolean[]> } = JSON.parse(
+  read(`${fixtures}/h7-baseline.json`),
+);
+/** Calibration: the marks the two procedures give on the 290, with the flaky blocks left out. */
+const calibrated = rerunMarks({
+  baseline: baseline.fails,
+  mutants: selectedByLinks(second.mutants),
+  excluded: flaky,
+});
+const frozen: RerunMark[] = JSON.parse(read(`${fixtures}/h7-rerun-marks.json`)).marks;
+
 const ninety = h7.mutants.filter((m) => !m.control && !m.pair);
 const hundredTen = h7.mutants.filter((m) => !m.control);
 
@@ -115,6 +148,26 @@ describe('the H7 study with the links of the tools a block expects', () => {
     );
     expect(sections.naming('nosuchtool')).toEqual([]);
   });
+
+  it('freezes the marks the procedures give on the 290, and marks p1 for failing at baseline', () => {
+    expect(calibrated).toEqual(frozen);
+    expect(calibrated.find((mark) => mark.block === 'p1')).toMatchObject({
+      reason: 'fails_at_baseline',
+      evidence: { failed: 12, repeats: 12 },
+    });
+  });
+
+  it('with the frozen marks: 1 miss of the 290 (calibration), none of the 90 and the 110 (not used to calibrate)', () => {
+    const tools = study(second.mutants, true);
+    const marked = study(second.mutants, true, frozen);
+    expect(tools.misses).toHaveLength(8);
+    expect(marked.misses).toEqual(['mobile_new_line__negate__n0']);
+    expect(marked.upper).toBeCloseTo(0.0193, 3);
+    expect(marked.ratio).toBeCloseTo(0.569, 3);
+    expect(study(ninety, true, frozen).misses).toEqual([]);
+    expect(study(hundredTen, true, frozen).misses).toEqual([]);
+    expect(study(hundredTen, true, frozen).ratio).toBeCloseTo(0.591, 3);
+  }, 300_000);
 
   it('removes 4 of the 12 misses of the 290 mutants, and one of the first sample, at a larger selection', () => {
     const before = study(second.mutants, false);

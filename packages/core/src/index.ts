@@ -160,6 +160,7 @@ export {
   blockDependencies,
   blockLinks,
   blockOutcomes,
+  blockRerun,
   type CarriedCell,
   type CarryLimits,
   CHANGE_KINDS,
@@ -311,6 +312,7 @@ export {
   type WordingField,
   withAgentVersion,
 } from './radius';
+export { type RerunInput, rerunMarks } from './radius/rerun';
 export {
   backoffDelay,
   collectRetries,
@@ -461,6 +463,9 @@ export {
   LinkStatus,
   LinkTarget,
   PlanRowTarget,
+  RERUN_REASONS,
+  RerunMark,
+  RerunMarks,
   RuleTarget,
 } from './schema/links';
 export {
