@@ -73,8 +73,11 @@ jobs:
     name: pr affected
     # Reports the tests affected by a pull request. It is not required and not an input of `train gate`: a
     # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
-    # pull request only; a pre-flight dispatch runs `pr fast` alone.
-    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')
+    # pull request only; a pre-flight dispatch runs `pr fast` alone. It skips a draft PR: leaving draft starts it
+    # (`ready_for_review`). It compares with the PR's own base branch (the steps below), so a stacked PR or a PR
+    # into release/next runs its own delta. A base change starts `pr affected (retarget)` in
+    # pr-affected-retarget.yml: an `edited` event never starts this workflow, so a title edit adds no run.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 45
     env:
