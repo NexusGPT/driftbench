@@ -94,6 +94,8 @@ export type Frame<T> = {
   product: T;
   /** Every call so far, with the answers of all runs. Reading it makes the calls in run C first, if any are held. */
   readonly tape: Tape;
+  /** Where the time of the frame went, in milliseconds: encoding, waiting for the confined runs, decoding, run C. */
+  spent(): { calls: number; encodeMs: number; relayMs: number; decodeMs: number; plainMs: number };
   /** The number of calls so far: a mark for `cpuSince` and `divergenceSince`; it does not run run C. */
   position(): number;
   /** The first call whose runs answered differently, as a message, or undefined. */
@@ -358,6 +360,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (handle !== undefined) return { $handle: handle };
     return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
   };
+  const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
   type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
   const recorded: Recorded[] = [];
   let compared = 0;
@@ -368,7 +371,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
    */
   const flushPlain = (): void => {
     if (!plain || compared >= recorded.length) return;
+    const t3 = performance.now();
     const answers = plainRunAll(plain, options.seed, tag, module, recorded.length);
+    spent.plainMs += performance.now() - t3;
     for (let index = compared; index < recorded.length; index += 1) {
       const held = recorded[index] as Recorded;
       const c = answers[index] as Outcome | { dead: string };
@@ -392,9 +397,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
+    const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
+    const t1 = performance.now();
     relay.port.postMessage({ call: name, args: sent });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
+    spent.calls += 1;
+    spent.encodeMs += t1 - t0;
+    spent.relayMs += performance.now() - t1;
     const [a, b, d] = answers as [
       Outcome | { dead: string },
       Outcome | { dead: string },
@@ -436,7 +446,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       });
     }
     if ('throws' in a) throw decode(a.throws);
-    return decode(a.ret, revive);
+    const t2 = performance.now();
+    const value = decode(a.ret, revive);
+    spent.decodeMs += performance.now() - t2;
+    return value;
   };
   const shape = started.ready[0]?.shape;
   const product = new Proxy(
@@ -464,6 +477,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return tape;
     },
     position: () => tape.length,
+    spent: () => ({ ...spent }),
     divergence: () => {
       flushPlain();
       return first;

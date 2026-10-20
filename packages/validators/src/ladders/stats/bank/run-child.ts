@@ -4,7 +4,7 @@
  * it through the separately built child entry (see isolate.ts). `args` is <seed> <root> <start>, and the item ids to run come
  * as a JSON array on stdin.
  */
-import { existsSync } from 'node:fs';
+import { appendFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Frame, isolate } from '../../../frame';
@@ -74,6 +74,12 @@ function productModule(root: string, implPath: string | undefined): string {
 function closeFrame(frame: Frame<StatsImpl>): void {
   const taint = frame.tainted();
   if (taint) process.stdout.write(`${JSON.stringify({ taint })}\n`);
+  const timing = process.env.DRIFTBENCH_FRAME_TIMING_FILE;
+  if (timing)
+    appendFileSync(
+      timing,
+      `${JSON.stringify({ pid: process.pid, ...frame.spent(), productMs: frame.cpuSince(0) })}\n`,
+    );
   frame.close();
 }
 
