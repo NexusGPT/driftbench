@@ -354,6 +354,24 @@ describe('feedFromConditions: recorded and replayed', () => {
     expect(sim.calls).toEqual(callsAfterRecording);
   });
 
+  it('fails the span when the question drifted: the replay key holds the question, not only the clause', async () => {
+    const { planted, texts } = plant();
+    const sim = simulated(planted, 7);
+    const recording = emptyRecording();
+    const wrapped = recordConditions(recording, sim.reader, sim.proposer);
+    const spans = [planted[0]?.span as ConditionSpan];
+    await feedFromConditions({ store: fixtureStore(), spans, texts, reader: wrapped.reader });
+    const drifted = fixtureStore();
+    const first = drifted.variables[0]?.values[0];
+    if (first) first.title = `${first.title} (reworded)`;
+    const replayed = replayConditions(recording);
+    const same = await feedFromConditions({ store: fixtureStore(), spans, texts, reader: replayed.reader });
+    expect(same.report.failed).toBe(0);
+    const again = await feedFromConditions({ store: drifted, spans, texts, reader: replayed.reader });
+    expect(again.report.failed).toBe(1);
+    expect(again.report.outcomes[0]?.reason).toMatch(/no read/);
+  });
+
   it('fails a replay when a clause was not recorded', async () => {
     const { planted, texts } = plant();
     const replayed = replayConditions(emptyRecording());
