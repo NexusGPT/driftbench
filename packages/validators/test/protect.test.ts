@@ -879,7 +879,8 @@ describe('merge train enforcement', () => {
     expect(evaluateTemplate(job.name, RELEASE_PR)).toBe('train gate');
     expect(evaluateTemplate(job.name, TRAIN_PR)).toBe('train gate');
     expect(evaluateTemplate(job.name, FEATURE_PR)).not.toBe('train gate');
-    for (const ctx of LOOKALIKE_PRS) expect(evaluateTemplate(job.name, ctx), ctx.headRef).not.toBe('train gate');
+    for (const ctx of LOOKALIKE_PRS)
+      expect(evaluateTemplate(job.name, ctx), ctx.headRef).not.toBe('train gate');
     // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
     const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
     expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
