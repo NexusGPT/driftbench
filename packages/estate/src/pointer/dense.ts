@@ -69,9 +69,9 @@ function labelLine(label: Label): string {
 /** The fixed text of the dense request. */
 /**
  * The runs of a system 2 labeler. A chat model cannot be pinned to one answer, so the same window is asked this
- * many times and a unit takes the label more than half of the runs give it (the stack specification: three runs, two of three).
+ * many times and a unit takes the label more than half of the runs give it (five runs, three of five).
  */
-export const DEFAULT_RUNS = 3;
+export const DEFAULT_RUNS = 5;
 
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +

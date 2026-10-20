@@ -141,7 +141,7 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 | Class | What it is | Clients |
 |---|---|---|
 | `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
-| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes the label that two of the three runs give, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
+| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked five times and a unit takes the label that three of the five runs give, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
 likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone
