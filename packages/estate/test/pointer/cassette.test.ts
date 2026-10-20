@@ -85,6 +85,23 @@ describe('the cassette', () => {
     );
   });
 
+  it('names the Node and ICU versions of this run when the cut digest is what differs', () => {
+    const cassette = recorded();
+    let message = '';
+    try {
+      cassette.get(WIRE, readableOf(WIRE, { ...META, cutDigest: 'cd2' }));
+    } catch (cause) {
+      message = (cause as Error).message;
+    }
+    expect(message).toContain(`Node ${process.versions.node}`);
+    expect(message).toContain(`ICU ${process.versions.icu}`);
+  });
+
+  it('names no version when the cut digest is not what differs', () => {
+    const cassette = recorded();
+    expect(() => cassette.get(WIRE, readableOf(WIRE, { ...META, setHash: 'h2' }))).not.toThrow(/ICU/);
+  });
+
   it('keys the whole request and everything that identifies it, labeler id included', () => {
     const key = (wire: Wire, meta: Partial<typeof META> = {}) =>
       requestKey(wire, readableOf(wire, { ...META, ...meta }));

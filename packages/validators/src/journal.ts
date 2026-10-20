@@ -1,6 +1,7 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
+import { statsBankHash } from './bank-fingerprint';
 
 /** The folder of a component's loop files, from the repository root. */
 export function loopFolder(component: string): string {
@@ -55,10 +56,21 @@ export const JournalRowSchema = z
     perSeed: z.array(SeedLevels).min(1),
     metrics: z.array(LevelMetric).min(1),
     bankSize: count,
+    /** Captured by the full measurement; absent on historical rows, never backfilled. */
+    bankHash: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .optional(),
     passing: count,
     failingByFamily: z.record(z.string().min(1), count),
+    // Only declared atomic causes count. A row may record 0 only when it also states, in failingComposite, that
+    // every failing item is a composite check. The hardness gate still requires its minimum number of causes.
     failingCauses: count.optional(),
+    /** The failing items that are composite checks (no distinct-cause credit). Goes with failingCauses. */
+    failingComposite: count.optional(),
     executor: z.enum(['builder', 'blind']).optional(),
+    /** The catch items, counted apart: `bankSize` and `passing` hold the hardness items alone (section 12.4). */
+    catchItems: z.object({ size: count, passing: count }).strict().optional(),
     failingWithoutCause: count.optional(),
     bankByFamilyTier: z
       .record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count))
@@ -141,6 +153,13 @@ export const JournalRowSchema = z
     if (row.passing > row.bankSize) {
       ctx.addIssue({ code: 'custom', path: ['passing'], message: 'passing cannot exceed bankSize' });
     }
+    if (row.catchItems && row.catchItems.passing > row.catchItems.size) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['catchItems', 'passing'],
+        message: 'catchItems.passing cannot exceed catchItems.size',
+      });
+    }
     const failing = Object.values(row.failingByFamily).reduce((sum, value) => sum + value, 0);
     if (failing !== row.bankSize - row.passing) {
       ctx.addIssue({
@@ -158,13 +177,28 @@ export const JournalRowSchema = z
           message: `failingCauses ${row.failingCauses} exceeds the ${failingItems} failing items`,
         });
       }
-      if (failingItems > 0 && row.failingCauses === 0) {
+    }
+    if (row.failingComposite !== undefined) {
+      if (row.failingCauses === undefined) {
         ctx.addIssue({
           code: 'custom',
-          path: ['failingCauses'],
-          message: `${failingItems} items fail, so at least one cause does`,
+          path: ['failingComposite'],
+          message: 'failingComposite goes with failingCauses',
+        });
+      } else if (row.failingComposite > failingItems) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingComposite'],
+          message: `failingComposite ${row.failingComposite} exceeds the ${failingItems} failing items`,
         });
       }
+    }
+    if (row.failingCauses === 0 && failingItems > 0 && row.failingComposite !== failingItems) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['failingCauses'],
+        message: `${failingItems} items fail, so at least one cause does, unless every failing item is composite (failingComposite ${failingItems})`,
+      });
     }
     if (row.failingWithoutCause !== undefined) {
       if (row.failingCauses === undefined) {
@@ -294,6 +328,30 @@ export function appendJournal(
   if (problems.length > 0) return { refused: problems };
   const checked = validateRow(value, rows);
   if ('refused' in checked) return checked;
+  if (component === 'stats') {
+    if (!checked.row.bankHash) {
+      return {
+        refused: [
+          'bankHash is required: copy it from the measured stats --items --json report; never backfill a historical row',
+        ],
+      };
+    }
+    try {
+      if (checked.row.bankHash !== statsBankHash(root)) {
+        return {
+          refused: [
+            'the journal bank hash differs from the live bank: rerun the measurement before appending',
+          ],
+        };
+      }
+    } catch (cause) {
+      return {
+        refused: [
+          `cannot fingerprint the live bank: ${cause instanceof Error ? cause.message : String(cause)}`,
+        ],
+      };
+    }
+  }
   const path = join(root, journalFile(component));
   mkdirSync(dirname(path), { recursive: true });
   appendFileSync(path, `${JSON.stringify(checked.row)}\n`);

@@ -68,3 +68,28 @@ metadata:
       - marker: needs-askable-act
         atom: instruction.ledger-auditor.a-brief-missing-a-number-gets
         detail: "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.a-brief-missing-a-number-gets
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1028
+        values:
+          ask_class: operate
+          ask_shape: problem
+          session_state: helpers_running
+          owner_signal: hold
+          deviation: D8_tool_failure
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

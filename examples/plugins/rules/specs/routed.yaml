@@ -1,0 +1,8 @@
+id: routed
+target: { adapter: function, agent: acme-sales }
+uses: { check_set: acme, diagnostics: [acme-dedup] }
+blocks:
+  - id: b1
+    user: I would like to change my plan.
+    expect:
+      must: [plan]

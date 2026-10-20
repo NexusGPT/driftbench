@@ -6,7 +6,6 @@ import {
   choiceQuestions,
   createJevLabeler,
   createOpenAiDecisionsLabeler,
-  DEFAULT_THRESHOLD,
   isTooLarge,
   isVector,
   LabelerConfigError,

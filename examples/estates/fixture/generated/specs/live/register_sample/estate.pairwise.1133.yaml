@@ -97,3 +97,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1133
+        values:
+          ask_class: chat
+          ask_shape: problem
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D10_return
+          estate_hazard: rate_wave
+          atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

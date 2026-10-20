@@ -118,3 +118,84 @@ metadata:
       stem: stem-dd59ccd00ad4
       block: b2-address-to-address
       replaced: 2
+  links:
+    - block: stem-1dfdd4792b6a#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-1dfdd4792b6a#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-141
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-dd59ccd00ad4#b2-address-to-address
+      to:
+        kind: rule
+        rule: stage_transition=address-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-dd59ccd00ad4#b2-address-to-address
+      to:
+        kind: rule
+        rule: coverage_result=not-in-map
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-dd59ccd00ad4#b2-address-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-141
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: address-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D9_out_of_scope
+      to:
+        kind: rule
+        rule: deviation=D9_out_of_scope
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D9_out_of_scope
+      to:
+        kind: plan_row
+        row: gen-twise-141
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          deviation: D9_out_of_scope
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

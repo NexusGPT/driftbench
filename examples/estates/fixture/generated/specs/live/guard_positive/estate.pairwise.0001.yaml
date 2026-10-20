@@ -66,3 +66,28 @@ metadata:
     ask: code
     askFrom: gate.standing.read-a-file-before-editing-it (enforced by guard.settings.pretooluse-edit-write-guard-read-before)
     outcome: no-change:guard
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0001
+        values:
+          ask_class: build
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: limit_word
+          deviation: D10_return
+          estate_hazard: dead_helper
+          atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

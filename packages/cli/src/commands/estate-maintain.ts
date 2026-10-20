@@ -13,6 +13,7 @@ import {
   loadEstateTests,
   loadGuardState,
   parseEstateDiff,
+  pointer,
   type Regression,
   type ReplayOutcome,
   renderEstateDiff,
@@ -20,11 +21,20 @@ import {
   writeRetirements,
 } from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
+import { stringify as stringifyYaml } from 'yaml';
 import { show, writeOut } from '../files';
 import type { Io } from '../io';
 import { defaultReplayDeps, type ReplayDeps, replayCommand } from './replay';
 
-export type EstateDiffOptions = { json?: boolean; out?: string; oldGuards?: string; newGuards?: string };
+export type EstateDiffOptions = {
+  json?: boolean;
+  out?: string;
+  oldGuards?: string;
+  newGuards?: string;
+  oldLedger?: string;
+  newLedger?: string;
+  changeOut?: string;
+};
 export type EstateImpactOptions = {
   tests?: string;
   write?: boolean;
@@ -61,6 +71,15 @@ export function registerEstateMaintainCommands(
     .option('--out <file>', 'also write the diff as JSON, for estate impact')
     .option('--old-guards <file>', 'the guard state of the old map (default: guard-state.yaml beside it)')
     .option('--new-guards <file>', 'the guard state of the new map (default: guard-state.yaml beside it)')
+    .option(
+      '--old-ledger <file>',
+      'the ledger of the old version: with --new-ledger, the diff reads the units',
+    )
+    .option('--new-ledger <file>', 'the ledger of the new version (estate scan --pointer --ledger --update)')
+    .option(
+      '--change-out <file>',
+      'with the ledgers: write the change manifest of the units, for driftbench radius',
+    )
     .action(async (before: string, after: string, options: EstateDiffOptions) => {
       setExit(await estateDiffCommand(before, after, options, io));
     });
@@ -98,18 +117,56 @@ export async function estateDiffCommand(
   const oldState = await readGuards(beforeArg, options.oldGuards, before, io);
   const newState = await readGuards(afterArg, options.newGuards, after, io);
   if (oldState === false || newState === false) return 2;
+  if ((options.oldLedger === undefined) !== (options.newLedger === undefined)) {
+    io.err('error: --old-ledger and --new-ledger go together\n');
+    return 2;
+  }
+  if (options.changeOut !== undefined && options.oldLedger === undefined) {
+    io.err('error: --change-out needs --old-ledger and --new-ledger\n');
+    return 2;
+  }
+  const oldLedger = options.oldLedger === undefined ? undefined : await readLedger(options.oldLedger, io);
+  const newLedger = options.newLedger === undefined ? undefined : await readLedger(options.newLedger, io);
+  if (oldLedger === false || newLedger === false) return 2;
   const diff = diffEstateMaps(before, after, {
     oldPath: beforeArg,
     newPath: afterArg,
     ...(oldState === undefined && newState === undefined
       ? {}
       : { guards: diffGuardStates(oldState, newState) }),
+    ...(oldLedger && newLedger ? { ledgers: { before: oldLedger, after: newLedger } } : {}),
   });
   const json = `${JSON.stringify(diff, null, 2)}\n`;
   if (options.out !== undefined && !(await writeOut(resolve(io.cwd, options.out), json, io))) return 2;
+  if (options.changeOut !== undefined && oldLedger && newLedger) {
+    const manifest = pointer.ledgerChangeManifest(
+      pointer.rerunOf(pointer.ledgerChanges(oldLedger, newLedger), oldLedger),
+      {
+        from: before.hash.slice(0, 12),
+        to: after.hash.slice(0, 12),
+        atomsByUnit: pointer.atomsByUnit(before.atoms),
+      },
+    );
+    if (!(await writeOut(resolve(io.cwd, options.changeOut), stringifyYaml(manifest), io))) return 2;
+  }
   io.out(options.json ? json : renderEstateDiff(diff));
   if (options.out !== undefined && !options.json) io.out(`Wrote ${options.out}.\n`);
+  if (options.changeOut !== undefined && !options.json) io.out(`Wrote ${options.changeOut}.\n`);
   return 0;
+}
+
+async function readLedger(path: string, io: Io): Promise<pointer.Ledger | false> {
+  let text: string;
+  try {
+    text = await readFile(resolve(io.cwd, path), 'utf8');
+  } catch (cause) {
+    io.err(`Cannot read the ledger ${path}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return false;
+  }
+  const ledger = pointer.parseLedger(text);
+  if (ledger) return ledger;
+  io.err(`Cannot use the ledger ${path}: it is not a ledger\n`);
+  return false;
 }
 
 /**

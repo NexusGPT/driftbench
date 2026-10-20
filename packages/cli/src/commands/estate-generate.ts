@@ -23,6 +23,7 @@ import { exists } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
+import { readBlockSections, SECTIONS_OPTION } from './sections-option';
 
 export type EstateGenerateOptions = {
   map: string;
@@ -38,6 +39,8 @@ export type EstateGenerateOptions = {
   /** False with --no-judge: a domain predicate no code checks stays a gap. */
   judge?: boolean;
   focus?: string;
+  /** Section registries of prompts of the estate, `--sections`. */
+  sections?: string[];
 };
 
 /** The phrase bank and the session index the command looks for beside the map when none is named. */
@@ -74,6 +77,10 @@ export function registerEstateGenerateCommand(
       '--focus <file>',
       `atom ids, one per line, whose complete specs come first in ${ESTATE_ORDER_FILE} (then guards, gates, invariants)`,
     )
+    .option('--sections <registry>', SECTIONS_OPTION, (value: string, previous: string[] = []) => [
+      ...previous,
+      value,
+    ])
     .option('--force', 'replace the output of an earlier run in the folder')
     .option('--json', 'print the report as JSON')
     .action(async (options: EstateGenerateOptions) => {
@@ -175,6 +182,13 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     );
   }
 
+  // The prompts of the estate with a section registry, named as the atoms name their files: from the root.
+  const sections =
+    (options.sections ?? []).length > 0
+      ? await readBlockSections(options.sections ?? [], root, io)
+      : undefined;
+  if ((options.sections ?? []).length > 0 && !sections) return 2;
+
   const reportPath = join(outPath, ESTATE_REPORT_FILE);
   let result: EstateGenerateResult;
   try {
@@ -186,6 +200,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
         ...(options.judge === false ? { judge: false } : {}),
         ...(files ? { files } : {}),
         ...(focus ? { focus } : {}),
+        ...(sections ? { sections } : {}),
         paths: {
           map: portable(relative(outPath, mapPath)),
           plan: portable(relative(outPath, planPath)),

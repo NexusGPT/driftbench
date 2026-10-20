@@ -365,13 +365,18 @@ describe('driftbench validate through main', () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
     const floors = JSON.parse(await readFile(join(ROOT, 'validators/floors.json'), 'utf8')) as {
       floors: Record<string, number>;
+      ladderVersion: Record<string, number>;
     };
-    expect(result.code).toBeGreaterThanOrEqual(floors.floors.stats as number);
+    // A floor belongs to its ladder version: a registered version without a floor yet has none to hold.
+    const floor =
+      floors.ladderVersion.stats === registeredLadders().stats?.version ? (floors.floors.stats as number) : 0;
+    expect(result.code).toBeGreaterThanOrEqual(floor);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
       /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain(`Level of the run: ${result.code} of 7, the minimum over 1 seed.`);
+    const top = registeredLadders().stats?.levels.length;
+    expect(result.out).toContain(`Level of the run: ${result.code} of ${top}, the minimum over 1 seed.`);
   }, 600_000);
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
@@ -522,26 +527,26 @@ describe('driftbench validate --items and --hardness', () => {
 });
 
 describe('driftbench validate --hardness and distinct causes', () => {
-  it('exits 1 with fewer than 100 distinct failing causes and prints the count', async () => {
+  it.each([0, 40])('exits 1 with %i distinct failing causes and prints the count', async (causes) => {
     const root = await temp();
     const { ladder } = bankLadder();
     const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
     await mkdir(join(root, 'validators/banked'), { recursive: true });
     await writeFile(
       join(root, 'validators/banked/journal.jsonl'),
-      `${journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, { '1': 300 }, () => 40)
+      `${journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, { '1': 300 }, () => causes)
         .map((row) => JSON.stringify(row))
         .join('\n')}\n`,
     );
     const { io, output } = capture(root);
     expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(1);
     expect(output.out).toContain(
-      'Distinct failing causes after the pilot: 40 (0 failing items name no cause',
+      `Distinct failing causes after the pilot: ${causes} (0 failing items name no cause`,
     );
-    expect(output.out).toContain('40 distinct failing causes after the pilot, under 100');
+    expect(output.out).toContain(`${causes} distinct failing causes after the pilot, under 100`);
     const json = capture(root);
     await validateCommand('banked', { hardness: true, json: true }, json.io, d);
-    expect(JSON.parse(json.output.out).causes).toEqual({ distinct: 40, withoutCause: 0 });
+    expect(JSON.parse(json.output.out).causes).toEqual({ distinct: causes, withoutCause: 0 });
   });
 });
 
@@ -664,5 +669,54 @@ describe('driftbench validate for auditors', () => {
       (await readFile(join(root, 'validators/planted/journal.jsonl'), 'utf8')).trim().split('\n'),
     ).toHaveLength(2);
     expect(await validateCommand('planted', { checkHandover: true }, capture(root).io, d)).toBe(0);
+  });
+});
+
+describe('driftbench validate reads the pinned catch list', () => {
+  it('counts an item as catch only when validators/<component>/catch.json pins it, in --items and in --json', async () => {
+    const root = await temp();
+    const { bankMeasure, defineLadder } = await import('@agent-nexus/driftbench-validators');
+    const ladder = defineLadder({
+      component: 'roles',
+      version: 2,
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'items passing / items',
+          threshold: 1,
+          compute: () =>
+            bankMeasure([
+              { id: 'h1', component: 'c', family: 'f', tier: 1, cause: 'x', pass: true },
+              { id: 'h2', component: 'c', family: 'f', tier: 2, cause: 'y', pass: false, detail: 'missed' },
+              { id: 'k1', component: 'c', family: 'f', tier: 1, cause: 'z', role: 'catch', pass: true },
+            ]),
+        },
+      ],
+    });
+    const d: ValidateDeps = { ladders: () => ({ roles: ladder }), root };
+    const before = capture(root);
+    const code = await validateCommand('roles', { seeds: '1..1', items: true, json: true }, before.io, d);
+    expect(before.output.err).toBe('');
+    expect(code).toBeTypeOf('number');
+    expect(JSON.parse(before.output.out).bank).toMatchObject({ size: 3, catch: { size: 0 } });
+    await mkdir(join(root, 'validators', 'roles'), { recursive: true });
+    await writeFile(
+      join(root, 'validators', 'roles', 'catch.json'),
+      JSON.stringify({ items: [{ id: 'k1', guards: 'bug:B01' }] }),
+    );
+    const after = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true, json: true }, after.io, d);
+    expect(JSON.parse(after.output.out).bank).toMatchObject({
+      size: 2,
+      passing: 1,
+      catch: { size: 1, passing: 1 },
+    });
+    const text = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true }, text.io, d);
+    expect(text.output.out).toContain(
+      'Catch items, counted apart and for no hardness: 1, 1 pass on every seed.',
+    );
+    expect(text.output.out).toContain('Catch items of f: 1 items, 0 failing');
   });
 });

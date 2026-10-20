@@ -1,0 +1,13 @@
+id: acme.planted.b2
+intent: "The customer gives a callback phone number so sales can call when fiber arrives."
+seed: "+1 202 555 0131"
+context:
+  last_reply: "Fiber is not available there yet. What number should our sales team call you on?"
+slots:
+  - name: phone
+    format: phone
+    surface_forms:
+      - { form: "+1 202 555 0131", approved: true }
+      - { form: "(202) 555-0131", approved: true }
+      - { form: "202.555.0131", approved: true }
+    minimal: ["+1 202 555 0113"]

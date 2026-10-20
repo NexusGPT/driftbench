@@ -143,3 +143,89 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.in.category
         value: catalog.search.in.category.home
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-002
+        values:
+          catalog.search.in.category: catalog.search.in.category.home
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: chat
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: coverage_result=fiber
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: plan_row
+        row: gen-boundary-002
+        values:
+          catalog.search.in.category: catalog.search.in.category.home
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: chat
+          stage_transition: address-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: rule
+        rule: catalog.search.in.category=catalog.search.in.category.home
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: plan_row
+        row: gen-boundary-002
+        values:
+          catalog.search.in.category: catalog.search.in.category.home
+          flow: new-home
+          user_type: new-customer
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          callback_phone: given
+          channel: chat
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

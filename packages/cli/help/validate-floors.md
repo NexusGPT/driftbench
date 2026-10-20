@@ -27,7 +27,7 @@ Two commands use the floors:
 The floors at the time of writing, from `validate floors` at the repository root:
 
 ```text
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 `estate` and `generator` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
@@ -84,7 +84,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |

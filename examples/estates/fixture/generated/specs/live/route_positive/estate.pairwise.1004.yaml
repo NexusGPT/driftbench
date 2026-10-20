@@ -66,3 +66,28 @@ metadata:
     ask: code
     askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1004
+        values:
+          ask_class: debug
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: frustration
+          deviation: D7_silence_or_burst
+          estate_hazard: process_restart
+          atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

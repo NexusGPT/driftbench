@@ -60,3 +60,23 @@ metadata:
     ask: code
     askFrom: stage.steps.stage-report-tell-the-user-what (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-report-tell-the-user-what
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: stage_skip.stage.steps.stage-report-tell-the-user-what
+        values:
+          owner_signal: keep_going
+          atoms.stage: stage.steps.stage-report-tell-the-user-what
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

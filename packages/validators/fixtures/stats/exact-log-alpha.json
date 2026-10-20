@@ -1,0 +1,195 @@
+{
+  "_provenance": {
+    "precision": "100 decimal digits; mpmath log-erfc root, no binary64 alpha/2 intermediate",
+    "formulas": "docs/concepts/statistics.md: power equation, Wilson effective runs, Newcombe method 10, unweighted kappa interval",
+    "generator": "make_exact_log_alpha.py"
+  },
+  "zFor.log-alpha-min": [
+    {
+      "alpha": 5e-324,
+      "expected": 38.48540833556734
+    }
+  ],
+  "sampleSizeForEffect.log-alpha-min": [
+    {
+      "effect": 0.2,
+      "baselineRate": 0.73,
+      "power": 0.8,
+      "alpha": 5e-324,
+      "expected": {
+        "n": 18010,
+        "effectiveN": 18010,
+        "designEffect": 1
+      }
+    }
+  ],
+  "mde.log-alpha-min": [
+    {
+      "n": 20000,
+      "baselineRate": 0.73,
+      "power": 0.8,
+      "alpha": 5e-324,
+      "expected": {
+        "effect": 0.18920950579821535,
+        "effectiveN": 20000,
+        "designEffect": 1
+      }
+    }
+  ],
+  "wilsonEffective.log-alpha-min": [
+    {
+      "clusters": [
+        {
+          "n": 40,
+          "k": 31
+        },
+        {
+          "n": 60,
+          "k": 40
+        },
+        {
+          "n": 30,
+          "k": 18
+        },
+        {
+          "n": 50,
+          "k": 39
+        }
+      ],
+      "alpha": 5e-324,
+      "expected": {
+        "estimate": 0.7111111111111111,
+        "lower": 0.042937302575592265,
+        "upper": 0.9926501692727062,
+        "n": 180,
+        "clusters": 4,
+        "effectiveN": 136.3290627107215,
+        "designEffect": 1.3203347578347577,
+        "degenerate": false
+      }
+    }
+  ],
+  "pairedRateDifference.log-alpha-min": [
+    {
+      "table": {
+        "bothPass": 120,
+        "regressed": 30,
+        "improved": 15,
+        "bothFail": 85
+      },
+      "alpha": 5e-324,
+      "expected": {
+        "estimate": 0.06,
+        "lower": -0.3723378196321506,
+        "upper": 0.45031343169339855,
+        "n": 250
+      }
+    }
+  ],
+  "kappaInterval.log-alpha-min": [
+    {
+      "table": [[4200, 800], [600, 4400]],
+      "alpha": 5e-324,
+      "expected": {
+        "kappa": 0.72,
+        "se": 0.006939740629158989,
+        "lower": 0.4529212481438893,
+        "upper": 0.9870787518561107
+      }
+    }
+  ],
+  "zFor.log-alpha-small-normal": [
+    {
+      "alpha": 1e-300,
+      "expected": 37.06578788077213
+    }
+  ],
+  "sampleSizeForEffect.log-alpha-small-normal": [
+    {
+      "effect": 0.2,
+      "baselineRate": 0.73,
+      "power": 0.8,
+      "alpha": 1e-300,
+      "expected": {
+        "n": 16732,
+        "effectiveN": 16732,
+        "designEffect": 1
+      }
+    }
+  ],
+  "mde.log-alpha-small-normal": [
+    {
+      "n": 20000,
+      "baselineRate": 0.73,
+      "power": 0.8,
+      "alpha": 1e-300,
+      "expected": {
+        "effect": 0.18199205129171794,
+        "effectiveN": 20000,
+        "designEffect": 1
+      }
+    }
+  ],
+  "wilsonEffective.log-alpha-small-normal": [
+    {
+      "clusters": [
+        {
+          "n": 40,
+          "k": 31
+        },
+        {
+          "n": 60,
+          "k": 40
+        },
+        {
+          "n": 30,
+          "k": 18
+        },
+        {
+          "n": 50,
+          "k": 39
+        }
+      ],
+      "alpha": 1e-300,
+      "expected": {
+        "estimate": 0.7111111111111111,
+        "lower": 0.046012066926367994,
+        "upper": 0.9921028153720907,
+        "n": 180,
+        "clusters": 4,
+        "effectiveN": 136.3290627107215,
+        "designEffect": 1.3203347578347577,
+        "degenerate": false
+      }
+    }
+  ],
+  "pairedRateDifference.log-alpha-small-normal": [
+    {
+      "table": {
+        "bothPass": 120,
+        "regressed": 30,
+        "improved": 15,
+        "bothFail": 85
+      },
+      "alpha": 1e-300,
+      "expected": {
+        "estimate": 0.06,
+        "lower": -0.3695947596879911,
+        "upper": 0.44805816840877255,
+        "n": 250
+      }
+    }
+  ],
+  "kappaInterval.log-alpha-small-normal": [
+    {
+      "table": [[4200, 800], [600, 4400]],
+      "alpha": 1e-300,
+      "expected": {
+        "kappa": 0.72,
+        "se": 0.006939740629158989,
+        "lower": 0.4627730458920168,
+        "upper": 0.9772269541079832
+      }
+    }
+  ]
+}

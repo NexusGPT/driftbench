@@ -99,3 +99,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.weekly-report.read-templates-report-md-before-writing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0607
+        values:
+          ask_class: chat
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: language_switch
+          deviation: D4_loose_confirmation
+          estate_hazard: compaction_mid_task
+          atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -94,3 +94,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.answer-in-the-language-of-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0733
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: helpers_running
+          owner_signal: limit_word
+          deviation: D1_off_topic
+          estate_hazard: no_hazard
+          atoms.register: register.standing.answer-in-the-language-of-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

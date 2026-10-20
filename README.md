@@ -292,7 +292,7 @@ blocks:
 - **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
 - **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/NexusGPT/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429), [#433](https://github.com/NexusGPT/driftbench/pull/433)). Parent execution now ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/NexusGPT/driftbench/pull/416). Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them ship. Parent execution ships (see [Parent blocks](#parent-blocks-share-the-start-and-count-the-cause-once)); its research is in [#416](https://github.com/NexusGPT/driftbench/pull/416). Rule files and verdict stamps ship (see [Rule files](#rule-files-change-the-rule-and-score-the-run-again)). The fault finder is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
 
 <details><summary>See it in YAML</summary>
 
@@ -331,11 +331,11 @@ blocks:
 - **Why no other framework does it.** A trace records what the agent did. Tracing a failure to instructions also needs links from tests to their sources. Our [comparison](docs/comparison.md) covers test units and traces, but does not establish exclusivity for source diagnosis.
 - **Measured impact.** In the [fault study](https://github.com/NexusGPT/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/NexusGPT/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
 
-<sub>Block links to prompt sections, advisory selection and section ranking are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429), [#433](https://github.com/NexusGPT/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
+<sub>Block links to prompt sections, advisory selection and section ranking ship. Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Block links to prompt sections are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423)), with advisory selection by section ([#429](https://github.com/NexusGPT/driftbench/pull/429)) and ranking of suspect sections ([#433](https://github.com/NexusGPT/driftbench/pull/433)).
+Block links to prompt sections ship, with advisory selection by section and ranking of suspect sections.
 A section registry gives each part of the prompt a stable id. A block names the section it tests in `metadata.links`.
 The first line of each file below names it; in the prompt, that line is not part of the file.
 `driftbench radius sections init acme-sales.md --id acme-sales --prompt-version v1` writes a first registry from the headings.
@@ -519,7 +519,7 @@ Each child starts from its parent's recorded end state: the conversation, the `c
 
 </details>
 
-<sub>Parent execution and blocked children ship. Independent flaky failures can still inflate the root count. The research isolation study tests conversation history; the isolation checker is not integrated, and finer dependencies on stored facts or tool state remain untested.</sub>
+<sub>Parent execution and blocked children ship. Independent flaky failures can still inflate the root count. `driftbench isolation <spec>` checks which children need their parent ([given, when, then](docs/concepts/given-when-then.md#parent-blocks)); it tests conversation history, and finer dependencies on stored facts or tool state remain untested.</sub>
 
 <details>
 <summary>Start from a written history with a recorded tool call</summary>
@@ -566,12 +566,12 @@ blocks:
 - **Why no other framework does it.** The [value study](https://github.com/NexusGPT/driftbench/pull/441) compares this method with exact matching and a normaliser. It does not establish exclusivity across frameworks. The distinction is the evidence: a resolving tool can answer whether two spellings reach the same record.
 - **Measured impact.** The tool settled 59 of 116 format disputes. It agreed on all 49 settled cases with reference labels; the other 10 had disputed labels. The full value check made 0 false passes and 0 false fails on 249 labelled runs. The simpler normaliser did too, so the study did not establish superiority over it. Source: [value study](https://github.com/NexusGPT/driftbench/pull/441).
 
-<sub>The value check is on its way ([#459](https://github.com/NexusGPT/driftbench/pull/459)). Tool replay requires a configured replayer; unresolved values stay inconclusive. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
+<sub>The value check ships as the object `policy/value-check:default`. The command line runs it with no tool replayer and no judge: a differing string no item settles is compared exactly, and a lint names the decider that would settle it. From code, `defaultChecks({ valueCheck })` adds a replayer and a judge. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Tool replay value checks are coming in [#459](https://github.com/NexusGPT/driftbench/pull/459).
-On main, `one_of` can accept a known list of spellings. It does not ask the tool whether they mean the same thing.
+The `tools` check settles a differing string with the ladder of the object `policy/value-check:default`.
+This example lists the accepted spellings with `one_of`, so it needs no tool replayer.
 
 ```yaml
 # file: phone.spec.yaml
@@ -605,13 +605,12 @@ blocks:
 - **Why no other framework does it.** Our [comparison](docs/comparison.md) covers checks, judges and cached calls. It does not compare editable rule files or verdict stamps. Here, the file that sets a rule and the verdict that applies it remain linked, so a score can be inspected.
 - **Measured impact.** The [framework prototype](https://github.com/NexusGPT/driftbench/pull/437) changed 0 of 2,351 existing spec hashes. Its default rules changed 0 verdicts across 259 stored runs. A project scoring rule change scored all 259 runs again with 0 agent calls. A model change required 777 adapter calls on those runs.
 
-<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)). The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
+<sub>Rule files and verdict stamps ship: `driftbench object` lists, explains and checks the objects, and `campaign rejudge --use` scores stored runs again. The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Rule objects, rule files and layers are coming in [#443](https://github.com/NexusGPT/driftbench/pull/443).
-Main keeps the policy inline under `rules`; it has no rule-file reference.
-Here the policy forbids ordering throughout the run, and the block requires a recap.
+A project writes a rule file under `driftbench/<kind>/<id>.yaml`; a spec or a block names it with `uses`, and `driftbench object explain` shows the layer that set each item ([objects reference](docs/reference/objects.md)).
+This example keeps the policy inline under `rules`: it forbids ordering throughout the run, and the block requires a recap.
 
 ```yaml
 # file: recap.spec.yaml
@@ -624,6 +623,74 @@ blocks:
     expect:
       must: [CONFIRM] # Block check beside the conversation policy
 ```
+
+</details>
+
+<details>
+<summary>Write a rule file and score a stored run again</summary>
+
+A project rule file extends a shipped object and changes one item. Here the Acme project turns off the `must` check of the shipped check set `check-set:default`, because it judges wording another way. The spec asks for a phrase the agent never says, so the stored run fails. Run from a clone, with no model call:
+
+```text
+# file: rules/specs/wording.yaml
+id: acme-wording
+target: { adapter: function, agent: acme-sales }
+blocks:
+  - id: ask
+    user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address', 'Thank you'] # The second one is not in the reply
+```
+
+```text
+# file: rules/driftbench/check-set/acme.yaml
+kind: check-set
+id: acme
+extends: default
+items:
+  - id: must
+    enabled: false # This project judges the wording with a judge, not with a phrase
+```
+
+A small script prints the stamp a verdict carries. `by` names the object that scored it, the item, the implementation and the layer:
+
+```text
+# file: rules/stamps.mts
+import { openStore } from '@agent-nexus/driftbench-store';
+
+const store = openStore(process.argv[2] ?? 'runs.db');
+for (const run of await store.listRuns()) {
+  for (const verdict of run.blocks.flatMap((block) => block.verdicts)) {
+    if (verdict.id === 'must.1' || verdict.id === 'pii.email') {
+      console.log(`${verdict.id} ${verdict.outcome} ${JSON.stringify(verdict.by)}`);
+    }
+  }
+}
+```
+
+```text
+$ mkdir -p rules/specs rules/driftbench/check-set
+$ cd rules && echo 'plugins: []' > driftbench.yaml
+$ driftbench object show check-set/acme
+check-set -> acme@a44a5554 (extends default@fd61f704)
+  must                 disabled    project driftbench/check-set/acme.yaml:5
+project driftbench/check-set/acme.yaml; extends check-set:default.
+$ driftbench campaign run specs/wording.yaml --target function:acme-sales --agent-version acme-v1 --campaign full --store runs.db
+✗ acme-wording · function:acme-sales · F · repeat 0  fail  block 0 must.1
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+$ driftbench campaign rejudge specs/wording.yaml --from full --campaign acme --store runs.db --use check-set/acme
+Re-scored; observations from full.
+Campaign acme: 1 blocks re-scored under check-set/acme; 0 agent calls, 0 judge calls.
+$ driftbench campaign status acme --store runs.db
+✓ acme-wording · function:acme-sales · F · repeat 0  pass (Re-scored; observations from full)  1 block
+1 cell: 1 pass, 0 fail, 0 failed, 1 re-scored. Re-scored; observations from full. Spent $0.00.
+$ pnpm exec tsx stamps.mts runs.db
+pii.email pass {"object":"check-set:acme@a44a5554","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
+must.1 fail {"object":"check-set:default@fd61f704","item":"must","impl":"builtin:check/must","layer":"shipped"}
+pii.email pass {"object":"check-set:default@fd61f704","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
+```
+
+The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-score reads the stored observation, runs the checks again under `check-set:acme`, and the block passes: 0 agent calls, 0 judge calls. Its verdicts now carry `check-set:acme@a44a5554`, and the result is labelled `Re-scored; observations from full`. The first `pii.email` line is the re-scored run, the last is the stored one. A change to an object the agent sees (a persona, a run profile) is refused: `--use run-profile/fast` exits 2 and tells you to rerun the agent. See [rule files](packages/cli/help/authoring-rule-files.md) and [re-scoring](packages/cli/help/judging-campaign-rejudge.md).
 
 </details>
 
@@ -649,7 +716,7 @@ blocks:
 
 The change file is a separate input to `driftbench radius recap.spec.yaml --change recap.change.yaml`.
 The matching key is `expect.stage`, declared in the spec's `stages` list.
-A change can also name a prompt section (`kind: prompt_section`, [#429](https://github.com/NexusGPT/driftbench/pull/429)); that selection is advisory, so the whole suite runs.
+A change can also name a prompt section (`kind: prompt_section`); that selection is advisory, so the whole suite runs.
 
 ```yaml
 # file: recap.change.yaml
@@ -740,8 +807,7 @@ The persona file below selects the spec. Save both files together.
 Run `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none` to use the simulated customer.
 This makes model calls. Judging needs a configured judge; the criterion declaration alone does not create one.
 
-Rule-file references are coming in [#443](https://github.com/NexusGPT/driftbench/pull/443), and tool replay values in [#459](https://github.com/NexusGPT/driftbench/pull/459).
-Those keys are not accepted on main, so this example uses the supported forms below.
+This example keeps the policy inline and lists the accepted spellings, so it needs no rule file and no tool replayer.
 The uncertainty panel is wired in code with `createEscalation`, not YAML.
 
 ```yaml
@@ -812,7 +878,7 @@ spec: refund.spec.yaml # The spec this persona plays
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
 - [Block rules and fault finding](#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
 
-<sub>Rule files and fault finding are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449), [#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
+<sub>Fault finding is on its way ([#447](https://github.com/NexusGPT/driftbench/pull/447), [#451](https://github.com/NexusGPT/driftbench/pull/451), [#453](https://github.com/NexusGPT/driftbench/pull/453)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
@@ -931,7 +997,7 @@ A Given can hold the conversation before the block, tool calls included. A past 
 
 <details><summary>See it in TypeScript</summary>
 
-A block whose Given the target cannot apply is `not_run`, never a fail ([#428](https://github.com/NexusGPT/driftbench/pull/428)). A `prefix` needs an adapter that declares `seedPrefix`.
+A block whose Given the target cannot apply is `not_run`, never a fail. A `prefix` needs an adapter that declares `seedPrefix`.
 Here the same Acme spec runs on a function agent, then on a copy of it that declares it cannot start from a history.
 Save both files together and run `npx tsx not-run.ts`.
 
@@ -1112,7 +1178,7 @@ An agent can pass every step on its own and still fail the whole conversation. R
 - **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
 - **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
 
-<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/NexusGPT/driftbench/pull/443), [#449](https://github.com/NexusGPT/driftbench/pull/449)).</sub>
+<sub>Rule files and verdict stamps ship: see [Rule files](#rule-files-change-the-rule-and-score-the-run-again).</sub>
 
 → [judges](docs/concepts/judges.md)
 
@@ -1122,7 +1188,7 @@ One run proves little. Every rate comes with its interval, comparisons are paire
 
 <details><summary>See it in TypeScript</summary>
 
-Honest intervals are on main ([#425](https://github.com/NexusGPT/driftbench/pull/425), [#426](https://github.com/NexusGPT/driftbench/pull/426), [#528](https://github.com/NexusGPT/driftbench/pull/528)).
+Honest intervals ship.
 Repeats of one conversation move together, so they are not independent runs.
 `wilsonEffective` gives the interval of a pooled rate over clustered runs, and `hierarchicalBetaBinomial` the suite headline. Here on six Acme goldens (one spec, one target, one mode each).
 Run `npx tsx headline.ts`.
@@ -1197,7 +1263,7 @@ The verdict names the block, the stage and the check, with the evidence. The fau
 
 The fix maps to the blocks it can affect through their declared dependencies. driftbench reruns affected blocks and any steps that inherit their state. It carries the other results from the last run. When it cannot tell what the change touches, it reruns everything. The gate decides again, and the nightly run still covers everything. Source links advise which blocks to run; they do not skip tests. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
 
-<sub>Block links to prompt sections and advisory selection by them are on main ([#423](https://github.com/NexusGPT/driftbench/pull/423), [#429](https://github.com/NexusGPT/driftbench/pull/429)).</sub>
+<sub>Block links to prompt sections and advisory selection by them ship.</sub>
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
@@ -1675,7 +1741,7 @@ What driftbench does not do: retrieval metrics for RAG, promptfoo's catalogue of
 
 Version 0.1.0 is on npm as [`@agent-nexus/driftbench`](https://www.npmjs.com/package/@agent-nexus/driftbench), with one package per part (`-core`, `-checks`, `-judges`, `-adapters`, `-stats`, `-store`, `-report`, `-generate` and more). Changes are listed in the [changelog](CHANGELOG.md).
 
-Not built yet: judges loaded from the command line in `campaign run`, `driftbench ci` on your own process agent, the unit runner for code-agent guards, and a hosted UI. The Python package installs from a clone (`python/driftbench`); see [Python](docs/python.md).
+Not built yet: a hosted UI, and the commands listed under [not built yet](docs/reference/cli.md#not-built-yet) in the CLI reference. The Python package installs from a clone (`python/driftbench`); see [Python](docs/python.md).
 
 ## Docs
 

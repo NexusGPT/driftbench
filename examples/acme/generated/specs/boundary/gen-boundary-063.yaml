@@ -203,3 +203,145 @@ metadata:
         phrase:
           dimension: stage_transition
           value: order_placed-to-closing
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-063
+        values:
+          account_lookup: found
+          flow: upgrade
+          user_type: existing-customer
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-offer
+      to:
+        kind: plan_row
+        row: gen-boundary-063
+        values:
+          account_lookup: found
+          flow: upgrade
+          user_type: existing-customer
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: identify-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-recap
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-recap
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-recap
+      to:
+        kind: plan_row
+        row: gen-boundary-063
+        values:
+          account_lookup: found
+          flow: upgrade
+          user_type: existing-customer
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: offer-to-recap
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-recap-to-order_placed
+      to:
+        kind: rule
+        rule: stage_transition=recap-to-order_placed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-recap-to-order_placed
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-recap-to-order_placed
+      to:
+        kind: plan_row
+        row: gen-boundary-063
+        values:
+          account_lookup: found
+          flow: upgrade
+          user_type: existing-customer
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: recap-to-order_placed
+          stage: order_placed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-order_placed-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=order_placed-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-order_placed-to-closing
+      to:
+        kind: plan_row
+        row: gen-boundary-063
+        values:
+          account_lookup: found
+          flow: upgrade
+          user_type: existing-customer
+          plan_choice: names-one
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: order_placed-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

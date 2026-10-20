@@ -154,3 +154,135 @@ metadata:
       - "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds none"
       - "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer"
       - "path order-named-plan: it needs coverage_result in fiber; the cell holds none"
+  links:
+    - block: b1-open
+      to:
+        kind: rule
+        rule: flow=order
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-open
+      to:
+        kind: plan_row
+        row: gen-twise-114
+        values:
+          behaviour: B-009
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: none
+          flow: order
+          catalog.search.in.category: catalog.search.in.category.mobile
+          catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          catalog.search.in.address_id: catalog.search.in.address_id.absent
+          catalog.search.in.unknown-key: catalog.search.in.unknown-key.sent
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          catalog.search.out.customer: catalog.search.out.customer.null
+          coverage.check.in.address: coverage.check.in.address.below-min-length
+          coverage.check.in.unknown-key: coverage.check.in.unknown-key.sent
+          coverage.check.out.found: coverage.check.out.found.true
+          coverage.check.out.address_id: coverage.check.out.address_id.present
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.at-minimum
+          coverage.check.out.five_g: coverage.check.out.five_g.true
+          port.check.in.number: port.check.in.number.at-min-length
+          port.check.in.unknown-key: port.check.in.unknown-key.sent
+          port.check.out.eligible: port.check.out.eligible.true
+          port.check.out.reason: port.check.out.reason.absent
+          order.create.in.type: order.create.in.type.new
+          order.create.in.customer_id: order.create.in.customer_id.absent
+          order.create.in.customer: order.create.in.customer.present
+          order.create.in.address_id: order.create.in.address_id.present
+          order.create.in.port_number: order.create.in.port_number.absent
+          order.create.in.unknown-key: order.create.in.unknown-key.sent
+          order.create.out.status: order.create.out.status.pending
+          notify_sales.in.reason: notify_sales.in.reason.callback
+          notify_sales.in.customer.name: notify_sales.in.customer.name.absent
+          notify_sales.in.customer.email: notify_sales.in.customer.email.absent
+          notify_sales.in.customer.phone: notify_sales.in.customer.phone.present
+          notify_sales.in.summary: notify_sales.in.summary.at-min-length
+          notify_sales.in.unknown-key: notify_sales.in.unknown-key.sent
+          notify_sales.out.queued: notify_sales.out.queued.false
+          rule: greets-once
+          language: english
+          first_message: names-a-plan
+          plan_choice: names-one
+          account_lookup: not-found
+          home_plans: one-plan
+          port_result: can-move
+          failing_tool: notify_sales
+          tool_answer: error
+          retry_outcome: retry-fails-too
+          customer_details: neither
+          callback_phone: not-given
+          workspace_start: none
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D7_silence_or_burst
+      to:
+        kind: rule
+        rule: deviation=D7_silence_or_burst
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D7_silence_or_burst
+      to:
+        kind: plan_row
+        row: gen-twise-114
+        values:
+          behaviour: B-009
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: none
+          flow: order
+          catalog.search.in.category: catalog.search.in.category.mobile
+          catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          catalog.search.in.address_id: catalog.search.in.address_id.absent
+          catalog.search.in.unknown-key: catalog.search.in.unknown-key.sent
+          catalog.search.out.plans: catalog.search.out.plans.several-items
+          catalog.search.out.customer: catalog.search.out.customer.null
+          coverage.check.in.address: coverage.check.in.address.below-min-length
+          coverage.check.in.unknown-key: coverage.check.in.unknown-key.sent
+          coverage.check.out.found: coverage.check.out.found.true
+          coverage.check.out.address_id: coverage.check.out.address_id.present
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.at-minimum
+          coverage.check.out.five_g: coverage.check.out.five_g.true
+          port.check.in.number: port.check.in.number.at-min-length
+          port.check.in.unknown-key: port.check.in.unknown-key.sent
+          port.check.out.eligible: port.check.out.eligible.true
+          port.check.out.reason: port.check.out.reason.absent
+          order.create.in.type: order.create.in.type.new
+          order.create.in.customer_id: order.create.in.customer_id.absent
+          order.create.in.customer: order.create.in.customer.present
+          order.create.in.address_id: order.create.in.address_id.present
+          order.create.in.port_number: order.create.in.port_number.absent
+          order.create.in.unknown-key: order.create.in.unknown-key.sent
+          order.create.out.status: order.create.out.status.pending
+          notify_sales.in.reason: notify_sales.in.reason.callback
+          notify_sales.in.customer.name: notify_sales.in.customer.name.absent
+          notify_sales.in.customer.email: notify_sales.in.customer.email.absent
+          notify_sales.in.customer.phone: notify_sales.in.customer.phone.present
+          notify_sales.in.summary: notify_sales.in.summary.at-min-length
+          notify_sales.in.unknown-key: notify_sales.in.unknown-key.sent
+          notify_sales.out.queued: notify_sales.out.queued.false
+          rule: greets-once
+          language: english
+          first_message: names-a-plan
+          plan_choice: names-one
+          account_lookup: not-found
+          home_plans: one-plan
+          port_result: can-move
+          failing_tool: notify_sales
+          tool_answer: error
+          retry_outcome: retry-fails-too
+          customer_details: neither
+          callback_phone: not-given
+          workspace_start: none
+          deviation: D7_silence_or_burst
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

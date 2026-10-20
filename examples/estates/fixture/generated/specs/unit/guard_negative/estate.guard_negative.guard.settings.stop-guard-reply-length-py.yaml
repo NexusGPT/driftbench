@@ -49,3 +49,22 @@ metadata:
     ask: code
     askFrom: neutral
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_negative.guard.settings.stop-guard-reply-length-py
+        values:
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
