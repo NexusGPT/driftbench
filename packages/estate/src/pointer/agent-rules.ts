@@ -22,6 +22,12 @@ export const AGENT_RULES_SET = `labels:
     spans:
       - name: governed-action
         description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+      - name: first-call
+        description: Inside the governed-action span, the call of the tool that must come first, as the unit writes it, in the fewest words that tell it from the other call, such as the command or the file name, with no quote marks and no word that orders it.
+        within: governed-action
+      - name: second-call
+        description: Inside the governed-action span, the call of the same tool that must come second, as the unit writes it, in the fewest words that tell it from the other call, with no quote marks and no word that orders it.
+        within: governed-action
     links:
       - name: act-tool
         description: The tool the reader uses for that act.
@@ -70,6 +76,17 @@ ${ALSO_REFERENCE}
           evidence:
             - { type: ordered, before: Bash, after: $link.act-tool }
             - { type: tool_called, label: Bash, input: { command: { contains: $code } } }
+      - name: gate-calls
+        description: A unit that orders two calls of one tool, one before the other, such as a command that must run before another command. Give the act that waits as the governed-action span, the two calls as the first-call and second-call spans inside it, and the tool as the act-tool link.
+        spans: [governed-action, first-call, second-call]
+        links: [act-tool]
+        atom:
+          kind: gate
+          title: "Run \${span.first-call} before \${span.second-call}"
+          situation: "\${span.governed-action}"
+          fields: { first: "\${span.first-call}", second: "\${span.second-call}", trigger: "\${span.governed-action}" }
+          evidence:
+            - { type: ordered, before: "\${link.act-tool}~\${span.first-call}", after: "\${link.act-tool}~\${span.second-call}" }
       - name: reference
         description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span of the unit.
         atom:
