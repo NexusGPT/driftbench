@@ -255,8 +255,8 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   expect(commands(build).filter((run) => run === SHARD_COMMAND)).toHaveLength(1);
   const download = (job: { steps: Step[] }) =>
     job.steps.find((step: Step) => step.uses?.startsWith('actions/download-artifact@'));
-  expect(download(build).with.name).toBe('build-node${{ matrix.node }}');
-  expect(download(checks).with.name).toBe('build-node${{ matrix.node }}');
+  expect(download(build)?.with?.name).toBe('build-node${{ matrix.node }}');
+  expect(download(checks)?.with?.name).toBe('build-node${{ matrix.node }}');
   // a shard runs no lint, no test of its own choosing: only the shard command follows the install and the download
   expect(commands(build).filter((run) => run?.startsWith('node tools/ci/'))).toEqual([SHARD_COMMAND]);
 }
