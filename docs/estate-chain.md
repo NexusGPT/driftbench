@@ -87,7 +87,7 @@ The estate page shows the real output of its commands on the fixture, regenerate
 ## What the test does not prove
 
 * It does not show that a model follows the estate. The red result of step 6 comes from a recorded alternative in the stand-in's manifest. It shows that the chain picks the right specs and that the run notices the change. It does not show that a model reads the rule.
-* The recorded labels are the answers of two real labelers (a choice model and a chat model, five runs). A different recording gives a different map, and a unit the labelers leave out is not in the map.
+* The recorded labels are the answers of two real labelers (a choice model and a chat model, three runs). A different recording gives a different map, and a unit the labelers leave out is not in the map.
 * It does not run `estate unit` or `estate static`. They have their own tests.
 * It stops at the radius. It does not rerun the cells in the radius after the change.
 

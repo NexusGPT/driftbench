@@ -526,7 +526,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   /**
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
-   * the runs gave: three of five by default. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * the runs gave: two of three. A run that left the unit out counts for no label. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
