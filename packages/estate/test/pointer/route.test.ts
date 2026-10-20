@@ -62,7 +62,7 @@ describe('a routing table read by the pointer reader', () => {
     expect(map.edges).toContainEqual({ from: found[0]?.id, to: SKILL, kind: 'route' });
   });
 
-  it('refuses a route whose link names no skill of the estate, and builds nothing from it', async () => {
+  it('drops a route link that names no skill of the estate, and builds no route from it', async () => {
     const root = await estate(FILES);
     const { map, pointer: scanned } = await scanEstate({
       root,
@@ -70,7 +70,7 @@ describe('a routing table read by the pointer reader', () => {
       now: NOW,
       pointer: plantedRoutes({ 'reconcile an invoice': ['route-skill', 'skill.zzz.nothing'] }),
     });
-    expect(scanned?.refusals[0]).toMatch(/is not an atom the request listed for route-skill/);
+    expect(scanned?.dropped[0]).toMatch(/is not an atom the request listed for route-skill/);
     expect(map.atoms.some((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toBe(
       false,
     );

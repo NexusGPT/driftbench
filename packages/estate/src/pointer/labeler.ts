@@ -33,7 +33,7 @@ export type Opinion = {
 };
 
 /** The opinions of one answer, by unit index in the file, and the answers parts it refused, with the reason. */
-export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[] };
+export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[]; dropped?: string[] };
 
 export interface Labeler {
   /** Names the labeler in the cassette key: `anthropic`, `jev`, `openai-decisions`, `http:<hash>`. */

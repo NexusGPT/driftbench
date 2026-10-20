@@ -595,7 +595,7 @@ describe('spans across the runs of a labeler', () => {
     }
   });
 
-  it('refuses an entry whose span leaves its unit, counts it, and leaves that unit unlabeled', async () => {
+  it('drops a span that leaves its unit, counts it, and keeps the label of that unit', async () => {
     const result = await spanScan(
       plantedDense(
         (window) =>
@@ -604,9 +604,10 @@ describe('spans across the runs of a labeler', () => {
         { runs: 1 },
       ),
     );
-    expect(result.refusals.length).toBeGreaterThan(0);
-    expect(result.refusals[0]).toMatch(/offsets leave the unit/);
-    expect(result.decided).toBe(0);
+    expect(result.refusals).toEqual([]);
+    expect(result.dropped.length).toBeGreaterThan(0);
+    expect(result.dropped[0]).toMatch(/offsets leave the unit/);
+    expect(result.decided).toBeGreaterThan(0);
   });
 });
 
