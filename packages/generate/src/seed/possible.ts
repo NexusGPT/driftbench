@@ -2,7 +2,7 @@ import { NONE } from '@agent-nexus/driftbench-space';
 import { failableBehaviourTurns } from '../extract/behaviour-turns';
 import type { PathRelation } from '../extract/proposal';
 import { PENDING_STAGE } from '../extract/proposal';
-import type { PreparedMap } from './map';
+import { behaviourSubject, type PreparedMap } from './map';
 
 /**
  * The pairs of axis values no conversation of the map can reach, written as constraints. A cell is worth a
