@@ -10,7 +10,7 @@ import { defineConfig } from 'vitepress';
  * scorecards, which are copied into the site and open as pages of it.
  */
 
-const REPO = 'https://github.com/achammah/driftbench';
+const REPO = 'https://github.com/NexusGPT/driftbench';
 const BASE = '/driftbench/';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const REPORTS = 'examples/acme/reports';
@@ -135,6 +135,8 @@ export default defineConfig({
           { text: 'CLI plugins', link: '/plugins' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
+          { text: 'What you can change in an estate', link: '/estate-settings' },
+          { text: 'Statistics capabilities', link: '/statistics/capabilities' },
           { text: 'The variable store', link: '/variables' },
           { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
@@ -149,9 +151,11 @@ export default defineConfig({
           { text: 'Map reference', link: '/reference/map' },
           { text: 'Interview reference', link: '/reference/interview' },
           { text: 'Criteria and labels', link: '/reference/criteria' },
+          { text: 'Objects', link: '/reference/objects' },
           { text: 'Personas and red-team', link: '/reference/users' },
           { text: 'Change manifest', link: '/reference/change' },
           { text: 'Estate files', link: '/reference/estate-files' },
+          { text: 'Blame and placement', link: '/reference/blame' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
           { text: 'Public API', link: '/reference/api' },

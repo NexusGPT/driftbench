@@ -59,3 +59,29 @@ metadata:
       - marker: needs-askable-act
         atom: reference.weekly-report.read-references-kpi-definitions-md
         detail: 'no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: "References/kpi-definitions.md when a number needs a definition"'
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.weekly-report.read-references-kpi-definitions-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.weekly-report.read-references-kpi-definitions-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

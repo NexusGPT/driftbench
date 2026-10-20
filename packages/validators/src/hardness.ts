@@ -52,6 +52,13 @@ export type Hardness = {
     /** The catch items of that row, counted apart; absent when the row records none. */
     catchItems?: { size: number; passing: number };
   };
+  /** Null for components without a fingerprint contract. Historical figures remain visible on failure. */
+  freshness: {
+    status: 'current' | 'stale' | 'unverified';
+    liveBankHash: string;
+    journalBankHashes: string[];
+    missingRows: number;
+  } | null;
   iteration0: { bankSize: number; passing: number; score: number };
   /** The pilot the forecast and the gate use: the blind one when it has rows, else the builder's. */
   source: Executor;
@@ -181,7 +188,7 @@ export function parseGate(text: string): GateBar {
 
 export function measureHardness(
   rows: readonly JournalRow[],
-  options: { audit?: string; gate?: string } = {},
+  options: { audit?: string; gate?: string; bankHash?: string } = {},
 ): Hardness {
   const zero = rows.find((row) => executorOf(row) === 'builder' && row.iteration === 0);
   const latest = rows.at(-1);
@@ -201,6 +208,30 @@ export function measureHardness(
   ].filter((value): value is number => value !== null);
   const forecast = forecasts.length === 0 ? null : Math.min(...forecasts);
   const reasons: string[] = [];
+  const hashes = [...new Set(rows.flatMap((row) => (row.bankHash ? [row.bankHash] : [])))];
+  const missingRows = rows.filter((row) => !row.bankHash).length;
+  const freshness: Hardness['freshness'] =
+    options.bankHash === undefined
+      ? null
+      : {
+          status: hashes.some((hash) => hash !== options.bankHash)
+            ? 'stale'
+            : missingRows > 0
+              ? 'unverified'
+              : 'current',
+          liveBankHash: options.bankHash,
+          journalBankHashes: hashes,
+          missingRows,
+        };
+  if (freshness?.status === 'stale') {
+    reasons.push(
+      'the journal bank hash differs from the live bank: historical measurement only; no fresh pilot for the live bank',
+    );
+  } else if (freshness?.status === 'unverified') {
+    reasons.push(
+      `${missingRows} journal rows record no bankHash: historical measurement is unverified; no fresh pilot for the live bank`,
+    );
+  }
   const label = source === 'blind' ? 'the blind pilot' : 'the pilot';
   if (!complete) reasons.push(`${label} holds ${iterations} of ${PILOT_ITERATIONS} iterations`);
   if (fixedPerIteration !== null && fixedPerIteration <= 0) {
@@ -276,7 +307,8 @@ export function measureHardness(
       failingByFamily: latest.failingByFamily,
       ...(latest.catchItems === undefined ? {} : { catchItems: latest.catchItems }),
     },
-    iteration0: { bankSize: zero.bankSize, passing: zero.passing, score: gateScore(zero) },
+    freshness,
+    iteration0: chosen.measure.baseline,
     source,
     pilot: { iterations, complete, end },
     pilots: { builder: builder.measure, blind: blind ? blind.measure : null },
@@ -352,7 +384,14 @@ function round(value: number): string {
 /** The measurement as text: the bank per family and tier, the scores, the forecast and the gate verdict. */
 export function formatHardness(component: string, h: Hardness): string {
   let text = `Hardness of ${component} (docs/validators.md section 12.4), from validators/${component}/journal.jsonl\n`;
-  text += `Bank at iteration ${h.bank.iteration}: ${h.bank.size} items, ${h.bank.passing} pass on every seed.\n`;
+  if (h.freshness) {
+    text +=
+      h.freshness.status === 'current'
+        ? `Bank freshness: CURRENT (${h.freshness.liveBankHash}).\n`
+        : `Bank freshness: ${h.freshness.status.toUpperCase()}. The figures below describe the historical journal, not a fresh pilot of the live bank (${h.freshness.liveBankHash}).\n`;
+  }
+  const bankLabel = h.freshness && h.freshness.status !== 'current' ? 'Historical journal bank' : 'Bank';
+  text += `${bankLabel} at iteration ${h.bank.iteration}: ${h.bank.size} items, ${h.bank.passing} pass on every seed.\n`;
   if (h.bank.catchItems)
     text += `Catch items, apart and counted for no hardness: ${h.bank.catchItems.size}, ${h.bank.catchItems.passing} pass on every seed.\n`;
   const tiers = ['1', '2', '3', '4', '5', 'none'];

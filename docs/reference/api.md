@@ -6,7 +6,7 @@ Core exports the `HistoryNormalization` schema and type for the optional `Observ
 
 ## The frozen list
 
-[`tools/structure/api-surface.json`](https://github.com/achammah/driftbench/blob/main/tools/structure/api-surface.json) records names per entry: `value` for an actual JavaScript export, `type` for a declaration-only name. Main entries use package keys such as `adapters`; subpaths use keys such as `adapters/contract`.
+[`tools/structure/api-surface.json`](https://github.com/NexusGPT/driftbench/blob/main/tools/structure/api-surface.json) records names per entry: `value` for an actual JavaScript export, `type` for a declaration-only name. Main entries use package keys such as `adapters`; subpaths use keys such as `adapters/contract`.
 
 The gate builds the packages, then imports each emitted entry in a fresh Node process and lists its actual export names. Re-exports and namespace exports are included. It never infers runtime values from source declarations. For example, changing `export const direct = 1` to `export declare const direct: number` removes a runtime value and fails the gate.
 

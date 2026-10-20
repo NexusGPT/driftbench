@@ -5,7 +5,9 @@ import {
   CoverageWarningCodes,
   InventoryIssueCodes,
   IssueCodes,
+  ItemFile,
   type LoadResult,
+  parseObjectText,
   parseSpecText,
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
@@ -109,9 +111,20 @@ describe('docs content', () => {
     let checked = 0;
     for (const page of await pages()) {
       for (const yaml of fences(page.text, 'yaml')) {
-        const { kind, result } = loadExample(yaml);
         const where = `${page.path}: ${yaml.split('\n')[0]}`;
-        expect(result.ok ? [] : result.errors, where).toEqual([]);
+        if (/^# file: objects\//.test(yaml)) {
+          // An object file of a plugin: the envelope of any rule file.
+          const parsed = ItemFile.safeParse(parseObjectText(yaml, where).raw);
+          expect(parsed.success ? [] : parsed.error.issues, where).toEqual([]);
+          checked += 1;
+          continue;
+        }
+        const { kind, result } = loadExample(yaml);
+        // A spec that names an object a plugin adds cannot resolve it here: the object step is the only error allowed.
+        const errors = result.ok
+          ? []
+          : result.errors.filter((issue) => !(/^uses:/m.test(yaml) && issue.code === 'OBJECT_UNKNOWN'));
+        expect(errors, where).toEqual([]);
         if (kind === 'spec') {
           specs += 1;
           expect(result.warnings, where).toEqual([]);

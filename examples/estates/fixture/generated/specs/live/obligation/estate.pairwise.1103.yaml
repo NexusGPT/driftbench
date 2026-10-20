@@ -88,3 +88,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.route-planner.never-load-a-route-over-the
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.never-load-a-route-over-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1103
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: resumed
+          owner_signal: keep_going
+          deviation: D10_return
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.route-planner.never-load-a-route-over-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

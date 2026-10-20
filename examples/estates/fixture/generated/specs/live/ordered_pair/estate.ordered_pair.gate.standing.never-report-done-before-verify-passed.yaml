@@ -80,3 +80,22 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.never-report-done-before-verify-passed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: ordered_pair.gate.standing.never-report-done-before-verify-passed
+        values:
+          atoms.gate: gate.standing.never-report-done-before-verify-passed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

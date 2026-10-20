@@ -144,3 +144,89 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.in.customer_email
         value: catalog.search.in.customer_email.absent
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-005
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.absent
+          flow: order
+          coverage_result: 5g-only
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          channel: chat
+          user_type: existing-customer
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: plan_row
+        row: gen-boundary-005
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.absent
+          flow: order
+          coverage_result: 5g-only
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          channel: chat
+          user_type: existing-customer
+          stage_transition: address-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: rule
+        rule: catalog.search.in.customer_email=catalog.search.in.customer_email.absent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-value
+      to:
+        kind: plan_row
+        row: gen-boundary-005
+        values:
+          catalog.search.in.customer_email: catalog.search.in.customer_email.absent
+          flow: order
+          coverage_result: 5g-only
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          channel: chat
+          user_type: existing-customer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

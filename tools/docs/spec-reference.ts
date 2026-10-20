@@ -688,14 +688,27 @@ export const FILE_PAGES: readonly FilePage[] = [
     title: 'Personas and red-team reference',
     source: 'packages/users/src',
     about:
-      'The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md).',
+      'The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a cassette for a simulated user defined in the blocks (`simulate --cassette`), a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md).',
     keys: 'Keys are as written below. An unknown key is an error.',
     names: users,
     roots: [
       ['Persona', users.Persona],
       ['UserRecording', users.UserRecording],
+      ['UserCassette', users.UserCassette],
       ['PackFile', users.PackFile],
       ['RedteamPlugin', users.RedteamPlugin],
+    ],
+  },
+  {
+    file: 'objects.md',
+    title: 'Objects reference',
+    source: 'packages/core/src/schema/object.ts',
+    about: `An object is one rule set driftbench applies, written as data: a kind, an id and addressable items. A project tailors a shipped object by writing one that extends it, under \`driftbench/<kind>/<id>.yaml\` beside \`driftbench.yaml\` or in its \`objects:\` key; a spec or a block names the objects it uses under \`uses\`. The kinds: ${core.BUILTIN_KINDS.map((def) => `\`${def.kind}\` (${def.summary.replace(/\.$/, '').toLowerCase()})`).join(', ')}. \`driftbench object\` lists, explains, extends and validates them; see [the CLI](cli.md#driftbench-object) and \`driftbench help core-objects\`. The object file comes first, then the \`uses\` map.`,
+    keys: SNAKE,
+    names: core,
+    roots: [
+      ['ItemFile', core.ItemFile],
+      ['Uses', core.Uses],
     ],
   },
   {

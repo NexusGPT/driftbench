@@ -103,3 +103,51 @@ metadata:
     needs_phrase:
       - dimension: order.create.in.type
         value: order.create.in.type.upgrade
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-037
+        values:
+          order.create.in.type: order.create.in.type.upgrade
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: chat
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: order.create.in.type=order.create.in.type.upgrade
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-037
+        values:
+          order.create.in.type: order.create.in.type.upgrade
+          flow: new-home
+          user_type: new-customer
+          coverage_result: not-in-map
+          channel: chat
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
