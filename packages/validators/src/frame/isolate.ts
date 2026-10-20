@@ -11,7 +11,6 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
@@ -95,7 +94,14 @@ export type Frame<T> = {
   /** Every call so far, with the answers of all runs. Reading it makes the calls in run C first, if any are held. */
   readonly tape: Tape;
   /** Where the time of the frame went, in milliseconds: encoding, waiting for the confined runs, decoding, run C. */
-  spent(): { calls: number; encodeMs: number; relayMs: number; decodeMs: number; plainMs: number };
+  spent(): {
+    calls: number;
+    encodeMs: number;
+    relayMs: number;
+    decodeMs: number;
+    plainMs: number;
+    top: Array<{ name: string; calls: number; ms: number; slow: number }>;
+  };
   /** The number of calls so far: a mark for `cpuSince` and `divergenceSince`; it does not run run C. */
   position(): number;
   /** The first call whose runs answered differently, as a message, or undefined. */
@@ -360,6 +366,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     if (handle !== undefined) return { $handle: handle };
     return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
   };
+  const byName = new Map<string, { calls: number; ms: number; slow: number }>();
   const spent = { calls: 0, encodeMs: 0, relayMs: 0, decodeMs: 0, plainMs: 0 };
   type Recorded = { call: string; entry: Entry; expected: string; head: string; at: number };
   const recorded: Recorded[] = [];
@@ -404,7 +411,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     spent.calls += 1;
     spent.encodeMs += t1 - t0;
-    spent.relayMs += performance.now() - t1;
+    const took = performance.now() - t1;
+    spent.relayMs += took;
+    const each = byName.get(name) ?? { calls: 0, ms: 0, slow: 0 };
+    each.calls += 1;
+    each.ms += took;
+    if (took > 50) each.slow += 1;
+    byName.set(name, each);
     const [a, b, d] = answers as [
       Outcome | { dead: string },
       Outcome | { dead: string },
@@ -477,7 +490,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return tape;
     },
     position: () => tape.length,
-    spent: () => ({ ...spent }),
+    spent: () => ({
+      ...spent,
+      top: [...byName.entries()]
+        .sort((x, y) => y[1].ms - x[1].ms)
+        .slice(0, 8)
+        .map(([name, each]) => ({ name, ...each })),
+    }),
     divergence: () => {
       flushPlain();
       return first;
