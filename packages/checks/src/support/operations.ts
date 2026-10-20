@@ -150,6 +150,16 @@ export function classifyTool(label: string): OperationClass | undefined {
  * and the digits or file name after it) is not a word, and its operand is not one.
  */
 export function simpleCommands(line: string): string[][] {
+  return parseShell(line).commands;
+}
+
+/**
+ * The simple commands of a line and whether the line holds a construct this reader does not follow: a command or
+ * process substitution (`$(`, a backtick, `<(`, `>(`), a here-document or here-string (`<<`), or a quote that is
+ * never closed. What the reader does not follow is never read as "no path".
+ */
+export function parseShell(line: string): { commands: string[][]; unknown: boolean } {
+  let unknown = false;
   const commands: string[][] = [];
   let words: string[] = [];
   let word = '';
@@ -175,8 +185,10 @@ export function simpleCommands(line: string): string[][] {
       const close = char;
       for (at += 1; at < line.length && line[at] !== close; at += 1) {
         if (close === '"' && line[at] === '\\' && at + 1 < line.length) at += 1;
+        if (close === '"' && (line[at] === '`' || (line[at] === '$' && line[at + 1] === '('))) unknown = true;
         word += line[at];
       }
+      if (at >= line.length) unknown = true;
       continue;
     }
     if (char === '\\' && at + 1 < line.length) {
@@ -185,6 +197,7 @@ export function simpleCommands(line: string): string[][] {
       word += line[at];
       continue;
     }
+    if (char === '`' || (char === '$' && line[at + 1] === '(')) unknown = true;
     if (/\s/.test(char)) {
       if (char === '\n') endCommand();
       else endWord();
@@ -211,6 +224,7 @@ export function simpleCommands(line: string): string[][] {
       let end = at;
       while (end < line.length && '<>&'.includes(line[end] as string) && end - at < 3) end += 1;
       const operator = line.slice(at, end);
+      if (operator.startsWith('<<') || line[end] === '(') unknown = true;
       at = end - 1;
       // `>&1`, `<&-`: the descriptor or the dash is part of the operator.
       if (operator.endsWith('&') && operator !== '&') {
@@ -225,12 +239,15 @@ export function simpleCommands(line: string): string[][] {
     word += char;
   }
   endCommand();
-  return commands;
+  return { commands, unknown };
 }
 
 /** Whether some simple command of the line checks a path out: `git ... checkout ... -- <word>`. */
 export function checksOutPath(line: string): boolean {
-  return simpleCommands(line).some((words) => {
+  const { commands, unknown } = parseShell(line);
+  // A construct the reader does not follow may be, or hold, the path: fail closed.
+  if (unknown) return true;
+  return commands.some((words) => {
     const git = words.indexOf('git');
     const checkout = git < 0 ? -1 : words.indexOf('checkout', git + 1);
     const dashes = checkout < 0 ? -1 : words.indexOf('--', checkout + 1);
