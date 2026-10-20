@@ -764,8 +764,7 @@ describe('the gold-set item fails each part alone', () => {
     for (const c of copy['stack.goldset'] ?? []) change(c.expect);
     return copy;
   };
-  const misses = async (impl: PointerImpl, which: typeof fixtures) =>
-    goldItem.run(impl, which, 1, ROOT);
+  const misses = async (impl: PointerImpl, which: typeof fixtures) => goldItem.run(impl, which, 1, ROOT);
 
   it('passes on the shipped stack and the true table', async () => {
     expect(await misses(await loadPointerImpl(), fixtures)).toEqual([]);
