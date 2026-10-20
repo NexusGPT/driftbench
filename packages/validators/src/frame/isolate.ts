@@ -205,6 +205,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     file: sealed,
     inputs,
     tree,
+    influences,
   } = seal(module, sealFolder, drawnFolder(options.seed, `bundle:${tag}`), {
     sources: options.sources ?? [],
     reads: options.reads ?? [],
@@ -213,8 +214,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   // frame. The watch is read-only; what it finds marks the tree, and a marked tree starts no frame (confine.ts).
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
-  const watch = new TreeWatch([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
+  const watch = new TreeWatch(
+    [tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? []), ...influences.files],
+    influences.packages,
+  );
   watch.watchResolution(tree);
+  for (const folder of influences.packages) watch.watchResolution(folder);
   let dirty = false;
   const settle = (): void => {
     if (!dirty) return;
@@ -389,11 +394,13 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     file: sealed,
     inputs,
     tree,
+    influences,
   } = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
-  const watch = new TreeWatch([tree, ...inputs]);
+  const watch = new TreeWatch([tree, ...inputs, ...influences.files], influences.packages);
   watch.watchResolution(tree);
+  for (const folder of influences.packages) watch.watchResolution(folder);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },

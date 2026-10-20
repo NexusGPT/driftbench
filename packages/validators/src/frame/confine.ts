@@ -115,12 +115,80 @@ export function productTree(module: string): string {
 
 const under = (path: string, folder: string): boolean => path === folder || path.startsWith(folder + sep);
 
+/** The files an extends chain of tsconfig files reads, the first being `tsconfig` itself. */
+function tsconfigChain(tsconfig: string): string[] {
+  const chain: string[] = [];
+  const seen = new Set<string>();
+  const visit = (file: string): void => {
+    const real = realOf(file);
+    if (seen.has(real) || !existsSync(real)) return;
+    seen.add(real);
+    chain.push(real);
+    let text = '';
+    try {
+      text = readFileSync(real, 'utf8');
+    } catch {
+      return;
+    }
+    // "extends": "./x.json" or ["./x.json", ...]; a comment or a trailing comma does not stop this reading.
+    const found = /"extends"\s*:\s*(\[[^\]]*\]|"[^"]*")/.exec(text);
+    if (!found) return;
+    for (const each of [...(found[1] as string).matchAll(/"([^"]+)"/g)].map((m) => m[1] as string)) {
+      if (!each.startsWith('.') && !each.startsWith('/')) continue;
+      const target = resolve(dirname(real), each);
+      visit(target.endsWith('.json') ? target : `${target}.json`);
+    }
+  };
+  visit(tsconfig);
+  return chain;
+}
+
+/** The folder of the package a file of a node_modules belongs to, or undefined for a file outside any. */
+function packageOf(file: string): string | undefined {
+  const parts = file.split(sep);
+  const at = parts.lastIndexOf('node_modules');
+  if (at < 0 || at + 1 >= parts.length) return undefined;
+  const scoped = (parts[at + 1] as string).startsWith('@') ? 2 : 1;
+  if (at + scoped >= parts.length) return undefined;
+  return parts.slice(0, at + 1 + scoped).join(sep);
+}
+
+/**
+ * What decides which files a later bundle takes, besides the files themselves (reviews of PR 969: run C rewrote the
+ * `main` of a package.json, and the `paths` of a tsconfig.json). Everything here is watched like the product: if it
+ * is not the same after run C as before, the frame is marked.
+ */
+export function bundleInfluences(
+  inputs: readonly string[],
+  tsconfig: string | undefined,
+): { files: string[]; packages: string[] } {
+  const files = new Set<string>(tsconfig ? tsconfigChain(tsconfig) : []);
+  const packages = new Set<string>();
+  for (const input of inputs) {
+    const owner = packageOf(input);
+    if (owner) packages.add(owner);
+    for (let dir = dirname(input); ; ) {
+      const manifest = join(dir, 'package.json');
+      if (existsSync(manifest)) files.add(realOf(manifest));
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return { files: [...files], packages: [...packages] };
+}
+
 export type Sealed = {
   file: string;
   /** Every file the bundle was built from. */
   inputs: string[];
   /** The source tree of the product, which the unconfined run must not change. */
   tree: string;
+  /**
+   * Everything besides the inputs that decided what was bundled: the tsconfig files read, the package.json files on
+   * the path of each input, and the folder of each package of a node_modules the bundle took files from.
+   */
+  influences: { files: string[]; packages: string[] };
 };
 
 /**
@@ -194,7 +262,13 @@ export function seal(
         `the product imports ${input}, a data file: grant it in \`reads\`, or the file of expected values it may be is bundled into the product`,
       );
   }
-  return { file: outfile, inputs: [...new Set([realOf(resolve(module)), ...inputs])], tree };
+  const all = [...new Set([realOf(resolve(module)), ...inputs])];
+  return {
+    file: outfile,
+    inputs: all,
+    tree,
+    influences: bundleInfluences(all, existsSync(tsconfig) ? tsconfig : undefined),
+  };
 }
 
 /**
@@ -209,9 +283,18 @@ export function seal(
 export class TreeWatch {
   private readonly before = new Map<string, string>();
   private readonly roots: string[] = [];
+  /** Roots whose nested node_modules folders are not walked (a package taken from a node_modules). */
+  private readonly shallow = new Set<string>();
   static readonly LIMIT = 200_000;
 
-  constructor(paths: readonly string[]) {
+  constructor(paths: readonly string[], packages: readonly string[] = []) {
+    for (const path of packages) {
+      if (!existsSync(path)) continue;
+      const real = realOf(path);
+      if (this.roots.includes(real)) continue;
+      this.roots.push(real);
+      this.shallow.add(real);
+    }
     for (const path of paths) {
       if (!existsSync(path)) {
         this.roots.push(path);
@@ -235,7 +318,11 @@ export class TreeWatch {
         return;
       }
       if (stat.isDirectory()) {
-        for (const name of readdirSync(path)) if (name !== '.git') walk(join(path, name));
+        for (const name of readdirSync(path)) {
+          if (name === '.git') continue;
+          if (name === 'node_modules' && this.shallow.has(root)) continue;
+          walk(join(path, name));
+        }
       } else if (stat.isFile()) {
         if (found.size >= TreeWatch.LIMIT)
           throw new FrameError(
