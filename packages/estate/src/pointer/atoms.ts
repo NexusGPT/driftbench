@@ -305,8 +305,23 @@ export function pointerAtoms(
             : fill(optionalSituation ? mapping.situation.slice(0, -1) : mapping.situation, template);
         const situation = optionalSituation && filledSituation === UNRESOLVED ? undefined : filledSituation;
         const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
-        const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
         const mappedReplyAct = mapping.replyAct === undefined ? undefined : fill(mapping.replyAct, template);
+        let mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+        // A declared ask names the act it exercises: the reply act of its own atom, typed by the map and read from
+        // no word. An ask on an atom without a reply act carries none, so the generator refuses it.
+        if (
+          mappedFields !== UNRESOLVED &&
+          mappedReplyAct !== undefined &&
+          mappedReplyAct !== UNRESOLVED &&
+          typeof (mappedFields as Record<string, unknown>).ask === 'object' &&
+          (mappedFields as Record<string, unknown>).ask !== null
+        ) {
+          const ask = (mappedFields as { ask: Record<string, unknown> }).ask;
+          mappedFields = {
+            ...(mappedFields as Record<string, unknown>),
+            ask: { ...ask, act: { kind: 'reply', name: (mappedReplyAct as { id: string }).id } },
+          };
+        }
         const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
         // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
         let located: Record<string, unknown> = {};
