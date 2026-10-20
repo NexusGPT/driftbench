@@ -92,6 +92,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Simulated human experiments for blocks](research/block-simulated-users.md): three pre-registered experiments on simulated users, an agenda engine and uncovered production clusters.
 * [Block links experiments](research/block-links.md): two pre-registered experiments on section links and per-root counting, with prompt mutation as ground truth.
 * [Block framework core experiments](research/block-framework-core.md): four pre-registered experiments on backward compatibility, defaults, overrides and re-judging in a block framework prototype.
+* [Block framework persona experiments](research/block-framework-persona.md): three pre-registered experiments on the persona grid, prompt unit routing and ownership refusals.
 
 ## What exists today
 
