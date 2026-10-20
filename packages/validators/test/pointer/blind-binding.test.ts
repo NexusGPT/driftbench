@@ -31,8 +31,8 @@ describe('the blind bank bound to the reader', () => {
       'unsupported: group:carry',
       'unsupported: labels:rerecord',
       'unsupported: links',
-      'unsupported: radius',
       'unsupported: privacy',
+      'unsupported: radius',
       'unsupported: reanchor',
       'unsupported: replay',
     ]);
