@@ -71,7 +71,7 @@ describe('driftbench estate scan', () => {
     // The recorded labeler gave answers the checks refused: they stay out of the map, and the scan exits 1.
     expect(result.code).toBe(1);
     expect(result.out).toContain(
-      'Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.',
+      'Wrote map.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.',
     );
     expect(result.out).toMatch(/instruction\s+45 {2}\(45 by the model\)/);
     expect(result.out).toContain('refused: CLAUDE.md#1');
@@ -275,14 +275,14 @@ describe('driftbench estate lint, approve and map', () => {
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);
-    expect(pending.out).toContain('map.yaml: 79 of 126 atoms wait for approval.');
+    expect(pending.out).toContain('map.yaml: 80 of 127 atoms wait for approval.');
     const kind = await run(
       ['estate', 'approve', 'map.yaml', '--kind', 'register', '--to', 'registers.yaml'],
       root,
     );
     expect(kind.out).toBe('Approved 14 atoms in registers.yaml; 0 were already approved.\n');
     const all = await run(['estate', 'approve', 'registers.yaml', '--all', '--to', 'approved.yaml'], root);
-    expect(all.out).toBe('Approved 65 atoms in approved.yaml; 61 were already approved.\n');
+    expect(all.out).toBe('Approved 66 atoms in approved.yaml; 61 were already approved.\n');
     expect((await run(['estate', 'approve', 'map.yaml', '--kind', 'rule'], root)).code).toBe(1);
     expect((await run(['estate', 'approve', 'map.yaml', '--all', '--kind', 'gate'], root)).code).toBe(2);
     expect(

@@ -49,7 +49,7 @@ describe('driftbench estate diff', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 126 unchanged.',
+      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 127 unchanged.',
     );
     expect(result.out).toContain('Edges: 0 added, 0 removed.');
   });
@@ -503,9 +503,28 @@ describe('the fixture-v2 outputs', () => {
     expect(result.code).toBe(1);
     expect(result.out).toBe(withoutWrote(await readFile(join(ROOT, V2, 'maintain', 'impact.txt'), 'utf8')));
 
+    // Version 2 retires nothing: R12 and R19 sit on one ledger unit, so R12 is a changed rule. The diff of a
+    // version that removes R12 outright is that diff with R12 moved from the changed atoms to the removed ones.
     const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-v2-'));
     await cp(join(ROOT, V2, 'tests'), join(root, 'tests'), { recursive: true });
-    await cp(join(ROOT, V2, 'maintain', 'diff.json'), join(root, 'diff.json'));
+    const diff = JSON.parse(await readFile(join(ROOT, V2, 'maintain', 'diff.json'), 'utf8'));
+    const r12 = diff.atoms.changed.find(
+      (entry: { id: string }) => entry.id === 'instruction.standing.r12-when-r2-applies-and-the',
+    );
+    expect(r12?.now).toBe('instruction.standing.r19-when-r18-applies-and-the');
+    diff.atoms.changed = diff.atoms.changed.filter((entry: { id: string }) => entry !== r12);
+    diff.atoms.removed = [
+      {
+        id: r12.id,
+        kind: r12.kind,
+        title: 'R12. When R2 applies and the user has not answered, keep the draft and do not send it.',
+        producedBy: 'model',
+        approved: true,
+        at: r12.before,
+      },
+    ];
+    diff.summary = { ...diff.summary, removed: 1, semantic: diff.summary.semantic - 1 };
+    await writeFile(join(root, 'diff.json'), JSON.stringify(diff));
     const written = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--write'], root);
     expect(written.code).toBe(1);
     const retired = await readFile(join(root, 'tests', 'unsent-draft.yaml'), 'utf8');
