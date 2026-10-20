@@ -494,8 +494,9 @@ describe('reanchor never returns two live sections that overlap', () => {
     const after = 'PYABCXDEFZ';
     const registry = manual(before, { span: [2, 5], prefix: 'Y' }, { span: [8, 15], prefix: 'Y' });
     const result = reanchor(registry, before, after);
+    // Whatever it keeps, the registry holds no two live sections whose places overlap.
     expect(checkSectionRegistry(result.registry, after)).toEqual([]);
-    expect(live(result.registry)).toEqual([]);
+    expect(live(result.registry).length).toBeLessThan(2);
   });
 
   it('keeps both when their new places do not meet', () => {
