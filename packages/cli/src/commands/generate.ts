@@ -14,6 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
+  STEM_MAP_FILE,
   seedFolderName,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
@@ -47,6 +48,7 @@ export type GenerateCommandOptions = {
   tasks?: string;
   baseline?: string[];
   force?: boolean;
+  stems?: boolean;
   json?: boolean;
   model?: boolean;
   proposals?: string;
@@ -89,6 +91,7 @@ export function registerGenerateCommand(
     .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
     .option('--force', 'replace the output of an earlier run in the folder')
+    .option('--no-stems', 'write every spec whole: no shared openings written once as stems')
     .option('--json', 'print the report as JSON')
     .option('--model', 'also ask the model port for specs; each counts only once the gate accepts it (paid)')
     .option('--proposals <n>', 'with --model: how many specs to ask for (default 3)')
@@ -193,7 +196,7 @@ export async function generateCommand(
       );
       return 2;
     }
-    for (const entry of [COMPLETE_DIR, INCOMPLETE_DIR, REPORT_FILE]) {
+    for (const entry of [COMPLETE_DIR, INCOMPLETE_DIR, REPORT_FILE, STEM_MAP_FILE]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }
   }
@@ -221,6 +224,7 @@ export async function generateCommand(
         : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
+      stems: options.stems !== false,
     });
   } catch (cause) {
     io.err(`Cannot generate: ${cause instanceof Error ? cause.message : String(cause)}\n`);

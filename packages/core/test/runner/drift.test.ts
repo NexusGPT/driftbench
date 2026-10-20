@@ -2,7 +2,7 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { machineVerdict, type Observed, type RunResult } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
-import type { AcmeAgent } from '../../../../examples/acme/src/index';
+import { type AcmeAgent, acmeReplayer } from '../../../../examples/acme/src/index';
 import {
   classifyStage,
   driftOf,
@@ -44,7 +44,8 @@ async function run(
   return runSpec(acmeSpec(loaded, id), {
     adapter: realAcmeAdapter(wrap),
     driver,
-    checks: defaultChecks(),
+    // The Acme tools replay for the value check, so a wrong plan id is a fail of the tools check, not undecided.
+    checks: defaultChecks({ valueCheck: { services: { replayer: acmeReplayer() } } }),
     mode,
     repeat: 0,
   });
@@ -250,15 +251,26 @@ describe('the step classifier', () => {
     expect(result.blocks[2]?.drift).toEqual(['X3_flow', 'X5_tool']);
   });
 
-  it('names a flow that goes back when the block expects no stage', () => {
+  it('names a flow that goes back when the block expects no stage and the classifier read the stage', () => {
     const spec = specOf({ id: 'back', stages: ['a', 'b'], blocks: [{ user: '1' }] });
-    const back = flowVerdicts(spec, {}, { stage: 'a', source: 'runtime', evidence: '' }, 'b');
+    const back = flowVerdicts(spec, {}, { stage: 'a', source: 'tools', evidence: '' }, 'b');
     expect(back.map((verdict) => [verdict.id, verdict.outcome])).toEqual([['flow.order', 'fail']]);
-    const on = flowVerdicts(spec, {}, { stage: 'b', source: 'runtime', evidence: '' }, 'a');
+    const on = flowVerdicts(spec, {}, { stage: 'b', source: 'tools', evidence: '' }, 'a');
     expect(on.map((verdict) => verdict.outcome)).toEqual(['pass']);
-    expect(flowVerdicts(spec, { stage: 'a' }, { stage: 'b', source: 'runtime', evidence: '' }, 'a')).toEqual(
-      [],
-    );
+    expect(
+      flowVerdicts(spec, { stage: 'a' }, { stage: 'b', source: 'tools', evidence: '' }, 'a'),
+    ).toHaveLength(1);
+  });
+
+  // docs/concepts/drift.md: "A stage the runtime reports gets no flow verdict: the `stage` check judges it."
+  it('gives no flow verdict to a stage the runtime reported, whether or not the block expects one', () => {
+    const spec = specOf({ id: 'reported', stages: ['a', 'b'], blocks: [{ user: '1' }] });
+    for (const source of ['runtime', 'runtime-carried'] as const) {
+      const reading = { stage: 'a', source, evidence: '' };
+      expect(flowVerdicts(spec, {}, reading, 'b'), `${source}, going back`).toEqual([]);
+      expect(flowVerdicts(spec, {}, reading, 'a'), `${source}, staying`).toEqual([]);
+      expect(flowVerdicts(spec, { stage: 'b' }, reading, 'a'), `${source}, expected stage`).toEqual([]);
+    }
   });
 });
 

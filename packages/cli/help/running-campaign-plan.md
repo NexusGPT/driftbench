@@ -67,7 +67,7 @@ Text output, on stdout, in this order:
 4. `Projected cost: $<usd> (<adapter>: <n> blocks at $<usd per block>; ...).` An adapter with no measured unit reads `<adapter>: no unit measured` and counts $0. With `--budget-usd`, the budget sentence follows. Judge calls are not priced.
 5. One line per mode: `Minimum detectable effect, mode <M>: <effect> on a <rate>% pass rate, with <n> runs per arm over <n> specs (rho <rho>, design effect <d>; two-sided alpha 0.05, power 0.8).` The effect is in percentage points. It reads `none detectable` when the campaign is too small to detect any drop below the baseline, and `no runs` when the mode has no run. One arm is every spec on the first target. The specs are the independent units; the design effect is `1 + (repeats - 1) * rho`, and the effective units per arm are `specs * repeats / design effect`.
 
-`--json` prints `{ "cells": [...], "blocks": <n>, "cost": { "usd", "unmeasured", "byAdapter" }, "budgetUsd"?, "withinBudget"?, "mde": [...] }`. Each cell holds `cellId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId` (mode P only) and `blocks`. Each `mde` entry holds `mode`, `runsPerArm`, `specs`, `baselineRate`, `rho`, `alpha`, `power`, `designEffect`, and `effect` as a proportion (absent when nothing is detectable).
+`--json` prints `{ "cells": [...], "blocks": <n>, "cost": { "usd", "unmeasured", "byAdapter" }, "budgetUsd"?, "withinBudget"?, "mde": [...] }`. Each cell holds `cellId`, `specId`, `specHash`, `identityHash` (the spec hash without its `version` label, which the cell id is made from), `target`, `mode`, `repeat`, `perturbationId` (mode P only) and `blocks`. Each `mde` entry holds `mode`, `runsPerArm`, `specs`, `baselineRate`, `rho`, `alpha`, `power`, `designEffect`, and `effect` as a proportion (absent when nothing is detectable).
 
 Exit codes: 0 when the plan printed; 2 on bad input. Bad input is an invalid spec or none found, an unknown mode, a bad number, a bad target or route, a target with no adapter, too many cells, a store that cannot be opened, or a bad config.
 
@@ -84,18 +84,18 @@ driftbench campaign plan examples/acme/specs/conversations/tool-failure.yaml --t
 ```text
 Plan: 6 specs, 1 target, mode F, 2 repeats: 12 cells, 52 blocks.
   cell              spec                           target         mode  repeat  blocks
-  68a19d33ffb63206  acme-new-customer-coverage     function:acme  F     0       4
-  31f113843f6e1e22  acme-new-customer-coverage     function:acme  F     1       4
-  4033227538c49cf8  acme-number-porting            function:acme  F     0       5
-  dd2305bd7041897b  acme-number-porting            function:acme  F     1       5
-  8a546e9028cd7d10  acme-off-topic-return          function:acme  F     0       5
-  3969e3c2e0988fb1  acme-off-topic-return          function:acme  F     1       5
-  479eb10c52e2f431  acme-order-loose-confirmation  function:acme  F     0       4
-  58bb8357be2ee702  acme-order-loose-confirmation  function:acme  F     1       4
-  cc92cc9eb562f586  acme-plan-upgrade              function:acme  F     0       5
-  2b7a03560cb7a80e  acme-plan-upgrade              function:acme  F     1       5
-  d44b9dfe9d1cf87a  acme-tool-failure              function:acme  F     0       3
-  0e486429b58c635e  acme-tool-failure              function:acme  F     1       3
+  4174f4a19290389c  acme-new-customer-coverage     function:acme  F     0       4
+  ce26bf03629c9df4  acme-new-customer-coverage     function:acme  F     1       4
+  4b559eb839437e22  acme-number-porting            function:acme  F     0       5
+  fa73b678bd11e291  acme-number-porting            function:acme  F     1       5
+  6af15c526801c320  acme-off-topic-return          function:acme  F     0       5
+  8a032e9db8772ff2  acme-off-topic-return          function:acme  F     1       5
+  aeb50160ddee26a2  acme-order-loose-confirmation  function:acme  F     0       4
+  def3c6a451c43edd  acme-order-loose-confirmation  function:acme  F     1       4
+  560ab11eeed24dd5  acme-plan-upgrade              function:acme  F     0       5
+  69329d010457c041  acme-plan-upgrade              function:acme  F     1       5
+  fab7e9a89a94b309  acme-tool-failure              function:acme  F     0       3
+  f5a2670b71e18404  acme-tool-failure              function:acme  F     1       3
 Projected cost: $0.00 (function: no unit measured).
 Minimum detectable effect, mode F: 47.8 points on a 50% pass rate, with 12 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
@@ -105,26 +105,27 @@ Twelve cells would run. With six specs the design detects only a drop of about 4
 ```text
 Plan: 1 spec, 1 target, modes T, F, P, 1 repeat: 5 cells, 27 blocks.
   cell              spec               target         mode  repeat  perturbation        blocks
-  850ffcff3927f170  acme-plan-upgrade  function:acme  T     0                           5
-  cc92cc9eb562f586  acme-plan-upgrade  function:acme  F     0                           5
-  e5fd30b27f5451f2  acme-plan-upgrade  function:acme  P     0       billing-aside       6
-  d331b9f8ffb1a5fb  acme-plan-upgrade  function:acme  P     0       order-service-down  5
-  e5f5fa45081fd718  acme-plan-upgrade  function:acme  P     0       loose-ok            6
+  ab0b31eec3842241  acme-plan-upgrade  function:acme  T     0                           5
+  560ab11eeed24dd5  acme-plan-upgrade  function:acme  F     0                           5
+  2dd2d1e6fe37e902  acme-plan-upgrade  function:acme  P     0       billing-aside       6
+  063e81602b7fd309  acme-plan-upgrade  function:acme  P     0       order-service-down  5
+  2b436444603f895c  acme-plan-upgrade  function:acme  P     0       loose-ok            6
 Projected cost: $0.00 (function: no unit measured). Within the budget of $1.00.
 Minimum detectable effect, mode T: none detectable on a 50% pass rate, with 1 run per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 1 run per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 Minimum detectable effect, mode P: none detectable on a 50% pass rate, with 3 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
-The spec declares three perturbations, so mode P makes three cells. `order-service-down` sends 5 blocks, not 6: it only changes the world, so it adds no block. The F cell `cc92cc9eb562f586` has the same id as in the first plan: a cell id does not depend on the campaign.
+The spec declares three perturbations, so mode P makes three cells. `order-service-down` sends 5 blocks, not 6: it only changes the world, so it adds no block. The F cell `560ab11eeed24dd5` has the same id as in the first plan: a cell id does not depend on the campaign.
 
 ```text
 {
   "cells": [
     {
-      "cellId": "d44b9dfe9d1cf87a",
+      "cellId": "fab7e9a89a94b309",
       "specId": "acme-tool-failure",
       "specHash": "e5bc5c9ba9d2",
+      "identityHash": "2051c4216e08",
       "target": {
         "adapter": "function",
         "agent": "acme"

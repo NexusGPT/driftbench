@@ -101,13 +101,23 @@ export {
   LedgerId,
   OwnerProvenance,
   QuoteProvenance,
+  StructureProvenance,
   Variable,
   VariableBoundary,
   VariableConstraint,
   VariablePrior,
   VariableProvenance,
+  VariableScope,
   VariableStore,
   VariableValue,
+  variableScope,
 } from './variables/schema';
+export {
+  escapePointerToken,
+  pointerOfPath,
+  resolveStructure,
+  type StructureResolved,
+  type StructureTarget,
+} from './variables/structure';
 
 export const packageName = '@agent-nexus/driftbench-space';
