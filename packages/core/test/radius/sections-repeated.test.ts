@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   checkSectionRegistry,
@@ -431,5 +432,78 @@ describe('repeated slugs take the next free suffix', () => {
         picked.join(' | '),
       ).toEqual(naive(picked.map(slugOf)));
     }
+  });
+});
+
+describe('reanchor never returns two live sections that overlap', () => {
+  const sha = (text: string) => createHash('sha256').update(text).digest('hex');
+  /** A registry written by hand: a repeated short section and a unique longer one that holds the same letters. */
+  function manual(
+    text: string,
+    short: { span: [number, number]; prefix: string },
+    long: { span: [number, number]; prefix: string },
+  ): SectionRegistry {
+    const part = (
+      id: string,
+      quote: string,
+      span: [number, number],
+      prefix: string,
+      suffix: string,
+      occurrence?: number,
+    ) => ({
+      id,
+      scope: 'local' as const,
+      span: { start: span[0], end: span[1] },
+      sha256: sha(text.slice(span[0], span[1])),
+      anchor: { quote, prefix, suffix, ...(occurrence ? { occurrence } : {}) },
+    });
+    const registry = {
+      prompt_id: 'tower',
+      version: 'v1',
+      text_sha256: sha(text),
+      sections: [
+        part('short', 'ABC', short.span, short.prefix, 'X', 1),
+        part('long', 'ABCXDEF', long.span, long.prefix, 'Z'),
+      ],
+    };
+    const parsed = parseSectionRegistry(registry);
+    if (!parsed.ok) throw new Error(parsed.errors.join('\n'));
+    expect(checkSectionRegistry(parsed.registry, text)).toEqual([]);
+    return parsed.registry;
+  }
+  const live = (registry: SectionRegistry) => registry.sections.filter((each) => each.stale !== true);
+
+  it('gives up both when the repeated short text and the longer text land on overlapping places (nested, same start)', () => {
+    const before = 'PABCXQABCXDEFZ';
+    const after = 'PABCXDEFZ';
+    const registry = manual(before, { span: [1, 4], prefix: 'P' }, { span: [6, 13], prefix: 'Q' });
+    const result = reanchor(registry, before, after);
+    expect(checkSectionRegistry(result.registry, after)).toEqual([]);
+    expect(live(result.registry)).toEqual([]);
+    expect(result.sections.map((each) => [each.id, each.status])).toEqual([
+      ['short', 'stale'],
+      ['long', 'stale'],
+    ]);
+    expect(result.sections[0]).toMatchObject({
+      reason: expect.stringContaining('overlaps the place of long'),
+    });
+  });
+
+  it('gives up both when the short text starts inside the longer one (nested start)', () => {
+    const before = 'PYABCXQYABCXDEFZ';
+    const after = 'PYABCXDEFZ';
+    const registry = manual(before, { span: [2, 5], prefix: 'Y' }, { span: [8, 15], prefix: 'Y' });
+    const result = reanchor(registry, before, after);
+    expect(checkSectionRegistry(result.registry, after)).toEqual([]);
+    expect(live(result.registry)).toEqual([]);
+  });
+
+  it('keeps both when their new places do not meet', () => {
+    const before = 'PABCXQABCXDEFZ';
+    const after = 'PABCXQABCXDEFZ!';
+    const registry = manual(before, { span: [1, 4], prefix: 'P' }, { span: [6, 13], prefix: 'Q' });
+    const result = reanchor(registry, before, after);
+    expect(checkSectionRegistry(result.registry, after)).toEqual([]);
+    expect(live(result.registry).map((each) => each.id)).toEqual(['short', 'long']);
   });
 });

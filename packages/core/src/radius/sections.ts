@@ -876,6 +876,41 @@ export function reanchorRegistry(
     }
   }
 
+  // A place belongs to one section or to none, whatever the sections are: a repeated short text and a unique longer
+  // text that contains it can both be found, at overlapping places, and a registry must never hold two live sections
+  // that overlap. Every placement that meets another one (the same start, one inside the other, or a partial overlap)
+  // is given up, so none of the overlapping sections keeps a place.
+  const placed = sections
+    .map((each, index) => ({ each, index }))
+    .filter(({ each }) => each.to !== undefined)
+    .sort(
+      (a, b) =>
+        (a.each.to?.start ?? 0) - (b.each.to?.start ?? 0) || (a.each.to?.end ?? 0) - (b.each.to?.end ?? 0),
+    );
+  const clash = new Map<number, number[]>();
+  for (let i = 0; i < placed.length; i++) {
+    for (let j = i + 1; j < placed.length; j++) {
+      const a = placed[i];
+      const b = placed[j];
+      if (!a?.each.to || !b?.each.to) continue;
+      if (b.each.to.start >= a.each.to.end) break;
+      clash.set(a.index, [...(clash.get(a.index) ?? []), b.index]);
+      clash.set(b.index, [...(clash.get(b.index) ?? []), a.index]);
+    }
+  }
+  for (const [index, others] of clash) {
+    const each = sections[index];
+    const original = registry.sections[index];
+    if (!each || !original) continue;
+    sections[index] = {
+      id: each.id,
+      status: 'stale',
+      from: each.from,
+      reason: `its place overlaps the place of ${others.map((other) => sections[other]?.id ?? '?').join(', ')}: a place belongs to one section or to none`,
+    };
+    entries[index] = { ...original, stale: true };
+  }
+
   // Order: the found sections must keep their relative order.
   const found = sections.filter((each) => each.to !== undefined);
   const reordered: string[] = [];
