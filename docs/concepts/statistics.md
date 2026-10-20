@@ -2,6 +2,8 @@
 
 One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@agent-nexus/driftbench-stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
 
+The [capability and numerical regression evidence](../stats-capabilities-evidence.md) records the independent reference tests, product repairs and validator results.
+
 What is built and what is not:
 
 * Built, phase 1: repeats in a campaign, and the minimum detectable effect `campaign plan` prints. See [running](../running.md).
@@ -248,6 +250,17 @@ A set of specs, or of real conversations, is a sample of the situations an agent
 
 `f1` and `f2` are the classes seen once and twice, and `n` the observations. `abundances(labels)` turns a list of class labels into the counts these functions take. `driftbench space complete` prints the same quantities for a map of situations; see [CLI](../reference/cli.md#driftbench-space-complete).
 
+## Planned: four statistics the pages already lean on
+
+Each is written here before it is built. The statistics validator holds the package to these definitions with items whose answers come from Python (`validators/stats/NEEDS.md`, batch 11); until the functions exist those items fail.
+
+| Function | What it computes | Where a page leans on it |
+|---|---|---|
+| `holm(pvalues, alpha)` | Holm's step-down procedure: with the p-values sorted ascending, `adjusted` at rank i is the largest over j up to i of `min(1, (m - j + 1) p(j))`, in the input order; `rejected` is `adjusted <= alpha` (default 0.05). It controls the chance of any false rejection, where `benjaminiHochberg` controls the share of false rejections. Returns `adjusted`, `rejected` and `alpha`; no hypotheses give empty lists | a gate on several criteria that must not pass a regression by chance: [the campaign verdict](#the-campaign-verdict) names Benjamini-Hochberg for reporting, and a gating decision needs the family-wise rate |
+| `sampleSizeForEffect({ effect, baselineRate, power, alpha, repeats, rho })` | the smallest whole number of specs `n` per version whose `mde` is at most `effect`: the inverse of `mde`. The effective units are `n repeats / (1 + (repeats - 1) rho)`; `effect` is a drop from `baselineRate` (0 < effect <= baselineRate); `power` 0.8, `alpha` 0.05, `repeats` 1 and `rho` 0 by default. Returns `n`, `effectiveN` and `designEffect` | [before a campaign](#before-a-campaign) and the README: "the gate says how many test conversations your suite needs before it can show anything" |
+| `kappaInterval(a, b, { alpha })` | Cohen's kappa of two raters with its large-sample interval: `se = sqrt(po (1 - po) / (n (1 - pe)^2))` with `po` the observed and `pe` the chance agreement, the interval `kappa -/+ z(1 - alpha / 2) se` clipped to [-1, 1], `alpha` 0.05. Unweighted; when `pe` is 1 the interval is the point. Returns `kappa`, `se`, `lower`, `upper` | [judge calibration](judges.md#calibration-an-assignment-is-earned): the kappa of a judge against hand labels is printed with a Wilson interval on the agreement; the kappa itself has none |
+| `mcnemarMidP(b, c)` | the mid-p McNemar test on discordant counts: `2 P(X < k) + P(X = k)` capped at 1, with `X` binomial(b + c, 0.5) and `k = min(b, c)`; no discordant pair gives 1. It is less conservative than the exact test at small counts. Returns `pValue`, `b`, `c` | [comparing a baseline and a candidate](#comparing-a-baseline-and-a-candidate): `compare` prints the exact test, which at 5 discordant pairs cannot reach 0.05 even when all five go one way (p = 0.0625; mid-p gives 0.03125) |
+
 ## Helpers
 
 The package also exports the pieces the functions above are built on: `mean`, `quantile`, `quantileSorted` (type 7 quantiles), `sampleVariance`, `mulberry32` (the seeded generator), `zFor`, `Z95`, `normalCdf`, `normalSf`, `normalQuantile`, `chiSquareSf`, `binomialCdf`, `betaQuantile`, `incompleteBeta`, `logGamma`, `erfc` and `kolmogorovSf`.
@@ -255,3 +268,5 @@ The package also exports the pieces the functions above are built on: `mean`, `q
 ### Parent-linked suites
 
 For a spec with `parent` links, the headline reads the recorded forest: each root and its descendants contribute one outcome per repeat. A tree fails when one of its measured blocks fails; blocked descendants add no repeated failures. A tree containing an unrun block and no failure is left out. Repeats of a root are grouped together for the Phase 4 hierarchical Beta-Bernoulli interval, and every root tree weighs the same. The root is the topmost ancestor in the spec's parent links (`suiteHeadline` reads them through its `parentsOf` option), so a run that recorded only descendants joins its root's tree: a replayed ancestor adds no block, as in a child-only mode T selection. A run of such a spec that recorded only roots is read by root too, never as one outcome of the whole golden. A run that failed and measured no tree (it died before its first block, or every block was not run) fails each root family of its spec once, through the `rootsOf` option the scorecard fills from the pinned spec: 12 dead families weigh as 12 failures, as 12 failed families would. Without the links, a block's root is the highest ancestor the run names. `packages/report/test/headline-family-coverage.test.ts` measures the difference on simulated suites (12 or 40 families of three branches, a true mean of 0.6 or 0.9, a family concentration of 2 or 8, two full runs and two reruns that record only the leaves, 300 suites per cell): one tree per root holds the true mean in 95.6 percent of suites (worst cell 92.0 percent), one tree per branch in 33.0 percent. Independent roots in the same spec form separate trees. JSON marks this headline with `unit: tree-run`; its `n` counts those tree outcomes, and its `runs` the scored runs. A run not run or blocked (no failure) stays out of every count and rate, even when one of its trees was measured; its share is printed. A run that fails as a whole with no failing block (incomplete, a failed end verdict or end state) fails every tree it measured. Specs without parent links keep the existing golden-level grouping. Run-level pass rates and CI gates retain their existing unit.
+
+See also: [statistics capabilities to build](../statistics/capabilities.md), the functions the package does not have yet.

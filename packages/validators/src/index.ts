@@ -23,6 +23,7 @@ export {
   NO_FAMILY,
   NO_TIER,
 } from './bank';
+export { statsBankHash } from './bank-fingerprint';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
 export {
   checkFloors,

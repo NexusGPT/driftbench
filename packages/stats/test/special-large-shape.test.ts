@@ -52,6 +52,12 @@ describe('binomialCdf at large n', () => {
     ).toBeLessThan(1e-13);
   });
 
+  it('keeps a small p apart from 1 - p: P(X <= 0) for n = 100, p = 1e-10 is (1 - p)^100', () => {
+    // 1 - p carries a relative error of 1e-6 in p itself here; the pair form keeps p exact.
+    const want = Math.exp(100 * Math.log1p(-1e-10));
+    expect(Math.abs(binomialCdf(0, 100, 1e-10) - want)).toBeLessThan(2e-16);
+  });
+
   it('keeps the sum for small n exactly: n = 10, p = 0.5, k = 4 is 386 / 1024', () => {
     expect(binomialCdf(4, 10, 0.5)).toBeCloseTo(386 / 1024, 15);
   });
