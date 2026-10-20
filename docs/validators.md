@@ -166,7 +166,7 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 `registeredLadders()` in `packages/validators/src/ladders/index.ts` returns seven validators: `estate`, `generator`, `judges`, `map`, `stats`, `system` and `variables`. `validators/floors.json` holds a floor for four of them; `estate`, `generator` and `variables` have none yet. The catalogue of the `variables` bank is `validators/variables/CATALOGUE.md`; the contract it checks is [the variable store](variables.md), with the rules of each family in its section Rules by bank family. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
@@ -361,6 +361,7 @@ How a ladder adopts it. Replace the product object the items call (for example `
 A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.
 
 * stats, ladder version 3: score after the pilot at most 0.85, forecast at least 9, at least 80 distinct failing causes. The blind pilot on the iteration-0 copy of the package measured 0.8263, a forecast of 9.87 and 85 causes on a bank of 904 items. The reason: a forecast of 100 at the 15.9 items the pilot fixed per iteration needs about 1590 failing items, more than the bank holds, and the package (the differential sweep covered its 57 exports) has 11 causes from defects and from statistics the docs define; the rest are guards, limits and coverage designs. Padding the bank with methods no page asks for is ruled out by 12.1. The numbers and the starting package are in `validators/stats/GATE.md`.
+* stats, ladder version 4: the weights family (187 items) joins the bank of version 3. The bar of version 3 stands until the version 4 pilot is measured; the floor is 3, the level the repository's package reaches on 21 seeds (`validators/stats/GATE.md`).
 
 ## Measurement cache during system sweeps
 
