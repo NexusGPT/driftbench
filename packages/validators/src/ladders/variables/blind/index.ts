@@ -11,6 +11,7 @@ import { STRENGTH_STEMS } from './families/strength';
 import { VALUES_STEMS } from './families/values';
 import { WEIGHTS_STEMS } from './families/weights';
 import { BLIND_FAMILIES, expand, type Stem } from './kit';
+import { withWitness } from './witness';
 
 export { BLIND_FAMILIES } from './kit';
 
@@ -37,7 +38,7 @@ export const BLIND_STEMS: readonly Stem[] = [
 
 /** Every item of the blind bank, in family order. */
 export function blindBank(): BankItem[] {
-  return expand(BLIND_STEMS);
+  return expand(BLIND_STEMS).map(withWitness);
 }
 
 export type BlindCount = { total: number; byFamily: Record<string, number>; byTier: Record<number, number> };
