@@ -194,7 +194,7 @@ adapterContract('my-adapter', () => myAdapter({ agent: createAcmeAgent(createSto
 
 In chat mode the adapter must reach the reference agent, the Acme Telecom sales assistant: the entry exports it as `createAcmeAgent(store)` and `createStore()`, so you put it behind your transport (a function, a local endpoint, a bridge) the way your adapter reaches a real agent. In task mode (`options.task`) no reference agent is needed. The entry also exports the helpers the built-in tests use: `acmeGiven`, `userTurn`, `sendUser`, `converse`, `replyMessage`, `expectWholeObserved`, and the conversation constants.
 
-[`examples/adapter-contract`](https://github.com/achammah/driftbench/tree/main/examples/adapter-contract) holds a hand-written adapter and the test that runs the suite on it: `pnpm vitest run examples/adapter-contract` reports 10 tests passed and 4 skipped (the capabilities it does not declare).
+[`examples/adapter-contract`](https://github.com/NexusGPT/driftbench/tree/main/examples/adapter-contract) holds a hand-written adapter and the test that runs the suite on it: `pnpm vitest run examples/adapter-contract` reports 10 tests passed and 4 skipped (the capabilities it does not declare).
 
 ## The adapters
 

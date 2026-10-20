@@ -3,6 +3,7 @@
 // (node tools/structure/api-surface.mjs --write), which puts the change in front of a reviewer.
 import { spawnSync } from 'node:child_process';
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -16,7 +17,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 
 const TOOL = fileURLToPath(new URL('./api-surface.mjs', import.meta.url));
 const SNAPSHOT = fileURLToPath(new URL('./api-surface.json', import.meta.url));
@@ -68,12 +69,23 @@ describe('public API', () => {
   });
 });
 
+/** Built fixtures by entry: a fixture's files depend on its entry alone, so each entry is built once and copied. */
+const builtFixtures = new Map();
+afterAll(() => {
+  for (const template of builtFixtures.values()) rmSync(template, { recursive: true, force: true });
+});
+
 /**
  * A small repository: one package whose entry is `entry`, over an implementation with a function, a
  * constant and a type, and a module that passes the function on as a type only.
  */
 function fixture(entry) {
   const root = mkdtempSync(join(tmpdir(), 'driftbench-api-root-'));
+  const template = builtFixtures.get(entry);
+  if (template) {
+    cpSync(template, root, { recursive: true });
+    return fixtureAt(root);
+  }
   const src = join(root, 'packages/demo/src');
   mkdirSync(src, { recursive: true });
   writeFileSync(
@@ -115,8 +127,16 @@ function fixture(entry) {
   );
   const built = spawnSync(process.execPath, [join(root, 'build.mjs')], { cwd: root, encoding: 'utf8' });
   expect(built.status, built.stderr).toBe(0);
-  return { root, entry: join(src, 'index.ts'), snapshot: join(root, 'api-surface.json') };
+  const copy = mkdtempSync(join(tmpdir(), 'driftbench-api-template-'));
+  cpSync(root, copy, { recursive: true });
+  builtFixtures.set(entry, copy);
+  return fixtureAt(root);
 }
+const fixtureAt = (root) => ({
+  root,
+  entry: join(root, 'packages/demo/src/index.ts'),
+  snapshot: join(root, 'api-surface.json'),
+});
 const kindsOf = (snapshot) => JSON.parse(readFileSync(snapshot, 'utf8')).packages.demo;
 const VALUE_ENTRY = "export { make, type Shape, VALUE, VALUE as ALIASED } from './impl.js';\n";
 
