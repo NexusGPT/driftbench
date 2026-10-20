@@ -416,7 +416,7 @@ window.CHART_DATA = {
         "value": 1166,
         "text": "1,166",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 3"
       },
       {
         "label": "Judges",
