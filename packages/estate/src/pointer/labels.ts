@@ -424,7 +424,7 @@ function checkExtras(
     if (!unit) return `"${entry.units}" leaves the window`;
     const kinds = new Map((set.spans ?? []).map((kind) => [kind.name, kind]));
     const seen: SpanAnswer[] = [];
-    const counted: Array<{ kind: string; from: number; to: number }> = [];
+    const counted: Array<{ kind: string; from: number; to: number; where: string }> = [];
     for (const span of entry.spans) {
       const where = `unit [${unit.n}] span ${JSON.stringify(span)}`;
       if (span === null || typeof span !== 'object') return `${where} is no span`;
@@ -457,17 +457,7 @@ function checkExtras(
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (
-        counted.some(
-          (other) =>
-            from < other.to &&
-            other.from < to &&
-            !(ancestor(kinds, span.kind, other.kind) || ancestor(kinds, other.kind, span.kind)),
-        )
-      ) {
-        return `${where} overlaps another span of the unit`;
-      }
-      counted.push({ kind: span.kind, from, to });
+      counted.push({ kind: span.kind, from, to, where });
       seen.push({
         kind: span.kind,
         from: shown.at[from] as number,
@@ -475,15 +465,26 @@ function checkExtras(
         ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }
-    // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry.
-    for (const inner of counted) {
-      const outer = kinds.get(inner.kind)?.within;
+    // A span of a nested kind lies inside a span of its parent kind, wherever that one is in the entry. Against
+    // any other span a span may not overlap.
+    for (const [index, span] of counted.entries()) {
+      const outer = kinds.get(span.kind)?.within;
       if (
         outer !== undefined &&
-        !counted.some((other) => other.kind === outer && other.from <= inner.from && inner.to <= other.to)
+        !counted.some((o) => o.kind === outer && o.from <= span.from && span.to <= o.to)
       ) {
-        return `unit [${unit.n}] has a span of the kind ${inner.kind} that is not inside a span of the kind ${outer}`;
+        return `${span.where} is not inside a span of the kind ${outer}`;
       }
+      const clash = counted
+        .slice(index + 1)
+        .some(
+          (o) =>
+            span.from < o.to &&
+            o.from < span.to &&
+            !ancestor(kinds, span.kind, o.kind) &&
+            !ancestor(kinds, o.kind, span.kind),
+        );
+      if (clash) return `${span.where} overlaps another span of the unit`;
     }
     out.spans = seen.sort((a, b) => a.from - b.from || b.to - a.to);
   }
