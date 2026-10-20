@@ -62,7 +62,7 @@ export const AGENT_RULES_SET = `labels:
         to: [subagent]
     labels:
       - name: rule
-        description: A unit that tells the reader what to do. A unit about an event the agent must get through has its own label instead.
+        description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead.
         spans: [situation, ask-text]
         links: [reply-act, reply-part]
         atom:
@@ -82,7 +82,7 @@ ${ALSO_REFERENCE}      - name: dispatch
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
 ${ALSO_REFERENCE}      - name: prohibition
-        description: A unit that tells the reader what never to do.
+        description: A unit that tells the reader never to do something, or not to do it. The unit holds never, do not or must not, even when it names a file, a folder or a command.
         spans: [situation, ask-text]
         links: [reply-act, reply-part]
         atom:
