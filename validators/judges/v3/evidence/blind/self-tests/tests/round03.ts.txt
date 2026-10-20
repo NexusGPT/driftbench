@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {labellerConfusion} from '../candidate';
+const set={name:'t',labels:[{name:'invalid',description:''},{name:'abstain',description:''}]};
+const x=labellerConfusion(['invalid','invalid','abstain','none'],['abstain',null,'garbage','none'],set);
+assert.deepEqual(x.confusion,[[0,1,0,1,0],[0,0,0,0,1],[0,0,1,0,0]]);
+assert.deepEqual(x.predictionColumns,[{kind:'label',label:'invalid'},{kind:'label',label:'abstain'},{kind:'label',label:'none'},{kind:'abstain'},{kind:'invalid'}]);
+assert.deepEqual(x.byLabel[0],{label:'invalid',support:2,predicted:0,tp:0,fp:0,fn:2,precision:null,recall:0,f1:0});
+assert.equal(x.byLabel[2].f1,1);
+assert.equal(x.score.coverage,.5);
+console.log('round03 confusion orientation and sentinels passed');

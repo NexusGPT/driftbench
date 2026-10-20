@@ -9,44 +9,67 @@ const immutableArrays = new WeakSet<readonly Message[]>();
 /** Validate plain JSON data and deeply freeze it once; a shallow freeze is not sufficient. */
 export function freezeMessage(message: Message): Message {
   const seen = new WeakSet<object>();
-  function invalid(path: string, reason: string): never {
-    throw new TypeError(`${path}: ${reason}; expected plain JSON data`);
+  // The keys from the message down to the value being checked; its path is written only for an error.
+  const keys: Array<string | symbol> = [];
+  function invalid(reason: string): never {
+    const path = keys
+      .map((key) => `[${typeof key === 'symbol' ? String(key) : JSON.stringify(key)}]`)
+      .join('');
+    throw new TypeError(`message${path}: ${reason}; expected plain JSON data`);
   }
-  const freeze = (value: unknown, path: string): void => {
+  const freeze = (value: unknown): void => {
     if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
     if (typeof value === 'number' && Number.isFinite(value)) return;
-    if (typeof value !== 'object') invalid(path, `unsupported ${typeof value}`);
+    if (typeof value !== 'object') invalid(`unsupported ${typeof value}`);
     if (frozen.has(value)) return;
-    if (seen.has(value)) invalid(path, 'cyclic reference');
+    if (seen.has(value)) invalid('cyclic reference');
     const array = Array.isArray(value);
     const prototype = Object.getPrototypeOf(value);
     if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
-      invalid(path, 'non-plain prototype');
-    const descriptors = Object.getOwnPropertyDescriptors(value);
+      invalid('non-plain prototype');
+    // Every key and its descriptor, read before any child, as Object.getOwnPropertyDescriptors reads them. An
+    // ordinary object has no trap, so its keys are read one by one; a Proxy keeps that call, which drops a key
+    // its trap describes as absent.
+    let own: Array<string | symbol>;
+    let descriptors: Array<PropertyDescriptor | undefined>;
+    if (types.isProxy(value)) {
+      const all = Object.getOwnPropertyDescriptors(value) as Record<string | symbol, PropertyDescriptor>;
+      own = Reflect.ownKeys(all);
+      descriptors = own.map((key) => all[key]);
+    } else {
+      own = Reflect.ownKeys(value);
+      descriptors = own.map((key) => Reflect.getOwnPropertyDescriptor(value, key));
+    }
+    const length = array ? descriptors[own.lastIndexOf('length')]?.value : undefined;
     seen.add(value);
     let entries = 0;
-    for (const key of Reflect.ownKeys(descriptors)) {
-      const childPath = `${path}[${typeof key === 'symbol' ? String(key) : JSON.stringify(key)}]`;
-      if (typeof key !== 'string') invalid(childPath, 'symbol property');
-      const descriptor = descriptors[key];
-      if (!descriptor || !('value' in descriptor)) invalid(childPath, 'accessor property');
-      if (array && key === 'length') continue;
-      if (!descriptor.enumerable) invalid(childPath, 'non-enumerable property');
-      if (array && (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= descriptors.length?.value))
-        invalid(childPath, 'non-index array property');
-      freeze(descriptor.value, childPath);
+    for (let index = 0; index < own.length; index++) {
+      const key = own[index] as string | symbol;
+      keys.push(key);
+      if (typeof key !== 'string') invalid('symbol property');
+      const descriptor = descriptors[index];
+      if (!descriptor || !('value' in descriptor)) invalid('accessor property');
+      if (array && key === 'length') {
+        keys.pop();
+        continue;
+      }
+      if (!descriptor.enumerable) invalid('non-enumerable property');
+      if (array && (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= length))
+        invalid('non-index array property');
+      freeze(descriptor.value);
+      keys.pop();
       entries++;
     }
-    if (array && entries !== descriptors.length?.value) invalid(path, 'sparse array');
+    if (array && entries !== length) invalid('sparse array');
     // Descriptors pin present keys only; a get trap could still answer an absent optional field.
-    if (types.isProxy(value)) invalid(path, 'Proxy object');
+    if (types.isProxy(value)) invalid('Proxy object');
     Object.freeze(value);
     frozen.add(value);
     seen.delete(value);
   };
   if (message === null || typeof message !== 'object' || Array.isArray(message))
-    invalid('message', 'expected a message object');
-  freeze(message, 'message');
+    invalid('expected a message object');
+  freeze(message);
   return message;
 }
 

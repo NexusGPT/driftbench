@@ -103,3 +103,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-report-tell-the-user-what
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0877
+        values:
+          ask_class: change_estate
+          ask_shape: correction
+          session_state: fresh
+          owner_signal: limit_word
+          deviation: D3_contradiction
+          estate_hazard: rate_wave
+          atoms.stage: stage.steps.stage-report-tell-the-user-what
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

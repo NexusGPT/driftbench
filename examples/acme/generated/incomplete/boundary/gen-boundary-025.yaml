@@ -110,3 +110,61 @@ metadata:
     needs_phrase:
       - dimension: coverage.check.out.fiber_mbps
         value: coverage.check.out.fiber_mbps.absent
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-boundary-025
+        values:
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
+          coverage.check.out.found: coverage.check.out.found.false
+          coverage.check.out.address_id: coverage.check.out.address_id.absent
+          coverage.check.out.five_g: coverage.check.out.five_g.absent
+          flow: order
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: whatsapp
+          user_type: existing-customer
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: coverage.check.out.fiber_mbps=coverage.check.out.fiber_mbps.absent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-025
+        values:
+          coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
+          coverage.check.out.found: coverage.check.out.found.false
+          coverage.check.out.address_id: coverage.check.out.address_id.absent
+          coverage.check.out.five_g: coverage.check.out.five_g.absent
+          flow: order
+          coverage_result: fiber
+          plan_choice: names-one
+          customer_details: name-and-email
+          channel: whatsapp
+          user_type: existing-customer
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

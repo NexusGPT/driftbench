@@ -141,6 +141,11 @@ export function stemPass(specs: readonly Spec[]): StemPassResult {
     if (depth === 0) return spec;
     const last = home.get(own[depth - 1]?.node as string) as { stem: string; block: string };
     const [first, ...rest] = cloneJson(spec.blocks.slice(depth));
+    const moved = new Map<string, string>();
+    own.slice(0, depth).forEach((row) => {
+      const shared = home.get(row.node as string);
+      if (row.blockId !== undefined && shared) moved.set(row.blockId, `${shared.stem}#${shared.block}`);
+    });
     const child: Spec = {
       ...cloneJson(spec),
       blocks: [{ ...(first as BlockSpec), parent: `${last.stem}#${last.block}` }, ...rest],
@@ -156,7 +161,7 @@ export function stemPass(specs: readonly Spec[]): StemPassResult {
         ? {}
         : { end: { ...cloneJson(spec.end), atBlock: spec.end.atBlock - depth } }),
       metadata: {
-        ...cloneJson(spec.metadata ?? {}),
+        ...relinked(cloneJson(spec.metadata ?? {}), moved, depth),
         generated: {
           ...cloneJson((spec.metadata?.generated as Record<string, unknown> | undefined) ?? {}),
           parent: { stem: last.stem, block: last.block, replaced: depth },
@@ -190,4 +195,27 @@ function namedCriteria(spec: Spec, blocks: readonly BlockSpec[]): CriterionDef[]
   return (spec.criteria ?? [])
     .filter((criterion) => named.has(criterion.name))
     .map((criterion) => cloneJson(criterion));
+}
+
+/**
+ * The block links of a spec that now starts from a stem: a link to a block that moved into the stem names it as the
+ * loader writes it out, `<stem id>#<block id>`; a link by position follows its block.
+ */
+function relinked(
+  metadata: Record<string, unknown>,
+  moved: ReadonlyMap<string, string>,
+  depth: number,
+): Record<string, unknown> {
+  const links = metadata.links;
+  if (!Array.isArray(links)) return metadata;
+  return {
+    ...metadata,
+    links: links.map((link: unknown) => {
+      if (typeof link !== 'object' || link === null) return link;
+      const block = (link as { block?: unknown }).block;
+      if (typeof block === 'string' && moved.has(block)) return { ...link, block: moved.get(block) };
+      if (typeof block === 'number' && block >= depth) return { ...link, block: block - depth };
+      return link;
+    }),
+  };
 }

@@ -62,7 +62,7 @@ describe('the Acme example package', () => {
     expect(acmeExampleInstalled(absent)).toBe(false);
     const campaign = knownTargets(false);
     expect(campaign).toBe(
-      'The Acme example (function:acme-sales, function:acme, process:acme-ops and the pilot control function:acme-random) is not part of the installed CLI: it lives in the driftbench repository, in examples/acme. To run it, work from a checkout: git clone https://github.com/achammah/driftbench, pnpm install, then pnpm driftbench. This install reaches a process target through --process-command: process:<name> runs the command you give.',
+      'The Acme example (function:acme-sales, function:acme, process:acme-ops and the pilot control function:acme-random) is not part of the installed CLI: it lives in the driftbench repository, in examples/acme. To run it, work from a checkout: git clone https://github.com/NexusGPT/driftbench, pnpm install, then pnpm driftbench. This install reaches a process target through --process-command: process:<name> runs the command you give.',
     );
     expect(campaign).not.toContain('The CLI reaches');
     const pilot = pilotNoAdapter({ adapter: 'function', agent: 'acme-random' }, false);

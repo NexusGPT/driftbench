@@ -112,3 +112,26 @@ it('refuses bad input with exit 2', async () => {
     (await cli([...base, '--campaign', 'linked', '--sections', registry, '--prompt', 'other'])).code,
   ).toBe(2);
 }, 120_000);
+
+it('counts against each block baseline with --counting relative: the same agent flips nothing', async () => {
+  const base = [
+    'radius',
+    'localize',
+    linked,
+    '--store',
+    'acme.db',
+    '--campaign',
+    'linked',
+    '--sections',
+    registry,
+  ];
+  // The baseline is the same agent: the failing blocks fail there too, so nothing is evidence.
+  const relative = await cli([...base, '--counting', 'relative', '--baseline', 'linked']);
+  expect(relative.code).toBe(1);
+  expect(relative.out).toContain('relative counting');
+  expect(relative.out).toMatch(/Against each block's baseline: \d+ failing there/);
+  expect(relative.out).toContain('Nothing failed outside inherited failures');
+  expect((await cli([...base, '--counting', 'relative'])).code).toBe(2);
+  expect((await cli([...base, '--baseline', 'linked'])).code).toBe(2);
+  expect((await cli([...base, '--counting', 'relative', '--baseline', 'nope'])).code).toBe(2);
+}, 120_000);

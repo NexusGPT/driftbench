@@ -81,3 +81,23 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-a-file-before-editing-it
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.standing.read-a-file-before-editing-it
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.standing.read-a-file-before-editing-it
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

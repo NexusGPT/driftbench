@@ -70,10 +70,11 @@ describe('strength 3 on the variables of one rule', () => {
     expect(uncovered(rows(plan), validCells(store), ['tide'])).toEqual([]);
   });
 
-  it('asks nothing beyond single values of variables that no rule names', () => {
+  it('asks nothing beyond single values of details that no rule names', () => {
     const store = makeStore(
       ['a', 'b', 'c', 'd', 'e'].map((id) => ({
         id,
+        role: 'detail' as const,
         values: ['1', '2', '3', '4'].map((n) => `${id}${n}`),
       })),
     );
@@ -85,6 +86,18 @@ describe('strength 3 on the variables of one rule', () => {
       expect(new Set(rows(plan).map((row) => row[variable])).size).toBe(4);
   });
 
+  it('asks the floor of strength 2 for axes that no rule names', () => {
+    const store = makeStore(
+      ['a', 'b', 'c'].map((id) => ({ id, values: ['1', '2', '3'].map((n) => `${id}${n}`) })),
+    );
+    const plan = planV2(store);
+    // Three axes, no rule: every pair of the three, 27 combinations; nothing is left to the single layer.
+    expect(layer(plan, 'shared')).toMatchObject({ groups: 3, targets: 27, uncovered: 0 });
+    expect(layer(plan, 'single')).toMatchObject({ groups: 0, targets: 0 });
+    expect(layer(plan, 'own')).toMatchObject({ groups: 0, targets: 0 });
+    expect(plan.rows).toHaveLength(9);
+  });
+
   it('covers a value of the variables outside every rule too, in the harbour', () => {
     const store = harbour();
     const plan = planV2(store);
@@ -92,7 +105,9 @@ describe('strength 3 on the variables of one rule', () => {
       const values = store.variables.find((entry) => entry.id === variable)?.values.map((v) => v.id) ?? [];
       expect(new Set(rows(plan).map((row) => row[variable]))).toEqual(new Set(values));
     }
-    expect(layer(plan, 'single')).toMatchObject({ groups: 2, targets: 8 });
+    // Outside every rule, but axes: the floor pairs them with the axes of the rule and with each other.
+    expect(layer(plan, 'single')).toMatchObject({ groups: 0, targets: 0 });
+    expect(layer(plan, 'shared')).toMatchObject({ groups: 9, targets: 104 });
   });
 
   it('covers the details of a rule like its axes', () => {

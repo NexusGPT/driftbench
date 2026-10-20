@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import * as m from './candidate';
+const set={name:'sentiment',labels:[{name:'yes',description:'affirmative'},{name:'no',description:'negative'}]};
+const a=['yes','yes','no','no'];
+const b=['yes','no','no','yes'];
+const near=(x:number,y:number)=>assert.ok(Math.abs(x-y)<1e-9,`${x} != ${y}`);
+let failures=0, passed=0;
+const test=(name:string,fn:()=>void)=>{try{fn();passed++;console.log(`PASS ${name}`)}catch(e){failures++;console.log(`FAIL ${name}: ${e}`)}};
+test('nominal observations preserve missing and invalid',()=>{
+ const s=m.scoreLabeller(['yes','no','none','yes'],['yes',null,'none','bad'],set);
+ assert.deepEqual(s,{total:4,correct:2,agreement:.5,kappa:5/13,abstentions:1,invalid:1,coverage:.5});
+});
+test('nominal validation and negative kappa',()=>{near(m.scoreLabeller(['yes','no'],['no','yes'],set).kappa,-1);assert.throws(()=>m.scoreLabeller([],[],set));assert.throws(()=>m.scoreLabeller(['unknown'],['yes'],set));});
+test('hash and request identity',()=>{const h=m.labelSetHash(set);assert.match(h,/^[a-f0-9]{64}$/);assert.notEqual(h,m.labelSetHash({...set,name:'other'}));const r={text:'a',labelSet:set};assert.notEqual(m.labellerRequestKey(r,'one'),m.labellerRequestKey(r,'two'));});
+test('replay snapshot and conflict',()=>{const r={text:'a',labelSet:structuredClone(set)};const entries=[{request:r,labellerId:'one',answer:'yes'}];const replay=m.createLabellerReplay(entries,'one');entries[0].answer='no';assert.equal(replay.label(r),'yes');assert.throws(()=>replay.label({...r,text:'b'}));assert.throws(()=>m.createLabellerReplay([...entries,{...entries[0],answer:'yes'}],'one'));});
+test('kappa interval delta',()=>{const v=m.labellerKappaInterval(a,b,set);near(v.estimate,0);near(v.varianceFactor!,1);near(v.standardError!,.5);assert.equal(v.status,'estimated');assert.equal(m.labellerKappaInterval(['yes'],['yes'],set).status,'degenerate');});
+test('binary PABAK strict domain',()=>{assert.deepEqual(m.binaryLabellerPabak(a,b,['yes','no']),{total:4,agreement:.5,pabak:0});assert.throws(()=>m.binaryLabellerPabak(['yes'],[null],['yes','no']));});
+test('ordinal weighted agreement',()=>{const v=m.weightedLabellerKappa(['low','high'],['mid','high'],['low','mid','high']);near(v.observed,.75);near(v.expected,.5);near(v.kappa,.5);assert.equal(v.n,2);});
+test('alpha coincidence missing units',()=>{const v=m.labellerNominalAlpha([['yes','no',null],['yes','no','yes']],set);near(v.alpha!,1);assert.equal(v.units,3);assert.equal(v.raters,2);assert.equal(v.missing,1);assert.equal(v.unpairableUnits,1);assert.equal(m.labellerNominalAlpha([[null],['yes']],set).status,'insufficient');});
+test('confusion typed columns and FN',()=>{const v=m.labellerConfusion(['yes','no'],[null,'bad'],set);assert.deepEqual(v.labels,['yes','no','none']);assert.deepEqual(v.confusion,[[0,0,0,1,0],[0,0,0,0,1],[0,0,0,0,0]]);assert.equal(v.byLabel[0].fn,1);assert.equal(v.byLabel[0].precision,null);});
+test('coverage exact interval and selector',()=>{const obs=[{gold:'yes',answer:'yes',confidence:.9},{gold:'no',answer:'yes',confidence:.4}];const c=m.labellerCoverageCurve(obs,set,[1,.5,0,.5]);assert.deepEqual(c.map(x=>x.threshold),[0,.5,1]);near(c[1].acceptedAccuracyInterval!.lower,.025);assert.equal(c[2].acceptedAccuracy,null);assert.equal(m.selectLabellerThreshold(obs,set,{thresholds:[0,.5],minAccuracy:1})!.threshold,.5);});
+test('mapping explicit total domain',()=>{const map=['yes','no','none'].map(x=>({source:x,target:x}));const opts={goldSet:set,answerSet:set,targetSet:set,goldMap:map,answerMap:map};assert.deepEqual(m.scoreMappedLabeller(a,b,opts),m.scoreLabeller(a,b,set));assert.throws(()=>m.scoreMappedLabeller(a,b,{...opts,goldMap:map.slice(0,2)}));});
+test('sample planner known independent joint',()=>{const p=m.planLabellerKappaSample([[.25,.25],[.25,.25]],{margin:.1});near(p.kappa,0);near(p.varianceFactor,1);assert.equal(p.sampleSize,385);});
+test('exact conditional tails',()=>{const v=m.exactLabellerKappaTest(['yes','no'],['yes','no'],set,'greater');assert.equal(v.permutations,2);assert.equal(v.extreme,1);assert.equal(v.pValue,.5);assert.equal(m.exactLabellerKappaTest(['yes','no'],['yes','no'],set).pValue,1);});
+console.log(JSON.stringify({passed,failures}));process.exitCode=failures?1:0;

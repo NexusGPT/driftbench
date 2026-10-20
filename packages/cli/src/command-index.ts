@@ -26,6 +26,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['gate'], load: async () => (await import('./commands/gate')).registerGateCommand },
   { names: ['family'], load: async () => (await import('./commands/family')).registerFamilyCommand },
   { names: ['pilot'], load: async () => (await import('./commands/pilot')).registerPilotCommand },
+  { names: ['class'], load: async () => (await import('./commands/class')).registerClassCommand },
   { names: ['perturb'], load: async () => (await import('./commands/perturb')).registerPerturbCommand },
   { names: ['simulate'], load: async () => (await import('./commands/simulate')).registerSimulateCommand },
   { names: ['attack'], load: async () => (await import('./commands/attack')).registerAttackCommand },
@@ -50,6 +51,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
     names: ['import'],
     load: async () => (await import('./commands/import-traces')).registerTraceImportCommands,
   },
+  { names: ['object'], load: async () => (await import('./commands/object')).registerObjectCommand },
 ];
 
 /**
@@ -89,6 +91,7 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   ],
   ['family', 'Code-agent task families: build instances from a seed, verify them on the reference build'],
   ['pilot', 'Measure where results vary (cell, conversation, wording, repeat) and set the noise floor.'],
+  ['class', 'Utterance classes: plan, realise and gate, audit, expand into specs, report the envelope'],
   ['perturb [options] <spec>', 'Run one spec in mode P with one deviation injected, and print the recovery'],
   [
     'simulate [options] <spec>',
@@ -137,4 +140,8 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   ['import', 'Turn the rows of a CSV file or a spreadsheet into spec files, through a mapping file.'],
   ['dataset', 'Version spec sets in the store: push, list, diff and restore immutable versions.'],
   ['prompt', 'Version prompts in the store: push, list, diff and restore immutable versions.'],
+  [
+    'object',
+    'The objects of the rules framework: list, show, explain, diff, init, validate, graph, migrate, push.',
+  ],
 ];

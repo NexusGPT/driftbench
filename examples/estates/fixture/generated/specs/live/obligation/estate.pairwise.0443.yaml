@@ -90,3 +90,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.save-the-report-by-week-and
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0443
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: helpers_running
+          owner_signal: language_switch
+          deviation: D9_out_of_scope
+          estate_hazard: dead_helper
+          atoms.instruction: instruction.weekly-report.save-the-report-by-week-and
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

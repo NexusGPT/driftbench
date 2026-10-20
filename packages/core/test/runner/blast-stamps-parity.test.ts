@@ -1,23 +1,30 @@
 // Blast radius of unit F2 on the runner: with the shipped check set, a run record differs from the one main
 // wrote (old-records.json, made by make-old-records.ts with a fixed clock) only by the stamps. Verdicts, their
-// order, pass, drift, cache keys and hashes are byte for byte main's once `by` and `resolved` are taken out.
+// order, pass, drift, cache keys and hashes are byte for byte main's once `by`, `resolved` and the F7 diagnosis are
+// taken out. The run id leaves out the spec's version label, so a versioned spec's record also carries `identityHash`
+// and a run id main made from `specHash`: the comparison reads the legacy id and leaves the identity hash out.
 import { readFileSync } from 'node:fs';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { type RunResult, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { legacyCellId } from '../../src/runner/cell';
 import { loadAcmeConversations, realAcmeAdapter } from './support';
 
 const OLD = new URL('../fixtures/framework/old-records.json', import.meta.url);
 const fixed = () => new Date('2026-10-15T00:00:00.000Z');
 
-/** A record with the F2 stamps taken out: what main wrote for the same run. */
+/** A record with the F2 stamps and the version-free run id taken out: what main wrote for the same run. */
 function unstamped(run: RunResult): RunResult {
+  const { identityHash: _identityHash, ...rest } = run;
   return {
-    ...run,
-    blocks: run.blocks.map(({ resolved: _resolved, ...block }) => ({
+    ...rest,
+    runId: legacyCellId(run) ?? run.runId,
+    blocks: run.blocks.map(({ resolved: _resolved, diagnoses: _diagnoses, ...block }) => ({
       ...block,
-      verdicts: block.verdicts.map(({ by: _by, ...verdict }) => verdict),
+      verdicts: block.verdicts
+        .filter((v) => v.id !== 'tools.argument_accuracy')
+        .map(({ by: _by, ...verdict }) => verdict),
     })),
   };
 }
@@ -35,7 +42,7 @@ function withoutLatency(run: RunResult): unknown {
 }
 
 describe('blast stamps: default parity with main over every Acme conversation', () => {
-  it('writes main records plus by and resolved, in modes T and F', async () => {
+  it('preserves main observations and verdicts except the diagnosed aggregate, in modes T and F', async () => {
     const old = (JSON.parse(readFileSync(OLD, 'utf8')) as { records: RunResult[] }).records;
     const fresh: RunResult[] = [];
     for (const { spec } of await loadAcmeConversations()) {
@@ -58,16 +65,34 @@ describe('blast stamps: default parity with main over every Acme conversation', 
       const before = old[index] as RunResult;
       // Only the measured latencies may differ; everything else, the observations included, is main's.
       expect(withoutLatency(JSON.parse(JSON.stringify(unstamped(run))))).toStrictEqual(
-        withoutLatency(before),
+        withoutLatency(unstamped(before)),
       );
       for (const block of run.blocks) {
-        expect(block.resolved?.objects.map((entry) => entry.id)).toEqual(['default', 'default']);
+        const aggregate = before.blocks[block.index]?.verdicts.find(
+          (v) => v.id === 'tools.argument_accuracy',
+        );
+        const diagnosis = block.diagnoses?.find((d) =>
+          d.diagnostic.startsWith('diagnostic:argument-accuracy@'),
+        );
+        expect(diagnosis?.score).toBe(aggregate?.score);
+        expect(diagnosis?.summary).toBe(aggregate?.evidence);
+        expect(block.resolved?.objects.map((entry) => entry.id)).toEqual([
+          'default',
+          'default',
+          'default',
+          'default',
+          'argument-accuracy',
+        ]);
         for (const verdict of block.verdicts) {
           verdicts += 1;
           expect(verdict.by?.layer).toBe('shipped');
         }
       }
     }
-    expect(verdicts).toBe(978);
+    expect(verdicts).toBe(
+      old
+        .flatMap((r) => r.blocks.flatMap((b) => b.verdicts))
+        .filter((v) => v.id !== 'tools.argument_accuracy').length,
+    );
   });
 });
