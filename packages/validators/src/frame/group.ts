@@ -78,7 +78,7 @@ export function spawnGrouped(
   command: string,
   args: readonly string[],
   tag: { name: string; value: string },
-  options: SpawnSyncOptions,
-): SpawnSyncReturns<string | Buffer> {
+  options: SpawnSyncOptions & { encoding: 'utf8' },
+): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, ['-e', LAUNCHER, tag.name, tag.value, command, ...args], options);
 }
