@@ -46,6 +46,8 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
+let «counter» = 0;
+const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
 function «encode»(«value», «seen» = new WeakSet()) {
@@ -55,7 +57,8 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'number': return Number.isFinite(«value») ? (Object.is(«value», -0) ? { $n: '-0' } : «value») : { $n: String(«value») };
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
-    case 'symbol': case 'function': return { $opaque: typeof «value» };
+    case 'symbol': return { $opaque: typeof «value» };
+    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -83,6 +86,8 @@ function «decode»(«x») {
   if ('$set' in «x») return new Set(«x».$set.map(«decode»));
   if ('$date' in «x») return new Date(«x».$date);
   if ('$bytes' in «x») return Uint8Array.from(«x».$bytes);
+  if ('$handle' in «x») return «handles».get(«x».$handle);
+  if ('$fn' in «x») return (0, eval)('(' + «x».$fn + ')');
   if ('$err' in «x») { const «Class» = { Error, RangeError, TypeError, SyntaxError, ReferenceError, EvalError, URIError }[«x».$err.name] || Error; const «e» = new «Class»(«x».$err.message); «e».name = «x».$err.name; return «e»; }
   return Object.fromEntries(Object.entries(«x»).map(([«k», «v»]) => [«unesc»(«k»), «decode»(«v»)]));
 }
@@ -117,6 +122,7 @@ const «next» = () =>
       : new Promise((«resolveIt») => «waiters».push(«resolveIt»));
 const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
+const «cpuNow» = process.cpuUsage.bind(process);
 const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
 
 if ('nodeOptions' in «setup») {
@@ -154,12 +160,19 @@ if («setup».command) {
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
-    const «fn» = «setup».invoke ? (...«rest») => «product»[«setup».invoke](«request».call, «rest») : «product»[«request».call];
+    const «handle» = «request».call.startsWith('#');
+    const «fn» = «handle»
+      ? «handles».get(Number(«request».call.slice(1)))
+      : «setup».invoke
+        ? (...«rest») => «product»[«setup».invoke](«request».call, «rest»)
+        : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       const «args» = «decode»(«request».args);
+      const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
-      «answer»({ id: «request».id, ret: «encode»(«result») });
+      const «used» = «cpuNow»(«before»);
+      «answer»({ id: «request».id, ret: «encode»(«result»), cpu: («used».user + «used».system) / 1000 });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }

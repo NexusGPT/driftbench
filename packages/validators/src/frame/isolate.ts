@@ -66,6 +66,12 @@ export type IsolateOptions = {
    */
   plain?: boolean | { every: number };
   /**
+   * What a function in an argument becomes (the default refuses it). `'source'` sends its source text, which the
+   * confined run rebuilds: for a pure function of the validator, such as a statistic handed to the product. A
+   * function the product returned is always a handle and is sent back as one.
+   */
+  functions?: 'source';
+  /**
    * Files or folders the confined runs may read besides the bundled product (confine.ts), by absolute path: a data
    * file the product reads through `import.meta.url`. Never a folder that holds the expected values.
    */
@@ -79,6 +85,8 @@ export type Frame<T> = {
   tape: Tape;
   /** The first call whose runs answered differently, as a message, or undefined. */
   divergence(): string | undefined;
+  /** The processor time the product used for the calls from the tape position `from` on, in milliseconds (run A). */
+  cpuSince(from: number): number;
   /** The first divergence among the calls from the tape position `from` on, or undefined. */
   divergenceSince(from: number): string | undefined;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
@@ -275,9 +283,21 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       `the product did not load: ${(failed.error ?? failed.dead ?? '').split('\n').slice(0, 4).join(' ')}`,
     );
   }
+  // A function the product returned is a handle: calling it calls the product's function in each run.
+  const handleOf = new WeakMap<object, number>();
+  const revive = (handle: number): unknown => {
+    const fn = (...args: unknown[]) => call(`#${handle}`, args);
+    handleOf.set(fn, handle);
+    return fn;
+  };
+  const ship = (fn: (...args: never[]) => unknown): Json | undefined => {
+    const handle = handleOf.get(fn);
+    if (handle !== undefined) return { $handle: handle };
+    return options.functions === 'source' ? { $fn: fn.toString() } : undefined;
+  };
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
-    const sent = encode(args, true, `${name}(arguments)`);
+    const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     relay.port.postMessage({ call: name, args: sent });
     const { answers } = wait(relay, CALL_MS, `${name}()`) as { answers: Array<Outcome | { dead: string }> };
     const [a, b, d] = answers as [
@@ -287,6 +307,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     ];
     if ('dead' in a) throw new FrameError(a.dead);
     const entry: Entry = { call: name, args: sent, ...a };
+    if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
     if (!('dead' in b)) entry.twin = b;
     if (!('dead' in d)) entry.wrapped = d;
     tape.push(entry);
@@ -317,7 +338,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
         typeof options.plain === 'boolean' ||
         seen === 0 ||
         total % options.plain.every === 0);
-    if (plain && sampled) {
+    if (plain && sampled && !name.startsWith('#')) {
       const c = plainCall(plain, options.seed, tag, module, name, sent);
       if (!('dead' in c)) entry.plain = c;
       if (kept(a) !== kept(c)) {
@@ -328,7 +349,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       }
     }
     if ('throws' in a) throw decode(a.throws);
-    return decode(a.ret);
+    return decode(a.ret, revive);
   };
   const shape = started.ready[0]?.shape;
   const product = new Proxy(
@@ -353,6 +374,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     product,
     tape,
     divergence: () => first,
+    cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
     tainted: () => taint,
     close,

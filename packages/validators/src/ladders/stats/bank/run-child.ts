@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Frame, isolate } from '../../../frame';
 import type { StatsImpl } from '../reference';
+import { useProductClock } from './scale';
 import { installTrap } from './trap';
 
 async function main(args: readonly string[]): Promise<void> {
@@ -31,7 +32,9 @@ async function main(args: readonly string[]): Promise<void> {
     seed,
     tag: `stats:${seed}:${start}:${process.pid}`,
     plain: { every: PLAIN_EVERY },
+    functions: 'source',
   });
+  useProductClock({ mark: () => frame.tape.length, since: (mark) => frame.cpuSince(mark) });
   const s = frame.product;
   // The bank also imports the target transitively: load it only after the trap is active.
   const { runItem, statsBank } = await import('./index');
