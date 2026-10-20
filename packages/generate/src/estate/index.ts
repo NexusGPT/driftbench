@@ -26,7 +26,9 @@ export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
 export {
   ACT_SHAPES,
   ASK_FRAMES,
+  ASK_PARTS_BY_TEST_TYPE,
   askedClauses,
+  BACKGROUND_FRAMES,
   CONTEXT_SHAPES,
   fillShape,
   HAZARD_FRAME,
