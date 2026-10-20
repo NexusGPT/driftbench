@@ -20,7 +20,7 @@ export class CheckRegistry {
 
   /** Registers a check. A name registered twice is an error: unregister it first to replace it. */
   register(name: string, check: CustomCheckFunction): this {
-    if (!/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(name)) {
+    if (!/^[A-Za-z0-9_.-]+$/.test(name)) {
       throw new Error(
         `a custom check name takes letters, digits, dots, underscores and hyphens: ${show(name)}`,
       );

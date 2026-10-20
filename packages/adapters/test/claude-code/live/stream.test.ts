@@ -340,14 +340,15 @@ describe('the real stream shapes', () => {
   });
 
   describe('the verdict of a hook whose stdout is structured', () => {
-    const verdictFor = (stdout: string, exit = 0) => {
+    /** The verdict of a response with this stdout; `null` leaves the exit code out of the record. */
+    const verdictFor = (stdout: string, exit: number | null = 0) => {
       const response = line({
         type: 'system',
         subtype: 'hook_response',
         hook_id: 'h9',
         hook_name: 'PreToolUse:Bash',
         hook_event: 'PreToolUse',
-        exit_code: exit,
+        ...(exit === null ? {} : { exit_code: exit }),
         stdout,
         session_id: sid,
       });
@@ -393,6 +394,18 @@ describe('the real stream shapes', () => {
     it('keeps the exit code when it is not 0', () => {
       expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 2)).toBe('deny');
       expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 1)).toBe('error');
+    });
+
+    it('is no nudge when the exit code is missing or negative: the guard did not exit 0', () => {
+      // A hook killed by a signal reports a negative code, and a response with no code at all did not say 0.
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), null)).toBe('error');
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), -1)).toBe('error');
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 0)).toBe('nudge');
+    });
+
+    it('is a nudge for the shortest text of context, one character, at exit 0', () => {
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }))).toBe('nudge');
+      expect(verdictFor(JSON.stringify({ hookSpecificOutput: { additionalContext: 'x' } }))).toBe('nudge');
     });
   });
 

@@ -64,6 +64,7 @@ This is a format topic. The commands that read blocks are `spec validate`, `spec
 | `given` | mapping | no | Starting state for this block: `prefix`, `ledger`, `world`, `vars`. See authoring-prefixes. |
 | `expect` | mapping | no | The Then. Without it the block checks nothing and `spec lint` warns `BLOCK_NO_EXPECTATION`. |
 | `budget` | mapping | no | Limits: `steps` (whole number from 1), `cost_usd` (number from 0), `latency_ms` (number from 0). Each gives a `budget.<key>` verdict; a limit the adapter does not report is inconclusive and not gating. |
+| `uses` | mapping | no | The objects this block uses (policies, check set, diagnostics); a key here replaces the spec's `uses` key of the same name. See authoring-spec-format, `uses`. |
 
 A block takes exactly one of `user`, `burst` and `when`. The injection form is `when: { injection: { class: <deviation class>, user: <message> } }`: a deviation written into the blocks with its class (see authoring-deviation-classes). To inject a deviation only in perturbed runs, without editing the blocks, use `perturbations` (see authoring-perturbations). The user form can also name the utterance class its message stands for: `when: { user: <seed>, class: { id: <class id>, set: <frozen set hash> } }`, where `class.id` is the id of the class file and `class.set` the 12-character hash `driftbench class realise` printed for its frozen set. The block still sends its own `user` text; `driftbench class expand` writes one copy of the spec per frozen realisation of the class (see authoring-classes). The key enters the spec hash and the block cache key only when present.
 
@@ -81,7 +82,7 @@ Tools and the runtime trace:
 
 | Key | Type | Meaning |
 |---|---|---|
-| `tools` | list of `{ label, count?, input?, input_closed? }` | Expected tool calls. `label` is the tool name. `count` is a whole number or `{ min?, max? }`; without it the tool must run at least once; `0` means it must not run. `input` maps argument names to assertions; every call must hold each one. `input_closed: true` allows no argument key outside `input`. |
+| `tools` | list of `{ label, count?, input?, input_closed?, compare? }` | Expected tool calls. `label` is the tool name. `count` is a whole number or `{ min?, max? }`; without it the tool must run at least once; `0` means it must not run. `input` maps argument names to assertions; every call must hold each one. `input_closed: true` allows no argument key outside `input`. `compare` says how a value that differs from the expected one is decided (see judging-check-tools); absent means `auto`. |
 | `tool_order` | `exact`, `in_order` or `any_order` | How the expected tools line up with the calls. `exact`: consecutive, nothing extra. `in_order`: this order, others may sit between. `any_order`: all present. |
 | `tools_offered` | `{ include?: [names], exclude?: [names] }` | Tools the runtime must offer, or must not offer, whatever the agent calls. |
 | `tool_f1` | `{ min }`, 0 to 1 | Precision, recall and F1 of the calls against `tools`. |

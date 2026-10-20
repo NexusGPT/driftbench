@@ -20,9 +20,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/achammah/driftbench"
-Documentation = "https://github.com/achammah/driftbench/blob/main/docs/python.md"
-Issues = "https://github.com/achammah/driftbench/issues"
+Homepage = "https://github.com/NexusGPT/driftbench"
+Documentation = "https://github.com/NexusGPT/driftbench/blob/main/docs/python.md"
+Issues = "https://github.com/NexusGPT/driftbench/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]

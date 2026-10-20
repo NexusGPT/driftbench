@@ -15,7 +15,7 @@ A copy of `research/astra-mm/data/test-paired.json`, with the same values and th
 * Result: 89.49 alone, 91.54 with the panel, a paired gain of 2.05 points, 95 percent interval 1.02 to 3.29 (paired bootstrap, 20,000 draws).
 * Limits stated by the source: three of the five subset intervals touch zero. Three safety items were provider refusals that the panel recovered; without them the gain is 1.75, interval 0.77 to 2.96. Both arms are driftbench; no other tool is run.
 
-The full write-up, the seal and every recorded call are in [RESULT.md](https://github.com/achammah/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md) on that commit. The development-set replay that ships on main is in [examples/escalation](../../../examples/escalation/README.md).
+The full write-up, the seal and every recorded call are in [RESULT.md](https://github.com/NexusGPT/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md) on that commit. The development-set replay that ships on main is in [examples/escalation](../../../examples/escalation/README.md).
 
 ## sealed/
 
