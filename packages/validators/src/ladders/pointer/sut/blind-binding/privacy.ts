@@ -15,6 +15,9 @@ const recordedOf = (answer: Obj) => ({
   usage: { input: answer.usage.input_tokens, output: answer.usage.output_tokens },
 });
 
+/** The status of a scan that sent no request. */
+export const NO_REQUEST = 'no-request';
+
 /**
  * `privacy`: the real `pointerScan` over the private file. The reader reads the key itself (its labeler factory
  * reads `ANTHROPIC_API_KEY` from `env`, a getter that asks the harness), sends the request itself (`fetch` is the
@@ -23,8 +26,8 @@ const recordedOf = (answer: Obj) => ({
  * and plans is returned beside the labels, so the leak check reads it. Nothing is derived from the requested mode
  * except which of the reader's two scan modes runs.
  *
- * A file the scan sends no request for (a fence or a comment is opaque) never reaches the recorder: the item is
- * unsupported, naming that seam.
+ * A file the scan sends no request for (a fence or a comment is opaque) never reaches the recorder: the result
+ * carries the status `no-request` and the item differs from the contract, which expects a request.
  */
 export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<unknown> {
   if (!io) throw new Error('the privacy operation needs the harness callbacks');
@@ -91,11 +94,9 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
     if (!(thrown instanceof pointer.CassetteMiss)) throw thrown;
   }
   const windows = ((plan?.members ?? []) as Obj[]).reduce((sum, entry) => sum + Number(entry.windows), 0);
-  if (windows === 0)
-    throw new Unsupported(
-      'privacy',
-      'the scan sends no request for this file (a fence or a comment is opaque), so the recorder seam is never reached',
-    );
+  // The contract expects the recorder to be reached for any file; a scan with no window sends no request. That is
+  // the reader's behaviour, reported as an observation that differs, not as a missing call.
+  if (windows === 0) return { labels: [], status: NO_REQUEST, stored: cassette.render(), readerPlan: plan };
   io.plan({ characters: String(input.source).length });
   const labels = record
     ? ((stored[0]?.answer as Obj | undefined)?.labels ?? [])
