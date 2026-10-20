@@ -93,12 +93,15 @@ describe('committed replay oracles', () => {
       clearSeedFreeCache();
       const outcome = await runItem(item, 1, sut);
       expect(outcome, item.id).toMatchObject({ pass: true });
-      expect(requests, item.id).toHaveLength(2);
+      // The twice-identical item replays the committed cassette a second time before its one mutation.
+      const twice = item.id === 'replay.fixture-replay-twice-identical';
+      expect(requests, item.id).toHaveLength(twice ? 3 : 2);
+      if (twice) expect(requests[1], item.id).toBe(requests[0]);
       const a = (requests[0] ?? '')
         .trim()
         .split('\n')
         .map((line) => JSON.parse(line));
-      const b = (requests[1] ?? '')
+      const b = (requests[twice ? 2 : 1] ?? '')
         .trim()
         .split('\n')
         .map((line) => JSON.parse(line));
