@@ -173,9 +173,16 @@ function declarationNames(statement: ts.Statement): string[] {
   return [];
 }
 
+const programs = new Map<string, ts.Program>();
+
 function programOf(root: string): ts.Program {
-  const files = [...tsFiles(join(root, 'kit')), ...tsFiles(join(root, 'bank/families'))];
-  return ts.createProgram(files, OPTIONS);
+  let program = programs.get(root);
+  if (!program) {
+    const files = [...tsFiles(join(root, 'kit')), ...tsFiles(join(root, 'bank/families'))];
+    program = ts.createProgram(files, OPTIONS);
+    programs.set(root, program);
+  }
+  return program;
 }
 
 /** The top-level declarations of the kit, hashed by name (the fingerprint of a helper on its own). */
