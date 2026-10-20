@@ -118,7 +118,7 @@ async function evaluate(
 describe('handwritten archive hazards assert recovery, not a generic continuation', () => {
   it('keeps quoted retry targets on their original tool instead of inventing a shell command', async () => {
     for (const target of ['https://example.invalid/catalogue', 'Fetch']) {
-      const { spec } = generate('rate_wave', `After a rate limit, retry \`${target}\`.`);
+      const { spec } = generate('rate_wave', `After a rate limit, retry \`${target}\`.`, 1, { retry: true });
       const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
       expect(options.calls).toBeUndefined();
       const request = { url: 'https://example.invalid/catalogue' };
@@ -135,23 +135,45 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
     const { generated, spec } = generate(
       'session_boundary',
       'At each session boundary, read notes/archive.index.CFG.',
+      1,
+      { reread: ['notes/archive.index.CFG'] },
     );
     expect(generated.specs[0]?.complete).toBe(true);
     expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/archive.index.CFG'] });
+  });
+  it('re-reads the file of the atom when the declaration says the rule orders its own file read again', () => {
+    const { generated, spec } = generate('compaction', 'After a compaction, read this file again.', 1, {
+      rereadSelf: true,
+    });
+    expect(generated.specs[0]?.complete).toBe(true);
+    expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['POLICY.md'] });
+    expect(spec.rules?.custom?.hazard_recovery).not.toHaveProperty('rereadSelf');
+    const wrong = generate('compaction', 'After a compaction, read this file again.', 1, {
+      rereadSelf: 'yes',
+    });
+    expect(wrong.generated.specs[0]?.complete).toBe(false);
   });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
     const { generated, spec } = generate('restart', 'Resume safely.', 1, {
       reread: [''],
       calls: [{ label: 'Read', input: {}, count: 0 }],
     });
-    expect(generated.specs[0]?.complete).toBe(true);
-    const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
-    expect(options.reread).toBeUndefined();
+    expect(generated.specs[0]?.complete).toBe(false);
+    expect(spec.rules?.custom?.hazard_recovery).toBeUndefined();
   });
   for (const sample of samples) {
     it(sample.kind, async () => {
       for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 1019]) {
-        const { generated, spec } = generate(sample.kind, sample.quote, seed);
+        const { generated, spec } = generate(
+          sample.kind,
+          sample.quote,
+          seed,
+          'read' in sample
+            ? { reread: [sample.read] }
+            : 'command' in sample
+              ? { calls: [{ label: 'Bash', input: { command: { contains: sample.command } } }] }
+              : { retry: true },
+        );
         expect(generated.specs[0]?.complete).toBe(true);
         const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
         expect(!!options.reread || !!options.calls || options.retry === true).toBe(true);
@@ -174,14 +196,11 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
         ).toBe(true);
       }
     });
-    it(`${sample.kind} keeps the generic recovery expectation when its contract names no assertable action`, () => {
+    it(`${sample.kind} fails closed when its contract names no assertable action`, () => {
       const { generated, spec } = generate(sample.kind, 'Recover appropriately when interrupted.');
-      expect(generated.specs[0]?.complete).toBe(true);
-      expect(generated.report.gaps.some((g) => g.marker.startsWith('needs-recovery'))).toBe(false);
-      const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
-      expect(options.reread).toBeUndefined();
-      expect(options.calls).toBeUndefined();
-      expect(options.retry).toBeUndefined();
+      expect(generated.specs[0]?.complete).toBe(false);
+      expect(generated.report.gaps.some((g) => g.marker === 'needs-registered-check')).toBe(true);
+      expect(spec.rules?.custom?.hazard_recovery).toBeUndefined();
     });
   }
   for (const quote of [
@@ -192,14 +211,13 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
   ])
     it(`does not invent a required action from: ${quote}`, () => {
       const { generated, spec } = generate('restart', quote);
-      expect(generated.specs[0]?.complete).toBe(true);
-      const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
-      expect(options.reread).toBeUndefined();
-      expect(options.calls).toBeUndefined();
-      expect(options.retry).toBeUndefined();
+      expect(generated.specs[0]?.complete).toBe(false);
+      expect(spec.rules?.custom?.hazard_recovery).toBeUndefined();
     });
   it('does not accept a different input as retrying the failed request', async () => {
-    const { spec } = generate('rate_wave', 'After a rate limit, retry the failed request.');
+    const { spec } = generate('rate_wave', 'After a rate limit, retry the failed request.', 1, {
+      retry: true,
+    });
     const verdicts = await evaluate(
       'rate_wave',
       spec.rules?.custom?.hazard_recovery,

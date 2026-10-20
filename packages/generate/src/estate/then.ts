@@ -8,6 +8,7 @@ import {
   type SubagentExpect,
   type ToolExpect,
 } from '@agent-nexus/driftbench-core';
+import { declaredRecovery } from './declared-recovery';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
 import {
@@ -17,7 +18,6 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
-import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -335,20 +335,11 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        const recovery = recoveryAction(atom);
+        const recovery = declaredRecovery(atom, ctx.atoms);
         const declared = evidence.options ?? {};
-        const reread = [
-          ...new Set([
-            ...(Array.isArray(declared.reread)
-              ? declared.reread.filter(
-                  (path): path is string => typeof path === 'string' && path.trim() !== '',
-                )
-              : []),
-            ...recovery.reread,
-          ]),
-        ];
-        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
-        const retry = declared.retry === true || recovery.retry;
+        const { reread, calls, retry } = recovery;
+        for (const detail of recovery.invalid ?? [])
+          gap(then, MARKERS.registered, atom, `invalid recovery evidence: ${detail}`);
         // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
         // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
         // by code; without a judge the row waits under a gap with the reason.
@@ -362,8 +353,24 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
               `the rule orders a re-read of "${part}", which names no file path`,
             );
         }
-        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
-        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
+        if (reread.length === 0 && calls.length === 0 && !retry) {
+          gap(
+            then,
+            MARKERS.registered,
+            atom,
+            'hazard_recovery requires declared reread, calls or retry evidence',
+          );
+          return;
+        }
+        // Valid source requirements remain intact; malformed siblings keep the row incomplete.
+        const {
+          reread: _reread,
+          rereadSelf: _rereadSelf,
+          calls: _calls,
+          retry: _retry,
+          unpathed: _unpathed,
+          ...rest
+        } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),
