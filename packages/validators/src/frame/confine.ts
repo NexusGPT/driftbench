@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { delimiter, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findRoot } from '../root';
 import { FrameError } from './tape';
@@ -248,6 +248,51 @@ export class TreeWatch {
     return found;
   }
 
+  /**
+   * The names directly inside each folder where Node.js looks for a package for the product: the node_modules folder
+   * of every ancestor of the tree up to the filesystem root (present or not), the folders of NODE_PATH, and the
+   * user-level folders. A package that appears there, or one that is removed, can shadow the one the bundle took
+   * (review of PR 969: a copy one folder above the tree). Only names are listed, so a store of thousands of
+   * packages costs one directory read per folder.
+   */
+  static resolutionFolders(tree: string): string[] {
+    const folders: string[] = [];
+    for (let dir = realOf(tree); ; ) {
+      folders.push(join(dir, 'node_modules'));
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    for (const extra of (process.env.NODE_PATH ?? '').split(delimiter)) if (extra) folders.push(extra);
+    const home = process.env.HOME;
+    if (home) folders.push(join(home, '.node_modules'), join(home, '.node_libraries'));
+    return folders;
+  }
+
+  private static names(folder: string): string {
+    if (!existsSync(folder)) return '(absent)';
+    const out: string[] = [];
+    for (const name of readdirSync(folder).sort()) {
+      if (name.startsWith('@')) {
+        let inner: string[] = [];
+        try {
+          inner = readdirSync(join(folder, name)).sort();
+        } catch {
+          inner = [];
+        }
+        for (const each of inner) out.push(`${name}/${each}`);
+      } else out.push(name);
+    }
+    return out.join('\n');
+  }
+
+  private readonly listed = new Map<string, string>();
+
+  /** Starts the listing of the folders Node.js resolves packages from. */
+  watchResolution(tree: string): void {
+    for (const folder of TreeWatch.resolutionFolders(tree)) this.listed.set(folder, TreeWatch.names(folder));
+  }
+
   /** The paths that differ from the start (added, removed or changed). Nothing is touched. */
   diff(): string[] {
     const now = new Map<string, string>();
@@ -260,6 +305,8 @@ export class TreeWatch {
       else if (was !== hash) changed.push(`${file} (changed)`);
     }
     for (const file of this.before.keys()) if (!now.has(file)) changed.push(`${file} (removed)`);
+    for (const [folder, was] of this.listed)
+      if (TreeWatch.names(folder) !== was) changed.push(`${folder} (packages added or removed)`);
     return changed;
   }
 }

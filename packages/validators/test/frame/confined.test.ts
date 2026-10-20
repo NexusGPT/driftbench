@@ -315,6 +315,50 @@ export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
     expect(rows).toEqual([false, false, false, false]);
   });
 
+  it.each([
+    ['one folder above the product tree', 1],
+    ['two folders above the product tree', 2],
+  ])('does not let run C plant a package %s for a later frame to bundle', (_name, up) => {
+    // The probe of the third review of PR 969: Node.js resolves a package from every ancestor's node_modules.
+    const tree = join(sources, 'inner');
+    mkdirSync(tree);
+    const above = up === 1 ? sources : area;
+    mkdirSync(join(above, 'node_modules'), { recursive: true });
+    const installed = join(work, 'node_modules', 'zzabovedep');
+    mkdirSync(installed, { recursive: true });
+    writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
+    const planted = join(above, 'node_modules', 'zzabovedep');
+    const oracle = join(oracles, 'above-expected.json');
+    writeFileSync(oracle, '137');
+    const module = join(tree, 'up.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+try {
+  fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
+  if (!fs.existsSync(${JSON.stringify(join(planted, 'index.mjs'))})) {
+    fs.mkdirSync(${JSON.stringify(planted)}, { recursive: true });
+    fs.writeFileSync(${JSON.stringify(join(planted, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+  }
+} catch {}
+const { STAMP } = await import('zzabovedep');
+export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
+`,
+    );
+    const rows = [1, 2, 3, 4].map((seed) => {
+      let frame: Frame<{ get: () => number }> | undefined;
+      try {
+        frame = isolate({ module, seed });
+        return frame.product.get() === 137 && frame.divergence() === undefined;
+      } catch {
+        return false;
+      } finally {
+        frame?.close();
+      }
+    });
+    expect(rows).toEqual([false, false, false, false]);
+  });
+
   it('never writes, restores or deletes anything in a tree of more than 20,000 files', () => {
     // A guard against data loss, not a bypass: it may be green on a validator that never deleted anything.
     const big = join(sources, 'big');

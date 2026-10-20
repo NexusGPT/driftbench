@@ -214,6 +214,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
   const watch = new TreeWatch([tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? [])]);
+  watch.watchResolution(tree);
   let dirty = false;
   const settle = (): void => {
     if (!dirty) return;
@@ -392,6 +393,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
   const watch = new TreeWatch([tree, ...inputs]);
+  watch.watchResolution(tree);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(
       { ...plan, setup: { command: sealed, script: resolve(script) } },
