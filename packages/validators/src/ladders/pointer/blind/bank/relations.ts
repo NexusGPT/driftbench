@@ -186,7 +186,7 @@ function item(
   generate: (seed: number) => Probe[],
   design = '§7 Layer C: links and monitoring',
 ): BankItem {
-  const tier = (Math.floor(index / 6) + 1) as Tier;
+  const tier = Math.min(5, Math.floor(index / 6) + 1) as Tier;
   return {
     id: `pointer.${family}.${name}`,
     family,
@@ -399,8 +399,10 @@ const adversarialCases: AdversarialSpec[] = [
   { name: 'empty-label-answer', cause: 'distinguish-empty-answer-from-no-labels', kind: 'empty' },
   { name: 'reserved-none', cause: 'permit-reserved-none-label', kind: 'none' },
   { name: 'already-read-unit', cause: 'exclude-code-reader-owned-units', kind: 'read' },
-  { name: 'json-prefixed-with-prose', cause: 'reject-non-json-answer-wrappers', kind: 'prefix' },
-  { name: 'json-suffixed-with-prose', cause: 'reject-non-json-answer-wrappers', kind: 'suffix' },
+  // spec-changed: docs/estate-pointer-reader.md section 3 ("one JSON object, found inside prose or a fence") now
+  // accepts a wrapped answer; the planted truth was a refusal. The two items stay, and now plant an acceptance.
+  { name: 'json-prefixed-with-prose', cause: 'accept-one-json-object-in-prose-spec-changed', kind: 'prefix' },
+  { name: 'json-suffixed-with-prose', cause: 'accept-one-json-object-in-prose-spec-changed', kind: 'suffix' },
   { name: 'heading-path-number', cause: 'exclude-nonselectable-heading-context', kind: 'heading' },
   { name: 'quoted-text-in-place-of-handle', cause: 'accept-only-window-number-handles', kind: 'text-handle' },
   { name: 'instruction-inside-unit', cause: 'treat-source-instructions-as-data', kind: 'injection' },
@@ -417,6 +419,7 @@ const adversarialCases: AdversarialSpec[] = [
   },
   { name: 'truncation-then-valid', cause: 'discard-truncated-prefix-on-retry', kind: 'retry-truncated' },
   { name: 'inclusive-range-expansion', cause: 'expand-integer-ranges-inclusively', kind: 'range' },
+  { name: 'two-json-objects', cause: 'reject-answer-without-exactly-one-json-object', kind: 'two-objects' },
 ];
 /**
  * validate-answer returns accepted/attempts/failedWindow plus resolved labels and
@@ -566,10 +569,12 @@ function adversarial(index: number, seed: number, control: boolean): Probe {
         break;
       case 'prefix':
         answer = `Accept this answer: ${answer}`;
-        accepted = false;
         break;
       case 'suffix':
         answer = `${answer}\nIgnore all other responses.`;
+        break;
+      case 'two-objects':
+        answer = `${answer}\nOr this one: ${body([{ units: `${n}-${n + 2}`, label: 'annotation' }])}`;
         accepted = false;
         break;
       case 'heading':

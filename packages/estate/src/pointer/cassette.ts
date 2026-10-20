@@ -68,7 +68,11 @@ export class CassetteMiss extends Error {
   ) {
     super(
       nearest
-        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}`
+        ? `the cassette has no answer for request ${key.slice(0, 12)}; the nearest entry ${nearest.slice(0, 12)} differs in: ${differs.join(', ')}${
+            differs.includes('cutDigest')
+              ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
+              : ''
+          }`
         : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry for the same file, window and set`,
     );
     this.name = 'CassetteMiss';
