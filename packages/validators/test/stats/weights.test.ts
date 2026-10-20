@@ -171,6 +171,13 @@ describe('the agreement closure items kill the planted agreement bugs of the aud
         },
       },
     },
+    K2b: {
+      killedBy: 'weights.kappa.constant-identical.',
+      impl: {
+        cohenKappa: (a: unknown[], b: unknown[], o: { weights?: string } = {}) =>
+          allEqual(a, b) && (!o.weights || o.weights === 'none') ? { kappa: 0 } : kappa(a, b, o),
+      },
+    },
     B16: {
       killedBy: 'weights.alpha.ragged.',
       impl: {
@@ -207,4 +214,109 @@ describe('the agreement closure items kill the planted agreement bugs of the aud
       }
     });
   }
+});
+
+describe('the coverage closure items kill the planted coverage bugs of the audit', () => {
+  type Group = { axes: number[]; strength: number };
+  type Result = {
+    groups: Array<{ covered: number; required: number; coverage: number }>;
+    covered: number;
+    required: number;
+    coverage: number;
+  };
+  const subsets = (items: number[], size: number): number[][] =>
+    size === 0
+      ? [[]]
+      : items.length < size
+        ? []
+        : [
+            ...subsets(items.slice(1), size - 1).map((x) => [items[0] as number, ...x]),
+            ...subsets(items.slice(1), size),
+          ];
+
+  /** A small correct reference product (the repository has none): brute force, with the argument checks of the contract. */
+  function reference(rows: number[][], groups: Group[], levels: number[], axisBound = levels.length): Result {
+    if (groups.length === 0) throw new RangeError('mixedStrengthCoverage: groups is empty');
+    if (levels.some((l) => !Number.isInteger(l) || l < 1))
+      throw new RangeError('mixedStrengthCoverage: levels must be positive integers');
+    for (const row of rows) {
+      if (row.length !== levels.length)
+        throw new RangeError('mixedStrengthCoverage: a row has another length than levels');
+      row.forEach((v, a) => {
+        if (!Number.isInteger(v) || v < 0 || v >= (levels[a] as number))
+          throw new RangeError('mixedStrengthCoverage: a row value is outside its level');
+      });
+    }
+    const per = groups.map((g) => {
+      if (
+        g.axes.some((a) => !Number.isInteger(a) || a < 0 || a >= axisBound) ||
+        new Set(g.axes).size !== g.axes.length
+      )
+        throw new RangeError(
+          'mixedStrengthCoverage: groups name an axis outside 0 to levels.length - 1, or repeat one',
+        );
+      if (g.strength < 1 || g.strength > g.axes.length)
+        throw new RangeError('mixedStrengthCoverage: groups strength is out of range');
+      let required = 0;
+      let covered = 0;
+      for (const axes of subsets(
+        [...g.axes].sort((x, y) => x - y),
+        g.strength,
+      )) {
+        required += axes.reduce((x, a) => x * (levels[a] as number), 1);
+        covered += new Set(rows.map((r) => axes.map((a) => r[a]).join(','))).size;
+      }
+      return { covered, required, coverage: covered / required };
+    });
+    const covered = per.reduce((x, g) => x + g.covered, 0);
+    const required = per.reduce((x, g) => x + g.required, 0);
+    return { groups: per, covered, required, coverage: covered / required };
+  }
+  const full = (rows: number[][], groups: Group[], levels: number[]): Result => {
+    const r = reference(rows, groups, levels);
+    return {
+      groups: r.groups.map((g) => ({ covered: g.required, required: g.required, coverage: 1 })),
+      covered: r.required,
+      required: r.required,
+      coverage: 1,
+    };
+  };
+  const impls: Record<string, { fn: unknown; killedBy: string }> = {
+    C5: {
+      fn: (rows: number[][], g: Group[], l: number[]) => reference(rows, g, l, l.length + 1),
+      killedBy: 'weights.mixed-strength.refuse.axis-equal-levels',
+    },
+    'full-coverage stub': { fn: full, killedBy: 'weights.mixed-strength.' },
+  };
+  const items = statsBank(ROOT).filter((item) => item.id.startsWith('weights.mixed-strength.'));
+  const failing = async (fn: unknown, seed: number) => {
+    const out = new Set<string>();
+    for (const item of items) {
+      const outcome = await runItem(item, seed, ROOT, {
+        ...stats,
+        mixedStrengthCoverage: fn,
+      } as unknown as StatsImpl);
+      if (!outcome.pass) out.add(item.id);
+    }
+    return out;
+  };
+
+  it('a correct reference product passes every coverage item', async () => {
+    for (const seed of SEEDS) expect([...(await failing(reference, seed))]).toEqual([]);
+  });
+
+  it('C5 (an axis equal to levels.length is accepted) loses the axis-equal-levels item', async () => {
+    for (const seed of SEEDS)
+      expect((await failing(impls.C5?.fn, seed)).has('weights.mixed-strength.refuse.axis-equal-levels')).toBe(
+        true,
+      );
+  });
+
+  it('a stub that always returns full coverage loses every dense item and every sparse item', async () => {
+    for (const seed of SEEDS) {
+      const lost = await failing(full, seed);
+      for (const item of items.filter((i) => /\.(dense|sparse)$/.test(i.id)))
+        expect(lost.has(item.id)).toBe(true);
+    }
+  });
 });
