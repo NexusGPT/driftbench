@@ -10,6 +10,7 @@ see_also:
   - validate-estate-loop
   - validate-estate-plan
   - validate-estate-maintain
+  - validate-estate-settings
 next:
   - validate-estate-plan
 ---
@@ -137,7 +138,9 @@ with one `--labeler`. The ledger records which class
 decided each unit, and the report counts them.
 
 The environment holds the keys of a `--record` run: `ANTHROPIC_API_KEY` for `anthropic`, `OPENAI_API_KEY`,
-`OPENAI_BASE_URL` and `OPENAI_DECISIONS_MODEL` for `openai-decisions`. A key is never printed or written to
+`OPENAI_BASE_URL` and `OPENAI_DECISIONS_MODEL` for `openai-decisions`. It also sets every model:
+`ANTHROPIC_LABELER_MODEL` for `anthropic` (default `claude-haiku-5-5`), `JEV_MODEL` for `jev` (default
+`jev-latest`) and `OPENAI_DECISIONS_MODEL` for `openai-decisions`; a model in `--labeler` wins. A key is never printed or written to
 the cassette. The request and answer shapes of `openai-decisions` follow the provider's public description
 and no live call has confirmed them here.
 
@@ -223,9 +226,26 @@ The configuration file `driftbench.estate.yaml` at the estate root, optional, ev
 | `externals` | `scan` | folders outside the estate a path may name; they replace the defaults `docs/` and `_meta/` |
 | `aliases` | `scan` | a map from an alias such as `REF` to the folder or folders it stands for: `REF/a/b.md` reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files`, `expect` (`exitCode`, `stdout`, `stdoutIncludes`) |
+| `labels` | `scan --pointer` | the label sets: a file of label sets, relative to the root, or the list of sets inline. `--labels` wins |
+| `labeler` | `scan --pointer` | a labeler, or a list of one per class, as `<class>:<client>` (`system2:anthropic`, `system1:http:<url>`). It names no model: a model is set by environment variable. `--labeler` wins |
+| `threshold` | `scan --pointer` | a mapping of `labeler` (the yes or no threshold), `pass_at`, `fail_at` and `margin_cut`, each a number from 0 to 1. Each `--labeler-*` option wins over its key |
+| `ledger` | `scan --pointer`, `radius ledger` | the ledger of unit ids, relative to the root. `--ledger` wins; the scan still writes it only with `--update` |
 
-`examples/estates/reader-cases/driftbench.estate.yaml` is a complete example. A key with the wrong shape is a
-note of the scan and is left out.
+`examples/estates/reader-cases/driftbench.estate.yaml` is a complete example. A key of the scan or of the
+unit runner with the wrong shape is a note of the scan and is left out. A pointer key with the wrong shape
+stops the scan with exit 2, because it would change the labels, and so does a labeler that names a model.
+The scan with `--pointer` prints `Pointer settings from driftbench.estate.yaml: <keys>.` for the keys it read.
+
+```yaml
+labels: labels.yaml
+labeler: [system1:jev, system2:anthropic]
+threshold: { pass_at: 0.9, fail_at: 0.1 }
+ledger: driftbench.ledger.json
+```
+
+A setting change voids only the recordings it touches. A changed description of one label set voids the
+answers of that set. A changed model voids the answers of its labeler. A threshold, a labeler left out of the
+stack and a moved ledger void none: the labels are decided again from the cassette.
 
 ## Outputs and how to read them
 

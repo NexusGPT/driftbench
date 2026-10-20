@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { pointer } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
@@ -662,5 +662,227 @@ describe('the radius on the ledger', () => {
         entry.blocks.some((block) => block.state.F !== 'out'),
     );
     expect(inRadius.map((entry: { specId: string }) => entry.specId)).toEqual(['harbour-gate']);
+  });
+});
+
+describe('the settings file of the estate', () => {
+  const SETS = (voice = 'How the harbour office words its notices.') =>
+    [
+      'labels:',
+      '  - set: harbour-rules',
+      '    description: What the harbour office asks of the agent.',
+      '    labels:',
+      '      - name: rule',
+      '        description: A unit that tells the reader what to do.',
+      '      - name: prohibition',
+      '        description: A unit that tells the reader what never to do.',
+      '  - set: harbour-voice',
+      `    description: ${voice}`,
+      '    labels:',
+      '      - name: rule',
+      '        description: A unit that fixes a word or a tone.',
+      '      - name: prohibition',
+      '        description: A unit that forbids a word or a tone.',
+      '',
+    ].join('\n');
+  const SETTINGS = [
+    'labels: labels.yaml',
+    'labeler: [system1:jev, system2:anthropic]',
+    'threshold: { pass_at: 0.9, fail_at: 0.1 }',
+    'ledger: ledger.json',
+    '',
+  ].join('\n');
+
+  type Entry = { key: string; readable: Record<string, string> };
+  const entries = async (root: string): Promise<Entry[]> =>
+    (await readFile(join(root, 'cassette.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as Entry);
+  async function scan(root: string, env: Record<string, string> = {}) {
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      { out: 'map.yaml', pointer: true, cassette: 'cassette.jsonl', record: true, update: true, force: true },
+      io,
+      { env: { ...KEYS, ...env }, fetch: services },
+    );
+    return { code, ...output };
+  }
+  /** A fresh estate with the settings file, scanned once: the recordings every change is measured against. */
+  async function base() {
+    const root = await estate();
+    await writeFile(join(root, 'driftbench.estate.yaml'), SETTINGS);
+    await writeFile(join(root, 'labels.yaml'), SETS());
+    const first = await scan(root);
+    expect(first.err).toBe('');
+    expect(first.code).toBe(0);
+    expect(first.out).toContain(
+      'Pointer settings from driftbench.estate.yaml: labels, labeler, threshold, ledger.',
+    );
+    return { root, before: await entries(root) };
+  }
+  /** The recordings a change voids: the requests it asked for that the cassette did not hold. */
+  async function voided(root: string, before: Entry[], env: Record<string, string> = {}) {
+    const again = await scan(root, env);
+    expect(again.err).toBe('');
+    expect(again.code).toBe(0);
+    const known = new Set(before.map((entry) => entry.key));
+    return { added: (await entries(root)).filter((entry) => !known.has(entry.key)), out: again.out };
+  }
+  const shape = (list: Entry[]) => list.map((entry) => `${entry.readable.set} ${entry.readable.cls}`).sort();
+
+  it('reads every setting from the file, and the ledger it names', async () => {
+    const { root, before } = await base();
+    expect(new Set(before.map((entry) => entry.readable.set))).toEqual(
+      new Set(['harbour-rules', 'harbour-voice']),
+    );
+    expect(new Set(before.map((entry) => entry.readable.cls))).toEqual(new Set(['system1', 'system2']));
+    const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));
+    expect(ledger.entries.length).toBeGreaterThan(0);
+    const unchanged = await voided(root, before);
+    expect(unchanged.added).toEqual([]);
+    // 9 units under 2 label sets.
+    expect(unchanged.out).toMatch(/Units: 9 in 2 files; 18 kept from the ledger, 0 labelled by this run/);
+  });
+
+  it('voids the recordings of one label set when its description changes, and no other', async () => {
+    const { root, before } = await base();
+    await writeFile(join(root, 'labels.yaml'), SETS('How the harbour office words its signs.'));
+    const { added } = await voided(root, before);
+    expect(shape(added)).toEqual(shape(before.filter((entry) => entry.readable.set === 'harbour-voice')));
+  });
+
+  it('voids the recordings of system 2 when its model changes by environment variable, and no other', async () => {
+    const { root, before } = await base();
+    const { added } = await voided(root, before, { ANTHROPIC_LABELER_MODEL: 'claude-sonnet-5-5' });
+    expect(shape(added)).toEqual(shape(before.filter((entry) => entry.readable.cls === 'system2')));
+    expect(added.every((entry) => entry.readable.model === 'claude-sonnet-5-5')).toBe(true);
+  });
+
+  it('voids no recording when a threshold changes: the labels are decided again from the cassette', async () => {
+    const { root, before } = await base();
+    await writeFile(join(root, 'driftbench.estate.yaml'), SETTINGS.replace('pass_at: 0.9', 'pass_at: 0.8'));
+    const { added, out } = await voided(root, before);
+    expect(added).toEqual([]);
+    expect(out).toMatch(/0 kept from the ledger, 18 labelled by this run/);
+  });
+
+  it('voids no recording when the labeler drops a class or the ledger moves', async () => {
+    const { root, before } = await base();
+    await writeFile(
+      join(root, 'driftbench.estate.yaml'),
+      SETTINGS.replace('[system1:jev, system2:anthropic]', '[system2:anthropic]'),
+    );
+    expect((await voided(root, before)).added).toEqual([]);
+    await writeFile(
+      join(root, 'driftbench.estate.yaml'),
+      SETTINGS.replace('ledger.json', 'moved/ledger.json'),
+    );
+    expect((await voided(root, before)).added).toEqual([]);
+    expect(
+      JSON.parse(await readFile(join(root, 'moved', 'ledger.json'), 'utf8')).entries.length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('gives radius ledger the ledger the file names', async () => {
+    const { root } = await base();
+    await writeFile(
+      join(root, 'CLAUDE.md'),
+      FILES['CLAUDE.md']?.replace('the gate open', 'the gate open after dusk') ?? '',
+    );
+    const result = await run(['radius', 'ledger', 'map.yaml', '--out', 'change.yaml'], root);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toMatch(/1 changed, 0 deleted, 0 new\./);
+    await writeFile(join(root, 'driftbench.estate.yaml'), 'ignore: [logs/]\n');
+    const missing = await run(['radius', 'ledger', 'map.yaml'], root);
+    expect(missing.code).toBe(2);
+    expect(missing.err).toContain(
+      'name the ledger with --ledger <file>, or with ledger: in driftbench.estate.yaml',
+    );
+  });
+
+  it('loads a labeler module the file names from beside the estate, scanned from another folder', async () => {
+    const root = await estate();
+    await writeFile(
+      join(root, 'labeler.mjs'),
+      "export default { id: 'harbour', cls: 'system2', label: (request) => ({ labels: request.window.units.map((unit) => ({ units: String(unit.n), label: 'none' })) }) };\n",
+    );
+    await writeFile(join(root, 'driftbench.estate.yaml'), 'labeler: system2:module:labeler.mjs\n');
+    const { io, output } = capture(dirname(root));
+    const code = await estateScanCommand(
+      basename(root),
+      { out: join(root, 'map.yaml'), pointer: true, cassette: join(root, 'cassette.jsonl'), record: true },
+      io,
+      { env: {} },
+    );
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    expect(output.out).toContain('Pointer reader: system 2 module:harbour harbour.');
+  });
+
+  it('lets each option win over its key: threshold, label sets and ledger, with the file in place', async () => {
+    const { root } = await base();
+    const ledger = await readFile(join(root, 'ledger.json'), 'utf8');
+    await writeFile(join(root, 'rules-only.yaml'), SETS().slice(0, SETS().indexOf('  - set: harbour-voice')));
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      {
+        out: 'map.yaml',
+        pointer: true,
+        cassette: 'cassette.jsonl',
+        record: true,
+        update: true,
+        force: true,
+        labelerPassAt: '0.8',
+        labels: 'rules-only.yaml',
+        ledger: 'other.json',
+      },
+      io,
+      { env: KEYS, fetch: services },
+    );
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    // The threshold of the option, not pass_at: 0.9 of the file.
+    expect(output.out).toContain('(pass at 0.8, fail at 0.1)');
+    // The ledger of the option is written; the ledger the file names is left as it was.
+    expect(await readFile(join(root, 'ledger.json'), 'utf8')).toBe(ledger);
+    const other = JSON.parse(await readFile(join(root, 'other.json'), 'utf8')) as {
+      entries: { labels: Record<string, unknown> }[];
+    };
+    // The label sets of the option: harbour-rules alone, not the two sets of labels.yaml.
+    const sets = new Set(other.entries.flatMap((entry) => Object.keys(entry.labels)));
+    expect([...sets]).toEqual(['harbour-rules']);
+  });
+
+  it('lets a command-line option win over its key, and refuses a model in the file', async () => {
+    const { root, before } = await base();
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      {
+        out: 'map.yaml',
+        pointer: true,
+        cassette: 'cassette.jsonl',
+        labeler: ['system2:anthropic'],
+        force: true,
+      },
+      io,
+      { env: KEYS },
+    );
+    expect(code).toBe(0);
+    expect(output.out).toContain('Pointer reader: system 2 anthropic claude-haiku-5-5.');
+    expect(before.length).toBeGreaterThan(0);
+    await writeFile(join(root, 'driftbench.estate.yaml'), 'labeler: system2:anthropic:claude-haiku-5-5\n');
+    const refused = await run(
+      ['estate', 'scan', '.', '--pointer', '--cassette', 'cassette.jsonl', '--out', 'x.yaml'],
+      root,
+    );
+    expect(refused.code).toBe(2);
+    expect(refused.err).toContain(
+      'a model is set by environment variable, ANTHROPIC_LABELER_MODEL for anthropic',
+    );
   });
 });

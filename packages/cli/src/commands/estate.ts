@@ -255,7 +255,7 @@ export async function estateScanCommand(
   }
 
   const handle = options.pointer
-    ? await openPointer(options, io, deps.env ?? process.env, deps.fetch)
+    ? await openPointer(options, io, deps.env ?? process.env, deps.fetch, root)
     : undefined;
   if (options.pointer && !handle) return 2;
 

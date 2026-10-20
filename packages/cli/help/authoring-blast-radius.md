@@ -157,13 +157,13 @@ Exit codes:
 ### driftbench radius ledger
 
 ```
-driftbench radius ledger <map> --ledger <file> [--from-version <version>] [--to-version <version>] [--out <file>]
+driftbench radius ledger <map> [--ledger <file>] [--from-version <version>] [--to-version <version>] [--out <file>]
 ```
 
 | Argument or option | Meaning | Default |
 |---|---|---|
 | `<map>` (required) | the estate map of the last scan. It names the estate folder, the runtime and the ignore list, and its atoms say which atom sits on which unit (`fields.unit`, `fields.condition`) | none |
-| `--ledger <file>` (required) | the ledger of the last scan, written by `estate scan --pointer --ledger <file> --update` | none |
+| `--ledger <file>` | the ledger of the last scan, written by `estate scan --pointer --ledger <file> --update` | the `ledger:` of `driftbench.estate.yaml` in the estate folder, relative to it |
 | `--from-version <version>` | the `from` of the manifest | the first 12 characters of the map hash |
 | `--to-version <version>` | the `to` of the manifest | `working` |
 | `--out <file>` | write the manifest YAML to this file, and print the count of each edit class | print the YAML on stdout |
@@ -188,7 +188,7 @@ Exit codes:
 | Code | When |
 |---|---|
 | 0 | a manifest was written or printed. A whole-suite manifest also exits 0: read its `changes` |
-| 2 | the map is not a valid estate map, the ledger cannot be read or is not a ledger, the runtime is unknown, the estate folder is missing |
+| 2 | the map is not a valid estate map, no ledger is named, the ledger cannot be read or is not a ledger, the runtime is unknown, the estate folder is missing |
 
 ## Inputs
 
