@@ -226,7 +226,7 @@ Measured on one fictional estate with gold written by the helper (395 units, 5 l
 
 Code refuses, with a listed reason:
 
-1. An answer that is not the agreed JSON, is for another window or set, or stopped at `max_tokens` or a refusal.
+1. An answer that holds no JSON object with a `labels` list, or holds more than one, or names another window or set than the request's, or stopped at `max_tokens` or a refusal. The one object is read from the text itself, from the only code fence of the text, or from the span between its first `{` and its last `}`, so an answer that wraps the object in words is read. `window` and `set` are optional: an answer that carries neither is accepted, and one that carries either must carry the request's own.
 2. A label name not in the set, a unit number not in the window, a range that leaves the window, or a `target` on a label without `target: required` (or missing on one with it).
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.

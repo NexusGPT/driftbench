@@ -126,7 +126,7 @@ export type ReaderExports = {
   denseOpinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
   /** Optional validator seam; the adapter never implements lockfile semantics. */
   checkLedger?(previous: string | undefined, current: RLedger): { ok: boolean; error?: string };
-  parseDenseAnswer(text: string): RLabelled[];
+  parseDenseAnswer(text: string, expected?: { window?: string; set?: string }): RLabelled[];
   parseLabelSets(text: string): { ok: true; sets: RSet[] } | { ok: false; message: string };
   parseLedger(text: string): RLedger | undefined;
   renderLedger(ledger: RLedger): string;

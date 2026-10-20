@@ -180,6 +180,41 @@ describe('an answer that wraps the object in words', () => {
     expect(() => parseDenseAnswer('{"note": "no list"} and {"labels": 3}')).toThrow(LabelerError);
   });
 
+  it('refuses a text with two objects, or with two fences, so one object is the answer', () => {
+    expect(() => parseDenseAnswer(`${object} and then ${object}`)).toThrow(LabelerError);
+    const fence = `\`\`\`json\n${object}\n\`\`\``;
+    expect(() => parseDenseAnswer(`${fence}\nor else\n${fence}`)).toThrow(LabelerError);
+    expect(() => parseDenseAnswer('{"labels": [} oops')).toThrow(LabelerError);
+  });
+
+  it('refuses an answer that names another window or set, and accepts one that names none or the same', () => {
+    const expected = { window: 'notes.md#1', set: 'bakery' };
+    const echo = (extra: string) => `{${extra}"labels":[{"units":"1","label":"greeting"}]}`;
+    expect(parseDenseAnswer(echo(''), expected)).toHaveLength(1);
+    expect(parseDenseAnswer(echo('"window":"notes.md#1","set":"bakery",'), expected)).toHaveLength(1);
+    expect(() => parseDenseAnswer(echo('"window":"notes.md#2",'), expected)).toThrow(/another window/);
+    expect(() => parseDenseAnswer(echo('"set":"harbour",'), expected)).toThrow(/another set/);
+    expect(() => parseDenseAnswer(echo('"window":7,'), expected)).toThrow(/another window/);
+    // Without an expectation the echo is not looked at.
+    expect(parseDenseAnswer(echo('"window":"other",'))).toHaveLength(1);
+  });
+
+  it('makes the labeler fail on an answer echoing another window, so the window is retried and then failed', async () => {
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch({
+        model: 'm',
+        stop_reason: 'end_turn',
+        content: [
+          { type: 'text', text: '{"window":"other.md#9","labels":[{"units":"1","label":"greeting"}]}' },
+        ],
+        usage: { input_tokens: 1, output_tokens: 1 },
+      }),
+    });
+    const wire = labeler.render(BAKE, windowOf(1));
+    await expect(labeler.call?.(wire, BAKE, windowOf(1), 1)).rejects.toThrow(/another window/);
+  });
+
   it('sends a second request that says the units are data, under the key of the first', async () => {
     const calls: Call[] = [];
     const labeler = createAnthropicLabeler({

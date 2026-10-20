@@ -27,13 +27,13 @@ The gate reads this file. `driftbench validate pointer --hardness` stays red unt
 ## Provenance of the two banks
 
 - The first bank (419 items): 332 are labelled blind, 70 maintainer-repaired and 17 maintainer-added. `CATALOGUE.md` lists the label of every item, and `driftbench validate pointer --items` prints the score of each label apart. Only the blind items carry the blind record; the other 87 do not.
-- The second bank (340 items, PR 759, helper record in `packages/validators/src/ladders/pointer/blind/CONTRACT.md`) is registered as the levels `blind-1` to `blind-5`, with the label `blind-bank-759`. Its binding to the reader is `packages/validators/src/ladders/pointer/sut/blind-binding/`, derived from the exports of `packages/estate/src/pointer` and `docs/estate-pointer-reader.md`.
-- Against the real reader (seed 1, locked by `packages/validators/test/pointer/blind-binding.test.ts`): 227 items pass, 4 differ from the planted truth, 109 are unsupported. **The 109 unsupported items are gaps of the reader or the binding, not product failures**; each detail names the reason.
+- The second bank (341 items, PR 759, helper record in `packages/validators/src/ladders/pointer/blind/CONTRACT.md`) is registered as the levels `blind-1` to `blind-5`, with the label `blind-bank-759`. Its binding to the reader is `packages/validators/src/ladders/pointer/sut/blind-binding/`, derived from the exports of `packages/estate/src/pointer` and `docs/estate-pointer-reader.md`.
+- Against the real reader (seed 1, locked by `packages/validators/test/pointer/blind-binding.test.ts`): 232 items pass, 0 differ from the planted truth, 109 are unsupported. **The 109 unsupported items are gaps of the reader or the binding, not product failures**; each detail names the reason.
   - privacy (30): the reader library has no key, fetch, cache-directory or log seam.
   - links (30) and radius (30) with clearance: layer C is not built (design section 14).
   - `group:carry` (9): carry-forward lives inside the ledger step and derives its fingerprints from the text.
   - `reanchor` ambiguous (3): the reader keeps the id on the first match and lists no candidates.
   - `labels:rerecord` (3): the reader emits no `label_flip` diagnostic.
   - `replay` (4): a miss names no field when the set or the labeler differs.
-- The 4 items that differ are reader behaviour against the design, to be read by the cause reviewer: an answer needs no window or set echo and is read out of a wrapper (4 adversarial items). The fence and comment units (10 cutting and scale items) and the cut-digest miss (2 replay items) are fixed in the reader.
+- No item differs from the planted truth. The reader was changed for 12 items (a fence or comment is one unit over all its lines; a cut-digest miss names the Node and ICU versions) and for 2 more (an answer that names another window or set is refused; one that names none is accepted). Two items, `json-prefixed-with-prose` and `json-suffixed-with-prose`, are `spec-changed` (design section 3, rule 1 now reads the one JSON object out of prose or a fence) and plant an acceptance; `two-json-objects` is new and plants a refusal.
 - The cause reviewer and the cheater treat the 109 as a gap of the reader, not as reader defects.
