@@ -42,6 +42,7 @@ export {
   writeFloors,
 } from './floors';
 export { type FormatOptions, formatLadder, itemLines, showNumber } from './format';
+export { finishInvocation } from './frame';
 export {
   checkHandover,
   HANDOVER_SECTIONS,

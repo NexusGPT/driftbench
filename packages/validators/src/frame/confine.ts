@@ -301,6 +301,96 @@ const sealKey = (
 /** Forgets every sealed product of this process: a test that rewrites a product and wants the new code bundled. */
 export function forgetSealedProducts(): void {
   SEALS.clear();
+  WATCHED.clear();
+}
+
+/**
+ * The names whose presence or content decides how a bundle is resolved or built, looked for in the folder of the
+ * product and in every folder above it up to the filesystem root: package.json (Node.js and esbuild), tsconfig.json,
+ * every tsconfig.*.json and jsconfig.json (esbuild), pnpm-workspace.yaml (the project root the frame finds),
+ * .npmrc, .yarnrc and .yarnrc.yml (package manager settings), .pnp.cjs and .pnp.loader.mjs (Plug'n'Play
+ * resolution). docs/validators.md section 12.9 names the same list.
+ */
+export const RESOLUTION_CONFIG_NAMES: readonly (string | RegExp)[] = [
+  'package.json',
+  'jsconfig.json',
+  /^tsconfig(\..+)?\.json$/,
+  'pnpm-workspace.yaml',
+  '.npmrc',
+  '.yarnrc',
+  '.yarnrc.yml',
+  '.pnp.cjs',
+  '.pnp.loader.mjs',
+];
+
+/** The hash of each resolution-config file in the folder of a module and above it, to the filesystem root. */
+function configSnapshot(start: string): Map<string, string> {
+  const found = new Map<string, string>();
+  for (let dir = realOf(start); ; ) {
+    let names: string[] = [];
+    try {
+      names = readdirSync(dir);
+    } catch {
+      names = [];
+    }
+    for (const name of names) {
+      if (
+        !RESOLUTION_CONFIG_NAMES.some((each) => (typeof each === 'string' ? each === name : each.test(name)))
+      )
+        continue;
+      try {
+        found.set(
+          join(dir, name),
+          createHash('sha256')
+            .update(readFileSync(join(dir, name)))
+            .digest('hex'),
+        );
+      } catch {
+        // not a readable file: it decides nothing
+      }
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return found;
+}
+
+type Watched = {
+  tree: string;
+  mark: string;
+  watch: TreeWatch;
+  config: Map<string, string>;
+  module: string;
+};
+const WATCHED = new Map<string, Watched>();
+
+/**
+ * The end of an invocation: compares each sealed product's tree, resolution files and the resolution-config names
+ * above it with their state when the product was sealed, and marks every tree that changed (a later invocation then
+ * refuses to start on it). Nobody edits a product in the middle of a validation, so a change is a write of run C.
+ * Returns a message for the user, or undefined when nothing changed. The validator writes nothing in the tree.
+ */
+export function finishInvocation(): string | undefined {
+  const messages: string[] = [];
+  for (const each of WATCHED.values()) {
+    const changed = each.watch.diff();
+    const now = configSnapshot(dirname(each.module));
+    for (const [file, hash] of now) {
+      const was = each.config.get(file);
+      if (was === undefined) changed.push(`${file} (added)`);
+      else if (was !== hash) changed.push(`${file} (changed)`);
+    }
+    for (const file of each.config.keys()) if (!now.has(file)) changed.push(`${file} (removed)`);
+    if (changed.length === 0) continue;
+    const what = `${changed.slice(0, 4).join(', ')}${changed.length > 4 ? `, and ${changed.length - 4} more` : ''}`;
+    setMark(each.mark, `changed during the run: ${what}`);
+    messages.push(
+      `the product ${each.module} changed during this run (${what}); its tree is marked and no later run starts on it until you restore it and delete ${each.mark}`,
+    );
+  }
+  WATCHED.clear();
+  return messages.length > 0 ? messages.join('\n') : undefined;
 }
 
 /**
@@ -344,6 +434,23 @@ export function sealOnce(
       const bytes = readFileSync(built.file);
       record = { ...built, bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
       SEALS.set(key, record);
+      // The state of the tree when it was sealed: finishInvocation compares it with the state at the end of the run.
+      WATCHED.set(key, {
+        tree: record.tree,
+        mark: markPath(dirname(into), record.tree),
+        watch: new TreeWatch(
+          [
+            record.tree,
+            ...(grants.sources ?? []),
+            ...record.inputs,
+            ...(grants.reads ?? []),
+            ...record.influences.files,
+          ],
+          record.influences.packages,
+        ),
+        config: configSnapshot(dirname(module)),
+        module,
+      });
     }
   }
   writeFileSync(outfile, record.bytes);

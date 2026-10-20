@@ -13,6 +13,7 @@ import {
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
+  finishInvocation,
   floorNote,
   floorOf,
   formatAllFailing,
@@ -136,7 +137,11 @@ export async function validateCommand(
   if (options.brief)
     return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
   print(reports, component === 'all', hidden, floors, options, io);
-  if (!options.checkFloor) return Math.min(...reports.map((report) => report.level));
+  // The end of the invocation: a product tree that changed during the run was written by the unconfined run C.
+  const changedTrees = finishInvocation();
+  if (changedTrees !== undefined) io.err(`${changedTrees}\n`);
+  if (!options.checkFloor)
+    return Math.max(changedTrees === undefined ? 0 : 1, Math.min(...reports.map((report) => report.level)));
   const tops = Object.fromEntries(
     Object.entries(ladders).map(([name, ladder]) => [
       name,
@@ -148,7 +153,9 @@ export async function validateCommand(
   const below = checks.filter((check) => !check.holds);
   for (const check of below)
     io.err(`${check.component} is at level ${check.level}, below its floor ${check.floor}.\n`);
-  return below.length > 0 || (component === 'all' && problems.length > 0) ? 1 : 0;
+  return below.length > 0 || (component === 'all' && problems.length > 0) || changedTrees !== undefined
+    ? 1
+    : 0;
 }
 
 /** `validate protect --branch <name> --base <ref>`: exit 1 when an executor branch changes a protected file. */
