@@ -86,23 +86,24 @@ A pointer key with the wrong shape stops the scan with exit 2 and names the key.
 
 ## Worked example
 
-The fixture estate, copied, with a settings file. It sets no labeler, so the scan reads with the default stack of both classes. The cassette of the fixture answers every request, so nothing is sent.
+The fixture estate, copied, with a settings file. It selects the fixture's label set `settings-labels.yaml`, the shipped set without its `condition` label: this example shows the settings file, and the recorded answers of that set in `settings-cassette.jsonl` answer every request, so nothing is sent. It sets no labeler, so the scan reads with the default stack of both classes.
 
 ```sh setup
 cp -R examples/estates/fixture estate
 ```
 
 ```yaml file=estate/driftbench.estate.yaml
+labels: settings-labels.yaml
 threshold: { pass_at: 0.9, fail_at: 0.1 }
 ledger: driftbench.ledger.json
 ```
 
 ```sh
-driftbench estate scan estate --pointer --cassette estate/cassette.jsonl --update --out map.yaml
+driftbench estate scan estate --pointer --cassette estate/settings-cassette.jsonl --update --out map.yaml
 ```
 
 ```text
-Pointer settings from driftbench.estate.yaml: threshold, ledger.
+Pointer settings from driftbench.estate.yaml: labels, threshold, ledger.
   Requests: 73 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 154.
 ```
