@@ -1,6 +1,6 @@
 # Audit of the weights family of the statistics bank (docs/validators.md section 12.7), ladder version 4
 
-The family is `packages/validators/src/ladders/stats/bank/weights/`: 181 items in four families (weights-agreement 59, weights-wilson 35, weights-mixture 49, weights-coverage 38), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
+The family is `packages/validators/src/ladders/stats/bank/weights/`: 187 items in four families (weights-agreement 62, weights-wilson 35, weights-mixture 49, weights-coverage 41), all at the `analytic` level. Round 2 below audits version 4. Round 1 (version 3 era, the family at its first form) is kept at the end as history.
 
 ## Round 2: version 4 (pending)
 
@@ -47,7 +47,7 @@ The other round 1 misses are closed by 35 more items (`closureItems()` in the fa
 | B34 total coverage is covered over required | `weights.mixed-strength.total-ratio.*` |
 | B39 a level of 0 with no rows is refused, naming levels | `weights.refuse.level-zero-no-rows`, `weights.refuse.level-fractional` |
 
-Measured by the builder (not a verdict): the pilot of `exec/stats-weights-pilot` plus the base agreement code passes 180 of the 181 items on seeds 1, 2, 977 and 4242; the one it fails, `weights.mixture.unreachable-count`, is a real defect of that pilot (B28: it skips the category and returns weights [0.3, 0.3] that do not sum to 1). Each of the 15 round 1 misses above, planted one at a time in the pilot, loses at least one of the new items. The agreement mutants are in `packages/validators/test/stats/weights.test.ts`; the others were run on the pilot's files and are not committed, since the pilot is not in this tree.
+Measured by the builder (not a verdict): the pilot of `exec/stats-weights-pilot` plus the base agreement code passes 186 of the 187 items on seeds 1, 2, 977 and 4242; the one it fails, `weights.mixture.unreachable-count`, is a real defect of that pilot (B28: it skips the category and returns weights [0.3, 0.3] that do not sum to 1). Each of the 15 round 1 misses above, planted one at a time in the pilot, loses at least one of the new items. The agreement mutants are in `packages/validators/test/stats/weights.test.ts`; the others were run on the pilot's files and are not committed, since the pilot is not in this tree.
 
 Still owed from round 1: the frame fix that runs the product in a child process so a caller cannot be sniffed (the version 3 frame already runs items in child processes with a trap; the seat checks whether sniffing still works).
 
@@ -55,17 +55,26 @@ Still owed from round 1: the frame fix that runs the product in a child process 
 
 | Family | Items | Failing on the base product, seeds 1 to 20 | Cause |
 |---|---|---|---|
-| weights-agreement | 59 | 0 | (regression items: cohenKappa weights over the given category order, krippendorffAlpha with missing values) |
+| weights-agreement | 62 | 0 | (regression items: cohenKappa weights over the given category order, krippendorffAlpha with missing values) |
 | weights-wilson | 35 | 6 | wilson gives an upper bound below 1 for k = n (0.9999999999999998 for wilson(1000325, 1000325)) |
 | weights-mixture | 49 | 49 | mixtureWeights is missing from @agent-nexus/driftbench-stats |
-| weights-coverage | 38 | 38 | mixedStrengthCoverage is missing from @agent-nexus/driftbench-stats |
+| weights-coverage | 41 | 41 | mixedStrengthCoverage is missing from @agent-nexus/driftbench-stats |
 
-Three causes in 181 items. The family alone cannot meet section 12.4: 3 causes against the gate's 100 (the gate reads the whole bank).
+Three causes in 187 items. The family alone cannot meet section 12.4: 3 causes against the gate's 100 (the gate reads the whole bank).
 
 ## Doc sentences owed (docs/statistics/ belongs to its page owner)
 
 * `mixtureWeights` and `mixedStrengthCoverage`: their contracts are written at the head of the family's `index.ts`, including that a `RangeError` message starts with the function name and names the argument; a page must state them before the items can cite a page.
 * `wilson`: that the bounds at k = 0 and k = n are exactly 0 and 1, and that the lower bound next to 1 is within one unit in the last place of 1.
+
+### Round 2 findings, planted-bugs seat (FAIL, 18 of 20 caught)
+
+The seat missed two bugs, which became six items (the audit rule: a missed bug becomes an item):
+
+| Bug | Item | Shown red under the bug |
+|---|---|---|
+| C5 coverage axis check `a >= levels.length` becomes `a > levels.length` | `weights.mixed-strength.refuse.axis-equal-levels` (also `axis-negative`, `axis-fraction`) | the pilot passes all three; with C5 planted, `axis-equal-levels` fails |
+| K2b `cohenKappa` returns 0 when the expected agreement is 1 (two identical constant raters) | `weights.kappa.constant-identical.{string,number,boolean}`, each unweighted and weighted linear and quadratic | the pilot passes all three; with K2b planted, all three fail |
 
 ## Round 1 (history, ladder version 3 era)
 

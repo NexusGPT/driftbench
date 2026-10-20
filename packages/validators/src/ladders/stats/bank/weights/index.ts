@@ -986,6 +986,70 @@ function closureItems(): BankItem[] {
       ),
     );
 
+  // Two raters who give one identical label on every item agree perfectly: kappa is 1, unweighted or weighted.
+  for (const [what, labels] of [
+    ['string', ['a']],
+    ['number', [7]],
+    ['boolean', [true]],
+  ] as const)
+    out.push(
+      item(
+        `kappa.constant-identical.${what}`,
+        family,
+        2,
+        agreement,
+        CLOSURE_AGREEMENT_CAUSE,
+        ({ s, rng }) => {
+          const n = between(rng, 1, 6);
+          const a = Array.from({ length: n }, () => labels[0]);
+          for (const weights of [undefined, 'none', 'linear', 'quadratic'] as const) {
+            try {
+              const got = kappaOf(s, a, [...a], weights === undefined ? {} : { weights });
+              if (got !== 1)
+                return fail(
+                  `cohenKappa of two raters giving one identical ${what} label on ${n} items (weights ${weights ?? 'unset'}) is ${got}, not 1 (${DOC_JUDGES})`,
+                );
+            } catch (cause) {
+              return fail(`cohenKappa of two identical constant raters threw ${String(cause)}`);
+            }
+          }
+          return ok();
+        },
+      ),
+    );
+  // A group's axis must be an integer inside 0 to levels.length - 1: the bound itself, below 0 and a fraction are refused.
+  for (const [what, axes] of [
+    ['axis-equal-levels', [0, 2]],
+    ['axis-negative', [0, -1]],
+    ['axis-fraction', [0, 0.5]],
+  ] as const)
+    out.push(
+      item(
+        `mixed-strength.refuse.${what}`,
+        'weights-coverage',
+        1,
+        'packages/stats/src/coverage.ts',
+        COVERAGE_CAUSE,
+        ({ s }) => {
+          const fn = exported(s, 'mixedStrengthCoverage') as CoverageFn | undefined;
+          if (!fn) return fail(`mixedStrengthCoverage is not exported (${DOC_OWED})`);
+          const args: [number[][], Group[], number[]] = [
+            [[0, 1]],
+            [{ axes: [...axes], strength: 1 }],
+            [2, 2],
+          ];
+          try {
+            const value = fn(...args);
+            return fail(`mixedStrengthCoverage(${show(args)}) returned ${show(value)}, want a RangeError`);
+          } catch (cause) {
+            if (!(cause instanceof RangeError))
+              return fail(`mixedStrengthCoverage threw ${String(cause)}, want a RangeError (${DOC_OWED})`);
+            return messageNames(cause.message, 'mixedStrengthCoverage', 'groups');
+          }
+        },
+      ),
+    );
+
   // Mixture: the row sum tolerance is 1e-12, and categories no component reaches give no NaN.
   for (const [what, row] of [
     ['above', [0.5005, 0.5]],
