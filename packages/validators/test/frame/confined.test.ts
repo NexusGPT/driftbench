@@ -277,6 +277,63 @@ export function value() {
     expect(existsSync(copied)).toBe(true);
   });
 
+  it('does not let run C plant a nearer node_modules package in the product tree for a later frame to bundle', () => {
+    // The probe of the re-review of PR 969: the installed package sits above the product tree; run C writes a nearer
+    // copy beside the product, and the next bundle takes the nearer one.
+    const installed = join(area, 'node_modules', 'zzstampdep');
+    mkdirSync(installed, { recursive: true });
+    writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
+    const nearer = join(sources, 'node_modules', 'zzstampdep');
+    const oracle = join(oracles, 'stamp-expected.json');
+    writeFileSync(oracle, '137');
+    const module = join(sources, 'nm.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+try {
+  fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
+  fs.mkdirSync(${JSON.stringify(nearer)}, { recursive: true });
+  fs.writeFileSync(${JSON.stringify(join(nearer, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+} catch {}
+const { STAMP } = await import('zzstampdep');
+export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
+`,
+    );
+    const rows = [1, 2, 3, 4].map((seed) => {
+      let frame: Frame<{ get: () => number }> | undefined;
+      try {
+        frame = isolate({ module, seed });
+        return frame.product.get() === 137 && frame.divergence() === undefined;
+      } catch {
+        return false;
+      } finally {
+        frame?.close();
+      }
+    });
+    expect(rows).toEqual([false, false, false, false]);
+  });
+
+  it('never writes, restores or deletes anything in a tree of more than 20,000 files', () => {
+    // A guard against data loss, not a bypass: it may be green on a validator that never deleted anything.
+    const big = join(sources, 'big');
+    mkdirSync(big);
+    for (let i = 0; i < 25_000; i += 1) writeFileSync(join(big, `f${i}.txt`), `file ${i}\n`);
+    const module = join(sources, 'bigtree.mjs');
+    writeFileSync(module, 'export function value() { return 137; }\n');
+    const inventory = () => {
+      const hash = createHash('sha256');
+      const names = readdirSync(big).sort();
+      for (const name of names) {
+        hash.update(name);
+        hash.update(readFileSync(join(big, name)));
+      }
+      return `${names.length} ${hash.digest('hex')}`;
+    };
+    const before = inventory();
+    expect(run(module, 75, [big])).toMatchObject({ value: 137, error: null, divergence: null });
+    expect(inventory()).toBe(before);
+  });
+
   it('lets a correct product read data granted in reads through import.meta.url', () => {
     const data = join(sources, 'granted.json');
     writeFileSync(data, '{"expected":137}\n');
