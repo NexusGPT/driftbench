@@ -962,3 +962,108 @@ describe('the ordered pair of the shipped set', () => {
     expect(sets[0]?.links?.map((link) => link.name)).toContain('order-key');
   });
 });
+
+describe('a read before a change of the same object, with no file named (gate-same)', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  // Three paraphrases with no content word in common: the order comes from the labels, never from the words.
+  const PARAPHRASES = [
+    ['Read a file before editing it.', 'editing it', 'Edit'],
+    ['Look the sheet over ahead of any change you make to it.', 'any change you make to it', 'Edit'],
+    ['Never overwrite a document you have not opened yet.', 'overwrite a document', 'Write'],
+  ] as const;
+
+  it('builds a gate keyed on the shared input, the same way for three paraphrases', async () => {
+    for (const [line, act, tool] of PARAPHRASES) {
+      const { result } = await scan(
+        {
+          'CLAUDE.md': [
+            {
+              units: '2',
+              label: 'gate-same',
+              spans: [{ kind: 'governed-action', text: act }],
+              links: [
+                { kind: 'act-tool', to: tool },
+                { kind: 'order-key', to: 'file_path' },
+              ],
+            },
+          ],
+        },
+        { sets },
+        { 'CLAUDE.md': ['# Office', '', `- ${line}`, ''].join('\n') },
+      );
+      expect(result.pointer?.refusals, line).toEqual([]);
+      const gate = result.map.atoms.find((atom) => atom.kind === 'gate');
+      expect(gate?.fields, line).toMatchObject({ trigger: act, order: { key: 'file_path' } });
+      expect(gate?.evidence, line).toContainEqual({ type: 'ordered', before: 'Read', after: tool });
+    }
+  });
+
+  it('builds no gate when the labeler gives no order key', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'gate-same',
+            spans: [{ kind: 'governed-action', text: 'editing it' }],
+            links: [{ kind: 'act-tool', to: 'Edit' }],
+          },
+        ],
+      },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', '- Read a file before editing it.', ''].join('\n') },
+    );
+    expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
+  });
+});
+
+describe('the things a hazard orders read again that are no file (reread-other)', () => {
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const LINE = '- After a compaction, re-read this file and the open tracker note before you continue.';
+
+  it('declares the file the unit is in and each named thing apart, as the labeler pointed them', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          {
+            units: '2',
+            label: 'hazard-compaction',
+            spans: [
+              { kind: 'reread-self', text: 're-read this file' },
+              { kind: 'reread-other', text: 'the open tracker note' },
+            ],
+          },
+        ],
+      },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', LINE, ''].join('\n') },
+    );
+    expect(result.pointer?.refusals).toEqual([]);
+    const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+    expect(hazard?.evidence).toContainEqual(
+      expect.objectContaining({
+        type: 'custom',
+        name: 'hazard_recovery',
+        options: expect.objectContaining({ rereadSelf: true, unpathed: ['the open tracker note'] }),
+      }),
+    );
+  });
+
+  it('declares no unnamed target when the labeler points at none', async () => {
+    const { result } = await scan(
+      { 'CLAUDE.md': [{ units: '2', label: 'hazard-compaction' }] },
+      { sets },
+      { 'CLAUDE.md': ['# Office', '', LINE, ''].join('\n') },
+    );
+    expect(result.pointer?.refusals).toEqual([]);
+    const hazard = result.map.atoms.find((atom) => atom.kind === 'hazard');
+    const options = hazard?.evidence.find((entry) => entry.type === 'custom')?.options as Record<
+      string,
+      unknown
+    >;
+    expect(options.unpathed ?? []).toEqual([]);
+    expect(options).not.toHaveProperty('rereadSelf');
+  });
+});

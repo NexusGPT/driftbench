@@ -36,6 +36,8 @@ export const AGENT_RULES_SET = `labels:
         description: The clause of the unit that orders the reader to try the failed request again. Give it only when the unit has one.
       - name: reread-self
         description: The clause of the unit that orders the reader to read again the file the unit itself is in ("this file"), as opposed to a file it names. Give it only when the unit has one.
+      - name: reread-other
+        description: The words of a thing the unit orders the reader to read again that is neither the file the unit is in nor a file it names in a code span or a link, such as a note, a log or a ticket. One span for each such thing. Give it only when the unit has one.
     links:
       - name: act-tool
         description: The tool the reader uses for the act in the governed-action span, not the tool the read uses. Looking up a file is Read, changing a file is Edit or Write, running a command is Bash, handing work to a helper is Agent. Always one of the listed values, the one the act most likely uses, even when the unit names no tool.
@@ -91,7 +93,7 @@ ${ALSO_REFERENCE}      - name: prohibition
           fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
 ${ALSO_REFERENCE}
       - name: gate
-        description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule. Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule, unless the act it waits for changes that same file (gate-same). Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
         links: [act-tool, reply-act, reply-part, order-key]
         atom:
@@ -111,6 +113,17 @@ ${ALSO_REFERENCE}
               fields: { readWhen: $unit, from: $file }
               evidence:
                 - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+      - name: gate-same
+        description: A unit that tells the reader to read something before an act that changes that same thing, and names no file for it, such as reading a file before editing it. Give the act as the governed-action span, the tool that act uses as the act-tool link, and the input the read and the change share as the order-key link. A unit that names the file to read first is a gate.
+        spans: [governed-action]
+        links: [act-tool, order-key]
+        atom:
+          kind: gate
+          title: "Read before \${span.governed-action}"
+          situation: "\${span.governed-action}"
+          fields: { trigger: "\${span.governed-action}", order: { key: $link.order-key } }
+          evidence:
+            - { type: ordered, before: Read, after: $link.act-tool }
       - name: gate-command
         description: A unit that tells the reader to run a command first, before an act. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
@@ -157,7 +170,7 @@ ${ALSO_REFERENCE}
 ${ALSO_REFERENCE}
       - name: hazard-compaction
         description: A unit that says what the agent does when the agent's own conversation or context is compacted, summarised or truncated to fit its window, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -165,10 +178,10 @@ ${ALSO_REFERENCE}
           fields: { hazard: compaction, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: hazard-restart
         description: A unit that says what the agent does when the agent's own process, session host or runtime is restarted or rebooted, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -176,10 +189,10 @@ ${ALSO_REFERENCE}      - name: hazard-restart
           fields: { hazard: restart, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: hazard-rate-limit
         description: A unit that says what the agent does when the agent itself is rate limited, throttled or refused for sending too many requests, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -187,10 +200,10 @@ ${ALSO_REFERENCE}      - name: hazard-rate-limit
           fields: { hazard: rate_wave, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: rate_wave, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: rate_wave, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: hazard-new-session
         description: A unit that says what the agent does when the agent starts again in a new session, or resumes where an earlier session left off, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -198,10 +211,10 @@ ${ALSO_REFERENCE}      - name: hazard-new-session
           fields: { hazard: session_boundary, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: session_boundary, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: session_boundary, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: hazard-notification
         description: A unit that says what the agent does when a helper the agent started reports back to it by a notification message, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -209,10 +222,10 @@ ${ALSO_REFERENCE}      - name: hazard-notification
           fields: { hazard: notification, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: notification, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: notification, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: hazard-nudge
         description: A unit that says what the agent does when a guard sends the agent the same nudge or reminder again and again, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
-        spans: [ask-text, retry, reread-self]
+        spans: [ask-text, retry, reread-self, reread-other]
         links: [reply-act, reply-part]
         atom:
           kind: hazard
@@ -220,7 +233,7 @@ ${ALSO_REFERENCE}      - name: hazard-nudge
           fields: { hazard: nudge_storm, "ask?": { text: $span.ask-text } }
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           evidence:
-            - { type: custom, name: hazard_recovery, options: { hazard: nudge_storm, reread: $paths, "rereadSelf?": $has.reread-self, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
+            - { type: custom, name: hazard_recovery, options: { hazard: nudge_storm, reread: $paths, "rereadSelf?": $has.reread-self, "unpathed?": $spans.reread-other, "calls?": { each: $commands, item: { label: Bash, input: { command: { contains: $item } } } }, "retry?": $has.retry } }
 ${ALSO_REFERENCE}      - name: route-skill
         description: A unit that is the request itself, in the words of a user, for which the reader loads a skill, such as the request cell of a routing table. Label the unit that holds the request, never the unit that names the skill. Give the unit that names the skill as the target, and that skill as the link. Not a unit that only says what a skill can do, and not a request for which the reader loads nothing.
         target: required

@@ -26,6 +26,8 @@ const TITLE_CHARACTERS = 90;
 type Template = {
   link(kind: string, property?: string): string | undefined;
   span(kind: string): string | undefined;
+  /** The texts of every span of this kind, in order, each an exact slice of the file. */
+  spans(kind: string): string[];
   code(): string | undefined;
   named(): string | undefined;
   path(): string | undefined;
@@ -45,7 +47,7 @@ type Template = {
 
 const UNRESOLVED = Symbol('unresolved');
 const PLACEHOLDER =
-  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|commands|item|unit|file)$/;
+  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|has\.([a-z][a-z0-9-]*)|spans\.([a-z][a-z0-9-]*)|code|named|path|paths|codes|commands|item|unit|file)$/;
 
 /**
  * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
@@ -75,23 +77,25 @@ function fill(value: unknown, template: Template): unknown {
           ? template.hasSpan(match[4])
             ? true
             : undefined
-          : value === '$code'
-            ? template.code()
-            : value === '$named'
-              ? template.named()
-              : value === '$path'
-                ? template.path()
-                : value === '$paths'
-                  ? template.paths()
-                  : value === '$codes'
-                    ? template.codes()
-                    : value === '$commands'
-                      ? template.commands()
-                      : value === '$item'
-                        ? template.item
-                        : value === '$unit'
-                          ? template.unit()
-                          : template.file();
+          : match[5]
+            ? template.spans(match[5])
+            : value === '$code'
+              ? template.code()
+              : value === '$named'
+                ? template.named()
+                : value === '$path'
+                  ? template.path()
+                  : value === '$paths'
+                    ? template.paths()
+                    : value === '$codes'
+                      ? template.codes()
+                      : value === '$commands'
+                        ? template.commands()
+                        : value === '$item'
+                          ? template.item
+                          : value === '$unit'
+                            ? template.unit()
+                            : template.file();
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
@@ -250,6 +254,10 @@ export function pointerAtoms(
         const span = labelSpans.find((entry) => entry.kind === kind);
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
+      spans: (kind) =>
+        labelSpans
+          .filter((entry) => entry.kind === kind)
+          .map((entry) => text.slice(start + entry.from, start + entry.to)),
       code: () => code,
       named: () => namedPath,
       path: () => (namedPath === undefined ? undefined : builder.locate(namedPath, item.path)),
