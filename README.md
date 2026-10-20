@@ -626,6 +626,40 @@ blocks:
 
 </details>
 
+<details>
+<summary>Write a rule file and score a stored run again</summary>
+
+A project rule file extends a shipped object and changes one item. Here the Acme project turns off the rung of the value check that asks the tool (`policy/value-check:default` has seven rungs, in order). Run from a clone, on the Acme example, with no model call:
+
+```text
+# file: rules/driftbench/policy/value-check/acme.yaml
+kind: policy/value-check
+id: acme
+extends: default
+items:
+  - id: rung1_outcome # Ask the tool, same result for both values
+    enabled: false # This project does not trust the tool to settle a value
+```
+
+```text
+$ mkdir -p rules/specs rules/driftbench/policy/value-check
+$ cp examples/acme/specs/conversations/plan-upgrade.yaml rules/specs/
+$ cd rules && echo 'plugins: []' > driftbench.yaml
+$ driftbench object show policy/value-check/acme
+policy/value-check -> acme@8795e718 (extends default@cf504563)
+  rung4_exact          enabled   settles [pass, fail]                                                                                                                                                              shipped
+  rung1_outcome        disabled  resolved_fields from_tool_declaration, distractors_required true                                                                                                                  project driftbench/policy/value-check/acme.yaml:5
+project driftbench/policy/value-check/acme.yaml; extends policy/value-check:default.
+$ driftbench campaign run specs/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign full --store runs.db
+$ driftbench campaign rejudge specs/plan-upgrade.yaml --from full --campaign acme --store runs.db --use policy/value-check/acme
+Re-scored; observations from full.
+Campaign acme: 5 blocks re-scored under policy/value-check/acme; 0 agent calls, 0 judge calls.
+```
+
+The `show` output is trimmed to the header, two of the seven item rows and the last line. The re-score keeps every stored observation, scores it again under the project object, and labels the result `Re-scored; observations from full`. Acme's plan upgrade holds no value the rung decides, so no verdict changes here. A change to an object the agent sees (a persona, a run profile) is refused: `--use run-profile/fast` exits 2 and tells you to rerun the agent. See [rule files](packages/cli/help/authoring-rule-files.md) and [re-scoring](packages/cli/help/judging-campaign-rejudge.md).
+
+</details>
+
 ### Blast radius: rerun only what a change touches
 
 <a href=".github/readme/blast-light.png">
