@@ -18,7 +18,7 @@ The pilot is blind: a fresh executor, given only the stripped failing-item list,
 
 | Measure | Value | Section 12.4 | Recorded bar |
 |---|---|---|---|
-| Bank | 904 items, 22 families, tiers 1 to 5 | 300 items: holds | |
+| Bank at the version 3 pilot | 904 items, 22 families, tiers 1 to 5 | 300 items: holds | |
 | Score at iteration 0 | 0.6504 (588 of 904) | | |
 | Score after the pilot | 0.8263 (747 of 904) | at most 0.4: not met | at most 0.85: met |
 | Items fixed per iteration | 15.9 (mean over ten iterations) | | |

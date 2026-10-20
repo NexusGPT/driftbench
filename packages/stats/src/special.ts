@@ -439,13 +439,20 @@ export function binomialPmf(k: number, n: number, p: number): number {
   return Math.exp(logChoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p));
 }
 
+/** Up to this n the binomial cumulative distribution is summed term by term; above it, the incomplete beta function. */
+const BINOMIAL_SUM_LIMIT = 50;
+
 /** Binomial cumulative distribution P(X <= k). */
 export function binomialCdf(k: number, n: number, p: number): number {
   if (k < 0) return 0;
   if (k >= n) return 1;
-  if (p === 0) return 1;
-  if (p === 1) return 0;
-  // P(X <= k) = I_(1-p)(n-k, k+1), with p kept apart from 1 - p so a tiny p survives; no loop proportional to the
-  // number of trials.
-  return incompleteBetaPair(1 - p, p, n - Math.floor(k), Math.floor(k) + 1);
+  if (n > BINOMIAL_SUM_LIMIT && p > 0 && p < 1) {
+    // P(X <= k) = I_{1-p}(n - k, k + 1), with p kept apart from 1 - p so a tiny p survives: O(sqrt(n)) work, and no sum
+    // of n pmf terms each carrying a logGamma error.
+    const j = Math.floor(k);
+    return Math.min(1, incompleteBetaPair(1 - p, p, n - j, j + 1));
+  }
+  let sum = 0;
+  for (let i = 0; i <= k; i += 1) sum += binomialPmf(i, n, p);
+  return Math.min(1, sum);
 }

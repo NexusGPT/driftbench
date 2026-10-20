@@ -496,7 +496,7 @@ const MUTANTS: Mutant[] = [
   {
     name: 'binomialCdf has no point mass at p = 0',
     file: 'special.ts',
-    from: '  if (p === 0) return 1;\n',
+    from: '  if (p === 0) return k === 0 ? 1 : 0;\n',
     to: '',
     fails: ['binomialCdf.edges'],
     passes: ['binomialCdf.moderate-n', 'binomialCdf.exact-small'],
