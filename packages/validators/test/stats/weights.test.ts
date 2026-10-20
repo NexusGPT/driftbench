@@ -112,6 +112,37 @@ describe('the weights-mixture items tell the maximum-likelihood mix from a consi
   }
 });
 
+describe('the mixture items check the shape of the result (a review finding: an extra weight passed every item)', () => {
+  const wrap =
+    (shape: (weights: number[]) => number[]): Mix =>
+    (components, counts) => {
+      const r = em(components, counts);
+      return { ...r, weights: shape(r.weights) };
+    };
+  const cheats: Record<string, Mix> = {
+    'an extra weight 0.25 appended': wrap((w) => [...w, 0.25]),
+    'one weight too few': wrap((w) => w.slice(0, -1)),
+    'weights summing to 0.9': wrap((w) => w.map((x) => x * 0.9)),
+    'a weight above 1': wrap((w) => [1.5, ...w.slice(1).map(() => -0.5 / Math.max(1, w.length - 1))]),
+  };
+  for (const [name, mix] of Object.entries(cheats)) {
+    it(`${name}: loses every recover and em item`, async () => {
+      for (const seed of SEEDS) {
+        for (const prefix of ['weights.recover.', 'weights.em.']) {
+          const r = await failing(mix, seed, prefix);
+          expect(r.failed).toBe(r.of);
+        }
+      }
+    });
+  }
+  it('the correct expectation-maximisation still passes both', async () => {
+    for (const seed of SEEDS) {
+      expect((await failing(em, seed, 'weights.recover.')).failed).toBe(0);
+      expect((await failing(em, seed, 'weights.em.')).failed).toBe(0);
+    }
+  });
+});
+
 describe('the agreement closure items kill the planted agreement bugs of the audit', () => {
   // The repository's own agreement code is the good product; each mutant plants one bug of the audit's round 1.
   const good = stats as unknown as Record<string, (...args: unknown[]) => Record<string, unknown>>;

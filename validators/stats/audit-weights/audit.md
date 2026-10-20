@@ -78,6 +78,10 @@ The seat missed two bugs, which became six items (the audit rule: a missed bug b
 | C5 coverage axis check `a >= levels.length` becomes `a > levels.length` | `weights.mixed-strength.refuse.axis-equal-levels` (also `axis-negative`, `axis-fraction`) | the pilot passes all three; with C5 planted, `axis-equal-levels` fails |
 | K2b `cohenKappa` returns 0 when the expected agreement is 1 (two identical constant raters) | `weights.kappa.constant-identical.{string,number,boolean}`, each unweighted and weighted linear and quadratic | the pilot passes all three; with K2b planted, all three fail |
 
+### Review finding, mixture shape
+
+An independent review found that a product returning the right weights plus an extra weight of 0.25 (m + 1 weights summing to 1.25) passed all 49 mixture items, because the recovery and the expectation-maximisation checks compared only the expected prefix. Every mixture item now checks the shape first: exactly m weights, each a finite number in [0, 1], summing to 1 within 1e-9. `weights.test.ts` holds four shaped readers (an extra weight 0.25, one weight too few, weights summing to 0.9, a weight above 1); each loses every recover and em item on seeds 1, 2, 977 and 4242, and the correct reader passes. Red first: under the previous items the extra-weight reader passed them all, and the test failed.
+
 ### Advice from the cause reviewer, for the next round
 
 * Stratify the 30-item sample by cause. A random 30 of 94 missed the one-item Wilson k = 0 cause.
