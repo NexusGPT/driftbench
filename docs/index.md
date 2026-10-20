@@ -88,6 +88,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
 * [Block phrasing experiments](research/block-phrasing.md): four pre-registered experiments on how a customer's wording changes a block's result.
 * [Block parents experiments](research/block-parents.md): three pre-registered experiments on parent links, root counts, clustered intervals and isolation runs.
+* [Block given experiments](research/block-given.md): three pre-registered experiments on the Given of a block: tool call records, context size and a Given verifier.
 
 ## What exists today
 
