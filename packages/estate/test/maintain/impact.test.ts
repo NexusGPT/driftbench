@@ -15,7 +15,7 @@ import { estate } from '../support';
 import { atom, estateMap } from './support';
 
 /** A valid spec that covers the given atoms. */
-export function spec(id: string, atoms: string[], extra = ''): string {
+function spec(id: string, atoms: string[], extra = ''): string {
   return [
     `# The test of ${atoms.join(', ')}. Fictional.`,
     `id: ${id}`,
