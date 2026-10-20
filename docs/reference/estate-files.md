@@ -17,6 +17,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [AtomKind](#atomkind)
 * [Provenance](#provenance)
 * [EvidencePredicate](#evidencepredicate)
+* [Atom replyAct](#atom-replyact)
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
 * [EstateMap producedBy](#estatemap-producedby)
@@ -98,6 +99,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `evidence` | list of [EvidencePredicate](#evidencepredicate), at least 1 item | yes |  | What a trace shows when the atom is obeyed, as at least one typed predicate. |
 | `enforcement` | list of strings | no | `[]` | Ids of guards or tests that already check it; empty means trusted |
 | `fields` | map of string to any value | no |  | Kind-specific structure read by code: a guard event, a tool schema, a brief field list |
+| `replyAct` | [Atom replyAct](#atom-replyact) | no |  | The act of the agent reply that the atom governs, when it governs one. |
 
 ## AtomKind
 
@@ -291,6 +293,15 @@ With `type: custom`:
 | `type` | `custom` | yes |  | This form names a check that decides the evidence, run by code or judged. |
 | `name` | string, not empty | yes |  | The check name, such as ordered, max_words or grounded_values. |
 | `options` | map of string to any value | no |  | Options passed to the named check, such as a word limit. |
+
+## Atom replyAct
+
+The act of the agent reply that the atom governs, when it governs one.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string, not empty | yes |  | The act of the reply the rule governs: answer, clarify, refuse, ... |
+| `evidence` | map of string to any value | yes |  | What in the reply shows the act, typed. |
 
 ## Edge
 
