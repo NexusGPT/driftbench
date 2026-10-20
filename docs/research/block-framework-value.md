@@ -47,6 +47,6 @@ The experiments cost 3.80 USD of a 12 USD cap. The pre-registration was pushed b
 
 ## Limits
 
-* One agent, 10 blocks, one language model per role.
+* One agent (`claude-haiku-5-5`), 10 blocks, one language. Two labellers in HF5 and two judge models in HF7; one reply classifier (`gpt-6-luna`) in HF8.
 * The hand table was built with a script plus a hand check. The automatic path shares one declared input with it.
 * Two secondary analyses were added after the data. Both sit outside every verdict and are labelled secondary.
