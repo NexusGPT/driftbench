@@ -31,6 +31,12 @@ concurrency:
   group: validators-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
+# Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
+# `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
+# `ubuntu-latest`, because this repository is public and a fork's code must never run on a self-hosted machine.
+# A push to main and a dispatch carry no pull request, so they follow the variable.
+# Every setup-node step passes `check-latest: true`: a self-hosted image caches an older Node.js 24 (24.9.0) than the
+# hosted images carry, and under it the module-load tests of tools/perf exit 1.
 jobs:
   ladders-leg:
     # One leg is one validator on one seed, or one slice of levels of a long ladder. `--check-floor` caps a leg at
@@ -38,7 +44,7 @@ jobs:
     # level, as a single run does, so each slice of the generator ladder computes its own levels.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -211,6 +217,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run this leg
         shell: bash
@@ -235,7 +242,7 @@ jobs:
     needs: ladders-leg
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -264,6 +271,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/download-artifact@v4
         with:
@@ -294,7 +302,7 @@ jobs:
   ladders-handover:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
     name: every handover agrees with its journal
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
@@ -303,6 +311,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Every handover agrees with its journal
         run: pnpm driftbench validate all --check-handover
@@ -311,7 +320,7 @@ jobs:
     needs: [ladders-leg, ladders-tail, ladders-handover]
     if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,')))
     name: ladders and floors
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
@@ -320,6 +329,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/download-artifact@v4
         with:
@@ -348,7 +358,7 @@ jobs:
     # Every level of the system ladder on one seed, in three slices: levels 1 to 9, level 10 and level 11.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -409,6 +419,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run this leg
         shell: bash
@@ -430,7 +441,7 @@ jobs:
     needs: system-leg
     if: always() && (github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,')))
     name: system all 11 levels
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
@@ -439,6 +450,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/download-artifact@v4
         with:
@@ -516,7 +528,7 @@ jobs:
   protect:
     name: executor branches leave the validators alone
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -526,6 +538,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Refuse protected changes from an exec/ branch
         env:
