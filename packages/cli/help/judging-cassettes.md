@@ -27,15 +27,15 @@ A cassette records what judges answered. A recorder wraps a live judge client an
 
 ## Commands and every option
 
-No command manages cassettes on its own. These options read or write them:
+`judge cassette inspect` reads a cassette and `judge cassette rekey` moves its answers to new keys (topic judging-judge-cassette). These options read or write cassettes:
 
 | Command | Option | Meaning | Default |
 |---|---|---|---|
 | `driftbench judge run` | `--cassette <file>` | Required. Every judge of the cassette becomes a council member that replays it. | none |
 | `driftbench judge calibrate` | `--cassette <file>` | The recorded answers of every judge to calibrate. Needed unless `--claude` is given. | none |
 | `driftbench judge calibrate` | `--record <file>` | Save every live `--claude` answer, with its cost, as a new cassette. The file is written whole at the end, replacing any file there. | none |
-| `pnpm bench replay` | (none) | Reads `benchmarks/cassettes/<slice>@<version>/<model>.json`. | |
-| `pnpm bench record` | (none) | Writes those cassettes, and keeps the previous one under `benchmarks/cassettes/history/<sha256>.json`. | |
+| `driftbench bench replay` | (none) | Reads `benchmarks/cassettes/<slice>@<version>/<model>.json`. | |
+| `driftbench bench record` | (none) | Writes those cassettes, and keeps the previous one under `benchmarks/cassettes/history/<sha256>.json`. | |
 
 In code, `recordingClient(client, cassette)` records, `playerClient(cassette, judgeId)` and `cassettePlayers(cassette)` replay, and `loadCassette` and `saveCassette` read and write the file. `requestKey(request, client)` gives the full key and `dataKey(request)` its data part.
 

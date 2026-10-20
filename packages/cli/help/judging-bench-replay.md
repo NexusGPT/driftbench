@@ -1,7 +1,8 @@
 ---
 title: bench replay
 summary: Replay the committed judge benchmark recordings with no network and no key, score the shipped default judge on each slice, and with --check-floor fail when a score drops below its floor; use it to prove a judge change did not lose accuracy.
-commands: []
+commands:
+  - bench replay
 see_also:
   - judging-bench-record
   - judging-bench-floors
@@ -14,16 +15,16 @@ next:
 
 ## What it is
 
-`pnpm bench replay` is a repository script, not part of the published `driftbench` command. It reads `benchmarks/manifest.json`, loads each benchmark slice (a fixed set of fictional cases whose right answer, pass or fail, is known by construction), and feeds the raw model answers recorded in `benchmarks/cassettes/<slice>@<version>/<model>.json` through the current public judge parser. It prints how many cases the judge got right, with a Wilson interval and a bootstrap interval over construction families. It makes no model call and needs no credential.
+`driftbench bench replay` is a command of the judge benchmark of the repository. `pnpm bench replay` is the same command from the repository scripts, with the same options. It reads `benchmarks/` of a repository checkout, found from the current folder or named with `--root`, so it does not run from an installed package alone. It reads `benchmarks/manifest.json`, loads each benchmark slice (a fixed set of fictional cases whose right answer, pass or fail, is known by construction), and feeds the raw model answers recorded in `benchmarks/cassettes/<slice>@<version>/<model>.json` through the current public judge parser. It prints how many cases the judge got right, with a Wilson interval and a bootstrap interval over construction families. It makes no model call and needs no credential.
 
 A recording is refused as stale, with `re-record needed`, when the dataset hash, the prompt fingerprint, the client settings or the cassette hash no longer match what was recorded. A stale recording can never pass on its old score.
 
 ## When to use it
 
-* After any change to the judges package (prompt, parser, client settings), run `pnpm bench replay --slice all --check-floor`. CI runs exactly this on every pull request and push to main.
+* After any change to the judges package (prompt, parser, client settings), run `driftbench bench replay --slice all --check-floor`. CI runs exactly this on every pull request and push to main.
 * To read the score of one model on one slice, with `--slice` and `--model`.
 * To produce the evidence for raising a floor, with `--json` (see `judging-bench-floors`).
-* To record new answers from a live model, use `pnpm bench record` instead (paid; see `judging-bench-record`).
+* To record new answers from a live model, use `driftbench bench record` instead (paid; see `judging-bench-record`).
 * To measure judges on your own criteria and labels, use `driftbench judge calibrate`: the bench measures the shipped default judge on its own slices only.
 
 ## Commands and every option
@@ -31,7 +32,7 @@ A recording is refused as stale, with `re-record needed`, when the dataset hash,
 Run from a checkout of the driftbench repository.
 
 ```
-pnpm bench replay [--slice <name|all>] [--model <id>] [--check-floor] [--root <path>] [--store <file>] [--json]
+driftbench bench replay [--slice <name|all>] [--model <id>] [--check-floor] [--root <path>] [--store <file>] [--json]
 ```
 
 | Option | Meaning | Default |
@@ -82,7 +83,7 @@ Replay writes nothing, except that `--store` adds dataset versions to the store.
 
 ## Worked example
 
-The help test runs only `driftbench` commands, and the bench is a repository script, so the tested line here validates the criteria folder the judge prompt is built from; the bench run itself follows.
+The help test runs only `driftbench` commands, and the bench reads git and the `benchmarks/` folder of a checkout, which the scratch folder of the test does not hold, so the tested line here validates the criteria folder the judge prompt is built from; the bench run itself follows.
 
 ```sh
 driftbench judge check examples/acme/criteria
@@ -112,7 +113,7 @@ Replay the committed haiku recording of one slice and check its floor:
 Not run by the help test: the bench reads git (the commit each report records) and the repository's `benchmarks/` folder, which the help test's scratch folder does not link. From a repository checkout:
 
 ```text
-$ pnpm -s bench replay --slice fresh-reference --model haiku --check-floor
+$ driftbench bench replay --slice fresh-reference --model haiku --check-floor
 fresh-reference@1 / haiku: 189/192; Wilson [95.51, 99.47]%; family bootstrap [95.31, 100.00]%; floor HOLDS
   Paired: McNemar p=1.000000, auto margin 2.5%; difference bootstrap [0.00, 0.00]%
 Skipped gemini-3.8-flash: dropped by the owner
@@ -126,6 +127,6 @@ The shipped judge on haiku gets 189 of 192 cases right. The floor holds: the cou
 * `bench: Unknown slice nope` (exit 2). The slice is not in the manifest. Use a name from `benchmarks/manifest.json`, or `all`.
 * `bench: Unknown model nope` (exit 2). Use a model id from the manifest.
 * `bench: gemini-3.8-flash skipped: dropped by the owner` (exit 2). The model is skipped in the manifest; it has no recordings to replay.
-* `re-record needed: <slice>/<model>: cassette integrity mismatch`, `... client settings changed`, `... incomplete or non-raw default cassette` or `... evidence is stale` (exit 1). The prompt, the parser's inputs, the client settings or the dataset changed since the recording. A maintainer records again with `pnpm bench record` (paid).
-* `No floor for <slice>/<model>` with `floor FAILS` (exit 1). `--check-floor` found no floor for that slice and model. Establish one with `pnpm bench floors --raise`.
+* `re-record needed: <slice>/<model>: cassette integrity mismatch`, `... client settings changed`, `... incomplete or non-raw default cassette` or `... evidence is stale` (exit 1). The prompt, the parser's inputs, the client settings or the dataset changed since the recording. A maintainer records again with `driftbench bench record` (paid).
+* `No floor for <slice>/<model>` with `floor FAILS` (exit 1). `--check-floor` found no floor for that slice and model. Establish one with `driftbench bench floors --raise`.
 * `bench: <slice>: dataset hash changed; create a new dataset version` (exit 2). A file under the slice folder changed. Slices are immutable: add a new version instead of editing one.
