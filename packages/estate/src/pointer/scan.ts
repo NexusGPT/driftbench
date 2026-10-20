@@ -128,6 +128,8 @@ export type PointerResult = {
   refusals: string[];
   /** Spans and links of accepted answers that failed a check and were dropped: the label stood without them. */
   dropped: string[];
+  /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
+  outOfStep: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   usage: LabelerUsage[];
@@ -191,6 +193,34 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
   }
   flush();
   return windows;
+}
+
+/**
+ * A run of a window is out of step when more than a quarter of the clauses it quotes (and at least four) are not in
+ * the unit it puts them on: its unit numbers have slipped, so its labels belong to neighbouring units. Such a run is
+ * no voice in the vote of that window. On the Northwind fixture the slipped run quotes 22 clauses and misses 7; the
+ * runs in step miss 2 of 20 and 2 of 11 (clauses reworded, not misplaced).
+ */
+export const OUT_OF_STEP_SHARE = 0.25;
+export const OUT_OF_STEP_MIN = 4;
+
+/** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
+export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
+  const labels = (answer as { labels?: unknown })?.labels;
+  if (!Array.isArray(labels)) return undefined;
+  let quoted = 0;
+  let unlocated = 0;
+  for (const entry of labels) {
+    const spans = (entry as { spans?: unknown })?.spans;
+    if (!Array.isArray(spans)) continue;
+    for (const span of spans) {
+      quoted++;
+      if (typeof (span as { unlocated?: unknown })?.unlocated === 'string') unlocated++;
+    }
+  }
+  return unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE
+    ? { quoted, unlocated }
+    : undefined;
 }
 
 const RETRYABLE = (cause: unknown): boolean =>
@@ -493,6 +523,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const refusals: string[] = [];
   const dropped: string[] = [];
   const failed: string[] = [];
+  const outOfStepRuns: string[] = [];
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
   const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
@@ -513,6 +544,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failed.push(...outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
+      // Only a member with several runs votes, so only its runs can be left out.
+      const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer) : undefined;
+      if (slipped) {
+        outOfStepRuns.push(
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+        );
+        continue;
+      }
       const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
       refusals.push(...read.refusals);
       dropped.push(...(read.dropped ?? []));
@@ -526,7 +565,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   /**
    * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
-   * the runs gave: two of three. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * the runs gave: three of five by default. A run that left the unit out counts for no label. Unanimity dropped units that a
    * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
    * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
    * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
@@ -670,6 +709,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     voted,
     refusals,
     dropped,
+    outOfStep: outOfStepRuns,
     failed,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),

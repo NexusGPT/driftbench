@@ -8,6 +8,9 @@ import {
   LabelerError,
   type Labelled,
   type LabelSet,
+  OUT_OF_STEP_MIN,
+  OUT_OF_STEP_SHARE,
+  outOfStep,
   type PointerInput,
   type PointerPlan,
   pointerScan,
@@ -541,6 +544,77 @@ describe('what the cassette key holds', () => {
     await expect(
       pointerScan(input(replayOf(plantedDense(byLength)), recorded, { sets: edited, mode: 'replay' })),
     ).rejects.toThrow(/differs in: .*setHash/);
+  });
+});
+
+describe('a run out of step with the units of its window', () => {
+  const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+  const unlocated = { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' };
+  const located = { kind: 'act', from: 0, to: 3 };
+  /** Every unit gets `label`, quoting `spans`. */
+  const every = (window: Window, label: string, spans: unknown[]): Labelled[] =>
+    window.units.map((unit) => ({ units: String(unit.n), label, spans }) as Labelled);
+
+  it('counts the quoted clauses and those not in their unit, and names a run out of step only past both bounds', () => {
+    const answer = (spans: unknown[]) => ({ labels: [{ units: '1', label: 'order', spans }] });
+    // 7 of 22, as the slipped run of the Northwind fixture: out of step.
+    expect(outOfStep(answer([...Array(7).fill(unlocated), ...Array(15).fill(located)]))).toEqual({
+      quoted: 22,
+      unlocated: 7,
+    });
+    // 2 of 11 and 2 of 20, as the runs in step: in step.
+    expect(outOfStep(answer([...Array(2).fill(unlocated), ...Array(9).fill(located)]))).toBeUndefined();
+    // Exactly a quarter is not more than a quarter.
+    expect(outOfStep(answer([...Array(4).fill(unlocated), ...Array(12).fill(located)]))).toBeUndefined();
+    // Under four clauses missed is never enough, whatever the share.
+    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN - 1).fill(unlocated)))).toBeUndefined();
+    expect(outOfStep(answer(Array(OUT_OF_STEP_MIN).fill(unlocated)))).toEqual({ quoted: 4, unlocated: 4 });
+    expect(OUT_OF_STEP_SHARE).toBe(0.25);
+    expect(outOfStep({ labels: [{ units: '1', label: 'remark' }] })).toBeUndefined();
+  });
+
+  it('leaves the slipped run out of the vote, and lists it, so the runs in step decide', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // The second run says remark everywhere and quotes four clauses per unit that are in none of them.
+        return call === 2
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.outOfStep).toHaveLength(result.windows / 3);
+    expect(result.outOfStep[0]).toMatch(
+      /run 2 of planted: \d+ of \d+ quoted clauses are not in their unit; the run is left out of the vote/,
+    );
+    expect(result.unlabeled).toBe(0);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('keeps a run of a single-run labeler: it has no vote to leave', async () => {
+    const labeler = plantedDense((window) => every(window, 'order', Array(4).fill(unlocated)), [], {
+      runs: 1,
+    });
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.outOfStep).toEqual([]);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
   });
 });
 
