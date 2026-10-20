@@ -228,7 +228,7 @@ The report names the classes and clients, counts the units kept from the ledger,
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional. [What you can change in an estate](estate-settings.md) lists every setting, file and port with an example each.
 
 | Key | Read by | Holds |
 |---|---|---|
@@ -236,8 +236,12 @@ An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit r
 | `externals` | `estate scan` | folders outside the estate a path may name, such as the project the agent works on. They replace the defaults, `docs/` and `_meta/` |
 | `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+| `labels` | `estate scan --pointer` | the label sets: a file of label sets, relative to the root, or the list of sets inline. `--labels` wins |
+| `labeler` | `estate scan --pointer` | a labeler, or a list of one per class, as `<class>:<client>` (`system2:anthropic`, `system1:http:<url>`). It names no model: a model is set by environment variable. `--labeler` wins |
+| `threshold` | `estate scan --pointer` | a mapping of `labeler` (the yes or no threshold), `pass_at`, `fail_at` and `margin_cut`, each a number from 0 to 1. Each `--labeler-*` option wins over its key |
+| `ledger` | `estate scan --pointer`, `radius ledger` | the ledger of unit ids, relative to the root. `--ledger` wins; the scan still writes it only with `--update` |
 
-A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
+A key with the wrong shape is reported as a note of the scan and left out, except a key of the pointer reader: it stops the scan, since it would change the labels. No key names a model; a model is set by environment variable: `ANTHROPIC_LABELER_MODEL`, `JEV_MODEL`, `OPENAI_DECISIONS_MODEL`. A change of a setting voids only the recordings it touches: a label set's description voids that set's answers, a model voids its labeler's answers, and a threshold, a labeler left out or a moved ledger void none. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 
 ### Approving the prose atoms: `estate approve`
 
