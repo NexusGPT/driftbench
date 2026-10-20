@@ -154,7 +154,7 @@ Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-
 
 ## What makes it different
 
-Nine ideas lead. Each one changes what you learn when a test fails, and what it costs to find out.
+Ten ideas lead. Each one changes what you learn when a test fails, and what it costs to find out.
 
 ### Tests written by code
 
@@ -311,6 +311,64 @@ blocks:
       must: [CONFIRM] # Ask for confirmation
       tools:
         - { label: order.create, count: 0 } # Do not order yet
+```
+
+</details>
+
+### Rules with an id: link a prompt line to its tests
+
+<a href=".github/readme/rule-links-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/rule-links-dark.png">
+    <img alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0118, 0192, 0262, 0336, 0401 and 11 more, 16 of 934 blocks, which rerun. The other 918 blocks keep their last result." src=".github/readme/rule-links-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Edit one rule, follow its ledger id to the blocks that carry it, and keep the other results. Fictional Northwind estate, a real run.</sub></p>
+
+**Give every rule of a prompt a stable id, link each test to it, and delete the rule to see which links hold.**
+
+- **What it is.** The pointer reader cuts a prompt into units, and each unit gets a ledger id (a stable id that survives edits). A block that tests a rule carries that id in its links. `estate prove` deletes the rule from a copy of the estate: a linked block that passes before and fails after is `verified`, and one that passes both times is `refuted`. After an edit, `radius ledger` reads the changed unit by its id and names the blocks to rerun.
+- **Why no other framework does it.** Our [comparison](docs/comparison.md) covers caches of model calls (row 22) and test rows. It does not cover a test that names the prompt unit it checks by an id that outlives the edit, so a rule edit finds its tests without a model.
+- **Measured impact.** On the Northwind estate, an edit of one rule reruns 16 of 934 blocks. Deleting rule R7 flips 15 of the 16 blocks that name it, and all 15 are linked. Source: [the walkthrough](docs/rule-links.md), run in CI. On 274 prompt mutants of the Acme stand-in, selection by ledger unit with the rerun marks missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent), and on 9 of 274 (6.12 percent) without the marks. Source: [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md).
+
+<sub>One suite and one agent model carry the mutant result, so it does not say the procedure holds elsewhere. A change to a unit that holds no atom keeps the radius the whole suite and prints an advisory selection. The proof is as good as the runs behind it; the Northwind runs use a stand-in runtime. A model labeler is not exact: units it leaves unlabeled link to nothing.</sub>
+
+<details><summary>See it in YAML</summary>
+
+The walkthrough [From a rule to its tests](docs/rule-links.md) runs every command on the Northwind estate.
+`driftbench estate generate` writes the links of a block. This spec holds one block and its `rule` link, with the atom id and the ledger id of the unit. The change file is what `driftbench radius ledger` writes after an edit of that unit.
+The walkthrough runs `driftbench radius` over the generated suite with that file: 16 of 934 blocks.
+
+```yaml
+# file: rule-links.spec.yaml
+id: northwind-weekly-report
+target: { adapter: function, agent: acme-sales } # The demo agent
+blocks:
+  - id: ask
+    when: { user: Please help me with the weekly report. }
+    expect:
+      must: [report]
+metadata:
+  links: # Kept out of the spec hash
+    - block: ask
+      to:
+        kind: rule # The rule this block tests
+        rule: instruction.weekly-report.count-only-what-the-ledger-and # The atom id
+        ledger: wrl4c7wlvb # The stable id of its unit
+      relation: verifies # This block tests that rule
+      status: declared # Written by a generator, not yet proved by a deletion
+      created_by: generator
+      at_version: 13b111c35670
+```
+
+```yaml
+# file: rule-links.change.yaml
+from: 13b111c35670
+to: working
+changes:
+  - kind: prompt # The edited unit holds one atom
+    id: instruction.weekly-report.count-only-what-the-ledger-and
+    note: 'unit wrl4c7wlvb: changed'
 ```
 
 </details>
