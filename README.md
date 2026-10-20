@@ -929,7 +929,7 @@ A Given can hold the conversation before the block, tool calls included. A past 
 
 <details><summary>See it in TypeScript</summary>
 
-A block whose Given the target cannot apply is `not_run`, never a fail ([#428](https://github.com/NexusGPT/driftbench/pull/428)). A `prefix` needs an adapter that declares `seedPrefix`.
+A block whose Given the target cannot apply is `not_run`, never a fail. A `prefix` needs an adapter that declares `seedPrefix`.
 Here the same Acme spec runs on a function agent, then on a copy of it that declares it cannot start from a history.
 Save both files together and run `npx tsx not-run.ts`.
 
@@ -1120,7 +1120,7 @@ One run proves little. Every rate comes with its interval, comparisons are paire
 
 <details><summary>See it in TypeScript</summary>
 
-Honest intervals are on main ([#425](https://github.com/NexusGPT/driftbench/pull/425), [#426](https://github.com/NexusGPT/driftbench/pull/426), [#528](https://github.com/NexusGPT/driftbench/pull/528)).
+Honest intervals ship.
 Repeats of one conversation move together, so they are not independent runs.
 `wilsonEffective` gives the interval of a pooled rate over clustered runs, and `hierarchicalBetaBinomial` the suite headline. Here on six Acme goldens (one spec, one target, one mode each).
 Run `npx tsx headline.ts`.
