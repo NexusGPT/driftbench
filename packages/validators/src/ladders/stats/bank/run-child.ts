@@ -34,7 +34,7 @@ async function main(args: readonly string[]): Promise<void> {
   });
   // The bank also imports the target transitively: load it only after the trap is active.
   const { useProductClock } = await import('./scale');
-  useProductClock({ mark: () => frame.tape.length, since: (mark) => frame.cpuSince(mark) });
+  useProductClock({ mark: () => frame.position(), since: (mark) => frame.cpuSince(mark) });
   const s = frame.product;
   // The bank also imports the target transitively: load it only after the trap is active.
   const { runItem, statsBank } = await import('./index');
@@ -48,7 +48,7 @@ async function main(args: readonly string[]): Promise<void> {
     const item = items[index] as (typeof items)[number];
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
     const began = performance.now();
-    const mark = frame.tape.length;
+    const mark = frame.position();
     const ran = await runItem(item, seed, root as string, s);
     // A call whose runs answered differently makes the item fail whatever the item concluded.
     const split = frame.divergenceSince(mark);

@@ -92,8 +92,10 @@ export type IsolateOptions = {
 export type Frame<T> = {
   /** The product, as the item calls it: each call goes to both runs and answers what run A answered. */
   product: T;
-  /** Every call so far, with the answers of both runs. */
-  tape: Tape;
+  /** Every call so far, with the answers of all runs. Reading it makes the calls in run C first, if any are held. */
+  readonly tape: Tape;
+  /** The number of calls so far: a mark for `cpuSince` and `divergenceSince`; it does not run run C. */
+  position(): number;
   /** The first call whose runs answered differently, as a message, or undefined. */
   divergence(): string | undefined;
   /** The processor time the product used for the calls from the tape position `from` on, in milliseconds (run A). */
@@ -457,7 +459,11 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   ) as T;
   return {
     product,
-    tape,
+    get tape() {
+      flushPlain();
+      return tape;
+    },
+    position: () => tape.length,
     divergence: () => {
       flushPlain();
       return first;
