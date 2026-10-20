@@ -853,7 +853,7 @@ Each wrapper caches route decisions by exact question, including concurrent and 
 
 For repeated or pairwise judging, supply a caller-owned memoized solver when all verdicts should share one reference. Return its cost only when that solve runs. `samples` here counts blind solves, not verdict samples; `judgeRepeated` controls repeated judgements separately. Pairwise callers can also collect multiple blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
 
-The feature does not change `PROMPT_FINGERPRINT`. The generated reference and the separate route request use the existing request keys. See the [offline reference replay](https://github.com/achammah/driftbench/tree/main/examples/reference-replay) for historical reference3 and adaptive recordings through this API. That replay checks recorded behavior, not a fresh accuracy estimate for a different prompt or model.
+The feature does not change `PROMPT_FINGERPRINT`. The generated reference and the separate route request use the existing request keys. See the [offline reference replay](https://github.com/NexusGPT/driftbench/tree/main/examples/reference-replay) for historical reference3 and adaptive recordings through this API. That replay checks recorded behavior, not a fresh accuracy estimate for a different prompt or model.
 
 ## Repeat reducers
 
@@ -946,6 +946,6 @@ accuracy gain. These results describe the frozen fictional fixtures and recorded
 model responses, not a guarantee for other data or models.
 
 Run `pnpm exec tsx comparisons/langfuse/pointwise-fact-ledger/replay.ts` to verify
-[the report and per-case transitions](https://github.com/achammah/driftbench/blob/main/comparisons/langfuse/pointwise-fact-ledger/replay.json).
+[the report and per-case transitions](https://github.com/NexusGPT/driftbench/blob/main/comparisons/langfuse/pointwise-fact-ledger/replay.json).
 The same replay runs in the regular test suite. The legacy cassette and golden
 prompt tests also run to prove that opting out retains the previous behavior.

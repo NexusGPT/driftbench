@@ -88,13 +88,16 @@ function evaluate(expression: string, ctx: Ctx): unknown {
   const contains = (a: string, b: string) => String(a).toLowerCase().includes(String(b).toLowerCase());
   const format = (pattern: string, ...args: unknown[]) =>
     pattern.replace(/\{(\d+)\}/g, (_, index) => String(args[Number(index)]));
-  return new Function('github', 'inputs', 'startsWith', 'contains', 'format', `return (${expression});`)(
-    github,
-    inputs,
-    startsWith,
-    contains,
-    format,
-  );
+  const fromJSON = (text: string) => JSON.parse(text);
+  return new Function(
+    'github',
+    'inputs',
+    'startsWith',
+    'contains',
+    'format',
+    'fromJSON',
+    `return (${expression});`,
+  )(github, inputs, startsWith, contains, format, fromJSON);
 }
 
 function evaluateTemplate(text: unknown, ctx: Ctx): unknown {
@@ -188,6 +191,49 @@ function assertTriggers(workflow: ReturnType<typeof parse>) {
   expect(inputs.jobs.type).toBe('string');
 }
 
+/**
+ * The build job runs its tests in four shards. Shard 1 alone also runs these steps, which do not depend on the shard:
+ * a step that tests anything else never carries a condition.
+ */
+const SHARD_ONE = 'matrix.shard == 1';
+const SHARD_ONE_STEPS = [
+  'pnpm lint',
+  'pnpm typecheck',
+  'pnpm docs:reference --check',
+  'pnpm docs:links',
+  'pnpm docs:site:build',
+  'node packages/cli/dist/bin.js --version',
+];
+const SHARD_TEST_COMMAND = 'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4';
+
+/** The condition a step of a heavy job may carry: keep artifacts after a failure, or (build only) run in shard 1. */
+function stepConditionAllowed(id: string, step: { if?: string; run?: string }): boolean {
+  if (step.if === 'always()') return true;
+  return id === 'build' && step.if === SHARD_ONE && SHARD_ONE_STEPS.includes(step.run ?? '');
+}
+
+/** Four shards, each test file in exactly one: the shard list, the shard option of the test step, no skipped test. */
+function assertShards(workflow: ReturnType<typeof parse>) {
+  const job = workflow.jobs.build;
+  expect(job.strategy.matrix.shard).toEqual([1, 2, 3, 4]);
+  expect(job.name).toBe('build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/4)');
+  const steps: { if?: string; run?: string }[] = job.steps;
+  const tests = steps.filter((step) => step.run === SHARD_TEST_COMMAND);
+  expect(tests).toHaveLength(1);
+  expect(tests[0]?.if).toBeUndefined();
+  // the API gate builds the stamp the tests verify: every shard runs it
+  const gate = steps.filter((step) => step.run === 'node tools/structure/api-surface.mjs --build --check');
+  expect(gate).toHaveLength(1);
+  expect(gate[0]?.if).toBeUndefined();
+  // shard 1 runs each of the shard-independent steps once, and no step runs in a shard other than all of them or 1
+  for (const command of SHARD_ONE_STEPS) {
+    const matching = steps.filter((step) => step.run === command);
+    expect(matching, command).toHaveLength(1);
+    expect(matching[0]?.if, command).toBe(SHARD_ONE);
+  }
+  expect(steps.filter((step) => step.if === SHARD_ONE)).toHaveLength(SHARD_ONE_STEPS.length);
+}
+
 function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[]) {
   assertTriggers(workflow);
   assertNoPathFilters(workflow);
@@ -196,8 +242,8 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
   for (const id of ids) {
     expect(workflow.jobs[id].if).toBe(heavyCondition(id));
     for (const step of workflow.jobs[id].steps) {
-      // A step condition may only keep artifacts after a failure; it may never skip work.
-      if (step.if !== undefined) expect(step.if).toBe('always()');
+      // A step condition may only keep artifacts after a failure, or run a shard-independent step of build in shard 1.
+      if (step.if !== undefined) expect(stepConditionAllowed(id, step), `${id}: ${step.if}`).toBe(true);
     }
   }
 }
@@ -455,6 +501,52 @@ describe('the validators workflow', () => {
     sharedGroup.concurrency.group = 'validators-${{ github.ref }}';
     expect(() => assertConcurrency(sharedGroup)).toThrow();
   });
+  it('measures the pointer bank on a dispatch on a train branch that names it, and nowhere else', () => {
+    const job = workflow.jobs['pointer-measure'];
+    const on = (ctx: Ctx) => runs(ctx, 'pointer-measure', workflow);
+    const train = 'refs/heads/train/9a';
+    for (const jobs of [
+      'pointer-measure',
+      'pointer-measure-one',
+      'pointer-measure-full',
+      'build,pointer-measure',
+      'POINTER-MEASURE-ONE',
+    ])
+      expect(on(dispatchOn(train, jobs)), jobs).toBe(true);
+    for (const jobs of ['', 'pointer', 'pointer-measure-docs', 'xpointer-measure', 'ladders,system-full'])
+      expect(on(dispatchOn(train, jobs)), jobs).toBe(false);
+    for (const ref of [
+      'refs/heads/main',
+      'refs/heads/train-lookalike',
+      'refs/heads/feature/train/9',
+      'refs/tags/train/9',
+    ])
+      expect(on(dispatchOn(ref, 'pointer-measure,pointer-measure-full')), ref).toBe(false);
+    for (const ctx of [MAIN_PUSH, TRAIN_PR, ORDINARY_PR]) expect(on(ctx)).toBe(false);
+    // the shards: three for the trial, one for a single seed, ten for the gate measurement
+    const shards = (jobs: string) =>
+      evaluateTemplate(job.strategy.matrix.include, dispatchOn(train, jobs)) as {
+        seeds: string;
+        hidden: boolean;
+      }[];
+    expect(shards('pointer-measure').map((shard) => shard.seeds)).toEqual(['1..1', '2..2', '3..3']);
+    expect(shards('pointer-measure').filter((shard) => shard.hidden)).toHaveLength(1);
+    expect(shards('pointer-measure-one')).toEqual([{ seeds: '1..1', hidden: false }]);
+    const full = shards('pointer-measure-full');
+    expect(full).toHaveLength(10);
+    expect(full.filter((shard) => shard.hidden)).toHaveLength(1);
+    expect(full.flatMap((shard) => shard.seeds.split('..').map(Number))).toEqual(
+      Array.from({ length: 20 }, (_, index) => index + 1),
+    );
+    // the report is the one `--items --all-levels --json` prints, and a level never fails the job
+    const runsText = stepRuns('pointer-measure').join('\n');
+    expect(runsText).toContain(
+      'driftbench validate pointer --seeds "$SEEDS" $HIDDEN --items --all-levels --json',
+    );
+    expect(runsText).toContain('|| status=$?');
+    expect(job['timeout-minutes']).toBe(300);
+    for (const step of job.steps) expect(step.if).toBeUndefined();
+  });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
     expect(workflow.jobs.protect.steps[0].with['fetch-depth']).toBe(0);
@@ -469,6 +561,7 @@ describe('merge train enforcement', () => {
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
     assertWorkflowPolicy(workflow, CI_HEAVY);
     expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
+    assertShards(workflow);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
@@ -481,6 +574,34 @@ describe('merge train enforcement', () => {
     const skipped = structuredClone(workflow);
     skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
     expect(() => assertWorkflowPolicy(skipped, CI_HEAVY)).toThrow();
+  });
+  it('rejects a build that skips tests in some shard, or drops a shard', () => {
+    const skipsTests = structuredClone(workflow);
+    skipsTests.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).if =
+      SHARD_ONE;
+    expect(() => assertWorkflowPolicy(skipsTests, CI_HEAVY)).toThrow();
+    const skipsGate = structuredClone(workflow);
+    skipsGate.jobs.build.steps.find(
+      (step: { run?: string }) => step.run === 'node tools/structure/api-surface.mjs --build --check',
+    ).if = SHARD_ONE;
+    expect(() => assertWorkflowPolicy(skipsGate, CI_HEAVY)).toThrow();
+    const threeShards = structuredClone(workflow);
+    threeShards.jobs.build.strategy.matrix.shard = [1, 2, 3];
+    expect(() => assertShards(threeShards)).toThrow();
+    const wrongCount = structuredClone(workflow);
+    wrongCount.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
+      'pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/3';
+    expect(() => assertShards(wrongCount)).toThrow();
+    const noShardOption = structuredClone(workflow);
+    noShardOption.jobs.build.steps.find((step: { run?: string }) => step.run === SHARD_TEST_COMMAND).run =
+      'pnpm test --maxWorkers=2';
+    expect(() => assertShards(noShardOption)).toThrow();
+    // another step may not borrow the shard-1 condition
+    const borrowed = structuredClone(workflow);
+    borrowed.jobs.build.steps.find(
+      (step: { run?: string }) => step.run === 'pnpm install --frozen-lockfile --prefer-offline',
+    ).if = SHARD_ONE;
+    expect(() => assertWorkflowPolicy(borrowed, CI_HEAVY)).toThrow();
   });
   it('rejects a dispatch that could run a heavy job on main, or ignore the jobs list', () => {
     const anyRef = structuredClone(workflow);

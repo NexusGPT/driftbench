@@ -18,7 +18,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
-import { parentCauses } from './causes';
+import { type ParentCause, parentCauses } from './causes';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -117,7 +117,7 @@ export type BlockDetail = {
 };
 
 export type RunDetail = {
-  causes?: ReturnType<typeof parentCauses>;
+  causes?: ParentCause[];
   runId: string;
   specId: string;
   title?: string;
@@ -139,6 +139,7 @@ export type RunDetail = {
   cacheHit: boolean;
   /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
   carried?: NonNullable<RunResult['carried']>;
+  rejudged?: NonNullable<RunResult['rejudged']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
@@ -342,7 +343,14 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   return {
     runId: run.runId,
-    ...(run.blocks.some((block) => block.parent !== undefined) ? { causes: parentCauses(run) } : {}),
+    ...(run.blocks.some((block) => block.parent !== undefined)
+      ? {
+          causes: parentCauses(
+            run,
+            data.runs.filter((other) => lineKey(other) === lineKey(run)),
+          ),
+        }
+      : {}),
     specId: run.specId,
     ...optional('title', spec?.title),
     target: showTarget(run.target),
@@ -360,6 +368,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     cost: run.cost,
     cacheHit: run.cacheHit,
     ...optional('carried', run.carried),
+    ...optional('rejudged', run.rejudged),
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', measuredRecovery(run)),

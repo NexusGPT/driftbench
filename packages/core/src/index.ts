@@ -65,6 +65,23 @@ export {
   validateInventory,
 } from './coverage';
 export {
+  type CampaignDiagnosis,
+  type DiagnosticBudget,
+  type DiagnosticScope,
+  type DiagnosticStep,
+  type DiagnosticStepContext,
+  diagnosticStep,
+  registerDiagnosticStep,
+  runCampaignDiagnostics,
+  runDiagnostics,
+  runRunDiagnostics,
+  StepCost,
+  type StepOutput,
+  scopeOf,
+  triggers,
+} from './diagnostics';
+export * as evidence from './evidence';
+export {
   type ImportError,
   type ImportedSpec,
   type ImportResult,
@@ -74,6 +91,55 @@ export {
   type TableInput,
   type TableMapping,
 } from './import/table';
+export {
+  applyItemOperations,
+  applyScoringPlan,
+  BUILTIN_KINDS,
+  type CliOverrides,
+  checkImpl,
+  checkSpecObjects,
+  clearObjectContexts,
+  cliPatch,
+  type ExplainRow,
+  explainObject,
+  explainRows,
+  type ImplDef,
+  type ItemOperations,
+  initializeShippedObjects,
+  itemApplies,
+  itemOf,
+  type KindDef,
+  type LayerUses,
+  mergeFields,
+  NoParams,
+  type ObjectContext,
+  ObjectError,
+  type ObjectErrorCode,
+  ObjectRegistry,
+  type ObjectSource,
+  ObjectStore,
+  objectContextFor,
+  objectRegistry,
+  PROJECT_OBJECTS_DIR,
+  parseCliOverrides,
+  parseObjectText,
+  type RegistrySnapshot,
+  type ResolvedItem,
+  type ResolvedObject,
+  RUNNER_ITEMS,
+  resolveBlockObjects,
+  resolvedRecord,
+  type ScopeEvidence,
+  type ScoringPlan,
+  SUITE_OBJECTS_DIR,
+  scoringPlan,
+  shippedObjectContext,
+  specUsesObjects,
+  stamp,
+  USES_FILE,
+  type UsedObject,
+} from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -131,6 +197,7 @@ export {
   planBlockRerun,
   planRadiusCampaign,
   prepareRejudge,
+  prepareRescore,
   promptChangeManifest,
   type RadiusBlock,
   type RadiusCell,
@@ -145,10 +212,13 @@ export {
   type ReanchorMethod,
   type RegistryResult,
   type RejudgeOptions,
+  type RescoreOptions,
   radiusOf,
   reanchorRegistry,
+  refuseAgentFacing,
   registriesByPrompt,
   rejudgeRun,
+  rescoreRun,
   SECTION_KINDS,
   SECTION_NORMALISATION,
   SECTION_SELECTION_ADVISORY,
@@ -211,6 +281,7 @@ export {
   type CompoundingIndex,
   type CompoundingLine,
   type CostLine,
+  cacheSpecHash,
   canonicalGiven,
   canonicalPreviousStage,
   canonicalReply,
@@ -232,8 +303,10 @@ export {
   type EndStateMatch,
   endStateCacheKey,
   enterBlock,
+  eventLogSink,
   flowVerdicts,
   type GivenLayers,
+  heldRun,
   type IntervalEstimate,
   type IntervalFn,
   initialGiven,
@@ -264,6 +337,7 @@ export {
   type RunningGiven,
   type RunOptions,
   type RunOutcome,
+  readEventLog,
   readStage,
   recoveryOf,
   replacesBlock,
@@ -292,6 +366,8 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { rescoreCarriedRun } from './runner/carried-scoring';
+export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
@@ -322,14 +398,32 @@ export {
   LinkTarget,
 } from './schema/links';
 export {
+  AppliesTo,
+  Envelope,
+  ImplRef,
+  Item,
+  ItemFile,
+  ItemId,
+  ItemPatch,
+  LAYERS,
+  Layer,
+  ObjectId,
+  ObjectKind,
+  ObjectRef,
+  USES_KINDS,
+  Uses,
+} from './schema/object';
+export {
   ArtifactRef,
   Blocked,
   BlockResult,
   BlockStatus,
+  By,
   Campaign,
   CampaignRadius,
   CarriedFrom,
   Cost,
+  Diagnosis,
   ExecutionRecord,
   HistoryNormalization,
   JudgeConfig,
@@ -339,6 +433,7 @@ export {
   Recovery,
   RegistrySource,
   ResolvedGiven,
+  ResolvedObjects,
   RetryEvent,
   RunEvent,
   RunMode,
@@ -357,6 +452,7 @@ export {
   Block,
   BlockSpec,
   CardExpect,
+  CompareMode,
   CriterionDef,
   EndState,
   EndStateSpec,
@@ -390,7 +486,7 @@ export {
 export * as script from './script';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
-export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
+export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity, specIdentityHash } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
 export { givenIssues, lintSpec } from './spec/lint';
 export {
@@ -401,11 +497,20 @@ export {
   loadSpecFile,
   loadSpecs,
   parseSpecText,
+  type SpecLoadOptions,
   type SpecValidationResult,
   validateSpec,
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export {
+  resolveSpecParents,
+  type SpecParentRecord,
+  type SpecParentRef,
+  specParentRecord,
+  specParentRef,
+  stemOf,
+} from './spec/spec-parents';
 export {
   type GivenFinding,
   type VerifyGivenOptions,
