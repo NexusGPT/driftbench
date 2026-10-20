@@ -65,3 +65,28 @@ metadata:
     ask: code
     askFrom: instruction.standing.read-the-memory-index-at-the (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.read-the-memory-index-at-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0180
+        values:
+          ask_class: operate
+          ask_shape: multi_part
+          session_state: after_compaction
+          owner_signal: limit_word
+          deviation: D11_pii_leak
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.standing.read-the-memory-index-at-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

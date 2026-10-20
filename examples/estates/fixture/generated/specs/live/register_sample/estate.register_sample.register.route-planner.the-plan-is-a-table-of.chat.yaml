@@ -62,3 +62,31 @@ metadata:
     ask: code
     askFrom: subagent.route-planner.helper-route-planner (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.route-planner.the-plan-is-a-table-of
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.route-planner.helper-route-planner
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: register_sample.register.route-planner.the-plan-is-a-table-of.chat
+        values:
+          ask_class: chat
+          atoms.register: register.route-planner.the-plan-is-a-table-of
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

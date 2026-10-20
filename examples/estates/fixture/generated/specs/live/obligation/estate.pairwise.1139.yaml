@@ -100,3 +100,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.ledger-auditor.look-for-double-payments-and-unapplied
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.look-for-double-payments-and-unapplied
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.1139
+        values:
+          ask_class: research
+          ask_shape: concrete
+          session_state: long
+          owner_signal: language_switch
+          deviation: D11_pii_leak
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.ledger-auditor.look-for-double-payments-and-unapplied
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -107,12 +107,19 @@ jobs:
         run: pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests
 
   train-gate:
-    name: train gate
+    # The check named `train gate` is the merge-train requirement, and it must never pass on a head that is not a
+    # train. On an ordinary pull request this job is therefore named differently and passes, and the check named
+    # `train gate` is a commit status held pending ("waits for the merge train"): yellow, never red, never green.
+    name: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && 'train gate (ordinary PR)' || 'train gate' }}
     if: always()
+    permissions:
+      contents: read
+      statuses: write
     needs: [bench, research-replay, prepare, checks, build, python, comparison-replay, viewer-journey, guard, timing]
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
+        if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/')
         env:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.head_ref }}
@@ -159,6 +166,17 @@ jobs:
             echo "::error::A heavy job failed or was cancelled ($RESULTS)"
             exit 1
           fi
+      - name: Hold the train gate pending on an ordinary pull request
+        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          # A pending status is yellow and a required check cannot pass on it. A fork PR has a read-only token, so
+          # the post may fail there; the check is then missing, which a required check also treats as not passed.
+          gh api "repos/$REPO/statuses/$HEAD_SHA" -f state=pending -f context='train gate' -f description='waits for the merge train' || echo '::warning::Could not post the pending train gate status'
 
   bench:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',bench,'))

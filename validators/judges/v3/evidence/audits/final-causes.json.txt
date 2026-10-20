@@ -1,0 +1,210 @@
+{
+  "frozen_pre_tag": {
+    "review": "Final round 10 remaining-cause review, separate from any baseline diagnostic",
+    "reviewer": "Inherited Codex agent; substitutes for prescribed Sonnet reviewer. No Sonnet provenance is claimed.",
+    "allowed_sources": [
+      "/tmp/astra-judges-causal-blind/BASE.md",
+      "/tmp/astra-judges-causal-blind/ADVANCED.md",
+      "/tmp/astra-judges-causal-blind/results/round-10.feedback.json"
+    ],
+    "source_correction": "Both public contracts make none an implicit valid nominal class. The earlier alleged conflict was a reading error, withdrawn before review.",
+    "feedback_sha256": "ae2efce7c995f976299e512c192f34fd7e2b3799836dc3b0e865fc12ab4f593a",
+    "population": {
+      "bank_size": 334,
+      "passing": 327,
+      "remaining_failures": 7,
+      "reviewed_failures": 7,
+      "selection": "All remaining failures, no sampling or invented failures"
+    },
+    "items": [
+      {
+        "id": "labeller/advanced/exact-fixed-margin-perfect",
+        "tier": 4,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=64/64; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "exact-enumeration",
+        "concrete_fix": "Implement exactLabellerKappaTest: enumerate distinct permutations of the predicted multiset with fixed marginals; compute kappa and extreme/permutations under the default absolute-kappa two-sided tail.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/sample-plan-delta-margin",
+        "tier": 4,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=64/64; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "sample-planner",
+        "concrete_fix": "Implement planLabellerKappaSample: derive po, pe, cell gradients and multinomial delta variance V from the supplied joint matrix, then return max(2, ceil(z*z*V/(margin*margin))) with the declared precision metadata.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+        "tier": 4,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=64/64; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "sample-planner",
+        "concrete_fix": "Implement planner validation before calculation: require a square finite nonnegative matrix of at least two categories, total probability within 1e-10 of one without renormalizing, valid margin/confidence, pe != 1, V > 1e-15, and a safe finite sample size.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/exact-degenerate-and-size-bound",
+        "tier": 5,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=72/72; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "exact-enumeration",
+        "concrete_fix": "Implement exact-test domain checks for 1..9 observations, a named size-limit error beyond nine, and finite degenerate handling that returns pValue=1 for all-equal or all-abstain predictions.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+        "tier": 5,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=72/72; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "exact-enumeration",
+        "concrete_fix": "Implement greater, less and two-sided tails using inclusive integer-count comparisons under fixed marginals; compare absolute kappa for two-sided tails and include ties.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/exact-missing-and-invalid-multisets",
+        "tier": 5,
+        "family": "abstain",
+        "observed_evidence": "raw=0.9863013698630136; kappa=0.9836065573770492; correct=72/73; abstentions=1; invalid=0; coverage=0.9863013698630136; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "exact-enumeration",
+        "concrete_fix": "Implement exact-test encoding that retains null and invalid predictions as distinct noncolliding prediction-only categories, then enumerate their multiset together with valid labels without dropping observations.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      },
+      {
+        "id": "labeller/advanced/sample-plan-prevalence-and-confidence",
+        "tier": 5,
+        "family": "agreement",
+        "observed_evidence": "raw=1; kappa=1; correct=72/72; abstentions=0; invalid=0; coverage=1; advanced=labeller analysis not implemented",
+        "observed_diagnosis": "The advanced call reports that analysis is not implemented; the feedback does not expose a numerical result or a more specific failing branch.",
+        "repair_group": "sample-planner",
+        "concrete_fix": "Implement sample planning from the actual joint distribution and requested confidence: recompute prevalence-sensitive delta variance and a finite normal critical value for representable confidence values, rather than using a fixed variance or critical value.",
+        "diagnostic_limit": "The item name and public contract identify the required behavior; they do not prove a specific algorithmic defect behind the unimplemented response.",
+        "post_tag_match": null
+      }
+    ],
+    "grouped_repairs": [
+      {
+        "id": "exact-enumeration",
+        "items": 4,
+        "cause": "Unavailable exact fixed-margin permutation test capability",
+        "basis": "Inferred repair boundary from the contract and four item names; all expose the same unimplemented response.",
+        "distinct_algorithmic_causes_confirmed": false
+      },
+      {
+        "id": "sample-planner",
+        "items": 3,
+        "cause": "Unavailable delta-method sample planner capability",
+        "basis": "Inferred repair boundary from the contract and three item names; all expose the same unimplemented response.",
+        "distinct_algorithmic_causes_confirmed": false
+      }
+    ],
+    "counts": {
+      "observed_shared_failure_signatures": 1,
+      "proposed_capability_repair_groups": 2,
+      "distinct_implementation_root_causes": "Undetermined from the permitted feedback; do not equate seven items or two API boundaries with independently confirmed causes."
+    },
+    "section12": {
+      "required_failing_items": 30,
+      "required_agreement": 0.8,
+      "required_distinct_remaining_causes": 100,
+      "population_requirement": "fail: only seven failures remain; every one is reviewed",
+      "agreement": "pending tag reveal; exact/partial/prerequisite/unsupported comparisons must remain separate",
+      "distinct_causes_requirement": "fail: this evidence does not establish 100 distinct remaining causes",
+      "overall": "fail"
+    },
+    "freeze": "Diagnoses and repairs frozen before tag reveal; no implementation, bank, fixture sources, repository tests, builder tags, prior pilot/handover or other review reports read."
+  },
+  "frozen_pre_tag_sha256": "112b30ba42375999004881f7332f49163913d6175c44771edb0247fee76b96c2",
+  "tag_comparison": {
+    "tag_file": "/tmp/astra-judges-final-cause-tags.json",
+    "tag_file_sha256": "7199f4cc17a45fa22734bb431d27f965a9f1eb87471350ed1f567a1aa867232d",
+    "frozen_payload_hash_reverified": true,
+    "items": [
+      {
+        "id": "labeller/advanced/exact-fixed-margin-perfect",
+        "author_tag": "enumerate distinct fixed-margin permutations exactly",
+        "repair_match": "exact",
+        "reason": "The frozen fix explicitly enumerates distinct predicted-multiset permutations under fixed marginals, matching the entire author tag.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/sample-plan-delta-margin",
+        "author_tag": "plan kappa precision from the specified joint distribution",
+        "repair_match": "exact",
+        "reason": "The frozen fix derives kappa delta variance from the specified joint distribution and computes the requested precision sample size.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+        "author_tag": "reject invalid or degenerate kappa precision designs",
+        "repair_match": "exact",
+        "reason": "The frozen fix explicitly rejects invalid matrix inputs, degenerate pe/V, invalid options and unsafe sample sizes.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/exact-degenerate-and-size-bound",
+        "author_tag": "bound exact enumeration and handle constant observations without fabricated evidence",
+        "repair_match": "exact",
+        "reason": "The frozen fix names the enumeration bound, named over-limit error and constant/all-abstain pValue=1 convention.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+        "author_tag": "include tied permutations in the specified kappa tail",
+        "repair_match": "exact",
+        "reason": "The frozen fix explicitly includes ties under the requested greater/less/absolute-two-sided tail, using integer comparisons.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/exact-missing-and-invalid-multisets",
+        "author_tag": "retain distinct missing prediction classes in exact permutations",
+        "repair_match": "exact",
+        "reason": "The frozen fix explicitly retains null and invalid as distinct prediction-only categories throughout multiset enumeration.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      },
+      {
+        "id": "labeller/advanced/sample-plan-prevalence-and-confidence",
+        "author_tag": "account for prevalence and confidence when planning kappa precision",
+        "repair_match": "exact",
+        "reason": "The frozen fix explicitly uses prevalence-sensitive variance from the actual joint and the requested confidence critical value.",
+        "causal_validation": "unidentified: observed feedback only exposes an unimplemented operation; behavioral repair agreement does not validate a separate underlying cause"
+      }
+    ],
+    "counts": {
+      "reviewed_items": 7,
+      "author_tags": 7,
+      "distinct_author_tag_strings": 7,
+      "exact": 7,
+      "partial": 0,
+      "prerequisite": 0,
+      "unsupported": 0,
+      "inferred_repair_groups": 2,
+      "independently_confirmed_implementation_causes": "undetermined"
+    },
+    "strict_repair_tag_agreement": {
+      "numerator": 7,
+      "denominator": 7,
+      "value": 1.0,
+      "credit_rule": "Only exact concrete-fix matches receive credit; partial, prerequisite and unsupported receive zero."
+    },
+    "interpretation": "All seven pre-tag concrete fixes match the seven behavioral author tags. This is repair-prescription agreement, not independent causal validation. Item names and the public contract already expose the required behavior. The shared unimplemented response does not prove seven distinct actual causes, or that either inferred API boundary is an independent root cause.",
+    "canonical_row": {
+      "row": "cause review",
+      "status": "fail",
+      "note": "7/7 final failures reviewed; exact 7, partial 0, prerequisite 0, unsupported 0; strict repair-tag agreement 1.0; two inferred repair groups versus seven distinct author tag strings. Population is below 30; 100 distinct actual remaining causes are not established. Independent causal agreement remains unmeasured."
+    }
+  }
+}

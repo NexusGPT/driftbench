@@ -97,3 +97,28 @@ metadata:
     phrase: 2
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0692
+        values:
+          ask_class: build
+          ask_shape: ambiguous
+          session_state: after_restart
+          owner_signal: stop
+          deviation: D1_off_topic
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -1,0 +1,317 @@
+import { createHash } from 'node:crypto';
+/** One nominal class. Names are compared exactly; descriptions participate in replay identity. */
+export interface LabelDefinition {
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface LabelSet {
+  readonly name: string;
+  readonly labels: readonly LabelDefinition[];
+}
+
+export interface LabellerRequest {
+  readonly text: string;
+  readonly labelSet: LabelSet;
+  readonly context?: string;
+}
+
+/** `none` is a valid class; only null abstains. Other strings can be recorded but score invalid. */
+export type LabellerAnswer = string | null;
+
+export interface Labeller {
+  readonly id: string;
+  label(request: LabellerRequest): Promise<LabellerAnswer> | LabellerAnswer;
+}
+
+export interface LabellerScore {
+  readonly total: number;
+  readonly correct: number;
+  readonly agreement: number;
+  readonly kappa: number;
+  readonly abstentions: number;
+  readonly invalid: number;
+  /** Valid class answers / all observations, including the implicit `none` class. */
+  readonly coverage: number;
+}
+
+export interface LabellerReplayEntry {
+  readonly request: LabellerRequest;
+  readonly labellerId: string;
+  readonly answer: LabellerAnswer;
+}
+
+/** Advanced labeller agreement analysis. Statistical methods and limitations are documented per API. */
+interface Interval { estimate: number; lower: number; upper: number }
+interface KappaResult { kappa: number; observed: number; expected: number; n: number }
+
+export interface LabellerKappaInterval {
+  estimate: number; lower: number | null; upper: number | null;
+  standardError: number | null; varianceFactor: number | null;
+  confidence: number; total: number; status: 'estimated' | 'degenerate';
+  method: 'multinomial-delta';
+}
+export interface LabellerAlphaResult {
+  alpha: number | null; observed: number | null; expected: number | null;
+  pairable: number; units: number; raters: number; missing: number;
+  unpairableUnits: number; status: 'estimated' | 'insufficient';
+}
+export type LabellerPredictionColumn = { kind: 'label'; label: string } | { kind: 'abstain' } | { kind: 'invalid' };
+export interface LabellerClassMetrics {
+  label: string; support: number; predicted: number; tp: number; fp: number; fn: number;
+  precision: number | null; recall: number | null; f1: number | null;
+}
+export interface LabellerConfusion {
+  score: LabellerScore; labels: readonly string[];
+  predictionColumns: readonly LabellerPredictionColumn[];
+  confusion: readonly (readonly number[])[]; byLabel: readonly LabellerClassMetrics[];
+}
+export interface ScoredLabellerObservation { gold: string; answer: LabellerAnswer; confidence: number }
+export interface LabellerCoveragePoint {
+  threshold: number; total: number; accepted: number; correct: number;
+  coverage: number; acceptedAccuracy: number | null; acceptedAccuracyInterval: Interval | null;
+  abstentions: number; invalid: number; belowThreshold: number;
+}
+export interface LabellerThresholdOptions { thresholds: readonly number[]; minAccuracy: number; minCoverage?: number; confidence?: number }
+export interface LabellerLabelMapping { source: string; target: string }
+export interface LabellerMappingOptions {
+  goldSet: LabelSet; answerSet: LabelSet; targetSet: LabelSet;
+  goldMap: readonly LabellerLabelMapping[]; answerMap: readonly LabellerLabelMapping[];
+}
+export interface LabellerSamplePlan {
+  sampleSize: number; kappa: number; varianceFactor: number; confidence: number; margin: number;
+  method: 'multinomial-delta'; assumption: 'iid-fixed-joint';
+}
+export interface LabellerExactTest {
+  kappa: number; pValue: number; permutations: number; extreme: number;
+  alternative: 'greater' | 'less' | 'two-sided'; method: 'exact-fixed-margin-permutation';
+}
+
+function ensure(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new Error(message);
+}
+function nonblank(x: unknown): x is string { return typeof x === 'string' && x.trim().length > 0; }
+function vocabulary(set: LabelSet): string[] {
+  ensure(set && nonblank(set.name) && Array.isArray(set.labels) && set.labels.length > 0, 'Invalid label set');
+  const names: string[] = [];
+  for (const label of set.labels) {
+    ensure(label && nonblank(label.name) && nonblank(label.description), 'Invalid label definition');
+    ensure(!names.includes(label.name), 'Duplicate label name'); names.push(label.name);
+  }
+  if (!names.includes('none')) names.push('none');
+  return names;
+}
+function probability(x: unknown, open = false): asserts x is number {
+  ensure(typeof x === 'number' && Number.isFinite(x) && (open ? x > 0 && x < 1 : x >= 0 && x <= 1), 'Invalid probability');
+}
+function digest(value: unknown): string { return createHash('sha256').update(JSON.stringify(value)).digest('hex'); }
+export function labelSetHash(set: LabelSet): string {
+  vocabulary(set);
+  return digest({ name: set.name, labels: set.labels.map(x=>({name:x.name,description:x.description})) });
+}
+export function labellerRequestKey(request: LabellerRequest, labellerId: string): string {
+  ensure(request && typeof request.text === 'string' && (request.context === undefined || typeof request.context === 'string'), 'Invalid request');
+  ensure(nonblank(labellerId), 'Invalid labeller ID');
+  return digest({labelSetHash:labelSetHash(request.labelSet),text:request.text,context:request.context,labellerId});
+}
+export function createLabellerReplay(entries: readonly LabellerReplayEntry[], id: string): Labeller {
+  ensure(nonblank(id) && Array.isArray(entries), 'Invalid replay');
+  const answers = new Map<string,LabellerAnswer>();
+  for (const e of entries) {
+    const key=labellerRequestKey(e.request,e.labellerId);
+    ensure(!answers.has(key) || answers.get(key) === e.answer, 'Conflicting replay answers');
+    answers.set(key,e.answer);
+  }
+  return {id,label(request) { const key=labellerRequestKey(request,id); ensure(answers.has(key),'Replay miss'); return answers.get(key)!; }};
+}
+function data(gold: readonly string[], answers: readonly LabellerAnswer[], set: LabelSet) {
+  const labels=vocabulary(set), size=labels.length;
+  ensure(Array.isArray(gold) && Array.isArray(answers) && gold.length>0 && gold.length===answers.length,'Empty or unequal observations');
+  const gi:number[]=[], ai:number[]=[];
+  const matrix=Array.from({length:size+2},()=>Array(size+2).fill(0));
+  for (let i=0;i<gold.length;i++) {
+    const g=typeof gold[i]==='string'?labels.indexOf(gold[i]):-1;
+    ensure(g>=0,'Unknown gold label');
+    const a=answers[i]===null?size:typeof answers[i]==='string'&&labels.includes(answers[i] as string)?labels.indexOf(answers[i] as string):size+1;
+    gi.push(g);ai.push(a);matrix[g][a]++;
+  }
+  return {labels,size,gi,ai,matrix,n:gold.length};
+}
+function scoreData(d:ReturnType<typeof data>):LabellerScore {
+  const {n,size,matrix}=d;
+  const rows=matrix.map(r=>r.reduce((a,b)=>a+b,0));
+  const cols=matrix.map((_,j)=>matrix.reduce((a,r)=>a+r[j],0));
+  const correct=matrix.reduce((a,r,i)=>a+r[i],0), agreement=correct/n;
+  const expected=rows.reduce((a,r,i)=>a+r*cols[i],0)/(n*n);
+  const abstentions=cols[size],invalid=cols[size+1];
+  return {total:n,correct,agreement,kappa:expected===1?1:(agreement-expected)/(1-expected),abstentions,invalid,coverage:(n-abstentions-invalid)/n};
+}
+export function scoreLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet):LabellerScore {
+  return scoreData(data(gold,answers,labelSet));
+}
+function jointStats(p: readonly (readonly number[])[]) {
+  const row=p.map(r=>r.reduce((s,v)=>s+v,0));
+  const col=p.map((_,j)=>p.reduce((s,r)=>s+r[j],0));
+  const po=p.reduce((s,r,i)=>s+r[i],0),pe=row.reduce((s,r,i)=>s+r*col[i],0);
+  const kappa=pe===1?1:(po-pe)/(1-pe);
+  let mean=0,sq=0;
+  for(let i=0;i<p.length;i++) for(let j=0;j<p.length;j++) if(p[i][j]>0) {
+    const g=(i===j?1:0)/(1-pe)+(po-1)*(col[i]+row[j])/((1-pe)**2);
+    mean+=p[i][j]*g;sq+=p[i][j]*g*g;
+  }
+  return {po,pe,kappa,variance:Math.max(0,sq-mean*mean)};
+}
+// Rational inverse-normal approximation, using the central displacement or a lower tail
+// directly so no addition to 1/2 destroys very small confidence levels.
+function critical(c:number):number {
+  probability(c,true);
+  const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239];
+  const b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+  if(c<=.9515) {
+    const q=c/2,r=q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+  const t=Math.sqrt(-2*Math.log((1-c)/2));
+  const cn=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];
+  const dn=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];
+  return -(((((cn[0]*t+cn[1])*t+cn[2])*t+cn[3])*t+cn[4])*t+cn[5])/((((dn[0]*t+dn[1])*t+dn[2])*t+dn[3])*t+1);
+}
+export function labellerKappaInterval(gold: readonly string[],answers: readonly LabellerAnswer[],set:LabelSet,confidence=.95):LabellerKappaInterval {
+  probability(confidence,true);
+  const d=data(gold,answers,set), score=scoreData(d), j=jointStats(d.matrix.map(r=>r.map(v=>v/d.n)));
+  const degenerate=d.n<2 || j.pe===1 || j.variance<=1e-15;
+  const se=degenerate?null:Math.sqrt(j.variance/d.n);
+  const width=se===null?null:critical(confidence)*se;
+  return {estimate:score.kappa,lower:width===null?null:Math.max(-1,score.kappa-width),upper:width===null?null:Math.min(1,score.kappa+width),standardError:se,varianceFactor:degenerate?null:j.variance,confidence,total:d.n,status:degenerate?'degenerate':'estimated',method:'multinomial-delta'};
+}
+function explicit(gold:readonly string[],answers:readonly LabellerAnswer[],labels:readonly string[],minimum:number,exact?:number) {
+  ensure(Array.isArray(labels) && labels.length>=minimum && (exact===undefined || labels.length===exact),'Invalid category count');
+  const unique=new Set<string>();
+  for(const s of labels) {ensure(nonblank(s) && !unique.has(s),'Invalid category');unique.add(s);}
+  ensure(Array.isArray(gold) && Array.isArray(answers) && gold.length>0 && gold.length===answers.length,'Empty or unequal observations');
+  for(let i=0;i<gold.length;i++) ensure(typeof gold[i]==='string'&&unique.has(gold[i])&&typeof answers[i]==='string'&&unique.has(answers[i] as string),'Invalid explicit-domain observation');
+}
+export function binaryLabellerPabak(gold:readonly string[],answers:readonly LabellerAnswer[],categories:readonly[string,string]) {
+  explicit(gold,answers,categories,2,2);
+  const agreement=gold.reduce((s,g,i)=>s+Number(g===answers[i]),0)/gold.length;
+  return {total:gold.length,agreement,pabak:2*agreement-1};
+}
+export function weightedLabellerKappa(gold:readonly string[],answers:readonly LabellerAnswer[],orderedLabels:readonly string[],weights:'linear'|'quadratic'='linear'):KappaResult {
+  explicit(gold,answers,orderedLabels,2);ensure(weights==='linear'||weights==='quadratic','Unknown weight mode');
+  const n=gold.length,k=orderedLabels.length,power=weights==='linear'?1:2,max=(k-1)**power;
+  const r=Array(k).fill(0),c=Array(k).fill(0);let observedDisagreement=0;
+  for(let t=0;t<n;t++){const i=orderedLabels.indexOf(gold[t]),j=orderedLabels.indexOf(answers[t] as string);r[i]++;c[j]++;observedDisagreement+=Math.abs(i-j)**power/n;}
+  let expectedDisagreement=0;
+  for(let i=0;i<k;i++)for(let j=0;j<k;j++)expectedDisagreement+=r[i]*c[j]/(n*n)*Math.abs(i-j)**power;
+  return {kappa:expectedDisagreement===0?1:1-observedDisagreement/expectedDisagreement,observed:1-observedDisagreement/max,expected:1-expectedDisagreement/max,n};
+}
+export function labellerNominalAlpha(ratings:readonly(readonly LabellerAnswer[])[],set:LabelSet):LabellerAlphaResult {
+  const labels=vocabulary(set);
+  ensure(Array.isArray(ratings)&&ratings.length>=2&&Array.isArray(ratings[0])&&ratings[0].length>0,'Invalid ratings matrix');
+  const units=ratings[0].length,raters=ratings.length;
+  let missing=0,pairable=0,unpairableUnits=0,disagreementSum=0;
+  const marg=Array(labels.length).fill(0);
+  for(const row of ratings){ensure(Array.isArray(row)&&row.length===units,'Nonrectangular ratings');for(let i=0;i<units;i++)ensure(row[i]===null||(typeof row[i]==='string'&&labels.includes(row[i] as string)),'Invalid rating');}
+  for(let u=0;u<units;u++) {
+    const counts=Array(labels.length).fill(0);let count=0;
+    for(const row of ratings) {if(row[u]===null)missing++;else {counts[labels.indexOf(row[u] as string)]++;count++;}}
+    if(count<2){unpairableUnits++;continue;}
+    pairable+=count;
+    let same=0;for(let i=0;i<labels.length;i++){marg[i]+=counts[i];same+=counts[i]*(counts[i]-1);}
+    disagreementSum+=(count*(count-1)-same)/(count-1);
+  }
+  if(pairable===0)return {alpha:null,observed:null,expected:null,pairable,units,raters,missing,unpairableUnits,status:'insufficient'};
+  const observed=disagreementSum/pairable;
+  const expected=(pairable*pairable-marg.reduce((s,v)=>s+v*v,0))/(pairable*(pairable-1));
+  return {alpha:expected===0?1:1-observed/expected,observed,expected,pairable,units,raters,missing,unpairableUnits,status:'estimated'};
+}
+export function labellerConfusion(gold:readonly string[],answers:readonly LabellerAnswer[],set:LabelSet):LabellerConfusion {
+  const d=data(gold,answers,set),confusion=d.matrix.slice(0,d.size);
+  const byLabel=d.labels.map((label,i)=>{const support=confusion[i].reduce((a,b)=>a+b,0),predicted=confusion.reduce((a,r)=>a+r[i],0),tp=confusion[i][i],fp=predicted-tp,fn=support-tp;
+    return {label,support,predicted,tp,fp,fn,precision:predicted===0?null:tp/predicted,recall:support===0?null:tp/support,f1:2*tp+fp+fn===0?null:2*tp/(2*tp+fp+fn)};});
+  return {score:scoreData(d),labels:d.labels,predictionColumns:[...d.labels.map(label=>({kind:'label' as const,label})),{kind:'abstain'},{kind:'invalid'}],confusion,byLabel};
+}
+// Incomplete beta via a continued fraction; inverse uses a monotone bracket.
+function logGamma(x:number):number {
+  const coeff=[676.5203681218851,-1259.1392167224028,771.32342877765313,-176.6150291621406,12.507343278686905,-.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];
+  let a=.99999999999980993;const z=x-1;for(let i=0;i<coeff.length;i++)a+=coeff[i]/(z+i+1);
+  const t=z+7.5;return .9189385332046727+(z+.5)*Math.log(t)-t+Math.log(a);
+}
+function betaFraction(a:number,b:number,x:number):number {
+  const tiny=1e-300;let c=1,d=1-(a+b)*x/(a+1);if(Math.abs(d)<tiny)d=tiny;d=1/d;let h=d;
+  for(let m=1;m<=1000;m++) {
+    let aa=m*(b-m)*x/((a+2*m-1)*(a+2*m));
+    d=1+aa*d;if(Math.abs(d)<tiny)d=tiny;c=1+aa/c;if(Math.abs(c)<tiny)c=tiny;d=1/d;h*=d*c;
+    aa=-(a+m)*(a+b+m)*x/((a+2*m)*(a+2*m+1));
+    d=1+aa*d;if(Math.abs(d)<tiny)d=tiny;c=1+aa/c;if(Math.abs(c)<tiny)c=tiny;d=1/d;const delta=d*c;h*=delta;
+    if(Math.abs(delta-1)<2e-15)break;
+  }
+  return h;
+}
+function betaCdf(x:number,a:number,b:number):number {
+  if(x<=0)return 0;if(x>=1)return 1;
+  const term=Math.exp(logGamma(a+b)-logGamma(a)-logGamma(b)+a*Math.log(x)+b*Math.log1p(-x));
+  return x<(a+1)/(a+b+2)?term*betaFraction(a,b,x)/a:1-term*betaFraction(b,a,1-x)/b;
+}
+function betaInverse(p:number,a:number,b:number):number {
+  let lo=0,hi=1;
+  for(let i=0;i<180;i++){const mid=(lo+hi)/2;if(mid===lo||mid===hi)break;if(betaCdf(mid,a,b)<p)lo=mid;else hi=mid;}
+  return (lo+hi)/2;
+}
+function binomialInterval(k:number,n:number,c:number):Interval {
+  const tail=(1-c)/2;
+  const lower=k===0?0:k===n?Math.exp(Math.log(tail)/n):betaInverse(tail,k,n-k+1);
+  const upper=k===n?1:k===0?-Math.expm1(Math.log(tail)/n):1-betaInverse(tail,n-k,k+1);
+  return {estimate:k/n,lower,upper};
+}
+export function labellerCoverageCurve(observations:readonly ScoredLabellerObservation[],set:LabelSet,thresholds:readonly number[],confidence=.95):LabellerCoveragePoint[] {
+  probability(confidence,true);ensure(Array.isArray(observations),'Invalid observations');
+  const d=data(observations.map(o=>o.gold),observations.map(o=>o.answer),set);
+  ensure(Array.isArray(thresholds)&&thresholds.length>0,'Empty thresholds');
+  for(const t of thresholds)probability(t);for(const o of observations)probability(o.confidence);
+  return [...new Set(thresholds)].sort((a,b)=>a-b).map(threshold=>{
+    let accepted=0,correct=0,abstentions=0,invalid=0,belowThreshold=0;
+    for(let i=0;i<d.n;i++)if(d.ai[i]===d.size)abstentions++;else if(d.ai[i]===d.size+1)invalid++;else if(observations[i].confidence<threshold)belowThreshold++;else{accepted++;if(d.gi[i]===d.ai[i])correct++;}
+    return {threshold,total:d.n,accepted,correct,coverage:accepted/d.n,acceptedAccuracy:accepted===0?null:correct/accepted,acceptedAccuracyInterval:accepted===0?null:binomialInterval(correct,accepted,confidence),abstentions,invalid,belowThreshold};
+  });
+}
+export function selectLabellerThreshold(observations:readonly ScoredLabellerObservation[],set:LabelSet,options:LabellerThresholdOptions):LabellerCoveragePoint|null {
+  probability(options.minAccuracy);probability(options.minCoverage??0);
+  const curve=labellerCoverageCurve(observations,set,options.thresholds,options.confidence);
+  return curve.filter(p=>p.accepted>0&&p.acceptedAccuracy!>=options.minAccuracy&&p.coverage>=(options.minCoverage??0)).sort((a,b)=>b.coverage-a.coverage||a.threshold-b.threshold)[0]??null;
+}
+export function scoreMappedLabeller(gold:readonly string[],answers:readonly LabellerAnswer[],options:LabellerMappingOptions):LabellerScore {
+  const gs=vocabulary(options.goldSet),as=vocabulary(options.answerSet),ts=vocabulary(options.targetSet);
+  function mapping(rows:readonly LabellerLabelMapping[],source:string[]) {
+    ensure(Array.isArray(rows),'Invalid mapping');const map=new Map<string,string>();
+    for(const r of rows){ensure(r&&source.includes(r.source)&&ts.includes(r.target)&&!map.has(r.source),'Invalid or duplicate mapping');map.set(r.source,r.target);}
+    ensure(map.size===source.length,'Incomplete mapping');return map;
+  }
+  const gm=mapping(options.goldMap,gs),am=mapping(options.answerMap,as);
+  data(gold,answers,options.goldSet);
+  const mappedGold=gold.map(g=>gm.get(g)!);
+  const invalid=Symbol('invalid source answer');
+  const mappedAnswers=answers.map(a=>a===null?null:typeof a==='string'&&am.has(a)?am.get(a)!:invalid as unknown as LabellerAnswer);
+  return scoreLabeller(mappedGold,mappedAnswers,options.targetSet);
+}
+export function planLabellerKappaSample(joint:readonly(readonly number[])[],options:{margin:number;confidence?:number}):LabellerSamplePlan {
+  const confidence=options.confidence??.95;probability(confidence,true);probability(options.margin,true);
+  ensure(Array.isArray(joint)&&joint.length>=2,'Invalid joint matrix');let sum=0;
+  for(const row of joint){ensure(Array.isArray(row)&&row.length===joint.length,'Non-square joint');for(const v of row){ensure(typeof v==='number'&&Number.isFinite(v)&&v>=0,'Invalid joint probability');sum+=v;}}
+  ensure(Math.abs(sum-1)<=1e-10,'Joint probabilities must sum to one');const j=jointStats(joint);
+  ensure(j.pe!==1&&j.variance>1e-15,'Degenerate joint design');
+  const z=critical(confidence),sampleSize=Math.max(2,Math.ceil(z*z*j.variance/(options.margin*options.margin)));
+  ensure(Number.isSafeInteger(sampleSize),'Unsafe sample size');
+  return {sampleSize,kappa:j.kappa,varianceFactor:j.variance,confidence,margin:options.margin,method:'multinomial-delta',assumption:'iid-fixed-joint'};
+}
+export function exactLabellerKappaTest(gold:readonly string[],answers:readonly LabellerAnswer[],set:LabelSet,alternative:'greater'|'less'|'two-sided'='two-sided'):LabellerExactTest {
+  ensure(['greater','less','two-sided'].includes(alternative),'Invalid alternative');const d=data(gold,answers,set);
+  ensure(d.n<=9,'Exact test size limit is 9 observations');
+  const counts=Array(d.size+2).fill(0),rows=Array(d.size+2).fill(0);for(const a of d.ai)counts[a]++;for(const g of d.gi)rows[g]++;
+  const chance=rows.reduce((s,r,i)=>s+r*counts[i],0),score=scoreData(d),target=score.correct*d.n-chance;
+  let extreme=0,permutations=0;
+  function visit(i:number,correct:number){if(i===d.n){permutations++;const value=correct*d.n-chance;if(alternative==='greater'?value>=target:alternative==='less'?value<=target:Math.abs(value)>=Math.abs(target))extreme++;return;}
+    for(let a=0;a<counts.length;a++)if(counts[a]>0){counts[a]--;visit(i+1,correct+Number(a===d.gi[i]));counts[a]++;}}
+  visit(0,0);
+  return {kappa:score.kappa,pValue:extreme/permutations,permutations,extreme,alternative,method:'exact-fixed-margin-permutation'};
+}

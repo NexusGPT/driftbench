@@ -53,3 +53,30 @@ metadata:
     ask: code
     askFrom: neutral
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.a-brief-missing-a-number-gets
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.ledger-auditor.a-brief-missing-a-number-gets
+        values:
+          atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

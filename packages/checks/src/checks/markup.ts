@@ -1,6 +1,6 @@
 import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { visibleText } from '../support/text';
-import { sqliteModule } from './sql';
+import { sqliteModule, sqlStatements } from './sql';
 
 /**
  * `expect.markup`: the customer-visible text is well-formed XML or HTML. A tag scanner walks the opening and
@@ -25,32 +25,6 @@ const VOID = new Set([
   'wbr',
 ]);
 
-/** Splits SQL text on semicolons that sit outside a string, quoted identifier or comment. */
-export function sqlStatements(text: string): string[] {
-  const out: string[] = [];
-  let current = '';
-  let quote: string | undefined;
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i] as string;
-    if (quote) {
-      current += char;
-      if (char === quote) quote = undefined;
-      continue;
-    }
-    if (char === "'" || char === '"' || char === '`') {
-      quote = char;
-      current += char;
-    } else if (char === ';') {
-      if (current.trim()) out.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  if (current.trim()) out.push(current.trim());
-  return out;
-}
-
 /** The messages SQLite gives for a statement that does not parse: a bad token, a bad grammar, a cut-off statement. */
 const SQL_SYNTAX_ERROR = /syntax error|incomplete input|unrecognized token/i;
 
@@ -61,7 +35,7 @@ const SQL_SYNTAX_ERROR = /syntax error|incomplete input|unrecognized token/i;
 export function sqlProblem(text: string): string | undefined {
   const db = new (sqliteModule().DatabaseSync)(':memory:');
   try {
-    for (const statement of sqlStatements(text)) {
+    for (const { text: statement } of sqlStatements(text)) {
       try {
         db.prepare(statement);
       } catch (cause) {

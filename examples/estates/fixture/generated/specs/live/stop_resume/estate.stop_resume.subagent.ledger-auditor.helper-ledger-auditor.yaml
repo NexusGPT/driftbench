@@ -92,3 +92,44 @@ metadata:
     phrase: 1
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: stop_resume.subagent.ledger-auditor.helper-ledger-auditor
+        values:
+          session_state: helpers_running
+          estate_hazard: dead_helper
+          atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: resume
+      to:
+        kind: rule
+        rule: subagent.ledger-auditor.helper-ledger-auditor
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: resume
+      to:
+        kind: plan_row
+        row: stop_resume.subagent.ledger-auditor.helper-ledger-auditor
+        values:
+          session_state: helpers_running
+          estate_hazard: dead_helper
+          atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

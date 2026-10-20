@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {weightedLabellerKappa as weighted} from '../candidate';
+const g=['low','low','high','high'], a=['low','mid','mid','high'], order=['low','mid','high'];
+const x=weighted(g,a,order); assert.equal(x.observed,.75); assert.equal(x.expected,.5); assert.equal(x.kappa,.5); assert.equal(x.n,4);
+const q=weighted(g,a,order,'quadratic'); assert.equal(q.observed,.875); assert.equal(q.expected,.625); assert.ok(Math.abs(q.kappa-2/3)<1e-12);
+assert.equal(weighted(['mid'],['mid'],order).kappa,1);
+assert.throws(()=>weighted(['none'],['none'],order));
+assert.throws(()=>weighted(['low'],[null],order));
+assert.throws(()=>weighted(g,a,['low','high']));
+assert.throws(()=>weighted(g,a,order,'weird' as any));
+console.log('round05 ordinal weighted kappa passed');

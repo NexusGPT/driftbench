@@ -1,0 +1,218 @@
+import {createHash} from 'node:crypto';
+/** One nominal class. Names are compared exactly; descriptions participate in replay identity. */
+export interface LabelDefinition {
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface LabelSet {
+  readonly name: string;
+  readonly labels: readonly LabelDefinition[];
+}
+
+export interface LabellerRequest {
+  readonly text: string;
+  readonly labelSet: LabelSet;
+  readonly context?: string;
+}
+
+/** `none` is a valid class; only null abstains. Other strings can be recorded but score invalid. */
+export type LabellerAnswer = string | null;
+
+export interface Labeller {
+  readonly id: string;
+  label(request: LabellerRequest): Promise<LabellerAnswer> | LabellerAnswer;
+}
+
+export interface LabellerScore {
+  readonly total: number;
+  readonly correct: number;
+  readonly agreement: number;
+  readonly kappa: number;
+  readonly abstentions: number;
+  readonly invalid: number;
+  /** Valid class answers / all observations, including the implicit `none` class. */
+  readonly coverage: number;
+}
+
+export interface LabellerReplayEntry {
+  readonly request: LabellerRequest;
+  readonly labellerId: string;
+  readonly answer: LabellerAnswer;
+}
+
+export function labelSetHash(set: LabelSet): string {
+  labelsFor(set);
+  return createHash('sha256').update(JSON.stringify([set.name,set.labels.map(x=>[x.name,x.description])])).digest('hex');
+}
+export function labellerRequestKey(request: LabellerRequest, labellerId: string): string {
+  return createHash('sha256').update(JSON.stringify([labelSetHash(request.labelSet),request.text,request.context===undefined?[]:[request.context],labellerId])).digest('hex');
+}
+function labelsFor(set: LabelSet): string[] {
+  if (!set || typeof set.name !== 'string' || !set.name.trim() || !Array.isArray(set.labels) || !set.labels.length) throw new Error('Invalid label set');
+  const names: string[]=[];
+  for (const label of set.labels) {
+    if (!label || typeof label.name !== 'string' || !label.name.trim() || typeof label.description !== 'string' || names.includes(label.name)) throw new Error('Invalid label definition');
+    names.push(label.name);
+  }
+  if (!names.includes('none')) names.push('none');
+  return names;
+}
+function nominal(gold: readonly string[], answers: readonly LabellerAnswer[], set: LabelSet) {
+  const labels=labelsFor(set);
+  if (!gold.length || gold.length !== answers.length) throw new Error('Invalid observation arrays');
+  const g=Array.from(gold,x=>{const i=labels.indexOf(x);if(i<0)throw new Error('Unknown gold');return i;});
+  const a=Array.from(answers,x=>x===null?labels.length:typeof x==='string' && labels.includes(x)?labels.indexOf(x):labels.length+1);
+  return {labels,g,a};
+}
+export function scoreLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet): LabellerScore {
+  const {labels,g,a}=nominal(gold,answers,labelSet);const total=g.length;
+  const rows=Array(labels.length+2).fill(0),cols=Array(labels.length+2).fill(0);
+  let correct=0,abstentions=0,invalid=0;
+  for(let i=0;i<total;i++){rows[g[i]]++;cols[a[i]]++;if(g[i]===a[i])correct++;if(a[i]===labels.length)abstentions++;if(a[i]===labels.length+1)invalid++;}
+  const agreement=correct/total,pe=rows.reduce((s,n,i)=>s+n*cols[i],0)/(total*total);
+  return {total,correct,agreement,kappa:pe===1?1:(agreement-pe)/(1-pe),abstentions,invalid,coverage:(total-abstentions-invalid)/total};
+}
+export function createLabellerReplay(entries: readonly LabellerReplayEntry[], id: string): Labeller {
+  const snapshot=new Map<string,LabellerAnswer>();
+  for(const entry of entries){
+    const key=labellerRequestKey(entry.request,entry.labellerId);
+    if(snapshot.has(key)&&snapshot.get(key)!==entry.answer)throw new Error('Conflicting replay answers');
+    snapshot.set(key,entry.answer);
+  }
+  return {id,label(request){const key=labellerRequestKey(request,id);if(!snapshot.has(key))throw new Error('Replay miss');return snapshot.get(key)!;}};
+}
+
+/** Advanced labeller agreement analysis. Statistical methods and limitations are documented per API. */
+interface Interval { estimate: number; lower: number; upper: number }
+interface KappaResult { kappa: number; observed: number; expected: number; n: number }
+
+export interface LabellerKappaInterval {
+  estimate: number; lower: number | null; upper: number | null;
+  standardError: number | null; varianceFactor: number | null;
+  confidence: number; total: number; status: 'estimated' | 'degenerate';
+  method: 'multinomial-delta';
+}
+function normalCritical(confidence: number): number {
+  if(!Number.isFinite(confidence)||confidence<=0||confidence>=1)throw new Error('Confidence must lie strictly between zero and one');
+  const p=(1-confidence)/2;
+  if(p<.02425){
+    const q=Math.sqrt(-2*Math.log(p));
+    return -(((((-.007784894002430293*q-.3223964580411365)*q-2.400758277161838)*q-2.549732539343734)*q+4.374664141464968)*q+2.938163982698783)/((((.007784695709041462*q+.3224671290700398)*q+2.445134137142996)*q+3.754408661907416)*q+1);
+  }
+  const q=confidence/2,r=q*q;
+  return (((((-39.69683028665376*r+220.9460984245205)*r-275.9285104469687)*r+138.3577518672690)*r-30.66479806614716)*r+2.506628277459239)*q/(((((-54.47609879822406*r+161.5858368580409)*r-155.6989798598866)*r+66.80131188771972)*r-13.28068155288572)*r+1);
+}
+function deltaVariance(joint: readonly (readonly number[])[]) {
+  const n=joint.length,rows=joint.map(row=>row.reduce((s,x)=>s+x,0)),cols=Array.from({length:n},(_,b)=>joint.reduce((s,row)=>s+row[b],0));
+  const po=joint.reduce((s,row,i)=>s+row[i],0),pe=rows.reduce((s,x,i)=>s+x*cols[i],0);
+  if(pe===1)return {kappa:1,pe,variance:0};
+  let mean=0,second=0;
+  joint.forEach((row,a)=>row.forEach((p,b)=>{const g=(a===b?1:0)/(1-pe)+(po-1)*(cols[a]+rows[b])/(1-pe)**2;mean+=p*g;second+=p*g*g;}));
+  return {kappa:(po-pe)/(1-pe),pe,variance:Math.max(0,second-mean*mean)};
+}
+export function labellerKappaInterval(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet, confidence=0.95): LabellerKappaInterval {
+  const z=normalCritical(confidence),{labels,g,a}=nominal(gold,answers,labelSet),total=g.length;
+  const joint=Array.from({length:labels.length+2},()=>Array(labels.length+2).fill(0));g.forEach((x,i)=>joint[x][a[i]]+=1/total);
+  const {variance,pe}=deltaVariance(joint),estimate=scoreLabeller(gold,answers,labelSet).kappa;
+  const base={estimate,confidence,total,method:'multinomial-delta' as const};
+  if(total<2||pe===1||variance<=1e-15)return {...base,lower:null,upper:null,standardError:null,varianceFactor:null,status:'degenerate'};
+  const standardError=Math.sqrt(variance/total);
+  return {...base,lower:Math.max(-1,estimate-z*standardError),upper:Math.min(1,estimate+z*standardError),standardError,varianceFactor:variance,status:'estimated'};
+}
+export function binaryLabellerPabak(gold: readonly string[], answers: readonly LabellerAnswer[], categories: readonly [string, string]): { total: number; agreement: number; pabak: number } {
+  if(categories.length!==2 || categories.some(x=>typeof x!=='string'||!x.trim()) || categories[0]===categories[1])throw new Error('Exactly two distinct categories required');
+  if(!gold.length||gold.length!==answers.length)throw new Error('Invalid observation arrays');
+  let correct=0;for(let i=0;i<gold.length;i++){
+    if(!categories.includes(gold[i])||typeof answers[i]!=='string'||!categories.includes(answers[i] as string))throw new Error('Unsupported binary observation');
+    if(gold[i]===answers[i])correct++;
+  }
+  const agreement=correct/gold.length;return {total:gold.length,agreement,pabak:2*agreement-1};
+}
+export function weightedLabellerKappa(gold: readonly string[], answers: readonly LabellerAnswer[], orderedLabels: readonly string[], weights?: 'linear' | 'quadratic'): KappaResult { throw new Error("labeller analysis not implemented"); }
+export interface LabellerAlphaResult {
+  alpha: number | null; observed: number | null; expected: number | null;
+  pairable: number; units: number; raters: number; missing: number;
+  unpairableUnits: number; status: 'estimated' | 'insufficient';
+}
+export function labellerNominalAlpha(ratings: readonly (readonly LabellerAnswer[])[], labelSet: LabelSet): LabellerAlphaResult { throw new Error("labeller analysis not implemented"); }
+export type LabellerPredictionColumn = { kind: 'label'; label: string } | { kind: 'abstain' } | { kind: 'invalid' };
+export interface LabellerClassMetrics {
+  label: string; support: number; predicted: number; tp: number; fp: number; fn: number;
+  precision: number | null; recall: number | null; f1: number | null;
+}
+export interface LabellerConfusion {
+  score: LabellerScore; labels: readonly string[];
+  predictionColumns: readonly LabellerPredictionColumn[];
+  confusion: readonly (readonly number[])[]; byLabel: readonly LabellerClassMetrics[];
+}
+export function labellerConfusion(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet): LabellerConfusion {
+  const {labels,g,a}=nominal(gold,answers,labelSet);
+  const confusion=labels.map(()=>Array(labels.length+2).fill(0));
+  g.forEach((row,i)=>confusion[row][a[i]]++);
+  const byLabel=labels.map((label,i)=>{
+    const support=confusion[i].reduce((s,n)=>s+n,0),predicted=confusion.reduce((s,row)=>s+row[i],0),tp=confusion[i][i],fp=predicted-tp,fn=support-tp;
+    return {label,support,predicted,tp,fp,fn,precision:predicted?tp/predicted:null,recall:support?tp/support:null,f1:2*tp+fp+fn?2*tp/(2*tp+fp+fn):null};
+  });
+  return {score:scoreLabeller(gold,answers,labelSet),labels,predictionColumns:[...labels.map(label=>({kind:'label' as const,label})),{kind:'abstain'},{kind:'invalid'}],confusion,byLabel};
+}
+export interface ScoredLabellerObservation { gold: string; answer: LabellerAnswer; confidence: number }
+export interface LabellerCoveragePoint {
+  threshold: number; total: number; accepted: number; correct: number;
+  coverage: number; acceptedAccuracy: number | null; acceptedAccuracyInterval: Interval | null;
+  abstentions: number; invalid: number; belowThreshold: number;
+}
+function unitInterval(x: number): void {if(!Number.isFinite(x)||x<0||x>1)throw new Error('Expected finite value in [0,1]');}
+function betaQuantile(p: number,a: number,b: number): number {
+  if(b===1)return Math.exp(Math.log(p)/a);
+  if(a===1)return -Math.expm1(Math.log1p(-p)/b);
+  const n=a+b-1,lf=[0];for(let i=1;i<=n;i++)lf[i]=lf[i-1]+Math.log(i);
+  const cdf=(x:number)=>{
+    if(x<=0)return 0;if(x>=1)return 1;
+    const terms=[];for(let j=a;j<=n;j++)terms.push(lf[n]-lf[j]-lf[n-j]+j*Math.log(x)+(n-j)*Math.log1p(-x));
+    const max=Math.max(...terms);return Math.exp(max)*terms.reduce((s,t)=>s+Math.exp(t-max),0);
+  };
+  let lo=0,hi=1;for(let i=0;i<200;i++){const mid=(lo+hi)/2;if(mid===lo||mid===hi)break;if(cdf(mid)<p)lo=mid;else hi=mid;}
+  return (lo+hi)/2;
+}
+function accuracyInterval(correct: number,n: number,confidence: number): Interval {
+  const p=(1-confidence)/2;
+  return {estimate:correct/n,lower:correct===0?0:betaQuantile(p,correct,n-correct+1),upper:correct===n?1:1-betaQuantile(p,n-correct,correct+1)};
+}
+export function labellerCoverageCurve(observations: readonly ScoredLabellerObservation[], labelSet: LabelSet, thresholds: readonly number[], confidence=0.95): LabellerCoveragePoint[] {
+  normalCritical(confidence);
+  if(!thresholds.length)throw new Error('Thresholds must be nonempty');thresholds.forEach(unitInterval);
+  for(const o of observations)unitInterval(o.confidence);
+  const {labels,g,a}=nominal(observations.map(o=>o.gold),observations.map(o=>o.answer),labelSet),total=g.length;
+  return [...new Set(thresholds)].sort((a,b)=>a-b).map(threshold=>{
+    let accepted=0,correct=0,abstentions=0,invalid=0,belowThreshold=0;
+    observations.forEach((o,i)=>{
+      if(a[i]===labels.length)abstentions++;else if(a[i]===labels.length+1)invalid++;else if(o.confidence<threshold)belowThreshold++;else{accepted++;if(a[i]===g[i])correct++;}
+    });
+    return {threshold,total,accepted,correct,coverage:accepted/total,acceptedAccuracy:accepted?correct/accepted:null,acceptedAccuracyInterval:accepted?accuracyInterval(correct,accepted,confidence):null,abstentions,invalid,belowThreshold};
+  });
+}
+export interface LabellerThresholdOptions { thresholds: readonly number[]; minAccuracy: number; minCoverage?: number; confidence?: number }
+export function selectLabellerThreshold(observations: readonly ScoredLabellerObservation[], labelSet: LabelSet, options: LabellerThresholdOptions): LabellerCoveragePoint | null {
+  unitInterval(options.minAccuracy);const minCoverage=options.minCoverage??0;unitInterval(minCoverage);
+  const curve=labellerCoverageCurve(observations,labelSet,options.thresholds,options.confidence);
+  let best: LabellerCoveragePoint|null=null;
+  for(const point of curve){if(point.accepted>0&&point.acceptedAccuracy!>=options.minAccuracy&&point.coverage>=minCoverage&&(!best||point.coverage>best.coverage))best=point;}
+  return best;
+}
+export interface LabellerLabelMapping { source: string; target: string }
+export interface LabellerMappingOptions {
+  goldSet: LabelSet; answerSet: LabelSet; targetSet: LabelSet;
+  goldMap: readonly LabellerLabelMapping[]; answerMap: readonly LabellerLabelMapping[];
+}
+export function scoreMappedLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], options: LabellerMappingOptions): LabellerScore { throw new Error("labeller analysis not implemented"); }
+export interface LabellerSamplePlan {
+  sampleSize: number; kappa: number; varianceFactor: number; confidence: number; margin: number;
+  method: 'multinomial-delta'; assumption: 'iid-fixed-joint';
+}
+export function planLabellerKappaSample(joint: readonly (readonly number[])[], options: { margin: number; confidence?: number }): LabellerSamplePlan { throw new Error("labeller analysis not implemented"); }
+export interface LabellerExactTest {
+  kappa: number; pValue: number; permutations: number; extreme: number;
+  alternative: 'greater' | 'less' | 'two-sided'; method: 'exact-fixed-margin-permutation';
+}
+export function exactLabellerKappaTest(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet, alternative?: 'greater' | 'less' | 'two-sided'): LabellerExactTest { throw new Error("labeller analysis not implemented"); }

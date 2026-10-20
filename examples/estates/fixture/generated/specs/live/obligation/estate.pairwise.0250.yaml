@@ -83,3 +83,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-send-a-supplier-email-without
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0250
+        values:
+          ask_class: debug
+          ask_shape: concrete
+          session_state: after_compaction
+          owner_signal: stop
+          deviation: none
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.standing.never-send-a-supplier-email-without
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

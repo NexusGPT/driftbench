@@ -84,3 +84,22 @@ metadata:
       - marker: needs-recorded-session
         atom: guard.settings.pretooluse-bash-guard-block-force-push
         detail: no recorded session of force-push
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.pretooluse-bash-guard-block-force-push
+        values:
+          atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

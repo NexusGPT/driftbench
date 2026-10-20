@@ -58,3 +58,22 @@ metadata:
       - marker: needs-recorded-session
         atom: guard.settings.posttooluse-bash-guard-ledger-guard-py
         detail: no recorded session of this situation
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py
+        values:
+          atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

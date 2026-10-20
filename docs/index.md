@@ -29,6 +29,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Multi-turn red-team user](redteam-agent.md): an attacker with one objective over many turns, Crescendo or GOAT, scored each turn, stopping when the agent gives in.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
+* [Statistics capabilities to build](statistics/capabilities.md): the functions the statistics package does not have yet, in nine groups (descriptive, effect sizes, exact tests, many comparisons, sequential evidence, Bayesian summaries, classification and agreement, distances and drift, design and allocation), each defined with its formula, result and refused inputs.
 * [The variable store](variables.md): the one catalogue of variables, values, weights, boundaries and impossible combinations that the prompt-agent map and the estate map share, with the provenance of every entry (a quote of the agent's files, the counts of past conversations, or the owner's words), the loader that checks it, the conversions from and to the space map, and three worked examples.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
 * [Python](python.md): run specs from Python, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent.
@@ -50,7 +51,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Personas and red-team reference](reference/users.md): every field of a persona, a user recording, a red-team pack file and a red-team plugin.
 * [Change manifest reference](reference/change.md): every field of a change manifest for `driftbench radius`.
 * [Estate files reference](reference/estate-files.md): every field of an estate map, an estate plan, a phrase bank and a session index.
-* [Blame and placement reference](reference/blame.md): every evidence name a blame or placement rule reads, its cost class and its source.
+* [Blame and placement reference](reference/blame.md): every evidence name a blame or placement rule reads, every item of the shipped blame and placement files, and the steps of the shipped diagnostics.
 * [CLI](reference/cli.md): every `driftbench` command, its options, its output and its exit codes.
 * [Public API](reference/api.md): what a package's public API is, the frozen list of its names, and how a name is added or removed.
 * [Checks](reference/checks.md): every field of `expect`, the check that reads it, and its verdict ids.
