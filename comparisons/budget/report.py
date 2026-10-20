@@ -40,7 +40,7 @@ def write_report(data_commit=None):
     assert all(row['provenance']['sourceCommit'] == source for row in whole)
     summaries = {(row['budget'], row['method']): row['metrics'] for row in grid['summaries']}
     tests = {(row['budget'], row['control']): row['metrics'] for row in grid['pairedTests']}
-    base = 'https://github.com/achammah/driftbench/blob/'
+    base = 'https://github.com/NexusGPT/driftbench/blob/'
 
     def artifact(name):
         return f'{base}{data_commit}/comparisons/budget/{name}' if data_commit else name

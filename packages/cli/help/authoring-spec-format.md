@@ -261,6 +261,8 @@ Every kind `uses` names is scoring-only: `uses` stays out of the block cache key
 
 The loader resolves every object a layer names. An unknown object, an unknown item, an `extends` cycle, an order that is not a permutation, a missing implementation or params of the wrong type is a load error naming the spec, the block, the kind and the id.
 
+In this release no run reads these objects yet, and none is shipped: `uses` is checked at load and recorded in the spec hash. How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
+
 ### A minimal valid spec
 
 ```yaml

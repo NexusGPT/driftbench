@@ -127,7 +127,7 @@ The first document, after its `checks` list:
 ```text
   "cells": [
     {
-      "cellId": "d44b9dfe9d1cf87a",
+      "cellId": "fab7e9a89a94b309",
       "specId": "acme-tool-failure",
       "specHash": "e5bc5c9ba9d2",
       "target": {
@@ -156,7 +156,7 @@ The first document, after its `checks` list:
 }
 ```
 
-In the second document the cell is `"state": "pass"` with `"runId": "d44b9dfe9d1cf87a"`, `"cacheHit": false`, `"cost": 0`, an `endState` of `{ "match": true, "diff": [] }`, and three blocks. The first block reached the stage `callback`; its first verdicts read:
+In the second document the cell is `"state": "pass"` with `"runId": "fab7e9a89a94b309"`, `"cacheHit": false`, `"cost": 0`, an `endState` of `{ "match": true, "diff": [] }`, and three blocks. The first block reached the stage `callback`; its first verdicts read:
 
 ```text
               "id": "tools.coverage.check.count",

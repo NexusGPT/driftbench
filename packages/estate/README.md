@@ -2,7 +2,7 @@
 
 Test a code-interpreter agent as a whole estate: atoms, the estate graph, lint, plans, mutants and maintenance.
 
-Part of [driftbench](https://github.com/achammah/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
+Part of [driftbench](https://github.com/NexusGPT/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
 
 ## Install
 
@@ -25,7 +25,7 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## Documentation
 
-[Testing an estate](https://github.com/achammah/driftbench/blob/main/docs/estate.md), and the [docs index](https://github.com/achammah/driftbench/blob/main/docs/index.md).
+[Testing an estate](https://github.com/NexusGPT/driftbench/blob/main/docs/estate.md), and the [docs index](https://github.com/NexusGPT/driftbench/blob/main/docs/index.md).
 
 ## License
 
