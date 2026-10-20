@@ -83,6 +83,10 @@ const SPEC_UNITS: Record<string, UnitOverride[]> = {
   'blocks[].when.injection': [{ topic: 'authoring-blocks', paragraph: 'A block takes exactly one of' }],
   'blocks[].expect.tools[].compare': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
   'blocks[].expect.tools[].compare{}': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
+  'blocks[].expect.tools[].recompute': [{ topic: 'judging-check-tools', heading: 'The value-check ladder' }],
+  'blocks[].expect.tools[].recompute{}': [
+    { topic: 'judging-check-tools', heading: 'The value-check ladder' },
+  ],
   'blocks[].given.prefix[]': [{ topic: 'authoring-prefixes', heading: 'A message of the prefix' }],
   'blocks[].given.prefix[].tool_calls[]': [
     { topic: 'authoring-prefixes', heading: 'A tool call in a prefix' },
