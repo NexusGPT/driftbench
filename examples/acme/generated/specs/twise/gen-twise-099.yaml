@@ -132,3 +132,75 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-099
+        values:
+          behaviour: B-008
+          channel: chat
+          user_type: new-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          failing_tool: catalog.search
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: deviation=D8_tool_failure
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: plan_row
+        row: gen-twise-099
+        values:
+          behaviour: B-008
+          channel: chat
+          user_type: new-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          failing_tool: catalog.search
+          deviation: D8_tool_failure
+          stage_transition: address-to-offer
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

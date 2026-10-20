@@ -27,6 +27,15 @@ When the estate changes, two commands keep its tests true.
 * restated: the same quote, but its evidence, enforcement, situation, title, role or kind fields changed;
   its tests are regenerated.
 
+An atom of the pointer reader names its ledger unit in `fields.unit`. When its text changes, its id
+changes with its title, but the unit keeps its id. So an atom removed and an atom added on the same unit
+are one changed atom, under its old id, with the new id in `now`.
+
+With `--old-ledger` and `--new-ledger` (the ledgers of the two scans), the diff also reads the units. Each
+unit falls in one edit class: unchanged, context (other neighbours), moved (another file), changed,
+deleted or new. Changed and deleted units rerun; a new unit reruns the old units of its section; context and
+moved units are advisory only. The rules are those of `radius ledger` (authoring-blast-radius).
+
 It also compares the edges, and the enforcement state of every guard. A guard observes (logs what it would
 decide), then warns (tells the agent), then enforces (blocks). The state lives in `guard-state.yaml` beside a
 map: one entry per guard atom, with its `mode`, the date `since`, and `evidence` (the decision log, the
@@ -44,6 +53,10 @@ wrong, or a person decides; every demotion needs a person.
 * new: added atoms no live test names;
 * needs a person: what the tool cannot decide.
 
+When the diff read the ledgers, impact adds two lists. Rerun: a test that names an atom on a unit that
+reruns (a new unit landed in its section) and is not regenerated or retired; it reruns as it is. Advisory:
+a test that names an atom on an advisory unit; it is listed and nothing reruns.
+
 With `--replay <sessions>`, impact also replays the suite over a folder of recorded sessions and compares each
 spec on each session with the previous replay kept in `--store`: pass to pass, fail to pass, pass to fail (a
 person is needed), fail to fail, no previous.
@@ -58,7 +71,7 @@ person is needed), fail to fail, no previous.
 ## Commands and every option
 
 ```
-driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
+driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>] [--old-ledger <file> --new-ledger <file> [--change-out <file>]]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 ```
 
@@ -72,6 +85,9 @@ driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] 
 | `--out <file>` | none | also write the diff as JSON: the input of `estate impact` |
 | `--old-guards <file>` | `guard-state.yaml` beside the old map | the guard state of the old map |
 | `--new-guards <file>` | `guard-state.yaml` beside the new map | the guard state of the new map |
+| `--old-ledger <file>` | none | the ledger of the old scan. With `--new-ledger`, the diff reads the units |
+| `--new-ledger <file>` | none | the ledger of the new scan (`estate scan --pointer --ledger <file> --update`) |
+| `--change-out <file>` | none | with the ledgers: write the change manifest of the units, the input of `driftbench radius`. It holds the changes `radius ledger` would write, with the two map hashes as versions |
 
 `estate impact`:
 
@@ -101,19 +117,23 @@ driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] 
 `estate diff` prints `Estate diff: <old> (<hash>) to <new> (<hash>).`, a count line for atoms, edges and
 guards, then one section per kind of change: `+` added, `-` removed, `~` changed (with `was:`, `now:` and
 the other fields that changed), `>` moved, `*` restated. The JSON holds `version`, `old`, `new`, `atoms`,
-`edges`, `guards` and `summary`. Exit 0 computed (with or without changes), 2 a map or a guard state that
+`edges`, `guards`, `units` (with the ledgers: `changes`, `counts`, `rerun`, `advisory`, `whole`) and `summary`.
+With the ledgers, the count line is followed by `Units: <n> <class>, ...` and the number of units that rerun
+and that are advisory. Exit 0 computed (with or without changes), 2 a map or a guard state that
 cannot be read.
 
 `estate impact` prints `Impact of the estate diff <old> to <new> on <n> live estate tests (<r> retired before,
 <o> other specs).`, the counts, the sections Regenerate, Re-approve, Retire, New atoms with no test, Guards
-whose enforcement state changed, the replay comparison with `--replay`, and `Needs a person: <n>.` with each
+whose enforcement state changed, with the ledgers the sections Rerun and Advisory, the replay comparison
+with `--replay`, and `Needs a person: <n>.` with each
 item. A retirement shows `[to write with --write]`, `[written]` or `[already written]`. Exit 0 nothing needs a
 person; 1 an atom waits for re-approval, a new atom has no test, a replay that passed before fails now, or a
 retirement could not be written; 2 a usage or input error.
 
 The two limits of atom ids: two atoms with the same slug get a `-2` suffix in scan order, so a new atom with
 the same slug inserted above swaps their ids; and a semantic change to the first six words of a quote changes
-the id, so the diff shows a removal and an addition rather than a rename.
+the id, so the diff shows a removal and an addition rather than a rename. A pointer atom is the exception:
+its ledger unit pairs the two, as above.
 
 ## Worked example
 

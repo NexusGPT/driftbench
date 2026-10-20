@@ -104,3 +104,28 @@ metadata:
     phrase: 0
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: stage.steps.stage-do-make-the-change
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0475
+        values:
+          ask_class: compose
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: hold
+          deviation: D7_silence_or_burst
+          estate_hazard: no_hazard
+          atoms.stage: stage.steps.stage-do-make-the-change
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

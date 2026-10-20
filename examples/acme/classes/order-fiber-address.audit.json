@@ -1,0 +1,879 @@
+{
+  "class": "acme.order.fiber-address",
+  "set": "2c9ce562b65c",
+  "items": 51,
+  "invalid": 0,
+  "byLabeller": {},
+  "disagreements": 0,
+  "maxInvalid": 1,
+  "pass": true,
+  "rows": [
+    {
+      "item": "r001",
+      "text": "I'd like to order the Fiber 1000 plan for 14 harbor road. It's been a busy day so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with listed spellings for the plan ('the Fiber 1000 plan') and the address ('14 harbor road'), each used once, and the added small talk asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address using each value exactly once in a listed spelling, and the small talk adds no request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r002",
+      "text": "Hey, I'd like to order the Fiber 1000 plan for 14 harbor road.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, with no extra or changed values."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using one listed spelling of each value exactly once and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r003",
+      "text": "I would like to place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville. Please proceed with the order.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" exactly once each, and \"Please proceed with the order\" only restates that request without adding a new one."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds no new request or constraint."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r004",
+      "text": "I would like to order the Acme Fiber 1000 plan for 14 Harbor Rd, Acmeville; as a brief aside, my day has been pleasant so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the plan as the listed spelling \"Acme Fiber 1000\" (with \"the\" and \"plan\" around it) and the address as the listed \"14 Harbor Rd, Acmeville\", each appearing once, and the aside about the user's day asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r005",
+      "text": "Order Fiber 1000 for 14 Harbor Rd, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"Fiber 1000\" and \"14 Harbor Rd, Acmeville\", each once, with nothing added or dropped; the terser imperative phrasing is an allowed change of wording."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using each value exactly once in a listed spelling and adding no other request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r006",
+      "text": "Hi, I'd like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. It's been a busy day, so I'm glad to get this sorted.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using listed spellings for the plan and the address, each appearing exactly once, and the added small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, uses one listed spelling of each value exactly once, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r007",
+      "text": "I'd like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville, and it's been a busy day.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the plan and the address each given exactly once in a listed spelling, and the added remark about a busy day is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r008",
+      "text": "Please order the Fiber 1000 plan at 14 harbor road.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, with no extra or changed values."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using each value exactly once in a listed spelling and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r009",
+      "text": "I'd like to sign up for Acme Fiber 1000 at 14 Harbor Road, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, since signing up for a plan is ordering it, and uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" once each with nothing added or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using each value exactly once in a listed spelling and adding no other request or constraint."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r010",
+      "text": "I'd like to order the Fiber 1000 plan. The service address is 14 Harbor Rd, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses listed spellings for the plan ('the Fiber 1000 plan') and the address ('14 Harbor Rd, Acmeville'), each exactly once, with nothing added or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using one listed spelling of each value exactly once and adding no other request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r011",
+      "text": "I'd love to get Acme Fiber 1000 ordered for 14 Harbor Road, Acmeville; today's been a bit of a whirlwind.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, uses listed spellings of the plan and the address exactly once each, and its added remark about a hectic day is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r012",
+      "text": "Please place an order for the Fiber 1000 plan at 14 harbor road, Acmeville; as a brief aside, my day has been rather pleasant.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" (the trailing \"Acmeville\" belongs to the same address and adds no new value), and the aside about the day is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified order, includes the listed plan and address spellings exactly once, and adds only non-requesting small talk."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r013",
+      "text": "I’d like to get the Fiber 1000 plan. Set it up for 14 harbor road, please!",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to order the plan for the address, using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, with no added or changed constraints."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests ordering the plan and setting it up at the address, using each value exactly once in a listed spelling without adding or changing any constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r014",
+      "text": "I would like to place an order for the Acme Fiber 1000 plan at 14 Harbor Road, Acmeville. It has been a pleasant day so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" exactly once each with no other plan or address, and its closing remark is small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r015",
+      "text": "Would you kindly arrange service for Acme Fiber 1000 at 14 Harbor Road, Acmeville?",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "Asking to arrange service for the plan at the address is the same order request, and it uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" exactly once each with nothing added or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests ordering the specified plan at the specified address, with each value appearing exactly once in a listed spelling and no added constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r016",
+      "text": "I would like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. Thank you for your assistance.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"the Fiber 1000 plan\" and \"14 Harbor Rd, Acmeville\" once each, and the closing thanks asks for nothing extra."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using one listed spelling of each value exactly once and adding no other request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r017",
+      "text": "I'd like to get the Fiber 1000 plan installed at 14 harbor road.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, and \"get ... installed\" is a natural way to phrase ordering the plan for that address."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using one listed spelling of each value exactly once and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r018",
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville; my day's been fairly calm.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using listed spellings for the plan ('Fiber 1000') and the address ('14 Harbor Rd, Acmeville'), each exactly once, and the added small talk asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified order, includes the plan and address exactly once using listed spellings, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r019",
+      "text": "Hey, I’d like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville. It’s been a busy day, so I’m glad to get this sorted.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, using the listed spellings \"Acme Fiber 1000\" for the plan and \"14 Harbor Road, Acmeville\" for the address, and the added small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message makes the same order request, includes each required value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r020",
+      "text": "Please place an order for the Fiber 1000 plan at 14 harbor road. I would be grateful if you could process this request.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" once each, adding only politeness that asks for nothing new."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan order and includes the plan and address exactly once using listed spellings, with no added or changed requirements."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r021",
+      "text": "I'd like the Fiber 1000 plan at 14 harbor road.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to order the plan for the address using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\", each value appears exactly once, and nothing is added, dropped or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using each value exactly once in a listed spelling and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r022",
+      "text": "Can I get signed up for the Fiber 1000 plan at 14 harbor road? It's been a bit of a whirlwind day over here.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, and the added small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests signup for the specified plan and address, uses each value exactly once in a listed spelling, and adds only small talk."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r023",
+      "text": "Please order Acme Fiber 1000 for 14 Harbor Road, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request as an opening message and uses one listed spelling of the plan and one of the address, each exactly once, with nothing added, dropped or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using each value exactly once in a listed spelling and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r024",
+      "text": "Kindly place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses listed spellings of the plan (\"Acme Fiber 1000\") and the address (\"14 Harbor Road, Acmeville\") once each, with only a change in wording."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, with each value appearing exactly once in a listed spelling and no added constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r025",
+      "text": "Please place an order for Acme Fiber 1000. The address for the service is 14 Harbor Road, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the plan spelled 'Acme Fiber 1000' and the address spelled '14 Harbor Road, Acmeville', each exactly once, and adds no other values or constraints."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified service address, with each value appearing exactly once in a listed spelling and no added constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r026",
+      "text": "I'd like to get Fiber 1000 at 14 Harbor Rd, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same ordering request ('I'd like to get' means ordering) and uses the listed spellings 'Fiber 1000' and '14 Harbor Rd, Acmeville' once each, with no added, dropped or changed values."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using each value exactly once in a listed spelling and adding no other request or value."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r027",
+      "text": "Hey, I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville—it's been a busy day!",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using listed spellings for both the plan (\"Fiber 1000\") and the address (\"14 Harbor Rd, Acmeville\"), each once, and only adds small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address using one listed spelling of each, and the small talk adds no request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r028",
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville. My day has been a little hectic, but I’m taking a moment to handle this.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message orders the plan using the listed spelling \"Fiber 1000\" for the address using the listed spelling \"14 Harbor Rd, Acmeville\", and the extra small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified order, includes the plan and address exactly once using listed spellings, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r029",
+      "text": "Please arrange an order for Fiber 1000 service at 14 Harbor Rd, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"Fiber 1000\" and \"14 Harbor Rd, Acmeville\" exactly once each, with no added or changed constraints."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, using one listed spelling of each value exactly once and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r030",
+      "text": "Please get me set up with the Fiber 1000 plan at 14 harbor road, and I'm having a pretty good day so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to order the plan using the listed spelling \"the Fiber 1000 plan\" and the listed address spelling \"14 harbor road\", and its small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, uses each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r031",
+      "text": "I'd like to order the Fiber 1000 plan from Acme for 14 harbor road. Please help me place the order.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\", and \"from Acme\" only names the provider of that same plan rather than adding a different value."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using each value exactly once in a listed spelling and adding no other request or value."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r032",
+      "text": "Please sign me up for the Fiber 1000 plan at 14 harbor road; it's been a long day.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, and its closing remark is small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, uses each value exactly once in a listed spelling, and adds only small talk."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r033",
+      "text": "I'd like to get Acme Fiber 1000 set up at 14 Harbor Road, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to get Acme Fiber 1000 set up at 14 Harbor Road, Acmeville, which is the same order request, and it uses a listed spelling of each value exactly once with no extra values."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests ordering the specified plan at the specified address, with each value appearing exactly once in a listed spelling and no added constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r034",
+      "text": "Please arrange Acme Fiber 1000 service at 14 Harbor Road, Acmeville. My day has been fairly quiet so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to set up the Acme Fiber 1000 plan at 14 Harbor Road, Acmeville, using listed spellings once each, and the remark about the quiet day is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address exactly once each, and the added small talk asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r035",
+      "text": "Please sign me up for Fiber 1000 at 14 Harbor Rd, Acmeville.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"Fiber 1000\" for the plan and \"14 Harbor Rd, Acmeville\" for the address, each exactly once, with no added or changed constraints."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests ordering the specified plan at the specified address, using one listed spelling of each value exactly once and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r036",
+      "text": "Would you kindly place an order for Acme Fiber 1000 at 14 Harbor Road, Acmeville; as a brief aside, my day has been quite pleasant.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" once each, and adds only small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r037",
+      "text": "Kindly place an order for the Fiber 1000 plan at 14 harbor road.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request and uses the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, with nothing added, dropped or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using each value exactly once in a listed spelling and adding no constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r038",
+      "text": "Hey, I'd like to order Acme Fiber 1000 at 14 Harbor Road, Acmeville. That's what I'm looking to get.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the plan and address each appearing exactly once in listed spellings, and the closing sentence only restates the request without adding anything."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, includes each value exactly once using a listed spelling, and adds no other request or constraint."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r039",
+      "text": "I would like to order the Fiber 1000 plan for 14 Harbor Rd, Acmeville. My day has been quite pleasant.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, using listed spellings for the plan ('the Fiber 1000 plan') and the address ('14 Harbor Rd, Acmeville') exactly once each, and the remark about the user's day is small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address using one listed spelling of each, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r040",
+      "text": "I would like to order Acme Fiber, specifically the Fiber 1000 plan, for 14 harbor road. It has been a pleasant day so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, gives the plan once as the listed spelling \"the Fiber 1000 plan\" (with \"Acme Fiber\" only naming the product line, not another plan), gives the address once as \"14 harbor road\", and its closing remark is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan and address, uses each value exactly once in a listed spelling, and adds only harmless small talk."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r041",
+      "text": "Hey, I'd like to order the Fiber 1000 plan for 14 harbor road, Acmeville. My day's been pretty mellow so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the plan as the listed spelling \"the Fiber 1000 plan\" and the address as \"14 harbor road\" plus the consistent \"Acmeville\", each appearing once, and the small talk asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified order using each value once in a listed spelling, and the added small talk makes no additional request."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r042",
+      "text": "I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville. Please place the order.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"Fiber 1000\" and \"14 Harbor Rd, Acmeville\" exactly once each, and \"Please place the order\" only restates that request without adding anything."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, uses each value exactly once in a listed spelling, and adds no new request or constraint."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r043",
+      "text": "I would be grateful if you could arrange Acme Fiber 1000 for 14 Harbor Road, Acmeville, and, as a brief aside, my day has been going well.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same request to order the plan, using the listed spellings 'Acme Fiber 1000' and '14 Harbor Road, Acmeville' once each, and the remark about the user's day is permitted small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r044",
+      "text": "I'd like to get started with the Fiber 1000 plan at 14 harbor road. Please put in the order for me.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks to order the plan using the listed spelling \"the Fiber 1000 plan\" and gives the address using the listed spelling \"14 harbor road\", each exactly once, with no added or changed constraints."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests ordering the specified plan and includes the plan and address exactly once using listed spellings, without adding or changing any constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r045",
+      "text": "Can you sign me up for Acme Fiber 1000 at 14 Harbor Road, Acmeville—I'm running on coffee today.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request with the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\", each appearing exactly once, and the coffee remark is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r046",
+      "text": "Please place an order for Fiber 1000 at 14 Harbor Rd, Acmeville. Kindly proceed with this request.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"Fiber 1000\" and \"14 Harbor Rd, Acmeville\" exactly once each, and the closing sentence only asks the agent to proceed with that same order."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the same plan order and includes each required value exactly once using a listed spelling, without adding or changing any constraints."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r047",
+      "text": "Please arrange the Acme Fiber 1000 plan for 14 Harbor Road, Acmeville. My afternoon has been pretty busy, by the way.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message asks for the same order, uses the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Road, Acmeville\" exactly once each, and its only extra content is small talk that asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, includes each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r048",
+      "text": "I would like to order the Fiber 1000 plan from Acme for 14 harbor road. My day has been pleasant so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request, uses the listed spellings \"the Fiber 1000 plan\" and \"14 harbor road\" exactly once each, and the added \"from Acme\" names the provider rather than a different plan, while the closing small talk asks nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, includes each value exactly once using a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r049",
+      "text": "Please arrange an order for the Acme Fiber 1000 plan at 14 Harbor Rd, Acmeville. My day has been rather peaceful so far.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"Acme Fiber 1000\" and \"14 Harbor Rd, Acmeville\" once each, and its extra sentence is small talk that asks for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, uses each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r050",
+      "text": "I'd like to place an order for Acme Fiber 1000 at 14 Harbor Rd, Acmeville. It's been a hectic day, and this is one thing I can finally check off.",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message requests ordering the plan, using the listed spelling \"Acme Fiber 1000\", for the address, using the listed spelling \"14 Harbor Rd, Acmeville\"; each value appears exactly once, the remark about a hectic day is small talk that asks nothing, and nothing in the request is added, dropped or changed."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan at the specified address, uses each value exactly once in a listed spelling, and adds only small talk that asks nothing."
+        }
+      ],
+      "invalid": false
+    },
+    {
+      "item": "r051",
+      "text": "Hey, I'd like to order Fiber 1000 for 14 Harbor Rd, Acmeville. Thanks!",
+      "labels": [
+        {
+          "labeller": "anthropic/claude-opus-5-5",
+          "valid": true,
+          "reason": "The message makes the same order request using the listed spellings \"Fiber 1000\" and \"14 Harbor Rd, Acmeville\", each exactly once, adds no other value, and the greeting and thanks ask for nothing."
+        },
+        {
+          "labeller": "openai/gpt-6.1-sol",
+          "valid": true,
+          "reason": "The message requests the specified plan for the specified address, using each value exactly once in a listed spelling and adding no other request."
+        }
+      ],
+      "invalid": false
+    }
+  ]
+}

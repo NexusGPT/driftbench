@@ -89,7 +89,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -173,8 +173,9 @@ Items of the first failing level:
 It exited 2, below the floor of 9. Read the one item: it asks the sandbox claim that a background child
 the agent started in its own process group dies when the agent exits, and found the child still running
 and writing a file afterwards. It points at `packages/sandbox/src/run.ts`. It is a product finding on the
-machine that ran it. CI runs the validators on Linux runners (`ubuntu-latest`), so reproduce a
-macOS-only finding there before you call it a regression.
+machine that ran it. CI runs the validators on Linux runners. The repository variable `RUNNER_LABEL`
+picks the pool, and `ubuntu-latest` runs them when it is unset. Reproduce a macOS-only finding on Linux
+before you call it a regression.
 
 ## Common errors
 

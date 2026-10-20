@@ -58,3 +58,23 @@ metadata:
     ask: code
     askFrom: gate.standing.write-a-helper-s-brief-before (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.write-a-helper-s-brief-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.standing.write-a-helper-s-brief-before
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.standing.write-a-helper-s-brief-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

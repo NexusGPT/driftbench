@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {labellerNominalAlpha as alpha} from '../candidate';
+const set={name:'s',labels:[{name:'a',description:''},{name:'b',description:''}]};
+const x=alpha([['a','a','b',null],['a','b','b','a'],['a',null,'b',null]],set);
+assert.equal(x.alpha,9/16); assert.equal(x.observed,.25);assert.equal(x.expected,4/7);assert.equal(x.pairable,8);assert.equal(x.units,4);assert.equal(x.raters,3);assert.equal(x.missing,3);assert.equal(x.unpairableUnits,1);assert.equal(x.status,'estimated');
+assert.equal(alpha([['a'],['a']],set).alpha,1);
+const empty=alpha([['a',null],[null,'b']],set);assert.equal(empty.status,'insufficient');assert.equal(empty.alpha,null);assert.equal(empty.pairable,0);
+assert.throws(()=>alpha([['a'],[]],set));assert.throws(()=>alpha([['a'],['bad']],set));assert.throws(()=>alpha([['a'],[undefined as any]],set));assert.throws(()=>alpha([['a']],set));
+console.log('round10 nominal alpha with missing ratings passed');

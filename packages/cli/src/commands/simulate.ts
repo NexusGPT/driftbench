@@ -20,11 +20,12 @@ import {
   specRuns,
 } from './campaign';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
+import { hasSimulatedBlocks, type SimulateBlocksOptions, simulateBlocks } from './simulate-blocks';
 
 export type SimulateDeps = CampaignDeps;
 
-type SimulateOptions = {
-  persona: string;
+type SimulateOptions = SimulateBlocksOptions & {
+  persona?: string;
   target?: string;
   turns?: string;
   model?: boolean;
@@ -55,7 +56,10 @@ export function registerSimulateCommand(
       'Run one spec with a simulated user playing a persona, through the model port or a recording',
     )
     .argument('<spec>', 'one spec file')
-    .requiredOption('--persona <file>', 'the persona the user plays')
+    .option(
+      '--persona <file>',
+      'the persona the user plays; without it, the simulated user the spec defines in its blocks',
+    )
     .option(
       '--target <adapter[:agent]>',
       "the agent, such as function:acme-sales; without it, the spec's own",
@@ -72,6 +76,16 @@ export function registerSimulateCommand(
       'the model family of the agent under test; none for an agent that is not a model',
     )
     .option('--judge-family <family>', 'a model family of the judges; repeat it', collect)
+    .option(
+      '--cassette <file>',
+      'block mode: recorded responses of one simulator family; repeat it for the flip flag',
+      collect,
+    )
+    .option('--record-cassette <file>', 'block mode, with --model: write the responses as a cassette')
+    .option('--trials <k>', "block mode: runs per family; without it, the blocks' trials, else 1")
+    .option('--seed <seed>', "block mode: the engine's seed; without it, the spec's, else its id")
+    .option('--labeller <kind>', 'block mode: how the engine reads agent turns, model (default) or patterns')
+    .option('--freeze <file>', 'block mode: write the first failing run as a spec of fixed replay turns')
     .option('--json', 'print one JSON document')
     .action(async (path: string, options: SimulateOptions) => {
       setExit(await simulateCommand(path, options, io, deps));
@@ -91,6 +105,16 @@ export async function simulateCommand(
       return 2;
     }
     turns = optionNumber(options.turns);
+  }
+  if (options.persona === undefined) return simulateFromBlocks(path, options, io, deps);
+  const blockOnly = (['cassette', 'recordCassette', 'trials', 'seed', 'labeller', 'freeze'] as const).filter(
+    (key) => options[key] !== undefined,
+  );
+  if (blockOnly.length > 0) {
+    io.err(
+      `--${blockOnly.map(kebab).join(', --')} go with a spec that defines its simulated user in the blocks, not with --persona.\n`,
+    );
+    return 2;
   }
   const source = await userSource(options, () => (deps.modelPort ?? portFromEnv)(), io);
   if (!source) return 2;
@@ -198,6 +222,57 @@ export async function simulateCommand(
     );
   }
   return ok ? 0 : 1;
+}
+
+/** Block mode: the spec defines the simulated user in its blocks. */
+async function simulateFromBlocks(
+  path: string,
+  options: SimulateOptions,
+  io: Io,
+  deps: SimulateDeps,
+): Promise<number> {
+  if (options.recording !== undefined || options.turns !== undefined) {
+    io.err(
+      '--recording and --turns go with --persona; a spec whose blocks define the user takes --cassette.\n',
+    );
+    return 2;
+  }
+  const loaded = await loadValidSpecs([path], io);
+  if (!loaded) return 2;
+  const [entry, ...others] = loaded;
+  if (!entry || others.length > 0) {
+    io.err(`simulate takes one spec; ${path} holds ${loaded.length}.\n`);
+    return 2;
+  }
+  if (!hasSimulatedBlocks(entry.spec)) {
+    io.err(
+      `${entry.spec.id} defines no simulated user in its blocks: give --persona <file>, or write when.simulated_user with mode simulated.\n`,
+    );
+    return 2;
+  }
+  const given = options.target === undefined ? [] : [parseTarget(options.target)];
+  const [planned] = specRuns([entry], given, io) ?? [];
+  const target = planned?.targets[0];
+  if (planned === undefined || target === undefined) return 2;
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [entry.spec.id],
+  );
+  if (!adapter) return 2;
+  const agentFamily = agentFamilyOf(target, options.agentFamily);
+  if (agentFamily === undefined) {
+    io.err(
+      `Name the model family of ${showTarget(target)} with --agent-family (none for an agent that is not a model): the simulated user must run on another one.\n`,
+    );
+    return 2;
+  }
+  return simulateBlocks({ spec: entry.spec, target, adapter, agentFamily }, options, io, deps);
+}
+
+function kebab(key: string): string {
+  return key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
 type RecordedDriver = UserDriver & { revealed(): string[] };

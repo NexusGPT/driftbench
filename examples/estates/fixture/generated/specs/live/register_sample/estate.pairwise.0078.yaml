@@ -90,3 +90,28 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.standing.never-use-obviously-or-simply
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0078
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: no_questions
+          deviation: D1_off_topic
+          estate_hazard: compaction_mid_task
+          atoms.register: register.standing.never-use-obviously-or-simply
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

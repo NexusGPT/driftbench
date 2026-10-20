@@ -195,6 +195,29 @@ describe('history messages', () => {
       freeze.mockRestore();
     }
   });
+
+  it('names the full path of a fault deep in a message, and only that path after a valid sibling', () => {
+    const deep = {
+      role: 'assistant',
+      content: 'x',
+      tool_calls: [{ label: 'Read', input: { a: [1, { b: () => 1 }] } }],
+    } as unknown as Message;
+    expect(() => freezeMessage(deep)).toThrow(
+      /^message\["tool_calls"\]\["0"\]\["input"\]\["a"\]\["1"\]\["b"\]: unsupported function; expected plain JSON data$/,
+    );
+    const sibling = { role: 'user', content: 'x', metadata: { nested: { ok: [1, 2] }, after: Symbol('s') } };
+    expect(() => freezeMessage(sibling as unknown as Message)).toThrow(
+      /^message\["metadata"\]\["after"\]: unsupported symbol; expected plain JSON data$/,
+    );
+  });
+
+  it('reads a Proxy as Object.getOwnPropertyDescriptors does: a key its trap describes as absent is skipped', () => {
+    const ghost = new Proxy({}, { ownKeys: () => ['ghost'], getOwnPropertyDescriptor: () => undefined });
+    const message = { role: 'user', content: 'x', metadata: ghost } as unknown as Message;
+    expect(() => freezeMessage(message)).toThrow(
+      /^message\["metadata"\]: Proxy object; expected plain JSON data$/,
+    );
+  });
 });
 
 describe('history array snapshots', () => {

@@ -52,3 +52,21 @@ metadata:
       - marker: needs-registered-check
         atom: tool.settings.ask-bash-git-commit
         detail: "permission ask: the trace does not show the prompt"
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: tool.settings.ask-bash-git-commit
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: tool_boundary.tool.settings.ask-bash-git-commit
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

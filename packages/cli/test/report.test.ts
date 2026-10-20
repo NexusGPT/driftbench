@@ -337,13 +337,15 @@ describe('driftbench report', () => {
 });
 
 describe('driftbench report on a campaign of generated specs with an incomplete run', () => {
-  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs/twise', import.meta.url));
+  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs', import.meta.url));
 
   beforeAll(async () => {
+    // Loaded with the folder, so a spec that starts from a stem is written back out whole.
+    const suite = await loadSpecs([GENERATED]);
     const specs: LoadedSpec[] = [];
-    for (const name of ['gen-twise-001.yaml', 'gen-twise-002.yaml', 'gen-twise-003.yaml']) {
-      const [loaded] = await loadSpecs([join(GENERATED, name)]);
-      if (!loaded?.ok) throw new Error(`invalid generated spec ${name}`);
+    for (const id of ['gen-twise-001', 'gen-twise-002', 'gen-twise-003']) {
+      const loaded = suite.find((entry) => entry.ok && entry.spec.id === id);
+      if (!loaded?.ok) throw new Error(`invalid generated spec ${id}`);
       specs.push(loaded);
     }
     const store = openStore(join(dir, 'generated.db'));

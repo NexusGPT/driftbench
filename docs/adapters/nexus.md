@@ -109,6 +109,16 @@ Two sessions that send the identical payload to one stub at the same time cannot
 
 The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@agent-nexus/driftbench-judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
 
+## Pointer reader labeler
+
+The same Jev service fills the system 1 class of the estate pointer reader ([estate](../estate.md)), and it is the system 1 client of the default stack. Its ids are `jev` (the numbered window is the state of one request, up to 30 units) and `jev-unit` (one request per unit). It asks one native choice question per unit, keyed `u<n>`: the options are the labels of the set and `none`, each with its definition. It records the probability of every option in the cassette, so the cut of a stack is a setting of a replay and not of a new call. It reads `JEV_API_KEY`, `JEV_URL` (or `JEV_ROUTE`, `gateway` or `typesafe`) and `JEV_MODEL` (default `jev-latest`) from the environment, and records the `usage` the endpoint reports.
+
+* Alone, a unit takes the option with the highest probability.
+* In a stack with a system 2 labeler, Jev decides a unit alone when its likeliest option leads the second by `--labeler-margin-cut` (default 0.65) or more. System 2 decides the rest. Setting `--labeler-pass-at` or `--labeler-fail-at` reads the stack by probability bounds instead.
+* The size of a request is a budget of the endpoint, not a count. A request the endpoint refuses with `max_tokens_exceeded` is recorded as a refusal, the window is halved, and each half is asked again.
+* A label that asks for a target (`target: required`) is never asked of Jev: a probability names no other unit. In a stack that label is left to the system 2 labeler.
+* Its request and answer shapes follow the provider's published format.
+
 ## Target
 
 ```yaml

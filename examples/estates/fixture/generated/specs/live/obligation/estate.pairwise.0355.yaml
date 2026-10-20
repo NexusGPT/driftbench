@@ -82,3 +82,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.invoice-reconcile.under-0-05-eur-per-unit
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.under-0-05-eur-per-unit
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0355
+        values:
+          ask_class: research
+          ask_shape: ambiguous
+          session_state: after_compaction
+          owner_signal: keep_going
+          deviation: D2_goal_shift
+          estate_hazard: compaction_mid_task
+          atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

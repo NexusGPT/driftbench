@@ -125,3 +125,73 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-138
+        values:
+          behaviour: B-011
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          failing_tool: coverage.check
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: deviation=D8_tool_failure
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: stage_transition=address-to-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: plan_row
+        row: gen-twise-138
+        values:
+          behaviour: B-011
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          failing_tool: coverage.check
+          deviation: D8_tool_failure
+          stage_transition: address-to-callback
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

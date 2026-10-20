@@ -54,3 +54,22 @@ metadata:
     ask: code
     askFrom: hazard.standing.recover-from-a-new-session (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: hazard.standing.recover-from-a-new-session
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: hazard_recovery.hazard.standing.recover-from-a-new-session
+        values:
+          session_state: resumed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

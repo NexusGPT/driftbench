@@ -95,3 +95,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.never-report-done-before-verify-passed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0608
+        values:
+          ask_class: chat
+          ask_shape: concrete
+          session_state: long
+          owner_signal: limit_word
+          deviation: D1_off_topic
+          estate_hazard: compaction_mid_task
+          atoms.gate: gate.standing.never-report-done-before-verify-passed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

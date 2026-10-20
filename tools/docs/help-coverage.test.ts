@@ -55,14 +55,39 @@ describe('registered CLI help coverage', () => {
       mkdirSync(join(scratch, 'new-package', 'src'), { recursive: true });
       writeFileSync(
         join(scratch, 'new-package', 'src', 'errors.ts'),
-        "export const ObjectIssueCodes = ['OBJECT_UNKNOWN'] as const;\n",
+        "export const ObjectIssueCodes = ['ACME_REGISTRY_UNKNOWN'] as const;\n",
       );
-      expect(registeredErrors(scratch)).toEqual(['OBJECT_UNKNOWN']);
+      expect(registeredErrors(scratch)).toEqual(['ACME_REGISTRY_UNKNOWN']);
       expect(
         coverageRows(new Command(), topics, registeredErrors(scratch)).find(
-          (r) => r.item === 'OBJECT_UNKNOWN',
+          (r) => r.item === 'ACME_REGISTRY_UNKNOWN',
         )?.topics,
       ).toEqual([]);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it('finds codes written as a union type or as the code member of an error shape', () => {
+    const scratch = mkdtempSync(join(tmpdir(), 'help-code-unions-'));
+    try {
+      mkdirSync(join(scratch, 'new-package', 'src'), { recursive: true });
+      writeFileSync(
+        join(scratch, 'new-package', 'src', 'errors.ts'),
+        [
+          "export type WidgetErrorCode = 'WIDGET_BROKEN' | 'WIDGET_MISSING';",
+          "export type Shape = { code: 'SHAPE_ONE' | 'SHAPE_TWO'; message: string };",
+          "export type Unrelated = 'NOT_A_CODE' | 'ALSO_NOT';",
+          "type Hidden = { code: 'lower_case' | 'ALL' };",
+          '',
+        ].join('\n'),
+      );
+      expect(registeredErrors(scratch)).toEqual([
+        'SHAPE_ONE',
+        'SHAPE_TWO',
+        'WIDGET_BROKEN',
+        'WIDGET_MISSING',
+      ]);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }

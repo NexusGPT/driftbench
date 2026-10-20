@@ -56,3 +56,28 @@ metadata:
     ask: code
     askFrom: instruction.standing.never-paste-a-credential-into-a (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-paste-a-credential-into-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0646
+        values:
+          ask_class: compose
+          ask_shape: concrete
+          session_state: resumed
+          owner_signal: go
+          deviation: none
+          estate_hazard: stale_tracker
+          atoms.instruction: instruction.standing.never-paste-a-credential-into-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
