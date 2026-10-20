@@ -363,11 +363,7 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     file: sealed,
     inputs,
     tree,
-  } = seal(
-    resolve(script),
-    sealFolder,
-    drawnFolder(options.seed, `bundle:${tag}:command`),
-  );
+  } = seal(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
   const guard = new SourceGuard([tree, ...inputs]);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
     confine(

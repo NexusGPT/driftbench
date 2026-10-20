@@ -222,7 +222,10 @@ export class SourceGuard {
       this.scan(real, (file) => {
         if (this.saved.size >= SourceGuard.LIMIT) return;
         const bytes = readFileSync(file);
-        this.saved.set(file, bytes.length > SourceGuard.BIG ? createHash('sha256').update(bytes).digest('hex') : bytes);
+        this.saved.set(
+          file,
+          bytes.length > SourceGuard.BIG ? createHash('sha256').update(bytes).digest('hex') : bytes,
+        );
       });
     }
   }
@@ -235,7 +238,8 @@ export class SourceGuard {
       return;
     }
     if (stat.isDirectory()) {
-      for (const name of readdirSync(path)) if (name !== 'node_modules' && name !== '.git') this.scan(join(path, name), visit);
+      for (const name of readdirSync(path))
+        if (name !== 'node_modules' && name !== '.git') this.scan(join(path, name), visit);
     } else if (stat.isFile()) visit(path);
   }
 
