@@ -32,6 +32,7 @@ Write and grow the tests
   driftbench select      choose the golden set: the fewest conversations covering the map
   driftbench holdout     seal a share of the gated specs, score it once
   driftbench family      code-agent task families built from a seed
+  driftbench class       utterance classes: a block's message as a class of realisations, gated and frozen
   driftbench dataset     version spec sets in the store
   driftbench prompt      version prompts in the store
   driftbench object      the rule sets driftbench applies: list, explain, extend, validate, migrate

@@ -22,10 +22,36 @@ import { Uses } from './object';
  * Then (the expected output and state delta, under `expect`).
  */
 
+/**
+ * The utterance class a block's message belongs to: the class id and the hash of its frozen realisation set. The
+ * block still sends its own `user` text when run as written; `driftbench class expand` writes one copy of the
+ * spec per frozen realisation. The key enters the spec hash and the block cache key only when present.
+ */
+export const ClassRef = z
+  .strictObject({
+    id: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]*$/)
+      .describe('The class id, as its class file names it.'),
+    set: z
+      .string()
+      .regex(/^[0-9a-f]{12}$/)
+      .describe('The hash of the frozen realisation set the block is measured over (12 hex characters).'),
+  })
+  .describe('The utterance class of a user message: its id and the hash of its frozen realisation set.');
+export type ClassRef = z.infer<typeof ClassRef>;
+
 /** What reaches the agent in one block. */
 export const Stimulus = z
   .union([
-    z.strictObject({ user: z.string() }).describe('One user message, or one instruction to a task agent.'),
+    z
+      .strictObject({
+        user: z.string().describe('The message, or the instruction to a task agent.'),
+        class: ClassRef.optional().describe(
+          'The utterance class this message stands for. The message itself is the class seed.',
+        ),
+      })
+      .describe('One user message, or one instruction to a task agent.'),
     z
       .strictObject({ burst: z.array(z.string()).min(2) })
       .describe('Two or more messages that arrive together.'),

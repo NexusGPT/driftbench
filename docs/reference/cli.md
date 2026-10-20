@@ -1111,6 +1111,52 @@ Review: signed by owner on 2026-10-13.
 | 2 | bad input: an invalid family, an unapproved phrase, a missing, invalid or stale review, a bad number, an earlier output without `--force` | bad input: no adapter for the reference, no spec under the folder, a bad number | bad input, or an invalid review file |
 | 3 | | none fails, but the reference could not run one (a block not run): unverified, listed apart, never shipped | |
 
+## `driftbench class`
+
+Utterance classes: a block's user message measured as a class of messages that make the same request with the same values. `plan` prints the covering array of a class file; `realise` writes one candidate per planned row with a model, gates each one and freezes the accepted set; `audit` has labellers of two model families label the accepted items; `expand` writes one spec copy per frozen realisation of every block whose `when.class` names a set; `envelope` reports each class block of a campaign over its realisations. See the help topic `authoring-classes`.
+
+```
+driftbench class plan <class> [--t <n>] [--seed <n>] [--rows <n>] [--json]
+driftbench class realise <class> --out <file> --realiser <provider:model> --judge <provider:model> [--style <provider:model>] [--cassette <file>] [--record] [--attempts <n>] [--t <n>] [--seed <n>] [--rows <n>] [--json]
+driftbench class audit <class> --set <file> --labeller <provider:model> --labeller <provider:model> [--cassette <file>] [--record] [--out <file>] [--json]
+driftbench class expand <specs...> --classes <dir> --out <dir> [--json]
+driftbench class envelope [campaignId] --store <file> [--json]
+```
+
+| Option | Effect |
+|---|---|
+| `<class>` | the class file (YAML) |
+| `--t <n>` | `plan`, `realise`: strength of the covering array; default the file's `strength`, 2 |
+| `--seed <n>` | `plan`, `realise`: seed of the tie-breaks; default 1 |
+| `--rows <n>` | `plan`, `realise`: rows wanted past the array's own size |
+| `--out <file>` | `realise`: the frozen set to write; `audit`: the audit JSON; required for `realise` |
+| `--realiser`, `--judge`, `--style` | `realise`: the model seats, `<provider:model>` with provider `anthropic`, `openai` or `gemini`; `--style` defaults to the judge |
+| `--labeller` | `audit`: one labeller; give two of different families |
+| `--cassette <file>` | `realise`, `audit`: recorded answers (JSON lines, `.gz` allowed), replayed; written to with `--record` |
+| `--record` | `realise`, `audit`: ask the live models for answers the cassette lacks, and keep them; without it no key is read |
+| `--attempts <n>` | `realise`: attempts per planned row, the first included; default 3 |
+| `--set <file>` | `audit`: the frozen set |
+| `--classes <dir>` | `expand`: the folder of class files and their `*.set.json` sets; required |
+| `--out <dir>` | `expand`: the folder the copies are written into; required |
+| `--store <file>` | `envelope`: the store that holds the runs; required, never created |
+| `--json` | print the result as JSON |
+
+On the Acme order class, replayed from its recording:
+
+```
+$ pnpm -s driftbench class realise examples/acme/classes/order-fiber-address.yaml --rows 56 --out order.set.json --realiser openai:gpt-6-luna --judge anthropic:claude-haiku-5-5 --cassette examples/acme/classes/order-fiber-address.cassette.jsonl.gz
+Class acme.order.fiber-address: 56 planned rows, 101 candidates, 51 accepted, 5 rows unfilled.
+Rejected by: near_duplicate 35, style 6, minimal_pair 4, equivalence 3, slot_surface 2.
+Post-gate coverage: 44 of 44 2-way tuples (100.0%). Vendi 11.22 (reported, not gated).
+Frozen set 2c9ce562b65c: order.set.json. Name it in a block as when.class: { id: acme.order.fiber-address, set: 2c9ce562b65c }.
+```
+
+| Exit code | `plan`, `expand`, `envelope` | `realise` | `audit` |
+|---|---|---|---|
+| 0 | done | every planned row has an accepted realisation and the post-gate coverage is at least 95% | at most 1 item invalid by the union rule |
+| 1 | | the set is written short of that | more than 1 item invalid |
+| 2 | bad input: an invalid class file, a set refused (an edited item, a stale class, another set hash than the block names), no store | bad input, or a model call that failed (a replay the cassette cannot answer included) | bad input, fewer than two labeller families, a refused set, a failed model call |
+
 ## `driftbench estate`
 
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
