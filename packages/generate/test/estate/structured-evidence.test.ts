@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { declaredRecovery } from '../../src/estate/declared-recovery';
 import type { EstateAtom, EstatePlanRow } from '../../src/estate/inputs';
 import { compilePredicate } from '../../src/estate/predicates';
-import { recoveryAction } from '../../src/estate/recovery';
 import { anchorPair, pathsOf, stageModel, thenOf } from '../../src/estate/then';
 import { materialOf, unitTestOf } from '../../src/estate/unit';
 
@@ -108,14 +108,14 @@ describe('estate generation reads declared evidence instead of English vocabular
     );
   });
   it('uses declared recovery actions and leaves an imperative quote without evidence unresolved', () => {
-    expect(recoveryAction(atom({ provenance: { quote: 'Re-read `garden.md` and retry.' } }))).toEqual({
+    expect(declaredRecovery(atom({ provenance: { quote: 'Re-read `garden.md` and retry.' } }))).toEqual({
       reread: [],
       calls: [],
       retry: false,
       unpathed: [],
     });
     expect(
-      recoveryAction(atom({ fields: { recovery: { reread: ['garden.md'], retry: true } } })),
+      declaredRecovery(atom({ fields: { recovery: { reread: ['garden.md'], retry: true } } })),
     ).toMatchObject({
       reread: ['garden.md'],
       retry: true,
@@ -198,7 +198,7 @@ describe('estate generation reads declared evidence instead of English vocabular
         { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'notes/garden.md' } } },
       ],
     });
-    expect(recoveryAction(hazard, new Map([[instruction.id, instruction]])).reread).toEqual([
+    expect(declaredRecovery(hazard, new Map([[instruction.id, instruction]])).reread).toEqual([
       'notes/garden.md',
     ]);
   });
