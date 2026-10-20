@@ -28,12 +28,12 @@ The gate reads this file. `driftbench validate pointer --hardness` stays red unt
 
 - The first bank (419 items): 332 are labelled blind, 70 maintainer-repaired and 17 maintainer-added. `CATALOGUE.md` lists the label of every item, and `driftbench validate pointer --items` prints the score of each label apart. Only the blind items carry the blind record; the other 87 do not.
 - The second bank (340 items, PR 759, helper record in `packages/validators/src/ladders/pointer/blind/CONTRACT.md`) is registered as the levels `blind-1` to `blind-5`, with the label `blind-bank-759`. Its binding to the reader is `packages/validators/src/ladders/pointer/sut/blind-binding/`, derived from the exports of `packages/estate/src/pointer` and `docs/estate-pointer-reader.md`.
-- Against the real reader (seed 1, locked by `packages/validators/test/pointer/blind-binding.test.ts`): 215 items pass, 16 differ from the planted truth, 109 are unsupported. **The 109 unsupported items are gaps of the reader or the binding, not product failures**; each detail names the reason.
+- Against the real reader (seed 1, locked by `packages/validators/test/pointer/blind-binding.test.ts`): 227 items pass, 4 differ from the planted truth, 109 are unsupported. **The 109 unsupported items are gaps of the reader or the binding, not product failures**; each detail names the reason.
   - privacy (30): the reader library has no key, fetch, cache-directory or log seam.
   - links (30) and radius (30) with clearance: layer C is not built (design section 14).
   - `group:carry` (9): carry-forward lives inside the ledger step and derives its fingerprints from the text.
   - `reanchor` ambiguous (3): the reader keeps the id on the first match and lists no candidates.
   - `labels:rerecord` (3): the reader emits no `label_flip` diagnostic.
   - `replay` (4): a miss names no field when the set or the labeler differs.
-- The 16 items that differ are reader behaviour against the design, to be read by the cause reviewer: a fence or comment unit covers its first line only (design section 2 says one unit each) in 10 cutting and scale items; an answer needs no window or set echo and is read out of a wrapper (4 adversarial items); a cut-digest miss does not name the node and ICU versions (2 replay items).
+- The 4 items that differ are reader behaviour against the design, to be read by the cause reviewer: an answer needs no window or set echo and is read out of a wrapper (4 adversarial items). The fence and comment units (10 cutting and scale items) and the cut-digest miss (2 replay items) are fixed in the reader.
 - The cause reviewer and the cheater treat the 109 as a gap of the reader, not as reader defects.

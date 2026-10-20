@@ -21,7 +21,7 @@ describe('the blind bank bound to the reader', () => {
         } else counts.differs += 1;
       }
     }
-    expect(counts).toEqual({ pass: 215, differs: 16, unsupported: 109 });
+    expect(counts).toEqual({ pass: 227, differs: 4, unsupported: 109 });
     expect([...reasons].sort()).toEqual([
       'unsupported: group:carry',
       'unsupported: labels:rerecord',
