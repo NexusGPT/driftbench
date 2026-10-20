@@ -561,6 +561,8 @@ export function completionComponents(spec: Spec): ComponentInventory {
                 input: Object.assign([], commandWitness.input),
               });
             },
+            // A declared Bash call with an input that holds no readable command is a known one, not an unknown tool.
+            { Bash: 'read' },
           );
         for (const witness of operations.harmful)
           add(
@@ -584,6 +586,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
               if (witness.needsNoDiff) delete o.workspaceDiff;
               o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
             },
+            witness.label === 'Bash' ? { Bash: 'read' } : undefined,
           );
         // A tool the spec does not name, called after the event: the collateral verdict is inconclusive.
         for (const witness of operations.unlisted)
