@@ -131,6 +131,38 @@ describe('the gate on a suite with stems', () => {
     ]);
   });
 
+  it('names an unlabeled block of a written child by its authored index, as the rest of the file does', async () => {
+    const [stem, red] = tree(7) as [Spec, Spec, Spec];
+    const child = makeSpec({
+      id: 'red-7',
+      stages: STAGES,
+      blocks: [
+        { ...orderBlock('red'), parent: 'stem-7#hello' },
+        // No id: the gate names it by its position, and the position is the authored one, 1, not 2 after the opening.
+        { when: { user: 'Thanks.' }, expect: { must: ['welcome'] } },
+      ],
+    });
+    expect(red.id).toBe('red-7');
+    const specs = writtenOut([stem, child]);
+    const result = await gate(specs, { options: { holdoutShare: 0 } });
+    const files = gateFiles(
+      result,
+      specs.map((spec) => candidate(spec)),
+      { source: 'candidates', references: ['function:shop'], options: OPTIONS },
+    );
+    const text = files.find((file) => file.path === 'specs/red-7.yaml')?.text;
+    if (text === undefined)
+      throw new Error(`no specs/red-7.yaml in ${files.map((file) => file.path).join(', ')}`);
+    const written = parse(text) as Spec;
+    expect(written.blocks).toHaveLength(2);
+    const gated = written.metadata?.gate as { blocks: Array<{ block: string | number }>; dropped?: string[] };
+    expect(gated.blocks.map((entry) => entry.block)).toEqual(['red', 1]);
+    // Every position the file names exists in the file, and `dropped` uses the same index.
+    for (const entry of gated.blocks)
+      if (typeof entry.block === 'number') expect(entry.block).toBeLessThan(2);
+    for (const line of gated.dropped ?? []) expect(line).not.toMatch(/^2:/);
+  });
+
   it('writes a child whole when its stem is not gated with it, so the gated file runs on its own', async () => {
     // As `gate generated/specs/graph` sees it: the loader read the stem from specs/stems/ to write the child
     // out, but only the seeder folder is gated.

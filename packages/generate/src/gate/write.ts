@@ -126,7 +126,8 @@ function gatedSpec(written: Spec, records: readonly BlockRecord[], date: string,
         by: 'driftbench gate',
         date,
         blocks: records.map((record) => ({
-          block: record.id ?? record.index,
+          // The authored index: the records were read on the written-out spec, after the opening it replays.
+          block: record.id ?? record.index - shift,
           status: record.status,
           ...(record.rejectedAt ? { stage: record.rejectedAt, reason: record.reason } : {}),
           ...(record.status === 'accepted'
