@@ -4,6 +4,7 @@ import { reanchorOp } from './anchor';
 import { groupOp } from './group';
 import { fingerprintOp, ledgerOp } from './ids';
 import { labelsOp } from './labels';
+import { privacyOp } from './privacy';
 import { type Obj, Unsupported } from './reader';
 import { replayOp } from './replay';
 
@@ -53,11 +54,7 @@ export function blindBinding(resolve: Resolve): PointerAdapter {
         case 'replay':
           return replayOp(input);
         case 'privacy':
-          void io;
-          throw new Unsupported(
-            'privacy',
-            'the reader library has no key, fetch, cache-directory or log seam: a scan takes a labeler and a cassette object, and the key read and the .cache writes belong to no exported function',
-          );
+          return privacyOp(input, io);
         case 'links':
         case 'radius':
           throw new Unsupported(

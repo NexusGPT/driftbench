@@ -157,7 +157,12 @@ export async function materializeOp(input: Obj): Promise<unknown> {
         labelSet: atom.fields.labelSet,
         cassette: atom.fields.cassette,
       },
-      evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true }],
+      // The reader's own predicates, one for one: nothing is added and a missing flag stays missing.
+      evidence: ((atom.evidence ?? []) as Obj[]).map((predicate) => ({
+        type: predicate.type,
+        name: predicate.name,
+        reviewRequired: predicate.options?.reviewRequired,
+      })),
     })),
   };
 }

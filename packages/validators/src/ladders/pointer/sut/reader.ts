@@ -226,10 +226,11 @@ export async function loadReaderWithRetry(
   throw last;
 }
 
-function load(): Promise<ReaderExports> {
+function load(timeoutMs?: number): Promise<ReaderExports> {
   // A failed load is not kept: the next call tries again instead of failing every later item the same way.
   loaded ??= loadReaderWithRetry(
     async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
+    timeoutMs,
   ).catch((cause: unknown) => {
     loaded = undefined;
     throw cause;
@@ -238,8 +239,8 @@ function load(): Promise<ReaderExports> {
 }
 
 /** A real baseline requires the actual reader exports before it runs any item or writes any score. */
-export async function assertReaderAvailable(): Promise<void> {
-  await load();
+export async function assertReaderAvailable(timeoutMs?: number): Promise<void> {
+  await load(timeoutMs);
 }
 
 /* ----- cut ----- */

@@ -8,21 +8,25 @@ import { referenceSut } from './reference/index';
 const count = (label: string) => pointerBank().filter((i) => i.provenance === label).length;
 
 describe('the provenance of the first bank', () => {
-  it('labels every item, and the three labels cover the 419 items', () => {
+  it('labels every item, and the labels cover the 419 items', () => {
     expect(pointerBank()).toHaveLength(419);
-    expect(count('blind')).toBe(332);
-    expect(count('maintainer-repaired')).toBe(70);
-    expect(count('maintainer-added')).toBe(17);
+    expect(count('blind') + count('maintainer-repaired') + count('maintainer-added')).toBe(419);
   });
 
   it('labels the stack and label-set validation items as maintainer-added', () => {
     const added = pointerBank().filter((i) => i.provenance === 'maintainer-added');
     expect(added.every((i) => /^labels\.(stack-|set-validation-)/.test(i.id))).toBe(true);
   });
+});
 
-  it('keeps the lowercase-boundary item out of the blind label: its oracle was reversed after the blind commit', () => {
-    const item = pointerBank().find((i) => i.id === 'cutting.sentences-lowercase-start-merges');
-    expect(item?.provenance).toBe('maintainer-repaired');
+describe('the first bank claims no blind item', () => {
+  it('labels no item of this bank blind', () => {
+    expect(pointerBank().filter((i) => i.provenance === 'blind')).toEqual([]);
+  });
+
+  it('labels the 402 original items maintainer-repaired and the 17 later ones maintainer-added', () => {
+    expect(count('maintainer-repaired')).toBe(402);
+    expect(count('maintainer-added')).toBe(17);
   });
 });
 
@@ -52,7 +56,9 @@ describe('the second bank beside the first', () => {
     const measure = await level?.compute({ seed: 1, hidden: false, root: '.' });
     const bank = measure?.bank ?? [];
     const of = (family: string) => bank.filter((e) => e.family === family);
+    expect(of('blind-cutting').length).toBeGreaterThan(0);
     expect(of('blind-cutting').every((e) => e.pass)).toBe(true);
+    expect(of('blind-scale').length).toBeGreaterThan(0);
     expect(of('blind-scale').every((e) => e.pass)).toBe(true);
     expect(of('blind-links').length).toBeGreaterThan(0);
     expect(of('blind-links').every((e) => !e.pass && /adapter gap/.test(e.detail ?? ''))).toBe(true);
@@ -66,7 +72,6 @@ describe('the second bank beside the first', () => {
     };
     const report = await runSeeds(ladder, [{ seed: 1, hidden: false }], process.cwd(), { full: true });
     const text = formatItems(bankSummary(report), 'pointer');
-    expect(text).toContain('Provenance blind:');
     expect(text).toContain('Provenance maintainer-repaired:');
     expect(text).toContain('Provenance maintainer-added:');
     expect(text).toContain(`Provenance ${BLIND_PROVENANCE}:`);

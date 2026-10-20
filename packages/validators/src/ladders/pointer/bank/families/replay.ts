@@ -117,19 +117,30 @@ async function missCase(
     ? pass('miss names changed input')
     : fail(`miss does not name ${names.join(', ')}: ${res.error}`);
 }
+async function staleCassette(
+  ctx: ItemContext,
+  fixture: ReturnType<typeof loadFixture> & { files: SourceFile[] },
+  arm: ModelArm,
+  field: string,
+  value: string,
+  names: string[],
+  extra: string[] = [],
+): Promise<Outcome> {
+  const changed = perturb(fixture, arm, ctx.seed, field, value);
+  const { res, fake } = await replay(ctx, fixture.files, arm, changed.cassette, {
+    labelsYaml: fixture.labelsYaml,
+  });
+  if (res.ok) return fail('a one-field stale cassette was accepted');
+  if (fake.count) return fail('the miss reached the network');
+  if (!mentions(res.error, names)) return fail(`the miss does not name ${names.join(', ')}: ${res.error}`);
+  for (const part of extra) if (!(res.error ?? '').includes(part)) return fail(`the miss omits ${part}`);
+  return pass(`miss names ${field}`);
+}
 const fixtureMissCase =
   (arm: ModelArm, field: string, value: string, names: string[], extra: string[] = []): Run =>
   async (ctx) => {
     const { fixture } = await positiveReplay(ctx, arm);
-    const changed = perturb(fixture, arm, ctx.seed, field, value);
-    const { res, fake } = await replay(ctx, fixture.files, arm, changed.cassette, {
-      labelsYaml: fixture.labelsYaml,
-    });
-    if (res.ok) return fail('a one-field stale cassette was accepted');
-    if (fake.count) return fail('the miss reached the network');
-    if (!mentions(res.error, names)) return fail(`the miss does not name ${names.join(', ')}: ${res.error}`);
-    for (const part of extra) if (!(res.error ?? '').includes(part)) return fail(`the miss omits ${part}`);
-    return pass(`miss names ${field}`);
+    return staleCassette(ctx, fixture, arm, field, value, names, extra);
   };
 
 export const replayRuns: Record<string, Run> = {
@@ -137,7 +148,20 @@ export const replayRuns: Record<string, Run> = {
   'fixture-haiku-replays-committed': fixtureMissCase('haiku', 'part.messages', 'changed', ['part.messages']),
   'fixture-jev-replays-committed': fixtureMissCase('jev', 'part.state', 'changed', ['part.state']),
   'fixture-jev-unit-replays-committed': fixtureMissCase('jev-unit', 'path', 'changed.md', ['path']),
-  'fixture-replay-twice-identical': fixtureMissCase('haiku', 'window', 'changed#1', ['window']),
+  'fixture-replay-twice-identical': async (ctx) => {
+    // The original check: replaying the committed fixture again, with the first ledger as the previous one, gives the same ledger bytes.
+    const { fixture, res: first } = await positiveReplay(ctx, 'haiku');
+    const firstRaw = must(first, 'the first replay');
+    const { res: second, fake } = await replay(ctx, fixture.files, 'haiku', fixture.cassette, {
+      labelsYaml: fixture.labelsYaml,
+      previousLedger: firstRaw,
+    });
+    if (!second.ok || !second.ledger) return fail(`the second replay failed: ${second.error}`);
+    if (fake.count) return fail('the second replay reached the network');
+    if (second.ledger.raw !== firstRaw) return fail('the second replay changed the ledger');
+    // Kept beside it: a one-field stale window in the cassette is refused by name.
+    return staleCassette(ctx, fixture, 'haiku', 'window', 'changed#1', ['window']);
+  },
   'fixture-miss-names-model': fixtureMissCase('haiku', 'model', 'claude-haiku-4-0', ['model']),
   'fixture-miss-names-prompt-version': fixtureMissCase('haiku', 'promptVersion', 'p0', [
     'promptVersion',
