@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { renderAsk } from '@agent-nexus/driftbench-generate';
@@ -57,6 +58,7 @@ afterAll(async () => {
   if (output) await writeFile(output, JSON.stringify(counts, null, 2));
 });
 
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const synonyms: Readonly<Record<string, string>> = {
   write: 'compose',
   report: 'describe',
@@ -204,12 +206,23 @@ const ATTACKS: Record<string, Attack> = {
 };
 
 describe('the independent primary-row attack classes', () => {
-  it('accepts every committed code-written ask, including both hazards', () => {
+  it('accepts the committed code-written asks of whole clauses, and refuses exactly the pinned ones', async () => {
     expect(coded).toHaveLength(467);
     expect(coded.filter((spec) => metaOf(spec).from.form === 'hazard')).toHaveLength(2);
-    const rejected = coded.filter((spec) => checkAsk(spec, env).reasons.length > 0).map((spec) => spec.id);
+    const rejected = coded.filter((spec) => checkAsk(spec, env).reasons.length > 0);
     counts.real = { tried: coded.length, accepted: coded.length - rejected.length };
-    expect(rejected).toEqual([]);
+    // The asks whose pieces a list of English words cut have no recorded offsets: they fail closed, and only
+    // for that reason, until the generator takes its pieces from labelled spans. The list is pinned.
+    const pinned = JSON.parse(
+      await readFile(join(ROOT, 'docs/validation/ask-span-fail-closed.json'), 'utf8'),
+    ) as { specs: Array<{ id: string }> };
+    expect(rejected.map((spec) => spec.id).sort()).toEqual(pinned.specs.map((entry) => entry.id).sort());
+    for (const spec of rejected)
+      for (const reason of checkAsk(spec, env).reasons)
+        expect(reason, spec.id).toMatch(/is no whole clause of the text of/);
+    expect(coded.filter((spec) => metaOf(spec).from.form === 'hazard' && rejected.includes(spec))).toEqual(
+      [],
+    );
   });
 
   for (const [name, attack] of Object.entries(ATTACKS))

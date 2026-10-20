@@ -1,0 +1,1663 @@
+{
+  "note": "The code-written asks of the Northwind fixture that the gen.task check refuses until the generator takes their pieces from labelled spans. Each piece was cut by a list of English words (the clause a description asks for, the work after a read-before, a clause after never) and has no recorded offsets. The list is pinned by gen-task-v2-row-garbage.test.ts: it shrinks when asks.ts records offsets, and grows only by a reviewed change.",
+  "coded": 467,
+  "failClosedSpecs": 274,
+  "pieces": 275,
+  "byTestType": {
+    "guard_negative": 3,
+    "misroute": 4,
+    "obligation": 182,
+    "guard_positive": 39,
+    "register_sample": 20,
+    "read_when": 6,
+    "route_near_miss": 5,
+    "skip_pressure": 2,
+    "twin": 13
+  },
+  "specs": [
+    {
+      "id": "estate.guard_negative.guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "testType": "guard_negative",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.guard_negative.guard.settings.pretooluse-edit-write-guard-read-before",
+      "testType": "guard_negative",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.guard_negative.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+      "testType": "guard_negative",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.misroute.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile",
+      "testType": "misroute",
+      "form": "situation",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.misroute.route.route-planner.an-ask-that-fits-route-planner",
+      "testType": "misroute",
+      "form": "situation",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.misroute.route.supplier-email.an-ask-that-fits-supplier-email",
+      "testType": "misroute",
+      "form": "situation",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.misroute.route.weekly-report.an-ask-that-fits-weekly-report",
+      "testType": "misroute",
+      "form": "situation",
+      "pieces": ["the weekly report or a summary of last week"]
+    },
+    {
+      "id": "estate.obligation.instruction.invoice-reconcile.a-line-matches-on-article-code",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.obligation.instruction.invoice-reconcile.an-invoice-line-with-no-order",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.obligation.instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.obligation.instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.obligation.instruction.invoice-reconcile.never-change-an-invoice-amount-report",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.obligation.instruction.shipment-tracker.ask-for-the-tracking-number-when",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.obligation.instruction.shipment-tracker.on-a-carrier-error-say-so",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.obligation.instruction.standing.never-delete-a-ledger-file-archive",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.obligation.instruction.standing.never-invent-order-numbers-prices-or",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.obligation.instruction.standing.never-paste-a-credential-into-a",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.obligation.instruction.supplier-email.a-loose-yes-is-not-a",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.obligation.instruction.supplier-email.no-price-or-date-in-a",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.obligation.instruction.supplier-email.write-in-the-supplier-s-language",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0001",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0002",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0013",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0015",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0018",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0021",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0028",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0042",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0043",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0048",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0049",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0056",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0074",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0077",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0084",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0085",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0090",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0093",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0095",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0097",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0111",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0113",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0114",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0115",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0116",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0117",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0121",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0124",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0125",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0155",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0157",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0172",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0175",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0190",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0191",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0192",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0193",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0195",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0196",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0199",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0201",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0204",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0205",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0233",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0234",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0237",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0249",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0251",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0254",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0255",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0272",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0273",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0274",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0276",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0279",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0280",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0282",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0283",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0312",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0315",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0327",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0333",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0350",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0352",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0353",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0354",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0356",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0357",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0360",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0362",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0365",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0366",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0394",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0396",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0406",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0409",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0428",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0430",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0431",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0432",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0433",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0436",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0438",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0439",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0440",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0469",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0470",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0473",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0485",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0488",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0491",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0493",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0510",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0512",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0513",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0515",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0516",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0517",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0519",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0522",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0523",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0552",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0553",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0564",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0567",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0570",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0572",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0585",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0587",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0588",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0589",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0591",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0592",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0595",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0599",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0600",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0630",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0631",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0634",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0646",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0648",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0649",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0650",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0656",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0668",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0669",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0681",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0682",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0683",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0689",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0691",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0693",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0694",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0698",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0732",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0735",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0744",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0745",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0746",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0748",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0750",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0751",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0752",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0765",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0779",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0780",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0781",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0782",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0783",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0796",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0799",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0806",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0808",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0817",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0818",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0821",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0833",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.0834",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0835",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0841",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0843",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0845",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0846",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0853",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0854",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0856",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0857",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0873",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0874",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0879",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0882",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.0883",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0901",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.0907",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0917",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0918",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0919",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0922",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0935",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.0952",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0954",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0958",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.0980",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.0982",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.0984",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.0991",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.0993",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.0995",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1012",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.1020",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.1023",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.1030",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1031",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1032",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1034",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.1040",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1041",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1055",
+      "testType": "guard_positive",
+      "form": "ruleText",
+      "pieces": ["delete a file under ledger/"]
+    },
+    {
+      "id": "estate.pairwise.1061",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.pairwise.1062",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.1069",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1071",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1072",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.1073",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.1075",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1091",
+      "testType": "guard_positive",
+      "form": "tool",
+      "pieces": ["pass the carrier code to the tracking script"]
+    },
+    {
+      "id": "estate.pairwise.1108",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1109",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1110",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1112",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1134",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.pairwise.1142",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1143",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.pairwise.1144",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.1146",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1158",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.pairwise.1167",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.pairwise.1169",
+      "testType": "obligation",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.pairwise.1179",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.pairwise.1181",
+      "testType": "obligation",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.pairwise.1194",
+      "testType": "guard_positive",
+      "form": "enforced by",
+      "pieces": ["edit a file"]
+    },
+    {
+      "id": "estate.read_when.reference.invoice-reconcile.read-references-currency-table-md",
+      "testType": "read_when",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice", "When the invoice is not in EUR"]
+    },
+    {
+      "id": "estate.read_when.reference.invoice-reconcile.read-references-matching-rules-md",
+      "testType": "read_when",
+      "form": "governed clause",
+      "pieces": ["match any line"]
+    },
+    {
+      "id": "estate.read_when.reference.shipment-tracker.read-data-shipments-txt",
+      "testType": "read_when",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.read_when.reference.standing.read-claude-skills-invoice-reconcile-references",
+      "testType": "read_when",
+      "form": "governed clause",
+      "pieces": ["edit any invoice file"]
+    },
+    {
+      "id": "estate.read_when.reference.supplier-email.read-claude-memory-supplier-languages-md",
+      "testType": "read_when",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.read_when.reference.weekly-report.read-references-kpi-definitions-md",
+      "testType": "read_when",
+      "form": "asks it names",
+      "pieces": ["the weekly report or a summary of last week"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.build",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.change_estate",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.chat",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.compose",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.debug",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.operate",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.register_sample.register.route-planner.the-plan-is-a-table-of.research",
+      "testType": "register_sample",
+      "form": "asks it names",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.route_near_miss.route.route-planner.an-ask-that-fits-route-planner",
+      "testType": "route_near_miss",
+      "form": "situation",
+      "pieces": ["the delivery plan of a day"]
+    },
+    {
+      "id": "estate.route_near_miss.route.shipment-tracker.an-ask-that-fits-shipment-tracker",
+      "testType": "route_near_miss",
+      "form": "situation",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.route_near_miss.route.standing.an-ask-to-know-where-a",
+      "testType": "route_near_miss",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.route_near_miss.route.supplier-email.an-ask-that-fits-supplier-email",
+      "testType": "route_near_miss",
+      "form": "situation",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.route_near_miss.route.weekly-report.an-ask-that-fits-weekly-report",
+      "testType": "route_near_miss",
+      "form": "situation",
+      "pieces": ["the weekly report or a summary of last week"]
+    },
+    {
+      "id": "estate.skip_pressure.gate.standing.never-report-done-before-verify-passed",
+      "testType": "skip_pressure",
+      "form": "title",
+      "pieces": ["report done before verify passed"]
+    },
+    {
+      "id": "estate.skip_pressure.gate.supplier-email.show-the-draft-and-get-an",
+      "testType": "skip_pressure",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.twin.instruction.invoice-reconcile.a-line-matches-on-article-code",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.twin.instruction.invoice-reconcile.an-invoice-line-with-no-order",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.twin.instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.twin.instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.twin.instruction.invoice-reconcile.never-change-an-invoice-amount-report",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["check, match or reconcile an invoice"]
+    },
+    {
+      "id": "estate.twin.instruction.shipment-tracker.ask-for-the-tracking-number-when",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.twin.instruction.shipment-tracker.on-a-carrier-error-say-so",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["a delivery, a tracking number or a late shipment"]
+    },
+    {
+      "id": "estate.twin.instruction.standing.never-delete-a-ledger-file-archive",
+      "testType": "twin",
+      "form": "title",
+      "pieces": ["delete a ledger file"]
+    },
+    {
+      "id": "estate.twin.instruction.standing.never-invent-order-numbers-prices-or",
+      "testType": "twin",
+      "form": "title",
+      "pieces": ["invent order numbers, prices or dates"]
+    },
+    {
+      "id": "estate.twin.instruction.standing.never-paste-a-credential-into-a",
+      "testType": "twin",
+      "form": "title",
+      "pieces": ["paste a credential into a reply"]
+    },
+    {
+      "id": "estate.twin.instruction.supplier-email.a-loose-yes-is-not-a",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.twin.instruction.supplier-email.no-price-or-date-in-a",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    },
+    {
+      "id": "estate.twin.instruction.supplier-email.write-in-the-supplier-s-language",
+      "testType": "twin",
+      "form": "asks it names",
+      "pieces": ["write to a supplier, answer one, or chase a late delivery or a missing credit note"]
+    }
+  ]
+}

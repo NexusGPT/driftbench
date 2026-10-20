@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
@@ -68,19 +69,43 @@ function withPhrase(unit: string, phrase: string, id: string): AskEnv {
   return envOf(env.atoms, bank, env.sessions);
 }
 
+/**
+ * The asks whose pieces a list of English words cut have no recorded offsets, so the check refuses them until the
+ * generator takes its pieces from labelled spans. The list is pinned (docs/validation/ask-span-fail-closed.json).
+ */
+const PINNED = JSON.parse(
+  readFileSync(
+    join(
+      fileURLToPath(new URL('../../../../', import.meta.url)),
+      'docs/validation/ask-span-fail-closed.json',
+    ),
+    'utf8',
+  ),
+) as { specs: Array<{ id: string; testType: string }> };
+const PINNED_IDS = new Set(PINNED.specs.map((entry) => entry.id));
+const PINNED_TYPES = new Set(PINNED.specs.map((entry) => entry.testType));
+
 describe('the Northwind suite', () => {
-  it('passes every item of gen.task', async () => {
+  it('passes every item of gen.task whose test type holds no pinned fail-closed ask', async () => {
     const family = taskFamilyV2();
     const results = await family.evaluate(1);
     expect(results.size).toBe(TASK_TYPES.length);
     expect([...results.keys()]).toEqual(family.items.map((item) => item.id));
-    for (const [id, result] of results) expect(result, id).toMatchObject({ pass: true });
+    for (const [id, result] of results)
+      expect(result, id).toMatchObject({ pass: !PINNED_TYPES.has(id.replace(/^gen\.task\.v2\./, '')) });
   }, 600_000);
 
   it('holds a link, a source and an act the validator derives itself on every complete spec', () => {
     const asked = suite.specs.filter((spec) => spec.complete && spec.path.endsWith('.yaml'));
     expect(asked.length).toBeGreaterThan(1000);
-    for (const spec of asked) expect(checkAsk(spec, env).reasons, spec.id).toEqual([]);
+    for (const spec of asked) {
+      const reasons = checkAsk(spec, env).reasons;
+      // A pinned ask fails closed on its pieces only; every other ask has no reason at all.
+      if (PINNED_IDS.has(spec.id)) {
+        expect(reasons.length, spec.id).toBeGreaterThan(0);
+        for (const reason of reasons) expect(reason, spec.id).toMatch(/is no whole clause of the text of/);
+      } else expect(reasons, spec.id).toEqual([]);
+    }
   });
 });
 

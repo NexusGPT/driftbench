@@ -11,7 +11,7 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import type { SuiteSpec } from './fixture-suite';
 import { type Act, actOfAtom, sameTarget, targetsOf } from './task-act';
-import { type Field, fieldsOf, isClauseOf, orderedShare } from './task-span';
+import { type Field, fieldsOf, isClauseOf, isSliceOfSpan, orderedShare } from './task-span';
 
 /**
  * gen.task, read from ids and structure. An ask is judged by what the spec says about it
@@ -27,6 +27,10 @@ import { type Field, fieldsOf, isClauseOf, orderedShare } from './task-span';
  *   fake shows the act (a control shows none).
  *
  * Limits, stated:
+ * - A piece the generator cut with a list of English words has no recorded offsets and fails closed: 274 of the
+ *   467 code-written asks of the fixture (docs/validation/ask-span-fail-closed.json) until `asks.ts` takes its
+ *   pieces from labelled spans. The generator still holds those lists (`ASKED_PATTERNS`, `pronounDerivation`
+ *   and the clause readers of `asks.ts`); the check no longer reads them.
  * - An ask written by the generator is rebuilt from the names of its frame and shapes and its pieces, and each
  *   piece must be a whole clause of the text it cites (`task-span.ts`). That proves provenance, not that the
  *   clause is a task: a whole clause of an atom that is not a request (a statement, a heading) passes, as does
@@ -185,9 +189,29 @@ function pieceReasons(
     if (id === cited.id || enforced.includes(id)) actFields.push(...own);
   }
   const actSlots = shape.split(SLOT).length - 1;
-  for (const [index, piece] of list.entries())
+  // A piece taken from a labelled clause records where: `from.offsets[i]` is `{ atom, from, to }` or null. The
+  // atom must be one of those the piece may come from (the cited atom, a rule it enforces, and for a context
+  // piece the row atoms); the piece is then the slice of its quote, inside a span labelled as acting.
+  const offsets = Array.isArray(from.offsets) ? (from.offsets as unknown[]) : [];
+  const sources = new Set(cited.id === undefined ? [] : [cited.id, ...enforced]);
+  for (const [index, piece] of list.entries()) {
+    const taken = record(offsets[index]);
+    if (taken !== undefined) {
+      const owner = typeof taken.atom === 'string' ? env.byId.get(taken.atom) : undefined;
+      const allowed = index < actSlots ? sources : new Set([...sources, ...atomIds]);
+      if (
+        !owner ||
+        !allowed.has(owner.id) ||
+        typeof taken.from !== 'number' ||
+        typeof taken.to !== 'number' ||
+        !isSliceOfSpan(piece, { from: taken.from, to: taken.to }, owner)
+      )
+        reasons.push(`the piece "${piece}" is no slice of a labelled clause of the text of ${cited.id}`);
+      continue;
+    }
     if (!isClauseOf(piece, index < actSlots ? actFields : fields))
       reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
+  }
   return reasons;
 }
 

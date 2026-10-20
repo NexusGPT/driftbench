@@ -1,4 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeAll, expect, it } from 'vitest';
 import { type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { holdsTask, taskFamily } from '../../src/ladders/estate/bank/genquality';
@@ -18,6 +20,8 @@ beforeAll(async () => {
   suite = await fixtureSuite();
   env = await envOfSuite(suite);
 }, 300_000);
+
+const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 
 it('measures', async () => {
   const report: Record<string, unknown> = {};
@@ -76,10 +80,16 @@ it('measures', async () => {
   report.coded = coded.length;
   if (OUT) writeFileSync(OUT, JSON.stringify(report, null, 2));
   const total = (key: string) => Object.values(byClass).reduce((sum, row) => sum + (row[key] ?? 0), 0);
-  // Version 1 fails six items of the suite and accepts 39 of the 161 planted asks; version 2 passes the suite
-  // and rejects all 161 in each of three plants (no source, text replaced, garbage recorded as the piece).
+  // Version 1 fails six items of the suite and accepts 39 of the 161 planted asks; version 2 rejects all 161 in
+  // each of three plants (no source, text replaced, garbage recorded as the piece). It fails the items of the
+  // test types that hold an ask cut by a list of words (the pinned fail-closed asks) and passes the others.
+  const pinned = JSON.parse(
+    readFileSync(join(ROOT, 'docs/validation/ask-span-fail-closed.json'), 'utf8'),
+  ) as { specs: Array<{ testType: string }> };
   expect([...v1.values()].filter((entry) => !entry.pass).length).toBe(6);
-  expect([...v2.values()].filter((entry) => !entry.pass).length).toBe(0);
+  expect([...v2.values()].filter((entry) => !entry.pass).length).toBe(
+    new Set(pinned.specs.map((entry) => entry.testType)).size,
+  );
   expect(total('n')).toBe(161);
   expect(total('v1Rejects')).toBe(122);
   for (const key of ['v2F1', 'v2F2', 'v2F2bank', 'v2F3']) expect(total(key), key).toBe(161);

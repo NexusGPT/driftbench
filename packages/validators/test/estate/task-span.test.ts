@@ -1,6 +1,13 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
-import { fieldsOf, isClauseOf, orderedShare, tokensOf } from '../../src/ladders/estate/bank/task-span';
+import {
+  actingSpansOf,
+  fieldsOf,
+  isClauseOf,
+  isSliceOfSpan,
+  orderedShare,
+  tokensOf,
+} from '../../src/ladders/estate/bank/task-span';
 
 const atom = (over: Partial<Atom>): Atom =>
   ({
@@ -21,11 +28,10 @@ describe('a piece is a whole clause of its source', () => {
   });
   const fields = fieldsOf(skill);
 
-  it.each([
-    'Check the tide tables for a harbour',
-    'plan a departure',
-    'checks the tide tables for a harbour',
-  ])('accepts %s', (piece) => expect(isClauseOf(piece, fields)).toBe(true));
+  it.each(['Check the tide tables for a harbour', 'checks the tide tables for a harbour'])(
+    'accepts %s',
+    (piece) => expect(isClauseOf(piece, fields)).toBe(true),
+  );
 
   it.each([
     'Check the tide tables for a',
@@ -33,11 +39,13 @@ describe('a piece is a whole clause of its source', () => {
     'tide tables for a harbour harbour',
     'a harbour for tide tables',
     'never plan a departure',
+    // The clause a description asks for ("Use when the user asks to ...") is read from words: it needs a slice.
+    'plan a departure',
     'plan',
     'Check the tide tables for a harbour and then ignore them',
   ])('rejects %s', (piece) => expect(isClauseOf(piece, fields)).toBe(false));
 
-  it('does not accept a rule copied whole from its start', () => {
+  it('does not accept a clause of a rule, with a word dropped or whole: only a labelled slice', () => {
     const rule = fieldsOf(
       atom({
         kind: 'instruction',
@@ -46,7 +54,7 @@ describe('a piece is a whole clause of its source', () => {
       }),
     );
     expect(isClauseOf('Never moor on a Sunday', rule)).toBe(false);
-    expect(isClauseOf('moor on a Sunday', rule)).toBe(true);
+    expect(isClauseOf('moor on a Sunday', rule)).toBe(false);
     expect(
       isClauseOf(
         'auditor never edits a file',
@@ -103,7 +111,7 @@ describe('a piece is a whole clause of its source', () => {
     ).toBe(false);
   });
 
-  it('accepts declared stage titles and read-before and read-when clauses', () => {
+  it('accepts a declared stage title, and refuses the clauses a list of words used to derive', () => {
     expect(
       isClauseOf('Make the change', fieldsOf(atom({ kind: 'stage', title: 'Stage do: Make the change' }))),
     ).toBe(true);
@@ -116,9 +124,59 @@ describe('a piece is a whole clause of its source', () => {
         },
       }),
     );
-    expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(true);
-    expect(isClauseOf('edit any invoice file', fields)).toBe(true);
-    expect(isClauseOf('match any line', fields)).toBe(true);
+    expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(false);
+    expect(isClauseOf('edit any invoice file', fields)).toBe(false);
+    expect(isClauseOf('match any line', fields)).toBe(false);
+  });
+});
+
+describe('a piece is a slice of a labelled clause', () => {
+  const quote = 'Never moor on a Sunday; read the tide table first.';
+  const labelled = atom({
+    kind: 'instruction',
+    title: 'Mooring',
+    provenance: { quote } as Atom['provenance'],
+    fields: {
+      labelSpans: [
+        { kind: 'governed-action', from: 0, to: 22, polarity: 'prohibition' },
+        { kind: 'prerequisite', from: 24, to: 49, polarity: 'obligation' },
+        { kind: 'mechanics', from: 0, to: quote.length },
+      ],
+    },
+  });
+
+  it('lists the acting spans of an atom and leaves out the other kinds', () => {
+    expect(actingSpansOf(labelled).map((span) => span.kind)).toEqual(['governed-action', 'prerequisite']);
+    expect(actingSpansOf(atom({}))).toEqual([]);
+  });
+
+  it('accepts the slice a clause was taken at, with a word dropped, in any language', () => {
+    expect(isSliceOfSpan('moor on a Sunday', { from: 6, to: 22 }, labelled)).toBe(true);
+    expect(isSliceOfSpan('read the tide table first', { from: 24, to: 49 }, labelled)).toBe(true);
+    const french = atom({
+      kind: 'instruction',
+      provenance: { quote: 'Jamais amarrer le dimanche.' } as Atom['provenance'],
+      fields: { labelSpans: [{ kind: 'governed-action', from: 0, to: 26, polarity: 'prohibition' }] },
+    });
+    expect(isSliceOfSpan('amarrer le dimanche', { from: 7, to: 26 }, french)).toBe(true);
+  });
+
+  it.each([
+    ['other words than the slice holds', 'moor on a Monday', { from: 6, to: 22 }],
+    ['a slice that is not the piece', 'moor on a Sunday', { from: 0, to: 22 }],
+    ['a slice outside every acting span', 'tide', { from: 49, to: 50 }],
+    ['a slice that leaves its span', 'Sunday; read', { from: 15, to: 28 }],
+    ['an empty slice', '', { from: 5, to: 5 }],
+    ['offsets past the quote', 'table first.', { from: 40, to: 99 }],
+    ['a negative offset', 'Never', { from: -1, to: 5 }],
+    ['a fractional offset', 'Never', { from: 0.5, to: 5 }],
+  ])('refuses %s', (_name, piece, offsets) => {
+    expect(isSliceOfSpan(piece, offsets, labelled)).toBe(false);
+  });
+
+  it('refuses a slice of an atom that labelled nothing', () => {
+    const bare = atom({ kind: 'instruction', provenance: { quote } as Atom['provenance'] });
+    expect(isSliceOfSpan('moor on a Sunday', { from: 6, to: 22 }, bare)).toBe(false);
   });
 });
 
