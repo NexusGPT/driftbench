@@ -674,6 +674,17 @@ function coverageItems(): BankItem[] {
                         ];
               const count = size === 'sparse' ? between(rng, 4, 10) : between(rng, 30, 80);
               const rows = Array.from({ length: count }, () => levels.map((l) => between(rng, 0, l - 1)));
+              if (size === 'dense') {
+                // Many rows cover nearly every tuple, so a stub that returns full coverage would pass. One tuple of
+                // the first group is left uncovered on purpose: every row that holds it is moved off it.
+                const first = groups[0] as Group;
+                const axes = [...first.axes].sort((a, b) => a - b).slice(0, first.strength);
+                const tuple = axes.map((a) => between(rng, 0, (levels[a] as number) - 1));
+                const last = axes[axes.length - 1] as number;
+                for (const row of rows)
+                  if (axes.every((a, i) => row[a] === tuple[i]))
+                    row[last] = ((row[last] as number) + 1) % (levels[last] as number);
+              }
               const want = coverageRef(rows, groups, levels);
               let got: ReturnType<CoverageFn>;
               try {
