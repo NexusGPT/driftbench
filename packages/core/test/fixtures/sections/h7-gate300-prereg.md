@@ -19,6 +19,10 @@ Does selection by the verified links of the Acme sales prompt keep the 95% Wilso
 
 No mutant of the original 110 (the 90 single-section and 20 two-section mutants of the rerun, and the H7 mutants) and no mutant a link was tuned on may enter the 300: a drawn mutant whose id is in those lists, whose prompt text equals one of theirs, or whose section and body a link write-in used, is refused. The draw then continues with the next seed (20261022, 20261023, ...) for the replacement; each refusal and each seed used is recorded in the report.
 
+## Cost trial, excluded
+
+One pair was run once to measure cost and time before the study: `pair__home_no_coverage__new_customer_details` (3 suite runs, no confirmation). It is not one of the 60. The draw skips it and continues with the same generator, so the 60th pair is the next one drawn. Its verdicts are not read for the study.
+
 ## Runs
 
 claude-haiku-5-5, the research runner and checks of the H7 suite (19 conversations, 37 blocks). A pair: 3 suite runs, then 3 confirmation runs of each conversation holding a candidate block. Baseline: the 6 stored baseline suite runs of H7. Stop: the study stops at 10 USD total; the projection (about 2 USD) is printed first.
