@@ -16,8 +16,13 @@ export type Recorded = {
   probabilities?: Record<string, number>;
   returnedModel: string;
   stopReason: string;
-  /** Set when the endpoint refused the request as too large: the scan halves the window and asks for each half. */
-  refused?: 'too_large';
+  /**
+   * `too_large`: the endpoint refused the request, and the scan halves the window and asks for each half.
+   * `unreadable`: the answer could not be read twice; the failure is recorded so a replay lists the same window.
+   */
+  refused?: 'too_large' | 'unreadable';
+  /** With `refused: 'unreadable'`: why the answer could not be read, so a replay lists the same failed window. */
+  error?: string;
   usage: { input: number; output: number };
 };
 
