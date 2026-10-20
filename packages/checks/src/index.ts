@@ -7,6 +7,7 @@ export * as blame from './blame';
  * checks users register. `defaultChecks()` returns them all, in the order the runner applies them.
  */
 
+export { ARGUMENT_ACCURACY_DIAGNOSTIC, ARGUMENT_ACCURACY_STEP } from './argument-accuracy';
 export { DEFAULT_CHECK_SET, SHIPPED_CHECKS } from './check-set';
 export { artifacts } from './checks/artifacts';
 export { budget } from './checks/budget';
