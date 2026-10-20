@@ -161,14 +161,17 @@ export function windowsOf(path: string, units: readonly Unit[], size: number): W
       const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
       shown.push({
         after: current.length,
-        text: `(${kind}, not labelable) ${unit.text.split('\n')[0] ?? ''}`,
+        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
       });
       continue;
     }
+    // A window filled to its cap is flushed only when the next unit to label arrives, so that an opaque unit that
+    // follows it still attaches to it as trailing context.
+    if (current.length >= size) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
-    if (current.length >= size) flush();
   }
   flush();
   return windows;
