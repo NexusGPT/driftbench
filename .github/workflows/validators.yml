@@ -146,6 +146,22 @@ jobs:
             name: variables seed hidden
             component: variables
             flags: --hidden --hidden-only
+          - id: pointer-s1
+            name: pointer seed 1
+            component: pointer
+            flags: --seed 1
+          - id: pointer-s2
+            name: pointer seed 2
+            component: pointer
+            flags: --seed 2
+          - id: pointer-s3
+            name: pointer seed 3
+            component: pointer
+            flags: --seed 3
+          - id: pointer-hidden
+            name: pointer seed hidden
+            component: pointer
+            flags: --hidden --hidden-only
           - id: generator-s1-1-6
             name: generator seed 1 levels 1 to 6
             component: generator
