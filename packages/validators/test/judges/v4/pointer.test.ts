@@ -421,8 +421,8 @@ const FAULTS: Fault[] = [
   {
     name: 'cascade: the second key dropped from a sure decision',
     file: STACK,
-    from: 'sources: sourcesOf(first, second),\n          ...(second',
-    to: 'sources: sourcesOf(first),\n          ...(second',
+    from: 'sources: sourcesOf(first, second),',
+    to: 'sources: sourcesOf(first),',
     fails: ids('stack/cascade-sure'),
   },
   {
