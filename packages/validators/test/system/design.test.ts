@@ -35,7 +35,8 @@ describe('the planted effect design point (fixtures/system/design.json)', () => 
       size: plant.CLUSTER_SIZE,
       rate: plant.CLUSTER_RATE,
       rho: plant.CLUSTER_RHO,
-      alpha: plant.DEFF_ALPHA,
+      campaigns: plant.CLUSTERED_CAMPAIGNS,
+      alpha: plant.DEFF_LAW_ALPHA,
     });
   });
 

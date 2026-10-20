@@ -53,3 +53,7 @@ What others do: a library that shares state with callers either freezes it (a wr
 Finding: the runner's own work is linear after this branch. The teacher-forced growth item cannot pass while the function adapter hands the agent a deep copy of the whole history on every turn; that is the documented contract, so the change is the owner's decision. The free-running item (one sample, CPU time only, bound 25) measured 25.6 and 28.1 on main and 21.9 and 23.7 on this branch, on a loaded host, and failed on 4 seeds of 21 in one sweep of main and on 9 in the next: its rule is the one PR 212 replaced for the teacher-forced item, with the false failures that PR measured.
 
 What to try: nothing more in the runner. The two options for the owner are in HANDOVER.md, "The growth item".
+
+## 2026-10-20: the design-effect interval, one commit in 1000
+
+The hidden seed of a commit folds to one of 9000 item seeds (`itemSeed`). The design-effect item held the mean estimated design effect to the 0.999 interval of its exact law over 100 clustered campaigns, so about one folded seed in 1000 missed it on every run and every runner (seed 2323: mean 1.62149, lower bound 1.62155). The item now holds the 0.999999 interval over 225 clustered campaigns: the half-width is 0.1205, the old one was 0.1216, so a shift of the mean that the old interval saw is still seen. The bootstrap interval keeps its 0.999 level (2000 resamples cannot reach 1e-6).

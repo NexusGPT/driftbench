@@ -10,7 +10,9 @@ import {
 import {
   CLUSTER_RHO,
   CLUSTER_SIZE,
+  CLUSTERED_CAMPAIGNS,
   DEFF_ALPHA,
+  DEFF_LAW_ALPHA,
   designEffectCalibration,
   designEffectInterval,
   EFFECT_CAMPAIGNS,
@@ -63,8 +65,9 @@ describe('the exact finite-sample law of the planted design effect (fixtures/sys
 
   it('gives the acceptance interval of the mean over the campaigns at the recorded alpha', () => {
     const law = exactDesignEffectLaw();
-    const [lower, upper] = designEffectInterval(law, EFFECT_CAMPAIGNS, DEFF_ALPHA);
-    expect(DEFF_ALPHA).toBe(0.001);
+    const [lower, upper] = designEffectInterval(law, CLUSTERED_CAMPAIGNS, DEFF_LAW_ALPHA);
+    expect(DEFF_LAW_ALPHA).toBe(1e-6);
+    expect(CLUSTERED_CAMPAIGNS).toBe(225);
     expect(lower).toBeCloseTo(design.clustered.interval.lower, 9);
     expect(upper).toBeCloseTo(design.clustered.interval.upper, 9);
   });
@@ -141,6 +144,10 @@ const WRONG: Array<[string, SystemStats]> = [
     { ...stats, icc: (r) => stats.icc(r).map((e) => ({ ...e, icc: e.icc * 0.85 })) },
   ],
   ['a design effect of 1 + m rho', { ...stats, designEffect: (m, rho) => 1 + m * rho }],
+  ['a design effect 5 percent too high', { ...stats, designEffect: (m, rho) => 1.05 * (1 + (m - 1) * rho) }],
+  ['a design effect 5 percent too low', { ...stats, designEffect: (m, rho) => 0.95 * (1 + (m - 1) * rho) }],
+  ['a cluster size weighted as m - 2', { ...stats, designEffect: (m, rho) => 1 + (m - 2) * rho }],
+  ['an ignored intra-class correlation', { ...stats, icc: (r) => stats.icc(r).map((e) => ({ ...e, icc: 0 })) }],
 ];
 
 describe('the design-effect item against wrong estimators', { timeout: 120_000 }, () => {
@@ -151,6 +158,33 @@ describe('the design-effect item against wrong estimators', { timeout: 120_000 }
 
   it.each(WRONG)('fails %s on seed 7167 through the runner and the store', async (_name, wrong) => {
     expect(designEffectCalibration(await effectOf(7167), 7167, wrong, designEffectOracle()).value).toBe(0);
+  });
+
+  it.each(WRONG)('fails %s on every seed from 1 to 20 and on seed 2323', (_name, wrong) => {
+    const passing: number[] = [];
+    for (const seed of [...Array.from({ length: 20 }, (_, i) => i + 1), 2323]) {
+      if (designEffectCalibration(plantedState(seed), seed, wrong, designEffectOracle()).value !== 0)
+        passing.push(seed);
+    }
+    expect(passing).toEqual([]);
+  });
+
+  it('passes the correct statistics on every seed from 1 to 20 and on seed 2323, the seed the old interval missed', () => {
+    const failing: number[] = [];
+    for (const seed of [...Array.from({ length: 20 }, (_, i) => i + 1), 2323]) {
+      if (designEffectCalibration(plantedState(seed), seed, stats, designEffectOracle()).value !== 1)
+        failing.push(seed);
+    }
+    expect(failing).toEqual([]);
+  });
+
+  it('keeps the power of the old interval: no wider a half-width than 100 campaigns at 0.001', () => {
+    const law = exactDesignEffectLaw();
+    const half = (n: number, alpha: number) => {
+      const [lower, upper] = designEffectInterval(law, n, alpha);
+      return (upper - lower) / 2;
+    };
+    expect(half(CLUSTERED_CAMPAIGNS, DEFF_LAW_ALPHA)).toBeLessThanOrEqual(half(100, 0.001));
   });
 
   it.each(WRONG)('fails %s on every seed from 10000 to 10099', (_name, wrong) => {
@@ -287,17 +321,17 @@ describe('the error of the design-effect interval (fixtures/system/design.json, 
     const { lower, upper, below, above } = design.clustered.interval;
     // Rounding every value down can only move the mean down: the mass under the lower bound is then an upper
     // bound of the true one. Rounding up does the same for the mass over the upper bound.
-    const down = latticeSum(Math.floor, step, EFFECT_CAMPAIGNS);
-    const up = latticeSum(Math.ceil, step, EFFECT_CAMPAIGNS);
-    const meanAt = (i: number) => 1 + (i * step) / EFFECT_CAMPAIGNS;
+    const down = latticeSum(Math.floor, step, CLUSTERED_CAMPAIGNS);
+    const up = latticeSum(Math.ceil, step, CLUSTERED_CAMPAIGNS);
+    const meanAt = (i: number) => 1 + (i * step) / CLUSTERED_CAMPAIGNS;
     let massBelow = 0;
     for (let i = 0; meanAt(i) < lower; i += 1) massBelow += down[i] as number;
     let massAbove = 0;
     for (let i = up.length - 1; meanAt(i) > upper; i -= 1) massAbove += up[i] as number;
     expect(massBelow).toBeCloseTo(below, 9);
     expect(massAbove).toBeCloseTo(above, 9);
-    expect(massBelow).toBeLessThan(DEFF_ALPHA / 2);
-    expect(massAbove).toBeLessThan(DEFF_ALPHA / 2);
-    expect(below + above).toBeLessThanOrEqual(DEFF_ALPHA);
+    expect(massBelow).toBeLessThan(DEFF_LAW_ALPHA / 2);
+    expect(massAbove).toBeLessThan(DEFF_LAW_ALPHA / 2);
+    expect(below + above).toBeLessThanOrEqual(DEFF_LAW_ALPHA);
   });
 });

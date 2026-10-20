@@ -11384,7 +11384,7 @@
       "level": 7,
       "source": "research",
       "component": "packages/stats/src/variance.ts",
-      "cause": "on each of 100 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m 4, rho 0.25) lies in the 0.999 interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level"
+      "cause": "on each of 225 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m 4, rho 0.25) lies in the 0.999999 interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level"
     },
     {
       "id": "variance/parity-power",

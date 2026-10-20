@@ -131,6 +131,18 @@ export const CLUSTER_RATE = 0.8;
 export const CLUSTER_RHO = 0.25;
 /** The level of the bootstrap interval on the mean estimated design effect: 1 - alpha. */
 export const DEFF_ALPHA = 0.001;
+/**
+ * The level of the acceptance interval of the mean estimated design effect against its exact law: 1 - alpha. A
+ * correct chain misses it on one seed in 2 million, where 0.001 missed about one folded seed in 1000, and the hidden
+ * seed of every commit is one of 9000 folded seeds (itemSeed), so the old level failed about one commit in 1000.
+ */
+export const DEFF_LAW_ALPHA = 1e-6;
+/**
+ * Clustered campaigns per seed. The interval of the mean has half-width z(1 - alpha / 2) sd / sqrt(n): 3.29 sd / 10
+ * at alpha 0.001 and n 100, 4.89 sd / 15 at alpha 1e-6 and n 225, which is no wider (0.329 sd and 0.326 sd), so the
+ * item still sees a shift of the mean design effect that the old one saw.
+ */
+export const CLUSTERED_CAMPAIGNS = 225;
 
 export const VERSIONS = ['baseline', 'same', 'drop'] as const;
 export type Version = (typeof VERSIONS)[number];
@@ -177,7 +189,11 @@ export type EffectPlant = {
  * passes with that probability; the agent counts the runs of each spec it has answered, so the r-th run
  * draws the r-th number (campaigns run their cells in order, one at a time).
  */
-export function plantEffect(seed: number, campaigns = EFFECT_CAMPAIGNS): EffectPlant {
+export function plantEffect(
+  seed: number,
+  campaigns = EFFECT_CAMPAIGNS,
+  clusteredCampaigns = CLUSTERED_CAMPAIGNS,
+): EffectPlant {
   const behaviours = new Map<string, Behaviour>();
   const effect: EffectCampaign[] = [];
   const clustered: ClusterCampaign[] = [];
@@ -196,7 +212,8 @@ export function plantEffect(seed: number, campaigns = EFFECT_CAMPAIGNS): EffectP
       behaviours.set(text, (target) => oneBlockReply(code, u < abilityOf(target.variant)));
     }
     effect.push({ index: c, specs, difficulty });
-
+  }
+  for (let c = 0; c < clusteredCampaigns; c += 1) {
     const crng = rngFor(seed, `cluster-${c}`);
     const cspecs: RawSpec[] = [];
     const clusterRate: number[] = [];
@@ -360,7 +377,7 @@ const NAMED_MISSES = 3;
  * 1. per campaign, the design effect the statistics give on the stored runs equals 1 + (m - 1) rho with rho from
  *    the oracle's correlation of those runs, to 1e-9: a constant, scaled or shifted estimate fails here;
  * 2. the statistics' design effect at the planted correlation equals 1 + (m - 1) CLUSTER_RHO;
- * 3. the mean of the oracle's design effects over the campaigns lies in the DEFF_ALPHA interval of the exact
+ * 3. the mean of the oracle's design effects over the campaigns lies in the DEFF_LAW_ALPHA interval of the exact
  *    finite-sample law: the runs the chain stored follow the plant;
  * 4. the bootstrap interval of that mean behaves as an interval at its level (bootstrapShape).
  */
@@ -410,13 +427,13 @@ export function designEffectCalibration(
       detail: `the design effect at m ${CLUSTER_SIZE} and rho ${CLUSTER_RHO} is ${showNumber(stated)}, 1 + (m - 1) rho is ${showNumber(planted)}`,
     });
   const mean = stats.mean(references);
-  const [lower, upper] = designEffectInterval(oracle.law, references.length, DEFF_ALPHA);
+  const [lower, upper] = designEffectInterval(oracle.law, references.length, DEFF_LAW_ALPHA);
   const inside = lower <= mean && mean <= upper;
   if (!inside)
     items.push({
       id: 'design-effect',
       component,
-      detail: `seed ${seed}: the mean design effect of the stored runs over ${references.length} clustered campaigns is ${showNumber(mean)}, outside the ${1 - DEFF_ALPHA} interval [${showNumber(lower)}, ${showNumber(upper)}] of its exact finite-sample law (mean ${showNumber(oracle.law.mean)}, sd ${showNumber(oracle.law.sd)}, m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
+      detail: `seed ${seed}: the mean design effect of the stored runs over ${references.length} clustered campaigns is ${showNumber(mean)}, outside the ${1 - DEFF_LAW_ALPHA} interval [${showNumber(lower)}, ${showNumber(upper)}] of its exact finite-sample law (mean ${showNumber(oracle.law.mean)}, sd ${showNumber(oracle.law.sd)}, m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
     });
   const shape = bootstrapShape(references, seed, s);
   if (shape)

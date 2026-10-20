@@ -16,7 +16,8 @@ import {
   CLUSTER_RHO,
   CLUSTER_SIZE,
   CLUSTERS,
-  DEFF_ALPHA,
+  CLUSTERED_CAMPAIGNS,
+  DEFF_LAW_ALPHA,
   type DesignEffectLaw,
   type DesignEffectOracle,
   designEffectCalibration,
@@ -364,7 +365,7 @@ export function varianceItems(): BankItem[] {
     level: 7,
     component: SYSTEM_COMPONENTS.designEffect,
     source: 'research',
-    title: `on each of 100 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO}) lies in the ${1 - DEFF_ALPHA} interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level`,
+    title: `on each of ${CLUSTERED_CAMPAIGNS} clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO}) lies in the ${1 - DEFF_LAW_ALPHA} interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level`,
     async check({ seed }) {
       const measure = designEffectCalibration(await effectFor(seed), seed, stats, designEffectOracle());
       if (measure.value === 1) return PASS;
