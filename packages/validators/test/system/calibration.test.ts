@@ -145,7 +145,10 @@ const WRONG: Array<[string, SystemStats]> = [
   ['a design effect 5 percent too high', { ...stats, designEffect: (m, rho) => 1.05 * (1 + (m - 1) * rho) }],
   ['a design effect 5 percent too low', { ...stats, designEffect: (m, rho) => 0.95 * (1 + (m - 1) * rho) }],
   ['a cluster size weighted as m - 2', { ...stats, designEffect: (m, rho) => 1 + (m - 2) * rho }],
-  ['an ignored intra-class correlation', { ...stats, icc: (r) => stats.icc(r).map((e) => ({ ...e, icc: 0 })) }],
+  [
+    'an ignored intra-class correlation',
+    { ...stats, icc: (r) => stats.icc(r).map((e) => ({ ...e, icc: 0 })) },
+  ],
 ];
 
 describe('the design-effect item against wrong estimators', { timeout: 120_000 }, () => {
