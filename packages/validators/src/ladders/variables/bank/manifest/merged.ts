@@ -58,7 +58,7 @@ export const MERGED: readonly StemDef[] = [
       'duplicate-value': 'a value id repeated inside one variable is refused',
       'duplicate-variable-id': 'a variable id repeated in the store is refused',
       'ambiguous-axis-value':
-        'a value id in two axes that a spec names by value is refused (a detail and none are exempt)',
+        'a value id in two axes of one kind that a spec names by value is refused (a detail and none are exempt)',
       'repeated-channel': 'two axes of kind channel are refused',
       'repeated-stage': 'two axes of kind stage are refused',
       'repeated-deviation': 'two axes of kind deviation are refused',

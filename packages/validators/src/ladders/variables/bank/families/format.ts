@@ -194,9 +194,13 @@ const references: FileCaseBuilder = (variant, ctx) =>
         return [accept(store), refuse(bad, 'VARIABLES_DUPLICATE', ['variables.1.id'])];
       }
       case 'ambiguous-axis-value': {
+        // The page refuses a value id in two axes of one kind (docs/variables.md, Variables): both axes get the same
+        // kind, one that a spec names by value (never a kind of which an agent has one axis).
         const bad = noConstraints(copy());
+        at(bad, 1).kind = a.kind;
         (at(bad, 1).values[0] as { id: string }).id = (a.values[0] as { id: string }).id;
         const asDetail = noConstraints(copy());
+        at(asDetail, 1).kind = a.kind;
         at(asDetail, 1).role = 'detail';
         (at(asDetail, 1).values[0] as { id: string }).id = (a.values[0] as { id: string }).id;
         const none = noConstraints(copy());
