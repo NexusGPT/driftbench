@@ -36,6 +36,11 @@ const NAME: Record<BenchmarkId, string> = {
 };
 export const MODEL = 'claude-haiku-5-5';
 
+/** A re-run appends a new row for the same item: only the last row of an id counts, so nothing is counted twice. */
+function lastPerId<T extends { id: string }>(rows: readonly T[]): T[] {
+  return [...new Map(rows.map((row) => [row.id, row])).values()];
+}
+
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
   return i < 0 ? undefined : process.argv[i + 1];
@@ -117,7 +122,7 @@ async function manifestRun(): Promise<void> {
     for (const line of (await readFile(out, 'utf8')).split('\n'))
       if (line.trim()) {
         const row = JSON.parse(line);
-        if (row.variant === variant && row.dataset === dataset) done.add(row.id);
+        if (row.variant === variant && row.dataset === dataset && row.failure === null) done.add(row.id);
       }
   } catch {
     await mkdir(dirname(out), { recursive: true });
@@ -157,11 +162,12 @@ async function manifestRun(): Promise<void> {
     }
   }
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  const rows = (await readFile(out, 'utf8'))
+  let rows = (await readFile(out, 'utf8'))
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line))
     .filter((row) => row.variant === variant && row.dataset === dataset);
+  rows = lastPerId(rows);
   const routes: Record<string, number> = {};
   for (const row of rows) routes[row.route] = (routes[row.route] ?? 0) + 1;
   console.log(
@@ -231,12 +237,19 @@ async function main(): Promise<void> {
   if (pool) for (const item of items) ids.add(item.id);
   const benchmark = { criterion: CRITERIA[bench] };
   const missing = ids.size - items.length;
+  if (pool) {
+    const sealed = await sealedIds(bench);
+    const absent = [...sealed].filter((id) => !ids.has(id));
+    if (absent.length > 0 || ids.size !== sealed.size)
+      throw new Error(`the pool holds ${ids.size} items, the sealed record ${sealed.size}; ${absent.length} sealed ids are absent`);
+  }
+  if (missing > 0) throw new Error(`${missing} of ${ids.size} sealed items did not load; refusing to score a part`);
   const done = new Set<string>();
   try {
     for (const line of (await readFile(out, 'utf8')).split('\n'))
       if (line.trim()) {
         const row = JSON.parse(line);
-        if (row.variant === variant) done.add(row.id);
+        if (row.variant === variant && row.failure === null) done.add(row.id);
       }
   } catch {
     await mkdir(dirname(out), { recursive: true });
@@ -282,11 +295,12 @@ async function main(): Promise<void> {
     }
   }
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  const rows = (await readFile(out, 'utf8'))
+  let rows = (await readFile(out, 'utf8'))
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line))
     .filter((row) => row.variant === variant);
+  rows = lastPerId(rows);
   const routes: Record<string, number> = {};
   for (const row of rows) routes[row.route] = (routes[row.route] ?? 0) + 1;
   console.log(

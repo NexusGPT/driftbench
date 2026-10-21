@@ -594,6 +594,9 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
 describe('default-on-v8: the settings hash', () => {
   it('is the same with the fields at their defaults, and changes when one is switched on', () => {
     const plain = mock([]).judge.settings;
+    // The hash default-on-v7 gave this same client (provider claude-cli, model test, transport fingerprint test),
+    // computed on the release/next code before this change.
+    expect(plain).toBe('2989b6cda5a8');
     expect(mock([], { conversationTurns: false, lengthPreference: false }).judge.settings).toBe(plain);
     expect(mock([], { conversationTurns: true }).judge.settings).not.toBe(plain);
     expect(mock([], { lengthPreference: true }).judge.settings).not.toBe(plain);
