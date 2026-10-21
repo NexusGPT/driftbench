@@ -1,8 +1,8 @@
 # Statistics capabilities to build
 
-The statistics package ([statistics](../concepts/statistics.md)) covers what the campaign verdict, the gate and the reports need today. Driftbench itself computes a few more statistics inline: the means and the median of its checks and reports, the total variation distance of `intake fidelity`, balanced accuracy and Gwet's AC1 in the judge calibration report, the F-beta score of the tool call check, and the Bonferroni level of the feed. Each page below defines those functions, one section per function, with its formula, its result and the inputs it refuses. The statistics validator (`driftbench validate stats`) holds, for every function, a set of cases computed with exact arithmetic, and the function is done when its cases pass.
+The statistics package ([statistics](../concepts/statistics.md)) covers what the campaign verdict, the gate and the reports need today. Driftbench itself computes a few more statistics inline, or through functions of its own: the means and the median of its checks and reports, the total variation distance of `intake fidelity`, balanced accuracy, Gwet's AC1 and weighted kappa in the judge calibration report, the F-beta score of the tool call check, the Bonferroni level of the feed, the hypergeometric probability behind the users agenda, the sign and signed-rank tests of `compare`, and the allocation and design effect of the space coverage and intake reports. Each page below defines those functions, one section per function, with its formula, its result and the inputs it refuses. The statistics validator (`driftbench validate stats`) holds, for every function, a set of cases computed with exact arithmetic, and the function is done when its cases pass.
 
-Status: built. Every function of these pages exists in `@agent-nexus/driftbench-stats`.
+Status: a function is done when its two items of the capabilities level pass.
 
 ## Conventions
 
@@ -22,5 +22,8 @@ These hold for every function of every page, unless its section says otherwise.
 |---|---|
 | [Descriptive and robust statistics](descriptive.md) | the median, the geometric mean and the harmonic mean |
 | [Many comparisons and combined evidence](multiplicity.md) | the level of each test that keeps the family-wise error rate at a chosen level |
-| [Classification and agreement](classification.md) | balanced accuracy and the F-beta score of a classifier or a judge, and Gwet's AC1 between raters |
+| [Upper bound on a rate](bayes.md) | the exact upper bound on a failure rate after trials without a failure |
+| [Classification and agreement](classification.md) | balanced accuracy and the F-beta score of a classifier or a judge, and Gwet's AC1 and weighted kappa between raters |
 | [Distances and drift](distance.md) | the total variation distance between two probability vectors |
+| [Design, allocation and variance](design.md) | the minimum detectable difference of two means, the Kish design effect and the proportional allocation of a sample |
+| [Exact tests](exacttests.md) | the hypergeometric probability, the exact sign test and the exact signed-rank test |

@@ -35,6 +35,15 @@ fBeta(table: { tp: number; fp: number; fn: number; tn: number }, beta: number): 
 
 These functions belong in `packages/stats/src/agreement.ts`.
 
+### `weightedKappa`
+```ts
+weightedKappa(table: number[][], weights: 'linear' | 'quadratic'): number
+```
+* **Definition.** The table has one row and one column per ordered category. Cell `table[i][j]` is the number of subjects that rater A put in category `i` and rater B put in category `j`. Let `n` be the sum of all cells, `r_i` the sum of row `i` and `c_j` the sum of column `j`. The disagreement weight of a pair of categories is `w_ij = |i - j|` for `'linear'` and `w_ij = (i - j)^2` for `'quadratic'`. The weights are not rescaled. The observed disagreement is `D_o = sum(w_ij * table[i][j]) / n`. The expected disagreement is `D_e = sum(w_ij * r_i * c_j) / n^2`. The result is `1 - D_o / D_e`. When `D_e` is 0 the result is 1. This happens when both raters use one and the same single category for every subject, and for a table with one cell.
+* **Returns.** A number, at most 1.
+* **Throws.** A `RangeError` when `weights` is not the string `'linear'` or the string `'quadratic'`, when the table has no row, when it is not square (a row whose length differs from the number of rows), and when `n` is 0.
+* **Example.** `weightedKappa([[20, 5], [10, 15]], 'linear')` is 0.4, the same as with `'quadratic'` (on two categories both weightings give the unweighted kappa). For `[[11, 3, 1], [2, 9, 4], [0, 3, 12]]`, `'linear'` gives 0.65 and `'quadratic'` gives 0.7333333333333333. `weightedKappa([[0, 5], [5, 0]], 'linear')` is -1. `weightedKappa([[7]], 'linear')` is 1.
+
 ### `gwetAc1`
 ```ts
 gwetAc1(a: number[], b: number[]): number

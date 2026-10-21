@@ -418,6 +418,82 @@ add(
 # ===================================================================================================
 
 
+def wk_exact(tab, kind):
+    k = len(tab)
+    n = sum(map(sum, tab))
+    r = [sum(row) for row in tab]
+    c = [sum(tab[i][j] for i in range(k)) for j in range(k)]
+    w = (lambda i, j: abs(i - j)) if kind == "linear" else (lambda i, j: (i - j) ** 2)
+    obs = sum(F(w(i, j) * tab[i][j]) for i in range(k) for j in range(k)) / n
+    exp = sum(F(w(i, j) * r[i] * c[j]) for i in range(k) for j in range(k)) / n**2
+    return F(1) if exp == 0 else 1 - obs / exp
+
+
+def wk_alt(tab, kind):
+    # expand the table to the two label lists; observed = mean weight over the n pairs, expected = mean weight over
+    # all n x n pairs (item of rater A, item of rater B)
+    k = len(tab)
+    a, b = [], []
+    for i in range(k):
+        for j in range(k):
+            a += [i] * tab[i][j]
+            b += [j] * tab[i][j]
+    n = len(a)
+    w = (lambda i, j: abs(i - j)) if kind == "linear" else (lambda i, j: (i - j) ** 2)
+    obs = F(sum(w(x, y) for x, y in zip(a, b)), n)
+    exp = F(sum(w(x, y) for x in a for y in b), n * n)
+    res = F(1) if exp == 0 else 1 - obs / exp
+    if k >= 2:
+        # agreement weights v = 1 - w / wmax: kappa = (sum v p - sum v e) / (1 - sum v e)
+        wmax = (k - 1) if kind == "linear" else (k - 1) ** 2
+        vp = 1 - obs / wmax
+        ve = 1 - exp / wmax
+        if ve != 1:
+            assert res == (vp - ve) / (1 - ve)
+    return res
+
+
+WK = [
+    ([[20, 5], [10, 15]], "linear"),
+    ([[20, 5], [10, 15]], "quadratic"),
+    ([[11, 3, 1], [2, 9, 4], [0, 3, 12]], "quadratic"),
+    ([[11, 3, 1], [2, 9, 4], [0, 3, 12]], "linear"),
+    ([[14, 4, 1, 0], [3, 12, 5, 1], [0, 4, 15, 6], [0, 1, 3, 9]], "linear"),
+    ([[14, 4, 1, 0], [3, 12, 5, 1], [0, 4, 15, 6], [0, 1, 3, 9]], "quadratic"),
+    ([[7]], "linear"),
+    ([[0, 0, 0], [0, 9, 0], [0, 0, 0]], "quadratic"),
+    ([[0, 5], [5, 0]], "linear"),
+    ([[0, 0, 6], [0, 0, 0], [6, 0, 0]], "quadratic"),
+]
+cases = []
+for tab, kind in WK:
+    a = wk_exact(tab, kind)
+    assert a == wk_alt(tab, kind)
+    cases.append(case([tab, kind], a))
+# the two weightings agree with Cohen's kappa on a 2 x 2 table
+tab = [[20, 5], [10, 15]]
+n = 50
+po = F(35, n)
+pe = F(25 * 30 + 25 * 20, n * n)
+assert wk_exact(tab, "linear") == (po - pe) / (1 - pe)
+add(
+    "weightedKappa",
+    "agreement",
+    cases,
+    [
+        [[[1, 2], [3, 4]], "cubic"],
+        [[[1, 2], [3, 4]], "Linear"],
+        [[[1, 2], [3, 4]], 2],
+        [[[1, 2, 3], [4, 5, 6]], "linear"],
+        [[[1, 2], [3]], "linear"],
+        [[], "linear"],
+        [[[0, 0], [0, 0]], "quadratic"],
+        [[[1, -2], [3, 4]], "linear"],
+        [[[1, 2.5], [3, 4]], "linear"],
+        [[[1, NAN], [3, 4]], "linear"],
+    ],
+)
+
 LABELS = [
     ([1, 1, 2, 2, 3, 3, 1, 2], [1, 2, 2, 2, 3, 1, 1, 2]),
     ([1, 2, 3, 1], [1, 2, 3, 1]),

@@ -1,0 +1,74 @@
+{
+  "_provenance": "Exact arithmetic: Fraction for every rational result, Decimal at 120 digits for sqrt, ln, exp, asin, sin and cos. No driftbench code is run.",
+  "group": "bayes",
+  "functions": [
+    {
+      "fn": "ruleOfThreeUpperBound",
+      "module": "intervals",
+      "doc": "docs/statistics/bayes.md#ruleofthreeupperbound",
+      "values": [
+        {
+          "args": [1, 0.95],
+          "expected": 0.95
+        },
+        {
+          "args": [59, 0.95],
+          "expected": 0.04950760988822693
+        },
+        {
+          "args": [20, 0.99],
+          "expected": 0.20567176527571845
+        },
+        {
+          "args": [300, 0.9],
+          "expected": 0.0076459038678994935
+        },
+        {
+          "args": [1000, 0.95],
+          "expected": 0.0029912495450952954
+        },
+        {
+          "args": [10, 0.5],
+          "expected": 0.06696700846319259
+        },
+        {
+          "args": [500, 0.5],
+          "expected": 0.001385333898971076
+        },
+        {
+          "args": [200, 0.999],
+          "expected": 0.03394912101018662
+        }
+      ],
+      "domain": [
+        {
+          "args": [0, 0.95]
+        },
+        {
+          "args": [-5, 0.95]
+        },
+        {
+          "args": [2.5, 0.95]
+        },
+        {
+          "args": [10, 0]
+        },
+        {
+          "args": [10, 1]
+        },
+        {
+          "args": [10, -0.1]
+        },
+        {
+          "args": [10, 1.5]
+        },
+        {
+          "args": [10, "NaN"]
+        },
+        {
+          "args": ["Infinity", 0.95]
+        }
+      ]
+    }
+  ]
+}
