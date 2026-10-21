@@ -317,7 +317,8 @@ export function coverageFamily(): Family {
             const specs = suite.specs.filter((spec) => spec.complete && spec.atoms.includes(atom.id));
             const attempts = (spec: (typeof specs)[number]) =>
               (
-                ((spec.spec.rules?.custom?.some_call as { calls?: unknown } | undefined)?.calls ?? []) as Array<{
+                ((spec.spec.rules?.custom?.some_call as { calls?: unknown } | undefined)?.calls ??
+                  []) as Array<{
                   label?: unknown;
                   input?: { file_path?: { contains?: unknown } };
                   count?: unknown;

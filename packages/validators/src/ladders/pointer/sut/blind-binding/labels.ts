@@ -115,10 +115,14 @@ export async function materializeOp(input: Obj): Promise<unknown> {
   const bankAt = new Map<number, Obj>();
   for (const unit of units) {
     const at = cutUnits.findIndex(
-      (cutUnit) => cutUnit.container !== 'opaque' && Number(cutUnit.start) === Number((unit.span as number[])[0]),
+      (cutUnit) =>
+        cutUnit.container !== 'opaque' && Number(cutUnit.start) === Number((unit.span as number[])[0]),
     );
     if (at < 0)
-      throw new Unsupported('labels:materialize', `the reader cuts no unit at offset ${(unit.span as number[])[0]}`);
+      throw new Unsupported(
+        'labels:materialize',
+        `the reader cuts no unit at offset ${(unit.span as number[])[0]}`,
+      );
     bankAt.set(at, unit);
   }
   const labelOf = new Map((input.labels as Obj[]).map((entry) => [Number(entry.n), entry]));
@@ -185,7 +189,9 @@ export async function materializeOp(input: Obj): Promise<unknown> {
   return {
     ledgerLabels: (input.labels as Obj[]).map((entry) => {
       const at = [...bankAt].find(([, bank]) => Number(bank.n) === Number(entry.n))?.[0];
-      const found = entries.find((ledgerEntry) => Number(ledgerEntry.index) === at)?.labels?.[set.set as string];
+      const found = entries.find((ledgerEntry) => Number(ledgerEntry.index) === at)?.labels?.[
+        set.set as string
+      ];
       return {
         id: String(bankAt.get(at as number)?.id),
         label: found ? String(found.label) : 'unlabeled',

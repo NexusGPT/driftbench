@@ -229,7 +229,9 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     // docs/estate.md "Situation relevance in a proposed plan": relevance comes from a declared space, never from the
     // words of the estate. Without a supplied space the plan keeps the declared combinations and reports each
     // event-axis value, but its baseline (and an unperturbed long session), as unresolved.
-    expect(base.space.constraints.length, 'no pruning without a supplied space').toBe(declared.constraints.length);
+    expect(base.space.constraints.length, 'no pruning without a supplied space').toBe(
+      declared.constraints.length,
+    );
     const notes = run.plan.details.notes;
     const events = new Set(['session_state', 'owner_signal', 'deviation', 'estate_hazard']);
     for (const dimension of declared.dimensions.filter((candidate) => events.has(candidate.id))) {
@@ -263,10 +265,14 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     };
     const crosses = (rows: ReadonlyArray<{ atomIds: readonly string[]; cell: Record<string, string> }>) =>
       rows.some((row) => row.atomIds[0] === target && row.cell[language[0]] === language[1]);
-    expect(crosses(buildPlan(run.scanned.map, { space: supplied }).plan.rows), `${target} x ${language[1]} excluded`).toBe(
-      false,
-    );
-    expect(crosses(run.plan.plan.rows), `${target} x ${language[1]} kept by a reader that ignores the space`).toBe(true);
+    expect(
+      crosses(buildPlan(run.scanned.map, { space: supplied }).plan.rows),
+      `${target} x ${language[1]} excluded`,
+    ).toBe(false);
+    expect(
+      crosses(run.plan.plan.rows),
+      `${target} x ${language[1]} kept by a reader that ignores the space`,
+    ).toBe(true);
     // The pair stays an allowed pair of the declared space, so the exclusion is the supplied space's alone.
     expect(base.allowed.has(key(target, ...language)), `${target} x ${language[1]} declared`).toBe(true);
   });

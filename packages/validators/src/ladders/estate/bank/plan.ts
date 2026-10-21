@@ -919,7 +919,10 @@ export function truthOf(run: EstateRun): Truth {
  * The relevance a planted estate implies, as the declared space docs/estate.md asks a user to supply: the map's own
  * space, and for each situation of RELEVANCE a constraint that forbids it with every atom outside its targets.
  */
-export function relevanceSpace(map: EstateMap, targetsOf: ReadonlyMap<string, ReadonlySet<string>>): SpaceMap {
+export function relevanceSpace(
+  map: EstateMap,
+  targetsOf: ReadonlyMap<string, ReadonlySet<string>>,
+): SpaceMap {
   const base = toEstateSpaceMap(map);
   const constraints: SpaceMap['constraints'] = [...base.constraints];
   for (const rule of RELEVANCE) {
@@ -971,8 +974,7 @@ export function planRelevanceFamily(): Family {
       // (relevancePlan); a hand-written run with no details is judged on its plan as given.
       const real = run.plan.details !== undefined;
       const declared = real ? relevanceSpace(map, targetsOf) : undefined;
-      const judged =
-        run.relevancePlan ?? (declared ? buildPlan(map, { space: declared }) : run.plan);
+      const judged = run.relevancePlan ?? (declared ? buildPlan(map, { space: declared }) : run.plan);
       const rows = judged.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'));
       // Without a supplied space the plan reports each event-axis value as unresolved and keeps its combinations.
       const unresolved = real ? run.plan.details.notes : undefined;

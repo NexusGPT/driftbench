@@ -166,7 +166,14 @@ async function build(): Promise<FixtureSuite> {
   const report = JSON.parse(
     await readFile(join(out, 'estate-generate-report.json'), 'utf8'),
   ) as FixtureSuite['report'];
-  return { work, map: join(work, 'approved.yaml'), specs, natives: nativeSpecs, report, checks: RUNNER_CHECKS };
+  return {
+    work,
+    map: join(work, 'approved.yaml'),
+    specs,
+    natives: nativeSpecs,
+    report,
+    checks: RUNNER_CHECKS,
+  };
 }
 
 async function yamlFiles(folder: string): Promise<string[]> {

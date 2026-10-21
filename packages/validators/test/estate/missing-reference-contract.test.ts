@@ -91,7 +91,10 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
               ...spec.spec.rules,
               custom: {
                 ...custom,
-                some_call: { ...someCall, calls: (someCall.calls ?? []).filter((call) => call.label !== 'Read') },
+                some_call: {
+                  ...someCall,
+                  calls: (someCall.calls ?? []).filter((call) => call.label !== 'Read'),
+                },
               },
             },
           },

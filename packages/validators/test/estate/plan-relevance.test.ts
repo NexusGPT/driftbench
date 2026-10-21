@@ -693,7 +693,10 @@ describe('independence: a planner that reads the map perfectly is caught when on
     // Real: the product's buildPlan over the space the planted relevance declares.
     const real = await verdicts(run);
     for (const { key } of CASES)
-      expect(real.get(`plan.relevance.${key}`), `${key}: ${real.get(`plan.relevance.${key}`)?.detail}`).toMatchObject({
+      expect(
+        real.get(`plan.relevance.${key}`),
+        `${key}: ${real.get(`plan.relevance.${key}`)?.detail}`,
+      ).toMatchObject({
         pass: true,
       });
     // A planner that ignores the supplied space plans as with none: it crosses each situation with every atom.

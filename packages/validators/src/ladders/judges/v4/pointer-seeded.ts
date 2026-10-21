@@ -942,7 +942,13 @@ export function seededGold(impl: PointerImpl, r: Rng): string[] {
       label: Object.entries(u.probabilities).sort((x, y) => y[1] - x[1])[0]?.[0] ?? 'none',
       probabilities: u.probabilities,
     };
-    const ref = decideRef(first, { label: u.second }, asked, { rule: 'cascade', passAt, failAt }, set.labels.length);
+    const ref = decideRef(
+      first,
+      { label: u.second },
+      asked,
+      { rule: 'cascade', passAt, failAt },
+      set.labels.length,
+    );
     want.push(ref?.label ?? 'abstain');
     const got = guard('decide', () =>
       labelling.value.decide([first as never, { label: u.second } as never], set as never),

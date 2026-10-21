@@ -435,7 +435,11 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           // The shipped gate label builds the order and the Read of the file the unit names.
           evidence: [
             { type: 'ordered', before: 'Read', after: 'Edit' },
-            { type: 'tool_called', label: 'Read', input: { file_path: { contains: `references/${topic.gate.file}` } } },
+            {
+              type: 'tool_called',
+              label: 'Read',
+              input: { file_path: { contains: `references/${topic.gate.file}` } },
+            },
           ],
         },
       );
@@ -450,7 +454,11 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           quote: commaText,
           evidence: [
             { type: 'ordered', before: 'Read', after: topic.comma.verb },
-            { type: 'tool_called', label: 'Read', input: { file_path: { contains: `references/${topic.comma.file}` } } },
+            {
+              type: 'tool_called',
+              label: 'Read',
+              input: { file_path: { contains: `references/${topic.comma.file}` } },
+            },
           ],
         },
       );
