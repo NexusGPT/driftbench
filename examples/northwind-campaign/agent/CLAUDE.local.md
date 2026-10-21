@@ -9,6 +9,10 @@ Reading its `SKILL.md` directly is not a substitute: that does not activate the 
 Ledger source documents live at `ledger/<document-number>.json`. After the user identifies the documents,
 read those paths directly before concluding that they are missing; a broad filename or text search is not
 proof that a source document is absent. Ask for the document numbers before choosing them.
+Run reconciliation from the project root as `python3 .claude/skills/invoice-reconcile/scripts/reconcile.py
+ledger/<invoice-number>.json ledger/<order-number>.json`: both operands are file paths, not bare document
+numbers. Exit 1 with a printed summary means the documents differ; it is not a failed reconciliation run.
+When the total difference is above 50.00 EUR, dispatch `ledger-auditor` before the final reconciliation reply.
 
 # Invoice integrity
 

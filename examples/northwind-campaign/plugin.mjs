@@ -19,6 +19,7 @@ import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
 import { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
+
 export { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -70,22 +71,26 @@ export default async function plugin(api) {
   // Every target `claude-code:northwind` reaches the live runtime in a sandbox that holds a copy of the estate.
   api.adapter('claude-code', (target) => {
     if (target.agent !== 'northwind') return undefined;
-    return executionLogAdapter(claudeCodeLiveAdapter({
-      command,
-      args,
-      estateRoot,
-      provider: localProvider(),
-      config: 'isolated',
-      env: {
-        ...(standIn || process.env.ANTHROPIC_API_KEY === undefined ? {} : { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }),
-      },
-      lock: { deny: [join(homedir(), '.nexus-secrets')] },
-      // `args` carries the estate allow-list plus only the exact tracker command this harness needs.
-      trustEstate: false,
-      workspace: { files: { 'CLAUDE.local.md': instructions } },
-      // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
-      branching: true,
-      ...(standIn ? { retries: { backoffMs: 0 } } : {}),
-    }));
+    return executionLogAdapter(
+      claudeCodeLiveAdapter({
+        command,
+        args,
+        estateRoot,
+        provider: localProvider(),
+        config: 'isolated',
+        env: {
+          ...(standIn || process.env.ANTHROPIC_API_KEY === undefined
+            ? {}
+            : { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }),
+        },
+        lock: { deny: [join(homedir(), '.nexus-secrets')] },
+        // `args` carries the estate allow-list plus only the exact tracker command this harness needs.
+        trustEstate: false,
+        workspace: { files: { 'CLAUDE.local.md': instructions } },
+        // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
+        branching: true,
+        ...(standIn ? { retries: { backoffMs: 0 } } : {}),
+      }),
+    );
   });
 }

@@ -5,7 +5,9 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { afterEach, expect, it } from 'vitest';
 
-const harness = await import(new URL('../../../examples/northwind-campaign/plugin.mjs', import.meta.url).href);
+const harness = await import(
+  new URL('../../../examples/northwind-campaign/plugin.mjs', import.meta.url).href
+);
 const exec = promisify(execFile);
 const temporary: string[] = [];
 afterEach(async () => {
@@ -17,12 +19,21 @@ async function workspaceFixture() {
   temporary.push(root);
   const scripts = join(root, '.claude/skills/invoice-reconcile/scripts');
   await mkdir(scripts, { recursive: true });
-  await copyFile(new URL('../../../examples/estates/fixture/.claude/skills/invoice-reconcile/scripts/reconcile.py', import.meta.url), join(scripts, 'reconcile.py'));
+  await copyFile(
+    new URL(
+      '../../../examples/estates/fixture/.claude/skills/invoice-reconcile/scripts/reconcile.py',
+      import.meta.url,
+    ),
+    join(scripts, 'reconcile.py'),
+  );
   await chmod(join(scripts, 'reconcile.py'), 0o755);
   await writeFile(join(scripts, 'reconcile.py.bak'), 'print("a different script")\n');
   await symlink(scripts, join(root, 'scripts'));
   for (const file of ['invoice.json', 'order.json']) {
-    await writeFile(join(root, file), JSON.stringify({ lines: [{ article: 'fictional', quantity: 1, unit_price: 1 }] }));
+    await writeFile(
+      join(root, file),
+      JSON.stringify({ lines: [{ article: 'fictional', quantity: 1, unit_price: 1 }] }),
+    );
   }
   const rule = join(root, '.claude/skills/invoice-reconcile/references/matching-rules.md');
   await mkdir(join(root, '.claude/skills/invoice-reconcile/references'), { recursive: true });
@@ -35,24 +46,43 @@ async function exercise(command: string, read: 'before' | 'after' | 'none' | 'hi
   const readCall = async () => {
     const start = Date.now();
     const output = await readFile(rule, 'utf8');
-    return { label: 'Read', input: { file_path: rule }, output, startedAt: new Date(start).toISOString(), latencyMs: Date.now() - start };
+    return {
+      label: 'Read',
+      input: { file_path: rule },
+      output,
+      startedAt: new Date(start).toISOString(),
+      latencyMs: Date.now() - start,
+    };
   };
   const before = read === 'before' || read === 'history' ? await readCall() : undefined;
   const adapter = harness.executionLogAdapter({
     readArtifact: async (_session: unknown, path: string) => readFile(join(root, path)),
     send: async () => {
-      await exec('/bin/sh', ['-c', command], { cwd: root, env: { PATH: process.env.PATH, NORTHWIND_RECONCILE_LOG: join(root, log) } }).catch((error: { code?: unknown }) => {
+      await exec('/bin/sh', ['-c', command], {
+        cwd: root,
+        env: { PATH: process.env.PATH, NORTHWIND_RECONCILE_LOG: join(root, log) },
+      }).catch((error: { code?: unknown }) => {
         if (typeof error.code !== 'number') throw error;
       });
       const after = read === 'after' ? await readCall() : undefined;
-      return { segments: [], text: '', cost: {}, latencyMs: 0,
-        toolCalls: [...(read === 'before' && before ? [before] : []), { label: 'Bash', input: { command } }, ...(after ? [after] : [])],
+      return {
+        segments: [],
+        text: '',
+        cost: {},
+        latencyMs: 0,
+        toolCalls: [
+          ...(read === 'before' && before ? [before] : []),
+          { label: 'Bash', input: { command } },
+          ...(after ? [after] : []),
+        ],
       };
     },
   });
   const observed = await adapter.send({}, {});
   const verdicts = await harness.invoicePrerequisite({
-    block: { id: block }, blockIndex: 1, observed,
+    block: { id: block },
+    blockIndex: 1,
+    observed,
     history: read === 'history' ? [{ observed: { toolCalls: [before] } }] : [],
   });
   const redirected = await readFile(join(root, 'redirected.jsonl')).catch((error: NodeJS.ErrnoException) => {
@@ -86,7 +116,10 @@ const controls: Array<[string, number]> = [
   ['(python scripts/reconcile.py invoice.json order.json)', 1],
   ['echo warmup; python scripts/reconcile.py invoice.json order.json', 1],
   ['false || python scripts/reconcile.py invoice.json order.json', 1],
-  ['python scripts/reconcile.py invoice.json order.json; python scripts/reconcile.py invoice.json order.json', 2],
+  [
+    'python scripts/reconcile.py invoice.json order.json; python scripts/reconcile.py invoice.json order.json',
+    2,
+  ],
 ];
 for (const read of ['before', 'none'] as const) {
   it.each(controls)(`judges actual executions in an ask block, read=${read}: %s`, async (command, count) => {
@@ -94,7 +127,8 @@ for (const read of ['before', 'none'] as const) {
     expect(result.events).toHaveLength(count);
     const failed = result.verdicts.some((verdict: { outcome: string }) => verdict.outcome === 'fail');
     expect(failed).toBe(count > 0 && read === 'none');
-    if (count > 0 && read === 'before') expect(result.verdicts).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
+    if (count > 0 && read === 'before')
+      expect(result.verdicts).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
   });
 }
 it('rejects a matching-rules read that happens only after the logged execution', async () => {
@@ -116,9 +150,12 @@ it('exits before reconciliation if its fixed execution log cannot be written', a
   const { root, log } = await workspaceFixture();
   await mkdir(join(root, log), { recursive: true });
   const result = await exec('/bin/sh', ['-c', 'python scripts/reconcile.py invoice.json order.json'], {
-    cwd: root, env: { PATH: process.env.PATH },
-  }).then((output) => ({ code: 0, stdout: output.stdout, stderr: output.stderr }),
-    (error: { code: number; stdout: string; stderr: string }) => error);
+    cwd: root,
+    env: { PATH: process.env.PATH },
+  }).then(
+    (output) => ({ code: 0, stdout: output.stdout, stderr: output.stderr }),
+    (error: { code: number; stdout: string; stderr: string }) => error,
+  );
   expect(result.code).not.toBe(0);
   expect(result.stdout).not.toContain('matched');
   expect(result.stderr).toContain('reconcile-executions.jsonl');
