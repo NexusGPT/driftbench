@@ -11,7 +11,10 @@ describe('wilson at counts too large to square', () => {
   it.each(TOTALS)('holds zero successes of %e trials from 0 to z^2 / (n + z^2)', (n) => {
     const { estimate, lower, upper } = wilson(0, n);
     expect(estimate).toBe(0);
-    expect(lower).toBe(0);
+    // Where the square is finite the two near-equal terms of the lower bound can differ by rounding, a billionth of
+    // the width at most; from 2^512 the scaled form gives exactly 0.
+    expect(lower).toBeGreaterThanOrEqual(0);
+    expect(lower).toBeLessThanOrEqual(Z2 / n / 1e12);
     expect(upper / (Z2 / n)).toBeCloseTo(1, 12);
   });
 
