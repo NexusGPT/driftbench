@@ -12,7 +12,8 @@
 //   NORTHWIND_PERMISSION_MODE  passed as --permission-mode, such as acceptEdits (edits and writes need no prompt).
 //   NORTHWIND_ESTATE         the estate folder. Default: examples/estates/fixture.
 import { open } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
@@ -61,7 +62,11 @@ export default async function plugin(api) {
       args,
       estateRoot,
       provider: localProvider(),
-      config: standIn ? 'isolated' : 'host',
+      config: 'isolated',
+      ...(standIn || process.env.ANTHROPIC_API_KEY === undefined
+        ? {}
+        : { env: { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY } }),
+      lock: { deny: [join(homedir(), '.nexus-secrets')] },
       // The fixture's settings allow Read, Grep, Glob and python3; a headless run ignores them unless trusted.
       trustEstate: true,
       // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
