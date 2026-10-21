@@ -3,6 +3,7 @@ import {
   type CheckContext,
   type StepOutput as DiagnosticStepOutput,
   evidence,
+  objectContextOfSpec,
   type ResolvedObject,
   type RunResult,
   type Verdict,
@@ -21,7 +22,7 @@ import {
 } from './confirm';
 import { fixPlan } from './fixplan';
 import { flakyBlocks } from './flaky';
-import { checkEvidenceInputs, sentUser } from './inputs';
+import { checkEvidenceInputs, missingEstateMap, sentUser } from './inputs';
 import { shippedPolicy } from './objects';
 import { blameServices } from './services';
 import type { BlameDiagnosis } from './types';
@@ -161,6 +162,8 @@ function blockStep(
       // compared exactly (no decider was configured) is decided again with the value services; the other
       // values keep the decisions the check stored. A service that throws is reported and read as unknown.
       const errors: string[] = [];
+      const absentMap = missingEstateMap(ctx.check.spec, objectContextOfSpec(ctx.check.spec)?.dir);
+      if (absentMap !== undefined) errors.push(`error:estate_map_not_found:${absentMap}`);
       const values: Record<string, readonly evidence.ValueFact[]> = {};
       if (services.value !== undefined) {
         for (const verdict of ctx.verdicts) {
@@ -225,6 +228,13 @@ function describe(cause: unknown): string {
 /** A failed service as a diagnosis without a verdict: the block keeps every other diagnosis. */
 function errorOutput(flag: string): StepOutput {
   const [, kind = 'service_failed', ...rest] = flag.split(':');
+  if (kind === 'estate_map_not_found') {
+    return {
+      summary: `the estate map ${rest.join(':')} named by the spec was not found; no rule text could be read, so the attributions below may be unassigned`,
+      flags: ['error:estate_map_not_found'],
+      confidence: 'undecided',
+    };
+  }
   const what = kind === 'reply_reader_failed' ? 'the reply reader' : 'the value service';
   return {
     summary: `${what} threw ${rest.join(':')}; the reading is unknown and the rules that need it did not match`,
