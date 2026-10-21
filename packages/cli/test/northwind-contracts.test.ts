@@ -102,3 +102,22 @@ it.each([
     expect.objectContaining({ outcome: 'pass' }),
   );
 });
+
+it.each([
+  'false && python scripts/reconcile.py invoice.json order.json',
+  'true || python scripts/reconcile.py invoice.json order.json',
+  'python scripts/reconcile.py invoice.json order.json | cat',
+  'printf invoice | python scripts/reconcile.py invoice.json order.json',
+  '(python scripts/reconcile.py invoice.json order.json)',
+])('does not count a conditional, piped or subshell reconciliation: %s', (command) => {
+  const call = { label: 'Bash', input: { command } };
+  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
+    expect.objectContaining({ outcome: 'fail', evidence: 'The reconcile block did not invoke scripts/reconcile.py.' }),
+  );
+});
+it('counts reconciliation as the unconditional first command of an && chain', () => {
+  const call = { label: 'Bash', input: { command: 'python scripts/reconcile.py invoice.json order.json && echo done' } };
+  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
+    expect.objectContaining({ outcome: 'pass' }),
+  );
+});
