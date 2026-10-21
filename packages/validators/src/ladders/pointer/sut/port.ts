@@ -85,10 +85,12 @@ export type Transport = (request: FetchRequest) => FetchResponse | Promise<Fetch
 
 export type ModelArm = 'haiku' | 'jev' | 'jev-unit';
 /**
- * The arms a scan can record on: the three of the fixtures, and `openai-decisions`, the system 1 client that asks
- * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have no threshold).
+ * The arms a scan can record on: the three of the fixtures; `openai-decisions`, the system 1 client that asks
+ * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have none); and
+ * `user-yes-no`, a user labeler of the system 1 class behind an HTTP endpoint (design section 3, a client
+ * `http:<url>`): `{ set, window, state, questions }` in, `{ probabilities }` out, a label at a threshold.
  */
-export type ScanArm = ModelArm | 'openai-decisions';
+export type ScanArm = ModelArm | 'openai-decisions' | 'user-yes-no';
 
 /* ----- scan ----- */
 

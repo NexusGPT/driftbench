@@ -9,6 +9,7 @@ import type {
   ScanResult,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
+import { bugsC } from './bugs-c';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
@@ -29,6 +30,9 @@ const READ_FILE = /(^|\/)\.claude\/(skills\/[^/]+\/SKILL\.md|agents\/[^/]+\.md)$
 function fail(error: string, extra: Partial<ScanResult> = {}): ScanResult {
   return { ok: false, error, warnings: [], atoms: [], diagnostics: [], ...extra };
 }
+
+/** The labeler that made a recorded label: the planted labeller or the arm of a model port. */
+const labelerOf = (label: unknown): unknown => (label as { labeler?: unknown } | undefined)?.labeler;
 
 function liveEntries(entries: readonly LedgerEntry[]): LedgerEntry[] {
   return entries.filter((e) => e.status === 'live');
@@ -61,6 +65,18 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   }
   const prevEntries = previous?.entries ?? [];
   const prevScan = previous?.scan ?? 0;
+  // Who labels in this scan: a recorded label is carried only when the same labeler made it.
+  const labelerId = req.model ? req.model.arm : 'planted';
+  // A yes or no model names no clause and no atom: alone, it cannot label a set whose label needs one.
+  if (req.model && req.model.arm !== 'haiku' && !bugsC.has('link-labels-asked')) {
+    for (const set of sets) {
+      if (set.labels.some((label) => label.spans || label.links)) {
+        return fail(
+          `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,
+        );
+      }
+    }
+  }
 
   // ---- cut
   const files = [...req.files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
@@ -196,6 +212,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             base.fp === unit.fp &&
             base.ctxFp === unit.ctxFp &&
             base.labels[set.set]?.setHash === set.hash &&
+            (bugsC.has('carry-ignores-labeler') || labelerOf(base.labels[set.set]) === labelerId) &&
             w.event !== 'changed' &&
             w.event !== 'split' &&
             w.event !== 'merged';
@@ -231,7 +248,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             if (got) {
               const source = outcome.key ? `cassette:${outcome.key}` : 'labeler:planted';
               Object.defineProperty(w.entry.labels, set.set, {
-                value: { label: got.label, source, setHash: set.hash },
+                value: { label: got.label, source, setHash: set.hash, labeler: labelerId },
                 enumerable: true,
                 writable: true,
                 configurable: true,

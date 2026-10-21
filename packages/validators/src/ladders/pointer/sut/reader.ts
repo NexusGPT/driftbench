@@ -133,7 +133,7 @@ export type ReaderExports = {
   cut(source: string): RCut;
   LabelerError: new (message: string) => Error;
   buildLabelling(
-    specs: Array<{ cls: 'system1' | 'system2'; client: string }>,
+    specs: Array<{ cls: 'system1' | 'system2'; client: string; target?: string }>,
     options: {
       env: Record<string, string | undefined>;
       cwd: string;
@@ -403,6 +403,9 @@ const TEST_ENV: Record<string, string> = {
   OPENAI_DECISIONS_MODEL: 'decisions-fake-1',
 };
 
+/** The address of the `user-yes-no` labeler: a reserved `.invalid` name only the fake transport answers. */
+const USER_LABELER_URL = 'https://labeler.invalid/v1/label';
+
 function fetchOf(
   transport: Transport,
 ): (url: unknown, init?: { headers?: unknown; body?: unknown }) => Promise<Response> {
@@ -452,10 +455,12 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     try {
       const built = await reader.buildLabelling(
         [
-          {
-            cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
-            client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
-          },
+          request.model.arm === 'user-yes-no'
+            ? { cls: 'system1', client: 'http', target: USER_LABELER_URL }
+            : {
+                cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
+                client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
+              },
         ],
         {
           record: mode === 'record',
