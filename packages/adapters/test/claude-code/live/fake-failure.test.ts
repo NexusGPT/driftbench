@@ -11,13 +11,16 @@ it('fails the cell loudly when the stand-in cannot resolve a skill obligation', 
   const skill = join(estateRoot, '.claude/skills/invoice-audit');
   await mkdir(skill, { recursive: true });
   await writeFile(join(estateRoot, 'CLAUDE.md'), '# Fictional invoice assistant\n');
-  await writeFile(join(skill, 'SKILL.md'), [
-    '---',
-    'name: invoice-audit',
-    'description: Match supplier invoice amounts with order amounts.',
-    '---',
-    'Before publishing the package, read `references/policy.md`.',
-  ].join('\n'));
+  await writeFile(
+    join(skill, 'SKILL.md'),
+    [
+      '---',
+      'name: invoice-audit',
+      'description: Match supplier invoice amounts with order amounts.',
+      '---',
+      'Before publishing the package, read `references/policy.md`.',
+    ].join('\n'),
+  );
   const adapter = claudeCodeLiveAdapter({
     command: FAKE,
     estateRoot,
