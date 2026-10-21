@@ -4,7 +4,7 @@ One campaign tests a code agent on the fictional Northwind estate. It runs on Cl
 
 The files are in [`examples/northwind-campaign`](../examples/northwind-campaign/README.md). Four tasks come from the fixture estate in `examples/estates/fixture`. Everything in the example is fictional.
 
-Status. Built: the rehearsal on a stand-in runtime, with no model call; the live run on Claude Code, which is billed and capped; the fix list in the report. Not built: a live run of the other adapters.
+Status. Built: the rehearsal on a stand-in runtime, with no model call; the live run on Claude Code, which is billed and capped; the fix list in the report.
 
 ## What it shows
 
