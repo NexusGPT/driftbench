@@ -58,7 +58,7 @@ const totalFile = join(work, 'spent.txt');
 if (!existsSync(cassette)) writeFileSync(cassette, '');
 
 for (let round = 1; round <= MAX_ROUNDS; round += 1) {
-  const started = new Date().toISOString();
+  const started = new Date(Date.now() - 15_000).toISOString();
   gh('workflow', 'run', 'validators.yml', '--ref', ref, '-f', 'jobs=variables-spans-failing');
   let id;
   for (let wait = 0; id === undefined && wait < 30; wait += 1) {
