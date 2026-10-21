@@ -1,3 +1,8 @@
+# Skill activation
+
+When the routing table selects a skill, activate it through the runtime's `Skill` tool. Reading its
+`SKILL.md` directly is not a substitute: that does not activate the skill's runtime permissions and hooks.
+
 # Invoice integrity
 
 Invoices are source documents. Never change an invoice quantity, unit price or total to make it match a
