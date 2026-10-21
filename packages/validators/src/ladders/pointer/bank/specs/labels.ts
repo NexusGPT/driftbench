@@ -289,7 +289,7 @@ export const labels: FamilySpec = {
       3,
       'Change detection does not depend on the labeller',
       'The same edit script scanned with four different labellers (perfect, none, length-keyed, random).',
-      'The ids, events and quotes of all entries are identical in the four ledgers; only labels differ.',
+      'The ids, events and quotes of all entries are identical in the four ledgers; only labels differ. The events are those of the script: `split`, `merged`, `changed`, `deleted` and `moved` where it put them.',
       'scan:events-by-id',
       { component: 'scan' },
     ),

@@ -1,0 +1,87 @@
+name: pointer-cr2-cheat-probe
+on:
+  push:
+    branches: ['train/pointer-cr2-cheat-*']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Biome
+        run: >-
+          pnpm exec biome check --diagnostic-level=error --max-diagnostics=200
+          packages/validators/src/ladders/pointer/kit/anchor-case.ts
+          packages/validators/src/ladders/pointer/kit/transport.ts
+          packages/validators/src/ladders/pointer/bank/families/adversarial.ts
+          packages/validators/src/ladders/pointer/bank/families/hardening.ts
+          packages/validators/src/ladders/pointer/bank/families/ids.ts
+          packages/validators/src/ladders/pointer/bank/families/labels.ts
+          packages/validators/src/ladders/pointer/bank/families/privacy.ts
+          packages/validators/src/ladders/pointer/bank/families/reanchoring.ts
+          packages/validators/src/ladders/pointer/bank/families/replay.ts
+          packages/validators/src/ladders/pointer/bank/specs/adversarial.ts
+          packages/validators/src/ladders/pointer/bank/specs/hardening.ts
+          packages/validators/src/ladders/pointer/bank/specs/ids.ts
+          packages/validators/src/ladders/pointer/bank/specs/labels.ts
+          packages/validators/src/ladders/pointer/bank/specs/privacy.ts
+          packages/validators/src/ladders/pointer/bank/specs/reanchoring.ts
+          packages/validators/src/ladders/pointer/bank/specs/replay.ts
+          packages/validators/test/pointer/cr2-cheat.test.ts
+          packages/validators/test/pointer/cr2-cheats.ts
+          packages/validators/test/pointer/cr2-cheat-a.ts
+      - name: Typecheck
+        run: pnpm typecheck
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { file: cr2-cheat, filter: 'group 0:' }
+          - { file: cr2-cheat, filter: 'group 1:' }
+          - { file: cr2-cheat, filter: 'group 2:' }
+          - { file: cr2-cheat, filter: 'group 3:' }
+          - { file: cr2-cheat, filter: 'proposal [234]' }
+          - { file: hardening, filter: '.' }
+          - { file: cause-repairs, filter: '.' }
+          - { file: adapter-observations, filter: '.' }
+          - { file: positive, filter: '.' }
+          - { file: constant-controls, filter: '.' }
+          - { file: contracts, filter: '.' }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Test
+        run: pnpm exec vitest run packages/validators/test/pointer/${{ matrix.file }}.test.ts -t "${{ matrix.filter }}"
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [re-anchoring, ids, labels, privacy, replay, adversarial]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Reference passes the family
+        run: pnpm exec vitest run packages/validators/test/pointer/reference.test.ts -t "${{ matrix.family }}$"

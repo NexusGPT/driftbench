@@ -1,4 +1,4 @@
-import { anchorCase, type Fate } from '../../kit/anchor-case';
+import { anchorCase, type Fate, runTwin } from '../../kit/anchor-case';
 import {
   allTexts,
   cloneWorld,
@@ -306,13 +306,11 @@ export const reanchoringRuns: Record<string, Run> = {
       { kind: 'paragraph', sentences: [shared] },
       { kind: 'paragraph', sentences: [longSentence(p)] },
     ];
-    const first = await scanOk(ctx.sut, {
-      files: build([
-        { path: 'a.md', blocks: aBlocks(true) },
-        { path: 'b.md', blocks: bBlocks },
-      ]).files,
-      labeler: perfect(),
-    });
+    const old: EstateFile[] = [
+      { path: 'a.md', blocks: aBlocks(true) },
+      { path: 'b.md', blocks: bBlocks },
+    ];
+    const first = await scanOk(ctx.sut, { files: build(old).files, labeler: perfect() });
     const second = await scanOk(ctx.sut, {
       files: build([
         { path: 'a.md', blocks: aBlocks(false) },
@@ -332,7 +330,7 @@ export const reanchoringRuns: Record<string, Run> = {
       return fail(`the deleted copy has event ${eventNow(second, nowA)}, expected deleted`);
     if (nowB?.status !== 'live' || eventNow(second, nowB) !== 'unchanged')
       return fail('the copy in b.md did not stay unchanged');
-    return pass('deleted in a.md, unchanged in b.md');
+    return pass(`deleted in a.md, unchanged in b.md; ${await runTwin(ctx, old)}`);
   },
   'copy-keeps-original': async (ctx) => {
     const { w } = mid(ctx);
@@ -351,9 +349,9 @@ export const reanchoringRuns: Record<string, Run> = {
       return fail(`${copies.length} live entries for the copied text, expected 2 with distinct ids`);
     const old = copies.find((e) => e.id === original);
     if (!old) return fail('the original lost its id to the copy');
-    return eventNow(second, old) === 'unchanged'
-      ? pass('original kept, copy fresh')
-      : fail(`the original has event ${eventNow(second, old)}, expected unchanged`);
+    if (eventNow(second, old) !== 'unchanged')
+      return fail(`the original has event ${eventNow(second, old)}, expected unchanged`);
+    return pass(`original kept, copy fresh; ${await runTwin(ctx, filesOf(w))}`);
   },
   'duplicate-section-insert': async (ctx) => {
     const p = prose(ctx);
@@ -513,7 +511,19 @@ export const reanchoringRuns: Record<string, Run> = {
         checked += 1;
       }
     }
-    return pass(`${checked} text/context boundary cases match the weighted rule`);
+    const framed: EstateFile[] = [
+      {
+        path: 'notes/score.md',
+        blocks: [
+          { kind: 'heading', level: 1, text: 'A'.repeat(40) },
+          { kind: 'paragraph', sentences: [`${'A'.repeat(80)}.`] },
+          { kind: 'paragraph', sentences: [old] },
+          { kind: 'paragraph', sentences: [`${'A'.repeat(80)}.`] },
+        ],
+      },
+    ];
+    const twin = await runTwin(ctx, framed);
+    return pass(`${checked} text/context boundary cases match the weighted rule; ${twin}`);
   },
   'split-sentence': async (ctx) => {
     const p = prose(ctx);

@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
+import { rngFor } from '@agent-nexus/driftbench-generate';
 import type { FetchRequest, FetchResponse, Transport } from '../sut/port';
 import { truthLabel } from './labellers';
+import { word } from './words';
 
 /**
  * A fake model endpoint. It answers a Haiku dense request or a Jev question request from the hidden truth, reads
@@ -227,3 +229,17 @@ export const TOO_LARGE: FetchResponse = {
   status: 400,
   body: JSON.stringify({ error: { type: 'max_tokens_exceeded', message: 'max_tokens_exceeded' } }),
 };
+
+/**
+ * Two model names drawn from the seed: the one a cassette recorded and the one the transport returns. The
+ * prefixes keep them apart and neither holds the other, so a warning that names both names these two. A
+ * warning written in advance (round 3 audit, seat 2: a literal that named the fixture models `m-1` and `m-2`)
+ * names neither.
+ */
+export function seededModels(seed: number, label: string): { recorded: string; returned: string } {
+  const r = rngFor(seed, `models:${label}`);
+  return {
+    recorded: `rec-${word(r)}-${10 + Math.floor(r() * 80)}`,
+    returned: `ret-${word(r)}-${10 + Math.floor(r() * 80)}`,
+  };
+}

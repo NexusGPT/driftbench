@@ -1,3 +1,4 @@
+import { runScenario } from '../../kit/anchor-case';
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
@@ -867,9 +868,12 @@ export const labelsRuns: Record<string, Run> = {
       });
       views.push(JSON.stringify({ entries, events: second.events }));
     }
-    return views.every((v) => v === views[0])
-      ? pass('ids, events and quotes equal under four labellers')
-      : fail('the ledger changes with the labeller: change detection depends on labels');
+    if (!views.every((v) => v === views[0]))
+      return fail('the ledger changes with the labeller: change detection depends on labels');
+    // Round 3 audit, seat 2: four ledgers of constant events are equal too. The events must also be the
+    // ones the script makes (split, merged, changed, deleted, moved): the event map holds the change.
+    const run = await runScenario(ctx, { before, after, fates: segs.flatMap((seg) => seg.fates) });
+    return pass(`ids, events and quotes equal under four labellers; ${run.ids.size} units follow the script`);
   },
   'sets-independent': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);

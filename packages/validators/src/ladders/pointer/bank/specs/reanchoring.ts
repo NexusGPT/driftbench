@@ -1,4 +1,15 @@
-import { type FamilySpec, row } from './types';
+import { type FamilySpec, row, type Spec } from './types';
+
+/**
+ * The check every item of this family adds after its own, except the two named below (round 3 audit, seat 2:
+ * a reader whose events are a constant, or were fixed before it saw the edit, gains nothing). The runner is
+ * `runTwin` of kit/anchor-case.ts.
+ */
+export const TWIN_ORACLE =
+  'Then the twin edit: the same old files, scanned fresh, then rescanned with one prose block removed (its units `deleted`, every other old unit `unchanged`) and a probe file beside them edited by a split, a merge, a reword, a delete and an insert drawn from the seed (each unit follows its script).';
+const WITHOUT_TWIN = new Set(['duplicate-section-insert', 'no-wrong-anchors-fuzz']);
+const withTwin = (spec: Spec): Spec =>
+  WITHOUT_TWIN.has(spec.key) ? spec : { ...spec, oracle: `${spec.oracle} ${TWIN_ORACLE}` };
 
 /**
  * Layer A, design section 4 "Re-anchoring on a changed file" and 10a result 9. Each item scans an old document
@@ -441,5 +452,5 @@ export const reanchoring: FamilySpec = {
       'anchor:no-wrong-anchor-invariant',
       { causeKind: 'composite' },
     ),
-  ],
+  ].map(withTwin),
 };

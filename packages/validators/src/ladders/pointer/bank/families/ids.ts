@@ -760,16 +760,45 @@ export const idsRuns: Record<string, Run> = {
       : fail('two sets share one hash');
   },
   'ledger-status-live': async (ctx) => {
-    const w = worldOf(prose(ctx), { files: 2, perFile: 10 });
+    const p = prose(ctx);
+    const w = worldOf(p, { files: 2, perFile: 10 });
     const r = await fresh(ctx, build(filesOf(w)).files);
     const raw = (JSON.parse(r.ledger.raw) as { entries: Array<{ status: string; lineage?: unknown }> })
       .entries;
     if (raw.length === 0 || raw.length !== r.ledger.entries.length)
       return fail('the raw ledger does not contain every observed live unit');
     if (raw.some((e) => e.status !== 'live')) return fail('an entry of a fresh scan is not live');
-    return raw.every((e) => Array.isArray(e.lineage) && e.lineage.length > 0)
-      ? pass('all live with a lineage')
-      : fail('an entry has no lineage item');
+    if (!raw.every((e) => Array.isArray(e.lineage) && e.lineage.length > 0))
+      return fail('an entry has no lineage item');
+    // Round 3 audit, seat 2: a lineage of one constant step for every entry gains nothing. After a rescan
+    // that rewords one unit and moves another to the second file, each of the two ends with one more step.
+    const edited = cloneWorld(w);
+    const reworded = w.texts[0]?.[3] as string;
+    (edited.texts[0] as string[])[3] = rewordWords(p.random, reworded, 1);
+    const moved = (edited.texts[0] as string[]).splice(6, 1)[0] as string;
+    (edited.texts[1] as string[]).splice(4, 0, moved);
+    const again = await scanOk(ctx.sut, {
+      files: build(filesOf(edited)).files,
+      previousLedger: r.ledger.raw,
+      labeler,
+    });
+    const steps = (ledger: LedgerView, id: string): string[] => {
+      const all = (JSON.parse(ledger.raw) as { entries: Array<{ id: string; lineage?: unknown }> }).entries;
+      const lineage = all.find((e) => e.id === id)?.lineage;
+      if (!Array.isArray(lineage)) return [];
+      return lineage.map((step) => String((step as { event?: unknown }).event));
+    };
+    const oneMore = (text: string, event: string): string | undefined => {
+      const id = liveByText(r.ledger, text)?.id;
+      if (!id) return 'positive witness: the fresh scan has no entry for a planted unit';
+      const was = steps(r.ledger, id);
+      const now = steps(again.ledger, id);
+      if (now.length === was.length + 1 && now[now.length - 1] === event) return undefined;
+      return `after the edit the ${event} unit has the lineage ${JSON.stringify(now)}, not one more step`;
+    };
+    const wrong = oneMore(reworded, 'changed') ?? oneMore(moved, 'moved');
+    if (wrong) return fail(wrong);
+    return pass('all live with a lineage, and a second step after an edit');
   },
   'ledger-safe-set-names': async (ctx) => {
     const w = worldOf(prose(ctx), { files: 1, perFile: 6 });
