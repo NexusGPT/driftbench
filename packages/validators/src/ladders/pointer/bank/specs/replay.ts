@@ -103,7 +103,7 @@ export const replay: FamilySpec = {
       3,
       'A cassette of another labeller is refused by name',
       "Replay each committed Haiku and Jev fixture correctly, then give each arm the other arm's cassette.",
-      'The valid fixtures retain every authored label; the wrong-arm cassettes fail offline and name labeler or model.',
+      "The valid fixtures retain every authored label; the wrong-arm cassettes fail offline, and each miss names, as a whole token, the labeler id its own fixture's entries declare (the id of the missing entry, never only the word labeler or model).",
       'cassette:miss-names-labeler',
     ),
     row(
