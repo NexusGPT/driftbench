@@ -107,7 +107,10 @@ describe('a routing row that names two skills', () => {
       .map((atom) => atom.fields?.target)
       .sort();
     expect(targets).toEqual(['day-close', 'day-open']);
-    const routed = map.edges.filter((edge) => edge.kind === 'route').map((edge) => edge.to).sort();
+    const routed = map.edges
+      .filter((edge) => edge.kind === 'route')
+      .map((edge) => edge.to)
+      .sort();
     expect(routed).toEqual([...BOTH].sort());
   });
 });

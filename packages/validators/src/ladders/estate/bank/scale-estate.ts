@@ -26,6 +26,7 @@ export function scaleEstate(
   const skills = Math.max(1, Math.ceil((size - 5) / ATOMS_PER_SKILL));
   const files: Record<string, string> = {};
   const rows: string[] = [];
+  const routed: string[] = [];
   const expected: ExpectedAtom[] = [];
   const gates: Array<{ file: string; line: number; act: string; tool: string }> = [];
   const nouns = ['crate', 'parcel', 'ledger', 'roster', 'permit', 'tariff', 'voucher', 'badge'];
@@ -34,6 +35,7 @@ export function scaleEstate(
     const noun = nouns[Math.floor(rng() * nouns.length)] as string;
     const name = `${noun}-task-${index}`;
     rows.push(`| handle ${noun} task ${index} | \`${name}\` |`);
+    routed.push(name);
     const dropped = index < (options.drop ?? 0);
     const file = skillFile(name, 'SKILL.md');
     const lines = [
@@ -73,6 +75,10 @@ export function scaleEstate(
     files[skillFile(name, `scripts/run-${index}.py`)] = '#!/usr/bin/env python3\n"""Runs the task."""\n';
     atoms += dropped ? ATOMS_PER_SKILL - 1 : ATOMS_PER_SKILL;
   }
+  // The rows of the routing table start on line 5 of the standing file: one planted route each, for the labeller.
+  routed.forEach((name, index) => {
+    expected.push({ hid: `route-${index}`, kind: 'route', file: STANDING, line: 5 + index, key: name });
+  });
   files[STANDING] = [
     '# Scale estate',
     '',

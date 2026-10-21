@@ -28,7 +28,7 @@ function routing(
   key: string,
   tier: 1 | 2 | 3 | 4 | 5,
   title: string,
-  lines: (skill: string) => { before: string[]; row: string; after?: string[] },
+  lines: (skill: string) => { before: string[]; row: string; after?: string[]; ask?: string },
   options: { helper?: boolean; component?: string } = {},
 ): Case {
   return {
@@ -47,7 +47,14 @@ function routing(
       const writer = standing(e, o);
       const shape = lines(target);
       writer.lines_(shape.before);
-      writer.line(shape.row, [{ hid: `${o}:row`, kind: 'route', key: target }]);
+      writer.line(shape.row, [
+        {
+          hid: `${o}:row`,
+          kind: 'route',
+          key: target,
+          ...(shape.ask !== undefined ? { ask: shape.ask } : {}),
+        },
+      ]);
       writer.lines_(shape.after ?? []);
     },
   };
@@ -119,10 +126,12 @@ const CASES: Case[] = [
   routing('escaped-pipe', 4, 'a routing row whose ask holds an escaped pipe', (skill) => ({
     before: TABLE,
     row: `| plan a delivery \\| a pickup | \`${skill}\` |`,
+    ask: 'plan a delivery',
   })),
   routing('no-outer-pipes', 3, 'a routing table written without outer pipes', (skill) => ({
     before: ['When the user wants to | Load', '---|---'],
     row: `plan a delivery | \`${skill}\``,
+    ask: 'plan a delivery',
   })),
   routing('indented-table', 3, 'a routing table indented under a list item', (skill) => ({
     before: ['- Routing:', '', '  | When the user wants to | Load |', '  |---|---|'],
@@ -131,15 +140,18 @@ const CASES: Case[] = [
   routing('list-item', 3, 'routing written as a list item', (skill) => ({
     before: ['## Routing', ''],
     row: `- To plan a delivery: load \`${skill}\`.`,
+    ask: 'plan a delivery',
   })),
   routing('sentence', 4, 'routing written as a sentence', (skill) => ({
     before: ['## Routing', ''],
     row: `When the user wants to plan a delivery, load the \`${skill}\` skill.`,
+    ask: 'plan a delivery',
   })),
   routing('heading-per-skill', 4, 'routing written as a heading per skill', (skill) => ({
     before: ['## Skills', ''],
     row: `### \`${skill}\``,
     after: ['', 'Use it when the user wants to plan a delivery.'],
+    ask: 'Use it when the user wants to plan a delivery.',
   })),
   {
     key: 'crlf-standing',
