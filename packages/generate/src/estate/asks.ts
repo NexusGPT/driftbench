@@ -124,17 +124,31 @@ type Situation = { text: string; cut: AskCut };
 
 const isWord = (c: string | undefined): boolean => c !== undefined && /[\p{L}\p{N}]/u.test(c);
 
-/** A row with its slots filled: `{act}`, the optional situation group, and `{span}`s in order. */
+/**
+ * A row with its slots filled: `{act}`, the optional situation group, and `{span}`s in order. A value that already
+ * ends in a sentence mark keeps it, and the row adds no stop or question mark of its own right after it: the
+ * last character decides, no word is read.
+ */
 function fill(
   row: string,
   act: string | undefined,
   situation?: string,
   spans: readonly string[] = [],
 ): string {
-  let out = row.replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ` ${situation}.`);
-  if (act !== undefined) out = out.replace('{act}', act);
-  for (const span of spans) out = out.replace('{span}', span);
+  let out = row.replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ' {situation}.');
+  if (situation !== undefined) out = put(out, '{situation}', situation);
+  if (act !== undefined) out = put(out, '{act}', act);
+  for (const span of spans) out = put(out, '{span}', span);
   return out;
+}
+
+/** The first `slot` of `text` replaced by `value`, without a stop or question mark of the row after a final mark. */
+function put(text: string, slot: string, value: string): string {
+  const at = text.indexOf(slot);
+  if (at < 0) return text;
+  const after = text.slice(at + slot.length);
+  const closes = /[.!?]$/.test(value) && /^[.?]/.test(after);
+  return `${text.slice(0, at)}${value}${closes ? after.slice(1) : after}`;
 }
 
 /**

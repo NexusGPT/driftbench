@@ -73,7 +73,7 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
   // The shipping skill owns the reference by folder, so it supplies the task; it does not join the row.
   expect(suite.specs[0]?.atoms).toEqual([ref.id]);
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre..',
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
   });
   // The rule is written in the catalogue's file: the shipping skill supplies the task, but its load is not required.
   expect(parsed.spec.blocks[0]?.expect?.skills).toBeUndefined();
@@ -92,7 +92,7 @@ it('a shared reference takes the task of the unit that cites it directly, never 
   const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre..',
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
   });
   // Written in the unit's own file, the same reference does require the unit.
   expect(parsed.spec.blocks[0]?.expect?.skills).toEqual([{ name: 'shipping', count: { min: 1 } }]);
@@ -181,7 +181,7 @@ it('rejects an approved phrase belonging to a different skill despite an explici
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please handle this for me: Track delayed parcels for the dispatch centre..',
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
   });
 });
 

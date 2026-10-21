@@ -261,7 +261,7 @@ situations:
       - { text: "Which van goes where tomorrow? Plan the routes.", lang: en, approved: true }
       # The ask code writes from the route planner's description. Not approved, so no spec takes it; the stand-in
       # reads the whole bank, so this entry routes it to the planner. grammar.json (with #834) replaces it.
-      - { text: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day..", lang: en, approved: false }
+      - { text: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day.", lang: en, approved: false }
 
   - id: route-planning-resume
     title: Pick up a route planning that stopped halfway

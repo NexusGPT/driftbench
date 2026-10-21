@@ -38,14 +38,20 @@ function rebuild(build: AskBuild, atoms: readonly EstateAtom[]): string {
     if (!source) throw new Error(`no atom ${span.atom}`);
     slices[span.slot].push(textAt(source, span.field).slice(span.from, span.to));
   }
-  const fill = (row: string, slot: 'ask' | 'act' | 'situation') =>
-    row.replace(/\{span\}|\{message\}/g, () => slices[slot].shift() ?? '<missing>');
+  // A value that ends in a sentence mark takes the place of the row's own stop or question mark after it.
+  const put = (text: string, slot: RegExp, value: string) =>
+    text.replace(slot, (_, after: string) => value + (/[.!?]$/.test(value) && /^[.?]$/.test(after) ? '' : after));
+  const fill = (row: string, slot: 'ask' | 'act' | 'situation') => {
+    let out = row;
+    while (/\{span\}|\{message\}/.test(out))
+      out = put(out, /(?:\{span\}|\{message\})([.?]?)/, slices[slot].shift() ?? '<missing>');
+    return out;
+  };
   const act = build.act === undefined ? undefined : fill(build.act, 'act');
   const situation = build.situation === undefined ? undefined : fill(build.situation, 'situation');
-  return fill(build.ask, 'ask')
-    .replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ` ${situation}.`)
-    .replace('{act}', act ?? '<missing>')
-    .replace('{tool}', build.tool?.name ?? '<missing>');
+  let out = fill(build.ask, 'ask').replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ' {situation}.');
+  if (situation !== undefined) out = put(out, /\{situation\}([.?]?)/, situation);
+  return put(out, /\{act\}([.?]?)/, act ?? '<missing>').replace('{tool}', build.tool?.name ?? '<missing>');
 }
 
 function checked(out: ReturnType<typeof codeAsk>, atoms: readonly EstateAtom[]): string | undefined {
@@ -145,7 +151,7 @@ describe('the act comes from the declared source, never from reading its words',
       situation: 'Plans berths for visiting vessels. Use it for moorings.',
     });
     expect(checked(codeAsk('trigger', [described], []), [described])).toBe(
-      'Please handle this for me: Plans berths for visiting vessels. Use it for moorings..',
+      'Please handle this for me: Plans berths for visiting vessels. Use it for moorings.',
     );
   });
 
@@ -163,7 +169,7 @@ describe('the act comes from the declared source, never from reading its words',
       provenance: { file: '.claude/skills/dock/SKILL.md', quote: 'Plans berths for visiting vessels.' },
     });
     const out = codeAsk('trigger', [own], []);
-    expect(checked(out, [own])).toBe('Please handle this for me: Plans berths for visiting vessels..');
+    expect(checked(out, [own])).toBe('Please handle this for me: Plans berths for visiting vessels.');
     expect(out.build?.spans).toEqual([
       { slot: 'act', atom: own.id, field: 'provenance.quote', from: 0, to: 34 },
     ]);
@@ -455,5 +461,34 @@ describe('ownership and markup', () => {
   it('plain strips markup, labels and list numbers', () => {
     expect(plain('- **R5.** Before editing: Read `a/b.md`.')).toBe('Before editing: Read a/b.md');
     expect(plain('1. Read references/rules.md first.')).toBe('Read references/rules.md first');
+  });
+});
+
+describe('an ask never doubles a stop', () => {
+  it('adds no stop or question mark of the row after a field that ends in a sentence mark', () => {
+    const route = atom('route.x.desc', { kind: 'route', situation: 'Plans berths for visiting vessels.' });
+    const rule = atom('instruction.x.r', {
+      situation: 'A vessel is late.',
+      fields: { ask: { text: 'book a berth for the ferry', context: 'A vessel is late.' } },
+    });
+    for (const [use, twin, atoms] of [
+      ['trigger', false, [route]],
+      ['trigger', true, [route]],
+      ['pressure', false, [route]],
+      ['near_miss', false, [route]],
+      ['trigger', false, [rule]],
+      ['trigger', true, [rule]],
+    ] as const) {
+      for (let variant = 0; variant <= 6; variant++) {
+        const out = codeAsk(use, [...atoms], [], twin, undefined, variant);
+        expect(checked(out, [...atoms]), `${use} ${variant}`).not.toMatch(/\.\.|\.\?/);
+      }
+    }
+    expect(checked(codeAsk('trigger', [route], []), [route])).toBe(
+      'Please handle this for me: Plans berths for visiting vessels.',
+    );
+    expect(checked(codeAsk('trigger', [rule], []), [rule])).toBe(
+      'Please book a berth for the ferry. A vessel is late.',
+    );
   });
 });

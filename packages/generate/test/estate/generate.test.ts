@@ -640,6 +640,9 @@ describe('focus atoms get at least five complete specs, each with its own ask or
     expect(meta.planRow).toBe(variant?.row);
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+    // No ask doubles a stop: a field that ends in a sentence mark takes the place of the row's own.
+    for (const file of result.files)
+      expect(file.text.match(/^ +user: .*\w\.\.(?!\.).*$/m)?.[0], file.path).toBeUndefined();
   }, 120_000);
 
   it('writes no variant without a focus list', async () => {
