@@ -8,6 +8,7 @@ import { main } from '../../packages/cli/src/index';
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const EXAMPLE = 'examples/northwind-campaign';
 const CONFIG = `${EXAMPLE}/driftbench.yaml`;
+const EVIDENCE = `${ROOT}/${EXAMPLE}/evidence/live-mac-2026-10-21.json`;
 
 async function cli(argv: string[]) {
   let out = '';
@@ -21,36 +22,27 @@ async function cli(argv: string[]) {
       err += text;
     },
   });
-  return { code, err, lines: out.split('\n').map((line) => line.trimEnd()).filter((line) => line !== '') };
+  const lines = out.split('\n').map((line) => line.trimEnd());
+  return { code, err, lines: lines.filter((line) => line !== '') };
 }
 
-describe('docs/northwind-campaign.md: the offline blocks', () => {
-  it('prints what the page shows for the check, the plan and the rehearsal; the live run is never run here', async () => {
+describe('docs/northwind-campaign.md', () => {
+  it('prints what the page shows for the check, the plan and the rehearsal', async () => {
     const page = await readFile(`${ROOT}/docs/northwind-campaign.md`, 'utf8');
     const shown = (text: string) => expect(page, text).toContain(text);
     const store = await mkdtemp(join(tmpdir(), 'northwind-docs-'));
     try {
-      const validate = await cli(['--plugin', `${EXAMPLE}/plugin.mjs`, 'spec', 'validate', `${EXAMPLE}/specs`]);
+      const specs = `${EXAMPLE}/specs`;
+      const validate = await cli(['--plugin', `${EXAMPLE}/plugin.mjs`, 'spec', 'validate', specs]);
       expect(validate.code, validate.err).toBe(0);
-      const plan = await cli(['campaign', 'plan', `${EXAMPLE}/specs`, '--config', CONFIG]);
+      const plan = await cli(['campaign', 'plan', specs, '--config', CONFIG]);
       expect(plan.code, plan.err).toBe(0);
-      shown(
-        [
-          ...validate.lines.filter((line) => line.startsWith('✓ ') || line.startsWith('Checked ')),
-          ...plan.lines.filter((line) => line.startsWith('Plan: ') || line.startsWith('Projected cost: ')),
-        ].join('\n'),
-      );
+      const checked = validate.lines.filter((line) => line.startsWith('✓ ') || line.startsWith('Checked '));
+      const planned = plan.lines.filter((line) => line.startsWith('Plan: ') || line.startsWith('Projected cost: '));
+      shown([...checked, ...planned].join('\n'));
 
-      const run = await cli([
-        'campaign',
-        'run',
-        '--config',
-        CONFIG,
-        '--campaign',
-        'northwind-rehearsal',
-        '--store',
-        join(store, 'rehearsal.db'),
-      ]);
+      const db = join(store, 'rehearsal.db');
+      const run = await cli(['campaign', 'run', '--config', CONFIG, '--campaign', 'northwind-rehearsal', '--store', db]);
       expect(run.code, run.err).toBe(0);
       shown(run.lines.filter((line) => line.startsWith('✓ ') || /^\d+ cells: /.test(line)).join('\n'));
     } finally {
@@ -58,17 +50,9 @@ describe('docs/northwind-campaign.md: the offline blocks', () => {
     }
   }, 300_000);
 
-  it('shows the live command as text only: the page holds no output of a run it did not quote from the evidence file', async () => {
+  it('quotes the live run from the evidence file, and never runs it', async () => {
     const page = await readFile(`${ROOT}/docs/northwind-campaign.md`, 'utf8');
-    const evidence = JSON.parse(await readFile(`${ROOT}/${EXAMPLE}/evidence/live-mac-2026-10-21.json`, 'utf8')) as {
-      campaign: string;
-      reportedUsd: number;
-      allAttemptsReportedUsd: number;
-      cells: number;
-      passedCells: number;
-      blocks: number;
-      passedBlocks: number;
-    };
+    const evidence = JSON.parse(await readFile(EVIDENCE, 'utf8'));
     expect(page).toContain(`the campaign \`${evidence.campaign}\``);
     expect(page).toContain(`USD ${evidence.reportedUsd}`);
     expect(page).toContain(`USD ${evidence.allAttemptsReportedUsd}`);
