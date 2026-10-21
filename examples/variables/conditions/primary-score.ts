@@ -32,41 +32,57 @@ export function primaryScore(
     const used = new Set<number>();
     for (const condition of row.conditions) {
       planted++;
-      const hit = values.findIndex((pair, index) => !used.has(index) && (
-        row.kind === 'existing'
-          ? pair === `${condition.variable}/${condition.value}`
-          : row.kind === 'new' && outcome?.status === 'proposed'
-            && pair.split('/')[0] === condition.variable && !initialCandidates.has(pair)
-      ));
+      const hit = values.findIndex(
+        (pair, index) =>
+          !used.has(index) &&
+          (row.kind === 'existing'
+            ? pair === `${condition.variable}/${condition.value}`
+            : row.kind === 'new' &&
+              outcome?.status === 'proposed' &&
+              pair.split('/')[0] === condition.variable &&
+              !initialCandidates.has(pair)),
+      );
       if (hit >= 0) {
         correct++;
         used.add(hit);
       } else {
         const sameVariable = values.some((p) => p.split('/')[0] === condition.variable);
-        const reason = outcome?.status === 'failed' || outcome?.status === 'unsure'
-          ? 'unread_or_unsettled'
-          : values.length === 0 ? 'no_assignment'
-            : !sameVariable ? 'wrong_variable'
-              : row.kind === 'new' ? 'new_mapped_to_existing_or_not_proposed'
-                : outcome?.status === 'proposed' ? 'existing_reproposed' : 'wrong_existing_value';
+        const reason =
+          outcome?.status === 'failed' || outcome?.status === 'unsure'
+            ? 'unread_or_unsettled'
+            : values.length === 0
+              ? 'no_assignment'
+              : !sameVariable
+                ? 'wrong_variable'
+                : row.kind === 'new'
+                  ? 'new_mapped_to_existing_or_not_proposed'
+                  : outcome?.status === 'proposed'
+                    ? 'existing_reproposed'
+                    : 'wrong_existing_value';
         add(misses, reason);
       }
     }
     values.forEach((_, index) => {
-      if (!used.has(index)) add(extras, row.kind === 'none' ? 'assignment_on_none' : 'incorrect_or_extra_assignment');
+      if (!used.has(index))
+        add(extras, row.kind === 'none' ? 'assignment_on_none' : 'incorrect_or_extra_assignment');
     });
   }
   // Unexpected span ids must not disappear from precision's denominator.
   const ids = new Set(gold.map((row) => row.id));
-  for (const outcome of outcomes) if (!ids.has(outcome.span)) {
-    assigned += outcome.values.length;
-    for (const _ of outcome.values) add(extras, 'unknown_span');
-  }
+  for (const outcome of outcomes)
+    if (!ids.has(outcome.span)) {
+      assigned += outcome.values.length;
+      for (const _ of outcome.values) add(extras, 'unknown_span');
+    }
   return {
-    correct, assigned, planted,
-    falsePositives: assigned - correct, falseNegatives: planted - correct,
+    correct,
+    assigned,
+    planted,
+    falsePositives: assigned - correct,
+    falseNegatives: planted - correct,
     precision: assigned === 0 ? 0 : correct / assigned,
     recall: planted === 0 ? 0 : correct / planted,
-    missClasses: misses, extraClasses: extras,
+    missClasses: misses,
+    extraClasses: extras,
   };
 }

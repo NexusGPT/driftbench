@@ -18,7 +18,10 @@ if (!clauseFile || !answerFile || !output || !budgetFile || !prNumber || !/^\d+$
 const root = resolve(new URL('../../..', import.meta.url).pathname);
 const freezeBytes = readFileSync(new URL('./round2-freeze.json', import.meta.url));
 const freeze = JSON.parse(freezeBytes.toString('utf8')) as {
-  clausesHash: string; answersHash: string; readerHash: string; files: Record<string, string>;
+  clausesHash: string;
+  answersHash: string;
+  readerHash: string;
+  files: Record<string, string>;
 };
 for (const [file, expected] of Object.entries(freeze.files)) {
   if (hash(readFileSync(resolve(root, file))) !== expected) throw new Error('frozen source changed: ' + file);
@@ -30,25 +33,46 @@ const localHead = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encod
 const response = await fetch('https://api.github.com/repos/NexusGPT/driftbench/pulls/' + prNumber);
 if (!response.ok) throw new Error('cannot obtain independent pre-registration timestamp');
 const registration = await response.json();
-if (registration.head.sha !== localHead || !registration.body.includes(freeze.clausesHash)
-  || !registration.body.includes(freeze.answersHash) || !registration.body.includes(freeze.readerHash)
-  || !registration.body.includes('A planted condition counts as found when the variable is right AND the decision is right.')) {
+if (
+  registration.head.sha !== localHead ||
+  !registration.body.includes(freeze.clausesHash) ||
+  !registration.body.includes(freeze.answersHash) ||
+  !registration.body.includes(freeze.readerHash) ||
+  !registration.body.includes(
+    'A planted condition counts as found when the variable is right AND the decision is right.',
+  )
+) {
   throw new Error('PR does not pre-register this head, hashes and primary rule');
 }
 const started = {
   runId: 'sol-lane-varstore:frozen3:' + localHead,
-  head: localHead, freezeHash: hash(freezeBytes), pr: registration.html_url,
-  registrationUpdatedAt: registration.updated_at, githubDate: response.headers.get('date'),
-  bodyHash: hash(registration.body), localStartedAt: new Date().toISOString(),
+  head: localHead,
+  freezeHash: hash(freezeBytes),
+  pr: registration.html_url,
+  registrationUpdatedAt: registration.updated_at,
+  githubDate: response.headers.get('date'),
+  bodyHash: hash(registration.body),
+  localStartedAt: new Date().toISOString(),
 };
 writeFileSync(output + '.started.json', JSON.stringify(started, null, 2) + '\n', { flag: 'wx' });
 // FIRST access to the blind clauses, after public pre-registration and a durable one-run lock.
 const clauseBytes = readFileSync(clauseFile);
 if (hash(clauseBytes) !== freeze.clausesHash) throw new Error('clause hash differs from pre-registration');
 const spans = JSON.parse(clauseBytes.toString('utf8')) as Array<{ id: string; path: string; quote: string }>;
-if (!Array.isArray(spans) || spans.length !== 73 || new Set(spans.map((s) => s.id)).size !== spans.length
-  || spans.some((s) => typeof s.id !== 'string' || typeof s.path !== 'string' || typeof s.quote !== 'string'
-    || s.path.startsWith('/') || s.path.includes('..') || s.path.includes('\\'))) {
+if (
+  !Array.isArray(spans) ||
+  spans.length !== 73 ||
+  new Set(spans.map((s) => s.id)).size !== spans.length ||
+  spans.some(
+    (s) =>
+      typeof s.id !== 'string' ||
+      typeof s.path !== 'string' ||
+      typeof s.quote !== 'string' ||
+      s.path.startsWith('/') ||
+      s.path.includes('..') ||
+      s.path.includes('\\'),
+  )
+) {
   throw new Error('invalid fictional span inventory');
 }
 // Only supplied fictional strings are used; no path from the blind input is opened.
@@ -59,14 +83,32 @@ const live = liveRound2(budgetFile, output + '.receipts.jsonl', started.runId);
 const systems = round2Systems(live.judge, live.port, spans);
 const recording = emptyRecording();
 const result = await feedFromConditions({
-  store: initialStore, spans, texts,
-  ...recordConditions(recording, systems.reader, systems.proposer), options: round2Options,
+  store: initialStore,
+  spans,
+  texts,
+  ...recordConditions(recording, systems.reader, systems.proposer),
+  options: round2Options,
 });
-const evidence = { ...started, spans, texts: Object.fromEntries(texts), initialStore, recording, ...result, readerTotals: live.totals() };
+const evidence = {
+  ...started,
+  spans,
+  texts: Object.fromEntries(texts),
+  initialStore,
+  recording,
+  ...result,
+  readerTotals: live.totals(),
+};
 // Outcomes and recording are durable before the sealed scorer is allowed to read the key.
 writeFileSync(output, JSON.stringify(evidence, null, 2) + '\n', { flag: 'wx' });
-const totals = await scoreFrozen(answerFile, freeze.answersHash, spans.map((s) => s.id),
-  result.report.outcomes, initialStore, result.store, live.secondaryJudge);
+const totals = await scoreFrozen(
+  answerFile,
+  freeze.answersHash,
+  spans.map((s) => s.id),
+  result.report.outcomes,
+  initialStore,
+  result.store,
+  live.secondaryJudge,
+);
 const summary = { runId: started.runId, ...totals, ...live.totals() };
 writeFileSync(output + '.totals.json', JSON.stringify(summary, null, 2) + '\n', { flag: 'wx' });
 console.log(JSON.stringify(summary));

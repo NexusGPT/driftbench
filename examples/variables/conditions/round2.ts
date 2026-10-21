@@ -9,7 +9,10 @@ import type { ConditionJudge } from '../../../packages/generate/src/feed/judge-r
 export const ROUND2_MODELS = { reader: 'jev-1.13.0', proposer: 'claude-sonnet-5-5' } as const;
 
 export const round2Question = (variable: { title: string }, value: { title: string }) =>
-  'Does this clause itself specify the exact triggering condition "' + value.title + '" (about "' + variable.title +
+  'Does this clause itself specify the exact triggering condition "' +
+  value.title +
+  '" (about "' +
+  variable.title +
   '")? A mere mention or an action the agent is told to perform does not count. Numeric limits, strictness, negation, timing and actor must agree. A broader or narrower condition is a different condition.';
 
 export const round2Options = {

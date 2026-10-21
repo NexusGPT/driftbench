@@ -18,8 +18,8 @@ export function createScopedConditionProposer(port: ModelPort): ConditionPropose
   return {
     id: `scoped:${port.family}:${port.model ?? 'unknown'}`,
     async propose(clause, store) {
-      const listed = store.variables.map((v) =>
-        `- ${v.id}: ${v.title}\n${v.values.map((x) => `    ${x.id}: ${x.title}`).join('\n')}`,
+      const listed = store.variables.map(
+        (v) => `- ${v.id}: ${v.title}\n${v.values.map((x) => `    ${x.id}: ${x.title}`).join('\n')}`,
       );
       const text = await port.complete({
         system: SYSTEM,

@@ -13,6 +13,13 @@ export async function equivalentTitle(judge: ConditionJudge, proposed: string, r
     transcript: [{ role: 'user', text: JSON.stringify({ proposed, reference }) }],
   });
   const probability = result.answer.score;
-  if (result.unparsed || typeof probability !== 'number' || !Number.isFinite(probability) || probability < 0 || probability > 1) return undefined;
+  if (
+    result.unparsed ||
+    typeof probability !== 'number' ||
+    !Number.isFinite(probability) ||
+    probability < 0 ||
+    probability > 1
+  )
+    return undefined;
   return probability >= 0.5;
 }
