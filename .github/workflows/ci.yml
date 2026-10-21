@@ -601,7 +601,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm exec vitest run packages/generate/test/feed/model-reader.test.ts --maxWorkers=2
-      - run: pnpm exec biome check --write packages/generate/src/feed/model-reader.ts packages/generate/src/feed/index.ts packages/generate/src/index.ts packages/generate/test/feed/model-reader.test.ts examples/variables/conditions/record-model.ts tools/structure/api-surface.json
+      - if: always()
+        run: pnpm exec biome check --write packages/generate/src/feed/model-reader.ts packages/generate/src/feed/index.ts packages/generate/src/index.ts packages/generate/test/feed/model-reader.test.ts examples/variables/conditions/record-model.ts tools/structure/api-surface.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -31,9 +31,13 @@ export function createConditionReader(port: ModelPort): ConversationReader {
         const text = await port.complete({
           system: SYSTEM,
           user: JSON.stringify({ clause, questions: questions.map((q) => q.text) }),
-          maxTokens: Math.max(256, questions.length * 8 + 32),
+          maxTokens: Math.max(512, questions.length * 8 + 32),
         });
-        const result: unknown = JSON.parse(text);
+        // Providers can prefix their JSON with an explanation or a code fence.
+        // Keep validation of the complete answer array below; never fill in a missing vote.
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        const result: unknown = JSON.parse(text.slice(start, end + 1));
         if (result === null || typeof result !== 'object' || !('answers' in result)) {
           throw new Error('invalid answer');
         }
