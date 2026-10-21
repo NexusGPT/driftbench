@@ -55,7 +55,7 @@ describe('tasks from the atom being tested', () => {
         'usual checks.',
     );
   });
-  it('keeps a rule's declared request clause ahead of an unrelated broad unit description', () => {
+  it("keeps a rule's declared request clause ahead of an unrelated broad unit description", () => {
     const rule: EstateAtom = {
       ...gate('instruction.review'),
       kind: 'instruction',

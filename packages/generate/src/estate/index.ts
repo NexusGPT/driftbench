@@ -1,8 +1,8 @@
 /** The estate test generator: plan rows to task specs, by code only. Owned by the estate-tests lane. */
 
 export {
-  actOf,
   type AskBuild,
+  actOf,
   type CodeAsk,
   clauseOf,
   codeAsk,
