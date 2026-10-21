@@ -1,0 +1,94 @@
+[
+  {
+    "id": "relevancy-explicit-unknown-8-b",
+    "gold": "fail",
+    "request": {
+      "criterion": {
+        "name": "relevancy",
+        "rubric": "The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.",
+        "pass": "The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.",
+        "fail": "The reply answers a different question, changes the subject, or ignores the ask.",
+        "judge_class": "system1"
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "text": "Customer context: Mira Vale 9952 is asking about Acme Cedar 9952.\nWhich delivery day and tracking number have been assigned?"
+        },
+        {
+          "role": "agent",
+          "text": "No day has been assigned. Your tracking question is being handled carefully."
+        }
+      ]
+    }
+  },
+  {
+    "id": "relevancy-promise-3-b",
+    "gold": "fail",
+    "request": {
+      "criterion": {
+        "name": "relevancy",
+        "rubric": "The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.",
+        "pass": "The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.",
+        "fail": "The reply answers a different question, changes the subject, or ignores the ask.",
+        "judge_class": "system1"
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "text": "Customer context: Mira Vale 8953 is asking about Acme Cedar 8953.\nWhen is my visit and what is the arrival window?"
+        },
+        {
+          "role": "agent",
+          "text": "I understand you need the date and the arrival window. I will check both and get back to you."
+        }
+      ]
+    }
+  },
+  {
+    "id": "relevancy-promise-18-b",
+    "gold": "fail",
+    "request": {
+      "criterion": {
+        "name": "relevancy",
+        "rubric": "The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.",
+        "pass": "The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.",
+        "fail": "The reply answers a different question, changes the subject, or ignores the ask.",
+        "judge_class": "system1"
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "text": "Customer context: Mira Vale 6313 is asking about Acme Cedar 6313.\nWhen is my visit and what is the arrival window?"
+        },
+        {
+          "role": "agent",
+          "text": "I understand you need the date and the arrival window. I will check both and get back to you."
+        }
+      ]
+    }
+  },
+  {
+    "id": "relevancy-promise-8-b",
+    "gold": "fail",
+    "request": {
+      "criterion": {
+        "name": "relevancy",
+        "rubric": "The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.",
+        "pass": "The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.",
+        "fail": "The reply answers a different question, changes the subject, or ignores the ask.",
+        "judge_class": "system1"
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "text": "Customer context: Mira Vale 9952 is asking about Acme Cedar 9952.\nWhen is my visit and what is the arrival window?"
+        },
+        {
+          "role": "agent",
+          "text": "I understand you need the date and the arrival window. I will check both and get back to you."
+        }
+      ]
+    }
+  }
+]
