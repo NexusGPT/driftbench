@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { initializeShippedObjects } from '@agent-nexus/driftbench-core';
+import { blame } from '@agent-nexus/driftbench-checks';
+import { type Diagnosis, initializeShippedObjects } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { fixListOption, reportFixes } from '../src/report-fixes';
 
@@ -48,6 +49,20 @@ describe('the report fix list', () => {
   it("ranks the fixes that explain the agent's failing blocks first", () => {
     const agent = fixes.map((fix) => fix.agentBlocks);
     expect(agent).toEqual([...agent].sort((a, b) => b - a));
+  });
+
+  it('omits a superseded zero-block fix and preserves the ranked fixes in plan order', () => {
+    const written = runs.flatMap((run) => run.blocks.flatMap((block) => block.diagnoses.map((raw) => {
+      const diagnosis = raw as Diagnosis;
+      return { runId: run.runId, blockIndex: block.index, verdictRef: diagnosis.verdictRef, diagnosis };
+    })));
+    const plan = blame.fixPlan(blame.campaignDiagnoses(written), blame.shippedPolicy('policy/placement'), 10);
+    expect(plan.fixes.some((fix) => fix.superseded_by !== undefined && fix.blocks === 0)).toBe(true);
+    const ranked = plan.fixes.filter((fix) => fix.blocks > 0);
+    expect(fixes.map((fix) => [fix.fixLocation, fix.fixTarget, fix.fixAction, fix.blocks, fix.agentBlocks])).toEqual(
+      ranked.map((fix) => [fix.fix_location, fix.fix_target, fix.fix_action, fix.blocks, fix.agent_blocks]),
+    );
+    expect(fixes.every((fix) => fix.blocks > 0)).toBe(true);
   });
 
   it('is empty, and adds no option, for a campaign with no diagnosis', () => {

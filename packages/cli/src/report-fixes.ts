@@ -20,7 +20,7 @@ export function reportFixes(data: Pick<CampaignData, 'runs'>, n = 10): ReportFix
   );
   if (written.length === 0) return [];
   const plan = blame.fixPlan(blame.campaignDiagnoses(written), blame.shippedPolicy('policy/placement'), n);
-  return plan.fixes.map((fix) => ({
+  return plan.fixes.filter((fix) => fix.blocks > 0).map((fix) => ({
     fixLocation: fix.fix_location,
     ...(fix.fix_target === undefined ? {} : { fixTarget: fix.fix_target }),
     fixAction: fix.fix_action,
