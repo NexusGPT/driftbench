@@ -176,6 +176,62 @@
           "args": [3, "NaN"]
         }
       ]
+    },
+    {
+      "fn": "simesPValue",
+      "module": "combine",
+      "doc": "docs/statistics/multiplicity.md#simespvalue",
+      "values": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.2]],
+          "expected": 0.04
+        },
+        {
+          "args": [[0.3, 0.3, 0.3]],
+          "expected": 0.3
+        },
+        {
+          "args": [[0.5]],
+          "expected": 0.5
+        },
+        {
+          "args": [[0.0, 0.5]],
+          "expected": 0.0
+        },
+        {
+          "args": [[0.5, 0.9]],
+          "expected": 0.9
+        },
+        {
+          "args": [[0.04, 0.04, 0.04, 0.9]],
+          "expected": 0.05333333333333334
+        },
+        {
+          "args": [[0.021, 0.3, 0.012, 0.6, 0.049, 0.45]],
+          "expected": 0.063
+        },
+        {
+          "args": [[1.0, 1.0]],
+          "expected": 1.0
+        }
+      ],
+      "domain": [
+        {
+          "args": [[]]
+        },
+        {
+          "args": [[0.5, -0.1]]
+        },
+        {
+          "args": [[0.5, 1.5]]
+        },
+        {
+          "args": [[0.5, "NaN"]]
+        },
+        {
+          "args": [[0.5, "Infinity"]]
+        }
+      ]
     }
   ]
 }

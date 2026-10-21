@@ -21,9 +21,10 @@ These hold for every function of every page, unless its section says otherwise.
 | Page | What it defines |
 |---|---|
 | [Descriptive and robust statistics](descriptive.md) | the median, the geometric mean and the harmonic mean |
-| [Many comparisons and combined evidence](multiplicity.md) | the family-wise error rate of many tests and the level of each test that keeps it at a chosen level |
+| [Many comparisons and combined evidence](multiplicity.md) | the family-wise error rate of many tests, the level of each test that keeps it at a chosen level, and the Simes combination of p-values |
 | [Beta tail and an upper bound on a rate](bayes.md) | the upper tail of a Beta distribution, and the exact upper bound on a failure rate after trials without a failure |
 | [Classification and agreement](classification.md) | balanced accuracy and the F-beta score of a classifier or a judge, and Gwet's AC1 and weighted kappa between raters |
 | [Distances and drift](distance.md) | the total variation distance between two probability vectors |
 | [Design, allocation and variance](design.md) | sample sizes, the minimum detectable difference of two means, the Kish design effect, the proportional allocation of a sample and the jackknife variance of a mean |
 | [Exact tests](exacttests.md) | the hypergeometric probability, the exact sign test and the exact signed-rank test |
+| [Sequential evidence](sequential.md) | the mean of e-values |

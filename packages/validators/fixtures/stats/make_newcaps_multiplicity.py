@@ -14,7 +14,7 @@ from ref_common import *  # noqa: E402,F401,F403
 
 GROUP = "multiplicity"
 DOC = "docs/statistics/multiplicity.md#"
-KEEP = ['familywiseErrorRate', 'bonferroniThreshold', 'sidakThreshold']
+KEEP = ['familywiseErrorRate', 'bonferroniThreshold', 'sidakThreshold', 'simesPValue']
 functions = []
 SHOW = "--show" in sys.argv
 

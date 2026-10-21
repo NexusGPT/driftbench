@@ -1,6 +1,6 @@
 # Many comparisons and combined evidence
 
-A report that compares many criteria, or runs many suites, makes many tests at once. The chance that at least one of them looks significant by luck grows with their number. This page defines the error-rate formulas that control that chance. The conventions of the [shared page](capabilities.md#conventions) apply to every function here.
+A report that compares many criteria, or runs many suites, makes many tests at once. The chance that at least one of them looks significant by luck grows with their number. This page defines the error-rate formulas that control that chance and the Simes combination of p-values. The conventions of the [shared page](capabilities.md#conventions) apply to every function here.
 
 Words used in the sections:
 
@@ -36,3 +36,16 @@ sidakThreshold(m: number, alpha: number): number
 * **Returns.** A number in [0, 1].
 * **Throws.** A `RangeError` for an `m` that is not a positive integer (0 included), and for an `alpha` that is NaN, infinite or outside [0, 1].
 * **Example.** `sidakThreshold(10, 0.05)` is 0.005116196891823702. `sidakThreshold(1, 0.05)` is 0.05. `sidakThreshold(1000, 0.05)` is 5.129197890901781e-05.
+
+## Combining p-values
+
+The function of this section lives in `packages/stats/src/combine.ts`. It turns several p-values for one shared null hypothesis into one number.
+
+### `simesPValue`
+```ts
+simesPValue(pvalues: number[]): number
+```
+* **Definition.** Sort the p-values ascending. The result is the minimum over ranks `i` from 1 to m of `m p(i) / i`. It never exceeds `p(m)`, so it is at most 1. It is the p-value of the global null hypothesis that every individual null is true, valid under independence and under positive dependence of the tests.
+* **Returns.** A number in [0, 1].
+* **Throws.** A `RangeError` for an empty array, and for a p-value that is NaN, infinite or outside [0, 1].
+* **Example.** `simesPValue([0.01, 0.04, 0.03, 0.2])` is 0.04, from the sorted values 0.01, 0.03, 0.04, 0.2 and the products 0.04, 0.06, 0.0533, 0.2. `simesPValue([0.04, 0.04, 0.04, 0.9])` is 0.05333333333333334. `simesPValue([0, 0.5])` is 0.
