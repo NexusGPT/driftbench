@@ -25,6 +25,7 @@ it('pairs the Northwind invoice recording with a stand-in that asks before recei
   const { default: plugin } = await import(pluginPath);
   let adapter: AgentAdapter | undefined;
   await plugin({
+    check: () => undefined,
     adapter: (_name: string, factory: (target: { agent: string }) => AgentAdapter) => {
       adapter = factory({ agent: 'northwind' });
     },

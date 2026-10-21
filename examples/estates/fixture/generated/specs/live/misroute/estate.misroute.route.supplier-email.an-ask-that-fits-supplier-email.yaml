@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Draft, answer or chase an email to a supplier."
+      user: "Please handle this for me: Draft, answer or chase an email to a supplier. Use when the user wants to write to a supplier, answer one, or chase a late delivery or a missing credit note."
     expect:
       skills:
         - name: supplier-email
@@ -60,7 +60,7 @@ metadata:
             atom: route.supplier-email.an-ask-that-fits-supplier-email
             field: situation
             from: 0
-            to: 45
+            to: 157
     outcome: no-change:read-only
   links:
     - block: ask

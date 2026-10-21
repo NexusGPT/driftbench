@@ -12,7 +12,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { expect, vi } from 'vitest';
 import { genCompleteFamily } from '../../src/ladders/estate/bank/loop';
-import { completionComponents } from '../../src/ladders/estate/completion';
+import { type Component, completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import { type FieldReads, fieldReadCensus } from './field-reads';
@@ -394,11 +394,17 @@ export function equivalenceInputs(
     // remain cached for the subsequent parameterized class assertions.
     inputsBySource.clear();
     pending = (async () => {
-      const capture = async (change?: (observed: Observed) => void) => {
+      const capture = async (change?: (observed: Observed) => void, operations?: Component['operations']) => {
         const contexts: CheckContext[] = [];
+        const loaded = required(source.loaded);
         const replay = await pipeline.replayOnFollower(
           run,
-          required(source.loaded),
+          operations
+            ? {
+                ...loaded,
+                spec: { ...loaded.spec, operations: { ...loaded.spec.operations, ...operations } },
+              }
+            : loaded,
           [
             {
               name: 'capture-equivalence-context',
@@ -424,12 +430,12 @@ export function equivalenceInputs(
         { id: 'follower.control', observed: structuredClone(context.observed) },
       ];
       for (const component of inventory.components) {
-        const control = await capture(component.prepare);
+        const control = await capture(component.prepare, component.operations);
         inputs.push({ id: `${component.id}.control`, observed: structuredClone(control.observed) });
         const violation = await capture((observed) => {
           component.prepare?.(observed);
           component.change(observed);
-        });
+        }, component.operations);
         inputs.push({ id: `${component.id}.violation`, observed: structuredClone(violation.observed) });
       }
       return { context, inputs, gaps: inventory.gaps };

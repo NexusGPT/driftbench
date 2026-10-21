@@ -30,7 +30,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Write to each supplier."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. Write to each supplier."
     expect:
       workspace:
         deleted: []
@@ -76,7 +76,7 @@ metadata:
             atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
             field: situation
             from: 0
-            to: 78
+            to: 143
           - slot: situation
             atom: register.memory-supplier-languages.write-to-each-supplier-in-the
             field: situation

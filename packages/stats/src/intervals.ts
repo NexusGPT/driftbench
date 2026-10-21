@@ -31,8 +31,16 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
   const p = k / n;
   const z2 = z * z;
   const denom = 1 + z2 / n;
-  const center = (p + z2 / (2 * n)) / denom;
-  const half = (z / denom) * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
+  // z2 / 2 / n equals z2 / (2 * n) bit for bit, and stays finite for a count above half of the largest double.
+  const center = (p + z2 / 2 / n) / denom;
+  // 4 * n * n overflows to infinity for n above about 1.3e154 and the half-width then drops to zero while the
+  // centre stays above zero, so the interval would exclude its own estimate. There the root is taken in scaled
+  // form: hypot keeps both terms in range, and p * (1 - p) / n is split into two roots.
+  const spread = 4 * n * n;
+  const root = Number.isFinite(spread)
+    ? Math.sqrt((p * (1 - p)) / n + z2 / spread)
+    : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(n), z / 2 / n);
+  const half = (z / denom) * root;
   return { estimate: p, lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
 }
 

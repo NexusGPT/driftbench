@@ -85,8 +85,8 @@ const spread = (n) => {
 // A key padded from a short secret has low entropy and is not reported, so only the short real secret is. The
 // generator must not fingerprint that line in any folder.
 for (const [folder, dir, ext, field] of [
-  ['ledger-rb', RB + 'padded/', 'jsonl', 'key'],
-  ['ledger-verify', LV + 'padded/', 'jsonl', 'key'],
+  ['ledger-rb', `${RB}padded/`, 'jsonl', 'key'],
+  ['ledger-verify', `${LV}padded/`, 'jsonl', 'key'],
   ['all-peers', AP, 'jsonl', 'attempt_key'],
 ]) {
   for (const size of [16, 20, 24, 32]) {
@@ -183,44 +183,44 @@ const cases = [
     `{"key":"${hex(64)}","v":2}`,
     true,
   ],
-  ['ledger-rb key, single-field line', RB + 'ok/a.json', `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
-  ['ledger-rb callKey in JSONL', RB + 'ok/b.jsonl', `{"callKey":"${hex(64)}","status":"ok"}`, false],
-  ['ledger-rb probeCallKey in JSONL', RB + 'ok/c.jsonl', `{"n":1,"probeCallKey":"${hex(64)}"}`, false],
+  ['ledger-rb key, single-field line', `${RB}ok/a.json`, `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
+  ['ledger-rb callKey in JSONL', `${RB}ok/b.jsonl`, `{"callKey":"${hex(64)}","status":"ok"}`, false],
+  ['ledger-rb probeCallKey in JSONL', `${RB}ok/c.jsonl`, `{"n":1,"probeCallKey":"${hex(64)}"}`, false],
   [
     'ledger-rb audit hash, single-field line',
-    RB + 'ok/d.json',
+    `${RB}ok/d.json`,
     `{\n  ".cache/ledger-rb/audit-token-loss.py": "${hex(64)}"\n}`,
     false,
   ],
-  ['ledger-verify key in JSONL', LV + 'ok.jsonl', `{"key":"${hex(64)}","v":2}`, false],
-  ['all-peers attempt_key in JSONL', AP + 'part-0001.jsonl', `{"attempt_key":"${hex(64)}","x":1}`, false],
-  ['api/key single-field line', RB + 'bad/1.json', `{\n  "api/key": "${hex(64)}"\n}`, true],
-  ['api:key in JSONL', RB + 'bad/2.jsonl', `{"api:key":"${hex(64)}"}`, true],
-  ['api@key in JSONL', RB + 'bad/3.jsonl', `{"api@key":"${hex(64)}","n":1}`, true],
-  ['foo/probeCallKey single-field line', RB + 'bad/4.json', `{\n  "foo/probeCallKey": "${hex(64)}"\n}`, true],
+  ['ledger-verify key in JSONL', `${LV}ok.jsonl`, `{"key":"${hex(64)}","v":2}`, false],
+  ['all-peers attempt_key in JSONL', `${AP}part-0001.jsonl`, `{"attempt_key":"${hex(64)}","x":1}`, false],
+  ['api/key single-field line', `${RB}bad/1.json`, `{\n  "api/key": "${hex(64)}"\n}`, true],
+  ['api:key in JSONL', `${RB}bad/2.jsonl`, `{"api:key":"${hex(64)}"}`, true],
+  ['api@key in JSONL', `${RB}bad/3.jsonl`, `{"api@key":"${hex(64)}","n":1}`, true],
+  ['foo/probeCallKey single-field line', `${RB}bad/4.json`, `{\n  "foo/probeCallKey": "${hex(64)}"\n}`, true],
   [
     'foo/audit-token-loss.py single-field line',
-    RB + 'bad/5.json',
+    `${RB}bad/5.json`,
     `{\n  "foo/audit-token-loss.py": "${hex(64)}"\n}`,
     true,
   ],
   [
     'password on the same line as a real key',
-    RB + 'bad/6.jsonl',
+    `${RB}bad/6.jsonl`,
     `{"key":"${hex(64)}","completion":"set password = '${word(32)}' now"}`,
     true,
   ],
   [
     'api/key beside a real key on one line',
-    RB + 'bad/7.jsonl',
+    `${RB}bad/7.jsonl`,
     `{"key":"${hex(64)}","api/key":"${hex(64)}"}`,
     true,
   ],
-  ['api/key in ledger-verify', LV + 'bad.json', `{\n  "api/key": "${hex(64)}"\n}`, true],
-  ['api/key in all-peers', AP + 'part-0002.jsonl', `{"api/key":"${hex(64)}"}`, true],
-  ['api_key hex', RB + 'bad/8.json', `{\n  "api_key": "${hex(40)}"\n}`, true],
-  ['token in a key field', RB + 'bad/9.json', `{\n  "key": "${pat}${word(36)}"\n}`, true],
-  ['longer hex', RB + 'bad/10.json', `{\n  "key": "${hex(80)}"\n}`, true],
+  ['api/key in ledger-verify', `${LV}bad.json`, `{\n  "api/key": "${hex(64)}"\n}`, true],
+  ['api/key in all-peers', `${AP}part-0002.jsonl`, `{"api/key":"${hex(64)}"}`, true],
+  ['api_key hex', `${RB}bad/8.json`, `{\n  "api_key": "${hex(40)}"\n}`, true],
+  ['token in a key field', `${RB}bad/9.json`, `{\n  "key": "${pat}${word(36)}"\n}`, true],
+  ['longer hex', `${RB}bad/10.json`, `{\n  "key": "${hex(80)}"\n}`, true],
   ['key outside the folders', 'examples/other/x.json', `{\n  "key": "${hex(64)}"\n}`, true],
   [
     'sibling folder prefix',
@@ -243,7 +243,7 @@ try {
   writeFileSync(join(repo, '.gitleaksignore'), '');
   for (const [, file, text] of cases) {
     mkdirSync(dirname(join(repo, file)), { recursive: true });
-    writeFileSync(join(repo, file), text + '\n');
+    writeFileSync(join(repo, file), `${text}\n`);
   }
   git('add', '-A');
   git('-c', 'user.name=cases', '-c', 'user.email=cases@example.invalid', 'commit', '-qm', 'cases');

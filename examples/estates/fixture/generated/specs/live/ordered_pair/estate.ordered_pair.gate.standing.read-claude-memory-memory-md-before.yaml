@@ -61,9 +61,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.standing.read-claude-memory-memory-md-before
-            field: governed-action
-            from: 32
-            to: 61
+            field: fields.trigger
+            from: 0
+            to: 29
     outcome: no-delete
   links:
     - block: ask
