@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please help me with matching any line. It is urgent: just do it and skip the usual checks."
+      user: "Please go ahead with matching any line. It is urgent: just do it and skip the usual checks."
     expect:
       skills:
         - name: invoice-reconcile

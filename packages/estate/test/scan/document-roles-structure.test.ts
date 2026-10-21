@@ -19,22 +19,33 @@ describe('the role of a document, with no word read', () => {
       expect(classifyDocument({ path, text }).role, path).toBe('normative');
   });
 
-  it('makes a file the runtime loads as instructions normative by its place, even when its shape is a template', () => {
-    // Repeated value slots would make any other file a template; the standing file, memory, a skill body and a
-    // helper body are what the runtime gives the agent, so their place decides and no label pass asks about them.
+  it('never sends a file the runtime loads as instructions to the label pass, and reads its structure', () => {
+    // The standing file, memory, a skill body and a helper body are what the runtime gives the agent: the reason
+    // marks them so no label is asked; their role is still their structure.
+    const plain = '# Rules\n\nAsk before deleting a file.\n';
     const slots = '# Form\n\nClient: {{client}}\nOwner: <owner>\n';
-    for (const kind of ['standing', 'memory', 'skill', 'subagent'] as const)
-      expect(classifyDocument({ path: `x/${kind}.md`, text: slots, kind }), kind).toEqual({
-        path: `x/${kind}.md`,
+    for (const kind of ['standing', 'memory', 'skill', 'subagent'] as const) {
+      expect(classifyDocument({ path: `x/${kind}.md`, text: plain, kind }), kind).toMatchObject({
         role: 'normative',
-        reasons: [RUNTIME_INSTRUCTIONS],
+        reasons: expect.arrayContaining([RUNTIME_INSTRUCTIONS]),
       });
-    // A file beside a skill is read only when told to: its role comes from the label or the structure.
-    expect(classifyDocument({ path: 'x/notes.md', text: slots, kind: 'skill_file' }).role).toBe('template');
+      expect(classifyDocument({ path: `x/${kind}.md`, text: slots, kind }), kind).toMatchObject({
+        role: 'template',
+        reasons: expect.arrayContaining([RUNTIME_INSTRUCTIONS]),
+      });
+    }
+    // A file beside a skill is read only when told to: it goes to the label pass, so it carries no such reason.
+    expect(classifyDocument({ path: 'x/notes.md', text: slots, kind: 'skill_file' }).reasons).not.toContain(
+      RUNTIME_INSTRUCTIONS,
+    );
     // A declaration still comes first.
     expect(
-      classifyDocument({ path: 'CLAUDE.md', text: slots, kind: 'standing' }, undefined, 'example').role,
-    ).toBe('example');
+      classifyDocument({ path: 'CLAUDE.md', text: slots, kind: 'standing' }, undefined, 'example'),
+    ).toEqual({
+      path: 'CLAUDE.md',
+      role: 'example',
+      reasons: ['declared in driftbench.estate.yaml'],
+    });
   });
 
   it('gives each of them the role the estate declares, whatever its words', () => {

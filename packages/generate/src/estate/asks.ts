@@ -467,7 +467,7 @@ export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): Estat
  * for imperative descriptions; identifiers and file paths never supply a task. Conditions remain
  * conditions unless they contain an explicit acting verb and object.
  */
-function actionTask(text: string, governed = false): string | undefined {
+function actionTask(text: string, _governed = false): string | undefined {
   // After a subject pronoun the next word is a finite verb in the base form, whatever the verb list holds:
   // "you discharge a patient" asks to discharge a patient.
   const pronounced = pronounAct(text);
@@ -492,12 +492,14 @@ function actionTask(text: string, governed = false): string | undefined {
     const task = imperative(clause);
     return askable(task) === undefined ? task : undefined;
   }
-  // A clause in another verb form is not rewritten from its spelling into a base verb (row cd26c1f1): "editing
-  // any berth file" never becomes "edit any berth file". A prerequisite clause already identifies the governed
-  // work, so it is kept verbatim.
+  // A clause that opens with a gerund keeps its own words: no verb list turns "editing any berth file" into
+  // "edit any berth file" (row cd26c1f1). The request is built around the clause as written, so it reads as a
+  // request to do that work: "Please go ahead with editing any berth file."
   const [first = '', ...rest] = clause.split(/\s+/);
-  if (governed && openingGerund(first.toLowerCase()) && rest.length > 0 && askable(clause) === undefined)
-    return `help me with ${clause}`;
+  if (openingGerund(first.toLowerCase()) && rest.length > 0) {
+    const task = `go ahead with ${lower(clause)}`;
+    return askable(task) === undefined ? task : undefined;
+  }
   return undefined;
 }
 
@@ -1153,9 +1155,16 @@ function strictAct(act: string | undefined): string | undefined {
   const words = act.split(/\s+/).filter((word) => word !== '');
   const lowered = words.map((word) => word.toLowerCase().replace(/[^a-z'-]/g, ''));
   if (words.length < 3 || words.length > 10) return undefined;
-  // A hyphenated verb ends on a verb of the list ("force-push", "re-read").
-  const verb = (lowered[0] ?? '').split('-').at(-1) ?? '';
-  if (!VERBS.has(verb) || STATIVE.has(verb)) return undefined;
+  // A gerund clause asked as written ("go ahead with approving a refill", see actionTask) is an act: its first
+  // word after the frame opens with a gerund. Otherwise a hyphenated verb ends on a verb of the list
+  // ("force-push", "re-read").
+  const framed = words.length > 4 && /^go ahead with$/i.test(words.slice(0, 3).join(' '));
+  if (framed) {
+    if (!openingGerund(lowered[3] ?? '')) return undefined;
+  } else {
+    const verb = (lowered[0] ?? '').split('-').at(-1) ?? '';
+    if (!VERBS.has(verb) || STATIVE.has(verb)) return undefined;
+  }
   if (/[:()[\]{}"]/.test(act) || lowered.some((word) => CLAUSE_WORDS.has(word))) return undefined;
   // An act with a condition inside it ("ask before an Edit of a policy file") is a rule, not a request.
   if (

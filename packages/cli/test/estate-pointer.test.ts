@@ -153,8 +153,9 @@ describe('driftbench estate scan --pointer', () => {
       'Tokens, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests sent.',
     );
     const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
-    // Three windows for system 1, and five runs of each for system 2, for the rules and again for the document roles.
-    expect(cassette.entries.size).toBe(36);
+    // Three windows for system 1, and five runs of each for system 2. Both files are loaded by the runtime as
+    // instructions (the standing file and a skill body), so the document-roles question is never asked of them.
+    expect(cassette.entries.size).toBe(18);
     // The file on disk is the sorted one, whatever the order the answers arrived in.
     expect(await readFile(join(root, 'cassette.jsonl'), 'utf8')).toBe(cassette.render());
 
@@ -735,9 +736,9 @@ describe('the settings file of the estate', () => {
 
   it('reads every setting from the file, and the ledger it names', async () => {
     const { root, before } = await base();
-    // The two sets of the file, and the document-roles question the scan asks once per file.
+    // The two sets of the file. Both files are loaded by the runtime as instructions: no document-roles question.
     expect(new Set(before.map((entry) => entry.readable.set))).toEqual(
-      new Set(['document-roles', 'harbour-rules', 'harbour-voice']),
+      new Set(['harbour-rules', 'harbour-voice']),
     );
     expect(new Set(before.map((entry) => entry.readable.cls))).toEqual(new Set(['system1', 'system2']));
     const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));

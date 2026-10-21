@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with matching any line.
+      user: Please go ahead with matching any line.
     expect:
       skills:
         - name: invoice-reconcile

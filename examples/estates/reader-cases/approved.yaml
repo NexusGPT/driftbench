@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T07:35:19.098Z
+readAt: 2026-10-21T10:14:55.955Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -1880,6 +1880,7 @@ documents:
   - path: CLAUDE.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/ALIASES.md
     role: normative
@@ -1908,10 +1909,12 @@ documents:
   - path: .claude/memory/MEMORY.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/memory/supplier-languages.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/processes.json
     role: normative
@@ -1924,6 +1927,7 @@ documents:
   - path: .claude/skills/parcel-claims/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/parcel-claims/references/claim-rules.md
     role: normative
@@ -1944,6 +1948,7 @@ documents:
   - path: .claude/skills/shipment-tracker/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/shipment-tracker/references/notes.md
     role: normative
@@ -1988,5 +1993,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T07:35:19.098Z
+  at: 2026-10-21T10:14:55.955Z
 hash: 66e4046b92505554ddb4a1be6eb8e3880a802c1de4c60246cc41f7ea3aa183bd

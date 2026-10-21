@@ -298,7 +298,7 @@ The cache entry is per window, not per file. After re-anchoring, a unit whose fi
 For a label with an `atom` mapping, code builds the estate atom:
 
 - `kind` and `polarity` from the mapping. `provenance`: file, line span, and the verbatim `source.slice` of the unit (for a gate: the text of both units in file order).
-- `producedBy: model`, `approved: false`, `fields.extraction: pointer`, `fields.unit` (the ledger id), `fields.labelSet`, `fields.cassette` (the key).
+- `producedBy: model`, `approved: false`, `fields.extraction: pointer`, `fields.unit` (the ledger id), `fields.labelSet`. The cassette key of the label is in the ledger (`labels[set].source` of the unit), not in the atom: an atom's fields stay the same across re-recordings, so a new recording of the same estate restates no atom.
 - `evidence`: one `custom` predicate `prose_pointer` with `reviewRequired: true`. The labeler does not write evidence.
 - A unit that a code reader already turned into an atom is shown to the labeler as `read` and cannot be labelled again.
 

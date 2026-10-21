@@ -70,9 +70,7 @@ describe('the fixture through its committed cassettes', () => {
     );
     // Every answer of the cassette is read: one request per window, labeler and run, for the rules and for the
     // document roles.
-    expect(cassette.entries.size).toBe(
-      (result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0),
-    );
+    expect(cassette.entries.size).toBe((result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0));
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });

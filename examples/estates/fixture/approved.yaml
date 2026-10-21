@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T07:35:01.355Z
+readAt: 2026-10-21T10:14:43.363Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -3162,18 +3162,22 @@ documents:
   - path: CLAUDE.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/agents/inbox-triager.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/agents/ledger-auditor.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/agents/route-planner.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/guards/CHECK-REGISTRY.md
     role: normative
@@ -3202,10 +3206,12 @@ documents:
   - path: .claude/memory/MEMORY.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/memory/supplier-languages.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/settings.json
     role: normative
@@ -3214,6 +3220,7 @@ documents:
   - path: .claude/skills/invoice-reconcile/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/invoice-reconcile/references/currency-table.md
     role: fixture
@@ -3234,6 +3241,7 @@ documents:
   - path: .claude/skills/shipment-tracker/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/shipment-tracker/data/shipments.txt
     role: history
@@ -3250,10 +3258,12 @@ documents:
   - path: .claude/skills/supplier-email/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/weekly-report/SKILL.md
     role: normative
     reasons:
+      - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/weekly-report/templates/report.md
     role: template
@@ -3322,5 +3332,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T07:35:01.355Z
+  at: 2026-10-21T10:14:43.363Z
 hash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
