@@ -81,6 +81,14 @@ export const Label = z.strictObject({
   description: z.string().min(1),
   examples: z.array(z.string().min(1)).max(3).optional(),
   target: z.literal('required').optional(),
+  /**
+   * How many files the unit itself may name (by path notation: a slash, an extension, a link): `min` and `max`. A
+   * unit outside the range is refused with its reason and builds nothing, so a label made for a unit that names no
+   * file (its file is in the next unit), or for a unit that names several, is not taken for a unit that does not fit.
+   */
+  paths: z
+    .strictObject({ min: z.number().int().min(0).optional(), max: z.number().int().min(0).optional() })
+    .optional(),
   /** A unit with this label states when its target unit applies: it becomes the situation of the target's atom. */
   condition: z.literal(true).optional(),
   /** The span kinds a unit with this label may carry. */
