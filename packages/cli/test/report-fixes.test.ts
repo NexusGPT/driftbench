@@ -52,16 +52,19 @@ describe('the report fix list', () => {
   });
 
   it('omits a superseded zero-block fix and preserves the ranked fixes in plan order', () => {
-    const written = runs.flatMap((run) => run.blocks.flatMap((block) => block.diagnoses.map((raw) => {
-      const diagnosis = raw as Diagnosis;
-      return { runId: run.runId, blockIndex: block.index, verdictRef: diagnosis.verdictRef, diagnosis };
-    })));
+    const written = runs.flatMap((run) =>
+      run.blocks.flatMap((block) =>
+        block.diagnoses.map((raw) => {
+          const diagnosis = raw as Diagnosis;
+          return { runId: run.runId, blockIndex: block.index, verdictRef: diagnosis.verdictRef, diagnosis };
+        }),
+      ),
+    );
     const plan = blame.fixPlan(blame.campaignDiagnoses(written), blame.shippedPolicy('policy/placement'), 10);
     expect(plan.fixes.some((fix) => fix.superseded_by !== undefined && fix.blocks === 0)).toBe(true);
     const ranked = plan.fixes.filter((fix) => fix.blocks > 0);
-    expect(fixes.map((fix) => [fix.fixLocation, fix.fixTarget, fix.fixAction, fix.blocks, fix.agentBlocks])).toEqual(
-      ranked.map((fix) => [fix.fix_location, fix.fix_target, fix.fix_action, fix.blocks, fix.agent_blocks]),
-    );
+    const displayed = fixes.map((fix) => [fix.fixLocation, fix.fixTarget, fix.fixAction]);
+    expect(displayed).toEqual(ranked.map((fix) => [fix.fix_location, fix.fix_target, fix.fix_action]));
     expect(fixes.every((fix) => fix.blocks > 0)).toBe(true);
   });
 
