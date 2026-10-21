@@ -60,7 +60,11 @@ it('runs no turn, with the reason, when the stand-in cannot resolve a skill obli
     const sent = adapter.send(session, turnOf(0, ASK_INVOICE, given));
     await expect(sent).rejects.toBeInstanceOf(TurnNotRun);
     await sent.catch((error: TurnNotRun) => {
-      expect(error.notRun).toMatchObject({ kind: 'unsupported', layer: 'runtime', check: 'skill obligation' });
+      expect(error.notRun).toMatchObject({
+        kind: 'unsupported',
+        layer: 'runtime',
+        check: 'skill obligation',
+      });
       expect(error.notRun.got).toContain('ordering obligation');
     });
   } finally {
