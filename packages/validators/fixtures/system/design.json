@@ -37,16 +37,8 @@
     },
     "power": {
       "note": "Exact chance that the law check rejects a chain planted at another correlation: the mass of the mean of the campaigns outside the interval, from the lattice sum (step 1e-3, nearest rounding) of the enumerated law of one campaign. old is 100 campaigns at alpha 0.001, now is the recorded campaigns at the recorded alpha. failingSeeds are seeds on which a chain planted at that correlation fails the check.",
-      "0.23": {
-        "old": 0.0,
-        "now": 0.0,
-        "failingSeeds": []
-      },
-      "0.27": {
-        "old": 0.0,
-        "now": 0.0,
-        "failingSeeds": []
-      }
+      "0.23": { "old": 0.05047669, "now": 0.97069276, "failingSeeds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] },
+      "0.27": { "old": 0.00262252, "now": 0.00263867, "failingSeeds": [856, 1498, 1535, 1883, 2124, 2157, 2777, 3236, 3294, 3964] }
     }
   }
 }
