@@ -14,6 +14,7 @@ export {
   type Label,
 } from './agreement';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { betaTailProbability } from './bayes';
 export {
   abundances,
   type ChaoResult,
