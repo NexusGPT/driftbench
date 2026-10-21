@@ -748,6 +748,4 @@ describe('a spec names its estate map relative to the spec file', () => {
     const flags = (stored.blocks[0]?.diagnoses ?? []).flatMap((one) => one.flags ?? []);
     expect(flags).not.toContain('error:estate_map_not_found');
   });
-    expect(diagnoses.some((one) => one.flags?.includes('error:estate_map_not_found'))).toBe(false);
-  });
 });
