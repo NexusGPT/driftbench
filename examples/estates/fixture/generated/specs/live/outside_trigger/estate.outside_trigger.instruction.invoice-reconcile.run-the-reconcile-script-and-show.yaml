@@ -61,3 +61,30 @@ metadata:
     ask: code
     askFrom: neutral
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.invoice-reconcile.run-the-reconcile-script-and-show
+        values:
+          atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

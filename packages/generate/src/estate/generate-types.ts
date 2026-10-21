@@ -1,3 +1,4 @@
+import type { BlockSections } from '../blocks/sections';
 /** The constants and record types of estate generation: file names, focus limits, the input, the report. */
 
 import type { Issue } from '@agent-nexus/driftbench-core';
@@ -118,6 +119,12 @@ export type EstateGenerateInput = {
 
 export type EstateGenerateOptions = {
   seed?: number;
+  /**
+   * The estate files that are prompts with a section registry, named relative to the estate root
+   * (`blockSections`): each block then links the prompt sections that hold the quotes of its atoms, and the
+   * sections that reach them.
+   */
+  sections?: BlockSections;
   /** Paths as the records name them: relative to the output folder, never absolute. */
   paths: { map: string; plan: string; phrases: string; sessions?: string };
   /** Custom checks the runner registers; default the replay runner's. */
@@ -224,6 +231,7 @@ export type Context = ThenContext & {
   outputRules: string[];
   /** Skill names, for a misroute ask that names the wrong skill. */
   units: string[];
+  sections?: BlockSections;
 };
 
 export type Built = {

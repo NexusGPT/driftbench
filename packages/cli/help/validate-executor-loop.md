@@ -82,7 +82,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -154,11 +154,16 @@ The rules the append enforces:
   builder's iteration 0.
 * Bank fields: `passing` at most `bankSize`; `failingByFamily` sums to `bankSize` minus `passing`;
   `bankByFamilyTier` (optional, tiers `"1"` to `"5"` or `"none"`) sums to `bankSize`; `failingCauses`
-  (optional) is at most the failing items and at least 1 when any item fails; `failingWithoutCause`
-  (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
+  (optional) is at most the failing items and at least 1 when any item fails, except that it may be 0
+  when `failingComposite` equals the failing items (every failing item is a composite check);
+  `failingComposite` (optional) goes with `failingCauses` and is at most the failing items;
+  `failingWithoutCause` (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
   `--items --json` run.
 * `research` is null or `{ "sources": [...], "finding": "..." }`; `change.commit` is null or 7 to 40 hex
   characters.
+* A `stats` row needs `bankHash`, copied from the `--items --json` report it records. It must equal the
+  fingerprint of the live bank (its item sources, fixtures and scoring frame), so a row measured on another
+  bank is refused, and a historical row is never backfilled.
 
 A row with `executor: "blind"` is appended and nothing else: the blind executor must neither read nor
 shape the builder's handover.
@@ -406,6 +411,14 @@ The same row with `"result": "raised"`:
 }
 ```
 
+A statistics row also records `bankHash`, the fingerprint of the live bank. An executor copies it from the
+`bank` report of the same `--items --json` run; here, where no run was made, this setup step writes it into
+the three rows:
+
+```sh setup
+node --experimental-strip-types --no-warnings --input-type=module -e "const { statsBankHash } = await import('./packages/validators/src/bank-fingerprint.ts'); const { readFileSync, writeFileSync } = await import('node:fs'); const bankHash = statsBankHash('.'); for (const f of ['row0.json', 'row1-wrong.json', 'row1.json']) writeFileSync(f, JSON.stringify({ ...JSON.parse(readFileSync(f, 'utf8')), bankHash }));"
+```
+
 ```sh
 driftbench validate stats --journal row0.json
 driftbench validate stats --journal row1-wrong.json # exit 1
@@ -437,6 +450,7 @@ driftbench validate stats --hardness # exit 1
 
 ```text
 Hardness of stats (docs/validators.md section 12.4), from validators/stats/journal.jsonl
+Bank freshness: CURRENT (<the bankHash of the rows>).
 Bank at iteration 1: 651 items, 651 pass on every seed.
 Family  tier 1  tier 2  tier 3  tier 4  tier 5  tier none  items  failing
 Score at iteration 0: 0.9923 (646 of 651).

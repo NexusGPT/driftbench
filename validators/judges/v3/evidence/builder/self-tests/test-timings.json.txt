@@ -1,0 +1,55 @@
+{
+  "source": "Observed runner.py monotonic durations returned during this session; includes wrapper wait",
+  "rounds": [
+    {
+      "round": 1,
+      "redSeconds": 0.5990494579309598,
+      "greenSeconds": 8.456213667057455
+    },
+    {
+      "round": 2,
+      "redSeconds": 0.6610695410054177,
+      "greenSeconds": 6.319610666949302
+    },
+    {
+      "round": 3,
+      "redSeconds": 0.8272147079696879,
+      "greenSeconds": 6.9626264160033315
+    },
+    {
+      "round": 4,
+      "redSeconds": 0.45554191700648516,
+      "greenSeconds": 7.935537707991898
+    },
+    {
+      "round": 5,
+      "redSeconds": 0.47755283303558826,
+      "greenSeconds": 4.855942750000395
+    },
+    {
+      "round": 6,
+      "redSeconds": 0.5493239160859957,
+      "greenSeconds": 6.585477957967669
+    },
+    {
+      "round": 7,
+      "redSeconds": 0.5381287499330938,
+      "greenSeconds": 7.4566391670377925
+    },
+    {
+      "round": 8,
+      "redSeconds": 0.5829899579985067,
+      "greenSeconds": 3.719535958021879
+    },
+    {
+      "round": 9,
+      "redSeconds": 0.49127095798030496,
+      "greenSeconds": 7.892192292027175
+    },
+    {
+      "round": 10,
+      "redSeconds": 0.6611707080155611,
+      "greenSeconds": 6.573572124936618
+    }
+  ]
+}

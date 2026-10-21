@@ -1,0 +1,30 @@
+[
+  {
+    "id": "labeller/advanced/sample-plan-delta-margin",
+    "cause": "plan kappa precision from the specified joint distribution"
+  },
+  {
+    "id": "labeller/advanced/sample-plan-reject-unidentified-designs",
+    "cause": "reject invalid or degenerate kappa precision designs"
+  },
+  {
+    "id": "labeller/advanced/exact-fixed-margin-perfect",
+    "cause": "enumerate distinct fixed-margin permutations exactly"
+  },
+  {
+    "id": "labeller/advanced/sample-plan-prevalence-and-confidence",
+    "cause": "account for prevalence and confidence when planning kappa precision"
+  },
+  {
+    "id": "labeller/advanced/exact-inclusive-ties-and-alternatives",
+    "cause": "include tied permutations in the specified kappa tail"
+  },
+  {
+    "id": "labeller/advanced/exact-missing-and-invalid-multisets",
+    "cause": "retain distinct missing prediction classes in exact permutations"
+  },
+  {
+    "id": "labeller/advanced/exact-degenerate-and-size-bound",
+    "cause": "bound exact enumeration and handle constant observations without fabricated evidence"
+  }
+]

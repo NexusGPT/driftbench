@@ -6,22 +6,71 @@ import {
   postJson,
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
-import { type Labeler, LabelerError, type Opinion, type Opinions, usageOf } from './labeler';
-import { checkAnswer, type Label, type Labelled, type LabelSet, type Window } from './labels';
+import {
+  type Labeler,
+  LabelerConfigError,
+  LabelerError,
+  type Opinion,
+  type Opinions,
+  usageOf,
+} from './labeler';
+import {
+  checkAnswer,
+  flatten,
+  type Label,
+  type LabelContext,
+  type Labelled,
+  type LabelSet,
+  offsetSpans,
+  type Window,
+} from './labels';
 
 /**
  * The dense shape of a system 2 labeler: the whole numbered window in one request, one label per unit in the
  * answer, ranges allowed. Every word of a domain comes from the label set, never from the text here.
  */
 
-const squash = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const squash = (text: string): string => flatten(text).text;
+
+/** Added to the system text only for a set that declares spans or links, so other sets keep their requests. */
+export const SPAN_RULE =
+  'A label that lists span kinds may carry "spans": [{"kind", "text", "polarity"?}] on an entry that names ONE unit: ' +
+  'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
+  'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
+
+/** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
+function spanLines(set: LabelSet, context: LabelContext): string[] {
+  const lines: string[] = [];
+  if (set.spans?.length) {
+    lines.push(
+      'SPAN KINDS:',
+      ...set.spans.map(
+        (kind) =>
+          `- ${kind.name}: ${kind.description}${kind.polarity ? ' (give "polarity": obligation or prohibition)' : ''}${kind.within ? ` (inside the ${kind.within} span)` : ''}`,
+      ),
+    );
+  }
+  if (set.links?.length) {
+    lines.push('LINK KINDS:');
+    for (const kind of set.links) {
+      lines.push(`- ${kind.name}: ${kind.description}`);
+      for (const candidate of context.candidates?.[kind.name] ?? [])
+        lines.push(`    ${candidate.id}  ${candidate.label}`);
+    }
+  }
+  return lines;
+}
 
 function labelLine(label: Label): string {
   const examples = label.examples?.length
     ? ` Examples: ${label.examples.map((example) => JSON.stringify(example)).join('; ')}`
     : '';
-  const target = label.target ? ' (also give "target": the number of the unit that holds the other end)' : '';
-  return `- ${label.name}: ${label.description}${examples}${target}`;
+  const target = label.target
+    ? ' (also give "target": the number of the unit that holds the other end, as a JSON number)'
+    : '';
+  const spans = label.spans ? ` (may carry spans of kind ${label.spans.join(', ')})` : '';
+  const links = label.links ? ` (may carry links of kind ${label.links.join(', ')})` : '';
+  return `- ${label.name}: ${label.description}${examples}${target}${spans}${links}`;
 }
 
 /** The fixed text of the dense request. */
@@ -47,25 +96,28 @@ export function windowLines(window: Window): string[] {
   return window.units.map((unit) => `[${unit.n}] ${squash(unit.text)}`);
 }
 
-export function denseUser(set: LabelSet, window: Window): string {
+export function denseUser(set: LabelSet, window: Window, context: LabelContext = {}): string {
   return [
     `SET ${set.set}: ${set.description}`,
     'LABELS:',
     ...set.labels.map(labelLine),
     '- none: no label of this set applies.',
+    ...spanLines(set, context),
     `WINDOW ${window.id}  path: ${window.headingPath.join(' > ') || '(top)'}`,
     ...windowLines(window),
   ].join('\n');
 }
 
 /**
- * The first JSON object of a text that holds a `labels` list: the text itself, the inside of one code fence, or the
- * outermost braces of a text that wraps the object in words. A model that answers a unit as if it were an order
- * writes a sentence and then the object; the object is still the answer.
+ * The one JSON object of a text that holds a `labels` list: the text itself, the inside of its only code fence, or
+ * the span from its first `{` to its last `}` for a text that wraps the object in words. A model that answers a
+ * unit as if it were an order writes a sentence and then the object; the object is still the answer. A text with
+ * two objects, or with two fences, has no such span that parses, so it has no answer.
  */
 function jsonObjectOf(text: string): unknown {
   const trimmed = text.trim();
-  const candidates = [trimmed, /```[A-Za-z]*\s*\n([\s\S]*?)\n?```/.exec(trimmed)?.[1]?.trim()];
+  const fences = [...trimmed.matchAll(/```[A-Za-z]*\s*\n([\s\S]*?)\n?```/g)];
+  const candidates = [trimmed, fences.length === 1 ? fences[0]?.[1]?.trim() : undefined];
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first >= 0 && last > first) candidates.push(trimmed.slice(first, last + 1));
@@ -81,10 +133,24 @@ function jsonObjectOf(text: string): unknown {
   return undefined;
 }
 
-/** Reads the labels of a dense answer. The request and its answer are one pair, so no id is echoed. */
-export function parseDenseAnswer(text: string): Labelled[] {
+/** The window and the set a request was made for: an answer that names others is for another request. */
+export type Expected = { window?: string; set?: string };
+
+/**
+ * Reads the labels of a dense answer. The answer may carry `window` and `set`; when it does and the request is
+ * known, they must be the request's own. An answer that carries neither is accepted: the request and its answer
+ * are one pair.
+ */
+export function parseDenseAnswer(text: string, expected: Expected = {}): Labelled[] {
   const value = jsonObjectOf(text);
   if (value === undefined) throw new LabelerError('the answer is not JSON');
+  const named = value as Record<string, unknown>;
+  if (expected.window !== undefined && named.window !== undefined && named.window !== expected.window) {
+    throw new LabelerError(`the answer is for another window than ${expected.window}`);
+  }
+  if (expected.set !== undefined && named.set !== undefined && named.set !== expected.set) {
+    throw new LabelerError(`the answer is for another set than ${expected.set}`);
+  }
   return denseLabels(value);
 }
 
@@ -108,14 +174,26 @@ export function denseLabels(value: unknown): Labelled[] {
       units: String(entry.units),
       label: entry.label,
       ...(target === undefined || target === null ? {} : { target: target as number }),
+      // Spans and links are kept as answered: the check refuses a malformed one and the scan counts it.
+      ...(!Array.isArray(entry.spans) || entry.spans.length === 0
+        ? {}
+        : { spans: entry.spans as Labelled['spans'] }),
+      ...(!Array.isArray(entry.links) || entry.links.length === 0
+        ? {}
+        : { links: entry.links as Labelled['links'] }),
     });
   }
   return out;
 }
 
 /** The opinions of a dense answer: one label per unit it named, a target as the index of the unit in the file. */
-export function denseOpinions(answer: Recorded, set: LabelSet, window: Window): Opinions {
-  const checked = checkAnswer(set, window, answer.labels ?? []);
+export function denseOpinions(
+  answer: Recorded,
+  set: LabelSet,
+  window: Window,
+  context: LabelContext = {},
+): Opinions {
+  const checked = checkAnswer(set, window, answer.labels ?? [], context);
   const byUnit = new Map<number, Opinion>();
   for (const unit of window.units) {
     if (!checked.covered.has(unit.n)) continue;
@@ -124,6 +202,8 @@ export function denseOpinions(answer: Recorded, set: LabelSet, window: Window): 
     byUnit.set(unit.index, {
       label: accepted?.label ?? 'none',
       ...(targetUnit ? { target: targetUnit.index } : {}),
+      ...(accepted?.spans ? { spans: accepted.spans } : {}),
+      ...(accepted?.links ? { links: accepted.links } : {}),
     });
   }
   return { byUnit, refusals: checked.refusals };
@@ -131,8 +211,13 @@ export function denseOpinions(answer: Recorded, set: LabelSet, window: Window): 
 
 export type AnthropicLabelerOptions = HttpOptions & {
   model?: string;
-  /** The key. Without it the labeler replays only. It stays in this closure and is never printed. */
-  key?: string;
+  /**
+   * The key. Without it the labeler replays only. It stays in this closure and is never printed. A function is called
+   * at each request, so a key held behind a getter is read when a request leaves and never before.
+   */
+  key?: string | (() => string | undefined);
+  /** What a request says when the key is empty at that moment (the function above returned nothing). */
+  missingKeyMessage?: string;
   baseUrl?: string;
   maxTokens?: number;
   /** How many times a window is asked. A unit takes a label only when every run gives it the same one. */
@@ -148,7 +233,19 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
   const model = options.model ?? DEFAULT_ANTHROPIC_LABELER_MODEL;
   const maxTokens = options.maxTokens ?? 4096;
   const base = (options.baseUrl ?? 'https://api.anthropic.com').replace(/\/+$/, '');
-  const key = options.key;
+  const keyOption = options.key;
+  // The key is read once, the first time a request is about to leave, and kept in this closure.
+  let resolved: string | undefined;
+  const keyNow = (): string => {
+    if (resolved) return resolved;
+    const found = typeof keyOption === 'function' ? keyOption() : keyOption;
+    if (!found)
+      throw new LabelerConfigError(
+        options.missingKeyMessage ?? 'the labeler anthropic has no key: nothing was sent',
+      );
+    resolved = found;
+    return found;
+  };
   const labeler: Labeler = {
     id: 'anthropic',
     cls: 'system2',
@@ -157,24 +254,30 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     runs: options.runs ?? DEFAULT_RUNS,
     settings: {},
     maxUnits: (_set, wanted) => wanted,
-    render: (set, window) => ({
+    render: (set, window, context) => ({
       labeler: 'anthropic',
       body: {
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: DENSE_SYSTEM,
-        messages: [{ role: 'user', content: denseUser(set, window) }],
+        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),
     opinions: denseOpinions,
   };
-  if (!key) return labeler;
+  if (!keyOption) return labeler;
   return {
     ...labeler,
-    async call(wire, _set, _window, attempt = 1) {
+    ready: () => void keyNow(),
+    async call(wire, set, window, attempt = 1) {
+      // The key is read here, when the request leaves, unless the run already asked for it in `ready`.
+      const key = keyNow();
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
-      const body = attempt > 1 ? { ...wire.body, system: `${DENSE_SYSTEM} ${RETRY_NOTE}` } : wire.body;
+      const body =
+        attempt > 1
+          ? { ...wire.body, system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}` }
+          : wire.body;
       const payload = await postJson(
         `${base}/v1/messages`,
         { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -198,7 +301,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         .map((block) => block.text)
         .join('');
       return {
-        labels: parseDenseAnswer(text),
+        labels: offsetSpans(parseDenseAnswer(text, { window: window.id, set: set.set }), window),
         returnedModel: String(payload.model ?? model),
         stopReason: stop,
         usage: usageOf(payload),

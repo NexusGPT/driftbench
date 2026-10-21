@@ -53,3 +53,21 @@ metadata:
       - marker: needs-askable-act
         atom: reference.standing.read-claude-memory-memory-md
         detail: "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\""
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.standing.read-claude-memory-memory-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.standing.read-claude-memory-memory-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

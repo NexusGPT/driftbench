@@ -86,3 +86,28 @@ metadata:
     outcome: bank
     judged:
       - instruction.route-planner.no-delivery-planned-on-a-public
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.route-planner.no-delivery-planned-on-a-public
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0345
+        values:
+          ask_class: research
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: go
+          deviation: D5_language_switch
+          estate_hazard: no_hazard
+          atoms.instruction: instruction.route-planner.no-delivery-planned-on-a-public
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

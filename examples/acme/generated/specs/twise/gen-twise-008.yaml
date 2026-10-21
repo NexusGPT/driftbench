@@ -118,3 +118,75 @@ metadata:
       stem: stem-dde057af90ae
       block: b1-needs-to-identify
       replaced: 1
+  links:
+    - block: stem-dde057af90ae#b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-dde057af90ae#b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-008
+        values:
+          behaviour: B-001
+          channel: chat
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: catalog.search
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: deviation=D8_tool_failure
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: rule
+        rule: account_lookup=found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D8_tool_failure
+      to:
+        kind: plan_row
+        row: gen-twise-008
+        values:
+          behaviour: B-001
+          channel: chat
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          failing_tool: catalog.search
+          deviation: D8_tool_failure
+          stage_transition: identify-to-offer
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

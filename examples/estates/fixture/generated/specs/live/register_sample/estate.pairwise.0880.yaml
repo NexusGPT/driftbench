@@ -90,3 +90,28 @@ metadata:
     phrase: 2
     ask: code
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.invoice-reconcile.one-closing-line-per-invoice
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0880
+        values:
+          ask_class: compose
+          ask_shape: ambiguous
+          session_state: long
+          owner_signal: keep_going
+          deviation: D3_contradiction
+          estate_hazard: rate_wave
+          atoms.register: register.invoice-reconcile.one-closing-line-per-invoice
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

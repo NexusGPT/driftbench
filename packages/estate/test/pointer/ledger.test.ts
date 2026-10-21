@@ -178,4 +178,43 @@ describe('the ledger', () => {
     // Two units with that text now exist in the new estate: neither takes the old id from another file.
     expect(idOf(second, 'shed.md', 'Lock up.')).not.toBe(hallLock);
   });
+
+  it('carries no id for a short text unique in the old estate but repeated in the new one', () => {
+    const first = scan({
+      'hall.md': '# Hall\n\n- Stop.\n- Water the plants on the left shelf\n',
+      'yard.md': '# Yard\n\n- Sweep the yard every evening\n',
+      'shed.md': '# Shed\n\n- Count the tools twice a day\n',
+    });
+    const stop = idOf(first, 'hall.md', 'Stop.');
+    const second = scan(
+      {
+        'hall.md': '# Hall\n\n- Water the plants on the left shelf\n',
+        'yard.md': '# Yard\n\n- Sweep the yard every evening\n- Stop.\n',
+        'shed.md': '# Shed\n\n- Count the tools twice a day\n- Stop.\n',
+      },
+      first.ledger,
+    );
+    expect(stop).toBeDefined();
+    expect(idOf(second, 'yard.md', 'Stop.')).not.toBe(stop);
+    expect(idOf(second, 'shed.md', 'Stop.')).not.toBe(stop);
+  });
+
+  it('carries no id for a short text repeated in the old estate but unique in the new one', () => {
+    const first = scan({
+      'hall.md': '# Hall\n\n- Stop.\n- Water the plants on the left shelf\n',
+      'yard.md': '# Yard\n\n- Stop.\n- Sweep the yard every evening\n',
+      'shed.md': '# Shed\n\n- Count the tools twice a day\n',
+    });
+    const olds = [idOf(first, 'hall.md', 'Stop.'), idOf(first, 'yard.md', 'Stop.')];
+    const second = scan(
+      {
+        'hall.md': '# Hall\n\n- Water the plants on the left shelf\n',
+        'yard.md': '# Yard\n\n- Sweep the yard every evening\n',
+        'shed.md': '# Shed\n\n- Count the tools twice a day\n- Stop.\n',
+      },
+      first.ledger,
+    );
+    expect(olds.every((id) => id !== undefined)).toBe(true);
+    expect(olds).not.toContain(idOf(second, 'shed.md', 'Stop.'));
+  });
 });

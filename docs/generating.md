@@ -313,6 +313,33 @@ In `metadata.generated.blocks`, a move records the stage it reaches. A deviation
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.
 
+`driftbench generate` and `driftbench estate generate` write their blocks through one block writer
+(`writeBlocks`). It writes `metadata.links`, and every block gets these links:
+
+* a `rule` link for each value the block carries, by `dimension=value` (a block that carries none links the
+  behaviours the spec covers). A task family's blocks link the flow and the behaviours the spec covers;
+* a `plan_row` link: the row the block was written for, with the values of the spec's cell and the values the
+  block adds. The members of a metamorphic family share the row of the family;
+* a `source_turn` link when the phrase copies a kept user turn: its evidence `source` is `<conversation>#<turn>`,
+  the id `intake logs` gives the turn.
+
+Each link is `declared` by the `generator`, at the map hash. The links stay out of the spec hash.
+
+`writeBlocks(inputs, version, { reaches })` also links, for each rule a block names, the rules whose change
+reaches it. For a prompt with a section registry, `sectionsReaching(registry)` of `@agent-nexus/driftbench-core`
+gives them: the sections a section references, overrides or duplicates, transitively. A recap section that
+references `explicit_confirm` makes every recap block link `explicit_confirm` too, with
+`evidence: { declared: { through: recap } }`. On the H7 suite of the Acme prompt, the two references the prompt
+states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
+flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
+
+`driftbench generate --sections <registry>` and `driftbench estate generate --sections <registry>` pass a
+prompt's section registry to the generators. A rule read from that prompt (a value's evidence quote, an
+atom's provenance quote) then gives each block a `prompt_section` link to the section that holds the quote,
+and a link to each section that reaches it through the registry, with `evidence: { declared: { through } }`.
+The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
+that does not describe the prompt's text is refused with exit 2.
+
 ### A tool failure on a turn that asks a behaviour
 
 A move of a walk is not the only turn that runs a tool. A behaviour whose own text names a read tool runs it when the user asks for the behaviour, at any stage after the start and without leaving the stage. When the flow recovers from that tool's failure, such a turn is a place for a `D8_tool_failure` probe, the last stage of a path included, which no move reaches. The `cover` seeder builds it for a cell that names a deviation of that class and a stage: the user asks for a behaviour of the flow that reads a recovered tool, the tool fails, the recovery holds the stage, and the user asks again with the tool answering. The behaviour the cell names is the one the spec covers; when it reads nothing, another behaviour of the flow is only said. One rule decides which turns qualify (`extract/behaviour-turns.ts`), and the derived reachability, the t-wise target and the builder all read it, so they agree on which cells exist. A turn qualifies when the tool is not the end state a path writes (a write is never failed and asked again), the behaviour has an approved phrase that states no slot and binds none (that is what the turn says), and a flow that holds the behaviour recovers from the tool's failure.
@@ -590,6 +617,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * Stage 5 runs each block on the planted faults of `--faults`. A fault plants one drift class (X1 to X5, see [drift](concepts/drift.md)), mishandles one deviation class (see [recovery](concepts/recovery.md)), or is a negative control that must leave every block green. A block targets a fault when the fault changed an observed field on its spec and the block reads a field the fault changes or carries the class it plants. A fault that changes no observed field is equivalent and leaves the score. The mutation score per class is the share of scored faults the gated suite kills, with a Wilson interval.
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
+* Stems: a suite with [stems](#stems-shared-openings-written-once) is gated stem by stem. The opening a spec replays from its stem is gated once, in the stem: a spec's records are its own blocks. A stem and every spec that starts from it are drawn together, on the root stem's id, so no opening is both in `specs/` and in `holdout/`. Gated specs are written as authored: a spec keeps its `parent: <stem id>#<block id>`, and a stem a written spec starts from is written in the same split even when none of its own blocks was accepted. When the stems are not gated with the spec, as on `gate generated/specs/graph`, the spec is written whole, as the loader wrote it out (`metadata.parent`), so it runs on its own: its opening is replayed first, kept as it was.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
 * Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces, artifacts and workspace changes must still agree. A workspace diff that lists no file counts as no workspace change, so a run whose world supplies files and a run with no workspace agree when neither changes a file. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. A Then on the end state compares the `endStateValue` each reference run recorded: equal values count as the same behaviour, different values do not, and a run that recorded no value (an unreadable store, or a run stored before the field existed) keeps the conservative contrast check. Artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.

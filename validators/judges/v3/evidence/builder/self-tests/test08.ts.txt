@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';import {scoreMappedLabeller as score} from './candidate';
+const set=(name:string,label:string)=>({name,labels:[{name:label,description:''}]});
+const options={goldSet:set('g','red'),answerSet:set('a','rouge'),targetSet:set('t','stop'),goldMap:[{source:'red',target:'stop'},{source:'none',target:'none'}],answerMap:[{source:'rouge',target:'stop'},{source:'none',target:'none'}]};
+const r=score(['red','none','red','red'],['rouge','none','stop',null],options);assert.equal(r.correct,2);assert.equal(r.invalid,1);assert.equal(r.abstentions,1);
+assert.throws(()=>score(['red'],['rouge'],{...options,goldMap:options.goldMap.slice(0,1)}));
+assert.throws(()=>score(['red'],['rouge'],{...options,answerMap:[...options.answerMap,options.answerMap[0]]}));
+assert.throws(()=>score(['stop'],['rouge'],options));assert.throws(()=>score(['red'],['rouge'],{...options,goldMap:[{source:'red',target:'bad'},{source:'none',target:'none'}]}));console.log('mapping regression passed');

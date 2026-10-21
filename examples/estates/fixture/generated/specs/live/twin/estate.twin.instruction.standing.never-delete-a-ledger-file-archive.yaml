@@ -51,3 +51,22 @@ metadata:
     ask: code
     askFrom: instruction.standing.never-delete-a-ledger-file-archive (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.never-delete-a-ledger-file-archive
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: twin.instruction.standing.never-delete-a-ledger-file-archive
+        values:
+          atoms.instruction: instruction.standing.never-delete-a-ledger-file-archive
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -141,3 +141,148 @@ metadata:
       stem: stem-03e5d44d2475
       block: b4-handover-to-closing
       replaced: 4
+  links:
+    - block: stem-0023abdf4ed7#b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-0023abdf4ed7#b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-deviation-002
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-0023abdf4ed7#b2-address-to-callback
+      to:
+        kind: rule
+        rule: stage_transition=address-to-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-0023abdf4ed7#b2-address-to-callback
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-0023abdf4ed7#b2-address-to-callback
+      to:
+        kind: plan_row
+        row: gen-deviation-002
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: address-to-callback
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b3-callback-to-handover
+      to:
+        kind: rule
+        rule: stage_transition=callback-to-handover
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b3-callback-to-handover
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b3-callback-to-handover
+      to:
+        kind: rule
+        rule: callback_phone=given
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b3-callback-to-handover
+      to:
+        kind: plan_row
+        row: gen-deviation-002
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: callback-to-handover
+          stage: handover
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b4-handover-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=handover-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: stem-03e5d44d2475#b4-handover-to-closing
+      to:
+        kind: plan_row
+        row: gen-deviation-002
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          stage_transition: handover-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-D1_off_topic
+      to:
+        kind: rule
+        rule: deviation=D1_off_topic
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-D1_off_topic
+      to:
+        kind: plan_row
+        row: gen-deviation-002
+        values:
+          flow: new-home
+          user_type: new-customer
+          coverage_result: no-service
+          callback_phone: given
+          channel: whatsapp
+          deviation: D1_off_topic
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

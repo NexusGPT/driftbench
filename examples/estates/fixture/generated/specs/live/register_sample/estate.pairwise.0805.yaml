@@ -96,3 +96,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0805
+        values:
+          ask_class: build
+          ask_shape: prescribed
+          session_state: long
+          owner_signal: hold
+          deviation: D1_off_topic
+          estate_hazard: process_restart
+          atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

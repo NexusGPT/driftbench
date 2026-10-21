@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 20 (ladder version 2), map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with seven ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), pointer (the pointer reader), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 20 (ladder version 2), map 8, stats 7, system 9; estate, generator and pointer have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -45,6 +45,33 @@ The non-obvious parts. Transform ladders. Code applies label-preserving edits (p
 Score, per judge and criterion. Level 1: the fixture pair separates, 3 of 3 repeats. Level 2: accuracy on the hidden set at least 0.9, kappa against labels at least 0.8 with its interval. Level 3: invariance, verdict unchanged on at least 0.95 of label-preserving edits. Level 4: sensitivity, verdict flips on at least 0.9 of label-flipping edits. Level 5: injection resistance 1.0. Level 6: consistency, pass to the fifth at least 0.95. Level 7 (council): majority accuracy above the best judge, cascade agreement at least 0.95 with cost below the full council. A judge earns a criterion at level 4 or above; the assignment table is written from this validator, not by hand.
 
 Feedback. Each failed transform prints the item, the before and after text, the two verdicts, and the rubric line involved. The table maps an invariance failure to the rubric's wording, a sensitivity failure to a missing FAIL picture, an injection failure to the data-tag guard, a consistency failure to the judge's temperature or prompt length.
+
+### 4.1 Labellers: additive judges ladder version 3
+
+`driftbench validate judges --ladder-version 3` selects the labeller bank.
+The default stays version 2, including its items, floor and journal. Version 3
+has separate evidence under `validators/judges/v3/`; `--hardness`, `--brief`,
+`--journal` and `--check-handover` use that directory when version 3 is selected.
+`validate all` retains the default versions. An unavailable version is an error.
+
+A labeller assigns one name from a supplied label set, `none`, or an abstention
+to a text unit. The new deterministic bank tests agreement, abstention, none,
+label-set changes, near-miss names, order and position bias, length bias,
+adversarial label mentions, repeated replay and cache keys. Fictional planted
+specifications generate paired text and gold labels. Recorded and scripted
+labellers alone run in this bank; there is no live-model mode.
+
+Each item reports Cohen's kappa and raw agreement. Abstentions remain in the
+denominator and never count as agreement, including against `none`; `none` is
+a real gold class. Empty and unknown outputs are invalid, counted separately.
+The label-set hash participates in the replay key: changing a label's name or
+definition must invalidate an answer. All-empty, constant-label, all-abstaining
+and first-label cheats must pass zero items, checked across the complete bank.
+
+The [version 3 contract](../validators/judges/v3/README.md) states the per-tier
+bars, fixture design and pilot limitations. The hardness contract below remains
+unchanged; measured provisional exceptions are recorded in that version's
+`GATE.md`, never applied to version 2.
 
 ## 5. The system validator (does the whole chain report the truth)
 
@@ -92,14 +119,16 @@ What the owner reads: one table per validator per merge, seven rows at most, wit
 
 ### 8.1 The CI job
 
-`.github/workflows/validators.yml` holds two jobs, on every push to main and every pull request.
+`.github/workflows/validators.yml` runs on every push to main and every pull request, as a wide matrix of legs and the jobs that join them. A leg is one validator on one seed, or one slice of levels of a long ladder; the hidden seed of the commit has a leg of its own (`--hidden --hidden-only`). Each leg uploads its `--json` report. The jobs `ladders` (named "ladders and floors") and `system-full` (named "system all 11 levels") download the reports of their legs and join them with `driftbench validate --reports <dir>`, which rebuilds, for each seed, the run one pass would give, and checks the floors on it. Both jobs also fail when any job they wait for did not succeed (failed, cancelled or skipped), so a lost leg is a red run. For every validator and every seed the legs tile levels 1 to the top of the ladder without a gap or an overlap, and the join refuses a missing or repeated level or seed (exit 64).
 
-1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below the floor of its registered ladder version in `validators/floors.json`, or when that file holds a floor for a component with no registered validator, for a ladder version above the registered one, or above the top of its ladder. A floor of an earlier ladder version is history and is not enforced (section 12.5). `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
+1. Ladders and floors. The legs `ladders-leg` run `driftbench validate <component> <seed> --check-floor --json`: seeds 1, 2, 3 and the hidden seed of every registered validator. A leg of a validator with a floor computes through its floor and exits 1 below it; a validator without a floor walks to its first failing level, as a single run does. The generator ladder is cut into four slices of levels per seed (1 to 6, 7 to 11, 12 to 17, 18 to 19), which compute every level in them, also above a failing one. The levels 20 to 22 of the generator run in `ladders-tail`, one leg per level and seed, which start with the other legs; the join keeps the levels up to the first failing one and drops those above it, as a single run does that stops at the first failing level. `ladders` then runs `pnpm driftbench validate all --reports reports --seeds 1..3 --hidden --check-floor`: the level of each validator is the minimum over the four seeds, and it fails when that is below the floor of its registered ladder version in `validators/floors.json`, or when that file holds a floor for a component with no registered validator, for a ladder version above the registered one, or above the top of its ladder. A floor of an earlier ladder version is history and is not enforced (section 12.5). `ladders-handover` runs `pnpm driftbench validate all --check-handover`, which fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal. The system job runs every level of the system ladder: the legs `system-leg` take levels 1 to 9, level 10 and level 11 of each seed, and `system-full` joins them with `--all-levels` and succeeds when the level of the run is 11.
 2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders and banks under `ladders/`, their thresholds, the hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank fixtures under `packages/validators/fixtures/**` and the validator's own tests under `packages/validators/test/**`, `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
 
 With `--check-floor`, each ladder with a positive floor for its registered version computes only through that floor. A floor of zero, or an earlier version with no applicable floor, keeps the ordinary walk to the first failure. Levels above a positive floor stay unmeasured, including with `--items` or `--all-levels`. Plain measurements continue to explore the ladder.
 
 The pointer measurement. A third job, `pointer-measure`, serves the independent audit of section 12.7. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `pointer-measure` (seeds 1 to 3 and the hidden seed in three shards), `pointer-measure-one` (seed 1 in one shard, for a planted-bug or cheat check) or `pointer-measure-full` (seeds 1 to 20 and the hidden seed in ten shards, for a gate measurement), and never on a push or a pull request. Each shard runs `pnpm driftbench validate pointer --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `pointer-items-<n>`; the level reached does not fail the job. Two runs compare by the items that pass in each, listed with `jq -r '.seeds[] | .seed as $s | .rows[].bank[] | select(.pass) | [$s, .id] | @tsv' pointer-items.json | sort`.
+
+The variables measurement. A fourth job, `variables-measure`, serves the same audit for the variables bank. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `variables-measure` (seeds 1 to 3 and the hidden seed in three shards), `variables-measure-one` (seed 1 in one shard) or `variables-measure-full` (seeds 1 to 20 and the hidden seed in ten shards), never on a push or a pull request. Each shard runs `pnpm driftbench validate variables --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `variables-items-<n>`; the level reached does not fail the job. The bank is the first bank of the variables validator (536 items) plus the blind bank (`packages/validators/src/ladders/variables/blind`, 501 items named `blind.*`), 1,037 items in all.
 
 ### 8.2 The command
 
@@ -134,10 +163,10 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 
 ### 8.3 The registered validators
 
-`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns seven validators: `estate`, `generator`, `judges`, `map`, `stats`, `system` and `variables`. `validators/floors.json` holds a floor for four of them; `estate`, `generator` and `variables` have none yet. The catalogue of the `variables` bank is `validators/variables/CATALOGUE.md`; the contract it checks is [the variable store](variables.md), with the rules of each family in its section Rules by bank family. `validate floors` prints the floors:
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns eight validators: `estate`, `generator`, `judges`, `map`, `pointer`, `stats`, `system` and `variables`. `validators/floors.json` holds a floor for four of them; `estate`, `generator`, `pointer` and `variables` have none yet. The catalogue of the `variables` bank is `validators/variables/CATALOGUE.md`; the contract it checks is [the variable store](variables.md), with the rules of each family in its section Rules by bank family. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
@@ -254,9 +283,12 @@ A validator is merged only with its hardness measured, not asserted.
 1. Iteration 0. The builder lane runs the finished validator on seeds 1 to 20 and the hidden seed and records the bank score (items passing on every seed over the bank) and the level.
 2. The pilot. The builder lane then runs ten iterations of the executor loop (section 10) on the component, honestly, as an executor would, and records each iteration's bank score.
 3. The forecast. Items fixed per iteration is the mean over the pilot. Iterations to 100 percent is the remaining failing items divided by that mean. The gate: the forecast is at least 100, and the bank score after the pilot is at most 0.4.
+   Catch items count for no hardness, and the gate never gets looser for them. A catch item (`role: catch`) passes on the product that owns its capability and guards it against a planted bug, a shortcut, a cheat or a scale budget. It counts as catch only when its id is pinned in `validators/<component>/catch.json`, each entry naming what it guards: `bug:`, `cheat:`, `shortcut:` or `budget:` and a name. That file is reviewed like any validator change. Catch items may hold at most 15 percent of the bank: over that share the gate fails. Every catch item must pass on every journal row, at iteration 0 and after each pilot round: a catch item that fails at the start is a hardness item, and one that fails after a round shows the round broke a guarded capability; either fails the gate. Each gate then takes the stricter of its hardness-only value and its value over every item, so labelling an item catch never makes the gate easier to pass: the score after the pilot and the score at iteration 0 are the larger of the two, the forecast is the smaller of the two, and the distinct causes are the hardness causes. Fixing a catch item is never progress. The 15 percent cap is checked on every journal row, and the first row over it is named. The catch items are counted apart: the `--items` listing prints them in their own blocks, `--json` gives them under `bank.catch` (`size`, `passing`, `failingByFamily`), and a journal row records them in `catchItems` (`size`, `passing`, with `passing` at most `size`), beside a `bankSize` and a `passing` of the hardness items.
 4. Distinct causes. Many items can fail for one reason, so one fix turns them all green and the forecast overstates the work. Every item carries a `cause`: the one change that would make it pass, written by the bank's author. The gate also requires at least 100 distinct causes among the failing items after the pilot. Items sharing a cause count once.
 5. A forecast under 100, or fewer than 100 distinct causes, sends the lane back to section 12.2 to extend the bank, with the families it extended named in the handoff.
 6. A pilot that fixes nothing in ten iterations means the items are miswritten or the component is missing a foundation; both go to the maintainer.
+
+Composite checks (`causeKind: composite`) retain their bank verdicts but contribute no distinct-cause credit. If only composite checks fail, `failingCauses: 0` is a valid journal measurement when the row also states `failingComposite` equal to the number of failing items; any other row with failing items and 0 causes is refused. Zero causes still fails the distinct-cause merge gate; accepting the row does not certify hardness or replace the independent cause review.
 
 The iteration 0 row and the ten pilot rows are the first rows of `validators/<component>/journal.jsonl`, and `driftbench validate <component> --hardness` prints the measurement from them: bank size per family and tier, score at iteration 0, score after the pilot, items fixed per iteration, the forecast, and whether the gate holds.
 
@@ -325,6 +357,13 @@ What the frame cannot do. No run makes the validator indistinguishable from a us
 - The parent process. Every run's parent is the validator, so a product that reads it (for example `ps -o command= -p $PPID`, looking for `vitest`) answers the same in all three runs and passes, while a user's script has another parent (review of PR 892, second round).
 
 How a ladder adopts it. Replace the product object the items call (for example `product.core` in the blocks bank) by `isolate(...).product` for the product's entry module, fail the item when `divergence()` is set, and close the frame when the item ends. The tests in `packages/validators/test/frame/isolate.test.ts` show each cheat class of the audits passing an item in the validator's process and failing it under the frame.
+
+### 12.10 Recorded bars
+
+A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.
+
+* stats, ladder version 3: score after the pilot at most 0.85, forecast at least 9, at least 80 distinct failing causes. The blind pilot on the iteration-0 copy of the package measured 0.8263, a forecast of 9.87 and 85 causes on a bank of 904 items. The reason: a forecast of 100 at the 15.9 items the pilot fixed per iteration needs about 1590 failing items, more than the bank holds, and the package (the differential sweep covered its 57 exports) has 11 causes from defects and from statistics the docs define; the rest are guards, limits and coverage designs. Padding the bank with methods no page asks for is ruled out by 12.1. The numbers and the starting package are in `validators/stats/GATE.md`.
+* stats, ladder version 4: the weights family (187 items) joins the bank of version 3. The bar of version 3 stands until the version 4 pilot is measured; the floor is 3, the level the repository's package reaches on 21 seeds (`validators/stats/GATE.md`).
 
 ## Measurement cache during system sweeps
 

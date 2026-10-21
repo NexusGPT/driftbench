@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defineLadder, formatLadder, passes, runLadder, runSeeds } from '../src/index';
+import { defineLadder, formatLadder, mergeSeedRuns, passes, runLadder, runSeeds } from '../src/index';
 import { plantedLadder } from './support';
 
 describe('runLadder', () => {
@@ -140,5 +140,114 @@ describe('formatLadder', () => {
     expect(text).toContain('Floor: 2. BELOW THE FLOOR.');
     expect(text).toContain('Seed 2, level 2 second (second rung), 2 items:');
     expect(text).toContain('plant-2-a  [fixture/finder]  the planted item a was missed');
+  });
+});
+
+/** Seven levels; the levels listed in `failing` fail with one named item, and every level returns a one-entry bank. */
+function sevenLevels(failing: readonly number[]) {
+  const calls: number[] = [];
+  const ladder = defineLadder({
+    component: 'sliced',
+    levels: Array.from({ length: 7 }, (_, index) => ({
+      id: `level-${index + 1}`,
+      name: `level ${index + 1}`,
+      metric: 'found / planted',
+      threshold: 1,
+      compute: () => {
+        calls.push(index + 1);
+        const bad = failing.includes(index + 1);
+        return {
+          value: bad ? 0.5 : 1,
+          items: bad ? [{ id: `item-${index + 1}`, component: 'fixture', detail: 'missed' }] : [],
+          bank: [{ id: `bank-${index + 1}`, component: 'fixture', pass: !bad }],
+        };
+      },
+    })),
+  });
+  return { ladder, calls };
+}
+
+const SLICES: [number, number][][] = [
+  [[1, 7]],
+  [
+    [1, 3],
+    [4, 5],
+    [6, 7],
+  ],
+  [
+    [1, 1],
+    [2, 2],
+    [3, 3],
+    [4, 4],
+    [5, 5],
+    [6, 6],
+    [7, 7],
+  ],
+];
+
+describe('fromLevel and mergeSeedRuns', () => {
+  it('computes only the levels from fromLevel through maxLevel, listing the others as not run, and runs on above a failure', async () => {
+    const { ladder, calls } = sevenLevels([3]);
+    const run = await runLadder(ladder, { seed: 1, fromLevel: 2, maxLevel: 5, full: true });
+    expect(calls).toEqual([2, 3, 4, 5]);
+    expect(run.rows.map((row) => row.pass)).toEqual([null, true, false, true, true, null, null]);
+    await expect(runLadder(ladder, { seed: 1, fromLevel: 0 })).rejects.toThrow(RangeError);
+    await expect(runLadder(ladder, { seed: 1, fromLevel: 8 })).rejects.toThrow(RangeError);
+    const above = await runLadder(ladder, { seed: 1, fromLevel: 6, maxLevel: 4, full: true });
+    expect(above.rows.every((row) => row.pass === null)).toBe(true);
+  });
+
+  it('joins slices into exactly the run one pass gives, stopping or full, wherever the first failure falls', async () => {
+    for (const failing of [[], [1], [4], [7], [3, 6], [2, 3, 4, 5, 6, 7]]) {
+      for (const through of [7, 5]) {
+        for (const full of [false, true]) {
+          const { ladder } = sevenLevels(failing);
+          const whole = await runLadder(ladder, { seed: 3, hiddenSeed: true, maxLevel: through, full });
+          for (const plan of SLICES) {
+            const slices = [];
+            for (const [from, to] of plan)
+              slices.push(
+                await runLadder(ladder, {
+                  seed: 3,
+                  hiddenSeed: true,
+                  fromLevel: from,
+                  maxLevel: Math.min(to, through),
+                  full: true,
+                }),
+              );
+            expect(
+              mergeSeedRuns(slices, through, full),
+              JSON.stringify({ failing, through, full, plan }),
+            ).toEqual(whole);
+          }
+        }
+      }
+    }
+  });
+
+  it('names a level no slice computed, a level two slices computed, and slices that do not belong together', async () => {
+    const { ladder } = sevenLevels([]);
+    const slice = (seed: number, from: number, to: number) =>
+      runLadder(ladder, { seed, fromLevel: from, maxLevel: to, full: true });
+    expect(mergeSeedRuns([await slice(1, 1, 3), await slice(1, 5, 7)], 7)).toBe(
+      'level 4 of seed 1 was computed in no slice',
+    );
+    expect(mergeSeedRuns([await slice(1, 1, 4), await slice(1, 4, 7)], 7)).toBe(
+      'level 4 of seed 1 was computed in 2 slices',
+    );
+    expect(mergeSeedRuns([await slice(1, 1, 4)], 4)).not.toBeTypeOf('string');
+    expect(mergeSeedRuns([await slice(1, 1, 4)], 5)).toBe('level 5 of seed 1 was computed in no slice');
+    expect(mergeSeedRuns([await slice(1, 1, 7), await slice(2, 1, 7)], 7)).toBe(
+      'the slices hold the seeds 1 and 2',
+    );
+    expect(mergeSeedRuns([], 7)).toBe('there is no slice to join');
+    expect(mergeSeedRuns([await slice(1, 1, 7)], 8)).toContain('outside 1 to 7');
+  });
+
+  it('does not read a hole above the first failing level as a lost slice, except in a full join', async () => {
+    const { ladder } = sevenLevels([2]);
+    const stopped = await runLadder(ladder, { seed: 1 });
+    expect(mergeSeedRuns([stopped], 7)).toEqual(stopped);
+    expect(mergeSeedRuns([stopped], 7, true)).toBe('level 3 of seed 1 was computed in no slice');
   });
 });

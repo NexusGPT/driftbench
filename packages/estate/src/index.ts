@@ -71,6 +71,8 @@ export {
   renderRegression,
   retirementReason,
   runPassed,
+  UnitsDiff,
+  unitsDiff,
   writeRetirements,
 } from './maintain';
 export {

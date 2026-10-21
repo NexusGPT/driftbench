@@ -65,3 +65,28 @@ metadata:
     ask: code
     askFrom: register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: guard.settings.stop-guard-reply-length-py
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0472
+        values:
+          ask_class: compose
+          ask_shape: correction
+          session_state: long
+          owner_signal: language_switch
+          deviation: D2_goal_shift
+          estate_hazard: dead_helper
+          atoms.guard: guard.settings.stop-guard-reply-length-py
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

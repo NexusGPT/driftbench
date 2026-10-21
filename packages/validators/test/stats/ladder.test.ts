@@ -15,11 +15,11 @@ vi.mock('node:child_process', async (importOriginal) => {
   return { ...actual, spawn: vi.fn(actual.spawn) };
 });
 
-describe('the stats ladder, version 2', { timeout: SLOW }, () => {
+describe('the stats ladder, version 4', { timeout: SLOW }, () => {
   const bank = statsBank(ROOT);
 
   it('is a bank of at least 300 items, unique ids, no family under 20, every tier present', () => {
-    expect(STATS_LADDER_VERSION).toBe(2);
+    expect(STATS_LADDER_VERSION).toBe(4);
     expect(bank.length).toBeGreaterThanOrEqual(300);
     expect(new Set(bank.map((item) => item.id)).size).toBe(bank.length);
     const families = new Map<string, number>();
