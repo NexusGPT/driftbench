@@ -2719,6 +2719,7 @@
       "sampleSizeForEffect": "value",
       "sampleVariance": "value",
       "sidakThreshold": "value",
+      "simesPValue": "value",
       "simulateCoverage": "value",
       "simulateFamilyCoverage": "value",
       "stratifiedMean": "value",

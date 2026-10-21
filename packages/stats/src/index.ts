@@ -14,6 +14,7 @@ export {
   type Label,
 } from './agreement';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { simesPValue } from './combine';
 export {
   abundances,
   type ChaoResult,
