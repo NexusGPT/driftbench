@@ -6,6 +6,7 @@ import {
   callPlan,
   callQuotes,
   cpu,
+  jsonEqual,
   makeStore,
   must,
   names,
@@ -275,7 +276,13 @@ function conversationsWorkload(ctx: ItemContext, sessions: number, limitMs: numb
   }
 }
 
-function quotesWorkload(ctx: ItemContext, count: number, limitMs: number): void {
+function quotesWorkload(
+  ctx: ItemContext,
+  count: number,
+  limitMs: number,
+  wrongCount = 10,
+  exact = false,
+): void {
   const fill: string[] = [];
   const quotes: string[] = [];
   let size = 0;
@@ -293,7 +300,7 @@ function quotesWorkload(ctx: ItemContext, count: number, limitMs: number): void 
   const wrong = new Set(
     ctx.rng.sample(
       Array.from({ length: count }, (_, i) => i),
-      10,
+      wrongCount,
     ),
   );
   const store = {
@@ -326,6 +333,14 @@ function quotesWorkload(ctx: ItemContext, count: number, limitMs: number): void 
   must(
     value.errors.length === wrong.size,
     () => `${value.errors.length} errors; ${wrong.size} quotes are wrong`,
+  );
+  if (!exact) return;
+  // Each wrong quote is named where it sits: its code and its path, not only a count of errors.
+  const want = [...wrong].map((i) => `VARIABLES_QUOTE_NOT_FOUND at variables.0.values.${i}.provenance.0.quote`);
+  const got = value.errors.map((e) => `${e.code} at ${e.path}`);
+  must(
+    jsonEqual([...got].sort(), [...want].sort()),
+    () => `quotes reported ${got.slice(0, 3).join('; ')}; the wrong ones are ${want.slice(0, 3).join('; ')}`,
   );
 }
 
@@ -676,6 +691,7 @@ export const SCALE_STEMS: readonly Stem[] = [
       ['conversations-10000', 3, (ctx) => conversationsWorkload(ctx, 10_000, 2000)],
       ['conversations-100000', 5, (ctx) => conversationsWorkload(ctx, 100_000, 5000)],
       ['quotes-2000-in-one-megabyte', 4, (ctx) => quotesWorkload(ctx, 2000, 3000)],
+      ['quotes-2000-reports-each-wrong-one', 4, (ctx) => quotesWorkload(ctx, 2000, 3000, 3, true)],
       ['owner-values-2000', 3, (ctx) => ownerValuesWorkload(ctx, 2000, 3000)],
       ['owner-values-10000', 4, (ctx) => ownerValuesWorkload(ctx, 10_000, 3000)],
     ],

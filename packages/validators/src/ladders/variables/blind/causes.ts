@@ -942,6 +942,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ['10,000 conversations are counted within two seconds', ['conversations-10000']],
     ['100,000 conversations are counted within five seconds', ['conversations-100000']],
     ['2,000 quotes in a one-megabyte file are checked within three seconds', ['quotes-2000-in-one-megabyte']],
+    [
+      'each of 2,000 quotes in a one-megabyte file that is wrong is reported with its code and its own path',
+      ['quotes-2000-reports-each-wrong-one'],
+    ],
     ['2,000 owner values are added within three seconds', ['owner-values-2000']],
     ['10,000 owner values are added within three seconds', ['owner-values-10000']],
   ]),
@@ -961,6 +965,68 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     [
       'the coverage of 30 rows over 200 binary variables at strength 2 takes under twenty seconds',
       ['thirty-rows-200-binary-strength-2'],
+    ],
+  ]),
+  'reach.build-store': table([['the adapter maps buildStore to a function of the product', ['mapped']]]),
+  'reach.weight-interval': table([['the adapter maps weightInterval to a function of the product', ['mapped']]]),
+  'reach.plan': table([['the adapter maps plan to a function of the product', ['mapped']]]),
+  'reach.coverage': table([['the adapter maps coverage to a function of the product', ['mapped']]]),
+  'reach.validate': table([['the adapter maps validate to a function of the product', ['mapped']]]),
+  'reach.quotes': table([['the adapter maps quotes to a function of the product', ['mapped']]]),
+  'values.file.ambiguous-value': table([
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind persona is refused',
+      ['behaviour-and-persona'],
+    ],
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind data is refused',
+      ['behaviour-and-data'],
+    ],
+    [
+      'a value id shared by an axis of kind behaviour and an axis of kind task is refused',
+      ['behaviour-and-task'],
+    ],
+    [
+      'a value id shared by an axis of kind persona and an axis of kind data is refused',
+      ['persona-and-data'],
+    ],
+    [
+      'a value id shared by an axis of kind persona and an axis of kind task is refused',
+      ['persona-and-task'],
+    ],
+    ['a value id shared by an axis of kind data and an axis of kind task is refused', ['data-and-task']],
+    [
+      'a value id shared with a stage, channel or deviation axis is not an ambiguous value',
+      ['ids-shared-with-a-stage-or-channel-axis-are-fine'],
+    ],
+    ['the value none may sit in axes of different kinds', ['none-in-axes-of-two-kinds-is-fine']],
+    [
+      'a detail may repeat the value id of an axis of another kind',
+      ['a-detail-may-repeat-the-id-of-an-axis-of-another-kind'],
+    ],
+  ]),
+  'impossible.same-variable': table([
+    [
+      'a pair of two values of one variable excludes nothing, whatever the words that carry it',
+      ['wording-does-not-decide'],
+    ],
+    [
+      'a constraint of one entry still excludes its value when a pair of one variable sits beside it',
+      ['one-entry-constraint-binds-beside-a-same-variable-pair'],
+    ],
+  ]),
+  'quotes.no-constraints': table([
+    [
+      'the quote check finds a quote in a store file that has no constraints list',
+      ['true-quote-is-found'],
+    ],
+    [
+      'the quote check reports a false quote in a store file that has no constraints list',
+      ['false-quote-is-reported'],
+    ],
+    [
+      'a store file with no constraints list gives the same issues as one with an empty list',
+      ['absent-list-and-empty-list-agree'],
     ],
   ]),
 };
