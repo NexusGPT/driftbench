@@ -359,7 +359,10 @@ describe('countVariableTuples: variables with no value that counts', () => {
 
   it('keeps a value approved on its own inside an unapproved variable', () => {
     const store = storeOf([2, 2]);
-    const unapproved = store.variables[1] as unknown as { approved: boolean; values: Array<{ approved?: boolean }> };
+    const unapproved = store.variables[1] as unknown as {
+      approved: boolean;
+      values: Array<{ approved?: boolean }>;
+    };
     unapproved.approved = false;
     for (const value of unapproved.values) value.approved = true;
     expect(countVariableTuples(store, [], [{ variables: ['v0', 'v1'], strength: 2 }]).allowed).toBe(4);
@@ -387,7 +390,7 @@ describe('countVariableTuples: variables with no value that counts', () => {
         variable.approved = draw() > 0.25;
         for (const value of variable.values) if (draw() < 0.3) value.approved = draw() > 0.5;
       }
-      (store as { constraints: unknown }).constraints = Array.from({ length: Math.floor(draw() * 5) }, () => {
+      (store as unknown as { constraints: unknown }).constraints = Array.from({ length: Math.floor(draw() * 5) }, () => {
         const a = Math.floor(draw() * 4);
         const b = (a + 1 + Math.floor(draw() * 3)) % 4;
         return {
@@ -398,7 +401,13 @@ describe('countVariableTuples: variables with no value that counts', () => {
       });
       const counts = (variable: { approved: boolean; values: Array<{ id: string; approved?: boolean }> }) =>
         variable.values.filter((value) => value.approved ?? variable.approved);
-      const live = (store.variables as unknown as Array<{ id: string; approved: boolean; values: Array<{ id: string; approved?: boolean }> }>)
+      const live = (
+        store.variables as unknown as Array<{
+          id: string;
+          approved: boolean;
+          values: Array<{ id: string; approved?: boolean }>;
+        }>
+      )
         .map((variable) => ({ id: variable.id, ids: counts(variable).map((value) => value.id) }))
         .filter((variable) => variable.ids.length > 0);
       const names = live.map((variable) => variable.id);
@@ -410,18 +419,25 @@ describe('countVariableTuples: variables with no value that counts', () => {
               { variables: names.slice(0, Math.min(2, names.length)), strength: 2 },
             ];
       const rows: Row[] = Array.from({ length: Math.floor(draw() * 7) }, () =>
-        Object.fromEntries(names.filter(() => draw() > 0.2).map((name) => [name, `x${Math.floor(draw() * 2)}`])),
+        Object.fromEntries(
+          names.filter(() => draw() > 0.2).map((name) => [name, `x${Math.floor(draw() * 2)}`]),
+        ),
       );
       // Full rows over the live variables that hold no approved constraint on live values.
       const known = new Map(live.map((variable) => [variable.id, new Set(variable.ids)]));
-      const forbids = ((store as { constraints: Array<{ forbid: Row; approved: boolean }> }).constraints).filter(
-        (constraint) => constraint.approved && Object.entries(constraint.forbid).every(([v, x]) => known.get(v)?.has(x)),
+      const forbids = (
+        store as unknown as { constraints: Array<{ forbid: Row; approved: boolean }> }
+      ).constraints.filter(
+        (constraint) =>
+          constraint.approved && Object.entries(constraint.forbid).every(([v, x]) => known.get(v)?.has(x)),
       );
       const valid: Row[] = [];
       const row: Row = {};
       const visit = (at: number): void => {
         if (at === live.length) {
-          if (!forbids.some((constraint) => Object.entries(constraint.forbid).every(([v, x]) => row[v] === x))) {
+          if (
+            !forbids.some((constraint) => Object.entries(constraint.forbid).every(([v, x]) => row[v] === x))
+          ) {
             valid.push({ ...row });
           }
           return;
