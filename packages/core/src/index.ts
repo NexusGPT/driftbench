@@ -536,6 +536,8 @@ export {
   GuardExpect,
   JsonExpect,
   LengthBound,
+  OPERATION_CLASSES,
+  type OperationClassName,
   Perturbation,
   PerturbationSpec,
   RecoveryExpect,

@@ -68,6 +68,74 @@ describe('the report fix list', () => {
     expect(fixes.every((fix) => fix.blocks > 0)).toBe(true);
   });
 
+  it('caps more than ten eligible fixes including nonzero superseded copies in rank order', () => {
+    const raw = runs.flatMap((run) => run.blocks.flatMap((block) => block.diagnoses)) as Diagnosis[];
+    const trigger = raw.find((one) => one.fixLocation === 'skill.trigger');
+    if (trigger === undefined) throw new Error('The stored fixture must contain a trigger diagnosis');
+    const triggerPlacement = trigger.placement;
+    if (triggerPlacement === undefined) throw new Error('The trigger diagnosis must have a placement');
+    const extra = Array.from({ length: 12 }, (_, index) => ({
+      runId: `fictional-extra-${index}`,
+      blocks: [
+        {
+          index: 0,
+          diagnoses: [
+            {
+              ...trigger,
+              fixTarget: `skill:fictional-${index}#description`,
+              placement: `${triggerPlacement.split('#')[0]}#fixed`,
+            },
+          ],
+        },
+      ],
+    }));
+    const localRule = raw.find((one) => one.fixLocation === 'skill.content');
+    if (localRule === undefined) throw new Error('The stored fixture must contain a skill-rule diagnosis');
+    const localPlacement = localRule.placement;
+    if (localPlacement === undefined) throw new Error('The local rule diagnosis must have a placement');
+    // Three local homes of the same rule cause a core promotion with nonempty superseded copies.
+    const promoted = Array.from({ length: 6 }, (_, index) => ({
+      runId: `fictional-promoted-${index}`,
+      blocks: [
+        {
+          index: 0,
+          diagnoses: [
+            {
+              ...localRule,
+              fixTarget: `skill:promoted-${Math.floor(index / 2)}#rule`,
+              placement: `${localPlacement.split('#')[0]}#skill_local`,
+              evidence: { ...localRule.evidence, home: `promoted-${Math.floor(index / 2)}` },
+            },
+          ],
+        },
+      ],
+    }));
+    const many = { runs: [...runs, ...extra, ...promoted] } as unknown as typeof data;
+    const written = many.runs.flatMap((run) =>
+      run.blocks.flatMap((block) =>
+        (block as { diagnoses: Diagnosis[] }).diagnoses.map((diagnosis) => ({
+          runId: run.runId,
+          blockIndex: block.index,
+          verdictRef: diagnosis.verdictRef,
+          diagnosis,
+        })),
+      ),
+    );
+    const all = blame.fixPlan(
+      blame.campaignDiagnoses(written),
+      blame.shippedPolicy('policy/placement'),
+      written.length,
+    ).fixes;
+    expect(all.filter((fix) => fix.blocks > 0).length).toBeGreaterThan(10);
+    expect(all.some((fix) => fix.blocks > 0 && fix.superseded_by !== undefined)).toBe(true);
+    const expected = all.filter((fix) => fix.blocks > 0).slice(0, 10);
+    const displayed = reportFixes(many);
+    expect(displayed).toHaveLength(10);
+    expect(displayed.map((fix) => [fix.fixLocation, fix.fixTarget, fix.fixAction])).toEqual(
+      expected.map((fix) => [fix.fix_location, fix.fix_target, fix.fix_action]),
+    );
+  });
+
   it('is empty, and adds no option, for a campaign with no diagnosis', () => {
     const bare = { runs: [{ runId: 'r1', blocks: [{ index: 0 }] }] } as unknown as typeof data;
     expect(reportFixes(bare)).toEqual([]);

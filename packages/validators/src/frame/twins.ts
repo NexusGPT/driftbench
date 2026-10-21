@@ -2,26 +2,28 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 /**
- * The two runs of the frame, drawn from the seed (docs/validators.md, "The frame: the product runs apart, the
+ * The confined runs of the frame, drawn from the seed (docs/validators.md, "The frame: the product runs apart, the
  * parent decides"). Each signal the cheater audits found a product reading about how it is run takes a different
- * value in the two runs, so a product whose answer depends on one of them answers differently, and the frame
- * reports the call. Nothing is fixed that a product could key on: every name and folder is drawn.
+ * value in the runs, so a product whose answer depends on one of them answers differently, and the frame reports
+ * the call. Nothing is fixed that a product could key on: every name and folder is drawn. Runs A, B and D are
+ * confined (confine.ts): they cannot read the expected values. Run C (isolate.ts) is not.
  *
- * The rule, for every trait the frame controls: at least two of the three runs differ in it, and run C (isolate.ts)
- * is user-shaped in it. Run C is a plain entry file under the tsx loader, run from the project's folder, with the
+ * The rule, for every trait the frame controls: at least two of the runs differ in it, and run C (isolate.ts) is
+ * user-shaped in it. Run C is a plain entry file under the tsx loader, run from the project's folder, with the
  * user's environment (`userEnv`).
  *
- * | Signal | Run A | Run B | Run C (user-shaped) |
- * |---|---|---|---|
- * | process arguments | the driver's path alone | the driver's path and drawn arguments | the entry's path alone |
- * | working folder | the validator's own | a fresh folder | the project's folder |
- * | search path | the validator's own | the node binary's folder and the system folders | the user's, without the project's `node_modules/.bin` |
- * | home folder | the validator's own | a fresh drawn folder | the real one |
- * | variables | the validator's own | drawn | the user's, without test runner and package manager variables |
- * | stdin | the driver's pipe | the driver's pipe | none (`/dev/null`) |
- * | call depth | direct | nested to a drawn depth | direct, from the entry's top level |
- * | uptime | as it is | shifted by a drawn day to month | a fresh process per call |
- * | node options | none: a loader is registered inside the driver | none | the tsx loader, as a user runs a TypeScript script |
+ * | Signal | Run A | Run B | Run D | Run C (user-shaped) |
+ * |---|---|---|---|---|
+ * | process arguments | the driver's path alone | the driver's path and drawn flags | the driver's path and drawn words | the entry's path alone |
+ * | working folder | the validator's own | a fresh folder | a fresh folder of another draw | the project's folder |
+ * | search path | the validator's own | the node binary's folder and the system folders | the same, another draw | the user's, without the project's `node_modules/.bin` |
+ * | home folder | the validator's own | a fresh drawn folder | a fresh drawn folder | the real one |
+ * | variables | the validator's own | drawn | drawn | the user's, without test runner and package manager variables |
+ * | stdin | the driver's pipe | the driver's pipe | the driver's pipe | none (`/dev/null`) |
+ * | call depth | direct | nested to a drawn depth | behind a wrapper module, native frames | direct, from the entry's top level |
+ * | uptime | as it is | shifted by a drawn day to month | shifted by a drawn hour at most | a fresh process per call |
+ * | node options | none: a loader is registered inside the driver | none | none | the tsx loader, as a user runs a TypeScript script |
+ * | permissions | the permission model, the bundle and the driver's folder readable | same | same | none |
  */
 
 /** A seeded generator in [0, 1): the hash of the seed and the tag, then mulberry32. */
@@ -64,8 +66,12 @@ function plainName(rng: () => number, low: number, high: number): string {
 }
 
 export type TwinPlan = {
-  /** Which run: A is read by the validator, B is its twin. */
-  run: 'A' | 'B';
+  /** Which run: A is read by the validator, B and D are its twins. */
+  run: 'A' | 'B' | 'D';
+  /** Run D only: the product is called through a neutral wrapper module of the run's own folder. */
+  wrap?: boolean;
+  /** Fields of the run's setup line that differ from the frame's (the module, the loader, the node options). */
+  setup?: Record<string, unknown>;
   /** The folder the driver file is written to, and its file name. */
   driverDir: string;
   driverFile: string;
@@ -143,8 +149,8 @@ export function userEnv(): Record<string, string> {
   return env;
 }
 
-/** The two runs of one frame. `projectCache` is a cache folder of the project (its node_modules/.cache). */
-export function twinPlans(seed: number, tag: string, projectCache: string): [TwinPlan, TwinPlan] {
+/** The three confined runs of one frame. `projectCache` is a cache folder of the project (its node_modules/.cache). */
+export function twinPlans(seed: number, tag: string, projectCache: string): [TwinPlan, TwinPlan, TwinPlan] {
   const rng = rngOf(seed, `twins:${tag}`);
   const folderA = plainName(rng, 6, 14);
   const folderB = plainName(rng, 6, 14);
@@ -169,5 +175,21 @@ export function twinPlans(seed: number, tag: string, projectCache: string): [Twi
     uptimeShift: 86_400 + Math.floor(rng() * 30 * 86_400),
     depth: 2 + Math.floor(rng() * 6),
   };
-  return [a, b];
+  // Run D: the product behind a neutral wrapper module (native frames and a module of another folder on the stack),
+  // a fresh folder, a bare environment of its own draw, neutral arguments and a call depth that is neither A's nor B's.
+  const folderD = plainName(rng, 6, 14);
+  const homeD = join(tmpdir(), folderD, plainName(rng, 6, 14));
+  const d: TwinPlan = {
+    run: 'D',
+    wrap: true,
+    driverDir: join(tmpdir(), folderD),
+    driverFile: `${plainName(rng, 3, 12)}.mjs`,
+    argvTail: Array.from({ length: Math.floor(rng() * 3) }, () => plainName(rng, 3, 9)),
+    cwd: join(tmpdir(), folderD, plainName(rng, 4, 8)),
+    home: homeD,
+    env: bareEnv(rng, homeD),
+    uptimeShift: Math.floor(rng() * 3600),
+    depth: 1 + Math.floor(rng() * 3),
+  };
+  return [a, b, d];
 }

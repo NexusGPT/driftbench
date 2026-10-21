@@ -305,4 +305,20 @@ export const MERGED: readonly StemDef[] = [
       ['detail-named', 3],
     ],
   },
+  {
+    id: 'weights.interval-huge-counts',
+    family: 'weights',
+    component: 'store/weights',
+    need: 'P11',
+    generator:
+      'weightInterval(0, n), weightInterval(1, n) and weightInterval(n, n) for n = 2^512, 2^600 and 2^900, finite integers a squared count cannot hold.',
+    oracle:
+      'For 0 of n the lower bound is 0 and the upper bound is z^2 / n within a relative 1e-9; for n of n the upper bound is 1 and the lower bound lies in [1 - 1e-9, 1]; for 1 of n the interval holds 1 / n, is finite and has a width above 0.',
+    cause: 'the weight interval stays inside its range for a count too large to square',
+    variants: [
+      ['n2-512', 4],
+      ['n2-600', 4],
+      ['n2-900', 4],
+    ],
+  },
 ];

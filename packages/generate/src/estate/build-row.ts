@@ -10,7 +10,9 @@ import {
   type Built,
   type Context,
   ESTATE_SEEDER,
+  MODIFYING_TOOLS,
   NEGATIVE_TESTS,
+  READING_TOOLS,
   SITUATION_OF,
   WRITING_TOOLS,
 } from './generate-types';
@@ -333,6 +335,7 @@ export function build(
     ...(complete && then.criteria.length > 0 ? { criteria: then.criteria } : {}),
     blocks: written.blocks,
     ...(customOf(then) ? { rules: { custom: customOf(then) } } : {}),
+    ...(declaredOperations(then) ? { operations: declaredOperations(then) } : {}),
     ...(perturbation ? { perturbations: [perturbation] } : {}),
     metadata: {
       estate: {
@@ -390,6 +393,19 @@ export function ruleOf(atom: EstateAtom): RuleRef {
   const fields = atom.fields ?? {};
   const ledger = fields.extraction === 'pointer' && typeof fields.unit === 'string' ? fields.unit : undefined;
   return { rule: atom.id, ...(ledger !== undefined ? { ledger } : {}) };
+}
+
+/**
+ * The `operations` of a spec that checks hazard recovery: the runtime's own tools that are ordinary work, by their
+ * exact labels (`READING_TOOLS` read, `MODIFYING_TOOLS` modify). Bash is read by its commands, and a tool not in
+ * either list stays unnamed, so the check calls it unknown instead of guessing.
+ */
+function declaredOperations(then: ThenParts): Record<string, 'read' | 'modify'> | undefined {
+  if (then.custom.hazard_recovery === undefined) return undefined;
+  const operations: Record<string, 'read' | 'modify'> = {};
+  for (const label of [...READING_TOOLS].sort()) operations[label] = 'read';
+  for (const label of [...MODIFYING_TOOLS].sort()) operations[label] = 'modify';
+  return operations;
 }
 
 /** `rules.custom` of a spec: the ordered pairs, the some_call entries of the first block, the other checks. */

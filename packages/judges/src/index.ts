@@ -195,6 +195,7 @@ export {
   DEFAULT_JUDGE_POLICY,
   type DefaultJudgeClient,
   type DefaultJudgeOptions,
+  type PolicyOverride,
 } from './default-judge';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';

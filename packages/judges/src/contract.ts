@@ -64,6 +64,7 @@ export type TranscriptEntry = z.infer<typeof TranscriptEntry>;
 
 /** The criterion as a judge reads it: the question, and what passing and failing look like. */
 export const CriterionText = z.strictObject({
+  intent: z.literal('request-fulfillment').optional(),
   name: z.string().min(1),
   rubric: z.string().min(1),
   pass: z.string().optional(),

@@ -9,6 +9,9 @@ Exits 0 when every line matches, 1 when a line differs, 2 on a usage error or a 
 """
 import csv
 import json
+from datetime import datetime, timezone
+from pathlib import Path
+from uuid import uuid4
 import sys
 from decimal import Decimal
 
@@ -60,5 +63,14 @@ def main(argv):
     return 1 if differs else 0
 
 
+def log_execution():
+    # The fixture's trusted location defines the workspace; command environment cannot redirect this log.
+    path = Path(__file__).resolve().parents[4] / ".claude/northwind/reconcile-executions.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"id": uuid4().hex, "at": datetime.now(timezone.utc).isoformat()}) + "\n")
+
+
 if __name__ == "__main__":
+    log_execution()
     sys.exit(main(sys.argv))

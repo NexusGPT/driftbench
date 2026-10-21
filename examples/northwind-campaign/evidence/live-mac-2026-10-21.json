@@ -1,6 +1,6 @@
 {
-  "campaign": "northwind-live-mac-20261021T092359Z",
-  "sourceHead": "fdb00a1b13ec2b9c4b0e15764b565959c6a0f67b",
+  "campaign": "northwind-live-mac-20261021T105525Z",
+  "sourceHead": "059791000a8cb5b4f1a86a1e4a6ad253abc52d01",
   "runtime": "real Claude Code CLI on macOS",
   "modelOption": "haiku",
   "models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
@@ -10,115 +10,169 @@
   "passedCells": 4,
   "blocks": 11,
   "passedBlocks": 11,
-  "reportedUsd": 0.09659878999999999,
+  "reportedUsd": 0.07918418,
   "authorizedTotalUsd": 5,
-  "allAttemptsReportedUsd": 0.25637493499999997,
+  "allAttemptsReportedUsd": 0.692963725,
   "attempts": [
     {
       "campaign": "northwind-live-mac-20261021T091137Z",
-      "reportedUsd": 0.079710365
+      "reportedUsd": 0.079710365,
+      "blocks": 11,
+      "passedBlocks": 4
     },
     {
       "campaign": "northwind-live-mac-20261021T092125Z",
-      "reportedUsd": 0.08006578
+      "reportedUsd": 0.08006578,
+      "blocks": 11,
+      "passedBlocks": 10
     },
     {
       "campaign": "northwind-live-mac-20261021T092359Z",
-      "reportedUsd": 0.09659878999999999
+      "reportedUsd": 0.09659878999999999,
+      "blocks": 11,
+      "passedBlocks": 11
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T094600Z",
+      "reportedUsd": 0.09660709,
+      "blocks": 11,
+      "passedBlocks": 10
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T095808Z",
+      "reportedUsd": 0.059132790000000005,
+      "blocks": 11,
+      "passedBlocks": 10
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T100155Z",
+      "reportedUsd": 0.06871644499999999,
+      "blocks": 11,
+      "passedBlocks": 9
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T100744Z",
+      "reportedUsd": 0.099290415,
+      "blocks": 11,
+      "passedBlocks": 11
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T105154Z",
+      "reportedUsd": 0.03365787,
+      "blocks": 11,
+      "passedBlocks": 10
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T105525Z",
+      "reportedUsd": 0.07918418,
+      "blocks": 11,
+      "passedBlocks": 11
     }
   ],
   "runs": [
     {
-      "runId": "93744e39d0477b9e",
+      "runId": "c37b81dcb2506c32",
       "spec": "northwind-invoice-over",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.05682494999999999,
+      "reportedUsd": 0.057172455000000004,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.0022065
+          "reportedUsd": 0.0017010249999999999,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.027116219999999996
+          "reportedUsd": 0.027569470000000002,
+          "reconcileExecutions": 1
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.027502229999999996
+          "reportedUsd": 0.027901960000000003,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "2256addb65bf69a6",
+      "runId": "e34e4f3e0d76c7a4",
       "spec": "northwind-ledger-branches",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.023608970000000003,
+      "reportedUsd": 0.005925725,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.019861530000000002
+          "reportedUsd": 0.00211859,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.002513475
+          "reportedUsd": 0.00257292,
+          "reconcileExecutions": 0
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.001233965
+          "reportedUsd": 0.0012342149999999999,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "97ef2eab5542368a",
+      "runId": "3a0d29dc23b1bb0d",
       "spec": "northwind-shipment-late",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.0077998,
+      "reportedUsd": 0.007949445,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.001671
+          "reportedUsd": 0.00174674,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.002463425
+          "reportedUsd": 0.002482115,
+          "reconcileExecutions": 0
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.0036653750000000002
+          "reportedUsd": 0.00372059,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "2804965430371c33",
+      "runId": "fee86189426cb0dd",
       "spec": "northwind-weekly-report",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.008365069999999999,
+      "reportedUsd": 0.008136555,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.003920155
+          "reportedUsd": 0.003815985,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.004444915
+          "reportedUsd": 0.00432057,
+          "reconcileExecutions": 0
         }
       ]
     }
   ],
-  "runtimeVersion": "2.1.306"
+  "runtimeVersion": "2.1.306",
+  "executionEvidence": "fixed workspace script log, captured per block"
 }

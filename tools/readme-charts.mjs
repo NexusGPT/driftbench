@@ -11,6 +11,7 @@
  * a table that no longer parses, or an interval that disagrees with its source stops the script.
  * Plain Node, no dependency.
  */
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +26,7 @@ const PRINT = process.argv.includes('--print')
 
 const SOURCES = {
   readmeV7: 'comparisons/default-on/readme-v7/ANALYSIS.json',
+  strictV8: 'comparisons/default-on/strict-v8/RESULT.json',
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
   deepeval: 'comparisons/deepeval/hard/baseline-heldout-scores.json',
   deepevalReceipts: 'comparisons/deepeval/hard/baseline-task-receipts-heldout-scores.json',
@@ -82,7 +84,7 @@ function sameInterval(computed, stored, where) {
 
 function judgeRows(chart = 'judge-heldout') {
   const groups = [];
-  const row = (label, n, ours, theirs, source, stored, setting, paired) => {
+  const row = (label, n, ours, theirs, source, stored, setting, paired, record = true) => {
     const oursCi = wilson(ours, n);
     const theirsCi = wilson(theirs, n);
     if (stored?.ours) sameInterval(oursCi, stored.ours, `${source} ${label} ours`);
@@ -98,7 +100,7 @@ function judgeRows(chart = 'judge-heldout') {
         : oursCi[1] < theirsCi[0]
           ? 'deficit'
           : 'close';
-    if (chart)
+    if (chart && record)
       fact(
         chart,
         `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
@@ -120,6 +122,33 @@ function judgeRows(chart = 'judge-heldout') {
 
   const analysis = json(SOURCES.readmeV7);
   const preregistration = json('comparisons/default-on/readme-v7/PREREGISTRATION.json');
+  const current = json(SOURCES.strictV8);
+  const receiptsFile = 'comparisons/default-on/strict-v8/receipts.json';
+  const receipts = json(receiptsFile);
+  const population = json('comparisons/default-on/readme-v7/manifest.json');
+  const definition = population.rows.find((r) => r.row === current.row);
+  const ids = definition && Object.keys(definition.peerCorrect).sort();
+  if (
+    current.policy !== 'default-on-v8' ||
+    current.model !== 'claude-haiku-5-5' ||
+    !definition ||
+    definition.dataset !== current.dataset ||
+    JSON.stringify(ids) !== JSON.stringify(receipts.map((r) => r.id).sort()) ||
+    receipts.some(
+      (r) =>
+        r.failure !== null || r.settings !== current.settings || !['pass', 'fail'].includes(r.prediction),
+    ) ||
+    receipts.some((r) => r.correct !== (r.prediction === r.gold)) ||
+    receipts.length !== current.n ||
+    receipts.filter((r) => r.correct).length !== current.correct ||
+    Object.values(definition.peerCorrect).filter(Boolean).length !== current.peer ||
+    createHash('sha256').update(read(receiptsFile)).digest('hex') !== current.receiptsSha256
+  )
+    throw new Error(`${SOURCES.strictV8}: frozen population or complete receipts differ`);
+  const wins = receipts.filter((r) => r.correct && !definition.peerCorrect[r.id]).length;
+  const losses = receipts.filter((r) => !r.correct && definition.peerCorrect[r.id]).length;
+  if (wins !== current.pairedWins || losses !== current.pairedLosses || current.pairedN !== current.n)
+    throw new Error(`${SOURCES.strictV8}: paired counts differ from receipts`);
   const freeze = preregistration.amendments.at(-1).runFreeze;
   if (analysis.frozen !== freeze || analysis.rows.length !== preregistration.rows.length)
     throw new Error(`${SOURCES.readmeV7}: run freeze or row population differs from preregistration`);
@@ -142,6 +171,7 @@ function judgeRows(chart = 'judge-heldout') {
           const registered = preregistration.rows.find((p) => p.row === r.row);
           if (!registered || r.n !== registered.n || r.peer !== registered.recordedPeer)
             throw new Error(`${SOURCES.readmeV7}: ${r.row} differs from preregistered population`);
+          const isCurrent = r.row === current.row && r.dataset === current.dataset;
           const built = row(
             r.row === 'G-Eval strict' ? 'G-Eval, strict' : r.row,
             r.n,
@@ -153,10 +183,22 @@ function judgeRows(chart = 'judge-heldout') {
             r.pairedHolmP === undefined
               ? undefined
               : { raw: r.pairedP, adjusted: r.pairedHolmP, missing: r.n - r.pairedN },
+            !isCurrent,
           );
           if (built.standing !== r.standing)
             throw new Error(`${SOURCES.readmeV7}: ${r.row} standing differs from the README rule`);
-          return built;
+          return isCurrent
+            ? row(
+                built.label,
+                current.n,
+                current.correct,
+                current.peer,
+                SOURCES.strictV8,
+                { ours: current.oursCi, theirs: current.peerCi },
+                'v8 declared request-fulfillment',
+                { raw: current.pairedP, adjusted: current.pairedHolmP, missing: 0 },
+              )
+            : built;
         }),
     });
   }
@@ -972,7 +1014,10 @@ function hardPerTool(tool) {
           .map((r) => `${r.label}: ${r.paired.missing} incomplete pairs excluded`)
           .join('; '),
       sizes.length > 1 && `cases per test: ${sizes.sort((a, b) => a - b).join(' or ')}`,
-      settings.length && `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`,
+      settings.length &&
+        (settings.includes('v8 declared request-fulfillment')
+          ? '* G-Eval strict: v8 default, metric declares request-fulfillment; other rows unchanged'
+          : `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`),
     ]
       .filter(Boolean)
       .join(' · '),
@@ -1115,9 +1160,6 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     return out;
   });
   const n = row(PROMPTFOO)[cohort].n;
-  const others = drawn.filter((b) => !b.ours && b.score !== null);
-  const top = others.reduce((a, b) => (b.score > a.score ? b : a));
-  const tenth = (v) => Math.round(v * 10);
   const mine = drawn[0].score;
   const title = `${name}: driftbench scores ${p1(mine)}.`;
   let note = frozen
@@ -1518,6 +1560,9 @@ function benefit(chart) {
   return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)})${above}.`;
 }
 
+const IDENTITY_NOTE =
+  'Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).';
+
 function readmeCharts() {
   const parts = [
     ['bench-judgebench', 'judgebench', 'JudgeBench', 'pair ledger'],
@@ -1540,7 +1585,7 @@ function readmeCharts() {
         ? 'driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report)'
         : `driftbench runs its opt-in ${mode}`;
       const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; ${setting}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
-      return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n`;
+      return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n\n${IDENTITY_NOTE}\n`;
     })
     .join('\n');
 }
@@ -1590,9 +1635,10 @@ function readmeV7() {
   const alt = (rows) =>
     rows.map((r) => `${r.label}: ${r.ours} against ${r.theirs} of ${r.n}, ${r.standing}.`).join(' ');
   const leads = groups.flatMap((g) => g.rows).filter((r) => r.standing === 'lead' && !r.setting);
+  const current = json(SOURCES.strictV8);
   const rows = analysis.rows.map(
     (r) =>
-      `| ${r.row}${r.setting ? ' *' : ''} | ${r.n.toLocaleString('en-US')} | ${r.v7.toLocaleString('en-US')} | ${r.peer.toLocaleString('en-US')} | ${r.standing} |`,
+      `| ${r.row}${r.setting ? ' *' : ''} | ${r.n.toLocaleString('en-US')} | ${(r.row === current.row ? current.correct : r.v7).toLocaleString('en-US')} | ${r.peer.toLocaleString('en-US')} | ${r.standing} |`,
   );
   return [
     '### The shipped judge against DeepEval',
@@ -1603,15 +1649,16 @@ function readmeV7() {
     ...['deepeval', 'promptfoo', 'langfuse'].map((tool) =>
       image(
         `hard-${tool}`,
-        `default-on-v7 against the recorded ${tool} default. ${alt(groups.find((g) => g.header.toLowerCase().startsWith(tool)).rows)}`,
+        `${tool === 'deepeval' ? 'Previous default with the v8 declared-fulfillment strict row' : 'default-on-v7'} against the recorded ${tool} default. ${alt(groups.find((g) => g.header.toLowerCase().startsWith(tool)).rows)}`,
       ),
     ),
     [
-      '| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |',
+      '| Judge row | Cases | driftbench correct | Recorded peer correct | Standing |',
       '|---|---:|---:|---:|---|',
       ...rows,
     ].join('\n'),
-    '* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.',
+    '* G-Eval strict is the v8 default on a metric declaring request-fulfillment: 480/480, against the same recorded peer’s 451/480. This replaces the historical v7 result of 479/480. G-Eval strict and knowledge retention retain exact paired tests, Holm over those two rows. Other standings retain separate Wilson 95% intervals. Close means no separation under that rule.',
+    `For the fourteen other README datasets: ${IDENTITY_NOTE}`,
     `Inconclusive answers count wrong (${missing}). They stay in the score denominator and leave the peer paired tests. Grader panel falls from ${panel.earlierJudge} to ${panel.v7} correct against the earlier driftbench answers; this is included in the secondary analysis.`,
     '[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.',
   ].join('\n\n');

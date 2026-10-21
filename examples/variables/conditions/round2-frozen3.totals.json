@@ -1,0 +1,54 @@
+{
+  "runId": "sol-lane-varstore:frozen3:469a08349ef75a4d5de2cce1df1b518ae9343eda",
+  "primary": {
+    "correct": 56,
+    "assigned": 62,
+    "planted": 60,
+    "falsePositives": 6,
+    "falseNegatives": 4,
+    "precision": 0.9032258064516129,
+    "recall": 0.9333333333333333,
+    "missClasses": {
+      "existing_reproposed": 1,
+      "new_mapped_to_existing_or_not_proposed": 3
+    },
+    "extraClasses": {
+      "incorrect_or_extra_assignment": 6
+    }
+  },
+  "secondary": {
+    "equivalent": 15,
+    "different": 2,
+    "unread": 0,
+    "checked": 17,
+    "primaryCorrectNew": 17,
+    "plantedNew": 20
+  },
+  "spentUsd": 0.20311793799999966,
+  "totalLaneUsd": 1.7662854900000284,
+  "calls": 1952,
+  "firstProviderDate": "Wed, 21 Oct 2026 10:52:39 GMT",
+  "lastProviderDate": "Wed, 21 Oct 2026 10:55:21 GMT",
+  "hashesAfterScoring": {
+    "examples/variables/conditions/lib.ts": "647bd4eebdfa89a765a29f6d04cf0ad7c32106d932b1331db254db6e9991b8ff",
+    "examples/variables/conditions/primary-score.ts": "9ca10672578542b393169cef8479d1979ed2d028be5d8c50a5c010ae75d9c8d2",
+    "examples/variables/conditions/record-frozen3.ts": "1957b89e6b1f5351363bd7aa3e89cfd6ff570861045176eea6afac9562b78c1d",
+    "examples/variables/conditions/round2-live.ts": "5b0fed101319bb8c7b98f1bff5cee690f8f4ec5e807b03feb0c8ecc1c730da85",
+    "examples/variables/conditions/round2.ts": "da8aa3748af9ca2d5db7a88a7e3852fb9ddaf33de739d641902fe76afc5c8cc4",
+    "examples/variables/conditions/score-frozen.ts": "a8d435748386932fb5935e7da5f075e8b02e5eff6546e82a57c2201b79236ba4",
+    "examples/variables/conditions/secondary-score.ts": "2306ea56611fcc360773b547af7eed19b25f705ff86ffdf6ed8138f316a3ed7e",
+    "examples/variables/conditions/store.yaml": "18bfb6dcbc4aaa1ba218fab5f0a0b53973375717430d650acab769c74cb70d3d",
+    "packages/generate/src/feed/conditions.ts": "55d5ffe58634b2af9d50d33e5ea8cc12fdc225cf5f674f56a08062754c441f24",
+    "packages/generate/src/feed/decide.ts": "7c62f3de292745778c548b923d9468de0553ea72bc259f4f469d85d4796dd882",
+    "packages/generate/src/feed/judge-reader.ts": "5fc4d9716fcba05675bf978911a5733166a9f10629768f85654143ae9ed3c851",
+    "packages/generate/src/feed/proposer.ts": "94cd12391797d28a5b21a5ee44f969a57a23bcb95292edf5a235d2190da860bf",
+    "packages/generate/src/feed/reader.ts": "bc136bbf8375fd863fd3eeb658de1539356b62029cdfb621fe32eaa995a46125",
+    "packages/generate/src/feed/scoped-proposer.ts": "ff6c22ae98971d555ee5f76cbab7b4640107a192f4d23f0b9812bf6fa74db620",
+    "packages/generate/src/model/anthropic.ts": "bc58e0331c3150d7f1a8527256e0f8a8ae8cfb9f969e2b1cf5d4df2260cb2d3a",
+    "packages/generate/src/model/http.ts": "c9d2a0a3b5a5f77c3b4a3b027ffc9ddef96e058a5ed2a47d632d1e3e8acee1ab",
+    "packages/judges/src/clients/system1.ts": "38c7924dbea9cbbbba8e8d7f83880ce7e6c08095f10936b8266793ffde256010",
+    "packages/judges/src/contract.ts": "9c007899d60b12158906985db486d55c446ec41e4fd220ca257dcb9021cf7826",
+    "packages/judges/src/http.ts": "9174fc483b14bf76f13b9fe14a4c28de5218e5a8cf0e1c17bf70bf8ec9c912cd",
+    "packages/judges/src/prompt.ts": "f795d964274efb52baaaca0b625216c95df35a17ada02454433eb00a82bdd06a"
+  }
+}
