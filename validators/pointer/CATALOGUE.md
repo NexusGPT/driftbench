@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **518 items**, 11 families, 326 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **521 items**, 11 families, 329 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -12,14 +12,14 @@ Bank: **518 items**, 11 families, 326 distinct causes, 9 levels. This file is ge
 | ids | ids | 53 | 11 | 22 | 19 | 1 | 0 |
 | re-anchoring | anchor | 69 | 5 | 12 | 38 | 10 | 4 |
 | grouping | labels | 32 | 5 | 12 | 14 | 1 | 0 |
-| labels | labels | 107 | 4 | 51 | 51 | 1 | 0 |
+| labels | labels | 110 | 4 | 51 | 54 | 1 | 0 |
 | replay | replay | 47 | 3 | 10 | 24 | 10 | 0 |
 | privacy | privacy | 23 | 2 | 9 | 11 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
 | radius | links | 34 | 4 | 6 | 20 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 33 | 0 | 4 | 15 | 10 | 4 |
-| **all** | | **518** | **47** | **162** | **239** | **56** | **14** |
+| **all** | | **521** | **47** | **162** | **242** | **56** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 116 |
+| maintainer-added | 119 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -429,7 +429,7 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.jev-probabilities-recorded` | maintainer-repaired | 3 | Record a window of 20 units, five labels, with the fake Jev transport. | The cassette holds a number in [0,1] for every `u<n>__<option>` key of every asked question, the options being the five labels and `none`, and the six of a unit sum to 1 within 0.01. | `jev:probabilities-recorded` | jev | transport,cassette |
 | `labels.haiku-dense-request` | maintainer-repaired | 2 | Haiku port on a fake transport; two files, one set. | One dense request per file, asked in three independent runs (the system 2 contract): six requests for two files, the three of a window identical; each answer covers every unit once with ranges allowed; labels reach the ledger. | `haiku:dense-request-per-window` | haiku | transport |
 | `labels.haiku-thinking-block-first` | maintainer-repaired | 3 | A response whose first block is a thinking block with unrelated text and whose second is the answer. | The answer is read and applied; the thinking text is ignored; one request per independent run. | `haiku:read-blocks-by-type` | haiku | transport |
-| `labels.haiku-stop-reason-refused` | maintainer-repaired | 3 | First response has stop_reason `max_tokens`, another `refusal`; second responses valid. | Each is refused and retried once while the other independent runs ask one request each; only the valid answer applies. | `haiku:validate-response` | haiku | transport |
+| `labels.haiku-stop-reason-refused` | maintainer-repaired | 3 | First response has stop_reason `max_tokens`, another `refusal`; second responses valid. Then, for each, the first two responses carry the stop reason. | Each is refused and retried once while the other independent runs ask one request each; only the valid answer applies; exactly one request is a retry (its system text extends the first). With the retry refused too, the scan completes and still exactly one request is a retry: a refused answer is never retried twice. | `haiku:validate-response` | haiku | transport |
 | `labels.haiku-refuse-wrong-window-or-set` | maintainer-repaired | 3 | First answer echoes another window id; another time another set name. | Each is refused and retried once while the other independent runs ask one request each. | `haiku:validate-response` | haiku | transport |
 | `labels.settings-threshold-range-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: <n> }` for each of the four keys, with n in 1.5, 2, -0.1 and 100, then 0, 0.4 and 1. (seed-free) | Each value outside 0 to 1 gives a refusal that names the key; each value inside gives no refusal and is returned as written. | `settings:threshold-between-zero-and-one` | settings | settings |
 | `labels.settings-inherited-threshold-key-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: 0.5 }` for constructor, toString, hasOwnProperty and valueOf, then `labeler: 0.5`. (seed-free) | Each inherited key gives a refusal that names the key; the real key gives none. | `settings:threshold-keys-are-own` | settings | settings |
@@ -438,6 +438,9 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.decisions-threshold-window` | maintainer-added | 2 | The `openai-decisions` arm (one yes or no question per unit and label) on a fake transport, no threshold given; 12 units with crafted probabilities around 0.4 (0.39 / 0.41 and others). | Label = the highest probability label when it is above 0.4, else `none` (values at 0.39 and 0.41 only; 0.4 itself is not asked). | `decisions:threshold-window` | openai-decisions | transport |
 | `labels.decisions-threshold-set-by-caller` | maintainer-added | 3 | The `openai-decisions` arm with threshold 0.7; 12 units with probabilities around 0.7. | Label = the highest probability label when it is above 0.7, else `none`. | `decisions:threshold-from-caller` | openai-decisions | transport |
 | `labels.decisions-threshold-is-a-replay-setting` | maintainer-added | 3 | Record 12 units on the `openai-decisions` arm at the default (rule 0.95 or 0.5); replay that cassette with threshold 0.9 on a closed transport. | Every unit is rule at the default; the replay succeeds with zero transport calls; the labelled units shrink to those above 0.9. | `decisions:threshold-is-replay-setting` | openai-decisions | transport,cassette |
+| `labels.decisions-predicate-names` | maintainer-added | 3 | The `openai-decisions` arm on a fake transport with the five-label set; 12 to 20 units by the seed, so every question fits one request. | Every question is of type `predicate`, named `u<n>__<label>` with a label of the set and the number of a unit of its own request; no name occurs twice in a request; each request asks every unit of its input once per label; over all requests each unit text is asked once per label. | `decisions:predicate-per-unit-and-label` | openai-decisions | transport |
+| `labels.decisions-question-cap` | maintainer-added | 3 | The `openai-decisions` arm on a fake transport: the three-label set with 70 to 110 units, then the five-label set with 45 to 80 units, by the seed; one file, no heading. | No request holds more than 100 questions; the requests number at least the questions divided by 100, rounded up; over all requests each unit text is asked once per label, so the questions total the units times the labels. | `decisions:question-cap-per-request` | openai-decisions | transport |
+| `labels.decisions-probabilities-recorded` | maintainer-added | 3 | The `openai-decisions` arm at threshold 0.9 set by the caller; 24 to 40 units with seeded probabilities per label: one label over 0.9, or a top label from 0.45 to 0.85, or every label under 0.25. Then a replay of that cassette at threshold 0.3 on a closed transport. | Each request has a cassette entry that holds every one of its predicates with the probability the transport answered, those under the threshold and those of a label that lost included; the record run labels at 0.9; the replay makes zero transport calls and labels each unit with its highest label at or above 0.3, else `none`. | `decisions:probabilities-recorded` | openai-decisions | transport,cassette |
 | `labels.haiku-retry-says-why` | maintainer-added | 3 | Haiku arm on a fake transport; the first answer is a sentence with no JSON, every later one the truth; six units. | Four requests: the retry shows the same messages and a system text that extends the first with a note; the next run sends the first system text. | `labeler:retry-says-the-answer-could-not-be-read` | labeler | transport |
 | `labels.carried-window-not-asked-again` | maintainer-added | 3 | One file of two top-level sections of three units; the second scan rewords the last unit of the second section. | The first scan asks two windows; the rescan asks exactly one, and it holds the reworded unit. | `scan:send-only-windows-with-a-unit-to-label` | scan | scan |
 | `labels.link-candidates-of-its-kind` | maintainer-added | 3 | Haiku arm on a fake transport; a set whose link kind names instruction atoms; the scan is given four instruction atoms and three hazard atoms with seeded ids, mixed. | Every request lists the id of each instruction atom and of no hazard atom. | `scan:link-candidates-of-the-kind-named` | scan | transport |
@@ -486,7 +489,7 @@ Level `replay`, default component `cassette`, default needs transport, cassette.
 | `replay.miss-names-changed-unit` | maintainer-repaired | 3 | Reword one authored fixture unit; replay the committed cassette. | The unchanged fixture passes; the changed request fails offline and names messages/user or cutDigest. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.miss-names-new-file` | maintainer-repaired | 3 | Add a file to the authored fixture; replay the committed cassette. | The unchanged fixture passes; the new request fails offline and names file/path/window or a changed request part. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.miss-names-cut-digest` | maintainer-repaired | 3 | Change only one committed entry's readable cutDigest; leave its key and answer unchanged. | The unchanged fixture passes every authored label; the modified fixture fails offline and names cutDigest. | `cassette:miss-names-field` | cassette | transport,cassette |
-| `replay.miss-names-labeler` | maintainer-repaired | 3 | Replay each committed Haiku and Jev fixture correctly, then give each arm the other arm's cassette. | The valid fixtures retain every authored label; the wrong-arm cassettes fail offline and name labeler or model. | `cassette:miss-names-labeler` | cassette | transport,cassette |
+| `replay.miss-names-labeler` | maintainer-repaired | 3 | Replay each committed Haiku and Jev fixture correctly, then give each arm the other arm's cassette. | The valid fixtures retain every authored label; the wrong-arm cassettes fail offline, and each miss names, as a whole token, the labeler id its own fixture's entries declare (the id of the missing entry, never only the word labeler or model). | `cassette:miss-names-labeler` | cassette | transport,cassette |
 | `replay.miss-names-set-name` | maintainer-repaired | 3 | Rename the fixture set probe to renamed; replay the unchanged committed cassette. | The unchanged fixture passes; the new request fails offline and names set/setHash. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.miss-names-nearest-entry` | maintainer-repaired | 4 | Change receipt to voucher in the second fixture file; replay the committed cassette. | The unchanged fixture passes; the miss names notes/b.md#1. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.cut-digest-mismatch-names-versions` | maintainer-repaired | 3 | Change only one committed entry's readable cutDigest. | The unchanged fixture passes; the miss names cutDigest, Node and ICU versions. | `cassette:miss-names-field` | cassette | transport,cassette |
