@@ -36,9 +36,11 @@ async function isStandIn(path) {
   }
 }
 
-/** Strip shell comments while keeping quoted or escaped # characters as command data. */
+/** Keep command words and comments distinct; admit only simple commands joined by &&. */
 function withoutComments(line) {
   let result = '';
+  let unsupported = false;
+  let andCount = 0;
   let quote;
   let boundary = true;
   for (let index = 0; index < line.length; index += 1) {
@@ -59,11 +61,19 @@ function withoutComments(line) {
       boundary = true;
       continue;
     }
+    if (char === '&' && line[index + 1] === '&') {
+      result += '&&';
+      index += 1;
+      andCount += 1;
+      boundary = true;
+      continue;
+    }
+    if (/[;|()<>&]/.test(char)) unsupported = true;
     result += char;
     if (char === "'" || char === '"') quote = char;
     boundary = /[\s;&|()<>]/.test(char);
   }
-  return result;
+  return { text: result, unsupported, andCount };
 }
 
 function reconcilePath(path) {
@@ -75,25 +85,28 @@ function reconcilePath(path) {
 
 /** A script is executed as the program itself or as Python's script operand, never as command data. */
 function invokesReconcile(line) {
-  const parsed = parseShell(withoutComments(line));
-  if (parsed.unknown) return false;
-  return parsed.commands.some((words) => {
-    let index = 0;
-    while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[index] ?? '')) index += 1;
-    const program = words[index++];
-    if (program === undefined) return false;
-    if (reconcilePath(program)) return true;
-    if (!/^python(?:3(?:\.\d+)?)?$/.test(basename(program))) return false;
-    for (; index < words.length; index += 1) {
-      const word = words[index];
-      if (word === '--') return reconcilePath(words[index + 1] ?? '');
-      if (!word.startsWith('-')) return reconcilePath(word);
-      // These no-operand Python flags keep the next non-option word in the script position.
-      // Code/module modes and options with operands are deliberately unsupported, hence cannot count.
-      if (!/^-[IBEOqsSuvx]+$/.test(word)) return false;
-    }
-    return false;
-  });
+  const shell = withoutComments(line);
+  if (shell.unsupported) return false;
+  const parsed = parseShell(shell.text);
+  // No empty chain member or additional newline command may hide in the flattened parser output.
+  if (parsed.unknown || parsed.commands.length !== shell.andCount + 1) return false;
+  // Only the first simple command is unconditional. A later && member may never execute.
+  const words = parsed.commands[0] ?? [];
+  let index = 0;
+  while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[index] ?? '')) index += 1;
+  const program = words[index++];
+  if (program === undefined) return false;
+  if (reconcilePath(program)) return true;
+  if (!/^python(?:3(?:\.\d+)?)?$/.test(basename(program))) return false;
+  for (; index < words.length; index += 1) {
+    const word = words[index];
+    if (word === '--') return reconcilePath(words[index + 1] ?? '');
+    if (!word.startsWith('-')) return reconcilePath(word);
+    // These no-operand Python flags keep the next non-option word in the script position.
+    // Code/module modes and options with operands are deliberately unsupported, hence cannot count.
+    if (!/^-[IBEOqsSuvx]+$/.test(word)) return false;
+  }
+  return false;
 }
 
 /** Enforce the skill prerequisite across turns, and require actual reconciliation in its named block. */
