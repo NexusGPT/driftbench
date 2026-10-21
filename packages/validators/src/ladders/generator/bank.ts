@@ -2236,40 +2236,65 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
 }
 
 /**
- * The members of a group of same-test blocks that the suite has no reason to keep. A declared perturbation exists
- * to measure the sensitivity of the agent to its axis, so the suite keeps one twin pair per path and per declared
- * axis (the channel, the persona): the first block of the group, and the first copy of its whole walk that
- * differs from the written ones in a declared channel or persona the path has no pair for yet. A block a declared
- * perturbation reaches is kept once per path and set of perturbed classes. Every other member is a repeat.
+ * The specs that carry the twin pairs of the suite. A declared perturbation exists to measure the sensitivity of the
+ * agent to its axis, so the suite keeps ONE twin pair per path and per declared axis (the channel, the persona), over the
+ * whole suite and not per group: the first copy of a written walk that differs from the written ones in a declared
+ * channel or persona the path has no pair for yet. A spec written for a channel or a persona the map does not declare is
+ * never a twin, whatever else differs.
  */
-export async function outsideTwinPairs(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
+async function twinSpecs(data: SeedData): Promise<{ kept: Set<string>; declared: (block: BlockRun) => boolean }> {
   const { hidden } = await data.generated();
   const channels = new Set<string>(hidden.channels);
   const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
+  const declared = (block: BlockRun): boolean =>
+    (block.channel === '' || channels.has(block.channel)) && (block.persona === '' || personas.has(block.persona));
+  const kept = await data.memoized('twin-specs', async () => {
+    const specs = new Map<string, BlockRun>();
+    for (const block of (await data.runs()).blocks) if (!specs.has(block.spec)) specs.set(block.spec, block);
+    const written = new Map<string, BlockRun[]>();
+    const secured = new Map<string, Set<string>>();
+    const found = new Set<string>();
+    for (const spec of specs.values()) {
+      if (!declared(spec)) continue;
+      const same = written.get(spec.walk);
+      if (!same) {
+        written.set(spec.walk, [spec]);
+        continue;
+      }
+      const axes = new Set<string>();
+      for (const other of same) {
+        if (other.channel !== spec.channel) axes.add('channel');
+        if (other.persona !== spec.persona) axes.add('persona');
+      }
+      const held = secured.get(spec.path) ?? new Set<string>();
+      const needed = [...axes].filter((axis) => !held.has(axis));
+      if (needed.length === 0) continue;
+      for (const axis of needed) held.add(axis);
+      secured.set(spec.path, held);
+      found.add(spec.spec);
+      same.push(spec);
+    }
+    return found;
+  });
+  return { kept, declared };
+}
+
+/**
+ * The members of a group of same-test blocks that the suite has no reason to keep: every member but the first, the
+ * blocks of a spec that carries a twin pair (see `twinSpecs`) beside a member of its own walk, and the first block per
+ * path and set of perturbed classes that a declared perturbation reaches.
+ */
+export async function outsideTwinPairs(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
+  const { kept, declared } = await twinSpecs(data);
   const [first, ...rest] = group;
   if (!first) return [];
-  const written = new Map<string, BlockRun[]>([[first.walk, [first]]]);
-  const secured = new Map<string, Set<string>>();
+  const allowed: BlockRun[] = [first];
   const perturbed = new Set<string>(first.perturbed ? [`${first.path}|${first.perturbed}`] : []);
   const outside: BlockRun[] = [];
   for (const block of rest) {
-    const same = written.get(block.walk);
-    if (same) {
-      const axes = new Set<string>();
-      for (const other of same) {
-        if (other.channel !== block.channel && channels.has(other.channel) && channels.has(block.channel))
-          axes.add('channel');
-        if (other.persona !== block.persona && personas.has(other.persona) && personas.has(block.persona))
-          axes.add('persona');
-      }
-      const held = secured.get(block.path) ?? new Set<string>();
-      const needed = [...axes].filter((axis) => !held.has(axis));
-      if (needed.length > 0) {
-        for (const axis of needed) held.add(axis);
-        secured.set(block.path, held);
-        same.push(block);
-        continue;
-      }
+    if (kept.has(block.spec) && declared(block) && allowed.some((other) => other.walk === block.walk)) {
+      allowed.push(block);
+      continue;
     }
     const key = `${block.path}|${block.perturbed}`;
     if (block.perturbed && !perturbed.has(key)) {

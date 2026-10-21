@@ -40,6 +40,24 @@ describe('minimality accepts one twin pair per path and declared axis', async ()
   };
   const flagged = (detail: string) => /[1-9]\d* groups contain a removable duplicate/.test(detail);
 
+  // The groups of the last blocks of the given specs, evaluated against one suite.
+  const outsideOf = async (
+    complete: Generation['complete'],
+    groups: string[][],
+  ): Promise<string[][]> => {
+    const mini: Generation = { ...generated, complete };
+    const data = new SeedData(1, options, async () => ({}) as never);
+    await data.memoized('generated', async () => mini);
+    const runs = await runAll(mini, options);
+    await data.memoized('runs', async () => runs);
+    const lastOf = (id: string): BlockRun =>
+      required(runs.blocks.filter((block) => block.spec === id && block.fields.length > 0).at(-1));
+    const result: string[][] = [];
+    for (const ids of groups)
+      result.push((await outsideTwinPairs(data, ids.map(lastOf))).map((block) => block.spec));
+    return result;
+  };
+
   it('has the declared channels and personas it needs', () => {
     expect(channels.length).toBeGreaterThan(0);
     expect(personas.length).toBeGreaterThan(0);
@@ -51,6 +69,7 @@ describe('minimality accepts one twin pair per path and declared axis', async ()
     const data = new SeedData(1, options, async () => ({}) as never);
     await data.memoized('generated', async () => mini);
     const runs = await runAll(mini, options);
+    await data.memoized('runs', async () => runs);
     const lastOf = (id: string): BlockRun =>
       required(runs.blocks.filter((block) => block.spec === id && block.fields.length > 0).at(-1));
     const group = complete.map(({ spec }) => lastOf(spec.id));
@@ -81,6 +100,37 @@ describe('minimality accepts one twin pair per path and declared axis', async ()
         copy('twin-same', cover.spec.channel as string),
       ]),
     ).toEqual(['twin-channel-again', 'twin-undeclared', 'twin-same']);
+  }, 600_000);
+
+  it('keeps one twin pair per path over the whole suite, not one per group', async () => {
+    const otherWalk = copy('other-walk', cover.spec.channel as string);
+    const answer = otherWalk.spec.given?.world?.tools?.lookup_record;
+    if (!answer) throw new Error('the fixture has no lookup answer');
+    otherWalk.spec.given = {
+      ...otherWalk.spec.given,
+      world: { tools: { lookup_record: { result: { ...(answer.result as object), status: 'changed' } } } },
+    };
+    const otherTwin = structuredClone(otherWalk);
+    otherTwin.spec.id = 'other-twin';
+    otherTwin.spec.channel = required(channels[0]);
+    const [one, two] = await outsideOf(
+      [cover, copy('twin', required(channels[0])), otherWalk, otherTwin],
+      [
+        [cover.spec.id, 'twin'],
+        ['other-walk', 'other-twin'],
+      ],
+    );
+    // The first group keeps the channel pair of the path; a second walk of the same path gets none.
+    expect(one).toEqual([]);
+    expect(two).toEqual(['other-twin']);
+  }, 600_000);
+
+  it('always counts a copy on an undeclared channel as a repeat, whatever else differs', async () => {
+    const odd = copy('odd', 'a-channel-nobody-declared', required(personas[0]).id);
+    const witness = copy('witness', cover.spec.channel as string, required(personas[0]).id);
+    const [group] = await outsideOf([cover, witness, odd], [[cover.spec.id, 'witness', 'odd']]);
+    // The persona twin is kept; the copy on the undeclared channel is a repeat although its persona differs.
+    expect(group).toEqual(['odd']);
   }, 600_000);
 
   it('still fails a suite that keeps a second pair on the same axis (planted reducer)', async () => {
