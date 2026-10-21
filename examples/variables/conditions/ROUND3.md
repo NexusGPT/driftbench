@@ -173,3 +173,15 @@ lane spend, including all earlier rounds and DEV calls, is
 initial store, reader/proposer vectors and the resulting store/report. Public
 usage receipts omit bodies; secondary calls retain only hashes and usage,
 never sealed reference titles. The sealed key is not committed.
+
+GitHub targeted job 119234152183 in run 39603636768 passed typecheck and
+44 tests in nine files, including every frozen4 outcome and exact source quote.
+Biome was applied only to the two frozen4 evidence JSON files. GitHub's
+assert.deepStrictEqual proof confirms identical JSON values before/after;
+the totals bytes were already compliant. All 42 frozen source/configuration
+hashes remain unchanged. The recording file bytes changed from
+1eb3f2bbb3effad07b5e4af0f434fc05ad26a7e539646f1fcd26e62dc49e7cda to
+8642b0e095e71e989c8df45c1ae068d07c6fc0957fc5d227efe4e499c5815f22.
+The totals file remains
+cbf671041e3912a69f9ad18180405a3da15d7521e53d38141368812153a33acb.
+The targeted job is not a full-train pass; the lead owns train verification.
