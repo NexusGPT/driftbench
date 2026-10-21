@@ -435,6 +435,22 @@ describe('terminal subsumption and the context a walk is written in', () => {
     expect(third.blocks.length).toBeLessThan(length);
   });
 
+  it('keeps a pair of twins only on one path: a walk of another path with the same blocks is a repeat', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = walk(prepared, 'first', path, 'twise', [channelPick(prepared, 'counter')]);
+    const other = walk(prepared, 'other', path, 'twise', [channelPick(prepared, 'phone')]);
+    // The same blocks, said on another channel, but walked on another path: no twin of the first walk.
+    other.path = 'another-path';
+    const length = first.blocks.length;
+    minimal.reduce(first);
+    minimal.reduce(other);
+    expect(first.blocks).toHaveLength(length);
+    expect(other.blocks.length).toBeLessThan(length);
+  });
+
   it('reads a block as the same test on any channel: the end a walk on the counter says is a repeat on the phone', () => {
     const prepared = twoChannels();
     const path = prepared.relations.paths[0];

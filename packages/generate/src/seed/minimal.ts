@@ -306,8 +306,10 @@ export class TerminalSubsumption {
     return needed.length > 0;
   }
 
+  /** A walk on a path: two walks are twins only on the same path, whatever their blocks say. */
   private walkKey(spec: Spec): string {
-    return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    return contentHash([path, spec.blocks.map((_, index) => this.key(spec, index))]);
   }
 
   /** The judged criteria a block references, with their definitions: a criterion no kept spec covers is a lost check. */
