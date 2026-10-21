@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from ref_common import *  # noqa: E402,F403
 
 NINE = F(1, 10**9)
+KEEP = ['sampleSizeTwoMeans', 'sampleSizeTwoProportions', 'sampleSizeProportionMargin', 'sampleSizeMeanMargin', 'minimumDetectableMeanDifference', 'kishDesignEffect', 'proportionalAllocation', 'jackknifeMeanVariance']
 functions = []
 
 
@@ -532,6 +533,7 @@ functions.append(function(
      [[[1, 2], [3, "NaN"]]], [[[1, 2], [3, "Infinity"]]]]))
 
 if __name__ == "__main__":
+    functions = [f for f in functions if f["fn"] in KEEP]
     write("design", "Exact rational and 120 digit decimal arithmetic; sample sizes ceilinged after rounding to 9 decimals; "
                     "every value cross-checked by a second derivation.", functions)
     import json

@@ -19,6 +19,7 @@ export { kishDesignEffect, proportionalAllocation } from './allocation';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
 export { betaTailProbability } from './bayes';
 export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
+export { simesPValue } from './combine';
 export {
   abundances,
   type ChaoResult,

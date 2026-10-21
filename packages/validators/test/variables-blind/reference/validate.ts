@@ -404,18 +404,17 @@ function references(store: Obj, sink: Sink): FileIssue[] {
       onceKinds.add(v.kind);
     }
   });
-  const byKind = new Map<string, Set<string>>();
+  // A value id sits in one axis only among the axes of kind behaviour, persona, data and task together.
+  const named = new Set<string>();
   variables.forEach((v, i) => {
     if (v.role !== 'axis' || !['behaviour', 'persona', 'data', 'task'].includes(v.kind)) return;
-    const set = byKind.get(v.kind) ?? new Set<string>();
-    byKind.set(v.kind, set);
     const own = new Set<string>();
     v.values.forEach((x, j) => {
-      if (x.id !== 'none' && set.has(x.id) && !own.has(x.id))
+      if (x.id !== 'none' && named.has(x.id) && !own.has(x.id))
         sink.add('VARIABLES_AMBIGUOUS_VALUE', join(join(join('variables', i), 'values'), `${j}.id`));
       own.add(x.id);
     });
-    for (const id of own) set.add(id);
+    for (const id of own) named.add(id);
   });
   variables.forEach((v, i) => {
     if (v.role === 'axis' && v.kind === 'deviation') {
