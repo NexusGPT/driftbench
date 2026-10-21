@@ -174,13 +174,14 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
       ...(links.length > 0 ? { links, labelLinks: Object.fromEntries(labelLinks) } : {}),
       ...(mappings.size > 0 ? { mappings: Object.fromEntries(mappings) } : {}),
     };
-    out.push({
-      ...parsed,
-      hash: sha256(canonicalCompact(declared)).slice(0, 16),
-      links,
-      labelLinks,
-      mappings,
-    });
+    // The link kinds and mapping extras are not enumerable: a set copied or serialised whole (a fixture wire)
+    // stays the set it was before the reference knew them.
+    out.push(
+      Object.defineProperties(
+        { ...parsed, hash: sha256(canonicalCompact(declared)).slice(0, 16) },
+        { links: { value: links }, labelLinks: { value: labelLinks }, mappings: { value: mappings } },
+      ) as ParsedSet,
+    );
   }
   return out;
 }
