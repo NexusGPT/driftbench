@@ -76,6 +76,7 @@ type RLabeler = {
   cls: 'system1' | 'system2';
   settings: Readonly<Record<string, unknown>>;
   model: string;
+  runs?: number;
   maxUnits(set: RSet, wanted: number): number;
   render(set: RSet, window: RWindow): RWire;
   opinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
@@ -99,6 +100,8 @@ type RResult = {
   refusals: string[];
   failed: string[];
   recorded: number;
+  /** Units one member of a stack decided alone because the other gave no opinion. */
+  fellBack?: number;
 };
 type RAtom = {
   kind: string;
@@ -149,6 +152,7 @@ export type ReaderExports = {
       cwd: string;
       record: boolean;
       threshold?: number;
+      marginCut?: number;
       fetch?: unknown;
     },
   ): Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string }>;
@@ -359,6 +363,7 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
     cls: 'system2',
     settings: {},
     model: 'planted',
+    ...(request.labelerRuns !== undefined ? { runs: request.labelerRuns } : {}),
     maxUnits: (_set, wanted) => wanted,
     render: (set, window) => ({ labeler: 'planted', body: { set: set.set, window } }),
     opinions: (answer, set, window) => reader.denseOpinions(answer, set, window),
@@ -416,6 +421,42 @@ const TEST_ENV: Record<string, string> = {
 /** The address of the `user-yes-no` labeler: a reserved `.invalid` name only the fake transport answers. */
 const USER_LABELER_URL = 'https://labeler.invalid/v1/label';
 
+/**
+ * The environment of a scan whose item watches the key of the `haiku` arm: the same values, with the key
+ * behind a getter that reports each read. The reader decides when it reads the key; the binding reports it.
+ */
+function envOf(onKeyRead: (() => void) | undefined): Record<string, string | undefined> {
+  if (!onKeyRead) return TEST_ENV;
+  const env: Record<string, string | undefined> = { ...TEST_ENV };
+  Object.defineProperty(env, 'ANTHROPIC_API_KEY', {
+    enumerable: true,
+    configurable: true,
+    get() {
+      onKeyRead();
+      return TEST_ENV.ANTHROPIC_API_KEY;
+    },
+  });
+  return env;
+}
+
+/** The labelers the model port of a request names: one arm, or a choice system 1 arm then the `haiku` arm. */
+function specsOf(
+  model: NonNullable<ScanRequest['model']>,
+): Array<{ cls: 'system1' | 'system2'; client: string; target?: string }> | string {
+  const { arm } = model;
+  if (model.stack) {
+    if (arm !== 'jev' && arm !== 'jev-unit') return `a stack takes a choice system 1 arm, not ${arm}`;
+    return [
+      { cls: 'system1', client: arm },
+      { cls: 'system2', client: 'anthropic' },
+    ];
+  }
+  if (arm === 'user-yes-no') return [{ cls: 'system1', client: 'http', target: USER_LABELER_URL }];
+  if (arm === 'http') return [{ cls: 'system2', client: 'http', target: model.url ?? '' }];
+  if (arm === 'haiku') return [{ cls: 'system2', client: 'anthropic' }];
+  return [{ cls: 'system1', client: arm }];
+}
+
 function fetchOf(
   transport: Transport,
 ): (url: unknown, init?: { headers?: unknown; body?: unknown }) => Promise<Response> {
@@ -462,24 +503,18 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   const cassette = reader.Cassette.parse(request.cassette?.text ?? '');
   let labelling: RLabelling;
   if (request.model) {
+    const specs = specsOf(request.model);
+    if (typeof specs === 'string') return fail(specs);
+    const marginCut = request.model.stack?.marginCut;
     try {
-      const built = await reader.buildLabelling(
-        [
-          request.model.arm === 'user-yes-no'
-            ? { cls: 'system1', client: 'http', target: USER_LABELER_URL }
-            : {
-                cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
-                client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
-              },
-        ],
-        {
-          record: mode === 'record',
-          cwd: '.',
-          env: TEST_ENV,
-          fetch: fetchOf(request.model.transport),
-          ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
-        },
-      );
+      const built = await reader.buildLabelling(specs, {
+        record: mode === 'record',
+        cwd: '.',
+        env: envOf(request.model.onKeyRead),
+        fetch: fetchOf(request.model.transport),
+        ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
+        ...(marginCut !== undefined ? { marginCut } : {}),
+      });
       if (!built.ok) return fail(built.message);
       labelling = built.labelling;
     } catch (cause) {
@@ -545,6 +580,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     eventCounts: result.events,
     windows: result.windows,
     calls: result.calls,
+    ...(result.fellBack !== undefined ? { fellBack: result.fellBack } : {}),
   };
 }
 
