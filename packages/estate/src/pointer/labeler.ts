@@ -54,6 +54,12 @@ export interface Labeler {
   render(set: LabelSet, window: Window, context?: LabelContext): Wire;
   /** The opinions a recorded answer gives. Pure: a threshold may change here without a new call. */
   opinions(answer: Recorded, set: LabelSet, window: Window, context?: LabelContext): Opinions;
+  /**
+   * Called once, before the first request of a recording run that has requests to send by this labeler. It throws
+   * `LabelerConfigError` when a request cannot leave (a missing key), so the run fails before anything is sent. It
+   * is where a key held behind a getter is first read; a run with nothing to send never calls it.
+   */
+  ready?(): void;
   /** The network call. Absent on a labeler that can only replay. */
   call?(wire: Wire, set: LabelSet, window: Window, attempt?: number): Promise<Recorded>;
 }

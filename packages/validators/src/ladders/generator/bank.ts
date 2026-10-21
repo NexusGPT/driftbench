@@ -35,6 +35,7 @@ import {
   STABILITY_OFFSETS,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
+import { plannerItems } from './planner-v2';
 import { cellText, jointlyPossible, positionOf } from './possible';
 import {
   hiddenInventory,
@@ -98,6 +99,7 @@ export const BANK_LEVELS = [
   { id: 'contrast', name: 'contrast and invariance' },
   { id: 'interactions', name: 'fault interactions' },
   { id: 'stability', name: 'stability across generator seeds' },
+  { id: 'planner', name: 'planner v2 plans against a brute-force count' },
   { id: 'scale', name: 'scale' },
 ] as const;
 
@@ -2481,6 +2483,7 @@ export function bankItems(): BankItem[] {
     ...researchItems(),
     ...moreItems(),
     ...gateFamilyItems(),
+    ...plannerItems(),
     ...acmeItems(),
   ];
 }
