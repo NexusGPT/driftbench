@@ -166,13 +166,15 @@ function storeOf(doc: StoreDoc): VariableStore {
       .filter((pair) => pair.a.variable !== pair.b.variable)
       .map((pair) => ({
         forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
-        reason: 'an impossible pair of the store',
+        reason: `${pair.a.variable}=${pair.a.value} never occurs with ${pair.b.variable}=${pair.b.value}`,
         approved: true,
         provenance: ownProvenance(pair.provenance),
       })),
     ...(doc.forbids ?? []).map((entry) => ({
       forbid: { ...entry.forbid },
-      reason: 'a combination the store forbids',
+      reason: `${Object.entries(entry.forbid)
+        .map(([variable, value]) => `${variable}=${value}`)
+        .join(' and ')} never occur together`,
       approved: entry.approved ?? true,
       provenance: ownProvenance(entry.provenance),
     })),
