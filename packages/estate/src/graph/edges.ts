@@ -181,7 +181,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (literalHoldsRule(literal, ruleWords(rule))) take(rule, 'quote');
+        for (const rule of rules)
+          if (literalHoldsRule(literal, ruleWords(rule), rule.fields?.spans)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -209,12 +210,18 @@ function holds(quote: string, passage: string): boolean {
 }
 
 /**
- * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words. A literal
- * that holds only a part of a rule (a message that quotes a few of its words) is no enforcement of it.
+ * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words, or a code
+ * span the rule writes (the command a guard matches). A literal that holds only some loose words of a rule (a
+ * message that quotes a few of them) is no enforcement of it.
  */
-function literalHoldsRule(literal: string, rule: string): boolean {
+function literalHoldsRule(literal: string, rule: string, spans: unknown): boolean {
+  const text = plain(literal);
   const words = plain(rule);
-  return words.length >= MIN_LITERAL && plain(literal).includes(words);
+  if (words.length >= MIN_LITERAL && text.includes(words)) return true;
+  const written = Array.isArray(spans) ? (spans as unknown[]) : [];
+  return written.some(
+    (span) => typeof span === 'string' && plain(span).length >= MIN_LITERAL && text.includes(plain(span)),
+  );
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
