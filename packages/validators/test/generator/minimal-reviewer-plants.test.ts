@@ -333,8 +333,8 @@ describe('independent item-level planted reducers', async () => {
     for (const members of [...families.values()].filter((m) => m.length >= 2).slice(0, 12)) {
       const extra = structuredClone(members[0]!);
       extra.spec.id = 'review-extra-forged-variant';
-      const meta = (extra.spec.metadata as { generated: { metamorphic: { variant: number; of: number } } }).generated
-        .metamorphic;
+      const meta = (extra.spec.metadata as { generated: { metamorphic: { variant: number; of: number } } })
+        .generated.metamorphic;
       meta.variant = meta.of + 1;
       const data = await suite([...members, extra]);
       const runs = await data.runs();

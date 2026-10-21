@@ -718,6 +718,25 @@ function squeeze(text: string): string {
   return text.trim().replace(/\s+/g, ' ');
 }
 
+/** A value without its empty parts: no-op edits (an empty object, an absent key) do not change it. */
+function pruned(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(pruned);
+  if (value === null || typeof value !== 'object') return value;
+  const kept = Object.entries(value)
+    .filter(([, entry]) => entry !== undefined)
+    .map(([key, entry]) => [key, pruned(entry)] as const)
+    .filter(
+      ([, entry]) =>
+        !(
+          entry !== null &&
+          typeof entry === 'object' &&
+          !Array.isArray(entry) &&
+          Object.keys(entry).length === 0
+        ),
+    );
+  return kept.length === 0 ? undefined : Object.fromEntries(kept);
+}
+
 /**
  * What a spec says apart from its labels, in the forms the rest of the oracle compares: the normalised turns and the
  * canonical Given of every block. An empty Given, another key order or padding whitespace does not make it other words.
@@ -734,7 +753,14 @@ export function wordsOf(spec: Spec): string {
             : 'burst' in when
               ? { burst: when.burst.map(squeeze) }
               : { injection: { class: when.injection.class, user: squeeze(when.injection.user ?? '') } };
-      return [turn, canonicalGiven(spec, index).state];
+      const given = canonicalGiven(spec, index);
+      return [
+        turn,
+        given.state,
+        given.prefix.map((message) => ({ ...message, content: squeeze(message.content) })),
+        // The prefix is read above in its squeezed form; the rest of the block's own Given is read as written.
+        pruned(block.given === undefined ? undefined : { ...block.given, prefix: undefined }),
+      ];
     }),
   );
 }

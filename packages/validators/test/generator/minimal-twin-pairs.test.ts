@@ -273,6 +273,15 @@ describe('minimality protects the first holder of each declared obligation, once
       }
       expect(wordsOf(spec), `trial ${trial}`).toBe(base);
     }
+    // The history a block starts from is part of the words: two prefixes are two tests, and padding is not.
+    const withPrefix = (text: string) => {
+      const spec = structuredClone(source.spec);
+      required(spec.blocks[1]).given = { prefix: [{ role: 'user', content: text }] };
+      return spec;
+    };
+    expect(wordsOf(withPrefix('hello there'))).not.toBe(base);
+    expect(wordsOf(withPrefix('hello there'))).not.toBe(wordsOf(withPrefix('goodbye')));
+    expect(wordsOf(withPrefix('  hello   there '))).toBe(wordsOf(withPrefix('hello there')));
     // A real edit of the words is still other words.
     const changed = structuredClone(source.spec);
     const first = required(changed.blocks[0]);
