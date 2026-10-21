@@ -150,7 +150,7 @@ The calibration report compares the simulated messages with human customer rates
 
 ## Personas and scenarios on a block
 
-Status: designed in the block redesign, not built yet. The persona file above, `simulate`, `--driver simulated` and the simulated user in the block work as described and stay as they are; this section is the contract of the objects that will replace the one file, so a block can be played by several personas on one scenario. Names in code font are exact.
+Status: the objects exist, the fields are not final. `persona`, `scenario`, `persona-defaults` and `run-profile` are object kinds ([objects reference](reference/objects.md)), and `driftbench object migrate persona` splits an old persona file into `driftbench/persona/<id>.yaml`, `driftbench/scenario/<id>.yaml` and `situational/<id>.yaml`. `simulate --persona` and `campaign run --driver simulated --persona` play the situational block composed back into the old persona, request for request. The persona and scenario values sit in `params` until the persona model gives those kinds fields of their own. The persona file above, `simulate`, `--driver simulated` and the simulated user in the block work as described and stay as they are. This section is the contract of the model that will replace the one file, so a block can be played by several personas on one scenario.
 
 A person is split in three kinds of object and a block:
 

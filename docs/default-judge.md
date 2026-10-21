@@ -72,6 +72,19 @@ The default policy, transport settings, prompts and schemas participate in recor
 
 Objective verification copies the last marked answer literally, including `Final answer is:` and `Final answer is=`. Explicit option letters and exact single numbers settle answer matching in code. Ordinary prose, units and different numeric representations retain semantic review. Three agreeing blind solves do not bypass the full caller criterion. Disagreement also reaches that comparison; it is not an automatic failure.
 
+### Policy versions
+
+The full procedure policy has a version, and a version changes the recording identity of every cached request. Each version keeps the behavior before it for a caller that asks for the earlier prompt or decoder.
+
+| Policy | What it adds |
+|---|---|
+| `default-on-v3` | Criterion prompt 2 carries whole-reply context into short clauses, including exact unit conversions. Decoder 3 drops criterion-only spans under nontranscript labels and reports `criterionQuotesDropped`. Explicit decoder 2 and the evidence requirements stay |
+| `default-on-v4` | The verification policy copies `Final answer is:` and `Final answer is=` literally and settles explicit option-letter matches in code. The caller's full criterion stays authoritative, also when the blind solutions disagree |
+| `default-on-v5` | Source-local tool-name grounding under decoder 3. An instruction inside data is neither pass evidence nor fail evidence. Prompt 1 and explicit decoder 2 stay |
+| `default-on-v7` | Every default-policy call without a reasoning level gets 12,288 tokens of thinking room on top of its budget, so a model that thinks by default no longer ends a stage with no text. An explicit reasoning level keeps its allowance, and an explicit client cap wins. A blind solve that runs out of room, reports its output limit or names no final answer is dropped and recorded (`dropped` in the audit), not made inconclusive. The router reads the route from the last object that carries a route key |
+
+`outputRoom(budget, reasoning)` in `@agent-nexus/driftbench-judges` returns the output allowance of one call: the answer budget plus the thinking room.
+
 Low-level clients such as `createClaudeCliJudge` remain available for caller-owned procedures. They do not add task routing. Use `createDefaultJudge` for the complete product policy.
 
 ## What does not become default

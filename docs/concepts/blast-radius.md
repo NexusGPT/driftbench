@@ -2,7 +2,7 @@
 
 A change to one part of an agent has a blast radius: the blocks that part can affect. When you fix something related to a block, you do not need to run every test again, only the radius. driftbench computes it from what each block already says it reads.
 
-What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. Also built: [prompt quotes](#prompt-quotes), [prompt sections and block links](#prompt-sections-and-block-links), [execution provenance](#execution-provenance), [re-judging a criterion](#re-judge-a-criterion), [mode T block reruns](#mode-t-block-reruns) and [parent blocks](#parent-blocks). See [what comes next](#what-comes-next) for the parts that are not built yet.
+What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. Also built: [prompt quotes](#prompt-quotes), [prompt sections and block links](#prompt-sections-and-block-links), [rerun marks](#rerun-marks), [section mutants](#section-mutants-verified-links-and-the-gate), [execution provenance](#execution-provenance), [re-judging a criterion](#re-judge-a-criterion), [mode T block reruns](#mode-t-block-reruns) and [parent blocks](#parent-blocks). See [what comes next](#what-comes-next) for the parts that are not built yet.
 
 ## A change
 
@@ -378,6 +378,31 @@ A change manifest can name a section: `kind: prompt_section`, `id: <prompt-id>#<
 * every block, when a changed section is global or unknown.
 
 Why it does not skip tests yet: on the H7 suite (the Acme stand-in prompt of 30 sections, 19 conversations, 37 blocks with declared links, 9,690 conversation runs on `claude-haiku-5-5`), declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants, a share of 3.3% whose Wilson 95% interval reaches 9.3%, and in 9 of 110 mutants with the 20 two-section ones (8.2%). Two of the three misses were inherited failures in later blocks of a chain; the forward closure brings the share to 2 of 90 and 4 of 110 at a mean selection ratio of 0.23 (0.199 without it). The core test `packages/core/test/radius/select.test.ts` re-scores those stored runs with this rule and reproduces each number. The other miss is a link no author declared: negating the confirmation rule broke recap blocks linked only to `recap`. Selection may become a filter only when links verified by mutation keep the Wilson upper bound at or below 5%, two-section mutants included: that is the verified-link gate below.
+
+### Rerun marks
+
+Some blocks cannot be selected by their links. A block that is red when nothing changed has no link to blame, and a block that flips under edits it has no link to cannot name them. Both rerun on every change to a prompt section, whatever their links say. The spec records them in `metadata.rerun`:
+
+```yaml
+metadata:
+  rerun:
+    - block: 0 # The block id, or its index when blocks have no id
+      reason: fails_at_baseline # fails_at_baseline or fragile
+      evidence: { failed: 3, repeats: 3 } # What supports the mark; free-form
+```
+
+`rerunMarks` in `@agent-nexus/driftbench-core` computes the marks from a run, by two procedures. A mark is never written by hand.
+
+| Reason | A block gets it when |
+|---|---|
+| `fails_at_baseline` | it fails in at least half of the repeats of the suite with no change (any edit may be its fix, and a selection that skips it leaves a stale failure) |
+| `fragile` | it flipped under at least `minMutants` mutants (default 2) whose changed sections the links did not select it for |
+
+A block already marked `fails_at_baseline` is not marked again. A flaky block, passed in `excluded`, is never marked: it cannot verify anything. The marks are calibrated on one run and then frozen into the map. A later sample is measured with those marks, and never with marks learned from it.
+
+Both selections read the marks. `--sections` adds a marked block to the blocks it selects, with the reason `rerun:fails_at_baseline` or `rerun:fragile`. A `unit` change of the ledger selects a marked block the same way. Selection stays advisory: a section or unit change still makes the radius the whole suite.
+
+Limits: the marks come from a mutation run and cost one. A suite with no run to calibrate on has no marks, and its selection reads the links alone.
 
 ### Section mutants, verified links and the gate
 
