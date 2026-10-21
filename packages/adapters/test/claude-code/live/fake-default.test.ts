@@ -869,3 +869,13 @@ it('binds the skill domain action to its sole command after the required read', 
   expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
   expect(JSON.stringify(records)).not.toContain('actions cannot be resolved');
 });
+
+it('refuses an unnamed domain action when the skill declares two commands', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Read `references/policy.md` before matching any line.\nRun `node scripts/check.mjs`.\nRun `node scripts/other.mjs`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('actions cannot be resolved');
+});
