@@ -200,6 +200,8 @@ type LiveState = {
   seedRecords?: SessionRecord[];
   /** The files of the estate copy before any seed, by path, with their hashes: what `snapshotGiven` leaves out. */
   estateBase: Record<string, string>;
+  /** Paths the adapter workspace seed added, outside the estate copy. A deleted one must not come back. */
+  adapterSeed: readonly string[];
   seeded: Workspace | undefined;
   /** Processes the runner started for running helpers, killed at close. */
   pids: number[];
@@ -213,6 +215,38 @@ const DEFAULT_TIMEOUT_MS = 15 * 60 * 1000;
 const EXPORT_MAX_BYTES = 50 * 1024 * 1024;
 const DEFAULT_RETRIES = 3;
 const DEFAULT_BACKOFF_MS = 5000;
+/**
+ * Paths of the adapter workspace seed that a parent deleted. The export cannot name a file by its absence,
+ * and the next open writes that seed again before the Given workspace, so the list is what removes them.
+ */
+const DELETED_SEED = 'deleted_seed';
+
+/**
+ * The variables a continuation keeps. `session_state`, `event` and `mid_turn` choose operations that already
+ * ran on the parent. Handing them on would open the library session again, or plant its files over the
+ * workspace the parent left: the child is a new session, so the first turn looks them up once more.
+ * `fresh` also prevents the adapter fallback session operations from running again. A child names its own on its
+ * block, and those win. `deleted` is the adapter-seed paths the parent removed, or none.
+ */
+function continuationVars(
+  vars: Record<string, unknown>,
+  deleted: readonly string[],
+): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...vars };
+  next.session_state = 'fresh';
+  if (typeof next.event === 'string' && next.event !== '' && next.event !== 'no_hazard') delete next.event;
+  if (typeof next.mid_turn === 'string' && next.mid_turn !== '') delete next.mid_turn;
+  if (deleted.length > 0) next[DELETED_SEED] = [...deleted];
+  else delete next[DELETED_SEED];
+  return next;
+}
+
+/** The paths `continuationVars` recorded, and no others. */
+function deletedSeed(vars: Record<string, unknown>): Set<string> {
+  const value = vars[DELETED_SEED];
+  if (!Array.isArray(value)) return new Set();
+  return new Set(value.filter((path): path is string => typeof path === 'string'));
+}
 
 export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdapter {
   const capabilities: AdapterCapabilities = {
@@ -232,7 +266,10 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
    * The end state of a block, for a continuation that starts from it: the files the agent and the seed left
    * in the workspace, byte for byte (UTF-8 text in `files`, anything else in `binary` as base64), without
    * the files of the estate copy that did not change. A file the agent deleted is absent; an estate file it
-   * deleted comes back with the next copy of the estate. The world of the Given and its variables go along.
+   * deleted comes back with the next copy of the estate. An adapter-seed file it deleted is named in
+   * `vars.deleted_seed`, and the next open removes it after writing that seed. The variables come along,
+   * with `session_state: fresh` and without an `event` or `mid_turn` that names an operation: those already
+   * ran on this session, and a continuation that inherited them would run them again.
    */
   async function exportEndState(session: Session) {
     const state = stateOf(session);
@@ -262,9 +299,10 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       ...(Object.keys(files).length === 0 ? {} : { files }),
       ...(Object.keys(binary).length === 0 ? {} : { binary }),
     };
+    const deleted = state.adapterSeed.filter((path) => snapshot.files[path] === undefined);
     return {
       world: structuredClone({ ...world, ...(changed.length === 0 ? {} : { workspace }) }),
-      vars: structuredClone(session.given.vars),
+      vars: structuredClone(continuationVars(session.given.vars, deleted)),
     };
   }
 
@@ -287,12 +325,26 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         });
       let stateFolder: string | undefined;
       let estateBase: Record<string, string> = {};
+      let adapterSeed: string[] = [];
       try {
         await copyEstate(options.estateRoot, options.estateFiles ?? DEFAULT_ESTATE_FILES, folderOf(sandbox));
         estateBase = Object.fromEntries(
           Object.entries((await sandbox.snapshot()).files).map(([path, file]) => [path, file.sha256]),
         );
         if (options.workspace !== undefined) await sandbox.seed(options.workspace);
+        // The adapter seed is written on every open, ahead of the Given. A continuation's Given already
+        // holds the seed files the parent left, and omits one the parent deleted, so that one is removed
+        // again here. Anything else the seed added is remembered for the next export.
+        if (options.branching === true && options.workspace !== undefined) {
+          const seeded = await sandbox.snapshot();
+          adapterSeed = Object.keys(seeded.files)
+            .filter((path) => estateBase[path] === undefined)
+            .sort();
+          const gone = deletedSeed(given.vars);
+          for (const path of adapterSeed) {
+            if (gone.has(path)) await removeInside(folderOf(sandbox), path);
+          }
+        }
         if (given.world.workspace !== undefined) await sandbox.seed(given.world.workspace);
         await ensureCommand(sandbox, options.command);
         const parent = options.stateDir ?? tmpdir();
@@ -318,6 +370,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         rateWave: join(stateFolder, 'rate-wave'),
         applied: new Set(),
         estateBase,
+        adapterSeed,
         ...(options.branching === true && history.length > 0
           ? { seedRecords: recordsOfMessages(history, new Date().toISOString()) }
           : {}),
@@ -760,6 +813,12 @@ async function insideCopy(root: string, file: string): Promise<void> {
   if (real !== base && !real.startsWith(`${base}${sep}`)) {
     throw new AgentFailure(`${file} resolves to ${real}, outside the copy ${base}; refused`);
   }
+}
+
+/** Removes one file of the adapter seed that a parent deleted, refusing a path that leaves the copy. */
+async function removeInside(root: string, file: string): Promise<void> {
+  await insideCopy(root, file);
+  await rm(join(root, file), { force: true });
 }
 
 /** Fails the open with a transport error when the command is not there to run. */

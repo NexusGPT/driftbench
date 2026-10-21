@@ -1,8 +1,14 @@
+import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Message, ResolvedGiven, Sandbox, Session } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type ClaudeCodeLiveOptions, claudeCodeLiveAdapter } from '../../../src/claude-code/live';
+import {
+  type ClaudeCodeLiveOptions,
+  claudeCodeLiveAdapter,
+  loadStateLibrary,
+  type StateLibrary,
+} from '../../../src/claude-code/live';
 import { recordsOfMessages } from '../../../src/claude-code/live/states';
 import {
   ASK_INVOICE,
@@ -14,6 +20,7 @@ import {
   givenOf,
   MAP_HASH,
   SEED,
+  STATES,
   scratch,
   turnOf,
 } from './support';
@@ -55,6 +62,15 @@ const EARLIER: Message[] = [
 
 function sandboxOf(session: Session): Sandbox {
   return (session.state as { sandbox: Sandbox }).sandbox;
+}
+
+async function textOf(session: Session, path: string): Promise<string> {
+  return new TextDecoder().decode(await sandboxOf(session).readFile(path));
+}
+
+function liveOps(observed: { raw?: unknown } | undefined): string[] {
+  const raw = observed?.raw as { live?: { ops?: string[] } } | undefined;
+  return raw?.live?.ops ?? [];
 }
 
 describe('branching', () => {
@@ -130,6 +146,105 @@ describe('branching', () => {
     );
     await sandboxOf(a).seed({ files: { 'notes/only-a.txt': 'a' } });
     expect(await sandboxOf(b).listFiles()).not.toContain('notes/only-a.txt');
+  });
+
+  it('a continuation resumes the parent conversation, not the library session it inherited', async () => {
+    const library: StateLibrary = await loadStateLibrary(STATES);
+    const { adapter, work } = await setup({ branching: true, library });
+    const given = givenOf({ session_state: 'resumed', event: 'stale_tracker', mid_turn: 'Keep the notes.' });
+    const parent = await adapter.open(given);
+    cleanups.push(() => adapter.close(parent));
+    await adapter.send(parent, turnOf(0, ASK_WEEKLY, given));
+    // The parent already applied the library resume and the planted tracker. What it leaves is the continuation.
+    await writeFile(join(sandboxOf(parent).root, 'tracker/open.md'), 'parent kept its tracker\n');
+    const end = await adapter.snapshotGiven?.(parent);
+    expect(end?.vars.session_state).toBe('fresh');
+    expect(end?.vars.mid_turn).toBeUndefined();
+    expect(end?.vars.event).toBeUndefined();
+    expect(end?.vars.workspace_seed).toBe('northwind-ops');
+    expect(end?.vars.estate).toEqual(given.vars.estate);
+
+    const child: ResolvedGiven = {
+      ...givenOf(),
+      world: end?.world ?? {},
+      vars: end?.vars ?? {},
+      prefix: EARLIER,
+    };
+    const next = await adapter.open(child);
+    cleanups.push(() => adapter.close(next));
+    expect(await textOf(next, 'tracker/open.md')).toBe('parent kept its tracker\n');
+    const observed = await adapter.send(next, turnOf(0, ASK_INVOICE, child));
+    // Turn 0 of the new session would have looked the inherited state and event up again.
+    expect(liveOps(observed)).toEqual(['resume']);
+    expect(await textOf(next, 'tracker/open.md')).toBe('parent kept its tracker\n');
+    const calls = await callsOf(work.calls);
+    expect(calls.at(-1)?.records).toBe(2);
+  });
+
+  it('a continuation does not reapply the adapter fallback session state', async () => {
+    const library = await loadStateLibrary(STATES);
+    const { adapter, work } = await setup({ branching: true, sessionState: library.states.long });
+    const given = givenOf();
+    const parent = await adapter.open(given);
+    cleanups.push(() => adapter.close(parent));
+    await adapter.send(parent, turnOf(0, ASK_WEEKLY, given));
+    expect((await callsOf(work.calls))[0]?.records).toBe(12);
+    const end = await adapter.snapshotGiven?.(parent);
+    const child: ResolvedGiven = {
+      ...givenOf(),
+      world: end?.world ?? {},
+      vars: end?.vars ?? {},
+      prefix: EARLIER,
+    };
+    const next = await adapter.open(child);
+    cleanups.push(() => adapter.close(next));
+    await adapter.send(next, turnOf(0, ASK_INVOICE, child));
+    expect((await callsOf(work.calls)).at(-1)?.records).toBe(2);
+  });
+
+  it('a named session state still begins the session, ahead of a written prefix', async () => {
+    const library = await loadStateLibrary(STATES);
+    const { adapter, work } = await setup({ branching: true, library });
+    const given: ResolvedGiven = { ...givenOf({ session_state: 'long' }), prefix: EARLIER };
+    const session = await adapter.open(given);
+    cleanups.push(() => adapter.close(session));
+    await adapter.send(session, turnOf(0, ASK_WEEKLY, given));
+    // The library prefix is twelve records; the two written turns are not what the runtime resumed.
+    expect((await callsOf(work.calls))[0]?.records).toBe(12);
+  });
+
+  it('a file only the adapter seed supplied stays deleted on a continuation', async () => {
+    const { adapter } = await setup({
+      branching: true,
+      workspace: {
+        files: {
+          'notes/adapter-only.txt': 'from the adapter',
+          'notes/kept.txt': 'still here',
+        },
+      },
+    });
+    const given = givenOf();
+    const parent = await adapter.open(given);
+    cleanups.push(() => adapter.close(parent));
+    expect(await textOf(parent, 'notes/adapter-only.txt')).toBe('from the adapter');
+    await rm(join(sandboxOf(parent).root, 'notes/adapter-only.txt'));
+    const end = await adapter.snapshotGiven?.(parent);
+    expect(end?.vars.deleted_seed).toEqual(['notes/adapter-only.txt']);
+    expect(end?.world.workspace?.files?.['notes/kept.txt']).toBe('still here');
+    expect(end?.world.workspace?.files?.['notes/adapter-only.txt']).toBeUndefined();
+
+    const child: ResolvedGiven = { ...givenOf(), world: end?.world ?? {}, vars: end?.vars ?? {} };
+    const next = await adapter.open(child);
+    cleanups.push(() => adapter.close(next));
+    const files = await sandboxOf(next).listFiles();
+    expect(files).not.toContain('notes/adapter-only.txt');
+    expect(await textOf(next, 'notes/kept.txt')).toBe('still here');
+    expect(await textOf(next, 'ledger/2026-W41.csv')).toBe(SEED['ledger/2026-W41.csv']);
+
+    // A fresh session still receives the adapter seed. The deletion belongs to the continuation.
+    const fresh = await adapter.open(givenOf());
+    cleanups.push(() => adapter.close(fresh));
+    expect(await textOf(fresh, 'notes/adapter-only.txt')).toBe('from the adapter');
   });
 });
 
