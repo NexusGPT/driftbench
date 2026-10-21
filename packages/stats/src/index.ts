@@ -26,6 +26,7 @@ export {
   hillNumber,
   hillNumbers,
 } from './coverage';
+export { median } from './descriptive';
 export {
   type Alarm,
   type CusumOptions,
@@ -65,6 +66,7 @@ export {
   zeroFailureBound,
   zFor,
 } from './intervals';
+export { geometricMean, harmonicMean } from './means';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
 export {
   type McNemarMidPResult,

@@ -2,7 +2,7 @@
 
 Location, spread, mean and correlation measures that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. The shared rules of every function (the `RangeError` conditions, the accuracy, the mid-rank rule for ties) are in the [conventions](capabilities.md#conventions) and are not repeated here. Each section lists only the inputs it refuses beyond those rules.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `median`, `geometricMean` and `harmonicMean` exist in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 ## Where the functions go
 
