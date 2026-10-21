@@ -624,14 +624,20 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(JSON.stringify(workflow.jobs['pr-fast'].steps)).not.toMatch(/--changed|Tests affected/);
 }
 
-/** What the join of `pr affected` answers for the results of its slices: green only when every slice succeeded. */
+/**
+ * What the join of `pr affected` answers. The slices are one matrix job, so GitHub hands the join one aggregate in
+ * `needs.<job>.result`: `success`, `failure`, `cancelled` or `skipped`. Only `success` is green; an empty or unknown
+ * value is red too.
+ */
 const AFFECTED_GATE_RESULTS: [string, number][] = [
-  ['success,success,success,success,success,success,success,success', 0],
-  ['success,success,success,failure,success,success,success,success', 1],
-  ['success,success,cancelled,success,success,success,success,success', 1],
-  ['success,success,success,success,success,success,success,skipped', 1],
-  ['skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  ['success', 0],
   ['failure', 1],
+  ['cancelled', 1],
+  ['skipped', 1],
+  ['', 1],
+  ['unknown', 1],
+  ['success,failure', 1],
+  ['success,success', 1],
 ];
 
 function assertAffectedGate(command: string) {
@@ -640,7 +646,7 @@ function assertAffectedGate(command: string) {
       encoding: 'utf8',
       env: { ...process.env, RESULTS: results },
     });
-    expect(result.status, results).toBe(expected);
+    expect(result.status, JSON.stringify(results)).toBe(expected);
     if (expected === 1) expect(result.stdout).toMatch(/::error::/);
   }
 }
@@ -1275,6 +1281,20 @@ describe('merge train enforcement', () => {
       (step: { env?: unknown }) => !step.env,
     );
     expect(() => assertAffectedBehaviour(noGate)).toThrow();
+    // planted gates that admit a result they must refuse: the gate test must fail on each
+    const gateOf = (w: ReturnType<typeof parse>) =>
+      w.jobs['pr-affected'].steps.find((step: { env?: unknown }) => step.env) as { run: string };
+    for (const planted of [
+      'case "$RESULTS" in cancelled|skipped) exit 0;; esac\n',
+      'case "$RESULTS" in cancelled) exit 0;; esac\n',
+      'case "$RESULTS" in skipped) exit 0;; esac\n',
+      'if [[ -z "$RESULTS" ]]; then exit 0; fi\n',
+      'if [[ "$RESULTS" == unknown ]]; then exit 0; fi\n',
+    ]) {
+      const planting = structuredClone(workflow);
+      gateOf(planting).run = planted + gateOf(planting).run;
+      expect(() => assertAffectedBehaviour(planting), planted).toThrow();
+    }
     const noNeeds = structuredClone(workflow);
     noNeeds.jobs['pr-affected'].needs = [];
     expect(() => assertAffectedBehaviour(noNeeds)).toThrow();
