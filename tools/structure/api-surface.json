@@ -2135,6 +2135,7 @@
       "ParsedRecord": "type",
       "PersonalDataVerdict": "type",
       "PointwiseFactLedgerAnswer": "value",
+      "PolicyOverride": "type",
       "PreferenceResult": "type",
       "ProbabilityBounds": "type",
       "ProviderBlock": "type",
