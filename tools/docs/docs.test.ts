@@ -40,12 +40,7 @@ const RUNTIME_NAMES = [
  * Pages that quote the README's files: maps, personas, section registries, criteria and specs that name an agent.
  * tools/docs/readme-yaml.test.ts loads every YAML fence of these pages with the real loader of its file kind.
  */
-const LOADED_BY_README_YAML = new Set([
-  'innovations.md',
-  'how-it-works.md',
-  'recipes.md',
-  join('guide', 'quickstart.md'),
-]);
+const LOADED_BY_README_YAML = new Set(['innovations.md', 'how-it-works.md', 'recipes.md']);
 
 type Page = { path: string; text: string };
 
@@ -121,7 +116,8 @@ describe('docs content', () => {
     let specs = 0;
     let checked = 0;
     for (const page of await pages()) {
-      if (LOADED_BY_README_YAML.has(page.path)) continue;
+      // The guide pages are run whole by tools/docs/guide-page.ts, which writes every file they show.
+      if (LOADED_BY_README_YAML.has(page.path) || page.path.startsWith('guide')) continue;
       for (const yaml of fences(page.text, 'yaml')) {
         const where = `${page.path}: ${yaml.split('\n')[0]}`;
         if (/^# file: objects\//.test(yaml)) {
