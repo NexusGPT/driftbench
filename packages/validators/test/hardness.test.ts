@@ -161,8 +161,10 @@ describe('the bar a validator records in GATE.md', () => {
       minCauses: null,
       maxGain: 0.1,
     });
-    // 300 items, 198 pass at iteration 0 (0.66), 3 more per pilot fix: 0.66 to 0.76, a gain of 0.1.
-    const journal = rows([198, 201, 204, 207, 210, 213, 216, 219, 222, 225, 228], 300, TIERS);
+    // 600 items, 396 pass at iteration 0 (0.66), 6 more per pilot fix: 0.66 to 0.76, a gain of 0.1, and 144
+    // failing items at the end, so the 100 causes of section 12.4 hold.
+    const tiers = { '1': 200, '2': 160, '3': 120, '4': 80, '5': 40 };
+    const journal = rows([396, 402, 408, 414, 420, 426, 432, 438, 444, 450, 456], 600, tiers);
     const gate = (gain: number) => `Max score gain over the pilot: ${gain}\nMin forecast: 20\n`;
     const held = measureHardness(journal, { audit: PASSING_AUDIT, gate: gate(0.11) });
     expect(held.gate.reasons).toEqual([]);
