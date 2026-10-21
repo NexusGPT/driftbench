@@ -1,0 +1,20 @@
+name: varstore red probe
+on:
+  workflow_dispatch:
+    inputs:
+      jobs:
+        required: true
+        type: string
+jobs:
+  conditions:
+    if: inputs.jobs == 'conditions'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/generate/test/feed/model-reader.test.ts --maxWorkers=2
