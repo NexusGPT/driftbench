@@ -692,12 +692,30 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
+      # The labels of the condition spans are a recording made on a Mac and kept on the data branch
+      # `cassettes/variables-spans`, one file per measured commit (`<sha>.jsonl`). The measure replays it and calls no
+      # model. A missing file fails the job. A dispatch that names `variables-spans-collect` in `jobs` is the collector
+      # run instead: it measures without labels and uploads the spans it read, for the labeller to record.
+      - name: Fetch the span cassette
+        id: cassette
+        if: ${{ !contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') }}
+        shell: bash
+        run: |
+          git fetch --depth=1 origin cassettes/variables-spans
+          if ! git show "FETCH_HEAD:${GITHUB_SHA}.jsonl" > "$RUNNER_TEMP/spans-cassette.jsonl"; then
+            echo "::error::no span cassette for ${GITHUB_SHA} on cassettes/variables-spans: run the collector, then the labeller"
+            exit 1
+          fi
+          echo "path=$RUNNER_TEMP/spans-cassette.jsonl" >> "$GITHUB_OUTPUT"
       - name: Measure the shard
         shell: bash
         env:
           SEEDS: ${{ matrix.seeds }}
           HIDDEN: ${{ matrix.hidden && '--hidden' || '' }}
+          DRIFTBENCH_VARIABLES_CASSETTE: ${{ steps.cassette.outputs.path }}
+          COLLECT: ${{ contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') && 'yes' || '' }}
         run: |
+          if [ -n "$COLLECT" ]; then export DRIFTBENCH_VARIABLES_SPANS_OUT="$PWD/variables-spans.jsonl"; : > "$DRIFTBENCH_VARIABLES_SPANS_OUT"; fi
           status=0
           pnpm -s driftbench validate variables --seeds "$SEEDS" $HIDDEN --items --all-levels --json > variables-items.json || status=$?
           echo "level (exit code) $status"
@@ -707,6 +725,11 @@ jobs:
         with:
           name: variables-items-${{ strategy.job-index }}
           path: variables-items.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') }}
+        with:
+          name: variables-spans-${{ strategy.job-index }}
+          path: variables-spans.jsonl
 
   generator-measure:
     # The generator bank on chosen seeds, in shards, for the independent audit (docs/validators.md section 12.7 and
