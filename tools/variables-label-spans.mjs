@@ -85,7 +85,7 @@ const SYSTEM = [
   '{"kind":"member","subject":<noun phrase>,"members":[<the listed members>]}',
   '{"kind":"boolean","subject":<noun phrase>}  (a fact that is true or false of the case, such as a valve being open or a badge being laminated; a clause that states the fact, or its negation, is boolean)',
   '{"kind":"none"}  (the clause states no condition on a quantity, a set or a yes/no fact)',
-  'Name the quantity a clause is about with the same words every time. When a list of subjects already used is given, reuse one of them exactly, character for character, if the clause names the same quantity; write a new subject only for a new quantity.',
+  'Name the quantity a clause is about with the same words every time. When a list of subjects already used is given, reuse one of them exactly, character for character, only when the clause itself names that same quantity in its own words; otherwise write the subject the clause names. Never take a listed subject because it is listed.',
   'Write numbers as digits. "at most" is le, "fewer than" is lt, "more than" is gt, "at least" is ge.',
 ].join('\n');
 
