@@ -161,6 +161,9 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
       ]);
       const user = [
         `Turn ${branch.filter((result) => sayingOf(result) !== undefined).length + 1}.`,
+        ...(ctx.spec.blocks.some((entry) => entry.parent !== undefined)
+          ? [`Recorded block ${ctx.blockIndex + 1}.`]
+          : []),
         '',
         'The conversation so far:',
         ...(lines.length > 0 ? lines.flat() : ['(nothing yet: you write first)']),
@@ -404,7 +407,8 @@ export function userRecordingPort(recording: UserRecording): UserModelPort & {
       requests.push({ system: request.system, user: request.user });
       const turn = /^Turn (\d+)\./.exec(request.user)?.[1];
       if (turn === undefined) throw new SimulatedUserError('the request names no turn');
-      const answer = recording.answers[Number(turn) - 1];
+      const block = /^Recorded block (\d+)\./m.exec(request.user)?.[1];
+      const answer = recording.answers[Number(block ?? turn) - 1];
       if (answer === undefined) {
         throw new SimulatedUserError(
           `the recording of ${recording.persona} holds ${recording.answers.length} answers, none for turn ${turn}`,

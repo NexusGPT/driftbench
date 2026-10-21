@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -16,6 +17,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // @ts-expect-error: a plain JavaScript module of the release tools, with no types.
 import { packFiles } from '../../../tools/release/check.mjs';
+import { buildJavaScript } from '../../../tools/test-build';
 import { blame } from '../src';
 
 /**
@@ -26,28 +28,20 @@ import { blame } from '../src';
  */
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
-const CHECKS = join(ROOT, 'packages/checks');
-
-/** Builds the JavaScript of a package with its own tsup command, less the declarations, as built-validate does. */
-function buildJavaScript(name: string): void {
-  const folder = join(ROOT, 'packages', name);
-  const command = JSON.parse(readFileSync(join(folder, 'package.json'), 'utf8')).scripts.build as string;
-  const words = command.split(' ').filter((word) => word !== '--dts' && word !== '--clean');
-  const built = spawnSync('pnpm', ['exec', ...words, '--silent'], { cwd: folder, encoding: 'utf8' });
-  if (built.status !== 0) throw new Error(`building ${name} failed\n${built.stdout}\n${built.stderr}`);
-}
 
 describe('the built checks package', () => {
-  const holder = join(CHECKS, `.blast-copy-${process.pid}`);
+  const scratch = mkdtempSync(join(tmpdir(), 'blast-shipped-objects-'));
+  const checks = join(scratch, 'checks');
+  const holder = join(checks, 'without-objects');
   beforeAll(() => {
-    for (const name of ['stats', 'core', 'checks']) buildJavaScript(name);
+    buildJavaScript(ROOT, scratch, ['stats', 'core', 'checks']);
   }, 300_000);
   afterAll(() => {
-    rmSync(holder, { recursive: true, force: true });
+    rmSync(scratch, { recursive: true, force: true });
   });
 
   it('packs the build and no object file, because the shipped policies are compiled into dist/', () => {
-    const pack = packFiles(CHECKS) as { files: string[] };
+    const pack = packFiles(checks) as { files: string[] };
     expect(pack.files).toContain('dist/index.js');
     expect(pack.files.filter((file) => file.startsWith('objects/') || /\.ya?ml$/.test(file))).toEqual([]);
   }, 120_000);
@@ -55,7 +49,7 @@ describe('the built checks package', () => {
   it('loads with plain Node.js from a copy of dist/ with no objects/ beside it and resolves both shipped defaults', () => {
     // The holder sits inside the package so that the copy's imports still find node_modules. It has no objects/
     // beside its dist/, where the earlier build looked for the shipped YAML files.
-    cpSync(join(CHECKS, 'dist'), join(holder, 'dist'), { recursive: true });
+    cpSync(join(checks, 'dist'), join(holder, 'dist'), { recursive: true });
     expect(existsSync(join(holder, 'objects'))).toBe(false);
     const script = [
       `const checks = await import(${JSON.stringify(join(holder, 'dist/index.js'))});`,

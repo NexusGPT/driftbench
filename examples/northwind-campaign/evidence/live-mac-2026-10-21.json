@@ -1,0 +1,124 @@
+{
+  "campaign": "northwind-live-mac-20261021T092359Z",
+  "sourceHead": "fdb00a1b13ec2b9c4b0e15764b565959c6a0f67b",
+  "runtime": "real Claude Code CLI on macOS",
+  "modelOption": "haiku",
+  "models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
+  "standIn": false,
+  "runExitCode": 0,
+  "cells": 4,
+  "passedCells": 4,
+  "blocks": 11,
+  "passedBlocks": 11,
+  "reportedUsd": 0.09659878999999999,
+  "authorizedTotalUsd": 5,
+  "allAttemptsReportedUsd": 0.25637493499999997,
+  "attempts": [
+    {
+      "campaign": "northwind-live-mac-20261021T091137Z",
+      "reportedUsd": 0.079710365
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T092125Z",
+      "reportedUsd": 0.08006578
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T092359Z",
+      "reportedUsd": 0.09659878999999999
+    }
+  ],
+  "runs": [
+    {
+      "runId": "93744e39d0477b9e",
+      "spec": "northwind-invoice-over",
+      "status": "completed",
+      "pass": true,
+      "reportedUsd": 0.05682494999999999,
+      "blocks": [
+        {
+          "index": 0,
+          "pass": true,
+          "reportedUsd": 0.0022065
+        },
+        {
+          "index": 1,
+          "pass": true,
+          "reportedUsd": 0.027116219999999996
+        },
+        {
+          "index": 2,
+          "pass": true,
+          "reportedUsd": 0.027502229999999996
+        }
+      ]
+    },
+    {
+      "runId": "2256addb65bf69a6",
+      "spec": "northwind-ledger-branches",
+      "status": "completed",
+      "pass": true,
+      "reportedUsd": 0.023608970000000003,
+      "blocks": [
+        {
+          "index": 0,
+          "pass": true,
+          "reportedUsd": 0.019861530000000002
+        },
+        {
+          "index": 1,
+          "pass": true,
+          "reportedUsd": 0.002513475
+        },
+        {
+          "index": 2,
+          "pass": true,
+          "reportedUsd": 0.001233965
+        }
+      ]
+    },
+    {
+      "runId": "97ef2eab5542368a",
+      "spec": "northwind-shipment-late",
+      "status": "completed",
+      "pass": true,
+      "reportedUsd": 0.0077998,
+      "blocks": [
+        {
+          "index": 0,
+          "pass": true,
+          "reportedUsd": 0.001671
+        },
+        {
+          "index": 1,
+          "pass": true,
+          "reportedUsd": 0.002463425
+        },
+        {
+          "index": 2,
+          "pass": true,
+          "reportedUsd": 0.0036653750000000002
+        }
+      ]
+    },
+    {
+      "runId": "2804965430371c33",
+      "spec": "northwind-weekly-report",
+      "status": "completed",
+      "pass": true,
+      "reportedUsd": 0.008365069999999999,
+      "blocks": [
+        {
+          "index": 0,
+          "pass": true,
+          "reportedUsd": 0.003920155
+        },
+        {
+          "index": 1,
+          "pass": true,
+          "reportedUsd": 0.004444915
+        }
+      ]
+    }
+  ],
+  "runtimeVersion": "2.1.306"
+}
