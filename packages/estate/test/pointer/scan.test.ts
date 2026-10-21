@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   Cassette,
   CassetteMiss,
+  createAnthropicLabeler,
   cut,
   type Labeler,
   LabelerError,
@@ -16,7 +17,7 @@ import {
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { load, plantedDense } from './support';
+import { BAKERY, type Call, load, plantedDense } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -249,7 +250,7 @@ describe('the pointer scan', () => {
     expect(renderLedger(replay.ledger)).toBe(renderLedger(result.ledger));
   });
 
-  it('does not retry a refusal', async () => {
+  it('retries a refusal once, then lists the window as failed', async () => {
     const log: string[] = [];
     const result = await pointerScan(
       input(
@@ -257,8 +258,10 @@ describe('the pointer scan', () => {
         new Cassette(),
       ),
     );
-    expect(log).toHaveLength(4);
+    // Two files and two sets: four windows, each asked twice.
+    expect(log).toHaveLength(8);
     expect(result.failed).toHaveLength(4);
+    expect(result.failed.every((line) => line.includes('declined'))).toBe(true);
   });
 
   it('stops on a miss when it may not record', async () => {
@@ -599,4 +602,58 @@ describe('spans across the runs of a labeler', () => {
     expect(result.refusals[0]).toMatch(/offsets leave the unit/);
     expect(result.decided).toBe(0);
   });
+});
+
+describe('an answer that stopped at a refusal or at max_tokens, on the Anthropic labeler', () => {
+  // Invented notes of a bakery counter: one window of two units in the set counter-voice.
+  const NOTES = [{ path: 'notes.md', text: 'Greet every customer by name.\n\nRye costs four coins.\n' }];
+  const ANSWER = '{"labels":[{"units":"1","label":"greeting"},{"units":"2","label":"price-claim"}]}';
+  const reply = (stop: string) => ({
+    model: 'claude-haiku-5-5',
+    stop_reason: stop,
+    content: [{ type: 'text', text: stop === 'end_turn' ? ANSWER : '' }],
+    usage: { input_tokens: 10, output_tokens: 4 },
+  });
+
+  /** A fetch that answers the n-th request with the n-th stop reason, and keeps what it was sent. */
+  const answering = (stops: string[], calls: Call[]) => async (url: string, init: RequestInit) => {
+    calls.push({
+      url,
+      headers: init.headers as Record<string, string>,
+      body: JSON.parse(String(init.body)) as Record<string, unknown>,
+    });
+    const stop = stops[Math.min(calls.length, stops.length) - 1] as string;
+    return new Response(JSON.stringify(reply(stop)), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  const scan = (stops: string[], calls: Call[]) =>
+    pointerScan({
+      files: NOTES,
+      sets: load(BAKERY),
+      labelling: singleLabelling(createAnthropicLabeler({ key: 'k', fetch: answering(stops, calls) })),
+      cassette: new Cassette(),
+      mode: 'record',
+    });
+
+  for (const refused of ['refusal', 'max_tokens']) {
+    it(`retries once after ${refused} and applies the second answer`, async () => {
+      const calls: Call[] = [];
+      const result = await scan([refused, 'end_turn'], calls);
+      expect(calls).toHaveLength(2);
+      expect(result.failed).toEqual([]);
+      expect(result.labelled.map((item) => item.label).sort()).toEqual(['greeting', 'price-claim']);
+    });
+
+    it(`lists the window as failed after ${refused} twice, and labels nothing from it`, async () => {
+      const calls: Call[] = [];
+      const result = await scan([refused, refused], calls);
+      expect(calls).toHaveLength(2);
+      expect(result.failed).toHaveLength(1);
+      expect(result.failed[0]).toContain('notes.md#1');
+      expect(result.labelled).toEqual([]);
+    });
+  }
 });
