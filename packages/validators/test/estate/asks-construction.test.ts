@@ -17,6 +17,7 @@ const ONE: MapAtom = {
   id: 'instruction.one',
   kind: 'instruction',
   title: 'Sort the inbox every morning',
+  situation: 'When the inbox is full',
   provenance: { quote: 'Sort the inbox every morning before nine' },
   fields: {
     ask: { text: 'Approving a refill needs the pharmacist.', context: 'When the pharmacist is in' },
@@ -223,6 +224,10 @@ describe('the verbatim source text of an atom gives a span, in the handle-this-f
     // The quote and the trigger are taken whole, never sliced (lead ruling).
     expect('refused' in handle('provenance.quote', 0, 14)).toBe(true);
     expect('refused' in handle('fields.trigger', 0, 17)).toBe(true);
+    // A situation is taken whole too (docs/estate.md section 5).
+    expect('refused' in handle('situation', 0, 4)).toBe(true);
+    const full = 'Please handle this for me: When the inbox is full.';
+    expect(handle('situation', 0, 22)).toEqual({ text: full });
     expect('refused' in handle('title', 0, 14)).toBe(true);
   });
 });

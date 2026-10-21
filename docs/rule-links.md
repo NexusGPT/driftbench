@@ -57,7 +57,7 @@ Two values name the unit, and they differ in what an edit does to them:
 * The ledger id, `id`, is a stable id that survives edits. The ledger makes it once and keeps it as the file changes: the unit stays the same unit when its text is edited, moved, split or merged.
 * The text fingerprint, `fp`, is the hash of the unit's text. It changes on every edit.
 
-Approve the atoms and plan the tests. The plan holds 1,424 rows, and `plan approve --all` approves them all.
+Approve the atoms and plan the tests. The plan holds one row per test, and `plan approve --all` approves them all.
 
 ```
 driftbench estate approve map.yaml --all --to approved.yaml
@@ -73,7 +73,7 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1290 written by code, 0 recorded sessions, 8 with no ask.
+Asks of the complete specs: 0 approved phrases, 1275 written by code, 0 recorded sessions, 8 with no ask.
 Wrote 1455 files to generated.
 ```
 
@@ -154,19 +154,19 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1263 specs, 1266 blocks.
-Mode F, free-running: 16 of 1266 blocks in the radius (16 direct, 0 forward), 1250 out. 16 of 1263 cells.
-  A cell reruns whole: 16 of 1266 blocks sent, 98.7% saved; 1247 of 1263 cells left to carry.
+1248 specs, 1251 blocks.
+Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
+  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
 ```
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0118, 0192, 0262, 0336, 0401 and 11 more, 16 of 934 blocks, which rerun. The other 918 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1251 blocks, which rerun. The other 1235 blocks keep their last result." width="640" />
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,250 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,235 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 ## 5. Prove a link by deleting its rule
 

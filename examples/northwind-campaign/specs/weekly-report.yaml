@@ -39,6 +39,9 @@ metadata:
       - gate.weekly-report.read-templates-report-md-before-writing
       - instruction.weekly-report.fill-the-report-sections-in-the
       - instruction.standing.report-only-numbers-read-during-the
+rules:
+  custom:
+    northwind-invoice-prerequisite: {}
 blocks:
   - id: write
     user: Please prepare the weekly report for week 43.

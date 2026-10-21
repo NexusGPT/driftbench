@@ -28,6 +28,8 @@ export type Item = {
 
 /** One item of a level's bank and whether it passed on this seed. */
 export type BankEntry = {
+  /** A measurement failure (for example a frame that could not load its product), never an item verdict. */
+  error?: string;
   id: string;
   component: string;
   family?: string;
@@ -376,6 +378,15 @@ export function mergeSeedRuns(slices: readonly SeedRun[], through: number, full 
   }
   if (!Number.isSafeInteger(through) || through < 1 || through > first.top) {
     return `the slices of seed ${label} were asked through level ${through}, outside 1 to ${first.top}`;
+  }
+  // A measurement error is not evidence of product quality. Check every slice before the stopping join drops
+  // levels above an ordinary item failure, including ladders without a floor.
+  for (const slice of slices) {
+    for (const row of slice.rows) {
+      const broken = row.bank?.find((entry) => entry.error !== undefined);
+      if (broken)
+        return `level ${row.level} of seed ${label} could not be measured (${broken.id}): ${broken.error}`;
+    }
   }
   const rows: LevelRow[] = [];
   let failing: SeedRun['failing'] = null;

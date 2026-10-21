@@ -77,9 +77,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.standing.read-before-edit-it
-            field: governed-action
-            from: 31
-            to: 38
+            field: fields.trigger
+            from: 0
+            to: 7
     outcome: no-change:guard
   links:
     - block: ask

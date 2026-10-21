@@ -66,9 +66,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.standing.read-git-status-before-commit-to
-            field: governed-action
-            from: 16
-            to: 29
+            field: fields.trigger
+            from: 0
+            to: 13
     outcome: no-delete
   links:
     - block: ask

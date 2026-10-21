@@ -124,17 +124,31 @@ type Situation = { text: string; cut: AskCut };
 
 const isWord = (c: string | undefined): boolean => c !== undefined && /[\p{L}\p{N}]/u.test(c);
 
-/** A row with its slots filled: `{act}`, the optional situation group, and `{span}`s in order. */
+/**
+ * A row with its slots filled: `{act}`, the optional situation group, and `{span}`s in order. A value that already
+ * ends in a sentence mark keeps it, and the row adds no stop or question mark of its own right after it: the
+ * last character decides, no word is read.
+ */
 function fill(
   row: string,
   act: string | undefined,
   situation?: string,
   spans: readonly string[] = [],
 ): string {
-  let out = row.replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ` ${situation}.`);
-  if (act !== undefined) out = out.replace('{act}', act);
-  for (const span of spans) out = out.replace('{span}', span);
+  let out = row.replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ' {situation}.');
+  if (situation !== undefined) out = put(out, '{situation}', situation);
+  if (act !== undefined) out = put(out, '{act}', act);
+  for (const span of spans) out = put(out, '{span}', span);
   return out;
+}
+
+/** The first `slot` of `text` replaced by `value`, without a stop or question mark of the row after a final mark. */
+function put(text: string, slot: string, value: string): string {
+  const at = text.indexOf(slot);
+  if (at < 0) return text;
+  const after = text.slice(at + slot.length);
+  const closes = /[.!?]$/.test(value) && /^[.?]/.test(after);
+  return `${text.slice(0, at)}${value}${closes ? after.slice(1) : after}`;
 }
 
 /**
@@ -381,17 +395,11 @@ function textAt(atom: EstateAtom, field: string): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
-/** A slice of an atom's field: the clause of `[from, to)` (the whole field by default), or undefined. */
-function cutOf(
-  atom: EstateAtom,
-  field: string,
-  range?: [number, number],
-  sentence = true,
-): { text: string; cut: AskCut } | undefined {
+/** A clause of an atom's declared act text (`fields.ask` and its parts): cut at structure only, or undefined. */
+function cutOf(atom: EstateAtom, field: string, sentence = true): { text: string; cut: AskCut } | undefined {
   const text = textAt(atom, field);
   if (text === undefined) return undefined;
-  const [from, to] = range ?? [0, text.length];
-  const clause = clauseRange(text, from, sentence ? sentenceEnd(text, from, to) : to);
+  const clause = clauseRange(text, 0, sentence ? sentenceEnd(text, 0, text.length) : text.length);
   if (clause === undefined) return undefined;
   const [start, end] = clause;
   return { text: text.slice(start, end), cut: { atom: atom.id, field, from: start, to: end } };
@@ -407,31 +415,30 @@ function spanAct(
   return { row, text: fill(row, undefined, undefined, [slice.text]), cuts: [slice.cut], source };
 }
 
-/** The labelled spans of a kind on an atom the pointer reader built: offsets into its quote. */
-function labelled(atom: EstateAtom, kind: string): Array<[number, number]> {
-  const spans = Array.isArray(atom.fields?.labelSpans) ? (atom.fields.labelSpans as unknown[]) : [];
-  return spans
-    .map((span) => span as { kind?: unknown; from?: unknown; to?: unknown })
-    .filter((span) => span.kind === kind && typeof span.from === 'number' && typeof span.to === 'number')
-    .map((span) => [span.from as number, span.to as number]);
+/**
+ * The whole text of an atom's source field, verbatim: a gate's trigger, an atom's situation. Words of an atom's
+ * own passage are never cut: the span is the whole field, or nothing.
+ */
+function wholeOf(atom: EstateAtom, field: string): { text: string; cut: AskCut } | undefined {
+  const text = textAt(atom, field);
+  if (text === undefined || !/[\p{L}\p{N}]/u.test(text)) return undefined;
+  return { text, cut: { atom: atom.id, field, from: 0, to: text.length } };
 }
 
-/** A gate's governed action: its labelled span in the quote, else its trigger field. */
+/** A gate's governed action: its whole trigger field. */
 function governed(gate: EstateAtom): { text: string; cut: AskCut } | undefined {
-  const span = labelled(gate, 'governed-action')[0];
-  if (span && gate.provenance?.quote !== undefined) return cutOf(gate, 'governed-action', span, false);
-  return cutOf(gate, 'fields.trigger', undefined, false);
+  return wholeOf(gate, 'fields.trigger');
 }
 
 /** A rule's request clause (`fields.ask.text`), as written. */
 function requestClause(atom: EstateAtom): { text: string; cut: AskCut } | undefined {
-  return cutOf(atom, 'fields.ask.text', undefined, false);
+  return cutOf(atom, 'fields.ask.text', false);
 }
 
 /** A rule's situation: its declared context, else its situation. */
 function situationOf(atom: EstateAtom): Situation | undefined {
   if (!['instruction', 'register'].includes(atom.kind)) return undefined;
-  const slice = cutOf(atom, 'fields.ask.context', undefined, false) ?? cutOf(atom, 'situation');
+  const slice = cutOf(atom, 'fields.ask.context', false) ?? wholeOf(atom, 'situation');
   return slice ? { text: slice.text, cut: slice.cut } : undefined;
 }
 
@@ -443,26 +450,22 @@ function routeAct(route: EstateAtom): Act | undefined {
   const cell = cutOf(route, 'fields.ask');
   const act = cell
     ? spanAct(ACT_ROWS.span, cell, `${route.id} (request)`)
-    : spanAct(ACT_ROWS.handle, cutOf(route, 'situation'), `${route.id} (situation)`);
+    : spanAct(ACT_ROWS.handle, wholeOf(route, 'situation'), `${route.id} (situation)`);
   return act && askable(act.text) === undefined ? act : undefined;
 }
 
-/** A skill's or helper's work: a request that routes to it, else the first sentence of its description. */
+/**
+ * A skill's or helper's work: a request that routes to it, else its passage when the passage is its description
+ * and nothing else, handed over whole.
+ */
 function unitAct(unit: EstateAtom, routesOf: (id: string) => readonly EstateAtom[]): Act | undefined {
   for (const route of routesOf(unit.id)) {
     const act = routeAct(route);
     if (act) return act;
   }
-  const description = typeof unit.fields?.description === 'string' ? unit.fields.description : undefined;
-  if (description === undefined) return undefined;
-  // The description as it stands in the unit's file, else as its field holds it.
-  const quote = unit.provenance?.quote;
-  const at = quote === undefined ? -1 : quote.indexOf(description);
-  const slice =
-    at >= 0
-      ? cutOf(unit, 'provenance.quote', [at, at + description.length])
-      : cutOf(unit, 'fields.description');
-  const act = spanAct(ACT_ROWS.handle, slice, `${unit.id} (description)`);
+  const description = unit.fields?.description;
+  if (typeof description !== 'string' || unit.provenance?.quote !== description) return undefined;
+  const act = spanAct(ACT_ROWS.handle, wholeOf(unit, 'provenance.quote'), `${unit.id} (description)`);
   return act && askable(act.text) === undefined ? act : undefined;
 }
 

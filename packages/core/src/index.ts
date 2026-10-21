@@ -32,6 +32,7 @@ export {
   type ToolRule,
   type TransportErrorOptions,
   type Turn,
+  TurnNotRun,
   type UserDriver,
   type WorkspaceSnapshot,
 } from './contracts';
@@ -537,6 +538,8 @@ export {
   GuardExpect,
   JsonExpect,
   LengthBound,
+  OPERATION_CLASSES,
+  type OperationClassName,
   Perturbation,
   PerturbationSpec,
   RecoveryExpect,

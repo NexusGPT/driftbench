@@ -61,7 +61,13 @@ export type Tier = 1 | 2 | 3 | 4 | 5;
  * An item's verdict. `cause` names the one change that would make the item pass (docs/validators.md section
  * 12.4: items sharing a cause count once); a verdict that knows a deeper cause than its item's own states it.
  */
-export type Verdict = { pass: boolean; detail: string; cause?: string };
+export type Verdict = {
+  pass: boolean;
+  detail: string;
+  cause?: string;
+  /** The frame could not measure the product; the CI join must refuse this evidence. */
+  error?: string;
+};
 
 export type BankItem = {
   id: string;

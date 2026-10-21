@@ -479,12 +479,29 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1417,
       blocks: 1412,
-      complete: 1412,
-      incomplete: 5,
-      judged: 778,
+      complete: 1411,
+      incomplete: 6,
+      judged: 777,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+    // A spec that checks hazard recovery declares the runtime's tools as read or modify; no other spec has a table.
+    const written = [...specs(result).values()];
+    const checking = written.filter((spec) => spec.rules?.custom?.hazard_recovery !== undefined);
+    expect(checking.length).toBeGreaterThan(0);
+    for (const spec of checking)
+      expect(spec.operations, spec.id).toEqual({
+        Edit: 'modify',
+        Glob: 'read',
+        Grep: 'read',
+        MultiEdit: 'modify',
+        NotebookEdit: 'modify',
+        Read: 'read',
+        Skill: 'read',
+        Write: 'modify',
+      });
+    for (const spec of written)
+      if (spec.rules?.custom?.hazard_recovery === undefined) expect(spec.operations, spec.id).toBeUndefined();
   }, 120_000);
 });
 
@@ -623,6 +640,9 @@ describe('focus atoms get at least five complete specs, each with its own ask or
     expect(meta.planRow).toBe(variant?.row);
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+    // No ask doubles a stop: a field that ends in a sentence mark takes the place of the row's own.
+    for (const file of result.files)
+      expect(file.text.match(/^ +user: .*\w\.\.(?!\.).*$/m)?.[0], file.path).toBeUndefined();
   }, 120_000);
 
   it('writes no variant without a focus list', async () => {

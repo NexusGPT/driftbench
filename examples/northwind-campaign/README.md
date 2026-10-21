@@ -3,6 +3,8 @@
 One campaign on the Northwind code-agent example (the fixture estate in `examples/estates/fixture`), run live on
 Claude Code. Everything in it is fictional.
 
+The walkthrough with the output of each command is [the Northwind campaign](../../docs/northwind-campaign.md).
+
 | Block feature | Where it shows |
 |---|---|
 | Parents | `specs/ledger-branches.yaml`: two blocks continue from one opening (`parent:`). |
@@ -36,7 +38,7 @@ The third runs on the explicit protocol recordings in `rehearsal/`. These are pa
 money:
 
 ```
-ANTHROPIC_API_KEY="$(cat ~/.nexus-secrets/anthropic-driftbench.key)" \
+# First export ANTHROPIC_API_KEY with your own key, set in your shell and not typed in a command.
 NORTHWIND_COMMAND=claude NORTHWIND_ALLOW_BILLED=1 NORTHWIND_MODEL=claude-haiku-5-5 \
 NORTHWIND_MAX_TURNS=15 NORTHWIND_MAX_BLOCK_USD=0.6 NORTHWIND_PERMISSION_MODE=acceptEdits \
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml \
@@ -61,9 +63,10 @@ The rehearsal fails on every non-zero campaign exit, including failed and unrun 
 
 ## Verified billed run
 
-`northwind-live-mac-20261021T092359Z` ran on macOS with the real Claude Code CLI 2.1.306, Haiku 5.5 and
-the ledger-auditor's Sonnet 5.5. All four cells and eleven blocks passed, including both parent continuations.
-The runtime responses reported USD 0.09659879 for that campaign; all three attempts reported USD 0.256374935
-against a USD 5 authorization. The user personas used recordings; the target was real and billed.
+`northwind-live-mac-20261021T105525Z` ran on macOS with the real Claude Code CLI 2.1.306, Haiku 5.5 and
+the ledger-auditor's Sonnet 5.5. All four cells and eleven blocks passed, including both parent continuations
+and the execution-log prerequisite on every block. The runtime responses reported USD 0.079184180
+for that campaign; all nine attempts reported USD 0.692963725 against a USD 5 authorization.
+The user personas used recordings; the target was real and billed.
 [The result and per-cell run ids](evidence/live-mac-2026-10-21.json) record the live source head. Full stores,
 raw transcripts and credentials are not committed.

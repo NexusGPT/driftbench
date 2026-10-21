@@ -19,8 +19,12 @@ export function reportFixes(data: Pick<CampaignData, 'runs'>, n = 10): ReportFix
     ),
   );
   if (written.length === 0) return [];
-  const plan = blame.fixPlan(blame.campaignDiagnoses(written), blame.shippedPolicy('policy/placement'), n);
-  const ranked = plan.fixes.filter((fix) => fix.blocks > 0);
+  const plan = blame.fixPlan(
+    blame.campaignDiagnoses(written),
+    blame.shippedPolicy('policy/placement'),
+    written.length,
+  );
+  const ranked = plan.fixes.filter((fix) => fix.blocks > 0).slice(0, n);
   return ranked.map((fix) => ({
     fixLocation: fix.fix_location,
     ...(fix.fix_target === undefined ? {} : { fixTarget: fix.fix_target }),
