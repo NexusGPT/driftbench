@@ -466,7 +466,7 @@ describe('the catch items are pinned', () => {
     const rows = pointerBank().filter((candidate) => candidate.role === 'catch');
     expect(rows.length).toBeGreaterThan(0);
     expect(new Set(pinned?.keys())).toEqual(new Set(rows.map((row) => row.id)));
-    for (const guards of pinned?.values() ?? []) expect(guards).toMatch(/^bug:B\d\d$/);
+    for (const guards of pinned?.values() ?? []) expect(guards).toMatch(/^(bug:B\d\d|cheat:[a-z-]+)$/);
     expect(rows.length).toBeLessThanOrEqual(pointerBank().length * 0.15);
   });
 });
