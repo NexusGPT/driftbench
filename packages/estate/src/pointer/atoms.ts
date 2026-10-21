@@ -229,20 +229,32 @@ export function pointerAtoms(
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
-    const code = codeSpanOf(item.unit.text);
+    // A unit that names no file of its own and has a target unit (an act asked in one unit, the file to read first
+    // given in the next) takes the code spans of its target.
+    const holder =
+      item.target !== undefined &&
+      namedPaths(item.unit.text).length === 0 &&
+      namedOf(item.unit.text) === undefined
+        ? item.target.unit.text
+        : item.unit.text;
+    const code = codeSpanOf(holder);
     // A line of a standing file that is `@path` is an import: the runtime loads it and the agent reads nothing.
     const imported = (path: string): boolean =>
       builder.kindOf(item.path) === 'standing' &&
-      item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
+      holder.split('\n').some((line) => line.trim() === `@${path}`);
     const bareNames = new Set(
-      pathMentions(item.unit.text)
+      pathMentions(holder)
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );
-    const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
-    const firstNamed = namedOf(item.unit.text);
+    const allNamed = namedPaths(holder).filter((path) => !imported(path));
+    const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
-    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
+    const templateFor = (
+      namedPath: string | undefined,
+      chosen?: (typeof labelLinks)[number],
+      each?: { kind: string; index: number },
+    ): Template => ({
       link: (kind, property) => {
         const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
@@ -254,7 +266,8 @@ export function pointerAtoms(
         return typeof field === 'string' ? field : undefined;
       },
       span: (kind) => {
-        const span = labelSpans.find((entry) => entry.kind === kind);
+        const ofKind = labelSpans.filter((entry) => entry.kind === kind);
+        const span = each?.kind === kind ? (ofKind[each.index] ?? ofKind[0]) : ofKind[0];
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       spans: (kind) =>
@@ -297,9 +310,13 @@ export function pointerAtoms(
         repeated === undefined
           ? [undefined]
           : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
-      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
-      for (const [namedPath, chosen] of pairs) {
-        const template = templateFor(namedPath, chosen);
+      const pairs = paths.flatMap((path, index) => choices.map((link) => [path, link, index] as const));
+      for (const [namedPath, chosen, index] of pairs) {
+        const template = templateFor(
+          namedPath,
+          chosen,
+          mapping.spanEach !== undefined ? { kind: mapping.spanEach, index } : undefined,
+        );
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
