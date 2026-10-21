@@ -277,10 +277,7 @@ describe('the ledger of the files as they are now', () => {
   const files = (ledger: Ledger) => [...new Set(ledger.entries.map((entry) => entry.path))].sort();
 
   it('holds the files the scan cut, and leaves out a document the map records as no rule', () => {
-    expect(files(proseLedger(raw(), undefined, 'hall'))).toEqual([
-      'CLAUDE.md',
-      'yard/notes.md',
-    ]);
+    expect(files(proseLedger(raw(), undefined, 'hall'))).toEqual(['CLAUDE.md', 'yard/notes.md']);
     // The role pass of the scan found the yard notes to be a fixture: the scan cut no unit of it, so the
     // ledger of an edit holds none either, and the file is no new unit that makes the whole suite rerun.
     const documents = [{ path: 'yard/notes.md', role: 'fixture' as const, reasons: ['recorded'] }];
