@@ -2,9 +2,9 @@ import type { ItemContext } from '../../bank/item';
 import type { FileProvenance, FileStore, FileValue, FileVariable, VariablesImpl } from '../../interface';
 import { type Base, baseFile, defect, validateIssue, validateOk, variableOf } from '../files';
 import {
-  type BlindFamily,
   assertCovered,
   assertRowsSound,
+  type BlindFamily,
   callBuild,
   callCoverage,
   callInterval,
@@ -110,7 +110,9 @@ const GATES: Record<keyof VariablesImpl, Gate> = {
   },
 };
 
-const REACH_STEMS: readonly Stem[] = (Object.keys(GATES) as Array<keyof VariablesImpl>).map((name) => {
+const FUNCTIONS = Object.keys(GATES) as Array<keyof VariablesImpl>;
+
+const REACH_STEMS: readonly Stem[] = FUNCTIONS.map((name): Stem => {
   const gate = GATES[name];
   return {
     id: `reach.${gate.id}`,
@@ -170,7 +172,9 @@ const AMBIGUITY_STEM: Stem = {
   cause:
     'a value id sits in one axis only among the axes of kind behaviour, persona, data and task together, whatever their kinds',
   cases: [
-    ...KIND_PAIRS.map(([first, second]) => [`${first}-and-${second}`, 3, refusedAcross(first, second)] as const),
+    ...KIND_PAIRS.map(
+      ([first, second]) => [`${first}-and-${second}`, 3, refusedAcross(first, second)] as const,
+    ),
     [
       'ids-shared-with-a-stage-or-channel-axis-are-fine',
       3,
@@ -344,7 +348,8 @@ const NO_CONSTRAINTS_STEM: Stem = {
           r.errors.length === 1 &&
             r.errors[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND' &&
             r.errors[0]?.path === QUOTE_PATH,
-          () => `quotes reported ${show(r.errors, 240)}; expected the one VARIABLES_QUOTE_NOT_FOUND at ${QUOTE_PATH}`,
+          () =>
+            `quotes reported ${show(r.errors, 240)}; expected the one VARIABLES_QUOTE_NOT_FOUND at ${QUOTE_PATH}`,
         );
       },
     ],

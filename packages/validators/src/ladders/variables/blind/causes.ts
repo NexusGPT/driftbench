@@ -968,7 +968,9 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'reach.build-store': table([['the adapter maps buildStore to a function of the product', ['mapped']]]),
-  'reach.weight-interval': table([['the adapter maps weightInterval to a function of the product', ['mapped']]]),
+  'reach.weight-interval': table([
+    ['the adapter maps weightInterval to a function of the product', ['mapped']],
+  ]),
   'reach.plan': table([['the adapter maps plan to a function of the product', ['mapped']]]),
   'reach.coverage': table([['the adapter maps coverage to a function of the product', ['mapped']]]),
   'reach.validate': table([['the adapter maps validate to a function of the product', ['mapped']]]),
@@ -1016,10 +1018,7 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
     ],
   ]),
   'quotes.no-constraints': table([
-    [
-      'the quote check finds a quote in a store file that has no constraints list',
-      ['true-quote-is-found'],
-    ],
+    ['the quote check finds a quote in a store file that has no constraints list', ['true-quote-is-found']],
     [
       'the quote check reports a false quote in a store file that has no constraints list',
       ['false-quote-is-reported'],

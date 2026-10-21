@@ -2277,7 +2277,8 @@ export const MUTANTS: readonly Mutant[] = [
       );
       return variables.some(
         (v) =>
-          ['behaviour', 'persona', 'data', 'task'].includes(v.kind) && v.values.some((x) => outside.has(x.id)),
+          ['behaviour', 'persona', 'data', 'task'].includes(v.kind) &&
+          v.values.some((x) => outside.has(x.id)),
       );
     }),
   },

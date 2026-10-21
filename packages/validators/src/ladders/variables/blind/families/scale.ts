@@ -336,7 +336,9 @@ function quotesWorkload(
   );
   if (!exact) return;
   // Each wrong quote is named where it sits: its code and its path, not only a count of errors.
-  const want = [...wrong].map((i) => `VARIABLES_QUOTE_NOT_FOUND at variables.0.values.${i}.provenance.0.quote`);
+  const want = [...wrong].map(
+    (i) => `VARIABLES_QUOTE_NOT_FOUND at variables.0.values.${i}.provenance.0.quote`,
+  );
   const got = value.errors.map((e) => `${e.code} at ${e.path}`);
   must(
     jsonEqual([...got].sort(), [...want].sort()),
