@@ -64,9 +64,22 @@ for (let round = 1; round <= MAX_ROUNDS; round += 1) {
   for (let wait = 0; id === undefined && wait < 30; wait += 1) {
     await new Promise((done) => setTimeout(done, 5000));
     const rows = JSON.parse(
-      gh('run', 'list', '--workflow', 'validators.yml', '--branch', ref, '--limit', '5', '--json', 'databaseId,createdAt,event'),
+      gh(
+        'run',
+        'list',
+        '--workflow',
+        'validators.yml',
+        '--branch',
+        ref,
+        '--limit',
+        '5',
+        '--json',
+        'databaseId,createdAt,event',
+      ),
     );
-    id = rows.find((row) => row.event === 'workflow_dispatch' && row.createdAt >= started.slice(0, 19))?.databaseId;
+    id = rows.find(
+      (row) => row.event === 'workflow_dispatch' && row.createdAt >= started.slice(0, 19),
+    )?.databaseId;
   }
   if (id === undefined) throw new Error('the dispatched run did not appear');
   for (;;) {
@@ -104,7 +117,14 @@ for (let round = 1; round <= MAX_ROUNDS; round += 1) {
   if (label.status !== 0) throw new Error(`the labeller stopped with status ${label.status}`);
   writeFileSync(cassette, readFileSync(cassette, 'utf8') + readFileSync(out, 'utf8'));
   run('git', ['-C', data, 'add', `${sha}.jsonl`]);
-  run('git', ['-C', data, 'commit', '--quiet', '-m', `Span labels for ${sha.slice(0, 9)}: round ${round}, ${fresh.length} spans`]);
+  run('git', [
+    '-C',
+    data,
+    'commit',
+    '--quiet',
+    '-m',
+    `Span labels for ${sha.slice(0, 9)}: round ${round}, ${fresh.length} spans`,
+  ]);
   run('git', ['-C', data, 'push', '--quiet', 'origin', 'HEAD:cassettes/variables-spans']);
 }
 throw new Error(`no fixed point after ${MAX_ROUNDS} rounds`);
