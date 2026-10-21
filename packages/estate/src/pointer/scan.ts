@@ -296,7 +296,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const estateKey = input.estateKey ?? 'estate';
   const size = input.windowUnits ?? DEFAULT_WINDOW_UNITS;
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
-  const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
+  const cuts = new Map(files.map((file) => [file.path, cut(file.text, file.path)]));
   const next = nextLedger(
     files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut })),
     input.previous,

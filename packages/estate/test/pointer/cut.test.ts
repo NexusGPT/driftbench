@@ -162,6 +162,30 @@ describe('sentence spans', () => {
   });
 });
 
+describe('a plain text file', () => {
+  const texts = (source: string, path?: string) => cut(source, path).units.map((unit) => unit.text);
+
+  it('keeps a title line with no stop apart from the sentence below it', () => {
+    const source = 'NOTES\nNever audit a route that another person holds.\n';
+    expect(texts(source, 'references/notes.txt')).toEqual([
+      'NOTES',
+      'Never audit a route that another person holds.',
+    ]);
+    // The same text in markdown is one paragraph, as before.
+    expect(texts(source, 'references/notes.md')).toEqual([
+      'NOTES\nNever audit a route that another person holds.',
+    ]);
+    expect(texts(source)).toEqual(['NOTES\nNever audit a route that another person holds.']);
+  });
+
+  it('still joins a hard-wrapped sentence that goes on in lower case', () => {
+    expect(texts('Put the crate\non the shelf before\nnoon. Lock up.\n', 'notes.txt')).toEqual([
+      'Put the crate\non the shelf before\nnoon.',
+      'Lock up.',
+    ]);
+  });
+});
+
 describe('the fingerprint', () => {
   it('ignores white space and container markers', () => {
     expect(fingerprint('- Count the till  twice')).toBe(fingerprint('Count the till twice'));

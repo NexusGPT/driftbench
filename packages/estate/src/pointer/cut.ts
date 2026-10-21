@@ -54,7 +54,7 @@ export function fingerprint(text: string): string {
 const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 
 /** A same-length mask of the spans that must not be cut: inline code, URLs, link destinations, emphasis marks. */
-function mask(text: string): string {
+function mask(text: string, plain = false): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
   return text
@@ -63,7 +63,9 @@ function mask(text: string): string {
     .replace(/https?:\/\/\S+/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
-    .replace(/\n/g, ' ');
+    // In markdown a line break inside a paragraph is a soft wrap; in plain text it is kept, so a title line with no
+    // stop ("NOTES") is not read into the sentence below it. A wrapped line that goes on in lower case still merges.
+    .replace(/\n/g, plain ? '\n' : ' ');
 }
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
@@ -104,8 +106,13 @@ function trimSpan(source: string, from: number, to: number): [number, number] {
 }
 
 /** The sentence spans of `source[from, to)`, merged when unsure: a wrong merge costs granularity, a wrong split a wrong quote. */
-export function sentenceSpans(source: string, from: number, to: number): Array<[number, number]> {
-  const masked = mask(source.slice(from, to));
+export function sentenceSpans(
+  source: string,
+  from: number,
+  to: number,
+  plain = false,
+): Array<[number, number]> {
+  const masked = mask(source.slice(from, to), plain);
   const spans: Array<[number, number]> = [];
   let current: [number, number] | undefined;
   for (const segment of SEGMENTER.segment(masked)) {
@@ -136,8 +143,12 @@ type Context = { inList?: boolean; inQuote?: boolean };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
-/** Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. */
-export function cut(rawSource: string): Cut {
+/**
+ * Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. `path` names the
+ * file: a plain text file (`.txt`) keeps its line breaks between sentences.
+ */
+export function cut(rawSource: string, path?: string): Cut {
+  const plain = path !== undefined && /\.txt$/i.test(path);
   const base = rawSource.charCodeAt(0) === 0xfeff ? 1 : 0;
   const source = rawSource.slice(base);
   const units: Unit[] = [];
@@ -235,7 +246,8 @@ export function cut(rawSource: string): Cut {
           [start, end] = withoutTagLines(text, start, end);
           if (context.inList) return add('list_item', at(start), at(end), here());
           if (context.inQuote) return add('block_quote', at(start), at(end), here());
-          for (const [from, to] of sentenceSpans(text, start, end)) add('sentence', at(from), at(to), here());
+          for (const [from, to] of sentenceSpans(text, start, end, plain))
+            add('sentence', at(from), at(to), here());
           return;
         }
         case 'code':
