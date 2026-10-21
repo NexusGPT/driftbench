@@ -82,10 +82,12 @@ function run(
   writeFileSync(join(root, 'package.json'), '{"type":"module"}');
   symlinkSync(PACKAGE, join(root, 'packages/validators'), 'dir');
   writeFileSync(join(root, 'oracle.txt'), 'oracle loaded');
+  // A copy of the package: the frame bundles the product from its own tree and refuses a file outside it.
+  cpSync(join(ROOT, 'packages/stats/src'), src, { recursive: true });
   const target = join(src, 'index.ts');
   writeFileSync(
     target,
-    `export * from ${JSON.stringify(join(ROOT, 'packages/stats/src/index.ts'))};\n${
+    `${readFileSync(target, 'utf8')}\n${
       attack === 'file'
         ? `import { readFileSync } from 'node:fs';\nconst oracle = readFileSync(${JSON.stringify(join(root, 'oracle.txt'))}, 'utf8');\nprocess.stdout.write('PRETRAP_READ ' + oracle + '\\n');`
         : attack === 'process'

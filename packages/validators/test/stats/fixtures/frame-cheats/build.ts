@@ -42,10 +42,11 @@ export const gatedWilson = (k: number, n: number, z: number) => (validated() ? w
 `,
   );
   const index = join(src, 'index.ts');
-  writeFileSync(
-    index,
-    `${readFileSync(index, 'utf8')}\nexport { mixtureWeights, mixedStrengthCoverage } from './gated';\n`,
-  );
+  // The package now exports the real mixture and coverage functions; the copy replaces them with the gated ones.
+  const exports = readFileSync(index, 'utf8')
+    .replace(/export \{[^}]*\} from '\.\/mixed-strength';\n/, '')
+    .replace(/export \{[^}]*\} from '\.\/mixture';\n/, '');
+  writeFileSync(index, `${exports}\nexport { mixtureWeights, mixedStrengthCoverage } from './gated';\n`);
   const intervals = join(src, 'intervals.ts');
   const text = readFileSync(intervals, 'utf8');
   const marker = '  const p = k / n;\n  const z2 = z * z;\n  const denom = 1 + z2 / n;';
