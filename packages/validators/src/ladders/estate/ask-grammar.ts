@@ -40,8 +40,8 @@ const hasGroup = (parts: readonly Part[]): boolean => parts.some((part) => 'opt'
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.trim() === text;
 
 /**
- * The acts an atom declares in the map: `fields.ask` (a route's request cell, or a text with its context), then
- * each labelled governed-action span of its quote. Empty when it declares none.
+ * The acts an atom declares in the map: `fields.ask` (a route's request cell, or a text with its context), its
+ * trigger (`fields.trigger`), then each labelled governed-action span of its quote. Empty when it declares none.
  */
 export function declaredActs(atom: MapAtom): Array<{ text: string; context?: string }> {
   const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown };
@@ -53,6 +53,10 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
     if (typeof text === 'string' && hasWord(text))
       acts.push(typeof context === 'string' && hasWord(context) ? { text, context } : { text });
   }
+  // A gate's trigger, cut verbatim from its quote by the scan, is an act the product asks from too.
+  const trigger = (fields as { trigger?: unknown }).trigger;
+  if (typeof trigger === 'string' && hasWord(trigger) && !acts.some((act) => act.text === trigger))
+    acts.push({ text: trigger });
   const quote = atom.provenance?.quote;
   const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
     kind?: unknown;
