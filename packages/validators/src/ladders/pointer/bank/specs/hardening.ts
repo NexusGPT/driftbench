@@ -271,9 +271,9 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
     row(
       'read-unit-not-labelable-under-heading',
       3,
-      'A unit already read by code is not offered for labelling, in a file that has a top-level heading',
-      'A skill whose `description` front matter value is read by the structured reader, followed by a top-level heading and four paragraphs.',
-      'No window offers that unit as labelable; every paragraph holds the label the labeler gave it.',
+      'A unit already read by code is not offered for labelling, in a file that has a heading',
+      'A skill whose `description` front matter value is read by the structured reader, followed by a second-level heading and four paragraphs; the first answer labels the read unit.',
+      'That unit is shown as `read`; the label on it is refused and the labeler is asked again; every paragraph holds the label of the second answer.',
       'scan:read-units-marked',
       { ...cap, component: 'scan' },
     ),

@@ -654,25 +654,33 @@ const labels: Record<string, Run> = {
           { key: 'description', value: description },
         ],
       },
-      { kind: 'heading', level: 1, text: 'Shelf audit' },
+      // A second-level heading: a window ends at a top-level one, and the read unit shares its window with the body.
+      { kind: 'heading', level: 2, text: 'Shelf audit' },
       ...body.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
     ]);
-    const labeler = recording(perfect());
+    const good = perfect();
+    let asked = 0;
+    const labeler = recording((request) => {
+      asked += 1;
+      if (asked > 1) return good(request);
+      const read = request.window.units.find((unit) => unit.mode === 'read');
+      return { labels: [{ units: String(read?.n ?? 1), label: 'rule' }] };
+    });
     const res = await scanOk(ctx.sut, {
       files: [{ path: '.claude/skills/shelf-audit/SKILL.md', text: doc.text }],
       labeler,
     });
-    // A window ends at a top-level heading, so the read unit may sit in a window of its own or not be shown at all:
-    // what must hold is that no window offers it for labelling, and that the body is labelled.
-    const offered = labeler.calls
+    const shown = labeler.calls
       .flatMap((call) => call.window.units)
-      .some((unit) => keyOf(unit.text) === keyOf(description) && unit.mode !== 'read');
-    if (offered)
-      return fail('the description the structured reader turns into a route is offered for labelling');
+      .filter((unit) => keyOf(unit.text) === keyOf(description));
+    if (!shown.some((unit) => unit.mode === 'read'))
+      return fail('the description the structured reader turns into a route is not shown as read');
+    if (labeler.calls.length !== 2)
+      return fail(`${labeler.calls.length} calls, expected 2 (a label on a read unit is refused)`);
     const wrong = body.find((text) => labelOf(res.ledger, text) !== truthLabel(text));
-    if (wrong !== undefined)
-      return fail(`a paragraph under the heading has label ${labelOf(res.ledger, wrong)}`);
-    return pass('the read unit is never offered; the paragraphs below the heading are labelled');
+    return wrong === undefined
+      ? pass('read unit marked under a heading, the label on it refused')
+      : fail('a paragraph under the heading was not labelled by the second answer');
   },
   'settings-inherited-threshold-key-refused': async (ctx) => {
     const api = ctx.sut.settings;

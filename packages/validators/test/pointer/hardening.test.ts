@@ -504,7 +504,7 @@ describe('labels.read-unit-not-labelable-under-heading', () => {
       },
     };
     const detail = await redOn('labels.read-unit-not-labelable-under-heading', offering);
-    expect(detail).toMatch(/offered for labelling/);
+    expect(detail).toMatch(/not shown as read/);
   });
 });
 
