@@ -17,6 +17,7 @@ export {
 } from './agreement';
 export { kishDesignEffect, proportionalAllocation } from './allocation';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { betaTailProbability } from './bayes';
 export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
 export {
   abundances,
@@ -66,6 +67,7 @@ export {
   effectiveSampleSize,
   type Interval,
   kishEffectiveSize,
+  ruleOfThreeUpperBound,
   wilson,
   Z95,
   zeroFailureBound,
