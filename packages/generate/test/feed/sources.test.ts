@@ -976,5 +976,144 @@ describe('variablesFromSources: one clause, one label', () => {
     ]);
     expect(other.refused).toEqual([]);
     expect(other.store.variables.map((v) => v.title).sort()).toEqual(['delay', 'the delay']);
+
+describe('variablesFromSources: one well-formedness pass over the whole input', () => {
+  const LONE = '\uD800';
+  const lone = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+  const holdsLone = (value: unknown): boolean =>
+    typeof value === 'string'
+      ? lone.test(value)
+      : Array.isArray(value)
+        ? value.some(holdsLone)
+        : value !== null && typeof value === 'object'
+          ? Object.entries(value).some(([k, v]) => lone.test(k) || holdsLone(v))
+          : false;
+
+  const text = 'Escalate when the delay is above 2 days. Ready.';
+  const valid = (): VariableSources =>
+    ({
+      estate: {
+        files: { 'RULES.md': text },
+        rules: [
+          {
+            id: 'R1',
+            source: 'RULES.md',
+            conditions: [
+              {
+                text: 'Escalate when the delay is above 2 days.',
+                label: { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt', unit: 'days' },
+              },
+              {
+                text: 'Escalate when the delay is above 2 days.',
+                label: { kind: 'member', subject: 'tier', members: ['gold', 'silver'] },
+              },
+            ],
+            tools: [
+              {
+                tool: 'ledger',
+                field: 'account',
+                source: 'RULES.md',
+                values: [{ id: 'ready', quote: 'Ready.' }],
+              },
+            ],
+          },
+        ],
+      },
+      conversations: [
+        { id: 's1', values: { 'ledger.account': 'ready' } },
+        { id: 's2', values: { 'ledger.account': 'novel' } },
+      ],
+      owner: {
+        values: [{ variable: 'ledger.account', value: 'extra', words: 'The owner said so.', date: DAY }],
+        impossible: [
+          {
+            a: { variable: 'ledger.account', value: 'ready' },
+            b: { variable: 'delay', value: 'v3' },
+            words: 'The owner said so.',
+            date: DAY,
+          },
+        ],
+        weights: ['ready', 'novel', 'extra'].map((value) => ({
+          variable: 'ledger.account',
+          value,
+          weight: 1,
+          words: 'The owner said so.',
+          date: DAY,
+        })),
+      },
+    }) as never;
+
+  // Every string position of the input, as a way to put a lone surrogate there: in a value, or in a key.
+  type Path = Array<string | number>;
+  const positions = (value: unknown, path: Path = []): Array<{ path: Path; key: boolean }> => {
+    if (typeof value === 'string') return [{ path, key: false }];
+    if (Array.isArray(value)) return value.flatMap((v, i) => positions(v, [...path, i]));
+    if (value !== null && typeof value === 'object') {
+      return Object.entries(value).flatMap(([k, v]) => [
+        { path: [...path, k], key: true },
+        ...positions(v, [...path, k]),
+      ]);
+    }
+    return [];
+  };
+  const withLone = (input: unknown, path: Path, key: boolean): unknown => {
+    const copy = JSON.parse(JSON.stringify(input)) as Record<string | number, unknown>;
+    if (path.length === 0) return copy;
+    const parent = path
+      .slice(0, -1)
+      .reduce<Record<string | number, unknown>>(
+        (node, step) => node[step] as Record<string | number, unknown>,
+        copy,
+      );
+    const last = path[path.length - 1] as string | number;
+    if (key) {
+      const entries = Object.entries(parent).map(([k, v]) => [k === last ? `${k}${LONE}` : k, v] as const);
+      for (const k of Object.keys(parent)) delete parent[k];
+      for (const [k, v] of entries) parent[k] = v;
+    } else {
+      parent[last] = `${parent[last] as string}${LONE}`;
+    }
+    return copy;
+  };
+
+  it('has a valid input that reads without a refusal', () => {
+    const built = variablesFromSources(valid());
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables.length).toBeGreaterThan(1);
+    expect(holdsLone(built)).toBe(false);
+  });
+
+  it('refuses, by name and with no raw surrogate in any output, a lone surrogate at every string position', () => {
+    const base = valid();
+    const spots = positions(base);
+    expect(spots.length).toBeGreaterThan(40);
+    const missed: string[] = [];
+    for (const { path, key } of spots) {
+      const input = withLone(base, path, key) as VariableSources;
+      const built = variablesFromSources(input);
+      const named = built.refused.some((r) => /well-formed/.test(r.reason));
+      if (!named || holdsLone(built)) missed.push(`${key ? 'key' : 'value'} ${path.join('.')}`);
+    }
+    expect(missed).toEqual([]);
+  });
+
+  it('gives two sessions that differ only by a lone surrogate no shared hash and no id', () => {
+    const make = (suffix: string) =>
+      variablesFromSources({
+        ...(valid() as object),
+        conversations: [{ id: `fictional${suffix}`, values: { 'ledger.account': 'ready' } }],
+      } as never);
+    const [a, b] = [make('\uD800'), make('\uD801')];
+    expect(a.refused.filter((r) => /well-formed/.test(r.reason))).toHaveLength(1);
+    expect(JSON.stringify(a.store)).toBe(JSON.stringify(b.store));
+    expect(holdsLone(a) || holdsLone(b)).toBe(false);
+  });
+
+  it('prints no raw surrogate in the refusals of the ordinary paths either', () => {
+    const input = valid() as unknown as { owner: { values: Array<{ date: string }> } };
+    (input.owner.values[0] as { date: string }).date = `2026-13-45${LONE}`;
+    const built = variablesFromSources(input as never);
+    expect(built.refused.length).toBeGreaterThan(0);
+    expect(holdsLone(built)).toBe(false);
   });
 });
