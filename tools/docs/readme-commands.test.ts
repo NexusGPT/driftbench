@@ -205,6 +205,9 @@ describe('README commands that print what they show', () => {
             cwd = join(cwd, step.command.slice(3).trim());
             continue;
           }
+          const started = Date.now();
+          const got = await execute(step.command, cwd);
+          console.log(`WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).join('\n')}\nWALKEND`);
           problems.push(await report(step.command, step, cwd));
         }
       }
