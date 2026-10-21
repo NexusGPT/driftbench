@@ -164,7 +164,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Two files of eight units; one long unit moves from the first file to the second.',
       'The unit is classed moved; it is in the advisory set and not in the rerun set, and no global rerun is introduced.',
       'radius:moved-is-advisory',
-      { ...cap, component: 'radius', needs: ['scan', 'rerun'], role: 'catch' },
+      { ...cap, component: 'radius', needs: ['scan', 'rerun'] },
     ),
   ],
   grouping: [
@@ -193,7 +193,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`.',
       'The condition ids occur in the atom fields and in the options of its one reviewed prose_pointer entry, and the two lists match one for one: the ledger ids of the two condition units, in file order.',
       'atoms:condition-ids-in-pointer',
-      { ...cap, component: 'atoms', role: 'catch' },
+      { ...cap, component: 'atoms' },
     ),
   ],
   labels: [

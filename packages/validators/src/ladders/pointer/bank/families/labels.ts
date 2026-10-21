@@ -854,7 +854,7 @@ labels:
           { key: 'description', value: description },
         ],
       },
-      { kind: 'heading', level: 1, text: 'Shelf audit' },
+      // No top-level heading: a window ends at one, and the read unit must share its window with the body.
       ...body.map(para),
     ]);
     const path = '.claude/skills/shelf-audit/SKILL.md';

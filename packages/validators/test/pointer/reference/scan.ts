@@ -98,7 +98,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     for (const [at, g] of globals.entries()) {
       const before = news[globals[at - 1] ?? -1]?.fp ?? '';
       const after = news[globals[at + 1] ?? -1]?.fp ?? '';
-      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}`);
+      // The heading path above the unit is part of its context, as the neighbours are.
+      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}|${(news[g] as NewUnit).sectionPath.join('>')}`);
     }
   }
 

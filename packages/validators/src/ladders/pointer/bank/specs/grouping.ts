@@ -43,7 +43,7 @@ export const grouping: FamilySpec = {
       'range-across-heading',
       3,
       'A range may run across a heading unit',
-      'A range covering a sentence, a heading and the next two sentences.',
+      'Under one top-level heading: a range covering a sentence, a second-level heading and the next two sentences.',
       'All four units carry the label; atoms built for each mapped unit.',
       'atoms:one-atom-per-unit',
     ),
