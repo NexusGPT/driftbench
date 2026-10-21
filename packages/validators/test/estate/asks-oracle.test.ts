@@ -62,9 +62,17 @@ describe('the ask templates of the validator', () => {
     const end = section.indexOf('\n## ');
     const rows = (end < 0 ? section : section.slice(0, end))
       .split('\n')
-      .map((line) => /^\| (ask|fixed|act|situation) \| `(.+)` \|$/.exec(line))
+      .map((line) => /^\| (ask|fixed|act|situation) \| `([^`]+)` \|(.*)\|\s*([^|]*?)\s*\|$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
-      .map((match) => ({ kind: match[1], template: match[2] }));
+      .map((match) => {
+        // The Tools column: tool names when it lists them; a row whose tools come from its own slots lists none.
+        const tools = String(match[4])
+          .split(',')
+          .map((tool) => tool.trim())
+          .filter((tool) => tool !== '');
+        const named = tools.length > 0 && tools.every((tool) => /^[A-Z][A-Za-z]+$/.test(tool));
+        return { kind: match[1], template: match[2], ...(named ? { tools } : {}) };
+      });
     expect(rows.length).toBeGreaterThan(0);
     expect(ASK_TEMPLATES).toEqual(rows);
   });
