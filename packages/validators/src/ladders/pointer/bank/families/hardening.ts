@@ -4,7 +4,7 @@ import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutRun } from '../../kit/cut-case';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
-import { loadFixture } from '../../kit/fixture';
+import { loadFixture, RUNS } from '../../kit/fixture';
 import { entriesFor, perfect, truthLabel } from '../../kit/labellers';
 import { requireSourceWitness } from '../../kit/positive';
 import { keyOf, RULES_YAML } from '../../kit/sets';
@@ -57,6 +57,30 @@ const history = (ledger: LedgerView, id: string): string[] => {
 };
 
 const ids: Record<string, Run> = {
+  'context-fingerprint-covers-heading-path': async (ctx) => {
+    const p = prose(ctx);
+    const paragraphs = p.many(4, longMake) as string[];
+    const doc = (heading: string) =>
+      compose([
+        { kind: 'heading', level: 1, text: heading },
+        ...paragraphs.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
+      ]).text;
+    const text = paragraphs[1] as string;
+    const first = await scanOk(ctx.sut, { files: [{ path: 'ctx.md', text: doc('Closing duties') }], labeler: perfect() });
+    const second = await scanOk(ctx.sut, {
+      files: [{ path: 'ctx.md', text: doc('Locking rounds') }],
+      previousLedger: first.ledger.raw,
+      labeler: perfect(),
+    });
+    const before = liveByText(first.ledger, text);
+    const after = liveByText(second.ledger, text);
+    if (!before || !after) return fail('positive witness: the second paragraph has no live entry');
+    if (before.fp !== after.fp) return fail('positive witness: the fingerprint of the text changed');
+    if (before.id !== after.id) return fail('the unit lost its id when only its heading was renamed');
+    return before.ctxFp === after.ctxFp
+      ? fail('the context fingerprint is the same under another heading: the heading path is not part of it')
+      : pass('the heading path is part of the context fingerprint');
+  },
   'lineage-is-history': async (ctx) => {
     const p = prose(ctx);
     const w = worldOf(p, { files: 1, perFile: 8 });
@@ -327,6 +351,36 @@ const same = (a: readonly string[], b: readonly string[]): boolean =>
   JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
 const radius: Record<string, Run> = {
+  'moved-unit-is-advisory': async (ctx) => {
+    const api = ctx.sut.rerun;
+    if (!api)
+      throw new Problem(
+        'the reader exports no rerun rule: it must say, for each unit between two ledgers, whether it is unchanged, context, moved, changed, deleted or new, and which old units rerun',
+      );
+    const p = prose(ctx);
+    const w = worldOf(p, { files: 2, perFile: 8 });
+    const v2 = cloneWorld(w);
+    const [moved] = (v2.texts[0] as string[]).splice(3, 1);
+    (v2.texts[1] as string[]).splice(4, 0, moved as string);
+    const first = await scanOk(ctx.sut, { files: build(filesOf(w)).files, labeler: perfect() });
+    const second = await scanOk(ctx.sut, {
+      files: build(filesOf(v2)).files,
+      previousLedger: first.ledger.raw,
+      labeler: perfect(),
+    });
+    const id = liveByText(first.ledger, moved as string)?.id;
+    if (id === undefined) return fail('positive witness: the first scan has no entry for the moved unit');
+    const now = byId(second.ledger, id);
+    if (now?.status !== 'live' || now.path !== w.paths[1])
+      return fail('positive witness: the moved unit did not keep its id in the second file');
+    const classes = new Map((await api.classify(first.ledger, second.ledger)).map((c) => [c.id, c.class]));
+    if (classes.get(id) !== 'moved') return fail(`the moved unit is classed ${classes.get(id)}, expected moved`);
+    const out = await api.rerun(first.ledger, second.ledger);
+    if (out.units.includes(id)) return fail('the moved unit reruns its links: a move is only advisory');
+    return out.advisory.includes(id)
+      ? pass('the moved unit is reported, and nothing reruns for it')
+      : fail(`the advisory set is ${JSON.stringify(out.advisory)}, expected the moved unit`);
+  },
   'deleted-unit-reruns-its-links': async (ctx) => {
     const { api, w, first, second } = await rerunWorld(ctx, (v2) => {
       (v2.texts[0] as string[]).splice(4, 1);
@@ -422,6 +476,43 @@ const grouping: Record<string, Run> = {
 };
 
 const grouping2: Record<string, Run> = {
+  'condition-ids-in-prose-pointer': async (ctx) => {
+    const p = prose(ctx);
+    const [first, second, rule] = p.many(3, longMake) as [string, string, string];
+    const files = [
+      {
+        path: 'when.md',
+        text: compose([first, second, rule].map((text): Block => ({ kind: 'paragraph', sentences: [text] })))
+          .text,
+      },
+    ];
+    const labeler: Labeler = (request) => {
+      const target = request.window.units.find((unit) => keyOf(unit.text) === keyOf(rule))?.n;
+      return {
+        labels: request.window.units
+          .filter((unit) => unit.mode === 'label')
+          .map((unit) =>
+            keyOf(unit.text) === keyOf(rule) || target === undefined
+              ? { units: String(unit.n), label: 'rule' }
+              : { units: String(unit.n), label: 'when', target },
+          ),
+      };
+    };
+    const result = await scanOk(ctx.sut, { files, labeler, labelsYaml: CONDITION_YAML });
+    requireSourceWitness(result, files);
+    const atoms = result.atoms.filter((atom) => atom.kind === 'instruction');
+    if (atoms.length !== 1) return fail(`${atoms.length} instruction atoms for one rule, expected one`);
+    const ids = [first, second].map((text) => liveByText(result.ledger, text)?.id);
+    if (ids.some((id) => id === undefined)) return fail('positive witness: a condition has no live entry');
+    const pointers = (atoms[0]?.evidence ?? []).filter((e) => e.name === 'prose_pointer');
+    if (pointers.length !== 1) return fail(`${pointers.length} prose_pointer entries, expected one`);
+    const got = pointers[0]?.condition;
+    if (got === undefined)
+      return fail('the prose pointer carries no condition ids: the review cannot see which units set the situation');
+    return JSON.stringify(got) === JSON.stringify(ids)
+      ? pass('the prose pointer lists the condition ids in file order')
+      : fail(`the prose pointer lists ${JSON.stringify(got)}, expected ${JSON.stringify(ids)}`);
+  },
   'conditions-join-in-file-order': async (ctx) => {
     const p = prose(ctx);
     const [first, second, rule] = p.many(3, longMake) as [string, string, string];

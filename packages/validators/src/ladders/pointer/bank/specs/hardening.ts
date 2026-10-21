@@ -14,6 +14,17 @@ export const HARDENING_CHILD_CAP_MS = 150_000;
 const cap = { capMs: HARDENING_CAP_MS } as const;
 
 export const HARDENING_SPECS: Record<string, Spec[]> = {
+  replay: [
+    row(
+      'repeat-run-is-part-of-key',
+      2,
+      'The run is part of the key',
+      'Record three files with the Haiku arm: each window is asked in three independent runs of the same request.',
+      'Every window has one entry per run with distinct keys; the transport is called once per entry and no run reuses the answer of another.',
+      'cassette:run-in-key',
+      { ...cap, component: 'cassette', needs: ['transport', 'cassette'] },
+    ),
+  ],
   cutting: [
     row(
       'url-query-capital-after-mark',
@@ -58,6 +69,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
         capMs: HARDENING_CHILD_CAP_MS,
         role: 'catch',
       },
+    ),
+    row(
+      'context-fingerprint-covers-heading-path',
+      3,
+      'A unit whose text and neighbours are the same, under a renamed heading, has another context fingerprint',
+      'One file: a heading and four long paragraphs; the second scan renames the heading and nothing else.',
+      'The second paragraph keeps its fingerprint and its id, and its context fingerprint differs: the heading path is part of the context.',
+      'ledger:ctxfp-covers-heading-path',
+      { ...cap, component: 'ledger' },
     ),
   ],
   're-anchoring': [
@@ -128,6 +148,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'radius:context-change-is-advisory',
       { ...cap, component: 'radius', needs: ['scan', 'rerun'], role: 'catch' },
     ),
+    row(
+      'moved-unit-is-advisory',
+      3,
+      'A unit moved to another file is reported as advisory, and nothing reruns for it',
+      'Two files of eight units; one long unit moves from the first file to the second.',
+      'The unit is classed moved; it is in the advisory set and not in the rerun set.',
+      'radius:moved-is-advisory',
+      { ...cap, component: 'radius', needs: ['scan', 'rerun'], role: 'catch' },
+    ),
   ],
   grouping: [
     row(
@@ -146,6 +175,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`.',
       'One instruction atom; its situation is the text of the first condition, a space, the text of the second; no atom for a condition.',
       'atoms:conditions-in-file-order',
+      { ...cap, component: 'atoms', role: 'catch' },
+    ),
+    row(
+      'condition-ids-in-prose-pointer',
+      3,
+      'The prose pointer of an atom lists the ids of the units that are its conditions',
+      'Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`.',
+      'The instruction atom holds one reviewed prose_pointer entry whose condition list is the ledger ids of the two condition units, in file order.',
+      'atoms:condition-ids-in-pointer',
       { ...cap, component: 'atoms', role: 'catch' },
     ),
   ],

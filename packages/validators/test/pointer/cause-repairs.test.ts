@@ -164,6 +164,66 @@ describe('the run is part of the cassette key', () => {
   }, 120_000);
 });
 
+describe('the planted bugs of the fourth audit are lost', () => {
+  it('P12: a context fingerprint that ignores the heading path loses ids.context-fingerprint-covers-heading-path', async () => {
+    const id = 'ids.context-fingerprint-covers-heading-path';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    const ignoresPath = mutant('ctxfp-ignores-heading-path', async (request) => {
+      const out = await ref.scan(request);
+      if (request.previousLedger === undefined || !out.ledger) return out;
+      const before = new Map(
+        (JSON.parse(request.previousLedger) as { entries: Array<{ id: string; ctxFp: string }> }).entries.map((e) => [
+          e.id,
+          e.ctxFp,
+        ]),
+      );
+      return {
+        ...out,
+        ledger: { ...out.ledger, entries: out.ledger.entries.map((e) => ({ ...e, ctxFp: before.get(e.id) ?? e.ctxFp })) },
+      };
+    });
+    const planted = await run(id, ignoresPath);
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toContain('heading path is not part of it');
+  }, 120_000);
+  it('P14: a moved unit that reruns loses radius.moved-unit-is-advisory', async () => {
+    const id = 'radius.moved-unit-is-advisory';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    const api = ref.rerun;
+    if (!api) throw new Error('the reference has no rerun rule');
+    const reruns: PointerSut = {
+      ...ref,
+      rerun: {
+        classify: api.classify,
+        async rerun(previous, current) {
+          const out = await api.rerun(previous, current);
+          return { ...out, units: [...out.units, ...out.advisory], advisory: [] };
+        },
+      },
+    };
+    const planted = await run(id, reruns);
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toMatch(/reruns its links|advisory set/);
+  }, 120_000);
+  it('P17: condition ids dropped from the prose pointer lose grouping.condition-ids-in-prose-pointer', async () => {
+    const id = 'grouping.condition-ids-in-prose-pointer';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    const drops = mutant('condition-ids-dropped', async (request) => {
+      const out = await ref.scan(request);
+      return {
+        ...out,
+        atoms: out.atoms.map((atom) => ({
+          ...atom,
+          evidence: atom.evidence.map(({ condition: _condition, ...rest }) => rest),
+        })),
+      };
+    });
+    const planted = await run(id, drops);
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toContain('carries no condition ids');
+  }, 120_000);
+});
+
 describe('the Jev replay setting is reached offline', () => {
   it('labels.jev-threshold-is-a-replay-setting: the reference passes, a reader that ignores the threshold fails', async () => {
     const id = 'labels.jev-threshold-is-a-replay-setting';

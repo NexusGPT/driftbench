@@ -400,7 +400,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     }
   }
   // ---- conditions: the text of a condition unit is the situation of the atom built from its target
-  const conditions = new Map<Atom, Array<{ start: number; text: string }>>();
+  const conditions = new Map<Atom, Array<{ start: number; text: string; id: string }>>();
   for (const entry of ledger.entries) {
     if (entry.status !== 'live') continue;
     for (const set of sets) {
@@ -413,15 +413,17 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       if (!atom) continue;
       conditions.set(atom, [
         ...(conditions.get(atom) ?? []),
-        { start: entry.hint?.start ?? 0, text: entry.quote.trim() },
+        { start: entry.hint?.start ?? 0, text: entry.quote.trim(), id: entry.id },
       ]);
     }
   }
-  for (const [atom, list] of conditions)
-    atom.situation = list
-      .sort((x, y) => x.start - y.start)
-      .map((c) => c.text)
-      .join(' ');
+  for (const [atom, list] of conditions) {
+    list.sort((x, y) => x.start - y.start);
+    atom.situation = list.map((c) => c.text).join(' ');
+    // The prose pointer names the units that set the situation, in file order.
+    const pointer = atom.evidence.find((e) => e.name === 'prose_pointer');
+    if (pointer) pointer.condition = list.map((c) => c.id);
+  }
   const events: Record<string, string> = {};
   const eventCounts: Record<string, number> = {};
   for (const w of work) {

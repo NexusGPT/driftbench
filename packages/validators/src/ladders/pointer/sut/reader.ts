@@ -547,11 +547,18 @@ function atomOf(atom: RAtom): Atom {
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
     },
-    evidence: atom.evidence.map((e) => ({
-      type: String(e.type),
-      name: String(e.name ?? ''),
-      ...(typeof e.reviewRequired === 'boolean' ? { reviewRequired: e.reviewRequired } : {}),
-    })),
+    evidence: atom.evidence.map((e) => {
+      // The reader keeps the settings of a custom check under `options`.
+      const options = (typeof e.options === 'object' && e.options !== null ? e.options : {}) as Record<string, unknown>;
+      const reviewRequired = typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options.reviewRequired;
+      const condition = Array.isArray(options.condition) ? options.condition : e.condition;
+      return {
+        type: String(e.type),
+        name: String(e.name ?? ''),
+        ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
+        ...(Array.isArray(condition) ? { condition: condition.map(String) } : {}),
+      };
+    }),
   };
 }
 
