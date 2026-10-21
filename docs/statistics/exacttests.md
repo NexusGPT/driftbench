@@ -2,7 +2,7 @@
 
 This page defines thirteen functions: p-values by enumeration and the statistics of classical tests. The shared rules of [the capabilities page](capabilities.md#conventions) apply to each of them: the `RangeError` rules, the accuracy of a relative 1e-11 and the mid-rank rule for ties.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `hypergeometricPmf`, `signTestExact` and `wilcoxonSignedRankExactP` exist in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 | Group | File in `packages/stats/src` | Functions |
 |---|---|---|

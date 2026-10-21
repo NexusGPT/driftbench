@@ -42,6 +42,7 @@ export {
   type EffectiveWilsonOptions,
   wilsonEffective,
 } from './effective';
+export { hypergeometricPmf, signTestExact } from './exact';
 export {
   type HierarchicalInterval,
   type HierarchicalOptions,
@@ -64,6 +65,7 @@ export {
   zFor,
 } from './intervals';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
+export { wilcoxonSignedRankExactP } from './nonparametric';
 export {
   type McNemarMidPResult,
   type McNemarOptions,
