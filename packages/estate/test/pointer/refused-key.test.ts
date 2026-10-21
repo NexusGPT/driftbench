@@ -21,7 +21,7 @@ const LABELERS: Array<[string, Make, string]> = [
         fetch: fakeFetch({ detail: 'no' }, [], status),
         maxRetries: 0,
       }),
-    'jev-gateway.nexus-orga.gpt.nexus',
+    'route gateway',
   ],
   [
     'jev on a URL from JEV_URL',
