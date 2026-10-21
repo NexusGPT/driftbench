@@ -9,7 +9,7 @@ import { loadFixture, RUNS } from '../../kit/fixture';
 import { entriesFor, perfect, recording, truthLabel } from '../../kit/labellers';
 import { requireSourceWitness } from '../../kit/positive';
 import { keyOf, RULES_YAML } from '../../kit/sets';
-import { fakeTransport } from '../../kit/transport';
+import { fakeTransport, seededModels } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, word } from '../../kit/words';
 import type { Labeler, LedgerView, ScanResult } from '../../sut/port';
 import { runControl } from '../controls';
@@ -109,9 +109,23 @@ const ids: Record<string, Run> = {
     if (JSON.stringify(ended) !== JSON.stringify(['new', 'deleted']))
       return fail(`the deleted unit has the lineage ${JSON.stringify(ended)}, expected ["new","deleted"]`);
     const steps = (byId(fourth.ledger, id3)?.lineage ?? []).map((step) => step.scan);
-    return steps.every((scan, at) => at === 0 || scan > (steps[at - 1] as number))
-      ? pass('the lineage grows by one true step per change, and not for a rescan')
-      : fail(`the scan numbers of one lineage do not grow: ${JSON.stringify(steps)}`);
+    if (!steps.every((scan, at) => at === 0 || scan > (steps[at - 1] as number)))
+      return fail(`the scan numbers of one lineage do not grow: ${JSON.stringify(steps)}`);
+    // Round 3 audit, seat 2: a lineage that steps only on a changed fingerprint or a deletion gains nothing.
+    // A fifth scan moves the first unit to the end of the file: its lineage ends with `moved`.
+    const shifted = cloneWorld(gone);
+    const first0 = (shifted.texts[0] as string[]).shift() as string;
+    (shifted.texts[0] as string[]).push(first0);
+    const fifth = await scanOk(ctx.sut, {
+      files: build(filesOf(shifted)).files,
+      previousLedger: fourth.ledger.raw,
+      labeler,
+    });
+    const id0 = liveByText(first.ledger, first0)?.id as string;
+    const moved = history(fifth.ledger, id0);
+    return JSON.stringify(moved) === JSON.stringify(['new', 'moved'])
+      ? pass('the lineage grows by one true step per change, a move included, and not for a rescan')
+      : fail(`the moved unit has the lineage ${JSON.stringify(moved)}, expected ["new","moved"]`);
   },
   'entry-slices-with-bom-and-crlf': async (ctx) => {
     const p = prose(ctx);
@@ -313,33 +327,43 @@ const reanchoring: Record<string, Run> = {
 const privacy: Record<string, Run> = {
   'warning-names-models-not-units': async (ctx) => {
     const fixture = loadFixture('haiku');
-    const rows = structuredClone(fixture.rows).slice(1);
-    for (const row of rows) row.answer.returnedModel = 'm-1';
-    const res = await ctx.sut.scan({
-      files: fixture.files,
-      labelsYaml: fixture.labelsYaml,
-      model: { arm: 'haiku', transport: fakeTransport({ model: 'm-2' }) },
-      cassette: {
-        mode: 'record',
-        text: rows
-          .map((row) => JSON.stringify(row))
-          .concat('')
-          .join('\n'),
-      },
-    });
+    // Round 3 audit, seat 2: the models come from the seed, and a re-record whose models agree must warn of
+    // nothing, so a warning literal or a warning given on every scan gains nothing.
+    const { recorded, returned } = seededModels(ctx.seed, ctx.id);
+    const reRecord = (cassetteModel: string, transportModel: string): Promise<ScanResult> => {
+      const rows = structuredClone(fixture.rows).slice(1);
+      for (const row of rows) row.answer.returnedModel = cassetteModel;
+      return ctx.sut.scan({
+        files: fixture.files,
+        labelsYaml: fixture.labelsYaml,
+        model: { arm: 'haiku', transport: fakeTransport({ model: transportModel }) },
+        cassette: {
+          mode: 'record',
+          text: rows
+            .map((row) => JSON.stringify(row))
+            .concat('')
+            .join('\n'),
+        },
+      });
+    };
+    const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`the re-record failed: ${res.error}`);
     if (!Array.isArray(res.warnings))
       return fail(
         'the reader does not expose warnings: a returned model that differs from the cassette must be reported as a warning that names both models',
       );
-    const named = res.warnings.filter((w) => w.includes('m-1') && w.includes('m-2'));
+    const named = res.warnings.filter((w) => w.includes(recorded) && w.includes(returned));
     if (named.length === 0)
       return fail(`no warning names both models; the warnings are ${JSON.stringify(res.warnings)}`);
     const units = fixture.documents.flatMap((d) => d.units.map((u) => u.text.replace(/\s+/g, ' ').trim()));
     const quoted = res.warnings.find((w) => units.some((u) => u.length >= 20 && w.includes(u.slice(0, 20))));
-    return quoted
-      ? fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`)
-      : pass('the warning names both models and no unit text');
+    if (quoted) return fail(`a warning quotes unit text: ${quoted.slice(0, 60)}`);
+    const same = await reRecord(recorded, recorded);
+    if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
+    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0
+      ? pass('the warning names both models and no unit text; models that agree give no warning')
+      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
   },
 };
 

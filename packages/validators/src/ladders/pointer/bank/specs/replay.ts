@@ -191,8 +191,8 @@ export const replay: FamilySpec = {
       'model-mismatch-warns',
       3,
       'A changed returned model warns on re-record',
-      'Remove the first committed entry, set the remaining returned-model receipts to m-1, and record the missing request with m-2.',
-      'The scan succeeds and exposes a warning naming both returned models.',
+      'Remove the first committed entry, set the remaining returned-model receipts to a model name drawn from the seed, and record the missing request with a second seeded name; then the same with one name on both sides.',
+      'The scan succeeds and exposes a warning naming both returned models; when the two names agree the warnings are empty.',
       'cassette:model-mismatch-warning',
     ),
     row(

@@ -5,7 +5,7 @@ import { loadFixture, makeFixture, perturb, RUNS, requireFixtureLabels } from '.
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
-import { type FakeTransport, fakeTransport } from '../../kit/transport';
+import { type FakeTransport, fakeTransport, seededModels } from '../../kit/transport';
 import { headingText, Prose, rewordWords } from '../../kit/words';
 import type { FetchRequest, ModelArm, ScanRequest, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
@@ -482,24 +482,35 @@ export const replayRuns: Record<string, Run> = {
   },
   'model-mismatch-warns': async (ctx) => {
     const { fixture } = await positiveReplay(ctx);
-    const rows = structuredClone(fixture.rows).slice(1);
-    for (const row of rows) row.answer.returnedModel = 'm-1';
-    const res = await ctx.sut.scan({
-      files: fixture.files,
-      labelsYaml: fixture.labelsYaml,
-      model: { arm: 'haiku', transport: fakeTransport({ model: 'm-2' }) },
-      cassette: {
-        mode: 'record',
-        text: rows
-          .map((r) => JSON.stringify(r))
-          .concat('')
-          .join('\n'),
-      },
-    });
+    // Round 3 audit, seat 2: the models come from the seed, and a re-record whose models agree must warn of
+    // nothing, so a warning literal or a warning given on every scan gains nothing.
+    const { recorded, returned } = seededModels(ctx.seed, ctx.id);
+    const reRecord = (cassetteModel: string, transportModel: string) => {
+      const rows = structuredClone(fixture.rows).slice(1);
+      for (const row of rows) row.answer.returnedModel = cassetteModel;
+      return ctx.sut.scan({
+        files: fixture.files,
+        labelsYaml: fixture.labelsYaml,
+        model: { arm: 'haiku', transport: fakeTransport({ model: transportModel }) },
+        cassette: {
+          mode: 'record',
+          text: rows
+            .map((r) => JSON.stringify(r))
+            .concat('')
+            .join('\n'),
+        },
+      });
+    };
+    const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`re-record failed: ${res.error}`);
-    return res.warnings?.some((w) => w.includes('m-1') && w.includes('m-2'))
-      ? pass('both model IDs named')
-      : fail('returned-model warning missing');
+    if (!res.warnings?.some((w) => w.includes(recorded) && w.includes(returned)))
+      return fail('returned-model warning missing');
+    const same = await reRecord(recorded, recorded);
+    if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
+    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
+    return same.warnings.length === 0
+      ? pass('both model IDs named; models that agree give no warning')
+      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
   },
   'carry-forward-needs-only-dirty-entries': async (ctx) => {
     const { fixture, res: before } = await positiveReplay(ctx);
