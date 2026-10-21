@@ -287,9 +287,17 @@ function assertConcurrency(workflow: ReturnType<typeof parse>) {
   ])
     expect(cancel(ctx)).toBe(false);
   expect(cancel(ORDINARY_PR)).toBe(true);
-  expect(cancel(TRAIN_PR)).toBe(false);
+  // a newer push to a train PR cancels its older run: only the latest head of a train can merge
+  expect(cancel(TRAIN_PR)).toBe(true);
+  // the release PR is never cancelled, and neither is a look-alike treated as one
   expect(cancel(RELEASE_PR)).toBe(false);
   expect(cancel(FEATURE_PR)).toBe(true);
+  for (const ctx of LOOKALIKE_PRS) expect(cancel(ctx), ctx.headRef).toBe(true);
+  // a run is cancelled by a newer run of the same PR only: one group per PR, none shared with a push or a dispatch
+  expect(group(TRAIN_PR)).toBe(group({ ...TRAIN_PR, runId: '78' }));
+  expect(group(TRAIN_PR)).not.toBe(group(ORDINARY_PR));
+  expect(group(TRAIN_PR)).not.toBe(group(push('1')));
+  expect(group(TRAIN_PR)).not.toBe(group({ ...dispatchOn('refs/heads/train/9a', 'build'), runId: '5' }));
   expect(group(ORDINARY_PR)).toBe(group({ ...ORDINARY_PR, runId: '77' }));
 }
 

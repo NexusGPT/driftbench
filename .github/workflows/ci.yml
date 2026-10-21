@@ -15,11 +15,12 @@ on:
 permissions:
   contents: read
 
-# Pull requests share one group per ref and a non-train PR cancels its older run. A push to main and a
-# dispatch each get a group of their own, so no run on main ever cancels or replaces another.
+# Pull requests share one group per ref and a newer push cancels the older run of that PR, train PRs included: only
+# the latest head of a train can merge. The release PR is never cancelled. A push to main and a dispatch each get a
+# group of their own, so no run on main ever cancels or replaces another.
 concurrency:
   group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') }}
 
 # Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
 # `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
