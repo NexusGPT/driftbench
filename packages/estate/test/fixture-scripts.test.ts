@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import { estate, FIXTURE } from './support';
@@ -8,10 +9,35 @@ import { estate, FIXTURE } from './support';
 /** The reconcile script of the fixture estate's invoice-reconcile skill. */
 const SCRIPT = join(FIXTURE, '.claude/skills/invoice-reconcile/scripts/reconcile.py');
 
+/**
+ * The script appends to `.claude/northwind/reconcile-executions.jsonl` under the estate root that its own path
+ * defines. Run in place, it would write into the repository, where another test file in the same checkout reads
+ * the tree as untouched. A copy inside the temporary estate keeps that log in the temporary folder.
+ */
+function runnable(root: string, source: string): string {
+  const copy = join(root, '.claude/skills/invoice-reconcile/scripts/reconcile.py');
+  mkdirSync(dirname(copy), { recursive: true });
+  copyFileSync(source, copy);
+  return copy;
+}
+
 function reconcile(root: string, invoice: string, order: string, script = SCRIPT) {
-  const run = spawnSync('python3', [script, invoice, order], { cwd: root, encoding: 'utf8' });
+  const run = spawnSync('python3', [runnable(root, script), invoice, order], { cwd: root, encoding: 'utf8' });
   return { code: run.status, out: run.stdout, err: run.stderr };
 }
+
+/** The execution logs the script would leave in the fixture estates of the checkout. */
+const CHECKOUT_LOGS = ['fixture', 'fixture-v2'].map((name) =>
+  join(FIXTURE, '..', name, '.claude/northwind/reconcile-executions.jsonl'),
+);
+
+/** How many runs a log holds: 0 when the file is absent. */
+function lines(path: string): number {
+  if (!existsSync(path)) return 0;
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).length;
+}
+
+const LOGS_BEFORE = CHECKOUT_LOGS.map(lines);
 
 /** The files of one workspace seed of the fixture's phrase bank. */
 async function seed(id: string): Promise<Record<string, string>> {
@@ -71,7 +97,7 @@ describe('the fixture reconcile script', () => {
   it('keeps its usage error and its empty-file answer, the two fixtures its unit test records', async () => {
     const root = await estate({ invoice: '', order: '' });
     expect(reconcile(root, 'invoice', 'order')).toEqual({ code: 0, out: '', err: '' });
-    const none = spawnSync('python3', [SCRIPT], { cwd: root, encoding: 'utf8' });
+    const none = spawnSync('python3', [runnable(root, SCRIPT)], { cwd: root, encoding: 'utf8' });
     expect(none.status).toBe(2);
     expect(none.stdout).toBe('');
     expect(none.stderr).toMatch(/^Usage: python3 reconcile\.py /);
@@ -103,5 +129,12 @@ describe.each(['fixture', 'fixture-v2'])('%s rejects unreadable JSON inputs', (f
   it('accepts an explicitly empty lines list', async () => {
     const root = await estate({ 'invoice.json': '{"lines":[]}', 'order.json': '{"lines":[]}' });
     expect(reconcile(root, 'invoice.json', 'order.json', script)).toEqual({ code: 0, out: '', err: '' });
+  });
+});
+
+describe('the fixture estates of the checkout', () => {
+  // The last test of the file: every run above has finished.
+  it('hold no execution log written by the runs of this file', () => {
+    expect(CHECKOUT_LOGS.map(lines)).toEqual(LOGS_BEFORE);
   });
 });
