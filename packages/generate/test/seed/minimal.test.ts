@@ -106,17 +106,44 @@ describe('terminal subsumption', () => {
     expect(only.blocks).toHaveLength(length);
   });
 
-  it('never reduces a walk that reaches an end state', () => {
-    const prepared = fixture();
-    const base = prepared.relations.paths[0];
-    if (!base) throw new Error('missing parcel path');
-    const path = { ...base, end_state: { source: 'tool:ship', mode: 'exact' as const, expect: {} } };
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = walk(prepared, 'first', path);
-    const second = walk(prepared, 'second', path);
-    minimal.reduce(first);
-    minimal.reduce(second);
-    expect(second.blocks).toHaveLength(first.blocks.length);
+  describe('a walk that reaches an end state', () => {
+    const endPath = (prepared: ReturnType<typeof fixture>) => {
+      const base = prepared.relations.paths[0];
+      if (!base) throw new Error('missing parcel path');
+      return { ...base, end_state: { source: 'tool:ship', mode: 'exact' as const, expect: {} } };
+    };
+
+    it('is cut when its last block makes no write the end state could check', () => {
+      const prepared = fixture();
+      const path = endPath(prepared);
+      const minimal = new TerminalSubsumption(prepared, run, 2);
+      const first = walk(prepared, 'first', path);
+      const second = walk(prepared, 'second', path);
+      const length = first.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(first.blocks).toHaveLength(length);
+      expect(second.blocks.length).toBeLessThan(length);
+      expect(second.end_state).toBeDefined();
+    });
+
+    it('keeps the block that calls the tool the end state is written by', () => {
+      const prepared = fixture();
+      const path = endPath(prepared);
+      const minimal = new TerminalSubsumption(prepared, run, 2);
+      const withWrite = (id: string) => {
+        const draft = walk(prepared, id, path);
+        const last = draft.blocks.at(-1);
+        if (!last) throw new Error('the walk has no block');
+        last.tools = [{ label: 'ship', count: 1 }];
+        return draft;
+      };
+      const first = withWrite('first');
+      const second = withWrite('second');
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(second.blocks).toHaveLength(first.blocks.length);
+    });
   });
 
   it('counts the tuples of every seeder: a walk another seeder covers is cut like any other', () => {

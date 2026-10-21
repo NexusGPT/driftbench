@@ -8,6 +8,7 @@ import {
   projectGrid,
 } from '@agent-nexus/driftbench-space';
 import { createPerturbingDriver } from '@agent-nexus/driftbench-users';
+import { writeTools } from '../extract/behaviour-turns';
 import type { Allocation } from './allocation';
 import { type ReducedEnds, type RunIdentity, renderDraft, type SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
@@ -99,7 +100,7 @@ export class TerminalSubsumption {
       const shorter = renderDraft(this.prepared, draft, this.run);
       const again = validateSpec(shorter.spec);
       if (again.ok) spec = again.spec;
-    } else if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
+    } else if (followed === undefined && spec.kind === 'conversation') {
       const states = [{ blocks: draft.blocks, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
@@ -119,6 +120,8 @@ export class TerminalSubsumption {
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.phrasesHold(spec.blocks[last])) break;
+        // The end state is what the walk's writes left in the store: the block that makes the write stays.
+        if (spec.end_state !== undefined && this.writes(spec.blocks[last])) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
@@ -162,7 +165,7 @@ export class TerminalSubsumption {
       };
     }
     // A metamorphic family keeps its variants aligned block by block: its members are never cut from the middle.
-    if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
+    if (family === undefined && spec.kind === 'conversation') {
       spec = this.dropMiddle(draft, spec);
     }
     if (family?.variant === 1) {
@@ -190,6 +193,7 @@ export class TerminalSubsumption {
       const before = spec.blocks[index - 1]?.expect?.stage;
       if (before === undefined || written.expect?.stage !== before) continue;
       if (written.expect?.ledger_add !== undefined) continue;
+      if (spec.end_state !== undefined && this.writes(written)) continue;
       if (spec.perturbations?.some((entry) => entry.inject_at === index)) continue;
       const duplicate = this.blocks.get(this.key(spec, index));
       if (!duplicate || !this.phrasesHold(written)) continue;
@@ -213,6 +217,12 @@ export class TerminalSubsumption {
       spec = parsed.spec;
     }
     return spec;
+  }
+
+  /** True when the block expects a call of a tool a path ends on with a write: it may be what the end state checks. */
+  private writes(block: Spec['blocks'][number] | undefined): boolean {
+    const written = writeTools(this.prepared.relations.paths);
+    return (block?.expect?.tools ?? []).some((tool) => written.has(tool.label));
   }
 
   /** The messages a block says: its user turn, or the turns of a burst. */
