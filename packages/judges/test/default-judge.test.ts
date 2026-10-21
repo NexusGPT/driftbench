@@ -23,7 +23,15 @@ function mock(outputs: unknown[], policyOverride?: { lengthPreference?: boolean;
       };
     },
   };
-  return { calls, judge: createDefaultJudge({ provider: 'claude-cli', model: 'test', transport, ...(policyOverride ? { policyOverride } : {}) }) };
+  return {
+    calls,
+    judge: createDefaultJudge({
+      provider: 'claude-cli',
+      model: 'test',
+      transport,
+      ...(policyOverride ? { policyOverride } : {}),
+    }),
+  };
 }
 
 describe('one default configuration', () => {
@@ -563,7 +571,9 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
     expect(DEFAULT_JUDGE_POLICY).toMatchObject({ version: 'default-on-v8', conversationTurns: false });
   });
   it('judges each customer turn on its own prefix and fails on the turn that fails', async () => {
-    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)], { conversationTurns: true });
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)], {
+      conversationTurns: true,
+    });
     const result = await judge.judge(request);
     expect(calls).toHaveLength(3);
     expect(calls[1]?.user).not.toContain('Second question');
@@ -585,9 +595,26 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
     expect(off.judge.settings).not.toBe(on.settings);
   });
   it('leaves a single-turn conversation criterion on the plain route', async () => {
-    const { judge, calls } = mock([{ route: 'criterion' }, met(true)], { conversationTurns: true });
-    await judge.judge({ ...request, transcript: request.transcript.slice(0, 2) });
+    const { judge, calls } = mock(
+      [
+        { route: 'criterion' },
+        {
+          checks: [
+            {
+              id: 'x',
+              reasoning: 'r',
+              evidence: [{ source: 'transcript.1', quote: 'First answer' }],
+              met: true,
+            },
+          ],
+        },
+      ],
+      { conversationTurns: true },
+    );
+    const result = await judge.judge({ ...request, transcript: request.transcript.slice(0, 2) });
     expect(calls).toHaveLength(2);
+    expect(result.answer.outcome).toBe('pass');
+    expect(result.answer.reasoning).toBe('Address every request.: r');
   });
 });
 

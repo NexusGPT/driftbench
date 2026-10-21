@@ -363,7 +363,9 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
               correctness: false,
             },
             tiePolicy: 'canonical',
-            ...(policy.lengthPreference && route === 'writing' ? { preference: 'long-structured' as const } : {}),
+            ...(policy.lengthPreference && route === 'writing'
+              ? { preference: 'long-structured' as const }
+              : {}),
           },
         );
         const winner =
