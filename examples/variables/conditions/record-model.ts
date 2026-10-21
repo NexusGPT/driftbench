@@ -18,11 +18,13 @@ import { type Clause, loadStore, score, textsOf, unitsOf } from './lib';
 
 const [input, output] = process.argv.slice(2);
 if (!input || !output || existsSync(output)) throw new Error('give input and a NEW recording output');
-const clauses = JSON.parse(readFileSync(input, 'utf8')) as Clause[];
+const allClauses = JSON.parse(readFileSync(input, 'utf8')) as Clause[];
+const clauses = process.env.PROBE_FIRST === '1' ? allClauses.slice(0, 1) : allClauses;
 const units = unitsOf(clauses);
 const texts = textsOf(units);
 const receipts: unknown[] = [];
-let capCharge = 0;
+const spentBefore = Number(process.env.SPENT_BEFORE ?? 0);
+let capCharge = spentBefore;
 let reportedUsd = 0;
 let missingCost = 0;
 const key = readFileSync(join(homedir(), '.nexus-secrets/anthropic-driftbench.key'), 'utf8').trim();
@@ -31,7 +33,7 @@ const port = createAnthropicPort({
   maxRetries: 0,
   fetch: async (url, init) => {
     // Deliberately conservative reservation; a response without USD uses $20/$100 per million tokens.
-    if (capCharge > 4) throw new Error('live budget reserve exhausted');
+    if (capCharge > 4.7) throw new Error('live budget reserve exhausted');
     const response = await fetch(url, init);
     const payload = await response.clone().json();
     const usage = payload.usage ?? {};
@@ -40,7 +42,7 @@ const port = createAnthropicPort({
     if (typeof cost === 'number') reportedUsd += cost;
     else missingCost++;
     capCharge += typeof cost === 'number' ? cost : tokens;
-    receipts.push({ id: payload.id, model: payload.model, usage, costUsd: cost ?? null });
+    receipts.push({ id: payload.id, model: payload.model, usage, costUsd: cost ?? null, content: payload.content });
     writeFileSync(output + '.receipts.json', JSON.stringify({ reportedUsd, missingCost, capCharge, receipts }, null, 2) + '\n');
     return response;
   },

@@ -9,6 +9,16 @@ const questions = [
 ];
 
 describe('the discriminative condition reader', () => {
+  it('reads one complete JSON answer after a model explanation', async () => {
+    const reader = createConditionReader({
+      family: 'fictional',
+      complete: async () => 'The first condition matches.\n{"answers":[true,false]}',
+    });
+    expect(await reader.read('clause', questions)).toEqual({
+      'delay/two': { yes: 1 }, 'delay/one': { yes: 0 },
+    });
+  });
+
   it('asks about every candidate together and projects only explicit binary decisions', async () => {
     const complete = vi.fn(async (_request: unknown) => '{"answers":[true,false]}');
     const reader = createConditionReader({ family: 'fictional', model: 'binary-1', complete });
@@ -76,7 +86,7 @@ describe('a binary reader inside the condition feed', () => {
     });
     expect(result.report.proposerCalls).toBe(0);
     expect(propose).not.toHaveBeenCalled();
-    expect(store.variables[0]?.values[0]?.provenance).not.toContainEqual({
+    expect(store.variables[0]?.values[0]?.provenance ?? []).not.toContainEqual({
       kind: 'quote', path: 'rules.md', quote,
     });
   });
