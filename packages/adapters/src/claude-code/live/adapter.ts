@@ -318,7 +318,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         rateWave: join(stateFolder, 'rate-wave'),
         applied: new Set(),
         estateBase,
-        ...(options.branching === true && history.length > 0 ? { seedRecords: recordsOfMessages(history, new Date().toISOString()) } : {}),
+        ...(options.branching === true && history.length > 0
+          ? { seedRecords: recordsOfMessages(history, new Date().toISOString()) }
+          : {}),
         seeded: given.world.workspace,
         pids: [],
         helperCount: 0,

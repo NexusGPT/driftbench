@@ -216,7 +216,13 @@ export function recordsOfMessages(
     const uuid = `seed-${records.length + 1}`;
     records.push(
       message.role === 'user'
-        ? { type: 'user', uuid, parentUuid: parent, timestamp: at, message: { role: 'user', content: message.content } }
+        ? {
+            type: 'user',
+            uuid,
+            parentUuid: parent,
+            timestamp: at,
+            message: { role: 'user', content: message.content },
+          }
         : {
             type: 'assistant',
             uuid,

@@ -99,7 +99,9 @@ describe('branching', () => {
     expect(files['reports/2026-W41.md']).toBeDefined();
     expect(files['reports/2026-W41.md']).not.toBe(SEED['reports/2026-W41.md']);
     expect(files['ledger/2026-W41.csv']).toBe(SEED['ledger/2026-W41.csv']);
-    expect(Object.keys(files).filter((path) => path === 'CLAUDE.md' || path.startsWith('.claude/'))).toEqual([]);
+    expect(Object.keys(files).filter((path) => path === 'CLAUDE.md' || path.startsWith('.claude/'))).toEqual(
+      [],
+    );
 
     // A continuation opened from that end state and the earlier turns finds the edited report and resumes the turns.
     const child: ResolvedGiven = { ...givenOf(), world: end?.world ?? {}, prefix: EARLIER };
@@ -122,7 +124,10 @@ describe('branching', () => {
     const child: ResolvedGiven = { ...givenOf(), world: end?.world ?? {}, prefix: EARLIER };
     const a = await adapter.open(child);
     const b = await adapter.open(child);
-    cleanups.push(() => adapter.close(a), () => adapter.close(b));
+    cleanups.push(
+      () => adapter.close(a),
+      () => adapter.close(b),
+    );
     await sandboxOf(a).seed({ files: { 'notes/only-a.txt': 'a' } });
     expect(await sandboxOf(b).listFiles()).not.toContain('notes/only-a.txt');
   });
