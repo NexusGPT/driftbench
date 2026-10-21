@@ -12,7 +12,7 @@ This guide teaches driftbench by doing. Every part follows the same shape, so yo
 | How to read it | What each line means, and what a good result looks like. |
 | If it goes wrong | The message you may see, and the exact fix. |
 
-Every command in the guide is run by a test on GitHub, and every output shown is what the command printed. The one exception is the command that calls a billed model. It is run once by hand, its output is shown as recorded, and the page says so.
+Every command in the guide is run by a test on GitHub, and every output shown is what the command printed. A few outputs are marked as recorded on the page, with how they were made: the commands that call a billed model (run once by hand), and the `validate stats` run (a GitHub runner, with its run id). A command that never ends, such as a server, or that takes minutes, such as a full ladder, is shown without output and marked as not run.
 
 ## Install
 

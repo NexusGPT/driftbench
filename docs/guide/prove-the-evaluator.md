@@ -126,7 +126,27 @@ No level failed.
 - `Floor: 20. BELOW THE FLOOR.`: this compares a slice with the floor of the whole ladder. A slice cannot reach it. CI runs the whole ladder.
 - The exit code is 0 for a slice. CI joins slices with `--reports` to rebuild a whole run.
 
-A whole ladder takes minutes, so the tests of this page do not run one. The statistics ladder is slower still: on the GitHub runner that runs these tests, level 1 of `validate stats` alone ran for more than 4 minutes and was stopped. This is how CI runs every ladder. It is shown for reference and it is not run here:
+A whole ladder takes minutes, so the tests of this page do not run one. The statistics ladder is the slowest, so here is a real run of its first three levels, recorded on a GitHub runner (run 39694718442, Node 24). It took 47 seconds and exited 0:
+
+```txt
+$ driftbench validate stats --seed 1 --levels 1..3
+Validator stats (ladder version 4)
+Level  Name                 Metric                                                                                                              Threshold  seed 1
+1      reference values     fixture groups matching scipy and numpy / groups                                                                    >= 1       1 pass
+2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases                                     >= 1       1 pass
+3      reproducibility      same seed same bits, other seed other draw, order invariance / items                                                >= 1       1 pass
+4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items                          >= 1       not run
+5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                                            >= 1       not run
+6      scale and stability  one-million-row calls under budget and shift-stable results / items                                                 >= 1       not run
+7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                                         >= 1       not run
+8      new capabilities     functions docs/statistics defines and the package lacks, matching exact references, refusing invalid input / items  >= 1       not run
+Level per seed: 1 = 3
+Level of the run: 3 of 8, the minimum over 1 seed.
+Floor: 3. At or above the floor.
+No level failed.
+```
+
+Read it like the judges table: levels 1 to 3 pass, the others are `not run`, and `Floor: 3. At or above the floor.` says the first three levels are all that this ladder requires today. This is how CI runs every ladder. It is shown for reference and it is not run here:
 
 ```bash
 driftbench validate all --seeds 1..3 --hidden --check-floor
