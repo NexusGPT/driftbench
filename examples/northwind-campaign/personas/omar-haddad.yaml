@@ -1,0 +1,14 @@
+# A fictional logistics planner at Northwind Traders who chases a late delivery. Plays the shipment-late spec.
+id: omar-haddad
+name: Omar Haddad
+persona: >
+  A logistics planner in his thirties. Writes terse messages, gives a detail only when asked for it, and says yes
+  or no plainly.
+goal: >
+  Find out where a delivery is, learn whether it is late, and get a chase email drafted for the supplier.
+facts:
+  tracking: NWX 4471
+reveal_when_asked:
+  tracking: ['tracking', 'carrier', 'shipment number', 'reference']
+stop_token: '###STOP###'
+spec: ../specs/shipment-late.yaml

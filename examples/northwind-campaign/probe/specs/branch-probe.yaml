@@ -1,0 +1,20 @@
+# The smallest test of a block that starts from another block: the parent states a code word, the child asks for
+# it. The child can answer only if it resumed the parent's turns. Fictional.
+id: northwind-branch-probe
+version: '1'
+kind: task
+title: A continuation sees the turns of its parent
+lang: EN
+tier: core
+tags: [northwind, probe, parents]
+target: { adapter: claude-code, agent: northwind }
+blocks:
+  - id: tell
+    user: For this chat, the code word is PELICAN. Reply with the single word ok.
+    expect:
+      must: ['ok']
+  - id: ask
+    parent: tell
+    user: What is the code word? Reply with the word only.
+    expect:
+      must: ['PELICAN']

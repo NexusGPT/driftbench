@@ -1,0 +1,23 @@
+name: northwind regressions
+on:
+  workflow_dispatch:
+    inputs:
+      jobs:
+        required: true
+        type: string
+        description: 'regressions: focused Northwind regression tests only'
+permissions:
+  contents: read
+jobs:
+  regressions:
+    if: startsWith(github.ref, 'refs/heads/train/') && inputs.jobs == 'regressions'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec vitest run packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts --maxWorkers=2

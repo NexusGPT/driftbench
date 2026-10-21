@@ -1,0 +1,66 @@
+# Reconcile an invoice that runs 60.00 EUR over its purchase order. The user does not name the invoice at first,
+# so the assistant must ask (R8, R9); the difference is above 50.00 EUR, so the ledger auditor must be dispatched.
+# Fictional data only.
+id: northwind-invoice-over
+version: '1'
+kind: task
+title: Reconcile an invoice that runs 60.00 EUR over its order
+lang: EN
+tier: core
+tags: [northwind, campaign, skill:invoice-reconcile]
+target: { adapter: claude-code, agent: northwind }
+uses: { diagnostics: [code-agent-liability] }
+workspace_seed:
+  files:
+    ledger/INV-1004.json: |
+      {"lines": [
+        {"article": "NW-PAN-20", "quantity": 120, "unit_price": 12.50},
+        {"article": "NW-KNF-08", "quantity": 40, "unit_price": 7.00}
+      ]}
+    ledger/PO-77.json: |
+      {"lines": [
+        {"article": "NW-PAN-20", "quantity": 120, "unit_price": 12.00},
+        {"article": "NW-KNF-08", "quantity": 40, "unit_price": 7.00}
+      ]}
+metadata:
+  tool_schemas:
+    Skill:
+      type: object
+      properties:
+        skill:
+          type: string
+          enum: [invoice-reconcile, shipment-tracker, supplier-email, weekly-report]
+  estate:
+    map: ../../estates/fixture/approved.yaml
+    atoms:
+      - skill.invoice-reconcile.skill-invoice-reconcile
+      - route.standing.an-ask-to-reconcile-an-invoice
+      - instruction.invoice-reconcile.run-the-reconcile-script-and-show
+      - instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      - instruction.standing.never-invent-order-numbers-prices-or
+blocks:
+  - id: ask
+    user: Hi, I need an invoice checked against its purchase order.
+    expect:
+      must: ['\?']
+      workspace: { created: [], changed: [], deleted: [] }
+  - id: reconcile
+    user: It is invoice INV-1004 against purchase order PO-77.
+    expect:
+      skills:
+        - { name: invoice-reconcile, count: { min: 1 } }
+      tools:
+        - label: Skill
+          input: { skill: invoice-reconcile }
+      references:
+        - { path: '**/matching-rules.md', count: { min: 1 } }
+      execution: { ran_code: true }
+      subagents:
+        - { name: ledger-auditor, count: { min: 1 } }
+      regex: ['60\.00 EUR']
+      workspace: { created: [], changed: [], deleted: [] }
+  - id: close
+    user: Thanks, that is all I needed.
+    expect:
+      length: { chars: { max: 1200 } }
+      workspace: { created: [], changed: [], deleted: [] }
