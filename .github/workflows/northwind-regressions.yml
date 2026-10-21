@@ -32,7 +32,7 @@ jobs:
       - name: Format lane files on GitHub
         if: always()
         run: |
-          pnpm exec biome check --write packages/cli/test/northwind-contracts.test.ts examples/northwind-campaign/rehearsal/manifest.json packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/users/src/simulated.ts examples/northwind-campaign/plugin.mjs examples/northwind-campaign/rehearsal/claude.mjs
+          pnpm exec biome check --write examples/northwind-campaign/evidence/live-mac-2026-10-21.json packages/cli/test/northwind-contracts.test.ts examples/northwind-campaign/rehearsal/manifest.json packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/users/src/simulated.ts examples/northwind-campaign/plugin.mjs examples/northwind-campaign/rehearsal/claude.mjs
           git diff > /tmp/northwind-format.patch
       - uses: actions/upload-artifact@v4
         if: always()
