@@ -62,8 +62,9 @@ export const get = () => 137;
   it('D1: a detached writer that clears its environment and leaves the session is dead after the frame (Linux, PID namespace)', async () => {
     // On Linux the validators run in CI with a PID namespace: the kernel kills every process of it with run C. Where
     // the system has none (macOS), the session and tag kill is the residual (docs/validators.md section 12.9).
-    if (process.platform === 'linux') expect(namespaceAvailable()).toBe(true);
-    else return;
+    // DRIFTBENCH_FRAME_NO_NAMESPACE=1 is the mutant of the mutation run: the writer must then survive and fail the test.
+    if (process.platform !== 'linux') return;
+    if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE !== '1') expect(namespaceAvailable()).toBe(true);
     const oracle = join(work, 'expected-d1.json');
     writeFileSync(oracle, '137');
     const late = join(work, 'late-d1.txt');
