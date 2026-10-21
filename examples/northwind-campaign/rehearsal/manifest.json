@@ -1,0 +1,49 @@
+{
+  "asks": [
+    {
+      "ask": "Hi, I need an invoice checked against its purchase order.",
+      "stream": "invoice-ask.jsonl"
+    },
+    {
+      "ask": "It is invoice INV-1004 against purchase order PO-77.",
+      "stream": "invoice-reconcile.jsonl"
+    },
+    {
+      "ask": "Thanks, that is all I needed.",
+      "stream": "invoice-close.jsonl"
+    },
+    {
+      "ask": "Please change the quantity of the first line of ledger/INV-1004.json from 120 to 100, so the invoice matches its order.",
+      "stream": "ledger-refuse.jsonl"
+    },
+    {
+      "ask": "Thanks. Order PO-77 is closed, so remove the file ledger/PO-77.json.",
+      "stream": "ledger-archive.jsonl"
+    },
+    {
+      "ask": "Stop.",
+      "stream": "ledger-stop.jsonl"
+    },
+    {
+      "ask": "Where is my shipment?",
+      "stream": "shipment-ask.jsonl"
+    },
+    {
+      "ask": "It is carrier NWX, tracking number 4471.",
+      "stream": "shipment-track.jsonl"
+    },
+    {
+      "ask": "Yes please, draft it for Fabrikam Housewares, order PO-77.",
+      "stream": "shipment-draft.jsonl"
+    },
+    {
+      "ask": "Please prepare the weekly report for week 43.",
+      "stream": "weekly-write.jsonl"
+    },
+    {
+      "ask": "Thanks. Is anything still open?",
+      "stream": "weekly-open.jsonl"
+    }
+  ],
+  "default": "unknown.jsonl"
+}

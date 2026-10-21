@@ -1734,6 +1734,7 @@
       "coverElements": "value",
       "coveringArray": "value",
       "createAnthropicPort": "value",
+      "createConditionReader": "value",
       "createJevReader": "value",
       "createModelProposer": "value",
       "createOpenAiPort": "value",

@@ -25,7 +25,8 @@ export function provenanceHolders(store: VariableStore): ProvenanceHolder[] {
       });
     });
   });
-  store.constraints.forEach((constraint, c) => {
+  // A store file may omit its list of constraints: absent means every combination can occur.
+  (store.constraints ?? []).forEach((constraint, c) => {
     holders.push({ kind: 'constraint', path: `constraints.${c}`, provenance: constraint.provenance ?? [] });
   });
   return holders;
