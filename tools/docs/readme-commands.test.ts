@@ -1,148 +1,13 @@
-import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import { describe, expect, it } from 'vitest';
-import { main } from '../../packages/cli/src/index';
+import { report, runGuidePage, steps } from './guide-page';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '');
 const FOLD = /<details><summary>How to do it([^<]*)<\/summary>([\s\S]*?)<\/details>/g;
-const exec = promisify(execFile);
 const FILE_LINE = /^(?:#|\/\/) file: (.+)\n/;
-
-type Step = { command: string; shown: string[]; exit: number };
-
-/** Splits a command line into words. Double and single quotes group; a backslash escapes inside double quotes. */
-function words(line: string): string[] {
-  const out: string[] = [];
-  let word = '';
-  let open = false;
-  let quote = '';
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line.charAt(i);
-    if (quote === '"' && ch === '\\') {
-      i += 1;
-      word += line.charAt(i);
-    } else if (quote !== '' && ch === quote) {
-      quote = '';
-    } else if (quote === '' && (ch === '"' || ch === "'")) {
-      quote = ch;
-      open = true;
-    } else if (quote === '' && ch === ' ') {
-      if (open || word !== '') out.push(word);
-      word = '';
-      open = false;
-    } else {
-      word += ch;
-    }
-  }
-  if (open || word !== '') out.push(word);
-  return out;
-}
-
-/** The steps of a console block: a line that starts with `$ ` is a command, the lines after it are its output. */
-function steps(block: string): Step[] {
-  const found: Step[] = [];
-  for (const line of block.split('\n')) {
-    if (line.startsWith('$ ')) {
-      const exit = /\s+# exit (\d)$/.exec(line);
-      const command = line.slice(2).replace(/\s+# exit \d$/, '');
-      found.push({ command, shown: [], exit: exit ? Number(exit[1]) : 0 });
-    } else if (line.trim() !== '') {
-      found[found.length - 1]?.shown.push(line.trimEnd());
-    }
-  }
-  return found;
-}
-
-/** The printed lines of a command: no blank line, no trailing space, no absolute path of the clone or the folder. */
-function clean(text: string, cwd: string): string[] {
-  return text
-    .replaceAll(`${ROOT}/`, '')
-    .replaceAll(`${cwd}/`, '')
-    .split('\n')
-    .map((line) => line.trimEnd())
-    .filter((line) => line !== '');
-}
-
-/** Runs one shown driftbench command in `cwd` and returns its exit code and printed lines. */
-async function run(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
-  const argv = words(command.replaceAll('$PWD', cwd));
-  while (['pnpm', 'npx', 'driftbench'].includes(argv[0] ?? '')) argv.shift();
-  const resolved = argv.map((word) => (/^(examples|packages)\//.test(word) ? join(ROOT, word) : word));
-  let text = '';
-  const code = await main(resolved, {
-    cwd,
-    out: (chunk) => {
-      text += chunk;
-    },
-    err: (chunk) => {
-      text += chunk;
-    },
-  });
-  return { code, lines: clean(text, cwd) };
-}
-
-/** Runs one shown shell command (grep, sed, cp, mkdir) in `cwd`. */
-async function shell(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
-  try {
-    const done = await exec('/bin/sh', ['-c', `{ ${command}\n} < /dev/null`], { cwd, timeout: 30_000 });
-    return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
-  } catch (error) {
-    const failed = error as { code?: number; stdout?: string; stderr?: string };
-    const text = `${failed.stdout ?? ''}${failed.stderr ?? ''}`;
-    return { code: failed.code ?? 1, lines: clean(text, cwd) };
-  }
-}
-
-/** Runs one shown driftbench command as its own process, as a person would: the CLI entry point under tsx. */
-async function spawnCli(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
-  const argv = words(command.replaceAll('$PWD', cwd));
-  while (['pnpm', 'npx', 'driftbench'].includes(argv[0] ?? '')) argv.shift();
-  try {
-    const tsx = join(ROOT, 'node_modules/.bin/tsx');
-    const done = await exec(tsx, [join(ROOT, 'packages/cli/src/bin.ts'), ...argv], {
-      cwd,
-      timeout: 240_000,
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
-  } catch (error) {
-    const failed = error as { code?: number; stdout?: string; stderr?: string };
-    return { code: failed.code ?? 1, lines: clean(`${failed.stdout ?? ''}${failed.stderr ?? ''}`, cwd) };
-  }
-}
-
-/** A command of the walkthrough: driftbench, or the shell. */
-async function execute(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
-  if (/^(pnpm |npx )?driftbench /.test(command)) return spawnCli(command, cwd);
-  return shell(command, cwd);
-}
-
-/** What a step shows is its printed output, in order, and its exit code. */
-function mismatch(step: Step, got: { code: number; lines: string[] }): string[] {
-  const found: string[] = [];
-  let from = 0;
-  for (const line of step.shown) {
-    const at = got.lines.indexOf(line, from);
-    if (at < 0) {
-      found.push(`the README line is not printed, in order: ${line}`);
-    } else {
-      from = at + 1;
-    }
-  }
-  if (got.code !== step.exit) found.push(`exit code ${got.code}, the README says ${step.exit}`);
-  return found;
-}
-
-async function report(command: string, step: Step, cwd: string): Promise<string> {
-  const got = /^(pnpm |npx )?driftbench /.test(command) ? await run(command, cwd) : await shell(command, cwd);
-  const found = mismatch(step, got);
-  if (found.length === 0) return '';
-  return `$ ${command}\n${found.join('\n')}\nPrinted:\n${got.lines.join('\n')}\n`;
-}
 
 describe('README commands that print what they show', () => {
   it('runs the quickstart of the guide', async () => {
@@ -206,38 +71,7 @@ describe('README commands that print what they show', () => {
   }, 600_000);
 
   it('runs the walkthrough on the fixture estate, one folder, step by step', async () => {
-    const section = await readFile(`${ROOT}/docs/guide/walkthrough.md`, 'utf8');
-    const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
-    expect(consoles.length).toBeGreaterThan(6);
-    const base = await mkdtemp(join(tmpdir(), 'driftbench-walk-'));
-    try {
-      await symlink(join(ROOT, 'examples'), join(base, 'examples'));
-      let cwd = base;
-      const problems: string[] = [];
-      const printed = new Set<string>();
-      for (const block of consoles) {
-        for (const step of steps(block)) {
-          if (step.command.startsWith('cd ')) {
-            cwd = join(cwd, step.command.slice(3).trim());
-            continue;
-          }
-          const got = await execute(step.command, cwd);
-          for (const line of got.lines) printed.add(line);
-          const found = mismatch(step, got);
-          if (found.length > 0) {
-            const printed = got.lines.map((line) => line.slice(0, 400)).join('\n');
-            problems.push(`$ ${step.command}\n${found.join('\n')}\nPrinted:\n${printed}\n`);
-          }
-        }
-      }
-      for (const excerpt of section.matchAll(/```text\n([\s\S]*?)\n```/g)) {
-        for (const line of (excerpt[1] ?? '').split('\n')) {
-          if (!printed.has(line.trimEnd())) problems.push(`An excerpt line no command printed: ${line}`);
-        }
-      }
-      expect(problems.filter((problem) => problem !== '').join('\n')).toBe('');
-    } finally {
-      await rm(base, { recursive: true, force: true });
-    }
+    const problems = await runGuidePage(ROOT, 'docs/guide/walkthrough.md');
+    expect(problems.join('\n')).toBe('');
   }, 600_000);
 });
