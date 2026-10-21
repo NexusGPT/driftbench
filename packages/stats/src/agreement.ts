@@ -284,5 +284,5 @@ export function weightedKappa(
     }
   }
   if (expected === 0) return 1;
-  return 1 - (observed / n) / (expected / (n * n));
+  return 1 - observed / n / (expected / (n * n));
 }
