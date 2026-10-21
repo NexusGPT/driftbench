@@ -949,7 +949,7 @@ describe('variablesFromSources: one clause, one label', () => {
     const make = (conditions: Array<{ text: string; label?: unknown }>) =>
       variablesFromSources({
         estate: {
-          files: { 'RULES.md': `${plain}\n${spaced}` },
+          files: { 'RULES.md': `${plain}\n${spaced}\n${spaced.toUpperCase()}` },
           rules: [{ id: 'R', source: 'RULES.md', tools: [], conditions }],
         },
       } as never);
@@ -969,11 +969,12 @@ describe('variablesFromSources: one clause, one label', () => {
     // A spelling with no label takes the label of the other one.
     const partial = make([{ text: plain, label: a }, { text: spaced }]);
     expect(partial.store.variables).toHaveLength(1);
-    // Case and words still matter: this is not a different clause folded together.
+    // Case still matters: the clause in capitals is in the file, is another clause, and keeps its own label.
     const other = make([
       { text: plain, label: a },
       { text: spaced.toUpperCase(), label: b },
     ]);
-    expect(other.refused).toHaveLength(1);
+    expect(other.refused).toEqual([]);
+    expect(other.store.variables.map((v) => v.title).sort()).toEqual(['delay', 'the delay']);
   });
 });
