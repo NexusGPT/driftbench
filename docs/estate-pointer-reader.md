@@ -281,7 +281,7 @@ Cheapest first, on units:
 1. A histogram diff of the old and new unit sequences fixes the unchanged anchors (`unchanged`).
 2. Exact text elsewhere in the file or estate, above a length floor: `moved`; several matches: `ambiguous` (all kept, as the W3C model says).
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
-4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
+4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`. The joined text must beat the better of the two parts by more than 0.1 (the margin) and reach 0.70 (`threshold` 0.45 plus `joinMargin` 0.25, the floor), both in the reader's `LADDER` constants.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
 
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
