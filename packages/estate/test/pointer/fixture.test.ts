@@ -68,6 +68,19 @@ describe('the fixture through its committed cassettes', () => {
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
 
+  it('builds the git status before commit gate from the recorded nested command spans', async () => {
+    const { result } = await replay();
+    const gate = result.map.atoms.find(
+      (atom) => atom.kind === 'gate' && atom.provenance.quote.includes('**R14.**'),
+    );
+    expect(gate?.fields).toMatchObject({ first: 'git status', second: 'commit' });
+    expect(gate?.evidence).toContainEqual({
+      type: 'ordered',
+      before: 'Bash~git status',
+      after: 'Bash~commit',
+    });
+  });
+
   it('builds only atoms whose quote is a slice of the file at its lines', async () => {
     const { result } = await replay();
     const pointed = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');

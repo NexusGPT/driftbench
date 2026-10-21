@@ -790,3 +790,64 @@ describe('where the pointer reader looks for a file', () => {
     expect(atom?.fields).not.toHaveProperty('resolvedBy');
   });
 });
+
+describe('the ordered pair of the shipped set', () => {
+  const FILES_R14 = {
+    'CLAUDE.md': ['# Harbour office', '', '- Run `git status` before you run `git commit`.', ''].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+  const pair = (over: Record<string, unknown> = {}) => ({
+    units: '2',
+    label: 'gate-calls',
+    spans: [
+      { kind: 'governed-action', text: 'run `git status` before you run `git commit`' },
+      { kind: 'first-call', text: 'git status' },
+      { kind: 'second-call', text: 'git commit' },
+    ],
+    links: [{ kind: 'act-tool', to: 'Bash' }],
+    ...over,
+  });
+
+  it('nests the two calls in the governed-action span of the set', () => {
+    const kinds = new Map(sets[0]?.spans?.map((kind) => [kind.name, kind.within]));
+    expect(kinds.get('first-call')).toBe('governed-action');
+    expect(kinds.get('second-call')).toBe('governed-action');
+  });
+
+  it('builds a gate with its order from the two calls: git status before git commit', async () => {
+    const { result } = await scan({ 'CLAUDE.md': [pair()] }, { sets }, FILES_R14);
+    expect(result.pointer?.refusals).toEqual([]);
+    const gate = result.map.atoms.find((atom) => atom.kind === 'gate');
+    expect(gate?.title).toBe('Run git status before git commit');
+    expect(gate?.fields).toMatchObject({ first: 'git status', second: 'git commit' });
+    expect(gate?.evidence).toContainEqual({
+      type: 'ordered',
+      before: 'Bash~git status',
+      after: 'Bash~git commit',
+    });
+  });
+
+  it('refuses the entry when a call is outside the governed-action span', async () => {
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          pair({
+            spans: [
+              { kind: 'governed-action', text: 'before you run `git commit`' },
+              { kind: 'first-call', text: 'git status' },
+              { kind: 'second-call', text: 'git commit' },
+            ],
+          }),
+        ],
+      },
+      { sets },
+      FILES_R14,
+    );
+    expect(result.pointer?.refusals).toEqual([
+      expect.stringContaining('is not inside a span of the kind governed-action'),
+    ]);
+    expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
+  });
+
+});
