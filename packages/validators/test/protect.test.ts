@@ -707,6 +707,8 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(shard.name).toBe(`pr affected shard \${{ matrix.shard }}/${AFFECTED_SHARDS}`);
   expect(shard.if).toBe(AFFECTED_CONDITION);
   expect(join.if).toBe(`always() && (${AFFECTED_CONDITION})`);
+  // the slices wait for pr fast and only for it: a head that fails pr fast spends none of them
+  expect([shard.needs].flat(), 'the slices wait for pr fast').toEqual(['pr-fast']);
   expect(join['timeout-minutes']).toBeLessThanOrEqual(10);
   for (const id of ['pr-affected-shard', 'pr-affected']) {
     const affected = (ctx: Ctx) => runs(ctx, id, workflow);
@@ -1294,6 +1296,12 @@ describe('merge train enforcement', () => {
       const planting = structuredClone(workflow);
       gateOf(planting).run = planted + gateOf(planting).run;
       expect(() => assertAffectedBehaviour(planting), planted).toThrow();
+    }
+    for (const needs of [undefined, [], ['pr-fast', 'build'], ['checks']]) {
+      const unordered = structuredClone(workflow);
+      if (needs === undefined) delete unordered.jobs['pr-affected-shard'].needs;
+      else unordered.jobs['pr-affected-shard'].needs = needs;
+      expect(() => assertAffectedBehaviour(unordered), JSON.stringify(needs)).toThrow();
     }
     const noNeeds = structuredClone(workflow);
     noNeeds.jobs['pr-affected'].needs = [];
