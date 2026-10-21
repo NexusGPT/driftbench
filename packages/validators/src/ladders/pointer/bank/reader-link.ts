@@ -305,7 +305,11 @@ export class HostPool {
   async open(): Promise<Session> {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       if (this.failure) return unreachable(this.failure);
-      const starting = (this.current ??= Host.start(this.module));
+      let starting = this.current;
+      if (!starting) {
+        starting = Host.start(this.module);
+        this.current = starting;
+      }
       const host = await starting;
       if (host.failure) {
         this.failure = host.failure;
