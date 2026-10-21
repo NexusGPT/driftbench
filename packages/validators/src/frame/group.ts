@@ -16,8 +16,8 @@ import { rngOf } from './twins';
 const LAUNCHER = String.raw`
 const { spawn, execFileSync } = require('node:child_process');
 const fs = require('node:fs');
-const [name, value, mode, ...asked] = process.argv.slice(1);
-const command = mode === 'ns' ? ['unshare', '--user', '--map-user=' + process.getuid(), '--map-group=' + process.getgid(), '--pid', '--fork', '--kill-child', '--', ...asked] : asked;
+const [name, value, prefix, ...asked] = process.argv.slice(1);
+const command = [...JSON.parse(prefix), ...asked];
 const mark = Buffer.from(name + '=' + value + '\0');
 function tagged() {
   const found = [];
@@ -62,36 +62,54 @@ child.on('error', () => finish(127));
 child.on('exit', (code, signal) => finish(code === null ? (signal ? 1 : 0) : code));
 `;
 
-let namespaces: boolean | undefined;
+let namespaces: string[] | undefined;
 
 /**
- * Whether run C can be started in a PID namespace of its own: Linux, `unshare` present, and an unprivileged user
- * namespace allowed. DRIFTBENCH_FRAME_NO_NAMESPACE=1 turns it off (the tests that pin the fallback).
+ * The words that start a command as the first process of a PID namespace, or none. Two ways, tried in this order: an
+ * unprivileged user namespace (`unshare --user --map-user=uid --pid --fork --kill-child`), and where the system forbids
+ * that but gives the user passwordless sudo (GitHub's Linux runners), a namespace made by root whose process drops
+ * back to the same uid and gid (`sudo -n -E unshare --pid --fork --kill-child -- setpriv --reuid --regid`). The run
+ * keeps the user's uid, gid, environment and working folder either way. DRIFTBENCH_FRAME_NO_NAMESPACE=1 turns it off
+ * (the mutation run of the tests that pin it).
  */
-export function namespaceAvailable(): boolean {
-  if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE === '1') return false;
+export function namespacePrefix(): string[] {
+  if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE === '1') return [];
   if (namespaces !== undefined) return namespaces;
-  if (process.platform !== 'linux' || process.getuid === undefined || process.getgid === undefined) {
-    namespaces = false;
-    return false;
-  }
-  const probe = spawnSync(
-    'unshare',
+  namespaces = [];
+  if (process.platform !== 'linux' || process.getuid === undefined || process.getgid === undefined)
+    return namespaces;
+  const uid = process.getuid();
+  const gid = process.getgid();
+  const ways = [
+    ['unshare', '--user', `--map-user=${uid}`, `--map-group=${gid}`, '--pid', '--fork', '--kill-child', '--'],
     [
-      '--user',
-      `--map-user=${process.getuid()}`,
-      `--map-group=${process.getgid()}`,
+      'sudo',
+      '-n',
+      '-E',
+      'unshare',
       '--pid',
       '--fork',
       '--kill-child',
       '--',
-      'true',
+      'setpriv',
+      `--reuid=${uid}`,
+      `--regid=${gid}`,
+      '--clear-groups',
+      '--',
     ],
-    { stdio: 'ignore' },
-  );
-  namespaces = probe.status === 0;
+  ];
+  for (const way of ways) {
+    const probe = spawnSync(way[0] as string, [...way.slice(1), 'true'], { stdio: 'ignore' });
+    if (probe.status === 0) {
+      namespaces = way;
+      break;
+    }
+  }
   return namespaces;
 }
+
+/** Whether run C starts in a PID namespace here. */
+export const namespaceAvailable = (): boolean => namespacePrefix().length > 0;
 
 /** The name and value that tag what one run C starts, drawn from the seed and the tag. */
 export function runTag(seed: number, tag: string): { name: string; value: string } {
@@ -117,7 +135,7 @@ export function spawnGrouped(
 ): SpawnSyncReturns<string> {
   return spawnSync(
     process.execPath,
-    ['-e', LAUNCHER, tag.name, tag.value, namespaceAvailable() ? 'ns' : 'none', command, ...args],
+    ['-e', LAUNCHER, tag.name, tag.value, JSON.stringify(namespacePrefix()), command, ...args],
     options,
   );
 }

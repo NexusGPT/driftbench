@@ -165,9 +165,9 @@ try {
 export const get = () => (${FRESH});
 `,
     );
-    frames(module);
+    const rows = frames(module);
     const message = finishInvocation();
-    expect(message).toMatch(/util\.tsx \(added\)/);
+    expect(message, JSON.stringify({ rows, message })).toMatch(/util\.tsx \(added\)/);
     forgetSealedProducts();
     expect(() => isolate({ module, seed: 5 })).toThrow(/earlier run C changed the tree/);
   });
