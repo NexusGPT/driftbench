@@ -105,6 +105,7 @@ export {
   type LevelRow,
   ladderVersion,
   type Measure,
+  mergeSeedRuns,
   passes,
   RESERVED_COMPONENTS,
   type RunOptions,

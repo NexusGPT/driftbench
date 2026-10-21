@@ -125,7 +125,7 @@ policy/value-check  default               shipped  cf504563
 
 Without the plugin, the same spec is invalid: `OBJECT_UNKNOWN  spec routed: uses.check_set: unknown object check-set:acme`.
 
-* A plugin never replaces what driftbench ships or what another plugin registered. A kind, an implementation, an evidence name, a template id or an object `kind:id` already held is refused with exit code 2 and a line naming the plugin and what already holds the name: the other plugin, or driftbench. To change a shipped object, ship an object that extends it.
+* A plugin never replaces what driftbench ships or what another plugin registered. A kind, an implementation, an evidence name, a template id or an object `kind:id` already held is refused with exit code 2 and a line naming the plugin that registers it. For a kind, an evidence name, a template id or an object, the line also names what already holds it: the other plugin, or driftbench. For an implementation that is already registered, the line names no holder. To change a shipped object, ship an object that extends it.
 * A plugin's objects join the shipped layer, and they resolve when the plugin loads.
 * Everything a plugin registers is forgotten when its command ends.
 * Limit. The loader registers and checks these parts. A run does not execute a rule, a step, an evidence function or a template parser a plugin registers yet: `campaign run` on the spec above runs the shipped checks only.

@@ -2,9 +2,46 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
-import { PROTECTED_PATHS, protectedChanges } from '../src/index';
+import { PROTECTED_PATHS, protectedChanges, registeredLadders } from '../src/index';
 
 const WORKFLOW = new URL('../../../.github/workflows/validators.yml', import.meta.url);
+
+/** The retry of a stalled checkout: the first checkout of a job is cut after 3 minutes, and this one runs if it failed. */
+const CHECKOUT_RETRY = "steps.checkout.outcome != 'success'";
+type CheckoutStep = {
+  uses?: string;
+  id?: string;
+  if?: string;
+  'timeout-minutes'?: number;
+  'continue-on-error'?: boolean;
+  with?: unknown;
+};
+const isCheckout = (step: CheckoutStep) => step.uses?.startsWith('actions/checkout@') === true;
+const isCheckoutRetry = (step: CheckoutStep) => isCheckout(step) && step.if === CHECKOUT_RETRY;
+
+/** Every checkout of every job is a pair: one cut after 3 minutes that may fail, and one retry with the same inputs. */
+function assertCheckoutRetry(workflow: ReturnType<typeof parse>) {
+  const checkouts = Object.values<{ steps: CheckoutStep[] }>(workflow.jobs).filter((job) =>
+    job.steps.some(isCheckout),
+  );
+  expect(checkouts.length, 'jobs with a checkout').toBeGreaterThan(2);
+  for (const [id, job] of Object.entries<{ steps: CheckoutStep[] }>(workflow.jobs)) {
+    const steps = job.steps;
+    const at = steps.findIndex(isCheckout);
+    if (at < 0) continue; // a job that reads no file of the repository, such as the train gate
+    expect(steps.filter(isCheckout), `${id}: a checkout and its retry`).toHaveLength(2);
+    const first = steps[at] as CheckoutStep;
+    const retry = steps[at + 1] as CheckoutStep;
+    expect(first.id, id).toBe('checkout');
+    expect(first['timeout-minutes'], id).toBe(3);
+    expect(first['continue-on-error'], id).toBe(true);
+    expect(first.if, id).toBeUndefined();
+    expect(isCheckoutRetry(retry), `${id}: the retry follows the checkout`).toBe(true);
+    expect(retry['timeout-minutes'], id).toBe(10);
+    expect(retry.with, id).toEqual(first.with);
+    expect(retry.uses, id).toBe(first.uses);
+  }
+}
 
 describe('protectedChanges', () => {
   const files = [
@@ -92,7 +129,20 @@ const CI_HEAVY = [
   'guard',
   'timing',
 ];
-const VALIDATORS_HEAVY = ['ladders', 'system-full'];
+/**
+ * The jobs of the validators workflow, each with the id a dispatch lists to run it: the legs and the job that
+ * joins them run together. `ladders` and `system-full` are the jobs that join their legs and gate the run.
+ */
+const VALIDATORS_TOKENS: Record<string, string> = {
+  'ladders-leg': 'ladders',
+  'ladders-tail': 'ladders',
+  'ladders-handover': 'ladders',
+  ladders: 'ladders',
+  'system-leg': 'system-full',
+  'system-full': 'system-full',
+};
+const VALIDATORS_JOBS = Object.keys(VALIDATORS_TOKENS);
+const VALIDATORS_JOINS = ['ladders', 'system-full'];
 
 interface Ctx {
   event: string;
@@ -184,10 +234,15 @@ const LOOKALIKE_PRS: Ctx[] = [
 ];
 const dispatchOn = (ref: string, jobs: string): Ctx => ({ event: 'workflow_dispatch', ref, jobs });
 
-/** Behaviour of the heavy-job conditions, as GitHub would evaluate them. */
-function assertDispatchBehaviour(workflow: ReturnType<typeof parse>, ids: string[]) {
-  const [first, second] = ids;
+/** Behaviour of the heavy-job conditions, as GitHub would evaluate them. `tokenOf` maps a job to the id a dispatch lists. */
+function assertDispatchBehaviour(
+  workflow: ReturnType<typeof parse>,
+  ids: string[],
+  tokenOf: (id: string) => string = (id) => id,
+) {
+  const tokens = [...new Set(ids.map(tokenOf))];
   for (const id of ids) {
+    const token = tokenOf(id);
     expect(runs(MAIN_PUSH, id, workflow)).toBe(true);
     expect(runs(TRAIN_PR, id, workflow)).toBe(true);
     expect(runs(ORDINARY_PR, id, workflow)).toBe(false);
@@ -196,9 +251,9 @@ function assertDispatchBehaviour(workflow: ReturnType<typeof parse>, ids: string
     expect(runs(FEATURE_PR, id, workflow)).toBe(false);
     for (const ctx of LOOKALIKE_PRS) expect(runs(ctx, id, workflow), ctx.headRef).toBe(false);
     // a dispatch on a train branch runs exactly the listed jobs
-    expect(runs(dispatchOn('refs/heads/train/9a', ids.join(',')), id, workflow)).toBe(true);
+    expect(runs(dispatchOn('refs/heads/train/9a', tokens.join(',')), id, workflow)).toBe(true);
     expect(runs(dispatchOn('refs/heads/train/9a', ''), id, workflow)).toBe(false);
-    expect(runs(dispatchOn('refs/heads/train/9a', `${id}-docs,x${id}`), id, workflow)).toBe(false);
+    expect(runs(dispatchOn('refs/heads/train/9a', `${token}-docs,x${token}`), id, workflow)).toBe(false);
     // a dispatch, partial or complete, never runs anything on main or on a look-alike ref
     for (const ref of [
       'refs/heads/main',
@@ -206,10 +261,13 @@ function assertDispatchBehaviour(workflow: ReturnType<typeof parse>, ids: string
       'refs/heads/feature/train/9',
       'refs/tags/train/9',
     ])
-      expect(runs(dispatchOn(ref, ids.join(',')), id, workflow)).toBe(false);
+      expect(runs(dispatchOn(ref, tokens.join(',')), id, workflow)).toBe(false);
   }
-  // listing one job never runs another
-  if (first && second) expect(runs(dispatchOn('refs/heads/train/9a', first), second, workflow)).toBe(false);
+  // listing one id never runs the jobs of another
+  const [first] = tokens;
+  for (const id of ids)
+    if (first && tokenOf(id) !== first)
+      expect(runs(dispatchOn('refs/heads/train/9a', first), id, workflow)).toBe(false);
 }
 
 /** Runs on main never cancel each other, and a dispatch never cancels or joins a push run. */
@@ -329,31 +387,183 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   expect(commands(build).filter((run) => run?.startsWith('node tools/ci/'))).toEqual([SHARD_COMMAND]);
 }
 
-function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[]) {
+/** The condition of a heavy job; a job that joins others and gates the run also runs after one of them failed. */
+function expectedCondition(id: string, joins: readonly string[], tokenOf: (id: string) => string): string {
+  // `prepare` of ci.yml builds for the jobs that need the build: a dispatch that names build or checks runs it too.
+  const condition = id === 'prepare' ? prepareCondition() : heavyCondition(tokenOf(id));
+  return joins.includes(id) ? `always() && (${condition})` : condition;
+}
+
+function assertWorkflowPolicy(
+  workflow: ReturnType<typeof parse>,
+  ids: string[],
+  tokenOf: (id: string) => string = (id) => id,
+  joins: readonly string[] = [],
+) {
   assertTriggers(workflow);
   assertNoPathFilters(workflow);
   assertConcurrency(workflow);
-  assertDispatchBehaviour(workflow, ids);
+  assertDispatchBehaviour(workflow, ids, tokenOf);
   for (const id of ids) {
-    expect(workflow.jobs[id].if).toBe(id === 'prepare' ? prepareCondition() : heavyCondition(id));
+    expect(workflow.jobs[id].if).toBe(expectedCondition(id, joins, tokenOf));
     for (const step of workflow.jobs[id].steps) {
       // A step condition may only keep artifacts after a failure; it may never skip work.
-      if (step.if !== undefined) expect(step.if).toBe('always()');
+      if (step.if !== undefined && !isCheckoutRetry(step)) expect(step.if).toBe('always()');
     }
+  }
+}
+
+/** What one leg of the matrix computes: a validator, a seed and a slice of levels (all of them without one). */
+type Leg = { component: string; seed: string; from: number; to: number; id: string };
+
+/** Reads the legs of a matrix job from the flags of its entries. */
+function legsOf(workflow: ReturnType<typeof parse>, job: string): Leg[] {
+  const entries: { id: string; component: string; flags: string }[] =
+    workflow.jobs[job].strategy.matrix.include;
+  return entries.map((entry) => {
+    const flags = entry.flags.split(/\s+/);
+    const hidden = flags.includes('--hidden');
+    if (hidden) expect(flags, entry.id).toContain('--hidden-only');
+    const seed = hidden ? 'hidden' : (flags[flags.indexOf('--seed') + 1] ?? '');
+    const range = /^(\d+)\.\.(\d+)$/.exec(flags[flags.indexOf('--levels') + 1] ?? '');
+    const top = registeredLadders()[entry.component.replace(/-s[123]$|-hidden$/, '')]?.levels.length ?? 0;
+    return {
+      id: entry.id,
+      component: entry.component.replace(/-(s[123]|hidden)$/, ''),
+      seed,
+      from: range ? Number(range[1]) : 1,
+      to: range ? Number(range[2]) : top,
+    };
+  });
+}
+
+/**
+ * Every registered validator on every seed is computed on every level, once: the legs of a seed are one run of the
+ * whole ladder or slices that tile it from level 1 to its top without a gap or an overlap.
+ */
+function assertTiled(legs: Leg[], components: string[], seeds: string[]) {
+  const ladders = registeredLadders();
+  expect(new Set(legs.map((leg) => leg.id)).size, 'leg ids are unique').toBe(legs.length);
+  for (const component of components) {
+    const top = ladders[component]?.levels.length ?? 0;
+    expect(top, component).toBeGreaterThan(0);
+    for (const seed of seeds) {
+      const mine = legs
+        .filter((leg) => leg.component === component && leg.seed === seed)
+        .sort((a, b) => a.from - b.from);
+      let next = 1;
+      for (const leg of mine) {
+        expect(leg.from, `${component} seed ${seed}: a gap or an overlap before level ${leg.from}`).toBe(
+          next,
+        );
+        next = leg.to + 1;
+      }
+      expect(next, `${component} seed ${seed} stops short of level ${top}`).toBe(top + 1);
+    }
+  }
+  const known = new Set(components);
+  for (const leg of legs)
+    expect(known.has(leg.component), `${leg.id} is no validator of this job`).toBe(true);
+}
+
+/** The gate step of a job that joins legs: it fails unless every job it waits for succeeded. */
+const GATE_RESULTS: [string, number][] = [
+  ['success', 0],
+  ['success,success,success', 0],
+  ['success,failure,success', 1],
+  ['failure', 1],
+  ['success,cancelled,success', 1],
+  ['success,skipped,success', 1],
+  ['skipped', 1],
+  ['success,success,failure,cancelled,skipped', 1],
+];
+
+function assertJoinGate(command: string) {
+  for (const [results, expected] of GATE_RESULTS) {
+    const result = spawnSync('bash', ['-c', command], {
+      encoding: 'utf8',
+      env: { ...process.env, RESULTS: results },
+    });
+    expect(result.status, results).toBe(expected);
+    if (expected === 1) expect(result.stdout).toMatch(/::error::/);
+  }
+}
+
+function joinGate(workflow: ReturnType<typeof parse>, id: string) {
+  const steps: { run?: string; env?: Record<string, string>; if?: string }[] = workflow.jobs[id].steps;
+  const gate = steps.find((step) => step.env?.RESULTS !== undefined);
+  expect(gate, `${id} gates on the results of its jobs`).toBeDefined();
+  return gate as { run: string; env: Record<string, string>; if?: string };
+}
+
+/** A job that joins legs waits for exactly these jobs and fails when any of them did not succeed. */
+function assertJoins(workflow: ReturnType<typeof parse>) {
+  const needs: Record<string, string[]> = {
+    ladders: ['ladders-handover', 'ladders-leg', 'ladders-tail'],
+    'system-full': ['system-leg'],
+  };
+  for (const [id, expected] of Object.entries(needs)) {
+    expect([workflow.jobs[id].needs].flat().sort(), `${id} waits for every job of its legs`).toEqual(
+      expected,
+    );
+    const gate = joinGate(workflow, id);
+    // the gate runs after a failed step, and reads the results through the environment, never inline
+    expect(gate.if).toBe('always()');
+    expect(gate.env.RESULTS).toBe("${{ join(needs.*.result, ',') }}");
+    expect(gate.run).not.toContain('${{');
+    assertJoinGate(gate.run);
   }
 }
 
 /** Conditions and steps must keep the complete validators on every train and main push. */
 function assertTrainValidators(workflow: ReturnType<typeof parse>) {
-  assertWorkflowPolicy(workflow, VALIDATORS_HEAVY);
-  const commands = workflow.jobs.ladders.steps.flatMap((step: { run?: string }) => step.run ?? []);
-  expect(commands).toContain('pnpm driftbench validate all --seeds 1..3 --hidden --check-floor');
-  expect(commands).toContain('pnpm driftbench validate all --check-handover');
-  const system = workflow.jobs['system-full'].steps
-    .map((step: { run?: string }) => step.run ?? '')
-    .join('\n');
-  expect(system).toContain('pnpm driftbench validate system --seeds 1..3 --hidden --all-levels');
+  assertWorkflowPolicy(workflow, VALIDATORS_JOBS, (id) => VALIDATORS_TOKENS[id] as string, VALIDATORS_JOINS);
+  assertJoins(workflow);
+  const stepRuns = (job: string): string[] =>
+    (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
+  // the join recomputes the floors from the reports of all its legs
+  expect(stepRuns('ladders')).toContain(
+    'pnpm driftbench validate all --reports reports --seeds 1..3 --hidden --check-floor',
+  );
+  expect(stepRuns('ladders-handover')).toContain('pnpm driftbench validate all --check-handover');
+  const system = stepRuns('system-full').join('\n');
+  expect(system).toContain(
+    'pnpm driftbench validate system --reports reports --seeds 1..3 --hidden --all-levels',
+  );
   expect(system).toContain('test "$status" -eq 11');
+  // every validator, every seed (1 to 3 and the hidden one), every level: the legs tile each ladder
+  const components = Object.keys(registeredLadders());
+  const seeds = ['1', '2', '3', 'hidden'];
+  assertTiled([...legsOf(workflow, 'ladders-leg'), ...legsOf(workflow, 'ladders-tail')], components, seeds);
+  assertTiled(legsOf(workflow, 'system-leg'), ['system'], seeds);
+  // a leg of the ladders job caps at the floor of its validator; a system leg runs every level
+  expect(stepRuns('ladders-leg').join('\n')).toContain('validate "$COMPONENT" $FLAGS --check-floor --json');
+  expect(stepRuns('system-leg').join('\n')).not.toContain('--check-floor');
+  // the tail legs (one level of one generator seed each) start with the others: they wait for no leg, because the
+  // join drops every level above the first failing one, as a single run that stopped there would
+  expect(workflow.jobs['ladders-tail'].needs).toBeUndefined();
+  // every leg uploads its report after a failure too, under the name its join downloads
+  for (const [job, prefix] of [
+    ['ladders-leg', 'ladders-'],
+    ['ladders-tail', 'ladders-'],
+    ['system-leg', 'system-full-'],
+  ] as const) {
+    const upload = workflow.jobs[job].steps.find((step: { uses?: string }) =>
+      step.uses?.startsWith('actions/upload-artifact'),
+    );
+    expect(upload?.if, job).toBe('always()');
+    expect(upload?.with.name, job).toBe(`${prefix}\${{ matrix.id }}`);
+  }
+  for (const [job, pattern] of [
+    ['ladders', 'ladders-*'],
+    ['system-full', 'system-full-*'],
+  ] as const) {
+    const download = workflow.jobs[job].steps.find((step: { uses?: string }) =>
+      step.uses?.startsWith('actions/download-artifact'),
+    );
+    expect(download?.with.pattern, job).toBe(pattern);
+    expect(download?.with['merge-multiple'], job).toBe(true);
+  }
 }
 
 /**
@@ -621,7 +831,7 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
     commands.indexOf(AFFECTED_COMMAND),
   );
-  for (const step of job.steps) expect(step.if).toBeUndefined();
+  for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
 }
 
 /**
@@ -667,7 +877,7 @@ function assertFastDocs(workflow: ReturnType<typeof parse>) {
   }
 }
 
-describe('the validators workflow', () => {
+describe('the validators workflow', { timeout: 120_000 }, () => {
   const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
   const stepRuns = (job: string): string[] =>
     (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
@@ -696,18 +906,152 @@ describe('the validators workflow', () => {
     expect(() => assertTrainValidators(changed)).toThrow();
   });
   it('rejects a dispatch that could run a job on main, or ignore the jobs list', () => {
-    const anyRef = structuredClone(workflow);
-    anyRef.jobs.ladders.if = anyRef.jobs.ladders.if.replace(
-      " && startsWith(github.ref, 'refs/heads/train/')",
-      '',
-    );
-    expect(() => assertDispatchBehaviour(anyRef, VALIDATORS_HEAVY)).toThrow();
-    const ignoresList = structuredClone(workflow);
-    ignoresList.jobs['system-full'].if = `${TRAIN_CONDITION} || github.event_name == 'workflow_dispatch'`;
-    expect(() => assertDispatchBehaviour(ignoresList, VALIDATORS_HEAVY)).toThrow();
-    const prefixMatch = structuredClone(workflow);
-    prefixMatch.jobs.ladders.if = prefixMatch.jobs.ladders.if.replace("',{0},'", "'{0}'");
-    expect(() => assertDispatchBehaviour(prefixMatch, VALIDATORS_HEAVY)).toThrow();
+    const behaviour = (changed: ReturnType<typeof parse>) =>
+      assertDispatchBehaviour(changed, VALIDATORS_JOBS, (id) => VALIDATORS_TOKENS[id] as string);
+    expect(() => behaviour(workflow)).not.toThrow();
+    // every job of the workflow carries the condition: a leg that ignores the train rule runs on main
+    for (const id of VALIDATORS_JOBS) {
+      const anyRef = structuredClone(workflow);
+      anyRef.jobs[id].if = anyRef.jobs[id].if.replace(" && startsWith(github.ref, 'refs/heads/train/')", '');
+      expect(() => behaviour(anyRef), `${id}: a dispatch on any ref`).toThrow();
+      const ignoresList = structuredClone(workflow);
+      ignoresList.jobs[id].if = `${TRAIN_CONDITION} || github.event_name == 'workflow_dispatch'`;
+      expect(() => behaviour(ignoresList), `${id}: a dispatch that ignores the list`).toThrow();
+      const prefixMatch = structuredClone(workflow);
+      prefixMatch.jobs[id].if = prefixMatch.jobs[id].if.replace("',{0},'", "'{0}'");
+      expect(() => behaviour(prefixMatch), `${id}: a prefix match`).toThrow();
+    }
+  }, 120_000);
+  it('rejects a matrix that drops a leg, a seed, a level or a validator, or computes a level twice', () => {
+    const entries = (changed: ReturnType<typeof parse>, job: string) =>
+      changed.jobs[job].strategy.matrix.include as { id: string; flags: string; component: string }[];
+    for (const job of ['ladders-leg', 'system-leg']) {
+      const dropped = structuredClone(workflow);
+      entries(dropped, job).pop();
+      expect(() => assertTrainValidators(dropped), `${job}: a leg dropped`).toThrow();
+      const first = structuredClone(workflow);
+      entries(first, job).shift();
+      expect(() => assertTrainValidators(first), `${job}: the first leg dropped`).toThrow();
+    }
+    // a slice that ends one level short leaves a gap, one that starts one level early overlaps its neighbour
+    const sliced = (job: string) =>
+      entries(workflow, job).findIndex((entry) => entry.flags.includes('--levels'));
+    for (const job of ['ladders-leg', 'system-leg']) {
+      const at = sliced(job);
+      expect(at, `${job} holds slices`).toBeGreaterThanOrEqual(0);
+      const gap = structuredClone(workflow);
+      const gapEntry = entries(gap, job)[at] as { flags: string };
+      gapEntry.flags = gapEntry.flags.replace(/\.\.(\d+)/, (_, to) => `..${Number(to) - 1}`);
+      expect(() => assertTrainValidators(gap), `${job}: a gap`).toThrow();
+      const overlap = structuredClone(workflow);
+      const overlapEntry = entries(overlap, job)[at + 1] as { flags: string };
+      overlapEntry.flags = overlapEntry.flags.replace(
+        /--levels (\d+)/,
+        (_, from) => `--levels ${Number(from) - 1}`,
+      );
+      expect(() => assertTrainValidators(overlap), `${job}: an overlap`).toThrow();
+    }
+    // a seed that is not the one the leg is named for, a hidden leg that also takes visible seeds, a stray validator
+    const wrongSeed = structuredClone(workflow);
+    (entries(wrongSeed, 'ladders-leg')[0] as { flags: string }).flags = '--seed 2';
+    expect(() => assertTrainValidators(wrongSeed)).toThrow();
+    const noHiddenOnly = structuredClone(workflow);
+    const hiddenLeg = entries(noHiddenOnly, 'ladders-leg').find((entry) =>
+      entry.flags.includes('--hidden'),
+    ) as {
+      flags: string;
+    };
+    hiddenLeg.flags = '--hidden';
+    expect(() => assertTrainValidators(noHiddenOnly)).toThrow();
+    const stray = structuredClone(workflow);
+    entries(stray, 'ladders-leg').push({ id: 'ghost-s1', flags: '--seed 1', component: 'ghost' });
+    expect(() => assertTrainValidators(stray)).toThrow();
+    const noTail = structuredClone(workflow);
+    entries(noTail, 'ladders-tail').pop();
+    expect(() => assertTrainValidators(noTail)).toThrow();
+  }, 120_000);
+  it('rejects a job that joins the legs without waiting for all of them, or that lets a red leg through', () => {
+    for (const [id, dropped] of [
+      ['ladders', 'ladders-leg'],
+      ['ladders', 'ladders-tail'],
+      ['ladders', 'ladders-handover'],
+      ['system-full', 'system-leg'],
+    ] as const) {
+      const changed = structuredClone(workflow);
+      changed.jobs[id].needs = [changed.jobs[id].needs].flat().filter((need: string) => need !== dropped);
+      expect(() => assertTrainValidators(changed), `${id} without ${dropped}`).toThrow();
+    }
+    for (const id of ['ladders', 'system-full']) {
+      const gateOf = (changed: ReturnType<typeof parse>) => joinGate(changed, id);
+      const blind = structuredClone(workflow);
+      gateOf(blind).run = gateOf(blind).run.replace('!= success', '== never');
+      expect(() => assertTrainValidators(blind), `${id}: a gate that passes every result`).toThrow();
+      const skipOk = structuredClone(workflow);
+      gateOf(skipOk).run = gateOf(skipOk).run.replace('!= success', '== failure');
+      expect(() => assertTrainValidators(skipOk), `${id}: a gate that lets a skipped leg through`).toThrow();
+      const noAlways = structuredClone(workflow);
+      delete gateOf(noAlways).if;
+      expect(
+        () => assertTrainValidators(noAlways),
+        `${id}: a gate that is skipped after a red step`,
+      ).toThrow();
+      const noJoinCondition = structuredClone(workflow);
+      noJoinCondition.jobs[id].if = heavyCondition(id);
+      expect(() => assertTrainValidators(noJoinCondition), `${id}: skipped after a red leg`).toThrow();
+    }
+  });
+  it('rejects a join that does not recompute the floors, or a system join that accepts a level below 11', () => {
+    const noFloor = structuredClone(workflow);
+    for (const step of noFloor.jobs.ladders.steps)
+      if (step.run) step.run = step.run.replaceAll(' --check-floor', '');
+    expect(() => assertTrainValidators(noFloor)).toThrow();
+    const noSeeds = structuredClone(workflow);
+    for (const step of noSeeds.jobs.ladders.steps)
+      if (step.run) step.run = step.run.replace(' --seeds 1..3 --hidden', '');
+    expect(() => assertTrainValidators(noSeeds)).toThrow();
+    const lenient = structuredClone(workflow);
+    for (const step of lenient.jobs['system-full'].steps)
+      if (step.run) step.run = step.run.replace('test "$status" -eq 11', 'test "$status" -ge 9');
+    expect(() => assertTrainValidators(lenient)).toThrow();
+    const legsNoFloor = structuredClone(workflow);
+    for (const step of legsNoFloor.jobs['ladders-leg'].steps)
+      if (step.run) step.run = step.run.replaceAll(' --check-floor', '');
+    expect(() => assertTrainValidators(legsNoFloor)).toThrow();
+    const systemFloor = structuredClone(workflow);
+    for (const step of systemFloor.jobs['system-leg'].steps)
+      if (step.run) step.run = step.run.replace('$FLAGS ', '$FLAGS --check-floor ');
+    expect(() => assertTrainValidators(systemFloor)).toThrow();
+    const noHandover = structuredClone(workflow);
+    for (const step of noHandover.jobs['ladders-handover'].steps)
+      if (step.run) step.run = step.run.replace(' --check-handover', '');
+    expect(() => assertTrainValidators(noHandover)).toThrow();
+  });
+  it('rejects a leg that loses its report after a failure, or a join that reads another name', () => {
+    for (const job of ['ladders-leg', 'ladders-tail', 'system-leg']) {
+      const kept = structuredClone(workflow);
+      const upload = kept.jobs[job].steps.find((step: { uses?: string }) =>
+        step.uses?.startsWith('actions/upload'),
+      );
+      delete upload.if;
+      expect(() => assertTrainValidators(kept), `${job}: an upload skipped after a failure`).toThrow();
+    }
+    for (const [job, name] of [
+      ['ladders', 'ladders-*'],
+      ['system-full', 'system-full-*'],
+    ] as const) {
+      const renamed = structuredClone(workflow);
+      const download = renamed.jobs[job].steps.find((step: { uses?: string }) =>
+        step.uses?.startsWith('actions/download'),
+      );
+      download.with.pattern = name.replace('-*', '-x*');
+      expect(() => assertTrainValidators(renamed)).toThrow();
+      const single = structuredClone(workflow);
+      const one = single.jobs[job].steps.find((step: { uses?: string }) =>
+        step.uses?.startsWith('actions/download'),
+      );
+      one.with['merge-multiple'] = false;
+      expect(() => assertTrainValidators(single)).toThrow();
+    }
   });
   it('rejects path-filtering a ladder job or its execution step', () => {
     const jobFiltered = structuredClone(workflow);
@@ -776,7 +1120,24 @@ describe('the validators workflow', () => {
     );
     expect(runsText).toContain('|| status=$?');
     expect(job['timeout-minutes']).toBe(300);
-    for (const step of job.steps) expect(step.if).toBeUndefined();
+    for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.protect.steps = noRetry.jobs.protect.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.protect.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
+    const hard = structuredClone(workflow);
+    delete (hard.jobs.protect.steps.find(isCheckout) as CheckoutStep)['continue-on-error'];
+    expect(() => assertCheckoutRetry(hard)).toThrow();
+    const other = structuredClone(workflow);
+    (other.jobs.protect.steps.find(isCheckoutRetry) as CheckoutStep).with = { 'fetch-depth': 1 };
+    expect(() => assertCheckoutRetry(other)).toThrow();
   });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
@@ -815,6 +1176,17 @@ describe('merge train enforcement', () => {
     expect(() => assertTimingGuard(buildRunsThem)).toThrow();
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
     expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.build.steps = noRetry.jobs.build.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.build.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
     const target = structuredClone(workflow);
