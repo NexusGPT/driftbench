@@ -634,3 +634,51 @@ describe('terminal subsumption and the wording of a turn', () => {
     expect(other.blocks).toHaveLength(length);
   });
 });
+
+describe('terminal subsumption keeps what only the cut block checks or says', () => {
+  const prepared = fixture();
+  const path = prepared.relations.paths[0];
+  if (!path) throw new Error('missing parcel path');
+  const plain = (id: string, seeder: SpecDraft['seeder'] = 'twise') => {
+    const draft = walk(prepared, id, path, seeder);
+    draft.perturbations = undefined;
+    return draft;
+  };
+
+  const member = (draft: ReturnType<typeof walk>, family: string, variant: number) => {
+    draft.metamorphic = { family, variant, of: 2, relation: 'same observed outcome' };
+    return draft;
+  };
+
+  it('keeps the end of a block that holds a gating criterion no written spec holds', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const gated = plain('gated');
+    gated.criteria = [
+      ...gated.criteria,
+      { name: 'signed-total', rubric: 'The reply states the signed total.' },
+    ];
+    const last = gated.blocks.at(-1);
+    if (!last) throw new Error('the walk has no block');
+    last.criteria = [...(last.criteria ?? []), 'signed-total@gating'];
+    const length = gated.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(gated);
+    // Equal machine expectations are not equal Thens: the criterion is a check only this block carries.
+    expect(gated.blocks).toHaveLength(length);
+  });
+
+  it('keeps the suffix of a metamorphic follower that says a message no written spec says', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const first = member(plain('f-1', 'metamorphic'), 'f', 1);
+    const second = lastWordedAs(member(plain('f-2', 'metamorphic'), 'f', 2), 'Pack it now, thank you.');
+    const length = second.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(first);
+    expect(first.blocks.length).toBeLessThan(length);
+    minimal.reduce(second);
+    // The leader's cut is not the follower's: cutting it would lose the only place that message is said.
+    expect(second.blocks).toHaveLength(length);
+  });
+});

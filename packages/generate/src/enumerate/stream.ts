@@ -105,7 +105,8 @@ function writeSuite(
     mapPath: options.mapPath,
     ...(options.sections ? { sections: options.sections } : {}),
   };
-  context.minimal = new TerminalSubsumption(prepared, run, t, context.allocation);
+  if (options.reduceEnds !== false)
+    context.minimal = new TerminalSubsumption(prepared, run, t, context.allocation);
   const coverage = new StreamCoverage(prepared, t, scratch);
   const invalid = new DiskArray<GenerateReport['invalid'][number]>(scratch, 'invalid.jsonl');
   const lint = new DiskArray<GenerateReport['lint'][number]>(scratch, 'lint.jsonl');
