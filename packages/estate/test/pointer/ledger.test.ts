@@ -221,17 +221,39 @@ describe('the ledger', () => {
 });
 
 describe('minting a free id', () => {
-  it('steps the occurrence until the id is not taken', () => {
-    const mint = (n: number) => mintId('hall', 'hall.md', 'fp', n);
-    const taken = new Set([mint(0), mint(1)]);
-    expect(freeId(mint, taken, 0)).toBe(mint(2));
-    expect(freeId(mint, new Set(), 0)).toBe(mint(0));
+  it('walks up the occurrence numbers past the taken ids', () => {
+    const taken = new Set([mintId('hall', 'a.md', 'fp', 0), mintId('hall', 'a.md', 'fp', 1)]);
+    const id = freeId((at) => mintId('hall', 'a.md', 'fp', at), taken, 0);
+    expect(id).toBe(mintId('hall', 'a.md', 'fp', 2));
+    expect(taken.has(id)).toBe(false);
+    const fresh = freeId((at) => mintId('hall', 'a.md', 'fp', at), new Set(), 0);
+    expect(fresh).toBe(mintId('hall', 'a.md', 'fp', 0));
   });
 
-  it('throws at once when the id does not change with the occurrence', () => {
-    // The planted defect: the hash leaves the occurrence out, so every step meets the taken id.
-    const constant = () => 'aaaaaaaaaa';
-    expect(() => freeId(constant, new Set(['aaaaaaaaaa']), 0)).toThrow(/no free id/);
+  it('stops with an error within the bound when the id base ignores the occurrence number', () => {
+    // The planted bug of the audit: the occurrence is left out of the hash, so every occurrence gets the same id.
+    const ignoring = (_at: number) => mintId('hall', 'a.md', 'fp', 0);
+    for (const size of [1, 2, 5]) {
+      const taken = new Set(Array.from({ length: size }, (_, at) => mintId('hall', 'b.md', `fp${at}`, 0)));
+      taken.add(ignoring(0));
+      let calls = 0;
+      const counted = (at: number) => {
+        calls++;
+        return ignoring(at);
+      };
+      expect(() => freeId(counted, taken, 0)).toThrow(
+        /is taken and was minted again on attempt \d+.*ignores the occurrence/s,
+      );
+      // one call for the first id, then at most one per taken id: never an endless loop
+      expect(calls).toBeLessThanOrEqual(taken.size + 1);
+    }
+  });
+
+  it('names the id and the attempt count in the error', () => {
+    const id = mintId('hall', 'a.md', 'fp', 0);
+    expect(() => freeId(() => id, new Set([id]), 3)).toThrow(
+      `The id ${id} is taken and was minted again on attempt 2 for occurrences 3 to 4 (1 ids taken)`,
+    );
   });
 });
 

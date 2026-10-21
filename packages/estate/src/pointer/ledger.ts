@@ -68,19 +68,19 @@ export function mintId(estateKey: string, path: string, fp: string, occurrence: 
 }
 
 /**
- * The first id from occurrence `first` on that is not taken. The occurrence is part of the hash, so each step gives
- * another id and at most `taken.size` steps meet a taken one; a mint that ignores the occurrence would repeat one id
- * for ever, and that is an error that names itself, not a loop.
+ * The first id that is not taken, minted from the occurrence number upward. An injective `mint` meets at most
+ * `taken.size` taken ids in a row, so more attempts than that mean `mint` gives one id to several occurrence
+ * numbers (it ignores the occurrence). The loop then stops with an error that names the id and the attempts,
+ * and never runs forever.
  */
-export function freeId(mint: (occurrence: number) => string, taken: ReadonlySet<string>, first: number): string {
-  let next = first;
-  let id = mint(next);
-  for (let tries = 0; taken.has(id); tries++) {
-    if (tries > taken.size)
+export function freeId(mint: (occurrence: number) => string, taken: ReadonlySet<string>, from: number): string {
+  let id = mint(from);
+  for (let attempts = 1; taken.has(id); attempts++) {
+    if (attempts > taken.size)
       throw new Error(
-        `no free id after ${tries} occurrences: the ids minted for one text do not change with the occurrence`,
+        `The id ${id} is taken and was minted again on attempt ${attempts} for occurrences ${from} to ${from + attempts - 1} (${taken.size} ids taken): the id base ignores the occurrence number.`,
       );
-    id = mint(++next);
+    id = mint(from + attempts);
   }
   return id;
 }
