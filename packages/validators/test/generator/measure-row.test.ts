@@ -98,12 +98,7 @@ describe('generator measurement journal projection', () => {
     const audit = readFileSync(join(root, 'validators/generator/audit.md'), 'utf8');
     const hardness = measureHardness(journal.rows, { audit });
     expect(hardness.gate.holds).toBe(false);
-    expect(hardness.audit?.map((seat) => seat.verdict)).toEqual([
-      'pending',
-      'pending',
-      'pending',
-      'pending',
-    ]);
+    expect(hardness.audit?.map((seat) => seat.verdict)).toEqual(['pending', 'pending', 'pending', 'pending']);
     const second = spawnSync(process.execPath, ['--import', 'tsx', script('baseline'), ...args], {
       cwd: root,
     });
