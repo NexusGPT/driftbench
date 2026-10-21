@@ -3,9 +3,9 @@ import { emptyCassette, playerClient, recordingClient, requestKey } from '../src
 import { ClaudeThinkingError } from '../src/clients/claude-cli';
 import { ClaudeTransportError } from '../src/clients/claude-errors';
 import type { DialectCompletionRequest, DialectTransport } from '../src/clients/transport';
-import { createDefaultJudge } from '../src/default-judge';
+import { createDefaultJudge, DEFAULT_JUDGE_POLICY } from '../src/default-judge';
 
-function mock(outputs: unknown[]) {
+function mock(outputs: unknown[], policyOverride?: { lengthPreference?: boolean; conversationTurns?: boolean }) {
   const calls: DialectCompletionRequest[] = [];
   const transport: DialectTransport = {
     dialect: 'scratchpad-json',
@@ -23,7 +23,7 @@ function mock(outputs: unknown[]) {
       };
     },
   };
-  return { calls, judge: createDefaultJudge({ provider: 'claude-cli', model: 'test', transport }) };
+  return { calls, judge: createDefaultJudge({ provider: 'claude-cli', model: 'test', transport, ...(policyOverride ? { policyOverride } : {}) }) };
 }
 
 describe('one default configuration', () => {
@@ -545,5 +545,48 @@ describe('one default configuration', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.costUsd).toBeCloseTo(0.04);
     expect(result.requestCount).toBe(4);
+  });
+});
+
+describe('default-on-v8: a conversation criterion is judged turn by turn', () => {
+  const met = (value: boolean) => ({ checks: [{ id: 'x', reasoning: 'r', evidence: null, met: value }] });
+  const request = {
+    criterion: { name: 'x', rubric: 'Address every request.', scope: 'conversation' as const },
+    transcript: [
+      { role: 'user' as const, text: 'First question' },
+      { role: 'agent' as const, text: 'First answer' },
+      { role: 'user' as const, text: 'Second question' },
+      { role: 'agent' as const, text: 'Second answer' },
+    ],
+  };
+  it('is part of the frozen policy', () => {
+    expect(DEFAULT_JUDGE_POLICY).toMatchObject({ version: 'default-on-v8', conversationTurns: true });
+  });
+  it('judges each customer turn on its own prefix and fails on the turn that fails', async () => {
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)]);
+    const result = await judge.judge(request);
+    expect(calls).toHaveLength(3);
+    expect(calls[1]?.user).not.toContain('Second question');
+    expect(calls[2]?.user).toContain('Second question');
+    expect(result.answer.outcome).toBe('fail');
+    expect(result.answer.reasoning).toContain('Turn 2 fails');
+    expect(result.defaultJudge?.route).toBe('criterion');
+  });
+  it('passes only when every turn passes', async () => {
+    const { judge } = mock([{ route: 'criterion' }, met(true), met(true)]);
+    expect((await judge.judge(request)).answer.outcome).toBe('pass');
+  });
+  it('judges the whole conversation in one call when the measurement switches the field off, with another settings hash', async () => {
+    const on = mock([]).judge;
+    const off = mock([{ route: 'criterion' }, met(true)], { conversationTurns: false });
+    const result = await off.judge.judge(request);
+    expect(off.calls).toHaveLength(2);
+    expect(result.answer.outcome).toBe('pass');
+    expect(off.judge.settings).not.toBe(on.settings);
+  });
+  it('leaves a single-turn conversation criterion on the plain route', async () => {
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true)]);
+    await judge.judge({ ...request, transcript: request.transcript.slice(0, 2) });
+    expect(calls).toHaveLength(2);
   });
 });
