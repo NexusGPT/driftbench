@@ -6,7 +6,12 @@ import { ASK_INVOICE, ESTATE, FAKE, givenOf, scratch, turnOf } from './support';
 
 it('fails the cell loudly when the stand-in cannot resolve a skill obligation', async () => {
   const work = await scratch();
-  const adapter = claudeCodeLiveAdapter({ command: FAKE, estateRoot: ESTATE, provider: localProvider({ dir: join(work.dir, 'sandboxes') }), config: 'isolated' });
+  const adapter = claudeCodeLiveAdapter({
+    command: FAKE,
+    estateRoot: ESTATE,
+    provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
+    config: 'isolated',
+  });
   const given = givenOf();
   const session = await adapter.open(given);
   try {

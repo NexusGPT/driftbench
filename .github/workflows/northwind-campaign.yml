@@ -121,10 +121,8 @@ jobs:
           pnpm driftbench campaign run --config "$CONFIG" --campaign "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --repeats "$REPEATS" --budget-usd "$SPEND_CAP_USD" 2>&1 | tee "$OUT/run.txt"
           code=${PIPESTATUS[0]}
           echo "campaign run exit code: $code" | tee -a "$OUT/run.txt"
-          if [ "$code" = "2" ]; then exit 2; fi
-          exit 0
+          exit "$code"
       - name: Report and status
-        if: always()
         if: always()
         run: |
           pnpm driftbench campaign status "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --detail 2>&1 | tee "$OUT/status.txt"
@@ -167,7 +165,7 @@ jobs:
           echo "campaign run exit code: $code"
           cat "$OUT/probe.err"
           { echo '### Northwind probe (Haiku, billed, cap 0.20 USD)'; echo "exit code $code"; echo '```'; tail -c 3000 "$OUT/probe.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          exit 0
+          exit "$code"
       - name: Keep the store and the output
         if: always()
         uses: actions/upload-artifact@v4
