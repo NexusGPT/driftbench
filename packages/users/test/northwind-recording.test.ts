@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { type AgentAdapter, initializeShippedObjects, loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { type AgentAdapter, loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { expect, it } from 'vitest';
 import { createSimulatedUser, loadPersona, loadUserRecording, personaOptions, userRecordingPort } from '../src/index';
