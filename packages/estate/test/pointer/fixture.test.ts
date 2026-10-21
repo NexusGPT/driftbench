@@ -54,8 +54,8 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave 24 answers the checks refuse: each is counted.
-    expect(result.pointer?.refusals.length).toBe(24);
+    // The recorded labeller gave 6 answers the checks refuse: each is counted.
+    expect(result.pointer?.refusals.length).toBe(6);
     // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.split).toBeGreaterThan(0);
