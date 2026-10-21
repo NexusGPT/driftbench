@@ -195,7 +195,7 @@ export function truthPointer(truth: Truth): TruthPointer {
     labels.push({
       name,
       description: `The hazards planted at ${at}.`,
-      links: [],
+      links: ['dispatches'],
       atom: {
         kind: 'hazard',
         situation: HAZARDS[first]?.situation ?? first,
