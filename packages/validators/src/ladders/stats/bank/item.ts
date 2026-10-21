@@ -47,6 +47,13 @@ export type BankItem = {
   cause?: string;
   /** How long the item may run before the validator stops it; DEFAULT_ITEM_BUDGET_MS when absent. */
   budgetMs?: number;
+  /**
+   * Run the item in a child process of its own, so the compiled code and the heap that earlier items leave in a
+   * shared child cannot reach it. The check is the same either way. Used by an item whose result was seen to
+   * change under the optimising compiler of Node 24 after about 900 earlier items (validators/stats/GATE.md,
+   * "Node 24 and the shifted bootstrap item").
+   */
+  freshChild?: boolean;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;
 };
 

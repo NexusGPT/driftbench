@@ -49,9 +49,15 @@ export async function runIsolated(
   shards = DEFAULT_SHARDS,
 ): Promise<Map<string, ItemOutcome & { ms?: number }>> {
   const results = new Map<string, ItemOutcome & { ms?: number }>();
-  const count = Math.max(1, Math.min(shards, items.length));
+  // An item that asks for it gets a child of its own; the others share the children.
+  const shared = items.filter((item) => !item.freshChild);
+  const alone = items.filter((item) => item.freshChild).map((item) => [item]);
+  const count = Math.max(1, Math.min(shards, shared.length));
   // Round robin, so the heavy items of one level spread over the children.
-  const lists = Array.from({ length: count }, (_, k) => items.filter((_, i) => i % count === k));
+  const lists = [
+    ...Array.from({ length: count }, (_, k) => shared.filter((_, i) => i % count === k)),
+    ...alone,
+  ];
   await Promise.all(
     lists.map(async (list) => {
       let next = 0;
