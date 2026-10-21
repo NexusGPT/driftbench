@@ -50,7 +50,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-write-to-or (situation)
+    askFrom: route.standing.an-ask-to-write-to-or (request)
+    askBuild:
+      - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-write-to-or
+            field: fields.ask
+            from: 0
+            to: 28
     outcome: no-change:negative
   links:
     - block: ask

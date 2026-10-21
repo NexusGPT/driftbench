@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please write to a supplier, answer one, or chase a late delivery or a missing credit note.
+      user: Please write to or chase a supplier.
     expect:
       skills:
         - name: supplier-email
@@ -74,7 +74,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.supplier-email.skill-supplier-email (asks it names)
+    askFrom: route.standing.an-ask-to-write-to-or (request)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-write-to-or
+            field: fields.ask
+            from: 0
+            to: 28
     outcome: no-change:read-only
     judged:
       - instruction.supplier-email.never-copy-a-price-or-a

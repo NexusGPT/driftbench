@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please help me with a delivery, a tracking number or a late shipment.
+      user: Please Ask for the tracking number.
     expect:
       skills:
         - name: shipment-tracker
@@ -60,7 +60,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
+    askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (request clause)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: instruction.shipment-tracker.ask-for-the-tracking-number-when
+            field: fields.ask.text
+            from: 0
+            to: 27
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when

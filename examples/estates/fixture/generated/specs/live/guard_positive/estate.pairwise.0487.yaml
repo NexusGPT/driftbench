@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: stop
+      user: stop all work and confirm in one line
     expect:
       guards:
         - name: stop-word.sh
@@ -57,7 +57,15 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (user prompt)
+    askFrom: instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)
+    askBuild:
+      - ask: "{message}"
+        spans:
+          - slot: ask
+            atom: instruction.standing.r10-when-the-user-says-stop
+            field: fields.ask.text
+            from: 0
+            to: 37
     outcome: no-delete
   links:
     - block: ask

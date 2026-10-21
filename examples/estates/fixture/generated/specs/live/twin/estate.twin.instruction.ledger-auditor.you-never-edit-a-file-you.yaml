@@ -60,7 +60,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Could you audit the ledger for duplicate payments and invoices paid twice? You never edit a file. Thanks.
+      user: "Could you handle this for me: Audits the ledger for duplicate payments and invoices paid twice? You never edit a file. Thanks."
     expect:
       subagents:
         - name: ledger-auditor
@@ -88,7 +88,22 @@ metadata:
     situation: ledger-auditor-brief
     phrase: null
     ask: code
-    askFrom: subagent.ledger-auditor.helper-ledger-auditor (description)
+    askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)
+    askBuild:
+      - ask: Could you {act}?[ {situation}.] Thanks.
+        act: "handle this for me: {span}"
+        situation: "{span}"
+        spans:
+          - slot: act
+            atom: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+            field: situation
+            from: 0
+            to: 64
+          - slot: situation
+            atom: instruction.ledger-auditor.you-never-edit-a-file-you
+            field: situation
+            from: 0
+            to: 21
     outcome: bank
     judged:
       - instruction.ledger-auditor.you-never-edit-a-file-you

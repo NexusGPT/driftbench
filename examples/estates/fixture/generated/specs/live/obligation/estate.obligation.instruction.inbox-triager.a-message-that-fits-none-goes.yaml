@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please sort the shared operations inbox into invoices, shipment questions and supplier mail.
+      user: "Please handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail."
     expect:
       subagents:
         - name: inbox-triager
@@ -60,7 +60,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: subagent.inbox-triager.helper-inbox-triager (description)
+    askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.inbox-triager.an-ask-that-fits-inbox-triager
+            field: situation
+            from: 0
+            to: 85
     outcome: no-change:read-only
     judged:
       - instruction.inbox-triager.a-message-that-fits-none-goes

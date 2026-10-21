@@ -73,36 +73,11 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
   // The shipping skill owns the reference by folder, so it supplies the task; it does not join the row.
   expect(suite.specs[0]?.atoms).toEqual([ref.id]);
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please track delayed parcels for the dispatch centre. When a carrier update arrives.',
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
   });
   // The rule is written in the catalogue's file: the shipping skill supplies the task, but its load is not required.
   expect(parsed.spec.blocks[0]?.expect?.skills).toBeUndefined();
   expect((parsed.spec.metadata?.estate as { atoms?: string[] } | undefined)?.atoms).not.toContain(hub.id);
-});
-
-it.each([
-  [
-    'Before notarizing the delivery document, read the shipping policy.',
-    'go ahead with notarizing the delivery document',
-  ],
-  [
-    'Before you translate the customs declaration, read the shipping policy.',
-    'translate the customs declaration',
-  ],
-  [
-    'Read the shipping policy before preparing the customs declaration.',
-    'go ahead with preparing the customs declaration',
-  ],
-  ['Read the shipping policy first, then archive the delivery receipt.', 'archive the delivery receipt'],
-  ['Never publish the carrier notice without reading the shipping policy.', 'publish the carrier notice'],
-])('takes the work from its own governed clause: %s', (quote, action) => {
-  const ref = reference('reference.clause', undefined, quote);
-  const suite = run([hub, shipping, ref], [row(ref.id)]);
-  const file = suite.files.find((file) => file.path.endsWith('.yaml'));
-  if (!file) throw new Error('missing spec');
-  const parsed = parseSpecText(file.text, 'yaml', file.path);
-  if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-  expect(parsed.spec.blocks[0]?.when).toEqual({ user: `Please ${action}.` });
 });
 
 it('a shared reference takes the task of the unit that cites it directly, never one that only links to it', () => {
@@ -117,7 +92,7 @@ it('a shared reference takes the task of the unit that cites it directly, never 
   const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please track delayed parcels for the dispatch centre. When a carrier update arrives.',
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
   });
   // Written in the unit's own file, the same reference does require the unit.
   expect(parsed.spec.blocks[0]?.expect?.skills).toEqual([{ name: 'shipping', count: { min: 1 } }]);
@@ -168,7 +143,8 @@ it('preserves folder ownership across hundreds of deliberately flattened citatio
     const when = parsed.spec.blocks[0]?.when;
     if (when && 'user' in when) asks.add(when.user);
   }
-  expect(asks.size).toBe(288);
+  // The task is each owner's description, as written: one ask per owning unit.
+  expect(asks.size).toBe(24);
   expect([...asks].some((ask) => ask.includes('annual catalogue'))).toBe(false);
   for (const record of suite.specs) {
     const ref = refs.find((ref) => ref.id === record.atoms[0]);
@@ -179,24 +155,6 @@ it('preserves folder ownership across hundreds of deliberately flattened citatio
     expect(record.atoms).toEqual([ref?.id]);
     expect(expected).toBeDefined();
   }
-});
-
-it('uses the source clause before stale extracted gate metadata', () => {
-  const ref = reference(
-    'gate.delivery',
-    undefined,
-    'Before publishing the delivery notice, read the carrier policy.',
-  );
-  ref.kind = 'gate';
-  ref.fields = { ...ref.fields, trigger: 'Prepare the annual catalogue.' };
-  const suite = run([hub, shipping, ref], [{ ...row(ref.id), testType: 'ordered_pair' }]);
-  const file = suite.files.find((file) => file.path.endsWith('.yaml'));
-  if (!file) throw new Error('missing spec');
-  const parsed = parseSpecText(file.text, 'yaml', file.path);
-  if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-  expect(parsed.spec.blocks[0]?.when).toEqual({
-    user: 'Please go ahead with publishing the delivery notice.',
-  });
 });
 
 it('rejects an approved phrase belonging to a different skill despite an explicit reference pin', () => {
@@ -222,7 +180,9 @@ it('rejects an approved phrase belonging to a different skill despite an explici
   if (!file) throw new Error('missing spec');
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please go ahead with editing the delivery label.' });
+  expect(parsed.spec.blocks[0]?.when).toEqual({
+    user: 'Please handle this for me: Track delayed parcels for the dispatch centre.',
+  });
 });
 
 it('a declared tool uses its owning helper situation when other tasks list its permission', () => {

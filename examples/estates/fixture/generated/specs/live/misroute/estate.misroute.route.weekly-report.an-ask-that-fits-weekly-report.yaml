@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with the weekly report or a summary of last week.
+      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log."
     expect:
       skills:
         - name: weekly-report
@@ -52,6 +52,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.weekly-report.an-ask-that-fits-weekly-report (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.weekly-report.an-ask-that-fits-weekly-report
+            field: situation
+            from: 0
+            to: 73
     outcome: no-delete
   links:
     - block: ask

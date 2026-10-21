@@ -624,8 +624,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins, then the one whose own atoms share the deepest folder with files the first atom names; pinned cell values must agree). A guard without a listed triggering situation uses a situation of a rule it enforces; a tool boundary uses a situation listing the most rules from its own file. A guard control uses a situation explicitly approved for that whole guard; an outside situation of one enforced rule is not a guard-wide certificate. Its approved phrases are shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
-* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids (else, for a rule that asks for an act, the act of the tool the guard watches: "Please edit a file here." for an Edit or Write guard; none for a guard on the end of a turn (no request makes a reply break its rule without asking for the exception the rule allows), unless the bank holds an approved phrase that sets the guard off (a situation of use `trigger` naming it), which the row then takes and none for a guard on the user's prompt alone, which waits for an approved phrase; the ask never tells the agent to go against a rule), for a hazard a request to go on with the task after it happened, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. The title of a rule is the rule, so it is never the ask: a rule is set off by the work it applies to, which is what the trigger of a gate names, else what the skill or helper that carries the rule is for, else the work of the route whose words the rule shares most (the first route when it shares none), since a rule of the standing instructions holds over any work. The one title used as an ask is a prohibition, whose forbidden act is the ask ("Never paste a credential" asks to paste one), which breaks the rule and does not copy it. A rule with no such work stays incomplete under `needs-askable-act`. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act of fewer than three words of letters, which is a verb and no object (the parts of a hyphenated compound count apart: "force-push a branch" passes, "force-push" does not), an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
-A gate with no trigger and no unit that carries it holds over no route's work, so its row stays incomplete under `needs-askable-act`. A gate trigger that opens with a gerund of a known verb is asked as the act ("editing any invoice file" asks to edit any invoice file).
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone. It uses only the templates of [the ask templates](#the-ask-templates) and picks one by where the words come from, never by reading them: the words are byte-exact slices of an atom's declared act text or of the passage it is read from, with no change of case and no rewrite. The act, by the kind of the row's first atom: for a rule, its request clause (a prohibition's clause is the act it forbids, so the ask breaks the rule and does not copy it); for a gate, its governed action (`Please handle this for me: editing any invoice file.`); for a route, its request cell; for a tool rule, the call it covers; for a hazard, a request to go on with the task after it happened; for a guard, what sets it off: on the user's prompt, the request clause of the rule it enforces as the whole message, for a prohibition it enforces the act that rule forbids, for a gate it enforces that gate's governed action (through the shell when the guard watches Bash), else the fixed act of a tool it watches (`Please edit a file here.` for an Edit or Write guard), with the rule's situation. A guard that watches no such tool and enforces no rule with an act has no ask: a guard on the end of a turn waits for an approved phrase that sets it off (a situation of use `trigger` naming it), which the row then takes. A rule with no act of its own is set off by the work it applies to: a request that routes to the skill or helper that carries it, else the first sentence of that unit's description, else the request of the first route of the estate, since a rule of the standing instructions holds over any work; a gate holds over the act it names only. The ask carries the rule's situation when the rule states one. The title of a rule is never the ask: an ask that restates the rule tests whether the agent repeats it, not whether it follows it while working. The controls get a neutral ask (outside), an ask to explain without acting (near miss, also the control of a guard), the act alone (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code`, the atom field the words came from (`askFrom`) and how each block's ask was built (`metadata.estate.askBuild`, null for a block that asks with an approved phrase); an approved phrase always wins. `--no-fallback` turns this off. The floor refuses, with the reason, an act of fewer than three words of letters (the parts of a hyphenated compound count apart: "force-push a branch" passes, "force-push" does not), an act that does not start with a word, a code or label of the estate, a slice cut inside a bracket or a quote, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -763,57 +762,29 @@ file in a skill's folder is owned by that skill for its task and held by nobody,
 A shared file outside every skill folder is owned by the unit whose own file cites it: one reference atom
 exists per citation, so each skill or helper that cites the file directly owns its citation, and a link
 that only navigates, or a catalogue that cites a file in another unit's folder, owns nothing. A file cited
-only from the standing instructions has no owner and borrows no task. A prerequisite (reference or gate)
-owned by a helper asks for the work to be handed to a helper ("Please have a helper agent audit the ledger
-extract"), so the order applies only when the dispatch happens.
-Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
-A declared tool can use the owning helper's own situation when its permission is listed under unrelated tasks.
-The task in a source prerequisite clause is used even when the extracted trigger field is absent.
+only from the standing instructions has no owner and borrows no task. Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
 A bare read-prerequisite title is never converted into a self-answering user ask.
 
-A guard may carry optional `fields.ruleText` and `fields.ruleSources`. Guard prose describes mechanics far
-more often than it names an act, so the ask that sets a guard off is the act of the tool the guard watches
-("edit a file here" for Edit and Write, "run a command in the shell here" for Bash, "open a file here" for
-Read; a guard on the end of a turn has no tool and so no ask), with the strict situation of the rule text
-as context ("This involves ..."). A phrase of the prose replaces the tool act only when it has a strict shape:
-
-* an act: a verb of the list (a hyphenated verb ends on one), then an object, three to ten words, no colon,
-  parenthesis, quotation, pronoun or relative word, no subject before the verb, no adverb or function word at
-  the end. It comes from the opening gerund ("Deploying to production without a tag"), the gerund after a
-  connective (when, while, if, before, after, until, unless, without, upon), or a rule the guard enforces;
-* a situation: a noun phrase that opens with a determiner or a number, ends on a content word (no adverb of
-  time, no participle), holds no pronoun, relative word or parenthesis, names no machinery of the guard itself (the runtime's own word for a guard,
-  check, script, handler, registry), and has no clause cut off inside it.
-
-Sentences about how the guard works (stdin, JSON, exit codes) are skipped, and a verb in the third person
-followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard rule written as an imperative to the agent ("End every reply with ...") is a rule, never an ask, and an act
-with a condition inside it ("ask before an Edit of a policy file", "add a reminder when the owner types stop") is
-a rule too: both fall back to the tool act. The subject of a gate trigger ("you discharge a patient") is dropped
-and its act is asked ("discharge a patient"); a trigger is put in the context as "The task is to ..." when it is an
-act and as "This involves ..." when it is a gerund or a noun phrase. A read-when line that opens with a condition
-("When the owner asks about boarding, read refs/boarding.md") asks about the condition. A guard on the user's prompt is set off by what the owner writes, so its ask is the message: the situation of the
-rule it enforces says it ("The user says stop" asks `stop`), when the message has up to five words and holds no
-clause word. The ask names the act a rule governs, in the rule's own words and never the rule: a rule that orders a read before an
-act ("Read a file before editing it") is set off by the act ("Please edit a file."), with a pronoun object resolved
-to the thing to read, and an obligation ("Always pass the carrier code to the tracking script") by the tool act
-followed by its purpose ("run a command in the shell here to pass the carrier code to the tracking script"). A guard that watches no tool and has no strict prose has no ask: it stays incomplete. A replay row still needs
-its recorded session. The ask reads only the guard's own rule text and matcher: no registry state name or
-severity is read into it. A rule a guard enforces gives its forbidden act when that act is strict, else its
-trigger, else the tool act; a rule that restates itself ("go against this rule") is never the ask.
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`. The ask never reads them: hook prose
+describes mechanics far more often than it names an act. The ask that sets a guard off comes from the rules it
+enforces and the tools it watches, as [the ask templates](#the-ask-templates) list: a guard on the user's prompt
+asks with the request clause of the rule it enforces, a guard enforcing a prohibition with the act the rule
+forbids, a guard enforcing a gate with the gate's governed action (`Please run a command in the shell here for
+pushing to main.` for a Bash guard), else the fixed act of a tool it watches, with the situation of the rule it
+enforces. A guard on the end of a turn has no tool and no such rule, and so no code-written ask. No registry
+state name or severity is read into the ask, and the ask never tells the agent to go against a rule.
 
 The unit that owns a gate or a reference supplies the task of the ask, but its load is an expectation only when
 the rule is written in the unit's own files: a standing gate to read a file in a skill's folder does not require the
 skill. A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe:
 the skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
 
-A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
-it would mean to do the strict act of the rule, what applies to its strict situation, or what it would mean to
-use the tool the guard watches. A guard on the end of a turn, which has no tool, and a guard with no strict
-prose stay incomplete. No estate-wide request stands in for either.
+A `guard_negative` row asks for a harmless near miss of what sets the guard off: what it would mean to do it,
+without doing it. A guard with no code-written ask stays incomplete. No estate-wide request stands in for it.
 
 The three types that run a guard directly with no model (`guard_hostile`, `guard_speed`,
-`guard_register`) never read their ask: it is a fixed request that names the tool the guard watches ("Please make
-one Edit or Write call in this workspace."), or the next step of the task when it watches none. No other type gets it.
+`guard_register`) never read their ask: it is a fixed request that names a tool the guard watches ("Please make
+one Edit call in this workspace."), or the next step of the task when it watches none. No other type gets it.
 
 A map may record `documents`: each file's authority (`normative`, or a navigation role such as `example`,
 `template`, `history`, `changelog`, `journal`, `fixture`, `archive`). A reference whose target is a
@@ -867,9 +838,9 @@ Seed 1; custom checks the runner registers: absence, grounded_values, guard_fini
 Test type           rows  specs  complete  incomplete
 obligation           435    435       435           0
 outside_trigger       31     31        31           0
-twin                  31     31        30           1
-ordered_pair          84     84        70          14
-skip_pressure          6      6         5           1
+twin                  31     31        31           0
+ordered_pair          84     84        84           0
+skip_pressure          6      6         6           0
 route_positive       260    253       253           0
 route_near_miss       13     13        13           0
 misroute              13     13        13           0
@@ -886,26 +857,26 @@ guard_register         6      6         6           0
 tool_boundary          9      9         9           0
 tool_denied            3      3         3           0
 stage_order           69     69        69           0
-stage_skip             4      4         4           0
+stage_skip             4      4         1           3
 stage_anytime          1      1         1           0
 register_sample      280    280       280           0
 hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1417      1399          18
+total                      1417      1412           5
 
-Asks of the complete specs: 414 approved phrases, 971 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 339 no-delete, 8 static.
+Asks of the complete specs: 414 approved phrases, 984 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 497 complete specs.
+Outcomes of the complete specs: 911 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 351 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 98.73%; distinct asks: 119 in 1391 complete asked tests (8.55 per 100).
+Complete share: 99.65%; distinct asks: 111 in 1404 complete asked tests (7.91 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 18 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Missing pieces: 5 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          18 specs
+  needs-askable-act          5 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
 Wrote 1448 files to _captures/docs3/estate/generated.
 ```
@@ -914,7 +885,7 @@ It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the las
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/estate/generated/specs --strict
-Checked 1391 specs: 1391 valid, 0 invalid, 0 warnings.
+Checked 1404 specs: 1404 valid, 0 invalid, 0 warnings.
 ```
 
 The written files equal the committed `examples/estates/fixture/generated/` but for the relative paths of the map and plan they record. 70 of the 235 complete specs carry a judged criterion. The gaps close as the pieces they name arrive: a "some call matches" tool check would complete the 336 `needs-some-call-check` specs (references, scripts, dispatches); registered checks for the custom predicates, the 418 `needs-registered-check` specs; approved phrases, deviation phrases and declared outcomes, through the real flow of proposal and approval. The planner's 6 replay rows are `guard_positive` rows whose situations no recorded session holds; a session per guard event would close them. 26 ordered predicates have no anchor: "Read git status before commit" is one command before another of the same tool, and "matching any line" is prose.
@@ -1024,7 +995,6 @@ Code writes an ask only from these templates, and picks the template by where it
 | fixed | `The helper stopped halfway. Pick its task up where it stopped and finish it.` | a resume block | |
 | act | `{span}` | a route's request cell, or a rule's request clause (a prohibition's is the act it forbids) | |
 | act | `handle this for me: {span}` | a gate's governed action, or the first sentence of a skill's or helper's description | |
-| act | `help me with {span}` | the topic of a description that says it is used when the user asks about or for it | |
 | act | `run {span} in the shell here` | a permission rule on a shell command | Bash |
 | act | `use the {span} tool on the files here` | a permission rule on a whole tool | the named tool |
 | act | `use the {span} tool on a file under {span}` | a permission rule on a tool and a path | the named tool |
@@ -1116,7 +1086,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-e5deffe6783a (in memory).
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-f69af650f888 (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.

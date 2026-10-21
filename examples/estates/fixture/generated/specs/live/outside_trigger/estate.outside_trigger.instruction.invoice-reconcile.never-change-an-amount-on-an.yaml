@@ -60,6 +60,9 @@ metadata:
     phrase: null
     ask: code
     askFrom: neutral
+    askBuild:
+      - ask: What kinds of things can you help me with? One sentence, and please change nothing.
+        spans: []
     outcome: no-change:negative
     judged:
       - instruction.invoice-reconcile.never-change-an-amount-on-an

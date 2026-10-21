@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with a delivery, a tracking number or a late shipment.
+      user: "Please handle this for me: Look up where a shipment is and whether it is late."
     expect:
       skills:
         - name: shipment-tracker
@@ -53,7 +53,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
+    askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+            field: situation
+            from: 0
+            to: 50
     outcome: no-delete
   links:
     - block: ask

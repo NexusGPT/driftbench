@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please write to a supplier, answer one, or chase a late delivery or a missing credit note.
+      user: "Please handle this for me: Draft, answer or chase an email to a supplier."
     expect:
       skills:
         - name: supplier-email
@@ -52,6 +52,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.supplier-email.an-ask-that-fits-supplier-email (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.supplier-email.an-ask-that-fits-supplier-email
+            field: situation
+            from: 0
+            to: 45
     outcome: no-change:read-only
   links:
     - block: ask

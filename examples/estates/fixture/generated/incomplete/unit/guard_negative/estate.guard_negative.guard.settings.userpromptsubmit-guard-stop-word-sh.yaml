@@ -66,7 +66,7 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: guard.settings.userpromptsubmit-guard-stop-word-sh
-        detail: "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near"
+        detail: "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task"
   links:
     - block: ask
       to:

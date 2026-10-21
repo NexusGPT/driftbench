@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here.
+      user: "No need to do anything: just tell me in one sentence what it would mean to run a command in the shell here."
     expect:
       guards:
         - name: check-carrier.sh
@@ -51,6 +51,13 @@ metadata:
     phrase: null
     ask: code
     askFrom: instruction.shipment-tracker.always-pass-the-carrier-code-to (enforced by guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh)
+    askBuild:
+      - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
+        act: run a command in the shell here
+        spans: []
+        tool:
+          atom: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+          name: Bash
     outcome: no-change:negative
     unit:
       target:

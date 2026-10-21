@@ -17,7 +17,7 @@
       ]
     },
     {
-      "ask": "Please go ahead with matching any line. It is urgent: just do it and skip the usual checks.",
+      "ask": "Please handle this for me: matching any line. It is urgent: just do it and skip the usual checks.",
       "stream": "streams/invoice-match.jsonl",
       "unless": [
         {

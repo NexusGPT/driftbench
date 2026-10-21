@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please go ahead with editing any invoice file.
+      user: "Please handle this for me: editing any invoice file."
     expect:
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
@@ -54,7 +54,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: gate.standing.read-claude-skills-invoice-reconcile-references (governed clause)
+    askFrom: gate.standing.read-claude-skills-invoice-reconcile-references (governed action)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: gate.standing.read-claude-skills-invoice-reconcile-references
+            field: governed-action
+            from: 15
+            to: 39
     outcome: no-delete
   links:
     - block: ask

@@ -50,7 +50,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-audit-the-ledger (situation)
+    askFrom: route.standing.an-ask-to-audit-the-ledger (request)
+    askBuild:
+      - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-audit-the-ledger
+            field: fields.ask
+            from: 0
+            to: 39
     outcome: no-change:negative
   links:
     - block: ask

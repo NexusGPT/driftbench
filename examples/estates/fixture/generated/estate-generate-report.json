@@ -44,47 +44,11 @@
   "summary": {
     "specs": 1417,
     "blocks": 1412,
-    "complete": 1399,
-    "incomplete": 18,
-    "judged": 777
+    "complete": 1412,
+    "incomplete": 5,
+    "judged": 778
   },
   "incomplete": [
-    {
-      "spec": "estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
-      "path": "incomplete/live/twin/estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml",
-      "row": "twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.ledger-auditor.look-for-the-same-invoice-number",
-          "detail": "no usable situation (subagent.ledger-auditor.helper-ledger-auditor (description)): the situation holds code ({\"status\":): \"When either is missing, answer with {\"status\": \"blocked\", \"missing\"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.ordered_pair.gate.standing.read-claude-memory-memory-md-before",
-      "path": "incomplete/live/ordered_pair/estate.ordered_pair.gate.standing.read-claude-memory-memory-md-before.yaml",
-      "row": "ordered_pair.gate.standing.read-claude-memory-memory-md-before",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.skip_pressure.gate.standing.read-claude-memory-memory-md-before",
-      "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.standing.read-claude-memory-memory-md-before.yaml",
-      "row": "skip_pressure.gate.standing.read-claude-memory-memory-md-before",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
     {
       "spec": "estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
@@ -93,7 +57,7 @@
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near"
+          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task"
         }
       ]
     },
@@ -105,163 +69,43 @@
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
-          "detail": "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near"
+          "detail": "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act"
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0026",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0026.yaml",
-      "row": "pairwise.0026",
+      "spec": "estate.stage_skip.stage.steps.stage-plan-restate-the-ask-and",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-plan-restate-the-ask-and.yaml",
+      "row": "stage_skip.stage.steps.stage-plan-restate-the-ask-and",
       "reasons": [
         {
           "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
+          "atom": "stage.steps.stage-plan-restate-the-ask-and",
+          "detail": "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with"
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0123",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0123.yaml",
-      "row": "pairwise.0123",
+      "spec": "estate.stage_skip.stage.steps.stage-do-make-the-change",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-do-make-the-change.yaml",
+      "row": "stage_skip.stage.steps.stage-do-make-the-change",
       "reasons": [
         {
           "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
+          "atom": "stage.steps.stage-do-make-the-change",
+          "detail": "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with"
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0192",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0192.yaml",
-      "row": "pairwise.0192",
+      "spec": "estate.stage_skip.stage.steps.stage-report-tell-the-user-what",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-report-tell-the-user-what.yaml",
+      "row": "stage_skip.stage.steps.stage-report-tell-the-user-what",
       "reasons": [
         {
           "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0260",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0260.yaml",
-      "row": "pairwise.0260",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0331",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0331.yaml",
-      "row": "pairwise.0331",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0465",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0465.yaml",
-      "row": "pairwise.0465",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0537",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0537.yaml",
-      "row": "pairwise.0537",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0607",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0607.yaml",
-      "row": "pairwise.0607",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0670",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0670.yaml",
-      "row": "pairwise.0670",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0826",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0826.yaml",
-      "row": "pairwise.0826",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0892",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0892.yaml",
-      "row": "pairwise.0892",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0960",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0960.yaml",
-      "row": "pairwise.0960",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.1027",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.1027.yaml",
-      "row": "pairwise.1027",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
+          "atom": "stage.steps.stage-report-tell-the-user-what",
+          "detail": "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
         }
       ]
     }
@@ -350,10 +194,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9872971065631616,
-    "askedTests": 1391,
-    "distinctAsks": 119,
-    "distinctAsksPer100": 8.554996405463696
+    "completeShare": 0.9964714184897672,
+    "askedTests": 1404,
+    "distinctAsks": 111,
+    "distinctAsksPer100": 7.905982905982906
   },
   "unit": {
     "tests": 29,
@@ -371,19 +215,19 @@
   "sources": {
     "asks": {
       "bank": 414,
-      "code": 971,
+      "code": 984,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 910,
+      "bank": 911,
       "no-change:guard": 26,
       "no-change:negative": 44,
       "no-change:read-only": 72,
-      "no-delete": 339,
+      "no-delete": 351,
       "static": 8
     },
-    "judged": 496
+    "judged": 497
   },
   "focus": null,
   "perTestType": {
@@ -402,20 +246,20 @@
     "twin": {
       "rows": 31,
       "specs": 31,
-      "complete": 30,
-      "incomplete": 1
+      "complete": 31,
+      "incomplete": 0
     },
     "ordered_pair": {
       "rows": 84,
       "specs": 84,
-      "complete": 70,
-      "incomplete": 14
+      "complete": 84,
+      "incomplete": 0
     },
     "skip_pressure": {
       "rows": 6,
       "specs": 6,
-      "complete": 5,
-      "incomplete": 1
+      "complete": 6,
+      "incomplete": 0
     },
     "route_positive": {
       "rows": 260,
@@ -516,8 +360,8 @@
     "stage_skip": {
       "rows": 4,
       "specs": 4,
-      "complete": 4,
-      "incomplete": 0
+      "complete": 1,
+      "incomplete": 3
     },
     "stage_anytime": {
       "rows": 1,
@@ -572,25 +416,27 @@
     "live": {
       "rows": 1381,
       "specs": 1374,
-      "complete": 1358,
-      "incomplete": 16
+      "complete": 1371,
+      "incomplete": 3
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 18,
+      "specs": 5,
       "atoms": [
-        "gate.standing.read-claude-memory-memory-md-before",
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "instruction.ledger-auditor.look-for-the-same-invoice-number"
+        "stage.steps.stage-do-make-the-change",
+        "stage.steps.stage-plan-restate-the-ask-and",
+        "stage.steps.stage-report-tell-the-user-what"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done",
-        "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near",
-        "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near",
-        "no usable situation (subagent.ledger-auditor.helper-ledger-auditor (description)): the situation holds code ({\"status\":): \"When either is missing, answer with {\"status\": \"blocked\", \"missing\"\""
+        "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task",
+        "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act",
+        "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with",
+        "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with",
+        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
       ]
     }
   ],

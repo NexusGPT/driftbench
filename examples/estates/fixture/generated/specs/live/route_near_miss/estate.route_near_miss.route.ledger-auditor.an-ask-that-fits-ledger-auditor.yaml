@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to audit the ledger for duplicate payments and invoices paid twice."
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Audits the ledger for duplicate payments and invoices paid twice."
     expect:
       subagents:
         - name: ledger-auditor
@@ -51,6 +51,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)
+    askBuild:
+      - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+            field: situation
+            from: 0
+            to: 64
     outcome: no-change:negative
   links:
     - block: ask

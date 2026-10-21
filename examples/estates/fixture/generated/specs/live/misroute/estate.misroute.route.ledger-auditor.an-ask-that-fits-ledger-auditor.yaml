@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please audit the ledger for duplicate payments and invoices paid twice.
+      user: "Please handle this for me: Audits the ledger for duplicate payments and invoices paid twice."
     expect:
       subagents:
         - name: ledger-auditor
@@ -52,6 +52,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+            field: situation
+            from: 0
+            to: 64
     outcome: no-change:read-only
   links:
     - block: ask
