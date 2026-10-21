@@ -1,6 +1,6 @@
 import { FrameError } from '../../frame';
 import { bankMeasure, defineLadder, type Ladder, type Measure } from '../../ladder';
-import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdict } from './bank';
+import { BANK_LEVELS, type BankItem, bankItems, causeOf, SeedData, type Tier, type Verdict } from './bank';
 import type { GeneratorParts } from './measure';
 import { type ScaleReport, scaleReport } from './scale';
 
@@ -108,15 +108,19 @@ export async function evaluate(
 
 function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measure {
   return bankMeasure(
-    results.map(({ item, verdict }) => ({
-      id: item.id,
-      component: item.component,
-      family: item.family,
-      tier: item.tier,
-      pass: verdict.pass,
-      detail: verdict.detail,
-      ...(verdict.error === undefined ? {} : { error: verdict.error }),
-    })),
+    results.map(({ item, verdict }) => {
+      const cause = causeOf(item, verdict);
+      return {
+        id: item.id,
+        component: item.component,
+        family: item.family,
+        tier: item.tier,
+        pass: verdict.pass,
+        detail: verdict.detail,
+        ...(cause === item.id ? {} : { cause }),
+        ...(verdict.error === undefined ? {} : { error: verdict.error }),
+      };
+    }),
     'generator',
   );
 }
