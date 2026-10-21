@@ -4203,8 +4203,7 @@ function checkItems(): BankItem[] {
       slug: 'safety-read-label-is-not-destructive',
       tier: 4,
       page: 'Code, files and workspace',
-      claim:
-        'a tool the operations table names read or modify is not destructive, whatever its label says',
+      claim: 'a tool the operations table names read or modify is not destructive, whatever its label says',
       turns: [one(['ok'], [call('get_deleted_items', {}), call('purge_records', {})])],
       spec: `operations: { get_deleted_items: read, purge_records: modify }\n${spc('{ safety: { max_destructive_ops: 0 } }')}`,
       failing: [],
