@@ -154,6 +154,28 @@ describe('the bar a validator records in GATE.md', () => {
     );
   });
 
+  it('reads a gain bar that replaces the score ceiling, and fails a pilot that climbs faster than it', () => {
+    expect(parseGate('Max score gain over the pilot: 0.10\nMin forecast: 100\n')).toEqual({
+      maxScore: null,
+      minForecast: null,
+      minCauses: null,
+      maxGain: 0.1,
+    });
+    // 300 items, 198 pass at iteration 0 (0.66), 3 more per pilot fix: 0.66 to 0.76, a gain of 0.1.
+    const journal = rows([198, 201, 204, 207, 210, 213, 216, 219, 222, 225, 228], 300, TIERS);
+    const gate = (gain: number) => `Max score gain over the pilot: ${gain}\nMin forecast: 20\n`;
+    const held = measureHardness(journal, { audit: PASSING_AUDIT, gate: gate(0.11) });
+    expect(held.gate.reasons).toEqual([]);
+    expect(held.lowered).toBe(true);
+    const climbed = measureHardness(journal, { audit: PASSING_AUDIT, gate: gate(0.05) });
+    expect(climbed.gate.reasons).toEqual([
+      'the score rose 0.1 over the pilot, above 0.05 (the bar GATE.md sets in place of the score ceiling)',
+    ]);
+    // Without the gain line the absolute ceiling of 12.4 applies and fails.
+    const absolute = measureHardness(journal, { audit: PASSING_AUDIT, gate: 'Min forecast: 20\n' });
+    expect(absolute.gate.reasons).toContain('the score after the pilot 0.76 is above 0.4');
+  });
+
   it('honours the bars the committed GATE.md files record', () => {
     const bar = (component: string) =>
       parseGate(readFileSync(join(ROOT, 'validators', component, 'GATE.md'), 'utf8'));
