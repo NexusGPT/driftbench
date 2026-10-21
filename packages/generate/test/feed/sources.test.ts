@@ -941,3 +941,39 @@ describe('variablesFromSources: names that are not well-formed Unicode', () => {
     expect(built.store.variables).toHaveLength(1);
   });
 });
+
+describe('variablesFromSources: one clause, one label', () => {
+  it('gives two spacings of one clause one variable, whichever label each carries', () => {
+    const plain = 'Escalate when the delay is above 2 days.';
+    const spaced = 'Escalate  when the delay\nis above 2\tdays.';
+    const make = (conditions: Array<{ text: string; label?: unknown }>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'RULES.md': `${plain}\n${spaced}` },
+          rules: [{ id: 'R', source: 'RULES.md', tools: [], conditions }],
+        },
+      } as never);
+    const a = { kind: 'numeric', subject: 'the delay', limit: 2, comparison: 'gt' };
+    const b = { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt' };
+    const forward = make([
+      { text: plain, label: a },
+      { text: spaced, label: b },
+    ]);
+    expect(forward.store.variables).toHaveLength(1);
+    expect(forward.store.variables[0]?.values).toHaveLength(3);
+    const backward = make([
+      { text: spaced, label: b },
+      { text: plain, label: a },
+    ]);
+    expect(JSON.stringify(backward.store)).toBe(JSON.stringify(forward.store));
+    // A spelling with no label takes the label of the other one.
+    const partial = make([{ text: plain, label: a }, { text: spaced }]);
+    expect(partial.store.variables).toHaveLength(1);
+    // Case and words still matter: this is not a different clause folded together.
+    const other = make([
+      { text: plain, label: a },
+      { text: spaced.toUpperCase(), label: b },
+    ]);
+    expect(other.refused).toHaveLength(1);
+  });
+});

@@ -111,6 +111,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim() === '';
 
+/** A clause with each run of white space folded to one space: the key under which its label is shared. */
+const foldSpace = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
 /** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
 const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 const wellFormed = (...texts: readonly unknown[]): boolean =>
@@ -432,6 +435,20 @@ export function variablesFromSources(
     }
     return undefined;
   };
+  // One clause has one label, however its white space is written: of the labels given to the spellings of a clause
+  // (white space folded, nothing else), the one with the smallest serialisation is used for all, so the choice does not
+  // depend on the order of the rules. A spelling with no label takes the label of another spelling.
+  const clauseLabel = new Map<string, SpanLabel>();
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions ?? []) {
+      if (condition.label === undefined || typeof condition.text !== 'string') continue;
+      const key = foldSpace(condition.text);
+      const known = clauseLabel.get(key);
+      if (known === undefined || JSON.stringify(condition.label) < JSON.stringify(known)) {
+        clauseLabel.set(key, condition.label);
+      }
+    }
+  }
   const ruleVariables = new Map<string, Set<string>>();
   for (const rule of sources.estate?.rules ?? []) {
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();
@@ -451,7 +468,7 @@ export function variablesFromSources(
         );
         continue;
       }
-      const label = condition.label;
+      const label = clauseLabel.get(foldSpace(condition.text));
       if (label === undefined || label.kind === 'none') continue;
       const labelled: unknown[] = [label.subject, 'unit' in label ? label.unit : undefined];
       if (label.kind === 'member') labelled.push(...(label.members ?? []));
