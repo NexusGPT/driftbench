@@ -356,15 +356,22 @@ export function stabilityItems(): BankItem[] {
       }),
       stabItem(`bootstrap-shift-${offset}`, 'packages/stats/src/intervals.ts', ({ s, rng }) => {
         const v = data(rng, 80);
-        const a = s.bootstrapCI(v, { seed: 5, iterations: 300 });
+        // The numbers of the first result are copied before the second call. On Node 24 (V8 13.6) the fields of an
+        // earlier result were seen to hold the later result's numbers in the bank's child processes; the copy
+        // compares the same quantities at the same tolerance (validators/stats/GATE.md, "Node 24 and the shifted
+        // bootstrap item").
+        const first = s.bootstrapCI(v, { seed: 5, iterations: 300 });
+        const estimateA = first.estimate;
+        const lowerA = first.lower;
+        const upperA = first.upper;
         const b = s.bootstrapCI(
           v.map((x) => x + offset),
           { seed: 5, iterations: 300 },
         );
-        return near(b.lower - offset, a.lower, tol) && near(b.upper - offset, a.upper, tol)
+        return near(b.lower - offset, lowerA, tol) && near(b.upper - offset, upperA, tol)
           ? ok()
           : fail(
-              `bootstrapCI bounds [${a.lower}, ${a.upper}] became [${b.lower - offset}, ${b.upper - offset}] after adding and removing ${offset}; summing large values loses the digits of the small ones.`,
+              `bootstrapCI bounds [${lowerA}, ${upperA}] (estimate ${estimateA}) became [${b.lower - offset}, ${b.upper - offset}] after adding and removing ${offset}; summing large values loses the digits of the small ones.`,
             );
       }),
       stabItem(`mean-shift-${offset}`, B, ({ s, rng }) => {

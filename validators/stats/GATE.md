@@ -1,5 +1,9 @@
 # Stats validator: where the gate stands
 
+## Node 24 and the shifted bootstrap item
+
+`stability.bootstrap-shift-1000000000` calls `bootstrapCI` twice (plain data, then data shifted by 1e9) and compares the bounds. On Node 24 (V8 13.6.233.17, Node 24.21.0 and 24.22.0 on the GitHub runners) it failed on 1 to 5 of 21 seeds in every full measurement of the bank: the fields of the first result held the second result's numbers when the item read them, although the first result was correct right after its call and `Object.freeze` did not prevent it. Node 22 (22.23.4) passed 63 of 63 seeds, and Node 24 with the child run under `--no-maglev` passed 21 of 21. The failure needs the items before it in the same child process (the whole range 0 to 936 of the bank); it did not reproduce in a standalone script on Node 22 or 24. The item now copies `estimate`, `lower` and `upper` of the first result into local numbers right after the first call, before the second call, and compares the same quantities at the same tolerance. The cause is not isolated; the evidence (runs, rates per platform) is in `work/driftbench/stats-scope/node24-report.md` of the organisation workspace.
+
 ## Interim stage, not the gate
 
 The bar below is an interim stage that lets the statistics validator land on `release/next`. The gate for this validator is section 12.4 unlowered: score after the pilot at most 0.4, forecast at least 100, at least 100 distinct failing causes, and `audit.md` with four passes. The row stays open until that gate holds. The measurement below is of the 904-item version 3 bank; the bank on this branch has since gained the capabilities level and the weights work, so a fresh pilot and a fresh audit are owed.
