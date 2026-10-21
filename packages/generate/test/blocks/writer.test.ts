@@ -278,6 +278,11 @@ describe('one block writer for the prompt map and the estate map', () => {
   });
 
   it("estate map: each block links every atom of its row, the row with its cell, and a replay's session turn", () => {
+    const fields = new Map(estateInput.map.atoms.map((atom) => [atom.id, atom.fields ?? {}]));
+    const ledgerOf = (id: string) => {
+      const own = fields.get(id) ?? {};
+      return own.extraction === 'pointer' && typeof own.unit === 'string' ? own.unit : undefined;
+    };
     const result = generateEstateSuite(estateInput, { paths: HAND_PATHS });
     const specs = parsed(result.files);
     let replays = 0;
@@ -291,10 +296,17 @@ describe('one block writer for the prompt map and the estate map', () => {
       const replay = spec.metadata?.replay as { session: string; from_block: number } | undefined;
       spec.blocks.forEach((block, index) => {
         const mine = blockLinks(spec, block.id as string);
+        // An atom the pointer reader built carries the ledger id of its unit (#877 reads the fixture's prose so).
         expect(
           mine.filter((link) => link.to.kind === 'rule').map((link) => link.to),
           spec.id,
-        ).toEqual(estate.atoms.map((rule) => ({ kind: 'rule', rule })));
+        ).toEqual(
+          // A row may name one atom twice (p31 names the hazard of R15 as its hazard and as its rule): one link each.
+          [...new Set(estate.atoms)].map((rule) => {
+            const unit = ledgerOf(rule);
+            return unit === undefined ? { kind: 'rule', rule } : { kind: 'rule', rule, ledger: unit };
+          }),
+        );
         expect(mine.filter((link) => link.to.kind === 'plan_row').map((link) => link.to)).toEqual([
           { kind: 'plan_row', row: estate.planRow, values: estate.cell },
         ]);
@@ -319,20 +331,41 @@ describe('one block writer for the prompt map and the estate map', () => {
 
   it('estate map: an atom the pointer reader built carries the ledger id of its unit; others carry none', () => {
     const input = structuredClone(estateInput);
-    const instruction = input.map.atoms.find((atom) => atom.kind === 'instruction');
-    if (!instruction) throw new Error('no instruction atom');
-    instruction.fields = { ...instruction.fields, extraction: 'pointer', unit: 'q7c2m4xk9a' };
-    const decoy = input.map.atoms.find((atom) => atom.kind === 'instruction' && atom !== instruction);
-    if (decoy) decoy.fields = { ...decoy.fields, unit: 'notpointer' };
+    const named = new Set(
+      parsed(generateEstateSuite(input, { paths: HAND_PATHS }).files).flatMap(
+        (spec) => (spec.metadata?.estate as { atoms?: string[] } | undefined)?.atoms ?? [],
+      ),
+    );
+    const pointers = input.map.atoms.filter(
+      (atom) =>
+        atom.fields?.extraction === 'pointer' && typeof atom.fields.unit === 'string' && named.has(atom.id),
+    );
+    expect(pointers.length).toBeGreaterThan(1);
+    const [kept, decoy] = pointers;
+    if (!kept || !decoy) throw new Error('two pointer atoms are needed');
+    // The decoy keeps its unit but is no longer an atom the pointer reader built: it carries no ledger id.
+    decoy.fields = { ...decoy.fields, extraction: 'code' };
+    const units = new Map(
+      input.map.atoms.flatMap((atom) =>
+        atom.fields?.extraction === 'pointer' && typeof atom.fields.unit === 'string'
+          ? [[atom.id, atom.fields.unit] as const]
+          : [],
+      ),
+    );
     const specs = parsed(generateEstateSuite(input, { paths: HAND_PATHS }).files);
     const rules = specs.flatMap((spec) =>
       linksOfSpec(spec).flatMap((link) => (link.to.kind === 'rule' ? [link.to] : [])),
     );
-    const own = rules.filter((rule) => rule.rule === instruction.id);
+    const own = rules.filter((rule) => rule.rule === kept.id);
     expect(own.length).toBeGreaterThan(0);
-    for (const rule of own)
-      expect(rule).toEqual({ kind: 'rule', rule: instruction.id, ledger: 'q7c2m4xk9a' });
-    for (const rule of rules.filter((each) => each.rule !== instruction.id))
-      expect(rule).not.toHaveProperty('ledger');
+    for (const rule of own) expect(rule).toEqual({ kind: 'rule', rule: kept.id, ledger: kept.fields?.unit });
+    const decoys = rules.filter((rule) => rule.rule === decoy.id);
+    expect(decoys.length).toBeGreaterThan(0);
+    for (const rule of decoys) expect(rule).not.toHaveProperty('ledger');
+    for (const rule of rules) {
+      const unit = units.get(rule.rule);
+      if (unit === undefined) expect(rule).not.toHaveProperty('ledger');
+      else expect(rule).toEqual({ kind: 'rule', rule: rule.rule, ledger: unit });
+    }
   });
 });

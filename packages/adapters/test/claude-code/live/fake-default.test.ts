@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
@@ -20,16 +21,59 @@ async function estate(folder: string, body: string) {
     join(unit, 'SKILL.md'),
     `---\nname: ${folder}\ndescription: Match supplier invoice amounts with order amounts.\n---\n${body}\n`,
   );
+  // The fake is handed the map of its estate: one route atom that declares the ask and names the skill.
+  await writeFile(
+    join(work.dir, 'fake-map.json'),
+    JSON.stringify({
+      atoms: [
+        {
+          id: `route.${folder}`,
+          kind: 'route',
+          provenance: {
+            file: `.claude/skills/${folder}/SKILL.md`,
+            quote: 'description: Match supplier invoice amounts with order amounts.',
+          },
+          fields: { target: folder, targetKind: 'skill', ask: { text: ASK_INVOICE } },
+        },
+      ],
+    }),
+  );
   await writeFile(join(unit, 'references/policy.md'), 'Read from this estate.\n');
   await writeFile(join(unit, 'scripts/check.mjs'), 'console.log("checked this estate");\n');
   return { ...work, dir: await realpath(work.dir) };
 }
 
-function play(cwd: string, manifest?: string, env: Record<string, string> = {}, ask = ASK_INVOICE) {
+/** The estate's map declares the ask it is given: the fake sets the skill off for exactly that ask. */
+function declareAsk(cwd: string, ask: string) {
+  const path = join(cwd, 'fake-map.json');
+  const map = JSON.parse(readFileSync(path, 'utf8'));
+  map.atoms[0].fields.ask.text = ask;
+  // The quote is the description line the skill file holds now, with the span and hash the map would record for it.
+  const provenance = map.atoms[0].provenance;
+  const lines = readFileSync(join(cwd, provenance.file), 'utf8').split('\n');
+  const at = lines.findIndex((line) => line.startsWith('description: '));
+  provenance.quote = lines[at] ?? '';
+  provenance.startLine = at + 1;
+  provenance.endLine = at + 1;
+  provenance.hash = createHash('sha256')
+    .update(`${provenance.file}\n${at + 1}-${at + 1}\n${provenance.quote}`)
+    .digest('hex');
+  writeFileSync(path, JSON.stringify(map));
+}
+
+function play(
+  cwd: string,
+  manifest?: string,
+  env: Record<string, string> = {},
+  ask = ASK_INVOICE,
+  declared = true,
+) {
+  if (declared && existsSync(join(cwd, 'fake-map.json'))) declareAsk(cwd, ask);
   const output = execFileSync(process.execPath, [FAKE, '-p', ask], {
     cwd,
     env: {
       PATH: process.env.PATH,
+      ...(existsSync(join(cwd, 'fake-map.json')) ? { FAKE_MAP: join(cwd, 'fake-map.json') } : {}),
       ...env,
       CLAUDE_CONFIG_DIR: join(cwd, 'config'),
       ...(manifest ? { FAKE_MANIFEST: manifest } : {}),
@@ -70,7 +114,11 @@ it('does not replay reads or commands absent from the current skill body', async
 });
 
 it('replays an unchanged recording only through an explicit manifest', async () => {
-  const work = await estate('invoice-audit', 'Report what can be checked.');
+  // The manifest plays the read-first recording while the estate still holds the rule the recording follows.
+  const work = await estate(
+    'invoice-reconcile',
+    'Read `references/matching-rules.md` before matching any line.',
+  );
   const manifest = join(ESTATE, 'live/fake/manifest.json');
   const recorded = (await readFile(join(ESTATE, 'live/fake/streams/invoice-match.jsonl'), 'utf8'))
     .trim()
@@ -440,15 +488,13 @@ it.each(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md'])(
 it('keeps a skill prohibition against a command in the request after the skill finishes', async () => {
   const work = await estate('invoice-audit', 'Never run `node scripts/check.mjs`.');
   // The command is estate-relative here; the skill rule is relative to the skill folder.
-  const output = execFileSync(
-    process.execPath,
-    [FAKE, '-p', `${ASK_INVOICE} Execute this command: node .claude/skills/invoice-audit/scripts/check.mjs`],
-    { cwd: work.dir, env: { PATH: process.env.PATH }, encoding: 'utf8', timeout: 60000 },
+  const records = play(
+    work.dir,
+    undefined,
+    {},
+    `${ASK_INVOICE} Execute this command: node .claude/skills/invoice-audit/scripts/check.mjs`,
   );
-  const records = output
-    .trim()
-    .split('\n')
-    .map((line) => JSON.parse(line));
+  const output = JSON.stringify(records);
   expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
   expect(output).not.toContain('checked this estate');
 });
@@ -805,7 +851,8 @@ it('plans an explicit read with a ban-only body without also editing the file', 
 it('plans an explicit command even when no unit routes the ask', async () => {
   const work = await estate('invoice-audit', 'Report what can be checked.');
   await writeFile(join(work.dir, 'check.cjs'), 'console.log("standalone requested command");');
-  const records = play(work.dir, undefined, {}, 'Could you please execute `node check.cjs`?');
+  // The map declares another ask, so no unit is set off by this one.
+  const records = play(work.dir, undefined, {}, 'Could you please execute `node check.cjs`?', false);
   expect(calls(records).map((call) => call.name)).toEqual(['Bash']);
   expect(JSON.stringify(records)).toContain('standalone requested command');
 });

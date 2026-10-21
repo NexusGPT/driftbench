@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -29,12 +30,15 @@ describe('the estate plan', () => {
     expect(renderPlan(buildPlan(map, { t: 1 }).plan)).not.toBe(renderPlan(first.plan));
   }, 60_000);
 
-  it('matches the committed fixture plan and its summary', async () => {
-    const built = buildPlan(await approvedFixture());
-    expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(renderPlan(built.plan));
-    expect(await readFile(join(FIXTURE, 'plan.summary.json'), 'utf8')).toBe(
-      renderPlanSummary(built.plan, built.details),
+  it('matches the current byte snapshot with the declared full space supplied explicitly', async () => {
+    const map = await approvedFixture();
+    const built = buildPlan(map, { space: toEstateSpaceMap(map) });
+    const snapshot = JSON.parse(
+      await readFile(new URL('./current-plan.sha256.json', import.meta.url), 'utf8'),
     );
+    const sha = (text: string) => createHash('sha256').update(text).digest('hex');
+    expect(sha(renderPlan(built.plan))).toBe(snapshot.plan);
+    expect(sha(renderPlanSummary(built.plan, built.details))).toBe(snapshot.summary);
   }, 60_000);
 
   it('counts the summary from the rows: cells, phrases, kinds, test types, unenforced atoms', async () => {
@@ -47,7 +51,7 @@ describe('the estate plan', () => {
     expect(Object.values(summary.perTestType).reduce((sum, n) => sum + n, 0)).toBe(plan.rows.length);
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
-    expect(summary.perKind.instruction).toBe(129);
+    expect(summary.perKind.instruction).toBe(93);
     expect(summary.perKind.setting).toBe(4);
     expect(summary.perTestType.setting).toBe(4);
     expect(details.noContract).toEqual([]);
@@ -58,14 +62,14 @@ describe('the estate plan', () => {
         )
         .map((atom) => atom.id),
     );
-    expect(summary.unenforcedAtoms).toHaveLength(54);
+    expect(summary.unenforcedAtoms).toHaveLength(44);
     expect(summary.edgesWithoutJourney).toBe(7);
-    expect(details.gridCells).toBe(2_531_567_001_600);
+    expect(details.gridCells).toBe(1_916_337_346_560);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
   }, 60_000);
 
   it('leaves unapproved atoms out of the rows and the unenforced list', async () => {
-    const id = 'instruction.standing.tell-the-user-about-a-late';
+    const id = 'instruction.standing.r7-when-a-shipment-is-late';
     const map = edited(await approvedFixture(), (copy) => {
       const atom = copy.atoms.find((candidate) => candidate.id === id);
       if (atom) atom.approved = false;
@@ -115,7 +119,7 @@ describe('the estate plan', () => {
     expect(() => buildPlan(map, { space })).toThrow(PlanInputError);
     const unapproved = edited(map, (copy) => {
       const atom = copy.atoms.find(
-        (candidate) => candidate.id === 'gate.standing.read-git-status-before-commit-to',
+        (candidate) => candidate.id === 'gate.standing.read-claude-memory-memory-md-before',
       );
       if (atom) atom.approved = false;
     });

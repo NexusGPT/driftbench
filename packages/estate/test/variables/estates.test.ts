@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyVariableQuotes } from '@agent-nexus/driftbench-generate';
-import { validateVariableStore } from '@agent-nexus/driftbench-space';
+import { parseVariableStoreText, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { loadEstateMap } from '../../src/map';
 import { estateToVariables, provenanceResolver, renderVariableStore } from '../../src/variables';
@@ -65,6 +65,20 @@ describe.each(ESTATES)('the variable store of the $dir estate', ({ dir, map }) =
     expect(pointers.length).toBeGreaterThan(0);
     for (const entry of pointers)
       expect(entry.pointer?.startsWith('/'), `${entry.path} ${entry.pointer}`).toBe(true);
+  });
+
+  it('names in the committed store only atoms the committed map holds', async () => {
+    // A store left from an earlier map names atoms the map no longer has: every value of an atom variable is an
+    // atom id of the map, read from the committed file, not from a fresh feed.
+    const { folder, map: estate } = await feed(dir, map);
+    const parsed = parseVariableStoreText(await readFile(join(folder, 'variables.yaml'), 'utf8'), 'yaml');
+    if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors.slice(0, 3)));
+    const ids = new Set(estate.atoms.map((atom) => atom.id));
+    const named = parsed.store.variables
+      .filter((variable) => !variable.id.startsWith('condition.'))
+      .flatMap((variable) => variable.values.map((value) => value.id));
+    expect(named.length).toBe(estate.atoms.length);
+    expect(named.filter((id) => !ids.has(id))).toEqual([]);
   });
 
   it('is byte for byte the store committed beside the estate', async () => {

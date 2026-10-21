@@ -7,12 +7,17 @@ import {
   lintEstate,
   scanEstate,
 } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 import { CASES } from './cases';
 
 async function references(files: Record<string, string>) {
   const root = await estate(files);
-  const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  const { map, raw } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer(),
+  });
   const atoms = map.atoms.filter((atom) => atom.kind === 'reference');
   return {
     lint: lintEstate(map, raw),
@@ -80,7 +85,12 @@ describe('paths outside the estate', () => {
   });
 
   it('counts the four reader-cases paths outside the estate as information', async () => {
-    const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root: CASES,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const external = lintEstate(map, raw).findings.filter((finding) => finding.code === 'EXTERNAL');
     expect(external.map((finding) => finding.message.replace(/^CLAUDE\.md:\d+ names /, ''))).toEqual([
       'companies/fjord-kitchenware.md, outside the estate',

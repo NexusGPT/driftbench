@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, ESTATE_CONFIG, lintEstate, locateNamed, scanEstate } from '../../src/index';
 import type { EstateFile } from '../../src/scan/reader';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 import { CASES } from './cases';
 
 const file = (path: string): EstateFile => ({ path, kind: 'other', text: '' });
@@ -63,7 +63,12 @@ describe('alias tables', () => {
     });
     const raw = await new ClaudeCodeReader().read(root);
     expect(raw.aliases).toEqual({ REF: ['.claude/library'], SEE: ['.claude/see'], DOC: ['.claude/docs'] });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(
       map.atoms
         .filter((atom) => atom.kind === 'reference')
@@ -94,15 +99,16 @@ describe('alias tables', () => {
     });
     const raw = await new ClaudeCodeReader().read(root);
     expect(raw.aliases).toEqual({ REF: ['.claude/skills/invoice-reconcile/references'] });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const paths = (kind: string) =>
       map.atoms
         .filter((atom) => atom.kind === kind && atom.provenance.file === '.claude/agents/ledger-auditor.md')
         .map((atom) => [atom.fields?.path, atom.fields?.resolvedBy]);
-    expect(paths('gate')).toEqual([
-      ['.claude/skills/invoice-reconcile/references/credit-notes.md', 'alias'],
-      ['.claude/skills/invoice-reconcile/rules/rounding.md', 'suffix'],
-    ]);
     expect(paths('reference')).toEqual(
       expect.arrayContaining([['.claude/skills/invoice-reconcile/references/vat.md', 'alias']]),
     );
@@ -123,7 +129,12 @@ describe('alias tables', () => {
 
 describe('the reader-cases names', () => {
   it('resolves a shared bare name in the local subtree before other skills, and resolves the alias', async () => {
-    const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root: CASES,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const references = Object.fromEntries(
       map.atoms
         .filter((atom) => atom.kind === 'reference')

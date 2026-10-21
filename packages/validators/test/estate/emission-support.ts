@@ -22,11 +22,12 @@ import { referenceChecks, referenceRun, required, SUFFIXES, suffix } from './rul
 export type Path = Array<string | number>;
 export const REASON_CLASSES = ['default-equivalent', 'empty-demand', 'single-block-scope'] as const;
 /** Entry kinds whose omitted count the evaluators read as at least one (census below). */
-export const DEFAULT_COUNT_KINDS = ['guards', 'references', 'skills', 'subagents'];
-/** The reads of the default-equivalent class: an entry list off `expect`, and the count of an entry. */
+export const DEFAULT_COUNT_KINDS = ['guards', 'references', 'skills', 'subagents', 'calls'];
+/** The reads of the default-equivalent class: an entry list off `expect`, and the count of an entry (a `some_call`
+ * entry is read as `entry`). */
 export const DEFAULT_COUNT_READS: FieldReads[] = [
   { receivers: ['expect'], fields: DEFAULT_COUNT_KINDS },
-  { receivers: ['guard', 'reference', 'skill', 'helper', 'subagent'], fields: ['count'] },
+  { receivers: ['guard', 'reference', 'skill', 'helper', 'subagent', 'entry'], fields: ['count'] },
 ];
 export type ReasonClass = (typeof REASON_CLASSES)[number];
 export type EmissionSite = {
@@ -181,9 +182,15 @@ export const CLASS_PROOFS: Record<
   }
 > = {
   'default-equivalent': {
-    // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry.
+    // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry, or on a `some_call` entry
+    // (`calls`): some_call and hazard_recovery read it through `entry.count ?? { min: 1 }` and parseSomeCall's default.
     census: () => fieldReadCensus(ROOT, READER_ROOTS, DEFAULT_COUNT_READS),
     readers: [
+      "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
+      'packages/checks/src/checks/estate.ts: `${plural(matching.length, what)} of ${plural(own.length, `${entry.label} call`)} in this block, expected ${describeCount(entry.count)}`,',
+      'packages/checks/src/checks/estate.ts: const count = (entry.count ?? { min: 1 }) as Count;',
+      "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
+      'packages/checks/src/checks/estate.ts: `${plural(matching.length, `${entry.label} call`)} after the ${hazard}, expected ${describeCount(entry.count)}`,',
       // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
       // `count`, so an absent count and `{ min: 1 }` give the same names.
       'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
@@ -216,8 +223,6 @@ export const CLASS_PROOFS: Record<
       'packages/core/src/spec/semantics.ts: checkCount(reference.count, `${path}.references.${index}.count`, issues);',
       'packages/core/src/spec/semantics.ts: for (const [index, subagent] of (expect.subagents ?? []).entries()) {',
       'packages/core/src/spec/semantics.ts: checkCount(subagent.count, `${path}.subagents.${index}.count`, issues);',
-      // The reference spec marks each guard entry as a warning. It sets `verdict` and never reads `count`.
-      "packages/validators/test/estate/ruling-reference.ts: for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';",
     ],
     cases() {
       // Entry ids come from name, path or verdict, never count; array lengths are unchanged.
@@ -292,6 +297,7 @@ export const CLASS_PROOFS: Record<
     // Reads of a custom check's `block` option, found by what the receiver is bound to, never by its name.
     census: () => blockOptionCensus(ROOT, READER_ROOTS),
     readers: [
+      `packages/checks/src/checks/absence.ts: ${GUARDED_BLOCK}`,
       'packages/checks/src/checks/estate.ts: if (entry.block !== undefined && entry.block !== ctx.blockIndex) return;',
       "packages/checks/src/checks/estate.ts: ...(typeof entry.block === 'number' ? { block: entry.block } : {}),",
       `packages/checks/src/checks/estate.ts: ${GUARDED_BLOCK}`,

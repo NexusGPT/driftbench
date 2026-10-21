@@ -11,7 +11,7 @@ import {
   scanEstate,
 } from '../../src/index';
 import type { EstateFile } from '../../src/scan/reader';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 import { CASES } from './cases';
 
 describe('the ignore list', () => {
@@ -88,7 +88,12 @@ describe('the ignore list', () => {
   });
 
   it('removes every orphan of the reader-cases files no runtime loads, and records the config list in the map', async () => {
-    const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root: CASES,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(raw.ignored?.patterns.filter((entry) => entry.files > 0).map((entry) => entry.pattern)).toEqual([
       'node_modules',
       '__pycache__',
@@ -154,7 +159,12 @@ describe('reference bases', () => {
   });
 
   it('finds the reader-cases references written from .claude and from .claude/skills', async () => {
-    const { map } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root: CASES,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const line = map.atoms.filter((atom) => atom.kind === 'reference' && atom.fields?.from === 'CLAUDE.md');
     expect(line.map((atom) => [atom.fields?.path, atom.fields?.exists])).toContainEqual([
       '.claude/guards/CHECK-REGISTRY.md',
@@ -185,7 +195,12 @@ describe('reference bases', () => {
       'CLAUDE.md': '# Rules\n\nRead `hooks/tests/fixtures/e.json` before a test run.\n',
       '.claude/hooks/tests/fixtures/e.json': '{}\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const reference = map.atoms.find((atom) => atom.kind === 'reference');
     expect(reference?.fields).toMatchObject({
       path: '.claude/hooks/tests/fixtures/e.json',
@@ -209,7 +224,12 @@ describe('files an operating system or an editor leaves', () => {
       '.claude/.idea/workspace.xml': '<project/>\n',
       '.claude/notes~draft.md': '# Kept: the tilde is not at the end\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(raw.files.map((file) => file.path)).toEqual([
       'CLAUDE.md',
       '.claude/notes~draft.md',
@@ -246,7 +266,12 @@ describe('a bare name with another copy under an ignored folder', () => {
         '.claude/skills/alpha/references/guide.md': '# Guide\n',
         [`${folder}/alpha-old/references/guide.md`]: '# Old guide\n',
       });
-      const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map, raw } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: structurePointer(),
+      });
       const references = map.atoms.filter((atom) => atom.kind === 'reference');
       expect(references.map((atom) => atom.fields?.path)).toEqual([
         '.claude/skills/alpha/references/guide.md',

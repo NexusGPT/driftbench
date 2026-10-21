@@ -103,7 +103,7 @@ proposed. Summary in <plan>.summary.json.`, then:
 * `Rows per test type`: every row, journeys and pairwise included.
 * `Unenforced`: approved rules no guard enforces.
 * `Cells with no approved phrase`: the plan reads no phrase bank, so every cell counts.
-* `Edges with no journey`, each with its reason.
+* `Edges with no journey`, each with its reason. A list (these edges, the rows adjusted to the space map, the notes) prints its first 10 lines on the console, then one line that counts the rest and names the summary file, which holds every one under `uncoveredEdges`, `adjusted` and `notes`.
 * A `Next:` line.
 
 Exit 0 written, 1 an invalid map or space map or one that does not match the map, 2 a usage or input error
@@ -120,7 +120,7 @@ do not fit. A plan that does not load reports `PLAN_PARSE`, `PLAN_NOT_OBJECT`, `
 ```sh
 driftbench estate plan examples/estates/fixture/approved.yaml --out plan.yaml
 driftbench estate plan approve plan.yaml
-driftbench estate plan approve plan.yaml --row twin.instruction.standing.never-force-push --strike
+driftbench estate plan approve plan.yaml --row twin.instruction.inbox-triager.you-sort-messages-into-three-folders --strike
 driftbench estate plan approve plan.yaml --all
 driftbench estate plan approve plan.yaml --row nosuch # exit 1
 driftbench estate plan examples/estates/fixture/approved.yaml --out plan.yaml # exit 2
@@ -128,55 +128,55 @@ driftbench estate plan examples/estates/fixture/approved.yaml --out plan-t3.yaml
 ```
 
 ```text
-Wrote plan.yaml: 1568 rows (361 from the contract, 10 journeys, 1197 pairwise), all proposed. Summary in plan.summary.json.
-  Cells: 1429 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 1197 rows, t = 2, 5092 of 5092 allowed 2-tuples covered; the full grid of 2531567001600 cells is never enumerated.
+Wrote plan.yaml: 1076 rows (386 from the contract, 10 journeys, 680 pairwise), all proposed. Summary in plan.summary.json.
+  Cells: 933 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 680 rows, t = 2, 3635 of 3635 allowed 2-tuples covered; the full grid of 2318150016000 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction   129
-    gate           16
+    instruction   135
+    gate           10
     route          65
-    skill         111
-    reference       9
+    skill         135
+    reference       7
     script          2
-    subagent       69
+    subagent       88
     guard          30
     tool           12
     setting         4
     stage           9
-    register       70
-    hazard          2
+    register       98
+    hazard          1
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        603
-    outside_trigger    43
-    twin               43
-    ordered_pair      112
-    skip_pressure       8
-    route_positive    260
+    obligation        370
+    outside_trigger    45
+    twin               45
+    ordered_pair       40
+    skip_pressure       5
+    route_positive    160
     route_near_miss    13
     misroute           13
-    read_when           9
+    read_when           7
     script_fixture      2
-    dispatch           42
+    dispatch           26
     contract_alone      3
     stop_resume         3
-    guard_positive     84
+    guard_positive     48
     guard_negative      6
     guard_hostile       6
     guard_speed         6
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        69
+    stage_order        39
     stage_skip          4
     stage_anytime       1
-    register_sample   200
-    hazard_recovery     2
+    register_sample   197
+    hazard_recovery     1
     invariant           4
     setting             4
     journey            10
-  Unenforced: 54 approved rules no guard enforces.
-  Cells with no approved phrase: 1429 of 1429.
+  Unenforced: 58 approved rules no guard enforces.
+  Cells with no approved phrase: 933 of 933.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -186,18 +186,28 @@ Wrote plan.yaml: 1568 rows (361 from the contract, 10 journeys, 1197 pairwise), 
     route.supplier-email.an-ask-that-fits-supplier-email route skill.supplier-email.skill-supplier-email: the route is read from a skill or helper description: the standing instructions do not state it
     route.weekly-report.an-ask-that-fits-weekly-report route skill.weekly-report.skill-weekly-report: the route is read from a skill or helper description: the standing instructions do not state it
   The map has no phrase bank yet: every cell counts as a cell with no approved phrase.
+  session_state=after_compaction: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  session_state=after_restart: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  owner_signal=hold: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  owner_signal=frustration: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  deviation=D6_instruction_in_data: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  deviation=D10_return: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  deviation=D11_pii_leak: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  estate_hazard=compaction_mid_task: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+  estate_hazard=process_restart: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
+    and 2 more, all in plan.summary.json under "notes".
 Next: driftbench estate plan approve plan.yaml --all, or strike rows with --row <id> --strike
-plan.yaml: 1568 rows, 1568 proposed, 0 approved, 0 struck.
+plan.yaml: 1051 rows, 0 proposed, 1050 approved, 1 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 Struck 1 row in plan.yaml; 0 were already struck.
-Approved 1567 rows in plan.yaml; 0 were already approved.
+Approved 1059 rows in plan.yaml; 0 were already approved.
 ✗ plan.yaml
   (file)  PLAN_UNKNOWN_ROW  row "nosuch" is not in the plan
 plan.yaml already exists: pass --force to replace it (the approvals in it are lost).
 ```
 
-The `--t 3 --k 1` plan prints the same blocks for 10173 rows (335 from the contract, 10 journeys, 9828
-pairwise); its covering array covers 87504 of 87504 allowed 3-tuples.
+The `--t 3 --k 1` plan prints the same blocks for 4794 rows (343 from the contract, 11 journeys, 4440
+pairwise); its covering array covers 41080 of 41080 allowed 3-tuples.
 
 ## Common errors
 

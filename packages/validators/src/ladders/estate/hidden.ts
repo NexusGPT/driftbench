@@ -57,6 +57,8 @@ export type StandingRule = {
   hazard?: HazardId;
   /** A fixed-form gate code reads (a gate atom and a reference atom on the line): the skill and reference. */
   fixedGate?: { skill: string; path: string };
+  /** The act a fixed gate puts a read before, as the rule's text gives it, and the tool that act uses. */
+  gateAct?: { act: string; tool: string };
   /** The label of the rule this rule's words cite. */
   cites?: string;
   /** Applies to every task and reply (`always`), or only in its own situation. */
@@ -775,6 +777,7 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
       ],
       behaviour: { type: 'none' },
       fixedGate: { skill: gateSkill.topic.skill, path },
+      gateAct: { act: `editing any ${gateSkill.topic.noun} file`, tool: 'Edit' },
       scope: 'always',
     });
   }

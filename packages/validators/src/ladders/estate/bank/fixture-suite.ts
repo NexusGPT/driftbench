@@ -176,6 +176,7 @@ export function runOnFakeDetailed(
   specs: readonly string[],
   store: string,
   map?: string,
+  command: string = FAKE,
 ): Map<string, FakeVerdict> {
   const result = cli([
     'estate',
@@ -186,7 +187,7 @@ export function runOnFakeDetailed(
     '--runtime',
     'claude-code',
     '--command',
-    FAKE,
+    command,
     '--store',
     store,
     '--states',
