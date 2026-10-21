@@ -50,6 +50,7 @@ const jobs = [
   { name: 'eval-what', src: 'eval-what.html', out: 'eval-what-{theme}.png' },
   { name: 'by-hand', src: 'by-hand.html', out: 'by-hand-{theme}.png' },
   { name: 'problems', src: 'problems.html', out: 'problems-{theme}.png' },
+  { name: 'walkthrough', src: 'walkthrough.html', out: 'walkthrough-{theme}.png' },
   { name: 'loop-steps', src: 'loop-steps.html', out: 'loop-steps-{theme}.png' },
   { name: 'blocks-diff', src: 'blocks-diff.html', out: 'blocks-diff-{theme}.png' },
   { name: 'gen', src: 'gen.html', out: 'gen-{theme}.png' },

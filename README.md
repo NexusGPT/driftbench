@@ -678,9 +678,18 @@ The command lists the blocks to rerun and runs nothing. [Full description](docs/
 
 ## A walkthrough on one small estate
 
-An **estate** is everything that defines an agent: a system prompt, skills, references, helper agents and settings. This walkthrough follows one estate from its files to its tests, and then through one edit. The estate is the fictional Northwind ops assistant in `examples/estates/fixture`. It has a `CLAUDE.md` with 17 numbered rules, four skills, three helper agents and a settings file.
+This walkthrough takes one small, made-up agent and goes from its files to a list of tests, then through one edit. The agent is the Northwind ops assistant in `examples/estates/fixture`. Its **estate** is every file that defines it: a prompt, four skills, three helper agents and a settings file.
 
-Every command below is run by a test on GitHub, and every output is what the command printed, trimmed to the lines that matter. No command calls a model: the scan replays recorded answers, and the runs use a stand-in script. Start with a working copy, so the repository stays as it is:
+Each step has the same five parts: what you have, what you run, what it does, what you get, and why it matters. Every command is run by a test on GitHub, and every excerpt is real output of that command. Nothing calls a model and nothing is paid for.
+
+<a href=".github/readme/walkthrough-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/walkthrough-dark.png">
+    <img alt="The four steps of the walkthrough as four boxes joined by arrows. 1, turn the agent's files into tests: 116 instructions found, 1,439 tests written. 2, see which tests cover one sentence: the sentence, its id, the instruction, the tests. 3, run a test: the agent answers, each check says pass or fail. 4, after an edit, list the tests to rerun: 17 of 921." src=".github/readme/walkthrough-light.png" width="100%">
+  </picture>
+</a>
+
+First make a working copy, so the repository stays as it is:
 
 ```console
 $ mkdir -p walk && cp -R examples/estates/fixture walk/northwind
@@ -688,49 +697,65 @@ $ rm -rf walk/northwind/generated
 $ cd walk
 ```
 
-### 1. From the estate to a map, and from the map to tests
+### 1. Turn the agent's files into tests
 
-The problem: seventeen rules, four skills and three helpers are too much to test by hand, and you would not know what you missed. Take one sentence of the weekly report skill:
+**What you have.** The folder `northwind`, with the prompt, skills, helper agents and settings of the agent.
+
+**What you run.** Six commands, in this order. `approve` and `plan approve` are the two points where you say yes.
+
+```console
+$ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update   # exit 1
+$ driftbench estate approve map.yaml --all --to approved.yaml
+$ driftbench estate map approved.yaml --to space.yaml --agent northwind
+$ driftbench estate plan approved.yaml --space space.yaml --out plan.yaml
+$ driftbench estate plan approve plan.yaml --all
+$ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated   # exit 1
+```
+
+**What it does.** It reads the files and lists everything they tell the agent to do or to use. Each item is an **atom**, with a quote of where it says so, and the list is the **map**. It then chooses the situations to test, which is the **plan**, and writes one test file for each. Two commands exit 1 by design: the scan reports a few labels it refused, and `generate` reports tests that still wait for an answer.
+
+**What you get.**
+
+```text
+Wrote map.yaml: 116 atoms (67 read by code and approved, 49 split from prose by the model and waiting for approval), 50 edges.
+Wrote plan.yaml: 1439 rows (349 from the contract, 10 journeys, 1080 pairwise), all proposed. Summary in plan.summary.json.
+Wrote 1461 files to generated.
+```
+
+**Why it matters.** You get 1,439 tests without writing one, and a map of the 116 atoms they are built from. Of the 1,439 tests, 952 are complete today. The other 487 each name what they still need.
+
+### 2. See which tests cover one sentence
+
+**What you have.** One sentence of the weekly report skill, on line 12 of its `SKILL.md`:
 
 ```console
 $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 12:Count only what the ledger and the shipment log show for the last seven days. Read
 ```
 
-`estate scan` reads the estate into a **map**. The map lists each thing the estate asks of the agent, with a quote of where it says so. One entry of the map is an **atom**. That sentence becomes one atom. Then driftbench plans which situations to test, and `estate generate` writes the tests from the plan.
+**What you run.** One command. It shows the **links** of one test: the lines that say what the test is about.
 
 ```console
-$ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update   # exit 1
-Wrote map.yaml: 116 atoms (67 read by code and approved, 49 split from prose by the model and waiting for approval), 50 edges.
-  Prose: 14 chunks, 6775 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
-  Units: 154 in 14 files; 0 kept from the ledger, 122 labelled by this run (49 by system 1, 73 by system 2, 10 of them because the other labeler gave no opinion), 32 unlabeled; the runs of one labeler disagreed on 38 units; the runs gave different spans for 3 units, which keep their label and lose the spans; 49 atoms.
-$ driftbench estate approve map.yaml --all --to approved.yaml
-Approved 49 atoms in approved.yaml; 67 were already approved.
-$ driftbench estate map approved.yaml --to space.yaml --agent northwind
-Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 34, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
-$ driftbench estate plan approved.yaml --space space.yaml --out plan.yaml
-Wrote plan.yaml: 1439 rows (349 from the contract, 10 journeys, 1080 pairwise), all proposed. Summary in plan.summary.json.
-$ driftbench estate plan approve plan.yaml --all
-Approved 1439 rows in plan.yaml; 0 were already approved.
-$ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated   # exit 1
-Map ../approved.yaml (claude-code), hash 75b17123d007: 116 atoms.
-Plan ../plan.yaml: 1439 rows, 1439 approved, 0 waiting, 0 struck.
-total                      1439       952         487
-Asks of the complete specs: 0 approved phrases, 944 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1461 files to generated.
+$ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 ```
 
-What the output means:
+**What it does.** Step 1 gave the sentence an id that stays the same when the sentence is edited, and made it the instruction `instruction.weekly-report.count-only-what-the-ledger-and`. Each test names the instruction it checks. The link below says that this test checks that sentence.
 
-- The scan exits 1 here because the model refused a few labels. They are listed in the full output, and none stops the map. It read the estate (the prompt, the skills, the helpers, the settings) into 116 atoms. Code read 67 of them from the structure. A model split the prose into the other 49, and a person approves them (`estate approve`).
-- `estate map` turns the atoms into situations to cross: the kind of ask, the session state, a deviation. The full grid is 1,626,384,614,400 cells, so `estate plan` picks 1,439 rows that put every pair of situations together at least once.
-- `estate generate` wrote one test per row, plus a report and a run order: 1,461 files in all. Of the 1,439 tests, 952 are complete and 487 are not. The command exits 1 while tests are incomplete, and its output lists what each one needs. A test with no recorded answer or approved phrase for its ask waits for one.
+**What you get.**
 
-### 2. From a sentence to a chunk, a rule and its tests
+```text
+        kind: rule
+        rule: instruction.weekly-report.count-only-what-the-ledger-and
+        ledger: wrl4c7wlvb
+      relation: verifies
+      status: declared
+```
 
-The problem: when this sentence changes, which tests are about it? driftbench keeps one chain from the sentence to the tests. Each link of the chain has an id.
+**Why it matters.** The chain is: sentence, then id `wrl4c7wlvb`, then instruction, then tests. When you edit the sentence, driftbench follows that chain to find its tests. Three tests name this instruction.
 
-The **chunk.** The scan cuts every prose file into chunks, and gives each chunk an id that stays the same when the text is edited. The chunk of that sentence:
+<details><summary>Look at the id, the instruction and the test itself</summary>
+
+The id and the text of the sentence, in the file `ledger.json`:
 
 ```console
 $ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));const e=l.entries.find((x)=>x.id==="wrl4c7wlvb");console.log(JSON.stringify({id:e.id,fp:e.fp,path:e.path,status:e.status,quote:e.quote},null,2))'
@@ -743,7 +768,7 @@ $ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));
 }
 ```
 
-The **rule.** A chunk that states a rule becomes an atom of the map, with an id, a kind and a quote:
+The instruction in the map, with its quote and where it sits:
 
 ```console
 $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" map.yaml
@@ -759,37 +784,19 @@ $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" ma
     producedBy: model
 ```
 
-The **tests.** Each generated test names the atoms it covers. Three tests name that atom: the obligation itself, a twin that checks it is not over-applied, and an outside-trigger control. This lists them, then shows the links of the first:
+The three tests that name it:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" generated/specs/live | sort | head -3
 generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 generated/specs/live/obligation/estate.pairwise.0020.yaml
 generated/specs/live/obligation/estate.pairwise.0064.yaml
-$ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-  links:
-    - block: ask
-      to:
-        kind: rule
-        rule: instruction.weekly-report.count-only-what-the-ledger-and
-        ledger: wrl4c7wlvb
-      relation: verifies
-      status: declared
-      created_by: generator
 ```
 
-What the chain is:
-
-- The sentence is in `SKILL.md`, line 12. The scan cut it into a chunk and gave the chunk the id `wrl4c7wlvb`. The id stays when the text is edited. The text fingerprint `fp` changes with every edit.
-- The map holds the rule as the atom `instruction.weekly-report.count-only-what-the-ledger-and`, with its quote and where it sits (`SKILL.md`, line 12).
-- Three generated tests name that atom. In the first, the block `ask` carries a link that says `verifies` this rule, and names the chunk id `wrl4c7wlvb`. That link is how an edit finds its tests.
-
-### 3. Set up a test, and run it
-
-The problem: what is a test, and how do you run one? A test is a spec file. It holds blocks. A block has three parts: where it starts (`given`), what the user says (`when`) and what must be true afterwards (`expect`). This is the block of the test above:
+The part of the first test that says what to do and what to expect. A **block** is one message from the user and what must be true after it:
 
 ```console
-$ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+$ sed -n '/^blocks:/,/^metadata:/p' generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 blocks:
   - id: ask
     when:
@@ -803,29 +810,35 @@ blocks:
         deleted: []
       criteria:
         - instruction.weekly-report.count-only-what-the-ledger-and
+metadata:
 ```
 
-To run it, `estate run` starts the agent in a sandbox copy of the estate and sends the block. Here the agent is a stand-in script, so nothing is spent:
+</details>
+
+### 3. Run a test
+
+**What you have.** The test file from step 2.
+
+**What you run.** One command. It starts the agent, sends the test's message and checks the answer.
 
 ```console
 $ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json   # exit 1
-note: estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and: no judge, so its judged criteria are inconclusive (pass --judge claude:<model>)
-✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
-    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
-    judged instruction.weekly-report.count-only-what-the-ledger-and: inconclusive
 ```
 
-What a test holds:
+**What it does.** It copies the folder, runs the agent on the copy and compares what it did with what the test expects. Here the agent is a small script that stands in for a real one. It has no recorded answer for this question, so the test fails. That is the point of the example.
 
-- `given` is where the block starts. This one starts from a fresh session.
-- `when` is what the user says: "Please help me with the weekly report or a summary of last week."
-- `expect` is what must be true after: the agent loads the `weekly-report` skill, deletes no file, and obeys the rule. The rule has no machine check, so a judge reads the reply against the rule's own words (`criteria`).
+**What you get.**
 
-The run fails, and the output says why. The stand-in agent has no recorded answer for this ask, so it never loads the skill. No judge is configured, so the judged criterion is inconclusive. To run the same test on a real agent, replace `--command` with your agent, and add `--judge claude:<model>`. Nothing was spent here, because the stand-in is a script.
+```text
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+```
 
-### 4. Edit a rule, and list the tests to rerun
+**Why it matters.** A failing test names the check that failed. Here the agent did not load the weekly report skill, and no **judge** was set. A judge is a model that reads an answer when code cannot check it. To test a real agent, replace `--command` with your agent and add `--judge claude:<model>`.
 
-The problem: you change the sentence from seven days to fourteen days. You do not want to rerun every test. Make the edit:
+### 4. After an edit, list the tests to rerun
+
+**What you have.** You changed the sentence from seven days to fourteen days:
 
 ```console
 $ sed -i.bak 's/for the last seven days/for the last fourteen days/' northwind/.claude/skills/weekly-report/SKILL.md
@@ -833,36 +846,25 @@ $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 12:Count only what the ledger and the shipment log show for the last fourteen days. Read
 ```
 
-`radius ledger` finds the chunk that changed by its id, and writes a **change file**. `radius` reads the change file and lists the tests that reach the changed rule:
+**What you run.** Two commands. The first finds what you changed by its id and writes a **change file**. The second reads the change file and lists the tests that the change can reach. That list is the **blast radius**.
 
 ```console
 $ driftbench radius ledger map.yaml --ledger ledger.json --out change.yaml
-Units: 151 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
-  1 unit reruns, 2 advisory only; 1 change.
-Wrote change.yaml.
-$ cat change.yaml
-from: 75b17123d007
-to: working
-changes:
-  - kind: prompt
-    id: instruction.weekly-report.count-only-what-the-ledger-and
-    note: "unit wrl4c7wlvb: changed"
 $ driftbench radius generated/specs/live --change change.yaml
+```
+
+**What it does.** It finds the sentence by its id, although its text is new. Then it looks at the links of every test and keeps the tests that name that sentence. Each of these tests holds one block: one user message and the checks on the answer.
+
+**What you get.**
+
+```text
 Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
 918 specs, 921 blocks.
 Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904 out. 17 of 918 cells.
   A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
-In the radius, mode F:
-  estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and       1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
-  estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and  1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
-  estate.twin.instruction.weekly-report.count-only-what-the-ledger-and             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
-What the output means:
-
-- `radius ledger` read the files as they are and found one changed chunk, `wrl4c7wlvb`, by its id. It wrote a change file that names the rule.
-- `radius` read the change file and the links of every test. Of 921 blocks, 17 reach that rule. The other 904 keep their last result, which saves 98.2%. The three tests that name the rule are in the list.
-- The next step is `campaign run --change change.yaml --from <campaign>`: it runs those 17 blocks and carries the rest. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the rule.
+**Why it matters.** You rerun 17 of the 921 blocks, and the other 904 keep their last result. The next command, `campaign run --change change.yaml --from <campaign>`, does that. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the instruction.
 
 ## Results
 

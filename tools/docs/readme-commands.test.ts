@@ -217,6 +217,7 @@ describe('README commands that print what they show', () => {
       await symlink(join(ROOT, 'examples'), join(base, 'examples'));
       let cwd = base;
       const problems: string[] = [];
+      const printed = new Set<string>();
       for (const block of consoles) {
         for (const step of steps(block)) {
           if (step.command.startsWith('cd ')) {
@@ -224,8 +225,14 @@ describe('README commands that print what they show', () => {
             continue;
           }
           const got = await execute(step.command, cwd);
+          for (const line of got.lines) printed.add(line);
           const found = mismatch(step, got);
           if (found.length > 0) problems.push(`$ ${step.command}\n${found.join('\n')}\n`);
+        }
+      }
+      for (const excerpt of section.matchAll(/```text\n([\s\S]*?)\n```/g)) {
+        for (const line of (excerpt[1] ?? '').split('\n')) {
+          if (!printed.has(line.trimEnd())) problems.push(`An excerpt line no command printed: ${line}`);
         }
       }
       expect(problems.filter((problem) => problem !== '').join('\n')).toBe('');
