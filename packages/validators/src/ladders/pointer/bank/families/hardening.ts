@@ -1165,8 +1165,9 @@ const decisions: Record<string, Run> = {
         const m = /^u(\d+)__(.+)$/.exec(name);
         return [name, answered(unitText.get(Number(m?.[1])) ?? '', m?.[2] ?? '')];
       });
+      // A predicate the entry lacks is missing: the difference is NaN, never within the tolerance.
       const missing = (found: Map<string, number>) =>
-        want.filter(([name, value]) => Math.abs((found.get(name) ?? Number.NaN) - value) > 1e-9);
+        want.filter(([name, value]) => !(Math.abs((found.get(name) ?? Number.NaN) - value) <= 1e-9));
       if (want.length === 0) return fail(`request ${at + 1} asks no question`);
       const match = lines.findIndex((found, i) => !used.has(i) && missing(found).length === 0);
       if (match < 0) {
