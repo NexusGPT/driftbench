@@ -596,12 +596,18 @@ describe('terminal subsumption and the wording of a turn', () => {
   const prepared = fixture();
   const path = prepared.relations.paths[0];
   if (!path) throw new Error('missing parcel path');
+  // A declared perturbation on the last block keeps it (see the perturbation cases): these walks declare none.
+  const plain = (id: string) => {
+    const draft = walk(prepared, id, path);
+    draft.perturbations = undefined;
+    return draft;
+  };
 
   it('reads two blocks that differ only in the wording of the user turn as one test', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path);
+    const written = plain('written');
     // The second walk ends on the words the first walk says in its middle: the same test, in words already said.
-    const again = lastWordedAs(walk(prepared, 'again', path), textOf(written, 1));
+    const again = lastWordedAs(plain('again'), textOf(written, 1));
     const length = again.blocks.length;
     minimal.reduce(written);
     minimal.reduce(again);
@@ -610,8 +616,8 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('keeps the end of a block whose wording no written spec says: the phrase would be lost', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path);
-    const again = lastWordedAs(walk(prepared, 'again', path), 'Pack it now, thank you.');
+    const written = plain('written');
+    const again = lastWordedAs(plain('again'), 'Pack it now, thank you.');
     const length = again.blocks.length;
     minimal.reduce(written);
     minimal.reduce(again);
@@ -620,8 +626,8 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('keeps the end of a block that expects another Then, however alike the turn reads', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path);
-    const other = endsElsewhere(walk(prepared, 'other', path));
+    const written = plain('written');
+    const other = endsElsewhere(plain('other'));
     const length = other.blocks.length;
     minimal.reduce(written);
     minimal.reduce(other);
