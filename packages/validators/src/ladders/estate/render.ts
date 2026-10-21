@@ -556,7 +556,18 @@ export function renderEstate(estate: HiddenEstate): Rendered {
       edges.push({ from: skill.hid, to: hid, kind: 'script' });
     }
     if (hook) {
-      files[hook.script] = ['#!/bin/sh', '# Checks the arguments of a script call.', 'exit 0', ''].join('\n');
+      // It acts on its own ask (a script run with no arguments): a guard that never acts is a deleted guard.
+      files[hook.script] = [
+        '#!/bin/sh',
+        '# Checks the arguments of a script call.',
+        // The command opens the payload: the script reads no further, so a large payload is cut short.
+        'command=$(head -c 4096 | grep -o \'"command":"[^"]*"\')',
+        'case "$command" in',
+        '  *\'.py"\') echo "blocked: a script call without its arguments" >&2; exit 2 ;;',
+        'esac',
+        'exit 0',
+        '',
+      ].join('\n');
     }
     if (skill.orphan) {
       const path = skillPath(skill, `references/${topic.orphan}`);

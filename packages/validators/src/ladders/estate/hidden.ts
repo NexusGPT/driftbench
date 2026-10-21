@@ -533,7 +533,8 @@ const GUARD_POOL: Readonly<
     script: guardFile('stop-word.sh'),
     verdict: 'nudge',
     method: 'registry',
-    ask: 'Stop all work now.',
+    // The script acts on the word as it writes it: the ask holds it, lower case.
+    ask: 'Please stop all work now.',
     outside: 'Can we pause the planning until Monday?',
   },
   length: {
