@@ -329,7 +329,7 @@ describe('command line', () => {
     const limit = 10 * 1024 * 1024;
     const padding = `${'0'.repeat(40)}:examples/x.jsonl:generic-api-key:1\n`;
     const email = ['canary.person', 'driftbench-canary.dev'].join('@');
-    const content = padding.repeat(Math.ceil((11 * 1024 * 1024) / padding.length)) + `${email}\n`;
+    const content = `${padding.repeat(Math.ceil((11 * 1024 * 1024) / padding.length))}${email}\n`;
     expect(content.length).toBeGreaterThan(limit);
     const dir = folder({ '.gitleaksignore': content });
     mkdirSync(join(dir, 'sub'));
