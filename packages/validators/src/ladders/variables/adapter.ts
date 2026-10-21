@@ -1,7 +1,16 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
-import { type PlanSeedRow, planV2, type SpanLabel, variablesFromSources } from '@agent-nexus/driftbench-generate';
-import { countVariableTuples, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import {
+  type PlanSeedRow,
+  planV2,
+  type SpanLabel,
+  variablesFromSources,
+} from '@agent-nexus/driftbench-generate';
+import {
+  countVariableTuples,
+  type VariableStore,
+  validateVariableStore,
+} from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
   CoverageResult,
@@ -288,7 +297,8 @@ function recordSpans(sources: Sources): void {
   const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
   if (!out) return;
   for (const rule of sources.estate?.rules ?? []) {
-    for (const condition of rule.conditions) appendFileSync(out, `${JSON.stringify({ text: condition.text })}\n`);
+    for (const condition of rule.conditions)
+      appendFileSync(out, `${JSON.stringify({ text: condition.text })}\n`);
   }
 }
 
@@ -320,7 +330,9 @@ function buildStore(sources: Sources): StoreDoc {
       values: variable.values.map((value) => ({
         id: value.id,
         ...(value.title === undefined ? {} : { title: value.title }),
-        ...(built.samples[variable.id]?.[value.id] === undefined ? {} : { sample: built.samples[variable.id]?.[value.id] }),
+        ...(built.samples[variable.id]?.[value.id] === undefined
+          ? {}
+          : { sample: built.samples[variable.id]?.[value.id] }),
         ...(value.weight === undefined ? {} : { weight: value.weight }),
         ...(value.approved === undefined ? {} : { approved: value.approved }),
         ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),

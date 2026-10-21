@@ -70,8 +70,8 @@ export {
 export {
   type SourceRefusal,
   type SpanLabel,
+  type VariableSources,
   type VariablesFromSources,
   type VariablesFromSourcesOptions,
-  type VariableSources,
   variablesFromSources,
 } from './sources';

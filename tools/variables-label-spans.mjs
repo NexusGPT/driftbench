@@ -39,7 +39,8 @@ if (![rateIn, rateOut, cap, totalCap].every((x) => Number.isFinite(x) && x > 0))
   console.error('rates and caps must be positive numbers');
   process.exit(2);
 }
-const spentBefore = totalFile && existsSync(totalFile) ? Number(readFileSync(totalFile, 'utf8').trim()) || 0 : 0;
+const spentBefore =
+  totalFile && existsSync(totalFile) ? Number(readFileSync(totalFile, 'utf8').trim()) || 0 : 0;
 
 const key = readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
 
@@ -96,7 +97,10 @@ async function ask(batch) {
     body: JSON.stringify(body),
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(`labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(
+      `labeller request failed: ${res.status} ${JSON.stringify(json.error ?? {}).slice(0, 300)}`,
+    );
   tokensIn += json.usage?.input_tokens ?? 0;
   tokensOut += json.usage?.output_tokens ?? 0;
   const text = (json.content ?? []).map((c) => c.text ?? '').join('');
@@ -114,7 +118,9 @@ const rows = new Map();
 let bad = 0;
 for (let i = 0; i < texts.length; i += BATCH) {
   if (spentBefore + spent() > totalCap || spent() > cap) {
-    console.error(`stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`);
+    console.error(
+      `stopped before a cap: this commit USD ${spent().toFixed(4)}, lane total USD ${(spentBefore + spent()).toFixed(4)}`,
+    );
     process.exit(3);
   }
   const batch = texts.slice(i, i + BATCH);
@@ -141,4 +147,6 @@ writeFileSync(outFile, `${[...rows].map(([text, label]) => JSON.stringify({ text
 const total = spentBefore + spent();
 if (totalFile) writeFileSync(totalFile, `${total}\n`);
 console.log(`labelled ${rows.size} spans (${bad} unusable answers recorded as none)`);
-console.log(`tokens in ${tokensIn}, out ${tokensOut}; this commit USD ${spent().toFixed(4)}, lane total USD ${total.toFixed(4)}`);
+console.log(
+  `tokens in ${tokensIn}, out ${tokensOut}; this commit USD ${spent().toFixed(4)}, lane total USD ${total.toFixed(4)}`,
+);

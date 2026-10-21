@@ -39,7 +39,12 @@ describe('variablesFromSources: the estate', () => {
 
   it('refuses a value whose quote the file does not hold, once, and keeps the others', () => {
     const built = variablesFromSources(
-      estate([tool(['payable', 'receivable', 'refund'], (id) => `ledger.post account value ${id}${id === 'refund' ? ' (gone)' : ' means'}`)]),
+      estate([
+        tool(
+          ['payable', 'receivable', 'refund'],
+          (id) => `ledger.post account value ${id}${id === 'refund' ? ' (gone)' : ' means'}`,
+        ),
+      ]),
     );
     expect(built.store.variables[0]?.values.map((v) => v.id)).toEqual(['payable', 'receivable']);
     expect(built.refused).toHaveLength(1);
@@ -51,9 +56,17 @@ describe('variablesFromSources: the estate', () => {
   it('stores no variable when every value is refused, and reads no file but those given', () => {
     const base = estate();
     const rule = base.estate?.rules[0];
-    const hosts = { tool: 'x.y', field: 'z', source: '/etc/hosts', values: [{ id: 'local', quote: 'localhost' }] };
+    const hosts = {
+      tool: 'x.y',
+      field: 'z',
+      source: '/etc/hosts',
+      values: [{ id: 'local', quote: 'localhost' }],
+    };
     const built = variablesFromSources({
-      estate: { files: base.estate?.files ?? {}, rules: [{ ...(rule as object), id: 'R2', tools: [hosts] } as never] },
+      estate: {
+        files: base.estate?.files ?? {},
+        rules: [{ ...(rule as object), id: 'R2', tools: [hosts] } as never],
+      },
     });
     expect(built.store.variables).toEqual([]);
     expect(built.refused).toHaveLength(1);
@@ -105,7 +118,11 @@ describe('variablesFromSources: the estate', () => {
   });
 
   it('gives value ids that fit the id grammar, and keeps two names that give one id apart', () => {
-    const lines = ['- ledger.post account value very high means a.', '- ledger.post account value very-high means b.', '- ledger.post account value /etc/x means c.'];
+    const lines = [
+      '- ledger.post account value very high means a.',
+      '- ledger.post account value very-high means b.',
+      '- ledger.post account value /etc/x means c.',
+    ];
     const built = variablesFromSources({
       estate: {
         files: { 'TOOLS.md': lines.join('\n') },
@@ -182,13 +199,22 @@ describe('variablesFromSources: conversations', () => {
 
   it('adds a value the store lacks as a proposal, and gives no counts to a variable nobody shows', () => {
     const built = variablesFromSources({
-      ...estate([tool(['payable', 'receivable']), { ...tool(['payable']), field: 'priority', values: [{ id: 'payable', quote: 'ledger.post account value payable means' }] }]),
+      ...estate([
+        tool(['payable', 'receivable']),
+        {
+          ...tool(['payable']),
+          field: 'priority',
+          values: [{ id: 'payable', quote: 'ledger.post account value payable means' }],
+        },
+      ]),
       conversations: sessions([{ 'ledger.post.account': 'novel' }]),
     });
     const account = built.store.variables.find((v) => v.id === 'ledger.post.account');
     const novel = account?.values.find((v) => v.id === 'novel');
     expect(novel?.approved).toBe(false);
-    expect(novel?.provenance).toEqual([expect.objectContaining({ kind: 'conversations', count: 1, total: 1 })]);
+    expect(novel?.provenance).toEqual([
+      expect.objectContaining({ kind: 'conversations', count: 1, total: 1 }),
+    ]);
     const other = built.store.variables.find((v) => v.id === 'ledger.post.priority');
     expect(other?.values[0]?.provenance?.some((p) => p.kind === 'conversations')).toBe(false);
     expect(other?.values[0]?.weight).toBeUndefined();
@@ -198,7 +224,10 @@ describe('variablesFromSources: conversations', () => {
     const rows = [{ 'ledger.post.account': 'payable' }, { 'ledger.post.account': 'refund' }];
     const a = variablesFromSources({ ...estate(), conversations: sessions(rows) });
     const b = variablesFromSources({ ...estate(), conversations: sessions(rows).reverse() });
-    const changed = variablesFromSources({ ...estate(), conversations: sessions([rows[0] as never, { 'ledger.post.account': 'receivable' }]) });
+    const changed = variablesFromSources({
+      ...estate(),
+      conversations: sessions([rows[0] as never, { 'ledger.post.account': 'receivable' }]),
+    });
     const hash = (r: ReturnType<typeof variablesFromSources>) =>
       JSON.stringify(r.store.variables[0]?.values[0]?.provenance?.find((p) => p.kind === 'conversations'));
     expect(hash(a)).toBe(hash(b));
@@ -206,7 +235,13 @@ describe('variablesFromSources: conversations', () => {
     const text = JSON.stringify(
       variablesFromSources({
         ...estate(),
-        conversations: [{ id: 'canary-id-77', text: 'canary-text-99', values: { 'ledger.post.account': 'payable' } } as never],
+        conversations: [
+          {
+            id: 'canary-id-77',
+            text: 'canary-text-99',
+            values: { 'ledger.post.account': 'payable' },
+          } as never,
+        ],
       }),
     );
     expect(text).not.toContain('canary');
@@ -285,7 +320,11 @@ describe('variablesFromSources: the owner', () => {
       owner: {
         impossible: [
           { a: { variable: id, value: 'payable' }, b: { variable: id, value: 'refund' }, ...owner('First.') },
-          { a: { variable: id, value: 'refund' }, b: { variable: id, value: 'payable' }, ...owner('Second.') },
+          {
+            a: { variable: id, value: 'refund' },
+            b: { variable: id, value: 'payable' },
+            ...owner('Second.'),
+          },
           { a: { variable: id, value: 'payable' }, b: { variable: 'ghost', value: 'x' }, ...owner() },
         ],
       },
@@ -334,18 +373,29 @@ describe('variablesFromSources: the whole', () => {
   });
 
   it('puts 2,000 values of one file in a store quickly', () => {
-    const lines = Array.from({ length: 2000 }, (_, i) => `- ledger.post account value v${i} means item ${i}.`);
+    const lines = Array.from(
+      { length: 2000 },
+      (_, i) => `- ledger.post account value v${i} means item ${i}.`,
+    );
     const file = `${lines.join('\n')}\n${'filler line of text.\n'.repeat(50_000)}`;
     const tools = [
       {
         tool: 'ledger.post',
         field: 'account',
         source: 'TOOLS.md',
-        values: Array.from({ length: 2000 }, (_, i) => ({ id: `v${i}`, quote: `ledger.post account value v${i} means item ${i}` })),
+        values: Array.from({ length: 2000 }, (_, i) => ({
+          id: `v${i}`,
+          quote: `ledger.post account value v${i} means item ${i}`,
+        })),
       },
     ];
     const started = process.cpuUsage();
-    const built = variablesFromSources({ estate: { files: { 'TOOLS.md': file }, rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools }] } });
+    const built = variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': file },
+        rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools }],
+      },
+    });
     const used = process.cpuUsage(started);
     expect(built.store.variables[0]?.values).toHaveLength(2000);
     expect((used.user + used.system) / 1000).toBeLessThan(3000);
@@ -353,10 +403,15 @@ describe('variablesFromSources: the whole', () => {
 });
 
 describe('variablesFromSources: labelled conditions', () => {
-  const LAW = ['# Rules', '', 'Refunds after 30 days need approval.', 'Premium customers get priority.'].join('\n');
+  const LAW = ['# Rules', '', 'Refunds after 30 days need approval.', 'Premium customers get priority.'].join(
+    '\n',
+  );
   const withLabels = (conditions: Array<{ text: string; label?: unknown }>): VariableSources =>
     ({
-      estate: { files: { 'RULES.md': LAW }, rules: [{ id: 'R1', source: 'RULES.md', conditions, tools: [] }] },
+      estate: {
+        files: { 'RULES.md': LAW },
+        rules: [{ id: 'R1', source: 'RULES.md', conditions, tools: [] }],
+      },
     }) as never;
 
   it('writes three samples and an edge for a numeric clause that cites its span', () => {
@@ -364,7 +419,13 @@ describe('variablesFromSources: labelled conditions', () => {
       withLabels([
         {
           text: 'Refunds after 30 days',
-          label: { kind: 'numeric', subject: 'days since purchase', limit: 30, comparison: 'gt', unit: 'days' },
+          label: {
+            kind: 'numeric',
+            subject: 'days since purchase',
+            limit: 30,
+            comparison: 'gt',
+            unit: 'days',
+          },
         },
       ]),
     );
@@ -389,7 +450,10 @@ describe('variablesFromSources: labelled conditions', () => {
   it('steps a decimal limit by its own last place', () => {
     const built = variablesFromSources(
       withLabels([
-        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: 'rate', limit: 2.5, comparison: 'le' } },
+        {
+          text: 'Refunds after 30 days',
+          label: { kind: 'numeric', subject: 'rate', limit: 2.5, comparison: 'le' },
+        },
       ]),
     );
     const id = built.store.variables[0]?.id as string;
@@ -417,14 +481,20 @@ describe('variablesFromSources: labelled conditions', () => {
       ]),
     );
     expect(built.store.variables).toHaveLength(1);
-    expect(Object.values(built.samples[built.store.variables[0]?.id as string] ?? {}).sort()).toEqual([false, true]);
+    expect(Object.values(built.samples[built.store.variables[0]?.id as string] ?? {}).sort()).toEqual([
+      false,
+      true,
+    ]);
     expect(built.refused).toEqual([]);
   });
 
   it('refuses a label that is not usable, and a labelled clause the file does not hold', () => {
     const built = variablesFromSources(
       withLabels([
-        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: '', limit: 30, comparison: 'gt' } },
+        {
+          text: 'Refunds after 30 days',
+          label: { kind: 'numeric', subject: '', limit: 30, comparison: 'gt' },
+        },
         { text: 'not in the file', label: { kind: 'boolean', subject: 'x' } },
       ]),
     );
@@ -435,8 +505,14 @@ describe('variablesFromSources: labelled conditions', () => {
   it('shares one value between two spans that give the same sample', () => {
     const built = variablesFromSources(
       withLabels([
-        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: 'days since purchase', limit: 30, comparison: 'gt' } },
-        { text: 'Premium customers', label: { kind: 'numeric', subject: 'Days Since Purchase', limit: 31, comparison: 'ge' } },
+        {
+          text: 'Refunds after 30 days',
+          label: { kind: 'numeric', subject: 'days since purchase', limit: 30, comparison: 'gt' },
+        },
+        {
+          text: 'Premium customers',
+          label: { kind: 'numeric', subject: 'Days Since Purchase', limit: 31, comparison: 'ge' },
+        },
       ]),
     );
     expect(built.store.variables).toHaveLength(1);

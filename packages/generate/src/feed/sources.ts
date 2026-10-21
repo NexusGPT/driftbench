@@ -30,7 +30,13 @@ import { QuoteIndex } from '../extract/quote';
  * to hold) or `eq` or `ne` (equal, not equal; the file format has no such comparison, so no boundary is written).
  */
 export type SpanLabel =
-  | { kind: 'numeric'; subject: string; limit: number; comparison: 'lt' | 'le' | 'gt' | 'ge' | 'eq' | 'ne'; unit?: string }
+  | {
+      kind: 'numeric';
+      subject: string;
+      limit: number;
+      comparison: 'lt' | 'le' | 'gt' | 'ge' | 'eq' | 'ne';
+      unit?: string;
+    }
   | { kind: 'range'; subject: string; low: number; high: number; unit?: string }
   | { kind: 'member'; subject: string; members: readonly string[] }
   | { kind: 'boolean'; subject: string }
@@ -182,7 +188,8 @@ type VariableDraft = {
   boundaries?: BoundaryDraft[];
 };
 
-const subjectKey = (subject: string): string => subject.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+const subjectKey = (subject: string): string =>
+  subject.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
 
 const decimalsOf = (n: number): number => {
   const text = String(n);
@@ -281,7 +288,8 @@ export function variablesFromSources(
         if (inside <= label.low) inside = label.low + 0.5;
       }
       const samples = [around(label.low, -1), label.low, inside, label.high, around(label.high, 1)];
-      for (const sample of samples) conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
+      for (const sample of samples)
+        conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
       return name;
     }
     if (label.kind === 'member') {
@@ -289,7 +297,8 @@ export function variablesFromSources(
       if (!named(label.subject) || members.length === 0) return undefined;
       const name = `${subjectKey(label.subject)} (member)`;
       const draft = conditionDraft(name, label.subject);
-      for (const member of members) conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
+      for (const member of members)
+        conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
       let other = 'other';
       while (members.includes(other)) other += '#';
       conditionValue(draft, 'other', `${label.subject}: ${other}`, other, entry);
@@ -321,7 +330,8 @@ export function variablesFromSources(
       if (label === undefined || label.kind === 'none') continue;
       const entry: QuoteEntry = { kind: 'quote', path: rule.source, quote: condition.text };
       const made = conditionVariable(label, entry);
-      if (made === undefined) refuse(condition.text, 'the label written for this clause is not a usable condition');
+      if (made === undefined)
+        refuse(condition.text, 'the label written for this clause is not a usable condition');
       else cited.add(made);
     }
     for (const tool of rule.tools ?? []) {
@@ -377,7 +387,8 @@ export function variablesFromSources(
   const idOfDraft = (draft: VariableDraft) => variableIds.get(draft.name) as string;
   /** The key of a value of a draft, by its stored id or by a name it was given. */
   const valueKeyOf = (draft: VariableDraft, given: string): string | undefined =>
-    (valueKeys.get(draft.name) as Map<string, string>).get(given) ?? (draft.values.has(given) ? given : undefined);
+    (valueKeys.get(draft.name) as Map<string, string>).get(given) ??
+    (draft.values.has(given) ? given : undefined);
   const addValue = (draft: VariableDraft, given: string): { key: string; created: boolean } => {
     const found = valueKeyOf(draft, given);
     if (found !== undefined) return { key: found, created: false };
@@ -448,7 +459,9 @@ export function variablesFromSources(
       .map((session) =>
         JSON.stringify([
           session.id,
-          isRecord(session.values) ? Object.entries(session.values).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)) : [],
+          isRecord(session.values)
+            ? Object.entries(session.values).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+            : [],
         ]),
       )
       .sort()
@@ -490,7 +503,10 @@ export function variablesFromSources(
     const whole = [...draft.values.keys()].every((key) => map.has(key));
     const sum = [...map.values()].reduce((a, b) => a + b, 0);
     if (!whole) {
-      refuse(idOfDraft(draft), 'the owner weighed some values of this variable and not all: a variable weighs all its values or none');
+      refuse(
+        idOfDraft(draft),
+        'the owner weighed some values of this variable and not all: a variable weighs all its values or none',
+      );
     } else if (sum <= 0) {
       refuse(idOfDraft(draft), 'every weight the owner gave for this variable is 0');
     } else {
@@ -526,7 +542,11 @@ export function variablesFromSources(
     }
     ends.sort((x, y) => (x.join('=') < y.join('=') ? -1 : x.join('=') > y.join('=') ? 1 : 0));
     const key = JSON.stringify(ends);
-    const pair = pairs.get(key) ?? { a: ends[0] as [string, string], b: ends[1] as [string, string], provenance: new Map() };
+    const pair = pairs.get(key) ?? {
+      a: ends[0] as [string, string],
+      b: ends[1] as [string, string],
+      provenance: new Map(),
+    };
     pairs.set(key, pair);
     pair.provenance.set(ownerKey(stamp), stamp);
   }
@@ -539,22 +559,26 @@ export function variablesFromSources(
     (draft) => idOfDraft(draft),
   ).map((draft) => {
     const ids = valueIds.get(draft.name) as Map<string, string>;
-    const values = byText([...draft.values.entries()], ([key]) => ids.get(key) as string).map(([key, value]) => {
-      const provenance: Provenance[] = [
-        ...byText([...value.quotes.values()], quoteKey),
-        ...(value.count === undefined || draft.total === undefined
-          ? []
-          : [{ kind: 'conversations' as const, count: value.count, total: draft.total, set_hash: setHash }]),
-        ...byText([...value.owner.values()], ownerKey),
-      ];
-      return {
-        id: ids.get(key) as string,
-        title: value.title,
-        ...(value.weight === undefined ? {} : { weight: value.weight }),
-        ...(value.proposal ? { approved: false } : {}),
-        ...(provenance.length > 0 ? { provenance } : {}),
-      };
-    });
+    const values = byText([...draft.values.entries()], ([key]) => ids.get(key) as string).map(
+      ([key, value]) => {
+        const provenance: Provenance[] = [
+          ...byText([...value.quotes.values()], quoteKey),
+          ...(value.count === undefined || draft.total === undefined
+            ? []
+            : [
+                { kind: 'conversations' as const, count: value.count, total: draft.total, set_hash: setHash },
+              ]),
+          ...byText([...value.owner.values()], ownerKey),
+        ];
+        return {
+          id: ids.get(key) as string,
+          title: value.title,
+          ...(value.weight === undefined ? {} : { weight: value.weight }),
+          ...(value.proposal ? { approved: false } : {}),
+          ...(provenance.length > 0 ? { provenance } : {}),
+        };
+      },
+    );
     const boundaries = (draft.boundaries ?? []).map((boundary) => ({
       holds: ids.get(boundary.holds) as string,
       fails: ids.get(boundary.fails) as string,
