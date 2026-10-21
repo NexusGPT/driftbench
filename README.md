@@ -979,10 +979,14 @@ $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" buil
 $ wc -l rerun.txt
 17 rerun.txt
 $ driftbench estate run --order rerun.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --states northwind/live/states/library.json   # exit 1
-(pending)
+note: the estate copy is not pinned to a map hash; pass --map to pin it
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+? estate.pairwise.0020  (0.0000 USD)
+    failing: block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 ```
 
-A `?` means the test could not be decided, because it needs a judge and none was set. The others fail for the same reason as in step 3. The other 904 blocks keep their last result. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the instruction.
+The summary says 17 ran, none passed, and 15 are undecided. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 904 blocks keep their last result. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the instruction.
 
 ## Results
 
