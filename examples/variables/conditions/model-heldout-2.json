@@ -2631,79 +2631,57 @@
       {
         "span": "d-001",
         "status": "matched",
-        "values": [
-          "approval/approval_given"
-        ]
+        "values": ["approval/approval_given"]
       },
       {
         "span": "d-002",
         "status": "matched",
-        "values": [
-          "helper/helper_died"
-        ]
+        "values": ["helper/helper_died"]
       },
       {
         "span": "d-003",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_one_day"
-        ]
+        "values": ["shipment_delay/late_over_one_day"]
       },
       {
         "span": "d-004",
         "status": "proposed",
-        "values": [
-          "session_state/after_fork"
-        ]
+        "values": ["session_state/after_fork"]
       },
       {
         "span": "d-005",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_two_days"
-        ]
+        "values": ["shipment_delay/late_over_two_days"]
       },
       {
         "span": "d-006",
         "status": "matched",
-        "values": [
-          "helper/helper_died"
-        ]
+        "values": ["helper/helper_died"]
       },
       {
         "span": "d-007",
         "status": "matched",
-        "values": [
-          "shipment_delay/lost"
-        ]
+        "values": ["shipment_delay/lost"]
       },
       {
         "span": "d-008",
         "status": "proposed",
-        "values": [
-          "invoice_work/before_invoice_delete"
-        ]
+        "values": ["invoice_work/before_invoice_delete"]
       },
       {
         "span": "d-009",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_two_days"
-        ]
+        "values": ["shipment_delay/late_over_two_days"]
       },
       {
         "span": "d-010",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_two_days"
-        ]
+        "values": ["shipment_delay/late_over_two_days"]
       },
       {
         "span": "d-011",
         "status": "matched",
-        "values": [
-          "supplier/supplier_not_in_table"
-        ]
+        "values": ["supplier/supplier_not_in_table"]
       },
       {
         "span": "d-012",
@@ -2713,9 +2691,7 @@
       {
         "span": "d-013",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_one_day"
-        ]
+        "values": ["shipment_delay/late_over_one_day"]
       },
       {
         "span": "d-014",
@@ -2730,9 +2706,7 @@
       {
         "span": "d-016",
         "status": "matched",
-        "values": [
-          "approval/approval_unanswered"
-        ]
+        "values": ["approval/approval_unanswered"]
       },
       {
         "span": "d-017",
@@ -2742,23 +2716,17 @@
       {
         "span": "d-018",
         "status": "matched",
-        "values": [
-          "invoice_work/before_invoice_edit"
-        ]
+        "values": ["invoice_work/before_invoice_edit"]
       },
       {
         "span": "d-019",
         "status": "proposed",
-        "values": [
-          "shipment_delay/no_late_shipments"
-        ]
+        "values": ["shipment_delay/no_late_shipments"]
       },
       {
         "span": "d-020",
         "status": "proposed",
-        "values": [
-          "helper/helper_named_in_routing_table"
-        ]
+        "values": ["helper/helper_named_in_routing_table"]
       },
       {
         "span": "d-021",
@@ -2787,9 +2755,7 @@
       {
         "span": "d-025",
         "status": "matched",
-        "values": [
-          "carrier/carrier_error"
-        ]
+        "values": ["carrier/carrier_error"]
       },
       {
         "span": "d-026",
@@ -2800,100 +2766,72 @@
       {
         "span": "d-027",
         "status": "matched",
-        "values": [
-          "supplier/supplier_not_in_table"
-        ]
+        "values": ["supplier/supplier_not_in_table"]
       },
       {
         "span": "d-028",
         "status": "matched",
-        "values": [
-          "helper/before_helper_dispatch"
-        ]
+        "values": ["helper/before_helper_dispatch"]
       },
       {
         "span": "d-029",
         "status": "matched",
-        "values": [
-          "carrier/carrier_error"
-        ]
+        "values": ["carrier/carrier_error"]
       },
       {
         "span": "d-030",
         "status": "proposed",
-        "values": [
-          "shipment_delay/late_exactly_two_days"
-        ]
+        "values": ["shipment_delay/late_exactly_two_days"]
       },
       {
         "span": "d-031",
         "status": "matched",
-        "values": [
-          "session_state/after_restart"
-        ]
+        "values": ["session_state/after_restart"]
       },
       {
         "span": "d-032",
         "status": "matched",
-        "values": [
-          "invoice_work/before_invoice_edit"
-        ]
+        "values": ["invoice_work/before_invoice_edit"]
       },
       {
         "span": "d-033",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_one_day"
-        ]
+        "values": ["shipment_delay/late_over_one_day"]
       },
       {
         "span": "d-034",
         "status": "proposed",
-        "values": [
-          "invoice_work/invoice_line_diff_over_50"
-        ]
+        "values": ["invoice_work/invoice_line_diff_over_50"]
       },
       {
         "span": "d-035",
         "status": "proposed",
-        "values": [
-          "session_state/after_double_compaction"
-        ]
+        "values": ["session_state/after_double_compaction"]
       },
       {
         "span": "d-036",
         "status": "matched",
-        "values": [
-          "invoice_work/invoice_diff_over_50"
-        ]
+        "values": ["invoice_work/invoice_diff_over_50"]
       },
       {
         "span": "d-037",
         "status": "matched",
-        "values": [
-          "approval/approval_given"
-        ]
+        "values": ["approval/approval_given"]
       },
       {
         "span": "d-038",
         "status": "proposed",
-        "values": [
-          "helper/helper_dispatched_twice_same_invoice"
-        ]
+        "values": ["helper/helper_dispatched_twice_same_invoice"]
       },
       {
         "span": "d-039",
         "status": "matched",
-        "values": [
-          "invoice_work/invoice_diff_over_50"
-        ]
+        "values": ["invoice_work/invoice_diff_over_50"]
       },
       {
         "span": "d-040",
         "status": "proposed",
-        "values": [
-          "invoice_work/invoice_older_than_30_days"
-        ]
+        "values": ["invoice_work/invoice_older_than_30_days"]
       },
       {
         "span": "d-041",
@@ -2909,23 +2847,17 @@
       {
         "span": "d-043",
         "status": "matched",
-        "values": [
-          "session_state/after_compaction"
-        ]
+        "values": ["session_state/after_compaction"]
       },
       {
         "span": "d-044",
         "status": "proposed",
-        "values": [
-          "carrier/carrier_status_and_error_same_reply"
-        ]
+        "values": ["carrier/carrier_status_and_error_same_reply"]
       },
       {
         "span": "d-045",
         "status": "proposed",
-        "values": [
-          "supplier/supplier_with_two_languages_listed"
-        ]
+        "values": ["supplier/supplier_with_two_languages_listed"]
       },
       {
         "span": "d-046",
@@ -2942,9 +2874,7 @@
       {
         "span": "d-048",
         "status": "matched",
-        "values": [
-          "approval/approval_given"
-        ]
+        "values": ["approval/approval_given"]
       },
       {
         "span": "d-049",
@@ -2955,9 +2885,7 @@
       {
         "span": "d-050",
         "status": "matched",
-        "values": [
-          "shipment_delay/late_over_two_days"
-        ]
+        "values": ["shipment_delay/late_over_two_days"]
       },
       {
         "span": "d-051",

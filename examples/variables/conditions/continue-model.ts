@@ -23,24 +23,38 @@ const read = (name: string) => JSON.parse(readFileSync(join(here, name), 'utf8')
 const partial = read('model-heldout-2.json');
 const freeze = read('model-freeze.json');
 const output = join(here, 'model-heldout-2-completed.json');
-if (existsSync(output) || existsSync(output + '.receipts.json')) throw new Error('continuation already started');
+if (existsSync(output) || existsSync(output + '.receipts.json'))
+  throw new Error('continuation already started');
 for (const [file, hash] of Object.entries(freeze.hashes)) {
   if (file === 'settings') continue;
   const actual = createHash('sha256').update(readFileSync(file)).digest('hex');
   if (actual !== hash) throw new Error('frozen implementation changed: ' + file);
 }
 const settings = {
-  model: 'claude-sonnet-5-5', maxRetries: 0, options: { newVariables: false },
+  model: 'claude-sonnet-5-5',
+  maxRetries: 0,
+  options: { newVariables: false },
   proposer: { scope: 'existing', listing: 'titles' },
 };
-const canonical = (x: unknown): unknown => x && typeof x === 'object' && !Array.isArray(x)
-  ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a < b ? -1 : 1).map(([k, v]) => [k, canonical(v)]))
-  : x;
-const settingsHash = createHash('sha256').update(JSON.stringify(canonical(settings))).digest('hex');
+const canonical = (x: unknown): unknown =>
+  x && typeof x === 'object' && !Array.isArray(x)
+    ? Object.fromEntries(
+        Object.entries(x)
+          .sort(([a], [b]) => (a < b ? -1 : 1))
+          .map(([k, v]) => [k, canonical(v)]),
+      )
+    : x;
+const settingsHash = createHash('sha256')
+  .update(JSON.stringify(canonical(settings)))
+  .digest('hex');
 if (settingsHash !== freeze.hashes.settings) throw new Error('frozen settings changed');
 const clauses = read('heldout-clauses-2.json') as Clause[];
 const units = unitsOf(clauses);
-const failed = new Set<string>(partial.report.outcomes.filter((o: { status: string }) => o.status === 'failed').map((o: { span: string }) => o.span));
+const failed = new Set<string>(
+  partial.report.outcomes
+    .filter((o: { status: string }) => o.status === 'failed')
+    .map((o: { span: string }) => o.span),
+);
 const remaining = units.filter((unit) => failed.has(unit.id));
 if (remaining.length !== 32) throw new Error('expected precisely 32 failed spans');
 const receipts: unknown[] = [];
@@ -50,7 +64,10 @@ let outputTokens = 0;
 const port = createAnthropicPort({
   env: {
     ANTHROPIC_MODEL: settings.model,
-    ANTHROPIC_API_KEY: readFileSync(join(homedir(), '.nexus-secrets/anthropic-driftbench.key'), 'utf8').trim(),
+    ANTHROPIC_API_KEY: readFileSync(
+      join(homedir(), '.nexus-secrets/anthropic-driftbench.key'),
+      'utf8',
+    ).trim(),
   },
   maxRetries: settings.maxRetries,
   fetch: async (url, init) => {
@@ -71,14 +88,22 @@ const port = createAnthropicPort({
     const costUsd = (usage.input_tokens * 2 + usage.output_tokens * 10) / 1e6;
     spentUsd += costUsd;
     receipts.push({ id: payload.id, model: payload.model, usage, costUsd, content: payload.content });
-    writeFileSync(output + '.receipts.json', JSON.stringify({ spentUsd, inputTokens, outputTokens, receipts }, null, 2) + '\n');
+    writeFileSync(
+      output + '.receipts.json',
+      JSON.stringify({ spentUsd, inputTokens, outputTokens, receipts }, null, 2) + '\n',
+    );
     return response;
   },
 });
 const recording = emptyRecording();
-const systems = recordConditions(recording, createConditionReader(port), createModelProposer(port, {
-  scope: 'existing', listing: 'titles',
-}));
+const systems = recordConditions(
+  recording,
+  createConditionReader(port),
+  createModelProposer(port, {
+    scope: 'existing',
+    listing: 'titles',
+  }),
+);
 const continuation = await feedFromConditions({
   store: partial.store,
   spans: remaining.map(({ id, path, quote }) => ({ id, path, quote })),
@@ -100,12 +125,35 @@ const result = { store: continuation.store, report };
 const measured = score(units, result);
 const evidence = {
   partial: 'model-heldout-2.json',
-  continuation: { recording, report: continuation.report, store: continuation.store, spans: remaining.map((s) => s.id) },
-  model: port.model, settingsHash, hashes: freeze.hashes, options: settings.options,
-  report, store: result.store, counts: measured,
+  continuation: {
+    recording,
+    report: continuation.report,
+    store: continuation.store,
+    spans: remaining.map((s) => s.id),
+  },
+  model: port.model,
+  settingsHash,
+  hashes: freeze.hashes,
+  options: settings.options,
+  report,
+  store: result.store,
+  counts: measured,
   precision: measured.correct / measured.assigned,
   recall: measured.correct / measured.planted,
-  receipts: { inputTokens, outputTokens, continuationUsd: spentUsd - freeze.totalUsdBeforeContinuation, totalLaneUsd: spentUsd },
+  receipts: {
+    inputTokens,
+    outputTokens,
+    continuationUsd: spentUsd - freeze.totalUsdBeforeContinuation,
+    totalLaneUsd: spentUsd,
+  },
 };
 writeFileSync(output, JSON.stringify(evidence, null, 2) + '\n');
-console.log(JSON.stringify({ counts: measured, precision: evidence.precision, recall: evidence.recall, failed: report.failed, ...evidence.receipts }));
+console.log(
+  JSON.stringify({
+    counts: measured,
+    precision: evidence.precision,
+    recall: evidence.recall,
+    failed: report.failed,
+    ...evidence.receipts,
+  }),
+);

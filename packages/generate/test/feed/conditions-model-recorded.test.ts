@@ -38,10 +38,12 @@ describe('the frozen model reader, recorded on fictional planted conditions', ()
 
   it('replays only the 32 failed spans as a continuation, retaining all successful outcomes', async () => {
     const partial = read<Evidence>('model-heldout-2.json');
-    const completed = read<Evidence & {
-      continuation: { recording: ConditionsRecording; spans: string[] };
-      settingsHash: string;
-    }>('model-heldout-2-completed.json');
+    const completed = read<
+      Evidence & {
+        continuation: { recording: ConditionsRecording; spans: string[] };
+        settingsHash: string;
+      }
+    >('model-heldout-2-completed.json');
     const units = unitsOf(read<Clause[]>('heldout-clauses-2.json'));
     const failed = new Set(partial.report.outcomes.filter((o) => o.status === 'failed').map((o) => o.span));
     expect(completed.continuation.spans).toEqual(units.filter((u) => failed.has(u.id)).map((u) => u.id));
@@ -68,11 +70,13 @@ describe('the frozen model reader, recorded on fictional planted conditions', ()
       const unit = units.find((u) => u.id === outcome.span);
       for (const name of outcome.values) {
         const [variable, value] = name.split('/');
-        const found = continued.store.variables.find((v) => v.id === variable)?.values.find(
-          (v) => v.id === value,
-        );
+        const found = continued.store.variables
+          .find((v) => v.id === variable)
+          ?.values.find((v) => v.id === value);
         expect(found?.provenance).toContainEqual({
-          kind: 'quote', path: unit?.path, quote: unit?.quote,
+          kind: 'quote',
+          path: unit?.path,
+          quote: unit?.quote,
         });
       }
     }
@@ -111,11 +115,13 @@ describe('the frozen model reader, recorded on fictional planted conditions', ()
       const span = units.find((unit) => unit.id === outcome.span);
       for (const name of outcome.values) {
         const [variable, value] = name.split('/');
-        const found = result.store.variables.find((entry) => entry.id === variable)?.values.find(
-          (entry) => entry.id === value,
-        );
+        const found = result.store.variables
+          .find((entry) => entry.id === variable)
+          ?.values.find((entry) => entry.id === value);
         expect(found?.provenance).toContainEqual({
-          kind: 'quote', path: span?.path, quote: span?.quote,
+          kind: 'quote',
+          path: span?.path,
+          quote: span?.quote,
         });
         expect(texts.get(span?.path ?? '')?.includes(span?.quote ?? '')).toBe(true);
       }

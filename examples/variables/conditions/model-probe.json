@@ -12,9 +12,7 @@
     "assigned": 0,
     "correct": 0,
     "planted": 1,
-    "wrong": [
-      "c-002 want approval/approval_given got failed "
-    ]
+    "wrong": ["c-002 want approval/approval_given got failed "]
   },
   "precision": null,
   "recall": 0,

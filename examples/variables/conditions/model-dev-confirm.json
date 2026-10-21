@@ -89,9 +89,7 @@
       {
         "span": "c-002",
         "status": "matched",
-        "values": [
-          "approval/approval_given"
-        ]
+        "values": ["approval/approval_given"]
       }
     ]
   },

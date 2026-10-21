@@ -588,33 +588,3 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
-
-  condition-probe:
-    if: github.event_name == 'workflow_dispatch' && inputs.jobs == 'condition-probe'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile --prefer-offline
-      - run: pnpm exec vitest run packages/generate/test/feed/model-reader.test.ts packages/generate/test/feed/conditions-model-recorded.test.ts --maxWorkers=2
-      - if: always()
-        run: pnpm exec biome check --write packages/generate/src/feed/model-reader.ts packages/generate/src/feed/index.ts packages/generate/src/index.ts packages/generate/test/feed/model-reader.test.ts packages/generate/test/feed/conditions-model-recorded.test.ts examples/variables/conditions/record-model.ts examples/variables/conditions/continue-model.ts examples/variables/conditions/model-*.json tools/structure/api-surface.json
-      - run: pnpm typecheck
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: formatted
-          path: |
-            packages/generate/src/feed/model-reader.ts
-            packages/generate/src/feed/index.ts
-            packages/generate/src/index.ts
-            packages/generate/test/feed/model-reader.test.ts
-            packages/generate/test/feed/conditions-model-recorded.test.ts
-            examples/variables/conditions/record-model.ts
-            examples/variables/conditions/continue-model.ts
-            examples/variables/conditions/model-*.json
-            tools/structure/api-surface.json
