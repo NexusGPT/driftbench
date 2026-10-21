@@ -45,7 +45,8 @@ const ALLOWED: Allowance[] = [
   {
     file: 'kit/transport.ts',
     contains: '',
-    reason: 'reads the request body the READER sent to the labeller (label names, the WINDOW line), not prose',
+    reason:
+      'reads the request body the READER sent to the labeller (label names, the WINDOW line), not prose',
   },
   {
     file: 'kit/child.ts',
@@ -60,7 +61,7 @@ const ALLOWED: Allowance[] = [
   {
     file: 'bank/families/ids.ts',
     contains: '/^[0-9a-z]{10}$/',
-    reason: "checks the shape of an id the READER minted, not prose",
+    reason: 'checks the shape of an id the READER minted, not prose',
   },
   {
     file: 'bank/families/ids.ts',
@@ -81,7 +82,7 @@ const ALLOWED: Allowance[] = [
   {
     file: 'bank/families/replay.ts',
     contains: 'new RegExp(`(^|[^A-Za-z0-9_-])',
-    reason: "finds a token (a field name) whole in the error message the READER wrote, not prose",
+    reason: 'finds a token (a field name) whole in the error message the READER wrote, not prose',
   },
   {
     file: 'bank/families/replay.ts',
@@ -161,7 +162,8 @@ export function readsLetters(body: string): boolean {
 }
 
 /** Whether a split by this regular expression body cuts at spaces or letters. */
-const splitsWords = (body: string): boolean => readsLetters(body) || body.includes('\\s') || body.includes(' ');
+const splitsWords = (body: string): boolean =>
+  readsLetters(body) || body.includes('\\s') || body.includes(' ');
 
 const regexBody = (literal: string): string => literal.slice(1, literal.lastIndexOf('/'));
 
@@ -207,7 +209,10 @@ export function findingsOf(file: string, source: string): Finding[] {
         if (name === 'split' && first) {
           const text = staticText(first);
           if (text !== undefined && text.includes(' ')) add(node, 'a split at spaces (word picking)');
-          else if (first.kind === ts.SyntaxKind.RegularExpressionLiteral && splitsWords(regexBody(first.getText(sf))))
+          else if (
+            first.kind === ts.SyntaxKind.RegularExpressionLiteral &&
+            splitsWords(regexBody(first.getText(sf)))
+          )
             add(node, 'a split by a pattern at spaces or letters (word picking)');
         } else if (name === 'search' || name === 'match' || name === 'matchAll') {
           add(node, `a ${name} call`);
@@ -233,7 +238,7 @@ describe('no letter pattern on generated prose in the pointer bank', () => {
   it('the classifier tells letter patterns from the others', () => {
     for (const body of ['\\b([a-z]{5,})\\b', '[aeo]', '(\\w+) ', '^(\\S+ \\S+)', '\\p{L}+', '[^A-Za-z0-9_-]'])
       expect(readsLetters(body), body).toBe(true);
-    for (const body of ['\\s+', '\\.$', '^[0-9]+$', '^\\s*(```|~~~)', "[^'\"`\\n]+", '[,.;]', '[\\b]'])
+    for (const body of ['\\s+', '\\.$', '^[0-9]+$', '^\\s*(```|~~~)', '[^\'"`\\n]+', '[,.;]', '[\\b]'])
       expect(readsLetters(body), body).toBe(false);
     const sample = [
       "const a = t.replace(/\\b([a-z]{5,})\\b/, 'x');",
