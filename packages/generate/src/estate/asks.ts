@@ -467,7 +467,7 @@ export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): Estat
  * for imperative descriptions; identifiers and file paths never supply a task. Conditions remain
  * conditions unless they contain an explicit acting verb and object.
  */
-function actionTask(text: string, governed = false): string | undefined {
+function actionTask(text: string, _governed = false): string | undefined {
   // After a subject pronoun the next word is a finite verb in the base form, whatever the verb list holds:
   // "you discharge a patient" asks to discharge a patient.
   const pronounced = pronounAct(text);
@@ -495,10 +495,9 @@ function actionTask(text: string, governed = false): string | undefined {
   // A clause that opens with a gerund keeps its own words: no verb list turns "editing any berth file" into
   // "edit any berth file" (row cd26c1f1). The request is built around the clause as written, so it reads as a
   // request to do that work: "Please go ahead with editing any berth file."
-  // A two-word activity that is not a governed clause ("Designing screens") rides as the moment of the unit's
-  // work, not as the task.
+  // A two-word activity ("Designing screens") rides as the moment of the unit's work, not as the task.
   const [first = '', ...rest] = clause.split(/\s+/);
-  if (openingGerund(first.toLowerCase()) && rest.length >= (governed ? 1 : 2)) {
+  if (openingGerund(first.toLowerCase()) && rest.length >= 2) {
     const task = `go ahead with ${lower(clause)}`;
     return askable(task) === undefined ? task : undefined;
   }
