@@ -315,14 +315,26 @@ describe('variablesFromSources: the owner', () => {
   });
 
   it('lists an owner pair once, whatever the order of its ends, and refuses a pair with a missing end', () => {
+    const other = 'ledger.post.priority';
     const built = variablesFromSources({
-      ...estate(),
+      ...estate([
+        tool(['payable', 'receivable', 'refund']),
+        {
+          ...tool(['payable']),
+          field: 'priority',
+          values: [{ id: 'payable', quote: 'ledger.post account value payable means' }],
+        },
+      ]),
       owner: {
         impossible: [
-          { a: { variable: id, value: 'payable' }, b: { variable: id, value: 'refund' }, ...owner('First.') },
           {
             a: { variable: id, value: 'refund' },
-            b: { variable: id, value: 'payable' },
+            b: { variable: other, value: 'payable' },
+            ...owner('First.'),
+          },
+          {
+            a: { variable: other, value: 'payable' },
+            b: { variable: id, value: 'refund' },
             ...owner('Second.'),
           },
           { a: { variable: id, value: 'payable' }, b: { variable: 'ghost', value: 'x' }, ...owner() },
@@ -457,7 +469,7 @@ describe('variablesFromSources: labelled conditions', () => {
       ]),
     );
     const id = built.store.variables[0]?.id as string;
-    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual([1.5, 2.5, 3.5].sort());
+    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual([2.4, 2.5, 2.6].sort());
   });
 
   it('gives a member clause one value per member and one for any other', () => {
@@ -518,5 +530,165 @@ describe('variablesFromSources: labelled conditions', () => {
     expect(built.store.variables).toHaveLength(1);
     expect(built.store.variables[0]?.values).toHaveLength(4);
     expect(built.store.variables[0]?.boundaries).toHaveLength(2);
+  });
+});
+
+describe('variablesFromSources: review findings on the first head', () => {
+  const stamp = { words: 'The owner approves these fictional choices.', date: DAY };
+  const accounts = (): VariableSources => ({
+    estate: {
+      files: { 'TOOLS.md': 'A payable invoice. A refund invoice.' },
+      rules: [
+        {
+          id: 'R1',
+          source: 'TOOLS.md',
+          conditions: [],
+          tools: [
+            {
+              tool: 'ledger',
+              field: 'account',
+              source: 'TOOLS.md',
+              values: [
+                { id: 'payable', quote: 'A payable invoice.' },
+                { id: 'refund', quote: 'A refund invoice.' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  });
+  const clause = (text: string, label: unknown): VariableSources =>
+    ({
+      estate: {
+        files: { 'RULES.md': text },
+        rules: [{ id: 'R2', source: 'RULES.md', tools: [], conditions: [{ text, label }] }],
+      },
+    }) as never;
+
+  it('refuses a pair of two values of one variable and bans no value', () => {
+    const built = variablesFromSources({
+      ...accounts(),
+      owner: {
+        impossible: [
+          {
+            a: { variable: 'ledger.account', value: 'payable' },
+            b: { variable: 'ledger.account', value: 'refund' },
+            ...stamp,
+          },
+        ],
+      },
+    });
+    expect(built.store.constraints).toEqual([]);
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables[0]?.values).toHaveLength(2);
+  });
+
+  it('keeps both of two owner values whose names give one id, in either order', () => {
+    const make = (names: string[]) =>
+      variablesFromSources({
+        ...accounts(),
+        owner: { values: names.map((value) => ({ variable: 'ledger.account', value, ...stamp })) },
+      });
+    const forward = make(['new value', 'new-value']);
+    expect(forward.store.variables[0]?.values).toHaveLength(4);
+    expect(JSON.stringify(make(['new-value', 'new value']))).toBe(JSON.stringify(forward));
+  });
+
+  it('keeps both of two session values whose names give one id, in either order', () => {
+    const rows = [
+      { id: 's1', values: { 'ledger.account': 'new value' } },
+      { id: 's2', values: { 'ledger.account': 'new-value' } },
+    ];
+    const forward = variablesFromSources({ ...accounts(), conversations: rows });
+    expect(forward.store.variables[0]?.values).toHaveLength(4);
+    expect(JSON.stringify(variablesFromSources({ ...accounts(), conversations: [...rows].reverse() }))).toBe(
+      JSON.stringify(forward),
+    );
+  });
+
+  it('does not rename a variable when an unrelated tool joins', () => {
+    const tool2 = (name: string) => ({
+      tool: name,
+      field: 'status',
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (names: string[]) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+        },
+      });
+    const idOf = (built: ReturnType<typeof make>) =>
+      built.store.variables.find((v) => v.title === 'Ship-Code.status')?.id;
+    expect(idOf(make(['Ship-Code', 'Ship Code']))).toBe(idOf(make(['Ship-Code'])));
+    expect(make(['Ship-Code', 'Ship Code']).store.variables).toHaveLength(2);
+  });
+
+  it('keeps three distinct samples for a finite limit too large to step by one', () => {
+    const built = variablesFromSources(
+      clause('Escalate when amount is above 100000000000000000000.', {
+        kind: 'numeric',
+        subject: 'amount',
+        limit: 1e20,
+        comparison: 'gt',
+      }),
+    );
+    const samples = Object.values(built.samples.amount ?? {}) as number[];
+    expect(samples).toHaveLength(3);
+    expect(samples.filter((x) => x < 1e20)).toHaveLength(1);
+    expect(samples.filter((x) => x > 1e20)).toHaveLength(1);
+    expect(built.store.variables[0]?.boundaries).toHaveLength(1);
+  });
+
+  it('gives a finite interior sample for a range near the largest number', () => {
+    const [low, high] = [8e307, 1.2e308];
+    const built = variablesFromSources(
+      clause('Use amount between 8e307 and 1.2e308.', { kind: 'range', subject: 'amount', low, high }),
+    );
+    const samples = Object.values(built.samples.amount ?? {}) as number[];
+    expect(samples).toHaveLength(5);
+    expect(samples.every((x) => Number.isFinite(x))).toBe(true);
+    expect(samples.some((x) => x > low && x < high)).toBe(true);
+  });
+
+  it('refuses a limit with no finite number above it', () => {
+    const built = variablesFromSources(
+      clause('Escalate when amount is above the top.', {
+        kind: 'numeric',
+        subject: 'amount',
+        limit: Number.MAX_VALUE,
+        comparison: 'gt',
+      }),
+    );
+    expect(built.store.variables).toEqual([]);
+    expect(built.refused).toHaveLength(1);
+  });
+
+  it('refuses a clause longer than the quote limit and keeps its siblings', () => {
+    const long = `Escalate when amount is above 20 ${'x'.repeat(1001)}.`;
+    const built = variablesFromSources({
+      estate: {
+        files: { 'RULES.md': `${long} Escalate when amount is above 30.` },
+        rules: [
+          {
+            id: 'R2',
+            source: 'RULES.md',
+            tools: [],
+            conditions: [
+              { text: long, label: { kind: 'numeric', subject: 'amount', limit: 20, comparison: 'gt' } },
+              {
+                text: 'Escalate when amount is above 30.',
+                label: { kind: 'numeric', subject: 'sibling', limit: 30, comparison: 'gt' },
+              },
+            ],
+          },
+        ],
+      } as never,
+    });
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables.map((v) => v.title)).toEqual(['sibling']);
   });
 });

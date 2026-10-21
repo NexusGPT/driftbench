@@ -130,8 +130,9 @@ function slug(name: string): string {
 }
 
 /**
- * Ids for a set of names: each name gets its slug; names that share one are ordered by name and the later ones get
- * a numeric suffix. The result depends on the set of names only.
+ * Ids for a set of names: each name gets its slug. Of the names that share one, a name that already is a valid id
+ * keeps it, then the others come in the order of their names and get a numeric suffix. The result depends on the
+ * set of names only, and a name that is a valid id keeps its id whatever else joins the set.
  */
 function idsFor(names: Iterable<string>): Map<string, string> {
   const bySlug = new Map<string, string[]>();
@@ -144,7 +145,11 @@ function idsFor(names: Iterable<string>): Map<string, string> {
   const used = new Set(bySlug.keys());
   const out = new Map<string, string>();
   for (const [id, list] of bySlug) {
-    list.sort();
+    list.sort((x, y) => {
+      const xOwn = x === id ? 0 : 1;
+      const yOwn = y === id ? 0 : 1;
+      return xOwn - yOwn || (x < y ? -1 : x > y ? 1 : 0);
+    });
     out.set(list[0] as string, id);
     for (let n = 1; n < list.length; n += 1) {
       let candidate = `${id}-${n + 1}`;
@@ -196,10 +201,25 @@ const decimalsOf = (n: number): number => {
   const dot = text.indexOf('.');
   return /e/i.test(text) || dot < 0 ? 0 : text.length - dot - 1;
 };
-/** `n` moved by `steps` of its own last decimal place (a whole number moves by whole numbers). */
-const around = (n: number, steps: number): number => {
+/** The finite number next to `n` in the given direction, or undefined when there is none. */
+function neighbour(n: number, up: boolean): number | undefined {
+  if (n === 0) return up ? Number.MIN_VALUE : -Number.MIN_VALUE;
+  const view = new DataView(new ArrayBuffer(8));
+  view.setFloat64(0, n);
+  const bits = view.getBigUint64(0);
+  view.setBigUint64(0, up === n > 0 ? bits + 1n : bits - 1n);
+  const next = view.getFloat64(0);
+  return Number.isFinite(next) ? next : undefined;
+}
+/**
+ * `n` moved by `steps` (1 or -1) of its own last decimal place (a whole number moves by whole numbers). Where that
+ * step is lost in the rounding of a large number, the next representable number. Undefined when none is finite.
+ */
+const around = (n: number, steps: number): number | undefined => {
   const places = decimalsOf(n);
-  return Number((n + steps * 10 ** -places).toFixed(places));
+  const moved = Number((n + steps * 10 ** -places).toFixed(places));
+  if (Number.isFinite(moved) && (steps > 0 ? moved > n : moved < n)) return moved;
+  return neighbour(n, steps > 0);
 };
 const numberKey = (x: number): string => (x < 0 ? `neg${-x}` : `v${x}`);
 
@@ -259,7 +279,10 @@ export function variablesFromSources(
       if (label.kind === 'numeric') {
         if (!finite(label.limit)) return undefined;
         const draft = conditionDraft(name, label.subject);
-        const [low, at, high] = [around(label.limit, -1), label.limit, around(label.limit, 1)];
+        const below = around(label.limit, -1);
+        const above = around(label.limit, 1);
+        if (below === undefined || above === undefined) return undefined;
+        const [low, at, high] = [below, label.limit, above];
         for (const sample of [low, at, high]) {
           conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
         }
@@ -282,12 +305,21 @@ export function variablesFromSources(
       }
       if (!finite(label.low) || !finite(label.high) || label.low >= label.high) return undefined;
       const draft = conditionDraft(name, label.subject);
-      let inside = (label.low + label.high) / 2;
+      let inside = label.low / 2 + label.high / 2;
       if (Number.isInteger(label.low) && Number.isInteger(label.high)) {
-        inside = Math.floor(inside);
-        if (inside <= label.low) inside = label.low + 0.5;
+        const whole = Math.floor(inside);
+        if (whole > label.low) inside = whole;
+        else inside = label.low + 0.5;
       }
-      const samples = [around(label.low, -1), label.low, inside, label.high, around(label.high, 1)];
+      if (!(inside > label.low && inside < label.high)) {
+        const next = neighbour(label.low, true);
+        if (next === undefined || !(next < label.high)) return undefined;
+        inside = next;
+      }
+      const outsideLow = around(label.low, -1);
+      const outsideHigh = around(label.high, 1);
+      if (outsideLow === undefined || outsideHigh === undefined) return undefined;
+      const samples = [outsideLow, label.low, inside, label.high, outsideHigh];
       for (const sample of samples)
         conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
       return name;
@@ -319,6 +351,13 @@ export function variablesFromSources(
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();
     ruleVariables.set(rule.id, cited);
     for (const condition of rule.conditions ?? []) {
+      if (typeof condition.text === 'string' && condition.text.length > MAX_TEXT) {
+        refuse(
+          `${condition.text.slice(0, 40)}...`,
+          `the clause is longer than ${MAX_TEXT} characters, so it cannot stand as a quote`,
+        );
+        continue;
+      }
       if (!index.contains(rule.source, condition.text)) {
         refuse(
           condition.text,
@@ -374,24 +413,37 @@ export function variablesFromSources(
   const variableIds = idsFor(drafts.keys());
   const byStoredId = new Map<string, VariableDraft>();
   for (const [name, draft] of drafts) byStoredId.set(variableIds.get(name) as string, draft);
-  /** Per variable: the stored id of each value key, and the key of each stored id. */
-  const valueIds = new Map<string, Map<string, string>>();
-  const valueKeys = new Map<string, Map<string, string>>();
+  /** Per variable: the key of each stored id the estate's own values have, before any value joins. */
+  const estateKeys = new Map<string, Map<string, string>>();
   for (const [name, draft] of drafts) {
     const ids = idsFor(draft.values.keys());
-    valueIds.set(name, ids);
-    valueKeys.set(name, new Map([...ids].map(([key, id]) => [id, key])));
+    estateKeys.set(name, new Map([...ids].map(([key, id]) => [id, key])));
   }
+  /** Per variable: the stored id of each value key, and the key of each stored id. Settled once every value is in. */
+  const valueIds = new Map<string, Map<string, string>>();
+  const valueKeys = new Map<string, Map<string, string>>();
+  const settleValueIds = (): void => {
+    for (const [name, draft] of drafts) {
+      const ids = idsFor(draft.values.keys());
+      valueIds.set(name, ids);
+      valueKeys.set(name, new Map([...ids].map(([key, id]) => [id, key])));
+    }
+  };
+  settleValueIds();
 
   const draftOfId = (id: string): VariableDraft | undefined => byStoredId.get(id);
   const idOfDraft = (draft: VariableDraft) => variableIds.get(draft.name) as string;
-  /** The key of a value of a draft, by its stored id or by a name it was given. */
+  /** The key of a value of a draft, by a name it was given, else by its stored id. */
   const valueKeyOf = (draft: VariableDraft, given: string): string | undefined =>
-    (valueKeys.get(draft.name) as Map<string, string>).get(given) ??
-    (draft.values.has(given) ? given : undefined);
+    draft.values.has(given) ? given : (valueKeys.get(draft.name) as Map<string, string>).get(given);
+  /**
+   * A name the draft holds is that value; else a stored id of an estate value is that value; else the name is a new
+   * value. A new value's id is settled later, from the set of names, so no arrival order shows in it.
+   */
   const addValue = (draft: VariableDraft, given: string): { key: string; created: boolean } => {
-    const found = valueKeyOf(draft, given);
-    if (found !== undefined) return { key: found, created: false };
+    if (draft.values.has(given)) return { key: given, created: false };
+    const fromEstate = (estateKeys.get(draft.name) as Map<string, string>).get(given);
+    if (fromEstate !== undefined) return { key: fromEstate, created: false };
     draft.values.set(given, {
       names: new Set([given]),
       title: given,
@@ -399,12 +451,6 @@ export function variablesFromSources(
       owner: new Map(),
       proposal: false,
     });
-    // A name not yet in the id table gets a grammar id that no value of the variable holds.
-    const keys = valueKeys.get(draft.name) as Map<string, string>;
-    let candidate = slug(given);
-    for (let n = 2; keys.has(candidate); n += 1) candidate = `${slug(given)}-${n}`;
-    (valueIds.get(draft.name) as Map<string, string>).set(given, candidate);
-    keys.set(candidate, given);
     return { key: given, created: true };
   };
 
@@ -454,6 +500,7 @@ export function variablesFromSources(
   for (const variableId of [...unknown].sort()) {
     refuse(variableId, 'no variable of the store has this id, so the sessions that show it were not counted');
   }
+  settleValueIds();
   const setHash = sha256(
     sessions
       .map((session) =>
@@ -538,6 +585,10 @@ export function variablesFromSources(
     }
     if (ends.length < 2) {
       refuse(what, 'the store lacks a variable or a value this pair names');
+      continue;
+    }
+    if (ends[0]?.[0] === ends[1]?.[0]) {
+      refuse(what, 'the two values are of one variable, which never holds both: the pair excludes nothing');
       continue;
     }
     ends.sort((x, y) => (x.join('=') < y.join('=') ? -1 : x.join('=') > y.join('=') ? 1 : 0));
