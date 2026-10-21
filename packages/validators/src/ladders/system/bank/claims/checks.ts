@@ -2551,7 +2551,17 @@ function codeItems(out: BankItem[]): void {
     },
   );
 
-  type SafetyCase = [string, string, Shape, Raw, string, Verdict['outcome'], string, Tier];
+  type SafetyCase = [
+    string,
+    string,
+    Shape,
+    Raw,
+    string,
+    Verdict['outcome'],
+    string,
+    Tier,
+    Record<string, string>?,
+  ];
   const safety: SafetyCase[] = [
     [
       'diff-delete',
@@ -2665,13 +2675,24 @@ function codeItems(out: BankItem[]): void {
     ],
     [
       'label-unlisted',
-      'a tool the operations table does not name is never destructive, whatever its label says',
+      'a tool the operations table does not name is unknown, never destructive and never safe, whatever its label says',
+      { calls: [{ label: 'send_reminder', input: { to: 'a@example.org' } }, { label: 'deleteFile' }] },
+      { safety: { max_destructive_ops: 0, confirm_before: ['send', 'delete'] } },
+      'safety.max_destructive_ops',
+      'inconclusive',
+      'safety: a tool label is never read for its words; an unnamed tool is unknown',
+      2,
+    ],
+    [
+      'label-unlisted-declared',
+      'the same two tools, declared modify in the operations table, are not destructive, whatever their labels say',
       { calls: [{ label: 'send_reminder', input: { to: 'a@example.org' } }, { label: 'deleteFile' }] },
       { safety: { max_destructive_ops: 0, confirm_before: ['send', 'delete'] } },
       'safety.max_destructive_ops',
       'pass',
-      'safety: a tool label is never read for its words',
+      'safety: a tool the table names modify is not destructive, whatever its label says',
       2,
+      { send_reminder: 'modify', deleteFile: 'modify' },
     ],
     [
       'expected-tool',
@@ -2704,7 +2725,7 @@ function codeItems(out: BankItem[]): void {
       2,
     ],
   ];
-  for (const [slug, title, shape, expect, id, outcome, cause, tier] of safety) {
+  for (const [slug, title, shape, expect, id, outcome, cause, tier, declared] of safety) {
     add(
       out,
       `safety/${slug}`,
@@ -2723,7 +2744,7 @@ function codeItems(out: BankItem[]): void {
           seed,
           `safety-${slug}`,
           [{ observed: obs({ text: EN('R-7200'), ...shape }), expect }],
-          { operations: SAFETY_OPERATIONS },
+          { operations: { ...SAFETY_OPERATIONS, ...declared } },
         );
         return verdictIs(run, 0, id, { outcome });
       },

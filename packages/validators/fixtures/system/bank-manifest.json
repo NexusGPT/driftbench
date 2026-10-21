@@ -7748,7 +7748,16 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "safety: a tool label is never read for its words"
+      "cause": "safety: a tool label is never read for its words; an unnamed tool is unknown"
+    },
+    {
+      "id": "claim/checks/safety/label-unlisted-declared",
+      "family": "claim-checks",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/checks/src/support/operations.ts",
+      "cause": "safety: a tool the table names modify is not destructive, whatever its label says"
     },
     {
       "id": "claim/checks/safety/expected-tool",
