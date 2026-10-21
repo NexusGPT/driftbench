@@ -166,6 +166,43 @@ function idsFor(names: Iterable<string>): Map<string, string> {
   return out;
 }
 
+/**
+ * Ids for the variables, by the rule of `idsFor`. A tool and field keep their dotted title when it is a valid id
+ * that does not end like a hashed id and the field holds no dot; otherwise the id is the slug of the title and 12 hex
+ * digits of the hash of the pair itself. So an id depends on its own variable only, and two
+ * pairs that give one title never share an id. Ids that still meet (a crafted hash) are ordered by identity and the
+ * later ones get a numeric suffix.
+ */
+function variableIdsFor(drafts: ReadonlyMap<string, VariableDraft>): Map<string, string> {
+  const byId = new Map<string, string[]>();
+  for (const [key, draft] of drafts) {
+    const text = draft.idText ?? draft.name;
+    const own = slug(text);
+    const keeps = own === text && !HASHED.test(text) && draft.plain !== false;
+    const id = keeps ? own : `${own}-${sha256(key).slice(0, 12)}`;
+    const list = byId.get(id);
+    if (list) list.push(key);
+    else byId.set(id, [key]);
+  }
+  const used = new Set(byId.keys());
+  const out = new Map<string, string>();
+  for (const [id, list] of byId) {
+    const keepsId = (key: string): number => {
+      const draft = drafts.get(key) as VariableDraft;
+      return (draft.idText ?? draft.name) === id && draft.plain !== false ? 0 : 1;
+    };
+    list.sort((x, y) => keepsId(x) - keepsId(y) || (x < y ? -1 : x > y ? 1 : 0));
+    out.set(list[0] as string, id);
+    for (let n = 1; n < list.length; n += 1) {
+      let candidate = `${id}-${n + 1}`;
+      for (let k = n + 2; used.has(candidate); k += 1) candidate = `${id}-${k}`;
+      used.add(candidate);
+      out.set(list[n] as string, candidate);
+    }
+  }
+  return out;
+}
+
 type ValueDraft = {
   /** The names this value was given (a tool value id, an owner or session value id). */
   names: Set<string>;
@@ -189,8 +226,16 @@ type BoundaryDraft = {
 };
 
 type VariableDraft = {
+  /** What identifies the variable: a condition's name, or the tool and the field as a pair, never joined. */
   name: string;
   title: string;
+  /**
+   * False for a tool whose field holds a dot: its dotted title can also be written by another tool and field, and the
+   * title is then the id of the pair that splits at the last dot only. An unset flag is true.
+   */
+  plain?: boolean;
+  /** The text the id is made from when it is not the name: the dotted title of a tool and field. */
+  idText?: string;
   values: Map<string, ValueDraft>;
   total?: number;
   /** For a condition variable: the sample of each value, by value key. */
@@ -379,9 +424,11 @@ export function variablesFromSources(
       else cited.add(made);
     }
     for (const tool of rule.tools ?? []) {
-      const name = `${tool.tool}.${tool.field}`;
+      const title = `${tool.tool}.${tool.field}`;
+      // The pair, not its dotted title, identifies the variable: "a.b" with "c" and "a" with "b.c" are two.
+      const name = JSON.stringify([tool.tool, tool.field]);
       for (const value of tool.values ?? []) {
-        const what = `${name}.${value.id}`;
+        const what = `${title}.${value.id}`;
         let reason: string | undefined;
         if (blank(value.quote)) reason = 'the value has no quote to stand on';
         else if (value.quote.length > MAX_TEXT) reason = `the quote is longer than ${MAX_TEXT} characters`;
@@ -393,7 +440,7 @@ export function variablesFromSources(
         }
         let draft = drafts.get(name);
         if (!draft) {
-          draft = { name, title: name, values: new Map() };
+          draft = { name, title, idText: title, plain: !String(tool.field).includes('.'), values: new Map() };
           drafts.set(name, draft);
         }
         let valueDraft = draft.values.get(value.id);
@@ -415,7 +462,7 @@ export function variablesFromSources(
   }
 
   // ---------------------------------------------------------------------------------------------- ids
-  const variableIds = idsFor(drafts.keys());
+  const variableIds = variableIdsFor(drafts);
   const byStoredId = new Map<string, VariableDraft>();
   for (const [name, draft] of drafts) byStoredId.set(variableIds.get(name) as string, draft);
   /** Per variable: the key of each stored id the estate's own values have, before any value joins. */
