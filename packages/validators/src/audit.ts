@@ -88,14 +88,41 @@ export function stripHint(detail: string): string {
   return detail.replace(/\s*\bfix:[\s\S]*$/i, '').trimEnd();
 }
 
-/** A detail without its leading `[family, tier N, cause: ...]` tag, which spells the builder's cause out. */
+/**
+ * A detail without its leading `[family, tier N, cause: ...]` tag, which spells the builder's cause out. The tag is
+ * read by bracket depth, so a cause that holds `[` or `]` (a call such as `mean([1])`) is removed whole.
+ */
 export function stripCauseTag(detail: string): string {
-  return detail.replace(/^\[[^\]]*\bcause:[^\]]*\]\s*/, '');
+  if (!detail.startsWith('[')) return detail;
+  let depth = 0;
+  for (let i = 0; i < detail.length; i += 1) {
+    const char = detail[i];
+    if (char === '[') depth += 1;
+    else if (char === ']') {
+      depth -= 1;
+      if (depth === 0) return /\bcause:/.test(detail.slice(0, i)) ? detail.slice(i + 1).trimStart() : detail;
+    }
+  }
+  return detail;
+}
+
+/** A detail without any copy of the item's own cause text, wherever the ladder wrote it. */
+export function stripOwnCause(detail: string, cause: string | undefined): string {
+  const text = cause?.trim();
+  return text && text.length >= 6
+    ? detail
+        .split(text)
+        .join('')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+    : detail;
 }
 
 function blindItem<T extends Item | BankEntry>(item: T): T {
-  const { cause: _cause, ...rest } = item;
-  return (rest.detail === undefined ? rest : { ...rest, detail: stripHint(stripCauseTag(rest.detail)) }) as T;
+  const { cause, ...rest } = item;
+  if (rest.detail === undefined) return rest as T;
+  const hinted = stripHint(stripCauseTag(rest.detail));
+  return { ...rest, detail: stripOwnCause(hinted, cause) } as T;
 }
 
 /**

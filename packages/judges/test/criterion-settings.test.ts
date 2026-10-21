@@ -66,6 +66,14 @@ async function sent(criterion: Record<string, unknown>, answers = ['{"outcome":"
   return { fake, request: fake.requests[0] as JudgeRequest, verdict: verdicts[0] };
 }
 
+it('preserves an explicit metric intent from the spec without inferring it from rubric text', async () => {
+  expect((await sent({ intent: 'request-fulfillment' })).request.criterion.intent).toBe(
+    'request-fulfillment',
+  );
+  expect((await sent({})).request.criterion).not.toHaveProperty('intent');
+  expect(() => CriterionDef.parse({ name: 'x', rubric: 'Quality.', intent: 'writing' })).toThrow();
+});
+
 const FILE = (criterion: string) =>
   [
     'criterion:',

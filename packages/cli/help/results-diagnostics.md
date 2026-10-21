@@ -164,6 +164,8 @@ decided; the unassigned runs, excluded only from the agent-attributed rate; the 
 and the ranked fix list. A run page lists each block's diagnoses under its verdicts. A page scored with a rule file
 that is not a shipped default carries a `non-default` badge naming it.
 
+`driftbench report` and `driftbench view` build the fix list themselves: the fix plan runs over the diagnoses the stored blocks hold, with the shipped placement policy. A campaign whose blocks hold no diagnosis has no fix list and no "Two scores" zone.
+
 The agent-attributed score always names its denominator: for example, `20 of 20 assigned runs; 26
 unassigned`. When unassigned runs outnumber assigned failed runs, HTML and text show counts without any
 percentage or interval. JSON keeps the assigned counts (`agent.k`, `agent.n`) and `unassigned`, and omits

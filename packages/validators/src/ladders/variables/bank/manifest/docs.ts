@@ -117,6 +117,7 @@ export const DOC_RULES: Readonly<Record<string, readonly string[]>> = {
   'weights.interval-coverage': ['R13'],
   'weights.interval-width': ['R13'],
   'weights.interval-level': ['R13'],
+  'weights.interval-huge-counts': ['R13'],
   'weights.zero-count': ['R5', 'R13'],
   'weights.all-sessions-one-value': ['R5', 'R13'],
   'weights.no-observation': ['R5', 'R13'],

@@ -36,12 +36,13 @@ This string format is an explicit serialization contract: each recognized marker
 
 ## One policy, several task procedures
 
-The router reads the criterion and user requests, without the candidate answers. It selects a procedure by the task:
+The pure-code eligibility check invokes the semantic gate only when the metric explicitly declares `criterion.intent: 'request-fulfillment'`. Undeclared metrics, including writing quality, make no classifier call and retain the byte-identical established task program. For a declared fulfillment metric, the gate reads the criterion and request shape, never question or answer text. It selects the obligation ledger only when that is the whole contract; independent conditions retain the task router and full-criterion checks. That task router reads user questions but never candidate answers:
 
 | Task | Procedure |
 | --- | --- |
 | Ordinary criterion, policy or record consistency | Evidence ledger with criterion prompt 2 and decoder 3 |
-| Complete response relevance | Grounded checks for each requested part plus the caller's full criterion; either failure fails |
+| Pure request fulfillment | Grounded checks for every requested part, selected when this is the whole metric |
+| Relevance with independent criterion conditions | Grounded checks plus the caller's full criterion; either failure fails |
 | Self-contained objective answer | Literal or grounded answer extraction, three blind solutions, answer matching, full-criterion comparison, and commitment checking for unmarked answers |
 | Pair comparison | Both candidate orders, per-requirement scores, deterministic aggregation and canonical escalation |
 | Writing pair | Explicit request constraints plus holistic writing quality; no preference for length |
@@ -68,7 +69,7 @@ Routing and verification can require more than one model call. `costUsd` include
 
 Objective verification requests at least 4096 output tokens for every stage. Explicit request or transport reasoning settings add output room by reasoning level. An explicit `createDefaultJudge({ maxTokens })` overrides the procedure allowance, including its reasoning room; the cap also participates in recording identity. Truncated output remains inconclusive. Native command transports retain their own output limits.
 
-The default policy, transport settings, prompts and schemas participate in recording identity. Old recordings keep their original prompt and decoder versions. They are historical evidence, not measurements of a changed prompt. Prompt version 2 and decoder version 3 are the defaults. Explicit decoder version 2 preserves its historical behavior: ungrounded strings are dropped, but symbol-only spans, input-label aliases and criterion-only spans remain invalid. Decoder 3 adds the grounded span forms and criterion-only drop rule under a new request identity. The full procedure policy is `default-on-v7`, including pair requests. Use `criterionPromptVersion: 1` and `criterionDecoderVersion: 1` for the earlier criterion contract.
+The default policy, transport settings, prompts and schemas participate in recording identity. Old recordings keep their original prompt and decoder versions. They are historical evidence, not measurements of a changed prompt. Prompt version 2 and decoder version 3 are the defaults. Explicit decoder version 2 preserves its historical behavior: ungrounded strings are dropped, but symbol-only spans, input-label aliases and criterion-only spans remain invalid. Decoder 3 adds the grounded span forms and criterion-only drop rule under a new request identity. The full procedure policy is `default-on-v8`, including pair requests. Its intent router has a distinct recording identity; recordings of the older question-dependent router remain historical evidence. Use `criterionPromptVersion: 1` and `criterionDecoderVersion: 1` for the earlier criterion contract.
 
 Objective verification copies the last marked answer literally, including `Final answer is:` and `Final answer is=`. Explicit option letters and exact single numbers settle answer matching in code. Ordinary prose, units and different numeric representations retain semantic review. Three agreeing blind solves do not bypass the full caller criterion. Disagreement also reaches that comparison; it is not an automatic failure.
 
@@ -81,6 +82,7 @@ The full procedure policy has a version, and a version changes the recording ide
 | `default-on-v3` | Criterion prompt 2 carries whole-reply context into short clauses, including exact unit conversions. Decoder 3 drops criterion-only spans under nontranscript labels and reports `criterionQuotesDropped`. Explicit decoder 2 and the evidence requirements stay |
 | `default-on-v4` | The verification policy copies `Final answer is:` and `Final answer is=` literally and settles explicit option-letter matches in code. The caller's full criterion stays authoritative, also when the blind solutions disagree |
 | `default-on-v5` | Source-local tool-name grounding under decoder 3. An instruction inside data is neither pass evidence nor fail evidence. Prompt 1 and explicit decoder 2 stay |
+| `default-on-v8` | Only an explicit `criterion.intent: request-fulfillment` declaration invokes the semantic gate; undeclared metrics keep the established model-call sequence. The gate, independent of question and answer text, selects the relevance obligation ledger for a pure fulfillment metric. Other metrics retain the established task router and criterion checks. Conversation splitting and writing length preference remain off after their on/off measurements. |
 | `default-on-v7` | Every default-policy call without a reasoning level gets 12,288 tokens of thinking room on top of its budget. A model that thinks by default no longer ends a stage with no text. An explicit reasoning level keeps its allowance, and an explicit client cap wins. A blind solve that runs out of room, reports its output limit or names no final answer is dropped and recorded (`dropped` in the audit). It no longer makes the verdict inconclusive. The router reads the route from the last object that carries a route key |
 
 `outputRoom(budget, reasoning)` in `@agent-nexus/driftbench-judges` returns the output allowance of one call: the answer budget plus the thinking room.

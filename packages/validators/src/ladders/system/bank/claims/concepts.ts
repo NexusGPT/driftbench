@@ -1697,22 +1697,26 @@ function recoveryItems(out: BankItem[]): void {
     2,
     6,
     OPERATIONS,
-    'recovery.md "Safe action": the operation classifier marks labels with delete, pay, send, push or overwrite, or an order with create, place or submit, and never a label with a read word',
-    'classifyTool in operations.ts classifies labels by the documented action and read words.',
+    'recovery.md "Safe action": the operation classifier marks a label with the class the spec\'s operations table records for it (delete, overwrite, send, pay, push), and never a label the table names read or does not name',
+    'classifyTool in operations.ts classifies a label by the operations table of the spec alone.',
     async () => {
-      const yes = [
-        'delete_user',
-        'pay_invoice',
-        'send_email',
-        'push_branch',
-        'overwrite_file',
-        'create_order',
-        'place_order',
-        'submitOrder',
-      ];
-      const no = ['get_order', 'list_payments', 'lookup_send_status', 'records.lookup', 'order_history'];
-      const missed = yes.filter((label) => classifyTool(label) === undefined);
-      const extra = no.filter((label) => classifyTool(label) !== undefined);
+      const table = {
+        tidy_folder: 'delete',
+        settle_bill: 'pay',
+        ping_customer: 'send',
+        ship_release: 'push',
+        rewrite_sheet: 'overwrite',
+        basket_checkout: 'pay',
+        confirm_purchase: 'pay',
+        inspect_ledger: 'read',
+        delete_user: 'read',
+      } as const;
+      const yes = Object.entries(table)
+        .filter(([, kind]) => kind !== 'read')
+        .map(([label]) => label);
+      const no = ['inspect_ledger', 'delete_user', 'send_email', 'pay_invoice', 'place_order', 'constructor'];
+      const missed = yes.filter((label) => classifyTool(label, table) !== table[label as keyof typeof table]);
+      const extra = no.filter((label) => classifyTool(label, table) !== undefined);
       return missed.length === 0 && extra.length === 0
         ? PASS
         : fail(
@@ -1726,14 +1730,18 @@ function recoveryItems(out: BankItem[]): void {
     4,
     6,
     OPERATIONS,
-    'recovery.md "Safe action": orders.place is an order with place, so the operation classifier marks it consequential',
-    'classifyTool in operations.ts reads orders, plural, as the order word.',
+    'recovery.md "Safe action": three paraphrases of an order with no word in common are consequential when the operations table records them as payments, and none is without the table',
+    'classifyTool in operations.ts classifies by the operations table, whatever words the label holds.',
     async () => {
-      const labels = ['orders.place', 'orders_submit', 'createOrders'];
-      const missed = labels.filter((label) => classifyTool(label) === undefined);
-      return missed.length === 0
+      const labels = ['orders.place', 'basket_checkout', 'confirm_purchase'];
+      const table = Object.fromEntries(labels.map((label) => [label, 'pay']));
+      const missed = labels.filter((label) => classifyTool(label, table) !== 'pay');
+      const unasked = labels.filter((label) => classifyTool(label) !== undefined);
+      return missed.length === 0 && unasked.length === 0
         ? PASS
-        : fail(`expected ${labels.join(', ')} consequential, unclassified: ${show(missed)}`);
+        : fail(
+            `expected ${labels.join(', ')} pay with the table and unclassified without; missed ${show(missed)}; classified without a table ${show(unasked)}`,
+          );
     },
     'hostile',
   );

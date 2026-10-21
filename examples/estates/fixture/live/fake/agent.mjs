@@ -406,6 +406,8 @@ function skillActions(unit, estate, requested, cwd) {
     }
   }
 
+  // The enclosing skill's command domain, before any current-turn request adds another candidate.
+  const domainCommands = actions.filter((action) => action.kind === 'Bash');
   for (const action of requested) {
     // Current-turn file paths name an existing workspace file before falling back to a skill-local file.
     const folder =
@@ -424,9 +426,9 @@ function skillActions(unit, estate, requested, cwd) {
   // `except` holds the actions a clause may not name: the earlier part of an ordering clause cannot also be what
   // the later part describes, whatever word the two share. Only a description is read that way; a quoted action
   // is named on purpose, so a clause that quotes one action on both sides stays a contradiction.
-  const matchActions = (clause, except = []) => {
+  const kindOf = (clause) => {
     const prose = masked(clause).prose;
-    const kind = /\bread(?:ing)?\b/i.test(prose)
+    return /\bread(?:ing)?\b/i.test(prose)
       ? 'Read'
       : /\b(run(?:ning)?|execut(?:e|ing)|command)\b/i.test(prose)
         ? 'Bash'
@@ -435,6 +437,9 @@ function skillActions(unit, estate, requested, cwd) {
           : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(prose)
             ? 'Agent'
             : undefined;
+  };
+  const matchActions = (clause, except = []) => {
+    const kind = kindOf(clause);
     const listed = actions.filter((action) => !kind || action.kind === kind);
     const quoted = [...clause.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
     if (quoted.length) {
@@ -456,10 +461,22 @@ function skillActions(unit, estate, requested, cwd) {
     return found.length === 1 ? found.map(({ action }) => action) : [];
   };
   let unresolved = false;
-  const relate = (before, after) => {
+  const relate = (before, after, implicitDomain = false) => {
     const quotes = (clause) => /`[^`]+`/.test(clause);
     const predecessors = matchActions(before, quotes(after) ? matchActions(after) : []);
-    const successors = matchActions(after, quotes(before) ? matchActions(before) : []);
+    let successors = matchActions(after, quotes(before) ? matchActions(before) : []);
+    // A suffix "A before ..." may leave the domain operation unnamed. Its only structural binding is
+    // the sole command declared by this skill, never a current-turn request. Prefixes, named actions,
+    // and domains with zero or multiple commands remain unresolved. No lexical alias is inferred.
+    if (
+      implicitDomain &&
+      successors.length === 0 &&
+      !quotes(after) &&
+      kindOf(after) === undefined &&
+      domainCommands.length === 1
+    ) {
+      successors = domainCommands.filter((action) => !predecessors.includes(action));
+    }
     // Two described parts that name one action do not order it: the words do not tell the parts apart.
     const same = successors.some((action) => predecessors.includes(action));
     if (!predecessors.length || !successors.length || (same && !(quotes(before) && quotes(after)))) {
@@ -488,7 +505,7 @@ function skillActions(unit, estate, requested, cwd) {
       else relation(prefix[2], prefix[3]);
     } else if (suffix) {
       const word = suffix[2].toLowerCase();
-      if (word === 'before' && !negative(suffix[1])) relation(suffix[1], suffix[3]);
+      if (word === 'before' && !negative(suffix[1])) relate(restore(suffix[1]), restore(suffix[3]), true);
       else if ((word === 'after' && negative(suffix[1])) || (word === 'until' && !negative(suffix[1])))
         unresolved = true;
       else relation(suffix[3], suffix[1]);
@@ -687,7 +704,7 @@ export function planStream({ ask, cwd, sessionId, env }) {
   if (plan.error) {
     text(plan.error);
     hooks('Stop', undefined, { stop_hook_active: false });
-    return { records: out, blocked: true };
+    return { records: out, blocked: true, error: plan.error };
   }
   for (const action of plan.actions) {
     let result;

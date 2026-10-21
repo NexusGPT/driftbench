@@ -42,6 +42,8 @@ export type ObjectContext = {
   problems: readonly ObjectError[];
   /** The project root: the folder of `driftbench.yaml`, when one was found. */
   root?: string;
+  /** The folder of the spec file this context was read for: a path the spec names resolves from here. */
+  dir?: string;
   cli?: CliOverrides;
 };
 
@@ -83,6 +85,7 @@ export function objectContextFor(specPath: string, registry: ObjectRegistry = ob
     uses,
     problems,
     ...(found.root === undefined ? {} : { root: found.root }),
+    dir,
   };
   return context;
 }
