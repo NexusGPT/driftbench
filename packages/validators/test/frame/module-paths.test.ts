@@ -18,7 +18,14 @@ afterAll(() => {
   rmSync(work, { recursive: true, force: true });
 });
 
-type Paths = { url: string; dirname: string; filename: string; values: number[]; literal: string; template: string };
+type Paths = {
+  url: string;
+  dirname: string;
+  filename: string;
+  values: number[];
+  literal: string;
+  template: string;
+};
 const ownPaths = (module: string, value: number): Paths => ({
   url: pathToFileURL(module).href,
   dirname: dirname(module),

@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   existsSync,
@@ -10,7 +11,7 @@ import {
 } from 'node:fs';
 import { createRequire } from 'node:module';
 import { delimiter, dirname, extname, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { findRoot } from '../root';
 import { resetNamespaceWarning } from './group';
@@ -99,15 +100,76 @@ export function confine(plan: TwinPlan, grants: Grants): TwinPlan {
 const SOURCE = new Set(['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs', '.jsx']);
 
 /** The bundler of the project: the one the tsx loader is built on, found through tsx so no dependency is added. */
-function bundler(): { buildSync(options: Record<string, unknown>): unknown } {
+function bundler(): string {
   try {
     const tsx = createRequire(import.meta.url).resolve('tsx');
-    return createRequire(tsx)('esbuild');
+    return createRequire(tsx).resolve('esbuild');
   } catch {
     throw new FrameError(
       'the product cannot be confined: the bundler (esbuild, a dependency of tsx) is not installed',
     );
   }
+}
+
+/**
+ * esbuild's synchronous API takes no plugins. A child runs the asynchronous build so the frame stays synchronous.
+ * Each onLoad pass defines the three paths for that file only, using esbuild's parser (strings and comments are not
+ * rewritten). A non-bundling pass preserves that file's imports for the outer build and uses the same tsconfig, so
+ * TypeScript and JSX retain the product's compiler settings. The banner belongs to the bundle, not to any input.
+ */
+const BUNDLE = String.raw`
+const fs = require('node:fs');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+const { esbuild: installed, options } = JSON.parse(fs.readFileSync(0, 'utf8'));
+const esbuild = require(installed);
+esbuild.build({
+  ...options,
+  plugins: [{
+    name: 'original-module-paths',
+    setup(build) {
+      build.onLoad({ filter: /\.(?:[cm]?[jt]s|[jt]sx)$/ }, async ({ path: file }) => {
+        const original = await esbuild.build({
+          entryPoints: [file],
+          absWorkingDir: options.absWorkingDir,
+          ...(options.tsconfig ? { tsconfig: options.tsconfig } : {}),
+          bundle: false,
+          write: false,
+          platform: options.platform,
+          target: options.target,
+          logLevel: 'silent',
+          define: {
+            'import.meta.url': JSON.stringify(pathToFileURL(file).href),
+            'import.meta.dirname': JSON.stringify(path.dirname(file)),
+            'import.meta.filename': JSON.stringify(file),
+          },
+        });
+        return { contents: original.outputFiles[0].text, loader: 'js', resolveDir: path.dirname(file) };
+      });
+    },
+  }],
+}).then(
+  (built) => process.stdout.write(JSON.stringify(built.metafile)),
+  (error) => { console.error(error.message); process.exitCode = 1; },
+);
+`;
+
+function runBundle(options: Record<string, unknown>): unknown {
+  const env = { ...process.env };
+  delete env.NODE_OPTIONS;
+  const ran = spawnSync(process.execPath, ['-e', BUNDLE], {
+    input: JSON.stringify({ esbuild: bundler(), options }),
+    encoding: 'utf8',
+    env,
+    timeout: 120_000,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (ran.status !== 0)
+    throw new Error(
+      ran.error?.message ??
+        (ran.stderr.trim() || `the bundler ended (${ran.signal ?? ran.status}) without a bundle`),
+    );
+  return { metafile: JSON.parse(ran.stdout) };
 }
 
 /** The source tree of a product: the folder of its module. More folders are named in `sources`. */
@@ -245,8 +307,8 @@ function workspaceSources(base: string): string[] {
  * from code of the product's own source tree, the extra trees named in `sources`, and the packages in a
  * node_modules folder; a data file is bundled only when it is granted in `reads`. Any other import (a file of the
  * validator, a file of expected values) is refused: bundled, it would reach every run as the product's own code.
- * `import.meta.url` of the product is the URL of its original module, so a data file granted in `reads` is read from
- * where it is.
+ * Every bundled module keeps its own original `import.meta.url`, dirname and filename, so an asset granted in
+ * `reads` is read beside the module that uses it, including a nested dependency.
  */
 export function seal(
   module: string,
@@ -261,10 +323,9 @@ export function seal(
   const base = findRoot(dirname(module));
   // The project's tsconfig maps the workspace packages to their sources, as the tsx loader reads it from the root.
   const tsconfig = join(base, 'tsconfig.json');
-  const original = pathToFileURL(resolve(module)).href;
   let built: unknown;
   try {
-    built = bundler().buildSync({
+    built = runBundle({
       metafile: true,
       absWorkingDir: base,
       ...(existsSync(tsconfig) ? { tsconfig } : {}),
@@ -275,11 +336,6 @@ export function seal(
       format: 'esm',
       target: 'node22',
       logLevel: 'silent',
-      define: {
-        'import.meta.url': JSON.stringify(original),
-        'import.meta.dirname': JSON.stringify(dirname(fileURLToPath(original))),
-        'import.meta.filename': JSON.stringify(fileURLToPath(original)),
-      },
       // A bundled CommonJS dependency calls require; the bundle is an ES module.
       banner: {
         js: "import { createRequire as __sealRequire } from 'node:module'; const require = __sealRequire(import.meta.url);",
