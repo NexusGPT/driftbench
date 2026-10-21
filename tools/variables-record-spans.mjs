@@ -52,7 +52,7 @@ mkdirSync(work, { recursive: true });
 const remote = run('git', ['remote', 'get-url', 'origin']).trim();
 const data = join(work, 'data');
 rmSync(data, { recursive: true, force: true });
-run('git', ['clone', '--quiet', '--depth', '1', '--branch', 'cassettes/variables-spans', remote, data]);
+run('git', ['clone', '--quiet', '--branch', 'cassettes/variables-spans', remote, data]);
 const cassette = join(data, `${sha}.jsonl`);
 const totalFile = join(work, 'spent.txt');
 if (!existsSync(cassette)) writeFileSync(cassette, '');
