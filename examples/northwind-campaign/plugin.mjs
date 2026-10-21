@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
+import { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
+
+export { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const STAND_IN_MARKER = '@driftbench-stand-in';
 
@@ -35,6 +39,7 @@ async function isStandIn(path) {
 }
 
 export default async function plugin(api) {
+  api.check('northwind-invoice-prerequisite', invoicePrerequisite);
   const estateRoot = resolve(process.env.NORTHWIND_ESTATE ?? resolve(HERE, '../estates/fixture'));
   const configured = process.env.NORTHWIND_COMMAND ?? resolve(HERE, 'rehearsal/claude.mjs');
   const command = configured.includes('/') ? resolve(configured) : configured;
@@ -66,22 +71,26 @@ export default async function plugin(api) {
   // Every target `claude-code:northwind` reaches the live runtime in a sandbox that holds a copy of the estate.
   api.adapter('claude-code', (target) => {
     if (target.agent !== 'northwind') return undefined;
-    return claudeCodeLiveAdapter({
-      command,
-      args,
-      estateRoot,
-      provider: localProvider(),
-      config: 'isolated',
-      ...(standIn || process.env.ANTHROPIC_API_KEY === undefined
-        ? {}
-        : { env: { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY } }),
-      lock: { deny: [join(homedir(), '.nexus-secrets')] },
-      // `args` carries the estate allow-list plus only the exact tracker command this harness needs.
-      trustEstate: false,
-      workspace: { files: { 'CLAUDE.local.md': instructions } },
-      // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
-      branching: true,
-      ...(standIn ? { retries: { backoffMs: 0 } } : {}),
-    });
+    return executionLogAdapter(
+      claudeCodeLiveAdapter({
+        command,
+        args,
+        estateRoot,
+        provider: localProvider(),
+        config: 'isolated',
+        env: {
+          ...(standIn || process.env.ANTHROPIC_API_KEY === undefined
+            ? {}
+            : { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }),
+        },
+        lock: { deny: [join(homedir(), '.nexus-secrets')] },
+        // `args` carries the estate allow-list plus only the exact tracker command this harness needs.
+        trustEstate: false,
+        workspace: { files: { 'CLAUDE.local.md': instructions } },
+        // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
+        branching: true,
+        ...(standIn ? { retries: { backoffMs: 0 } } : {}),
+      }),
+    );
   });
 }

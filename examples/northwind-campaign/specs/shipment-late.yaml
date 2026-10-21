@@ -38,6 +38,9 @@ metadata:
       - instruction.standing.tell-the-user-about-a-late
       - instruction.standing.never-send-a-supplier-email-without
       - instruction.memory-supplier-languages.write-to-each-supplier-in-its
+rules:
+  custom:
+    northwind-invoice-prerequisite: {}
 blocks:
   - id: ask
     user: Where is my shipment?
