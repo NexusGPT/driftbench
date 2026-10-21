@@ -166,25 +166,30 @@ function templateParts(template) {
  * Whether `ask` from `at` is `parts` exactly, each act slot a listed act and each situation slot a listed
  * situation; `k` continues with the position reached and the acts used. Exact equality of the whole text.
  */
-function fits(parts, ask, at, grammar, used, k) {
-  const step = (index, pos, acts) => {
+function fits(parts, ask, at, grammar, used, k, closed = false) {
+  // A value that ends in a sentence mark takes no stop or question mark of the row right after it.
+  const step = (index, pos, acts, after) => {
     const part = parts[index];
-    if (part === undefined) return k(pos, acts);
-    if ('lit' in part) return ask.startsWith(part.lit, pos) && step(index + 1, pos + part.lit.length, acts);
+    if (part === undefined) return k(pos, acts, after);
+    if ('lit' in part) {
+      const lit = after && /^[.?]/.test(part.lit) ? part.lit.slice(1) : part.lit;
+      return ask.startsWith(lit, pos) && step(index + 1, pos + lit.length, acts, false);
+    }
     if ('opt' in part)
       return (
-        fits(part.opt, ask, pos, grammar, acts, (next, more) => step(index + 1, next, more)) ||
-        step(index + 1, pos, acts)
+        fits(part.opt, ask, pos, grammar, acts, (next, more, now) => step(index + 1, next, more, now), after) ||
+        step(index + 1, pos, acts, after)
       );
     for (let end = pos + 1; end <= ask.length; end++) {
       const value = ask.slice(pos, end);
+      const ends = /[.!?]$/.test(value);
       if (part.slot === 'situation') {
-        if (grammar.situationSet.has(value) && step(index + 1, end, acts)) return true;
-      } else if (Object.hasOwn(grammar.acts, value) && step(index + 1, end, [...acts, value])) return true;
+        if (grammar.situationSet.has(value) && step(index + 1, end, acts, ends)) return true;
+      } else if (Object.hasOwn(grammar.acts, value) && step(index + 1, end, [...acts, value], ends)) return true;
     }
     return false;
   };
-  return step(0, at, used);
+  return step(0, at, used, closed);
 }
 
 /** The template an ask is built from and the atoms of its acts, by the grammar; undefined when it fits none. */
