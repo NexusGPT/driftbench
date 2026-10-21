@@ -9,6 +9,8 @@ on:
       - 'packages/adapters/test/claude-code/live/fake-failure.test.ts'
       - 'packages/adapters/test/claude-code/live/fake-default.test.ts'
       - 'examples/northwind-campaign/rehearsal/**'
+      - 'examples/northwind-campaign/plugin.mjs'
+      - 'packages/checks/src/index.ts'
       - 'packages/users/src/simulated.ts'
   workflow_dispatch:
     inputs:

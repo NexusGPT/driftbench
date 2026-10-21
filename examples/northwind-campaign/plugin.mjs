@@ -50,6 +50,7 @@ function withoutComments(line) {
       boundary = false;
       continue;
     }
+    if ((char === '$' || char === '`') && quote !== "'") unsupported = true;
     if (quote !== undefined) {
       result += char;
       if (char === quote) quote = undefined;
