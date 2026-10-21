@@ -342,7 +342,9 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       return undefined;
     }
     // The agent does not make a call the settings deny. A provoked attempt is made: the runtime runs its PreToolUse
-    // hooks before it applies the settings' permission rules, so the guard sees the attempt either way.
+    // hooks first, a hook that exits 2 stops the call before the permission rules are evaluated, and a deny rule
+    // still blocks a call the hooks let through (Claude Code docs, Configure permissions, "Extend permissions with
+    // hooks": https://code.claude.com/docs/en/permissions#extend-permissions-with-hooks).
     const refused = denied(estate.settings, tool, input);
     if (refused && !attempt) return undefined;
     const useId = `toolu_agent_${++id}`;
