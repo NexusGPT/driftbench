@@ -70,6 +70,7 @@ const controls: Array<[string, number]> = [
   ['(python scripts/reconcile.py invoice.json order.json)', 1],
   ['echo warmup; python scripts/reconcile.py invoice.json order.json', 1],
   ['false || python scripts/reconcile.py invoice.json order.json', 1],
+  ['python scripts/reconcile.py invoice.json order.json; python scripts/reconcile.py invoice.json order.json', 2],
 ];
 for (const read of ['before', 'none'] as const) {
   it.each(controls)(`judges actual executions in an ask block, read=${read}: %s`, async (command, count) => {

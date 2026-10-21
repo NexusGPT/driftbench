@@ -52,6 +52,6 @@ it.each(['earlier block', 'current block'])('accepts a completed matching-rules 
   expect(result).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
 });
 it('judges every execution, even a later one on an ask block', () => {
-  const ctx = context([], [], [event, { ...event, id: 'second' }]); ctx.block.id = 'ask';
+  const ctx = context([ruleRead], [], [{ ...event, at: '2026-10-21T09:59:59.000Z' }, { ...event, id: 'second' }]); ctx.block.id = 'ask';
   expect(prerequisite(ctx)).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
 });

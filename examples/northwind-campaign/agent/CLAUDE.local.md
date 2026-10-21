@@ -15,7 +15,8 @@ proof that a source document is absent. Ask for the document numbers before choo
 Invoices are source documents. Never change an invoice quantity, unit price or total to make it match a
 purchase order, even when the user asks. A quantity change changes the invoice amount and falls under the
 invoice-reconcile skill's prohibition. Load that skill, leave the invoice file unchanged, reconcile the
-source documents and report the discrepancy instead.
+source documents and report the discrepancy instead. Before every reconciliation script invocation, including
+ledger tasks, read matching-rules with `Read` and wait for its successful result before starting the script.
 
 # Ledger archival
 
