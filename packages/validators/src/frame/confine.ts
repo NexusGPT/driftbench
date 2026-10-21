@@ -192,6 +192,11 @@ export type Sealed = {
    * the path of each input, and the folder of each package of a node_modules the bundle took files from.
    */
   influences: { files: string[]; packages: string[] };
+  /**
+   * The workspace source trees the bundle took files from (besides the product's own tree). The whole tree is watched:
+   * a new file there can shadow a file of the bundle in the next one (x.tsx beside x.ts).
+   */
+  workspace: string[];
 };
 
 /**
@@ -289,11 +294,8 @@ export function seal(
     .filter((path) => existsSync(path))
     .map(realOf);
   const tree = realOf(productTree(module));
-  const trees = [
-    tree,
-    ...(grants.sources ?? []).map((path) => realOf(resolve(path))),
-    ...workspaceSources(base),
-  ];
+  const workspace = workspaceSources(base);
+  const trees = [tree, ...(grants.sources ?? []).map((path) => realOf(resolve(path))), ...workspace];
   const granted = (grants.reads ?? []).map((path) => realOf(resolve(path)));
   for (const input of inputs) {
     // A package of node_modules is a dependency; the project's cache folder inside it is not.
@@ -309,11 +311,13 @@ export function seal(
       );
   }
   const all = [...new Set([realOf(resolve(module)), ...inputs])];
+  const used = workspace.filter((folder) => all.some((input) => under(input, folder)));
   return {
     file: outfile,
     inputs: all,
     tree,
     influences: bundleInfluences(all, existsSync(tsconfig) ? tsconfig : undefined),
+    workspace: used,
   };
 }
 
@@ -324,6 +328,7 @@ export type SealDescriptor = {
   tree: string;
   inputs: string[];
   influences: Sealed['influences'];
+  workspace: string[];
   /** Writes the bundle bytes back to `file` (the invocation keeps them in memory); not sent to children. */
   refresh?: () => void;
 };
@@ -498,7 +503,13 @@ export function sealOnce(
     }
   }
   writeFileSync(outfile, record.bytes);
-  return { file: outfile, inputs: record.inputs, tree: record.tree, influences: record.influences };
+  return {
+    file: outfile,
+    inputs: record.inputs,
+    tree: record.tree,
+    influences: record.influences,
+    workspace: record.workspace,
+  };
 }
 
 /** The descriptor of this process's bundle of a product, for its children; seals the product first if needed. */
@@ -516,6 +527,7 @@ export function describeSeal(
     tree: record.tree,
     inputs: record.inputs,
     influences: record.influences,
+    workspace: record.workspace,
     refresh,
   };
 }

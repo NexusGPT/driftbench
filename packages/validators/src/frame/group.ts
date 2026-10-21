@@ -7,13 +7,17 @@ import { rngOf } from './twins';
  * its own (so a process group holds what it starts), waits for it, and then kills the whole group and every process
  * that carries the run's tag in its environment, until none is left. The tag is a name and a value drawn from the seed
  * and the tag of the frame, set in the environment of run C only and inherited by what it starts: a grandchild that
- * calls setsid and re-parents to init still carries it. What this does not stop: a grandchild that both leaves the
- * session and clears its environment (docs/validators.md section 12.9).
+ * calls setsid and re-parents to init still carries it. Where Linux gives an unprivileged user a PID namespace
+ * (`unshare --user --pid --fork --kill-child`), run C is also started as the first process of one: when it ends the
+ * kernel kills every process in the namespace, whatever its session or environment. What neither stops: on a system
+ * with no namespaces, a grandchild that leaves the session, clears its environment and outlives the frame
+ * (docs/validators.md section 12.9).
  */
 const LAUNCHER = String.raw`
 const { spawn, execFileSync } = require('node:child_process');
 const fs = require('node:fs');
-const [name, value, ...command] = process.argv.slice(1);
+const [name, value, mode, ...asked] = process.argv.slice(1);
+const command = mode === 'ns' ? ['unshare', '--user', '--map-user=' + process.getuid(), '--map-group=' + process.getgid(), '--pid', '--fork', '--kill-child', '--', ...asked] : asked;
 const mark = Buffer.from(name + '=' + value + '\0');
 function tagged() {
   const found = [];
@@ -58,6 +62,37 @@ child.on('error', () => finish(127));
 child.on('exit', (code, signal) => finish(code === null ? (signal ? 1 : 0) : code));
 `;
 
+let namespaces: boolean | undefined;
+
+/**
+ * Whether run C can be started in a PID namespace of its own: Linux, `unshare` present, and an unprivileged user
+ * namespace allowed. DRIFTBENCH_FRAME_NO_NAMESPACE=1 turns it off (the tests that pin the fallback).
+ */
+export function namespaceAvailable(): boolean {
+  if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE === '1') return false;
+  if (namespaces !== undefined) return namespaces;
+  if (process.platform !== 'linux' || process.getuid === undefined || process.getgid === undefined) {
+    namespaces = false;
+    return false;
+  }
+  const probe = spawnSync(
+    'unshare',
+    [
+      '--user',
+      `--map-user=${process.getuid()}`,
+      `--map-group=${process.getgid()}`,
+      '--pid',
+      '--fork',
+      '--kill-child',
+      '--',
+      'true',
+    ],
+    { stdio: 'ignore' },
+  );
+  namespaces = probe.status === 0;
+  return namespaces;
+}
+
 /** The name and value that tag what one run C starts, drawn from the seed and the tag. */
 export function runTag(seed: number, tag: string): { name: string; value: string } {
   const rng = rngOf(seed, `group:${tag}`);
@@ -80,5 +115,9 @@ export function spawnGrouped(
   tag: { name: string; value: string },
   options: SpawnSyncOptions & { encoding: 'utf8' },
 ): SpawnSyncReturns<string> {
-  return spawnSync(process.execPath, ['-e', LAUNCHER, tag.name, tag.value, command, ...args], options);
+  return spawnSync(
+    process.execPath,
+    ['-e', LAUNCHER, tag.name, tag.value, namespaceAvailable() ? 'ns' : 'none', command, ...args],
+    options,
+  );
 }

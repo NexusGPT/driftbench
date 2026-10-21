@@ -217,6 +217,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     inputs,
     tree,
     influences,
+    workspace,
   } = sealOnce(
     module,
     sealFolder,
@@ -229,7 +230,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
   const watch = new TreeWatch(
-    [tree, ...(options.sources ?? []), ...inputs, ...(options.reads ?? []), ...influences.files],
+    [
+      tree,
+      ...(options.sources ?? []),
+      ...workspace,
+      ...inputs,
+      ...(options.reads ?? []),
+      ...influences.files,
+    ],
     influences.packages,
   );
   watch.watchResolution(tree);
@@ -409,10 +417,11 @@ export function isolateCommand(options: CommandOptions): CommandRun {
     inputs,
     tree,
     influences,
+    workspace,
   } = sealOnce(resolve(script), sealFolder, drawnFolder(options.seed, `bundle:${tag}:command`));
   const mark = markPath(projectCache(), tree);
   checkMark(mark, tree);
-  const watch = new TreeWatch([tree, ...inputs, ...influences.files], influences.packages);
+  const watch = new TreeWatch([tree, ...workspace, ...inputs, ...influences.files], influences.packages);
   watch.watchResolution(tree);
   for (const folder of influences.packages) watch.watchResolution(folder);
   const plans = twinPlans(options.seed, tag, projectCache()).map((plan) =>
