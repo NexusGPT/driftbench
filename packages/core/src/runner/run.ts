@@ -661,6 +661,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         };
         if (replacement) planned.given = targetBlock.given;
       }
+      // Without parent order the injected block still stands in for its block: the block's own Given goes
+      // under the perturbation's world, as createPerturbingDriver merges it.
+      if (step.kind === 'injected' && !run.parentOrder && perturbation && replacesBlock(perturbation)) {
+        const own = spec.blocks[step.beforeBlock]?.given;
+        if (own) planned.given = own;
+      }
       const recordingId = replacement ? targetBlock?.id : planned.blockId;
       if (run.parentOrder && specIndex !== undefined)
         planned.lastSpecBlock = nextParent === run.parentOrder.length - 1;
