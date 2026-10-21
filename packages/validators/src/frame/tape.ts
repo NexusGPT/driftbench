@@ -1,7 +1,7 @@
 /**
  * The tape of the frame: every call a validator makes on the product, as data (docs/validators.md, "The frame: the
  * product runs apart, the parent decides"). An entry holds the function, its arguments and what the product
- * returned or threw in each of the two runs. Values cross the process boundary as JSON with tags for what JSON
+ * returned or threw in each run. Values cross the process boundary as JSON with tags for what JSON
  * cannot hold (Maps, Sets, errors, non-finite numbers, undefined, bigints), so the parent rebuilds them as data.
  * A function cannot cross: an argument that holds one is refused before the call.
  */
@@ -22,6 +22,8 @@ export type Entry = {
   twin?: Outcome;
   /** Run C: the same call made by a plain entry file in a fresh process, as a user's script makes it. */
   plain?: Outcome;
+  /** Run D: the same call made through a neutral wrapper module, in a process with neutral arguments. */
+  wrapped?: Outcome;
 };
 
 export type Tape = Entry[];

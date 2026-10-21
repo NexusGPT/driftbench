@@ -48,6 +48,7 @@ describe('label sets', () => {
       'prohibition',
       'gate',
       'gate-command',
+      'gate-calls',
       'reference',
       'reply-rule',
       'hazard-compaction',

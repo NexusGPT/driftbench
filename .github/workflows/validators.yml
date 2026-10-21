@@ -25,11 +25,12 @@ on:
 permissions:
   contents: read
 
-# Pull requests share one group per ref and a non-train PR cancels its older run. A push to main and a
-# dispatch each get a group of their own, so no run on main ever cancels or replaces another.
+# Pull requests share one group per ref and a newer push cancels the older run of that PR, train PRs included: only
+# the latest head of a train can merge. The release PR is never cancelled. A push to main and a dispatch each get a
+# group of their own, so no run on main ever cancels or replaces another.
 concurrency:
   group: validators-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') }}
 
 # Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
 # `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
@@ -437,7 +438,7 @@ jobs:
           echo "Every job this one waits for succeeded (results: $RESULTS)."
 
   system-leg:
-    # Every level of the system ladder on one seed, in three slices: levels 1 to 9, level 10 and level 11.
+    # Every level of the system ladder on one seed, in five slices: levels 1 to 6, level 7, levels 8 to 9, level 10 and level 11.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -446,10 +447,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - id: system-s1-1-9
-            name: system seed 1 levels 1 to 9
+          - id: system-s1-1-6
+            name: system seed 1 levels 1 to 6
             component: system
-            flags: --seed 1 --levels 1..9
+            flags: --seed 1 --levels 1..6
+          - id: system-s1-7-7
+            name: system seed 1 level 7
+            component: system
+            flags: --seed 1 --levels 7..7
+          - id: system-s1-8-9
+            name: system seed 1 levels 8 to 9
+            component: system
+            flags: --seed 1 --levels 8..9
           - id: system-s1-10-10
             name: system seed 1 levels 10 to 10
             component: system
@@ -458,10 +467,18 @@ jobs:
             name: system seed 1 levels 11 to 11
             component: system
             flags: --seed 1 --levels 11..11
-          - id: system-s2-1-9
-            name: system seed 2 levels 1 to 9
+          - id: system-s2-1-6
+            name: system seed 2 levels 1 to 6
             component: system
-            flags: --seed 2 --levels 1..9
+            flags: --seed 2 --levels 1..6
+          - id: system-s2-7-7
+            name: system seed 2 level 7
+            component: system
+            flags: --seed 2 --levels 7..7
+          - id: system-s2-8-9
+            name: system seed 2 levels 8 to 9
+            component: system
+            flags: --seed 2 --levels 8..9
           - id: system-s2-10-10
             name: system seed 2 levels 10 to 10
             component: system
@@ -470,10 +487,18 @@ jobs:
             name: system seed 2 levels 11 to 11
             component: system
             flags: --seed 2 --levels 11..11
-          - id: system-s3-1-9
-            name: system seed 3 levels 1 to 9
+          - id: system-s3-1-6
+            name: system seed 3 levels 1 to 6
             component: system
-            flags: --seed 3 --levels 1..9
+            flags: --seed 3 --levels 1..6
+          - id: system-s3-7-7
+            name: system seed 3 level 7
+            component: system
+            flags: --seed 3 --levels 7..7
+          - id: system-s3-8-9
+            name: system seed 3 levels 8 to 9
+            component: system
+            flags: --seed 3 --levels 8..9
           - id: system-s3-10-10
             name: system seed 3 levels 10 to 10
             component: system
@@ -482,10 +507,18 @@ jobs:
             name: system seed 3 levels 11 to 11
             component: system
             flags: --seed 3 --levels 11..11
-          - id: system-hidden-1-9
-            name: system seed hidden levels 1 to 9
+          - id: system-hidden-1-6
+            name: system seed hidden levels 1 to 6
             component: system
-            flags: --hidden --hidden-only --levels 1..9
+            flags: --hidden --hidden-only --levels 1..6
+          - id: system-hidden-7-7
+            name: system seed hidden level 7
+            component: system
+            flags: --hidden --hidden-only --levels 7..7
+          - id: system-hidden-8-9
+            name: system seed hidden levels 8 to 9
+            component: system
+            flags: --hidden --hidden-only --levels 8..9
           - id: system-hidden-10-10
             name: system seed hidden levels 10 to 10
             component: system
@@ -697,6 +730,115 @@ jobs:
         with:
           name: variables-spans-${{ strategy.job-index }}
           path: variables-spans.jsonl
+
+  generator-measure:
+    # The generator bank on chosen seeds, in shards, for the independent audit (docs/validators.md section 12.7 and
+    # 8.1). A dispatch on a train/* branch names the job in `jobs`: `generator-measure` runs seeds 1 to 3 and the
+    # hidden seed in 3 shards, `generator-measure-one` runs seed 1 in 1 shard (a planted-bug or cheat check) and
+    # `generator-measure-full` runs seeds 1 to 20 and the hidden seed in 10 shards (a gate measurement only). Each
+    # shard uploads the report `driftbench validate generator --items --all-levels --json` prints. The exit code is the
+    # level reached, so the step records it and never fails the job on it. The job never runs on a push or a pull
+    # request.
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && (contains(format(',{0},', inputs.jobs), ',generator-measure,') || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') || contains(format(',{0},', inputs.jobs), ',generator-measure-full,'))
+    name: generator bank seeds ${{ matrix.seeds }}${{ matrix.hidden && ' and hidden' || '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(contains(format(',{0},', inputs.jobs), ',generator-measure-full,') && '[{"seeds":"1..2","hidden":true},{"seeds":"3..4","hidden":false},{"seeds":"5..6","hidden":false},{"seeds":"7..8","hidden":false},{"seeds":"9..10","hidden":false},{"seeds":"11..12","hidden":false},{"seeds":"13..14","hidden":false},{"seeds":"15..16","hidden":false},{"seeds":"17..18","hidden":false},{"seeds":"19..20","hidden":false}]' || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') && '[{"seeds":"1..1","hidden":false}]' || '[{"seeds":"1..1","hidden":false},{"seeds":"2..2","hidden":false},{"seeds":"3..3","hidden":true}]') }}
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Measure the shard
+        shell: bash
+        env:
+          SEEDS: ${{ matrix.seeds }}
+          HIDDEN: ${{ matrix.hidden && '--hidden' || '' }}
+        run: |
+          status=0
+          pnpm -s driftbench validate generator --seeds "$SEEDS" $HIDDEN --items --all-levels --json > generator-items-${{ strategy.job-index }}.json || status=$?
+          echo "level (exit code) $status"
+          test "$status" -lt 64
+          test -s generator-items-${{ strategy.job-index }}.json
+          node -e 'const r = JSON.parse(require("node:fs").readFileSync("generator-items-${{ strategy.job-index }}.json", "utf8")); console.log("bank", r.bank.passing, "of", r.bank.size, "head", process.env.GITHUB_SHA)'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generator-items-${{ contains(format(',{0},', inputs.jobs), ',generator-measure-full,') && 'full' || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') && 'one' || 'standard' }}-${{ strategy.job-index }}
+          path: generator-items-${{ strategy.job-index }}.json
+
+  generator-measure-row:
+    # Join all seed shards before counting passEverySeed, then write a schema-validated iteration-0 row.
+    needs: generator-measure
+    if: needs.generator-measure.result == 'success'
+    name: generator measurement journal row
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: generator-items-*
+          path: generator-reports
+          merge-multiple: true
+      - name: Join the reports and record iteration 0
+        shell: bash
+        env:
+          JOBS: ${{ inputs.jobs }}
+        run: |
+          seeds=1..3
+          hidden=--hidden
+          if [[ ",$JOBS," == *,generator-measure-full,* ]]; then
+            seeds=1..20
+          elif [[ ",$JOBS," == *,generator-measure-one,* ]]; then
+            seeds=1..1
+            hidden=
+          fi
+          mkdir -p generator-measurement
+          status=0
+          pnpm -s driftbench validate generator --reports generator-reports --seeds "$seeds" $hidden --items --all-levels --json > generator-measurement/generator-items.json || status=$?
+          test "$status" -lt 64
+          pnpm -s exec tsx validators/generator/baseline.ts --report generator-measurement/generator-items.json --executor builder --model 'GitHub Actions (deterministic measurement)' --commit "$GITHUB_SHA" --journal-root "$GITHUB_WORKSPACE/generator-measurement" > generator-measurement/row.json
+      - name: Record the pending hardness gate
+        shell: bash
+        run: |
+          cp validators/generator/audit.md validators/generator/GATE.md generator-measurement/validators/generator/
+          touch generator-measurement/pnpm-workspace.yaml
+          status=0
+          cd "$GITHUB_WORKSPACE/generator-measurement" && node --import tsx "$GITHUB_WORKSPACE/packages/cli/src/bin.ts" validate generator --hardness --json > hardness.json || status=$?
+          # A baseline is not a pilot; all four independent audits are pending. A usage error is not proof.
+          test "$status" -eq 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generator-measurement-${{ contains(format(',{0},', inputs.jobs), ',generator-measure-full,') && 'full' || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') && 'one' || 'standard' }}
+          path: generator-measurement
 
   protect:
     name: executor branches leave the validators alone

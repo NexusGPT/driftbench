@@ -1,0 +1,8 @@
+{
+  "dataset": "LongJudgeBench writing preference",
+  "source": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/wp_bench.jsonl",
+  "oldProgramCommit": "a96d10f108a432828464fe4f50214ef44ce6c645",
+  "responses": "First five original-correct/gated-incorrect cases, using the completed final-gate/writing-noise/final-3 recorded pair-ledger responses. Both programs replay the same response tape; no provider calls.",
+  "oldCaptureRun": 39584023270,
+  "method": "SHA-256 of JSON.stringify of each exact DialectCompletionRequest, then of the complete request array. Includes system, user, schema, reasoning, token and budget fields. Old factory source differs only in import paths for the isolated harness."
+}

@@ -1,0 +1,12 @@
+# A fictional operations lead at Northwind Traders who wants the weekly report. Plays the weekly-report spec.
+id: marta-lindqvist
+name: Marta Lindqvist
+persona: >
+  An operations lead in her forties. Writes in full, friendly sentences, thanks the assistant, and checks for
+  loose ends before she closes.
+goal: >
+  Receive the weekly report for week 43 and learn what is still open.
+facts: {}
+reveal_when_asked: {}
+stop_token: '###STOP###'
+spec: ../specs/weekly-report.yaml
