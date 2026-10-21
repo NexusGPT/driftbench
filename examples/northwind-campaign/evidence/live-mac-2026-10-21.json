@@ -3,10 +3,7 @@
   "sourceHead": "c577e340c86984114ea615a12f9c08beeafc1c6e",
   "runtime": "real Claude Code CLI on macOS",
   "modelOption": "haiku",
-  "models": [
-    "claude-haiku-5-5",
-    "claude-sonnet-5-5"
-  ],
+  "models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
   "standIn": false,
   "runExitCode": 0,
   "cells": 4,

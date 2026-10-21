@@ -92,12 +92,19 @@ describe('the report fix list', () => {
     // Three local homes of the same rule cause a core promotion with nonempty superseded copies.
     const promoted = Array.from({ length: 6 }, (_, index) => ({
       runId: `fictional-promoted-${index}`,
-      blocks: [{ index: 0, diagnoses: [{
-        ...localRule,
-        fixTarget: `skill:promoted-${Math.floor(index / 2)}#rule`,
-        placement: `${localRule.placement.split('#')[0]}#skill_local`,
-        evidence: { ...localRule.evidence, home: `promoted-${Math.floor(index / 2)}` },
-      }] }],
+      blocks: [
+        {
+          index: 0,
+          diagnoses: [
+            {
+              ...localRule,
+              fixTarget: `skill:promoted-${Math.floor(index / 2)}#rule`,
+              placement: `${localRule.placement.split('#')[0]}#skill_local`,
+              evidence: { ...localRule.evidence, home: `promoted-${Math.floor(index / 2)}` },
+            },
+          ],
+        },
+      ],
     }));
     const many = { runs: [...runs, ...extra, ...promoted] } as unknown as typeof data;
     const written = many.runs.flatMap((run) =>
