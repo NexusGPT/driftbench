@@ -9,6 +9,10 @@ Exits 0 when every line matches, 1 when a line differs, 2 on a usage error or a 
 """
 import csv
 import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from uuid import uuid4
 import sys
 from decimal import Decimal
 
@@ -60,5 +64,18 @@ def main(argv):
     return 1 if differs else 0
 
 
+def log_execution():
+    configured = os.environ.get("NORTHWIND_RECONCILE_LOG")
+    if not configured:
+        return
+    path = Path(configured)
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[4] / path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"id": uuid4().hex, "at": datetime.now(timezone.utc).isoformat()}) + "\n")
+
+
 if __name__ == "__main__":
+    log_execution()
     sys.exit(main(sys.argv))
