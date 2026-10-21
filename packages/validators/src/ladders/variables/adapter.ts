@@ -270,8 +270,12 @@ function coverage(
 }
 
 let cassette: Map<string, SpanLabel> | undefined;
+
+/** A span with each run of white space folded to one space: the key of its label, so one clause has one label. */
+const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
 /**
- * The labels a reader wrote for condition spans, by exact span text: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
+ * The labels a reader wrote for condition spans, by span text with its white space folded: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
  * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
  * variable. This code reads the file and calls no model.
  */
@@ -283,7 +287,7 @@ function labels(): Map<string, SpanLabel> {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
       if (line.trim() === '') continue;
       const row = JSON.parse(line) as { text: string; label: SpanLabel };
-      map.set(row.text, row.label);
+      map.set(foldSpan(row.text), row.label);
     }
   }
   cassette = map;
@@ -299,7 +303,7 @@ function recordSpans(sources: Sources): void {
   if (!out) return;
   for (const rule of sources.estate?.rules ?? []) {
     for (const condition of rule.conditions)
-      appendFileSync(out, `${JSON.stringify({ text: condition.text })}\n`);
+      appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);
   }
 }
 
@@ -314,7 +318,7 @@ function buildStore(sources: Sources): StoreDoc {
           rules: sources.estate.rules.map((rule) => ({
             ...rule,
             conditions: rule.conditions.map((condition) => {
-              const label = known.get(condition.text);
+              const label = known.get(foldSpan(condition.text));
               return label === undefined ? condition : { ...condition, label };
             }),
           })),
