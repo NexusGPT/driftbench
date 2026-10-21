@@ -128,6 +128,22 @@ describe('a replay item fails only for the cause it names', () => {
   }, 600_000);
 });
 
+describe('the replay items that read the readable fields of a hit name one cause', () => {
+  it('an item a reader fails by accepting a stale field names the cassette field check', async () => {
+    const wrong: string[] = [];
+    let stale = 0;
+    for (const x of bank.filter((i) => i.family === 'replay')) {
+      const out = await run(x.id, acceptsStale());
+      if (out.pass || !/a one-field stale cassette was accepted/.test(out.detail)) continue;
+      stale += 1;
+      if (x.cause !== 'cassette:miss-names-field') wrong.push(`${x.id} (${x.cause})`);
+    }
+    expect(wrong).toEqual([]);
+    // Twelve fixture items, the tampered cut digest and the cut digest mismatch.
+    expect(stale).toBe(14);
+  }, 600_000);
+});
+
 describe('the Jev replay setting is reached offline', () => {
   it('labels.jev-threshold-is-a-replay-setting: the reference passes, a reader that ignores the threshold fails', async () => {
     const id = 'labels.jev-threshold-is-a-replay-setting';

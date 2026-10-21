@@ -96,7 +96,7 @@ export const replay: FamilySpec = {
       'A tampered cut digest is named',
       "Change only one committed entry's readable cutDigest; leave its key and answer unchanged.",
       'The unchanged fixture passes every authored label; the modified fixture fails offline and names cutDigest.',
-      'cassette:miss-names-cut-digest',
+      'cassette:miss-names-field',
     ),
     row(
       'miss-names-labeler',
@@ -128,7 +128,7 @@ export const replay: FamilySpec = {
       'A cut digest mismatch names the Node and ICU versions',
       "Change only one committed entry's readable cutDigest.",
       'The unchanged fixture passes; the miss names cutDigest, Node and ICU versions.',
-      'cassette:cut-digest-error-versions',
+      'cassette:miss-names-field',
     ),
     row(
       'key-is-sha256-hex',
@@ -321,7 +321,7 @@ export const replay: FamilySpec = {
       'A one-field stale labeler is refused after a complete haiku replay',
       "Replay the committed haiku fixture; change exactly one entry's readable labeler, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names labeler.',
-      'cassette:miss-names-labeler',
+      'cassette:miss-names-field',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(
@@ -339,7 +339,7 @@ export const replay: FamilySpec = {
       'A one-field stale part.questions is refused after a complete jev-unit replay',
       "Replay the committed jev-unit fixture; change exactly one entry's readable part.questions, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.questions.',
-      'jev-unit:request-matches-the-committed-cassette',
+      'cassette:miss-names-field',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(
@@ -348,7 +348,7 @@ export const replay: FamilySpec = {
       'A one-field stale cutDigest is refused after a complete haiku replay',
       "Replay the committed haiku fixture; change exactly one entry's readable cutDigest, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names cutDigest. The error includes Node and ICU versions.',
-      'cassette:cut-digest-error-versions',
+      'cassette:miss-names-field',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(

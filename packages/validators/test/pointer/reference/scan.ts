@@ -463,8 +463,9 @@ async function labelWindow(
       let result: Awaited<ReturnType<typeof askModel>>;
       try {
         result = await askModel(plan, set, model);
-      } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
+      } catch {
+        // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
+        return { abort: `the model call failed for ${plan.id}` };
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {

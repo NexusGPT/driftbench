@@ -384,8 +384,9 @@ export const labelsRuns: Record<string, Run> = {
       const fake = fakeTransport();
       const res = must(await modelScan(ctx, docOf(texts), 'haiku', fake, { labelsYaml }));
       requireSourceWitness(res, docOf(texts));
-      if (fake.calls.length !== 1 || fake.calls[0]?.set !== name)
-        return fail('positive witness: expected one request for the declared set');
+      // One dense request for the declared set, asked in each independent run of the system 2 labeler.
+      if (fake.calls.length !== RUNS.haiku || fake.calls.some((call) => call.set !== name))
+        return fail('positive witness: expected one request for the declared set in each run');
       let signature = bodyText(fake.calls[0] as NonNullable<(typeof fake.calls)[0]>);
       for (const [index, field] of fields.entries())
         signature = signature.split(field).join(`<set-field-${index}>`);
