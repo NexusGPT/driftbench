@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { emptyRecording, feedFromConditions, recordConditions } from '../../../packages/generate/src';
+import { isRecord } from '../../../packages/generate/src/model/http';
 import { loadStore } from './lib';
 import { round2Options, round2Systems } from './round2';
 import { hash, liveRound2 } from './round2-live';
@@ -40,6 +41,16 @@ const localHead = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encod
 const response = await fetch('https://api.github.com/repos/NexusGPT/driftbench/pulls/' + prNumber);
 if (!response.ok) throw new Error('cannot obtain independent pre-registration timestamp');
 const registration = await response.json();
+if (
+  !isRecord(registration) ||
+  !isRecord(registration.head) ||
+  typeof registration.head.sha !== 'string' ||
+  typeof registration.body !== 'string' ||
+  typeof registration.html_url !== 'string' ||
+  typeof registration.updated_at !== 'string'
+) {
+  throw new Error('invalid GitHub pre-registration response');
+}
 if (
   registration.head.sha !== localHead ||
   !registration.body.includes(freeze.clausesHash) ||

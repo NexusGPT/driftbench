@@ -15,7 +15,5 @@
     "tools/browser/**/*.ts",
     "vitest.config.ts"
   ],
-  "exclude": [
-    "examples/judge-benchmarks"
-  ]
+  "exclude": ["examples/judge-benchmarks"]
 }

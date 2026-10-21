@@ -3,6 +3,7 @@ import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { createAnthropicPort } from '../../../packages/generate/src';
+import { isRecord } from '../../../packages/generate/src/model/http';
 import { createJevJudge } from '../../../packages/judges/src';
 import { ROUND2_MODELS } from './round2';
 
@@ -40,18 +41,24 @@ export function liveRound2(budgetFile: string, receiptFile: string, run: string)
         const expected = family === 'jev' ? ROUND2_MODELS.reader : ROUND2_MODELS.proposer;
         if (request.model !== expected) throw new Error('unexpected model');
         const response = await fetch(url, init);
-        const payload = await response.clone().json();
-        const usage = payload.usage;
+        const raw = await response.clone().json();
+        if (!isRecord(raw)) throw new Error('provider response is not an object');
+        const payload = raw;
+        const usage = isRecord(payload.usage) ? payload.usage : undefined;
         if (
           response.ok &&
           (!usage || typeof usage.input_tokens !== 'number' || typeof usage.output_tokens !== 'number')
         ) {
           throw new Error('successful response lacks token usage');
         }
-        const input = usage?.input_tokens ?? 0;
-        const output = usage?.output_tokens ?? 0;
-        const creation = usage?.cache_creation_input_tokens ?? 0;
-        const cached = usage?.cache_read_input_tokens ?? 0;
+        const tokenCount = (field: string) => {
+          const value = usage?.[field];
+          return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+        };
+        const input = tokenCount('input_tokens');
+        const output = tokenCount('output_tokens');
+        const creation = tokenCount('cache_creation_input_tokens');
+        const cached = tokenCount('cache_read_input_tokens');
         const costUsd =
           family === 'jev'
             ? (input * 0.042) / 1e6

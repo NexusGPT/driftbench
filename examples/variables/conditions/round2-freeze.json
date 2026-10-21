@@ -2,7 +2,7 @@
   "clausesHash": "31cd72c488a376ddb4547c424cce0bbb89e73a78aaa5de296c33681cacd54a93",
   "answersHash": "0f6143ad620e64c4caa1515255dc9d8ea8de5fabc386a14fdf1c50a8a10c3585",
   "readerHash": "5fc4d9716fcba05675bf978911a5733166a9f10629768f85654143ae9ed3c851",
-  "pipelineHash": "24f919e17a18da1aa90ba7f6e7ab981664300753ac7c88ac423d5a1d1bf2d675",
+  "pipelineHash": "65c5137131466f53f3c450fa9f352182ad70a970d27916c45b9c09782249c41d",
   "models": {
     "reader": "jev-1.13.0",
     "proposer": "claude-sonnet-5-5",
@@ -13,8 +13,8 @@
   "files": {
     "examples/variables/conditions/lib.ts": "647bd4eebdfa89a765a29f6d04cf0ad7c32106d932b1331db254db6e9991b8ff",
     "examples/variables/conditions/primary-score.ts": "9ca10672578542b393169cef8479d1979ed2d028be5d8c50a5c010ae75d9c8d2",
-    "examples/variables/conditions/record-frozen3.ts": "da57f19d8a42370d682532b5694cdd66cff4f75dcb7a69e40b6396e2e4b7a81e",
-    "examples/variables/conditions/round2-live.ts": "e4c0cc8f7e2f614e8a2d34bc6f23b67e7f8d71d3a7eff976c80f07d42a576764",
+    "examples/variables/conditions/record-frozen3.ts": "1957b89e6b1f5351363bd7aa3e89cfd6ff570861045176eea6afac9562b78c1d",
+    "examples/variables/conditions/round2-live.ts": "5b0fed101319bb8c7b98f1bff5cee690f8f4ec5e807b03feb0c8ecc1c730da85",
     "examples/variables/conditions/round2.ts": "da8aa3748af9ca2d5db7a88a7e3852fb9ddaf33de739d641902fe76afc5c8cc4",
     "examples/variables/conditions/score-frozen.ts": "a8d435748386932fb5935e7da5f075e8b02e5eff6546e82a57c2201b79236ba4",
     "examples/variables/conditions/secondary-score.ts": "2306ea56611fcc360773b547af7eed19b25f705ff86ffdf6ed8138f316a3ed7e",
