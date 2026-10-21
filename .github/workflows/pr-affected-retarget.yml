@@ -89,12 +89,10 @@ jobs:
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
         run: |
-          bad=0
-          for result in ${RESULTS//,/ }; do
-            if [[ "$result" != success ]]; then bad=1; fi
-          done
-          if [[ "$bad" -eq 1 ]]; then
-            echo "::error::A slice of the affected tests did not succeed (results: $RESULTS)."
+          # The slices are one matrix job: GitHub hands this job one aggregate for all of them, and only `success` is
+          # green. A failed, cancelled or skipped slice, an empty value and any other value are red.
+          if [[ "$RESULTS" != success ]]; then
+            echo "::error::The affected tests did not all succeed (result of the slices: '$RESULTS')."
             exit 1
           fi
-          echo "Every slice succeeded (results: $RESULTS)."
+          echo "Every slice succeeded."
