@@ -88,7 +88,7 @@ async function run(command: string, cwd: string): Promise<{ code: number; lines:
 /** Runs one shown shell command (grep, sed, cp, mkdir) in `cwd`. */
 async function shell(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
   try {
-    const done = await exec('/bin/sh', ['-c', command], { cwd });
+    const done = await exec('/bin/sh', ['-c', command], { cwd, timeout: 30_000 });
     return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
   } catch (error) {
     const failed = error as { code?: number; stdout?: string; stderr?: string };
@@ -206,6 +206,7 @@ describe('README commands that print what they show', () => {
             continue;
           }
           const started = Date.now();
+          console.log(`WALKSTART ${step.command}`);
           const got = await execute(step.command, cwd);
           console.log(
             `WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).join('\n')}\nWALKEND`,
