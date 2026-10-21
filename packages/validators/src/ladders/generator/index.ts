@@ -1,5 +1,5 @@
 import { bankMeasure, defineLadder, type Ladder, type Measure } from '../../ladder';
-import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdict } from './bank';
+import { BANK_LEVELS, type BankItem, bankItems, causeOf, SeedData, type Tier, type Verdict } from './bank';
 import type { GeneratorParts } from './measure';
 import { type ScaleReport, scaleReport } from './scale';
 
@@ -113,6 +113,7 @@ function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measur
       tier: item.tier,
       pass: verdict.pass,
       detail: verdict.detail,
+      cause: causeOf(item, verdict),
     })),
     'generator',
   );
