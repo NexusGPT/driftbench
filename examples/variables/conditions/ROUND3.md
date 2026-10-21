@@ -132,3 +132,9 @@ frozen4 remains unopened.
 The live DEV run returned 3,255 responses between 12:35:01 and 12:41:56 UTC,
 costing USD 0.418084226. Total lane spend before frozen4 is
 USD 4.594155270 / USD 13, including every earlier round and exploratory pilot.
+
+GitHub run 39601819048 passed typecheck and 43 targeted tests in eight files,
+including DEV replay, all class regressions, quote provenance, the guard
+contracts and historical recordings. It proved semantic equality of DEV JSON
+before/after Biome and all 42 source/configuration hashes. Only the selected
+DEV JSON and manifest document formatting changed; the reader bytes did not.
