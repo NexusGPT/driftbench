@@ -71,10 +71,10 @@ jobs:
           pnpm driftbench campaign run --config "$CONFIG" --campaign "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" 2>&1 | tee "$OUT/rehearsal-run.txt"
           code=${PIPESTATUS[0]}
           echo "campaign run exit code: $code" | tee -a "$OUT/rehearsal-run.txt"
-          # 0 pass, 1 a cell failed, 3 a cell was not run: all are results. 2 is bad input.
-          if [ "$code" = "2" ]; then exit 2; fi
-          exit 0
+          # Every non-zero result fails the rehearsal, including failed or unrun cells.
+          exit "$code"
       - name: Report and status
+        if: always()
         run: |
           pnpm driftbench campaign status "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" --detail 2>&1 | tee "$OUT/rehearsal-status.txt"
           pnpm -s driftbench report "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" --out "$OUT/rehearsal-scorecard.html" --json > "$OUT/rehearsal-report.json"
@@ -124,6 +124,7 @@ jobs:
           if [ "$code" = "2" ]; then exit 2; fi
           exit 0
       - name: Report and status
+        if: always()
         if: always()
         run: |
           pnpm driftbench campaign status "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --detail 2>&1 | tee "$OUT/status.txt"
