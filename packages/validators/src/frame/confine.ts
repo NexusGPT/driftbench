@@ -491,6 +491,7 @@ export function sealOnce(
           [
             record.tree,
             ...(grants.sources ?? []),
+            ...record.workspace,
             ...record.inputs,
             ...(grants.reads ?? []),
             ...record.influences.files,
