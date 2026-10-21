@@ -42,6 +42,8 @@ export class TerminalSubsumption {
   private readonly blocks = new Map<string, ReducedEnds['duplicates'][number]['duplicate_of']>();
   /** The user messages the written specs say: a cut never removes the only place an approved phrase is said. */
   private readonly said = new Set<string>();
+  /** The openings of the written walks: the hash of the first j block keys, by the spec that wrote them. */
+  private readonly openings = new Map<string, string>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
@@ -164,6 +166,9 @@ export class TerminalSubsumption {
     // A metamorphic family keeps its variants aligned block by block: its members are never cut from the middle.
     if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
       spec = this.dropMiddle(draft, spec);
+      const whole = spec;
+      spec = this.dropOpening(draft, spec);
+      this.registerOpenings(whole);
       // The record of the cut end names the length the walk is written with, middle cuts included.
       if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
     }
@@ -215,6 +220,62 @@ export class TerminalSubsumption {
       spec = parsed.spec;
     }
     return spec;
+  }
+
+  /** The hash of the first j block keys of a spec, for j from 1 to its length, in order. */
+  private openingHashes(spec: Spec): string[] {
+    let hash = '';
+    return spec.blocks.map((_, index) => {
+      hash = contentHash([hash, this.key(spec, index)]);
+      return hash;
+    });
+  }
+
+  private registerOpenings(spec: Spec): void {
+    for (const hash of this.openingHashes(spec)) if (!this.openings.has(hash)) this.openings.set(hash, spec.id);
+  }
+
+  /**
+   * The opening of a walk that an earlier written spec already says block for block is not replayed: the walk
+   * starts after it, from the Given the opening leaves (its history as a prefix, its facts, its world), so no
+   * stage move is skipped. Every check of a cut holds, and a perturbation declared inside the opening keeps it.
+   */
+  private dropOpening(draft: SpecDraft, spec: Spec): Spec {
+    const hashes = this.openingHashes(spec);
+    let length = 0;
+    for (let at = 0; at < hashes.length - 1; at += 1) if (this.openings.has(hashes[at] as string)) length = at + 1;
+    if (length === 0) return spec;
+    if (spec.perturbations?.some((entry) => entry.inject_at < length)) return spec;
+    if (!spec.blocks.slice(0, length).every((block) => this.phrasesHold(block))) return spec;
+    const start = canonicalGiven(spec, length);
+    const state = start.state;
+    const given = {
+      prefix: start.prefix,
+      origin: 'canonical' as const,
+      ...(Object.keys(state.ledger ?? {}).length > 0 ? { ledger: state.ledger } : {}),
+      ...(Object.keys(state.world ?? {}).length > 0 ? { world: state.world } : {}),
+      ...(Object.keys(state.vars ?? {}).length > 0 ? { vars: state.vars } : {}),
+    };
+    const rest = draft.blocks.slice(length);
+    const first = rest[0];
+    if (!first) return spec;
+    const candidate = {
+      ...draft,
+      blocks: [{ ...first, given }, ...rest.slice(1)],
+      perturbations: draft.perturbations?.map((entry) => ({ ...entry, inject_at: entry.inject_at - length })),
+    };
+    const rendered = renderDraft(this.prepared, candidate, this.run);
+    if (rendered.placeholders.length || rendered.noThen.length || rendered.reasons.length) return spec;
+    const parsed = validateSpec(rendered.spec);
+    if (!parsed.ok || !this.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) return spec;
+    if (!this.tuplesHold(spec, parsed.spec)) return spec;
+    draft.blocks = candidate.blocks;
+    draft.perturbations = candidate.perturbations;
+    draft.reducedOpening = {
+      blocks: length,
+      of: this.openings.get(hashes[length - 1] as string) as string,
+    };
+    return parsed.spec;
   }
 
   /** The messages a block says: its user turn, or the turns of a burst. */

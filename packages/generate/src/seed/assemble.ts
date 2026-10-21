@@ -3,6 +3,7 @@ import type {
   EndStateSpec,
   Expect,
   GuardExpect,
+  GivenOverride,
   PerturbationSpec,
   Rules,
   ToolExpect,
@@ -55,7 +56,7 @@ export type BlockDraft = {
   saidAt?: string;
   /** Values the block itself carries (the stimulus value, an injected class), as picks. */
   carries: Pick[];
-  given?: { world?: WorldState };
+  given?: GivenOverride;
   tools?: ToolExpect[];
   guards?: GuardExpect[];
   must?: string[];
@@ -88,6 +89,8 @@ export type SpecDraft = {
   blocks: BlockDraft[];
   reducedEnds?: ReducedEnds;
   /** Blocks cut from the middle of the walk: a stay another written spec already says. */
+  /** Blocks the walk starts after: its opening is an earlier written spec's, carried as a prefix. */
+  reducedOpening?: { blocks: number; of: string };
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */
@@ -436,6 +439,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
   if (draft.metamorphic) generated.metamorphic = draft.metamorphic;
   if (draft.reducedEnds) generated.reduced_ends = draft.reducedEnds;
   if (draft.reducedMiddle) generated.reduced_middle = draft.reducedMiddle;
+  if (draft.reducedOpening) generated.reduced_opening = draft.reducedOpening;
   if (placeholders.length > 0) generated.needs_phrase = placeholders;
   if (noThen.length > 0) generated.needs_then = noThen;
   if (reasons.length > 0) generated.needs_then_why = reasons;
