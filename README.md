@@ -519,7 +519,7 @@ Each child starts from its parent's recorded end state: the conversation, the `c
 
 </details>
 
-**Share an opening between specs.** Block 0 of a spec may name a block of another spec, `parent: <spec id>#<block id>`. The child keeps its own header, end state, criteria and perturbations; only its opening comes from the other spec. `driftbench generate` finds the openings that two or more complete specs share and writes each once, as a stem under `specs/stems/`. `--no-stems` writes every spec whole, and `stems-map.csv` maps every block to where it is now. On the approved Acme map, the committed suite has 101 stems: 212 of the 437 complete specs start from one, and 296 blocks are written once instead of once per spec. A stem runs and is scored as a spec of its own. See [stems](docs/generating.md#stems-shared-openings-written-once) and [a parent in another spec](docs/concepts/given-when-then.md#a-parent-in-another-spec).
+**Share an opening between specs.** Block 0 of a spec may name a block of another spec, `parent: <spec id>#<block id>`. The child keeps its own header, end state, criteria and perturbations; only its opening comes from the other spec. `driftbench generate` finds the openings that two or more complete specs share and writes each once, as a stem under `specs/stems/`. `--no-stems` writes every spec whole, and `stems-map.csv` maps every block to where it is now. On the approved Acme map, the committed suite has 101 stems. 212 of its 437 complete specs start from one. 296 blocks are written once, not once per spec. A stem runs and is scored as a spec of its own. See [stems](docs/generating.md#stems-shared-openings-written-once) and [a parent in another spec](docs/concepts/given-when-then.md#a-parent-in-another-spec).
 
 <sub>Parent execution and blocked children ship. Independent flaky failures can still inflate the root count. `driftbench isolation <spec>` checks which children need their parent ([given, when, then](docs/concepts/given-when-then.md#parent-blocks)); it tests conversation history, and finer dependencies on stored facts or tool state remain untested.</sub>
 
@@ -696,7 +696,7 @@ The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-s
 
 </details>
 
-**What you can change, and where.** An object is found in layers, from the weakest to the strongest: shipped, project, suite, spec, block and the command line. A stronger layer wins, item by item. The project layer reads `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml`, and a list of whole objects under the `objects:` key of `driftbench.yaml`. On the command line, `--use <kind>/<id>` picks an object and `--set <kind>[/<id>]#<item>.<param>=<value>` changes one parameter; every `--set` an object receives is applied before its parameters are checked, once.
+**What you can change, and where.** An object is found in layers, from the weakest to the strongest: shipped, project, suite, spec, block and the command line. A stronger layer wins, item by item. The project layer reads `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml`. It also reads a list of whole objects under the `objects:` key of `driftbench.yaml`. On the command line, `--use <kind>/<id>` picks an object. `--set <kind>[/<id>]#<item>.<param>=<value>` changes one parameter. Every `--set` an object receives is applied once, before its parameters are checked.
 
 | Command | What it does |
 |---|---|
@@ -709,7 +709,7 @@ The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-s
 | `driftbench object migrate persona` | Split an old persona file into persona, scenario and situational objects |
 | `driftbench campaign rejudge --use <kind>/<id>` | Score stored runs again under an object, with no agent call |
 
-Limits: a verdict names its object, item, implementation and layer in its `by` field, and the block lists the objects that scored it in `resolved`. A check never adds up its own verdicts: the share of expected tool arguments that matched is the shipped diagnostic `argument-accuracy`, not a verdict. A change to what the agent receives (a persona, a run profile) is refused for a re-score: rerun the agent.
+Limits: a verdict names its object, item, implementation and layer in its `by` field. The block lists the objects that scored it in `resolved`. A check never adds up its own verdicts: the share of expected tool arguments that matched is the shipped diagnostic `argument-accuracy`, not a verdict. A change to what the agent receives (a persona, a run profile) is refused for a re-score: rerun the agent.
 
 ### Blast radius: rerun only what a change touches
 
