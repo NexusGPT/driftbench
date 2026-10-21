@@ -107,7 +107,8 @@ Now break a file on purpose. Copy a criterion under a different file name. The f
 $ mkdir bad
 $ cp examples/acme/criteria/one_question_per_turn.yaml bad/ask.yaml
 $ driftbench judge check bad   # exit 1
-(pending)
+0 valid criteria, 1 issue(s).
+bad/ask.yaml: the criterion is named one_question_per_turn, the file ask
 ```
 
 **If it goes wrong.**
@@ -127,7 +128,16 @@ $ driftbench judge check bad   # exit 1
 
 ```console
 $ sed -n 1,10p examples/acme/labels/one_question_per_turn.yaml
-(pending)
+# Hand-labelled blocks for one_question_per_turn.
+criterion: one_question_per_turn
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: one_question_per_turn.1
+    label: pass
+    note: One question.
+    transcript:
+      - { role: user, text: "I want a new mobile plan." }
+      - { role: agent, text: "Happy to help. How much data do you use in a month?" }
 ```
 
 - A cassette with the recorded answers of six judges: `examples/acme/criteria/calibration/cassette.json`. Its answers are scripted by hand to prove the mechanics. They do not measure a real model.
@@ -171,8 +181,21 @@ Wrote assignments.yaml.
 - The table written to `assignments.yaml` is what a later run reads. See the entry of `holds_instructions`:
 
 ```console
-$ grep -A12 "criterion: holds_instructions" assignments.yaml
-(pending)
+$ grep -A13 "criterion: holds_instructions" assignments.yaml
+  - criterion: holds_instructions
+    status: assigned
+    owner: google-chat
+    class: system2
+    judges:
+      - google-chat
+      - openai-chat
+      - anthropic-chat
+    rejudge:
+      - s1p-a
+      - s1p-b
+      - openai-decisions
+    separation: 3 of 3
+    kappa: 1
 ```
 
 A real judge goes through the same test. The repository records one: a `claude-haiku` judge on the 12 pairs (3 repeats) and the 40 labels cost 0.0182 USD, and reached kappa 0.95 (39 of 40). Source: `docs/concepts/judges.md`, section "A real judge: haiku on the claude command". After three fixes to rubrics and inputs, kappa rose to 1.00 (40 of 40). To run that yourself you need the `claude` command signed in. It bills your account, so it is not run by the tests:
@@ -222,7 +245,7 @@ Then the same replay with a cascade:
 ```console
 $ driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json --cascade
 separated  care_redirect [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  holds_instructions [system1, gating]: pass fixture pass (cascade), fail fixture fail (split, re-judged)
+separated  holds_instructions [system1, gating]: pass fixture pass, fail fixture fail (split, re-judged)
 12 of 12 criteria separated in mode hybrid.
 ```
 
@@ -230,7 +253,7 @@ separated  holds_instructions [system1, gating]: pass fixture pass (cascade), fa
 
 - `separated`: the pass transcript got the verdict pass and the fail transcript got fail. That is what a working judge must do.
 - `[system1, gating]`: the class of the judges that decided, and whether the criterion gates.
-- `(split, re-judged)` on `holds_instructions`: the three system 1 judges did not agree. The three system 2 judges judged again and decided fail. This example is scripted to show the path.
+- `(split, re-judged)` on `holds_instructions`: the three system 1 judges did not agree. The three system 2 judges judged again and decided fail. This example is scripted to show the path. That criterion still splits under `--cascade`, so its line shows no `(cascade)`.
 - `(cascade)`: the cheapest judge was sure of the pass and decided alone. Only one judge was paid for.
 - `12 of 12 criteria separated`: good. Any `NOT separated` line is a defect. The lines under it show each round of votes.
 
@@ -368,7 +391,7 @@ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --ta
 $ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --store acme.db --campaign upgrade-demo
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench queue create --store acme.db --campaign upgrade-demo --labels labels
-(pending)
+Queued 10 items in labels.
 $ ls labels
 queue.json
 ```

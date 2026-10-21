@@ -59,17 +59,21 @@ A good test suite must pass on the real agent and fail on this fault. If a suite
 
 **Why you do this.** The floors say how much self-testing has been locked in. A floor only rises. After a floor is set, no change may fall below it without CI failing.
 
-**You need.** Nothing. The floors sit in `validators/floors.json`. The command finds the repository root from the folder you are in.
+**You need.** The repository files. The floors sit in `validators/floors.json`, and the validators read their fixtures from `packages/validators`. The command finds the repository root from the folder you are in, so run it from the root of your clone. The test that runs this page works in an empty folder instead. The three `ln` lines link the repository files into that folder. In a clone, skip them.
 
 **Relevant commands.**
 
+- `ln -s examples/../packages packages`, and the same for `validators` and `pnpm-workspace.yaml`: makes a link to a file or folder of the repository · `-s` makes a symbolic link, the first word is the target and the second is the name of the link · it produces the link. Skip it in a clone.
 - `driftbench validate floors`: prints the floor of each validator · `floors` is a mode of the command, not a validator name · it prints one line and exits 0.
 
 **You type.**
 
 ```console
+$ ln -s examples/../packages packages
+$ ln -s examples/../validators validators
+$ ln -s examples/../pnpm-workspace.yaml pnpm-workspace.yaml
 $ driftbench validate floors
-(pending)
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 3 (ladder version 4), system = 9 (ladder version 5).
 ```
 
 **How to read it.**
@@ -171,7 +175,30 @@ The gate runs nine stages in order. A block is counted once, at the first stage 
 
 ```console
 $ driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated
-(pending)
+Funnel (blocks):
+  1. observed     in   28  rejected 0      out   28
+  2. leakage      in   28  rejected 2      out   26  (expected-value-in-given 2)
+  3. shortcut     in   26  rejected 2      out   24  (passed-by-echo 2)
+  4. contrast     in   24  rejected 0      out   24
+  5. red_first    in   24  rejected 0      out   24
+  6. stability    in   24  rejected 0      out   24
+  7. difficulty   in   24  rejected 0      out   24
+  8. label_audit  in   24  marked 3        out   24  (sampled 3)
+  9. freshness    in   24  marked 7        out   24  (sealed-holdout 7)
+Accepted 24 of 28 blocks.
+Mutation score per fault class (gated suite):
+  X1_local: 2/2 killed (100%, 95% CI 34% to 100%)
+  X2_contradiction: no scored fault, 1 equivalent excluded
+  X3_flow: 1/1 killed (100%, 95% CI 21% to 100%)
+  X4_format: 2/2 killed (100%, 95% CI 34% to 100%)
+  X5_tool: 2/2 killed (100%, 95% CI 34% to 100%)
+  D2_goal_shift: no scored fault, 1 equivalent excluded
+  D4_loose_confirmation: 1/1 killed (100%, 95% CI 21% to 100%)
+  D6_instruction_in_data: no scored fault, 2 equivalent excluded
+  D8_tool_failure: 1/1 killed (100%, 95% CI 21% to 100%)
+  D9_out_of_scope: no scored fault, 1 equivalent excluded
+  control: 2 negative control(s), green
+Wrote 11 files to gated.
 ```
 
 **How to read it.**
