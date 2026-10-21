@@ -440,15 +440,28 @@ describe('terminal subsumption and the context a walk is written in', () => {
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = walk(prepared, 'first', path, 'twise', [channelPick(prepared, 'counter')]);
+    // The phone tuples are held by a phone walk that ends on another block, so only the twin rule can keep the copy.
+    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
     const other = walk(prepared, 'other', path, 'twise', [channelPick(prepared, 'phone')]);
-    // The same blocks, said on another channel, but walked on another path: no twin of the first walk.
+    // The same blocks as the first walk, said on another channel, but walked on another path: no twin of it.
     other.path = 'another-path';
-    const length = first.blocks.length;
-    minimal.reduce(first);
-    minimal.reduce(other);
-    expect(first.blocks).toHaveLength(length);
+    const length = other.blocks.length;
+    for (const draft of [written, holder, other]) minimal.reduce(draft);
     expect(other.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps a twin on the same path whole: the control of the case above', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
+    const twin = walk(prepared, 'twin', path, 'twise', [channelPick(prepared, 'phone')]);
+    const length = twin.blocks.length;
+    for (const draft of [written, holder, twin]) minimal.reduce(draft);
+    expect(twin.blocks).toHaveLength(length);
   });
 
   it('reads a block as the same test on any channel: the end a walk on the counter says is a repeat on the phone', () => {
