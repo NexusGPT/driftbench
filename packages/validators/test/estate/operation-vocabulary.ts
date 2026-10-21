@@ -157,10 +157,6 @@ export function deriveOperationVocabulary(source: string) {
       throw new Error(`Expected Set constructor: ${name}`);
     return array(node.arguments?.[0]).elements.map(literal);
   };
-  const toolWords = array(required('TOOL_WORDS')).elements.map((entry) => {
-    const pair = array(entry);
-    return { class: literal(pair.elements[0]), words: array(pair.elements[1]).elements.map(literal) };
-  });
   const gaps: string[] = [];
   const commandRules = array(required('COMMAND_RULES')).elements.map((entry, index) => {
     if (!ts.isObjectLiteralExpression(entry)) throw new Error('Expected command rule object');
@@ -190,47 +186,10 @@ export function deriveOperationVocabulary(source: string) {
       ...derived,
     };
   });
-  // The special order noun comparison is read from classifyTool, not invented by the fixture.
-  const orderNouns: string[] = [];
-  let orderClass: string | undefined;
-  const findOrder = (node: ts.Node) => {
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === 'order' &&
-      node.initializer
-    ) {
-      const findLiteral = (part: ts.Node) => {
-        if (
-          ts.isCallExpression(part) &&
-          ts.isPropertyAccessExpression(part.expression) &&
-          part.expression.name.text === 'includes'
-        )
-          orderNouns.push(literal(part.arguments[0]));
-        ts.forEachChild(part, findLiteral);
-      };
-      findLiteral(node.initializer);
-    }
-    if (
-      ts.isIfStatement(node) &&
-      ts.isBinaryExpression(node.expression) &&
-      ts.isIdentifier(node.expression.left) &&
-      node.expression.left.text === 'order' &&
-      ts.isReturnStatement(node.thenStatement)
-    )
-      orderClass = literal(node.thenStatement.expression);
-    ts.forEachChild(node, findOrder);
-  };
-  findOrder(file);
-  if (!orderClass || orderNouns.length === 0) gaps.push('classifyTool.order:noun-or-class-not-derived');
   return {
     source: { path: OPERATIONS_SOURCE, sha256: createHash('sha256').update(source).digest('hex') },
     grammar: 'Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.',
-    toolWords,
-    readWords: setWords('READ_WORDS'),
-    orderVerbs: setWords('ORDER_VERBS'),
-    orderNouns: [...new Set(orderNouns)],
-    orderClass,
+    toolClasses: setWords('TOOL_CLASSES'),
     commandRules,
     gaps,
   };
