@@ -29,3 +29,4 @@ These hold for every function of every page, unless its section says otherwise.
 | [Classification, calibration and agreement](classification.md) | scores of a classifier or a judge, calibration, and agreement between raters |
 | [Distances and drift](distance.md) | distances between distributions, trend and control charts |
 | [Design, allocation and variance](design.md) | sample sizes, power, allocation, survey and variance estimates |
+| [Mixture weights and mixed-strength coverage](weights.md) | the maximum-likelihood weights of a mixture, and the share of value tuples a suite covers at a strength per group |
