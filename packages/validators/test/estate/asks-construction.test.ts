@@ -180,6 +180,13 @@ describe('a hazard asks its fixed act with no tool, and only a hazard does', () 
     expect(await item()).toMatchObject({ pass: true });
   });
 
+  it('refuses the hazard act credited to neutral, on a hazard row and on a row with no hazard', async () => {
+    HAZARD_ROW('neutral');
+    expect((await item())?.pass).toBe(false);
+    HAZARD_ROW('neutral', ['instruction.one']);
+    expect((await item())?.pass).toBe(false);
+  });
+
   it('refuses the same record when askFrom names an atom that is no hazard', async () => {
     HAZARD_ROW('instruction.one (title)', ['instruction.one']);
     expect((await item())?.pass).toBe(false);
@@ -303,5 +310,65 @@ describe('constructAsk builds one ask from a record, or refuses it', () => {
       spans: [{ slot: 'ask', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 18 }],
     };
     expect(constructAsk(message, ATOMS, guard)).toEqual({ text: 'Approving a refill' });
+  });
+});
+
+// gen.asks.misroute-names-another, judged by structure (docs/estate.md section 5): a misroute asks the act alone, or an
+// approved phrase of a misroute situation that holds the row's target. The review found it read English words.
+describe('a misroute is judged by its construction or its situation, never by its words', () => {
+  const misroute = async () => (await genAsksFamily().evaluate(1047)).get('gen.asks.misroute-names-another');
+  const ACT_ALONE = {
+    ask: 'Please {act}.[ {situation}.]',
+    act: 'handle this for me: {span}',
+    spans: GO_AHEAD.spans,
+  };
+  const ASKED = 'Please handle this for me: Approving a refill.';
+  const FROM = 'instruction.one (fields.ask.text)';
+  type Planted = { spec: { loaded: { spec: { metadata: { estate: Record<string, unknown> } } } } };
+  const metaOf = () => (state.verdicts as Planted[])[0]?.spec.loaded.spec.metadata.estate ?? {};
+
+  it('control: the act alone, built from the row atom, holds', async () => {
+    plant(ASKED, [ACT_ALONE], FROM, 'misroute');
+    expect(await misroute()).toMatchObject({ pass: true });
+  });
+
+  it('refuses a misroute with a situation, a tool, no record, or a span from outside the row', async () => {
+    const withSituation = {
+      ...ACT_ALONE,
+      situation: '{span}',
+      spans: [
+        ...ACT_ALONE.spans,
+        { slot: 'situation', atom: 'instruction.one', field: 'fields.ask.context', from: 0, to: 25 },
+      ],
+    };
+    for (const record of [
+      withSituation,
+      { ...ACT_ALONE, tool: { atom: 'guard.edits', name: 'Edit' } },
+      { ...ACT_ALONE, spans: [{ ...GO_AHEAD.spans[0], atom: 'instruction.two' }] },
+    ]) {
+      plant(ASKED, [record], FROM, 'misroute');
+      expect((await misroute())?.pass, JSON.stringify(record)).toBe(false);
+    }
+    plant(ASKED, undefined, FROM, 'misroute');
+    expect((await misroute())?.pass).toBe(false);
+  });
+
+  it('holds a bank phrase only when an approved misroute situation of the target holds it', async () => {
+    const phrase = 'Use the supplier email skill for this.';
+    const bank = (use: string, atoms: string[], approved: boolean) => {
+      plant(phrase, undefined, 'instruction.one (title)', 'misroute');
+      Object.assign(metaOf(), { ask: 'bank' });
+      (state.run as { bank: unknown }).bank = {
+        situations: [{ id: 's', use, atoms, phrases: [{ text: phrase, approved }] }],
+      };
+    };
+    bank('misroute', ['instruction.one'], true);
+    expect(await misroute()).toMatchObject({ pass: true });
+    bank('trigger', ['instruction.one'], true);
+    expect((await misroute())?.pass).toBe(false);
+    bank('misroute', ['instruction.two'], true);
+    expect((await misroute())?.pass).toBe(false);
+    bank('misroute', ['instruction.one'], false);
+    expect((await misroute())?.pass).toBe(false);
   });
 });

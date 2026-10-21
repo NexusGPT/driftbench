@@ -470,15 +470,41 @@ const ASKS: AskCheck[] = [
   {
     key: 'misroute-names-another',
     tier: 2,
-    title: 'a misroute names a skill or helper other than its target',
+    title: 'a misroute asks an approved misroute phrase of its target, or the act alone',
+    // docs/estate.md section 5: a misroute asks "the act alone (Please <act>.), so the route decides and the ask
+    // never tells the agent to load a wrong skill", or an approved phrase of a `misroute` situation. Judged by
+    // structure only: the situation the phrase belongs to, or the construction record of the code-written ask.
     check: (run, all) => {
-      const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+      const please = ASK_TEMPLATES.find((row) => row.kind === 'ask')?.template;
       const bad = all.filter((v) => {
         if (v.spec.record.testType !== 'misroute' || !v.complete) return false;
-        const target = String(atoms.get(estateMeta(v.spec).atoms?.[0] ?? '')?.fields?.target ?? '');
-        return asksOfSpec(v).some((ask) => ask.includes(target) || !/\b(skill|agent|helper)\b/.test(ask));
+        const meta = estateMeta(v.spec) as { atoms?: string[]; ask?: unknown; askBuild?: unknown };
+        const head = meta.atoms?.[0];
+        const ask = asksOfSpec(v)[0] ?? '';
+        if (meta.ask !== 'code')
+          return !run.bank.situations.some(
+            (s) =>
+              s.use === 'misroute' &&
+              head !== undefined &&
+              s.atoms.includes(head) &&
+              s.phrases.some((p) => p.approved && p.text === ask),
+          );
+        const builds = Array.isArray(meta.askBuild) ? meta.askBuild : [meta.askBuild];
+        const first = builds[0] as
+          | { ask?: unknown; situation?: unknown; tool?: unknown; spans?: Array<{ atom?: unknown }> }
+          | undefined;
+        const spans = first?.spans ?? [];
+        return (
+          first?.ask !== please ||
+          first?.situation !== undefined ||
+          first?.tool !== undefined ||
+          spans.length === 0 ||
+          !spans.every((span) => (meta.atoms ?? []).includes(String(span.atom)))
+        );
       });
-      return bad.length === 0 ? undefined : named(bad, 'misroutes name their own target or no primitive');
+      return bad.length === 0
+        ? undefined
+        : named(bad, 'misroutes ask neither an approved misroute phrase of their target nor the act alone');
     },
   },
   {
@@ -829,8 +855,11 @@ const ASKS: AskCheck[] = [
                 !row.template.includes('{') &&
                 !row.tools,
             );
-            const hazard = untied && atomsById.get(from)?.kind === 'hazard' && allowed.has(from);
-            if (source === undefined ? meta.askFrom !== 'neutral' && !hazard : !cites || !atomsById.has(from))
+            const hazard = atomsById.get(from)?.kind === 'hazard' && allowed.has(from);
+            // `neutral` is the fixed neutral row alone: no act, no span, no tool. The untied act cites a hazard.
+            const neutral = meta.askFrom === 'neutral' && build?.act === undefined;
+            const ok = source !== undefined ? cites && atomsById.has(from) : untied ? hazard : neutral;
+            if (!ok)
               return `askFrom ${meta.askFrom} is not the built ask's source ${String(source ?? 'none')}`;
             cited = true;
           }
