@@ -701,28 +701,22 @@ $ cd walk
 
 **What you have.** The folder `northwind`, with the prompt, skills, helper agents and settings of the agent.
 
-**What you run.** Six commands, in this order. `approve` and `plan approve` are the two points where you say yes.
+**What you run.** One command. It would ask you two questions: approve the atoms, and approve the tests. `--yes` answers yes to both, which is fine for a demo.
 
 ```console
-$ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update   # exit 1
-$ driftbench estate approve map.yaml --all --to approved.yaml
-$ driftbench estate map approved.yaml --to space.yaml --agent northwind
-$ driftbench estate plan approved.yaml --space space.yaml --out plan.yaml
-$ driftbench estate plan approve plan.yaml --all
-$ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated   # exit 1
+$ driftbench estate build northwind --out build --pointer --cassette northwind/cassette.jsonl --yes   # exit 1
+(pending)
 ```
 
-**What it does.** It reads the files and lists everything they tell the agent to do or to use. Each item is an **atom**, with a quote of where it says so, and the list is the **map**. It then chooses the situations to test, which is the **plan**, and writes one test file for each. Two commands exit 1 by design: the scan reports a few labels it refused, and `generate` reports tests that still wait for an answer.
+**What it does.** It reads the files and lists everything they tell the agent to do or to use. Each item is an **atom**, with a quote of where it says so, and the list is the **map**. It then chooses the situations to test, which is the **plan**, and writes one test file for each. Everything goes into the folder `build`. The command exits 1 because some tests still wait for something, such as an answer to give. The output says how many.
 
 **What you get.**
 
 ```text
-Wrote map.yaml: 116 atoms (67 read by code and approved, 49 split from prose by the model and waiting for approval), 50 edges.
-Wrote plan.yaml: 1439 rows (349 from the contract, 10 journeys, 1080 pairwise), all proposed. Summary in plan.summary.json.
-Wrote 1461 files to generated.
+(pending)
 ```
 
-**Why it matters.** You get 1,439 tests without writing one, and a map of the 116 atoms they are built from. Of the 1,439 tests, 952 are complete today. The other 487 each name what they still need.
+**Why it matters.** You get the tests without writing one, and a map of the atoms they are built from. Run the command again and it skips every step whose inputs did not change.
 
 ### 2. See which tests cover one sentence
 
@@ -736,7 +730,7 @@ $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 **What you run.** One command. It shows the **links** of one test: the lines that say what the test is about.
 
 ```console
-$ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+$ grep -A8 "^  links:" build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 ```
 
 **What it does.** Step 1 gave the sentence an id that stays the same when the sentence is edited, and made it the instruction `instruction.weekly-report.count-only-what-the-ledger-and`. Each test names the instruction it checks. The link below says that this test checks that sentence.
@@ -755,10 +749,10 @@ $ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruc
 
 <details><summary>Look at the id, the instruction and the test itself</summary>
 
-The id and the text of the sentence, in the file `ledger.json`:
+The id and the text of the sentence, in the file `build/ledger.json`:
 
 ```console
-$ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));const e=l.entries.find((x)=>x.id==="wrl4c7wlvb");console.log(JSON.stringify({id:e.id,fp:e.fp,path:e.path,status:e.status,quote:e.quote},null,2))'
+$ node -e 'const l=JSON.parse(require("fs").readFileSync("build/ledger.json","utf8"));const e=l.entries.find((x)=>x.id==="wrl4c7wlvb");console.log(JSON.stringify({id:e.id,fp:e.fp,path:e.path,status:e.status,quote:e.quote},null,2))'
 {
   "id": "wrl4c7wlvb",
   "fp": "731c59e8e7713e95",
@@ -771,7 +765,7 @@ $ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));
 The instruction in the map, with its quote and where it sits:
 
 ```console
-$ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" map.yaml
+$ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" build/map.yaml
   - id: instruction.weekly-report.count-only-what-the-ledger-and
     kind: instruction
     title: Count only what the ledger and the shipment log show for the last seven days.
@@ -787,16 +781,16 @@ $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" ma
 The three tests that name it:
 
 ```console
-$ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" generated/specs/live | sort | head -3
-generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-generated/specs/live/obligation/estate.pairwise.0020.yaml
-generated/specs/live/obligation/estate.pairwise.0064.yaml
+$ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | sort | head -3
+build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+build/generated/specs/live/obligation/estate.pairwise.0020.yaml
+build/generated/specs/live/obligation/estate.pairwise.0064.yaml
 ```
 
 The part of the first test that says what to do and what to expect. A **block** is one message from the user and what must be true after it:
 
 ```console
-$ sed -n '/^blocks:/,/^metadata:/p' generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+$ sed -n '/^blocks:/,/^metadata:/p' build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 blocks:
   - id: ask
     when:
@@ -822,7 +816,7 @@ metadata:
 **What you run.** One command. It starts the agent, sends the test's message and checks the answer.
 
 ```console
-$ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json   # exit 1
+$ driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map build/approved.yaml --states northwind/live/states/library.json   # exit 1
 ```
 
 **What it does.** It copies the folder, runs the agent on the copy and compares what it did with what the test expects. Here the agent is a small script that stands in for a real one. It has no recorded answer for this question, so the test fails. That is the point of the example.
@@ -849,8 +843,8 @@ $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 **What you run.** Two commands. The first finds what you changed by its id and writes a **change file**. The second reads the change file and lists the tests that the change can reach. That list is the **blast radius**.
 
 ```console
-$ driftbench radius ledger map.yaml --ledger ledger.json --out change.yaml
-$ driftbench radius generated/specs/live --change change.yaml
+$ driftbench radius ledger build/map.yaml --ledger build/ledger.json --out change.yaml
+$ driftbench radius build/generated/specs/live --change change.yaml
 ```
 
 **What it does.** It finds the sentence by its id, although its text is new. Then it looks at the links of every test and keeps the tests that name that sentence. Each of these tests holds one block: one user message and the checks on the answer.

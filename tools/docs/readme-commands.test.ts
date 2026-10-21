@@ -227,7 +227,10 @@ describe('README commands that print what they show', () => {
           const got = await execute(step.command, cwd);
           for (const line of got.lines) printed.add(line);
           const found = mismatch(step, got);
-          if (found.length > 0) problems.push(`$ ${step.command}\n${found.join('\n')}\n`);
+          if (found.length > 0) {
+            const printed = got.lines.map((line) => line.slice(0, 400)).join('\n');
+            problems.push(`$ ${step.command}\n${found.join('\n')}\nPrinted:\n${printed}\n`);
+          }
         }
       }
       for (const excerpt of section.matchAll(/```text\n([\s\S]*?)\n```/g)) {
