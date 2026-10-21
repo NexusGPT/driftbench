@@ -27,13 +27,20 @@ const LEAD = String.raw`\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?(?:\|\s*)?(?:\*\*|__
 const WRONG_STANDALONE = new RegExp(String.raw`^${LEAD}${WRONG_MARK}(?:\*\*|__)?\s*$`, 'u');
 
 /** Classify before reading declarations. A declared role wins; one incidental date or slot never changes authority. */
+/** The reason a file the runtime itself loads as instructions is normative: its place, never a label or a word. */
+export const RUNTIME_INSTRUCTIONS = 'loaded by the runtime as instructions';
+
 export function classifyDocument(
-  file: Pick<EstateFile, 'path' | 'text'>,
+  file: Pick<EstateFile, 'path' | 'text'> & { kind?: EstateFile['kind'] },
   _unitFolder?: string,
   declared?: DocumentRole,
 ): DocumentInfo {
   if (declared !== undefined)
     return { path: file.path, role: declared, reasons: ['declared in driftbench.estate.yaml'] };
+  // The standing file, memory, a skill's body and a helper's body are what the runtime gives the agent as its
+  // instructions: their role is set by that place, so no label pass asks about them.
+  if (file.kind === 'standing' || file.kind === 'memory' || file.kind === 'skill' || file.kind === 'subagent')
+    return { path: file.path, role: 'normative', reasons: [RUNTIME_INSTRUCTIONS] };
   const markdown = /\.(?:md|markdown|txt)$/i.test(file.path);
   if (!markdown) return { path: file.path, role: 'normative', reasons: ['runtime structure or executable'] };
   const bodyLine = readFrontmatter(file.text).bodyLine;
