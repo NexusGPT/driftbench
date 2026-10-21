@@ -79,11 +79,11 @@ jobs:
       - name: Docs reachability and examples
         run: pnpm exec vitest run tools/docs --maxWorkers=2
 
-  pr-affected:
-    name: pr affected
-    # Reports the tests affected by a pull request. It is not required and not an input of `train gate`: a
-    # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
-    # pull request only; a pre-flight dispatch runs `pr fast` alone. It skips a draft PR: leaving draft starts it
+  pr-affected-shard:
+    name: pr affected shard ${{ matrix.shard }}/8
+    # Runs one slice of the tests affected by a pull request; `pr affected` below joins the slices. It is not
+    # required and not an input of `train gate`: a merge train runs the full suite in its build jobs, so the subset
+    # is skipped on a train PR. It runs on a pull request only; a pre-flight dispatch runs `pr fast` alone. It skips a draft PR: leaving draft starts it
     # (`ready_for_review`). It compares with the PR's own base branch (the steps below), so a stacked PR or a PR
     # into release/next runs its own delta. A base change starts `pr affected (retarget)` in
     # pr-affected-retarget.yml: an `edited` event never starts this workflow, so a title edit adds no run.
@@ -92,6 +92,10 @@ jobs:
     timeout-minutes: 45
     env:
       DRIFTBENCH_TIMING_TESTS: skip
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
@@ -122,19 +126,42 @@ jobs:
           key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
       # The tests verify the build stamp, so the build gate runs first.
       - run: node tools/structure/api-surface.mjs --build --check
-      # Markdown dependencies are read at runtime, so --changed alone cannot select their examples.
-      - name: Help topics and executable examples
-        run: pnpm exec vitest run packages/cli/test/help-topics.test.ts --maxWorkers=2
       # The affected tests are the ones changed against the PR's own base branch, so a PR into release/next runs
       # its own delta, never the whole difference between release/next and main (which overran the time limit).
       - name: Fetch the base branch
         env:
           BASE_REF: ${{ github.base_ref }}
         run: git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
-      - name: Tests affected by this PR
+      # Markdown dependencies are read at runtime, so --changed alone cannot select their examples: the tool adds the
+      # help topics test to every selection. Each shard lists the same affected files and runs its own slice.
+      - name: Tests affected by this PR, shard ${{ matrix.shard }} of 8
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests
+          SHARD: ${{ matrix.shard }}
+        run: node tools/ci/affected-shard.mjs --base "origin/$BASE_REF" --count 8 --index "$SHARD"
+
+  pr-affected:
+    name: pr affected
+    # Reports the tests affected by a pull request: the verdict of every slice. It is not required and not an input of
+    # `train gate`; a draft PR, a train PR and a release PR skip it with the slices. A slice that failed, was skipped
+    # or was cancelled makes it red.
+    if: always() && (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft)
+    needs: [pr-affected-shard]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - name: Every slice ran and succeeded
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          # The slices are one matrix job: GitHub hands this job one aggregate for all of them, and only `success` is
+          # green. A failed, cancelled or skipped slice, an empty value and any other value are red.
+          if [[ "$RESULTS" != success ]]; then
+            echo "::error::The affected tests did not all succeed (result of the slices: '$RESULTS')."
+            exit 1
+          fi
+          echo "Every slice succeeded."
 
   train-gate:
     # The check named `train gate` is the merge-train requirement, and it must never pass on a head that is not a
