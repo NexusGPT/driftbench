@@ -1,0 +1,542 @@
+{
+ "note": "The diagnoses code-agent-liability stored on the Northwind stand-in rehearsal (run 39560183957, repeat 0 of each spec). Fictional.",
+ "runs": {
+  "36ec263d918be0e3": {
+   "spec": "northwind-invoice-over",
+   "blocks": [
+    {
+     "index": 0,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "skill.content",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "must.0: agent, agent; fix strengthen_rule at skill.content (skill:invoice-reconcile#.claude/skills/invoice-reconcile/SKILL.md:2)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "invoice-reconcile",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "skill:invoice-reconcile#.claude/skills/invoice-reconcile/SKILL.md:2",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#skill_local",
+       "confidence": "static",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "393a94b6c389992f": {
+   "spec": "northwind-shipment-late",
+   "blocks": [
+    {
+     "index": 0,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_not_loaded_undecided",
+       "fault": [
+        "agent",
+        "skill"
+       ],
+       "fixLocation": "skill.trigger",
+       "flags": [
+        "run_liability_confirm",
+        "also:routing_rows",
+        "provisional"
+       ],
+       "summary": "must.0: shared, agent and skill; fix rewrite_description at skill.trigger (skill:shipment-tracker#description)",
+       "evidence": {
+        "skill_loaded": false,
+        "skill_covers": "unknown",
+        "rule_home": "skill_body",
+        "item": "skill_not_loaded_undecided",
+        "home": "shipment-tracker",
+        "act": "load_skill"
+       },
+       "disposition": "shared",
+       "fixTarget": "skill:shipment-tracker#description",
+       "fixAction": "rewrite_description",
+       "fixForms": [
+        "prose"
+       ],
+       "placement": "policy/placement:default@59475833#trigger_local",
+       "confidence": "undecided",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_not_loaded_undecided",
+        "impl": "builtin:blame/route-undecided",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      },
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "skills.shipment-tracker",
+       "rule": "policy/blame:default@b568c994#skill_not_loaded_undecided",
+       "fault": [
+        "agent",
+        "skill"
+       ],
+       "fixLocation": "skill.trigger",
+       "flags": [
+        "run_liability_confirm",
+        "also:routing_rows",
+        "provisional"
+       ],
+       "summary": "skills.shipment-tracker: shared, agent and skill; fix rewrite_description at skill.trigger (skill:shipment-tracker#description)",
+       "evidence": {
+        "skill_loaded": false,
+        "skill_covers": "unknown",
+        "rule_home": "skill_body",
+        "item": "skill_not_loaded_undecided",
+        "home": "shipment-tracker",
+        "act": "load_skill"
+       },
+       "disposition": "shared",
+       "fixTarget": "skill:shipment-tracker#description",
+       "fixAction": "rewrite_description",
+       "fixForms": [
+        "prose"
+       ],
+       "placement": "policy/placement:default@59475833#trigger_local",
+       "confidence": "undecided",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_not_loaded_undecided",
+        "impl": "builtin:blame/route-undecided",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    },
+    {
+     "index": 1,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "agent.cross_skill",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "must.0: agent, agent; fix strengthen_rule at agent.cross_skill (core:Rules)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "shipment-tracker",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "core:Rules",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#shared_rule",
+       "confidence": "static",
+       "removeCopies": [
+        ".claude/skills/shipment-tracker/SKILL.md:2"
+       ],
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      },
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.1",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "agent.cross_skill",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "must.1: agent, agent; fix strengthen_rule at agent.cross_skill (core:Rules)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "shipment-tracker",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "core:Rules",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#shared_rule",
+       "confidence": "static",
+       "removeCopies": [
+        ".claude/skills/shipment-tracker/SKILL.md:2"
+       ],
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      },
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "execution.ran_code",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "agent.cross_skill",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "execution.ran_code: agent, agent; fix strengthen_rule at agent.cross_skill (core:Rules)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "shipment-tracker",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "core:Rules",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#shared_rule",
+       "confidence": "static",
+       "removeCopies": [
+        ".claude/skills/shipment-tracker/SKILL.md:2"
+       ],
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    },
+    {
+     "index": 2,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_not_loaded_undecided",
+       "fault": [
+        "agent",
+        "skill"
+       ],
+       "fixLocation": "skill.trigger",
+       "flags": [
+        "run_liability_confirm",
+        "also:routing_rows",
+        "provisional"
+       ],
+       "summary": "must.0: shared, agent and skill; fix rewrite_description at skill.trigger (skill:shipment-tracker#description)",
+       "evidence": {
+        "skill_loaded": false,
+        "skill_covers": "unknown",
+        "rule_home": "skill_body",
+        "item": "skill_not_loaded_undecided",
+        "home": "supplier-email",
+        "act": "load_skill"
+       },
+       "disposition": "shared",
+       "fixTarget": "skill:shipment-tracker#description",
+       "fixAction": "rewrite_description",
+       "fixForms": [
+        "prose"
+       ],
+       "placement": "policy/placement:default@59475833#trigger_local",
+       "confidence": "undecided",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_not_loaded_undecided",
+        "impl": "builtin:blame/route-undecided",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      },
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "skills.supplier-email",
+       "rule": "policy/blame:default@b568c994#skill_not_loaded_undecided",
+       "fault": [
+        "agent",
+        "skill"
+       ],
+       "fixLocation": "skill.trigger",
+       "flags": [
+        "run_liability_confirm",
+        "also:routing_rows",
+        "provisional"
+       ],
+       "summary": "skills.supplier-email: shared, agent and skill; fix rewrite_description at skill.trigger (skill:shipment-tracker#description)",
+       "evidence": {
+        "skill_loaded": false,
+        "skill_covers": "unknown",
+        "rule_home": "skill_body",
+        "item": "skill_not_loaded_undecided",
+        "home": "supplier-email",
+        "act": "load_skill"
+       },
+       "disposition": "shared",
+       "fixTarget": "skill:shipment-tracker#description",
+       "fixAction": "rewrite_description",
+       "fixForms": [
+        "prose"
+       ],
+       "placement": "policy/placement:default@59475833#trigger_local",
+       "confidence": "undecided",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_not_loaded_undecided",
+        "impl": "builtin:blame/route-undecided",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "bb708c5162b88640": {
+   "spec": "northwind-weekly-report",
+   "blocks": [
+    {
+     "index": 0,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "skill.content",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "must.0: agent, agent; fix strengthen_rule at skill.content (skill:weekly-report#.claude/skills/weekly-report/SKILL.md:2)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "weekly-report",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "skill:weekly-report#.claude/skills/weekly-report/SKILL.md:2",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#skill_local",
+       "confidence": "static",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      },
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "references.**/templates/report.md",
+       "rule": "policy/blame:default@b568c994#skill_rule_ignored",
+       "fault": [
+        "agent"
+       ],
+       "fixLocation": "skill.content",
+       "flags": [
+        "provisional"
+       ],
+       "summary": "references.**/templates/report.md: agent, agent; fix strengthen_rule at skill.content (skill:weekly-report#.claude/skills/weekly-report/SKILL.md:2)",
+       "evidence": {
+        "rule_home": "skill_body",
+        "rule_in_context": true,
+        "contract_broken": true,
+        "item": "skill_rule_ignored",
+        "home": "weekly-report",
+        "act": "follow_skill_rule"
+       },
+       "disposition": "agent",
+       "fixTarget": "skill:weekly-report#.claude/skills/weekly-report/SKILL.md:2",
+       "fixAction": "strengthen_rule",
+       "fixForms": [
+        "prose",
+        "guard"
+       ],
+       "placement": "policy/placement:default@59475833#skill_local",
+       "confidence": "static",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_rule_ignored",
+        "impl": "builtin:blame/skill-rule-broken",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    },
+    {
+     "index": 1,
+     "diagnoses": [
+      {
+       "diagnostic": "diagnostic:code-agent-liability@c5c80f0e",
+       "step": "place",
+       "verdictRef": "must.0",
+       "rule": "policy/blame:default@b568c994#skill_not_loaded_undecided",
+       "fault": [
+        "agent",
+        "skill"
+       ],
+       "fixLocation": "skill.trigger",
+       "flags": [
+        "run_liability_confirm",
+        "also:routing_rows",
+        "provisional"
+       ],
+       "summary": "must.0: shared, agent and skill; fix rewrite_description at skill.trigger (skill:weekly-report#description)",
+       "evidence": {
+        "skill_loaded": false,
+        "skill_covers": "unknown",
+        "rule_home": "skill_body",
+        "item": "skill_not_loaded_undecided",
+        "home": "weekly-report",
+        "act": "load_skill"
+       },
+       "disposition": "shared",
+       "fixTarget": "skill:weekly-report#description",
+       "fixAction": "rewrite_description",
+       "fixForms": [
+        "prose"
+       ],
+       "placement": "policy/placement:default@59475833#trigger_local",
+       "confidence": "undecided",
+       "by": {
+        "object": "policy/blame:default@b568c994",
+        "item": "skill_not_loaded_undecided",
+        "impl": "builtin:blame/route-undecided",
+        "layer": "shipped"
+       },
+       "via": {
+        "object": "diagnostic:code-agent-liability@c5c80f0e",
+        "item": "place",
+        "impl": "builtin:placement/apply",
+        "layer": "shipped"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
