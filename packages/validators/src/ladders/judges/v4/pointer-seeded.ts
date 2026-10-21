@@ -710,6 +710,8 @@ export function decideRef(
   second: ({ label: string } & Src) | undefined,
   askedNames: Set<string>,
   rule: Rule,
+  /** How many labels the set holds: more than system 1 is asked means some only system 2 can give. */
+  labelCount: number = askedNames.size,
 ) {
   if (!first && !second) return undefined;
   if (!first)
@@ -732,6 +734,9 @@ export function decideRef(
     if ((s[0] as [string, number])[1] - ((s[1] as [string, number] | undefined)?.[1] ?? 0) >= rule.marginCut)
       sure = (s[0] as [string, number])[0];
   }
+  // docs/estate.md "Two classes of labeler": system 1 is offered only the labels it can answer, so its none means none
+  // of those; with no system-2 opinion and labels only system 2 can give, that none decides nothing.
+  if (sure === 'none' && !second && askedNames.size < labelCount) return undefined;
   if (sure !== undefined)
     return {
       label: sure,
@@ -808,7 +813,7 @@ export function seededStack(
             source: `m${int(r, 10, 99)}`,
             ...(secondLabel !== 'none' && !asked.has(secondLabel) ? { target: 1 } : {}),
           };
-    const want = decideRef(first, second, asked, rule);
+    const want = decideRef(first, second, asked, rule, set.labels.length);
     const a = plantedLabeler('system1');
     const b = plantedLabeler('system2');
     const labelling = guard('stackedLabelling', () =>
@@ -874,6 +879,8 @@ export function seededLabellingHash(impl: PointerImpl, r: Rng): string[] {
       model: mm.model,
       settings: mm.settings,
       runs: mm.runs,
+      // docs/estate.md "Two classes of labeler": a member with several runs becomes one opinion by majority vote.
+      ...(Number(mm.runs) > 1 ? { vote: 'majority' } : {}),
     });
     const rules: Rule[] = [
       { rule: 'cascade', passAt: pick(r, [0.8, 0.9]), failAt: pick(r, [0.1, 0.2]) },
@@ -935,7 +942,7 @@ export function seededGold(impl: PointerImpl, r: Rng): string[] {
       label: Object.entries(u.probabilities).sort((x, y) => y[1] - x[1])[0]?.[0] ?? 'none',
       probabilities: u.probabilities,
     };
-    const ref = decideRef(first, { label: u.second }, asked, { rule: 'cascade', passAt, failAt });
+    const ref = decideRef(first, { label: u.second }, asked, { rule: 'cascade', passAt, failAt }, set.labels.length);
     want.push(ref?.label ?? 'abstain');
     const got = guard('decide', () =>
       labelling.value.decide([first as never, { label: u.second } as never], set as never),
