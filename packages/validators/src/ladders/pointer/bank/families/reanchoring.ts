@@ -14,7 +14,16 @@ import { build, byId, type EstateFile, eventNow, liveByText, liveOf, scanOk } fr
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { buildScript, filesOfSegments, rewordSim, splitParts, unrelatedTo } from '../../kit/segments';
-import { longMake, Prose, rewordWords, shortRule, similarity } from '../../kit/words';
+import {
+  editWords,
+  insertAt,
+  longMake,
+  Prose,
+  rewordWords,
+  shortRule,
+  similarity,
+  writtenOf,
+} from '../../kit/words';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
@@ -110,11 +119,17 @@ async function kindRewrite(ctx: ItemContext, kind: Kind): Promise<Outcome> {
 }
 
 const addClause = (t: string) => (t.endsWith('.') ? `${t.slice(0, -1)}, and log it.` : `${t}, and log it`);
-const flipCase = (t: string) => t.replace(/\b([a-z]{5,})\b/, (m) => m.toUpperCase());
+/** The first word of 5 letters or more the generator wrote after the start, in capitals. */
+const flipCase = (t: string) => {
+  const { words } = writtenOf(t);
+  const at = words.findIndex((w) => w.start > 0 && w.text.length >= 5);
+  const word = words[at];
+  return word ? editWords(t, new Map([[at, word.text.toUpperCase()]])) : t;
+};
+/** `not` put before the second word the generator wrote after the start. */
 const negate = (t: string) => {
-  const ws = t.split(' ');
-  ws.splice(3, 0, 'not');
-  return ws.join(' ');
+  const word = writtenOf(t).words.filter((w) => w.start > 0)[1];
+  return word ? insertAt(t, word.start, 'not ') : t;
 };
 
 /* ---------- scripts ---------- */

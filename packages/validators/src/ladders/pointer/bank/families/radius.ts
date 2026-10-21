@@ -4,16 +4,16 @@ import { build, liveByText, scanOk } from '../../kit/estate';
 import { constant } from '../../kit/labellers';
 import { type LinkWorld, linksApi, linkWorld, ownersOf, scanRules } from '../../kit/links-world';
 import { splitParts } from '../../kit/segments';
-import { Prose, rewordWords } from '../../kit/words';
+import { insertAt, Prose, rewordWords, writtenOf } from '../../kit/words';
 import type { Link } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const same = (a: string[], b: string[]) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+/** `not` put before the second word the generator wrote after the start. */
 const neg = (t: string) => {
-  const ws = t.split(' ');
-  ws.splice(3, 0, 'not');
-  return ws.join(' ');
+  const word = writtenOf(t).words.filter((w) => w.start > 0)[1];
+  return word ? insertAt(t, word.start, 'not ') : t;
 };
 
 async function blast(

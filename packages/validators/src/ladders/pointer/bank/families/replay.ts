@@ -13,7 +13,7 @@ import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
 import { type FakeTransport, fakeTransport, seededModels } from '../../kit/transport';
-import { headingText, Prose, rewordWords } from '../../kit/words';
+import { headingText, Prose, word } from '../../kit/words';
 import type { FetchRequest, ModelArm, ScanRequest, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
@@ -320,11 +320,13 @@ export const replayRuns: Record<string, Run> = {
       ctx,
       (f, t, yaml) => {
         const p = prose(ctx);
+        const was = t[1]?.[2] as string;
         const edited = f.map((file, i) =>
           i === 1
             ? {
                 ...file,
-                text: file.text.replace(t[1]?.[2] as string, rewordWords(p.random, t[1]?.[2] as string, 1)),
+                // The unit comes from a committed fixture, not from the generator: a drawn word is added to it.
+                text: file.text.replace(was, `${was.replace(/\.$/, '')} ${word(p.random)}.`),
               }
             : file,
         );

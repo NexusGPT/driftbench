@@ -5,7 +5,7 @@ import { perfect, truthLabel } from '../../kit/labellers';
 import { norm, squash } from '../../kit/norm';
 import { show } from '../../kit/oracle';
 import { labelByText, type Pick, RULES_YAML } from '../../kit/sets';
-import { headingText, Prose, rewordWords } from '../../kit/words';
+import { headingText, insertAt, Prose, rewordWords, wordAfterStart } from '../../kit/words';
 import type { Atom, Labeler } from '../../sut/port';
 import { fail, type ItemContext, pass, type Run } from '../types';
 
@@ -328,7 +328,12 @@ export const groupingRuns: Record<string, Run> = {
   },
   'atom-provenance-verbatim': async (ctx) => {
     const p = prose(ctx);
-    const make = (extra: string) => p.next().replace(/ (\w+) /, ` $1 ${extra} `);
+    // The extra text goes after the first word the generator wrote past the start, inside the sentence.
+    const make = (extra: string) => {
+      const t = p.next();
+      const word = wordAfterStart(t);
+      return insertAt(t, word.start + word.text.length, ` ${extra}`);
+    };
     const t = [
       make('&amp;'),
       make('&lt;tag&gt;'),

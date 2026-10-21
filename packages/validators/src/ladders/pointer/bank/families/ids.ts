@@ -5,7 +5,15 @@ import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { requireSourceWitness } from '../../kit/positive';
-import { headingText, Prose, rewordWords } from '../../kit/words';
+import {
+  editWords,
+  headingText,
+  insertAt,
+  Prose,
+  rewordWords,
+  type WrittenWord,
+  writtenOf,
+} from '../../kit/words';
 import { listOf, para } from '../../kit/world';
 import type { LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
@@ -154,7 +162,8 @@ export const idsRuns: Record<string, Run> = {
   },
   'fp-nfc': async (ctx) => {
     const p = prose(ctx);
-    const base = p.many(4).map((s) => s.replace(/\b(\w)(\w*)\b/, 'Café $1$2'));
+    // Every sentence starts with its first word, so the accent word goes in front of it.
+    const base = p.many(4).map((s) => `Café ${s}`);
     const nfc = base.map((s) => s.normalize('NFC'));
     const nfd = base.map((s) => s.normalize('NFD'));
     return sameFingerprints(
@@ -165,18 +174,19 @@ export const idsRuns: Record<string, Run> = {
   },
   'fp-no-nfkc': async (ctx) => {
     const p = prose(ctx);
-    const frame = (mid: string) => p.next().replace(/\b(\w+) (\w+)/, `$1 ${mid} $2`);
-    // equal frames: the same sentence with two spellings of one word
+    // equal frames: the same sentence with two spellings of one word, put before a word the generator wrote
     const base = p.next();
-    const make = (mid: string) => base.replace(/ (\w+)/, ` ${mid} $1`);
-    void frame;
+    const before = writtenOf(base).words.find((w) => w.start > 0) as WrittenWord;
+    const make = (mid: string) => insertAt(base, before.start, `${mid} `);
     return allDifferent(ctx, [make('find'), make('ﬁnd'), make('A'), make('Ａ'), make('1'), make('①')]);
   },
   'fp-case': async (ctx) => {
     const base = prose(ctx).next();
-    const ws = base.split(' ');
-    const at = 3;
-    const variant = (f: (w: string) => string) => ws.map((w, i) => (i === at ? f(w) : w)).join(' ');
+    // A word the generator wrote after the start, in two other cases.
+    const { words } = writtenOf(base);
+    const at = words.findIndex((w) => w.start > 0);
+    const word = (words[at] as WrittenWord).text;
+    const variant = (f: (w: string) => string) => editWords(base, new Map([[at, f(word)]]));
     return allDifferent(ctx, [
       base,
       variant((w) => w.toUpperCase()),
@@ -185,8 +195,10 @@ export const idsRuns: Record<string, Run> = {
   },
   'fp-emphasis': async (ctx) => {
     const base = prose(ctx).next();
-    const ws = base.split(' ');
-    const wrap = (mark: string) => ws.map((w, i) => (i === 3 ? `${mark}${w}${mark}` : w)).join(' ');
+    const { words } = writtenOf(base);
+    const at = words.findIndex((w) => w.start > 0);
+    const word = (words[at] as WrittenWord).text;
+    const wrap = (mark: string) => editWords(base, new Map([[at, `${mark}${word}${mark}`]]));
     return allDifferent(ctx, [base, wrap('**'), wrap('*')]);
   },
   'fp-word-change': async (ctx) => {
@@ -195,9 +207,13 @@ export const idsRuns: Record<string, Run> = {
     for (let i = 0; i < 6; i += 1) {
       const base = longSentence(p);
       texts.push(base);
-      const ws = base.split(' ');
-      texts.push(ws.map((w, k) => (k === 4 ? `${w}x` : w)).join(' '));
-      texts.push(ws.map((w, k) => (k === 2 ? 'not' : w)).join(' '));
+      // Two words the generator wrote after the start: one gains a letter, the other becomes `not`.
+      const { words } = writtenOf(base);
+      const inside = words.flatMap((w, k) => (w.start > 0 ? [k] : []));
+      const grow = (inside[2] ?? inside[0]) as number;
+      const flip = inside[0] as number;
+      texts.push(editWords(base, new Map([[grow, `${(words[grow] as WrittenWord).text}x`]])));
+      texts.push(editWords(base, new Map([[flip, 'not']])));
       texts.push(base.replace(/\.$/, ' 4.'));
     }
     return allDifferent(ctx, texts);
@@ -207,12 +223,18 @@ export const idsRuns: Record<string, Run> = {
     return allDifferent(ctx, [`${base}.`, `${base}!`, `${base}?`, `${base}...`]);
   },
   'fp-confusables': async (ctx) => {
-    const base = prose(ctx).next();
-    const swap = (from: string, to: string) => base.replace(from, to);
-    const idx = base.search(/[aeo]/);
-    const ch = base[idx] as string;
+    const p = prose(ctx);
+    const drawn = p.next();
+    // A Latin letter the item chooses, appended to a word the generator wrote; its offset is known, not searched.
+    const ch = (['a', 'e', 'o'] as const)[Math.floor(p.random() * 3)] as 'a' | 'e' | 'o';
+    const { words } = writtenOf(drawn);
+    const k = words.findIndex((w) => w.start > 0);
+    const word = words[k] as WrittenWord;
+    const base = editWords(drawn, new Map([[k, `${word.text}${ch}`]]));
+    const at = word.start + word.text.length;
+    const swap = (to: string) => `${base.slice(0, at)}${to}${base.slice(at + 1)}`;
     const alt = ch === 'a' ? ['а', 'α'] : ch === 'e' ? ['е', 'ε'] : ['о', 'ο'];
-    return allDifferent(ctx, [base, swap(ch, alt[0] as string), swap(ch, alt[1] as string)]);
+    return allDifferent(ctx, [base, swap(alt[0] as string), swap(alt[1] as string)]);
   },
   'fp-context-neighbours': async (ctx) => {
     const p = prose(ctx);

@@ -7,10 +7,25 @@ import { build, byId, checkPlanted, eventNow, liveOf, scanOk } from '../../kit/e
 import { perfect, recording } from '../../kit/labellers';
 import { rewordSim } from '../../kit/segments';
 import { keyOf, labelByText, type Pick, RULES_YAML } from '../../kit/sets';
-import { headingText, longMake, Prose, rewordWords, shortRule } from '../../kit/words';
+import {
+  beforeStop,
+  headingText,
+  insertAt,
+  insideWord,
+  longMake,
+  Prose,
+  rewordWords,
+  shortRule,
+  wordAfterStart,
+} from '../../kit/words';
 import type { CutResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
+/** The end of the first word the generator wrote after the start of a sentence: its second word or so. */
+const endOfSecond = (t: string): number => {
+  const word = wordAfterStart(t);
+  return word.start + word.text.length;
+};
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const para = (t: string): Block => ({ kind: 'paragraph', sentences: [t] });
 const DEONTIC = ['must', 'never', 'always', 'shall', 'should', 'required', 'forbidden'];
@@ -129,7 +144,7 @@ export const adversarialRuns: Record<string, Run> = {
   'bold-decoy': async (ctx) => {
     const p = prose(ctx);
     // A sentence that opens with bold words is one unit. The bold ones are labelled none, the plain ones rule.
-    const boldFull = p.many(6).map((t) => t.replace(/^(\S+ \S+)/, '**$1**'));
+    const boldFull = p.many(6).map((t) => insertAt(insertAt(t, endOfSecond(t), '**'), 0, '**'));
     const plain = p.many(6);
     const blocks: Block[] = [...boldFull, ...plain].map(para);
     return decoy(ctx, blocks, [...rules(boldFull, 'none'), ...rules(plain)]);
@@ -328,8 +343,10 @@ export const adversarialRuns: Record<string, Run> = {
   },
   'bom-in-middle': async (ctx) => {
     const p = prose(ctx);
-    const a = p.next().replace(/ (\w+) /, ' $1\uFEFF ');
-    const b = p.next().replace(/(\w{4})(\w{3})/, '$1\uFEFF$2');
+    const one = p.next();
+    const a = insertAt(one, endOfSecond(one), '\uFEFF');
+    const two = p.next();
+    const b = insertAt(two, insideWord(two, 7, 4), '\uFEFF');
     return cutCase(
       ctx,
       [
@@ -367,17 +384,19 @@ export const adversarialRuns: Record<string, Run> = {
   'zero-width-and-bidi': async (ctx) => {
     const p = prose(ctx);
     const marks = ['​', '‍', '‎', '‮'];
-    const make = (m: string) => p.next().replace(/(\w{3})(\w{3})/, `$1${m}$2`);
+    const make = (m: string) => {
+      const t = p.next();
+      return insertAt(t, insideWord(t, 6, 3), m);
+    };
     return cutCase(ctx, [{ kind: 'paragraph', sentences: marks.map(make) }]);
   },
   'emoji-zwj-sequences': async (ctx) => {
     const p = prose(ctx);
     const seq = ['👨‍👩‍👧‍👦', '🏳️‍🌈', '🇧🇪', '👩🏽‍🍳'];
-    const make = (e: string) =>
-      p
-        .next()
-        .replace(/ (\w+) (\w+)/, ` $1 ${e} $2`)
-        .replace(/\.$/, ` ${e}.`);
+    const make = (e: string) => {
+      const t = p.next();
+      return beforeStop(insertAt(t, endOfSecond(t), ` ${e}`), ` ${e}.`);
+    };
     return cutCase(ctx, [{ kind: 'paragraph', sentences: seq.map(make) }]);
   },
   'huge-heading-text': async (ctx) => {
