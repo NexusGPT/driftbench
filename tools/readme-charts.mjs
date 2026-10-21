@@ -1115,9 +1115,6 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     return out;
   });
   const n = row(PROMPTFOO)[cohort].n;
-  const others = drawn.filter((b) => !b.ours && b.score !== null);
-  const top = others.reduce((a, b) => (b.score > a.score ? b : a));
-  const tenth = (v) => Math.round(v * 10);
   const mine = drawn[0].score;
   const title = `${name}: driftbench scores ${p1(mine)}.`;
   let note = frozen
