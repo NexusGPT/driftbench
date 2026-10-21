@@ -244,4 +244,3 @@ describe('a guard run on its own', () => {
     ).toBe('Please edit a file here.');
   });
 });
-

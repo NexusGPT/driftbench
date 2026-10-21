@@ -115,7 +115,7 @@ describe('the act comes from the declared source, never from reading its words',
     }
   });
 
-  it("a gate the pointer reader built cites its labelled governed-action span in the quote", () => {
+  it('a gate the pointer reader built cites its labelled governed-action span in the quote', () => {
     const quote = 'Read `refs/berths.md` before **editing any berth file**.';
     const from = quote.indexOf('editing');
     const gate = atom('gate.harbour.read-berths', {
