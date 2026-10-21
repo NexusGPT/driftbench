@@ -11,6 +11,7 @@ import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
 import { gateFamilyItems } from './bank4';
+import { authoredCauseFor } from './cause-kinds';
 import { CHEATERS } from './cheaters';
 import { familyPhrase, isCodeTaskSpec } from './code-task';
 import { FAULT_CLASSES, type FaultClass } from './faults';
@@ -2491,7 +2492,7 @@ export function bankItems(): BankItem[] {
     ...gateFamilyItems(),
     ...plannerItems(),
     ...acmeItems(),
-  ];
+  ].map((item) => (item.cause ? item : { ...item, cause: authoredCauseFor(item.id) }));
 }
 
 /** Bank size per family and tier. */
