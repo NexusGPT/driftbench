@@ -111,6 +111,10 @@ function spawnWorker(): Promise<Worker | undefined> {
       done(undefined);
     }, 120_000);
     started = child;
+    // The child must not keep this process alive once the run is over: a pending item holds the loop with its
+    // limit timer, and the exit hook below stops the group.
+    child.unref();
+    child.channel?.unref();
     child.once('message', (message: { ready?: boolean }) => {
       clearTimeout(gave);
       done(message.ready ? { child, busy: false } : undefined);

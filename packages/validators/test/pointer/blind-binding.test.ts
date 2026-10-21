@@ -68,6 +68,9 @@ describe('the blind bank bound to the reader', () => {
     'unicode-quote',
   ].map((name) => `blind/labels.materialize.${name}`);
 
+  // A replaced export or an injected cutter lives in this process; the isolated child would not see it.
+  const inProcess = async (): Promise<PointerSut> => ({ ...realReader(), isolate: false });
+
   async function labelsLevel(resolve: () => Promise<PointerSut> = async () => realReader()) {
     const level = blindLevels(resolve)[2];
     const measure = await level?.compute({ seed: 1, hidden: false, root: process.cwd() });
@@ -92,7 +95,7 @@ describe('the blind bank bound to the reader', () => {
           };
         },
       },
-      () => labelsLevel(),
+      () => labelsLevel(inProcess),
     );
     for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
     expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
@@ -116,7 +119,7 @@ describe('the blind bank bound to the reader', () => {
           };
         },
       },
-      () => labelsLevel(),
+      () => labelsLevel(inProcess),
     );
     for (const id of MATERIALIZING) expect(passes.get(id), id).toBe(false);
     expect(passes.get('blind/labels.materialize.no-mapping')).toBe(true);
@@ -126,6 +129,7 @@ describe('the blind bank bound to the reader', () => {
     const real = realReader();
     const throwing: PointerSut = {
       ...real,
+      isolate: false,
       cut: async (file) => {
         const cut = await real.cut(file);
         if (cut.units.some((unit) => unit.opaque)) throw new Error('the cutter met an opaque unit');
