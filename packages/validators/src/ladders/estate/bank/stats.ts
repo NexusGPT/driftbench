@@ -109,6 +109,53 @@ function sessionsSeen(folder: string): Seen[] {
   });
 }
 
+type CoverageAtom = {
+  id: string;
+  kind: string;
+  approved?: boolean;
+  enforcement?: readonly unknown[];
+  fields?: Record<string, unknown>;
+};
+
+/**
+ * The coverage the oracle expects, read from the approved map and the complete specs of the suite: per kind, the
+ * approved atoms, those a complete spec names and those a guard enforces. `navigation` is the number of
+ * references the coverage counts leave out.
+ */
+export function coverageTruth(
+  map: { atoms: readonly CoverageAtom[]; documents?: ReadonlyArray<{ path: string; role: string }> },
+  specs: ReadonlyArray<{ complete: boolean; atoms: readonly string[] }>,
+): { truth: Truth; navigation: number } {
+  const truth: Truth = {};
+  for (const atom of map.atoms) {
+    if (!atom.approved) continue;
+    const entry = truth[atom.kind] ?? { atoms: 0, tested: 0, enforced: 0 };
+    truth[atom.kind] = entry;
+    entry.atoms += 1;
+    if (specs.some((spec) => spec.complete && spec.atoms.includes(atom.id))) entry.tested += 1;
+    if ((atom.enforcement ?? []).length > 0) entry.enforced += 1;
+  }
+  return { truth, navigation: 0 };
+}
+
+/** The verdict of one coverage cell: the counts of the kind, as reported, against the oracle's. */
+export function coverageCell(
+  _kind: string,
+  line: Line,
+  want: { atoms: number; tested: number; enforced: number },
+  got: { atoms?: number; tested?: number; enforced?: number },
+  _navigation: number,
+  _navigationReported: number | undefined,
+): ItemResult {
+  const ok = got.atoms === want.atoms && got[line] === want[line];
+  return ok
+    ? { pass: true, detail: `holds (${want[line]} of ${want.atoms})` }
+    : {
+        pass: false,
+        detail: `reported ${got[line]} of ${got.atoms}, expected ${want[line]} of ${want.atoms}`,
+      };
+}
+
 export function statsFamily(): Family {
   const family = 'estate.stats';
   const cells = KINDS.flatMap(([kind, tier]) =>
@@ -155,15 +202,7 @@ export function statsFamily(): Family {
         for (const item of items) out.set(item.id, { pass: false, detail: 'the fixture map does not load' });
         return out;
       }
-      const truth: Truth = {};
-      for (const atom of map.map.atoms) {
-        if (!atom.approved) continue;
-        const entry = truth[atom.kind] ?? { atoms: 0, tested: 0, enforced: 0 };
-        truth[atom.kind] = entry;
-        entry.atoms += 1;
-        if (suite.specs.some((spec) => spec.complete && spec.atoms.includes(atom.id))) entry.tested += 1;
-        if ((atom.enforcement ?? []).length > 0) entry.enforced += 1;
-      }
+      const { truth, navigation } = coverageTruth(map.map, suite.specs);
       const result = spawnSync(
         'pnpm',
         [
@@ -185,17 +224,19 @@ export function statsFamily(): Family {
       );
       const text = `${result.stdout ?? ''}${result.stderr ?? ''}`;
       let reported: Reported | undefined;
+      let navigationReported: number | undefined;
       let reach: Array<{ atom: string; reached?: number }> | undefined;
       let decay: Array<{ block: number; runs?: number }> | undefined;
       let drift: Array<{ guard: string; decisions?: number; denies?: number }> | undefined;
       try {
         const json = JSON.parse(text.slice(text.indexOf('{'))) as {
-          coverage?: { kinds?: Reported };
+          coverage?: { kinds?: Reported; navigationReferences?: number };
           reach?: Array<{ atom: string; reached?: number }>;
           decay?: Array<{ block: number; runs?: number }>;
           drift?: { guards?: Array<{ guard: string; decisions?: number; denies?: number }> };
         };
         reported = json.coverage?.kinds;
+        navigationReported = json.coverage?.navigationReferences;
         reach = json.reach;
         decay = json.decay;
         drift = json.drift?.guards;
@@ -283,17 +324,7 @@ export function statsFamily(): Family {
           });
           continue;
         }
-        const got = reported[kind] ?? {};
-        const ok = got.atoms === want.atoms && got[line] === want[line];
-        out.set(
-          id,
-          ok
-            ? { pass: true, detail: `holds (${want[line]} of ${want.atoms})` }
-            : {
-                pass: false,
-                detail: `reported ${got[line]} of ${got.atoms}, expected ${want[line]} of ${want.atoms}`,
-              },
-        );
+        out.set(id, coverageCell(kind, line, want, reported[kind] ?? {}, navigation, navigationReported));
       }
       return out;
     },
