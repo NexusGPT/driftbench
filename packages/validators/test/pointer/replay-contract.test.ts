@@ -49,7 +49,7 @@ describe('committed replay oracles', () => {
       const fixture = loadFixture(arm);
       expect(makeFixture(arm, fixture.documents, fixture.labelsYaml)).toEqual(fixture);
       fixture.rows.forEach((row, index) => {
-        expect(row.key).toBe(hash(canonical(fixture.wires[index])));
+        expect(row.key).toBe(hash(canonical({ wire: fixture.wires[index], readable: row.readable })));
       });
       const transport = fakeTransport({
         respond: () => {

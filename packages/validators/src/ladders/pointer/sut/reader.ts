@@ -388,10 +388,16 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
   };
 }
 
+/**
+ * The offline environment of a recording scan. Every labeler needs its key and, for the system 1 client, an address
+ * before the reader lets a run record. Nothing here is real: the address is a reserved `.invalid` name, and the
+ * scan sends every request through the fake transport of the item, so no socket opens.
+ */
 const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_URL: 'https://jev.invalid/v1/systemone',
 };
 
 function fetchOf(

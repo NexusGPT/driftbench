@@ -47,7 +47,7 @@ export const replay: FamilySpec = {
       2,
       'Only the record mode reaches the transport',
       'Replay an empty cassette, record without a cassette, then record with the independent committed fixture.',
-      'The empty replay fails with zero calls; fresh record calls all three windows; committed entries need zero calls and retain every authored label.',
+      'The empty replay fails with zero calls; fresh record calls every window once per independent run (three windows, three runs each); committed entries need zero calls and retain every authored label.',
       'cassette:ci-mode-no-network',
     ),
     row(
@@ -207,7 +207,7 @@ export const replay: FamilySpec = {
       'fresh-replay-needs-all-entries',
       2,
       "A fresh replay needs every window's entry",
-      'Replay the committed positive fixture, then remove its first window entry and replay without a prior ledger.',
+      'Replay the committed positive fixture, then remove every run of its first window and replay without a prior ledger.',
       'The complete fixture retains every authored label; the incomplete one fails offline and names a window.',
       'cassette:window-granularity',
     ),
@@ -216,7 +216,7 @@ export const replay: FamilySpec = {
       3,
       'A failed recording leaves a valid cassette',
       'Fail the second request during a three-window record; inspect its output. Separately continue recording from an independently committed one-entry cassette.',
-      'The failed output contains exactly one valid JSON entry; the independent partial cassette completes with exactly two calls.',
+      'The failed output contains exactly one valid JSON entry; the independent partial cassette completes with exactly one call per missing window and run.',
       'cassette:atomic-append',
     ),
     row(

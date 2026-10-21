@@ -1,7 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
-import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
-import { makeFixture, requireFixtureLabels } from '../../kit/fixture';
+import { build, byId, eventCountsOf, liveByText, liveOf, reportsEventsById, scanOk } from '../../kit/estate';
+import { makeFixture, RUNS, requireFixtureLabels } from '../../kit/fixture';
 import {
   constant,
   entriesFor,
@@ -696,7 +696,7 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (second.events?.[id] !== 'unchanged')
+      if (reportsEventsById(second) && second.events?.[id] !== 'unchanged')
         return fail(`${show(t, 36)} has event ${second.events?.[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')
         return fail(`${show(t, 36)} has label ${now.labels['agent-rules']?.label}, expected none`);
@@ -704,6 +704,12 @@ export const labelsRuns: Record<string, Run> = {
         return fail(`no label_flip diagnostic names ${show(t, 36)}`);
       if (second.atoms.some((a) => a.fields.unit === id))
         return fail('an atom survives for a unit the labeller stopped selecting');
+    }
+    if (!reportsEventsById(second)) {
+      // The same scan with the same texts: no id is deleted, changed or new.
+      const counts = eventCountsOf(second);
+      if ((counts.deleted ?? 0) !== 0 || (counts.changed ?? 0) !== 0 || (counts.new ?? 0) !== 0)
+        return fail(`the event counts are ${JSON.stringify(counts)}, expected no deleted, changed or new id`);
     }
     return pass('three flips, none deleted');
   },
@@ -727,14 +733,17 @@ export const labelsRuns: Record<string, Run> = {
         labeler: l,
       });
       requireSourceWitness(second, build(after).files);
-      for (const entry of second.ledger.entries)
-        if (second.events?.[entry.id] === undefined)
-          return fail(`the reader does not expose an event for ${entry.id}`);
+      // An event per id when the reader reports one; the counts of events when it reports only those.
+      if (reportsEventsById(second)) {
+        for (const entry of second.ledger.entries)
+          if (second.events?.[entry.id] === undefined)
+            return fail(`the reader does not expose an event for ${entry.id}`);
+      } else eventCountsOf(second);
       const entries = JSON.parse(second.ledger.raw).entries.map((e: Record<string, unknown>) => {
         const { labels: _labels, ...rest } = e;
         return rest;
       });
-      views.push(JSON.stringify({ entries, events: second.events }));
+      views.push(JSON.stringify({ entries, events: second.events ?? second.eventCounts }));
     }
     return views.every((v) => v === views[0])
       ? pass('ids, events and quotes equal under four labellers')
@@ -962,7 +971,8 @@ labels:
     const texts = distinctSentences(prose(ctx), 12);
     const units = texts.map((text, i) => ({
       text,
-      probs: { rule: i % 2 === 0 ? 0.95 : 0.5, prohibition: 0.05, example: 0.05 },
+      // The two remaining labels share what is left, so that the answer is a probability vector (with `none` last).
+      probs: { rule: i % 2 === 0 ? 0.95 : 0.5, prohibition: 0.02, example: 0.02 },
     }));
     const { res } = await jevLabels(ctx, 'jev', units);
     if (!res.cassette) return fail('the record run returned no cassette');
@@ -1074,7 +1084,20 @@ labels:
     }));
     const fake = fakeTransport();
     const res = must(await modelScan(ctx, files, 'haiku', fake));
-    if (fake.count !== 2) return fail(`${fake.count} requests for 2 files, expected 2`);
+    // The system 2 labeler asks each window and set once per independent run: three runs of one dense request
+    // (design, "The default stack"). Two files of one window make six requests; two requests would be one run only.
+    const runs = RUNS.haiku;
+    if (fake.count !== 2 * runs)
+      return fail(
+        `${fake.count} requests for 2 files, expected ${2 * runs} (one dense request per file, asked in ${runs} independent runs)`,
+      );
+    const perWindow = new Map<string, string[]>();
+    for (const call of fake.calls) perWindow.set(call.window, [...(perWindow.get(call.window) ?? []), call.body]);
+    const odd = [...perWindow].find(([, bodies]) => bodies.length !== runs || new Set(bodies).size !== 1);
+    if (perWindow.size !== 2 || odd)
+      return fail(
+        `${perWindow.size} windows asked; ${odd ? `${odd[0]} was asked ${odd[1].length} times or with changing requests` : 'expected 2'}, the ${runs} runs of a window carry one request`,
+      );
     const bad = fake.calls.find((c) => c.arm !== 'haiku' || c.units.length !== 9);
     if (bad) return fail(`a request lists ${bad.units.length} units, expected 9`);
     const texts = fake.calls.flatMap((c) => c.units.map((u) => u.text));
@@ -1083,7 +1106,7 @@ labels:
       ? fail(
           `${show(wrong, 30)} has label ${label(res.ledger, wrong)}, the model answered ${truthLabel(wrong)}`,
         )
-      : pass('one dense request per file');
+      : pass(`one dense request per file, asked in ${runs} runs`);
   },
   'haiku-thinking-block-first': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
@@ -1096,9 +1119,9 @@ labels:
       ? fail(
           `${show(wrong, 30)} has label ${label(res.ledger, wrong)}, the answer block said ${truthLabel(wrong)}`,
         )
-      : fake.count === 1
+      : fake.count === RUNS.haiku
         ? pass('answer block read, thinking ignored')
-        : fail(`${fake.count} calls, expected 1`);
+        : fail(`${fake.count} calls, expected ${RUNS.haiku} (one window, one request per independent run)`);
   },
   'haiku-stop-reason-refused': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
@@ -1113,8 +1136,11 @@ labels:
       });
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok || !res.ledger) return fail(`stop reason ${stop}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`stop reason ${stop}: ${fake.count} calls, expected 2 (refuse, retry once)`);
+      // The first request is refused and asked once more; the other independent runs ask one request each.
+      if (fake.count !== RUNS.haiku + 1)
+        return fail(
+          `stop reason ${stop}: ${fake.count} calls, expected ${RUNS.haiku + 1} (refuse, retry once, then the other ${RUNS.haiku - 1} runs)`,
+        );
       if (label(res.ledger, texts[0] as string) !== truthLabel(texts[0] as string))
         return fail(`stop reason ${stop}: the retry's answer did not apply`);
     }
@@ -1135,8 +1161,10 @@ labels:
       });
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok) return fail(`echo of another ${field}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`an answer echoing another ${field} was accepted: ${fake.count} calls, expected 2`);
+      if (fake.count !== RUNS.haiku + 1)
+        return fail(
+          `an answer echoing another ${field} was accepted: ${fake.count} calls, expected ${RUNS.haiku + 1} (refuse, retry once, then the other ${RUNS.haiku - 1} runs)`,
+        );
     }
     return pass('wrong window and wrong set refused');
   },

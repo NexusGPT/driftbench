@@ -247,7 +247,11 @@ export const replayRuns: Record<string, Run> = {
     if (off.res.ok || off.fake.count) return fail('empty replay did not fail offline');
     const fake = fakeTransport();
     await record(fixture.files, 'haiku', fake, { labelsYaml: fixture.labelsYaml }, ctx);
-    if (fake.count !== 3) return fail('record must call all three windows');
+    // The system 2 labeler asks every window once per independent run (design, "The default stack"): three windows, three runs each.
+    if (fake.count !== fixture.rows.length)
+      return fail(
+        `record must call every window once per run: ${fake.count} calls, expected ${fixture.rows.length}`,
+      );
     const again = fakeTransport();
     const second = await ctx.sut.scan({
       files: fixture.files,
@@ -257,7 +261,7 @@ export const replayRuns: Record<string, Run> = {
     });
     requireFixtureLabels(second, fixture);
     return again.count === 0
-      ? pass('offline miss, three record calls, zero fixture reuse calls')
+      ? pass('offline miss, one record call per window and run, zero fixture reuse calls')
       : fail('existing committed entries were re-recorded');
   },
   'miss-names-description-edit': (ctx) =>
@@ -489,12 +493,14 @@ export const replayRuns: Record<string, Run> = {
   },
   'fresh-replay-needs-all-entries': async (ctx) => {
     const { fixture } = await positiveReplay(ctx);
+    // Every run of the first window is removed: a window with some runs recorded would miss on the run, not on the window.
+    const first = fixture.rows[0]?.readable.window;
     const { res, fake } = await replay(
       ctx,
       fixture.files,
       'haiku',
       fixture.rows
-        .slice(1)
+        .filter((r) => r.readable.window !== first)
         .map((r) => JSON.stringify(r))
         .concat('')
         .join('\n'),
@@ -537,9 +543,12 @@ export const replayRuns: Record<string, Run> = {
       cassette: { mode: 'record', text: `${JSON.stringify(fixture.rows[0])}\n` },
     });
     if (!again.ok) return fail(`the second record run failed: ${again.error}`);
-    return fake.count === 2
-      ? pass('one entry kept, two calls to finish')
-      : fail(`${fake.count} calls to finish a 3 window recording with 1 entry, expected 2`);
+    const rest = fixture.rows.length - 1;
+    return fake.count === rest
+      ? pass(`one entry kept, ${rest} calls to finish`)
+      : fail(
+          `${fake.count} calls to finish a recording of ${fixture.rows.length} requests (3 windows, one request per run) with 1 entry, expected ${rest}`,
+        );
   },
   'answers-frozen-despite-random-transport': async (ctx) => {
     const { fixture, res: baseline } = await positiveReplay(ctx);

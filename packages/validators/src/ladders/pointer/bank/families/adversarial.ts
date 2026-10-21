@@ -3,7 +3,16 @@ import { cloneWorld, distinctSentences, filesOf, longSentence, worldOf } from '.
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutCase } from '../../kit/cut-case';
-import { build, byId, checkPlanted, eventNow, liveOf, scanOk } from '../../kit/estate';
+import {
+  build,
+  byId,
+  checkPlanted,
+  eventCountsOf,
+  eventNow,
+  liveOf,
+  reportsEventsById,
+  scanOk,
+} from '../../kit/estate';
 import { perfect, recording } from '../../kit/labellers';
 import { rewordSim } from '../../kit/segments';
 import { keyOf, labelByText, type Pick, RULES_YAML } from '../../kit/sets';
@@ -524,14 +533,27 @@ export const adversarialRuns: Record<string, Run> = {
       .sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0));
     if (was.length !== 4) return fail(`the first scan has ${was.length} copies, expected 4`);
     const middle = was[2]!;
+    // Without an event per id, the counts say the same: one id changed, none deleted, none new.
+    const byCount = !reportsEventsById(second);
     for (const [i, e] of was.entries()) {
       const now = byId(second.ledger, e.id);
       if (now?.status !== 'live') return fail(`copy ${i + 1} is ${now?.status ?? 'gone'}`);
       if (i === 2) {
-        if (keyOf(now.quote) !== keyOf(dup2) || eventNow(second, now) !== 'changed')
+        if (keyOf(now.quote) !== keyOf(dup2))
+          return fail(`the edited copy did not follow: it quotes ${now.quote.slice(0, 30)}`);
+        if (!byCount && eventNow(second, now) !== 'changed')
           return fail(`the edited copy did not follow as changed (event ${eventNow(second, now)})`);
-      } else if (keyOf(now.quote) !== keyOf(dup) || eventNow(second, now) !== 'unchanged')
-        return fail(`untouched copy ${i + 1} is ${eventNow(second, now)} with ${now.quote.slice(0, 30)}`);
+      } else {
+        if (keyOf(now.quote) !== keyOf(dup))
+          return fail(`untouched copy ${i + 1} quotes ${now.quote.slice(0, 30)}`);
+        if (!byCount && eventNow(second, now) !== 'unchanged')
+          return fail(`untouched copy ${i + 1} is ${eventNow(second, now)} with ${now.quote.slice(0, 30)}`);
+      }
+    }
+    if (byCount) {
+      const counts = eventCountsOf(second);
+      if ((counts.changed ?? 0) !== 1 || (counts.deleted ?? 0) !== 0 || (counts.new ?? 0) !== 0)
+        return fail(`the event counts are ${JSON.stringify(counts)}, expected one changed and no deleted or new id`);
     }
     void middle;
     return pass('the edited copy changed, the other three unchanged');

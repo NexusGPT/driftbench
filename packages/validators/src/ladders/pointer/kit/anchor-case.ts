@@ -1,6 +1,17 @@
 import { type ItemContext, type Outcome, Problem, pass } from '../bank/types';
 import type { Labeler, LedgerEntry } from '../sut/port';
-import { build, byId, type EstateFile, eventNow, liveByText, liveOf, scanOk } from './estate';
+import {
+  build,
+  byId,
+  CARRIED_EVENTS,
+  type EstateFile,
+  eventCountsOf,
+  eventNow,
+  liveByText,
+  liveOf,
+  reportsEventsById,
+  scanOk,
+} from './estate';
 import { perfect } from './labellers';
 import { norm } from './norm';
 import { show } from './oracle';
@@ -40,6 +51,40 @@ export type ScenarioRun = {
 
 const key = (text: string, container?: string) => norm(text, container);
 
+/**
+ * What the aggregate event counts must hold, built from the fates while the ids are checked one by one. A reader
+ * that reports an event per id is checked per id and the tally is not read; a reader that reports only counts is
+ * checked against the tally: an event a fate names exactly is a lower bound for its count, and a fate that allows
+ * several events (a move may be `moved` or `unchanged`) widens the upper bound of each.
+ */
+class EventTally {
+  private readonly exact = new Map<string, number>();
+  private flexible: Array<readonly string[]> = [];
+  expect(...events: string[]): void {
+    if (events.length === 1) this.exact.set(events[0] as string, (this.exact.get(events[0] as string) ?? 0) + 1);
+    else this.flexible.push(events);
+  }
+  /** The events the carried ids can have, for an id whose fate the scenario does not name. */
+  unknown(): void {
+    this.flexible.push(CARRIED_EVENTS);
+  }
+  check(counts: Record<string, number>, carried: number, fresh: number, deleted: number): string | undefined {
+    const got = (event: string) => counts[event] ?? 0;
+    if (got('new') !== fresh) return `${got('new')} new ids in the event counts, ${fresh} fresh live entries in the ledger`;
+    if (got('deleted') !== deleted)
+      return `${got('deleted')} deleted in the event counts, ${deleted} old ids lost from the ledger`;
+    const total = CARRIED_EVENTS.reduce((sum, event) => sum + got(event), 0);
+    if (total !== carried) return `${total} carried ids in the event counts, ${carried} old ids live in both scans`;
+    for (const event of CARRIED_EVENTS) {
+      const low = this.exact.get(event) ?? 0;
+      const high = low + this.flexible.filter((allowed) => allowed.includes(event)).length;
+      if (got(event) < low || got(event) > high)
+        return `${got(event)} ${event} in the event counts, expected ${low === high ? low : `${low} to ${high}`}`;
+    }
+    return undefined;
+  }
+}
+
 /** Scans the old estate, edits it, rescans with the ledger and checks every old unit's fate. Throws a Problem on a miss. */
 export async function runScenario(ctx: ItemContext, s: Scenario): Promise<ScenarioRun> {
   const old = build(s.before);
@@ -72,6 +117,9 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
     throw new Problem('the rescan gives two live entries one id');
 
   const claimed = new Set<string>();
+  const perId = reportsEventsById(second);
+  const tally = new EventTally();
+  let accounted = 0;
   const explicit = new Map((s.fates ?? []).map((f) => [key(f.text), f.fate]));
   const parts = new Set<string>();
   const pairHandled = new Set<string>();
@@ -86,13 +134,16 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
     const entry = byId(second.ledger, id);
     const fate: Fate = explicit.get(k) ?? { kind: 'unchanged' };
     if (!entry) return fail(text, `the id ${id} is gone from the ledger`);
-    const event = eventNow(second, entry);
+    // Without an event per id the counts carry the check (see EventTally); the ledger checks below stay.
+    const event = perId ? eventNow(second, entry) : undefined;
     switch (fate.kind) {
       case 'unchanged':
         if (entry.status !== 'live') fail(text, `expected unchanged, the entry is ${entry.status}`);
         if (key(entry.quote, entry.container) !== k)
           fail(text, `expected the same text, the entry quotes ${show(entry.quote)}`);
-        if (event !== 'unchanged') fail(text, `expected event unchanged, got ${event}`);
+        if (event !== undefined && event !== 'unchanged') fail(text, `expected event unchanged, got ${event}`);
+        tally.expect('unchanged');
+        accounted += 1;
         claimed.add(k);
         break;
       case 'moved': {
@@ -100,7 +151,10 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
         if (entry.status !== 'live') fail(text, `expected moved, the entry is ${entry.status}`);
         if (key(entry.quote, entry.container) !== k)
           fail(text, `expected the same text, the entry quotes ${show(entry.quote)}`);
-        if (!allowed.includes(event)) fail(text, `expected event ${allowed.join(' or ')}, got ${event}`);
+        if (event !== undefined && !allowed.includes(event))
+          fail(text, `expected event ${allowed.join(' or ')}, got ${event}`);
+        tally.expect(...allowed);
+        accounted += 1;
         if (fate.path !== undefined && entry.path !== fate.path)
           fail(text, `expected path ${fate.path}, got ${entry.path}`);
         claimed.add(k);
@@ -112,24 +166,33 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
         if (key(entry.quote, entry.container) !== key(fate.to, entry.container)) {
           fail(text, `expected the new text ${show(fate.to)}, the entry quotes ${show(entry.quote)}`);
         }
-        if (fate.kind === 'changed' && event !== 'changed')
+        if (fate.kind === 'changed' && event !== undefined && event !== 'changed')
           fail(text, `expected event changed, got ${event}`);
+        if (fate.kind === 'changed') tally.expect('changed');
+        else tally.unknown();
+        accounted += 1;
         claimed.add(key(fate.to, entry.container));
         break;
       case 'deleted':
         if (entry.status === 'live')
           fail(text, `expected deleted, the entry is live with ${show(entry.quote)}`);
-        if (event !== 'deleted') fail(text, `expected event deleted, got ${event}`);
+        if (event !== undefined && event !== 'deleted') fail(text, `expected event deleted, got ${event}`);
         if (key(entry.quote, entry.container) !== k)
           fail(text, `the deleted entry no longer quotes the old text: ${show(entry.quote)}`);
         break;
       case 'ambiguous':
-        if (event !== 'ambiguous') fail(text, `expected event ambiguous, got ${event}`);
+        if (event !== undefined && event !== 'ambiguous') fail(text, `expected event ambiguous, got ${event}`);
+        if (entry.status === 'live') {
+          tally.expect('ambiguous');
+          accounted += 1;
+        }
         break;
       case 'split': {
         if (entry.status !== 'live')
           fail(text, `expected the id to live on in one part, the entry is ${entry.status}`);
-        if (event !== 'split') fail(text, `expected event split, got ${event}`);
+        if (event !== undefined && event !== 'split') fail(text, `expected event split, got ${event}`);
+        tally.expect('split');
+        accounted += 1;
         const keptOne = fate.parts.some((p) => key(p, entry.container) === key(entry.quote, entry.container));
         if (!keptOne) fail(text, `expected one of the parts, the entry quotes ${show(entry.quote)}`);
         for (const p of fate.parts) parts.add(key(p));
@@ -159,8 +222,10 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
             `expected exactly one of the two ids to live on as ${show(fate.into)}, found ${survivors.length}`,
           );
         const survivor = survivors[0] as LedgerEntry;
-        if (eventNow(second, survivor) !== 'merged')
+        if (perId && eventNow(second, survivor) !== 'merged')
           fail(text, `expected event merged, got ${eventNow(second, survivor)}`);
+        tally.expect('merged');
+        accounted += 1;
         const loser = survivor === entry ? otherEntry : entry;
         if (loser.status === 'live') fail(text, `the other id is still live with ${show(loser.quote)}`);
         claimed.add(key(fate.into));
@@ -194,6 +259,15 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
         `${show(t)} got a fresh id but an old id should have carried it (a wrong anchor or a lost one)`,
       );
     }
+  }
+  if (!perId) {
+    // The reader reports no event per id: the counts of events must fit the edit the ledger shows.
+    const oldLive = first.ledger.entries.filter((e) => e.status === 'live');
+    const carried = oldLive.filter((e) => byId(second.ledger, e.id)?.status === 'live').length;
+    // Opaque units and skipped texts carry an id whose event the scenario does not name.
+    for (let more = accounted; more < carried; more += 1) tally.unknown();
+    const problem = tally.check(eventCountsOf(second), carried, freshLive.length, oldLive.length - carried);
+    if (problem) throw new Problem(`the event counts do not match the edit: ${problem}`);
   }
   const run: ScenarioRun = { ids, before: first, after: second };
   const more = s.extra?.(run);
