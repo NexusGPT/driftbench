@@ -36,6 +36,7 @@ const SET_ITEMS = `  - set: ${GATE_FORMS_SET_NAME}
       - name: gate-split
         description: A unit that asks the act that waits, such as a question or a heading, while the NEXT unit tells the reader to read a file first and names it in a code span or a link. Label the unit that holds the act, never the unit that names the file, and give the unit that names the file as the target. Give the act as the governed-action span and the tool that act uses as the act-tool link. Use it only when the unit itself holds no code span and no link that names a file. A single unit that holds both the act and the file is not this label.
         target: required
+        paths: { max: 0 }
         spans: [governed-action]
         links: [act-tool]
         atom:
@@ -48,6 +49,7 @@ const SET_ITEMS = `  - set: ${GATE_FORMS_SET_NAME}
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
 ${ALSO_REFERENCE}      - name: gate-each
         description: A unit that holds several gates, each with its own act and its own file named in a code span or a link, such as two orders in one sentence. Give one governed-action span for each gate, in the order of the files the unit names, and the tool the first act uses as the act-tool link. A unit that holds one gate is not this label.
+        paths: { min: 2 }
         spans: [governed-action]
         links: [act-tool]
         atom:
