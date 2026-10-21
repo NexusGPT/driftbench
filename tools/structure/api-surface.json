@@ -2670,6 +2670,7 @@
       "benjaminiHochberg": "value",
       "betaQuantile": "value",
       "binomialCdf": "value",
+      "bonferroniThreshold": "value",
       "bootstrapCI": "value",
       "chaoCoverage": "value",
       "chiSquareSf": "value",
