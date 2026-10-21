@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T10:14:51.689Z
+readAt: 2026-10-21T11:23:29.629Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -3342,5 +3342,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T10:14:51.689Z
+  at: 2026-10-21T11:23:29.629Z
 hash: 0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260

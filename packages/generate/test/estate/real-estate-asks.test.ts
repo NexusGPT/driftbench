@@ -472,7 +472,7 @@ describe('a guard whose rule text names a situation, not an act', () => {
       'Please go ahead with deploying to the production cluster.',
     );
     expect(ask('A signed-off quote before sending the offer to a carrier.').text).toBe(
-      'Please send the offer to a carrier.',
+      'Please go ahead with sending the offer to a carrier.',
     );
     expect(
       ask('Nothing leaves the building. Sending a price list while the contract is unsigned.').text,
