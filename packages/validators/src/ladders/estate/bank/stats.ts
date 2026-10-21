@@ -12,7 +12,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * The command and its JSON are written in docs/estate.md section 7, "The coverage command: `estate stats`",
  * and docs/reference/cli.md (frozen: a change needs an audit finding). The oracle
  * counts from the approved map and the generated suite: atoms of the kind; those named by a complete spec;
- * those whose enforcement lists a guard. Seed-free, judged once.
+ * those whose enforcement lists a guard. A reference to a navigation document is left out, and its number is
+ * checked (docs/estate.md section 5, "A map may record `documents`"). Seed-free, judged once.
  */
 
 const COMPONENT = 'packages/cli/src/commands/estate-stats.ts';
@@ -126,27 +127,50 @@ export function coverageTruth(
   map: { atoms: readonly CoverageAtom[]; documents?: ReadonlyArray<{ path: string; role: string }> },
   specs: ReadonlyArray<{ complete: boolean; atoms: readonly string[] }>,
 ): { truth: Truth; navigation: number } {
+  // docs/estate.md section 5: a document of any role but `normative` is a navigation document; a reference whose
+  // target is one is a place to look, out of the coverage counts. A map without documents leaves none out.
+  const places = new Set(
+    (map.documents ?? [])
+      .filter((document) => document.role !== 'normative')
+      .map((document) => document.path),
+  );
+  const toPlace = (atom: CoverageAtom) => {
+    const path = atom.fields?.path;
+    return (
+      atom.kind === 'reference' &&
+      typeof path === 'string' &&
+      places.has(path.replaceAll('\\', '/').replace(/^\.\//, ''))
+    );
+  };
   const truth: Truth = {};
   for (const atom of map.atoms) {
-    if (!atom.approved) continue;
+    if (!atom.approved || toPlace(atom)) continue;
     const entry = truth[atom.kind] ?? { atoms: 0, tested: 0, enforced: 0 };
     truth[atom.kind] = entry;
     entry.atoms += 1;
     if (specs.some((spec) => spec.complete && spec.atoms.includes(atom.id))) entry.tested += 1;
     if ((atom.enforcement ?? []).length > 0) entry.enforced += 1;
   }
-  return { truth, navigation: 0 };
+  return { truth, navigation: map.atoms.filter(toPlace).length };
 }
 
-/** The verdict of one coverage cell: the counts of the kind, as reported, against the oracle's. */
+/**
+ * The verdict of one coverage cell: the counts of the kind, as reported, against the oracle's. A reference cell
+ * also holds the reported number of references left out, so leaving references out cannot hide them.
+ */
 export function coverageCell(
-  _kind: string,
+  kind: string,
   line: Line,
   want: { atoms: number; tested: number; enforced: number },
   got: { atoms?: number; tested?: number; enforced?: number },
-  _navigation: number,
-  _navigationReported: number | undefined,
+  navigation: number,
+  navigationReported: number | undefined,
 ): ItemResult {
+  if (kind === 'reference' && (navigationReported ?? 0) !== navigation)
+    return {
+      pass: false,
+      detail: `reported ${navigationReported ?? 'no'} references to navigation documents left out, expected ${navigation}`,
+    };
   const ok = got.atoms === want.atoms && got[line] === want[line];
   return ok
     ? { pass: true, detail: `holds (${want[line]} of ${want.atoms})` }
