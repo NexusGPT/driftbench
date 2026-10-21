@@ -15,11 +15,9 @@ const FN = /^[a-z][A-Za-z0-9]*$/;
 const MODULE = /^[a-z][a-z0-9-]*$/;
 
 describe('the new-capability fixtures', () => {
-  it('hold groups with unique function names, none of them already exported', () => {
+  it('hold groups with unique function names', () => {
     const names = entries.map(({ entry }) => entry.fn);
     expect(new Set(names).size).toBe(names.length);
-    const exported = new Set(Object.keys(stats));
-    expect(names.filter((name) => exported.has(name))).toEqual([]);
     for (const name of names) expect(name, name).toMatch(FN);
   });
 
@@ -99,11 +97,17 @@ describe('the new-capability fixtures', () => {
     expect((await runItem(domain, 1, ROOT, picky)).pass).toBe(false);
   });
 
-  it('fail today, naming the missing function, and are reachable in the documented pages', async () => {
+  it('pass for a function the package exports, and fail naming the missing function for one it lacks', async () => {
+    const exported = new Set(Object.keys(stats));
     for (const item of newcapItems(ROOT, only)) {
       const result = await runItem(item, 1, ROOT, real);
-      expect(result.pass, item.id).toBe(false);
-      expect(result.detail, item.id).toContain('does not exist in the statistics package');
+      const fn = item.id.split('.')[1] as string;
+      if (exported.has(fn)) {
+        expect(result.pass, `${item.id}: ${result.detail}`).toBe(true);
+      } else {
+        expect(result.pass, item.id).toBe(false);
+        expect(result.detail, item.id).toContain('does not exist in the statistics package');
+      }
     }
   });
 });
