@@ -1,7 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
-import { loadFixture, makeFixture, perturb, requireFixtureLabels } from '../../kit/fixture';
+import { loadFixture, makeFixture, perturb, RUNS, requireFixtureLabels } from '../../kit/fixture';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
@@ -247,7 +247,11 @@ export const replayRuns: Record<string, Run> = {
     if (off.res.ok || off.fake.count) return fail('empty replay did not fail offline');
     const fake = fakeTransport();
     await record(fixture.files, 'haiku', fake, { labelsYaml: fixture.labelsYaml }, ctx);
-    if (fake.count !== 3) return fail('record must call all three windows');
+    // The system 2 labeler asks every window once per independent run (design, "The default stack"): three windows, three runs each.
+    if (fake.count !== fixture.rows.length)
+      return fail(
+        `record must call every window once per run: ${fake.count} calls, expected ${fixture.rows.length}`,
+      );
     const again = fakeTransport();
     const second = await ctx.sut.scan({
       files: fixture.files,
@@ -257,7 +261,7 @@ export const replayRuns: Record<string, Run> = {
     });
     requireFixtureLabels(second, fixture);
     return again.count === 0
-      ? pass('offline miss, three record calls, zero fixture reuse calls')
+      ? pass('offline miss, one record call per window and run, zero fixture reuse calls')
       : fail('existing committed entries were re-recorded');
   },
   'miss-names-description-edit': (ctx) =>
@@ -351,6 +355,38 @@ export const replayRuns: Record<string, Run> = {
     ['cutDigest'],
     [process.versions.node, process.versions.icu ?? ''],
   ),
+  'repeat-run-is-part-of-key': async (ctx) => {
+    const { files } = threeFiles(ctx);
+    const fake = fakeTransport();
+    const rec = await record(files, 'haiku', fake, { labelsYaml: RULES_YAML }, ctx);
+    must(rec, 'record');
+    const keys = lines(rec.cassette ?? '').map((l) => (JSON.parse(l) as { key?: string }).key);
+    const want = files.length * RUNS.haiku;
+    if (keys.length !== want || new Set(keys).size !== want)
+      return fail(
+        `${keys.length} entries with ${new Set(keys).size} distinct keys, expected ${want}: one per window and run`,
+      );
+    return fake.count === want
+      ? pass(`${want} runs, ${want} keys, ${want} calls`)
+      : fail(`${fake.count} transport calls for ${want} runs: a run reused the answer of another`);
+  },
+  'cassette-ascending-keys': async (ctx) => {
+    const { files } = threeFiles(ctx);
+    const cassettes: string[] = [];
+    for (const order of [files, [...files].reverse()]) {
+      const rec = await record(order, 'haiku', fakeTransport(), { labelsYaml: RULES_YAML }, ctx);
+      must(rec, 'record');
+      const keys = lines(rec.cassette ?? '').map((l) => String((JSON.parse(l) as { key?: string }).key));
+      if (keys.length < 2) return fail('positive witness: the cassette holds fewer than two entries');
+      const sorted = [...keys].sort((a, b) => a.localeCompare(b));
+      if (JSON.stringify(sorted) !== JSON.stringify(keys))
+        return fail('the entries of the cassette are not in ascending key order');
+      cassettes.push(rec.cassette ?? '');
+    }
+    return cassettes[0] === cassettes[1]
+      ? pass('ascending keys, whatever the order of the files')
+      : fail('the cassette depends on the order the entries were recorded in');
+  },
   'key-is-sha256-hex': async (ctx) => {
     const { files } = threeFiles(ctx);
     const rec = await record(files, 'haiku', fakeTransport(), { labelsYaml: TWO_SETS_YAML }, ctx);
@@ -489,12 +525,14 @@ export const replayRuns: Record<string, Run> = {
   },
   'fresh-replay-needs-all-entries': async (ctx) => {
     const { fixture } = await positiveReplay(ctx);
+    // Every run of the first window is removed: a window with some runs recorded would miss on the run, not on the window.
+    const first = fixture.rows[0]?.readable.window;
     const { res, fake } = await replay(
       ctx,
       fixture.files,
       'haiku',
       fixture.rows
-        .slice(1)
+        .filter((r) => r.readable.window !== first)
         .map((r) => JSON.stringify(r))
         .concat('')
         .join('\n'),
@@ -537,9 +575,12 @@ export const replayRuns: Record<string, Run> = {
       cassette: { mode: 'record', text: `${JSON.stringify(fixture.rows[0])}\n` },
     });
     if (!again.ok) return fail(`the second record run failed: ${again.error}`);
-    return fake.count === 2
-      ? pass('one entry kept, two calls to finish')
-      : fail(`${fake.count} calls to finish a 3 window recording with 1 entry, expected 2`);
+    const rest = fixture.rows.length - 1;
+    return fake.count === rest
+      ? pass(`one entry kept, ${rest} calls to finish`)
+      : fail(
+          `${fake.count} calls to finish a recording of ${fixture.rows.length} requests (3 windows, one request per run) with 1 entry, expected ${rest}`,
+        );
   },
   'answers-frozen-despite-random-transport': async (ctx) => {
     const { fixture, res: baseline } = await positiveReplay(ctx);

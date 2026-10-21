@@ -388,10 +388,16 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
   };
 }
 
+/**
+ * The offline environment of a recording scan. Every labeler needs its key and, for the system 1 client, an address
+ * before the reader lets a run record. Nothing here is real: the address is a reserved `.invalid` name, and the
+ * scan sends every request through the fake transport of the item, so no socket opens.
+ */
 const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_URL: 'https://jev.invalid/v1/systemone',
 };
 
 function fetchOf(
@@ -540,12 +546,23 @@ function atomOf(atom: RAtom): Atom {
       unit: String(fields.unit ?? ''),
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
+      ...(Array.isArray(fields.condition) ? { condition: fields.condition.map(String) } : {}),
     },
-    evidence: atom.evidence.map((e) => ({
-      type: String(e.type),
-      name: String(e.name ?? ''),
-      ...(typeof e.reviewRequired === 'boolean' ? { reviewRequired: e.reviewRequired } : {}),
-    })),
+    evidence: atom.evidence.map((e) => {
+      // The reader keeps the settings of a custom check under `options`; the binding passes them on whole.
+      const options =
+        typeof e.options === 'object' && e.options !== null
+          ? (e.options as Record<string, unknown>)
+          : undefined;
+      const reviewRequired =
+        typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options?.reviewRequired;
+      return {
+        type: String(e.type),
+        name: String(e.name ?? ''),
+        ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
+        ...(options ? { options } : {}),
+      };
+    }),
   };
 }
 

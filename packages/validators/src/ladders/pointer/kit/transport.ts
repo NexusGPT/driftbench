@@ -6,6 +6,9 @@ import { truthLabel } from './labellers';
  * A fake model endpoint. It answers a Haiku dense request or a Jev question request from the hidden truth, reads
  * the numbered units out of whatever the request carries, and keeps every call so an item can count and inspect
  * them. It never reads a key and never opens a socket.
+ *
+ * A Jev request holds either yes or no questions keyed `u<n>__<label>` (answered with a probability of yes) or
+ * one choice question per unit keyed `u<n>` (answered with a probability vector over the labels and `none`).
  */
 
 export type ParsedCall = {
@@ -40,6 +43,17 @@ function strings(value: unknown, out: string[] = []): string[] {
   return out;
 }
 
+/** The criteria of one choice question of a Jev request: the label names and `none`; undefined for a yes or no question. */
+function choiceCriteria(body: string, key: string): Record<string, unknown> | undefined {
+  try {
+    const questions = (JSON.parse(body) as { questions?: Record<string, { criteria?: unknown }> }).questions;
+    const criteria = questions?.[key]?.criteria;
+    return criteria && typeof criteria === 'object' ? (criteria as Record<string, unknown>) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function parseCall(request: FetchRequest): ParsedCall {
   let body: unknown;
   try {
@@ -68,12 +82,15 @@ export function parseCall(request: FetchRequest): ParsedCall {
     units.push({ n, text: longest, mode: 'label' });
   }
   const labelsLine = /^LABELS (.*)$/m.exec(text)?.[1];
-  const labels = labelsLine
-    ? labelsLine
-        .split('|')
-        .map((s) => s.trim())
-        .filter((s) => s !== 'none' && s !== '')
-    : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
+  const criteria = questions[0] === undefined ? undefined : choiceCriteria(request.body, questions[0]);
+  const labels = criteria
+    ? Object.keys(criteria).filter((name) => name !== 'none')
+    : labelsLine
+      ? labelsLine
+          .split('|')
+          .map((s) => s.trim())
+          .filter((s) => s !== 'none' && s !== '')
+      : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
   return {
     arm,
     set:
@@ -111,10 +128,28 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
     calls.push(call);
     let base: FetchResponse;
     if (call.arm === 'jev') {
-      const answers: Record<string, { noul: number }> = {};
+      const answers: Record<string, { noul: number } | { probabilities: Record<string, number> }> = {};
       const text = new Map(call.units.map((u) => [u.n, u.text]));
       const truth = truthFor(call);
       for (const key of call.questions) {
+        const criteria = choiceCriteria(request.body, key);
+        if (criteria) {
+          // A choice question: the labels of the criteria and `none`, as a vector that sums to one.
+          const unitText = text.get(Number(/^u(\d+)$/.exec(key)?.[1])) ?? '';
+          const want = truth(unitText);
+          const names = Object.keys(criteria).filter((name) => name !== 'none');
+          const raw = names.map((name) => probability(unitText, name, want));
+          const rest = Math.max(0, 1 - raw.reduce((sum, p) => sum + p, 0));
+          const total = raw.reduce((sum, p) => sum + p, 0) + rest;
+          const round = (p: number) => Math.round((p / total) * 10_000) / 10_000;
+          answers[key] = {
+            probabilities: {
+              ...Object.fromEntries(names.map((name, at) => [name, round(raw[at] as number)])),
+              none: round(rest),
+            },
+          };
+          continue;
+        }
         const m = /^u(\d+)__(.+)$/.exec(key);
         const unitText = text.get(Number(m?.[1])) ?? '';
         const want = truth(unitText);

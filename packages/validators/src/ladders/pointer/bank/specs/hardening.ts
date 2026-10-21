@@ -58,6 +58,26 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       { component: 'harness', needs: ['cut'], seedFree: true, ...cap, role: 'catch' },
     ),
   ],
+  replay: [
+    row(
+      'repeat-run-is-part-of-key',
+      2,
+      'The run is part of the key',
+      'Record three files with the Haiku arm: each window is asked in three independent runs of the same request.',
+      'Every window has one entry per run with distinct keys; the transport is called once per entry and no run reuses the answer of another.',
+      'cassette:run-in-key',
+      { ...cap, component: 'cassette', needs: ['transport', 'cassette'] },
+    ),
+    row(
+      'cassette-ascending-keys',
+      2,
+      'The entries of a cassette are rendered in ascending key order',
+      'Record the same files twice with the order of the files reversed the second time.',
+      'In each cassette the keys read in ascending order; the two cassettes are the same bytes.',
+      'cassette:render-ascending-keys',
+      { ...cap, component: 'cassette', needs: ['transport', 'cassette'] },
+    ),
+  ],
   cutting: [
     row(
       'url-query-capital-after-mark',
@@ -111,7 +131,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'The event of each id is what a comparison of the old and the new text gives',
       'Two files of eight units. One unit moves to the other file, one is reworded by one word, one is deleted, one is added.',
       '`moved` for the moved unit, `changed` for the reworded one, `deleted` for the deleted one, `unchanged` for the others, `new` for the added one; a reader that calls every surviving id `unchanged` fails.',
-      'anchor:events-from-the-ladder',
+      'scan:events-by-id',
       { ...cap, component: 'anchor' },
     ),
     row(
@@ -131,6 +151,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'The third file takes a fresh id; the id of the removed copy is deleted; the copy of the second file keeps its id.',
       'anchor:short-text-needs-to-be-unique',
       { ...cap, component: 'anchor', role: 'catch' },
+    ),
+    row(
+      'heading-edit-relabels-interior-unit',
+      3,
+      'A unit whose text and neighbours are the same, under a renamed heading, is labelled again',
+      'One file: a heading and four long paragraphs, labelled; the second scan renames the heading only and flips the answer for the second paragraph.',
+      'The second paragraph keeps its fingerprint and its id; its context fingerprint differs, and the recorded label is not carried: it takes the new answer.',
+      'ledger:ctxfp-covers-heading-path',
+      { ...cap, component: 'ledger' },
     ),
   ],
   privacy: [
@@ -172,6 +201,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'radius:context-change-is-advisory',
       { ...cap, component: 'radius', needs: ['scan', 'rerun'], role: 'catch' },
     ),
+    row(
+      'moved-unit-is-advisory',
+      3,
+      'A unit moved to another file is reported as advisory, and nothing reruns for it',
+      'Two files of eight units; one long unit moves from the first file to the second.',
+      'The unit is classed moved; it is in the advisory set and not in the rerun set, and no global rerun is introduced.',
+      'radius:moved-is-advisory',
+      { ...cap, component: 'radius', needs: ['scan', 'rerun'] },
+    ),
   ],
   grouping: [
     row(
@@ -192,6 +230,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'atoms:conditions-in-file-order',
       { ...cap, component: 'atoms', role: 'catch' },
     ),
+    row(
+      'condition-ids-in-review-predicate',
+      3,
+      'The review predicate of an atom lists the ids of the units that are its conditions',
+      'Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`.',
+      'The condition ids occur in the atom fields and in the options of its one reviewed prose_pointer entry, and the two lists match one for one: the ledger ids of the two condition units, in file order.',
+      'atoms:condition-ids-in-pointer',
+      { ...cap, component: 'atoms' },
+    ),
   ],
   labels: [
     row(
@@ -211,6 +258,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Each inherited key gives a refusal that names the key; the real key gives none.',
       'settings:threshold-keys-are-own',
       { ...cap, component: 'settings', needs: ['settings'], seedFree: true, role: 'catch' },
+    ),
+    row(
+      'top-level-heading-window-boundary',
+      3,
+      'Two top-level sections make two windows, whatever their size',
+      'One file: two top-level headings with one sentence below each, far under the unit cap; Haiku arm on a fake transport.',
+      'Two windows are asked, one per top-level section; neither holds a unit of the other section.',
+      'labeler:window-ends-at-top-level-heading',
+      { ...cap, component: 'labeler', needs: ['transport'] },
     ),
   ],
 };
