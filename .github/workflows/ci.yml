@@ -615,3 +615,18 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
+
+  codex-review-969:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/train/codex-review-969' && inputs.jobs == 'codex-review-969'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/validators/test/frame/codex-review-969.test.ts --maxWorkers=1
