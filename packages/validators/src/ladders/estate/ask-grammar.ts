@@ -40,6 +40,18 @@ const hasGroup = (parts: readonly Part[]): boolean => parts.some((part) => 'opt'
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.trim() === text;
 
 /**
+ * The cuts a situation or description gives, by punctuation alone (docs/estate.md section 5: "the first sentence of
+ * a skill's or helper's description"): the text whole, without its final mark, and its first sentence (up to the
+ * first full stop followed by a space) without its mark. No word is read.
+ */
+function sentenceCuts(text: string): string[] {
+  const bare = (value: string) => value.replace(/[.!?:;]+$/u, '');
+  const stop = text.indexOf('. ');
+  const cuts = [text, bare(text), ...(stop > 0 ? [bare(text.slice(0, stop))] : [])];
+  return [...new Set(cuts.filter(hasWord))];
+}
+
+/**
  * The acts an atom declares in the map: `fields.ask` (a route's request cell, or a text with its context), its
  * trigger (`fields.trigger`), its quote (`provenance.quote`) and its situation, each whole, then each labelled
  * governed-action span of its quote. Empty when it declares none.
@@ -62,10 +74,11 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
   const quote = atom.provenance?.quote;
   if (typeof quote === 'string' && hasWord(quote) && !acts.some((act) => act.text === quote))
     acts.push({ text: quote });
-  // A route's description or a rule's situation, whole (the generator asks from it too).
+  // A route's description or a rule's situation, whole or cut at its first sentence (the generator asks from it).
   const situation = atom.situation;
-  if (typeof situation === 'string' && hasWord(situation) && !acts.some((act) => act.text === situation))
-    acts.push({ text: situation });
+  if (typeof situation === 'string')
+    for (const cut of sentenceCuts(situation))
+      if (!acts.some((act) => act.text === cut)) acts.push({ text: cut });
   const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
     kind?: unknown;
     from?: unknown;
@@ -107,7 +120,7 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
         ?.context,
       one.situation,
     ]);
-    return [...new Set(all.filter((text): text is string => typeof text === 'string' && hasWord(text)))];
+    return [...new Set(all.filter((text): text is string => typeof text === 'string').flatMap(sentenceCuts))];
   };
   // Every ask of every row for one act, with no situation and with each the act may carry; `span` fills an ask
   // row whose slot is the declared words themselves.
@@ -137,8 +150,12 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
     for (const atom of atoms) {
       const matcher = (atom.fields as { matcher?: unknown } | undefined)?.matcher;
       if (atom.kind !== 'guard' || typeof matcher !== 'string') continue;
-      if (matcher.split('|').some((tool) => row.tools?.includes(tool)))
-        write(row.template, atom.id, undefined, situationsOf(atom));
+      if (!matcher.split('|').some((tool) => row.tools?.includes(tool))) continue;
+      // The guard's tool act sets off the guard and the rule it enforces (an atom its fields name).
+      const enforced = Object.values((atom.fields ?? {}) as Record<string, unknown>)
+        .flatMap((value) => (Array.isArray(value) ? value : [value]))
+        .filter((value): value is string => typeof value === 'string' && byId.has(value));
+      for (const id of [atom.id, ...enforced]) write(row.template, id, undefined, situationsOf(atom));
     }
   }
   const listed = (map: Map<string, Set<string>>) => {

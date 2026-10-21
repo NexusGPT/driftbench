@@ -169,6 +169,10 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 describe('the generated grammar covers every ask of the real fixture suite', { timeout: 600_000 }, () => {
   it('counts 0 complete specs whose ask carries an act the fake does not set off', async () => {
     const unset = await unsetAsks(await fixture.fixtureSuite());
-    expect(unset.slice(0, 20), `${unset.length} asks set nothing off`).toEqual([]);
+    // The distinct asks, most frequent first, so a red run names what the grammar misses.
+    const counts = new Map<string, number>();
+    for (const one of unset) counts.set(one.ask, (counts.get(one.ask) ?? 0) + 1);
+    const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 30);
+    expect(top, `${unset.length} asks set nothing off`).toEqual([]);
   });
 });
