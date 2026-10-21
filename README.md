@@ -821,7 +821,7 @@ What a test holds:
 - `when` is what the user says: "Please help me with the weekly report or a summary of last week."
 - `expect` is what must be true after: the agent loads the `weekly-report` skill, deletes no file, and obeys the rule. The rule has no machine check, so a judge reads the reply against the rule's own words (`criteria`).
 
-The run fails, and the output says why. The stand-in agent has no recorded answer for this ask, so it never loads the skill. No judge is configured, so the judged criterion is inconclusive. To run the same test on a real agent, replace `--command` with your agent, and add `--judge claude:<model>`. Nothing was spent here: the cost is 0.0000 USD.
+The run fails, and the output says why. The stand-in agent has no recorded answer for this ask, so it never loads the skill. No judge is configured, so the judged criterion is inconclusive. To run the same test on a real agent, replace `--command` with your agent, and add `--judge claude:<model>`. Nothing was spent here, because the stand-in is a script.
 
 ### 4. Edit a rule, and list the tests to rerun
 
