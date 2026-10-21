@@ -774,10 +774,10 @@ Limits: a verdict names its object, item, implementation and layer in its `by` f
 <a href=".github/readme/blast-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blast-dark.png">
-    <img alt="A fictional Acme prompt has one edited line, line 18: Read the order back and wait for confirmation. Lines 17 and 19 stay unchanged. Arrows connect the edited line to recap blocks in three test conversations. Those linked blocks glow blue. Steps that inherit their state are also selected. A fourth conversation has no linked block; its results are kept from the last run. A legend separates linked tests, inherited state and kept results. This is an illustration of the intended source selection; source links currently advise selection and do not skip tests." src=".github/readme/blast-light.png" width="100%">
+    <img alt="A fictional Acme prompt has one edited line, line 18: Read the order back and wait for confirmation. Lines 17 and 19 stay unchanged. Arrows connect the edited line to recap blocks in three test conversations. Those linked blocks glow blue. Steps that would inherit their state are highlighted too. A fourth conversation has no linked block. A legend separates linked tests, steps that would inherit their state and blocks outside the selection. The figure states that declared dependencies control reruns. This is an illustration of the intended source selection; source links currently advise selection and do not skip tests." src=".github/readme/blast-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Edit one prompt line, follow its links to the tests, and keep the other results. Fictional Acme example.</sub></p>
+<p align="center"><sub>Edit one prompt line and inspect its advisory source selection. Declared dependencies control reruns. Fictional Acme example.</sub></p>
 
 **See which tests an edited prompt line can affect, then rerun the declared blast radius and keep the other results.**
 
@@ -820,7 +820,7 @@ blocks:
 <a href=".github/readme/moj-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/moj-dark.png">
-    <img alt="One answer to judge. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
+    <img alt="One answer to judge, through the opt-in research harness. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
@@ -861,17 +861,17 @@ blocks:
 <a href=".github/readme/innovations-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/innovations-dark.png">
-    <img alt="Six more things driftbench does. A judge that shows its work, opt-in: it lists the evidence for each requirement and code decides pass or fail. Recovery: a surprise mid-conversation, and how many steps the agent needs to get back on track. Statistics: every rate has a range, and it says when you have too few tests. Code agents: it opens the spreadsheets and documents the agent leaves behind. Attacker: a user that pushes back, each move picked from the agent's last reply. Replay: a recorded run replays with no model call." src=".github/readme/innovations-light.png" width="100%">
+    <img alt="Six more things driftbench does. A judge that shows its work, default: for ordinary criteria it lists evidence and code computes the verdict. Recovery: a surprise mid-conversation, and how many steps the agent needs to get back on track. Statistics: every rate has a range, and it says when you have too few tests. Code agents: it opens the spreadsheets and documents the agent leaves behind. Attacker: a user that pushes back, each move picked from the agent's last reply. Replay: a recorded run replays with no model call." src=".github/readme/innovations-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Six more, in one line each.</sub></p>
 
-- **A judge that shows its work (opt-in).** It writes the evidence for each requirement, and code decides pass or fail. promptfoo's select-best prompt asks the model for the index of the text that best fits the criteria, as a single integer ([its grader](comparisons/promptfoo/hard/vendor/grading.ts.txt)). On RubricBench, a public benchmark, it scores 7 points above promptfoo with Claude Haiku 5.5. [How we measured](docs/comparison/methods.md#a-judge-that-shows-its-work)
+- **A judge that shows its work.** For ordinary criteria, the default judge writes evidence and code computes the verdict. See [the default judge](docs/default-judge.md). promptfoo's select-best prompt asks the model for the index of the text that best fits the criteria, as a single integer ([its grader](comparisons/promptfoo/hard/vendor/grading.ts.txt)). On RubricBench, a public benchmark, it scores 7 points above promptfoo with Claude Haiku 5.5. [How we measured](docs/comparison/methods.md#a-judge-that-shows-its-work)
 - **Recovery.** Inject a surprise at any step and count the steps until the agent is back on track. No other tool in our comparison shows recovery metrics in full (row 15). → [recovery](docs/concepts/recovery.md)
 - **Statistics you can trust.** Every rate has a range, two versions are compared on the same tests, and the gate says when you have too few tests to decide. No other tool in our comparison shows intervals with significance tests in full (row 17). → [statistics](docs/concepts/statistics.md)
 - **Code agents.** The same steps check the files a code agent leaves behind: spreadsheet cells, documents, the workspace. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read. → [code agents](docs/estate.md)
 - **An attacker that adapts.** A simulated user picks each next move from the agent's last reply. → [attacker](docs/attack.md)
-- **Replay for free.** A recorded run replays with no model call, so CI costs nothing. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
+- **Replay recorded runs.** A recorded run replays with no model call. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
 
 **One combined example on main**
 
@@ -998,7 +998,7 @@ spec: refund.spec.yaml # The spec this persona plays
 <a href=".github/readme/loop-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/loop-dark.png">
-    <img alt="The loop a team runs, in six steps. 1 Generate: tests from a map you approve; code writes the blocks. 2 Run: your agent through one adapter, three modes, repeats. 3 Check and judge: a verdict per block, machine checks then the judges. 4 Gate: parity or regression, an exit code on every pull request. 5 Fix: the verdict names the block and the check. 6 Rerun the radius: only what the fix touches; the rest is carried from the last run. Then the gate decides again." src=".github/readme/loop-light.png" width="100%">
+    <img alt="The loop a team runs, in six steps. 1 Generate: tests from a map you approve; code writes the blocks. 2 Run: your agent through one adapter, three modes, repeats. 3 Check and judge: a verdict per block, machine checks then the judges. 4 Gate: CI passes only with enough evidence of noninferiority. 5 Fix: the verdict names the block and the check. 6 Rerun the declared blast radius: keep the other results and audit the radius. Then the gate decides again." src=".github/readme/loop-light.png" width="100%">
   </picture>
 </a>
 
@@ -1243,14 +1243,14 @@ An agent can pass every step on its own and still fail the whole conversation. R
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. A judge earns its place by telling a bad example from a good one 3 times out of 3. It must agree with your labels. Ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then, by default, three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. A majority of seats or vote weights wins. A split goes to the other class in hybrid mode, then to a larger budget. An unresolved result is inconclusive, neither pass nor fail. A judge earns its place by telling a bad example from a good one in every repeat, 3 by default. Its agreement with hand labels must reach kappa 0.8. Class ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Rules first, then fast or expert judges, each one tested to earn its place.</sub></p>
 
 - **Machine checks first.** Code checks everything code can check. A machine fail is final.
-- **Earned on evidence.** A judge must separate a failing transcript from a clean one 3 times out of 3. It must also agree with hand labels at a kappa of 0.8 or more.
-- **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+- **Earned on evidence.** A judge must separate a failing transcript from a clean one in every repeat, 3 by default. It must also agree with hand labels at a kappa of 0.8 or more.
+- **Strict verdicts.** Three seats by default, with configurable size and weights. A split tries the other class in hybrid mode, then a larger budget. An unresolved result is inconclusive. A judge never shares the agent's model family.
 - **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
 
 <sub>Rule files and verdict stamps ship: see [Rule files](#rule-files-change-the-rule-and-score-the-run-again).</sub>

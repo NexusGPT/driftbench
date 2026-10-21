@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>driftbench: a prompt line and the tests it touches</title><link rel="stylesheet" href="brand.css">
 <style>
-#frame {width:640px;height:360px;}
+#frame {width:640px;height:380px;}
 .prompt {left:16px;top:60px;width:202px;height:182px;padding:12px;}
 .prompt .nx-kind {position:static;display:block;font-size:10px;}
 .code {margin-top:12px;font:400 11.5px/1.4 var(--nx-sans);color:var(--detail);}
@@ -16,13 +16,15 @@
 .key {display:flex;align-items:center;gap:7px;font:400 11px/1.3 var(--nx-sans);color:var(--detail);}
 .sw {width:12px;height:12px;border-radius:3px;background:var(--nx-card);border:1px solid var(--nx-line);}
 .sw.linked,.sw.inherit {background:var(--tile);border-color:transparent;}
+.note {position:absolute;left:16px;top:330px;width:588px;font:400 11px/1.3 var(--nx-sans);color:var(--detail);}
 </style></head><body><div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
 <svg class="nx-edges" viewBox="0 0 620 340"><path class="nx-edge--new" d="M218 158 C237 158 237 44 397 44 L421 44 L421 60"/><path class="nx-edge--new" d="M218 158 C237 158 237 112 324 112"/><path class="nx-edge--new" d="M218 158 C237 158 237 224 392 224"/></svg>
-<span class="nx-kind" style="left:16px;top:18px">One prompt line edited</span><span class="nx-kind" style="left:256px;top:18px">Tests linked to that line</span>
+<span class="nx-kind" style="left:16px;top:18px">One prompt line edited</span><span class="nx-kind" style="left:256px;top:18px">Advisory source selection</span>
 <div class="nx-ill-panel prompt"><span class="nx-kind">Acme prompt · fictional</span><div class="code"><div class="line"><span class="num">17</span><span>Read the plan details.</span></div><div class="line edit"><span class="num">18</span><span>Read the order back.<br>Wait for confirmation.</span></div><div class="line"><span class="num">19</span><span>Confirm the order number.</span></div></div></div>
 <div class="row" style="top:60px"><span class="bk">greet</span><span class="bk">offer</span><span class="bk linked">recap</span><span class="bk inherit">order</span><span class="bk inherit">close</span></div>
 <div class="row" style="top:112px"><span class="bk">greet</span><span class="bk linked">recap</span><span class="bk inherit">order</span><span class="bk inherit">close</span></div>
 <div class="row" style="top:164px"><span class="bk">greet</span><span class="bk">address</span><span class="bk">offer</span><span class="bk">call back</span><span class="bk">close</span></div>
 <div class="row" style="top:216px"><span class="bk">greet</span><span class="bk">offer</span><span class="bk linked">recap</span><span class="bk inherit">close</span></div>
-<div class="nx-ill-panel legend"><span class="key"><span class="sw linked"></span>linked to the edited line</span><span class="key"><span class="sw inherit"></span>inherits its state</span><span class="key"><span class="sw"></span>last result kept</span></div>
+<div class="nx-ill-panel legend"><span class="key"><span class="sw linked"></span>linked to the edited line</span><span class="key"><span class="sw inherit"></span>would inherit its state</span><span class="key"><span class="sw"></span>outside selection</span></div>
+<div class="note">Source links advise selection. Declared dependencies control reruns.</div>
 </div></div><script>window.__fonts=['400 11.5px Geist','600 12px Geist','500 10px "Geist Mono"'];Promise.all(window.__fonts.map(f=>document.fonts.load(f))).then(()=>document.fonts.ready).then(()=>window.__ready=true);</script></body></html>

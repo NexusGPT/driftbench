@@ -7,10 +7,10 @@
 <style>
   /* Machine checks run first. Judges of the class that earned the criterion vote. The blue path: the earned
      assignment decides which judges own a criterion. */
-  #frame { width: 640px; height: 356px; }
+  #frame { width: 640px; height: 372px; }
   .p { top: 14px; height: 202px; padding: 12px; }
   .p.m { width: 188px; }
-  .p.v { width: 156px; }
+  .p.v { width: 156px; height: 218px; }
   .p .nx-kind { position: static; display: block; }
   .p .t { margin-top: 7px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
   .p .chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 5px; }
@@ -23,9 +23,9 @@
   .v .pills { margin-top: 12px; display: flex; gap: 6px; }
   .v .miss { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px;
     background: var(--miss-bg); color: var(--miss-ink); font: 600 10.5px/1 var(--nx-sans); }
-  .v .rules { margin-top: 12px; display: grid; gap: 8px; font: 400 11px/1.35 var(--nx-sans); color: var(--detail); }
+  .v .rules { margin-top: 12px; display: grid; gap: 6px; font: 400 11px/1.35 var(--nx-sans); color: var(--detail); }
   .v .rules b { color: var(--nx-ink); font-weight: 600; }
-  .a { left: 14px; top: 236px; width: 592px; height: 86px; padding: 12px 14px; }
+  .a { left: 14px; top: 252px; width: 592px; height: 86px; padding: 12px 14px; }
   .a .nx-kind { position: static; display: block; }
   .a .steps { margin-top: 12px; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 22px; }
   .a .n { font: 500 10px/1 var(--nx-mono); letter-spacing: 1px; color: var(--kind); }
@@ -37,12 +37,12 @@
 <body>
 <div id="frame" class="nx-ill scene">
   <div class="nx-ill__glass">
-    <svg class="nx-edges" viewBox="0 0 620 336">
+    <svg class="nx-edges" viewBox="0 0 620 352">
       <path class="nx-edge" d="M202 115 C217 115 217 61 232 61"/>
       <path class="nx-edge" d="M202 115 C217 115 217 169 232 169"/>
       <path class="nx-edge" d="M420 61 C435 61 435 115 450 115"/>
       <path class="nx-edge" d="M420 169 C435 169 435 115 450 115"/>
-      <path class="nx-edge--new" d="M326 236 L326 216"/>
+      <path class="nx-edge--new" d="M326 252 L326 216"/>
       
     </svg>
 
@@ -53,17 +53,17 @@
       <div class="foot"><b>A rule that fails is final.</b> No judge overturns it.</div>
     </div>
 
-    <div class="nx-node j" style="top:14px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="nx-node__kind">Three judges</span><span class="nx-node__title">Fast judges</span><span class="nx-node__detail">Answer one yes or no question, quickly.</span></div>
-    <div class="nx-node j" style="top:122px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span><span class="nx-node__kind">Three judges</span><span class="nx-node__title">Expert judges</span><span class="nx-node__detail">Models from different labs that reason it through.</span></div>
+    <div class="nx-node j" style="top:14px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="nx-node__kind">Default: three judges</span><span class="nx-node__title">Fast judges</span><span class="nx-node__detail">Answer one yes or no question, quickly.</span></div>
+    <div class="nx-node j" style="top:122px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span><span class="nx-node__kind">Default: three judges</span><span class="nx-node__title">Expert judges</span><span class="nx-node__detail">Models from different labs that reason it through.</span></div>
 
     <div class="nx-ill-panel p v" style="left:450px">
       <span class="nx-kind">Then</span>
       <div class="t">Verdict</div>
       <div class="pills"><span class="nx-done">pass</span><span class="miss">fail</span></div>
       <div class="rules">
-        <div><b>Majority</b> of three judges wins.</div>
-        <div><b>Split:</b> the other kind of judge decides.</div>
-        <div><b>Unsure:</b> judged again, never counted.</div>
+        <div><b>Majority</b> of seats or vote weights.</div>
+        <div><b>Split:</b> other class in hybrid mode, then larger budget.</div>
+        <div><b>Unresolved:</b> inconclusive, no pass or fail.</div>
       </div>
     </div>
 
@@ -71,9 +71,9 @@
       <span class="nx-kind nx-kind--ink">A judge earns its place</span>
       <div class="steps">
         <div><div class="n">01</div><div class="s">Two examples</div><div class="s2">one bad, one good</div></div>
-        <div><div class="n">02</div><div class="s">Tells them apart</div><div class="s2">3 times out of 3</div></div>
-        <div><div class="n">03</div><div class="s">Agrees with you</div><div class="s2">on your own labels</div></div>
-        <div class="own"><div class="n">04</div><div class="s">Then it judges</div><div class="s2">ties go to the fast judge</div></div>
+        <div><div class="n">02</div><div class="s">Tells them apart</div><div class="s2">default: 3 out of 3</div></div>
+        <div><div class="n">03</div><div class="s">Agrees with you</div><div class="s2">kappa at least 0.8</div></div>
+        <div class="own"><div class="n">04</div><div class="s">Then it judges</div><div class="s2">class ties go to fast</div></div>
       </div>
     </div>
   </div>
