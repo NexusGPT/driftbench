@@ -239,7 +239,13 @@ export function pointerAtoms(
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );
-    const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
+    // The paths in the order they stand in the unit (by offset, not by the kind of notation that found them), so the
+    // nth path takes the nth span.
+    const inOrder = pathMentions(item.unit.text)
+      .sort((a, b) => a.start - b.start)
+      .map(({ path }) => path)
+      .filter((path, index, all) => all.indexOf(path) === index);
+    const allNamed = inOrder.filter((path) => !imported(path));
     const firstNamed = namedOf(item.unit.text);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
     const templateFor = (
