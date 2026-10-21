@@ -1,6 +1,6 @@
 {
-  "campaign": "northwind-live-mac-20261021T100744Z",
-  "sourceHead": "c577e340c86984114ea615a12f9c08beeafc1c6e",
+  "campaign": "northwind-live-mac-20261021T105525Z",
+  "sourceHead": "059791000a8cb5b4f1a86a1e4a6ad253abc52d01",
   "runtime": "real Claude Code CLI on macOS",
   "modelOption": "haiku",
   "models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
@@ -10,9 +10,9 @@
   "passedCells": 4,
   "blocks": 11,
   "passedBlocks": 11,
-  "reportedUsd": 0.099290415,
+  "reportedUsd": 0.07918418,
   "authorizedTotalUsd": 5,
-  "allAttemptsReportedUsd": 0.580121675,
+  "allAttemptsReportedUsd": 0.692963725,
   "attempts": [
     {
       "campaign": "northwind-live-mac-20261021T091137Z",
@@ -55,6 +55,18 @@
       "reportedUsd": 0.099290415,
       "blocks": 11,
       "passedBlocks": 11
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T105154Z",
+      "reportedUsd": 0.03365787,
+      "blocks": 11,
+      "passedBlocks": 10
+    },
+    {
+      "campaign": "northwind-live-mac-20261021T105525Z",
+      "reportedUsd": 0.07918418,
+      "blocks": 11,
+      "passedBlocks": 11
     }
   ],
   "runs": [
@@ -63,92 +75,104 @@
       "spec": "northwind-invoice-over",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.05863351000000001,
+      "reportedUsd": 0.057172455000000004,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.0016858250000000002
+          "reportedUsd": 0.0017010249999999999,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.028302485000000002
+          "reportedUsd": 0.027569470000000002,
+          "reconcileExecutions": 1
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.028645200000000003
+          "reportedUsd": 0.027901960000000003,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "2256addb65bf69a6",
+      "runId": "e34e4f3e0d76c7a4",
       "spec": "northwind-ledger-branches",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.024409615,
+      "reportedUsd": 0.005925725,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.0207515
+          "reportedUsd": 0.00211859,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.0023751500000000004
+          "reportedUsd": 0.00257292,
+          "reconcileExecutions": 0
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.0012829649999999998
+          "reportedUsd": 0.0012342149999999999,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "97ef2eab5542368a",
+      "runId": "3a0d29dc23b1bb0d",
       "spec": "northwind-shipment-late",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.008062105,
+      "reportedUsd": 0.007949445,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.001703835
+          "reportedUsd": 0.00174674,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.00237747
+          "reportedUsd": 0.002482115,
+          "reconcileExecutions": 0
         },
         {
           "index": 2,
           "pass": true,
-          "reportedUsd": 0.0039808
+          "reportedUsd": 0.00372059,
+          "reconcileExecutions": 0
         }
       ]
     },
     {
-      "runId": "2804965430371c33",
+      "runId": "fee86189426cb0dd",
       "spec": "northwind-weekly-report",
       "status": "completed",
       "pass": true,
-      "reportedUsd": 0.008185185000000001,
+      "reportedUsd": 0.008136555,
       "blocks": [
         {
           "index": 0,
           "pass": true,
-          "reportedUsd": 0.003840225
+          "reportedUsd": 0.003815985,
+          "reconcileExecutions": 0
         },
         {
           "index": 1,
           "pass": true,
-          "reportedUsd": 0.00434496
+          "reportedUsd": 0.00432057,
+          "reconcileExecutions": 0
         }
       ]
     }
   ],
-  "runtimeVersion": "2.1.306"
+  "runtimeVersion": "2.1.306",
+  "executionEvidence": "fixed workspace script log, captured per block"
 }
