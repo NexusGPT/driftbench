@@ -42,7 +42,7 @@ constraints:
 
 ## Variables
 
-A variable is one thing a situation varies on. A condition in the agent's files names it: "late by more than two days" names how late a shipment is.
+A variable is one thing a situation varies on. A condition in the agent's files names it: "late by more than two days" names how late a shipment is. A variable is a condition the agent applies; a sentence that only reports a value from the past is not a condition and names no variable.
 
 | Field | Required | Holds |
 |---|---|---|
