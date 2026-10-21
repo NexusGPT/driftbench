@@ -1,6 +1,6 @@
 # Read the numbers
 
-This part teaches you to read a pass rate and to trust it only as far as it deserves. You plan a run, run a baseline, read its scorecard, compare two versions of an agent, gate a change, and watch a series of runs. Every command below is run by a test on GitHub, and every output shown is what the command printed. Nothing calls a model and nothing is paid for. Two things are the exception, and the page says so where they appear: a script that needs the driftbench packages, and a viewer that runs until you stop it.
+This part teaches you to read a pass rate and to trust it only as far as it deserves. You plan a run, run a baseline, read its scorecard, compare two versions of an agent, gate a change, and watch a series of runs. Every command below is run by a test on GitHub, and every output shown is what the command printed. Nothing calls a model and nothing is paid for. Two things are not run by the tests, and the page says so where they appear. One is a script that needs the driftbench packages. The other is a viewer that runs until you stop it.
 
 The examples use the Acme Telecom sales assistant that ships in `examples/acme`, tested by its golden suite of 10 tests. All data is fictional. In a clone of this repository, run `pnpm install` and put `pnpm` in front of every `driftbench` below.
 
@@ -94,14 +94,16 @@ Hierarchical:    70.0% [35.4%, 88.2%]
 
 **Why you do this.** A run costs time, and with a real model it costs money. Planning tells you, before you run anything, the smallest drop in pass rate that this many runs can show. If that drop is larger than the one you care about, add tests first.
 
-**You need.** The folder of tests. Here it is `examples/acme/golden/specs`, the golden suite of the Acme sales assistant. It holds 10 tests. One of them, a price sheet, is a task for the Acme ops agent, so a `--route` option sends it there. This is the start of the folder:
+**You need.** The folder of tests. Here it is `examples/acme/golden/specs`, the golden suite of the Acme sales assistant. It holds 10 tests in three sub-folders. One of them, a price sheet, is a task for the Acme ops agent, so a `--route` option sends it there. This is the folder:
 
 ```console
 $ ls examples/acme/golden/specs
-acme-new-customer-coverage.yaml
-acme-order-loose-confirmation.yaml
-acme-price-sheet-i08-planted.yaml
+conversations
+task
+twise
 ```
+
+`conversations` holds hand-written chats, `task` the price-sheet task, and `twise` tests that code generated so that every pair of situations meets at least once.
 
 **Relevant commands.**
 
@@ -120,16 +122,17 @@ The command also lists every cell, one row each. The list is left out here. Now 
 
 ```console
 $ driftbench campaign plan examples/acme/golden/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops --repeats 5 --baseline-rate 0.9
-(pending)
+Plan: 10 specs, 1 target, mode F, 5 repeats: 50 cells, 225 blocks.
+Minimum detectable effect, mode F: 22.7 points on a 90% pass rate, with 50 runs per arm over 10 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 **How to read it.**
 
 - `50 cells, 225 blocks`: 10 tests times 5 repeats make 50 cells. A cell is one test run once. A block is one message to the agent.
 - `Projected cost: $0.00`: the cost of an adapter is its blocks times the cost per block measured earlier. Nothing was measured, so the projection is zero and names the adapters.
-- `36.4 points on a 90% pass rate`: if the baseline passes 90% of the time, a drop smaller than 36.4 points can hide in the noise. This is a large number, because the suite holds only 10 tests.
+- `36.4 points on a 90% pass rate`: the baseline is expected to pass 90% of the time. A drop smaller than 36.4 points can hide in the noise. This number is large, because the suite holds only 10 tests.
 - `design effect 2.20`: the 50 runs are worth about 23 independent runs (50 divided by 2.2).
-- The second plan (pending). With `--rho 0`, the plan counts the 50 runs as independent, and the detectable drop looks smaller. That is optimistic. Pass the `--rho` that your own repeats show.
+- `22.7 points` in the second plan: with `--rho 0`, which is the default, the plan counts the 50 runs as independent. The detectable drop looks smaller, 22.7 against 36.4 points. That is optimistic. Pass the `--rho` that your own repeats show.
 
 **If it goes wrong.**
 
@@ -161,7 +164,7 @@ The command prints 10 lines. Four are shown.
 
 **How to read it.**
 
-- Each `✓` line is one cell: the test, the agent it ran on, the mode (`F`, the agent runs the whole conversation), the repeat number, the verdict and the number of blocks.
+- Each `✓` line is one cell. It shows the test, the agent it ran on, the mode, the repeat number, the verdict and the number of blocks. Mode `F` means the agent runs the whole conversation.
 - `10 cells: 10 pass, 0 fail, 0 failed`: a **fail** is a cell where a check failed. A **failed** cell is one where the run itself broke. `Spent $0.00` is the money the agents reported.
 - The store `runs.db` now holds the campaign `v1`. Every step below reads it.
 
@@ -200,7 +203,7 @@ To read the page, open `v1.html` in a browser. To browse several campaigns, star
 driftbench view --store runs.db --port 0
 ```
 
-It prints the address it listens on, such as `http://127.0.0.1:<port>`, and shows the campaigns of the store, each scorecard, each run block by block, and a page that compares two campaigns.
+It prints the address it listens on, such as `http://127.0.0.1:<port>`. It shows the campaigns of the store and each scorecard. It shows each run block by block. It has a page that compares two campaigns.
 
 **How to read it.**
 
@@ -209,7 +212,7 @@ It prints the address it listens on, such as `http://127.0.0.1:<port>`, and show
 - `n_eff 10.0 runs`: the runs the suite is worth. With one run per golden, it equals the number of goldens.
 - `detectable drop 55.4 points at 80% power`: a later campaign of this size can see a drop of at least that many points. Smaller drops can hide. This is the planning number of step 2, measured on the real campaign.
 - `Margin auto: 28.0 points`: the margin a comparison of this suite with itself can show. Step 5 explains it.
-- The page itself adds a drilldown: each failing run is shown with what the user sent, what the agent said, every tool call, and every verdict that did not pass.
+- The page itself adds a drilldown. Each failing run shows what the user sent, what the agent said and every tool call. It also lists every verdict that did not pass.
 
 **If it goes wrong.**
 
@@ -279,7 +282,7 @@ Verdict: NOT SHOWN NON-INFERIOR.
 
 ## 6. Gate a change
 
-**Why you do this.** You want a pull request to fail when the agent got worse. `ci` runs the candidate, compares it with the baseline by the rule of `compare`, and turns the verdict into an exit code that your pipeline reads.
+**Why you do this.** You want a pull request to fail when the agent got worse. `ci` runs the candidate and compares it with the baseline by the rule of `compare`. It turns the verdict into an exit code that your pipeline reads.
 
 **You need.** The baseline `v1`, and a candidate to run. To show a failure without a model, driftbench ships planted faults: `examples/acme/faults` holds versions of the Acme agent with one bug each. `fault:control-sales-identity` is a control with no bug. `fault:x3-skips-recap` places the order without reading it back first.
 
@@ -326,7 +329,7 @@ The command also prints the margin, the underpowered criteria, the full list of 
 - `new gating flags 5`: a flag is a safety rule that fired on the candidate and not on the baseline. Here the rule `forbidden` fired five times: the agent called `order.create` where it must not. A new flag fails the gate whatever the pass rate says.
 - `all-pass regression effect +50.00 points`: the pass rate fell by 50 points, from 100% to 50%. `95% interval [+11.74, +76.34]`: the true drop lies between 11.7 and 76.3 points. The whole range is above 0. That is the evidence of a drop.
 - `verdict REGRESSION`: there is evidence the candidate is worse. `ci` exits 1, and the pipeline stops.
-- The line of `acme-order-loose-confirmation · F` is the address of a failure: the golden, the block (`block 1`) and the checks that failed (`forbidden.order.create`, `must.0`, `must.2`). The next part of this guide, [Diagnose and fix](diagnose-and-fix.md), starts from such a line.
+- The line of `acme-order-loose-confirmation · F` is the address of a failure. It names the golden, the block (`block 1`) and the checks that failed (`forbidden.order.create`, `must.0`, `must.2`). The next part of this guide, [Diagnose and fix](diagnose-and-fix.md), starts from such a line.
 - The control reads `PARITY` with the same margin: a gate that never fails on an unchanged agent is a gate you can keep.
 - `compare` and `ci` give the same verdict and the same exit code on the same two campaigns. `ci` runs the candidate first.
 
