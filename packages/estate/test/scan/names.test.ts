@@ -97,10 +97,11 @@ describe('alias tables', () => {
     },
   );
 
-  it('judges each table on its own rows: a sentence beside the table does not matter, a mixed table is no alias table', async () => {
+  it('judges each table on its own rows, whatever sentence sits beside it', async () => {
     const root = await estate({
       'CLAUDE.md': '# Rules\n',
-      '.claude/a.md': 'Un chemin qui commence par un alias.\n\n| a | b |\n|---|---|\n| REF | .claude/library |\n',
+      '.claude/a.md':
+        'Un chemin qui commence par un alias.\n\n| a | b |\n|---|---|\n| REF | .claude/library |\n',
       '.claude/b.md': '| a | b |\n|---|---|\n| ref | .claude/library |\n| TWO | a file.md |\n',
     });
     const raw = await new ClaudeCodeReader().read(root);
