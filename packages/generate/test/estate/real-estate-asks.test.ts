@@ -476,7 +476,7 @@ describe('a guard whose rule text names a situation, not an act', () => {
     );
     expect(
       ask('Nothing leaves the building. Sending a price list while the contract is unsigned.').text,
-    ).toBe('Please send a price list.');
+    ).toBe('Please go ahead with sending a price list.');
   });
 
   it('asks for help with the situation when the rule names no act', () => {
