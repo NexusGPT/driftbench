@@ -8,13 +8,15 @@ import { ASK_TEMPLATES, type MapAtom, type Part, parse } from './reference-ask';
  * atom's quote (`fields.labelSpans`, a verbatim slice with the labeller's provenance); an atom with neither has no
  * act and no ask sets it off; for a fixed act the table ties to a tool, every ask
  * a row writes with it, for each guard whose matcher lists the tool. The fake sets an atom off only when an ask
- * equals one of its texts byte for byte (dispatch.mjs). Nothing reads a word of an ask.
+ * equals one of its texts byte for byte (dispatch.mjs). A `hypothetical` row asks what an act would mean and
+ * requests none: its texts are listed apart (`hypothetical`), and the fake sets nothing off for them. Nothing reads
+ * a word of an ask.
  */
-export type AskGrammar = { asks: Record<string, string[]> };
+export type AskGrammar = { asks: Record<string, string[]>; hypothetical: Record<string, string[]> };
 
 type Fill = { act?: string; situation?: string; span?: string };
 
-/** The text of a template with its slots filled; the optional group written when `withGroup`; undefined if a slot is empty. */
+/** A template with its slots filled, the optional group written when `withGroup`; undefined if a slot is empty. */
 function render(parts: readonly Part[], fill: Fill, withGroup: boolean): string | undefined {
   let out = '';
   for (const part of parts) {
@@ -67,20 +69,27 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
 }
 
 export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
-  const asks = ASK_TEMPLATES.filter((entry) => entry.kind === 'ask').map((entry) => parse(entry.template));
+  const rows = (kind: string) =>
+    ASK_TEMPLATES.filter((entry) => entry.kind === kind).map((entry) => ({
+      kind,
+      parts: parse(entry.template),
+    }));
+  const asks = [...rows('ask'), ...rows('hypothetical')];
   const out = new Map<string, Set<string>>();
-  const add = (text: string | undefined, id: string) => {
+  const apart = new Map<string, Set<string>>();
+  const add = (kind: string, text: string | undefined, id: string) => {
     if (text === undefined) return;
-    out.set(text, (out.get(text) ?? new Set()).add(id));
+    const into = kind === 'hypothetical' ? apart : out;
+    into.set(text, (into.get(text) ?? new Set()).add(id));
   };
   // Every ask of every row for one act, with and without the situation the act declares; `span` fills an ask row
   // whose slot is the declared words themselves.
   const write = (act: string, id: string, span?: string, context?: string) => {
-    for (const parts of asks) {
-      add(render(parts, { act, ...(span === undefined ? {} : { span }) }, false), id);
+    for (const { kind, parts } of asks) {
+      add(kind, render(parts, { act, ...(span === undefined ? {} : { span }) }, false), id);
       if (context === undefined || !hasGroup(parts)) continue;
       const situation = context;
-      add(render(parts, { act, ...(span === undefined ? {} : { span }), situation }, true), id);
+      add(kind, render(parts, { act, ...(span === undefined ? {} : { span }), situation }, true), id);
     }
   };
   // The act rows with one `{span}`: each declared act is written in each of them.
@@ -102,6 +111,9 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
       if (matcher.split('|').some((tool) => row.tools?.includes(tool))) write(row.template, atom.id);
     }
   }
-  const texts = [...out.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  return { asks: Object.fromEntries(texts.map((text) => [text, [...(out.get(text) ?? [])].sort()])) };
+  const listed = (map: Map<string, Set<string>>) => {
+    const texts = [...map.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    return Object.fromEntries(texts.map((text) => [text, [...(map.get(text) ?? [])].sort()]));
+  };
+  return { asks: listed(out), hypothetical: listed(apart) };
 }

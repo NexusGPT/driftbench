@@ -14,7 +14,7 @@
  *   generator, cut at their slots. An ask that fits a frame holds an act; the act is
  *   the declared ask of an atom (`fields.ask.text`), or a shape of a skill, a helper, a file or a command. A
  *   frame that only asks what an act would mean sets nothing off;
- * - an ask equal to a declared ask, as the owner writes it ("stop");
+ * - an ask equal to a declared ask, byte for byte, as the owner writes it;
  * - nothing else. An ask that matches none of these sets nothing off, and the fake answers it plainly.
  *
  * From the atoms it sets off, the fake performs what each atom defines, against the copy it is run in:
@@ -59,7 +59,6 @@ function readStructured(path) {
 }
 
 const compact = (text) => String(text).replace(/\s+/g, ' ').trim();
-const lower = (text) => compact(text).toLowerCase();
 
 const cache = new Map();
 
@@ -85,7 +84,7 @@ export function loadDispatch(env) {
     const ask = atom.fields?.ask;
     const text = typeof ask === 'string' ? ask : ask?.text;
     if (typeof text === 'string' && text.trim() !== '')
-      declared.set(lower(text), [...(declared.get(lower(text)) ?? []), atom.id]);
+      declared.set(text, [...(declared.get(text) ?? []), atom.id]);
     const name = atom.fields?.name;
     if ((atom.kind === 'skill' || atom.kind === 'subagent') && typeof name === 'string' && name !== '')
       units.set(name, atom.id);
@@ -96,7 +95,7 @@ export function loadDispatch(env) {
     for (const situation of bank.situations ?? [])
       for (const phrase of situation.phrases ?? []) {
         if (typeof phrase.text !== 'string') continue;
-        const at = lower(phrase.text);
+        const at = phrase.text;
         phrases.set(at, [...(phrases.get(at) ?? []), { use: situation.use, atoms: situation.atoms ?? [] }]);
       }
   }
@@ -140,7 +139,7 @@ function shapeOf(grammar, act) {
  * and the command an act written as a shape names.
  */
 export function setOff(index, ask) {
-  const asked = lower(ask);
+  const asked = ask;
   const banked = index.phrases.get(asked);
   if (banked) {
     const out = new Map();
@@ -155,11 +154,11 @@ export function setOff(index, ask) {
   if (Array.isArray(listed)) return { atoms: listed.map((id) => ({ id, provoke: true })), named: [] };
   const grammar = index.grammar?.frames ? index.grammar : undefined;
   const isAct = (act) =>
-    index.declared.has(lower(act)) || (grammar !== undefined && shapeOf(grammar, act) !== undefined);
+    index.declared.has(act) || (grammar !== undefined && shapeOf(grammar, act) !== undefined);
   const framed = grammar === undefined ? undefined : frameOf(grammar, ask.trim(), isAct);
   if (framed !== undefined && !framed.request) return { atoms: [], named: [] };
   const act = framed === undefined ? ask : framed.act;
-  const declaredIds = index.declared.get(lower(act));
+  const declaredIds = index.declared.get(act);
   if (declaredIds !== undefined)
     return { atoms: declaredIds.map((id) => ({ id, provoke: true })), named: [] };
   const shaped = grammar === undefined || framed === undefined ? undefined : shapeOf(grammar, act);

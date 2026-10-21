@@ -201,7 +201,7 @@ describe('approved task asks are judged by the act the fake sets off', () => {
         });
         expect((await taskFamily().evaluate(1)).get(`gen.task.${phrase.type}`)).toMatchObject({
           pass: false,
-          detail: expect.stringContaining('the fake does not set off its act'),
+          detail: expect.stringContaining('the ask is no phrase of'),
         });
       } finally {
         mock.mockRestore();

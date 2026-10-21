@@ -128,7 +128,7 @@ export function constructAsk(
 ): { text: string } | { refused: string } {
   if (build === null || typeof build !== 'object') return { refused: 'no construction record' };
   const record = build as Partial<AskBuild>;
-  const ask = rowOf(['ask', 'fixed'], record.ask);
+  const ask = rowOf(['ask', 'hypothetical', 'fixed'], record.ask);
   if (!ask) return { refused: `the ask row ${JSON.stringify(record.ask)} is not a row of the table` };
   const act = record.act === undefined ? undefined : rowOf('act', record.act);
   if (record.act !== undefined && !act)

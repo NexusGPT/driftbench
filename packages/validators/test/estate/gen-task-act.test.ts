@@ -28,19 +28,25 @@ const NOT_SET_OFF = 'Please propose a supplier e-mail.';
 const MISS = 'the fake does not set off its act';
 const code = (askFrom?: string) => ({ ask: 'code', ...(askFrom === undefined ? {} : { askFrom }) });
 
-function spec(ask: string, estate: Record<string, unknown>, atoms: string[] = [ACTED.id]) {
+function spec(
+  ask: string | undefined,
+  estate: Record<string, unknown>,
+  atoms: string[] = [ACTED.id],
+  testType = 'obligation',
+) {
+  const blocks = ask === undefined ? [] : [{ when: { user: ask } }];
   return {
     path: 'act.yaml',
     id: 'act',
     atoms,
-    testType: 'obligation',
+    testType,
     mode: 'task',
     complete: true,
-    spec: { blocks: [{ when: { user: ask } }], metadata: { estate } } as unknown as Spec,
+    spec: { blocks, metadata: { estate } } as unknown as Spec,
   };
 }
 
-async function verdict(specs: ReturnType<typeof spec>[]) {
+async function verdict(specs: ReturnType<typeof spec>[], testType = 'obligation') {
   const suite: fixture.FixtureSuite = {
     work: fixture.FIXTURE,
     map: join(fixture.FIXTURE, 'approved.yaml'),
@@ -51,7 +57,7 @@ async function verdict(specs: ReturnType<typeof spec>[]) {
   };
   const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
   try {
-    return (await taskFamily().evaluate(1)).get('gen.task.obligation');
+    return (await taskFamily().evaluate(1)).get(`gen.task.${testType}`);
   } finally {
     mock.mockRestore();
   }
@@ -111,5 +117,39 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     const neutral = 'What kinds of things can you help me with? One sentence, and please change nothing.';
     expect(await verdict([spec(neutral, code('neutral'))])).toEqual({ pass: true, detail: 'holds (1)' });
     expect((await verdict([spec(ASK, code('neutral'))]))?.pass).toBe(false);
+  });
+
+  // The reviewer's counterexamples (run 39595979728): a neutral ask is a fixed row, built exactly.
+  it('refuses a neutral ask that is no fixed row, an empty ask and a spec with no first block', async () => {
+    for (const ask of ['Please do this: never guess a status.', 'Banana purple elephant', ''])
+      expect((await verdict([spec(ask, code('neutral'))]))?.pass, ask).toBe(false);
+    expect((await verdict([spec(undefined, code('neutral'))]))?.pass).toBe(false);
+  });
+
+  const HYPOTHETICAL =
+    'No need to do anything: just tell me in one sentence what it would mean to propose a supplier email.';
+
+  it('lists a hypothetical frame apart: the fake does not set off its atom, and it never counts as the act', async () => {
+    const grammar = askGrammar(map.atoms);
+    expect(grammar.asks[HYPOTHETICAL]).toBeUndefined();
+    expect(grammar.hypothetical[HYPOTHETICAL]).toEqual([ACTED.id]);
+    const out = await verdict([spec(HYPOTHETICAL, code(`${ACTED.id} (ask)`))]);
+    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('carries no act') });
+  });
+
+  it('control: a near miss asks the hypothetical frame about its atom, and sets nothing off', async () => {
+    const near = [spec(HYPOTHETICAL, code(`${ACTED.id} (ask)`), [ACTED.id], 'route_near_miss')];
+    expect(await verdict(near, 'route_near_miss')).toEqual({ pass: true, detail: 'holds (1)' });
+    const asked = [spec(ASK, code(`${ACTED.id} (ask)`), [ACTED.id], 'route_near_miss')];
+    expect((await verdict(asked, 'route_near_miss'))?.pass).toBe(false);
+  });
+
+  it("holds a recorded session's ask only when it is the session's own message, byte for byte", async () => {
+    const recorded = 'Where is shipment NW-55020 from carrier DPX, and is it late?';
+    const session = { ask: 'session', session: 'carrier-code-required' };
+    expect(await verdict([spec(recorded, session)])).toEqual({ pass: true, detail: 'holds (1)' });
+    expect((await verdict([spec(recorded.toLowerCase(), session)]))?.pass).toBe(false);
+    const other = { ...session, session: 'force-push-blocked' };
+    expect((await verdict([spec(recorded, other)]))?.pass).toBe(false);
   });
 });

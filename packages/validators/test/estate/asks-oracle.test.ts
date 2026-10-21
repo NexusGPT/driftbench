@@ -62,7 +62,7 @@ describe('the ask templates of the validator', () => {
     const end = section.indexOf('\n## ');
     const rows = (end < 0 ? section : section.slice(0, end))
       .split('\n')
-      .map((line) => /^\| (ask|fixed|act|situation) \| `(.+)` \|$/.exec(line))
+      .map((line) => /^\| (ask|hypothetical|fixed|act|situation) \| `(.+)` \|$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
       .map((match) => ({ kind: match[1], template: match[2] }));
     expect(rows.length).toBeGreaterThan(0);
