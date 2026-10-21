@@ -151,6 +151,16 @@ Bounds, so a runaway agent cannot exhaust the run:
 * A file read returns at most 100 MiB.
 * A snapshot stops past 20,000 files, 32 folder levels or 1 GiB hashed. It never enters `node_modules` or `.git`.
 
+The snapshot bounds are the `limits` option of `localProvider` and `dockerProvider`; a key left out keeps its default. A walk at a bound still succeeds; one past it stops with an error that names the bound.
+
+| `limits` key | Default | Meaning |
+|---|---|---|
+| `maxFiles` | `20000` | the most files a walk records |
+| `maxDepth` | `32` | the deepest folder, in levels below the workspace root |
+| `maxBytes` | `1073741824` (1 GiB) | the most bytes a snapshot hashes, summed over every file |
+
+For example, `localProvider({ limits: { maxBytes: 4096 } })` stops a snapshot of a workspace that holds more than 4,096 bytes.
+
 ### Workspace paths
 
 Every path given to a sandbox is relative to the workspace root. The sandbox normalises it before it checks it.
