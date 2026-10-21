@@ -144,7 +144,8 @@ describe('README and docs YAML dropdowns', () => {
       const text = await readFile(page, 'utf8');
       const dropdowns = [...text.matchAll(DROPDOWN)];
       let checked = 0;
-      for (const dropdown of dropdowns) checked += await checkDropdown(dropdown[2] ?? '', true, page === README);
+      for (const dropdown of dropdowns)
+        checked += await checkDropdown(dropdown[2] ?? '', true, page === README);
       pages.set(page, {
         yaml: dropdowns.filter((dropdown) => dropdown[1] === 'YAML').length,
         ts: dropdowns.filter((dropdown) => dropdown[1] === 'TypeScript').length,
@@ -170,7 +171,9 @@ describe('README and docs YAML dropdowns', () => {
   });
 
   it('also loads every YAML snippet outside the dropdowns, in the README and the moved pages', async () => {
-    const texts = await Promise.all([README, INNOVATIONS, HOW_IT_WORKS, RECIPES].map((page) => readFile(page, 'utf8')));
+    const texts = await Promise.all(
+      [README, INNOVATIONS, HOW_IT_WORKS, RECIPES].map((page) => readFile(page, 'utf8')),
+    );
     const readme = texts.join('\n').replace(DROPDOWN, '');
     const snippets = [...readme.matchAll(/^```yaml\n([\s\S]*?)^```$/gm)];
     expect(snippets.length).toBeGreaterThan(0);
