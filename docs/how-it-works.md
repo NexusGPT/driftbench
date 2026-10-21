@@ -32,14 +32,14 @@ The table of test writers, the coverage line and the last line:
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
-boundary         85     146        13          72
-deviation        21     111        21           0
+boundary         85     183        13          72
+deviation       139     570       139           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            28     155        28           0
+cover            11      50        11           0
 
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 508 files to generated.
+Wrote 711 files to generated.
 ```
 
 Complete specs go to `specs/`. A spec with no approved phrase or no machine-checkable outcome goes to `incomplete/`, and the command then exits 1: the map has a gap to fill, and the output names it.

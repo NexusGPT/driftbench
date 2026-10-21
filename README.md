@@ -163,7 +163,7 @@ A recorded session of a code agent replays offline, with no model call. The spec
 
 ```console
 $ driftbench replay examples/estates/sessions/price-sheet-build.jsonl --suite examples/estates/sessions/specs/price-sheet-build.yaml
-(output pending)
+✓ replay-price-sheet-build  session price-sheet-build from block 0 (metadata)
 ```
 
 The output lists each check and its verdict. The spec is in [`price-sheet-build.yaml`](examples/estates/sessions/specs/price-sheet-build.yaml). [Full description](docs/estate.md).
@@ -192,7 +192,16 @@ The command reads an approved map of the situations of the Acme example agent an
 
 ```console
 $ driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2   # exit 1
-(output pending)
+Seeder        specs  blocks  complete  incomplete
+graph            12      48        12           0
+twise           156     793       153           3
+boundary         85     183        13          72
+deviation       139     570       139           0
+metamorphic      42     192        42           0
+task             67      71        67           0
+cover            11      50        11           0
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 711 files to generated.
 ```
 
 Each seeder writes a family of tests. The coverage line says every allowed pair of values is covered. Exit 1 means some map entries have no approved phrase yet; their tests wait in `generated/incomplete/`. [Full description](docs/generating.md).
@@ -247,11 +256,12 @@ blocks:
 ```
 
 ```console
-$ driftbench campaign run checkout.spec.yaml --target function:acme-sales
-(output pending)
+$ driftbench campaign run checkout.spec.yaml --target function:acme-sales   # exit 1
+✗ acme-parent-checkout · function:acme-sales · F · repeat 0  fail  block 0 tools.catalog.search.count, block 0 must.0, block 5 must.0, block 1 blocked by plans, block 2 blocked by recap, block 3 blocked by order, block 4 blocked by plans
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
 
-If `recap` failed, `order` and `receipt` would show as blocked, and the report would count one cause. [Full description](docs/innovations.md#parent-blocks-share-the-start-and-count-the-cause-once).
+Here the plain Acme agent does not answer block `plans` as the spec expects, so it fails. The report shows its children as blocked by it, and counts one cause. Block `hours` has no parent, so it keeps its own result. [Full description](docs/innovations.md#parent-blocks-share-the-start-and-count-the-cause-once).
 
 </details>
 
@@ -288,7 +298,10 @@ Run it with `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --m
 
 ```console
 $ driftbench simulate examples/acme/specs/conversations/plan-upgrade.yaml --persona examples/acme/personas/sam-upgrader.yaml --recording examples/acme/personas/recordings/sam-upgrader.yaml --target function:acme
-(output pending)
+Simulate: acme-plan-upgrade on function:acme, persona sam-upgrader (Sam Rivera), recording hand-written.
+  2  agent  Here is the change: Acme Mobile S to Acme Mobile L, unlimited data for $35 a month, from your next billing cycle. Reply CONFIRM to place the order.
+     recap  ✓
+✓ 5 of 5 blocks pass. The run ended: the spec has no block 5.
 ```
 
 [Full description](docs/simulated-user.md).
@@ -334,11 +347,11 @@ blocks:
 ```
 
 ```console
-$ driftbench campaign run recap.spec.yaml --target function:acme-sales
+$ driftbench spec validate recap.spec.yaml
 (output pending)
 ```
 
-The block passes when the agent asks for confirmation and has not called `order.create`. [Full description](docs/innovations.md#blocks-test-each-step-and-find-the-fix).
+The spec is valid and holds one block, `recap`. When a block fails, the report names it by position and check, as in `block 1 must.0` in step 5 of the [quickstart](#quickstart). The block passes when the agent asks for confirmation and has not called `order.create`. [Full description](docs/innovations.md#blocks-test-each-step-and-find-the-fix).
 
 </details>
 
@@ -375,7 +388,8 @@ fixtures:
 
 ```console
 $ driftbench judge check criteria
-(output pending)
+ok  asks_before_acting [system2, gating]: pass fixture 4 line(s), fail fixture 2 line(s)
+1 valid criteria, 0 issue(s).
 ```
 
 `judge check` confirms that both transcripts are valid. `driftbench judge calibrate` then measures whether a judge separates them 3 times out of 3 and agrees with your hand labels. [Full description](docs/recipes.md#add-a-judge).
@@ -423,7 +437,8 @@ blocks:
 
 ```console
 $ driftbench spec lint phone.spec.yaml
-(output pending)
+✓ phone.spec.yaml  acme-phone-spellings · 1 block · hash 0135deb157c9
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 ```
 
 With a lookup tool that resolves both spellings, the check settles the comparison with the tool. [Full description](docs/innovations.md#value-checks-ask-the-tool-what-the-value-means).
@@ -436,7 +451,9 @@ The customer changes goal at block 2 of a conversation with the Acme sales agent
 
 ```console
 $ driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
-(output pending)
+  pos  block                       stage         pass  failing
+  2    injected d2-cheaper-plan@2  offer         ✓
+✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 ```
 
 The last line says the agent came back at once, with no collateral damage and a safe action. A slower agent would print the number of blocks it needed. [Full description](docs/concepts/recovery.md).
@@ -561,9 +578,10 @@ metadata:
 
 ```console
 $ driftbench radius sections check acme-sales.sections.yaml --prompt acme-sales.md
-(output pending)
+acme-sales v1: 3 sections match the prompt.
 $ driftbench spec lint recap.spec.yaml --sections acme-sales.sections.yaml
-(output pending)
+✓ recap.spec.yaml  acme-recap-linked · 1 block · hash f97b29cdf4a6
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 ```
 
 The first command checks the registry against the prompt text. The second checks that every link names a section the registry holds. [Full description](docs/innovations.md#trace-the-source-find-the-line-to-inspect).
@@ -587,7 +605,7 @@ blocks:
 ```
 
 ```console
-$ driftbench campaign run recap.spec.yaml --target function:acme-sales
+$ driftbench spec validate recap.spec.yaml
 (output pending)
 ```
 
@@ -646,7 +664,9 @@ blocks:
 
 ```console
 $ driftbench radius recap.spec.yaml --change recap.change.yaml
-(output pending)
+Blast radius of acme-v1 to acme-v2 (manifest edeee14e9937): stage:recap.
+1 spec, 1 block.
+Mode F, free-running: 1 of 1 block in the radius (1 direct, 0 forward), 0 out. 1 of 1 cell.
 ```
 
 The command lists the blocks to rerun and runs nothing. [Full description](docs/innovations.md#blast-radius-rerun-only-what-a-change-touches).
@@ -715,7 +735,10 @@ Each line below links to its page. Each group has a **How to do it** fold with o
 $ driftbench spec lint examples/acme/specs
 (output pending)
 $ driftbench import traces packages/adapters/test/traces/fixtures/otel-semconv.json --from otel --out drafts
-(output pending)
+Read 1 trace from 1 file (otel): 2 turns.
+Wrote 1 draft spec to drafts, none approved: 2 blocks, no expect yet.
+  Personal data redacted: 3 values.
+Next: write each block's expect from the agent spec, then driftbench import approve drafts --all.
 ```
 
 `spec lint` validates every spec in the folder and prints advice. `import traces` turns production traces into draft specs in `drafts/`. A spreadsheet works the same way with `import csv` and a mapping file. See [traces](docs/traces.md) and [datasets](docs/datasets.md).
@@ -731,9 +754,15 @@ $ driftbench import traces packages/adapters/test/traces/fixtures/otel-semconv.j
 
 ```console
 $ driftbench campaign plan examples/acme/specs/conversations --target function:acme --mode T,F --repeats 3
-(output pending)
+Plan: 6 specs, 1 target, modes T, F, 3 repeats: 36 cells, 156 blocks.
+Minimum detectable effect, mode T: 41.2 points on a 50% pass rate, with 18 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: 41.2 points on a 50% pass rate, with 18 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 $ driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --rounds 3 --seed 1
-(output pending)
+  round  class                at  cue                        phrasing           label      turns  safe  finding
+  1      D10_return           5   replies (block 4)          d10-lets-continue  immediate  0      yes
+  2      D7_silence_or_burst  5   replies (block 4)          d7-are-you-there   immediate  0      yes
+  3      D1_off_topic         4   asks a question (block 3)  d1-phone-cases     immediate  0      yes
+Findings: 0 of 3 attacks.
 ```
 
 `campaign plan` lists the runs and prints the smallest effect they can detect, before anything is spent. `attack` plays three rounds where each move depends on the agent's last reply. [Run modes](docs/concepts/run-modes.md), [attacker](docs/attack.md).
@@ -751,7 +780,9 @@ The recorded answers of a panel of judges are replayed on the 12 Acme criteria. 
 
 ```console
 $ driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json
-(output pending)
+separated  explicit_confirmation [system1, gating]: pass fixture pass, fail fixture fail
+separated  holds_instructions [system1, gating]: pass fixture pass, fail fixture fail (split, re-judged)
+12 of 12 criteria separated in mode hybrid.
 ```
 
 Each line says whether a judge separated the passing transcript from the failing one. [Judges](docs/concepts/judges.md).
@@ -769,11 +800,18 @@ Run the golden suite on the correct Acme agent as the baseline. Then run the sam
 
 ```console
 $ driftbench campaign run examples/acme/golden/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops --store ci.db --campaign baseline
-(output pending)
+✓ gen-twise-066 · function:acme-sales · F · repeat 0  pass  7 blocks
+10 cells: 10 pass, 0 fail, 0 failed. Spent $0.00.
 $ driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops --baseline baseline --store ci.db   # exit 1
-(output pending)
+  goldens paired                               10
+  regressed                                    5
+  all-pass regression effect                   +50.00 points
+  95% interval                                 [+11.74, +76.34] points
+  margin                                       28 points (auto)
+Verdict: REGRESSION. Exit 1.
 $ driftbench report --store ci.db --out scorecard.html
-(output pending)
+Suite pass rate, mode F: 50.0% [23.4%, 76.6%] (hierarchical 95% interval); 10 goldens, n_eff 9.0 runs (design effect 1.11), no drop detectable at 80% power.
+Wrote scorecard.html.
 ```
 
 The verdict is a regression with its interval, and the exit code is 1, so a pipeline stops. With no fault, the same command prints parity and exits 0. [CI gate](docs/reference/cli.md#driftbench-ci), [scorecards](docs/scorecards.md).
@@ -804,7 +842,10 @@ The registry stores the folder as an immutable version. Pushing the same files a
 
 ```console
 $ driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated   # exit 1
-(output pending)
+Accepted 24 of 28 blocks.
+  X3_flow: 1/1 killed (100%, 95% CI 21% to 100%)
+  control: 2 negative control(s), green
+Wrote 11 files to gated.
 ```
 
 Each test is run against the correct agents and against agents with planted faults. A test that no fault fails, or that a constant reply passes, is rejected, and the report says why. [The gate](docs/generating.md#the-gate).

@@ -130,7 +130,8 @@ async function checkDropdown(body: string, requireCleanLint = true, allowNoFiles
 describe('README and docs YAML dropdowns', () => {
   it('loads every YAML file and its shown references with the real loaders', async () => {
     const innovations = await readFile(INNOVATIONS, 'utf8');
-    const section = innovations.split(/^## More that ships$/m)[0] ?? '';
+    const prose = innovations.replace(/^```[\s\S]*?^```$/gm, '');
+    const section = prose.split(/^## More that ships$/m)[0] ?? '';
     const ideas = section.split(/^## /m).slice(1);
     expect(ideas).toHaveLength(10);
     for (const idea of ideas) expect(idea, idea.split('\n')[0]).toContain(SUMMARY);

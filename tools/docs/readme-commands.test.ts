@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { main } from '../../packages/cli/src/index';
 
-const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '');
 const FOLD = /<details><summary>How to do it([^<]*)<\/summary>([\s\S]*?)<\/details>/g;
 const FILE_LINE = /^(?:#|\/\/) file: (.+)\n/;
 
@@ -78,23 +78,27 @@ async function run(command: string, cwd: string): Promise<{ code: number; lines:
   return { code, lines };
 }
 
-/** What a step shows is its printed output, in order, and nothing the command did not print. */
-function mismatch(step: Step, got: { code: number; lines: string[] }): string {
+/** What a step shows is its printed output, in order, and its exit code. */
+function mismatch(step: Step, got: { code: number; lines: string[] }): string[] {
+  const found: string[] = [];
   let from = 0;
   for (const line of step.shown) {
     const at = got.lines.indexOf(line, from);
-    if (at < 0) return `the README line is not printed, in order: ${line}`;
-    from = at + 1;
+    if (at < 0) {
+      found.push(`the README line is not printed, in order: ${line}`);
+    } else {
+      from = at + 1;
+    }
   }
-  if (got.code !== step.exit) return `exit code ${got.code}, the README says ${step.exit}`;
-  return '';
+  if (got.code !== step.exit) found.push(`exit code ${got.code}, the README says ${step.exit}`);
+  return found;
 }
 
 async function report(command: string, step: Step, cwd: string): Promise<string> {
   const got = await run(command, cwd);
-  const problem = mismatch(step, got);
-  if (problem === '') return '';
-  return `$ ${command}\n${problem}\nPrinted:\n${got.lines.join('\n')}\n`;
+  const found = mismatch(step, got);
+  if (found.length === 0) return '';
+  return `$ ${command}\n${found.join('\n')}\nPrinted:\n${got.lines.join('\n')}\n`;
 }
 
 describe('README commands that print what they show', () => {
