@@ -13,6 +13,7 @@ export {
   krippendorffAlpha,
   type Label,
 } from './agreement';
+export { kishDesignEffect, proportionalAllocation } from './allocation';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
 export {
   abundances,
@@ -24,6 +25,7 @@ export {
   hillNumber,
   hillNumbers,
 } from './coverage';
+export { minimumDetectableMeanDifference } from './design-power';
 export {
   type Alarm,
   type CusumOptions,
