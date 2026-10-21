@@ -222,8 +222,7 @@ export function pointerAtoms(
         same.provenance.quote.endsWith(at.quote) &&
         Array.isArray(mappedEvidence) &&
         mappedEvidence.some(
-          (entry) =>
-            entry.type === 'ordered' && entry.before.includes('~') && entry.after.includes('~'),
+          (entry) => entry.type === 'ordered' && entry.before.includes('~') && entry.after.includes('~'),
         );
       if (same && !replacesGate) {
         duplicates.push(`${named} repeats ${same.id}`);
