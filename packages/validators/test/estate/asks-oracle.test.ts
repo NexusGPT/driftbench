@@ -62,7 +62,9 @@ describe('the ask templates of the validator', () => {
     const end = section.indexOf('\n## ');
     const rows = (end < 0 ? section : section.slice(0, end))
       .split('\n')
-      .map((line) => /^\| (ask|fixed|act|situation) \| `([^`]+)` \|(.*)\|\s*([^|]*?)\s*\|$/.exec(line))
+      .map((line) =>
+        /^\| (ask|fixed|act|situation) \| `([^`]+)` \|(.*)\|\s*([^|]*?)\s*\|$/.exec(line),
+      )
       .filter((match): match is RegExpExecArray => match !== null)
       .map((match) => {
         // The Tools column: tool names when it lists them; a row whose tools come from its own slots lists none.
