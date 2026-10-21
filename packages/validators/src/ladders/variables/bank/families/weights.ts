@@ -287,6 +287,34 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     );
   },
 
+  'weights.interval-huge-counts': (variant, ctx) => {
+    const exponent = variant === 'n2-512' ? 512 : variant === 'n2-600' ? 600 : 900;
+    const total = 2 ** exponent;
+    const z2 = Z95 * Z95;
+    const [lo0, hi0] = callInterval(ctx, 0, total);
+    must(
+      lo0 === 0 && Number.isFinite(hi0) && Math.abs(hi0 / (z2 / total) - 1) <= 1e-9,
+      () => `weightInterval(0, 2^${exponent}) = [${lo0}, ${hi0}], expected [0, ${z2 / total}] (z^2 / n)`,
+    );
+    const [loAll, hiAll] = callInterval(ctx, total, total);
+    must(
+      hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1,
+      () =>
+        `weightInterval(2^${exponent}, 2^${exponent}) = [${loAll}, ${hiAll}], expected an upper bound of 1 and a lower bound just below 1`,
+    );
+    const [loOne, hiOne] = callInterval(ctx, 1, total);
+    must(
+      Number.isFinite(loOne) &&
+        Number.isFinite(hiOne) &&
+        loOne >= 0 &&
+        loOne <= 1 / total &&
+        hiOne >= 1 / total &&
+        hiOne > loOne,
+      () =>
+        `weightInterval(1, 2^${exponent}) = [${loOne}, ${hiOne}] does not hold 1 / n with a width above 0`,
+    );
+  },
+
   'weights.zero-count': (variant, ctx) => {
     const { rng } = ctx;
     const base = baseStore(ctx, [variant === 'among-seen' ? 4 : 3]);

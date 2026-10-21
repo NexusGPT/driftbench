@@ -20,6 +20,7 @@ import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { fixListOption } from '../report-fixes';
 import { noStoreAt } from '../store-path';
 import {
   compareJson,
@@ -172,6 +173,7 @@ export async function reportCommand(
   let card: ReturnType<typeof buildScorecard>;
   try {
     card = buildScorecard(data, {
+      ...fixListOption(data),
       margin,
       minGoldens: gate.minGoldens,
       strict: gate.strict,

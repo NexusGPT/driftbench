@@ -1,0 +1,63 @@
+# Track a shipment that is late by more than two days, then draft the chase email to its supplier. The user gives
+# no tracking number at first (the skill asks), the carrier code must reach track.sh, a late shipment is
+# reported with a proposed supplier email (R7), and the draft is written in the supplier's language and not sent.
+# Fictional data only.
+id: northwind-shipment-late
+version: '1'
+kind: task
+title: Find a late shipment and draft the chase email in the supplier's language
+lang: EN
+tier: core
+tags: [northwind, campaign, skill:shipment-tracker, skill:supplier-email]
+target: { adapter: claude-code, agent: northwind }
+uses: { diagnostics: [code-agent-liability] }
+workspace_seed:
+  files:
+    .claude/skills/shipment-tracker/scripts/shipments.txt: |
+      NWX 4471 last-scan:2026-09-12:departed-depot promised:2026-09-18
+      NWX 4502 last-scan:2026-10-02:delivered promised:2026-10-02
+    ledger/PO-77.json: |
+      {"supplier": "Fabrikam Housewares", "lines": [{"article": "NW-PAN-20", "quantity": 120, "unit_price": 12.00}]}
+metadata:
+  tool_schemas:
+    Skill:
+      type: object
+      properties:
+        skill:
+          type: string
+          enum: [invoice-reconcile, shipment-tracker, supplier-email, weekly-report]
+        args:
+          type: string
+  estate:
+    map: ../../estates/fixture/approved.yaml
+    atoms:
+      - skill.shipment-tracker.skill-shipment-tracker
+      - route.standing.an-ask-to-know-where-a
+      - instruction.shipment-tracker.ask-for-the-tracking-number-when
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.never-send-a-supplier-email-without
+      - instruction.memory-supplier-languages.write-to-each-supplier-in-its
+rules:
+  custom:
+    northwind-invoice-prerequisite: {}
+blocks:
+  - id: ask
+    user: Where is my shipment?
+    expect:
+      skills:
+        - { name: shipment-tracker, count: { min: 1 } }
+      must: ['\?']
+  - id: track
+    user: It is carrier NWX, tracking number 4471.
+    expect:
+      execution: { ran_code: true }
+      must: ['late', 'email']
+      workspace: { created: [], changed: [], deleted: [] }
+  - id: draft
+    user: Yes please, draft it for Fabrikam Housewares, order PO-77.
+    expect:
+      skills:
+        - { name: supplier-email, count: { min: 1 } }
+      must: ['(onderwerp|betreft)']
+      workspace: { created: [], changed: [], deleted: [] }

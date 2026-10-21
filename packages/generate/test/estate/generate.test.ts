@@ -489,6 +489,23 @@ describe('the committed suite', () => {
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+    // A spec that checks hazard recovery declares the runtime's tools as read or modify; no other spec has a table.
+    const written = [...specs(result).values()];
+    const checking = written.filter((spec) => spec.rules?.custom?.hazard_recovery !== undefined);
+    expect(checking.length).toBeGreaterThan(0);
+    for (const spec of checking)
+      expect(spec.operations, spec.id).toEqual({
+        Edit: 'modify',
+        Glob: 'read',
+        Grep: 'read',
+        MultiEdit: 'modify',
+        NotebookEdit: 'modify',
+        Read: 'read',
+        Skill: 'read',
+        Write: 'modify',
+      });
+    for (const spec of written)
+      if (spec.rules?.custom?.hazard_recovery === undefined) expect(spec.operations, spec.id).toBeUndefined();
   }, 120_000);
 });
 
