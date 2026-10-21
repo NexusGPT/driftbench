@@ -97,9 +97,27 @@ async function shell(command: string, cwd: string): Promise<{ code: number; line
   }
 }
 
+/** Runs one shown driftbench command as its own process, as a person would: the CLI entry point under tsx. */
+async function spawnCli(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
+  const argv = words(command.replaceAll('$PWD', cwd));
+  while (['pnpm', 'npx', 'driftbench'].includes(argv[0] ?? '')) argv.shift();
+  try {
+    const tsx = join(ROOT, 'node_modules/.bin/tsx');
+    const done = await exec(tsx, [join(ROOT, 'packages/cli/src/bin.ts'), ...argv], {
+      cwd,
+      timeout: 240_000,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
+  } catch (error) {
+    const failed = error as { code?: number; stdout?: string; stderr?: string };
+    return { code: failed.code ?? 1, lines: clean(`${failed.stdout ?? ''}${failed.stderr ?? ''}`, cwd) };
+  }
+}
+
 /** A command of the walkthrough: driftbench, or the shell. */
 async function execute(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
-  if (/^(pnpm |npx )?driftbench /.test(command)) return run(command, cwd);
+  if (/^(pnpm |npx )?driftbench /.test(command)) return spawnCli(command, cwd);
   return shell(command, cwd);
 }
 
@@ -120,7 +138,7 @@ function mismatch(step: Step, got: { code: number; lines: string[] }): string[] 
 }
 
 async function report(command: string, step: Step, cwd: string): Promise<string> {
-  const got = await execute(command, cwd);
+  const got = /^(pnpm |npx )?driftbench /.test(command) ? await run(command, cwd) : await shell(command, cwd);
   const found = mismatch(step, got);
   if (found.length === 0) return '';
   return `$ ${command}\n${found.join('\n')}\nPrinted:\n${got.lines.join('\n')}\n`;
