@@ -329,9 +329,7 @@ describe('command line', () => {
     const limit = 10 * 1024 * 1024;
     const padding = `${JSON.stringify({ message: 'padding' })}\n`;
     const email = ['canary.person', 'driftbench-canary.dev'].join('@');
-    const content =
-      padding.repeat(Math.ceil((30 * 1024 * 1024) / padding.length)) +
-      `${JSON.stringify({ message: email })}\n`;
+    const content = `${padding.repeat(Math.ceil((30 * 1024 * 1024) / padding.length))}${JSON.stringify({ message: email })}\n`;
     expect(content.indexOf(email)).toBeGreaterThan(limit);
     const dir = folder({ 'recordings.jsonl': content });
     try {

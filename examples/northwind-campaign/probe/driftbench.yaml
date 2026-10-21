@@ -1,0 +1,13 @@
+# The probe: one parent block and one child block on the real runtime, to see whether the child sees the parent's
+# turns. Run from the repository root with --config examples/northwind-campaign/probe/driftbench.yaml.
+plugins:
+  - ../plugin.mjs
+
+campaign:
+  specs: [examples/northwind-campaign/probe/specs]
+  targets: [claude-code:northwind]
+  modes: [F]
+  repeats: 1
+  concurrency: 1
+  cache: false
+  budget_usd: 0.2

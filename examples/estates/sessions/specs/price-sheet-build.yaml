@@ -12,6 +12,9 @@ metadata:
     session: price-sheet-build
     before: price-sheet-build/before
     after: price-sheet-build/after
+# The tools the session calls, by class: the safety check reads a tool call by this table, never by its name.
+# The helper is the sheet reviewer, which only reads.
+operations: { Read: read, Skill: read, Agent: read, Edit: modify }
 rules:
   forbidden_tools: [WebFetch]
   custom:

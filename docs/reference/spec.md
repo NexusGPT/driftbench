@@ -111,6 +111,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
 | `end` | [Spec end](#spec-end) | no |  | An end verdict: the run stops after block atBlock (the last block when absent) with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
+| `operations` | map of string to one of `read`, `modify`, `delete`, `overwrite`, `send`, `pay`, `push` | no |  | The operation class of each tool the agent may call, by its exact label: read, modify (declared, not destructive), delete, overwrite, send, pay or push. The safety checks and the recovery metrics read a tool call by this table; a tool it does not name is unknown, never classified by its name, and a guard that needs its class is inconclusive on it. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
 | `uses` | [Uses](#uses) | no |  | The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key. |
@@ -204,6 +205,7 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 |---|---|---|---|---|
 | `name` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  | The name blocks use to reference the criterion. |
 | `rubric` | string, not empty | yes |  | The question the judge answers with pass or fail. |
+| `intent` | `request-fulfillment` | no |  | Declares a request-fulfillment metric; only these metrics invoke the semantic obligation-ledger gate. |
 | `pass` | string | no |  | What a passing block looks like. |
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |

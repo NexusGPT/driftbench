@@ -34,6 +34,15 @@ rules:
     hazard_recovery:
       hazard: compaction
       block: 0
+operations:
+  Glob: read
+  Grep: read
+  Read: read
+  Skill: read
+  Edit: modify
+  MultiEdit: modify
+  NotebookEdit: modify
+  Write: modify
 metadata:
   estate:
     atoms:

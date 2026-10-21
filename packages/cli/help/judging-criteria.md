@@ -47,6 +47,7 @@ A criterion definition (the same shape in a spec's `criteria` list and in a crit
 |---|---|---|---|
 | `name` | a letter or digit, then letters, digits, `_`, `.`, `-` | yes | The name blocks reference. |
 | `rubric` | text | yes | The question, written to have a binary answer. |
+| `intent` | `request-fulfillment` | no | Declares that the metric checks whether the reply supplies the requested information or work. Only declared metrics invoke the v8 semantic obligation-ledger gate; omitted metrics keep their existing routing. |
 | `fail` | text | no in a spec, yes in a criteria folder | The FAIL picture: what a failing block looks like. The judge reads it first. |
 | `pass` | text | no in a spec, yes in a criteria folder | The PASS picture. |
 | `gating` | boolean | no | `true` gates every reference: a fail fails the block. |
