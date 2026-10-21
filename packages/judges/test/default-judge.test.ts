@@ -5,7 +5,10 @@ import { ClaudeTransportError } from '../src/clients/claude-errors';
 import type { DialectCompletionRequest, DialectTransport } from '../src/clients/transport';
 import { createDefaultJudge, DEFAULT_JUDGE_POLICY } from '../src/default-judge';
 
-function mock(outputs: unknown[], policyOverride?: { lengthPreference?: boolean; conversationTurns?: boolean }) {
+function mock(
+  outputs: unknown[],
+  policyOverride?: { lengthPreference?: boolean; conversationTurns?: boolean },
+) {
   const calls: DialectCompletionRequest[] = [];
   const transport: DialectTransport = {
     dialect: 'scratchpad-json',
