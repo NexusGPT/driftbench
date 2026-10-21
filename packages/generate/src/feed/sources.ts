@@ -12,6 +12,8 @@ import { QuoteIndex } from '../extract/quote';
  *   file it is quoted from. A value whose quote the file does not hold (white space, typographic quotes, accents
  *   and invisible characters folded, case and punctuation not) is refused with a reason and kept out; a variable
  *   left with no value is not stored. A file is looked up by its exact path among the files given, never on disk.
+ *   Text with an unpaired UTF-16 surrogate (not well-formed Unicode), in any key or value of any source, is refused
+ *   with a reason by one pass at the entry: two such texts would encode alike and share an id or a hash.
  * - Conversations. Each session names the values it shows by variable and value id. A variable's total is the
  *   sessions that show it; a value's count is the sessions that show the value. A value of a variable the store
  *   has, absent from the store, joins it as a proposal (`approved: false`) with its counts. A variable no session
@@ -108,6 +110,13 @@ const sha256 = (text: string): string => createHash('sha256').update(text).diges
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim() === '';
+
+/** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
+const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+/** The text with each unpaired surrogate shown as U+FFFD, for a refusal that names it. */
+const shown = (text: string): string => text.replace(new RegExp(UNPAIRED.source, 'g'), '\uFFFD');
+const NOT_WELL_FORMED =
+  'a name or subject must be well-formed text: this one holds an unpaired UTF-16 surrogate, which cannot be told from another';
 
 function realDay(text: unknown): text is string {
   if (typeof text !== 'string') return false;
@@ -296,12 +305,128 @@ function ownerEntry(words: unknown, date: unknown): OwnerEntry | string {
   return { kind: 'owner', words: words as string, date };
 }
 
+/** Whether a string, an array or an object holds, anywhere in its keys or values, a string that is not well-formed. */
+function illFormedAnywhere(value: unknown): boolean {
+  if (typeof value === 'string') return UNPAIRED.test(value);
+  if (Array.isArray(value)) return value.some(illFormedAnywhere);
+  if (isRecord(value)) {
+    return Object.entries(value).some(([key, inner]) => UNPAIRED.test(key) || illFormedAnywhere(inner));
+  }
+  return false;
+}
+
+/** Whether an object has a key that is not well-formed, at its own level. */
+const keyIllFormed = (value: unknown): boolean =>
+  isRecord(value) && Object.keys(value).some((key) => UNPAIRED.test(key));
+
+/**
+ * The one well-formedness pass, before anything else reads the sources. Text with an unpaired UTF-16 surrogate, in a
+ * key or a value at any depth, is not well-formed Unicode: two such texts encode to the same replacement text and
+ * would share an id or a hash. Each entry that holds one (a file, a rule, a condition, a tool value, a session, an
+ * owner entry) is left out and refused once, with a reason and its text escaped. What is left is read as given.
+ */
+function wellFormedSources(sources: VariableSources): { clean: VariableSources; refused: SourceRefusal[] } {
+  const refused: SourceRefusal[] = [];
+  const drop = (what: string): void => {
+    refused.push({ what: shown(what), reason: NOT_WELL_FORMED });
+  };
+  const name = (value: unknown): string =>
+    typeof value === 'string' ? value : (JSON.stringify(value) ?? '');
+  const top = Object.keys(sources).filter((key) => UNPAIRED.test(key));
+  for (const key of top) drop(`sources key ${key}`);
+  let estate = top.length > 0 ? undefined : sources.estate;
+  if (estate !== undefined && keyIllFormed(estate)) {
+    drop('estate');
+    estate = undefined;
+  }
+  if (estate !== undefined && isRecord(estate)) {
+    const files: Record<string, string> = {};
+    for (const [path, text] of Object.entries(estate.files ?? {})) {
+      if (illFormedAnywhere([path, text])) drop(`file ${path}`);
+      else files[path] = text;
+    }
+    const rules = (estate.rules ?? []).flatMap((rule) => {
+      if (illFormedAnywhere([rule.id, rule.source]) || keyIllFormed(rule)) {
+        drop(`rule ${name(rule.id)}`);
+        return [];
+      }
+      const conditions = (rule.conditions ?? []).filter((condition) => {
+        const bad = illFormedAnywhere(condition);
+        if (bad) drop(name(condition?.text));
+        return !bad;
+      });
+      const tools = (rule.tools ?? []).map((tool) => {
+        if (keyIllFormed(tool)) drop(`${name(tool.tool)}.${name(tool.field)}`);
+        const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool);
+        const values = (tool.values ?? []).filter((value) => {
+          const bad = whole || illFormedAnywhere(value);
+          if (bad) drop(`${name(tool.tool)}.${name(tool.field)}.${name(value?.id)}`);
+          return !bad;
+        });
+        return { ...tool, values };
+      });
+      return [{ ...rule, conditions, tools }];
+    });
+    estate = { ...estate, files, rules };
+  }
+  const conversations = (top.length > 0 ? undefined : sources.conversations)?.filter((session) => {
+    const bad = illFormedAnywhere(session);
+    if (bad) drop(`session ${name(session?.id)}`);
+    return !bad;
+  });
+  let owner = top.length > 0 ? undefined : sources.owner;
+  if (owner !== undefined && keyIllFormed(owner)) {
+    drop('owner');
+    owner = undefined;
+  }
+  if (owner !== undefined && isRecord(owner)) {
+    const keep = <T>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
+      list?.filter((entry) => {
+        const bad = illFormedAnywhere(entry);
+        if (bad) drop(`owner ${kind} ${name(entry)}`);
+        return !bad;
+      });
+    owner = {
+      ...owner,
+      ...(owner.values === undefined
+        ? {}
+        : { values: keep(owner.values, 'value') as NonNullable<SourceOwner['values']> }),
+      ...(owner.impossible === undefined
+        ? {}
+        : { impossible: keep(owner.impossible, 'pair') as NonNullable<SourceOwner['impossible']> }),
+      ...(owner.weights === undefined
+        ? {}
+        : { weights: keep(owner.weights, 'weight') as NonNullable<SourceOwner['weights']> }),
+    };
+  }
+  const clean: VariableSources = {
+    ...(estate === undefined ? {} : { estate }),
+    ...(conversations === undefined ? {} : { conversations }),
+    ...(owner === undefined ? {} : { owner }),
+  };
+  return { clean, refused };
+}
+
 export function variablesFromSources(
   sources: VariableSources,
   options: VariablesFromSourcesOptions = {},
 ): VariablesFromSources {
+  const { clean, refused: illFormed } = wellFormedSources(sources);
+  const built = readSources(clean, options);
+  if (illFormed.length === 0) return built;
+  return {
+    ...built,
+    refused: [...built.refused, ...illFormed].sort((x, y) => {
+      const [kx, ky] = [identity('refusal', x.what, x.reason), identity('refusal', y.what, y.reason)];
+      return kx < ky ? -1 : kx > ky ? 1 : 0;
+    }),
+  };
+}
+
+function readSources(sources: VariableSources, options: VariablesFromSourcesOptions): VariablesFromSources {
   const refused: SourceRefusal[] = [];
-  const refuse = (what: string, reason: string) => refused.push({ what, reason });
+  // Every refusal prints its text through one escape: a lone surrogate is shown as U+FFFD, never as itself.
+  const refuse = (what: string, reason: string) => refused.push({ what: shown(what), reason: shown(reason) });
 
   // ---------------------------------------------------------------------------------------------- the estate
   const files = new Map(Object.entries(sources.estate?.files ?? {}));
