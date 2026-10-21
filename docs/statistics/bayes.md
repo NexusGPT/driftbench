@@ -2,7 +2,7 @@
 
 This page defines fourteen functions that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. Nine summarise a pass rate with a Beta prior: the posterior mode and variance, the chance of the next success, the Beta-Binomial and Dirichlet-Multinomial distributions, a Bayes factor against a point null, and comparisons of two Beta variables. Five give a closed-form confidence interval on a rate from `k` successes in `n` trials. The conventions of [statistics capabilities](capabilities.md) hold for all of them: the `RangeError` rules, the accuracy of a relative 1e-11, and the quantile `z` passed in as an argument.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `ruleOfThreeUpperBound` exists in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 ## Notation
 

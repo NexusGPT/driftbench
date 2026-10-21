@@ -2714,6 +2714,7 @@
       "quantileSorted": "value",
       "reduceRepeats": "value",
       "repeatsForFloor": "value",
+      "ruleOfThreeUpperBound": "value",
       "sampleSizeForEffect": "value",
       "sampleVariance": "value",
       "simulateCoverage": "value",

@@ -73,6 +73,18 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
   return Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact);
 }
 
+/**
+ * The exact one-sided upper bound on a failure rate after n trials with no failure, 1 - (1 - confidence)^(1 / n):
+ * the rate U with (1 - U)^n = 1 - confidence. The rule of three, 3 / n, approximates it at 0.95. It is taken as
+ * -expm1(log1p(-confidence) / n) so that a large n does not lose digits to the subtraction.
+ */
+export function ruleOfThreeUpperBound(n: number, confidence: number): number {
+  if (!Number.isSafeInteger(n) || n < 1)
+    throw new RangeError(`ruleOfThreeUpperBound: n must be a positive integer, got ${n}`);
+  assertProbability('ruleOfThreeUpperBound', 'confidence', confidence, true);
+  return -Math.expm1(Math.log1p(-confidence) / n);
+}
+
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */
 export function designEffect(m: number, rho: number): number {
   assertFinite('designEffect', 'm', m);

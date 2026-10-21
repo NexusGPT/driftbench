@@ -58,6 +58,7 @@ export {
   effectiveSampleSize,
   type Interval,
   kishEffectiveSize,
+  ruleOfThreeUpperBound,
   wilson,
   Z95,
   zeroFailureBound,
