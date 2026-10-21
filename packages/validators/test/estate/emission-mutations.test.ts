@@ -184,15 +184,16 @@ const CLASS_PROOFS: Record<
     // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry, or on a `some_call` entry
     // (`calls`): some_call and hazard_recovery read it through `entry.count ?? { min: 1 }` and parseSomeCall's default.
     census: () => fieldReadCensus(ROOT, READER_ROOTS, DEFAULT_COUNT_READS),
+    // In the order of the census: files sorted by path (reader-census.ts, sourceFiles), so blame/ comes before checks/.
     readers: [
+      // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
+      // `count`, so an absent count and `{ min: 1 }` give the same names.
+      'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
       "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
       'packages/checks/src/checks/estate.ts: `${plural(matching.length, what)} of ${plural(own.length, `${entry.label} call`)} in this block, expected ${describeCount(entry.count)}`,',
       'packages/checks/src/checks/estate.ts: const count = (entry.count ?? { min: 1 }) as Count;',
       "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
       'packages/checks/src/checks/estate.ts: `${plural(matching.length, `${entry.label} call`)} after the ${hazard}, expected ${describeCount(entry.count)}`,',
-      // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
-      // `count`, so an absent count and `{ min: 1 }` give the same names.
-      'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
       'packages/checks/src/checks/guards.ts: applies: (ctx) => (ctx.expect.guards?.length ?? 0) > 0,',
       'packages/checks/src/checks/guards.ts: const expected = ctx.expect.guards ?? [];',
       "packages/checks/src/checks/guards.ts: countAllows(guard.count, count) ? 'pass' : 'fail',",
