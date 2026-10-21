@@ -1,9 +1,15 @@
 import { spawnSync } from 'node:child_process';
+import { cpSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readCatchList } from '../../src/catch';
 import { type BlindResult, runBlind } from '../../src/ladders/pointer/bank/blind';
+import { PLANTS, probe, readerGainedNothing } from '../../src/ladders/pointer/bank/harness-probe';
 import { pointerBank } from '../../src/ladders/pointer/bank/index';
+import { MARKER_PLANTED, MARKER_REDIRECT } from '../../src/ladders/pointer/bank/plants/broken';
+import { importsOfValidators } from '../../src/ladders/pointer/bank/reader-imports';
 import {
   clearSeedFreeCache,
   isolated,
@@ -174,7 +180,8 @@ describe('the runner stops a reader that never returns', () => {
     expect(hung.pass).toBe(false);
     expect(hung.detail).toMatch(/did not finish within 3 s.*stopped/);
     expect(Date.now() - started).toBeLessThan(90_000);
-    const next = await runItem(item('ids.id-unique'), 1, isolated);
+    // An item that cuts only: a scan of the hanging reader could hang again on the inputs this process drew by now.
+    const next = await runItem(item('cutting.heading-atx'), 1, isolated);
     expect(next.pass, next.detail).toBe(true);
   }, 180_000);
 });
@@ -476,7 +483,104 @@ describe('the catch items are pinned', () => {
     const rows = pointerBank().filter((candidate) => candidate.role === 'catch');
     expect(rows.length).toBeGreaterThan(0);
     expect(new Set(pinned?.keys())).toEqual(new Set(rows.map((row) => row.id)));
-    for (const guards of pinned?.values() ?? []) expect(guards).toMatch(/^bug:B\d\d$/);
+    for (const guards of pinned?.values() ?? []) expect(guards).toMatch(/^(bug:B\d\d|cheat:[a-z-]+)$/);
     expect(rows.length).toBeLessThanOrEqual(pointerBank().length * 0.15);
+  });
+});
+
+/* ----- the reader and the verdict (audit of PR 1019, cheater seat 2) ----- */
+
+const CONTROL_SENTENCE = 'The ledger is closed on the last day of the month.';
+const REDIRECT = fileURLToPath(
+  new URL('../../src/ladders/pointer/bank/plants/redirect-target.ts', import.meta.url),
+);
+
+describe('adversarial.verdict-channel-is-not-the-readers', () => {
+  it('serves a correct reader and gives its pass, so the control can pass', async () => {
+    const out = await probe(REFERENCE_SUT, { name: 'verdict' });
+    expect(out.pass, out.detail).toBe(true);
+  }, 180_000);
+
+  it('fails a broken reader that wraps the send of its process and rewrites the verdict (variant 1)', async () => {
+    const out = await probe(PLANTS.send, { name: 'verdict' });
+    expect(out.pass, out.detail).toBe(false);
+    expect(readerGainedNothing(out), out.detail).toBe(true);
+  }, 180_000);
+
+  it('fails a broken reader that writes a pass to the descriptor of the channel (variant 2)', async () => {
+    const out = await probe(PLANTS.fd, { name: 'verdict' });
+    expect(out.pass, out.detail).toBe(false);
+    expect(readerGainedNothing(out), out.detail).toBe(true);
+  }, 180_000);
+
+  it('passes the item', async () => {
+    const out = await runItem(item('adversarial.verdict-channel-is-not-the-readers'), 1, ref);
+    expect(out.pass, out.detail).toBe(true);
+  }, 300_000);
+});
+
+describe('adversarial.sut-env-not-trusted-in-reader-process', () => {
+  it('serves a correct reader in this process and in a sandboxed one', async () => {
+    const out = await probe(REFERENCE_SUT, { name: 'sandbox-cut', expect: CONTROL_SENTENCE });
+    expect(out.pass, out.detail).toBe(true);
+  }, 180_000);
+
+  it('runs the planted reader in both processes although it points the environment at another (variant 4)', async () => {
+    const out = await probe(PLANTS.env, { name: 'sandbox-cut', expect: MARKER_PLANTED });
+    expect(out.pass, out.detail).toBe(true);
+  }, 180_000);
+
+  it('does not run the reader the cheat points at', async () => {
+    const out = await probe(PLANTS.env, { name: 'sandbox-cut', expect: MARKER_REDIRECT });
+    expect(out.pass, out.detail).toBe(false);
+  }, 180_000);
+
+  it('can tell the two readers apart when the harness names the second one', async () => {
+    const out = await probe(REDIRECT, { name: 'sandbox-cut', expect: MARKER_REDIRECT });
+    expect(out.pass, out.detail).toBe(true);
+  }, 180_000);
+
+  it('passes the item', async () => {
+    const out = await runItem(item('adversarial.sut-env-not-trusted-in-reader-process'), 1, ref);
+    expect(out.pass, out.detail).toBe(true);
+  }, 300_000);
+});
+
+describe('adversarial.reader-imports-no-bank', () => {
+  const READER = fileURLToPath(new URL('../../../estate/src/pointer', import.meta.url));
+
+  /** A copy of the reader folder with one more file, which holds `line`. */
+  function readerWith(line: string): string {
+    const copy = join(mkdtempSync(join(tmpdir(), 'pointer-reader-')), 'pointer');
+    cpSync(READER, copy, { recursive: true });
+    mkdirSync(join(copy, 'extra'), { recursive: true });
+    writeFileSync(join(copy, 'extra', 'cheat.ts'), `${line}\nexport {};\n`);
+    return copy;
+  }
+
+  it('finds nothing in the reader as it is', () => {
+    expect(importsOfValidators(READER)).toEqual([]);
+  });
+
+  it('finds an import of the reference reader of the validators', () => {
+    const found = importsOfValidators(
+      readerWith("import reference from '../../../../validators/test/pointer/reference/index';"),
+    );
+    expect(found).toEqual(['extra/cheat.ts: ../../../../validators/test/pointer/reference/index']);
+  });
+
+  it('finds a dynamic import, a re-export, a require and an address built with new URL', () => {
+    for (const line of [
+      "const mod = await import('../../../validators/src/ladders/pointer/bank/index');",
+      "export * from '@agent-nexus/driftbench-validators';",
+      "const mod = require('../../../validators/src/index');",
+      "const where = new URL('../../../validators/test/pointer/reference/index.ts', import.meta.url);",
+    ])
+      expect(importsOfValidators(readerWith(line)), line).toHaveLength(1);
+  });
+
+  it('passes the item', async () => {
+    const out = await runItem(item('adversarial.reader-imports-no-bank'), 1, ref);
+    expect(out.pass, out.detail).toBe(true);
   });
 });

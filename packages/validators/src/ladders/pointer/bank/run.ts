@@ -3,7 +3,9 @@ import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rngFor } from '@agent-nexus/driftbench-generate';
+import { sutModule } from '../sut/adapter';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
+import type { Control } from './controls';
 import { fail, type Outcome, type PointerItem, Problem } from './types';
 
 /** The longest an item may take before it fails, in milliseconds. */
@@ -45,16 +47,31 @@ function named(item: PointerItem, outcome: Outcome): Outcome {
   return { ...outcome, detail: `${outcome.detail}. Behaviour under test: ${item.oracle}` };
 }
 
-/** Runs the item in this process, under its limit. A loop that never returns is stopped only by `isolated`. */
-export async function executeHere(item: PointerItem, seed: number, sut: PointerSut): Promise<Outcome> {
+/**
+ * Runs the item in this process, under its limit. A loop that never returns in this process is stopped only by
+ * `isolated`. When `stop` is given, the reader runs in a process of its own (`reader-link.ts`) and a loop there does
+ * not block this one: the limit stops the reader's process and fails the item.
+ */
+export async function executeHere(
+  item: PointerItem,
+  seed: number,
+  sut: PointerSut,
+  stop?: () => void,
+): Promise<Outcome> {
   let timer: NodeJS.Timeout | undefined;
   const limit = limitOf(item);
   try {
     const timeout = new Promise<Outcome>((resolveTimeout) => {
-      timer = setTimeout(
-        () => resolveTimeout(fail(`the item did not finish within ${Math.round(limit / 1000)} s`)),
-        limit,
-      );
+      timer = setTimeout(() => {
+        stop?.();
+        resolveTimeout(
+          fail(
+            stop
+              ? `the item did not finish within ${Math.round(limit / 1000)} s: the reader did not return, and its process was stopped`
+              : `the item did not finish within ${Math.round(limit / 1000)} s`,
+          ),
+        );
+      }, limit);
     });
     const work = item.run({ seed, id: item.id, sut, rng: rngFor(seed, item.id) });
     return named(item, await Promise.race([work, timeout]));
@@ -74,6 +91,27 @@ const ITEM_CHILD = join(HERE, 'item-child.ts');
 const IN_ITEM_CHILD = process.env.DRIFTBENCH_POINTER_ITEM_CHILD === '1';
 
 type Worker = { child: ChildProcess; busy: boolean };
+/** A process that started and did not become ready: the item fails with this reason, it never runs in the parent. */
+type Failed = { failed: string };
+
+/**
+ * A process that serves items, and what the runner keeps of it. The runner has one for the system under test the
+ * environment names; a control starts another for a planted reader (`harness-probe.ts`), with the module named.
+ */
+export type Pool = {
+  /** The module the child resolves the system under test from; absent: the environment names it. */
+  readonly sutModule?: string;
+  worker?: Promise<Worker | Failed | undefined>;
+  /** The child last started, for the exit of this process. */
+  started?: ChildProcess;
+};
+const shared: Pool = {};
+const everStarted = new Set<ChildProcess>();
+
+/** A pool of its own, whose child resolves the system under test from `sutModule`. */
+export function newPool(sutModule: string): Pool {
+  return { sutModule };
+}
 
 /**
  * Stops the child and everything it started. The child leads a process group of its own, and a scan it runs may
@@ -87,11 +125,13 @@ function killGroup(child: ChildProcess): void {
   }
   child.kill('SIGKILL');
 }
-let worker: Promise<Worker | undefined> | undefined;
-/** The child last started, for the exit of this process. */
-let started: ChildProcess | undefined;
 
-function spawnWorker(): Promise<Worker | undefined> {
+/**
+ * Starts the process that serves the items. Undefined only when the checkout has no such process to start (no
+ * source file, no loader); a process that starts and does not become ready gives a reason, because an item must
+ * never fall back to the parent: the parent holds the report and the reader must not share its process.
+ */
+function spawnWorker(pool: Pool): Promise<Worker | Failed | undefined> {
   const repo = resolve(HERE, '../../../../../..');
   const loader = join(repo, 'node_modules/tsx/dist/esm/index.mjs');
   if (!existsSync(ITEM_CHILD) || !existsSync(loader)) return Promise.resolve(undefined);
@@ -101,6 +141,7 @@ function spawnWorker(): Promise<Worker | undefined> {
       detached: true,
       env: {
         ...process.env,
+        DRIFTBENCH_POINTER_SUT: pool.sutModule ?? sutModule(),
         DRIFTBENCH_POINTER_ITEM_CHILD: '1',
         TSX_TSCONFIG_PATH: process.env.TSX_TSCONFIG_PATH ?? join(repo, 'tsconfig.json'),
       },
@@ -108,20 +149,26 @@ function spawnWorker(): Promise<Worker | undefined> {
     });
     const gave = setTimeout(() => {
       killGroup(child);
-      done(undefined);
+      done({ failed: 'the process that serves the items did not become ready within 120 s' });
     }, 120_000);
-    started = child;
+    pool.started = child;
+    everStarted.add(child);
     // The child must not keep this process alive once the run is over: a pending item holds the loop with its
     // limit timer, and the exit hook below stops the group.
     child.unref();
     child.channel?.unref();
     child.once('message', (message: { ready?: boolean }) => {
       clearTimeout(gave);
-      done(message.ready ? { child, busy: false } : undefined);
+      if (message.ready) done({ child, busy: false });
+      else {
+        killGroup(child);
+        done({ failed: 'the process that serves the items answered something other than ready' });
+      }
     });
-    child.once('exit', () => {
+    child.once('exit', (code) => {
       clearTimeout(gave);
-      done(undefined);
+      everStarted.delete(child);
+      done({ failed: `the process that serves the items ended before it was ready (exit code ${code})` });
     });
   });
 }
@@ -129,17 +176,26 @@ function spawnWorker(): Promise<Worker | undefined> {
 /**
  * Runs the item in a child process of its own, which the parent stops when the item overruns: a reader that loops
  * without returning blocks a process, and a timer in that process never fires. The child is started once and
- * serves the items one after the other; a stopped child is started again for the next item. Undefined when no child
- * can be started, and the caller runs the item in this process.
+ * serves the items one after the other; a stopped child is started again for the next item. The child holds the
+ * oracle of the items and starts a second process for the reader (`item-child.ts`). Undefined when the checkout has
+ * no such process to start, and the caller runs the item in this process.
  */
 export async function isolated<T>(
-  request: { run: { id: string; seed: number } } | { blind: { id: string; seed: number } },
+  request:
+    | { run: { id: string; seed: number } }
+    | { blind: { id: string; seed: number } }
+    | { control: Control },
   limit: number,
   stopped: (why: string) => T,
+  pool: Pool = shared,
 ): Promise<T | undefined> {
-  worker ??= spawnWorker();
-  const live = await worker;
+  pool.worker ??= spawnWorker(pool);
+  const live = await pool.worker;
   if (!live) return undefined;
+  if (!('child' in live)) {
+    pool.worker = undefined;
+    return stopped(live.failed);
+  }
   return new Promise<T>((done) => {
     let finished = false;
     const end = (outcome: T) => {
@@ -151,7 +207,7 @@ export async function isolated<T>(
       done(outcome);
     };
     const stop = (why: string) => {
-      worker = undefined;
+      pool.worker = undefined;
       killGroup(live.child);
       end(stopped(why));
     };
@@ -166,7 +222,7 @@ export async function isolated<T>(
       if (message.done !== undefined) end(message.done);
     };
     const onExit = (code: number | null) => {
-      worker = undefined;
+      pool.worker = undefined;
       end(stopped(`the item stopped the reader's process (exit code ${code})`));
     };
     live.child.on('message', onMessage);
@@ -177,20 +233,25 @@ export async function isolated<T>(
 
 /** The process group of the child that serves the items, for the tests that look for what it leaves behind. */
 export function itemChildGroup(): number | undefined {
-  return started?.pid;
+  return shared.started?.pid;
+}
+
+/** Stops the child of a pool; the next item starts another. */
+export async function stopPool(pool: Pool): Promise<void> {
+  const current = pool.worker;
+  pool.worker = undefined;
+  const live = await current;
+  if (live && 'child' in live) killGroup(live.child);
 }
 
 /** Stops the child that serves the items; the next item starts another. */
-export async function stopItemChild(): Promise<void> {
-  const current = worker;
-  worker = undefined;
-  const live = await current;
-  if (live) killGroup(live.child);
+export function stopItemChild(): Promise<void> {
+  return stopPool(shared);
 }
 
 // A run that ends leaves no child behind.
 process.on('exit', () => {
-  if (started) killGroup(started);
+  for (const child of everStarted) killGroup(child);
 });
 
 async function execute(item: PointerItem, seed: number, sut: PointerSut): Promise<Outcome> {

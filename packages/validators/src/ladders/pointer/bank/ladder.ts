@@ -24,7 +24,9 @@ export function bankLadder(items: readonly PointerItem[], resolve: () => Promise
         threshold: 1,
         compute: async ({ seed }) => {
           const sut = await resolve();
-          await sut.ready?.();
+          // A reader the runner serves from a process of its own loads there, before the first item clock starts:
+          // it never loads in this process, which holds the report.
+          if (sut.isolate !== true) await sut.ready?.();
           const entries: BankEntry[] = [];
           for (const item of own) {
             const outcome = await runItem(item, seed, sut);

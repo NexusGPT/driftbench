@@ -43,6 +43,18 @@
     {
       "id": "labels.settings-inherited-threshold-key-refused",
       "guards": "bug:B22"
+    },
+    {
+      "id": "adversarial.verdict-channel-is-not-the-readers",
+      "guards": "cheat:verdict-channel"
+    },
+    {
+      "id": "adversarial.sut-env-not-trusted-in-reader-process",
+      "guards": "cheat:sut-env"
+    },
+    {
+      "id": "adversarial.reader-imports-no-bank",
+      "guards": "cheat:reader-imports-bank"
     }
   ]
 }

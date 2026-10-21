@@ -20,6 +20,12 @@ export interface PointerIO {
   plan(value: Json): void;
 }
 
+/**
+ * The fixture each `io` was made from, for a harness that runs the adapter in another process: the reader process
+ * answers the reads from a copy of the fixture, and reports each read, so the counters stay here.
+ */
+export const ioSetups = new WeakMap<PointerIO, IOSetup | undefined>();
+
 /** Frozen callbacks own all counters and sinks. No adapter can replace the trace. */
 export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace } {
   const fixture = setup && structuredClone(setup);
@@ -51,6 +57,7 @@ export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace
       trace.plans.push(structuredClone(value));
     },
   });
+  ioSetups.set(io, fixture);
   return { io, snapshot: () => structuredClone(trace) };
 }
 

@@ -36,8 +36,10 @@ export async function runBlind(
   item: BankItem,
   seed: number,
   resolve: () => Promise<PointerSut>,
+  /** The adapter that reaches the reader across a process boundary, and what stops its process when a probe overruns. */
+  remote?: { adapter: PointerAdapter; stop(): void },
 ): Promise<BlindResult> {
-  const inner = blindBinding(resolve);
+  const inner = remote?.adapter ?? blindBinding(resolve);
   let unsupported: string | undefined;
   let differs: string | undefined;
   const adapter: PointerAdapter = {
@@ -54,7 +56,7 @@ export async function runBlind(
       }
     },
   };
-  const outcome = await runItem(item, seed, adapter);
+  const outcome = await runItem(item, seed, adapter, remote?.stop);
   return {
     outcome,
     ...(unsupported !== undefined ? { unsupported } : {}),
@@ -83,8 +85,11 @@ export function blindLevels(resolve: () => Promise<PointerSut>): LevelDef[] {
         const entries: BankEntry[] = [];
         // The reader is loaded before the first item clock starts: a slow load decides no item.
         const sut = await resolve();
-        await sut.ready?.();
-        await pointerExports();
+        // A reader the runner serves from a process of its own loads there, never in this process.
+        if (sut.isolate !== true) {
+          await sut.ready?.();
+          await pointerExports();
+        }
         for (const item of own) {
           // A reader that never returns blocks its process: the item runs in one the runner can stop.
           const given =
