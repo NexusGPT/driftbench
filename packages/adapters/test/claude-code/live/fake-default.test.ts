@@ -859,3 +859,13 @@ it('dispatches a requested helper with a conditional-ban-only skill', async () =
   expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Agent']);
   expect(calls(records)[1].input.subagent_type).toBe('amount-reader');
 });
+
+it('binds the skill domain action to its sole command after the required read', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Read `references/policy.md` before matching any line.\nRun `node scripts/check.mjs`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+  expect(JSON.stringify(records)).not.toContain('actions cannot be resolved');
+});
