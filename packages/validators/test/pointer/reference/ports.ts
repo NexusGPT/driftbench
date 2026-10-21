@@ -19,6 +19,7 @@ import type {
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
+import { decisionsBugs } from './bugs-decisions';
 import { extrasProblem, jsonObjectOf } from './extras';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet, RefLabel } from './labelset';
@@ -590,7 +591,9 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
 async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   const askable = askableOf(set);
   const label = plan.units.filter((u) => u.mode === 'label');
-  const chunkSize = Math.max(1, Math.floor(DECISIONS_CAP / Math.max(1, askable.length)));
+  // Planted bug of the decisions lane: the cap of the old yes or no form.
+  const cap = decisionsBugs.has('cap-250') ? 250 : DECISIONS_CAP;
+  const chunkSize = Math.max(1, Math.floor(cap / Math.max(1, askable.length)));
   const fallback = referenceBugs.has('decisions-threshold-0.5') ? 0.5 : DECISIONS_THRESHOLD;
   const threshold =
     ctx.threshold === undefined || referenceBugs.has('ignores-caller-threshold') ? fallback : ctx.threshold;
@@ -602,7 +605,8 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
     const questions = units.flatMap((u) =>
       askable.map((l) => ({
         type: 'predicate',
-        name: `u${u.n}__${l.name}`,
+        // Planted bug of the decisions lane: every predicate named for unit 1.
+        name: `u${decisionsBugs.has('unit-number-fixed') ? 1 : u.n}__${l.name}`,
         instructions: `Does the label ${l.name} apply to unit [${u.n}]? ${l.description}`,
       })),
     );
@@ -655,12 +659,16 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
           return { kind: 'refused', reason: `no probability for ${q.name}` };
         probabilities[q.name] = p;
       }
+      // Planted bug of the decisions lane: only the probabilities at or above the threshold are recorded.
+      const kept = decisionsBugs.has('record-above-threshold-only')
+        ? Object.fromEntries(Object.entries(probabilities).filter(([, p]) => p >= threshold))
+        : probabilities;
       const entry: CassetteEntry = {
         ...want,
         model: String(data.model ?? ''),
         stop_reason: 'end_turn',
         usage: {},
-        answer: { probabilities },
+        answer: { probabilities: kept },
       };
       receipt(ctx, entry, entry.model);
       ctx.cassette.entries.set(key, entry);

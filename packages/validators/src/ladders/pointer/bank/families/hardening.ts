@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { anchorCase } from '../../kit/anchor-case';
-import { allTexts, cloneWorld, filesOf, worldOf } from '../../kit/anchor-world';
+import { allTexts, cloneWorld, distinctSentences, filesOf, worldOf } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutRun } from '../../kit/cut-case';
@@ -11,10 +11,10 @@ import { norm } from '../../kit/norm';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { buildScript, filesOfSegments, type ScriptOps } from '../../kit/segments';
-import { keyOf, RULES_YAML } from '../../kit/sets';
-import { fakeTransport, seededModels } from '../../kit/transport';
+import { FIVE_YAML, keyOf, PROBE_YAML, RULES_YAML } from '../../kit/sets';
+import { type FakeTransport, fakeTransport, type ParsedCall, seededModels } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, word } from '../../kit/words';
-import type { Labeler, LedgerEntry, LedgerView, ScanResult } from '../../sut/port';
+import type { Labeler, LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
 import { runControl } from '../controls';
 import { PLANTS, probe, readerGainedNothing } from '../harness-probe';
 import { MARKER_PLANTED } from '../plants/broken';
@@ -968,6 +968,242 @@ const labels: Record<string, Run> = {
   },
 };
 
+/* ----- labels: the requests and the record of the yes or no arm `openai-decisions` ----- */
+
+/** The label names of PROBE_YAML and FIVE_YAML, in set order. */
+const PROBE_LABELS = ['rule', 'prohibition', 'example'];
+const FIVE_LABELS = ['one', 'two', 'three', 'four', 'five'];
+/** The most questions one decisions request may hold (docs/estate-pointer-reader.md, section 3). */
+const DECISIONS_MAX_QUESTIONS = 100;
+
+/** One file of one paragraph per text, no heading. */
+const paragraphs = (texts: string[]): SourceFile[] => {
+  const blocks = texts.map((text): Block => ({ kind: 'paragraph', sentences: [text] }));
+  return [{ path: 'doc.md', text: compose(blocks).text }];
+};
+
+/** A failure found inside a helper, turned into the item's failure by `decisionsRun`. */
+class DecisionsFailure extends Error {}
+const decisionsRun =
+  (body: (ctx: ItemContext) => Promise<Outcome>): Run =>
+  async (ctx) => {
+    try {
+      return await body(ctx);
+    } catch (error) {
+      if (error instanceof DecisionsFailure) return fail(error.message);
+      throw error;
+    }
+  };
+
+/** Record a scan on the `openai-decisions` arm over `transport`; the failure text when it fails. */
+async function decisionsRecord(
+  ctx: ItemContext,
+  texts: string[],
+  yaml: string,
+  transport: FakeTransport,
+  threshold?: number,
+): Promise<ScanResult & { ledger: LedgerView }> {
+  const res = await ctx.sut.scan({
+    files: paragraphs(texts),
+    labelsYaml: yaml,
+    model: { arm: 'openai-decisions', transport, ...(threshold === undefined ? {} : { threshold }) },
+    cassette: { mode: 'record' },
+  });
+  if (!res.ok || !res.ledger) throw new DecisionsFailure(`the scan failed: ${res.error ?? 'no ledger'}`);
+  return res as ScanResult & { ledger: LedgerView };
+}
+
+/** The questions of a decisions request as sent: the `type` and `name` of each entry of its list. */
+function predicatesOf(call: ParsedCall): Array<{ type: unknown; name: unknown }> {
+  try {
+    const questions = (JSON.parse(call.body) as { questions?: unknown }).questions;
+    if (!Array.isArray(questions)) return [];
+    return questions.map((q) => {
+      const question = (q ?? {}) as { type?: unknown; name?: unknown };
+      return { type: question.type, name: question.name };
+    });
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The predicate checks of decisions requests: every question of type `predicate`, named `u<n>__<label>`
+ * with a label of `labels` and the number of a unit of its own request's input; no name twice in a request;
+ * every unit of the input asked once per label; over all requests, each text asked once per label. The
+ * failure, or undefined.
+ */
+function predicatesProblem(calls: ParsedCall[], texts: string[], labels: string[]): string | undefined {
+  const asked = new Map<string, number>();
+  for (const [at, call] of calls.entries()) {
+    const where = `request ${at + 1}`;
+    if (call.arm !== 'decisions') return `${where} holds no list of predicates`;
+    const unitText = new Map(call.units.map((u) => [u.n, u.text]));
+    const names = new Set<string>();
+    for (const question of predicatesOf(call)) {
+      if (question.type !== 'predicate')
+        return `${where} has a question of type ${String(question.type)}, not predicate`;
+      const name = typeof question.name === 'string' ? question.name : '';
+      const m = /^u(\d+)__(.+)$/.exec(name);
+      if (!m || !labels.includes(m[2] as string))
+        return `${where} has a question named ${JSON.stringify(question.name)}, not u<n>__<label> of the set`;
+      if (names.has(name)) return `${where} names the predicate ${name} twice`;
+      names.add(name);
+      const text = unitText.get(Number(m[1]));
+      if (text === undefined) return `${where} asks ${name}, and its input has no unit [${m[1]}]`;
+      const pair = `${keyOf(text)}\0${m[2]}`;
+      asked.set(pair, (asked.get(pair) ?? 0) + 1);
+    }
+    for (const unit of call.units)
+      for (const name of labels)
+        if (!names.has(`u${unit.n}__${name}`))
+          return `${where} does not ask u${unit.n}__${name}, and unit [${unit.n}] is in its input`;
+  }
+  for (const text of texts)
+    for (const name of labels) {
+      const times = asked.get(`${keyOf(text)}\0${name}`) ?? 0;
+      if (times !== 1) return `${show(text, 30)} was asked about ${name} ${times} times, expected once`;
+    }
+  return undefined;
+}
+
+/** The label a yes or no labeler decides: the highest probability at or above the threshold, else none. */
+const decided = (probs: Record<string, number>, threshold: number): string => {
+  let best: { name: string; p: number } | undefined;
+  for (const name of PROBE_LABELS) {
+    const p = probs[name] as number;
+    if (p >= threshold && (!best || p > best.p)) best = { name, p };
+  }
+  return best?.name ?? 'none';
+};
+
+/** The numbers keyed `u<n>__...` in one cassette line, wherever the line nests them. */
+function recordedOf(line: string): Map<string, number> {
+  const found = new Map<string, number>();
+  const walk = (v: unknown) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object')
+      for (const [k, x] of Object.entries(v)) {
+        if (typeof x === 'number' && /^u\d+__/.test(k)) found.set(k, x);
+        else walk(x);
+      }
+  };
+  try {
+    walk(JSON.parse(line));
+  } catch {
+    // A line that is not JSON records nothing.
+  }
+  return found;
+}
+
+const decisions: Record<string, Run> = {
+  'decisions-predicate-names': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const count = 12 + Math.floor(p.random() * 9);
+    const texts = distinctSentences(p, count);
+    const fake = fakeTransport();
+    await decisionsRecord(ctx, texts, FIVE_YAML, fake);
+    if (fake.count === 0) return fail('no request reached the transport');
+    const problem = predicatesProblem(fake.calls, texts, FIVE_LABELS);
+    return problem
+      ? fail(problem)
+      : pass(`${count * 5} predicates u<n>__<label> in ${fake.count} request(s), each unit and label once`);
+  }),
+  'decisions-question-cap': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const cases: Array<[string, string[], number, number]> = [
+      [PROBE_YAML, PROBE_LABELS, 70, 41],
+      [FIVE_YAML, FIVE_LABELS, 45, 36],
+    ];
+    const seen: string[] = [];
+    for (const [yaml, names, low, span] of cases) {
+      const count = low + Math.floor(p.random() * span);
+      const texts = distinctSentences(p, count);
+      const fake = fakeTransport();
+      await decisionsRecord(ctx, texts, yaml, fake);
+      const big = fake.calls.find((call) => call.questions.length > DECISIONS_MAX_QUESTIONS);
+      if (big)
+        return fail(
+          `a request holds ${big.questions.length} questions (${names.length} labels), the cap is ${DECISIONS_MAX_QUESTIONS}`,
+        );
+      const total = count * names.length;
+      const need = Math.ceil(total / DECISIONS_MAX_QUESTIONS);
+      if (fake.count < need)
+        return fail(`${fake.count} requests for ${total} questions, at least ${need} are needed`);
+      const problem = predicatesProblem(fake.calls, texts, names);
+      if (problem) return fail(problem);
+      seen.push(`${total} questions in ${fake.count} requests`);
+    }
+    return pass(`${seen.join(', ')}, none over ${DECISIONS_MAX_QUESTIONS}, each unit and label once`);
+  }),
+  'decisions-probabilities-recorded': decisionsRun(async (ctx) => {
+    const p = prose(ctx);
+    const r = p.random;
+    const count = 24 + Math.floor(r() * 17);
+    const texts = distinctSentences(p, count);
+    const draw = (low: number, high: number) => Math.round((low + r() * (high - low)) * 100) / 100;
+    // Three kinds in turn: one label over 0.9; a top label from 0.45 to 0.85; every label under 0.25.
+    const table = new Map<string, Record<string, number>>();
+    for (const [i, text] of texts.entries()) {
+      const kind = i % 3;
+      const probs: Record<string, number> = {};
+      for (const name of PROBE_LABELS) probs[name] = kind === 2 ? draw(0.02, 0.24) : draw(0.02, 0.4);
+      const top = PROBE_LABELS[Math.floor(r() * PROBE_LABELS.length)] as string;
+      if (kind === 0) probs[top] = draw(0.91, 0.98);
+      if (kind === 1) probs[top] = draw(0.45, 0.85);
+      table.set(keyOf(text), probs);
+    }
+    const answered = (text: string, name: string) => table.get(keyOf(text))?.[name] ?? 0.05;
+    const fake = fakeTransport({ probability: answered });
+    const res = await decisionsRecord(ctx, texts, PROBE_YAML, fake, 0.9);
+    if (!res.cassette) return fail('the record run returned no cassette');
+    const lines = res.cassette.split('\n').filter(Boolean).map(recordedOf);
+    const used = new Set<number>();
+    for (const [at, call] of fake.calls.entries()) {
+      const unitText = new Map(call.units.map((u) => [u.n, u.text]));
+      const want = call.questions.map((name): [string, number] => {
+        const m = /^u(\d+)__(.+)$/.exec(name);
+        return [name, answered(unitText.get(Number(m?.[1])) ?? '', m?.[2] ?? '')];
+      });
+      // A predicate the entry lacks is missing: the difference is NaN, never within the tolerance.
+      const missing = (found: Map<string, number>) =>
+        want.filter(([name, value]) => !(Math.abs((found.get(name) ?? Number.NaN) - value) <= 1e-9));
+      if (want.length === 0) return fail(`request ${at + 1} asks no question`);
+      const match = lines.findIndex((found, i) => !used.has(i) && missing(found).length === 0);
+      if (match < 0) {
+        const left = lines.filter((_, i) => !used.has(i)).map(missing);
+        const closest = left.sort((a, b) => a.length - b.length)[0] ?? want;
+        const [name, value] = closest[0] as [string, number];
+        return fail(
+          `request ${at + 1}: no cassette entry holds its ${want.length} probabilities as answered; ${closest.length} differ, e.g. ${name} answered ${value}`,
+        );
+      }
+      used.add(match);
+    }
+    for (const text of texts) {
+      const want = decided(table.get(keyOf(text)) as Record<string, number>, 0.9);
+      const got = liveByText(res.ledger, text)?.labels.probe?.label;
+      if (got !== want) return fail(`${show(text, 30)} has label ${got} at threshold 0.9, expected ${want}`);
+    }
+    const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
+    const replay = await ctx.sut.scan({
+      files: paragraphs(texts),
+      labelsYaml: PROBE_YAML,
+      model: { arm: 'openai-decisions', transport: closed, threshold: 0.3 },
+      cassette: { mode: 'replay', text: res.cassette },
+    });
+    if (!replay.ok || !replay.ledger) return fail(`the replay at threshold 0.3 failed: ${replay.error}`);
+    if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
+    for (const text of texts) {
+      const want = decided(table.get(keyOf(text)) as Record<string, number>, 0.3);
+      const got = liveByText(replay.ledger, text)?.labels.probe?.label;
+      if (got !== want)
+        return fail(`${show(text, 30)} has label ${got} on the replay at threshold 0.3, expected ${want}`);
+    }
+    return pass(`${fake.count} request(s) recorded in full; the replay at 0.3 relabelled ${count} units`);
+  }),
+};
+
 /* ----- adversarial: the reader and the verdict ----- */
 
 /** The folder of the reader: `packages/estate/src/pointer`, seen from this file. */
@@ -1031,5 +1267,5 @@ export const HARDENING_RUNS: Record<string, Record<string, Run>> = {
   privacy,
   radius,
   grouping: { ...grouping, ...grouping2 },
-  labels,
+  labels: { ...labels, ...decisions },
 };
