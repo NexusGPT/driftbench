@@ -96,6 +96,12 @@ export {
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
 export {
+  sampleSizeMeanMargin,
+  sampleSizeProportionMargin,
+  sampleSizeTwoMeans,
+  sampleSizeTwoProportions,
+} from './sample-size';
+export {
   type CoverageCell,
   type CoverageMethod,
   type CoverageOptions,
@@ -136,3 +142,4 @@ export {
   type VarianceComponentsResult,
   varianceComponents,
 } from './variance';
+export { jackknifeMeanVariance } from './variance-estimates';
