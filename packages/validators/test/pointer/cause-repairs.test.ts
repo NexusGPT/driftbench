@@ -172,14 +172,16 @@ describe('the planted bugs of the fourth audit are lost', () => {
       const out = await ref.scan(request);
       if (request.previousLedger === undefined || !out.ledger) return out;
       const before = new Map(
-        (JSON.parse(request.previousLedger) as { entries: Array<{ id: string; ctxFp: string }> }).entries.map((e) => [
-          e.id,
-          e.ctxFp,
-        ]),
+        (JSON.parse(request.previousLedger) as { entries: Array<{ id: string; ctxFp: string }> }).entries.map(
+          (e) => [e.id, e.ctxFp],
+        ),
       );
       return {
         ...out,
-        ledger: { ...out.ledger, entries: out.ledger.entries.map((e) => ({ ...e, ctxFp: before.get(e.id) ?? e.ctxFp })) },
+        ledger: {
+          ...out.ledger,
+          entries: out.ledger.entries.map((e) => ({ ...e, ctxFp: before.get(e.id) ?? e.ctxFp })),
+        },
       };
     });
     const planted = await run(id, ignoresPath);

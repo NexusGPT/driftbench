@@ -66,7 +66,10 @@ const ids: Record<string, Run> = {
         ...paragraphs.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
       ]).text;
     const text = paragraphs[1] as string;
-    const first = await scanOk(ctx.sut, { files: [{ path: 'ctx.md', text: doc('Closing duties') }], labeler: perfect() });
+    const first = await scanOk(ctx.sut, {
+      files: [{ path: 'ctx.md', text: doc('Closing duties') }],
+      labeler: perfect(),
+    });
     const second = await scanOk(ctx.sut, {
       files: [{ path: 'ctx.md', text: doc('Locking rounds') }],
       previousLedger: first.ledger.raw,
@@ -374,7 +377,8 @@ const radius: Record<string, Run> = {
     if (now?.status !== 'live' || now.path !== w.paths[1])
       return fail('positive witness: the moved unit did not keep its id in the second file');
     const classes = new Map((await api.classify(first.ledger, second.ledger)).map((c) => [c.id, c.class]));
-    if (classes.get(id) !== 'moved') return fail(`the moved unit is classed ${classes.get(id)}, expected moved`);
+    if (classes.get(id) !== 'moved')
+      return fail(`the moved unit is classed ${classes.get(id)}, expected moved`);
     const out = await api.rerun(first.ledger, second.ledger);
     if (out.units.includes(id)) return fail('the moved unit reruns its links: a move is only advisory');
     return out.advisory.includes(id)
@@ -508,7 +512,9 @@ const grouping2: Record<string, Run> = {
     if (pointers.length !== 1) return fail(`${pointers.length} prose_pointer entries, expected one`);
     const got = pointers[0]?.condition;
     if (got === undefined)
-      return fail('the prose pointer carries no condition ids: the review cannot see which units set the situation');
+      return fail(
+        'the prose pointer carries no condition ids: the review cannot see which units set the situation',
+      );
     return JSON.stringify(got) === JSON.stringify(ids)
       ? pass('the prose pointer lists the condition ids in file order')
       : fail(`the prose pointer lists ${JSON.stringify(got)}, expected ${JSON.stringify(ids)}`);

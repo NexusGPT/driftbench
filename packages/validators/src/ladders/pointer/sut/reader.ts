@@ -549,8 +549,12 @@ function atomOf(atom: RAtom): Atom {
     },
     evidence: atom.evidence.map((e) => {
       // The reader keeps the settings of a custom check under `options`.
-      const options = (typeof e.options === 'object' && e.options !== null ? e.options : {}) as Record<string, unknown>;
-      const reviewRequired = typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options.reviewRequired;
+      const options = (typeof e.options === 'object' && e.options !== null ? e.options : {}) as Record<
+        string,
+        unknown
+      >;
+      const reviewRequired =
+        typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options.reviewRequired;
       const condition = Array.isArray(options.condition) ? options.condition : e.condition;
       return {
         type: String(e.type),

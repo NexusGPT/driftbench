@@ -2,24 +2,24 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **434 items**, 11 families, 250 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **437 items**, 11 families, 253 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
 | Family | Level | Items | T1 | T2 | T3 | T4 | T5 |
 |---|---|---|---|---|---|---|---|
 | cutting | cut | 67 | 9 | 27 | 26 | 4 | 1 |
-| ids | ids | 44 | 11 | 21 | 11 | 1 | 0 |
+| ids | ids | 45 | 11 | 21 | 12 | 1 | 0 |
 | re-anchoring | anchor | 56 | 5 | 12 | 25 | 10 | 4 |
-| grouping | labels | 26 | 5 | 12 | 8 | 1 | 0 |
+| grouping | labels | 27 | 5 | 12 | 9 | 1 | 0 |
 | labels | labels | 71 | 4 | 35 | 31 | 1 | 0 |
 | replay | replay | 43 | 3 | 9 | 22 | 9 | 0 |
 | privacy | privacy | 22 | 2 | 8 | 11 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
-| radius | links | 26 | 4 | 6 | 12 | 3 | 1 |
+| radius | links | 27 | 4 | 6 | 13 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **434** | **47** | **141** | **179** | **53** | **14** |
+| **all** | | **437** | **47** | **141** | **182** | **53** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -32,8 +32,8 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 | Label | Items |
 |---|---|
 | blind | 0 |
-| maintainer-repaired | 403 |
-| maintainer-added | 31 |
+| maintainer-repaired | 402 |
+| maintainer-added | 35 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -226,6 +226,7 @@ Level `ids`, default component `ids`, default needs scan. Fingerprints decide wh
 | `ids.lineage-is-history` | maintainer-added | 3 | One file of eight units scanned four times: fresh, unchanged, one unit reworded, one unit deleted. | Every entry shows lineage; the unchanged rescan writes the same ledger bytes; the reworded entry ends with `changed` and the deleted one with `deleted`; every other entry still holds only `new`. | `ledger:lineage-appends-true-events` | ledger | scan |
 | `ids.entry-slices-with-bom-and-crlf` | maintainer-added | 3 | A file with a BOM and CRLF holding a heading, a paragraph whose sentences wrap over two lines, and a list. | For every live entry, `source.slice(hint.start, hint.end)` equals the quote, and prefix + quote + suffix occurs in the source. | `ledger:quote-is-the-source-slice` | ledger | scan |
 | `ids.id-unique-for-repeated-text` | maintainer-added | 2 | One file holding the same long sentence in fifty paragraphs, scanned in a child process that is killed after 120 s. (seed-free) | The scan ends; fifty live entries; fifty distinct ids. A reader that never ends fails this one item. | `ids:occurrence-in-the-id` | ids | scan,child |
+| `ids.context-fingerprint-covers-heading-path` | maintainer-added | 3 | One file: a heading and four long paragraphs; the second scan renames the heading and nothing else. | The second paragraph keeps its fingerprint and its id, and its context fingerprint differs: the heading path is part of the context. | `ledger:ctxfp-covers-heading-path` | ledger | scan |
 
 ## re-anchoring
 
@@ -322,6 +323,7 @@ Level `labels`, default component `atoms`, default needs scan. Ranges label cons
 | `grouping.atom-order-deterministic` | maintainer-repaired | 2 | Three files, labels everywhere. | Atoms are ordered by file path then start position, identically on two scans. | `atoms:deterministic-order` | atoms | scan |
 | `grouping.same-unit-in-two-sets-is-one-atom` | maintainer-added | 3 | Two sets, each with a label that maps to the instruction atom; both label every unit of a file. | One atom per unit and one `duplicate` diagnostic per unit; no unit has two atoms of one kind on its lines. | `atoms:report-repeated-atoms` | atoms | scan |
 | `grouping.conditions-join-in-file-order` | maintainer-added | 3 | Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`. | One instruction atom; its situation is the text of the first condition, a space, the text of the second; no atom for a condition. | `atoms:conditions-in-file-order` | atoms | scan |
+| `grouping.condition-ids-in-prose-pointer` | maintainer-added | 3 | Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`. | The instruction atom holds one reviewed prose_pointer entry whose condition list is the ledger ids of the two condition units, in file order. | `atoms:condition-ids-in-pointer` | atoms | scan |
 
 ## labels
 
@@ -422,7 +424,6 @@ Level `replay`, default component `cassette`, default needs transport, cassette.
 | `replay.miss-names-set-name` | maintainer-repaired | 3 | Rename the fixture set probe to renamed; replay the unchanged committed cassette. | The unchanged fixture passes; the new request fails offline and names set/setHash. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.miss-names-nearest-entry` | maintainer-repaired | 4 | Change receipt to voucher in the second fixture file; replay the committed cassette. | The unchanged fixture passes; the miss names notes/b.md#1. | `cassette:miss-names-field` | cassette | transport,cassette |
 | `replay.cut-digest-mismatch-names-versions` | maintainer-repaired | 3 | Change only one committed entry's readable cutDigest. | The unchanged fixture passes; the miss names cutDigest, Node and ICU versions. | `cassette:miss-names-field` | cassette | transport,cassette |
-| `replay.repeat-run-is-part-of-key` | maintainer-repaired | 2 | Record three files with the Haiku arm: each window is asked in three independent runs of the same request. | Every window has one entry per run with distinct keys; the transport is called once per entry and no run reuses the answer of another. | `cassette:run-in-key` | cassette | transport,cassette |
 | `replay.key-is-sha256-hex` | maintainer-repaired | 2 | Record any estate. | Every entry's key matches `^[0-9a-f]{64}$`; keys are distinct. | `cassette:key-sha256` | cassette | transport,cassette |
 | `replay.key-ignores-threshold` | maintainer-repaired | 3 | Replay the committed Jev fixture at its default threshold, then at 0.9. | Both runs retain every authored label without a transport call. | `cassette:threshold-not-in-key` | cassette | transport,cassette |
 | `replay.key-ignores-clone-path` | maintainer-repaired | 3 | Replay the committed fixture from two different parent folders. | Both runs retain every authored label and have byte-identical ledgers. | `cassette:key-path-independent` | cassette | transport,cassette |
@@ -450,6 +451,7 @@ Level `replay`, default component `cassette`, default needs transport, cassette.
 | `replay.fixture-miss-names-questions-part` | maintainer-repaired | 4 | Replay the committed jev-unit fixture; change exactly one entry's readable part.questions, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names part.questions. | `cassette:miss-names-field` | cassette | scan,cassette,transport |
 | `replay.fixture-miss-names-cut-digest` | maintainer-repaired | 4 | Replay the committed haiku fixture; change exactly one entry's readable cutDigest, preserving every key and answer; replay again. | The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names cutDigest. The error includes Node and ICU versions. | `cassette:miss-names-field` | cassette | scan,cassette,transport |
 | `replay.replay-env-independent` | maintainer-repaired | 3 | Replay the committed fixture in three child environments with distinct TZ and LANG values and working folders. | Every child retains every authored label and the baseline ledger bytes. | `cassette:env-independent` | cassette | transport,cassette,child |
+| `replay.repeat-run-is-part-of-key` | maintainer-added | 2 | Record three files with the Haiku arm: each window is asked in three independent runs of the same request. | Every window has one entry per run with distinct keys; the transport is called once per entry and no run reuses the answer of another. | `cassette:run-in-key` | cassette | transport,cassette |
 
 ## privacy
 
@@ -544,6 +546,7 @@ Level `links`, default component `radius`, default needs scan, links. The set of
 | `radius.deleted-unit-reruns-its-links` | maintainer-added | 3 | A world of rules with linked blocks; one linked rule is deleted. | The rerun set is exactly the owners of the links on the deleted rule. | `radius:deleted-units-rerun` | radius | scan,rerun |
 | `radius.new-unit-falls-back-to-whole-file` | maintainer-added | 3 | A world of rules with linked blocks; a new unit is added under a new top-level heading of a file the ledger holds. | The rerun set is the owners of the links on every old unit of that file. | `radius:new-unit-section-fallback` | radius | scan,rerun |
 | `radius.context-edit-is-advisory` | maintainer-added | 3 | A world of rules with linked blocks; one rule is reworded, so the rules beside it change only their context. | The owners of the neighbours are advisory and are not in the rerun set; the reworded rule reruns its owners. | `radius:context-change-is-advisory` | radius | scan,rerun |
+| `radius.moved-unit-is-advisory` | maintainer-added | 3 | Two files of eight units; one long unit moves from the first file to the second. | The unit is classed moved; it is in the advisory set and not in the rerun set. | `radius:moved-is-advisory` | radius | scan,rerun |
 
 ## scale
 
