@@ -9,17 +9,27 @@ const root = resolve(import.meta.dirname, '../..');
 // (load average 72). A CI runner starts cold, and a default 5 s test timeout fails on it under load.
 const COLD_START_MS = 60_000;
 
+// vitest's test timeout cannot interrupt a synchronous spawn, so the spawn carries its own limit and kills the child.
+const run = (argv: string[], timeout: number) =>
+  spawnSync(process.execPath, argv, { cwd: root, encoding: 'utf8', timeout, killSignal: 'SIGKILL' });
+
 it(
   'runs the repository benchmark entry without loading the published CLI',
   () => {
-    const result = spawnSync(process.execPath, ['--import', 'tsx', 'benchmarks/cli.ts', '--help'], {
-      cwd: root,
-      encoding: 'utf8',
-    });
+    const result = run(['--import', 'tsx', 'benchmarks/cli.ts', '--help'], COLD_START_MS);
+    expect(result.error, String(result.error)).toBeUndefined();
     expect(result.status, result.stderr).toBe(0);
     expect(result.stdout).toContain('replay');
     expect(result.stdout).toContain('record');
     expect(result.stdout).toContain('floors');
   },
-  COLD_START_MS,
+  COLD_START_MS + 15_000,
 );
+
+it('fails within its limit when the entry hangs', () => {
+  const start = Date.now();
+  const result = run(['-e', 'setInterval(() => {}, 1000)'], 500);
+  expect(result.error).toMatchObject({ code: 'ETIMEDOUT' });
+  expect(result.signal).toBe('SIGKILL');
+  expect(Date.now() - start).toBeLessThan(5_000);
+});
