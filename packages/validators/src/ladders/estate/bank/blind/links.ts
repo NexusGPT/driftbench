@@ -1,7 +1,7 @@
 import { ROOT, STANDING, skillFile } from '../../layout';
 import type { Family } from '../frame';
 import { type Case, caseFamily } from '../hostile';
-import { BASE, type Check, type PlantedEstate } from '../planted';
+import { BASE, type Check, type PlantedEstate, planting } from '../planted';
 import { CODE, edgeBetween, freeHelper, freeSkill, lintHas, standingFree, tag, theme } from './util';
 
 /**
@@ -17,7 +17,7 @@ const SAME_ROUTES =
 
 /** A reference atom sits on the line of the file, its path ends as given, and the file exists or not. */
 function refAt(file: string, line: number, ends: string, exists: boolean): Check {
-  return (scan) => {
+  const check: Check = (scan) => {
     const atoms = scan.map.atoms.filter(
       (atom) =>
         atom.kind === 'reference' && atom.provenance.file === file && atom.provenance.startLine === line,
@@ -30,6 +30,7 @@ function refAt(file: string, line: number, ends: string, exists: boolean): Check
       ? undefined
       : `the reference ${ends} has exists ${String(hit.fields?.exists)}`;
   };
+  return planting(check, { kind: 'reference', file, line });
 }
 
 function scriptAt(file: string, line: number, ends: string): Check {

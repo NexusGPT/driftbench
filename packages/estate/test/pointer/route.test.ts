@@ -76,3 +76,41 @@ describe('a routing table read by the pointer reader', () => {
     );
   });
 });
+
+describe('a routing row that names two skills', () => {
+  const TWO = {
+    'CLAUDE.md': [
+      '# Routing',
+      '',
+      '| When the user wants to | Load |',
+      '|---|---|',
+      '| open and close the day | `day-open` then `day-close` |',
+      '',
+    ].join('\n'),
+    '.claude/skills/day-open/SKILL.md': '---\nname: day-open\ndescription: Opens.\n---\n\n# Open\n',
+    '.claude/skills/day-close/SKILL.md': '---\nname: day-close\ndescription: Closes.\n---\n\n# Close\n',
+  };
+
+  const BOTH = ['skill.day-open.skill-day-open', 'skill.day-close.skill-day-close'];
+
+  it('gives one route for each skill the labeler links, never only the first', async () => {
+    const root = await estate(TWO);
+    const { map, pointer: scanned } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: plantedRoutes({ 'open and close the day': ['route-skill', BOTH] }),
+    });
+    expect(scanned?.refusals).toEqual([]);
+    const targets = map.atoms
+      .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
+      .map((atom) => atom.fields?.target)
+      .sort();
+    expect(targets).toEqual(['day-close', 'day-open']);
+    const routed = map.edges
+      .filter((edge) => edge.kind === 'route')
+      .map((edge) => edge.to)
+      .sort();
+    expect(routed).toEqual([...BOTH].sort());
+  });
+});
