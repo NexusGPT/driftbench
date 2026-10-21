@@ -1155,9 +1155,16 @@ function strictAct(act: string | undefined): string | undefined {
   const words = act.split(/\s+/).filter((word) => word !== '');
   const lowered = words.map((word) => word.toLowerCase().replace(/[^a-z'-]/g, ''));
   if (words.length < 3 || words.length > 10) return undefined;
-  // A hyphenated verb ends on a verb of the list ("force-push", "re-read").
-  const verb = (lowered[0] ?? '').split('-').at(-1) ?? '';
-  if (!VERBS.has(verb) || STATIVE.has(verb)) return undefined;
+  // A gerund clause asked as written ("go ahead with approving a refill", see actionTask) is an act: its first
+  // word after the frame opens with a gerund. Otherwise a hyphenated verb ends on a verb of the list
+  // ("force-push", "re-read").
+  const framed = words.length > 4 && /^go ahead with$/i.test(words.slice(0, 3).join(' '));
+  if (framed) {
+    if (!openingGerund(lowered[3] ?? '')) return undefined;
+  } else {
+    const verb = (lowered[0] ?? '').split('-').at(-1) ?? '';
+    if (!VERBS.has(verb) || STATIVE.has(verb)) return undefined;
+  }
   if (/[:()[\]{}"]/.test(act) || lowered.some((word) => CLAUSE_WORDS.has(word))) return undefined;
   // An act with a condition inside it ("ask before an Edit of a policy file") is a rule, not a request.
   if (

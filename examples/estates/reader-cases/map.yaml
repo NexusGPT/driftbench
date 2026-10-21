@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T09:39:36.908Z
+readAt: 2026-10-21T10:14:55.955Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -1993,5 +1993,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T09:39:36.908Z
+  at: 2026-10-21T10:14:55.955Z
 hash: 66e4046b92505554ddb4a1be6eb8e3880a802c1de4c60246cc41f7ea3aa183bd
