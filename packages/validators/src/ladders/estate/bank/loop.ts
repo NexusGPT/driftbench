@@ -815,7 +815,13 @@ const ASKS: AskCheck[] = [
             // A built ask names its source atom in askFrom; one built from a fixed row alone (no span, no tool)
             // takes its words from no atom, and askFrom says `neutral`.
             const source = build?.spans?.[0]?.atom ?? build?.tool?.atom;
-            if (source === undefined ? meta.askFrom !== 'neutral' : source !== from || !atomsById.has(from))
+            // An ask built from a guard's tool names the guard, or the rule the guard enforces (a field of the
+            // guard names it).
+            const guard = build?.spans?.[0] === undefined ? build?.tool?.atom : undefined;
+            const named = typeof guard === 'string' ? idsIn(atomsById.get(guard)?.fields) : [];
+            const enforced = named.includes(from) && allowed.has(from);
+            const cites = source === from || enforced;
+            if (source === undefined ? meta.askFrom !== 'neutral' : !cites || !atomsById.has(from))
               return `askFrom ${meta.askFrom} is not the built ask's source ${String(source ?? 'none')}`;
             cited = true;
           }
