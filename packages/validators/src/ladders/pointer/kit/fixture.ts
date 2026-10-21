@@ -57,7 +57,11 @@ export type Fixture = {
 /** How many times a labeler asks the same window: the system 2 labeler asks three independent runs (design, "The default stack"). */
 export const RUNS: Record<ModelArm, number> = { haiku: 3, jev: 1, 'jev-unit': 1 };
 /** The labeler id the reader writes into every request: it is part of the key. */
-export const LABELER_ID: Record<ModelArm, string> = { haiku: 'anthropic', jev: 'jev', 'jev-unit': 'jev-unit' };
+export const LABELER_ID: Record<ModelArm, string> = {
+  haiku: 'anthropic',
+  jev: 'jev',
+  'jev-unit': 'jev-unit',
+};
 /** The class of each arm. */
 export const CLASS_OF: Record<ModelArm, string> = { haiku: 'system2', jev: 'system1', 'jev-unit': 'system1' };
 /** Units one request may hold: the system 2 window, the system 1 window and the system 1 unit state. */

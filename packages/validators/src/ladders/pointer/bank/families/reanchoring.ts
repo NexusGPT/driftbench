@@ -10,17 +10,7 @@ import {
   worldOf,
 } from '../../kit/anchor-world';
 import type { Block } from '../../kit/compose';
-import {
-  build,
-  byId,
-  type EstateFile,
-  eventCountsOf,
-  eventNow,
-  liveByText,
-  liveOf,
-  reportsEventsById,
-  scanOk,
-} from '../../kit/estate';
+import { build, byId, type EstateFile, eventNow, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { buildScript, filesOfSegments, rewordSim, splitParts, unrelatedTo } from '../../kit/segments';
@@ -338,17 +328,10 @@ export const reanchoringRuns: Record<string, Run> = {
     const nowB = byId(second.ledger, inB.id);
     if (!nowA || nowA.status === 'live')
       return fail('the deleted copy in a.md is still live (it was taken for a move to b.md)');
-    if (nowB?.status !== 'live') return fail('the copy in b.md did not stay unchanged');
-    if (reportsEventsById(second)) {
-      if (eventNow(second, nowA) !== 'deleted')
-        return fail(`the deleted copy has event ${eventNow(second, nowA)}, expected deleted`);
-      if (eventNow(second, nowB) !== 'unchanged') return fail('the copy in b.md did not stay unchanged');
-    } else {
-      // One id is deleted and nothing else moves or changes: the counts carry the check.
-      const counts = eventCountsOf(second);
-      if (counts.deleted !== 1 || (counts.new ?? 0) !== 0 || (counts.changed ?? 0) !== 0 || (counts.moved ?? 0) !== 0)
-        return fail(`the event counts are ${JSON.stringify(counts)}, expected exactly one deleted id`);
-    }
+    if (eventNow(second, nowA) !== 'deleted')
+      return fail(`the deleted copy has event ${eventNow(second, nowA)}, expected deleted`);
+    if (nowB?.status !== 'live' || eventNow(second, nowB) !== 'unchanged')
+      return fail('the copy in b.md did not stay unchanged');
     return pass('deleted in a.md, unchanged in b.md');
   },
   'copy-keeps-original': async (ctx) => {
@@ -368,13 +351,6 @@ export const reanchoringRuns: Record<string, Run> = {
       return fail(`${copies.length} live entries for the copied text, expected 2 with distinct ids`);
     const old = copies.find((e) => e.id === original);
     if (!old) return fail('the original lost its id to the copy');
-    if (!reportsEventsById(second)) {
-      // The copy is the one new id; nothing is deleted or changed: the counts carry the check.
-      const counts = eventCountsOf(second);
-      return counts.new === 1 && (counts.deleted ?? 0) === 0 && (counts.changed ?? 0) === 0
-        ? pass('original kept, copy fresh')
-        : fail(`the event counts are ${JSON.stringify(counts)}, expected one new id and no deleted or changed id`);
-    }
     return eventNow(second, old) === 'unchanged'
       ? pass('original kept, copy fresh')
       : fail(`the original has event ${eventNow(second, old)}, expected unchanged`);
@@ -531,17 +507,9 @@ export const reanchoringRuns: Record<string, Run> = {
           return fail(
             `weighted score ${score.toFixed(3)}, text ${textScore.toFixed(3)}, context ${contextScore.toFixed(3)}: expected ${retain ? 'retention' : 'a new id'}`,
           );
-        if (reportsEventsById(second)) {
-          const event = eventNow(second, retain ? fresh : (byId(second.ledger, original.id) ?? original));
-          if (event !== (retain ? 'changed' : 'deleted'))
-            return fail(`the reader reports ${event} for the weighted-score decision`);
-        } else {
-          // The frame may change as well, so the counts give a lower bound for the decision itself.
-          const counts = eventCountsOf(second);
-          const seen = retain ? (counts.changed ?? 0) : (counts.deleted ?? 0);
-          if (seen < 1)
-            return fail(`the event counts are ${JSON.stringify(counts)}, expected a ${retain ? 'changed' : 'deleted'} id`);
-        }
+        const event = eventNow(second, retain ? fresh : (byId(second.ledger, original.id) ?? original));
+        if (event !== (retain ? 'changed' : 'deleted'))
+          return fail(`the reader reports ${event} for the weighted-score decision`);
         checked += 1;
       }
     }

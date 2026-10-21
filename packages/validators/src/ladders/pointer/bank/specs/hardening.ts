@@ -67,7 +67,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'The event of each id is what a comparison of the old and the new text gives',
       'Two files of eight units. One unit moves to the other file, one is reworded by one word, one is deleted, one is added.',
       '`moved` for the moved unit, `changed` for the reworded one, `deleted` for the deleted one, `unchanged` for the others, `new` for the added one; a reader that calls every surviving id `unchanged` fails.',
-      'anchor:events-from-the-ladder',
+      'scan:events-by-id',
       { ...cap, component: 'anchor' },
     ),
     row(

@@ -496,7 +496,8 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
             ? JSON.parse(body.content?.find((b) => b.type === 'text')?.text ?? '{}').labels
             : undefined;
         const prior = rows.find((row) => row.answer.returnedModel !== body.model);
-        if (prior) ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
+        if (prior)
+          ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
         hit = {
           key,
           readable: want,

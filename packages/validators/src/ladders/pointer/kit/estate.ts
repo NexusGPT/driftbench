@@ -115,23 +115,6 @@ export async function scanOk(
 export const liveOf = (ledger: LedgerView): LedgerEntry[] =>
   ledger.entries.filter((e) => e.status === 'live');
 
-/** The events the carried ids can have; `new` and `deleted` are counted from the ledger. */
-export const CARRIED_EVENTS = ['unchanged', 'moved', 'ambiguous', 'changed', 'split', 'merged'] as const;
-
-/**
- * The aggregate event counts of a scan, for a reader that reports no event per id (docs/estate-pointer-reader.md,
- * "Validator adapter observability contract": `events` per id is an optional extension, the counts are the
- * product's own). Never read for a reader that reports per-id events: that check is the stronger one.
- */
-export function eventCountsOf(result: Pick<ScanResult, 'events' | 'eventCounts'>): Record<string, number> {
-  if (!result.eventCounts)
-    throw new Problem('the reader does not expose an event per id or the counts of events');
-  return result.eventCounts;
-}
-
-/** Whether the reader reports an event for each id. When it does not, the counts and the ledger carry the check. */
-export const reportsEventsById = (result: Pick<ScanResult, 'events'>): boolean => result.events !== undefined;
-
 /** Only the event the reader reports for this id; an absent observation cannot earn credit. */
 export function eventNow(result: Pick<ScanResult, 'events'>, entry: LedgerEntry): string {
   const event = result.events?.[entry.id];

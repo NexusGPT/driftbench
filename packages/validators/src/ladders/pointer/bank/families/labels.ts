@@ -1,6 +1,6 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
-import { build, byId, eventCountsOf, liveByText, liveOf, reportsEventsById, scanOk } from '../../kit/estate';
+import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { makeFixture, RUNS, requireFixtureLabels } from '../../kit/fixture';
 import {
   constant,
@@ -696,20 +696,15 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (reportsEventsById(second) && second.events?.[id] !== 'unchanged')
-        return fail(`${show(t, 36)} has event ${second.events?.[id]}, expected unchanged`);
+      if (second.events?.[id] === undefined) return fail(`the reader does not expose an event for ${id}`);
+      if (second.events[id] !== 'unchanged')
+        return fail(`${show(t, 36)} has event ${second.events[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')
         return fail(`${show(t, 36)} has label ${now.labels['agent-rules']?.label}, expected none`);
       if (!second.diagnostics.some((d) => d.code === 'label_flip' && d.unit === id))
         return fail(`no label_flip diagnostic names ${show(t, 36)}`);
       if (second.atoms.some((a) => a.fields.unit === id))
         return fail('an atom survives for a unit the labeller stopped selecting');
-    }
-    if (!reportsEventsById(second)) {
-      // The same scan with the same texts: no id is deleted, changed or new.
-      const counts = eventCountsOf(second);
-      if ((counts.deleted ?? 0) !== 0 || (counts.changed ?? 0) !== 0 || (counts.new ?? 0) !== 0)
-        return fail(`the event counts are ${JSON.stringify(counts)}, expected no deleted, changed or new id`);
     }
     return pass('three flips, none deleted');
   },
@@ -733,17 +728,14 @@ export const labelsRuns: Record<string, Run> = {
         labeler: l,
       });
       requireSourceWitness(second, build(after).files);
-      // An event per id when the reader reports one; the counts of events when it reports only those.
-      if (reportsEventsById(second)) {
-        for (const entry of second.ledger.entries)
-          if (second.events?.[entry.id] === undefined)
-            return fail(`the reader does not expose an event for ${entry.id}`);
-      } else eventCountsOf(second);
+      for (const entry of second.ledger.entries)
+        if (second.events?.[entry.id] === undefined)
+          return fail(`the reader does not expose an event for ${entry.id}`);
       const entries = JSON.parse(second.ledger.raw).entries.map((e: Record<string, unknown>) => {
         const { labels: _labels, ...rest } = e;
         return rest;
       });
-      views.push(JSON.stringify({ entries, events: second.events ?? second.eventCounts }));
+      views.push(JSON.stringify({ entries, events: second.events }));
     }
     return views.every((v) => v === views[0])
       ? pass('ids, events and quotes equal under four labellers')
@@ -1092,7 +1084,8 @@ labels:
         `${fake.count} requests for 2 files, expected ${2 * runs} (one dense request per file, asked in ${runs} independent runs)`,
       );
     const perWindow = new Map<string, string[]>();
-    for (const call of fake.calls) perWindow.set(call.window, [...(perWindow.get(call.window) ?? []), call.body]);
+    for (const call of fake.calls)
+      perWindow.set(call.window, [...(perWindow.get(call.window) ?? []), call.body]);
     const odd = [...perWindow].find(([, bodies]) => bodies.length !== runs || new Set(bodies).size !== 1);
     if (perWindow.size !== 2 || odd)
       return fail(

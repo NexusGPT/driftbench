@@ -281,7 +281,7 @@ export const labels: FamilySpec = {
       'A unit the labeller stops selecting stays live',
       'Scan with labeller 1; change one description of the set (new set hash); rescan the unchanged files with labeller 2 that answers `none` for three units labeller 1 called `rule`.',
       'The three units stay live with event `unchanged` and label `none`; a `label_flip` diagnostic names each; none is reported `deleted`; their atoms are gone.',
-      'scan:label-flip-diagnostic',
+      'scan:events-by-id',
       { component: 'scan' },
     ),
     row(
@@ -290,7 +290,7 @@ export const labels: FamilySpec = {
       'Change detection does not depend on the labeller',
       'The same edit script scanned with four different labellers (perfect, none, length-keyed, random).',
       'The ids, events and quotes of all entries are identical in the four ledgers; only labels differ.',
-      'scan:anchoring-independent-of-labels',
+      'scan:events-by-id',
       { component: 'scan' },
     ),
     row(
