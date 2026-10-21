@@ -148,9 +148,9 @@ const cases = [
     POINTER_KEY,
   ],
   [
-    'estate pointer cassette: a 64-hex value in a field other than key',
+    'estate pointer cassette: a secret-named field (api_key) beside the answer',
     'examples/estates/reader-cases/cassette.jsonl',
-    `{"answer":{"n":1},"note":"${hex(64)}","readable":{"n":2}}`,
+    `{"answer":{"n":1},"api_key":"${hex(64)}","readable":{"n":2}}`,
     true,
   ],
   [

@@ -35,14 +35,14 @@ const ROUTE = 'route.route-planner.an-ask-that-fits-route-planner';
 /** Specs that name no route-planner atom and pass on the original. */
 const CONTROLS = [
   'estate.pairwise.0333',
-  'estate.pairwise.0010',
+  'estate.pairwise.0001',
   'estate.pairwise.0024',
-  'estate.pairwise.0038',
+  'estate.pairwise.0002',
 ];
 /** A control the test links to the route, wrongly: the deletion must refute it. */
 const WRONG = 'estate.pairwise.0333';
 /** A spec of the route whose link the test removes: its flip must show up as unlinked. */
-const SILENT = 'estate.pairwise.0142';
+const SILENT = 'estate.pairwise.0053';
 
 async function cli(argv: string[]) {
   const output = { out: '', err: '' };

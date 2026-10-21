@@ -19,7 +19,7 @@ import {
 /** Estate mutants on a copy of the fictional Northwind fixture. */
 
 const FIXTURE = fileURLToPath(new URL('../../../../examples/estates/fixture/', import.meta.url));
-const R3 = 'instruction.standing.r3-read-a-file-before-you';
+const R3 = 'gate.standing.read-before-edit-it';
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const WEBFETCH = 'tool.settings.deny-webfetch';
 

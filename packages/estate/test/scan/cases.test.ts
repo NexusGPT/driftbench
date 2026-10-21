@@ -46,7 +46,22 @@ describe('the committed reader-cases outputs', () => {
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-    ).toEqual([['ORPHAN', '.claude/skills/parcel-claims/references/supplier-languages.md']]);
+    ).toEqual([
+      // The unit "Open the claim with the wording in `REF/notes.md`" is left unlabeled (the runs split four
+      // ways), so the alias case names no reference. supplier-languages.md is now named by SKILL.md line 10.
+      ['ORPHAN', '.claude/skills/parcel-claims/references/notes.md'],
+      // The five recorded runs read CLAUDE.md as a fixture (document-roles): the estate has no standing root,
+      // so everything a standing instruction would reach is unreachable.
+      ['UNREACHABLE', '.claude/ALIASES.md'],
+      ['UNREACHABLE', '.claude/processes.json'],
+      ['UNREACHABLE', '.claude/skills/parcel-claims/SKILL.md'],
+      ['UNREACHABLE', '.claude/skills/parcel-claims/references/claim-rules.md'],
+      ['UNREACHABLE', '.claude/skills/parcel-claims/references/supplier-languages.md'],
+      ['UNREACHABLE', '.claude/skills/parcel-claims/scripts/track.sh'],
+      ['UNREACHABLE', '.claude/skills/shipment-tracker/SKILL.md'],
+      ['UNREACHABLE', '.claude/skills/shipment-tracker/references/notes.md'],
+      ['UNREACHABLE', '.claude/skills/shipment-tracker/scripts/track.sh'],
+    ]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
     ).toMatchObject({

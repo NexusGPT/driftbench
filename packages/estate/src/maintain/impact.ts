@@ -295,9 +295,13 @@ export function estateImpact(
   const regenerate: ImpactReport['regenerate'] = [];
   const retire: ImpactReport['retire'] = [];
   let untouched = 0;
-  // A test that cites an id the old map does not hold cannot be reached by any change of the diff: it is listed,
+  // A test that cites an id neither map holds cannot be reached by any change of the diff: it is listed,
   // and it is not untouched.
-  const known = diff.oldAtoms === undefined ? undefined : new Set(diff.oldAtoms);
+  // An id the new map adds is known too: only an id neither map holds is no longer in the map.
+  const known =
+    diff.oldAtoms === undefined
+      ? undefined
+      : new Set([...diff.oldAtoms, ...diff.atoms.added.map((atom) => atom.id)]);
   const stale: NonNullable<ImpactReport['stale']> = [];
 
   for (const test of live) {

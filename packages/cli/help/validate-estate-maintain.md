@@ -59,7 +59,7 @@ a test that names an atom on an advisory unit; it is listed and nothing reruns. 
 changed and on which the old map holds no atom; no test names it, so none is regenerated, the live tests that
 cite an atom of its file are listed as touched, and a person reviews it.
 
-A live test that cites an atom id the old map does not hold is listed under "Cites atoms no longer in the map"
+A live test that cites an atom id neither map holds is listed under "Cites atoms no longer in the map"
 and in the needs of a person: no change of the diff can reach it, so it is never counted as untouched.
 
 With `--replay <sessions>`, impact also replays the suite over a folder of recorded sessions and compares each
@@ -143,8 +143,9 @@ its ledger unit pairs the two, as above.
 ## Worked example
 
 Version 1 of the Northwind estate against version 2 (`examples/estates/fixture-v2`: one rule rewrapped, two
-changed in meaning, one removed, two added, one guard promoted), with the guard state of version 1 named,
-then the regression replay twice over one store:
+changed in meaning, two added, one guard promoted), with the guard state of version 1 named, then the
+regression replay twice over one store. Version 2 also rewrites R12 as R19; the readers of the recording
+label neither, so no atom of either map holds them:
 
 ```sh
 driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out diff.json
@@ -154,82 +155,78 @@ driftbench estate impact diff.json --tests examples/estates/fixture-v2/tests --r
 driftbench estate impact diff.json # exit 2
 ```
 
-The diff (its 24 moved atoms cut to two):
+The diff (its 25 moved atoms cut to two):
 
 ```text
-Estate diff: examples/estates/fixture/approved.yaml (be2e7a0919cb) to examples/estates/fixture-v2/map.yaml (a5c8cb21f4ae).
-  Atoms: 2 added, 1 removed, 3 changed (1 white space only, 2 semantic), 24 moved with the same quote, 1 restated, 96 unchanged.
-  Edges: 1 added, 1 removed.
+Estate diff: examples/estates/fixture/approved.yaml (db9e07132a1b) to examples/estates/fixture-v2/map.yaml (0c62ba644a29).
+  Atoms: 2 added, 0 removed, 3 changed (1 white space only, 2 semantic), 25 moved with the same quote, 3 restated, 86 unchanged.
+  Edges: 0 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
-  + instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
-  + instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
-Removed:
-  - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
+  + register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
+  + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Changed, white space only:
-  ~ instruction.standing.never-send-a-supplier-email-without (instruction) CLAUDE.md:10-11
+  ~ instruction.standing.r2-never-send-an-email-to (instruction) CLAUDE.md:10-11
 Changed, semantic:
-  ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
-      was: | plan the delivery routes for tomorrow | the `route-planner` agent |
-      now: | plan the delivery routes for the next two days | the `route-planner` agent |
-      also: title, situation, fields
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
-      was: When a shipment is late by more than two days, tell the user and propose a supplier email.
-      now: When a shipment is late by more than one day, tell the user and propose a supplier email.
-      also: situation
+      was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
+      now: **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
+      also: title, situation, fields
+  ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
+      was: plan the delivery routes for tomorrow | the `route-planner` agent
+      now: plan the delivery routes for the next two days | the `route-planner` agent
+      also: title, situation, fields
 Moved, same quote:
   > reference.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
   > reference.standing.read-claude-steps-json CLAUDE.md:40 to 42
 Restated, same quote:
+  * instruction.standing.r8-do-not-invent-order-numbers: situation, evidence, fields
+  * instruction.standing.r17-report-a-number-only-when: situation, fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
-Edges added:
-  + instruction.standing.keep-a-credit-note-as-a cites instruction.standing.name-the-finance-lead-on-a
-Edges removed:
-  - instruction.standing.r12-when-r2-applies-and-the cites instruction.standing.never-send-a-supplier-email-without
 Wrote diff.json.
 ```
 
 The impact:
 
 ```text
-Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
+Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 3, re-approve 2, retire 0, new 2; 4 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
 Re-approve, the meaning changed:
-  route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
-      tests: northwind-route-planner
-  instruction.standing.r7-when-a-shipment-is-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
+  instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
-Retire:
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
+  route.standing.an-ask-to-plan-the-delivery (route): plan the delivery routes for the next two days | the `route-planner` agent
+      tests: northwind-route-planner
 New atoms with no test:
-  instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
-  instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
+  register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
+  instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
-  - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+Cites atoms no longer in the map, no change reaches it:
+  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the
+Needs a person: 5.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
-  - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
-  - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
+  - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+  - approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet
+  - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
+  - the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now
 ```
 
 The two `--replay` runs print the same, plus, before `Needs a person`, first:
 
 ```text
-Replay of 8 runs, campaign replay-077293b62f68, no earlier replay in the store: nothing to compare.
+Replay of 8 runs, campaign replay-50506807acb6, no earlier replay in the store: nothing to compare.
   pass to pass 0, fail to pass 0, pass to fail 0, fail to fail 0, no previous 8.
 ```
 
 then:
 
 ```text
-Replay of 8 runs, campaign replay-baa56005c117, against replay-077293b62f68.
+Replay of 8 runs, campaign replay-abd151231ba4, against replay-50506807acb6.
   pass to pass 4, fail to pass 0, pass to fail 0, fail to fail 4, no previous 0.
 ```
 
@@ -246,18 +243,20 @@ driftbench estate impact diff.json --tests tests --write # exit 1
 driftbench estate impact diff.json --tests tests --write # exit 1
 ```
 
+Version 2 removes no atom, so no test has all its atoms removed and nothing is written: the spec that cites the
+atom of R12 holds no `retired` line, and `grep` finds none.
+
 ```sh setup
-grep retired tests/unsent-draft.yaml
+grep retired tests/unsent-draft.yaml # exit 1
 ```
 
-The first and the retirement line of each impact, then the line written into the spec:
+The first and the stale line of each impact:
 
 ```text
-Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [written]
-Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 7 live estate tests (1 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [already written]
-  retired: atom instruction.standing.r12-when-r2-applies-and-the removed
+Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
+  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the
+Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
+  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the
 ```
 
 ## Common errors

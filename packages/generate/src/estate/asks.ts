@@ -492,25 +492,13 @@ function actionTask(text: string, governed = false): string | undefined {
     const task = imperative(clause);
     return askable(task) === undefined ? task : undefined;
   }
+  // A clause in another verb form is not rewritten from its spelling into a base verb (row cd26c1f1): "editing
+  // any berth file" never becomes "edit any berth file". A prerequisite clause already identifies the governed
+  // work, so it is kept verbatim.
   const [first = '', ...rest] = clause.split(/\s+/);
-  const lowerFirst = first.toLowerCase();
-  const base = [...VERBS].find((verb) =>
-    [
-      `${verb}ing`,
-      `${verb.replace(/e$/, '')}ing`,
-      `${verb}${verb.at(-1)}ing`,
-      `${verb.replace(/ie$/, 'y')}ing`,
-    ].includes(lowerFirst),
-  );
-  if (!base) {
-    // A prerequisite clause already identifies the governed work. Preserve an unfamiliar gerund
-    // verbatim rather than replacing that work with a broad unit task or inventing a lemma.
-    if (governed && openingGerund(lowerFirst) && rest.length > 0 && askable(clause) === undefined)
-      return `help me with ${clause}`;
-    return undefined;
-  }
-  const task = [base, ...rest].join(' ');
-  return askable(task) === undefined ? task : undefined;
+  if (governed && openingGerund(first.toLowerCase()) && rest.length > 0 && askable(clause) === undefined)
+    return `help me with ${clause}`;
+  return undefined;
 }
 
 /** The act a tool rule covers: "Bash(git status)" gives "run git status here", "Read" a call of Read. */
