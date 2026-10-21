@@ -396,7 +396,11 @@ export function variablesFromSources(
     if (label.kind === 'member') {
       const members = [...new Set((label.members ?? []).filter(named).map((m) => m.trim()))];
       if (!named(label.subject) || members.length === 0) return undefined;
-      const draft = conditionDraft('condition-member', `${subjectKey(label.subject)} (member)`, label.subject);
+      const draft = conditionDraft(
+        'condition-member',
+        `${subjectKey(label.subject)} (member)`,
+        label.subject,
+      );
       for (const member of members)
         conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
       let other = 'other';
@@ -406,7 +410,11 @@ export function variablesFromSources(
     }
     if (label.kind === 'boolean') {
       if (!named(label.subject)) return undefined;
-      const draft = conditionDraft('condition-boolean', `${subjectKey(label.subject)} (boolean)`, label.subject);
+      const draft = conditionDraft(
+        'condition-boolean',
+        `${subjectKey(label.subject)} (boolean)`,
+        label.subject,
+      );
       conditionValue(draft, 'true', `${label.subject}: true`, true, entry);
       conditionValue(draft, 'false', `${label.subject}: false`, false, entry);
       return draft.name;
@@ -730,12 +738,14 @@ export function variablesFromSources(
     for (const [key, sample] of draft.samples) row[ids.get(key) as string] = sample;
     samples[idOfDraft(draft)] = row;
   }
-  const constraints = byText([...pairs.values()], (pair) => identity('pair', ...pair.a, ...pair.b)).map((pair) => ({
-    forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
-    reason: 'an impossible pair the owner named',
-    approved: true,
-    provenance: byText([...pair.provenance.values()], ownerKey),
-  }));
+  const constraints = byText([...pairs.values()], (pair) => identity('pair', ...pair.a, ...pair.b)).map(
+    (pair) => ({
+      forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
+      reason: 'an impossible pair the owner named',
+      approved: true,
+      provenance: byText([...pair.provenance.values()], ownerKey),
+    }),
+  );
   const rules = byText(
     [...ruleVariables.entries()].map(([id, cited]) => ({
       id,
