@@ -31,7 +31,52 @@ function fail(message: string): never {
   throw new LabelSetError(message);
 }
 
-export type ParsedSet = LabelSetDef & { hash: string };
+/** A kind of link a set declares: to atoms of the kinds `to`, or to a closed list of `values`. */
+export type LinkKindDef = { name: string; description: string; to?: string[]; values?: string[] };
+
+/** What a mapping adds to its kind and polarity: a title and a situation (templates), and `whenFile`. */
+export type MappingExtra = { title?: string; situation?: string; whenFile?: true };
+
+export type ParsedSet = LabelSetDef & {
+  hash: string;
+  /** The link kinds of the set; empty when it declares none. */
+  links: LinkKindDef[];
+  /** The link kinds each label may carry, by label name. */
+  labelLinks: Map<string, string[]>;
+  /** The title, situation and `whenFile` of each label's atom mapping, by label name. */
+  mappings: Map<string, MappingExtra>;
+};
+
+const strings = (value: unknown): string[] | undefined =>
+  Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string')
+    ? (value as string[])
+    : undefined;
+
+function linkKindsOf(set: Record<string, unknown>): LinkKindDef[] {
+  if (set.links === undefined) return [];
+  if (!Array.isArray(set.links) || set.links.length === 0) fail(`the set "${set.set}" has an empty links list`);
+  const kinds: LinkKindDef[] = [];
+  for (const raw of set.links as unknown[]) {
+    const kind = (raw ?? {}) as Record<string, unknown>;
+    if (typeof kind.name !== 'string' || !NAME.test(kind.name))
+      fail(`a link kind of the set "${set.set}" has no lower-case name`);
+    if (typeof kind.description !== 'string' || kind.description.trim() === '')
+      fail(`the link kind "${kind.name}" in the set "${set.set}" has no description`);
+    const to = strings(kind.to);
+    const values = strings(kind.values);
+    if ((to === undefined) === (values === undefined))
+      fail(`the link kind "${kind.name}" names \`to\` (atom kinds) or \`values\` (a closed list), one of the two`);
+    if (kinds.some((other) => other.name === kind.name))
+      fail(`the link kind "${kind.name}" is repeated in the set "${set.set}"`);
+    kinds.push({
+      name: kind.name,
+      description: kind.description,
+      ...(to ? { to } : {}),
+      ...(values ? { values } : {}),
+    });
+  }
+  return kinds;
+}
 
 export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
   let data: unknown;
@@ -55,6 +100,9 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
     if (!Array.isArray(set.labels) || set.labels.length === 0) fail(`the set "${set.set}" has no labels`);
     const seen = new Set<string>();
     const labels: LabelDef[] = [];
+    const links = linkKindsOf(set);
+    const labelLinks = new Map<string, string[]>();
+    const mappings = new Map<string, MappingExtra>();
     for (const rawLabel of set.labels as unknown[]) {
       const label = rawLabel as Record<string, unknown>;
       const name = label.name;
@@ -91,6 +139,20 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
           kind: atom.kind,
           ...(typeof atom.polarity === 'string' ? { polarity: atom.polarity } : {}),
         };
+        const extra: MappingExtra = {
+          ...(typeof atom.title === 'string' && atom.title !== '' ? { title: atom.title } : {}),
+          ...(typeof atom.situation === 'string' && atom.situation !== '' ? { situation: atom.situation } : {}),
+          ...(atom.whenFile === true ? { whenFile: true as const } : {}),
+        };
+        if (Object.keys(extra).length > 0) mappings.set(name, extra);
+      }
+      if (label.links !== undefined) {
+        const kinds = strings(label.links);
+        if (!kinds) fail(`the label "${name}" in the set "${set.set}" has an empty links list`);
+        for (const kind of kinds)
+          if (!links.some((declared) => declared.name === kind))
+            fail(`the label "${name}" names the link kind "${kind}", which the set "${set.set}" does not declare`);
+        labelLinks.set(name, kinds);
       }
       labels.push(def);
     }
@@ -99,7 +161,19 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
       description: typeof set.description === 'string' ? set.description : '',
       labels,
     };
-    out.push({ ...parsed, hash: sha256(canonicalCompact(parsed)).slice(0, 16) });
+    // The set hash covers what the set declares: link kinds and mapping templates join it when the set has any.
+    const declared = {
+      ...parsed,
+      ...(links.length > 0 ? { links, labelLinks: Object.fromEntries(labelLinks) } : {}),
+      ...(mappings.size > 0 ? { mappings: Object.fromEntries(mappings) } : {}),
+    };
+    out.push({
+      ...parsed,
+      hash: sha256(canonicalCompact(declared)).slice(0, 16),
+      links,
+      labelLinks,
+      mappings,
+    });
   }
   return out;
 }

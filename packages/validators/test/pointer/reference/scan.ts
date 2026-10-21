@@ -9,11 +9,63 @@ import type {
   ScanResult,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
+import { referenceBugsB } from './bugs-b';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
-import { planWindows, type WindowPlan } from './window';
+import {
+  type AnswerLabel,
+  type AnswerLink,
+  askModel,
+  Cassette,
+  CassetteError,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
+import { type Candidates, planWindows, type WindowPlan } from './window';
+
+/** A title holds at most this many characters, an ellipsis included (docs, section 6). */
+const TITLE_CHARACTERS = 90;
+
+/** The title of an atom built from a unit: its text without marks, cut to 90 characters with an ellipsis. */
+function titleOf(text: string): string {
+  const flat = text
+    .replace(/[*`]/g, '')
+    .replace(/^\s*(?:[-+]|\d+[.)]|#+|>)\s+/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (flat.length <= TITLE_CHARACTERS) return flat;
+  const keep = referenceBugsB.has('title-91') ? TITLE_CHARACTERS : TITLE_CHARACTERS - 1;
+  return `${flat.slice(0, keep).trimEnd()}\u2026`;
+}
+
+/** The text of the first inline code span of a unit, by Markdown structure. */
+const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
+
+const UNRESOLVED = Symbol('unresolved');
+const SLOT = /^(?:code|unit|file|link\.[a-z][a-z0-9-]*)$/;
+
+/**
+ * Fills a template of a mapping (docs, section 6): a value that is exactly `$<slot>`, or `${<slot>}` inside a
+ * longer text. A slot the unit does not fill leaves the whole value unresolved.
+ */
+function fillTemplate(
+  value: string,
+  slot: (name: string) => string | undefined,
+): string | typeof UNRESOLVED {
+  const whole = /^\$(.+)$/.exec(value)?.[1];
+  if (whole !== undefined && SLOT.test(whole)) return slot(whole) ?? UNRESOLVED;
+  if (!value.includes('${')) return value;
+  let unresolved = false;
+  const text = value.replace(/\$\{([^}]+)\}/g, (_, name: string) => {
+    if (!SLOT.test(name)) return `$${name}`;
+    const found = slot(name);
+    if (found === undefined) unresolved = true;
+    return found ?? '';
+  });
+  return unresolved && !referenceBugsB.has('partial-template') ? UNRESOLVED : text;
+}
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
 function lineageOf(entry: LedgerEntry): NonNullable<LedgerEntry['lineage']> {
@@ -150,6 +202,26 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   });
   const byG = new Map(work.map((w) => [w.g, w]));
 
+  // ---- what each set lists for its link kinds: a closed list, or the atoms of the kinds it names, by id
+  const linkCandidates = (to: readonly string[]) => {
+    const listed = (req.atoms ?? [])
+      .filter((atom) => referenceBugsB.has('candidates-any-kind') || to.includes(atom.kind))
+      .map((atom) => ({ id: atom.id, label: atom.title }));
+    return referenceBugsB.has('candidates-unsorted') ? listed : listed.sort((a, b) => a.id.localeCompare(b.id));
+  };
+  const candidatesOf = new Map<string, Candidates>(
+    sets.map((set) => [
+      set.set,
+      Object.fromEntries(
+        set.links.map((kind) => [
+          kind.name,
+          kind.values ? kind.values.map((value) => ({ id: value, label: value })) : linkCandidates(kind.to ?? []),
+        ]),
+      ),
+    ]),
+  );
+  const linksOf = new Map<string, AnswerLink[]>();
+
   // ---- labels
   const modelCtx: ModelCtx | undefined = req.model
     ? {
@@ -161,6 +233,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         warnings,
         refusals: [],
         keyHeader: readKey(),
+        candidates: candidatesOf,
       }
     : undefined;
   let windowCount = 0;
@@ -209,7 +282,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         );
         for (const plan of plans) {
           windowCount += 1;
-          const outcome = await labelWindow(plan, set, req, modelCtx, () => {
+          const outcome = await labelWindow(plan, set, req, modelCtx, candidatesOf.get(set.set) ?? {}, () => {
             callCount += 1;
           });
           if ('abort' in outcome) {
@@ -237,6 +310,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
                 configurable: true,
               });
               if (outcome.key) cassetteKeyOf.set(`${w.entry.id}|${set.set}`, outcome.key);
+              if (got.links) linksOf.set(`${w.entry.id}|${set.set}`, got.links);
               if (got.target !== undefined) {
                 const targetUnit = plan.units[got.target - 1];
                 if (targetUnit) gateTargets.set(`${w.entry.id}|${set.set}`, targetUnit.index);
@@ -342,6 +416,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
 
   // ---- atoms
   const atoms: Atom[] = [];
+  const knownAtoms = new Set((req.atoms ?? []).map((atom) => atom.id));
   for (const entry of ledger.entries) {
     if (entry.status !== 'live') continue;
     const text = sources.get(entry.path) ?? '';
@@ -350,6 +425,20 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       if (!label) continue;
       const def = set.labels.find((l) => l.name === label.label);
       if (!def?.atom) continue;
+      const named = `${entry.path} unit ${entry.id} (${label.label})`;
+      // A link to `none` names nothing; one to a closed list keeps its value; one to an atom needs that atom.
+      const links: AnswerLink[] = [];
+      for (const link of linksOf.get(`${entry.id}|${set.set}`) ?? []) {
+        if (link.to === 'none' && !referenceBugsB.has('none-link-refused')) continue;
+        if (set.links.find((kind) => kind.name === link.kind)?.values) links.push(link);
+        else if (knownAtoms.has(link.to)) links.push(link);
+        else
+          diagnostics.push({
+            code: 'atom-refusal',
+            unit: entry.id,
+            detail: `${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`,
+          });
+      }
       let start = entry.hint?.start ?? 0;
       let end = entry.hint?.end ?? start;
       if (def.target === 'required') {
@@ -384,9 +473,36 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         });
         continue;
       }
+      const extra = set.mappings.get(def.name) ?? {};
+      const code = codeSpanOf(entry.quote);
+      // A `whenFile` mapping builds only when the first code span of the unit names a file of the estate.
+      if (extra.whenFile) {
+        const builds = referenceBugsB.has('whenfile-ignores-exists')
+          ? code !== undefined
+          : code !== undefined && sources.has(code);
+        if (!builds) continue;
+      }
+      const slot = (name: string): string | undefined => {
+        if (name === 'code') return code;
+        if (name === 'unit') return entry.quote;
+        if (name === 'file') return entry.path;
+        return links.find((link) => `link.${link.kind}` === name)?.to;
+      };
+      const title = extra.title === undefined ? undefined : fillTemplate(extra.title, slot);
+      const situation = extra.situation === undefined ? undefined : fillTemplate(extra.situation, slot);
+      if (title === UNRESOLVED || situation === UNRESOLVED) {
+        diagnostics.push({
+          code: 'atom-refusal',
+          unit: entry.id,
+          detail: `${named}: the label ${label.label} needs a span, a link or a code span that the unit does not give`,
+        });
+        continue;
+      }
       atoms.push({
         kind: def.atom.kind,
         ...(def.atom.polarity ? { polarity: def.atom.polarity } : {}),
+        title: title ?? titleOf(entry.quote),
+        ...(situation ? { situation } : {}),
         file: entry.path,
         startLine,
         endLine,
@@ -416,7 +532,19 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       const g = fileUnits.get(entry.path)?.[targetIndex ?? -1];
       const targetId = g === undefined ? undefined : byG.get(g)?.entry.id;
       const atom = atoms.find((a) => a.fields.unit === targetId && a.fields.labelSet === set.set);
-      if (!atom) continue;
+      if (!atom) {
+        // A condition whose target holds no atom sets no situation, and says so.
+        const targetEntry = ledger.entries.find((other) => other.id === targetId);
+        const targetLabel = targetEntry?.labels[set.set]?.label;
+        const mapped = set.labels.find((l) => l.name === targetLabel)?.atom !== undefined;
+        if (referenceBugsB.has('orphan-condition-unreported') && mapped) continue;
+        diagnostics.push({
+          code: 'atom-refusal',
+          unit: entry.id,
+          detail: `${entry.path} unit ${entry.id} (${label.label}): the condition points at a unit that holds no atom`,
+        });
+        continue;
+      }
       conditions.set(atom, [
         ...(conditions.get(atom) ?? []),
         { start: entry.hint?.start ?? 0, text: entry.quote.trim(), id: entry.id },
@@ -455,15 +583,14 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   });
 }
 
-type Outcome =
-  | { abort: string }
-  | { labels?: Map<number, { label: string; target?: number }>; key?: string; failed?: string };
+type Outcome = { abort: string } | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
 
 async function labelWindow(
   plan: WindowPlan,
   set: ParsedSet,
   req: ScanRequest,
   model: ModelCtx | undefined,
+  candidates: Candidates,
   onCall: () => void,
 ): Promise<Outcome> {
   let reason = '';
@@ -482,7 +609,7 @@ async function labelWindow(
         reason = result.reason;
         continue;
       }
-      const checked = validateAnswer(result.answer, plan, set);
+      const checked = validateAnswer(result.answer, plan, set, candidates);
       if (checked.ok) return { labels: checked.labels, key: result.key };
       reason = checked.reason;
       continue;
@@ -505,7 +632,7 @@ async function labelWindow(
       },
     };
     const answer = await (req.labeler as NonNullable<ScanRequest['labeler']>)(request);
-    const checked = validateAnswer(answer, plan, set);
+    const checked = validateAnswer(answer, plan, set, candidates);
     if (checked.ok) return { labels: checked.labels };
     reason = checked.reason;
   }

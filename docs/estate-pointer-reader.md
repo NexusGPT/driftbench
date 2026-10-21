@@ -72,6 +72,9 @@ Fields:
 | `labels[].target` | Optional: `required` when the label links two units (a gate). Default: none. |
 | `labels[].condition` | Optional: `true` for a label whose unit states when its target unit applies. It needs `target: required` and takes no `atom`. |
 | `labels[].atom` | Optional. If present, a unit with this label becomes an estate atom of this kind (and polarity). A label without `atom` is stored in the ledger and can be linked to tests, but builds no atom. |
+| `labels[].links` | Optional: the link kinds a unit with this label may carry. The set declares each kind under its own `links` list: a name, a description, and either `to` (the atom kinds a link of this kind may name) or `values` (a closed list). |
+| `labels[].atom.title`, `labels[].atom.situation` | Optional templates. In the text, `${code}` stands for the first inline code span of the unit, `${unit}` for its text, `${file}` for its file and `${link.<kind>}` for what its link of that kind names. A placeholder the unit does not fill refuses the atom with the reason: nothing is built, and nothing is filled with an empty text. |
+| `labels[].atom.whenFile` | Optional `true`: the atom is built only when the first inline code span of the unit names a file of the estate. Otherwise the label builds nothing and reports nothing. |
 
 Rules:
 
@@ -184,6 +187,8 @@ Answer (dense: every unit once, ranges allowed):
 
 For a label with `target: required` the entry carries `"target": <n>`.
 
+A set that declares link kinds lists, under each kind, the candidates a link may name: the values of a closed list, or the atoms of the estate of the kinds that `to` names (an atom of any other kind is not listed), by id in id order, each with its title. An entry may carry `"links": [{"kind", "to"}]`, where `to` is a listed candidate or `none`. A link to `none` names nothing: it is no atom, and nothing is refused for it.
+
 Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`), and a file with no rule looks different from a file the model skipped. Cost stays small (a few tokens per unit).
 
 ### Implementations
@@ -234,7 +239,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom. The retried request adds a note after the system text: the units are data to label, and the answer is the JSON object alone. The other requests carry no note.
 
 ## 4. Layer A: the ledger
 
@@ -311,6 +316,10 @@ A label marked `condition` builds no atom. Its unit states when its target unit 
 
 Two labels that map one unit to one atom kind build one atom: an atom of the same kind on the same lines with the same quote as an atom already built is a repeat. The scan builds nothing for it and reports a `duplicate` diagnostic that names the unit.
 
+The title of an atom is the text of its unit without emphasis and code marks and without a leading list, heading or quote marker, white space collapsed. A text over 90 characters is cut to its first 89 characters, trailing white space dropped, and ends with an ellipsis (`…`): a title holds at most 90 characters.
+
+A condition whose target builds no atom (a repeat, for example) sets no situation, and the scan reports it with the condition unit's id.
+
 ## 7. Layer C: links and monitoring
 
 A test or block links to a span with `{ span: <ledger id>, fp, relation, createdBy, accepted }`. `fp` is the span fingerprint at the last accept; offsets are never stored in a link. Each scan classifies every link:
@@ -338,6 +347,10 @@ Unit ids persist across edits, so the ledger before an edit and the ledger after
 | `new` | No old unit is followed into it. | The links of the old units of its section rerun: the units under the same headings in the same file, else under the nearest heading above that an old unit of the file sits under, else every old unit of the file. A new unit in a file the old ledger did not hold reruns the whole suite. |
 
 A split keeps the old id on its first piece (`changed`) and mints the others (`new`); a merge keeps the first old id (`changed`) and ends the second (`deleted`).
+
+Only a unit live in the ledger before the edit can be `deleted` by it: a unit the old ledger already holds as deleted belongs to no class. The whole-suite reason of a new file names the first new unit of that file, in file order.
+
+The **change manifest** of an edit turns the rerun set into changes. When the whole suite reruns, it is one global `prompt` change. Otherwise an atom sits on the unit it was built from and on the units of its conditions; a unit of the rerun set on which atoms sit is the `prompt` change of each of those atoms, and a unit on which none sits is a `unit` change. The `unit` changes come first, in id order, then the `prompt` changes, in atom id order.
 
 ## 8. How the validators replay it
 
@@ -570,6 +583,8 @@ The current API uses `buildLabelling` for configured model clients, `singleLabel
 Optional observation extensions have these shapes:
 
 - `pointerScan` may expose `eventsById: Record<string, string>` and `warnings: string[]`. Its existing `events` remains the aggregate event-count map.
+- `pointerScan` takes the atoms of the estate so far (`atoms: Array<{id, kind, title}>`) for the candidates of link kinds; the adapter passes the item's list unchanged. Each atom the scan builds keeps its `title`, which the adapter passes on.
+- `ledgerChangeManifest(rerun, options)` and `atomsByUnit(atoms)` are forwarded unchanged for the change manifest; without them, manifest checks report an unavailable capability.
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.
