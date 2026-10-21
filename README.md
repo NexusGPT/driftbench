@@ -689,14 +689,14 @@ $ cd walk
 
 ### 1. From the estate to a map, and from the map to tests
 
-The problem: seventeen rules, four skills and three helpers are too much to test by hand, and you would not know what you missed. Take one rule, R7 of `CLAUDE.md`:
+The problem: seventeen rules, four skills and three helpers are too much to test by hand, and you would not know what you missed. Take one sentence of the weekly report skill:
 
 ```console
-$ grep -n "R7" northwind/CLAUDE.md
+$ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 (pending)
 ```
 
-`estate scan` reads the estate into a **map**. The map lists each thing the estate asks of the agent, with a quote of where it says so. One entry of the map is an **atom**. R7 becomes one atom. Then driftbench plans which situations to test, and `estate generate` writes the tests from the plan.
+`estate scan` reads the estate into a **map**. The map lists each thing the estate asks of the agent, with a quote of where it says so. One entry of the map is an **atom**. That sentence becomes one atom. Then driftbench plans which situations to test, and `estate generate` writes the tests from the plan.
 
 ```console
 $ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update
@@ -717,26 +717,28 @@ $ driftbench estate generate --map approved.yaml --plan plan.yaml --out generate
 
 ### 2. From a sentence to a chunk, a rule and its tests
 
-The problem: when R7 changes, which tests are about it? driftbench keeps one chain from the sentence to the tests. Each link of the chain has an id.
+The problem: when this sentence changes, which tests are about it? driftbench keeps one chain from the sentence to the tests. Each link of the chain has an id.
 
-The **chunk.** The scan cuts every prose file into chunks, and gives each chunk an id that stays the same when the text is edited. The chunk of R7:
+The **chunk.** The scan cuts every prose file into chunks, and gives each chunk an id that stays the same when the text is edited. The chunk of that sentence:
 
 ```console
-$ wc -l ledger.json; head -c 700 ledger.json; echo; grep -o ".\{200\}propose a supplier email.\{80\}" ledger.json
+$ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));const e=l.entries.find((x)=>x.id==="wrl4c7wlvb");console.log(JSON.stringify({id:e.id,fp:e.fp,path:e.path,status:e.status,quote:e.quote},null,2))'
 (pending)
 ```
 
 The **rule.** A chunk that states a rule becomes an atom of the map, with an id, a kind and a quote:
 
 ```console
-$ grep -B1 -A9 "id: instruction.standing.tell-the-user-about-a-late" map.yaml
+$ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" map.yaml
 (pending)
 ```
 
-The **tests.** Each generated test names the atoms it covers. This lists the first test that covers R7 and the links it carries:
+The **tests.** Each generated test names the atoms it covers. This lists the first three tests that name that atom:
 
 ```console
-$ f=$(grep -rl -- "- instruction.standing.tell-the-user-about-a-late$" generated/specs/live | sort | head -1); echo $f; grep -A8 "^  links:" $f
+$ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" generated/specs/live | sort | head -3
+(pending)
+$ grep -A8 "^  links:" generated/specs/live/estate.pairwise.XXXX.yaml
 (pending)
 ```
 
@@ -747,14 +749,14 @@ $ f=$(grep -rl -- "- instruction.standing.tell-the-user-about-a-late$" generated
 The problem: what is a test, and how do you run one? A test is a spec file. It holds blocks. A block has three parts: where it starts (`given`), what the user says (`when`) and what must be true afterwards (`expect`). This is the block of the test above:
 
 ```console
-$ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/obligation/estate.pairwise.0411.yaml
+$ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/estate.pairwise.XXXX.yaml
 (pending)
 ```
 
 To run it, `estate run` starts the agent in a sandbox copy of the estate and sends the block. Here the agent is a stand-in script, so nothing is spent:
 
 ```console
-$ driftbench estate run generated/specs/live/obligation/estate.pairwise.0411.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
+$ driftbench estate run generated/specs/live/estate.pairwise.XXXX.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
 (pending)
 ```
 
@@ -762,11 +764,11 @@ $ driftbench estate run generated/specs/live/obligation/estate.pairwise.0411.yam
 
 ### 4. Edit a rule, and list the tests to rerun
 
-The problem: you change R7 from two days to one day. You do not want to rerun every test. Make the edit:
+The problem: you change the sentence from seven days to fourteen days. You do not want to rerun every test. Make the edit:
 
 ```console
-$ sed -i.bak 's/late by more than two days/late by more than one day/' northwind/CLAUDE.md
-$ grep -n "R7" northwind/CLAUDE.md
+$ sed -i.bak 's/for the last seven days/for the last fourteen days/' northwind/.claude/skills/weekly-report/SKILL.md
+$ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
 (pending)
 ```
 
