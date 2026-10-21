@@ -776,3 +776,96 @@ describe('variablesFromSources: review findings on the first head', () => {
     expect(built.store.variables.map((v) => v.title)).toEqual(['sibling']);
   });
 });
+
+describe('variablesFromSources: variable identities cannot collide across kinds', () => {
+  // Names built to collide: dots, brackets, quotes, text that looks like another key or like a kind.
+  const NAMES = [
+    'ledger',
+    'account',
+    'ledger.account',
+    '["ledger","account"]',
+    'a',
+    'b',
+    'a.b',
+    'b.c',
+    '"x"',
+    'x (member)',
+    'x (boolean)',
+    'm:x',
+    '|1:a',
+    'tool-field|6:ledger|7:account',
+    'condition-numeric|6:ledger',
+  ];
+  const READY = 'Ready.';
+  const clause = (kind: string, name: string) => `${kind} holds for ${name}.`;
+  type Cond = { text: string; label: unknown };
+  const conditions = (names: readonly string[]): Cond[] =>
+    names.flatMap((name) => [
+      {
+        text: clause('numeric', name),
+        label: { kind: 'numeric', subject: name, limit: 20, comparison: 'gt' },
+      },
+      {
+        text: clause('member', name),
+        label: { kind: 'member', subject: name, members: ['m1', 'm2'] },
+      },
+      { text: clause('boolean', name), label: { kind: 'boolean', subject: name } },
+    ]);
+  const tools = (pairs: ReadonlyArray<readonly [string, string]>) =>
+    pairs.map(([tool, field]) => ({
+      tool,
+      field,
+      source: 'F.md',
+      values: [{ id: 'ready', quote: READY }],
+    }));
+  const build = (names: readonly string[], pairs: ReadonlyArray<readonly [string, string]>) => {
+    const conds = conditions(names);
+    return variablesFromSources({
+      estate: {
+        files: { 'F.md': [READY, ...conds.map((c) => c.text)].join('\n') },
+        rules: [{ id: 'R', source: 'F.md', conditions: conds, tools: tools(pairs) }],
+      },
+    } as never);
+  };
+  const ALL_PAIRS = NAMES.flatMap((t) => NAMES.map((f) => [t, f] as const));
+
+  it('keeps one variable for each identity, with its own values and a distinct id', () => {
+    const built = build(NAMES, ALL_PAIRS);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(3 * NAMES.length + ALL_PAIRS.length);
+    const ids = built.store.variables.map((v) => v.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const v of built.store.variables) {
+      const samples = built.samples[v.id];
+      if (samples === undefined) {
+        // A tool variable holds only its one tool value, never a condition's numbers or members.
+        expect(v.values.map((x) => x.id)).toEqual(['ready']);
+      } else {
+        expect(Object.keys(samples).sort()).toEqual(v.values.map((x) => x.id).sort());
+        expect(v.values.some((x) => x.id === 'ready')).toBe(false);
+      }
+    }
+    expect(Object.keys(built.samples)).toHaveLength(3 * NAMES.length);
+  });
+
+  it('keeps every id the same when other variables are added, removed or reordered', () => {
+    const full = build(NAMES, ALL_PAIRS);
+    const fullIds = new Set(full.store.variables.map((v) => v.id));
+    const alone = new Set<string>();
+    for (const name of NAMES) for (const v of build([name], []).store.variables) alone.add(v.id);
+    for (const pair of ALL_PAIRS) for (const v of build([], [pair]).store.variables) alone.add(v.id);
+    expect(alone).toEqual(fullIds);
+    const reversed = build([...NAMES].reverse(), [...ALL_PAIRS].reverse());
+    expect(JSON.stringify(reversed.store.variables.map((v) => v.id))).toBe(
+      JSON.stringify(full.store.variables.map((v) => v.id)),
+    );
+  });
+
+  it('does not mix a condition and a tool whose names look alike (the reviewer case)', () => {
+    const built = build(['["ledger","account"]', 'ledger'], [['ledger', 'account']]);
+    const toolVariable = built.store.variables.filter((v) => v.values.some((x) => x.id === 'ready'));
+    expect(toolVariable).toHaveLength(1);
+    expect(toolVariable[0]?.values).toHaveLength(1);
+    expect(built.store.variables.filter((v) => built.samples[v.id] !== undefined)).toHaveLength(6);
+  });
+});
