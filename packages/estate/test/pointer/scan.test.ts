@@ -629,11 +629,14 @@ describe('an answer that stopped at a refusal or at max_tokens, on the Anthropic
     });
   };
 
+  // One run per window, so every request counted here is the first ask of the window or its retry.
   const scan = (stops: string[], calls: Call[]) =>
     pointerScan({
       files: NOTES,
       sets: load(BAKERY),
-      labelling: singleLabelling(createAnthropicLabeler({ key: 'k', fetch: answering(stops, calls) })),
+      labelling: singleLabelling(
+        createAnthropicLabeler({ key: 'k', runs: 1, fetch: answering(stops, calls) }),
+      ),
       cassette: new Cassette(),
       mode: 'record',
     });
