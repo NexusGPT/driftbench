@@ -976,6 +976,8 @@ describe('variablesFromSources: one clause, one label', () => {
     ]);
     expect(other.refused).toEqual([]);
     expect(other.store.variables.map((v) => v.title).sort()).toEqual(['delay', 'the delay']);
+  });
+});
 
 describe('variablesFromSources: one well-formedness pass over the whole input', () => {
   const LONE = '\uD800';
