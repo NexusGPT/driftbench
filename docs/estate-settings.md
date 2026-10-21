@@ -87,7 +87,7 @@ A pointer key with the wrong shape stops the scan with exit 2 and names the key.
 
 ## Worked example
 
-The fixture estate, copied, with a settings file. It selects the fixture's label set `settings-labels.yaml`, the shipped set without its `condition` label: this example shows the settings file, and the recorded answers of that set in `settings-cassette.jsonl` answer every request, so nothing is sent. It sets no labeler, so the scan reads with the default stack of both classes.
+The fixture estate, copied, with a settings file. It declares the role of each document the runtime does not load as instructions (`documents:`, which wins over a recorded label), so no document-roles request is made. It selects the fixture's label set `settings-labels.yaml`, the shipped set without its `condition` label: this example shows the settings file, and the recorded answers of that set in `settings-cassette.jsonl` answer every request, so nothing is sent. It sets no labeler, so the scan reads with the default stack of both classes.
 
 ```sh setup
 cp -R examples/estates/fixture estate
@@ -97,6 +97,12 @@ cp -R examples/estates/fixture estate
 labels: settings-labels.yaml
 threshold: { pass_at: 0.9, fail_at: 0.1 }
 ledger: driftbench.ledger.json
+documents:
+  .claude/skills/invoice-reconcile/references/currency-table.md: fixture
+  .claude/skills/invoice-reconcile/references/matching-rules.md: normative
+  .claude/skills/invoice-reconcile/references/old-tolerances.md: archive
+  .claude/skills/shipment-tracker/data/shipments.txt: history
+  .claude/skills/weekly-report/templates/report.md: template
 ```
 
 ```sh
@@ -105,8 +111,8 @@ driftbench estate scan estate --pointer --cassette estate/settings-cassette.json
 
 ```text
 Pointer settings from driftbench.estate.yaml: labels, threshold, ledger.
-  Requests: 73 answered, 0 sent, 0 recorded.
-  Units since the last ledger: new 154.
+  Requests: 91 answered, 0 sent, 0 recorded.
+  Units since the last ledger: new 136.
 ```
 
 Edit one rule, then ask what the edit reruns. The ledger the settings file names is the baseline.
@@ -120,7 +126,7 @@ driftbench radius ledger map.yaml --out change.yaml
 ```
 
 ```text
-Units: 151 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+Units: 133 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
   1 unit reruns, 2 advisory only; 1 change.
 Wrote change.yaml.
 ```
@@ -153,8 +159,8 @@ driftbench estate scan estate --pointer --cassette estate/module-cassette.jsonl 
 ```text
 Pointer settings from driftbench.estate.yaml: labeler, ledger.
   Pointer reader: system 2 module:never-lines never-lines.
-  Requests: 54 answered, 54 sent, 54 recorded.
-  Units since the last ledger: unchanged 153, changed 1.
+  Requests: 95 answered, 95 sent, 95 recorded.
+  Units since the last ledger: new 20, unchanged 135, changed 1.
 The ledger estate/driftbench.ledger.json is not written: pass --update to write it.
 ```
 

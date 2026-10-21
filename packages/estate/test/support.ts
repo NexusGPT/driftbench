@@ -128,9 +128,15 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
           }
           return {
             units: String(unit.n),
-            // A standing import line is loaded by the runtime and read by nobody: it is no reference.
+            // A standing import line is loaded by the runtime and read by nobody: it is no reference. A unit that
+            // is one bare token (a front matter value such as a helper's name) names nothing for the reader to
+            // read: a labeller that reads the sentence gives it no reference either.
             label:
-              namedPaths(unit.text).length > 0 && !/^@\S+$/.test(unit.text.trim()) ? 'reference' : 'none',
+              namedPaths(unit.text).length > 0 &&
+              !/^@\S+$/.test(unit.text.trim()) &&
+              !/^[\w.-]+$/.test(unit.text.trim())
+                ? 'reference'
+                : 'none',
           };
         }),
         returnedModel: 'structure-1',

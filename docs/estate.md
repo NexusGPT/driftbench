@@ -137,7 +137,7 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
   Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 136.
-  Document roles: 15 files labelled by the document-roles set; requests 115 answered, 0 sent, 0 recorded.
+  Document roles: 5 files labelled by the document-roles set; requests 30 answered, 0 sent, 0 recorded.
     refused: .claude/skills/invoice-reconcile/SKILL.md#2: the label condition needs a target unit inside the window
     refused: .claude/skills/supplier-email/SKILL.md#1: the label condition needs a target unit inside the window
     refused: .claude/skills/supplier-email/SKILL.md#1: the label condition needs a target unit inside the window
@@ -279,7 +279,7 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 
 ### Document roles and navigation
 
-The reader classifies document authority before reading declarations or passing prose to the scanner. The map records each document's role and its reasons under `documents`: normative, changelog, history, template, example, journal, fixture or archive. A role comes, in this order, from the estate's own declaration (`documents:` in `driftbench.estate.yaml`, a glob to a role), from a recorded label (with `--pointer`, the scan asks the shipped `document-roles` set once per prose file, on its first 40 lines, before anything else, and the answer is recorded and replayed like every label), or from structure: repeated placeholder value slots make a template, a list of dated entries a history, and a cross mark (✗, ✘, ❌, ×) alone on its line opens a counter-example section. No word of a folder name, a heading or a line decides a role. One incidental date or a variable path in a live procedure does not change its authority.
+The reader classifies document authority before reading declarations or passing prose to the scanner. The map records each document's role and its reasons under `documents`: normative, changelog, history, template, example, journal, fixture or archive. A role comes, in this order, from the estate's own declaration (`documents:` in `driftbench.estate.yaml`, a glob to a role), from the runtime's structure for a file the runtime itself loads as instructions (the standing file, memory, a skill's body and a helper's body are normative, as scripts and settings are, and no label is asked about them), from a recorded label (with `--pointer`, the scan asks the shipped `document-roles` set once per other prose file, on its first 40 lines, before anything else, and the answer is recorded and replayed like every label), or from structure: repeated placeholder value slots make a template, a list of dated entries a history, and a cross mark (✗, ✘, ❌, ×) alone on its line opens a counter-example section. No word of a folder name, a heading or a line decides a role. One incidental date or a variable path in a live procedure does not change its authority.
 
 Non-normative documents remain navigation targets. Their bodies yield no rules, gates or hazards, and their outgoing references are not linted as broken dependencies. A live prerequisite that names a template still requires that read. A record or store (changelog, history, journal, archive, fixture) outside every live skill is not an orphan or unreachable defect; a template, an example, or any file inside a live skill's folder that nothing names still is. Placeholders and examples never establish a missing file. A path whose extension names a document or script type, and which does not exist, is `MISSING_REFERENCE`; a pair, a ratio, a version or a dotted name is no reference at all. A quoted or linked filename with an extension that is absent is also `MISSING_REFERENCE`. A name with no extension or separator that resolves nowhere is informational `UNRESOLVED_REFERENCE`; ambiguous names retain their existing findings.
 
@@ -513,15 +513,9 @@ Pairwise: a covering array of strength t (default 2) over the situation axes, un
 
 ### Situation relevance in a proposed plan
 
-The default plan derives target relevance from the estate's own behavioural text and evidence. It does not hold a situation-to-atom-kind whitelist. An instruction that calls a tool remains relevant to a tool failure. A dispatch instruction remains relevant to a helper event. A rule about the tracker remains relevant regardless of whether it is an instruction or a stage.
+Which atoms a situation acts on is not inferred from the words of the estate: no title, quote, situation or description decides it (the estate path reads no English word list). Relevance comes from a declared space: `estate map --to space.yaml` exports one, and `estate plan --space` makes it authoritative, its values and constraints used as declared. Without a supplied space, each value of an event axis (`session_state`, `owner_signal`, `deviation`, `estate_hazard`) is reported as unresolved: its combinations remain in the plan, with a note naming the value. A missing relevance never removes an entire situation to obtain vacuous coverage. The baseline of each axis and an unperturbed long session remain available, and mandatory contract rows and journeys keep their own obligations. These are proposed rows, subject to approval like the rest of the plan.
 
-For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the planner compares the subject words of each value's title with the atom's own quoted rule, situation or unit description. It normalizes English inflections and omits grammatical context, code spans and paths. Atom ids, file names and custom check names supply no relevance. Typed evidence supplies observable capabilities: a positive tool call supplies tools; a dispatch supplies helpers; a text predicate supplies language. Explicit reply and answer rules supply language even when checked by a custom predicate. Routes and dispatches inherit the contract of the unit they reach, transitively; unrelated neighbouring rules supply no context.
-
-The baseline of each axis and an unperturbed long session remain available. When a situation has identified targets, inferred constraints exclude its combinations with other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A situation with no identified target stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
-
-This is a lexical proposal for review, not a proof of natural-language entailment. Synonyms and multilingual conditions may need declared relevance. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
-
-The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
+The captured Northwind example below uses the explicit full space exported by `estate map`.
 
 The plan of the approved Northwind map:
 
@@ -1113,7 +1107,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-77bdcd92a174 (in memory).
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-bab5ccf824e3 (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.
@@ -1297,7 +1291,7 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
 Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 3, re-approve 2, retire 0, new 2; 5 tests untouched, 25 atoms moved with the same quote.
+  Regenerate 3, re-approve 2, retire 0, new 2; 4 tests untouched, 25 atoms moved with the same quote.
 Regenerate:
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
@@ -1312,11 +1306,14 @@ New atoms with no test:
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
+Cites atoms no longer in the map, no change reaches it:
+  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the
+Needs a person: 5.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
   - approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
+  - the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now
 ```
 
 It exits 1 for the four items. Version 2 retires no test: R12's tests are regenerated, as above. A test whose atoms are all removed is retired: `--write` writes each retirement reason into its spec as `metadata.retired` (`retired: atom <id> removed`), keeping comments and layout, and loads the spec again before writing; a second run finds it written. Without `--write`, impact writes nothing and reports each retirement "to write".
@@ -1341,7 +1338,7 @@ driftbench estate diff map.yaml map-v2.yaml --old-ledger pointer-ledger.v1.json 
 | deleted | the unit |
 | new | the old units of its section; in a file the ledger did not hold, the whole suite |
 
-A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only. A changed unit on which the old map holds no atom (the labelers left it unlabeled) is listed as changed, unlabeled: no test names it, so none is regenerated; the live tests that cite an atom of its file are listed as touched, and a person reviews it. A live test that cites an atom id the old map does not hold is listed as citing atoms no longer in the map, and in the needs of a person: no change can reach it, so it is never counted as untouched.
+A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only. A changed unit on which the old map holds no atom (the labelers left it unlabeled) is listed as changed, unlabeled: no test names it, so none is regenerated; the live tests that cite an atom of its file are listed as touched, and a person reviews it. A live test that cites an atom id neither map holds is listed as citing atoms no longer in the map, and in the needs of a person: no change can reach it, so it is never counted as untouched.
 
 A `unit` change keeps the radius the whole suite. The H7 study of [blast radius](concepts/blast-radius.md#advisory-section-selection) was repeated with block links to units: they missed a flipped block on 2 of 90 mutants and on 4 of 110, the same mutants as section links, with Wilson 95% upper bounds of 7.7% and 9.0%. That is above the 5% the selection needs to become a filter. `packages/estate/test/pointer/h7-ledger.test.ts` reruns the study.
 

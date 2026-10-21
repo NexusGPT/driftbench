@@ -10,7 +10,12 @@ import { parseLabelSets } from '../pointer/labels';
 import { type LabelerUsage, pointerScan } from '../pointer/scan';
 import { navigationNames } from '../scan/code';
 import { codeNames } from '../scan/code-names';
-import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
+import {
+  documentInfo,
+  normativeEstate,
+  RUNTIME_INSTRUCTIONS,
+  unloadedByDesign,
+} from '../scan/document-roles';
 import {
   DEFAULT_STANDING_CEILING,
   invariantAtoms,
@@ -100,7 +105,9 @@ async function documentRolePass(read: RawEstate, pointer: PointerScanOptions): P
   const declared = (path: string) =>
     read.files
       .find((file) => file.path === path)
-      ?.document?.reasons?.includes('declared in driftbench.estate.yaml') === true;
+      ?.document?.reasons?.some(
+        (reason) => reason === 'declared in driftbench.estate.yaml' || reason === RUNTIME_INSTRUCTIONS,
+      ) === true;
   const paths = [...new Set(read.prose.map((chunk) => chunk.file))].filter((path) => !declared(path)).sort();
   const files = paths.map((path) => ({
     path,

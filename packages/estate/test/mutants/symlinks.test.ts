@@ -13,7 +13,7 @@ import { copyEstate, type EstateMap, loadEstateMap, MutantError, mutateEstate } 
  */
 
 const FIXTURE = fileURLToPath(new URL('../../../../examples/estates/fixture/', import.meta.url));
-const R3 = 'instruction.standing.r3-read-a-file-before-you';
+const R3 = 'gate.standing.read-before-edit-it';
 const ROUTE = 'route.invoice-reconcile.an-ask-that-fits-invoice-reconcile';
 
 let map: EstateMap;

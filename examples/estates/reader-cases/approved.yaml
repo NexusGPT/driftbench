@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-20T21:53:51.726Z
+readAt: 2026-10-21T07:35:19.098Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -187,7 +187,9 @@ atoms:
         - W2
         - W7
       state: enforce
-      enforces: []
+      enforces:
+        - atom: instruction.standing.r1-never-run-git-push-force
+          by: registry
   - id: guard.settings.stop-guard-claim-window-py
     kind: guard
     title: Stop guard claim-window.py
@@ -365,6 +367,8 @@ atoms:
       enforces:
         - atom: instruction.parcel-claims.never-promise-the-user-a-refund
           by: registry
+        - atom: register.standing.r2-ask-at-most-one-question
+          by: registry
   - id: guard.registry.stop-guard-c1
     kind: guard
     title: Stop guard C1
@@ -495,7 +499,9 @@ atoms:
       check: C2
       checkKind: judge
       work: reads the last reply and counts its questions
-      enforces: []
+      enforces:
+        - atom: register.standing.r2-ask-at-most-one-question
+          by: registry
   - id: guard.registry.stop-guard-c3
     kind: guard
     title: Stop guard C3
@@ -1368,15 +1374,437 @@ atoms:
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
-  - id: invariant.memory-memory.the-standing-instructions-stay-under-40000
+  - id: instruction.standing.r1-never-run-git-push-force
+    kind: instruction
+    title: R1. Never run git push --force on any branch.
+    provenance:
+      file: CLAUDE.md
+      startLine: 8
+      endLine: 8
+      quote: "**R1.** Never run `git push --force` on any branch."
+      hash: 9ed141db91da3d308cad14590273c8389613ee25be89fb28192ca13f7e60953a
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: frayno4pmi, set: agent-rules, label: prohibition } }
+    enforcement: [ guard.settings.pretooluse-bash-guard-block-force-push ]
+    fields:
+      extraction: pointer
+      unit: frayno4pmi
+      labelSet: agent-rules
+      label: prohibition
+      labeler: jev+anthropic
+      polarity: prohibition
+      spans:
+        - git push --force
+  - id: register.standing.r2-ask-at-most-one-question
+    kind: register
+    title: R2. Ask at most one question per reply.
+    provenance:
+      file: CLAUDE.md
+      startLine: 9
+      endLine: 9
+      quote: "**R2.** Ask at most one question per reply."
+      hash: 602ea9df9e0e031a413a07aa8d992fe11d8217f682a19b231e2d981a574305a0
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: hrqlz3osgc, set: agent-rules, label: reply-rule } }
+    enforcement: [ guard.settings.stop-guard-claim-window-py, guard.registry.stop-guard-c2 ]
+    fields:
+      extraction: pointer
+      unit: hrqlz3osgc
+      labelSet: agent-rules
+      label: reply-rule
+      labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: clarify
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: clarify
+      evidence:
+        type: text_segment
+        part: reply
+  - id: register.standing.r3-report-a-number-only-when
+    kind: register
+    title: R3. Report a number only when you read it in a file or a tool result during this session.
+    provenance:
+      file: CLAUDE.md
+      startLine: 10
+      endLine: 10
+      quote: "**R3.** Report a number only when you read it in a file or a tool result during this session."
+      hash: dc15196b9a66e292aa50a40ceec954db9090443d163cb59db2f6dc638a248220
+    producedBy: model
+    role: axis
+    approved: true
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pejftfirny, set: agent-rules, label: reply-rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: pejftfirny
+      labelSet: agent-rules
+      label: reply-rule
+      labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
+  - id: route.standing.an-ask-to-file-a-claim
+    kind: route
+    title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
+    provenance:
+      file: CLAUDE.md
+      startLine: 16
+      endLine: 16
+      quote: file a claim for a damaged or missing parcel | `parcel-claims`
+      hash: b44512b95c549637e9c1b3de46e043075582f0704752e5d7fbfe8ccca0f25c40
+    producedBy: model
+    role: axis
+    approved: true
+    situation: file a claim for a damaged or missing parcel
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: uwlke5amtz, set: agent-rules, label: route-skill } }
+      - { type: skill_loaded, name: parcel-claims }
+    enforcement: []
+    fields:
+      target: parcel-claims
+      targetKind: skill
+      via: pointer
+      ask: file a claim for a damaged or missing parcel
+      extraction: pointer
+      unit: uwlke5amtz
+      labelSet: agent-rules
+      label: route-skill
+      labeler: jev+anthropic
+      labelLinks:
+        - kind: route-skill
+          atom: skill.parcel-claims.skill-parcel-claims
+  - id: route.standing.an-ask-to-know-where-a
+    kind: route
+    title: An ask to know where a shipment is loads shipment-tracker
+    provenance:
+      file: CLAUDE.md
+      startLine: 17
+      endLine: 17
+      quote: know where a shipment is | `shipment-tracker`
+      hash: 69f002163051211dbbcd4bdd02b12f7ab3a29c97580dbdf95e1c8cc7b89b3c89
+    producedBy: model
+    role: axis
+    approved: true
+    situation: know where a shipment is
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: bt4ppn3ukn, set: agent-rules, label: route-skill } }
+      - { type: skill_loaded, name: shipment-tracker }
+    enforcement: []
+    fields:
+      target: shipment-tracker
+      targetKind: skill
+      via: pointer
+      ask: know where a shipment is
+      extraction: pointer
+      unit: bt4ppn3ukn
+      labelSet: agent-rules
+      label: route-skill
+      labeler: jev+anthropic
+      labelLinks:
+        - kind: route-skill
+          atom: skill.shipment-tracker.skill-shipment-tracker
+  - id: gate.standing.read-claude-memory-memory-md-before
+    kind: gate
+    title: Read .claude/memory/MEMORY.md before at the start of every session
+    provenance:
+      file: CLAUDE.md
+      startLine: 21
+      endLine: 22
+      quote: |-
+        Read
+        `.claude/memory/MEMORY.md` at the start of every session.
+      hash: c7366c96819d312d27b5e0ac1981145fe9b5802ae4b220c64243b96711c56bb0
+    producedBy: model
+    role: axis
+    approved: true
+    situation: at the start of every session
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: gate } }
+      - { type: ordered, before: Read, after: Read }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/MEMORY.md } } }
+    enforcement: []
+    fields:
+      first: .claude/memory/MEMORY.md
+      trigger: at the start of every session
+      path: .claude/memory/MEMORY.md
+      extraction: pointer
+      unit: 2z5lfdx7uu
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 32
+          to: 61
+      labelLinks:
+        - kind: act-tool
+          value: Read
+        - kind: reply-part
+          value: reply
+      spans:
+        - .claude/processes.json
+        - .claude/memory/MEMORY.md
+  - id: reference.standing.read-claude-memory-memory-md
+    kind: reference
+    title: Read .claude/memory/MEMORY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 21
+      endLine: 22
+      quote: |-
+        Read
+        `.claude/memory/MEMORY.md` at the start of every session.
+      hash: c7366c96819d312d27b5e0ac1981145fe9b5802ae4b220c64243b96711c56bb0
+    producedBy: model
+    role: detail
+    approved: true
+    situation: |-
+      Read
+      `.claude/memory/MEMORY.md` at the start of every session.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: gate } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/MEMORY.md } } }
+    enforcement: []
+    fields:
+      path: .claude/memory/MEMORY.md
+      exists: true
+      readWhen: |-
+        Read
+        `.claude/memory/MEMORY.md` at the start of every session.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: 2z5lfdx7uu
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 32
+          to: 61
+      labelLinks:
+        - kind: act-tool
+          value: Read
+        - kind: reply-part
+          value: reply
+  - id: reference.standing.read-guards-check-registry-md
+    kind: reference
+    title: Read guards/CHECK-REGISTRY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 24
+      endLine: 24
+      quote: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      hash: 90c58deec811455d638e0a0020e2031c5649ec69842a3c719f3bc52dcbab2799
+    producedBy: model
+    role: detail
+    approved: true
+    situation: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: nim22d35d2, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/guards/CHECK-REGISTRY.md } } }
+    enforcement: []
+    fields:
+      path: .claude/guards/CHECK-REGISTRY.md
+      exists: true
+      readWhen: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: nim22d35d2
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-parcel-claims-references-claim-rules
+    kind: reference
+    title: Read parcel-claims/references/claim-rules.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 24
+      endLine: 24
+      quote: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      hash: 90c58deec811455d638e0a0020e2031c5649ec69842a3c719f3bc52dcbab2799
+    producedBy: model
+    role: detail
+    approved: true
+    situation: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: nim22d35d2, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/parcel-claims/references/claim-rules.md
+      exists: true
+      readWhen: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: nim22d35d2
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-claude-aliases-md
+    kind: reference
+    title: Read .claude/ALIASES.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 25
+      endLine: 25
+      quote: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+      hash: b7b602626bf9339fea1e38c0f2cb5f69e7a4107a473611ee9558eb0ff12dab73
+    producedBy: model
+    role: detail
+    approved: true
+    situation: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zjeq5qpkwd, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/ALIASES.md } } }
+    enforcement: []
+    fields:
+      path: .claude/ALIASES.md
+      exists: true
+      readWhen: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zjeq5qpkwd
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-companies-fjord-kitchenware-md
+    kind: reference
+    title: Read companies/fjord-kitchenware.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: model
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: companies/fjord-kitchenware.md } } }
+    enforcement: []
+    fields:
+      path: companies/fjord-kitchenware.md
+      exists: false
+      external: true
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zibad5mquq
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-meta-identity-md
+    kind: reference
+    title: Read _meta/IDENTITY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: model
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: _meta/IDENTITY.md } } }
+    enforcement: []
+    fields:
+      path: _meta/IDENTITY.md
+      exists: false
+      external: true
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zibad5mquq
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-docs-design-md
+    kind: reference
+    title: Read docs/DESIGN.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: model
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: docs/DESIGN.md } } }
+    enforcement: []
+    fields:
+      path: docs/DESIGN.md
+      exists: false
+      external: true
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zibad5mquq
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: reference.standing.read-notes-claims-md
+    kind: reference
+    title: Read ~/notes/claims.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: model
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: ~/notes/claims.md } } }
+    enforcement: []
+    fields:
+      path: ~/notes/claims.md
+      exists: false
+      external: true
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      extraction: pointer
+      unit: zibad5mquq
+      labelSet: agent-rules
+      label: reference
+      labeler: jev+anthropic
+  - id: invariant.standing.the-standing-instructions-stay-under-40000
     kind: invariant
     title: The standing instructions stay under 40000 characters
     provenance:
-      file: .claude/memory/MEMORY.md
+      file: CLAUDE.md
       startLine: 1
       endLine: 1
-      quote: "# Memory"
-      hash: 96789c16fddd94e93765ac0cd51f45f463f9c4b0921db9cedc479404129291e2
+      quote: "# Reader cases"
+      hash: 202aa733318150ecd7dcf17aa55cb0b26e53a46eefca6582b9c4fe1e59cc219b
     producedBy: code
     role: detail
     approved: true
@@ -1386,17 +1814,17 @@ atoms:
     fields:
       check: standing_size
       ceiling: 40000
-      characters: 439
+      characters: 1565
       holds: true
-  - id: invariant.memory-memory.no-file-of-the-estate-is
+  - id: invariant.standing.no-file-of-the-estate-is
     kind: invariant
     title: No file of the estate is an orphan
     provenance:
-      file: .claude/memory/MEMORY.md
+      file: CLAUDE.md
       startLine: 1
       endLine: 1
-      quote: "# Memory"
-      hash: 96789c16fddd94e93765ac0cd51f45f463f9c4b0921db9cedc479404129291e2
+      quote: "# Reader cases"
+      hash: 202aa733318150ecd7dcf17aa55cb0b26e53a46eefca6582b9c4fe1e59cc219b
     producedBy: code
     role: detail
     approved: true
@@ -1406,6 +1834,7 @@ atoms:
     fields:
       check: no_orphans
       orphans:
+        - .claude/processes.json
         - .claude/skills/parcel-claims/references/notes.md
       holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
@@ -1449,9 +1878,9 @@ atoms:
       holds: true
 documents:
   - path: CLAUDE.md
-    role: fixture
+    role: normative
     reasons:
-      - "recorded label: document-fixture"
+      - loaded by the runtime as instructions
   - path: .claude/ALIASES.md
     role: normative
     reasons:
@@ -1479,11 +1908,11 @@ documents:
   - path: .claude/memory/MEMORY.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/memory/supplier-languages.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/processes.json
     role: normative
     reasons:
@@ -1495,7 +1924,7 @@ documents:
   - path: .claude/skills/parcel-claims/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/parcel-claims/references/claim-rules.md
     role: normative
     reasons:
@@ -1515,7 +1944,7 @@ documents:
   - path: .claude/skills/shipment-tracker/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/shipment-tracker/references/notes.md
     role: normative
     reasons:
@@ -1527,13 +1956,18 @@ documents:
 edges:
   - { from: guard.registry.stop-guard-c1, to: instruction.parcel-claims.never-promise-the-user-a-refund, kind: enforces }
   - { from: guard.registry.stop-guard-c1, to: event.Stop, kind: event }
+  - { from: guard.registry.stop-guard-c2, to: register.standing.r2-ask-at-most-one-question, kind: enforces }
   - { from: guard.registry.stop-guard-c2, to: event.Stop, kind: event }
   - { from: guard.registry.stop-guard-c3, to: event.Stop, kind: event }
+  - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: instruction.standing.r1-never-run-git-push-force, kind: enforces }
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: event.PreToolUse, kind: event }
   - { from: guard.settings.stop-guard-claim-window-py, to: instruction.parcel-claims.never-promise-the-user-a-refund, kind: enforces }
+  - { from: guard.settings.stop-guard-claim-window-py, to: register.standing.r2-ask-at-most-one-question, kind: enforces }
   - { from: guard.settings.stop-guard-claim-window-py, to: event.Stop, kind: event }
   - { from: route.parcel-claims.an-ask-that-fits-parcel-claims, to: skill.parcel-claims.skill-parcel-claims, kind: route }
   - { from: route.shipment-tracker.an-ask-that-fits-shipment-tracker, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
+  - { from: route.standing.an-ask-to-file-a-claim, to: skill.parcel-claims.skill-parcel-claims, kind: route }
+  - { from: route.standing.an-ask-to-know-where-a, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.settings.allow-read, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-claim-rules-md, kind: reference }
@@ -1554,5 +1988,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-20T21:53:51.726Z
-hash: 442e2d91ed7c1c163c2d1d9041f266684b8c1ce6db975c1a1c20bf2476563888
+  at: 2026-10-21T07:35:19.098Z
+hash: 66e4046b92505554ddb4a1be6eb8e3880a802c1de4c60246cc41f7ea3aa183bd

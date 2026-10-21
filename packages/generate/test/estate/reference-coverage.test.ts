@@ -12,7 +12,11 @@ it('gives every reference of the fixture estate a complete spec, but those to a 
   // navigation only and the plan gives it no row.
   const navigation = navigationFiles(inputs.map.documents);
   const navigational = references.filter((atom) => navigationReference(atom, navigation));
-  expect(navigational.map((atom) => atom.id)).toEqual(['reference.weekly-report.read-templates-report-md']);
+  expect(navigational.map((atom) => atom.id)).toEqual([
+    'reference.invoice-reconcile.read-references-currency-table-md',
+    'reference.shipment-tracker.read-data-shipments-txt',
+    'reference.weekly-report.read-templates-report-md',
+  ]);
   for (const atom of references.filter((reference) => !navigational.includes(reference))) {
     const done = result.specs.filter((record) => record.complete && record.atoms[0] === atom.id);
     expect(done.length, atom.id).toBeGreaterThan(0);

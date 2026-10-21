@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-20T21:53:37.869Z
+readAt: 2026-10-21T07:35:01.355Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -3162,19 +3162,19 @@ documents:
   - path: CLAUDE.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/agents/inbox-triager.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/agents/ledger-auditor.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/agents/route-planner.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/guards/CHECK-REGISTRY.md
     role: normative
     reasons:
@@ -3202,11 +3202,11 @@ documents:
   - path: .claude/memory/MEMORY.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/memory/supplier-languages.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/settings.json
     role: normative
     reasons:
@@ -3214,7 +3214,7 @@ documents:
   - path: .claude/skills/invoice-reconcile/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/invoice-reconcile/references/currency-table.md
     role: fixture
     reasons:
@@ -3234,7 +3234,7 @@ documents:
   - path: .claude/skills/shipment-tracker/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/shipment-tracker/data/shipments.txt
     role: history
     reasons:
@@ -3250,11 +3250,11 @@ documents:
   - path: .claude/skills/supplier-email/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/weekly-report/SKILL.md
     role: normative
     reasons:
-      - "recorded label: document-normative"
+      - loaded by the runtime as instructions
   - path: .claude/skills/weekly-report/templates/report.md
     role: template
     reasons:
@@ -3322,5 +3322,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-20T21:53:37.869Z
+  at: 2026-10-21T07:35:01.355Z
 hash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548

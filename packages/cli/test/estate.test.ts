@@ -71,22 +71,25 @@ describe('driftbench estate scan', () => {
     // The recorded labeler gave answers the checks refused: they stay out of the map, and the scan exits 1.
     expect(result.code).toBe(1);
     expect(result.out).toContain(
-      'Wrote map.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.',
+      'Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.',
     );
-    expect(result.out).toMatch(/instruction\s+45 {2}\(45 by the model\)/);
-    expect(result.out).toContain('refused: CLAUDE.md#1');
+    expect(result.out).toMatch(/instruction\s+31 {2}\(31 by the model\)/);
+    expect(result.out).toContain('refused: .claude/skills/supplier-email/SKILL.md#1');
+    // A run whose quotes are not in their unit is left out of the vote, and the scan says so.
+    expect(result.out).toContain('out of step: CLAUDE.md#1 run 2 of anthropic');
     expect(result.out).toContain(
-      // The fixture's weekly-report template is a template document, so no chunk of it is sent to the model.
-      'Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
+      // The recorded document roles make the currency table a fixture, the old tolerances an archive, the
+      // carrier table a history and the weekly-report template a template: none goes to the model.
+      'Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
     expect(result.out).toContain(
-      'Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.',
+      'Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.',
     );
     expect(result.out).toContain(
       'Unreachable from the standing instructions: .claude/agents/inbox-triager.md.',
     );
-    expect(result.out).toContain('Unenforced: 58 of 64 rules have no guard.');
+    expect(result.out).toContain('Unenforced: 44 of 51 rules have no guard.');
     const loaded = await loadEstateMap(join(root, 'map.yaml'));
     expect(loaded.ok && loaded.map.root).toBe('.');
   });
@@ -100,7 +103,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.code).toBe(0);
     expect(result.out).toContain('No model call: structured atoms only (--no-model).');
-    expect(result.out).toContain('Unanswered prose chunks (no model call): 14, 6835 characters.');
+    expect(result.out).toContain('Unanswered prose chunks (no model call): 15, 6961 characters.');
     expect(result.out).toContain(
       '    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters\n',
     );
@@ -136,7 +139,7 @@ describe('driftbench estate scan', () => {
     const root = await fixtureCopy();
     const { io, output } = capture(root);
     const port = new FakeModelPort(
-      Array.from({ length: 14 }, () => (request) => {
+      Array.from({ length: 15 }, () => (request) => {
         const chunk = /^CHUNK: (.+)$/m.exec(request.user)?.[1] ?? '';
         return JSON.stringify({ chunk, atoms: [] });
       }),
@@ -147,8 +150,8 @@ describe('driftbench estate scan', () => {
       now: () => new Date('2026-10-11T00:00:00.000Z'),
     });
     expect(code).toBe(0);
-    expect(port.requests).toHaveLength(14);
-    expect(output.out).toContain('Model fake fake-model: 14 prose chunks, 14 calls.');
+    expect(port.requests).toHaveLength(15);
+    expect(output.out).toContain('Model fake fake-model: 15 prose chunks, 15 calls.');
     const loaded = await loadEstateMap(join(root, 'map.yaml'));
     expect(loaded.ok && loaded.map.producedBy).toEqual({
       family: 'fake',
@@ -262,7 +265,6 @@ describe('driftbench estate lint, approve and map', () => {
     expect(lint.code).toBe(1);
     expect(lint.out.match(/^ {2}[A-Z_]+/gm)?.map((code) => code.trim())).toEqual([
       'ORPHAN',
-      'ORPHAN',
       'UNREACHABLE',
       'MISSING_REFERENCE',
       'UNANCHORED_GUARD',
@@ -275,14 +277,14 @@ describe('driftbench estate lint, approve and map', () => {
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);
-    expect(pending.out).toContain('map.yaml: 80 of 127 atoms wait for approval.');
+    expect(pending.out).toContain('map.yaml: 69 of 116 atoms wait for approval.');
     const kind = await run(
       ['estate', 'approve', 'map.yaml', '--kind', 'register', '--to', 'registers.yaml'],
       root,
     );
     expect(kind.out).toBe('Approved 14 atoms in registers.yaml; 0 were already approved.\n');
     const all = await run(['estate', 'approve', 'registers.yaml', '--all', '--to', 'approved.yaml'], root);
-    expect(all.out).toBe('Approved 66 atoms in approved.yaml; 61 were already approved.\n');
+    expect(all.out).toBe('Approved 55 atoms in approved.yaml; 61 were already approved.\n');
     expect((await run(['estate', 'approve', 'map.yaml', '--kind', 'rule'], root)).code).toBe(1);
     expect((await run(['estate', 'approve', 'map.yaml', '--all', '--kind', 'gate'], root)).code).toBe(2);
     expect(
@@ -296,7 +298,7 @@ describe('driftbench estate lint, approve and map', () => {
     expect(space.ok).toBe(true);
     expect(
       space.ok && space.map.dimensions.find((dimension) => dimension.id === 'atoms.instruction')?.values,
-    ).toHaveLength(45);
+    ).toHaveLength(31);
     const unapproved = await run(['estate', 'map', 'map.yaml', '--to', 'code-only.yaml'], root);
     expect(unapproved.out).toContain('5 target dimensions (route 7');
     expect((await run(['estate', 'map', 'map.yaml'], root)).code).toBe(2);

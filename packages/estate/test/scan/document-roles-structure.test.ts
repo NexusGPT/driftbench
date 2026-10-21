@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { classifyDocument } from '../../src/scan/document-roles';
+import { classifyDocument, RUNTIME_INSTRUCTIONS } from '../../src/scan/document-roles';
 
 const SOURCE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'scan', 'document-roles.ts');
 
@@ -17,6 +17,24 @@ describe('the role of a document, with no word read', () => {
     ] as const;
     for (const [path, text] of paraphrases)
       expect(classifyDocument({ path, text }).role, path).toBe('normative');
+  });
+
+  it('makes a file the runtime loads as instructions normative by its place, even when its shape is a template', () => {
+    // Repeated value slots would make any other file a template; the standing file, memory, a skill body and a
+    // helper body are what the runtime gives the agent, so their place decides and no label pass asks about them.
+    const slots = '# Form\n\nClient: {{client}}\nOwner: <owner>\n';
+    for (const kind of ['standing', 'memory', 'skill', 'subagent'] as const)
+      expect(classifyDocument({ path: `x/${kind}.md`, text: slots, kind }), kind).toEqual({
+        path: `x/${kind}.md`,
+        role: 'normative',
+        reasons: [RUNTIME_INSTRUCTIONS],
+      });
+    // A file beside a skill is read only when told to: its role comes from the label or the structure.
+    expect(classifyDocument({ path: 'x/notes.md', text: slots, kind: 'skill_file' }).role).toBe('template');
+    // A declaration still comes first.
+    expect(
+      classifyDocument({ path: 'CLAUDE.md', text: slots, kind: 'standing' }, undefined, 'example').role,
+    ).toBe('example');
   });
 
   it('gives each of them the role the estate declares, whatever its words', () => {

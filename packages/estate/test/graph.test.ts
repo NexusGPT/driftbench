@@ -147,7 +147,10 @@ describe('the fixture graph', () => {
       ),
     ).toEqual({
       'block-force-push.sh': ['registry instruction.standing.r6-never-run-git-push-force'],
-      'read-before-edit.py': ['registry instruction.standing.r3-read-a-file-before-you'],
+      'read-before-edit.py': [
+        'registry gate.standing.read-before-edit-it',
+        'registry gate.standing.read-claude-skills-invoice-reconcile-references',
+      ],
       'ledger-guard.py': ['registry instruction.standing.r4-never-delete-a-file-under'],
       'stop-word.sh': ['registry instruction.standing.r10-when-the-user-says-stop'],
       'reply-length.py': ['quote register.standing.keep-every-reply-under-1-200'],
@@ -162,10 +165,10 @@ describe('the fixture graph', () => {
     expect(kinds).toEqual({
       allows: 15,
       dispatch: 1,
-      enforces: 6,
+      enforces: 7,
       event: 6,
       next: 4,
-      reference: 5,
+      reference: 7,
       route: 13,
       script: 2,
     });
@@ -197,18 +200,15 @@ describe('the fixture graph', () => {
   it('finds the orphan, the unreachable helper and the unenforced rules', async () => {
     const { map, raw } = await scanFixture();
     const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
-    expect(analysis.orphans).toEqual([
-      '.claude/skills/invoice-reconcile/references/currency-table.md',
-      '.claude/skills/invoice-reconcile/references/old-tolerances.md',
-    ]);
+    expect(analysis.orphans).toEqual(['.claude/skills/invoice-reconcile/references/old-tolerances.md']);
     expect(analysis.unreachableFiles).toEqual(['.claude/agents/inbox-triager.md']);
     expect(analysis.missingReferences).toEqual([
       'reference.weekly-report.read-references-kpi-definitions-md',
     ]);
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(64);
-    expect(analysis.unenforced).toHaveLength(58);
+    expect(rules).toHaveLength(51);
+    expect(analysis.unenforced).toHaveLength(44);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });

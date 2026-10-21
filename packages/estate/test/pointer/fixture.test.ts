@@ -6,7 +6,7 @@ import { FIXTURE, NOW } from '../support';
 
 /**
  * The Northwind fixture, read through its committed cassette. `cassette.jsonl` holds the answers of the
- * default stack, a system 1 labeler and a system 2 labeler (three runs), one request per window each. No network and no key: a miss
+ * default stack, a system 1 labeler and a system 2 labeler (five runs), one request per window each, and the document-roles question of every file. No network and no key: a miss
  * here means the fixture, the prompt, the set, the cutter or a labeler changed and the cassette must be
  * re-recorded in one reviewed commit.
  */
@@ -57,19 +57,22 @@ describe('the fixture through its committed cassettes', () => {
     // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
     // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
     // runs still decides the unit.
-    expect(result.pointer?.refusals.length).toBe(8);
+    expect(result.pointer?.refusals.length).toBe(3);
     expect(
       result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
         .length,
     ).toBeGreaterThan(0);
-    // A unit is decided, or left unlabeled because no label had two runs out of three.
+    // A unit is decided, or left unlabeled because no label had three runs out of five.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.voted).toBeGreaterThan(0);
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
       result.pointer?.plan.units,
     );
-    // Every answer of the cassette is read: one request per window, labeler and run.
-    expect(cassette.entries.size).toBe(result.pointer?.windows);
+    // Every answer of the cassette is read: one request per window, labeler and run, for the rules and for the
+    // document roles.
+    expect(cassette.entries.size).toBe(
+      (result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0),
+    );
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
