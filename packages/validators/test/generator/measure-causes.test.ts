@@ -74,7 +74,10 @@ describe('generator ladder cause metadata', () => {
     const stable = items.find((item) => item.id === 'stable.X2.fact-flip');
     const pair = items.find((item) => item.family === 'interaction-pair');
     if (!stable || !pair) throw new Error('The bank must contain stable and interaction items');
-    const partial: Verdict = { pass: false, detail: 'killed under generator seeds 2: yes, 103: no, 204: yes' };
+    const partial: Verdict = {
+      pass: false,
+      detail: 'killed under generator seeds 2: yes, 103: no, 204: yes',
+    };
     const alone: Verdict = { pass: false, detail: 'each is killed alone' };
     expect(causeOf(stable, partial)).toBe(stable.id);
     expect(causeOf(pair, alone)).toBe(pair.id);
@@ -90,7 +93,14 @@ describe('generator ladder cause metadata', () => {
     if (!item) throw new Error('The bank must contain an item');
     const report = await runSeeds(
       generatorLadder({
-        items: [{ ...item, cause: undefined, defaultCause: undefined, check: async () => ({ pass: false, detail: '' }) }],
+        items: [
+          {
+            ...item,
+            cause: undefined,
+            defaultCause: undefined,
+            check: async () => ({ pass: false, detail: '' }),
+          },
+        ],
       }),
       [{ seed: 1, hidden: false }],
       root,
