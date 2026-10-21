@@ -40,6 +40,23 @@ function mock(
 }
 
 describe('one default configuration', () => {
+  it('preserves the established task router for metrics with independent conditions', async () => {
+    const { judge, calls } = mock([
+      { intent: 'other' },
+      { route: 'criterion' },
+      { checks: [{ id: 'x', reasoning: 'missing', evidence: null, met: false }] },
+    ]);
+    const result = await judge.judge({
+      criterion: { name: 'x', rubric: 'The reply complies with the supplied policy.' },
+      transcript: [{ role: 'user', text: 'Can this item be refunded?' }],
+    });
+    expect(result.answer.outcome).toBe('fail');
+    expect(calls).toHaveLength(3);
+    expect(calls[0]?.user).not.toContain('Can this item be refunded?');
+    expect(calls[1]?.user).toContain('Can this item be refunded?');
+    expect(calls[1]?.system).toBe(v7Identity.router);
+  });
+
   it('evaluates the full pair criterion before an arithmetic answer can decide', async () => {
     const rubric = 'An invalid equality disqualifies a reply even when its final answer is correct.';
     const ledger = (reverse: boolean) => ({

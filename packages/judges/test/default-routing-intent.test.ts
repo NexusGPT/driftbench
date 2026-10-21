@@ -54,7 +54,7 @@ describe('routing follows the declared metric intent', () => {
     const result = await judge.judge(request as DefaultJudgeRequest);
     expect(result.answer.outcome).toBe('fail');
     expect(result.defaultJudge?.route).toBe('relevance');
-    expect(calls).toHaveLength(3);
+    expect(calls).toHaveLength(2);
     expect(result.responseRelevance?.checks.some((check) => check.met === false)).toBe(true);
   });
 

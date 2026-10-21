@@ -36,12 +36,13 @@ This string format is an explicit serialization contract: each recognized marker
 
 ## One policy, several task procedures
 
-The router classifies the criterion's declared intent and the request shape, including whether replies are paired and supporting records exist. It reads neither user question text nor candidate answers when making that choice. A request-fulfillment intent selects the relevance obligation ledger, even when detailed pass and fail definitions explain what fulfillment means:
+A semantic gate classifies the criterion's declared intent and request shape without reading question or answer text. When the whole metric is the request-fulfillment contract, it selects the relevance obligation ledger. A metric with independent requirements retains the established task router and full-criterion checks. That task router reads user questions but never candidate answers:
 
 | Task | Procedure |
 | --- | --- |
 | Ordinary criterion, policy or record consistency | Evidence ledger with criterion prompt 2 and decoder 3 |
-| Complete response relevance | Grounded checks for each requested part plus the caller's full criterion; either failure fails |
+| Pure request fulfillment | Grounded checks for every requested part, selected when this is the whole metric |
+| Relevance with independent criterion conditions | Grounded checks plus the caller's full criterion; either failure fails |
 | Self-contained objective answer | Literal or grounded answer extraction, three blind solutions, answer matching, full-criterion comparison, and commitment checking for unmarked answers |
 | Pair comparison | Both candidate orders, per-requirement scores, deterministic aggregation and canonical escalation |
 | Writing pair | Explicit request constraints plus holistic writing quality; no preference for length |
@@ -81,7 +82,7 @@ The full procedure policy has a version, and a version changes the recording ide
 | `default-on-v3` | Criterion prompt 2 carries whole-reply context into short clauses, including exact unit conversions. Decoder 3 drops criterion-only spans under nontranscript labels and reports `criterionQuotesDropped`. Explicit decoder 2 and the evidence requirements stay |
 | `default-on-v4` | The verification policy copies `Final answer is:` and `Final answer is=` literally and settles explicit option-letter matches in code. The caller's full criterion stays authoritative, also when the blind solutions disagree |
 | `default-on-v5` | Source-local tool-name grounding under decoder 3. An instruction inside data is neither pass evidence nor fail evidence. Prompt 1 and explicit decoder 2 stay |
-| `default-on-v8` | Semantic metric-intent routing, independent of question and answer text. Request fulfillment selects the relevance obligation ledger. Conversation splitting and writing length preference remain off after their on/off measurements. |
+| `default-on-v8` | A semantic metric-intent gate, independent of question and answer text, selects the relevance obligation ledger for a pure fulfillment metric. Other metrics retain the established task router and criterion checks. Conversation splitting and writing length preference remain off after their on/off measurements. |
 | `default-on-v7` | Every default-policy call without a reasoning level gets 12,288 tokens of thinking room on top of its budget. A model that thinks by default no longer ends a stage with no text. An explicit reasoning level keeps its allowance, and an explicit client cap wins. A blind solve that runs out of room, reports its output limit or names no final answer is dropped and recorded (`dropped` in the audit). It no longer makes the verdict inconclusive. The router reads the route from the last object that carries a route key |
 
 `outputRoom(budget, reasoning)` in `@agent-nexus/driftbench-judges` returns the output allowance of one call: the answer budget plus the thinking room.
