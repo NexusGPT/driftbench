@@ -1004,7 +1004,7 @@ Each spec inlines the workspace seed's files, since `world.workspace.from` resol
 
 ### The ask templates
 
-Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `{span}` is filled from the atoms of the row; text in `[` `]` is optional. An `act` is one of the `act` templates and a `situation` one of the `situation` templates. A `{span}` is a run of whole words that stands in the text of an atom of the row (its title, its situation or a field, or an atom a field names), compared with markup, case and trailing punctuation set aside, and with no other change: no stem, no synonym. A bare `{span}` act has at least three words, the floor of this section. The validator holds the same list in `packages/validators/src/ladders/estate/ask-templates.json`, and a test fails when the two differ.
+Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `{span}` is filled from the atoms of the row; text in `[` `]` is optional. An `act` is one of the `act` templates and a `situation` one of the `situation` templates. A `{span}` is a run of whole words that stands in the text of an atom of the row (its title, its situation or a field, or an atom a field names), compared with markup, case and trailing punctuation set aside, and with no other change: no stem, no synonym. A bare `{span}` act has at least three words, the floor of this section. A `{gerund}` is a `{span}` of at least two words whose first word ends in `ing`: an act that opens with a gerund is asked as written, never rewritten into a base verb ("Please go ahead with approving a refill."). The validator holds the same list in `packages/validators/src/ladders/estate/ask-templates.json`, and a test fails when the two differ.
 
 | Kind | Template |
 |---|---|
@@ -1027,6 +1027,7 @@ Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `
 | act | `use the {span} tool on a file under {span}` |
 | act | `handle this for me: {span}` |
 | act | `help me with {span}` |
+| act | `go ahead with {gerund}` |
 | situation | `{span}` |
 | situation | `This involves {span}` |
 

@@ -76,6 +76,10 @@
     "template": "help me with {span}"
   },
   {
+    "kind": "act",
+    "template": "go ahead with {gerund}"
+  },
+  {
     "kind": "situation",
     "template": "{span}"
   },

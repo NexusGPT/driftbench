@@ -56,8 +56,13 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     for (const atom of present) expect(waiting?.atoms.includes(atom.id) ?? false, atom.id).toBe(false);
   });
 
-  it('judges a missing reference by its marker in gen.coverage, and still demands a spec for every other one', async () => {
+  it('judges a missing reference by the attempted Read with some_call, or by its marker when no some_call is registered', async () => {
     const suite = await fixture.fixtureSuite();
+    const map = await loadEstateMap(suite.map);
+    if (!map.ok) throw new Error('the fixture map does not load');
+    const absent = map.map.atoms.filter((a) => a.kind === 'reference' && a.fields?.exists === false);
+    expect(absent.length).toBeGreaterThan(0);
+    const absentIds = new Set(absent.map((a) => a.id));
     const one = async (planted: typeof suite) => {
       const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(planted);
       try {
@@ -67,10 +72,57 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
       }
     };
     const real = await one(suite);
-    expect(real?.detail).not.toContain('not marked');
-    // Planted: the marker leaves the report, so the missing reference is neither marked nor covered.
+    expect(suite.checks).toContain('some_call');
+    expect(real?.detail).not.toContain('missing file');
+
+    // Branch 1, some_call registered. Planted: the some_call Read of the missing file leaves every spec of it.
+    const noAttempt = {
+      ...suite,
+      specs: suite.specs.map((spec) => {
+        if (!spec.atoms.some((id) => absentIds.has(id))) return spec;
+        const custom = (spec.spec.rules?.custom ?? {}) as Record<string, unknown>;
+        const someCall = custom.some_call as SomeCalls | undefined;
+        if (!someCall) return spec;
+        return {
+          ...spec,
+          spec: {
+            ...spec.spec,
+            rules: {
+              ...spec.spec.rules,
+              custom: {
+                ...custom,
+                some_call: { ...someCall, calls: (someCall.calls ?? []).filter((call) => call.label !== 'Read') },
+              },
+            },
+          },
+        } as typeof spec;
+      }),
+    };
+    expect(await one(noAttempt)).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('checks the attempted Read with some_call'),
+    });
+    // Planted: the missing reference waits on the marker although some_call is registered.
+    const markedAnyway = {
+      ...suite,
+      report: {
+        ...suite.report,
+        gaps: [
+          ...(suite.report.gaps ?? []).filter((gap) => gap.marker !== 'needs-existing-file'),
+          { marker: 'needs-existing-file', specs: absent.length, atoms: [...absentIds] },
+        ],
+      },
+    };
+    expect(await one(markedAnyway)).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('checks the attempted Read with some_call'),
+    });
+
+    // Branch 2, no some_call registered. Planted: the report holds no marker, so the missing reference is unmarked.
+    const noSomeCall = suite.checks.filter((check) => check !== 'some_call');
     const unmarked = {
       ...suite,
+      checks: noSomeCall,
       report: {
         ...suite.report,
         gaps: (suite.report.gaps ?? []).filter((gap) => gap.marker !== 'needs-existing-file'),
@@ -80,6 +132,9 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
       pass: false,
       detail: expect.stringContaining('not marked needs-existing-file'),
     });
+    // With the marker on every missing reference, the marker demand holds.
+    expect((await one({ ...markedAnyway, checks: noSomeCall }))?.detail).not.toContain('missing file');
+
     // Planted: every complete spec of the references that exist is dropped; the item is red for them.
     const dropped = {
       ...suite,

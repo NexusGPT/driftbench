@@ -37,7 +37,26 @@ export type FixtureSuite = {
    */
   natives: SuiteSpec[];
   report: { gaps?: Array<{ marker: string; specs: number; atoms: string[] }> };
+  /**
+   * The custom checks the runner of this suite registers. The fixture suite is generated for the replay runner,
+   * which registers `some_call` among others (docs/estate.md section 5, the static and runner checks): the
+   * validator states it here, never by reading the report the product writes.
+   */
+  checks: readonly string[];
 };
+
+/** docs/estate.md section 5: the custom checks the replay and live runners register next to `ordered`. */
+export const RUNNER_CHECKS: readonly string[] = [
+  'absence',
+  'grounded_values',
+  'hazard_recovery',
+  'max_words',
+  'no_delete_under',
+  'ordered',
+  'permission',
+  'some_call',
+  'stage_seen',
+];
 
 let built: Promise<FixtureSuite> | undefined;
 
@@ -147,7 +166,7 @@ async function build(): Promise<FixtureSuite> {
   const report = JSON.parse(
     await readFile(join(out, 'estate-generate-report.json'), 'utf8'),
   ) as FixtureSuite['report'];
-  return { work, map: join(work, 'approved.yaml'), specs, natives: nativeSpecs, report };
+  return { work, map: join(work, 'approved.yaml'), specs, natives: nativeSpecs, report, checks: RUNNER_CHECKS };
 }
 
 async function yamlFiles(folder: string): Promise<string[]> {
