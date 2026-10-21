@@ -1,0 +1,58 @@
+{
+  "pricingUrl": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "checked": "2026-10-21",
+  "inputUsdPerMillion": 2,
+  "outputUsdPerMillion": 10,
+  "runs": [
+    {
+      "run": "model-dev",
+      "calls": 81,
+      "inputTokens": 79118,
+      "outputTokens": 6820,
+      "cacheTokens": 0,
+      "usd": 0.226436
+    },
+    {
+      "run": "model-probe",
+      "calls": 1,
+      "inputTokens": 909,
+      "outputTokens": 184,
+      "cacheTokens": 0,
+      "usd": 0.003658
+    },
+    {
+      "run": "model-dev-confirm",
+      "calls": 1,
+      "inputTokens": 909,
+      "outputTokens": 230,
+      "cacheTokens": 0,
+      "usd": 0.004118
+    },
+    {
+      "run": "model-heldout-2",
+      "calls": 70,
+      "inputTokens": 73933,
+      "outputTokens": 8809,
+      "cacheTokens": 0,
+      "usd": 0.235956
+    }
+  ],
+  "totalUsdBeforeContinuation": 0.47016800000000003,
+  "hashes": {
+    "packages/generate/src/feed/model-reader.ts": "086709a600e42aebf1e3299cd3f6cde86ce7f9eb744606c5dc31dcdbc84d26a0",
+    "packages/generate/src/feed/proposer.ts": "94cd12391797d28a5b21a5ee44f969a57a23bcb95292edf5a235d2190da860bf",
+    "packages/generate/src/feed/conditions.ts": "55d5ffe58634b2af9d50d33e5ea8cc12fdc225cf5f674f56a08062754c441f24",
+    "settings": "22781c666461bc20eb82cb1ffe5e8aeeab48db864e63007c1473574d5087f653"
+  },
+  "settings": {
+    "model": "claude-sonnet-5-5",
+    "maxRetries": 0,
+    "options": {
+      "newVariables": false
+    },
+    "proposer": {
+      "scope": "existing",
+      "listing": "titles"
+    }
+  }
+}
