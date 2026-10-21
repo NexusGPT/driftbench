@@ -16,7 +16,7 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 
 **What you need.**
 
-- Node 22 or newer, and driftbench: `npm install @agent-nexus/driftbench` in your project. In a clone of this repository, run `pnpm install` and put `pnpm` in front of every `driftbench` below.
+- Node 22 or newer, and driftbench: `npm install --global @agent-nexus/driftbench`, which gives you the command `driftbench`. In a clone of this repository, run `pnpm install` and put `pnpm` in front of every `driftbench` below.
 - Your agent as one folder that holds every file defining it. driftbench calls that folder the **estate**. It must follow the layout of Claude Code, Anthropic's coding agent, which is the only layout the `estate` commands read today. Anything else (a function, an HTTP endpoint, a script) uses the [quickstart](quickstart.md) instead.
 
 | File | What goes in it |
@@ -70,9 +70,9 @@ $ cd walk
 
 **Relevant commands.**
 
-- `estate build`: reads your agent's files, lists what they tell the agent to do, plans the tests and writes them, and asks you twice before it goes on · `northwind` is your agent's folder; `--out build` is the folder where every file goes; `--pointer` gives each sentence of your prompt an id that survives edits, which step 4 needs; `--cassette northwind/cassette.jsonl` replays recorded answers of the model that labels the sentences, so no model is called in this example; `--yes` answers yes to both questions · it writes the map `build/map.yaml`, the approved map `build/approved.yaml`, the plan `build/plan.yaml` and the tests in `build/generated`.
+- `estate build`: reads your agent's files, lists what they tell the agent to do, makes a **plan** (the list of situations to test) and writes the tests, and asks you twice before it goes on · `northwind` is your agent's folder; `--out build` is the folder where every file goes; `--pointer` gives each sentence of your prompt an id that survives edits, which step 4 needs, and keeps the ids in `build/ledger.json` (your own files, `CLAUDE.md` included, are never changed); `--cassette northwind/cassette.jsonl` replays recorded answers of the model that labels the sentences, so no model is called in this example; `--yes` answers yes to both questions · it writes the map `build/map.yaml`, the approved map `build/approved.yaml`, the plan `build/plan.yaml` and the tests in `build/generated`.
 
-**On your own agent** a model has to read your prose, so you need an Anthropic API key. Create one in your Anthropic account (console.anthropic.com, under API keys). Then set it, and name the model that reads your prose, and swap the `--cassette` option:
+**On your own agent** a model has to read your prose, so you need an Anthropic API key. This model is called a **labeler**: it reads each sentence and says whether it is a rule. Create one in your Anthropic account (console.anthropic.com, under API keys). Then set it, and name the model that reads your prose, and swap the `--cassette` option:
 
 ```bash
 export ANTHROPIC_API_KEY=<your key>
@@ -80,7 +80,11 @@ export ANTHROPIC_LABELER_MODEL=claude-haiku-5-5
 driftbench estate build my-agent --out build --pointer --labeler system2:anthropic --cassette my-agent.cassette.jsonl --record
 ```
 
-`--labeler system2:anthropic` picks the model that reads the prose, `--cassette my-agent.cassette.jsonl` is where its answers are kept, and `--record` writes them there, so the next run is free.
+`--labeler system2:anthropic` picks the labeler: `system2` is the careful kind, a large model that reads each sentence (a `system1` labeler is a quick, cheap one that answers yes or no), and `anthropic` is who runs it. `--cassette my-agent.cassette.jsonl` is where its answers are kept, and `--record` writes them there, so the next run is free.
+
+**Why you do this.** The example replays recorded answers, so it needs no key. Your own prose has no recording yet, so a model must read it once, and the cassette keeps what it said.
+
+**If it goes wrong.** A message that names `ANTHROPIC_API_KEY` as missing: export the key in the same terminal, then run again. Any other error from the model: the scan stops and keeps what it has, and running again continues without repeating the answers already recorded.
 
   What `estate build` runs for you, in this order:
 
@@ -206,6 +210,8 @@ $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" bu
     producedBy: model
 ```
 
+`producedBy: model` says that a model, not code, found this atom in prose, so you approved it in step 1. An atom that code read from a heading, a list or a settings file says `producedBy: code`, and needs no approval. `quote` and `hash` let driftbench check later that the sentence in your file is still the one the atom quotes.
+
 The first three of the tests that name it:
 
 ```console
@@ -251,7 +257,8 @@ metadata:
 
 **What you must provide.** A command that runs your agent **headless**, which means once, from the command line, with no window: it takes the question as input, does its work, and exits. You have three choices:
 
-- Your real agent: the command `claude` (Claude Code, installed, and logged in so that `claude` works in your terminal). It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
+- A **stand-in**: a script that plays recorded answers in place of the agent. It calls no model and costs nothing. The example folder has one, and this walkthrough uses it.
+- Your real agent: the command `claude`, which is Claude Code. Install it with `npm install --global @anthropic-ai/claude-code`, run `claude` once in your terminal and log in as it asks ([Claude Code setup](https://docs.claude.com/en/docs/claude-code/overview)). If `claude --version` prints a version, it works. It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
 
   ```bash
   driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --judge-budget 1 --max-budget-usd 1 --store runs.db
@@ -267,8 +274,15 @@ metadata:
   ```
 
   The real agent passes where the stand-in failed. The run cost 0.0048 US dollars, of which 0.0007 was the judge. The `note` line is only a reminder that `--map` was left out. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state, and the example needs it only because its stand-in plays those.
-- A stand-in: a script that plays recorded answers. It calls no model and costs nothing. The example folder has one, and this walkthrough uses it.
 - Not a Claude Code agent: use the [quickstart](quickstart.md), which connects a command, a function or an HTTP endpoint.
+
+**Find a test file for your agent.** `estate run` takes the path of one test file. To list some from your own build, type this; it prints one path per line:
+
+```bash
+find build/generated/specs/live -name '*.yaml' | sort | head -5
+```
+
+The folder `obligation` holds one test per rule of your files, named after the rule. Pick one and give its path to `estate run`.
 
 **Relevant commands.**
 
@@ -289,6 +303,8 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 
 **If it goes wrong.**
 
+- `claude: command not found`: Claude Code is not installed, or not on your path. Run the install line above, open a new terminal, and check `claude --version`.
+- `claude` asks you to log in, or answers with an authentication error: run `claude` by hand once and finish the login, then run the test again.
 - `claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.` (exit 2): you asked for a real agent. Add `--allow-billed` once you accept the cost, or use a stand-in.
 - `a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>` (exit 2): add `--judge-budget` with a number of dollars, such as `--judge-budget 1`.
 - Every test says `?` or `inconclusive`: no judge was set, so the checks that need one have no verdict. Add `--judge claude:haiku` and `--judge-budget 1`.
@@ -318,7 +334,7 @@ $ driftbench radius ledger build/map.yaml --ledger build/ledger.json --out chang
 $ driftbench radius build/generated/specs/live --change change.yaml
 ```
 
-**You get and how to read it.** First the count, then the list:
+**You get and how to read it.** The output uses four words. A **block** is one test message with its checks. A **cell** is one test file run once. **Mode F** means the agent runs the whole conversation on its own replies. The **manifest** is a short id of the change file. First the count, then the list:
 
 ```text
 Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
@@ -327,7 +343,7 @@ Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904
   A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
 ```
 
-Of 921 blocks, 17 can be reached by that sentence. The other 904 keep their last result, which saves 98.2%. A *block* is one test message with its checks. Each test file here holds one block, so 17 blocks are 17 test files, and a *cell* is one test file run once. *Mode F* means the agent runs the whole conversation on its own replies. The *manifest* is a short id of the **change file**, the small file `change.yaml` that names what you changed. The list:
+Of 921 blocks, 17 can be reached by that sentence. The other 904 keep their last result, which saves 98.2%. Each test file here holds one block, so 17 blocks are 17 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
@@ -355,8 +371,18 @@ note: the estate copy is not pinned to a map hash; pass --map to pin it
 
 The summary says 17 ran, none passed, and 15 are undecided. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 904 blocks keep their last result. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
 
+**Rerun them on your own agent.** The same list, with the real agent and a judge, as in step 3. It is billed, so the judge cap and the test cap stay:
+
+```bash
+driftbench estate run --order rerun.txt --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --judge-budget 1 --max-budget-usd 1 --store edited.db
+```
+
+**Why you do this.** A rerun without `--judge` leaves every judged check undecided (`?`), so the edit would look unproven. `--allow-billed` and `--judge-budget` are required for a real agent, as in step 3.
+
 **If it goes wrong.**
 
+- Every line of the rerun shows `?` or `inconclusive`: you left `--judge claude:haiku --judge-budget 1` out. Add both and run again.
+- A refusal that names `--allow-billed` or `--judge-budget` (exit 2): add the one it names.
 - `Units: ... 0 changed`: the edit did not change any sentence that the ledger knows. Check that you edited a file under the estate folder and saved it.
 - `The radius is the whole suite` and `unit selection is advisory`: your edit hit a sentence that holds no atom, so driftbench cannot tell which tests it affects and keeps the whole suite. Nothing is skipped. Reword the sentence as an instruction so that it becomes an atom, then run `estate build` and `radius` again.
 - The count in `rerun.txt` is not the count in the radius: the radius is the authority. Use the names of its list, and check that you ran the `grep` from the folder that holds `build`.

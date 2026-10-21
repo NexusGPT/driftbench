@@ -9,14 +9,12 @@ About two minutes, most of it the install. You need Node 22 or newer and npm. No
 **Relevant commands.**
 
 - `mkdir my-evals && cd my-evals`: makes a folder for your tests and goes into it · no options · it produces the folder.
-- `npm init -y`: starts a `package.json` so npm has somewhere to install · `-y` accepts every default · it produces `package.json`.
-- `npm install @agent-nexus/driftbench`: installs driftbench · `@agent-nexus/driftbench` is the package · it produces `node_modules` and the `driftbench` command, run as `npx driftbench`.
+- `npm install --global @agent-nexus/driftbench`: installs driftbench for your whole machine · `--global` makes the `driftbench` command available in every folder · `@agent-nexus/driftbench` is the package · it produces the `driftbench` command.
 - `mkdir specs`: makes the folder that will hold your tests · no options · it produces the folder.
 
 ```bash
 mkdir my-evals && cd my-evals
-npm init -y
-npm install @agent-nexus/driftbench
+npm install --global @agent-nexus/driftbench
 mkdir specs
 ```
 
@@ -82,14 +80,14 @@ blocks:
 
 **Relevant commands.**
 
-- `npx driftbench spec validate specs`: checks that every test file in a folder is well formed, before anything runs · `specs` is the folder to check · it prints one line per file and a count, and exits 0 when every file is valid.
-- `npx driftbench campaign run specs --target process:my-agent --process-command ...`: runs every block of every test against your agent and checks each reply · `specs` is the folder of tests; `--target process:my-agent` says how to reach the agent (`process` is the adapter that starts a command, `my-agent` is its name in the spec); `--process-command` is a JSON list, the program and its arguments, that starts your agent (here `node` and the path of `agent.mjs`; `$PWD` is the current folder) · it prints one verdict line per test and a count, and exits 1 when a test fails.
+- `driftbench spec validate specs`: checks that every test file in a folder is well formed, before anything runs · `specs` is the folder to check · it prints one line per file and a count, and exits 0 when every file is valid.
+- `driftbench campaign run specs --target process:my-agent --process-command ...`: runs every block of every test against your agent and checks each reply · `specs` is the folder of tests; `--target process:my-agent` says how to reach the agent (`process` is the adapter that starts a command, `my-agent` is its name in the spec); `--process-command` is a JSON list, the program and its arguments, that starts your agent (here `node` and the path of `agent.mjs`; `$PWD` is the current folder) · it prints one verdict line per test and a count, and exits 1 when a test fails.
 
 ```console
-$ npx driftbench spec validate specs
+$ driftbench spec validate specs
 ✓ specs/refund.yaml  refund-happy-path · 2 blocks · hash 7cfacf8c527b
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
-$ npx driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]"
+$ driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]"
 ✓ refund-happy-path · process:my-agent · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
@@ -99,7 +97,7 @@ $ npx driftbench campaign run specs --target process:my-agent --process-command 
 **Why.** A test that cannot fail proves nothing. Breaking the agent on purpose shows you what a failure looks like, and that the report names the block and the check.
 
 ```console
-$ npx driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]"   # exit 1
+$ driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]"   # exit 1
 ✗ refund-happy-path · process:my-agent · F · repeat 0  fail  block 1 must.0
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
@@ -111,11 +109,11 @@ $ npx driftbench campaign run specs --target process:my-agent --process-command 
 **Relevant commands.**
 
 - `campaign run ... --repeats 3 --store runs.db`: the same run as step 4, kept · `--repeats 3` runs each test 3 times, because one run proves little; `--store runs.db` is the file where the runs are kept · it adds the runs to `runs.db`.
-- `npx driftbench report --store runs.db --out scorecard.html`: turns the kept runs into a page you can open · `--store runs.db` is the file to read; `--out scorecard.html` is the page to write · it produces one HTML file with every rate, its interval and every conversation.
+- `driftbench report --store runs.db --out scorecard.html`: turns the kept runs into a page you can open · `--store runs.db` is the file to read; `--out scorecard.html` is the page to write · it produces one HTML file with every rate, its interval and every conversation.
 
 ```console
-$ npx driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --repeats 3 --store runs.db
-$ npx driftbench report --store runs.db --out scorecard.html
+$ driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --repeats 3 --store runs.db
+$ driftbench report --store runs.db --out scorecard.html
 ```
 
 <p align="center">

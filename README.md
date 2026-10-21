@@ -28,7 +28,7 @@
 
 driftbench is an open-source tool that tests AI agents. An agent can be a chat assistant, or a program that writes code and files. You describe a conversation as a list of steps, and what must be true after each step. driftbench runs the list against your agent, scores every step, and tells you how far to trust the score.
 
-Works with any agent through an [adapter](docs/extending.md#adapters). No account, no server. MIT, TypeScript, Node 22 or newer.
+Works with any agent through an [adapter](docs/extending.md#adapters), the small piece that connects driftbench to your agent. No account, no server. MIT, TypeScript, Node 22 or newer.
 
 ## What an evaluation is
 
@@ -56,7 +56,7 @@ Evaluations matter for three reasons:
 By hand works for the first ten conversations. After that, four jobs grow:
 
 - **Cover enough situations.** You need many conversations, and you need to know which situations you missed.
-- **Score every reply.** Code can check exact things, such as a tool that was called. A model has to judge the rest, and a model judge makes mistakes. On JudgeBench, six judges on the same model score between 74.8 and 88.9 out of 100 ([source](docs/public-benchmarks.md#the-numbers)). The judge is a part you need to test.
+- **Score every reply.** Code can check exact things, such as a tool that was called. A model, called a **judge**, has to read the rest, and a judge makes mistakes. On JudgeBench, six judges on the same model score between 74.8 and 88.9 out of 100 ([source](docs/public-benchmarks.md#the-numbers)). The judge is a part you need to test.
 - **Handle variance.** An agent does not give the same answer every run. One run proves little. You need repeats and a range around every rate.
 - **Prove a change helped.** After a fix you need to know that the agent improved, and that nothing else got worse.
 
@@ -115,7 +115,7 @@ driftbench closes the loop in six steps. For each step, this section says what h
 
 You give driftbench what defines the agent: its prompt, its skills and its tool descriptions. driftbench reads them as a list of rules, so a test can point at the rule it checks.
 
-- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 16 of 934 blocks ([walkthrough](docs/rule-links.md), run in CI).
+- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 16 of 934 blocks, where a **block** is one user message and the checks on the agent's reply ([walkthrough](docs/rule-links.md), run in CI).
 - **Agents that write files.** The same tests cover code agents. driftbench reads what the agent leaves behind, such as spreadsheet cells and documents. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read.
 
 <details><summary>How to do it: link a test to a rule</summary>
@@ -205,7 +205,7 @@ Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs
 Wrote 708 files to generated.
 ```
 
-Each seeder writes a family of tests. The coverage line says every allowed pair of values is covered. Exit 1 means some map entries have no approved phrase yet; their tests wait in `generated/incomplete/`. [Full description](docs/generating.md).
+Each **seeder** is a method that writes one family of tests, and the table has one row per seeder. `--t 2` sets how strong the `twise` family is: every pair of values is covered at least once. The coverage line says every allowed pair of values is covered. Exit 1 means some map entries have no approved phrase yet; their tests wait in `generated/incomplete/`. [Full description](docs/generating.md).
 
 </details>
 
@@ -630,7 +630,7 @@ A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the f
 
 ### 6. Pick which tests to rerun
 
-After a fix, driftbench does not rerun everything. Every block declares what it uses. An edit selects the blocks that use it, and the blocks that inherit their state. The rest keep their last result. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
+After a fix, driftbench does not rerun everything. Every block declares what it uses in its `metadata.links`, as the example in step 1 shows. An edit selects the blocks that use it, and the blocks that inherit their state. The rest keep their last result. When driftbench cannot tell what a change touches, it reruns everything, and the nightly run still covers everything.
 
 <a href=".github/readme/blast-light.png">
   <picture>
@@ -683,7 +683,7 @@ The full guide teaches driftbench by doing. Each part says why you do a step, sh
 Install it with one line:
 
 ```bash
-npm install @agent-nexus/driftbench
+npm install --global @agent-nexus/driftbench
 ```
 
 - [**The guide, in reading order**](docs/guide/index.md): what to read first, and every term explained with an example.

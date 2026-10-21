@@ -19,10 +19,10 @@ Every command in the guide is run by a test on GitHub, and every output shown is
 You need Node 22 or newer.
 
 ```bash
-npm install @agent-nexus/driftbench
+npm install --global @agent-nexus/driftbench
 ```
 
-In your project, run the command as `npx driftbench`. In a clone of the repository, run `pnpm install`, and write `pnpm driftbench` where the guide says `driftbench`.
+This gives you the command `driftbench`. Every command in the guide starts with `driftbench`, and you type it exactly so. In a clone of the repository, run `pnpm install` instead, and write `pnpm driftbench` where the guide says `driftbench`.
 
 ## Where to start
 
@@ -71,3 +71,8 @@ Each word is explained again where it first appears. This list is for looking on
 | Blast radius | The tests that an edit can change. | 17 of 921 blocks. |
 | Interval | The range a rate could really lie in, given how many tests you ran. | 50% with an interval of 23% to 77%. |
 | Adapter | The piece that connects driftbench to your agent. | A function, a web address, a command. |
+| Stand-in | A script that plays recorded answers in place of the agent. It costs nothing. | `northwind/live/fake/claude.mjs`. |
+| Labeler | A model that reads your prose and says which sentences are rules. | `system2:anthropic`. |
+| Seeder | A method that writes one family of tests from a map. | `twise`, which covers every pair of values. |
+| Cell | One test file run once. | 17 of 918 cells. |
+| Mode F | The agent runs the whole conversation on its own replies. | `Mode F, free-running`. |
