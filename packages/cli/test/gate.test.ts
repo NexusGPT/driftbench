@@ -69,6 +69,8 @@ describe('driftbench gate', () => {
         join(HAND, 'order-loose-confirmation.yaml'),
         join(HAND, 'tool-failure.yaml'),
         join(GENERATED, 'gen-deviation-005.yaml'),
+        // The regenerated probe opens with a stem written once under specs/stems/; the gate loads it with the spec.
+        join(GENERATED, '..', 'stems', 'stem-5ca34f57c855.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--holdout', '0', '--out', out]);
@@ -93,7 +95,8 @@ describe('driftbench gate', () => {
       // goes red on the fault that orders on a loose yes.
       expect(files).toContain('specs/gen-deviation-005.yaml');
       const report = JSON.parse(await readFile(join(out, 'gate-report.json'), 'utf8'));
-      expect(report.summary.specs).toBe(3);
+      // The two hand-written specs, the generated probe and the stem it opens with.
+      expect(report.summary.specs).toBe(4);
       expect(report.funnel.map((row: { stage: string }) => row.stage)).toEqual([
         'observed',
         'leakage',
