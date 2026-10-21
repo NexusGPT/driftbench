@@ -5,6 +5,7 @@ export {
   type AlphaLevel,
   type AlphaResult,
   cohenKappa,
+  gwetAc1,
   type KappaIntervalOptions,
   type KappaIntervalResult,
   type KappaOptions,
@@ -14,6 +15,7 @@ export {
   type Label,
 } from './agreement';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
 export {
   abundances,
   type ChaoResult,
