@@ -1,0 +1,68 @@
+name: pointer-cr2-blind-probe
+on:
+  push:
+    branches: ['train/pointer-cr2-blind-*']
+permissions:
+  contents: read
+jobs:
+  biome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Biome
+        run: >-
+          pnpm exec biome check --diagnostic-level=error --max-diagnostics=200
+          packages/validators/src/ladders/pointer/blind/bank/privacy.ts
+          packages/validators/src/ladders/pointer/blind/bank/structure.ts
+          packages/validators/src/ladders/pointer/sut/blind-binding/privacy.ts
+          packages/validators/src/ladders/pointer/bank/specs/adversarial.ts
+          packages/validators/src/ladders/pointer/bank/specs/labels.ts
+          packages/validators/test/pointer/cr2-blind.test.ts
+          packages/validators/test/pointer/blind-binding.test.ts
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        file:
+          - packages/validators/test/pointer/cr2-blind.test.ts
+          - packages/validators/test/pointer/blind-binding.test.ts
+          - packages/validators/src/ladders/pointer/blind/bank.test.ts
+          - packages/validators/test/pointer/cause-count.test.ts
+          - packages/validators/test/pointer/cause-repairs.test.ts
+          - packages/validators/test/pointer/causes.test.ts
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Test
+        run: pnpm exec vitest run ${{ matrix.file }}
+  bank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Items on the real reader
+        run: pnpm -s driftbench validate pointer --seeds 1..1 --all-levels --items --json > items.json || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: items
+          path: items.json

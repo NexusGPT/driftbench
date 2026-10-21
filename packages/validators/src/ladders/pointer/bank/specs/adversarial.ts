@@ -208,7 +208,7 @@ export const adversarial: FamilySpec = {
       'A hundred identical files give distinct ids',
       '100 copies of one 8-unit file under different names.',
       '800 distinct ids; twin marks on all copies; identical bytes on a rescan.',
-      'ids:path-in-hash',
+      'ids:twinof-missing',
       { component: 'ids' },
     ),
     row(

@@ -121,7 +121,7 @@ export const labels: FamilySpec = {
       'At most three examples per label reach the prompt',
       'A label with five examples.',
       'The request shows at most three of them, or the set is refused with a message naming the label.',
-      'labelset:examples-cap',
+      'labelset:examples-cap-refusal-names-label',
       { component: 'labelset', needs: ['transport'] },
     ),
     row(
