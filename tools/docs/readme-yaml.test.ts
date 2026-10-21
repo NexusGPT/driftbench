@@ -137,18 +137,18 @@ describe('README innovation YAML dropdowns', () => {
     expect(checked).toBe(18);
   }, 120_000);
 
-  it('labels a feature not yet on main with the pull request it is coming in', async () => {
+  it('names the pull requests of a feature that is not built yet', async () => {
     const readme = await readFile(README, 'utf8');
     const bodies = [...readme.matchAll(DROPDOWN)].map((dropdown) => dropdown[2] ?? '');
     expect(bodies.join('\n')).not.toMatch(/ships? in \[PR/);
-    for (const pr of [418]) {
+    for (const pr of [418, 444]) {
       expect(
-        bodies.some((body) =>
-          body.includes(`coming in [#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`),
-        ),
+        readme.includes(`[#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`),
         `#${pr}`,
       ).toBe(true);
     }
+    expect(readme).toMatch(/not built yet \(\[#418\]\(https:\/\/github\.com\/NexusGPT\/driftbench\/pull\/418\), \[#444\]/);
+    expect(readme).not.toMatch(/coming in \[#418\]/);
   });
 
   it('also loads every existing README YAML snippet, including the other dropdowns', async () => {
