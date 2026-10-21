@@ -7,7 +7,7 @@ import { bankItems, causeOf, generatorLadder, type Verdict } from '../../src/lad
 const root = fileURLToPath(new URL('../../../../', import.meta.url));
 
 describe('generator ladder cause metadata', () => {
-  it('every failing item reports the existing cause resolver result', async () => {
+  it('carries existing resolved causes while leaving own-ID fallbacks visibly unauthored', async () => {
     const items = bankItems();
     const failure: Verdict = { pass: false, detail: '' };
     const report = await runSeeds(
@@ -21,11 +21,13 @@ describe('generator ladder cause metadata', () => {
     expect(entries.every((entry) => !entry.pass)).toBe(true);
     const expected = new Map(items.map((item) => [item.id, causeOf(item, failure)]));
     for (const entry of entries) {
-      expect(entry.cause, entry.id).toBe(expected.get(entry.id));
-      expect(entry.cause?.trim().length, entry.id).toBeGreaterThan(0);
+      const cause = expected.get(entry.id);
+      expect(entry.cause, entry.id).toBe(cause === entry.id ? undefined : cause);
     }
     const summary = bankSummary(report);
-    expect(summary.failingWithoutCause).toBe(0);
+    const fallbackCount = items.filter((item) => expected.get(item.id) === item.id).length;
+    expect(fallbackCount).toBe(1812);
+    expect(summary.failingWithoutCause).toBe(fallbackCount);
     expect(summary.failingCauses).toBe(new Set(expected.values()).size);
   });
 

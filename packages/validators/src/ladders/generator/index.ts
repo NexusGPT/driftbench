@@ -106,15 +106,18 @@ export async function evaluate(
 
 function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measure {
   return bankMeasure(
-    results.map(({ item, verdict }) => ({
-      id: item.id,
-      component: item.component,
-      family: item.family,
-      tier: item.tier,
-      pass: verdict.pass,
-      detail: verdict.detail,
-      cause: causeOf(item, verdict),
-    })),
+    results.map(({ item, verdict }) => {
+      const cause = causeOf(item, verdict);
+      return {
+        id: item.id,
+        component: item.component,
+        family: item.family,
+        tier: item.tier,
+        pass: verdict.pass,
+        detail: verdict.detail,
+        ...(cause === item.id ? {} : { cause }),
+      };
+    }),
     'generator',
   );
 }
