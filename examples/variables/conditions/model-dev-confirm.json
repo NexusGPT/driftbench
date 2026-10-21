@@ -1,0 +1,244 @@
+{
+  "recording": {
+    "version": 1,
+    "reads": {
+      "259c091bbd4fe66ade222b1c77a776e146d6089d6aa91a7d6156814d39dbf2f4": {
+        "shipment_delay/late_over_two_days": {
+          "yes": 0
+        },
+        "shipment_delay/late_over_one_day": {
+          "yes": 0
+        },
+        "shipment_delay/lost": {
+          "yes": 0
+        },
+        "session_state/after_compaction": {
+          "yes": 0
+        },
+        "session_state/after_restart": {
+          "yes": 0
+        },
+        "invoice_work/before_invoice_edit": {
+          "yes": 0
+        },
+        "invoice_work/invoice_diff_over_50": {
+          "yes": 0
+        },
+        "helper/before_helper_dispatch": {
+          "yes": 0
+        },
+        "helper/helper_died": {
+          "yes": 0
+        },
+        "approval/approval_unanswered": {
+          "yes": 0
+        },
+        "approval/approval_given": {
+          "yes": 1
+        },
+        "supplier/supplier_not_in_table": {
+          "yes": 0
+        },
+        "supplier/supplier_in_table": {
+          "yes": 0
+        },
+        "carrier/carrier_error": {
+          "yes": 0
+        },
+        "carrier/carrier_status": {
+          "yes": 0
+        }
+      }
+    },
+    "proposals": {}
+  },
+  "model": "claude-sonnet-5-5",
+  "options": {
+    "newVariables": false
+  },
+  "counts": {
+    "assigned": 1,
+    "correct": 1,
+    "planted": 1,
+    "wrong": []
+  },
+  "precision": 1,
+  "recall": 1,
+  "report": {
+    "agent": "northwind",
+    "reader": {
+      "id": "conditions:anthropic:claude-sonnet-5-5",
+      "family": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "proposer": "anthropic:claude-sonnet-5-5",
+    "thresholds": {
+      "yesAt": 0.75,
+      "noAt": 0.25,
+      "topAt": 0.5
+    },
+    "spans": 1,
+    "matched": 1,
+    "proposed": 0,
+    "unsure": 0,
+    "unmatched": 0,
+    "refused": 0,
+    "failed": 0,
+    "proposerCalls": 0,
+    "outcomes": [
+      {
+        "span": "c-002",
+        "status": "matched",
+        "values": [
+          "approval/approval_given"
+        ]
+      }
+    ]
+  },
+  "store": {
+    "format": 1,
+    "agent": "northwind",
+    "version": "conditions-1",
+    "prior": {
+      "kind": "declared"
+    },
+    "variables": [
+      {
+        "id": "shipment_delay",
+        "title": "How late a shipment is",
+        "kind": "data",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "late_over_two_days",
+            "title": "A shipment is late by more than two days"
+          },
+          {
+            "id": "late_over_one_day",
+            "title": "A shipment is late by more than one day"
+          },
+          {
+            "id": "lost",
+            "title": "A shipment is lost"
+          }
+        ]
+      },
+      {
+        "id": "session_state",
+        "title": "The state of the session",
+        "kind": "data",
+        "role": "axis",
+        "approved": true,
+        "values": [
+          {
+            "id": "after_compaction",
+            "title": "The session was just compacted"
+          },
+          {
+            "id": "after_restart",
+            "title": "The session was just restarted"
+          }
+        ]
+      },
+      {
+        "id": "invoice_work",
+        "title": "The work done on an invoice",
+        "kind": "task",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "before_invoice_edit",
+            "title": "An invoice file is about to be edited"
+          },
+          {
+            "id": "invoice_diff_over_50",
+            "title": "The total difference of an invoice is above 50.00 EUR"
+          }
+        ]
+      },
+      {
+        "id": "helper",
+        "title": "Work handed to a helper agent",
+        "kind": "task",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "before_helper_dispatch",
+            "title": "A helper agent is about to be dispatched"
+          },
+          {
+            "id": "helper_died",
+            "title": "A helper agent died"
+          }
+        ]
+      },
+      {
+        "id": "approval",
+        "title": "An approval the agent waits for",
+        "kind": "stage",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "approval_unanswered",
+            "title": "A person whose approval is needed has not answered"
+          },
+          {
+            "id": "approval_given",
+            "title": "A person gave an explicit yes",
+            "provenance": [
+              {
+                "kind": "quote",
+                "path": "CLAUDE.md",
+                "quote": "When the manager has approved the correction in writing, apply it."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "supplier",
+        "title": "The supplier of an order",
+        "kind": "data",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "supplier_not_in_table",
+            "title": "A supplier is not in the language table"
+          },
+          {
+            "id": "supplier_in_table",
+            "title": "A supplier is in the language table"
+          }
+        ]
+      },
+      {
+        "id": "carrier",
+        "title": "What the carrier answers",
+        "kind": "data",
+        "role": "detail",
+        "approved": true,
+        "values": [
+          {
+            "id": "carrier_error",
+            "title": "The carrier answers with an error"
+          },
+          {
+            "id": "carrier_status",
+            "title": "The carrier answers with a status"
+          }
+        ]
+      }
+    ],
+    "constraints": []
+  },
+  "receipts": {
+    "reportedUsd": 0,
+    "missingCost": 1,
+    "capCharge": 2.3421200000000004
+  }
+}

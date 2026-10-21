@@ -1,5 +1,7 @@
 # Changelog
 
+- Add optional binary model-port condition reader and preserve its one-shot fictional planted replay; completed precision 0.868 and recall 0.767 remain below 0.95.
+
 All notable changes to driftbench are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the versions follow [Semantic Versioning](https://semver.org/). Every package under `packages/` and the Python package `python/driftbench` carry the same version; `node tools/release/check.mjs` verifies it.
 
 ## [Unreleased]

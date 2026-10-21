@@ -48,6 +48,7 @@ export {
   type LogScope,
   type ScopeOverride,
 } from './logs';
+export { createConditionReader } from './model-reader';
 export {
   assertOutsideRepository,
   type Conversation,
@@ -57,7 +58,6 @@ export {
   privateDir,
   writePrivateCounts,
 } from './private';
-export { createConditionReader } from './model-reader';
 export { createModelProposer, parseProposal } from './proposer';
 export { questionFor, questionsFor } from './questions';
 export {
