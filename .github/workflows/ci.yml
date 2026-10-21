@@ -87,6 +87,9 @@ jobs:
     # into release/next runs its own delta. A base change starts `pr affected (retarget)` in
     # pr-affected-retarget.yml: an `edited` event never starts this workflow, so a title edit adds no run.
     if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft
+    # The slices start when `pr fast` (lint, typecheck, build check, docs) is green: a head that fails it is red
+    # already, and its affected tests would only take runners from the heads that can still pass.
+    needs: [pr-fast]
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 45
     env:
