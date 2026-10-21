@@ -6,6 +6,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate scan: script dispatch is read from the structure of the script's own code only. The sentence reader (`documentedTarget`: a usage line or an entry-point phrase in a document that binds an argument to a script) is removed, with its English words; a guard whose dispatch only a document states now keeps the runner as its script. Capability removed: a usage line no longer binds an argument to a file.
+
 * An adapter that cannot run a turn for a typed reason throws `TurnNotRun` (a new export of `@agent-nexus/driftbench-core`, frozen in `tools/structure/api-surface.json`); the runner records the block as `not_run` with that reason, never as a failure of the agent. The Claude Code live adapter does so when its runtime's result names a `not_run` reason, as the Northwind stand-in does for a skill obligation it cannot resolve ("wait for an explicit yes before you send it").
 
 * `radius ledger` reads the same files as the scan: a document the map records as no rule (an example, a fixture, a template, a history) is no part of the ledger of an edit. Before, such a file counted as new units and the whole suite reran.
