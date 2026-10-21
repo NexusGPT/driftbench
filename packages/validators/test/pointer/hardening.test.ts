@@ -478,33 +478,26 @@ describe('labels.settings-inherited-threshold-key-refused', () => {
 });
 
 describe('labels.read-unit-not-labelable-under-heading', () => {
-  it('fails a reader that offers the read unit for labelling', async () => {
-    const offering: PointerSut = {
+  it('fails a reader that labels the unit it reads', async () => {
+    const labelling: PointerSut = {
       ...ref,
-      name: 'offers-read-unit',
+      name: 'labels-read-unit',
       scan: async (request) => {
-        const inner = request.labeler;
-        return ref.scan({
-          ...request,
-          ...(inner
+        const result = await ref.scan(request);
+        if (!result.ledger) return result;
+        const entries = result.ledger.entries.map((entry) =>
+          entry.quote.startsWith('Checks the')
             ? {
-                labeler: (labelRequest) =>
-                  inner({
-                    ...labelRequest,
-                    window: {
-                      ...labelRequest.window,
-                      units: labelRequest.window.units.map((unit) =>
-                        unit.mode === 'read' ? { ...unit, mode: 'label' as const } : unit,
-                      ),
-                    },
-                  }),
+                ...entry,
+                labels: { 'agent-rules': { label: 'rule', source: 'planted', setHash: 'planted' } },
               }
-            : {}),
-        });
+            : entry,
+        );
+        return { ...result, ledger: { ...result.ledger, entries } };
       },
     };
-    const detail = await redOn('labels.read-unit-not-labelable-under-heading', offering);
-    expect(detail).toMatch(/not shown as read/);
+    const detail = await redOn('labels.read-unit-not-labelable-under-heading', labelling);
+    expect(detail).toMatch(/holds the label rule/);
   });
 });
 
