@@ -147,7 +147,8 @@ describe('README innovation YAML dropdowns', () => {
         `#${pr}`,
       ).toBe(true);
     }
-    expect(readme).toMatch(/not built yet \(\[#418\]\(https:\/\/github\.com\/NexusGPT\/driftbench\/pull\/418\), \[#444\]/);
+    const base = 'https://github.com/NexusGPT/driftbench/pull';
+    expect(readme).toContain(`not built yet ([#418](${base}/418), [#444]`);
     expect(readme).not.toMatch(/coming in \[#418\]/);
   });
 
