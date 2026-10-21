@@ -29,6 +29,8 @@ metadata:
         skill:
           type: string
           enum: [invoice-reconcile, shipment-tracker, supplier-email, weekly-report]
+        args:
+          type: string
   estate:
     map: ../../estates/fixture/approved.yaml
     atoms:

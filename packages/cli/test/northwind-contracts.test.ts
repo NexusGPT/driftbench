@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { parse } from 'yaml';
-import { validateStrict } from '../src/support/schema';
+import { validateStrict } from '../../checks/src/support/schema';
 
 it('accepts the real Skill args field while retaining the skill enum and rejecting invented parameters', async () => {
   const file = new URL('../../../examples/northwind-campaign/specs/weekly-report.yaml', import.meta.url);

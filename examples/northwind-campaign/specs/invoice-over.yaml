@@ -30,6 +30,8 @@ metadata:
         skill:
           type: string
           enum: [invoice-reconcile, shipment-tracker, supplier-email, weekly-report]
+        args:
+          type: string
   estate:
     map: ../../estates/fixture/approved.yaml
     atoms:
@@ -43,10 +45,6 @@ blocks:
     user: Hi, I need an invoice checked against its purchase order.
     expect:
       must: ['\?']
-      workspace: { created: [], changed: [], deleted: [] }
-  - id: reconcile
-    user: It is invoice INV-1004 against purchase order PO-77.
-    expect:
       skills:
         - { name: invoice-reconcile, count: { min: 1 } }
       tools:
@@ -54,6 +52,10 @@ blocks:
           input: { skill: invoice-reconcile }
       references:
         - { path: '**/matching-rules.md', count: { min: 1 } }
+      workspace: { created: [], changed: [], deleted: [] }
+  - id: reconcile
+    user: It is invoice INV-1004 against purchase order PO-77.
+    expect:
       execution: { ran_code: true }
       subagents:
         - { name: ledger-auditor, count: { min: 1 } }

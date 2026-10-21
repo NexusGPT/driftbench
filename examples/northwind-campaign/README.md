@@ -17,6 +17,7 @@ Claude Code. Everything in it is fictional.
 * `plugin.mjs` registers the `claude-code` adapter for `campaign run` (the CLI has no built-in one). It reads its
   settings from `NORTHWIND_*` variables and refuses a command that is not a stand-in unless
   `NORTHWIND_ALLOW_BILLED=1`.
+* `agent/CLAUDE.local.md` is the Northwind instruction correction: invoice quantities are protected as amounts; the tracker uses its exact headless-approved command. It is seeded only in the fictional sandbox.
 * `driftbench.yaml` is the campaign: the four specs, four personas and recordings, `claude-code:northwind`, mode F,
   two repeats, a budget of 8 USD, the simulated driver.
 * `specs/`, `personas/`, `personas/recordings/`.
@@ -31,7 +32,7 @@ pnpm driftbench campaign plan examples/northwind-campaign/specs --config example
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml --campaign northwind-rehearsal --store out/rehearsal.db
 ```
 
-The third runs on the explicit protocol recordings in `rehearsal/`. These are paired with the recorded users, including the clarification question before invoice facts are revealed. They check the campaign wiring; only the live run measures the model. The general estate stand-in cannot resolve every instruction in these skills, and now fails the cell when planning fails. The live run uses the `claude` CLI, logged in, and costs
+The third runs on the explicit protocol recordings in `rehearsal/`. These are paired with the recorded users, including the clarification question before invoice facts are revealed. They check the campaign wiring; only the live run measures the model. The general estate stand-in cannot resolve every instruction in these skills, and now fails the cell when planning fails. The live run uses the `claude` CLI with an API key supplied by the caller, and costs
 money:
 
 ```

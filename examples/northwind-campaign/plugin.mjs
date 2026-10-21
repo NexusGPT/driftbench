@@ -11,7 +11,7 @@
 //   NORTHWIND_MAX_BLOCK_USD  passed as --max-budget-usd: the most one block may spend.
 //   NORTHWIND_PERMISSION_MODE  passed as --permission-mode, such as acceptEdits (edits and writes need no prompt).
 //   NORTHWIND_ESTATE         the estate folder. Default: examples/estates/fixture.
-import { open } from 'node:fs/promises';
+import { open, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,6 +54,15 @@ export default async function plugin(api) {
     args.push('--max-budget-usd', process.env.NORTHWIND_MAX_BLOCK_USD);
   }
 
+  const settings = JSON.parse(await readFile(join(estateRoot, '.claude/settings.json'), 'utf8'));
+  args.push(
+    '--allowed-tools',
+    ...settings.permissions.allow,
+    'Skill',
+    'Bash(.claude/skills/shipment-tracker/scripts/track.sh *)',
+  );
+  const instructions = await readFile(new URL('./agent/CLAUDE.local.md', import.meta.url), 'utf8');
+
   // Every target `claude-code:northwind` reaches the live runtime in a sandbox that holds a copy of the estate.
   api.adapter('claude-code', (target) => {
     if (target.agent !== 'northwind') return undefined;
@@ -67,8 +76,9 @@ export default async function plugin(api) {
         ? {}
         : { env: { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY } }),
       lock: { deny: [join(homedir(), '.nexus-secrets')] },
-      // The fixture's settings allow Read, Grep, Glob and python3; a headless run ignores them unless trusted.
-      trustEstate: true,
+      // `args` carries the estate allow-list plus only the exact tracker command this harness needs.
+      trustEstate: false,
+      workspace: { files: { 'CLAUDE.local.md': instructions } },
       // Lets the parent-linked spec run: a continuation resumes the parent's turns and starts from its files.
       branching: true,
       ...(standIn ? { retries: { backoffMs: 0 } } : {}),
