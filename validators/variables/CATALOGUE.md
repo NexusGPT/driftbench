@@ -1,6 +1,6 @@
 # Variables validator bank: catalogue
 
-Written blind, from the specification alone, then bound to the variable store format of PR 706 (docs/variables.md) and the lead's rulings of 2026-10-17. The stems that ask validate and quotes about a store file, and the plan stems about seeds, budgets, weights and combinations of any size, come from the second blind bank (PR 762), now merged here. 536 items in 153 stems and 12 families, 196 candidate cause labels (not a verified distinct-fix count), seven levels. An item is a stem plus a variant: its id is the stem id, a dot and the variant key. A stem is one capability the variable store or the planner must have; its variants differ in input shape, size or wording and carry their own tier. Every item takes its input from a seed (the visible seeds 1 to 20 and the hidden seed draw other inputs). The validator calls no model.
+Written blind, from the specification alone, then bound to the variable store format of PR 706 (docs/variables.md) and the lead's rulings of 2026-10-17. The stems that ask validate and quotes about a store file, and the plan stems about seeds, budgets, weights and combinations of any size, come from the second blind bank (PR 762), now merged here. 539 items in 154 stems and 12 families, 197 candidate cause labels (not a verified distinct-fix count), seven levels. An item is a stem plus a variant: its id is the stem id, a dot and the variant key. A stem is one capability the variable store or the planner must have; its variants differ in input shape, size or wording and carry their own tier. Every item takes its input from a seed (the visible seeds 1 to 20 and the hidden seed draw other inputs). The validator calls no model.
 
 ## 1. Counts
 
@@ -11,21 +11,21 @@ Written blind, from the specification alone, then bound to the variable store fo
 | values | store | 12 | 48 | 4 | 9 | 20 | 9 | 6 | 26 |
 | boundaries | store | 18 | 63 | 9 | 20 | 24 | 8 | 2 | 22 |
 | impossible-pairs | constraints | 11 | 36 | 2 | 8 | 14 | 7 | 5 | 14 |
-| weights | constraints | 14 | 51 | 2 | 11 | 22 | 13 | 3 | 19 |
+| weights | constraints | 15 | 54 | 2 | 11 | 22 | 16 | 3 | 20 |
 | strength | strength | 12 | 43 | 5 | 9 | 17 | 11 | 1 | 12 |
 | seed-rows | plan-order | 10 | 36 | 4 | 5 | 19 | 7 | 1 | 14 |
 | budget-order | plan-order | 8 | 31 | 1 | 7 | 15 | 5 | 3 | 8 |
 | counter | counter | 11 | 42 | 2 | 5 | 13 | 15 | 7 | 11 |
 | scale | scale | 8 | 24 | 0 | 0 | 6 | 9 | 9 | 8 |
 | determinism | determinism | 8 | 25 | 1 | 8 | 9 | 6 | 1 | 8 |
-| **all** |  | 153 | 536 | 46 | 120 | 210 | 115 | 45 | 196 |
+| **all** |  | 154 | 539 | 46 | 120 | 210 | 118 | 45 | 197 |
 
 Contract check (docs/validators.md 12.1): at least 300 items, no family under 20, every tier present.
 
 | Level | Name | Families | Items |
 | --- | --- | --- | --- |
 | 1 | store | sources, quotes, values, boundaries | 248 |
-| 2 | constraints | impossible-pairs, weights | 87 |
+| 2 | constraints | impossible-pairs, weights | 90 |
 | 3 | counter | counter | 42 |
 | 4 | strength | strength | 43 |
 | 5 | plan-order | seed-rows, budget-order | 67 |
@@ -536,14 +536,14 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Twelve scenes, each its own fictional store (3 to 5 variables, details, an unapproved decoy, a title that carries an instruction) and the same store with exactly one defect. The defect is in one provenance entry: a conversations entry whose count is above its total, not a whole number, with an extra key, with an uppercase hash or with a total of 0; an owner entry with a day that does not exist or with blank words; a quote entry with a malformed ledger id.
 * Oracle: validate refuses the store with the code the page names (SCHEMA_CUSTOM, SCHEMA_INVALID_TYPE, SCHEMA_UNRECOGNIZED_KEYS, SCHEMA_INVALID_FORMAT, SCHEMA_TOO_SMALL) at the entry or its field, and accepts the two valid stores of the scene (the edge value of the same field, and an ordinary entry).
 * Candidate cause C142: the store loader checks every provenance entry against the shape of the page.
-* Variant count-over-total: candidate cause C157: a conversations count above its total is refused.
-* Variant fractional-count: candidate cause C158: a conversations count that is not a whole number is refused.
-* Variant extra-key: candidate cause C159: a conversations entry with a key beyond count, total and set_hash is refused (no text enters a store).
-* Variant uppercase-hash: candidate cause C160: a set hash must be 64 lowercase hexadecimal characters.
-* Variant zero-total: candidate cause C161: a conversations total below 1 is refused.
-* Variant unreal-day: candidate cause C162: an owner date must be a real day written YYYY-MM-DD.
-* Variant blank-words: candidate cause C163: blank owner words are refused.
-* Variant ledger-shape: candidate cause C164: a ledger id must be 10 characters from a to z and 2 to 7.
+* Variant count-over-total: candidate cause C158: a conversations count above its total is refused.
+* Variant fractional-count: candidate cause C159: a conversations count that is not a whole number is refused.
+* Variant extra-key: candidate cause C160: a conversations entry with a key beyond count, total and set_hash is refused (no text enters a store).
+* Variant uppercase-hash: candidate cause C161: a set hash must be 64 lowercase hexadecimal characters.
+* Variant zero-total: candidate cause C162: a conversations total below 1 is refused.
+* Variant unreal-day: candidate cause C163: an owner date must be a real day written YYYY-MM-DD.
+* Variant blank-words: candidate cause C164: blank owner words are refused.
+* Variant ledger-shape: candidate cause C165: a ledger id must be 10 characters from a to z and 2 to 7.
 * Items: `sources.file.provenance-shape.count-over-total` (T2), `sources.file.provenance-shape.fractional-count` (T2), `sources.file.provenance-shape.extra-key` (T3), `sources.file.provenance-shape.uppercase-hash` (T2), `sources.file.provenance-shape.zero-total` (T2), `sources.file.provenance-shape.unreal-day` (T3), `sources.file.provenance-shape.blank-words` (T3), `sources.file.provenance-shape.ledger-shape` (T3)
 
 ### Family quotes (level store): 68 items
@@ -627,7 +627,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: A tool field with 3 values where one, two, the first, or all of them have an unfindable quote.
 * Oracle: Only the values with an unfindable quote are missing; the others stay; a variable left with no value is not stored.
 * Candidate cause C30: refusing a value preserves its valid sibling values.
-* Variant all-bad: candidate cause C154: a variable left with no accepted value is dropped.
+* Variant all-bad: candidate cause C155: a variable left with no accepted value is dropped.
 * Items: `quotes.per-value-granularity.one-of-three` (T3), `quotes.per-value-granularity.two-of-three` (T3), `quotes.per-value-granularity.first-bad` (T3), `quotes.per-value-granularity.all-bad` (T3)
 
 #### `quotes.refusal-report`
@@ -691,11 +691,11 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Five requests per scene, each with a store, a sentence and a file of its own: the quote is in the file; the quote looks altered and the file holds exactly that text; the quote is altered and the file holds the original; the quote is the original and the file holds the altered text; the file is absent. A decoy line (another alteration) sits in every file. The twelve scenes use six shapes of sentence, and a quote sits in a variable, a value, a boundary or a constraint. The file (even scenes) or the quote (odd scenes) writes the sentence with extra white space, typographic quote marks, a decomposed accent, markdown backslashes or characters that print nothing; the broken requests carry the same form.
 * Oracle: quotes reports nothing when the folded quote is in the folded file, VARIABLES_QUOTE_NOT_FOUND at PATH.quote when the relation is broken on either side, and VARIABLES_SOURCE_UNREADABLE at PATH.path when the file is absent. The bank checks with its own folding that each request is what it says.
 * Candidate cause C146: the quote check folds white space, typographic quotes, accents, characters that print nothing and markdown backslashes.
-* Variant whitespace: candidate cause C189: the quote check folds runs of white space.
-* Variant typographic: candidate cause C190: the quote check folds typographic quote marks.
-* Variant unicode-composition: candidate cause C191: the quote check folds composed and decomposed accents.
-* Variant markdown-escape: candidate cause C192: the quote check folds the backslash of markdown.
-* Variant invisible-characters: candidate cause C193: the quote check folds characters that print nothing.
+* Variant whitespace: candidate cause C190: the quote check folds runs of white space.
+* Variant typographic: candidate cause C191: the quote check folds typographic quote marks.
+* Variant unicode-composition: candidate cause C192: the quote check folds composed and decomposed accents.
+* Variant markdown-escape: candidate cause C193: the quote check folds the backslash of markdown.
+* Variant invisible-characters: candidate cause C194: the quote check folds characters that print nothing.
 * Items: `quotes.verify.folded-forms.whitespace` (T2), `quotes.verify.folded-forms.typographic` (T3), `quotes.verify.folded-forms.unicode-composition` (T4), `quotes.verify.folded-forms.markdown-escape` (T3), `quotes.verify.folded-forms.invisible-characters` (T5)
 
 #### `quotes.verify.exact-forms`
@@ -723,9 +723,9 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Five requests per scene, each with a store, a sentence and a file of its own: the quote is in the file; the quote looks altered and the file holds exactly that text; the quote is altered and the file holds the original; the quote is the original and the file holds the altered text; the file is absent. A decoy line (another alteration) sits in every file. The twelve scenes use six shapes of sentence, and a quote sits in a variable, a value, a boundary or a constraint. A quote names a file that is not among the files given (alone, or beside an unrelated file); two quotes in one list name one missing file beside a third on a present file that holds it or not; a missing file beside a present file whose quote is found or not. The sentences of one store are unrelated.
 * Oracle: quotes reports VARIABLES_SOURCE_UNREADABLE at PATH.path of the first quote that names a missing file, once per file, and also VARIABLES_QUOTE_NOT_FOUND for a quote on a present file that does not hold it.
 * Candidate cause C149: a missing file is reported once, at the first quote that names it.
-* Variant missing-file: candidate cause C194: a quote whose file is not given is reported unreadable at its path.
+* Variant missing-file: candidate cause C195: a quote whose file is not given is reported unreadable at its path.
 * Variant once-per-file: candidate cause C149: a missing file is reported once, at the first quote that names it.
-* Variant unreadable-and-not-found: candidate cause C195: an unreadable file does not hide the wrong quotes of the files that are present.
+* Variant unreadable-and-not-found: candidate cause C196: an unreadable file does not hide the wrong quotes of the files that are present.
 * Items: `quotes.verify.unreadable-file.missing-file` (T1), `quotes.verify.unreadable-file.once-per-file` (T4), `quotes.verify.unreadable-file.unreadable-and-not-found` (T3)
 
 ### Family values (level store): 48 items
@@ -809,7 +809,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: A hand-built store of shared axes and a rule, plus a value or a variable a machine proposed (approved false, conversations counts as provenance); the same value flagged approved true; a proposed value that an impossible pair names.
 * Oracle: No plan row holds the proposed value or assigns the proposed variable, and no required tuple names them; once approved the value is in rows and every tuple that names it is covered.
 * Candidate cause C45: the planner uses only approved values and variables (the machine proposes, a person approves).
-* Variant approved-value-in-unapproved-variable: candidate cause C155: a value counts when its own approval flag, else its variable's, is true.
+* Variant approved-value-in-unapproved-variable: candidate cause C156: a value counts when its own approval flag, else its variable's, is true.
 * Items: `values.unapproved-not-planned.proposed-value` (T3), `values.unapproved-not-planned.proposed-variable` (T3), `values.unapproved-not-planned.proposed-value-in-a-pair` (T4), `values.unapproved-not-planned.approved-later` (T3), `values.unapproved-not-planned.approved-value-in-unapproved-variable` (T4)
 
 #### `values.fresh-objects`
@@ -837,20 +837,20 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Twelve scenes, each its own fictional store (3 to 5 variables, details, an unapproved decoy, a title that carries an instruction) and the same store with exactly one defect. The defect is a repeated id, a value id in two axes, a second axis of one kind, a deviation value outside the twelve classes, a when or unless that names a missing variable or value, a constraint with a missing variable or value, an empty constraint, the same constraint written twice with its keys reordered, or constraints that forbid every cell.
 * Oracle: validate refuses the store with the VARIABLES code of the page at the path of the page (for example variables.1.values.0.id, constraints.0.forbid.NAME, constraints.1), and accepts the valid twin: the same id in a detail, the value none in two axes, a second channel that is a detail, a known deviation class, a constraint that leaves one value free.
 * Candidate cause C143: the store loader checks the references and the uniqueness rules of the page.
-* Variant duplicate-value: candidate cause C165: a value id repeated inside one variable is refused.
-* Variant duplicate-variable-id: candidate cause C166: a variable id repeated in the store is refused.
-* Variant ambiguous-axis-value: candidate cause C167: a value id in two axes that a spec names by value is refused (a detail and none are exempt).
-* Variant repeated-channel: candidate cause C168: two axes of kind channel are refused.
-* Variant repeated-stage: candidate cause C169: two axes of kind stage are refused.
-* Variant repeated-deviation: candidate cause C170: two axes of kind deviation are refused.
-* Variant unknown-deviation-class: candidate cause C171: a deviation axis holds none and the twelve classes only.
-* Variant unknown-when-variable: candidate cause C172: a when that names a variable the store lacks is refused.
-* Variant unknown-unless-value: candidate cause C173: an unless that names a value its variable lacks is refused.
-* Variant unknown-constraint-variable: candidate cause C174: a constraint that names a variable the store lacks is refused.
-* Variant unknown-constraint-value: candidate cause C175: a constraint that names a value its variable lacks is refused.
-* Variant empty-constraint: candidate cause C176: a constraint that forbids nothing is refused.
-* Variant duplicate-constraint-reordered: candidate cause C177: the same combination written twice, in any key order, is refused.
-* Variant grid-empty: candidate cause C178: constraints that forbid every cell of the axes are refused.
+* Variant duplicate-value: candidate cause C166: a value id repeated inside one variable is refused.
+* Variant duplicate-variable-id: candidate cause C167: a variable id repeated in the store is refused.
+* Variant ambiguous-axis-value: candidate cause C168: a value id in two axes that a spec names by value is refused (a detail and none are exempt).
+* Variant repeated-channel: candidate cause C169: two axes of kind channel are refused.
+* Variant repeated-stage: candidate cause C170: two axes of kind stage are refused.
+* Variant repeated-deviation: candidate cause C171: two axes of kind deviation are refused.
+* Variant unknown-deviation-class: candidate cause C172: a deviation axis holds none and the twelve classes only.
+* Variant unknown-when-variable: candidate cause C173: a when that names a variable the store lacks is refused.
+* Variant unknown-unless-value: candidate cause C174: an unless that names a value its variable lacks is refused.
+* Variant unknown-constraint-variable: candidate cause C175: a constraint that names a variable the store lacks is refused.
+* Variant unknown-constraint-value: candidate cause C176: a constraint that names a value its variable lacks is refused.
+* Variant empty-constraint: candidate cause C177: a constraint that forbids nothing is refused.
+* Variant duplicate-constraint-reordered: candidate cause C178: the same combination written twice, in any key order, is refused.
+* Variant grid-empty: candidate cause C179: constraints that forbid every cell of the axes are refused.
 * Items: `values.file.references.duplicate-value` (T1), `values.file.references.duplicate-variable-id` (T1), `values.file.references.ambiguous-axis-value` (T3), `values.file.references.repeated-channel` (T2), `values.file.references.repeated-stage` (T2), `values.file.references.repeated-deviation` (T3), `values.file.references.unknown-deviation-class` (T3), `values.file.references.unknown-when-variable` (T2), `values.file.references.unknown-unless-value` (T3), `values.file.references.unknown-constraint-variable` (T2), `values.file.references.unknown-constraint-value` (T2), `values.file.references.empty-constraint` (T1), `values.file.references.duplicate-constraint-reordered` (T4), `values.file.references.grid-empty` (T4)
 
 ### Family boundaries (level store): 63 items
@@ -1015,14 +1015,14 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Twelve scenes, each its own fictional store (3 to 5 variables, details, an unapproved decoy, a title that carries an instruction) and the same store with exactly one defect. A variable with three values and a boundary: a strict comparison whose edge is the value of the holding side, an inclusive one whose edge is the failing side's value, one value on both sides, an edge or a holding value the variable lacks, or a limit with no comparison. Limits are zero, negative, whole and decimal.
 * Oracle: validate refuses with VARIABLES_BOUNDARY at .edge (wrong side) or .fails (one value on both sides), VARIABLES_UNKNOWN_VALUE at the missing id, or SCHEMA_CUSTOM for a limit with no comparison; it accepts a third value as the edge for every comparison, the failing side for a strict one, the holding side for an inclusive one, and a condition with no number.
 * Candidate cause C144: the store loader checks the sides of a boundary against its comparison.
-* Variant strict-gt: candidate cause C179: a strict comparison leaves the limit on the failing side, so the edge is not the holding value.
-* Variant strict-lt: candidate cause C179: a strict comparison leaves the limit on the failing side, so the edge is not the holding value.
-* Variant inclusive-ge: candidate cause C180: an inclusive comparison puts the limit on the holding side, so the edge is not the failing value.
-* Variant inclusive-le: candidate cause C180: an inclusive comparison puts the limit on the holding side, so the edge is not the failing value.
-* Variant same-value-both-sides: candidate cause C181: the two sides of a boundary are two values.
-* Variant unknown-edge: candidate cause C182: a boundary names only values of its variable.
-* Variant unknown-holds: candidate cause C182: a boundary names only values of its variable.
-* Variant limit-without-comparison: candidate cause C183: a limit and a comparison go together.
+* Variant strict-gt: candidate cause C180: a strict comparison leaves the limit on the failing side, so the edge is not the holding value.
+* Variant strict-lt: candidate cause C180: a strict comparison leaves the limit on the failing side, so the edge is not the holding value.
+* Variant inclusive-ge: candidate cause C181: an inclusive comparison puts the limit on the holding side, so the edge is not the failing value.
+* Variant inclusive-le: candidate cause C181: an inclusive comparison puts the limit on the holding side, so the edge is not the failing value.
+* Variant same-value-both-sides: candidate cause C182: the two sides of a boundary are two values.
+* Variant unknown-edge: candidate cause C183: a boundary names only values of its variable.
+* Variant unknown-holds: candidate cause C183: a boundary names only values of its variable.
+* Variant limit-without-comparison: candidate cause C184: a limit and a comparison go together.
 * Items: `boundaries.file.sides.strict-gt` (T2), `boundaries.file.sides.strict-lt` (T2), `boundaries.file.sides.inclusive-ge` (T2), `boundaries.file.sides.inclusive-le` (T2), `boundaries.file.sides.same-value-both-sides` (T1), `boundaries.file.sides.unknown-edge` (T2), `boundaries.file.sides.unknown-holds` (T2), `boundaries.file.sides.limit-without-comparison` (T3)
 
 ### Family impossible-pairs (level constraints): 36 items
@@ -1124,13 +1124,13 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: A space of 5 ternary variables (two shared axes, a rule of three) and a combination of one value, of three values, one that is not approved, or one that names a variable no axis joins.
 * Oracle: No row holds an approved combination, every allowed required tuple is covered (independent brute force), an unapproved combination plans nothing and its tuples stay required, and a value no row can hold is reported value_unreachable.
 * Candidate cause C153: the planner honours approved combinations of any size.
-* Variant single-value: candidate cause C202: a combination of one value excludes that value from every row and is reported unreachable.
-* Variant triple: candidate cause C203: a combination of three values excludes only the rows that hold all three.
-* Variant unapproved-ignored: candidate cause C204: a combination that is not approved plans nothing.
-* Variant detail-named: candidate cause C205: a combination that names a variable no axis joins is honoured.
+* Variant single-value: candidate cause C203: a combination of one value excludes that value from every row and is reported unreachable.
+* Variant triple: candidate cause C204: a combination of three values excludes only the rows that hold all three.
+* Variant unapproved-ignored: candidate cause C205: a combination that is not approved plans nothing.
+* Variant detail-named: candidate cause C206: a combination that names a variable no axis joins is honoured.
 * Items: `impossible.general-forbid.single-value` (T3), `impossible.general-forbid.triple` (T4), `impossible.general-forbid.unapproved-ignored` (T3), `impossible.general-forbid.detail-named` (T3)
 
-### Family weights (level constraints): 51 items
+### Family weights (level constraints): 54 items
 
 #### `weights.relative-frequency`
 
@@ -1247,11 +1247,11 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Twelve scenes, each its own fictional store (3 to 5 variables, details, an unapproved decoy, a title that carries an instruction) and the same store with exactly one defect. A variable with weights 60, 15, 25 (or another mix) and one defect: a value without a weight, every weight 0, a negative weight, a weight that is NaN or infinite, or a fitted prior with no source.
 * Oracle: validate refuses with VARIABLES_WEIGHT_INCOMPLETE at the first value without a weight, VARIABLES_WEIGHT_ZERO at the values, SCHEMA_TOO_SMALL at a negative weight, a SCHEMA_ code at a non-finite one, VARIABLES_PRIOR_SOURCE at prior.source; it accepts the complete weights, one weight of 0 beside others, a fitted prior with a source and a declared prior.
 * Candidate cause C145: the store loader checks the weights of a variable and the source of a fitted prior.
-* Variant incomplete: candidate cause C184: a variable weighs all its values or none.
-* Variant all-zero: candidate cause C185: weights that are all 0 are refused.
-* Variant negative: candidate cause C186: a negative weight is refused.
-* Variant nonfinite: candidate cause C187: a weight that is NaN or infinite is refused.
-* Variant fitted-without-source: candidate cause C188: a fitted prior needs a source text.
+* Variant incomplete: candidate cause C185: a variable weighs all its values or none.
+* Variant all-zero: candidate cause C186: weights that are all 0 are refused.
+* Variant negative: candidate cause C187: a negative weight is refused.
+* Variant nonfinite: candidate cause C188: a weight that is NaN or infinite is refused.
+* Variant fitted-without-source: candidate cause C189: a fitted prior needs a source text.
 * Items: `weights.file.validity.incomplete` (T2), `weights.file.validity.all-zero` (T2), `weights.file.validity.negative` (T1), `weights.file.validity.nonfinite` (T3), `weights.file.validity.fitted-without-source` (T2)
 
 #### `weights.plan-shares`
@@ -1261,9 +1261,18 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: A weighted space; the same space with every weight multiplied by 100; a space where one value has weight 0.
 * Oracle: Scaling every weight changes no row and no log weight; a row that holds a value of weight 0 reports logWeight null, comes after every finite row, and its value is still covered.
 * Candidate cause C152: weights are relative and a weight of 0 is minus infinity written null.
-* Variant scale-invariant: candidate cause C200: a share is a weight over the total weight of its variable.
-* Variant zero-share: candidate cause C201: a weight of 0 gives a log weight of minus infinity, written null.
+* Variant scale-invariant: candidate cause C201: a share is a weight over the total weight of its variable.
+* Variant zero-share: candidate cause C202: a weight of 0 gives a log weight of minus infinity, written null.
 * Items: `weights.plan-shares.scale-invariant` (T3), `weights.plan-shares.zero-share` (T4)
+
+#### `weights.interval-huge-counts`
+
+* Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#counter-and-interval-rules R13.
+* Generator: weightInterval(0, n), weightInterval(1, n) and weightInterval(n, n) for n = 2^512, 2^600 and 2^900, finite integers a squared count cannot hold.
+* Oracle: For 0 of n the lower bound is 0 and the upper bound is z^2 / n within a relative 1e-9; for n of n the upper bound is 1 and the lower bound lies in [1 - 1e-9, 1]; for 1 of n the interval holds 1 / n, is finite and has a width above 0.
+* Candidate cause C154: the weight interval stays inside its range for a count too large to square.
+* Items: `weights.interval-huge-counts.n2-512` (T4), `weights.interval-huge-counts.n2-600` (T4), `weights.interval-huge-counts.n2-900` (T4)
 
 ### Family strength (level strength): 43 items
 
@@ -1384,7 +1393,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: 1, 5 or 30 seed rows; partial seeds that leave variables out; seeds whose traffic weights would reorder them; seeds whose keys come in another order; the same session given twice.
 * Oracle: The first rows of the plan are the seeds, in the order given, marked as seeds, with the very values given (no key added, none dropped); every later row is marked new.
 * Candidate cause C110: seed rows lead the plan, in the order given, unchanged, marked as seeds.
-* Variant duplicate-seeds: candidate cause C156: the same real session given twice is kept twice, in order, with an id for each.
+* Variant duplicate-seeds: candidate cause C157: the same real session given twice is kept twice, in order, with an id for each.
 * Items: `seeds.lead-the-plan.one-seed` (T1), `seeds.lead-the-plan.five-seeds` (T1), `seeds.lead-the-plan.thirty-seeds` (T2), `seeds.lead-the-plan.partial-seeds` (T3), `seeds.lead-the-plan.weights-would-reorder` (T3), `seeds.lead-the-plan.key-order-differs` (T3), `seeds.lead-the-plan.duplicate-seeds` (T3)
 
 #### `seeds.new-rows-for-missing`
@@ -1466,11 +1475,11 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 * Generator: Seeds that name a variable or a value the store lacks; a seed that holds an impossible pair; a seed with an entry on an unapproved variable; a store with nothing approved.
 * Oracle: Seed rows come first, in order, as the page keeps them (unknown entries gone, forbidden and unapproved entries kept), the plan warns with the code of the page (seed_unknown_value, seed_forbidden, seed_unapproved_value, no_variables), and the new rows cover what the kept seeds miss.
 * Candidate cause C151: seeds are kept as the page says and every irregular one is reported.
-* Variant unknown-variable: candidate cause C196: a seed entry the store does not have is dropped and reported.
-* Variant unknown-value: candidate cause C196: a seed entry the store does not have is dropped and reported.
-* Variant forbidden-seed: candidate cause C197: a seed that holds an impossible combination is kept and reported.
-* Variant unapproved-value: candidate cause C198: a seed entry on an unapproved variable is kept whole and reported.
-* Variant nothing-approved: candidate cause C199: a store with nothing approved plans the seeds alone and says so.
+* Variant unknown-variable: candidate cause C197: a seed entry the store does not have is dropped and reported.
+* Variant unknown-value: candidate cause C197: a seed entry the store does not have is dropped and reported.
+* Variant forbidden-seed: candidate cause C198: a seed that holds an impossible combination is kept and reported.
+* Variant unapproved-value: candidate cause C199: a seed entry on an unapproved variable is kept whole and reported.
+* Variant nothing-approved: candidate cause C200: a store with nothing approved plans the seeds alone and says so.
 * Items: `seeds.kept-with-warnings.unknown-variable` (T2), `seeds.kept-with-warnings.unknown-value` (T3), `seeds.kept-with-warnings.forbidden-seed` (T3), `seeds.kept-with-warnings.unapproved-value` (T4), `seeds.kept-with-warnings.nothing-approved` (T3)
 
 ### Family budget-order (level plan-order): 31 items
@@ -1896,7 +1905,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 | `quotes.per-value-granularity.one-of-three` | quotes | store | 3 | C30 |
 | `quotes.per-value-granularity.two-of-three` | quotes | store | 3 | C30 |
 | `quotes.per-value-granularity.first-bad` | quotes | store | 3 | C30 |
-| `quotes.per-value-granularity.all-bad` | quotes | store | 3 | C154 |
+| `quotes.per-value-granularity.all-bad` | quotes | store | 3 | C155 |
 | `quotes.refusal-report.one` | quotes | store | 2 | C31 |
 | `quotes.refusal-report.two` | quotes | store | 3 | C31 |
 | `quotes.refusal-report.reason-text` | quotes | store | 3 | C31 |
@@ -1943,7 +1952,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 | `values.unapproved-not-planned.proposed-variable` | values | store | 3 | C45 |
 | `values.unapproved-not-planned.proposed-value-in-a-pair` | values | store | 4 | C45 |
 | `values.unapproved-not-planned.approved-later` | values | store | 3 | C45 |
-| `values.unapproved-not-planned.approved-value-in-unapproved-variable` | values | store | 4 | C155 |
+| `values.unapproved-not-planned.approved-value-in-unapproved-variable` | values | store | 4 | C156 |
 | `values.fresh-objects.output-mutation-safe` | values | store | 3 | C46 |
 | `values.fresh-objects.two-builds-independent` | values | store | 3 | C46 |
 | `values.input-not-mutated.estate` | values | store | 3 | C47 |
@@ -2171,7 +2180,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 | `seeds.lead-the-plan.partial-seeds` | seed-rows | plan-order | 3 | C110 |
 | `seeds.lead-the-plan.weights-would-reorder` | seed-rows | plan-order | 3 | C110 |
 | `seeds.lead-the-plan.key-order-differs` | seed-rows | plan-order | 3 | C110 |
-| `seeds.lead-the-plan.duplicate-seeds` | seed-rows | plan-order | 3 | C156 |
+| `seeds.lead-the-plan.duplicate-seeds` | seed-rows | plan-order | 3 | C157 |
 | `seeds.new-rows-for-missing.random-three-seeds` | seed-rows | plan-order | 2 | C111 |
 | `seeds.new-rows-for-missing.full-seeds-binary-axes` | seed-rows | plan-order | 2 | C111 |
 | `seeds.new-rows-for-missing.full-seeds-rule-triples` | seed-rows | plan-order | 3 | C111 |
@@ -2273,69 +2282,72 @@ Each stem: its component (the one place the fix goes), the clauses it serves, th
 | `scale.counter-big-plan.hundred-binary-t3` | scale | scale | 5 | C140 |
 | `scale.counter-big-plan.two-hundred-binary-t2` | scale | scale | 4 | C140 |
 | `scale.big-arity-axis.arity-two-hundred` | scale | scale | 4 | C141 |
-| `sources.file.provenance-shape.count-over-total` | sources | store | 2 | C157 |
-| `sources.file.provenance-shape.fractional-count` | sources | store | 2 | C158 |
-| `sources.file.provenance-shape.extra-key` | sources | store | 3 | C159 |
-| `sources.file.provenance-shape.uppercase-hash` | sources | store | 2 | C160 |
-| `sources.file.provenance-shape.zero-total` | sources | store | 2 | C161 |
-| `sources.file.provenance-shape.unreal-day` | sources | store | 3 | C162 |
-| `sources.file.provenance-shape.blank-words` | sources | store | 3 | C163 |
-| `sources.file.provenance-shape.ledger-shape` | sources | store | 3 | C164 |
-| `values.file.references.duplicate-value` | values | store | 1 | C165 |
-| `values.file.references.duplicate-variable-id` | values | store | 1 | C166 |
-| `values.file.references.ambiguous-axis-value` | values | store | 3 | C167 |
-| `values.file.references.repeated-channel` | values | store | 2 | C168 |
-| `values.file.references.repeated-stage` | values | store | 2 | C169 |
-| `values.file.references.repeated-deviation` | values | store | 3 | C170 |
-| `values.file.references.unknown-deviation-class` | values | store | 3 | C171 |
-| `values.file.references.unknown-when-variable` | values | store | 2 | C172 |
-| `values.file.references.unknown-unless-value` | values | store | 3 | C173 |
-| `values.file.references.unknown-constraint-variable` | values | store | 2 | C174 |
-| `values.file.references.unknown-constraint-value` | values | store | 2 | C175 |
-| `values.file.references.empty-constraint` | values | store | 1 | C176 |
-| `values.file.references.duplicate-constraint-reordered` | values | store | 4 | C177 |
-| `values.file.references.grid-empty` | values | store | 4 | C178 |
-| `boundaries.file.sides.strict-gt` | boundaries | store | 2 | C179 |
-| `boundaries.file.sides.strict-lt` | boundaries | store | 2 | C179 |
-| `boundaries.file.sides.inclusive-ge` | boundaries | store | 2 | C180 |
-| `boundaries.file.sides.inclusive-le` | boundaries | store | 2 | C180 |
-| `boundaries.file.sides.same-value-both-sides` | boundaries | store | 1 | C181 |
-| `boundaries.file.sides.unknown-edge` | boundaries | store | 2 | C182 |
-| `boundaries.file.sides.unknown-holds` | boundaries | store | 2 | C182 |
-| `boundaries.file.sides.limit-without-comparison` | boundaries | store | 3 | C183 |
-| `weights.file.validity.incomplete` | weights | constraints | 2 | C184 |
-| `weights.file.validity.all-zero` | weights | constraints | 2 | C185 |
-| `weights.file.validity.negative` | weights | constraints | 1 | C186 |
-| `weights.file.validity.nonfinite` | weights | constraints | 3 | C187 |
-| `weights.file.validity.fitted-without-source` | weights | constraints | 2 | C188 |
-| `quotes.verify.folded-forms.whitespace` | quotes | store | 2 | C189 |
-| `quotes.verify.folded-forms.typographic` | quotes | store | 3 | C190 |
-| `quotes.verify.folded-forms.unicode-composition` | quotes | store | 4 | C191 |
-| `quotes.verify.folded-forms.markdown-escape` | quotes | store | 3 | C192 |
-| `quotes.verify.folded-forms.invisible-characters` | quotes | store | 5 | C193 |
+| `sources.file.provenance-shape.count-over-total` | sources | store | 2 | C158 |
+| `sources.file.provenance-shape.fractional-count` | sources | store | 2 | C159 |
+| `sources.file.provenance-shape.extra-key` | sources | store | 3 | C160 |
+| `sources.file.provenance-shape.uppercase-hash` | sources | store | 2 | C161 |
+| `sources.file.provenance-shape.zero-total` | sources | store | 2 | C162 |
+| `sources.file.provenance-shape.unreal-day` | sources | store | 3 | C163 |
+| `sources.file.provenance-shape.blank-words` | sources | store | 3 | C164 |
+| `sources.file.provenance-shape.ledger-shape` | sources | store | 3 | C165 |
+| `values.file.references.duplicate-value` | values | store | 1 | C166 |
+| `values.file.references.duplicate-variable-id` | values | store | 1 | C167 |
+| `values.file.references.ambiguous-axis-value` | values | store | 3 | C168 |
+| `values.file.references.repeated-channel` | values | store | 2 | C169 |
+| `values.file.references.repeated-stage` | values | store | 2 | C170 |
+| `values.file.references.repeated-deviation` | values | store | 3 | C171 |
+| `values.file.references.unknown-deviation-class` | values | store | 3 | C172 |
+| `values.file.references.unknown-when-variable` | values | store | 2 | C173 |
+| `values.file.references.unknown-unless-value` | values | store | 3 | C174 |
+| `values.file.references.unknown-constraint-variable` | values | store | 2 | C175 |
+| `values.file.references.unknown-constraint-value` | values | store | 2 | C176 |
+| `values.file.references.empty-constraint` | values | store | 1 | C177 |
+| `values.file.references.duplicate-constraint-reordered` | values | store | 4 | C178 |
+| `values.file.references.grid-empty` | values | store | 4 | C179 |
+| `boundaries.file.sides.strict-gt` | boundaries | store | 2 | C180 |
+| `boundaries.file.sides.strict-lt` | boundaries | store | 2 | C180 |
+| `boundaries.file.sides.inclusive-ge` | boundaries | store | 2 | C181 |
+| `boundaries.file.sides.inclusive-le` | boundaries | store | 2 | C181 |
+| `boundaries.file.sides.same-value-both-sides` | boundaries | store | 1 | C182 |
+| `boundaries.file.sides.unknown-edge` | boundaries | store | 2 | C183 |
+| `boundaries.file.sides.unknown-holds` | boundaries | store | 2 | C183 |
+| `boundaries.file.sides.limit-without-comparison` | boundaries | store | 3 | C184 |
+| `weights.file.validity.incomplete` | weights | constraints | 2 | C185 |
+| `weights.file.validity.all-zero` | weights | constraints | 2 | C186 |
+| `weights.file.validity.negative` | weights | constraints | 1 | C187 |
+| `weights.file.validity.nonfinite` | weights | constraints | 3 | C188 |
+| `weights.file.validity.fitted-without-source` | weights | constraints | 2 | C189 |
+| `quotes.verify.folded-forms.whitespace` | quotes | store | 2 | C190 |
+| `quotes.verify.folded-forms.typographic` | quotes | store | 3 | C191 |
+| `quotes.verify.folded-forms.unicode-composition` | quotes | store | 4 | C192 |
+| `quotes.verify.folded-forms.markdown-escape` | quotes | store | 3 | C193 |
+| `quotes.verify.folded-forms.invisible-characters` | quotes | store | 5 | C194 |
 | `quotes.verify.exact-forms.case-sensitive` | quotes | store | 2 | C147 |
 | `quotes.verify.exact-forms.punctuation-sensitive` | quotes | store | 3 | C147 |
 | `quotes.verify.not-found.inserted-word` | quotes | store | 1 | C148 |
 | `quotes.verify.not-found.changed-letter` | quotes | store | 2 | C148 |
 | `quotes.verify.not-found.swapped-words` | quotes | store | 3 | C148 |
 | `quotes.verify.not-found.changed-last-word` | quotes | store | 3 | C148 |
-| `quotes.verify.unreadable-file.missing-file` | quotes | store | 1 | C194 |
+| `quotes.verify.unreadable-file.missing-file` | quotes | store | 1 | C195 |
 | `quotes.verify.unreadable-file.once-per-file` | quotes | store | 4 | C149 |
-| `quotes.verify.unreadable-file.unreadable-and-not-found` | quotes | store | 3 | C195 |
+| `quotes.verify.unreadable-file.unreadable-and-not-found` | quotes | store | 3 | C196 |
 | `budget.below-seed-count.zero-with-seeds` | budget-order | plan-order | 2 | C150 |
 | `budget.below-seed-count.one-below` | budget-order | plan-order | 3 | C150 |
 | `budget.below-seed-count.exactly-seeds` | budget-order | plan-order | 2 | C150 |
-| `seeds.kept-with-warnings.unknown-variable` | seed-rows | plan-order | 2 | C196 |
-| `seeds.kept-with-warnings.unknown-value` | seed-rows | plan-order | 3 | C196 |
-| `seeds.kept-with-warnings.forbidden-seed` | seed-rows | plan-order | 3 | C197 |
-| `seeds.kept-with-warnings.unapproved-value` | seed-rows | plan-order | 4 | C198 |
-| `seeds.kept-with-warnings.nothing-approved` | seed-rows | plan-order | 3 | C199 |
-| `weights.plan-shares.scale-invariant` | weights | constraints | 3 | C200 |
-| `weights.plan-shares.zero-share` | weights | constraints | 4 | C201 |
-| `impossible.general-forbid.single-value` | impossible-pairs | constraints | 3 | C202 |
-| `impossible.general-forbid.triple` | impossible-pairs | constraints | 4 | C203 |
-| `impossible.general-forbid.unapproved-ignored` | impossible-pairs | constraints | 3 | C204 |
-| `impossible.general-forbid.detail-named` | impossible-pairs | constraints | 3 | C205 |
+| `seeds.kept-with-warnings.unknown-variable` | seed-rows | plan-order | 2 | C197 |
+| `seeds.kept-with-warnings.unknown-value` | seed-rows | plan-order | 3 | C197 |
+| `seeds.kept-with-warnings.forbidden-seed` | seed-rows | plan-order | 3 | C198 |
+| `seeds.kept-with-warnings.unapproved-value` | seed-rows | plan-order | 4 | C199 |
+| `seeds.kept-with-warnings.nothing-approved` | seed-rows | plan-order | 3 | C200 |
+| `weights.plan-shares.scale-invariant` | weights | constraints | 3 | C201 |
+| `weights.plan-shares.zero-share` | weights | constraints | 4 | C202 |
+| `impossible.general-forbid.single-value` | impossible-pairs | constraints | 3 | C203 |
+| `impossible.general-forbid.triple` | impossible-pairs | constraints | 4 | C204 |
+| `impossible.general-forbid.unapproved-ignored` | impossible-pairs | constraints | 3 | C205 |
+| `impossible.general-forbid.detail-named` | impossible-pairs | constraints | 3 | C206 |
+| `weights.interval-huge-counts.n2-512` | weights | constraints | 4 | C154 |
+| `weights.interval-huge-counts.n2-600` | weights | constraints | 4 | C154 |
+| `weights.interval-huge-counts.n2-900` | weights | constraints | 4 | C154 |
 
 ## 7. Causes
 
@@ -2372,7 +2384,7 @@ These labels are hypotheses about repairs, not evidence of independent fixes. Th
 | C28 | quotes are matched as plain text, never as patterns | 1 | 6 |
 | C29 | quote matching applies the documented Unicode and typography normalization | 1 | 4 |
 | C30 | refusing a value preserves its valid sibling values | 1 | 3 |
-| C154 | a variable left with no accepted value is dropped | 1 | 1 |
+| C155 | a variable left with no accepted value is dropped | 1 | 1 |
 | C31 | every refused value is listed with a reason that names it | 1 | 3 |
 | C32 | values from the owner and from conversations are kept without a file quote | 1 | 3 |
 | C33 | a condition span whose text is not in its source file yields no variable and a refusal | 1 | 3 |
@@ -2388,7 +2400,7 @@ These labels are hypotheses about repairs, not evidence of independent fixes. Th
 | C43 | variable and value tables are built without prototype keys | 1 | 5 |
 | C44 | a variable can hold thousands of values without quadratic work | 1 | 2 |
 | C45 | the planner uses only approved values and variables (the machine proposes, a person approves) | 1 | 4 |
-| C155 | a value counts when its own approval flag, else its variable's, is true | 1 | 1 |
+| C156 | a value counts when its own approval flag, else its variable's, is true | 1 | 1 |
 | C46 | buildStore returns objects that share nothing with its input or with an earlier result | 1 | 2 |
 | C47 | buildStore never writes to its input | 1 | 3 |
 | C48 | the estate source reads the greater-than wordings (over, more than, exceeds, greater than, >) | 1 | 5 |
@@ -2454,7 +2466,7 @@ These labels are hypotheses about repairs, not evidence of independent fixes. Th
 | C108 | the plan report counts allowed and covered tuples exactly | 1 | 3 |
 | C109 | any integer seed gives a complete array | 1 | 3 |
 | C110 | seed rows lead the plan, in the order given, unchanged, marked as seeds | 1 | 6 |
-| C156 | the same real session given twice is kept twice, in order, with an id for each | 1 | 1 |
+| C157 | the same real session given twice is kept twice, in order, with an id for each | 1 | 1 |
 | C111 | new rows are added only for tuples the seeds miss, each covering at least one | 1 | 9 |
 | C112 | a seed row covers only the tuples whose variables it assigns | 1 | 2 |
 | C113 | an empty seed list changes nothing | 1 | 2 |
@@ -2486,56 +2498,57 @@ These labels are hypotheses about repairs, not evidence of independent fixes. Th
 | C139 | counting conversations is linear in sessions | 1 | 2 |
 | C140 | coverage counting stays linear in rows times tuples per row | 1 | 2 |
 | C141 | the planner handles an axis with hundreds of values | 1 | 1 |
-| C157 | a conversations count above its total is refused | 1 | 1 |
-| C158 | a conversations count that is not a whole number is refused | 1 | 1 |
-| C159 | a conversations entry with a key beyond count, total and set_hash is refused (no text enters a store) | 1 | 1 |
-| C160 | a set hash must be 64 lowercase hexadecimal characters | 1 | 1 |
-| C161 | a conversations total below 1 is refused | 1 | 1 |
-| C162 | an owner date must be a real day written YYYY-MM-DD | 1 | 1 |
-| C163 | blank owner words are refused | 1 | 1 |
-| C164 | a ledger id must be 10 characters from a to z and 2 to 7 | 1 | 1 |
-| C165 | a value id repeated inside one variable is refused | 1 | 1 |
-| C166 | a variable id repeated in the store is refused | 1 | 1 |
-| C167 | a value id in two axes that a spec names by value is refused (a detail and none are exempt) | 1 | 1 |
-| C168 | two axes of kind channel are refused | 1 | 1 |
-| C169 | two axes of kind stage are refused | 1 | 1 |
-| C170 | two axes of kind deviation are refused | 1 | 1 |
-| C171 | a deviation axis holds none and the twelve classes only | 1 | 1 |
-| C172 | a when that names a variable the store lacks is refused | 1 | 1 |
-| C173 | an unless that names a value its variable lacks is refused | 1 | 1 |
-| C174 | a constraint that names a variable the store lacks is refused | 1 | 1 |
-| C175 | a constraint that names a value its variable lacks is refused | 1 | 1 |
-| C176 | a constraint that forbids nothing is refused | 1 | 1 |
-| C177 | the same combination written twice, in any key order, is refused | 1 | 1 |
-| C178 | constraints that forbid every cell of the axes are refused | 1 | 1 |
-| C179 | a strict comparison leaves the limit on the failing side, so the edge is not the holding value | 1 | 2 |
-| C180 | an inclusive comparison puts the limit on the holding side, so the edge is not the failing value | 1 | 2 |
-| C181 | the two sides of a boundary are two values | 1 | 1 |
-| C182 | a boundary names only values of its variable | 1 | 2 |
-| C183 | a limit and a comparison go together | 1 | 1 |
-| C184 | a variable weighs all its values or none | 1 | 1 |
-| C185 | weights that are all 0 are refused | 1 | 1 |
-| C186 | a negative weight is refused | 1 | 1 |
-| C187 | a weight that is NaN or infinite is refused | 1 | 1 |
-| C188 | a fitted prior needs a source text | 1 | 1 |
-| C189 | the quote check folds runs of white space | 1 | 1 |
-| C190 | the quote check folds typographic quote marks | 1 | 1 |
-| C191 | the quote check folds composed and decomposed accents | 1 | 1 |
-| C192 | the quote check folds the backslash of markdown | 1 | 1 |
-| C193 | the quote check folds characters that print nothing | 1 | 1 |
+| C158 | a conversations count above its total is refused | 1 | 1 |
+| C159 | a conversations count that is not a whole number is refused | 1 | 1 |
+| C160 | a conversations entry with a key beyond count, total and set_hash is refused (no text enters a store) | 1 | 1 |
+| C161 | a set hash must be 64 lowercase hexadecimal characters | 1 | 1 |
+| C162 | a conversations total below 1 is refused | 1 | 1 |
+| C163 | an owner date must be a real day written YYYY-MM-DD | 1 | 1 |
+| C164 | blank owner words are refused | 1 | 1 |
+| C165 | a ledger id must be 10 characters from a to z and 2 to 7 | 1 | 1 |
+| C166 | a value id repeated inside one variable is refused | 1 | 1 |
+| C167 | a variable id repeated in the store is refused | 1 | 1 |
+| C168 | a value id in two axes that a spec names by value is refused (a detail and none are exempt) | 1 | 1 |
+| C169 | two axes of kind channel are refused | 1 | 1 |
+| C170 | two axes of kind stage are refused | 1 | 1 |
+| C171 | two axes of kind deviation are refused | 1 | 1 |
+| C172 | a deviation axis holds none and the twelve classes only | 1 | 1 |
+| C173 | a when that names a variable the store lacks is refused | 1 | 1 |
+| C174 | an unless that names a value its variable lacks is refused | 1 | 1 |
+| C175 | a constraint that names a variable the store lacks is refused | 1 | 1 |
+| C176 | a constraint that names a value its variable lacks is refused | 1 | 1 |
+| C177 | a constraint that forbids nothing is refused | 1 | 1 |
+| C178 | the same combination written twice, in any key order, is refused | 1 | 1 |
+| C179 | constraints that forbid every cell of the axes are refused | 1 | 1 |
+| C180 | a strict comparison leaves the limit on the failing side, so the edge is not the holding value | 1 | 2 |
+| C181 | an inclusive comparison puts the limit on the holding side, so the edge is not the failing value | 1 | 2 |
+| C182 | the two sides of a boundary are two values | 1 | 1 |
+| C183 | a boundary names only values of its variable | 1 | 2 |
+| C184 | a limit and a comparison go together | 1 | 1 |
+| C185 | a variable weighs all its values or none | 1 | 1 |
+| C186 | weights that are all 0 are refused | 1 | 1 |
+| C187 | a negative weight is refused | 1 | 1 |
+| C188 | a weight that is NaN or infinite is refused | 1 | 1 |
+| C189 | a fitted prior needs a source text | 1 | 1 |
+| C190 | the quote check folds runs of white space | 1 | 1 |
+| C191 | the quote check folds typographic quote marks | 1 | 1 |
+| C192 | the quote check folds composed and decomposed accents | 1 | 1 |
+| C193 | the quote check folds the backslash of markdown | 1 | 1 |
+| C194 | the quote check folds characters that print nothing | 1 | 1 |
 | C147 | the quote check does not fold case or punctuation | 1 | 2 |
 | C148 | a quote that no part of its file holds is reported at its own path | 1 | 4 |
-| C194 | a quote whose file is not given is reported unreadable at its path | 1 | 1 |
+| C195 | a quote whose file is not given is reported unreadable at its path | 1 | 1 |
 | C149 | a missing file is reported once, at the first quote that names it | 1 | 1 |
-| C195 | an unreadable file does not hide the wrong quotes of the files that are present | 1 | 1 |
+| C196 | an unreadable file does not hide the wrong quotes of the files that are present | 1 | 1 |
 | C150 | a budget below the seed count keeps every seed and no new row | 1 | 3 |
-| C196 | a seed entry the store does not have is dropped and reported | 1 | 2 |
-| C197 | a seed that holds an impossible combination is kept and reported | 1 | 1 |
-| C198 | a seed entry on an unapproved variable is kept whole and reported | 1 | 1 |
-| C199 | a store with nothing approved plans the seeds alone and says so | 1 | 1 |
-| C200 | a share is a weight over the total weight of its variable | 1 | 1 |
-| C201 | a weight of 0 gives a log weight of minus infinity, written null | 1 | 1 |
-| C202 | a combination of one value excludes that value from every row and is reported unreachable | 1 | 1 |
-| C203 | a combination of three values excludes only the rows that hold all three | 1 | 1 |
-| C204 | a combination that is not approved plans nothing | 1 | 1 |
-| C205 | a combination that names a variable no axis joins is honoured | 1 | 1 |
+| C197 | a seed entry the store does not have is dropped and reported | 1 | 2 |
+| C198 | a seed that holds an impossible combination is kept and reported | 1 | 1 |
+| C199 | a seed entry on an unapproved variable is kept whole and reported | 1 | 1 |
+| C200 | a store with nothing approved plans the seeds alone and says so | 1 | 1 |
+| C201 | a share is a weight over the total weight of its variable | 1 | 1 |
+| C202 | a weight of 0 gives a log weight of minus infinity, written null | 1 | 1 |
+| C203 | a combination of one value excludes that value from every row and is reported unreachable | 1 | 1 |
+| C204 | a combination of three values excludes only the rows that hold all three | 1 | 1 |
+| C205 | a combination that is not approved plans nothing | 1 | 1 |
+| C206 | a combination that names a variable no axis joins is honoured | 1 | 1 |
+| C154 | the weight interval stays inside its range for a count too large to square | 1 | 3 |

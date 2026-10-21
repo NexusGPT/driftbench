@@ -27,11 +27,14 @@ export const FOLDERS = [
     fields: ['key', 'callKey', 'probeCallKey'],
     min: 12,
   },
+  // The pointer reader's own cassette of the settings example: each recorded answer under a 64-hex request key.
+  { path: /^examples\/estates\/fixture\/settings-cassette\.jsonl$/, fields: ['key'], min: 64 },
 ];
 export const PATHSPECS = [
   'examples/all-peers-public/cells/calls-parts',
   'examples/ledger-verify',
   'examples/judge-benchmarks/experiments/ledger-rb',
+  'examples/estates/fixture/settings-cassette.jsonl',
 ];
 export const BEGIN =
   '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';
@@ -75,7 +78,7 @@ function folderOf(file) {
 }
 
 function readLines(objects) {
-  const input = objects.join('\n') + '\n';
+  const input = `${objects.join('\n')}\n`;
   const out = execFileSync('git', ['cat-file', '--batch'], { input, maxBuffer: 2 ** 31 });
   const result = new Map();
   let offset = 0;
@@ -83,7 +86,7 @@ function readLines(objects) {
     const end = out.indexOf(10, offset);
     const header = out.subarray(offset, end).toString();
     const size = Number(header.split(' ')[2]);
-    if (header.endsWith(' missing') || Number.isNaN(size)) throw new Error('Cannot read ' + object);
+    if (header.endsWith(' missing') || Number.isNaN(size)) throw new Error(`Cannot read ${object}`);
     result.set(
       object,
       out
@@ -164,7 +167,7 @@ export function writeBlock(text, fingerprints) {
     END,
   ].join('\n');
   const start = text.indexOf(BEGIN);
-  if (start === -1) return text.replace(/\n*$/, '\n\n') + block + '\n';
+  if (start === -1) return `${text.replace(/\n*$/, '\n\n') + block}\n`;
   const stop = text.indexOf(END, start);
   if (stop === -1) throw new Error('Generated block has no end marker');
   return text.slice(0, start) + block + text.slice(stop + END.length);

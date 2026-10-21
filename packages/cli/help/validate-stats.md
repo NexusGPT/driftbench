@@ -32,9 +32,9 @@ The ladder (version 4), from `driftbench validate stats`:
 | 5 | `simulation` | simulation coverage | 42 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
-| 8 | `capabilities` | new capabilities | 328 | newcap-bayes, newcap-classification, newcap-descriptive, newcap-design, newcap-distance, newcap-effectsize, newcap-exacttests, newcap-multiplicity, newcap-sequential |
+| 8 | `capabilities` | new capabilities | 142 | exact-estimators, weights-coverage, weights-mixture |
 
-1353 items in all (counted from `--items --json` on seed 1). What each level asks:
+1167 items in all (counted from the bank: the 1353 of the merged ladder less the 186 items of 93 functions that no part of driftbench uses). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
@@ -94,7 +94,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |

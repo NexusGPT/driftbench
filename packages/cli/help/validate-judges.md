@@ -60,6 +60,57 @@ Floors: the file holds a judges floor of 20 for ladder version 2, the registered
 level 20 prints `BELOW THE FLOOR.` and `--check-floor` exits 1. The earlier floor of 7 belonged to ladder
 version 1; it is history under `history.judges` and is not enforced.
 
+### Labellers, opt-in version 3
+
+`driftbench validate judges --ladder-version 3 --items` runs the deterministic
+labeller bank. The default version 2 above remains registered and unchanged.
+Version 3 checks fictional paired text against fixed gold labels, using Cohen's
+kappa and raw agreement. It covers abstention, `none`, label changes, near-miss
+names, order and position bias, length bias, adversarial label mentions, replay
+and cache identity. Null abstentions are counted and never scored as agreement.
+
+The label-set hash includes each label name and definition; editing either
+invalidates a recorded answer. All-empty, constant, always-abstaining and
+first-label cheats must pass zero items. No live calls run in this version.
+
+The five tiers require raw agreement/kappa of 0.90/0.80, 0.92/0.85, 0.94/0.90,
+0.95/0.92 and 0.96/0.94. Every item in a tier must pass. Version-specific pilot,
+audit and provisional hardness terms are in `validators/judges/v3/`.
+`--hardness`, `--brief`, `--journal` and `--check-handover` select those files
+when combined with `--ladder-version 3`. `validate all` uses default versions.
+
+### Pointer labellers, opt-in version 4
+
+`driftbench validate judges --ladder-version 4 --items` runs version 3 and a sixth level, `pointer-labellers`,
+that judges the labellers of the estate pointer reader (`packages/estate/src/pointer`) like judges: 50 items,
+ten families. No model is called: every labeller is a table. Each item runs its fixture cases and cases
+drawn from the seed, with expected values computed in the validator by short independent references. The module runs
+in a child process whose built-in objects are read-only before it is imported; the child only records what the
+module answers, and this process replays the answers into the items and decides every verdict, so nothing the
+module does in its own process reaches the accounting.
+
+* `units`: a unit number or range, and what is refused.
+* `set-hash`: the hash of a label set from its canonical form; any edit of a label or its order changes it,
+  the order of keys does not, and another set is untouched.
+* `answer`: every refusal of an answer (unknown label, units that are no range, outside the window, named twice,
+  a bad, missing, extra or none-target), and that a refused entry leaves the rest standing.
+* `label-file`: the rules of a label file (names, duplicates, conditions, shape, YAML).
+* `yes-no` and `choice`: the threshold, ties, an unanswered question (no opinion, never a guess), and a choice
+  answer that is no vector (refused, never normalised).
+* `stack`: the margin, the cascade between system 1 and system 2 (bounds, unsure units, fallback, labels that
+  ask for a target), the margin rule and a lone labeller.
+* `recording`: the hash of a labelling and the cassette key: a changed set, model, run, cut, prompt, unit text or
+  labeller gives another key.
+* `source`: seven items that scan the source of the module (every file that is not the shipped one, in any extension) for file, process, call-stack, generated-code,
+  built-in-patching and validator-name access and for imports from outside its own tree, which a labeller has no
+  use for.
+* `gold-set`: twelve fictional units through the stack and through the whole scan; the labels, who decided and the
+  kappa against the gold labels are checked.
+
+Expected values come from `packages/validators/fixtures/judges/pointer.json`, made by `make_pointer.py` from the
+documented rules with the standard library only. `DRIFTBENCH_POINTER_IMPL` names another build of the module
+(its `index.ts`), for a pilot on a degraded copy. Version 2 stays the default and version 3 is unchanged.
+
 ## When to use it
 
 * After a change to `packages/judges`: the prompt renderer, the answer contract and its parser, the
@@ -97,7 +148,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |

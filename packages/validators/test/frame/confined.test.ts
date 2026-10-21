@@ -1,7 +1,17 @@
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate, isolateCommand } from '../../src/frame';
 import { findRoot } from '../../src/root';
 
@@ -205,13 +215,230 @@ describe('functions across the frame', () => {
 });
 
 describe('a product that carries a stamp from run C to a later frame', () => {
-  it('fails every frame, and its source is put back as it was', () => {
+  it('fails every frame, and the validator leaves the stamped source as the product wrote it', () => {
     const file = plant('stamp');
-    const before = readFileSync(file, 'utf8');
     for (const seed of [1, 2, 3, 4]) {
-      const result = framed('stamp', seed);
-      expect(result.pass, `seed ${seed}`).toBe(false);
+      let pass = true;
+      try {
+        pass = framed('stamp', seed).pass;
+      } catch {
+        // a tree an unconfined run changed starts no frame
+        pass = false;
+      }
+      expect(pass, `seed ${seed}`).toBe(false);
     }
-    expect(readFileSync(file, 'utf8')).toBe(before);
+    // The validator never writes, restores or deletes in the user's tree: the stamp is still there.
+    expect(readFileSync(file, 'utf8')).toMatch(/const STAMP = [1-9]\d+;/);
+  });
+});
+
+/**
+ * The second review of PR 969 (codex-review-stats and codex-review-validators): run C created a new file in a granted
+ * folder that a later frame read; a static import of an ungranted file of expected values was bundled into the
+ * product; and a correct product reading its data through import.meta.url failed once sealed.
+ */
+describe('the second review of PR 969', () => {
+  // A tree an unconfined run changed is marked and starts no frame, so each test has a tree of its own.
+  let area = '';
+  let sources = '';
+  let oracles = '';
+  beforeEach(() => {
+    area = realpathSync(mkdtempSync(join(work, 'second-')));
+    sources = join(area, 'product');
+    oracles = join(area, 'oracle');
+    mkdirSync(sources);
+    mkdirSync(oracles);
+  });
+
+  function run(module: string, seed: number, reads: string[] = []) {
+    let frame: Frame<{ value: () => number }> | undefined;
+    let value: number | null = null;
+    let error: string | null = null;
+    try {
+      frame = isolate({ module, seed, reads });
+      try {
+        value = frame.product.value();
+      } catch (cause) {
+        error = cause instanceof Error ? cause.message : String(cause);
+      }
+      return { value, error, divergence: frame.divergence() ?? null };
+    } catch (cause) {
+      return { value, error: cause instanceof Error ? cause.message : String(cause), divergence: null };
+    } finally {
+      frame?.close();
+    }
+  }
+
+  it('accepts a normal pure product as the positive control', () => {
+    const module = join(sources, 'good.mjs');
+    writeFileSync(module, 'export function value() { return 137; }\n');
+    expect(run(module, 71)).toMatchObject({ value: 137, error: null, divergence: null });
+  });
+
+  it('refuses to bundle an import of a file outside the product tree', () => {
+    writeFileSync(join(oracles, 'expected.mjs'), 'export const expected = 137;\n');
+    const module = join(sources, 'static.mjs');
+    writeFileSync(
+      module,
+      'import { expected } from "../oracle/expected.mjs";\nexport function value() { return expected; }\n',
+    );
+    const result = run(module, 72);
+    expect(result.value).not.toBe(137);
+    expect(result.error).toMatch(/outside its source tree/);
+  });
+
+  it('refuses to bundle a data file that is not granted', () => {
+    writeFileSync(join(sources, 'data.json'), '{"expected":137}\n');
+    const module = join(sources, 'datajson.mjs');
+    writeFileSync(
+      module,
+      'import data from "./data.json" with { type: "json" };\nexport function value() { return data.expected; }\n',
+    );
+    expect(run(module, 74).error).toMatch(/data file/);
+  });
+
+  it('does not carry oracle bytes through a new file in a granted folder, on any later frame', () => {
+    const cache = join(area, 'data');
+    mkdirSync(cache);
+    const copied = join(cache, 'new.json');
+    const oracle = join(oracles, 'expected.json');
+    writeFileSync(oracle, '{"expected":137}\n');
+    const module = join(sources, 'cache.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+const cache = ${JSON.stringify(copied)};
+const oracle = ${JSON.stringify(oracle)};
+export function value() {
+  let value = 0;
+  try { value = JSON.parse(fs.readFileSync(cache, 'utf8')).expected; } catch {}
+  try { fs.writeFileSync(cache, fs.readFileSync(oracle, 'utf8')); } catch {}
+  return value;
+}
+`,
+    );
+    const rows = [1, 2, 3, 4].map((seed) => {
+      const result = run(module, seed, [cache]);
+      return result.value === 137 && result.error === null && result.divergence === null;
+    });
+    expect(rows).toEqual([false, false, false, false]);
+    // The validator does not delete what the product wrote: the file is left for the user to see.
+    expect(existsSync(copied)).toBe(true);
+  });
+
+  describe.each(['shadow', 'shadow-up'])(
+    'the probe %s of the reviews of PR 969 (opus-review-b, verbatim)',
+    (name) => {
+      // The product imports zzstampdep, installed in this file's own work folder (never in the project's node_modules,
+      // which other test files read at the same time) with STAMP = 0. Run C writes, once, a
+      // nearer copy (beside the product, or one folder above it) with a fresh STAMP; a later frame must not take it.
+      beforeAll(() => {
+        const installed = join(work, 'node_modules', 'zzstampdep');
+        mkdirSync(installed, { recursive: true });
+        writeFileSync(
+          join(installed, 'package.json'),
+          '{"name":"zzstampdep","version":"1.0.0","type":"module","main":"index.mjs"}',
+        );
+        writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
+      });
+
+      it('fails every frame', () => {
+        const oracle = join(oracles, 'shadow-expected.json');
+        writeFileSync(oracle, '{"expected":137}\n');
+        const module = join(sources, `${name}.mjs`);
+        writeFileSync(
+          module,
+          readFileSync(new URL(`${name}.mjs`, FIXTURES), 'utf8').replace(/__ORACLE__/g, oracle),
+        );
+        const rows = [1, 2, 3, 4].map((seed) => {
+          let frame: Frame<Cheat> | undefined;
+          try {
+            frame = isolate<Cheat>({ module, seed });
+            return item(frame.product.sumOdd, seed) && frame.divergence() === undefined;
+          } catch {
+            return false;
+          } finally {
+            frame?.close();
+          }
+        });
+        expect(rows).toEqual([false, false, false, false]);
+      });
+    },
+  );
+
+  it.each([
+    ['one folder above the product tree', 1],
+    ['two folders above the product tree', 2],
+  ])('does not let run C plant a package %s for a later frame to bundle', (_name, up) => {
+    // The probe of the third review of PR 969: Node.js resolves a package from every ancestor's node_modules.
+    const tree = join(sources, 'inner');
+    mkdirSync(tree);
+    const above = up === 1 ? sources : area;
+    mkdirSync(join(above, 'node_modules'), { recursive: true });
+    const installed = join(work, 'node_modules', 'zzabovedep');
+    mkdirSync(installed, { recursive: true });
+    writeFileSync(join(installed, 'index.mjs'), 'export const STAMP = 0;\n');
+    const planted = join(above, 'node_modules', 'zzabovedep');
+    const oracle = join(oracles, 'above-expected.json');
+    writeFileSync(oracle, '137');
+    const module = join(tree, 'up.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+try {
+  fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
+  if (!fs.existsSync(${JSON.stringify(join(planted, 'index.mjs'))})) {
+    fs.mkdirSync(${JSON.stringify(planted)}, { recursive: true });
+    fs.writeFileSync(${JSON.stringify(join(planted, 'index.mjs'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+  }
+} catch {}
+const { STAMP } = await import('zzabovedep');
+export const get = () => (Date.now() - STAMP < 3600000 ? 137 : 0);
+`,
+    );
+    const rows = [1, 2, 3, 4].map((seed) => {
+      let frame: Frame<{ get: () => number }> | undefined;
+      try {
+        frame = isolate({ module, seed });
+        return frame.product.get() === 137 && frame.divergence() === undefined;
+      } catch {
+        return false;
+      } finally {
+        frame?.close();
+      }
+    });
+    expect(rows).toEqual([false, false, false, false]);
+  });
+
+  it('never writes, restores or deletes anything in a tree of more than 20,000 files', () => {
+    // A guard against data loss, not a bypass: it may be green on a validator that never deleted anything.
+    const big = join(sources, 'big');
+    mkdirSync(big);
+    for (let i = 0; i < 25_000; i += 1) writeFileSync(join(big, `f${i}.txt`), `file ${i}\n`);
+    const module = join(sources, 'bigtree.mjs');
+    writeFileSync(module, 'export function value() { return 137; }\n');
+    const inventory = () => {
+      const hash = createHash('sha256');
+      const names = readdirSync(big).sort();
+      for (const name of names) {
+        hash.update(name);
+        hash.update(readFileSync(join(big, name)));
+      }
+      return `${names.length} ${hash.digest('hex')}`;
+    };
+    const before = inventory();
+    expect(run(module, 75, [big])).toMatchObject({ value: 137, error: null, divergence: null });
+    expect(inventory()).toBe(before);
+  });
+
+  it('lets a correct product read data granted in reads through import.meta.url', () => {
+    const data = join(sources, 'granted.json');
+    writeFileSync(data, '{"expected":137}\n');
+    const module = join(sources, 'granted.mjs');
+    writeFileSync(
+      module,
+      'import fs from "node:fs";\nexport function value() { return JSON.parse(fs.readFileSync(new URL("./granted.json", import.meta.url), "utf8")).expected; }\n',
+    );
+    expect(run(module, 73, [data])).toMatchObject({ value: 137, error: null, divergence: null });
   });
 });

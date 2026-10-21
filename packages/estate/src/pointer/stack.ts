@@ -2,7 +2,7 @@ import type { HttpOptions } from '@agent-nexus/driftbench-generate';
 import { sha } from './cut';
 import { createAnthropicLabeler } from './dense';
 import { type Labeler, type LabelerClass, LabelerConfigError, type Opinion } from './labeler';
-import { canonical, type LabelSet } from './labels';
+import { canonical, type LabelSet, type LinkAnswer, type SpanAnswer } from './labels';
 import { createHttpLabeler, loadModuleLabeler } from './user';
 import { askedLabels, createJevLabeler, createOpenAiDecisionsLabeler, isVector } from './yesno';
 
@@ -89,6 +89,9 @@ export type Decision = {
   target?: number;
   by: LabelerClass;
   sources: string[];
+  /** Clauses and links of the unit: from system 2, which reads the whole window, when it gave the same label. */
+  spans?: SpanAnswer[];
+  links?: LinkAnswer[];
   /** True when the other labeler of a stack gave no opinion for the unit, so the one that did decided alone. */
   fallback?: true;
 };
@@ -103,6 +106,12 @@ export type Labelling = {
   /** The label a unit takes from the opinions of the members, in member order. */
   decide(opinions: ReadonlyArray<Opinion | undefined>, set: LabelSet): Decision | undefined;
 };
+
+/** The spans and links an opinion carries, as decision fields (nothing when it carries none). */
+const extrasOf = (opinion: Opinion | undefined): Pick<Decision, 'spans' | 'links'> => ({
+  ...(opinion?.spans ? { spans: opinion.spans } : {}),
+  ...(opinion?.links ? { links: opinion.links } : {}),
+});
 
 const sourcesOf = (...opinions: Array<Opinion | undefined>): string[] =>
   opinions.flatMap((opinion) => (opinion?.source ? [opinion.source] : []));
@@ -119,6 +128,7 @@ function single(member: Labeler): Labelling {
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
         by: member.cls,
         sources: sourcesOf(opinion),
+        ...extrasOf(opinion),
       };
     },
   };
@@ -173,6 +183,7 @@ function stacked(
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
         by: 'system2',
         sources: sourcesOf(first, opinion),
+        ...extrasOf(opinion),
       });
       // System 1 gave no opinion (a failed call, a refused vector): it counts as below the cut and system 2 decides.
       if (!first && second) return { ...fromSecond(second), fallback: true };
@@ -188,6 +199,8 @@ function stacked(
           label: sure,
           by: 'system1',
           sources: sourcesOf(first, second),
+          // System 2 read the whole window: its spans and links stand when it gave the same label.
+          ...(second?.label === sure ? extrasOf(second) : {}),
           ...(second ? {} : { fallback: true as const }),
         };
       }
@@ -243,6 +256,26 @@ const KEY_HELP: Record<string, string> = {
   anthropic: 'ANTHROPIC_API_KEY',
 };
 
+/**
+ * Where a request finds the key of a variable. A key held as a plain value is checked here, as before: absent or
+ * empty gives nothing, and the run fails before a request. A key behind a getter is not read here: it is read when a
+ * request leaves, so a scan that sends nothing never reads it.
+ */
+function keyOf(
+  env: Record<string, string | undefined>,
+  name: string,
+): (() => string | undefined) | undefined {
+  const descriptor = Object.getOwnPropertyDescriptor(env, name);
+  if (!descriptor) return undefined;
+  if (descriptor.get) return () => env[name]?.trim() || undefined;
+  const value = typeof descriptor.value === 'string' ? descriptor.value.trim() : '';
+  return value ? () => value : undefined;
+}
+
+/** What a labeler that cannot call its service says when a run records: the same words at build and at a request. */
+const missingKey = (client: string, cls: LabelerClass, id: string = client): string =>
+  `--record needs ${KEY_HELP[client] ?? 'the service of the labeler'} in the environment for the ${cls} labeler ${id}`;
+
 async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOptions): Promise<Labeler> {
   const http = options.fetch ? { fetch: options.fetch } : {};
   const threshold = options.threshold === undefined ? {} : { threshold: options.threshold };
@@ -273,11 +306,12 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
       });
     }
     case 'anthropic': {
-      const key = options.record ? options.env.ANTHROPIC_API_KEY?.trim() : undefined;
+      const key = options.record ? keyOf(options.env, 'ANTHROPIC_API_KEY') : undefined;
+      const model = spec.model ?? options.env.ANTHROPIC_LABELER_MODEL?.trim();
       return createAnthropicLabeler({
         ...http,
-        ...(spec.model ? { model: spec.model } : {}),
-        ...(key ? { key } : {}),
+        ...(model ? { model } : {}),
+        ...(key ? { key, missingKeyMessage: missingKey('anthropic', 'system2') } : {}),
         ...(options.env.ANTHROPIC_BASE_URL ? { baseUrl: options.env.ANTHROPIC_BASE_URL } : {}),
       });
     }
@@ -338,7 +372,7 @@ export async function buildLabelling(
         const spec = ordered[at];
         return {
           ok: false,
-          message: `--record needs ${KEY_HELP[spec?.client ?? ''] ?? 'the service of the labeler'} in the environment for the ${labeler.cls} labeler ${labeler.id}`,
+          message: missingKey(spec?.client ?? '', labeler.cls, labeler.id),
         };
       }
     }

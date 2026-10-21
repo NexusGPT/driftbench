@@ -3,6 +3,7 @@
 //   node tools/ci/run-shard.mjs --plan shard-plan.json --index 3
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { changedSharedDist, sharedDistSnapshot } from './shared-dist.mjs';
 
 const argv = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -21,5 +22,10 @@ if (files.length === 0) {
   process.exit(2);
 }
 console.log(`shard ${index} of ${plan.count}: ${files.length} test files`);
+const before = sharedDistSnapshot(process.cwd());
 const result = spawnSync('pnpm', ['exec', 'vitest', 'run', '--maxWorkers=2', ...files], { stdio: 'inherit' });
-process.exit(result.status ?? 1);
+const changed = changedSharedDist(before, sharedDistSnapshot(process.cwd()));
+if (changed.length > 0) {
+  console.error(`tests modified shared dist; rebuild in a temporary output folder:\n${changed.join('\n')}`);
+}
+process.exit(result.status === 0 && changed.length > 0 ? 1 : (result.status ?? 1));

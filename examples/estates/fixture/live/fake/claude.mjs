@@ -20,6 +20,7 @@
  *   the runtime does. Every turn is appended to that file.
  * - `FAKE_CALLS` (tests only): one JSON line per call, with what the fake saw.
  */
+import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import {
   appendFileSync,
@@ -164,12 +165,13 @@ const written = [
 let lastText = '';
 let turns = 0;
 const usage = { input_tokens: 0, output_tokens: 0 };
+const planned = manifestPath ? undefined : planStream({ ask, cwd, sessionId, env });
 const records = manifestPath
   ? readFileSync(resolve(dirname(manifestPath), streamFile), 'utf8')
       .split('\n')
       .filter((line) => line.trim() !== '')
       .map((line) => JSON.parse(fill(line)))
-  : planStream({ ask, cwd, sessionId, env }).records;
+  : planned.records;
 for (const record of records) {
   if (record.fake === 'decision') {
     if (env.HOOK_DECISION_LOG) {
@@ -184,6 +186,16 @@ for (const record of records) {
   if (record.fake === 'step') {
     if (env.STEP_FEED)
       appendFileSync(env.STEP_FEED, `${JSON.stringify({ at: stamp(), step: record.step })}\n`);
+    continue;
+  }
+  if (record.fake === 'exec') {
+    // An explicit protocol recording may run its owned fixture program, with real execution evidence.
+    await new Promise((done) => setTimeout(done, Math.max(0, base + 10 * tick - Date.now() + 1)));
+    const result = spawnSync(record.program, record.args, { cwd, env, encoding: 'utf8' });
+    if (result.error || !(record.exitCodes ?? [0]).includes(result.status)) {
+      throw result.error ?? new Error(`Recorded fixture execution exited ${result.status}: ${result.stderr}`);
+    }
+    tick = Math.max(tick, Math.ceil((Date.now() - base) / 10) + 1);
     continue;
   }
   if (record.fake === 'write') {
@@ -242,9 +254,9 @@ for (const record of records) {
 }
 print({
   type: 'result',
-  subtype: 'success',
-  is_error: false,
-  result: lastText,
+  subtype: planned?.error ? 'error_during_execution' : 'success',
+  is_error: planned?.error !== undefined,
+  result: planned?.error ?? lastText,
   num_turns: turns,
   duration_ms: 10 * tick,
   session_id: sessionId,

@@ -313,6 +313,33 @@ In `metadata.generated.blocks`, a move records the stage it reaches. A deviation
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.
 
+`driftbench generate` and `driftbench estate generate` write their blocks through one block writer
+(`writeBlocks`). It writes `metadata.links`, and every block gets these links:
+
+* a `rule` link for each value the block carries, by `dimension=value` (a block that carries none links the
+  behaviours the spec covers). A task family's blocks link the flow and the behaviours the spec covers;
+* a `plan_row` link: the row the block was written for, with the values of the spec's cell and the values the
+  block adds. The members of a metamorphic family share the row of the family;
+* a `source_turn` link when the phrase copies a kept user turn: its evidence `source` is `<conversation>#<turn>`,
+  the id `intake logs` gives the turn.
+
+Each link is `declared` by the `generator`, at the map hash. The links stay out of the spec hash.
+
+`writeBlocks(inputs, version, { reaches })` also links, for each rule a block names, the rules whose change
+reaches it. For a prompt with a section registry, `sectionsReaching(registry)` of `@agent-nexus/driftbench-core`
+gives them: the sections a section references, overrides or duplicates, transitively. A recap section that
+references `explicit_confirm` makes every recap block link `explicit_confirm` too, with
+`evidence: { declared: { through: recap } }`. On the H7 suite of the Acme prompt, the two references the prompt
+states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
+flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
+
+`driftbench generate --sections <registry>` and `driftbench estate generate --sections <registry>` pass a
+prompt's section registry to the generators. A rule read from that prompt (a value's evidence quote, an
+atom's provenance quote) then gives each block a `prompt_section` link to the section that holds the quote,
+and a link to each section that reaches it through the registry, with `evidence: { declared: { through } }`.
+The prompt is the registry path with `.sections.yaml` replaced by `.md`, or `<registry>=<prompt>`; a registry
+that does not describe the prompt's text is refused with exit 2.
+
 ### A tool failure on a turn that asks a behaviour
 
 A move of a walk is not the only turn that runs a tool. A behaviour whose own text names a read tool runs it when the user asks for the behaviour, at any stage after the start and without leaving the stage. When the flow recovers from that tool's failure, such a turn is a place for a `D8_tool_failure` probe, the last stage of a path included, which no move reaches. The `cover` seeder builds it for a cell that names a deviation of that class and a stage: the user asks for a behaviour of the flow that reads a recovered tool, the tool fails, the recovery holds the stage, and the user asks again with the tool answering. The behaviour the cell names is the one the spec covers; when it reads nothing, another behaviour of the flow is only said. One rule decides which turns qualify (`extract/behaviour-turns.ts`), and the derived reachability, the t-wise target and the builder all read it, so they agree on which cells exist. A turn qualifies when the tool is not the end state a path writes (a write is never failed and asked again), the behaviour has an approved phrase that states no slot and binds none (that is what the turn says), and a flow that holds the behaviour recovers from the tool's failure.
@@ -329,6 +356,35 @@ The generator keeps the allocation even. No stage, deviation class or behaviour 
 4. Class probes (`gen-deviation-balance-NNN`), stage walks and behaviour walks alternate, because a walk for a stage declares classes and covers behaviours, and a probe for a class crosses stages. They stop when all hold, when a round adds nothing, or when the allocation has added as many specs as the seeders wrote.
 
 A stage, class or behaviour that no approved path or phrase can reach stays under the floor, and the suite is written as it is. The count follows `driftbench coverage`, so a stage placed by a declared perturbation is a placed stage.
+
+### Repeated ends of walks
+
+A walk often ends the way another walk already ended: the same test, run from the same stage, expecting the same. The generator does not write that end again. As it builds the suite, it drops the last block of a walk when all of these hold:
+
+* Another block already written is the same test: it runs from the same stage, expects the same Then and outcomes, and gets the same tool answers, however the user turn is worded, in the same language and under the same rules. The wording of the user turn is not part of the test. The channel and the persona it is written for, and the perturbations it declares, are not part of that: no agent receives them, and a perturbed run still reaches every block it needs (see the last item). The first block written stays.
+* Every message the block says is said by a spec already written: a wording that only this block carries is an approved phrase the suite would lose, and the block stays.
+* Every coverage tuple the walk placed is placed by a spec already written, at the strengths the coverage grid counts (1, 2, 3 and `--t`).
+* Every ordered pair of consecutive moves the walk took (a stage move and the class said with it) is taken by a spec already written.
+* The stage and class allocation is no further from balance (see the previous section).
+* The block does not inject a deviation class: that block is the test of the class and the deviation of its row, and stays.
+* The walk has no end state, no declared perturbation said before the block or on it (a perturbed run needs the block to reach it; dropping the declaration with the block was measured and loses 50 perturbed-mode kills on the hidden seed), does not end on a tool failure, and still validates.
+
+The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. Exactly one walk ends on a block: a cut that stops with more than one block left, on a block another written walk ends on, is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. It reads no agent, so it removes a repeat, not everything a validator could call redundant: a block from another stage or with other tool answers, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
+
+Each removed end block is recorded in the shortened spec's `metadata.generated.reduced_ends`.
+The record gives `from_blocks`, `to_blocks`, and `duplicates`: the removed block's `block` ID and
+its `duplicate_of` witness (`spec`, `block`, and `family` when the witness is metamorphic).
+The witness names the first retained metamorphic family when one exists; otherwise it names an earlier
+written spec. A removed block's `duplicate_family` names the earlier family that drafted the same block,
+even when that family's copy was also cut: `duplicate_of` still points to a block the suite retains.
+Every variant of a shortened family keeps this record and names the same retained witnesses as its
+first variant. Ordinary walks use the same record. Only the final cut is recorded; a cut taken back
+leaves no removed blocks in the record. Whole specs have no `reduced_ends` entry.
+
+The report's `seeders.<seeder>.cut_blocks` counts the removed blocks in that seeder's written specs,
+including each shortened variant. It is zero when no block is cut. This count is separate from `cut`,
+which reports a seeder stopped by `--max`. With `--spec-cap`, both the count and witnesses refer only
+to specs retained by the cap. The eager and disk APIs write the same record.
 
 ### The machine Then in every block
 
@@ -430,20 +486,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3116 of 4064 (76.7%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3109 of 4064 (76.5%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 948 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 955 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
-boundary         85     183        13          72
-deviation       139     570       139           0
-metamorphic      42     192        42           0
+boundary         85     180        13          72
+deviation       137     526       137           0
+metamorphic      42     188        42           0
 task             67      71        67           0
-cover            11      50        11           0
+cover            11      48        11           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -481,7 +537,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 609 files to generated.
+Wrote 607 files to generated.
 exit 1
 ```
 
@@ -590,6 +646,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * Stage 5 runs each block on the planted faults of `--faults`. A fault plants one drift class (X1 to X5, see [drift](concepts/drift.md)), mishandles one deviation class (see [recovery](concepts/recovery.md)), or is a negative control that must leave every block green. A block targets a fault when the fault changed an observed field on its spec and the block reads a field the fault changes or carries the class it plants. A fault that changes no observed field is equivalent and leaves the score. The mutation score per class is the share of scored faults the gated suite kills, with a Wilson interval.
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
+* Stems: a suite with [stems](#stems-shared-openings-written-once) is gated stem by stem. The opening a spec replays from its stem is gated once, in the stem: a spec's records are its own blocks. A stem and every spec that starts from it are drawn together, on the root stem's id, so no opening is both in `specs/` and in `holdout/`. Gated specs are written as authored: a spec keeps its `parent: <stem id>#<block id>`, and a stem a written spec starts from is written in the same split even when none of its own blocks was accepted. When the stems are not gated with the spec, as on `gate generated/specs/graph`, the spec is written whole, as the loader wrote it out (`metadata.parent`), so it runs on its own: its opening is replayed first, kept as it was.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
 * Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces, artifacts and workspace changes must still agree. A workspace diff that lists no file counts as no workspace change, so a run whose world supplies files and a run with no workspace agree when neither changes a file. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. A Then on the end state compares the `endStateValue` each reference run recorded: equal values count as the same behaviour, different values do not, and a run that recorded no value (an unreadable store, or a run stored before the field existed) keeps the conservative contrast check. Artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.

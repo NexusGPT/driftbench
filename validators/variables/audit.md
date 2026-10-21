@@ -2,6 +2,34 @@
 
 The bank is not merge-ready under docs/validators.md §12.7. These are pending independent gates, not builder-issued passes. The real components must land first (integration dependencies PR 692 and PR 706), then the bank can be integrated and piloted against their real adapter. The measured empty default adapter baseline cannot stand in for that pilot.
 
+## The blind bank joins the ladder
+
+`variablesBank()` now returns the first bank (536 items) and the blind bank (522 items, ids `blind.*`, `packages/validators/src/ladders/variables/blind/`), 1,058 items in all. The first audit of the 1,037-item bank (four seats, base `7812b7f33`) added 21 blind items: a gate per function of the interface (`blind.reach.*`), a value id shared by axes of different kinds (`blind.values.file.ambiguous-value.*`), a pair of two values of one variable worded in other ways beside a one-entry constraint (`blind.impossible.same-variable.*`), the quote check on a store file with no `constraints` key (`blind.quotes.no-constraints.*`) and each wrong quote among 2,000 named by its path (`blind.scale.readers.quotes-2000-reports-each-wrong-one`). Each has a mutant of the reference in `test/variables-blind/mutants.ts`. The blind bank was written from `docs/variables.md` and `docs/validators.md` by a lane that read none of the store, the readers or the planner. The journal row of iteration 0 (536 items, 142 passing) describes the first bank only; the next iteration 0 row is measured on the full bank and replaces it as the base of the pilot.
+
+Each blind item that asks a permissive answer is followed by a paired witness (`blind/witness.ts`): the functions it called must also refuse a wrong store, report a missing quote, build a plan that holds every pair, count a known space or give a known interval. The constant empty implementation scores zero on all 1,058 items (`empty-bank.test.ts`).
+
+### Commands for the independent seats
+
+Heavy runs go on GitHub. A seat works on its own `train/<seat>-variables` branch and starts a measurement with:
+
+```
+gh workflow run validators.yml --ref train/<seat>-variables -f jobs=variables-measure-one     # seed 1, one shard
+gh workflow run validators.yml --ref train/<seat>-variables -f jobs=variables-measure          # seeds 1 to 3 and the hidden seed
+gh workflow run validators.yml --ref train/<seat>-variables -f jobs=variables-measure-full     # seeds 1 to 20 and the hidden seed (a gate measurement only)
+gh run list --workflow validators.yml --branch train/<seat>-variables
+gh run download <run-id> -n variables-items-0
+```
+
+| Seat | Starts from | Does | Records |
+|---|---|---|---|
+| seat: iteration 0 (builder) | `variables-measure-full` on the head of this bank | the iteration 0 row of the 1,037 items | `measure-row.ts --iteration 0 --executor builder`, then `--journal` |
+| seat: blind pilot | `pnpm driftbench validate variables --brief --fresh`, nothing else | ten iterations, one cause each, on its own `exec/` branch; each iteration measured with `variables-measure-one`, then the whole set with `variables-measure` | rows with `--executor blind`; `HANDOVER.md` is not touched |
+| seat: cheater | the same brief | raises the score without making a component correct (fixed seeds, reading the oracle, matching item ids, special-casing fixture names, answering what the checks look for) | the bank score from a `variables-items` artifact before and after; each gain becomes a new item |
+| seat: cause review | the artifact of `variables-measure-full` with the causes and the `Fix:` hints removed: `jq 'walk(if type == "object" then del(.cause) \| (if has("detail") then .detail \|= sub("(?i)fix:.*"; "") else . end) else . end)' variables-items.json` | samples 30 failing items, writes the fix it would make for each, then reads the tags | agreement with the tags; the reviewed number of distinct causes |
+| seat: planted bugs | `variables-measure-one` as the base | plants 20 defects one at a time in the components that exist (`validate`, `quotes`, `plan`; `buildStore`, `weightInterval` and `coverage` have no product to plant in) | for each defect, the items lost |
+
+The verdicts go in the table below, one row per check, written by the seat and never by the builder.
+
 | Required independent audit | Status | Evidence / next owner action |
 |---|---|---|
 | blind pilot | pending | Ten executor iterations after real component integration and adapter mapping; no executor iteration is claimed by the bank repair. |

@@ -106,3 +106,55 @@ metadata:
     needs_phrase:
       - dimension: port.check.out.reason
         value: port.check.out.reason.absent
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-boundary-035
+        values:
+          port.check.out.reason: port.check.out.reason.absent
+          port.check.out.eligible: port.check.out.eligible.true
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: plan-not-in-catalog
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: rule
+        rule: port.check.out.reason=port.check.out.reason.absent
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-value
+      to:
+        kind: plan_row
+        row: gen-boundary-035
+        values:
+          port.check.out.reason: port.check.out.reason.absent
+          port.check.out.eligible: port.check.out.eligible.true
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: plan-not-in-catalog
+          channel: whatsapp
+          coverage_result: none
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

@@ -59,3 +59,29 @@ metadata:
       - marker: needs-askable-act
         atom: reference.invoice-reconcile.read-references-matching-rules-md
         detail: 'no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: "Read references/matching-rules.md before matching any line"'
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.invoice-reconcile.read-references-matching-rules-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: read_when.reference.invoice-reconcile.read-references-matching-rules-md
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

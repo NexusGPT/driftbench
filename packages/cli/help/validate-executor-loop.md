@@ -82,7 +82,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -154,8 +154,10 @@ The rules the append enforces:
   builder's iteration 0.
 * Bank fields: `passing` at most `bankSize`; `failingByFamily` sums to `bankSize` minus `passing`;
   `bankByFamilyTier` (optional, tiers `"1"` to `"5"` or `"none"`) sums to `bankSize`; `failingCauses`
-  (optional) is at most the failing items and at least 1 when any item fails; `failingWithoutCause`
-  (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
+  (optional) is at most the failing items and at least 1 when any item fails, except that it may be 0
+  when `failingComposite` equals the failing items (every failing item is a composite check);
+  `failingComposite` (optional) goes with `failingCauses` and is at most the failing items;
+  `failingWithoutCause` (optional) goes with `failingCauses` and is at most it. Copy them from the `bank` of an
   `--items --json` run.
 * `research` is null or `{ "sources": [...], "finding": "..." }`; `change.commit` is null or 7 to 40 hex
   characters.

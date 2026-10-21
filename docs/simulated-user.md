@@ -98,9 +98,59 @@ Not judged: 2 criteria in 3 blocks of 1 spec (one_question_per_turn, no_invented
 The runs are not kept: pass --store <file> to keep them.
 ```
 
+## The simulated user in the block
+
+A spec can define the simulated user in its blocks, as a key of the stimulus: `when: { user, simulated_user }`. Every key is in the [spec reference](reference/spec.md#simulateduserspec). Each block has a mode:
+
+* `exact` sends the block's user text as written.
+* `simulated` has the agenda engine plan the message and a model, the realiser, write it.
+* `replay` sends the block's user text, a message frozen from a simulated run, after checking its recorded hash.
+
+The key enters the spec hash only when present: no existing spec changes its hash or its block cache keys (`packages/users/test/simulated-block-compat.test.ts` checks every example spec). The scripted driver sends an `exact` or `replay` block's text without the key, and refuses a `simulated` block rather than send its authored text.
+
+```text
+blocks:
+  - when:
+      user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+      simulated_user: &sam
+        mode: simulated
+        persona: Sam Rivera. A busy Acme mobile customer. Writes short, friendly messages.
+        goal: Move the current Acme phone plan to one with more data, and place the change.
+        hidden_knowledge: { email: sam.rivera@example.com }
+        reveal: { email: on_request }
+        stop: '###STOP###'
+        trials: 4
+  - when: { user: "It's sam.rivera@example.com", simulated_user: *sam }
+```
+
+The whole spec is `examples/acme/simulated/plan-upgrade.yaml`.
+
+### The agenda engine
+
+The engine decides what the person says, outside the model. It holds the goal, the facts, an agenda of dialogue acts (state the request, explain the problem, give a fact, say a fact is not known, confirm, report a try, push back once after a refusal, acknowledge, ask what happens next, say goodbye, give up), the engagement and the stop rules. It reads each agent reply as labels (the facts asked for, a question to confirm, a request to try something, a refusal, a sign that the request is done), written by a labelling call on the same model, or read from the blocks' `ask_patterns` with `--labeller patterns`. It plans each message as a few acts and a style drawn from published human rates: short, polite, unsure, a question. The realiser writes exactly the planned acts. A fact reaches it only when the plan gives it.
+
+* Same seed and same agent replies, same plans: the engine draws from a stream seeded by SHA-256, the same on every machine.
+* No goodbye before the agent signals that the request is done.
+* No invented value: a fact the person does not hold is planned as "do not know", never as an answer.
+* A message that holds a fact the plan did not give fails the run. A value inside a value already given is no leak: a postcode inside an address, a user name inside an email.
+
+The engine is the agenda-based user simulator of Schatzmann et al. (2007). In the H10 experiment (block-sim research branch) it was closer to real customers than a prompted simulator on 5 of 6 metrics. One default changed since: `opening_detail_share` is 0.5, so half of the openings state the problem as well as the request; the research engine opened with the request alone, and put 34% of a conversation's words in its first two messages against 50% for the customers.
+
+### The disclosure ledger, trials and the flip flag
+
+Every turn of a run is a ledger entry: the agent labels the engine read, the planned acts and style, the text sent, the facts given in that turn and in total, the engagement, and the stop. A run pins the seed, the model family, the model, the hash of the prompt templates and the engine version in the driver's seeds, so a run with another prompt or engine is another run.
+
+`trials: k` runs the spec k times per simulator family; trial t > 0 uses the seed `<seed>#<t>`. Per block, `simulate` reports pass^k and the rerun flip rate: the chance that two trials of the same family disagree. A plain rerun flips simulated verdicts as often as a change of simulator family (H11: cross-family 0.15, within-family 0.20). So with two families or more a block is flagged only when a pair's cross-family flip rate is above the mean of the two rerun rates and Fisher's exact test on the two pass counts gives p below 0.05. On the H11 data this raises block 1539 (7 of 8 against 2 of 8) and no stable block (`packages/users/test/agenda.test.ts`).
+
+### Cassettes, freezing and the calibration report
+
+A cassette holds the realiser's and the labeller's responses, each keyed by its request, the run's seed and the request's order in that run. A run that replays one makes no model call and gives the same messages; a request the cassette lacks fails the run. `--freeze <file>` writes the first failing run as `replay` blocks with their hashes: the found failure is then fixed turns, played by the scripted driver.
+
+The calibration report compares the simulated messages with human customer rates (derived numbers from ABCD; no dialogue text is kept), metric by metric, with a Dice score (100 = the same rate). Short messages, questions and front-loading are read from the text by its form. Politeness and doubt are read from the plan: a reading of them from the words would need a list of words. A self-check forces a polite message on every turn and requires the Polite% score to fall.
+
 ## Personas and scenarios on a block
 
-Status: designed in the block redesign, not built yet. The persona file above, `simulate` and `--driver simulated` work as described and stay as they are; this section is the contract of the objects that will replace the one file, so a block can be played by several personas on one scenario. Names in code font are exact.
+Status: the objects exist, and their fields are not final. `persona`, `scenario`, `persona-defaults` and `run-profile` are object kinds ([objects reference](reference/objects.md)). `driftbench object migrate persona` splits an old persona file into `driftbench/persona/<id>.yaml`, `driftbench/scenario/<id>.yaml` and `situational/<id>.yaml`. `simulate --persona` and `campaign run --driver simulated --persona` play the situational block composed back into the old persona, request for request. The persona and scenario values sit in `params` until the persona model gives those kinds fields of their own. The persona file above, `simulate`, `--driver simulated` and the simulated user in the block work as described and stay as they are. This section is the contract of the model that will replace the one file, so one scenario can be played by several personas.
 
 A person is split in three kinds of object and a block:
 
@@ -199,4 +249,4 @@ Each cell is a block played by a persona, and a persona's run keeps its own verd
 
 ## From code
 
-`createSimulatedUser` of `@agent-nexus/driftbench-users` gives the driver; `loadPersona`, `personaOptions`, `loadUserRecording` and `userRecordingPort` read the files. Any object with a `family`, a `model` and `complete({ system, user })` is a port; `FakeModelPort` of `@agent-nexus/driftbench-generate` replays answers in tests.
+`createSimulatedUser` of `@agent-nexus/driftbench-users` gives the driver of a persona file, and `createBlockUser` the driver of a spec whose blocks define the user (with `ledger()`); `freezeSimulatedRun`, `flipReport`, `calibrationReport`, `cassettePort` and `recordingCassettePort` are the rest of block mode; `loadPersona`, `personaOptions`, `loadUserRecording` and `userRecordingPort` read the files. Any object with a `family`, a `model` and `complete({ system, user })` is a port; `FakeModelPort` of `@agent-nexus/driftbench-generate` replays answers in tests.

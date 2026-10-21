@@ -10,6 +10,8 @@ import type {
 } from '@agent-nexus/driftbench-core';
 import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
+import { type BlockSections, sectionsNamingTools } from '../blocks/sections';
+import { type BlockOrigin, turnOfSource, writeBlocks } from '../blocks/writer';
 import type { ProposalPhrase } from '../extract/proposal';
 import { supplying, usedPaths, worldCarried } from './data-carrier';
 import { DEVIATION_EXPECTED, isDeviationClass } from './deviation';
@@ -63,6 +65,18 @@ export type BlockDraft = {
   criteria?: string[];
 };
 
+/** The removed suffix and the written blocks that already test it. */
+export type ReducedEnds = {
+  from_blocks: number;
+  to_blocks: number;
+  duplicates: Array<{
+    block: string;
+    /** An earlier family that drafted the same block, even when that family's copy was also cut. */
+    duplicate_family?: string;
+    duplicate_of: { spec: string; block: string; family?: string };
+  }>;
+};
+
 export type SpecDraft = {
   id: string;
   seeder: Seeder;
@@ -72,6 +86,7 @@ export type SpecDraft = {
   /** Spec-level values: placed through covers, tags and channel. Stage and deviation picks are ignored. */
   cell: Pick[];
   blocks: BlockDraft[];
+  reducedEnds?: ReducedEnds;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */
   vars?: Record<string, number>;
@@ -165,7 +180,12 @@ export function bankLanguage(prepared: PreparedMap): string | undefined {
   return best;
 }
 
-export type RunIdentity = { seed: number; mapPath: string };
+export type RunIdentity = {
+  seed: number;
+  mapPath: string;
+  /** The prompts with a section registry the map is read from: blocks then link the sections they test. */
+  sections?: BlockSections;
+};
 
 export type Rendered = {
   id: string;
@@ -239,7 +259,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     prepared.deviation === undefined ? undefined : dimensionId(prepared, prepared.deviation);
   const held: Array<NonNullable<WorldState['workspace']> | undefined> = [draft.world?.workspace];
   let restore: NonNullable<WorldState['workspace']> | undefined;
-  const blocks = draft.blocks.map((block, position) => {
+  const inputs = draft.blocks.map((block, position) => {
     const text =
       block.stimulus.kind === 'phrase'
         ? block.stimulus.phrase.text
@@ -282,7 +302,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     const given =
       workspace === undefined ? block.given : { ...block.given, world: { ...block.given?.world, workspace } };
     held.push(workspace ?? held[position]);
-    return {
+    const body: GeneratedBlock = {
       id: block.id,
       when: block.injection
         ? { injection: { class: block.injection, user: supplied ? '' : text } }
@@ -290,7 +310,14 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       ...(given ? { given } : {}),
       expect,
     };
+    return { block: body, origin: originOf(prepared, draft, block, specCell, covers, run.sections) };
   });
+  const written = writeBlocks(
+    inputs,
+    prepared.hash,
+    run.sections ? { sectionReach: run.sections.reaching } : {},
+  );
+  const blocks = written.blocks;
 
   const reasons = [...(draft.reasons ?? [])];
   const incomplete = placeholders.length > 0 || noThen.length > 0 || reasons.length > 0;
@@ -405,11 +432,12 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
   generated.blocks = blockRecords;
   if (draft.concrete) generated.concrete = draft.concrete;
   if (draft.metamorphic) generated.metamorphic = draft.metamorphic;
+  if (draft.reducedEnds) generated.reduced_ends = draft.reducedEnds;
   if (placeholders.length > 0) generated.needs_phrase = placeholders;
   if (noThen.length > 0) generated.needs_then = noThen;
   if (reasons.length > 0) generated.needs_then_why = reasons;
 
-  spec.metadata = { generated };
+  spec.metadata = { generated, links: written.links };
   const rendered = {
     id: draft.id,
     seeder: draft.seeder,
@@ -451,8 +479,94 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     if (record.phrase) plain.add(record.phrase);
   }
   for (const placeholder of placeholders) plain.add(placeholder);
+  plain.add(written.links);
+  for (const link of written.links) {
+    plain.add(link);
+    plain.add(link.to);
+    if (link.to.kind === 'plan_row') plain.add(link.to.values);
+  }
   plainNodes.set(rendered, plain);
   return rendered;
+}
+
+/** A block of a generated spec, as the renderer writes it. */
+type GeneratedBlock = {
+  id: string;
+  when:
+    | { user: string; injection?: undefined }
+    | { injection: { class: string; user: string }; user?: undefined };
+  given?: BlockDraft['given'];
+  expect: Expect;
+};
+
+/**
+ * Where a block of a draft comes from, for the block writer: the rules are the values the block carries
+ * (else the behaviours the spec covers), by `dimension=value`; the row is the draft (a metamorphic family for
+ * its members) with the spec's cell and the values the block adds; the turn is the recorded turn the phrase copies, when its evidence names one.
+ */
+function originOf(
+  prepared: PreparedMap,
+  draft: SpecDraft,
+  block: BlockDraft,
+  specCell: Readonly<Record<string, string>>,
+  covers: readonly string[],
+  sections?: BlockSections,
+): BlockOrigin {
+  const values: Record<string, string> = { ...specCell };
+  const rules: Array<{ rule: string }> = [];
+  for (const [dimension, value] of block.carries) {
+    const key = dimensionId(prepared, dimension);
+    const id = valueId(prepared, dimension, value);
+    if (key === '' || id === '') continue;
+    values[key] = id;
+    rules.push({ rule: phraseKey(key, id) });
+  }
+  if (block.stage !== undefined && prepared.stage !== undefined) {
+    values[dimensionId(prepared, prepared.stage)] =
+      (block.injection ? block.saidAt : undefined) ?? block.stage;
+  }
+  if (rules.length === 0) {
+    const behaviour = Object.entries(specCell).filter(([, id]) => covers.includes(id));
+    for (const [key, id] of behaviour) rules.push({ rule: phraseKey(key, id) });
+  }
+  const turn =
+    block.stimulus.kind === 'phrase' ? turnOfSource(block.stimulus.phrase.evidence?.source) : undefined;
+  // The members of a metamorphic family are phrasings (or values) of one row: the family.
+  const row = draft.metamorphic?.family ?? draft.id;
+  const located = [
+    ...sectionsOfRules(prepared, rules, sections),
+    ...(sections
+      ? sectionsNamingTools(
+          sections,
+          (block.tools ?? []).map((tool) => tool.label),
+          (label) => prepared.tools.some((tool) => tool.name === label),
+        )
+      : []),
+  ];
+  return {
+    rules,
+    ...(located.length > 0 ? { sections: located } : {}),
+    row: { id: row, values },
+    ...(turn ? { turn } : {}),
+  };
+}
+
+/** The prompt sections that hold the quotes of the rules, in rule order, each once. */
+export function sectionsOfRules(
+  prepared: PreparedMap,
+  rules: ReadonlyArray<{ rule: string }>,
+  sections: BlockSections | undefined,
+): Array<{ prompt: string; section: string; version: string }> {
+  if (!sections) return [];
+  const out: Array<{ prompt: string; section: string; version: string }> = [];
+  for (const { rule } of rules) {
+    const quote = prepared.quotes?.get(rule);
+    if (!quote) continue;
+    for (const ref of sections.locate(quote.source, quote.quote)) {
+      if (!out.some((each) => each.prompt === ref.prompt && each.section === ref.section)) out.push(ref);
+    }
+  }
+  return out;
 }
 
 /** A partial map assertion cannot establish that other schema-declared arguments are forbidden. */

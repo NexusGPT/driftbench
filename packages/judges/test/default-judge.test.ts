@@ -1,11 +1,16 @@
+import { contentHash } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { emptyCassette, playerClient, recordingClient, requestKey } from '../src/cassette';
 import { ClaudeThinkingError } from '../src/clients/claude-cli';
 import { ClaudeTransportError } from '../src/clients/claude-errors';
 import type { DialectCompletionRequest, DialectTransport } from '../src/clients/transport';
-import { createDefaultJudge } from '../src/default-judge';
+import { createDefaultJudge, DEFAULT_JUDGE_POLICY } from '../src/default-judge';
+import v7Identity from './fixtures/default-v7-identity.json';
 
-function mock(outputs: unknown[]) {
+function mock(
+  outputs: unknown[],
+  policyOverride?: { lengthPreference?: boolean; conversationTurns?: boolean },
+) {
   const calls: DialectCompletionRequest[] = [];
   const transport: DialectTransport = {
     dialect: 'scratchpad-json',
@@ -23,10 +28,53 @@ function mock(outputs: unknown[]) {
       };
     },
   };
-  return { calls, judge: createDefaultJudge({ provider: 'claude-cli', model: 'test', transport }) };
+  return {
+    calls,
+    judge: createDefaultJudge({
+      provider: 'claude-cli',
+      model: 'test',
+      transport,
+      ...(policyOverride ? { policyOverride } : {}),
+    }),
+  };
 }
 
 describe('one default configuration', () => {
+  it('preserves the established task router for metrics with independent conditions', async () => {
+    const { judge, calls } = mock([
+      { route: 'criterion' },
+      { checks: [{ id: 'x', reasoning: 'missing', evidence: null, met: false }] },
+    ]);
+    const result = await judge.judge({
+      criterion: { name: 'x', rubric: 'The reply complies with the supplied policy.' },
+      transcript: [{ role: 'user', text: 'Can this item be refunded?' }],
+    });
+    expect(result.answer.outcome).toBe('fail');
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.user).toContain('Can this item be refunded?');
+    expect(calls[0]?.system).toBe(v7Identity.router);
+  });
+
+  it('checks independent conditions even when fulfillment intent is explicitly declared', async () => {
+    const { judge, calls } = mock([
+      { intent: 'other' },
+      { route: 'criterion' },
+      { checks: [{ id: 'x', reasoning: 'missing', evidence: null, met: false }] },
+    ]);
+    const result = await judge.judge({
+      criterion: {
+        name: 'x',
+        rubric: 'Fulfill the request and comply with the supplied policy.',
+        intent: 'request-fulfillment',
+      },
+      transcript: [{ role: 'user', text: 'Can this item be refunded?' }],
+    });
+    expect(calls).toHaveLength(3);
+    expect(calls[0]?.user).not.toContain('Can this item be refunded?');
+    expect(calls[1]?.system).toBe(v7Identity.router);
+    expect(result.answer.outcome).toBe('fail');
+  });
+
   it('evaluates the full pair criterion before an arithmetic answer can decide', async () => {
     const rubric = 'An invalid equality disqualifies a reply even when its final answer is correct.';
     const ledger = (reverse: boolean) => ({
@@ -291,7 +339,7 @@ describe('one default configuration', () => {
     expect(spendLedger.spentUsd).toBeCloseTo(0.15);
     expect(spendLedger.reservedUsd).toBe(0);
   });
-  it('reuses routing only for identical criteria and question data', async () => {
+  it('reuses routing for an identical criterion and request shape', async () => {
     const answer = { checks: [{ id: 'x', reasoning: 'absent', evidence: null, met: false }] };
     const { judge, calls } = mock([{ route: 'criterion' }, answer, answer]);
     const criterion = { name: 'x', rubric: 'Require reply.' };
@@ -398,11 +446,17 @@ describe('one default configuration', () => {
       { checks: [{ id: 'x', reasoning: 'price absent', evidence: null, met: false }] },
     ]);
     const result = await judge.judge({
-      criterion: { name: 'x', rubric: 'Address every part of the latest request.' },
+      criterion: {
+        name: 'x',
+        rubric: 'Address every part of the latest request.',
+        intent: 'request-fulfillment',
+      },
       transcript: '[user] Name and price? [agent] The name is Widget.',
     });
     expect(result.answer.outcome).toBe('fail');
-    expect(calls[0]?.user).toContain('Name and price?');
+    expect(calls[0]?.user).not.toContain('Name and price?');
+    expect(calls[0]?.user).toContain('Address every part of the latest request.');
+    expect(calls[1]?.user).toContain('Name and price?');
     expect(calls[0]?.user).not.toContain('The name is Widget');
     expect(calls[1]?.system).toContain('Extract each distinct requested part');
     expect(result.costUsd).toBeCloseTo(0.03);
@@ -545,5 +599,92 @@ describe('one default configuration', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.costUsd).toBeCloseTo(0.04);
     expect(result.requestCount).toBe(4);
+  });
+});
+
+describe('default-on-v8: a conversation criterion is judged turn by turn', () => {
+  const met = (value: boolean) => ({
+    checks: [
+      {
+        id: 'x',
+        reasoning: 'r',
+        evidence: value ? [{ source: 'transcript.1', quote: 'First answer' }] : null,
+        met: value,
+      },
+    ],
+  });
+  const request = {
+    criterion: { name: 'x', rubric: 'Address every request.', scope: 'conversation' as const },
+    transcript: [
+      { role: 'user' as const, text: 'First question' },
+      { role: 'agent' as const, text: 'First answer' },
+      { role: 'user' as const, text: 'Second question' },
+      { role: 'agent' as const, text: 'Second answer' },
+    ],
+  };
+  it('is part of the frozen policy', () => {
+    expect(DEFAULT_JUDGE_POLICY).toMatchObject({ version: 'default-on-v8', conversationTurns: false });
+  });
+  it('judges each customer turn on its own prefix and fails on the turn that fails', async () => {
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)], {
+      conversationTurns: true,
+    });
+    const result = await judge.judge(request);
+    expect(calls).toHaveLength(3);
+    expect(calls[1]?.user).not.toContain('Second question');
+    expect(calls[2]?.user).toContain('Second question');
+    expect(result.answer.outcome).toBe('fail');
+    expect(result.answer.reasoning).toContain('Turn 2 fails');
+    expect(result.defaultJudge?.route).toBe('criterion');
+  });
+  it('passes only when every turn passes', async () => {
+    const { judge } = mock([{ route: 'criterion' }, met(true), met(true)], { conversationTurns: true });
+    expect((await judge.judge(request)).answer.outcome).toBe('pass');
+  });
+  it('judges the whole conversation in one call by default, and the field changes the settings hash', async () => {
+    const on = mock([], { conversationTurns: true }).judge;
+    const off = mock([{ route: 'criterion' }, met(true)]);
+    const result = await off.judge.judge(request);
+    expect(off.calls).toHaveLength(2);
+    expect(result.answer.outcome).toBe('pass');
+    expect(off.judge.settings).not.toBe(on.settings);
+  });
+  it('leaves a single-turn conversation criterion on the plain route', async () => {
+    const { judge, calls } = mock(
+      [
+        { route: 'criterion' },
+        {
+          checks: [
+            {
+              id: 'x',
+              reasoning: 'r',
+              evidence: [{ source: 'transcript.1', quote: 'First answer' }],
+              met: true,
+            },
+          ],
+        },
+      ],
+      { conversationTurns: true },
+    );
+    const result = await judge.judge({ ...request, transcript: request.transcript.slice(0, 2) });
+    expect(calls).toHaveLength(2);
+    expect(result.answer.outcome).toBe('pass');
+    expect(result.answer.reasoning).toBe('Address every request.: r');
+  });
+});
+
+describe('default-on-v8: the settings hash', () => {
+  it('is the same with the fields at their defaults, and changes when one is switched on', () => {
+    const plain = mock([]).judge.settings;
+    // Pin the literal release/next baseline independently. Intent routing intentionally changes the router
+    // portion of the identity, even when the two measurement fields are off.
+    expect(contentHash(v7Identity)).toBe('2989b6cda5a8');
+    expect(plain).not.toBe('2989b6cda5a8');
+    expect(mock([], { conversationTurns: false, lengthPreference: false }).judge.settings).toBe(plain);
+    expect(mock([], { conversationTurns: true }).judge.settings).not.toBe(plain);
+    expect(mock([], { lengthPreference: true }).judge.settings).not.toBe(plain);
+    expect(mock([], { lengthPreference: true }).judge.settings).not.toBe(
+      mock([], { conversationTurns: true }).judge.settings,
+    );
   });
 });

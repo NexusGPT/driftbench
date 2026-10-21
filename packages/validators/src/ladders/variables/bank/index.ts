@@ -1,4 +1,5 @@
 import { bankMeasure, type Item, type Measure } from '../../../ladder';
+import { blindBank } from '../blind/index';
 import type { VariablesImpl } from '../interface';
 import { BOUNDARIES_RUNS } from './families/boundaries';
 import { BUDGET_RUNS } from './families/budget';
@@ -72,6 +73,8 @@ export function variablesBank(): BankItem[] {
       });
     }
   }
+  // The blind bank (blind/index.ts): items written from the page alone, run through the same port.
+  items.push(...blindBank());
   const order = new Map<Level, number>(LEVELS.map((l, i) => [l, i]));
   return items.sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }

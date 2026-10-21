@@ -1,4 +1,4 @@
-import { type BlockLink, BlockLinks } from '../schema/links';
+import { type BlockLink, BlockLinks, type RerunMark, RerunMarks } from '../schema/links';
 import type { Spec } from '../schema/spec';
 import { error, type Issue, warning } from '../spec/issues';
 import type { SectionRegistry } from './sections';
@@ -18,6 +18,15 @@ export function linkHolds(spec: Spec, link: BlockLink, index: number): boolean {
 /** The links of block `index` of the spec. */
 export function blockLinks(spec: Spec, index: number): BlockLink[] {
   return specLinks(spec).filter((link) => linkHolds(spec, link, index));
+}
+
+/** The marks of a spec for block `index`, from `metadata.rerun`: why the block reruns on every change. */
+export function blockRerun(spec: Spec, index: number): RerunMark[] {
+  const parsed = RerunMarks.safeParse(spec.metadata?.rerun ?? []);
+  if (!parsed.success) return [];
+  return parsed.data.filter((mark) =>
+    typeof mark.block === 'number' ? mark.block === index : spec.blocks[index]?.id === mark.block,
+  );
 }
 
 /** The registries by prompt id. Two registries for one prompt are an error. */

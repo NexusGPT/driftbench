@@ -22,6 +22,7 @@ import { judgeTurns } from './turns';
 export function withCriterionSettings(request: JudgeRequest, def: CriterionDef): JudgeRequest {
   const assessment = assessmentOf(def);
   if (
+    def.intent === undefined &&
     def.prompt_version === undefined &&
     def.decoder_version === undefined &&
     def.answer_contract === undefined &&
@@ -55,7 +56,7 @@ export function withCriterionSettings(request: JudgeRequest, def: CriterionDef):
       : request.criterion;
   return {
     ...(transcriptOnly ? rest : request),
-    criterion,
+    criterion: def.intent === undefined ? criterion : { ...criterion, intent: def.intent },
     ...(def.answer_contract === undefined ? {} : { answerContract: def.answer_contract }),
     ...(def.prompt_version === undefined ? {} : { criterionPromptVersion: def.prompt_version }),
     ...(def.decoder_version === undefined ? {} : { criterionDecoderVersion: def.decoder_version }),

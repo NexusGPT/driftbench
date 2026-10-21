@@ -14,6 +14,9 @@ export type ValidateCommandOptions = {
   seed?: string;
   seeds?: string;
   hidden?: boolean;
+  hiddenOnly?: boolean;
+  levels?: string;
+  reports?: string;
   json?: boolean;
   checkFloor?: boolean;
   raise?: string;
@@ -34,6 +37,8 @@ export type ValidateCommandOptions = {
 /** What the command runs with. Tests pass their own ladders, root and commit reader. */
 export type ValidateDeps = {
   ladders(): Record<string, Ladder>;
+  /** Explicit versions in addition to the defaults. */
+  versions?(): Record<string, Record<number, Ladder>>;
   /** The repository root; by default the nearest folder above the working folder holding pnpm-workspace.yaml. */
   root?: string;
   /** Reads the commit the hidden seed derives from; by default `git rev-parse HEAD`. */
@@ -63,11 +68,20 @@ export function registerValidateCommand(
     .option('--seed <n>', 'a visible seed (default 1 when no seed is given)')
     .option('--seeds <a..b>', 'a range of visible seeds, such as 1..20')
     .option('--hidden', 'add the hidden seed derived from git rev-parse HEAD')
+    .option('--hidden-only', 'with --hidden: run the hidden seed alone, with no visible seed')
+    .option(
+      '--levels <a..b>',
+      'compute only levels a to b (one slice of a ladder, for --reports to join); the exit code is 0',
+    )
+    .option(
+      '--reports <dir>',
+      'merge the --json reports of earlier runs in this folder into one report per validator, then print and check floors as a run would',
+    )
     .option('--json', 'print the report as JSON')
     .option('--check-floor', 'exit 1 when a run is below its floor in validators/floors.json, else 0')
     .option('--raise <component>', 'with floors: raise the floor of this component to [level]')
     .option('--evidence <json>', 'with floors --raise: the --json run that reaches the level')
-    .option('--ladder-version <n>', 'with floors --raise: the ladder version the floor is for')
+    .option('--ladder-version <n>', 'select a registered version; with floors --raise: the floor version')
     .option(
       '--items',
       'also list the whole bank per family and tier, pass or fail per seed, from the same run',

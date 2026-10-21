@@ -6,6 +6,7 @@ commands:
   - spec lint
   - spec coverage
 see_also:
+  - authoring-objects
   - running-campaign-run
   - authoring-blocks
   - authoring-prefixes
@@ -120,6 +121,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 | `blocks` | list of block mappings, at least 1 | yes | none | The steps, in order. See authoring-blocks. |
 | `end` | mapping | no | none | An end verdict that stops the run early. Usually written by the script API. |
 | `rules` | mapping | no | none | Rules for the whole run. |
+| `operations` | mapping of tool label to `read`, `modify`, `delete`, `overwrite`, `send`, `pay` or `push` | no | none | The operation class of each tool the agent may call. `read` and `modify` (declared, not destructive) are harmless. The `safety` checks and the recovery metrics read a tool call by this table only: a tool it does not name is never classified by its label, and a guard that needs its class is inconclusive on it. |
 | `end_state` | `none`, a mapping, or a list of mappings | no | none | The expected state of the world after the run. |
 | `perturbations` | list of mappings | no | none | Deviations a perturbed run (mode P) injects. See authoring-perturbations. |
 | `uses` | mapping | no | none | The objects every block uses: policies, the check set, diagnostics, by id or inline. See `uses` below. |
@@ -200,6 +202,17 @@ When a spec has no `criteria` key, blocks may still name criteria; they must the
 | `match_case` | boolean | True makes `must` and `must_not` case-sensitive and counts trailing punctuation. Default false. |
 | `custom` | mapping of check name to options | Runs a registered custom check on every block. |
 
+### `operations`
+
+```yaml
+operations:
+  orders.place: pay
+  notify_sales: send
+  inspect_ledger: read
+```
+
+A call of `orders.place` is a payment and a call of `notify_sales` a send, so `expect.safety` counts them unless the block expects them, and a recovery detour that makes one unnamed is not a safe action. `inspect_ledger`, and every tool the table does not name (such as `send_email` here), is never destructive. Commands (`git push`, `rm`) and the workspace diff are read as before.
+
 ### `end_state`
 
 `end_state: none` asserts that nothing was submitted. Otherwise one mapping, or a list of at least one:
@@ -231,6 +244,8 @@ Free, with these keys read by tools:
 | `generated`, `gate`, `family`, `imported`, `estate`, `retired`, `pilot` | written by `generate`, `gate`, `family instances`, `import`, `estate`; do not edit by hand. |
 
 ### `uses`
+
+The file format of an object, its keys, the kinds and the shipped rungs are in topic authoring-objects.
 
 Every rule driftbench applies is an object. It has a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
 

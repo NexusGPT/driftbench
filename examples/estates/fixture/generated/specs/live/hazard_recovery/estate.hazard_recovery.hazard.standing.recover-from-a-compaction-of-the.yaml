@@ -34,6 +34,15 @@ rules:
     hazard_recovery:
       hazard: compaction
       block: 0
+operations:
+  Glob: read
+  Grep: read
+  Read: read
+  Skill: read
+  Edit: modify
+  MultiEdit: modify
+  NotebookEdit: modify
+  Write: modify
 metadata:
   estate:
     atoms:
@@ -54,3 +63,23 @@ metadata:
     ask: code
     askFrom: hazard.standing.recover-from-a-compaction-of-the (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: hazard.standing.recover-from-a-compaction-of-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: hazard_recovery.hazard.standing.recover-from-a-compaction-of-the
+        values:
+          session_state: long
+          estate_hazard: compaction_mid_task
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

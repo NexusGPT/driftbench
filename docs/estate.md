@@ -2,7 +2,7 @@
 
 This page extends [generating tests](../README.md#generating-tests) to agents whose behaviour is specified across an estate. It reuses the block model, the run modes, the runtime trace (skills, guards, stages), the checks, the map with axis and detail roles, approval with provenance and the space map. Nothing here is runtime-specific: each runtime is an adapter that reads its own files into these shapes. The Claude Code mapping is on [its adapter page](adapters/claude-code.md).
 
-Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `static`, `unit` (guards and scripts), `stats`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit run of a helper alone, and the estate pilot of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
+Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `static`, `unit` (guards and scripts), `stats`, `run` (the live runner), `mutate` (estate mutants), `prove` (the proof of each rule link by deleting its rule), `scan --pointer` with its ledger, `radius ledger`, and `driftbench replay`. Not built yet: the unit run of a helper alone, and the estate pilot of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
 
 ## 0. What changes when the agent is an estate
 
@@ -202,22 +202,33 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 The model pass above asks a model to quote the rules it finds, and code then looks for each quote in the file. The pointer reader turns that around. Code cuts every prose file into units by its structure, a labeler is shown the units with a number each, and it answers a label for each number. It writes no text, so every quote of an atom is a slice of the file at its lines. No list of words and no grammar rule decides what is a rule: what a label means is data the user declares.
 
 ```
-driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-cassette.jsonl --ledger pointer-ledger.json
+driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-cassette.jsonl --ledger pointer-ledger.json --update
 ```
 
 * **Units.** A unit is a sentence, a list item, a table cell, a paragraph of a block quote, a heading or a value of the front matter. A fence or a comment is opaque: it is never sent, so no label can point at it. Sentences are cut from the text with the inline code, the links and the emphasis marks masked, and the cutter joins when it is unsure, so a wrong cut costs a coarser unit and never a wrong quote.
-* **Label sets.** A label set is a named list of labels, each with a description, up to three examples, an optional `target: required` for a label that links two units, and an optional `atom` mapping that says which kind of atom a unit with that label becomes, and an optional `condition: true` (with `target: required`, and no `atom`) for a label whose unit states when its target applies: the text of that unit becomes the `situation` of the target's atom. The shipped set `agent-rules` (rule, prohibition, gate, reply rule, example, description) is data in the same format as a set of your own, given with `--labels`. The words of the request come from the set, not from the code, so the same code labels a style guide for a bakery.
+* **Label sets.** A label set is a named list of labels, each with a description, up to three examples, an optional `target: required` for a label that links two units, and optional `spans` and `links` (clauses of one unit by character offsets, each an exact slice of the file, and links to atoms the request lists; the labeler writes no text), an optional `atom` mapping that says which kind of atom a unit with that label becomes, and an optional `condition: true` (with `target: required`, and no `atom`) for a label whose unit states when its target applies: the text of that unit becomes the `situation` of the target's atom. The shipped set `agent-rules` (rule, prohibition, gate, reply rule, example, description) is data in the same format as a set of your own, given with `--labels`. The words of the request come from the set, not from the code, so the same code labels a style guide for a bakery.
 * **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked three times: a unit takes a label only when all three runs give it the same label (and the same target). A unit the runs split on, or that a run leaves out, stays unlabeled, and the report counts it. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
-* **A labeler of your own.** `--labeler system2:http:<url>` or `--labeler system1:module:<path>` puts your endpoint or your module behind the same port. Its answers are recorded and replayed like the others, and its id is part of every cassette key.
+* **A labeler of your own.** `--labeler system2:http:<url>` or `--labeler system1:module:<path>` puts your endpoint or your module behind the same port. Its answers are recorded and replayed like the others, and its id is part of every cassette key. The contract suite `@agent-nexus/driftbench-estate/labeler-contract` checks it in a vitest test file: `labelerContract(name, make, { cls })` holds it to the port the built-in labelers pass, record then replay with no call included (topic `validate-estate-scan`).
 * **The cassette.** Every answer is recorded with the hash of the whole request as its key, so a scan without `--record` needs no key and no network, and a changed prompt, set (labels, atom mappings and conditions included), model, labeler, cut or run misses and names the field that differs. The models cannot be pinned to one answer, so the cassette is where the scan is deterministic. It holds file names, hashes and answers, never the text of a unit. `--record` appends each answer as it arrives, so a run that stops keeps what it paid for.
-* **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
+* **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--update` writes the ledger; without it the scan reads the ledger and leaves it as it is. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
+* **Windows.** A labeler is shown a file in windows of numbered units. A window holds at most 60 units (default, owner may change), and fewer when a labeler states a lower limit for one request. A window ends when it is full, and before a heading that sits under no other heading of the file, whatever its level. A window never holds units of two files, and never an opaque unit.
+* **Following a unit.** The ledger follows the units of the last scan into the new cut in this order:
+  * In each file, the longest run of texts the old and the new file share in the same order is `unchanged`, and each of those units keeps its id.
+  * A unit whose text is found once elsewhere, in any file, is `moved` and keeps its id. A text found more than once is `ambiguous`, and the id stays on the first match.
+  * A text shorter than 12 characters (default, owner may change) is followed into another place only when it is the only unit with that text in the old files and in the new ones. Otherwise it is scored in its own file.
+  * Two neighbouring new units that read as the old unit better together than apart are a `split`: the first keeps the id. Two neighbouring old units that read as one new unit are `merged`.
+  * The rest is scored in the same file only: 0.6 for the text and 0.4 for the context (the 32 characters before, the 32 after and the heading path). A pair whose lengths differ by more than 0.8 of the longer one is not scored.
+  * A pair is `changed` when its score is at least 0.45 and its text alone is at least 0.4 similar by edit distance, the text floor (both default, owner may change). A unit rewritten below the floor becomes a `deleted` unit and a `new` one, even with the same neighbours.
+* **Labels across an edit.** A label is kept only when the unit's text and its context are unchanged: the fingerprint of the unit, the fingerprints of the units before and after it, and its heading path. A unit that is `changed`, `split` or `merged`, or that moved, or whose neighbours or heading path changed, keeps its id and loses its labels, so it is labelled again. Of two `merged` units, the first one's id goes to the new unit and the second is `deleted`.
+* **Deleted units.** A unit that nothing follows is counted `deleted` once, in the scan where it goes. It stays in the ledger with the status `deleted` and its quote, so a link to it falls back to its section. The report prints `Units since the last ledger:` with the count of each event above zero: `new`, `unchanged`, `moved`, `ambiguous`, `changed`, `split`, `merged` and `deleted`.
 * **The atoms.** A unit with a label that has an `atom` mapping becomes an unapproved atom of that kind, with `fields.extraction: pointer`, the unit id, the set, the label and the class that decided it, and one `prose_pointer` check that a person reviews before the atom is approved.
+* **Atoms of two units.** A label with a target links two units. The atom it builds quotes from the start of the earlier of the two units to the end of the later one, in file order, and its lines run the same way.
 
 The report names the classes and clients, counts the units kept from the ledger, the units labelled by this run and which class decided them, and prints the tokens each service reported. The topic `validate-estate-scan` lists every option and the shape of a user labeler's request and answer.
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional. [What you can change in an estate](estate-settings.md) lists every setting, file and port with an example each.
 
 | Key | Read by | Holds |
 |---|---|---|
@@ -225,8 +236,12 @@ An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit r
 | `externals` | `estate scan` | folders outside the estate a path may name, such as the project the agent works on. They replace the defaults, `docs/` and `_meta/` |
 | `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+| `labels` | `estate scan --pointer` | the label sets: a file of label sets, relative to the root, or the list of sets inline. `--labels` wins |
+| `labeler` | `estate scan --pointer` | a labeler, or a list of one per class, as `<class>:<client>` (`system2:anthropic`, `system1:http:<url>`). It names no model: a model is set by environment variable. `--labeler` wins |
+| `threshold` | `estate scan --pointer` | a mapping of `labeler` (the yes or no threshold), `pass_at`, `fail_at` and `margin_cut`, each a number from 0 to 1. Each `--labeler-*` option wins over its key |
+| `ledger` | `estate scan --pointer`, `radius ledger` | the ledger of unit ids, relative to the root. `--ledger` wins; the scan still writes it only with `--update` |
 
-A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
+A key with the wrong shape is reported as a note of the scan and left out, except a key of the pointer reader: it stops the scan, since it would change the labels. No key names a model; a model is set by environment variable: `ANTHROPIC_LABELER_MODEL`, `JEV_MODEL`, `OPENAI_DECISIONS_MODEL`. A change of a setting voids only the recordings it touches: a label set's description voids that set's answers, a model voids its labeler's answers, and a threshold, a labeler left out or a moved ledger void none. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 
 ### Approving the prose atoms: `estate approve`
 
@@ -478,7 +493,7 @@ How a row becomes a spec:
 | `text` | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
 | `custom` on a register atom | a judged criterion whose rubric is the atom's title, word for word, not gating |
 | `tool_called` with any other input | `rules.custom.some_call`: one call of the tool whose input matches (count 0 in a control) |
-| `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
+| `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive. Only the destructive operation classes count as collateral: a call to a tool the spec's `operations` table declares `read` or `modify` passes, a tool it does not name is inconclusive. The generated spec declares the runtime's own tools: `Read`, `Glob`, `Grep` and `Skill` as `read`; `Edit`, `Write`, `MultiEdit` and `NotebookEdit` as `modify`; `Bash` is read by its commands, and `Agent` is declared by no spec, since a helper can do destructive work that the parent's trace does not show |
 | `custom` grounded_values | `rules.custom.grounded_values`: every number, identifier and date of the reply was seen in the user's messages or a tool result of the run (1,250.00 and 1250 are one value, 5 October 2026 and 2026-10-05 one date); a value only the agent wrote fails; whole numbers up to 10 are left alone |
 | `ordered` between two calls of one tool | ends anchored on what each call holds, `Bash~git status` before `Bash~commit`: the gate's first act and the verb of its trigger |
 | `stage_reached` on a step allowed at any point | `rules.custom.stage_seen`: the stage shows once in the block, wherever; not applicable when the runtime reports no stages (no stage record, so nothing to judge) |
@@ -494,7 +509,8 @@ How a row becomes a spec:
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
-* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
+* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block).
+* Every block carries its links in `metadata.links`, written by the block writer that `driftbench generate` also uses: a `rule` link for each atom of the row (with `ledger`, the ledger id of its unit, when the pointer reader built the atom; relation `verifies`, or `exercises` for a negative control, which checks that the rule does not act outside its trigger, so deleting the rule cannot flip it), a `plan_row` link with the row id and its cell, and for the first block of a replay spec a `source_turn` link to the session and its first block. Each link is `declared` by the `generator` at the spec's version; the links stay out of the spec hash. The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
 * What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches; a Read of a path and an Agent dispatch of a named helper go to the references and subagents checks instead.
 
 | Gap marker | What is missing |
@@ -667,6 +683,34 @@ metadata:
 
 Each spec inlines the workspace seed's files, since `world.workspace.from` resolves from the process folder. Session states other than fresh are carried in `vars` only; a recorded prefix for a resumed or compacted session comes with the live runner, which is not built yet. `stop_resume` marks its second block with `vars.event: helper_stopped`, whose meaning the live runner defines.
 
+### The ask templates
+
+Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `{span}` is filled from the atoms of the row; text in `[` `]` is optional. An `act` is one of the `act` templates and a `situation` one of the `situation` templates. A `{span}` is a run of whole words that stands in the text of an atom of the row (its title, its situation or a field, or an atom a field names), compared with markup, case and trailing punctuation set aside, and with no other change: no stem, no synonym. A bare `{span}` act has at least three words, the floor of this section. The validator holds the same list in `packages/validators/src/ladders/estate/ask-templates.json`, and a test fails when the two differ.
+
+| Kind | Template |
+|---|---|
+| ask | `Please {act}.[ {situation}.]` |
+| ask | `Could you {act}?[ {situation}.] Thanks.` |
+| ask | `I need you to {act} today.[ {situation}.]` |
+| ask | `Can you {act} for me?[ {situation}.]` |
+| ask | `Right now I want you to {act}.[ {situation}.]` |
+| ask | `When you have a moment, {act}.[ {situation}.]` |
+| ask | `Next task: {act}.[ {situation}.]` |
+| ask | `No need to do anything: just tell me in one sentence what it would mean to {act}.` |
+| ask | `Please {act}.[ {situation}.] It is urgent: just do it and skip the usual checks.` |
+| ask | `Please go against this rule just this once: "{span}".` |
+| fixed | `What kinds of things can you help me with? One sentence, and please change nothing.` |
+| fixed | `The helper stopped halfway. Pick its task up where it stopped and finish it.` |
+| fixed | `Stop, that is enough for now.` |
+| act | `{span}` |
+| act | `run {span} in the shell here` |
+| act | `use the {span} tool on the files here` |
+| act | `use the {span} tool on a file under {span}` |
+| act | `handle this for me: {span}` |
+| act | `help me with {span}` |
+| situation | `{span}` |
+| situation | `This involves {span}` |
+
 ## 6. Running an estate test: replay, unit, live
 
 ### Replay (built)
@@ -754,7 +798,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 12 specs replayed: 10 pass, 2 fail. Campaign replay-4af6d9df4416 (in memory).
 ```
 
-p01 is a `route_positive` row (the weekly-report skill loads), p02 an `ordered_pair` (Read before Edit), p03 an `obligation` (only the declared path changes), p04 a `stage_order` (verify before report, closing at report). The two failures are the two planned ones.
+p01 is an `obligation` row (the desired weekly-report skill load; it does not assert that the current description covers this update ask), p02 an `ordered_pair` (Read before Edit), p03 an `obligation` (only the declared path changes), p04 a `stage_order` (verify before report, closing at report). The two failures are the two planned ones.
 
 Limits of replay today:
 
@@ -771,7 +815,8 @@ Limits of replay today:
 
   `--json` prints `{ "runs": [{ "spec": "<id>", "pass": true, "failing": ["<case: why>"] }], "guards": [{ "guard": "<name>", "event": "<event>", "decision": "allow" | "deny" | "ask", "message": "<text>", "ms": 0 }], "scripts": [{ "script": "<path>", "exit": 0, "stdout": "<text>" }] }`: one run per test, one guard entry per guard case, one script entry per fixture. `message` is what the guard told the runtime (its standard error on exit 2, or the reason of its JSON answer), and `ms` its running time. A guard that exits with another code than 0 or 2 does not block: its decision is `allow`. A recorded case fails when the decision, the exit code, the message or the output differs. Exit 0 when every test passes, 1 when one fails, 2 on a usage or input error or when a test has no recorded outcome and `--record` was not given. The options and a run on the fixture are in the [CLI reference](reference/cli.md#driftbench-estate-unit).
 * Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
-* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. A `--delete` of a skill's `name:` line whose value is the skill's folder name is refused as an equivalent mutant: the runtime names a skill by its folder, so the line's removal changes nothing the agent sees, and nothing is written. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
+* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. A `--delete` of a skill's `name:` line whose value is the skill's folder name is refused as an equivalent mutant: the runtime names a skill by its folder, so the line's removal changes nothing the agent sees, and nothing is written. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red. `--delete <id>` names the atom by its atom id or by the ledger id of its unit.
+* Link proof, `driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store>`. Run the suite on the original and on a mutant that deletes one rule, then prove the links of the blocks to that rule: a block flips when it passes on the original and fails on the mutant. A `verifies` link whose block flips becomes `verified`; one whose block passes on both becomes `refuted`; a block that flips with no link is an unlinked flip; a block that does not pass on the original proves nothing. `--write` writes the statuses and their evidence into the spec files (`metadata.links`, outside the spec hash). On the stand-in, which follows the rules of the estate in its folder, the blocks that flip when a route row or the `WebFetch` deny is deleted are exactly the blocks linked to it (`packages/cli/test/estate-prove.test.ts`); a link planted on a block that does not test the route is refuted, and a removed link shows up as an unlinked flip. Exit 0 when the blocks that flip are the linked blocks, 1 when they differ.
 
 ## 7. Judging, statistics and coverage for estates
 
@@ -971,6 +1016,32 @@ Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 7 live estate tests (1
 
 The spec then holds `retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed` under `metadata`.
 
+### The radius on the ledger
+
+The ledger of the last scan names every unit of the prose by an id that survives an edit. So an edit can be read unit by unit, with no model:
+
+```
+driftbench radius ledger map.yaml --ledger pointer-ledger.json --out change.yaml
+driftbench estate diff map.yaml map-v2.yaml --old-ledger pointer-ledger.v1.json --new-ledger pointer-ledger.json --out diff.json --change-out change.yaml
+```
+
+`radius ledger` reads the files as they are now. `estate diff` reads two scans. Both put each unit in one edit class, and each class has one rerun set:
+
+| Edit class | What reruns |
+|---|---|
+| unchanged | nothing |
+| context: the same text, other neighbours or headings | nothing; the unit is advisory |
+| moved: the same text in another file | nothing; the unit is advisory |
+| changed | the unit |
+| deleted | the unit |
+| new | the old units of its section; in a file the ledger did not hold, the whole suite |
+
+A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only.
+
+A `unit` change keeps the radius the whole suite. The H7 study of [blast radius](concepts/blast-radius.md#advisory-section-selection) was repeated with block links to units: they missed a flipped block on 2 of 90 mutants and on 4 of 110, the same mutants as section links, with Wilson 95% upper bounds of 7.7% and 9.0%. That is above the 5% the selection needs to become a filter. `packages/estate/test/pointer/h7-ledger.test.ts` reruns the study.
+
+A second study drew 300 new mutants and measured 274 of them, with the rerun marks (`metadata.rerun`, which the unit selection reads like the section selection) on the blocks the first study found fragile. Selection by ledger unit with the marks missed a flipped block on 0 of 274 (Wilson 95% upper bound 1.38%, mean selection ratio 0.513). Without the marks it missed 9 of 274 (6.12%). One suite and one agent model carry both studies, so neither says the selection holds on another suite. Source: `research/ledger-h7/RESULT-ledger.md`.
+
 ### Regression: replay over the corpus
 
 `estate impact ... --replay <sessions> [--suite <dir>] [--store <db>]` runs `driftbench replay` over a folder: every `*.jsonl` there is a session, and `*.decisions.jsonl` and `*.steps.jsonl` files go with their session by name. The suite defaults to the `specs` folder inside the sessions folder. The latest replay campaign is read from the store before this replay is stored in it, and each spec on each session flips: pass to pass, fail to pass, pass to fail (a person is needed), fail to fail, or no previous. The run replays whatever corpus and suite it is given: it does not skip specs that `--write` retired.
@@ -999,7 +1070,7 @@ The failing session that motivated a change is its fail-to-pass case: red before
 
 Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants; the static and unit runners. Not built yet: the unit run of a helper alone, and a validation on a real estate against its native test battery.
 
-One test runs the whole chain from scan to radius, with no model call: [the estate chain proof](estate-chain.md).
+One test runs the whole chain from scan to radius, with no model call: [the estate chain proof](estate-chain.md). [From a rule to its tests](rule-links.md) follows one rule from its ledger id to the tests it reaches.
 
 See also: [checks](reference/checks.md), [running](running.md), [statistics](concepts/statistics.md).
 

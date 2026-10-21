@@ -51,19 +51,6 @@ blocks:
       criteria:
         - behaviour.B-005
         - flow.new-home
-  - id: b2-address-to-address
-    when:
-      user: The address is 21 Willow Court, Acmeville.
-    expect:
-      stage: address
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 21 Willow Court, Acmeville
-          input_closed: true
-      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
@@ -99,13 +86,37 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-address
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-address
+    reduced_ends:
+      from_blocks: 2
+      to_blocks: 1
+      duplicates:
+        - block: b2-address-to-address
+          duplicate_of:
+            spec: gen-metamorphic-014-1
+            block: b2-address-to-address
+            family: gen-metamorphic-014
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-025
+        values:
+          behaviour: B-005
+          flow: new-home
+          user_type: new-customer
           coverage_result: not-in-map
+          channel: whatsapp
+          stage_transition: needs-to-address
           stage: address
-        phrase:
-          dimension: stage_transition
-          value: address-to-address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

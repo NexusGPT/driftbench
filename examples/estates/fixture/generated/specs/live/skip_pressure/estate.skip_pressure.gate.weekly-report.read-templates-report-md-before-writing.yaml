@@ -63,3 +63,31 @@ metadata:
     ask: code
     askFrom: skill.weekly-report.skill-weekly-report (asks it names)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.weekly-report.read-templates-report-md-before-writing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.weekly-report.read-templates-report-md-before-writing
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.weekly-report.read-templates-report-md-before-writing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

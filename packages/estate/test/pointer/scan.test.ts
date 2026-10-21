@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   Cassette,
   CassetteMiss,
+  createAnthropicLabeler,
   cut,
   type Labeler,
   LabelerError,
@@ -16,7 +17,7 @@ import {
   type Window,
   windowsOf,
 } from '../../src/pointer';
-import { load, plantedDense } from './support';
+import { BAKERY, type Call, load, plantedDense } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -221,7 +222,7 @@ describe('the pointer scan', () => {
     expect(result.unlabeled).toBeGreaterThan(0);
   });
 
-  it('retries an unreadable answer once, then lists the window as failed and records nothing', async () => {
+  it('retries an unreadable answer once, then lists the window as failed and records the failure', async () => {
     const log: string[] = [];
     const cassette = new Cassette();
     const result = await pointerScan(
@@ -236,11 +237,20 @@ describe('the pointer scan', () => {
     expect(log.filter((entry) => entry.startsWith('office.md'))).toHaveLength(4);
     expect(result.failed).toHaveLength(2);
     expect(result.failed[0]).toContain('the answer is not JSON');
-    expect([...cassette.entries.values()].every((entry) => entry.readable.path === 'quay.md')).toBe(true);
+    // The failure is an entry of the cassette, so a replay lists the same window with no call and no miss.
+    const office = [...cassette.entries.values()].filter((entry) => entry.readable.path === 'office.md');
+    expect(office).toHaveLength(2);
+    expect(office.every((entry) => entry.answer.refused === 'unreadable')).toBe(true);
     expect(result.labelled.every((item) => item.path === 'quay.md')).toBe(true);
+    const replay = await pointerScan(
+      input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), { mode: 'replay' }),
+    );
+    expect(replay.calls).toBe(0);
+    expect(replay.failed).toEqual(result.failed);
+    expect(renderLedger(replay.ledger)).toBe(renderLedger(result.ledger));
   });
 
-  it('does not retry a refusal', async () => {
+  it('retries a refusal once, then lists the window as failed', async () => {
     const log: string[] = [];
     const result = await pointerScan(
       input(
@@ -248,8 +258,10 @@ describe('the pointer scan', () => {
         new Cassette(),
       ),
     );
-    expect(log).toHaveLength(4);
+    // Two files and two sets: four windows, each asked twice.
+    expect(log).toHaveLength(8);
     expect(result.failed).toHaveLength(4);
+    expect(result.failed.every((line) => line.includes('declined'))).toBe(true);
   });
 
   it('stops on a miss when it may not record', async () => {
@@ -524,4 +536,127 @@ describe('what the cassette key holds', () => {
       pointerScan(input(replayOf(plantedDense(byLength)), recorded, { sets: edited, mode: 'replay' })),
     ).rejects.toThrow(/differs in: .*setHash/);
   });
+});
+
+describe('spans across the runs of a labeler', () => {
+  const SPANNED = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+`;
+  const answer = (window: Window, end: number): Labelled[] =>
+    window.units.map((unit) => ({
+      units: String(unit.n),
+      label: 'order',
+      spans: [{ kind: 'act', from: 0, to: Math.min(end, unit.text.length) }],
+    }));
+  const spanScan = (labeler: Labeler) => pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+
+  it('keeps the spans every run gave the same, with the label', async () => {
+    const result = await spanScan(plantedDense((window) => answer(window, 3), [], { runs: 3 }));
+    expect(result.spanSplit).toBe(0);
+    const entry = result.ledger.entries.find(
+      (candidate) => candidate.quote === 'Coil the ropes on the red post',
+    );
+    expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 3 }]);
+  });
+
+  it('keeps the label and drops the spans when the runs gave different ones, and counts the units', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        return answer(window, call === 2 ? 4 : 3);
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await spanScan(labeler);
+    expect(result.unlabeled).toBe(0);
+    expect(result.spanSplit).toBeGreaterThan(0);
+    for (const entry of result.ledger.entries.filter((candidate) => candidate.labels.duty)) {
+      expect(entry.labels.duty?.label).toBe('order');
+      expect(entry.labels.duty?.spans).toBeUndefined();
+    }
+  });
+
+  it('refuses an entry whose span leaves its unit, counts it, and leaves that unit unlabeled', async () => {
+    const result = await spanScan(
+      plantedDense(
+        (window) =>
+          answer(window, 999).map((entry) => ({ ...entry, spans: [{ kind: 'act', from: 0, to: 999 }] })),
+        [],
+        { runs: 1 },
+      ),
+    );
+    expect(result.refusals.length).toBeGreaterThan(0);
+    expect(result.refusals[0]).toMatch(/offsets leave the unit/);
+    expect(result.decided).toBe(0);
+  });
+});
+
+describe('an answer that stopped at a refusal or at max_tokens, on the Anthropic labeler', () => {
+  // Invented notes of a bakery counter: one window of two units in the set counter-voice.
+  const NOTES = [{ path: 'notes.md', text: 'Greet every customer by name.\n\nRye costs four coins.\n' }];
+  const ANSWER = '{"labels":[{"units":"1","label":"greeting"},{"units":"2","label":"price-claim"}]}';
+  const reply = (stop: string) => ({
+    model: 'claude-haiku-5-5',
+    stop_reason: stop,
+    content: [{ type: 'text', text: stop === 'end_turn' ? ANSWER : '' }],
+    usage: { input_tokens: 10, output_tokens: 4 },
+  });
+
+  /** A fetch that answers the n-th request with the n-th stop reason, and keeps what it was sent. */
+  const answering = (stops: string[], calls: Call[]) => async (url: string, init: RequestInit) => {
+    calls.push({
+      url,
+      headers: init.headers as Record<string, string>,
+      body: JSON.parse(String(init.body)) as Record<string, unknown>,
+    });
+    const stop = stops[Math.min(calls.length, stops.length) - 1] as string;
+    return new Response(JSON.stringify(reply(stop)), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  // One run per window, so every request counted here is the first ask of the window or its retry.
+  const scan = (stops: string[], calls: Call[]) =>
+    pointerScan({
+      files: NOTES,
+      sets: load(BAKERY),
+      labelling: singleLabelling(
+        createAnthropicLabeler({ key: 'k', runs: 1, fetch: answering(stops, calls) }),
+      ),
+      cassette: new Cassette(),
+      mode: 'record',
+    });
+
+  for (const refused of ['refusal', 'max_tokens']) {
+    it(`retries once after ${refused} and applies the second answer`, async () => {
+      const calls: Call[] = [];
+      const result = await scan([refused, 'end_turn'], calls);
+      expect(calls).toHaveLength(2);
+      expect(result.failed).toEqual([]);
+      expect(result.labelled.map((item) => item.label).sort()).toEqual(['greeting', 'price-claim']);
+    });
+
+    it(`lists the window as failed after ${refused} twice, and labels nothing from it`, async () => {
+      const calls: Call[] = [];
+      const result = await scan([refused, refused], calls);
+      expect(calls).toHaveLength(2);
+      expect(result.failed).toHaveLength(1);
+      expect(result.failed[0]).toContain('notes.md#1');
+      expect(result.labelled).toEqual([]);
+    });
+  }
 });

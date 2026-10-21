@@ -63,3 +63,30 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.invoice-reconcile.never-change-an-invoice-amount-report
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.never-change-an-invoice-amount-report
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.invoice-reconcile.skill-invoice-reconcile
+      relation: exercises
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.invoice-reconcile.never-change-an-invoice-amount-report
+        values:
+          atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

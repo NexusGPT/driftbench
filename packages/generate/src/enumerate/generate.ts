@@ -13,6 +13,7 @@ import {
   tupleValues,
 } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml, stringify } from 'yaml';
+import type { BlockSections } from '../blocks/sections';
 import { ForbidIndex } from '../extract/forbid-index';
 import { seedFolderName } from '../families/instances';
 import { Allocation } from '../seed/allocation';
@@ -29,6 +30,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { TerminalSubsumption } from '../seed/minimal';
 import { phraseDrafts, type UnsaidPhrase } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import { indexDimensions, indexPathValues } from '../seed/scenario';
@@ -90,6 +92,11 @@ export type GenerateOptions = {
   specCap?: number;
   /** Tuple-exact by default. Pairs mode explicitly permits triple losses, which remain reported. */
   specCapMode?: SpecCapMode;
+  /**
+   * Drop the repeated end of a walk another written spec already says (default true). Under `specCap` it runs
+   * after the cap, on the specs actually written, so no walk loses an end only a dropped spec said.
+   */
+  reduceEnds?: boolean;
   /** The map path as the specs and the report record it (relative to the output folder). */
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
@@ -99,6 +106,11 @@ export type GenerateOptions = {
    * since a family's oracle runs asynchronously. A flow with a task family and none given has no specs.
    */
   tasks?: TaskInput[];
+  /**
+   * The prompts with a section registry the map's quotes come from (`blockSections`): each block then links
+   * the prompt sections that hold the quotes of its values, and the sections that reach them.
+   */
+  sections?: BlockSections;
   /**
    * The stem post-pass: openings that complete specs share are written once under `specs/stems/`, each spec
    * starting from its stem on block 0, with the old-to-new table in `stems-map.csv`. Default off here, so the
@@ -119,6 +131,8 @@ export type SeederTotals = {
   /** Incomplete specs: a block with no Then the map supports. */
   needs_then: number;
   cut: boolean;
+  /** Terminal duplicate blocks removed from the written specs. */
+  cut_blocks: number;
   /** The diversity measures of this seeder's complete specs (see `coverageMeasures`). */
   measures?: Record<string, number>;
 };
@@ -255,7 +269,17 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     dimensionIndex: indexDimensions(prepared),
     allocation,
   };
-  const run: RunIdentity = { seed, mapPath: options.mapPath };
+  const run: RunIdentity = {
+    seed,
+    mapPath: options.mapPath,
+    ...(options.sections ? { sections: options.sections } : {}),
+  };
+  const reduceEnds = options.reduceEnds !== false;
+  // Without a cap, each draft is reduced as it is written. With one, the cap decides what is written first and
+  // the pass below reduces the specs that stay, in the order they were written.
+  if (reduceEnds && options.specCap === undefined)
+    context.minimal = new TerminalSubsumption(prepared, run, t, allocation);
+  const draftOf = new Map<string, SpecDraft>();
 
   const graph = graphSeeder(prepared, context);
   const budgeted =
@@ -311,14 +335,17 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     const totals: SeederTotals = seeders[seeder] ?? {
       specs: 0,
       blocks: 0,
+      cut_blocks: 0,
       complete: 0,
       needs_phrase: 0,
       needs_then: 0,
       cut: cut[seeder],
     };
     for (const draft of list) {
+      context.minimal?.reduce(draft);
       context.allocation?.observeDraft(draft);
       const rendered: Rendered = renderDraft(prepared, draft, run);
+      if (options.specCap !== undefined && reduceEnds) draftOf.set(rendered.id, draft);
       const renderText = () => generatedSpecText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
       const loaded = checkSpec(rendered.spec, rendered.id);
@@ -339,6 +366,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       if (unexpected.length > 0) lint.push({ id: rendered.id, warnings: unexpected });
       totals.specs += 1;
       totals.blocks += rendered.blocks;
+      totals.cut_blocks += draft.reducedEnds?.duplicates.length ?? 0;
       all.push(loaded.spec);
       if (needsThen) {
         totals.needs_then += 1;
@@ -393,6 +421,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     complete.push(loaded.spec);
     keep('task', loaded.spec);
     context.allocation?.observeSpec(loaded.spec);
+    context.minimal?.observeSpec(loaded.spec);
     const path = `${COMPLETE_DIR}/task/${id}.yaml`;
     if (options.specCap !== undefined) cappedText.set(path, renderText);
     addFile(id, { path, text });
@@ -511,6 +540,30 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     retain(all);
     retain(complete);
+    if (reduceEnds) {
+      const written = new Allocation(prepared);
+      const minimal = new TerminalSubsumption(prepared, run, t, written);
+      for (const [index, spec] of all.entries()) {
+        const draft = draftOf.get(spec.id);
+        if (!draft) {
+          minimal.observeSpec(spec);
+          written.observeSpec(spec);
+          continue;
+        }
+        const before = draft.blocks.length;
+        minimal.reduce(draft);
+        written.observeDraft(draft);
+        if (draft.blocks.length === before) continue;
+        const rendered: Rendered = renderDraft(prepared, draft, run);
+        const loaded = checkSpec(rendered.spec, rendered.id);
+        if (!loaded.ok) continue;
+        const wasComplete = complete.indexOf(spec);
+        all[index] = loaded.spec;
+        if (wasComplete >= 0) complete[wasComplete] = loaded.spec;
+        const path = [...cappedText.keys()].find((entry) => entry.endsWith(`/${rendered.id}.yaml`));
+        if (path !== undefined) cappedText.set(path, () => generatedSpecText(rendered, run, prepared.hash));
+      }
+    }
     for (const seeder of SEEDERS) {
       const own = all.filter((spec) => seederOf(spec) === seeder);
       const ready = complete.filter((spec) => seederOf(spec) === seeder);
@@ -518,6 +571,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       seeders[seeder].specs = own.length;
       seeders[seeder].blocks = own.reduce((sum, spec) => sum + spec.blocks.length, 0);
       seeders[seeder].complete = ready.length;
+      seeders[seeder].cut_blocks = own.reduce(
+        (sum, spec) => sum + (draftOf.get(spec.id)?.reducedEnds?.duplicates.length ?? 0),
+        0,
+      );
     }
     const keptFiles = files.filter((file) => capped.ids.has(fileOwners.get(file.path) ?? ''));
     files.splice(0, files.length, ...keptFiles);

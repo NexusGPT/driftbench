@@ -86,7 +86,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
@@ -133,7 +133,7 @@ analytic.agreement.kappa-linear.5      2     4 analytic  packages/stats/src/agre
 * A level that returns no bank counts as one item of the family `levels`.
 
 With `--json` the report gains `bank`:
-`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingWithoutCause,
+`{ seeds, size, passing, score, byFamilyTier, failingByFamily, failingCauses, failingComposite, failingWithoutCause,
 failingCausesByFamily, rows }`, where each row is
 `{ level, levelId, id, component, family, tier, cause, perSeed: ["pass" | "fail" | "not run", ...],
 passEverySeed }`. These are the numbers an executor's journal row copies (`validate-executor-loop`).

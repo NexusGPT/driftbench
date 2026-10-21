@@ -1,3 +1,4 @@
+import type { BlockSections } from '../blocks/sections';
 /** The constants and record types of estate generation: file names, focus limits, the input, the report. */
 
 import type { Issue } from '@agent-nexus/driftbench-core';
@@ -24,6 +25,14 @@ export const WRITING_TOOLS: ReadonlySet<string> = new Set([
   'NotebookEdit',
   'Bash',
 ]);
+/** Tools that only look (a skill loads instructions and changes nothing): a hazard_recovery spec declares them `read`. */
+export const READING_TOOLS: ReadonlySet<string> = new Set(['Read', 'Glob', 'Grep', 'Skill']);
+/**
+ * Tools whose calls are the block's own work and destroy nothing: a spec that checks hazard recovery declares them
+ * `modify`. Editing and writing files. `Agent` is declared by no spec: a helper can do destructive work that the
+ * parent's trace does not show, so a call to it stays unknown.
+ */
+export const MODIFYING_TOOLS: ReadonlySet<string> = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 /** The complete specs a focus atom gets at least, when its rows allow. */
 export const FOCUS_MIN = 5;
 /**
@@ -118,6 +127,12 @@ export type EstateGenerateInput = {
 
 export type EstateGenerateOptions = {
   seed?: number;
+  /**
+   * The estate files that are prompts with a section registry, named relative to the estate root
+   * (`blockSections`): each block then links the prompt sections that hold the quotes of its atoms, and the
+   * sections that reach them.
+   */
+  sections?: BlockSections;
   /** Paths as the records name them: relative to the output folder, never absolute. */
   paths: { map: string; plan: string; phrases: string; sessions?: string };
   /** Custom checks the runner registers; default the replay runner's. */
@@ -224,6 +239,7 @@ export type Context = ThenContext & {
   outputRules: string[];
   /** Skill names, for a misroute ask that names the wrong skill. */
   units: string[];
+  sections?: BlockSections;
 };
 
 export type Built = {

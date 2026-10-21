@@ -109,13 +109,16 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--seed <n>` | seed 1 when no seed option is given | one visible seed | `validate-overview` |
 | `--seeds <a..b>` | none | a range of visible seeds, at most 1000 | `validate-overview` |
 | `--hidden` | off | add the hidden seed of the current commit | `validate-overview` |
+| `--hidden-only` | off | with `--hidden`: run the hidden seed alone, with no visible seed | `validate-overview` |
+| `--reports <dir>` | none | join the `--json` reports in a folder into one report per validator, then print and check the floors | `validate-overview` |
+| `--levels <a..b>` | none | compute only levels a to b of one component, as one slice of a ladder; `--reports` joins the slices. Exit 0 | `validate-overview` |
 | `--json` | off | print the report, or the hardness, as JSON | `validate-overview` |
 | `--items` | off | compute every level and list the whole bank | `validate-reading-items` |
 | `--all-levels` | off | compute every level and list every failing item | `validate-reading-items` |
 | `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
 | `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
 | `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
-| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--ladder-version <n>` | default version | select a registered version; with `floors --raise`: the floor version | `validate-floors` |
 | `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
 | `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
 | `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |

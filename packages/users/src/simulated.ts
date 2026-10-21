@@ -29,7 +29,11 @@ import { z } from 'zod';
 export type UserModelPort = {
   readonly family: string;
   readonly model?: string;
-  complete(request: { system: string; user: string; maxTokens?: number }): Promise<string>;
+  /**
+   * `seed`, when a driver gives one, names the run the request belongs to: a model ignores it, a cassette
+   * keys its responses by it, so the trials of one spec never answer each other's requests.
+   */
+  complete(request: { system: string; user: string; maxTokens?: number; seed?: string }): Promise<string>;
 };
 
 export const Persona = z
@@ -157,6 +161,9 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
       ]);
       const user = [
         `Turn ${branch.filter((result) => sayingOf(result) !== undefined).length + 1}.`,
+        ...(ctx.spec.blocks.some((entry) => entry.parent !== undefined)
+          ? [`Recorded block ${ctx.blockIndex + 1}.`]
+          : []),
         '',
         'The conversation so far:',
         ...(lines.length > 0 ? lines.flat() : ['(nothing yet: you write first)']),
@@ -294,6 +301,10 @@ function redact(text: string, hidden: readonly (readonly [string, string])[]): s
 }
 
 /** True when the text holds the value: as written, without case, or as the same digits in any spacing (a phone number). */
+export function holdsValue(text: string, value: string): boolean {
+  return holds(text, value);
+}
+
 function holds(text: string, value: string): boolean {
   if (text.toLowerCase().includes(value.toLowerCase())) return true;
   const digits = digitsOf(value);
@@ -396,7 +407,8 @@ export function userRecordingPort(recording: UserRecording): UserModelPort & {
       requests.push({ system: request.system, user: request.user });
       const turn = /^Turn (\d+)\./.exec(request.user)?.[1];
       if (turn === undefined) throw new SimulatedUserError('the request names no turn');
-      const answer = recording.answers[Number(turn) - 1];
+      const block = /^Recorded block (\d+)\./m.exec(request.user)?.[1];
+      const answer = recording.answers[Number(block ?? turn) - 1];
       if (answer === undefined) {
         throw new SimulatedUserError(
           `the recording of ${recording.persona} holds ${recording.answers.length} answers, none for turn ${turn}`,

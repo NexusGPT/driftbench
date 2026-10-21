@@ -85,3 +85,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0341
+        values:
+          ask_class: research
+          ask_shape: problem
+          session_state: long
+          owner_signal: limit_word
+          deviation: none
+          estate_hazard: rate_wave
+          atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

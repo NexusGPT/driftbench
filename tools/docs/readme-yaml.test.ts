@@ -125,30 +125,30 @@ describe('README innovation YAML dropdowns', () => {
     const readme = await readFile(README, 'utf8');
     const section = readme.split('## What makes it different\n')[1]?.split('## What it does\n')[0] ?? '';
     const dropdowns = [...readme.matchAll(DROPDOWN)];
-    expect(dropdowns.filter((dropdown) => dropdown[1] === 'YAML')).toHaveLength(10);
+    expect(dropdowns.filter((dropdown) => dropdown[1] === 'YAML')).toHaveLength(11);
     expect(dropdowns.filter((dropdown) => dropdown[1] === 'TypeScript')).toHaveLength(2);
-    const innovations = section.split(/^### /m).slice(1, 10);
-    expect(innovations).toHaveLength(9);
+    const innovations = section.split(/^### /m).slice(1, 11);
+    expect(innovations).toHaveLength(10);
     for (const innovation of innovations) {
       expect(innovation, innovation.split('\n')[0]).toContain(SUMMARY);
     }
     let checked = 0;
     for (const dropdown of dropdowns) checked += await checkDropdown(dropdown[2] ?? '');
-    expect(checked).toBe(18);
+    expect(checked).toBe(20);
   }, 120_000);
 
-  it('labels a feature not yet on main with the pull request it is coming in', async () => {
+  it('names the pull requests of a feature that is not built yet', async () => {
     const readme = await readFile(README, 'utf8');
     const bodies = [...readme.matchAll(DROPDOWN)].map((dropdown) => dropdown[2] ?? '');
     expect(bodies.join('\n')).not.toMatch(/ships? in \[PR/);
-    for (const pr of [418, 443, 459]) {
-      expect(
-        bodies.some((body) =>
-          body.includes(`coming in [#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`),
-        ),
-        `#${pr}`,
-      ).toBe(true);
+    for (const pr of [418, 444]) {
+      expect(readme.includes(`[#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`), `#${pr}`).toBe(
+        true,
+      );
     }
+    const base = 'https://github.com/NexusGPT/driftbench/pull';
+    expect(readme).toContain(`not built yet ([#418](${base}/418), [#444]`);
+    expect(readme).not.toMatch(/coming in \[#418\]/);
   });
 
   it('also loads every existing README YAML snippet, including the other dropdowns', async () => {

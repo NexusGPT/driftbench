@@ -192,11 +192,10 @@ function unreachable(store: VariableStore, view: View, solver: Solver): PlanV2Wa
     ),
   );
   const out: PlanV2Warning[] = [];
+  const live = solver.frontier(new Int16Array(view.variables.length).fill(-1));
   view.variables.forEach((variable, at) => {
     variable.values.forEach((value, valueAt) => {
-      const row = new Int16Array(view.variables.length).fill(-1);
-      row[at] = valueAt;
-      if (solver.canComplete(row)) return;
+      if (live.completes(at, valueAt)) return;
       const must = required.has(`${variable.id}\u0000${value.id}`);
       out.push({
         code: 'value_unreachable',
@@ -270,9 +269,10 @@ function build(view: View, solver: Solver, groups: readonly Group[], seed: numbe
     });
     if (first === undefined) break;
     const start = groups[first.group] as Group;
-    const row = new Int16Array(count).fill(-1);
+    const live = solver.frontier(new Int16Array(count).fill(-1));
+    const row = live.row;
     decode(start, first.code).forEach((value, at) => {
-      row[start.variables[at] as number] = value;
+      live.set(start.variables[at] as number, value);
     });
     const rng = rngFor(seed, `plan-v2.row.${index}`);
     const unset = shuffle(
@@ -283,11 +283,8 @@ function build(view: View, solver: Solver, groups: readonly Group[], seed: numbe
       let best: number[] = [];
       let bestGain = -1;
       let bestLog = Number.NEGATIVE_INFINITY;
-      for (const value of solver.allowed(row, variable)) {
-        row[variable] = value;
-        const completable = solver.canComplete(row);
-        row[variable] = -1;
-        if (!completable) continue;
+      for (const value of live.allowed(variable)) {
+        if (!live.completes(variable, value)) continue;
         let gain = 0;
         for (const at of groupsOf[variable] ?? []) {
           const group = groups[at] as Group;
@@ -310,8 +307,10 @@ function build(view: View, solver: Solver, groups: readonly Group[], seed: numbe
       }
       if (best.length === 0)
         throw new Error('internal error: a row that can be completed has no value left to take');
-      row[variable] =
-        best.length === 1 ? (best[0] as number) : (best[Math.floor(rng() * best.length)] as number);
+      live.set(
+        variable,
+        best.length === 1 ? (best[0] as number) : (best[Math.floor(rng() * best.length)] as number),
+      );
     }
     cover(groups, row);
     rows.push(row);

@@ -23,13 +23,19 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Retries](retries.md): the one retry policy of every model call (408, 429, 5xx and network errors, backoff with jitter, Retry-After), how to set it in a spec and on the command line, and where each retry is recorded.
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Simulated user](simulated-user.md): a persona played through the model port or a recording, `driftbench simulate` and `campaign run --driver simulated`.
+* [The default judge](default-judge.md): `createDefaultJudge`, the one task-based policy behind `estate run`, `replay`, live `judge calibrate` and `compare --pairwise`, its versions, its cost and its audit.
 * [CLI plugins](plugins.md): load your own adapters, checks and judges into the command line, from `driftbench.yaml` or `--plugin`.
 * [Red-team plugins](redteam-plugins.md): 40 attack plugins, each with a generation template and a grader rubric.
 * [Adaptive attacker](attack.md): red-team attacks picked from the agent's last replies, scored by the recovery record, `driftbench attack`.
 * [Multi-turn red-team user](redteam-agent.md): an attacker with one objective over many turns, Crescendo or GOAT, scored each turn, stopping when the agent gives in.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
+* [From a rule to its tests](rule-links.md): the ledger id of a prompt rule, the blocks that carry it, the proof of each link by deleting the rule, and the rerun set of an edit, on the Northwind estate.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
-* [Statistics capabilities to build](statistics/capabilities.md): the functions the statistics package does not have yet, in nine groups (descriptive, effect sizes, exact tests, many comparisons, sequential evidence, Bayesian summaries, classification and agreement, distances and drift, design and allocation), each defined with its formula, result and refused inputs.
+* [Statistics capabilities to build](statistics/capabilities.md): the statistics driftbench computes inline and the package also exports, in seven groups (descriptive, many comparisons, an upper bound on a rate, classification and agreement, distances, design and allocation, exact tests), each defined with its formula, result and refused inputs.
+* [What you can change in an estate](estate-settings.md): every key of `driftbench.estate.yaml`, with a worked example that runs in CI.
+* [The estate chain](estate-chain.md): the flow from a prompt to its ids and tests, proved by one test on the Northwind fixture.
+* [The Northwind campaign](northwind-campaign.md): one campaign on a code agent with parents, simulated users, the value check, blame, the fix list and the scorecard; a free rehearsal and a capped live run.
+* [The estate pointer reader](estate-pointer-reader.md): how prose files are cut into units, how each unit keeps an id across edits, how a recorded labeller gives units labels, and the stack of two labeller classes; the contract the pointer validator bank rests on.
 * [The variable store](variables.md): the one catalogue of variables, values, weights, boundaries and impossible combinations that the prompt-agent map and the estate map share, with the provenance of every entry (a quote of the agent's files, the counts of past conversations, or the owner's words), the loader that checks it, the conversions from and to the space map, and three worked examples.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
 * [Python](python.md): run specs from Python, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent.
@@ -37,7 +43,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Campaign-level criteria](aggregates.md): one threshold over every run of a campaign, for example a pass rate; a library API, no command flag yet.
 * [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
-* [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
+* [Validators](validators.md): code that proves driftbench works: seven ladders (map, generator, judges, system, estate, statistics, pointer) and the executor loop that drives each to 100 percent.
 * [Benchmark floors](benchmarks.md): the shipped default judge on immutable fictional slices, recorded responses, free replay, and regression floors in CI.
 
 ## Reference
@@ -51,7 +57,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Personas and red-team reference](reference/users.md): every field of a persona, a user recording, a red-team pack file and a red-team plugin.
 * [Change manifest reference](reference/change.md): every field of a change manifest for `driftbench radius`.
 * [Estate files reference](reference/estate-files.md): every field of an estate map, an estate plan, a phrase bank and a session index.
-* [Blame and placement reference](reference/blame.md): every evidence name a blame or placement rule reads, its cost class and its source.
+* [Blame and placement reference](reference/blame.md): every evidence name a blame or placement rule reads, every item of the shipped blame and placement files, and the steps of the shipped diagnostics.
 * [CLI](reference/cli.md): every `driftbench` command, its options, its output and its exit codes.
 * [Public API](reference/api.md): what a package's public API is, the frozen list of its names, and how a name is added or removed.
 * [Checks](reference/checks.md): every field of `expect`, the check that reads it, and its verdict ids.
@@ -86,6 +92,15 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [Block phrasing experiments](research/block-phrasing.md): four pre-registered experiments on how a customer's wording changes a block's result.
+* [Block parents experiments](research/block-parents.md): three pre-registered experiments on parent links, root counts, clustered intervals and isolation runs.
+* [Block given experiments](research/block-given.md): three pre-registered experiments on the Given of a block: tool call records, context size and a Given verifier.
+* [Simulated human experiments for blocks](research/block-simulated-users.md): three pre-registered experiments on simulated users, an agenda engine and uncovered production clusters.
+* [Block links experiments](research/block-links.md): two pre-registered experiments on section links and per-root counting, with prompt mutation as ground truth.
+* [Block framework core experiments](research/block-framework-core.md): four pre-registered experiments on backward compatibility, defaults, overrides and re-judging in a block framework prototype.
+* [Block framework persona experiments](research/block-framework-persona.md): three pre-registered experiments on the persona grid, prompt unit routing and ownership refusals.
+* [No fresh JudgeBench or RubricBench pool remains](research/fresh-public-pool-audit.md): an audit showing that no fresh JudgeBench or RubricBench item remains, with planning power numbers.
+* [Block framework value, blame and diagnosis experiments](research/block-framework-value.md): five pre-registered experiments on the value-check ladder, blame rules and diagnosis.
 
 ## What exists today
 

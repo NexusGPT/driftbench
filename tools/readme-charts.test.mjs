@@ -199,7 +199,7 @@ describe('readme summary chart', () => {
   });
 });
 
-describe('readme charts, rows measured with an opt-in setting', () => {
+describe('readme charts, declared v8 strict-relevance annotation', () => {
   it('labels retention by the paired test and shows its exact p value', () => {
     const c = chart('hard-deepeval');
     const source = JSON.parse(
@@ -223,15 +223,16 @@ describe('readme charts, rows measured with an opt-in setting', () => {
     expect(c.note).toContain('Holm p <= 0.05');
   });
 
-  it('draw the bar as plain driftbench, with a footnote that names the setting', () => {
+  it('draws the bar as plain driftbench, with the v8 metric declaration in its footnote', () => {
     const c = chart('hard-deepeval');
     const marked = c.groups.filter((g) => g.label.endsWith(' *'));
     expect(marked.length).toBeGreaterThan(0);
     expect(c.key[0]).toBe('driftbench');
-    expect(c.note).toContain('* opt-in setting response-relevance');
+    expect(c.note).toContain('* G-Eval strict: v8 default, metric declares request-fulfillment');
+    expect(c.note).not.toContain('* opt-in setting response-relevance');
   });
 
-  it('stay out of the shipped-judge leads chart', () => {
+  it('leaves the existing leads figure unchanged', () => {
     const c = chart('judge-leads');
     const labels = c.groups.flatMap((g) => g.rows.map((r) => r.label));
     expect(labels).not.toContain('G-Eval, strict');
@@ -432,7 +433,7 @@ describe('readme charts, v7 held-out results', () => {
   const analysis = JSON.parse(
     readFileSync(new URL('../comparisons/default-on/readme-v7/ANALYSIS.json', import.meta.url), 'utf8'),
   );
-  it('takes every hard-row score from the v7 analysis, including the panel decline', () => {
+  it('preserves every v7 hard-row score except the measured v8 strict-relevance row, including the panel decline', () => {
     const rows = ['deepeval', 'promptfoo', 'langfuse', 'inspect'].flatMap((tool) => {
       const c = chart(`hard-${tool}`);
       if (c.rows) return [{ label: 'Reference correctness', ours: c.rows[0].sub, peer: c.rows[1].sub }];
@@ -445,7 +446,16 @@ describe('readme charts, v7 held-out results', () => {
     expect(rows).toHaveLength(18);
     for (const row of analysis.rows) {
       const plotted = rows.find((r) => r.label === row.row);
-      expect(Number.parseInt(plotted.ours, 10)).toBe(row.v7);
+      expect(Number.parseInt(plotted.ours, 10)).toBe(
+        row.row === 'G-Eval strict'
+          ? JSON.parse(
+              readFileSync(
+                new URL('../comparisons/default-on/strict-v8/RESULT.json', import.meta.url),
+                'utf8',
+              ),
+            ).correct
+          : row.v7,
+      );
       expect(Number.parseInt(plotted.peer, 10)).toBe(row.peer);
     }
   });

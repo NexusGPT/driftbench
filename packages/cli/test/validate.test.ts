@@ -142,6 +142,194 @@ describe('driftbench validate seeds', () => {
   });
 });
 
+describe('driftbench validate legs and --reports', () => {
+  const head = 'abcdef0123456789abcdef0123456789abcdef01';
+  async function legDeps(failOn: number[], floors: Record<string, number> = {}) {
+    const d = await deps(failOn);
+    await mkdir(join(d.root as string, 'validators'));
+    await writeFile(
+      join(d.root as string, 'validators/floors.json'),
+      `${JSON.stringify({ version: 1, floors }, null, 2)}\n`,
+    );
+    return { ...d, readHead: () => head };
+  }
+  /** Runs one leg the way a CI job does and writes its --json report into the folder. */
+  async function leg(d: ValidateDeps, folder: string, name: string, options: Record<string, unknown>) {
+    const { io, output } = capture(d.root as string);
+    await validateCommand('planted', { ...options, json: true }, io, d);
+    await writeFile(join(folder, `${name}.json`), output.out);
+  }
+  const run = async (d: ValidateDeps, folder: string, options: Record<string, unknown>) => {
+    const { io, output } = capture(d.root as string);
+    const code = await validateCommand('all', { reports: folder, ...options }, io, d);
+    return { code, output };
+  };
+
+  it('--hidden-only runs the hidden seed alone, and refuses to go without --hidden or with visible seeds', async () => {
+    const d = await legDeps([]);
+    const { io, output } = capture(d.root as string);
+    expect(await validateCommand('planted', { hidden: true, hiddenOnly: true, json: true }, io, d)).toBe(3);
+    expect(JSON.parse(output.out).seeds.map((r: { hidden: boolean }) => r.hidden)).toEqual([true]);
+    for (const options of [{ hiddenOnly: true }, { hidden: true, hiddenOnly: true, seeds: '1..2' }]) {
+      const refused = capture(d.root as string);
+      expect(await validateCommand('planted', options, refused.io, d)).toBe(USAGE_EXIT);
+    }
+  });
+
+  it('merges one report per seed into the report of the single run: same level, same exit code', async () => {
+    for (const failOn of [[], [2], [1, 3]]) {
+      const d = await legDeps(failOn, { planted: 3 });
+      const folder = await temp();
+      await leg(d, folder, 'a', { seed: '1' });
+      await leg(d, folder, 'b', { seed: '2' });
+      await leg(d, folder, 'c', { seed: '3' });
+      await leg(d, folder, 'd', { hidden: true, hiddenOnly: true });
+      const whole = capture(d.root as string);
+      const wholeCode = await validateCommand(
+        'planted',
+        { seeds: '1..3', hidden: true, checkFloor: true },
+        whole.io,
+        d,
+      );
+      const merged = capture(d.root as string);
+      const mergedCode = await validateCommand(
+        'planted',
+        { reports: folder, seeds: '1..3', hidden: true, checkFloor: true },
+        merged.io,
+        d,
+      );
+      expect(mergedCode, JSON.stringify(failOn)).toBe(wholeCode);
+      expect(merged.output.out).toBe(whole.output.out);
+      expect(merged.output.err).toBe(whole.output.err);
+    }
+  });
+
+  it('fails when one leg is below the floor, and when a leg is missing, repeated or from another seed', async () => {
+    const d = await legDeps([2], { planted: 3 });
+    const folder = await temp();
+    await leg(d, folder, 'a', { seed: '1' });
+    await leg(d, folder, 'b', { seed: '2' });
+    await leg(d, folder, 'd', { hidden: true, hiddenOnly: true });
+    const below = await run(d, folder, { seeds: '1..2', hidden: true, checkFloor: true, component: 'all' });
+    expect(below.code).toBe(1);
+    expect(below.output.err).toContain('planted is at level 1, below its floor 3.');
+    const missing = await run(d, folder, { seeds: '1..3', hidden: true, checkFloor: true });
+    expect(missing.code).toBe(USAGE_EXIT);
+    expect(missing.output.err).toContain('hold the seeds [1 2 hidden], expected [1 2 3 hidden]');
+    await leg(d, folder, 'again', { seed: '2' });
+    const twice = await run(d, folder, { seeds: '1..2', hidden: true, checkFloor: true });
+    expect(twice.code).toBe(USAGE_EXIT);
+    expect(twice.output.err).toContain('level 1 of seed 2 was computed in 2 slices');
+    // a hidden seed of another commit is no leg of this one
+    const stale = await temp();
+    await leg(d, stale, 'a', { seed: '1' });
+    await leg(d, stale, 'd', { hidden: true, hiddenOnly: true });
+    const wrongHead = capture(d.root as string);
+    expect(
+      await validateCommand('all', { reports: stale, seed: '1', hidden: true }, wrongHead.io, {
+        ...d,
+        readHead: () => '0123456789abcdef0123456789abcdef01234567',
+      }),
+    ).toBe(USAGE_EXIT);
+    expect(wrongHead.output.err).toContain('expected [1 hidden]');
+  });
+
+  it('joins slices of levels into the run of the whole ladder, and exits 0 from a slice whatever it reached', async () => {
+    for (const failOn of [[], [2], [1, 3]]) {
+      const d = await legDeps(failOn, { planted: 3 });
+      const folder = await temp();
+      for (const [name, levels] of [
+        ['low', '1..1'],
+        ['mid', '2..2'],
+        ['top', '3..3'],
+      ] as const) {
+        for (const options of [{ seed: '1' }, { seed: '2' }]) {
+          const { io, output } = capture(d.root as string);
+          const code = await validateCommand('planted', { ...options, levels, json: true }, io, d);
+          expect(code, `${name} ${JSON.stringify(failOn)}`).toBe(0);
+          await writeFile(join(folder, `${name}-${options.seed}.json`), output.out);
+        }
+      }
+      const whole = capture(d.root as string);
+      const wholeCode = await validateCommand('planted', { seeds: '1..2', checkFloor: true }, whole.io, d);
+      const merged = capture(d.root as string);
+      const mergedCode = await validateCommand(
+        'planted',
+        { reports: folder, seeds: '1..2', checkFloor: true },
+        merged.io,
+        d,
+      );
+      expect(mergedCode, JSON.stringify(failOn)).toBe(wholeCode);
+      expect(merged.output.out).toBe(whole.output.out);
+      expect(merged.output.err).toBe(whole.output.err);
+      // the system job reads a full run: every failing item of every level
+      const allWhole = capture(d.root as string);
+      const allWholeCode = await validateCommand(
+        'planted',
+        { seeds: '1..2', allLevels: true },
+        allWhole.io,
+        d,
+      );
+      const allMerged = capture(d.root as string);
+      const allMergedCode = await validateCommand(
+        'planted',
+        { reports: folder, seeds: '1..2', allLevels: true },
+        allMerged.io,
+        d,
+      );
+      expect(allMergedCode).toBe(allWholeCode);
+      expect(allMerged.output.out).toBe(allWhole.output.out);
+    }
+  });
+
+  it('fails the join when a slice is missing, and refuses bad slices and slices with the wrong flags', async () => {
+    const d = await legDeps([], { planted: 3 });
+    const folder = await temp();
+    for (const levels of ['1..1', '3..3']) {
+      const { io, output } = capture(d.root as string);
+      await validateCommand('planted', { seed: '1', levels, json: true }, io, d);
+      await writeFile(join(folder, `s${levels[0]}.json`), output.out);
+    }
+    const lost = capture(d.root as string);
+    expect(
+      await validateCommand('planted', { reports: folder, seed: '1', checkFloor: true }, lost.io, d),
+    ).toBe(USAGE_EXIT);
+    expect(lost.output.err).toContain('level 2 of seed 1 was computed in no slice');
+    for (const options of [
+      { levels: '3..1' },
+      { levels: '0..2' },
+      { levels: 'x' },
+      { levels: '1..4' },
+      { levels: '1..2', brief: true },
+      { levels: '1..2', hardness: true },
+      { levels: '1..2', reports: folder },
+    ]) {
+      const refused = capture(d.root as string);
+      expect(await validateCommand('planted', options, refused.io, d), JSON.stringify(options)).toBe(
+        USAGE_EXIT,
+      );
+    }
+    const all = capture(d.root as string);
+    expect(await validateCommand('all', { levels: '1..2' }, all.io, d)).toBe(USAGE_EXIT);
+  });
+
+  it('refuses a folder without reports, a file that is no report, and a report for another ladder', async () => {
+    const d = await legDeps([]);
+    const empty = await temp();
+    expect((await run(d, empty, {})).code).toBe(USAGE_EXIT);
+    const bad = await temp();
+    await writeFile(join(bad, 'x.json'), '{"hello":1}');
+    expect((await run(d, bad, {})).output.err).toContain('x.json is not a validate --json report');
+    const old = await temp();
+    await leg(d, old, 'a', { seed: '1' });
+    const file = join(old, 'a.json');
+    await writeFile(file, (await readFile(file, 'utf8')).replace('"ladderVersion": 1', '"ladderVersion": 9'));
+    expect((await run(d, old, {})).output.err).toContain('another ladder than the one registered here');
+    const refused = capture(d.root as string);
+    expect(await validateCommand('planted', { reports: old, blind: true }, refused.io, d)).toBe(USAGE_EXIT);
+  });
+});
+
 /** Expected output comes from the committed floor contract, including historical ladder versions. */
 function expectedFloorsLine(root: string): string {
   const file = readFloors(root);
@@ -527,26 +715,26 @@ describe('driftbench validate --items and --hardness', () => {
 });
 
 describe('driftbench validate --hardness and distinct causes', () => {
-  it('exits 1 with fewer than 100 distinct failing causes and prints the count', async () => {
+  it.each([0, 40])('exits 1 with %i distinct failing causes and prints the count', async (causes) => {
     const root = await temp();
     const { ladder } = bankLadder();
     const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
     await mkdir(join(root, 'validators/banked'), { recursive: true });
     await writeFile(
       join(root, 'validators/banked/journal.jsonl'),
-      `${journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, { '1': 300 }, () => 40)
+      `${journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, { '1': 300 }, () => causes)
         .map((row) => JSON.stringify(row))
         .join('\n')}\n`,
     );
     const { io, output } = capture(root);
     expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(1);
     expect(output.out).toContain(
-      'Distinct failing causes after the pilot: 40 (0 failing items name no cause',
+      `Distinct failing causes after the pilot: ${causes} (0 failing items name no cause`,
     );
-    expect(output.out).toContain('40 distinct failing causes after the pilot, under 100');
+    expect(output.out).toContain(`${causes} distinct failing causes after the pilot, under 100`);
     const json = capture(root);
     await validateCommand('banked', { hardness: true, json: true }, json.io, d);
-    expect(JSON.parse(json.output.out).causes).toEqual({ distinct: 40, withoutCause: 0 });
+    expect(JSON.parse(json.output.out).causes).toEqual({ distinct: causes, withoutCause: 0 });
   });
 });
 
@@ -669,5 +857,54 @@ describe('driftbench validate for auditors', () => {
       (await readFile(join(root, 'validators/planted/journal.jsonl'), 'utf8')).trim().split('\n'),
     ).toHaveLength(2);
     expect(await validateCommand('planted', { checkHandover: true }, capture(root).io, d)).toBe(0);
+  });
+});
+
+describe('driftbench validate reads the pinned catch list', () => {
+  it('counts an item as catch only when validators/<component>/catch.json pins it, in --items and in --json', async () => {
+    const root = await temp();
+    const { bankMeasure, defineLadder } = await import('@agent-nexus/driftbench-validators');
+    const ladder = defineLadder({
+      component: 'roles',
+      version: 2,
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'items passing / items',
+          threshold: 1,
+          compute: () =>
+            bankMeasure([
+              { id: 'h1', component: 'c', family: 'f', tier: 1, cause: 'x', pass: true },
+              { id: 'h2', component: 'c', family: 'f', tier: 2, cause: 'y', pass: false, detail: 'missed' },
+              { id: 'k1', component: 'c', family: 'f', tier: 1, cause: 'z', role: 'catch', pass: true },
+            ]),
+        },
+      ],
+    });
+    const d: ValidateDeps = { ladders: () => ({ roles: ladder }), root };
+    const before = capture(root);
+    const code = await validateCommand('roles', { seeds: '1..1', items: true, json: true }, before.io, d);
+    expect(before.output.err).toBe('');
+    expect(code).toBeTypeOf('number');
+    expect(JSON.parse(before.output.out).bank).toMatchObject({ size: 3, catch: { size: 0 } });
+    await mkdir(join(root, 'validators', 'roles'), { recursive: true });
+    await writeFile(
+      join(root, 'validators', 'roles', 'catch.json'),
+      JSON.stringify({ items: [{ id: 'k1', guards: 'bug:B01' }] }),
+    );
+    const after = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true, json: true }, after.io, d);
+    expect(JSON.parse(after.output.out).bank).toMatchObject({
+      size: 2,
+      passing: 1,
+      catch: { size: 1, passing: 1 },
+    });
+    const text = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true }, text.io, d);
+    expect(text.output.out).toContain(
+      'Catch items, counted apart and for no hardness: 1, 1 pass on every seed.',
+    );
+    expect(text.output.out).toContain('Catch items of f: 1 items, 0 failing');
   });
 });

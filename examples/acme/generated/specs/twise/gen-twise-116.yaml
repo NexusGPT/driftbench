@@ -180,10 +180,10 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D1_off_topic
-    class: D1_off_topic
+  - id: p1-D5_language_switch
+    class: D5_language_switch
     inject_at: 0
-    user: Are your stores open on Saturday?
+    user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
       stage: needs
       stage_reported: true
@@ -195,7 +195,7 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - Monday to Saturday
+        - I can only help
       lang: EN
     recovery:
       within_blocks: 0
@@ -287,3 +287,210 @@ metadata:
         phrase:
           dimension: stage_transition
           value: order_placed-to-closing
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: stage_transition=address-to-offer
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-offer
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: address-to-offer
+          stage: offer
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-details
+      to:
+        kind: rule
+        rule: stage_transition=offer-to-details
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-offer-to-details
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: offer-to-details
+          stage: details
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D11_pii_leak
+      to:
+        kind: rule
+        rule: deviation=D11_pii_leak
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-D11_pii_leak
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          deviation: D11_pii_leak
+          stage: details
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-details-to-recap
+      to:
+        kind: rule
+        rule: stage_transition=details-to-recap
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-details-to-recap
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: details-to-recap
+          stage: recap
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: stage_transition=recap-to-order_placed
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: coverage_result=5g-only
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: rule
+        rule: customer_details=name-and-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b6-recap-to-order_placed
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: recap-to-order_placed
+          stage: order_placed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b7-order_placed-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=order_placed-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b7-order_placed-to-closing
+      to:
+        kind: plan_row
+        row: gen-twise-116
+        values:
+          behaviour: B-009
+          channel: chat
+          user_type: existing-customer
+          coverage_result: 5g-only
+          flow: order
+          plan_choice: loose-yes-to-single-offer
+          customer_details: name-and-email
+          stage_transition: order_placed-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

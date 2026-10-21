@@ -748,6 +748,62 @@ function words(line: string): string[] {
   );
 }
 
+/**
+ * The topics whose worked example is also compared with what it prints: every line of a `text` block must be
+ * a line the commands printed, in the order of the blocks. Placeholder lines (with `<`) and `...` are skipped.
+ */
+const OUTPUT_CHECKED = ['validate-estate-settings'];
+
+describe('every worked example prints what its text blocks show', () => {
+  for (const id of OUTPUT_CHECKED) {
+    it(id, async () => {
+      const topic = TOPICS.find((each) => each.id === id);
+      expect(topic, id).toBeDefined();
+      const body = topic?.body ?? '';
+      const scratch = mkdtempSync(join(tmpdir(), `driftbench-help-output-${id}-`));
+      try {
+        symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
+        symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
+        let printed = '';
+        for (const step of workedExample(body)) {
+          if (step.kind === 'file') {
+            const path = scratchPath(scratch, step.path);
+            mkdirSync(dirname(path), { recursive: true });
+            writeFileSync(path, step.content);
+          } else if (step.kind === 'shell') {
+            const run = spawnSync('bash', ['-c', step.command], {
+              cwd: scratch,
+              encoding: 'utf8',
+              env: { ...process.env, HOME: scratch, INIT_CWD: scratch, PWD: scratch },
+            });
+            expect(run.status, `${step.line}\n${run.stdout}${run.stderr}`).toBe(step.exit);
+          } else {
+            const io = capture(scratch);
+            expect(await inScratch(scratch, () => main(step.argv, io)), `${step.line}\n${io.stderr()}`).toBe(
+              step.exit,
+            );
+            printed += io.stdout();
+          }
+        }
+        const lines = printed.split('\n').map((line) => line.trimEnd());
+        const shown = [...section(body, 'Worked example').matchAll(/^```text\n([\s\S]*?)^```/gm)].flatMap(
+          (block) => (block[1] as string).split('\n'),
+        );
+        expect(shown.length).toBeGreaterThan(0);
+        let at = 0;
+        for (const line of shown) {
+          if (line.trim() === '' || line.includes('<') || line.trim() === '...') continue;
+          const found = lines.indexOf(line.trimEnd(), at);
+          expect(found, `printed, after the lines before it: ${line}`).toBeGreaterThanOrEqual(0);
+          at = found + 1;
+        }
+      } finally {
+        rmSync(scratch, { recursive: true, force: true });
+      }
+    }, 600_000);
+  }
+});
+
 describe('every worked example runs', () => {
   for (const topic of TOPICS) {
     const steps = workedExample(topic.body, runnableSection(topic.area));

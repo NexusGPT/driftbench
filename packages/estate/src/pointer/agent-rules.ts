@@ -2,22 +2,163 @@
  * The label set that ships for agent estates. It is data in the format of any user's set (`labels:` in a
  * YAML file), loaded by the same parser. The core knows none of these names.
  */
+/**
+ * A unit that is a rule of any kind and names a file of the estate in a code span is also a reference to read:
+ * the file is found by the estate's own places, never by words. A code span that leads to no file builds nothing.
+ */
+const ALSO_REFERENCE = `          also:
+            - kind: reference
+              whenFile: true
+              title: "Read \${code}"
+              situation: $unit
+              fields: { readWhen: $unit, from: $file }
+              evidence:
+                - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+`;
+
 export const AGENT_RULES_SET = `labels:
   - set: agent-rules
     description: What an instruction file asks of the agent that reads it.
+    spans:
+      - name: governed-action
+        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it. For two calls of one tool it is the whole sentence of the unit, copied letter for letter with its backticks, from its first word after any list marker or rule number to its last word, never including the final full stop, so that it holds both calls. It carries no polarity.
+      - name: first-call
+        description: Inside the governed-action span, the call that runs first, short, copied from the unit without backticks and without a word that orders it, such as the command or the file name.
+        within: governed-action
+      - name: second-call
+        description: Inside the governed-action span, the call of the same tool that runs second, short, copied from the unit without backticks and without a word that orders it. An act written as a verb phrase is its verb alone, one word, such as publish.
+        within: governed-action
+    links:
+      - name: act-tool
+        description: The tool the reader uses for that act.
+        values: [Read, Edit, Write, Bash, Agent]
     labels:
       - name: rule
-        description: A unit that tells the reader what to do.
-        atom: { kind: instruction, polarity: obligation }
-      - name: prohibition
-        description: A unit that tells the reader what never to do.
-        atom: { kind: instruction, polarity: prohibition }
+        description: A unit that tells the reader what to do, without setting an order between acts or between two calls. A unit about an event the agent must get through has its own label instead. A unit that makes one call wait for the output of another call of the same tool is gate-calls.
+        atom:
+          kind: instruction
+          polarity: obligation
+${ALSO_REFERENCE}      - name: prohibition
+        description: A unit that tells the reader what never to do. A ban that lasts only until another call of the same tool has been done and its output read is gate-calls.
+        atom:
+          kind: instruction
+          polarity: prohibition
+${ALSO_REFERENCE}
       - name: gate
-        description: A unit that sets an order, one act before another.
-        atom: { kind: gate }
+        description: A unit that tells the reader to read a file first, before an act. Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        spans: [governed-action]
+        links: [act-tool]
+        atom:
+          kind: gate
+          title: "Read \${code} before \${span.governed-action}"
+          situation: "\${span.governed-action}"
+          fields: { first: $code, trigger: "\${span.governed-action}", path: $path }
+          evidence:
+            - { type: ordered, before: Read, after: $link.act-tool }
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+          also:
+            - kind: reference
+              title: "Read \${code}"
+              situation: $unit
+              locate: true
+              fields: { readWhen: $unit, from: $file }
+              evidence:
+                - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+      - name: gate-command
+        description: A unit that tells the reader to run a command first, before an act that uses a different tool than the command, such as a command before a file is written. If the act is itself a command run with the same tool, such as committing, publishing or deleting, the unit is gate-calls and not this label. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        spans: [governed-action]
+        links: [act-tool]
+        atom:
+          kind: gate
+          title: "Read \${code} before \${span.governed-action}"
+          situation: "\${span.governed-action}"
+          fields: { first: $code, trigger: "\${span.governed-action}" }
+          evidence:
+            - { type: ordered, before: Bash, after: $link.act-tool }
+            - { type: tool_called, label: Bash, input: { command: { contains: $code } } }
+      - name: gate-calls
+        examples:
+          - "Run \`make check\` before you run \`make publish\`."
+          - "Do not publish until you have read the output of \`make check\`."
+          - "Look at \`ls .lock\` first, then remove the lock with \`rm .lock\`."
+        description: >-
+          A unit that makes one call of a tool wait for another call of the same tool, including a ban that lasts only until a command has been run and its output read. Take this label, and not rule or prohibition, for such a unit. Both calls are named in the unit, the second one possibly only as an act such as commit or publish. Not a unit that waits for a person's answer, such as an explicit yes before sending, which is a rule. Not a unit that waits for a file to be read or for a call of a different tool. The entry for such a unit has this shape, for the unit Do not publish until you have read the output of \`make check\`. {"units": "7", "label": "gate-calls", "spans": [{"kind": "governed-action", "text": "Do not publish until you have read the output of \`make check\`"}, {"kind": "first-call", "text": "make check"}, {"kind": "second-call", "text": "publish"}], "links": [{"kind": "act-tool", "to": "Bash"}]}.
+        spans: [governed-action, first-call, second-call]
+        links: [act-tool]
+        atom:
+          kind: gate
+          title: "Run \${span.first-call} before \${span.second-call}"
+          situation: "\${span.governed-action}"
+          fields: { first: "\${span.first-call}", second: "\${span.second-call}", trigger: "\${span.governed-action}" }
+          evidence:
+            - { type: ordered, before: "\${link.act-tool}~\${span.first-call}", after: "\${link.act-tool}~\${span.second-call}" }
+      - name: reference
+        description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span of the unit.
+        atom:
+          kind: reference
+          title: "Read \${code}"
+          situation: $unit
+          locate: true
+          fields: { readWhen: $unit, from: $file }
+          evidence:
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
       - name: reply-rule
         description: A unit that sets the language, length, format, words or tone of the reader's reply.
-        atom: { kind: register }
+        atom:
+          kind: register
+${ALSO_REFERENCE}
+      - name: hazard-compaction
+        description: A unit that says what the agent does when the agent's own conversation or context is compacted, summarised or truncated to fit its window, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: A compaction of the context
+          fields: { hazard: compaction }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: compaction } }
+${ALSO_REFERENCE}      - name: hazard-restart
+        description: A unit that says what the agent does when the agent's own process, session host or runtime is restarted or rebooted, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: A process restart
+          fields: { hazard: restart }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: restart } }
+${ALSO_REFERENCE}      - name: hazard-rate-limit
+        description: A unit that says what the agent does when the agent itself is rate limited, throttled or refused for sending too many requests, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: A wave of rate limits
+          fields: { hazard: rate_wave }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: rate_wave } }
+${ALSO_REFERENCE}      - name: hazard-new-session
+        description: A unit that says what the agent does when the agent starts again in a new session, or resumes where an earlier session left off, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: A new session
+          fields: { hazard: session_boundary }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: session_boundary } }
+${ALSO_REFERENCE}      - name: hazard-notification
+        description: A unit that says what the agent does when a helper the agent started reports back to it by a notification message, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: A helper notification
+          fields: { hazard: notification }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: notification } }
+${ALSO_REFERENCE}      - name: hazard-nudge
+        description: A unit that says what the agent does when a guard sends the agent the same nudge or reminder again and again, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, and not an example.
+        atom:
+          kind: hazard
+          situation: Repeated guard nudges
+          fields: { hazard: nudge_storm }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: nudge_storm } }
+${ALSO_REFERENCE}      - name: condition
+        description: A unit that only says when another unit applies, such as a circumstance, a state of the world or a kind of request, and tells the reader nothing to do by itself. Give the unit it scopes as the target.
+        target: required
+        condition: true
       - name: example
         description: A unit that shows a case and is not itself an instruction.
       - name: description
