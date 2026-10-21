@@ -1067,7 +1067,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
         conversations: [{ id: `fictional${suffix}`, values: { 'ledger.account': 'ready' } }],
       } as never);
     const [a, b] = [make('\uD800'), make('\uD801')];
-    expect(a.refused).toHaveLength(1);
+    expect(a.refused.filter((r) => /well-formed/.test(r.reason))).toHaveLength(1);
     expect(JSON.stringify(a.store)).toBe(JSON.stringify(b.store));
     expect(holdsLone(a) || holdsLone(b)).toBe(false);
   });

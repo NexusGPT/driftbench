@@ -355,6 +355,7 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
         return !bad;
       });
       const tools = (rule.tools ?? []).map((tool) => {
+        if (keyIllFormed(tool)) drop(`${name(tool.tool)}.${name(tool.field)}`);
         const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool);
         const values = (tool.values ?? []).filter((value) => {
           const bad = whole || illFormedAnywhere(value);
