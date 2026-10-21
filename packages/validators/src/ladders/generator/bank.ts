@@ -2236,77 +2236,78 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
 }
 
 /**
- * The specs that carry the twin pairs of the suite. A declared perturbation exists to measure the sensitivity of the
- * agent to its axis, so the suite keeps ONE twin pair per path and per declared axis (the channel, the persona), over the
- * whole suite and not per group: the first copy of a written walk that differs from the written ones in a declared
- * channel or persona the path has no pair for yet. A spec written for a channel or a persona the map does not declare is
- * never a twin, whatever else differs.
+ * The declared obligations of the suite and who holds them. A block is removable only if removing it loses no declared
+ * obligation. The obligations are what the suite says a block is for, read from the spec: an injected deviation class, a
+ * declared perturbation (a perturbed run reaches the blocks up to its injection), a twin pair on a declared axis (the
+ * channel, the persona: a written walk and its first copy for another declared channel or persona), and membership in a
+ * declared metamorphic family. Each obligation is held once per path over the WHOLE suite, by the first spec that
+ * carries it; a second holder of the same obligation on the same path is a repeat. A block written for a channel or a
+ * persona the map does not declare holds none. The covering tuples and pairs are not read here: the ablation in
+ * `removable` already keeps every map obligation of the coverage items.
  */
-async function twinSpecs(
-  data: SeedData,
-): Promise<{ kept: Set<string>; declared: (block: BlockRun) => boolean }> {
+async function obligationHolders(data: SeedData): Promise<{
+  blocks: Set<string>;
+  specs: Set<string>;
+  declared: (block: BlockRun) => boolean;
+}> {
   const { hidden } = await data.generated();
   const channels = new Set<string>(hidden.channels);
   const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
   const declared = (block: BlockRun): boolean =>
     (block.channel === '' || channels.has(block.channel)) &&
     (block.persona === '' || personas.has(block.persona));
-  const kept = await data.memoized('twin-specs', async () => {
-    const specs = new Map<string, BlockRun>();
-    for (const block of (await data.runs()).blocks) if (!specs.has(block.spec)) specs.set(block.spec, block);
+  const held = await data.memoized('obligation-holders', async () => {
+    const bySpec = new Map<string, BlockRun[]>();
+    for (const block of (await data.runs()).blocks) bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
+    const holder = new Map<string, string>();
+    const hold = (obligation: string, spec: string): boolean => {
+      if (!holder.has(obligation)) holder.set(obligation, spec);
+      return holder.get(obligation) === spec;
+    };
+    const blocks = new Set<string>();
+    const specs = new Set<string>();
     const written = new Map<string, BlockRun[]>();
     const secured = new Map<string, Set<string>>();
-    const found = new Set<string>();
-    for (const spec of specs.values()) {
-      if (!declared(spec)) continue;
-      const same = written.get(spec.walk);
-      if (!same) {
-        written.set(spec.walk, [spec]);
-        continue;
+    for (const [spec, own] of bySpec) {
+      const head = own[0] as BlockRun;
+      if (!declared(head)) continue;
+      const same = written.get(head.walk);
+      if (!same) written.set(head.walk, [head]);
+      else {
+        const axes = new Set<string>();
+        for (const other of same) {
+          if (other.channel !== head.channel) axes.add('channel');
+          if (other.persona !== head.persona) axes.add('persona');
+        }
+        const have = secured.get(head.path) ?? new Set<string>();
+        const needed = [...axes].filter((axis) => !have.has(axis));
+        if (needed.length > 0) {
+          for (const axis of needed) have.add(axis);
+          secured.set(head.path, have);
+          specs.add(spec);
+          specs.add((same[0] as BlockRun).spec);
+          same.push(head);
+        }
       }
-      const axes = new Set<string>();
-      for (const other of same) {
-        if (other.channel !== spec.channel) axes.add('channel');
-        if (other.persona !== spec.persona) axes.add('persona');
+      if (head.family !== '' && hold(`family|${head.path}|${head.walk}`, head.family)) specs.add(spec);
+      for (const block of own) {
+        if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec)) blocks.add(block.key);
+        for (const cls of block.perturbed === '' ? [] : block.perturbed.split(','))
+          if (hold(`perturb|${block.path}|${cls}`, spec)) blocks.add(block.key);
       }
-      const held = secured.get(spec.path) ?? new Set<string>();
-      const needed = [...axes].filter((axis) => !held.has(axis));
-      if (needed.length === 0) continue;
-      for (const axis of needed) held.add(axis);
-      secured.set(spec.path, held);
-      found.add(spec.spec);
-      same.push(spec);
     }
-    return found;
+    return { blocks, specs };
   });
-  return { kept, declared };
+  return { ...held, declared };
 }
 
 /**
- * The members of a group of same-test blocks that the suite has no reason to keep: every member but the first, the
- * blocks of a spec that carries a twin pair (see `twinSpecs`) beside a member of its own walk, and the first block per
- * path and set of perturbed classes that a declared perturbation reaches.
+ * The members of a group of same-test blocks that hold no declared obligation: the suite has no reason to keep them, so
+ * the oracle may call one of them removable.
  */
-export async function outsideTwinPairs(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
-  const { kept, declared } = await twinSpecs(data);
-  const [first, ...rest] = group;
-  if (!first) return [];
-  const allowed: BlockRun[] = [first];
-  const perturbed = new Set<string>(first.perturbed ? [`${first.path}|${first.perturbed}`] : []);
-  const outside: BlockRun[] = [];
-  for (const block of rest) {
-    if (kept.has(block.spec) && declared(block) && allowed.some((other) => other.walk === block.walk)) {
-      allowed.push(block);
-      continue;
-    }
-    const key = `${block.path}|${block.perturbed}`;
-    if (block.perturbed && !perturbed.has(key)) {
-      perturbed.add(key);
-      continue;
-    }
-    outside.push(block);
-  }
-  return outside;
+export async function unprotectedMembers(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
+  const { blocks, specs, declared } = await obligationHolders(data);
+  return group.filter((block) => !declared(block) || !(blocks.has(block.key) || specs.has(block.spec)));
 }
 
 async function hasRemovable(data: SeedData, group: BlockRun[]): Promise<boolean> {
@@ -2337,7 +2338,7 @@ function minimalityItems(): BankItem[] {
           groups.set(sameTestKey(block), [...(groups.get(sameTestKey(block)) ?? []), block]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values())
-          if (group.length > 1 && (await hasRemovable(data, await outsideTwinPairs(data, group))))
+          if (group.length > 1 && (await hasRemovable(data, await unprotectedMembers(data, group))))
             redundant.push(group);
         return verdict(
           redundant.length === 0,
@@ -2374,7 +2375,7 @@ function minimalityItems(): BankItem[] {
         for (const group of groups.values()) {
           if (group.length < 2 || (seeder === 'metamorphic' && new Set(group.map(family)).size === 1))
             continue;
-          if (await hasRemovable(data, await outsideTwinPairs(data, group))) redundant.push(group);
+          if (await hasRemovable(data, await unprotectedMembers(data, group))) redundant.push(group);
         }
         return verdict(
           blocks.length > 0 && redundant.length === 0,

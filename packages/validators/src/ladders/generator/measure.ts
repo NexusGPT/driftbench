@@ -129,6 +129,8 @@ export type BlockRun = {
   persona: string;
   /** The classes of the perturbations declared on this block or after it: a perturbed run reaches the block. */
   perturbed: string;
+  /** The metamorphic family the spec belongs to, '' for a spec that is none. */
+  family: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -673,6 +675,8 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         ),
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
+        family:
+          (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic?.family ?? '',
         perturbed: (spec.perturbations ?? [])
           .filter((entry) => entry.inject_at >= index)
           .map((entry) => entry.class)
