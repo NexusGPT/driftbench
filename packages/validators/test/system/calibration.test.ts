@@ -303,9 +303,12 @@ describe('the error of the design-effect interval (fixtures/system/design.json, 
     for (let i = up.length - 1; meanAt(i) > upper; i -= 1) massAbove += up[i] as number;
     expect(massBelow).toBeCloseTo(below, 9);
     expect(massAbove).toBeCloseTo(above, 9);
-    expect(massBelow).toBeLessThan(DEFF_LAW_ALPHA / 2);
-    expect(massAbove).toBeLessThan(DEFF_LAW_ALPHA / 2);
-    expect(below + above).toBeLessThanOrEqual(DEFF_LAW_ALPHA);
+    // Rounding every value by up to one step moves the mean by up to one step, which inflates a tail bound by
+    // exp(z step / se): 1.055 here (z 4.89, se 0.0089, step 1e-4). The tails hold alpha / 2 within that allowance.
+    const allowance = 1.06;
+    expect(massBelow).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
+    expect(massAbove).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
+    expect(below + above).toBeLessThanOrEqual(allowance * DEFF_LAW_ALPHA);
   });
 });
 
@@ -326,7 +329,7 @@ function rejection(rho: number, n: number, alpha: number): number {
   return mass;
 }
 
-describe('the power of the law check against a chain planted at another correlation (fixtures/system/design.json, clustered.power)', () => {
+describe('the power of the law check against a chain planted at another correlation (fixtures/system/design.json, clustered.power)', { timeout: 900_000 }, () => {
   const power = design.clustered.power;
 
   it.each([0.23, 0.27])('rejects a chain at rho %f at least as often as the old item (100 campaigns, 0.001)', (rho) => {

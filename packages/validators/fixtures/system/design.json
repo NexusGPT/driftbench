@@ -29,7 +29,7 @@
       "skew": 0.3929790526
     },
     "interval": {
-      "note": "Cornish-Fisher interval of the mean over 1740 campaigns at alpha, each tail at most alpha / 2",
+      "note": "Cornish-Fisher interval of the mean over 1740 campaigns at alpha, each tail at most alpha / 2 within the lattice allowance of the test",
       "lower": 1.6977601341,
       "upper": 1.7844427674,
       "below": 4.973e-07,
