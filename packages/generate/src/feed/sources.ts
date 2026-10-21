@@ -12,6 +12,8 @@ import { QuoteIndex } from '../extract/quote';
  *   file it is quoted from. A value whose quote the file does not hold (white space, typographic quotes, accents
  *   and invisible characters folded, case and punctuation not) is refused with a reason and kept out; a variable
  *   left with no value is not stored. A file is looked up by its exact path among the files given, never on disk.
+ *   A name or subject with an unpaired UTF-16 surrogate (not well-formed Unicode) is refused with a reason, in
+ *   every source: two such names would encode to the same replacement text and share an id.
  * - Conversations. Each session names the values it shows by variable and value id. A variable's total is the
  *   sessions that show it; a value's count is the sessions that show the value. A value of a variable the store
  *   has, absent from the store, joins it as a proposal (`approved: false`) with its counts. A variable no session
@@ -108,6 +110,15 @@ const sha256 = (text: string): string => createHash('sha256').update(text).diges
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim() === '';
+
+/** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
+const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+const wellFormed = (...texts: readonly unknown[]): boolean =>
+  texts.every((text) => typeof text !== 'string' || !UNPAIRED.test(text));
+/** The text with each unpaired surrogate shown as U+FFFD, for a refusal that names it. */
+const shown = (text: string): string => text.replace(new RegExp(UNPAIRED.source, 'g'), '\uFFFD');
+const NOT_WELL_FORMED =
+  'a name or subject must be well-formed text: this one holds an unpaired UTF-16 surrogate, which cannot be told from another';
 
 function realDay(text: unknown): text is string {
   if (typeof text !== 'string') return false;
@@ -442,6 +453,12 @@ export function variablesFromSources(
       }
       const label = condition.label;
       if (label === undefined || label.kind === 'none') continue;
+      const labelled: unknown[] = [label.subject, 'unit' in label ? label.unit : undefined];
+      if (label.kind === 'member') labelled.push(...(label.members ?? []));
+      if (!wellFormed(...labelled)) {
+        refuse(shown(condition.text), NOT_WELL_FORMED);
+        continue;
+      }
       const entry: QuoteEntry = { kind: 'quote', path: rule.source, quote: condition.text };
       const made = conditionVariable(label, entry);
       if (made === undefined)
@@ -453,9 +470,10 @@ export function variablesFromSources(
       // The pair, not its dotted title, identifies the variable: "a.b" with "c" and "a" with "b.c" are two.
       const name = identity('tool-field', String(tool.tool), String(tool.field));
       for (const value of tool.values ?? []) {
-        const what = `${title}.${value.id}`;
+        const what = shown(`${title}.${value.id}`);
         let reason: string | undefined;
-        if (blank(value.quote)) reason = 'the value has no quote to stand on';
+        if (!wellFormed(tool.tool, tool.field, value.id)) reason = NOT_WELL_FORMED;
+        else if (blank(value.quote)) reason = 'the value has no quote to stand on';
         else if (value.quote.length > MAX_TEXT) reason = `the quote is longer than ${MAX_TEXT} characters`;
         else if (!index.has(tool.source)) reason = 'the file the quote names is not among the files given';
         else if (!index.contains(tool.source, value.quote)) reason = 'the file does not hold this quote';
@@ -549,6 +567,10 @@ export function variablesFromSources(
       refuse(what, 'the owner named no value');
       continue;
     }
+    if (!wellFormed(entry.value)) {
+      refuse(shown(what), NOT_WELL_FORMED);
+      continue;
+    }
     const { key } = addValue(draft, entry.value);
     (draft.values.get(key) as ValueDraft).owner.set(ownerKey(stamp), stamp);
   }
@@ -557,6 +579,7 @@ export function variablesFromSources(
   const sessions = sources.conversations ?? [];
   const seenVariables = new Map<string, Map<string, number>>();
   const unknown = new Set<string>();
+  const illFormed = new Set<string>();
   for (const session of sessions) {
     if (!isRecord(session.values)) continue;
     for (const [variableId, valueId] of Object.entries(session.values)) {
@@ -566,6 +589,10 @@ export function variablesFromSources(
         continue;
       }
       if (typeof valueId !== 'string' || valueId === '') continue;
+      if (!wellFormed(valueId)) {
+        illFormed.add(shown(`${variableId}=${valueId}`));
+        continue;
+      }
       const { key, created } = addValue(draft, valueId);
       const value = draft.values.get(key) as ValueDraft;
       if (created) value.proposal = true;
@@ -574,6 +601,7 @@ export function variablesFromSources(
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
   }
+  for (const what of [...illFormed].sort()) refuse(what, NOT_WELL_FORMED);
   for (const variableId of [...unknown].sort()) {
     refuse(variableId, 'no variable of the store has this id, so the sessions that show it were not counted');
   }

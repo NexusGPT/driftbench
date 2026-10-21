@@ -869,3 +869,75 @@ describe('variablesFromSources: variable identities cannot collide across kinds'
     expect(built.store.variables.filter((v) => built.samples[v.id] !== undefined)).toHaveLength(6);
   });
 });
+
+describe('variablesFromSources: names that are not well-formed Unicode', () => {
+  const LONE_HIGH = '\uD801';
+  const LONE_LOW = '\uD800';
+  const tool2 = (name: string) => ({
+    tool: name,
+    field: 'status',
+    source: 'TOOLS.md',
+    values: [{ id: 'ready', quote: 'Ready.' }],
+  });
+  const build = (names: string[], extra: Partial<VariableSources> = {}) =>
+    variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+      },
+      ...extra,
+    });
+
+  it('refuses two tool names whose unpaired surrogates would encode alike, and keeps the good one', () => {
+    const built = build([`Ship${LONE_HIGH}Code`, `Ship${LONE_LOW}Code`, 'Ship-Code']);
+    expect(built.store.variables.map((v) => v.title)).toEqual(['Ship-Code.status']);
+    expect(built.refused).toHaveLength(2);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+    // The refusal names the entry with a replacement character, never the lone surrogate.
+    expect(built.refused.every((r) => !/[\uD800-\uDFFF]/.test(r.what))).toBe(true);
+  });
+
+  it('refuses a condition subject, an owner value and a session value that are not well-formed', () => {
+    const text = 'Escalate when the delay is above 2 days.';
+    const built = variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.', 'RULES.md': text },
+        rules: [
+          {
+            id: 'R',
+            source: 'TOOLS.md',
+            conditions: [],
+            tools: [tool2('Ship-Code')],
+          },
+          {
+            id: 'S',
+            source: 'RULES.md',
+            tools: [],
+            conditions: [
+              {
+                text,
+                label: { kind: 'numeric', subject: `delay${LONE_HIGH}`, limit: 2, comparison: 'gt' },
+              },
+            ],
+          },
+        ],
+      },
+      owner: {
+        values: [
+          { variable: 'Ship-Code.status', value: `x${LONE_LOW}`, words: 'The owner said so.', date: DAY },
+        ],
+      },
+      conversations: [{ id: 's1', values: { 'Ship-Code.status': `y${LONE_HIGH}` } }],
+    });
+    expect(built.store.variables.map((v) => v.id)).toEqual(['Ship-Code.status']);
+    expect(built.store.variables[0]?.values.map((v) => v.id)).toEqual(['ready']);
+    expect(built.refused).toHaveLength(3);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+  });
+
+  it('accepts a well-formed astral character', () => {
+    const built = build(['Ship\u{1F600}Code']);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(1);
+  });
+});
