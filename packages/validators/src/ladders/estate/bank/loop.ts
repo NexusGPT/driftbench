@@ -824,7 +824,10 @@ const ASKS: AskCheck[] = [
             // The one fixed act the table ties to no tool (a hazard's) names its hazard atom, with no tool.
             const untied = ASK_TEMPLATES.some(
               (row) =>
-                row.kind === 'act' && row.template === build?.act && !row.template.includes('{') && !row.tools,
+                row.kind === 'act' &&
+                row.template === build?.act &&
+                !row.template.includes('{') &&
+                !row.tools,
             );
             const hazard = untied && atomsById.get(from)?.kind === 'hazard' && allowed.has(from);
             if (source === undefined ? meta.askFrom !== 'neutral' && !hazard : !cites || !atomsById.has(from))
