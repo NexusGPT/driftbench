@@ -76,7 +76,8 @@ describe('script dispatch requires source evidence', () => {
     const script = '.claude/hooks/entry.py';
     const target = '.claude/hooks/worker.py';
     const root = await estate({
-      [script]: '# Lance le fichier donné en premier argument.\nimport sys, runpy\nrunpy.run_path(sys.argv[1])\n',
+      [script]:
+        '# Lance le fichier donné en premier argument.\nimport sys, runpy\nrunpy.run_path(sys.argv[1])\n',
       [target]: 'print("worker")\n',
       '.claude/settings.json': JSON.stringify({
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} worker.py` }] }] },
