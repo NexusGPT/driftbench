@@ -89,7 +89,12 @@ export class TerminalSubsumption {
     // a variant judged alone would be a repeat of the first).
     const family = draft.seeder === 'metamorphic' ? draft.metamorphic : undefined;
     const followed = family && family.variant > 1 ? this.families.get(family.family) : undefined;
-    if (followed !== undefined && followed.length < draft.blocks.length) {
+    if (
+      followed !== undefined &&
+      followed.length < draft.blocks.length &&
+      spec.blocks.slice(followed.length).every((block) => this.phrasesHold(block))
+    ) {
+      // A follower is cut to its leader's length only when every message it would lose is said by a written spec.
       draft.blocks = draft.blocks.slice(0, followed.length);
       const shorter = renderDraft(this.prepared, draft, this.run);
       const again = validateSpec(shorter.spec);
@@ -261,6 +266,14 @@ export class TerminalSubsumption {
     return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
   }
 
+  /** The judged criteria a block references, with their definitions: a criterion no kept spec covers is a lost check. */
+  private criteriaOf(spec: Spec, block: Spec['blocks'][number] | undefined): unknown {
+    return (block?.expect?.criteria ?? []).map((entry) => {
+      const name = entry.split('@')[0];
+      return [entry, spec.criteria?.find((definition) => definition.name === name)];
+    });
+  }
+
   /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class. */
   private turnOf(block: Spec['blocks'][number] | undefined): unknown {
     const when = block?.when;
@@ -284,6 +297,7 @@ export class TerminalSubsumption {
       turn: this.turnOf(block),
       given: block?.given,
       expect: machine,
+      criteria: this.criteriaOf(spec, block),
     });
   }
 

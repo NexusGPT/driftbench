@@ -69,6 +69,8 @@ describe('driftbench gate', () => {
         join(HAND, 'order-loose-confirmation.yaml'),
         join(HAND, 'tool-failure.yaml'),
         join(GENERATED, 'gen-deviation-005.yaml'),
+        // The regenerated probe opens with a stem written once under specs/stems/; the gate loads it with the spec.
+        join(GENERATED, '..', 'stems', 'stem-5ca34f57c855.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--holdout', '0', '--out', out]);
