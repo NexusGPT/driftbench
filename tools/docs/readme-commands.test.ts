@@ -194,7 +194,8 @@ describe('README commands that print what they show', () => {
     const section = after.split('\n## Results\n')[0] ?? '';
     const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
     expect(consoles.length).toBeGreaterThan(6);
-    process.stderr.write(`WALKPLAN ${consoles.map((block) => steps(block).map((step) => step.command).join(' ;; ')).join('\n')}\n`);
+    const plan = consoles.flatMap((block) => steps(block).map((step) => step.command));
+    process.stderr.write(`WALKPLAN ${plan.length}\n${plan.join('\n')}\n`);
     const base = await mkdtemp(join(tmpdir(), 'driftbench-walk-'));
     try {
       await symlink(join(ROOT, 'examples'), join(base, 'examples'));
