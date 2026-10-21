@@ -186,6 +186,7 @@ describe('approved task asks are judged by the task oracle', () => {
         specs: [spec],
         natives: [],
         report: {},
+        checks: fixture.RUNNER_CHECKS,
       };
       const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
       try {

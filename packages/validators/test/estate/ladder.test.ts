@@ -1,4 +1,4 @@
-import { toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
+import { buildPlan, toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
 import {
@@ -177,7 +177,7 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     );
   });
 
-  it('plans over the relevant pairs: the planted pairs of an event and a target it concerns are kept and covered', async () => {
+  it('plans over the declared pairs: the planted pairs are kept and covered, each event value is unresolved without a space, and a supplied space excludes what it marks irrelevant', async () => {
     const run = await estateRun(1);
     const declared = toEstateSpaceMap(run.scanned.map);
     // The pairs the plan keeps, found from the space the plan is built over.
@@ -226,26 +226,55 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
       ).toBe(true);
     }
 
-    // The seed 1 estate holds no rule with a language predicate, so the language half plants one: a target the
-    // pruning drops for a language switch, given a text predicate that names a language, must be kept and covered.
-    const language: [string, string] = ['deviation', 'D5_language_switch'];
-    const unrelated = [...base.targetIds].find((id) => !base.allowed.has(key(id, ...language)));
-    expect(unrelated, 'a target the language switch does not concern').toBeDefined();
-    const map = structuredClone(run.scanned.map);
-    const atom = map.atoms.find((candidate) => candidate.id === unrelated);
-    if (!atom) throw new Error('the planted target is not in the map');
-    atom.evidence = [...atom.evidence, { type: 'text', lang: 'FR' }];
-    const kept = keptPairs(map);
-    expect(kept.allowed.has(key(atom.id, ...language)), `${atom.id} x ${language[1]} kept`).toBe(true);
-    expect(
-      approvedPlan(map).plan.rows.some(
-        (row) => row.atomIds[0] === atom.id && row.cell[language[0]] === language[1],
-      ),
-      `${atom.id} x ${language[1]} has a row`,
-    ).toBe(true);
+    // docs/estate.md "Situation relevance in a proposed plan": relevance comes from a declared space, never from the
+    // words of the estate. Without a supplied space the plan keeps the declared combinations and reports each
+    // event-axis value, but its baseline (and an unperturbed long session), as unresolved.
+    expect(base.space.constraints.length, 'no pruning without a supplied space').toBe(
+      declared.constraints.length,
+    );
+    const notes = run.plan.details.notes;
+    const events = new Set(['session_state', 'owner_signal', 'deviation', 'estate_hazard']);
+    for (const dimension of declared.dimensions.filter((candidate) => events.has(candidate.id))) {
+      for (const [index, value] of dimension.values.entries()) {
+        if (index === 0 || (dimension.id === 'session_state' && value.id === 'long')) continue;
+        expect(
+          notes.some((note) => note.startsWith(`${dimension.id}=${value.id}: relevance is unresolved`)),
+          `${dimension.id}=${value.id} reported as unresolved`,
+        ).toBe(true);
+      }
+    }
 
-    // The pruning is real, so the level cannot agree with the planner by counting every pair.
-    expect(base.space.constraints.length).toBeGreaterThan(declared.constraints.length);
+    // A supplied space is authoritative: a pair it marks irrelevant leaves the plan. A reader that ignores the space
+    // keeps the pair, as the plan built without it does, so the check can fail.
+    const language: [string, string] = ['deviation', 'D5_language_switch'];
+    const crossed = run.plan.plan.rows.find(
+      (row) => row.id.startsWith('pairwise.') && row.cell[language[0]] === language[1] && row.atomIds[0],
+    );
+    expect(crossed, 'the plan without a space crosses the language switch with a target').toBeDefined();
+    const target = crossed?.atomIds[0] as string;
+    const dimension = declared.dimensions.find((candidate) =>
+      candidate.values.some((value) => value.id === target),
+    );
+    if (!dimension) throw new Error(`no dimension of the declared space holds ${target}`);
+    const supplied = {
+      ...declared,
+      constraints: [
+        ...declared.constraints,
+        { forbid: { [language[0]]: language[1], [dimension.id]: target }, reason: 'declared irrelevant' },
+      ],
+    };
+    const crosses = (rows: ReadonlyArray<{ atomIds: readonly string[]; cell: Record<string, string> }>) =>
+      rows.some((row) => row.atomIds[0] === target && row.cell[language[0]] === language[1]);
+    expect(
+      crosses(buildPlan(run.scanned.map, { space: supplied }).plan.rows),
+      `${target} x ${language[1]} excluded`,
+    ).toBe(false);
+    expect(
+      crosses(run.plan.plan.rows),
+      `${target} x ${language[1]} kept by a reader that ignores the space`,
+    ).toBe(true);
+    // The pair stays an allowed pair of the declared space, so the exclusion is the supplied space's alone.
+    expect(base.allowed.has(key(target, ...language)), `${target} x ${language[1]} declared`).toBe(true);
   });
 
   it('fails a complete spec whose expectation the rule follower does not meet, and a spec that does not load', async () => {

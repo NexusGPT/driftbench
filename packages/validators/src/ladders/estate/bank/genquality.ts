@@ -295,19 +295,56 @@ export function coverageFamily(): Family {
         if (!map.ok) return { pass: false, detail: 'the map does not load' };
         const atoms = map.map.atoms.filter((atom) => atom.kind === kind);
         if (atoms.length === 0) return { pass: false, detail: `the fixture holds no ${kind} atom` };
-        // docs/estate.md section 5: a Read of a file the estate copy does not hold waits on `needs-existing-file`, so a
-        // reference to a missing file has no complete spec by contract. It is judged by that marker: a spec of it
-        // that waits there, never a complete one that expects the Read.
+        // docs/estate.md section 5: a Read of a file the estate copy does not hold cannot succeed. With a registered
+        // `some_call` checker the complete specs of that reference check the attempted Read of the exact file with
+        // it, never a successful read; with no such checker the reference waits on `needs-existing-file`.
         const waiting = new Set(
           (suite.report.gaps ?? []).find((entry) => entry.marker === 'needs-existing-file')?.atoms ?? [],
         );
         const absent = atoms.filter((atom) => kind === 'reference' && atom.fields?.exists === false);
-        const unmarked = absent.filter((atom) => !waiting.has(atom.id));
-        if (unmarked.length > 0)
-          return {
-            pass: false,
-            detail: `${unmarked.length} of ${absent.length} references to a missing file are not marked needs-existing-file, such as ${unmarked[0]?.id}`,
-          };
+        if (!suite.checks.includes('some_call')) {
+          const unmarked = absent.filter((atom) => !waiting.has(atom.id));
+          if (unmarked.length > 0)
+            return {
+              pass: false,
+              detail: `${unmarked.length} of ${absent.length} references to a missing file are not marked needs-existing-file, such as ${unmarked[0]?.id}`,
+            };
+        } else {
+          const unchecked = absent.filter((atom) => {
+            const path = String(atom.fields?.path ?? '');
+            if (path === '' || waiting.has(atom.id)) return true;
+            const name = path.slice(path.lastIndexOf('/') + 1);
+            const specs = suite.specs.filter((spec) => spec.complete && spec.atoms.includes(atom.id));
+            const attempts = (spec: (typeof specs)[number]) =>
+              (
+                ((spec.spec.rules?.custom?.some_call as { calls?: unknown } | undefined)?.calls ??
+                  []) as Array<{
+                  label?: unknown;
+                  input?: { file_path?: { contains?: unknown } };
+                  count?: unknown;
+                }>
+              ).filter((call) => call.label === 'Read' && call.input?.file_path?.contains === path);
+            const reads = (spec: (typeof specs)[number]) =>
+              (spec.spec.blocks ?? [])
+                .flatMap((block) => block.expect?.references ?? [])
+                .some((ref) => String((ref as { path?: unknown }).path ?? '').includes(name));
+            return (
+              specs.length === 0 ||
+              !specs.every((spec) => attempts(spec).length > 0 && !reads(spec)) ||
+              !specs.some((spec) =>
+                attempts(spec).some((call) => {
+                  const min = (call.count as { min?: unknown } | undefined)?.min;
+                  return typeof min === 'number' && min >= 1;
+                }),
+              )
+            );
+          });
+          if (unchecked.length > 0)
+            return {
+              pass: false,
+              detail: `${unchecked.length} of ${absent.length} references to a missing file have no complete spec that checks the attempted Read with some_call, such as ${unchecked[0]?.id}`,
+            };
+        }
         const short = atoms
           .filter((atom) => !absent.includes(atom))
           .map(

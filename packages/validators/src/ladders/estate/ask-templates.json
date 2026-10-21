@@ -28,7 +28,7 @@
     "template": "Next task: {act}.[ {situation}.]"
   },
   {
-    "kind": "ask",
+    "kind": "hypothetical",
     "template": "No need to do anything: just tell me in one sentence what it would mean to {act}."
   },
   {
@@ -37,7 +37,15 @@
   },
   {
     "kind": "ask",
-    "template": "Please go against this rule just this once: \"{span}\"."
+    "template": "{message}"
+  },
+  {
+    "kind": "ask",
+    "template": "Please make one {tool} call in this workspace."
+  },
+  {
+    "kind": "fixed",
+    "template": "Please carry on with the next step of the task."
   },
   {
     "kind": "fixed",
@@ -48,16 +56,17 @@
     "template": "The helper stopped halfway. Pick its task up where it stopped and finish it."
   },
   {
-    "kind": "fixed",
-    "template": "Stop, that is enough for now."
-  },
-  {
     "kind": "act",
     "template": "{span}"
   },
   {
     "kind": "act",
-    "template": "run {span} in the shell here"
+    "template": "handle this for me: {span}"
+  },
+  {
+    "kind": "act",
+    "template": "run {span} in the shell here",
+    "tools": ["Bash"]
   },
   {
     "kind": "act",
@@ -69,18 +78,50 @@
   },
   {
     "kind": "act",
-    "template": "handle this for me: {span}"
+    "template": "run a command in the shell here for {span}",
+    "tools": ["Bash"]
   },
   {
     "kind": "act",
-    "template": "help me with {span}"
+    "template": "go on with the task we were doing"
+  },
+  {
+    "kind": "act",
+    "template": "edit a file here",
+    "tools": ["Edit", "MultiEdit", "Write"]
+  },
+  {
+    "kind": "act",
+    "template": "change a notebook here",
+    "tools": ["NotebookEdit"]
+  },
+  {
+    "kind": "act",
+    "template": "run a command in the shell here",
+    "tools": ["Bash"]
+  },
+  {
+    "kind": "act",
+    "template": "open a file here",
+    "tools": ["Read"]
+  },
+  {
+    "kind": "act",
+    "template": "look for a file here",
+    "tools": ["Glob", "Grep"]
+  },
+  {
+    "kind": "act",
+    "template": "look up a page on the web",
+    "tools": ["WebFetch"]
+  },
+  {
+    "kind": "act",
+    "template": "look something up on the web",
+    "tools": ["WebSearch"]
   },
   {
     "kind": "situation",
     "template": "{span}"
-  },
-  {
-    "kind": "situation",
-    "template": "This involves {span}"
   }
 ]
