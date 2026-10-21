@@ -687,7 +687,7 @@ export function planStream({ ask, cwd, sessionId, env }) {
   if (plan.error) {
     text(plan.error);
     hooks('Stop', undefined, { stop_hook_active: false });
-    return { records: out, blocked: true };
+    return { records: out, blocked: true, error: plan.error };
   }
   for (const action of plan.actions) {
     let result;

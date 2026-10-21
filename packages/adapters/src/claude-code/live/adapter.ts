@@ -494,6 +494,10 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         );
       }
 
+      if (parsed.result?.subtype === 'error_during_execution' && parsed.result.isError) {
+        throw new AgentFailure(parsed.result.text ?? 'the runtime failed during execution');
+      }
+
       const after = await sandbox.snapshot();
       const fullDiff = sandbox.diff(before, after);
 
