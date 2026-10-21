@@ -38,10 +38,10 @@ pnpm driftbench campaign plan examples/northwind-campaign/specs --config example
 The output, trimmed to its verdict lines:
 
 ```text
-✓ examples/northwind-campaign/specs/invoice-over.yaml  northwind-invoice-over · 3 blocks · hash 71f3598178c1
-✓ examples/northwind-campaign/specs/ledger-branches.yaml  northwind-ledger-branches · 3 blocks · hash a9cefc3c5715
-✓ examples/northwind-campaign/specs/shipment-late.yaml  northwind-shipment-late · 3 blocks · hash 73fc9bb2a224
-✓ examples/northwind-campaign/specs/weekly-report.yaml  northwind-weekly-report · 2 blocks · hash bddbd09e46d5
+✓ examples/northwind-campaign/specs/invoice-over.yaml  northwind-invoice-over · 3 blocks · hash f5b2e201f427
+✓ examples/northwind-campaign/specs/ledger-branches.yaml  northwind-ledger-branches · 3 blocks · hash b984bdbc2f50
+✓ examples/northwind-campaign/specs/shipment-late.yaml  northwind-shipment-late · 3 blocks · hash 980cb3456998
+✓ examples/northwind-campaign/specs/weekly-report.yaml  northwind-weekly-report · 2 blocks · hash d904a9eb16a6
 Checked 4 specs: 4 valid, 0 invalid, 0 warnings.
 Plan: 4 specs, 1 target, mode F, 2 repeats: 8 cells, 22 blocks.
 Projected cost: $0.00 (claude-code: no unit measured). Within the budget of $8.00.

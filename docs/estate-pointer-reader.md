@@ -89,7 +89,7 @@ A label can mark parts of a unit as spans. A span can sit inside another one wit
 | `first-call` | inside `governed-action`: the call that runs first, copied from the unit without a word that orders it |
 | `second-call` | inside `governed-action`: the call of the same tool that runs second |
 
-The label builds a gate atom titled "Run `<first call>` before `<second call>`". Its fields are `first`, `second` and `trigger`, the governed action. Its evidence is an ordered pair of calls of the tool named by the `act-tool` link. For the Northwind rule that a `git status` comes before a `git commit`, the gate reads "Run git status before git commit", and the evidence is `Bash~git status` then `Bash~git commit`.
+The label builds a gate atom titled "Run `<first call>` before `<second call>`". Its fields are `first`, `second` and `trigger`, the governed action. Its evidence is an ordered pair of calls of the tool named by the `act-tool` link. For a rule that tells the agent to run `git status` before `git commit`, the gate reads "Run git status before git commit", and the evidence is `Bash~git status` then `Bash~git commit`.
 
 A ban that lasts only until another call of the same tool has run and its output was read takes `gate-calls`, not `prohibition`. Limits: a call span outside `governed-action` makes the labelling refuse, and no gate atom is built. An incomplete answer never replaces the gate that code already read from the unit.
 
