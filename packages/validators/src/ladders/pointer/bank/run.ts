@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rngFor } from '@agent-nexus/driftbench-generate';
+import { sutModule } from '../sut/adapter';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
 import type { Control } from './controls';
 import { fail, type Outcome, type PointerItem, Problem } from './types';
@@ -140,7 +141,7 @@ function spawnWorker(pool: Pool): Promise<Worker | Failed | undefined> {
       detached: true,
       env: {
         ...process.env,
-        ...(pool.sutModule !== undefined ? { DRIFTBENCH_POINTER_SUT: pool.sutModule } : {}),
+        DRIFTBENCH_POINTER_SUT: pool.sutModule ?? sutModule(),
         DRIFTBENCH_POINTER_ITEM_CHILD: '1',
         TSX_TSCONFIG_PATH: process.env.TSX_TSCONFIG_PATH ?? join(repo, 'tsconfig.json'),
       },

@@ -20,6 +20,14 @@ const unreachable = (reason: string): PointerSut => {
 let pinned: string | undefined;
 
 /**
+ * Where the command line (`packages/cli/src/bin.ts`) keeps the value the variable had when the process started,
+ * before any module that holds a reader loaded. A process that never calls `pinSut` (the runner itself) reads it
+ * from here, so a reader that sets the variable when it loads does not change which reader the runner starts.
+ */
+const STARTED = Symbol.for('driftbench.pointer.sut');
+const started = (): string | undefined => (globalThis as Record<symbol, unknown>)[STARTED] as string | undefined;
+
+/**
  * Pins the module the system under test is resolved from. A process that serves a reader (the process of an item,
  * the process that holds the reader, a sandboxed child) calls it before anything of the reader loads: it reads
  * `DRIFTBENCH_POINTER_SUT`, removes it from the environment and keeps the value. From then on `resolveSut` and
@@ -36,7 +44,7 @@ export function pinSut(): string {
 
 /** The module the system under test is resolved from: the pinned one, else the variable as it stands now. */
 export function sutModule(): string {
-  return pinned ?? process.env.DRIFTBENCH_POINTER_SUT ?? '';
+  return pinned ?? started() ?? process.env.DRIFTBENCH_POINTER_SUT ?? '';
 }
 
 /** Resolves the system under test for this process. */
