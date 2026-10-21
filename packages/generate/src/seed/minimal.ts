@@ -172,7 +172,8 @@ export class TerminalSubsumption {
         ? {
             ...spec.metadata,
             links: links.filter((link: unknown) => {
-              const block = typeof link === 'object' && link !== null ? (link as { block?: unknown }).block : undefined;
+              const block =
+                typeof link === 'object' && link !== null ? (link as { block?: unknown }).block : undefined;
               if (typeof block === 'number') return block < length;
               if (typeof block === 'string') return kept.has(block) || block.includes('#');
               return true;
