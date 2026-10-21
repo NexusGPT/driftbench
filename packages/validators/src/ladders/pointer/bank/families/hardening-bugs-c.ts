@@ -317,25 +317,37 @@ const clauseSet = (values: readonly string[]): string => `labels:
 
 /**
  * Scans prose with each unit of `extra` labelled `rule` with the extras given, every other unit `note`, and
- * returns the result and the label a unit holds.
+ * returns the result and the label a unit holds. The answer comes from a planted labeller, or, with `model`,
+ * from the `haiku` arm on the fake transport: a link names a candidate the request lists, and only a model
+ * request lists them.
  */
 async function clauseScan(
   ctx: ItemContext,
   texts: readonly string[],
   yaml: string,
   extra: ReadonlyMap<string, Partial<RawEntry>>,
+  model = false,
 ): Promise<{ res: ScanResult & { ledger: LedgerView }; held: (text: string) => string | undefined }> {
-  const res = await scanOk(ctx.sut, {
-    files: docOf(texts),
-    labelsYaml: yaml,
-    labeler: rawAnswer((request) =>
-      texts.map((t) => {
-        const own = extra.get(t);
-        const units = String(nOf(request, t));
-        return own ? { units, label: 'rule', ...own } : { units, label: 'note' };
-      }),
-    ),
-  });
+  const entries = (n: (text: string) => number | undefined): RawEntry[] =>
+    texts.map((t) => {
+      const own = extra.get(t);
+      const units = String(n(t));
+      return own ? { units, label: 'rule', ...own } : { units, label: 'note' };
+    });
+  const files = docOf(texts);
+  let res: ScanResult & { ledger: LedgerView };
+  if (model) {
+    const fake = fakeTransport({
+      respond: (_index, call) => {
+        const n = (t: string) => call.units.find((u) => keyOf(u.text) === keyOf(t))?.n;
+        return haikuResponse(JSON.stringify({ window: call.window, set: call.set, labels: entries(n) }));
+      },
+    });
+    res = must(await modelScan(ctx, files, 'haiku', fake, { labelsYaml: yaml }));
+  } else {
+    const labeler = rawAnswer((request) => entries((t) => nOf(request, t)));
+    res = await scanOk(ctx.sut, { files, labelsYaml: yaml, labeler });
+  }
   return { res, held: (text) => labelOf(res.ledger, text, 'clauses') };
 }
 
@@ -477,10 +489,9 @@ const extras: Record<string, Run> = {
     const values = nouns(r, 3);
     const [v1, v2] = shuffled(r, values) as [string, string];
     const yaml = clauseSet(values);
-    const links = (list: string[]) =>
-      new Map([[unit, { links: list.map((to) => ({ kind: 'tool', to })) }]]);
-    const twice = await clauseScan(ctx, texts, yaml, links([v1, v2]));
-    const once = await clauseScan(ctx, texts, yaml, links([v1]));
+    const links = (list: string[]) => new Map([[unit, { links: list.map((to) => ({ kind: 'tool', to })) }]]);
+    const twice = await clauseScan(ctx, texts, yaml, links([v1, v2]), true);
+    const once = await clauseScan(ctx, texts, yaml, links([v1]), true);
     const reason = 'the kind tool is given twice';
     return refusedThenTaken(unit, twice, reason, once, 'it links the kind tool twice');
   },
@@ -493,7 +504,7 @@ const extras: Record<string, Run> = {
     const [v1, v2, v3, stranger] = nouns(r, 4) as [string, string, string, string];
     const yaml = clauseSet([v1, v2, v3]);
     const unlisted = new Map([[unit, { links: [{ kind: 'tool', to: stranger }] }]]);
-    const bad = await clauseScan(ctx, texts, yaml, unlisted);
+    const bad = await clauseScan(ctx, texts, yaml, unlisted, true);
     const listed = shuffled(r, [v1, v2, v3])[0] as string;
     const good = await clauseScan(
       ctx,
@@ -503,6 +514,7 @@ const extras: Record<string, Run> = {
         [unit, { links: [{ kind: 'tool', to: listed }] }],
         [other, { links: [{ kind: 'tool', to: 'none' }] }],
       ]),
+      true,
     );
     const outcome = refusedThenTaken(
       unit,
