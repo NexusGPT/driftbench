@@ -97,7 +97,7 @@ export {
   type SampleSizeForEffectResult,
   sampleSizeForEffect,
 } from './power';
-export { bonferroniThreshold } from './rates';
+export { bonferroniThreshold, familywiseErrorRate, sidakThreshold } from './rates';
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
 export {
