@@ -12,6 +12,7 @@
 <p align="center">
   <a href="#what-an-evaluation-is">What is an evaluation</a> ·
   <a href="#what-driftbench-does">What driftbench does</a> ·
+  <a href="#a-walkthrough-on-one-small-estate">Walkthrough</a> ·
   <a href="#results">Results</a> ·
   <a href="#everything-it-can-do">Features</a> ·
   <a href="#quickstart">Quickstart</a> ·
@@ -693,27 +694,37 @@ The problem: seventeen rules, four skills and three helpers are too much to test
 
 ```console
 $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
-(pending)
+12:Count only what the ledger and the shipment log show for the last seven days. Read
 ```
 
 `estate scan` reads the estate into a **map**. The map lists each thing the estate asks of the agent, with a quote of where it says so. One entry of the map is an **atom**. That sentence becomes one atom. Then driftbench plans which situations to test, and `estate generate` writes the tests from the plan.
 
 ```console
-$ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update
-(pending)
+$ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/cassette.jsonl --ledger ledger.json --update   # exit 1
+Wrote map.yaml: 116 atoms (67 read by code and approved, 49 split from prose by the model and waiting for approval), 50 edges.
+  Prose: 14 chunks, 6775 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
+  Units: 154 in 14 files; 0 kept from the ledger, 122 labelled by this run (49 by system 1, 73 by system 2, 10 of them because the other labeler gave no opinion), 32 unlabeled; the runs of one labeler disagreed on 38 units; the runs gave different spans for 3 units, which keep their label and lose the spans; 49 atoms.
 $ driftbench estate approve map.yaml --all --to approved.yaml
-(pending)
+Approved 49 atoms in approved.yaml; 67 were already approved.
 $ driftbench estate map approved.yaml --to space.yaml --agent northwind
-(pending)
+Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 34, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
 $ driftbench estate plan approved.yaml --space space.yaml --out plan.yaml
-(pending)
+Wrote plan.yaml: 1439 rows (349 from the contract, 10 journeys, 1080 pairwise), all proposed. Summary in plan.summary.json.
 $ driftbench estate plan approve plan.yaml --all
-(pending)
+Approved 1439 rows in plan.yaml; 0 were already approved.
 $ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated   # exit 1
-(pending)
+Map ../approved.yaml (claude-code), hash 75b17123d007: 116 atoms.
+Plan ../plan.yaml: 1439 rows, 1439 approved, 0 waiting, 0 struck.
+total                      1439       952         487
+Asks of the complete specs: 0 approved phrases, 944 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1461 files to generated.
 ```
 
-(pending)
+What the output means:
+
+- The scan exits 1 here because the model refused a few labels. They are listed in the full output, and none stops the map. It read the estate (the prompt, the skills, the helpers, the settings) into 116 atoms. Code read 67 of them from the structure. A model split the prose into the other 49, and a person approves them (`estate approve`).
+- `estate map` turns the atoms into situations to cross: the kind of ask, the session state, a deviation. The full grid is 1,626,384,614,400 cells, so `estate plan` picks 1,439 rows that put every pair of situations together at least once.
+- `estate generate` wrote one test per row, plus a report and a run order: 1,461 files in all. Of the 1,439 tests, 952 are complete and 487 are not. The command exits 1 while tests are incomplete, and its output lists what each one needs. A test with no recorded answer or approved phrase for its ask waits for one.
 
 ### 2. From a sentence to a chunk, a rule and its tests
 
@@ -723,26 +734,55 @@ The **chunk.** The scan cuts every prose file into chunks, and gives each chunk 
 
 ```console
 $ node -e 'const l=JSON.parse(require("fs").readFileSync("ledger.json","utf8"));const e=l.entries.find((x)=>x.id==="wrl4c7wlvb");console.log(JSON.stringify({id:e.id,fp:e.fp,path:e.path,status:e.status,quote:e.quote},null,2))'
-(pending)
+{
+  "id": "wrl4c7wlvb",
+  "fp": "731c59e8e7713e95",
+  "path": ".claude/skills/weekly-report/SKILL.md",
+  "status": "live",
+  "quote": "Count only what the ledger and the shipment log show for the last seven days."
+}
 ```
 
 The **rule.** A chunk that states a rule becomes an atom of the map, with an id, a kind and a quote:
 
 ```console
 $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" map.yaml
-(pending)
+  - id: instruction.weekly-report.count-only-what-the-ledger-and
+    kind: instruction
+    title: Count only what the ledger and the shipment log show for the last seven days.
+    provenance:
+      file: .claude/skills/weekly-report/SKILL.md
+      startLine: 12
+      endLine: 12
+      quote: Count only what the ledger and the shipment log show for the last seven days.
+      hash: 6fed6d234ad61539420fe7e424ee64104bd3d2065701ad8f40896728bc69158c
+    producedBy: model
 ```
 
 The **tests.** Each generated test names the atoms it covers. Three tests name that atom: the obligation itself, a twin that checks it is not over-applied, and an outside-trigger control. This lists them, then shows the links of the first:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" generated/specs/live | sort | head -3
-(pending)
+generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+generated/specs/live/obligation/estate.pairwise.0020.yaml
+generated/specs/live/obligation/estate.pairwise.0064.yaml
 $ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-(pending)
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.weekly-report.count-only-what-the-ledger-and
+        ledger: wrl4c7wlvb
+      relation: verifies
+      status: declared
+      created_by: generator
 ```
 
-(pending)
+What the chain is:
+
+- The sentence is in `SKILL.md`, line 12. The scan cut it into a chunk and gave the chunk the id `wrl4c7wlvb`. The id stays when the text is edited. The text fingerprint `fp` changes with every edit.
+- The map holds the rule as the atom `instruction.weekly-report.count-only-what-the-ledger-and`, with its quote and where it sits (`SKILL.md`, line 12).
+- Three generated tests name that atom. In the first, the block `ask` carries a link that says `verifies` this rule, and names the chunk id `wrl4c7wlvb`. That link is how an edit finds its tests.
 
 ### 3. Set up a test, and run it
 
@@ -750,17 +790,39 @@ The problem: what is a test, and how do you run one? A test is a spec file. It h
 
 ```console
 $ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-(pending)
+blocks:
+  - id: ask
+    when:
+      user: Please help me with the weekly report or a summary of last week.
+    expect:
+      skills:
+        - name: weekly-report
+          count:
+            min: 1
+      workspace:
+        deleted: []
+      criteria:
+        - instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
 To run it, `estate run` starts the agent in a sandbox copy of the estate and sends the block. Here the agent is a stand-in script, so nothing is spent:
 
 ```console
 $ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
-(pending)
+note: estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and: no judge, so its judged criteria are inconclusive (pass --judge claude:<model>)
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+    judged instruction.weekly-report.count-only-what-the-ledger-and: inconclusive
+1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-6e681660dcbc.
 ```
 
-(pending)
+What a test holds:
+
+- `given` is where the block starts. This one starts from a fresh session.
+- `when` is what the user says: "Please help me with the weekly report or a summary of last week."
+- `expect` is what must be true after: the agent loads the `weekly-report` skill, deletes no file, and obeys the rule. The rule has no machine check, so a judge reads the reply against the rule's own words (`criteria`).
+
+The run fails, and the output says why. The stand-in agent has no recorded answer for this ask, so it never loads the skill. No judge is configured, so the judged criterion is inconclusive. To run the same test on a real agent, replace `--command` with your agent, and add `--judge claude:<model>`. Nothing was spent here: the cost is 0.0000 USD.
 
 ### 4. Edit a rule, and list the tests to rerun
 
@@ -769,21 +831,39 @@ The problem: you change the sentence from seven days to fourteen days. You do no
 ```console
 $ sed -i.bak 's/for the last seven days/for the last fourteen days/' northwind/.claude/skills/weekly-report/SKILL.md
 $ grep -n "Count only" northwind/.claude/skills/weekly-report/SKILL.md
-(pending)
+12:Count only what the ledger and the shipment log show for the last fourteen days. Read
 ```
 
 `radius ledger` finds the chunk that changed by its id, and writes a **change file**. `radius` reads the change file and lists the tests that reach the changed rule:
 
 ```console
 $ driftbench radius ledger map.yaml --ledger ledger.json --out change.yaml
-(pending)
+Units: 151 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+  1 unit reruns, 2 advisory only; 1 change.
+Wrote change.yaml.
 $ cat change.yaml
-(pending)
+from: 75b17123d007
+to: working
+changes:
+  - kind: prompt
+    id: instruction.weekly-report.count-only-what-the-ledger-and
+    note: "unit wrl4c7wlvb: changed"
 $ driftbench radius generated/specs/live --change change.yaml
-(pending)
+Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+918 specs, 921 blocks.
+Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904 out. 17 of 918 cells.
+  A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
+In the radius, mode F:
+  estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and       1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and  1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
+  estate.twin.instruction.weekly-report.count-only-what-the-ledger-and             1 of 1     ask   prompt:instruction.weekly-report.count-only-what-the-ledger-and
 ```
 
-(pending)
+What the output means:
+
+- `radius ledger` read the files as they are and found one changed chunk, `wrl4c7wlvb`, by its id. It wrote a change file that names the rule.
+- `radius` read the change file and the links of every test. Of 921 blocks, 17 reach that rule. The other 904 keep their last result, which saves 98.2%. The three tests that name the rule are in the list.
+- The next step is `campaign run --change change.yaml --from <campaign>`: it runs those 17 blocks and carries the rest. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the rule.
 
 ## Results
 

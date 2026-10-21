@@ -212,8 +212,6 @@ describe('README commands that print what they show', () => {
     const section = after.split('\n## Results\n')[0] ?? '';
     const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
     expect(consoles.length).toBeGreaterThan(6);
-    const plan = consoles.flatMap((block) => steps(block).map((step) => step.command));
-    process.stderr.write(`WALKPLAN ${plan.length}\n${plan.join('\n')}\n`);
     const base = await mkdtemp(join(tmpdir(), 'driftbench-walk-'));
     try {
       await symlink(join(ROOT, 'examples'), join(base, 'examples'));
@@ -225,13 +223,7 @@ describe('README commands that print what they show', () => {
             cwd = join(cwd, step.command.slice(3).trim());
             continue;
           }
-          const started = Date.now();
-          process.stderr.write(`WALKSTART ${step.command}\n`);
           const got = await execute(step.command, cwd);
-          const shown = got.lines.slice(0, 400).map((line) => line.slice(0, 600));
-          const took = Date.now() - started;
-          const head = `WALK ${took} ms exit ${got.code} $ ${step.command}`;
-          process.stderr.write(`${head}\n${shown.join('\n')}\nWALKEND\n`);
           const found = mismatch(step, got);
           if (found.length > 0) problems.push(`$ ${step.command}\n${found.join('\n')}\n`);
         }
