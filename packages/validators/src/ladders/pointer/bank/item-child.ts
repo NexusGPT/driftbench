@@ -1,10 +1,13 @@
 import { pinSut } from '../sut/adapter';
-import { type Control, runControl } from './controls';
+import { CONTROL_FAILED, type Control, runControl } from './controls';
 import { HostPool } from './reader-link';
 import { executeHere } from './run';
 import { fail, type Outcome } from './types';
 
 type Job = { id: string; seed: number };
+
+/** How long a control may wait for the reader before the reader's process is stopped, in milliseconds. */
+const CONTROL_ANSWER_MS = 20_000;
 
 /**
  * The process that serves the items of the bank for a parent that can stop it (`isolated` in run.ts). It holds the
@@ -39,7 +42,20 @@ async function main(): Promise<void> {
       process.send?.({ done });
     };
     if (message.control) {
-      const outcome = await runControl(message.control, session.sut);
+      // A reader that corrupts the channel it answers on never answers: the control ends, the process is stopped.
+      let timer: NodeJS.Timeout | undefined;
+      const silent = new Promise<Outcome>((resolve) => {
+        timer = setTimeout(() => {
+          session.stop();
+          resolve(
+            fail(
+              `${CONTROL_FAILED}: the reader gave no answer within ${CONTROL_ANSWER_MS / 1000} s, and its process was stopped`,
+            ),
+          );
+        }, CONTROL_ANSWER_MS);
+      });
+      const outcome = await Promise.race([runControl(message.control, session.sut), silent]);
+      if (timer) clearTimeout(timer);
       await answer(lost() ? fail(lost() as string) : outcome);
       return;
     }
