@@ -162,7 +162,10 @@ function blockStep(
       // compared exactly (no decider was configured) is decided again with the value services; the other
       // values keep the decisions the check stored. A service that throws is reported and read as unknown.
       const errors: string[] = [];
-      const absentMap = missingEstateMap(ctx.check.spec, objectContextOfSpec(ctx.check.spec)?.dir);
+      // The map path is relative to the spec file. A spec that no loader bound has no known folder, so its path
+      // is not judged here: nothing says where it is relative to.
+      const specDir = objectContextOfSpec(ctx.check.spec)?.dir;
+      const absentMap = specDir === undefined ? undefined : missingEstateMap(ctx.check.spec, specDir);
       if (absentMap !== undefined) errors.push(`error:estate_map_not_found:${absentMap}`);
       const values: Record<string, readonly evidence.ValueFact[]> = {};
       if (services.value !== undefined) {

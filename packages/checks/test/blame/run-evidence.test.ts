@@ -7,6 +7,7 @@ import {
   loadSpecFile,
   type Observed,
   objectContextFor,
+  parseSpecText,
   type RunResult,
   runSpec,
 } from '@agent-nexus/driftbench-core';
@@ -708,5 +709,45 @@ describe('a spec names its estate map relative to the spec file', () => {
     expect(error?.summary).toContain(join(root, 'estate', 'missing-map.yaml'));
     expect(error?.confidence).toBe('undecided');
     expect(diagnosisOf(stored, 'must.0').disposition).toBe('unassigned');
+  });
+
+  it('does not judge the map path of a spec no loader gave a folder: nothing says where it is relative to', async () => {
+    const parsed = parseSpecText(
+      [
+        'id: estate-unbound',
+        'uses: { diagnostics: [code-agent-liability] }',
+        'metadata:',
+        '  estate:',
+        '    atoms: [instruction.standing.tell-the-user-about-a-late]',
+        '    map: ../missing-map.yaml',
+        'blocks:',
+        '  - user: Where is shipment NW-55012?',
+        '    expect: { must: [late] }',
+        '',
+      ].join('\n'),
+      'yaml',
+      'inline.yaml',
+    );
+    if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+    const stored = await runSpec(parsed.spec, {
+      adapter: functionAdapter({
+        respond: () => ({
+          segments: [{ type: 'text', text: 'It is on the way.' }],
+          text: 'It is on the way.',
+          toolCalls: [],
+          cost: {},
+          latencyMs: 0,
+        }),
+      }),
+      driver: createScriptedDriver(),
+      checks: defaultChecks(),
+      mode: 'T',
+      repeat: 0,
+    });
+    expect(stored.blocks[0]?.pass).toBe(false);
+    const flags = (stored.blocks[0]?.diagnoses ?? []).flatMap((one) => one.flags ?? []);
+    expect(flags).not.toContain('error:estate_map_not_found');
+  });
+    expect(diagnoses.some((one) => one.flags?.includes('error:estate_map_not_found'))).toBe(false);
   });
 });
