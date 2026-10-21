@@ -81,7 +81,7 @@ Arguments:
 
 | Argument | Meaning |
 |---|---|
-| `<component>` | a registered component (`estate`, `generator`, `judges`, `map`, `stats`, `system`, `variables`), `all`, `floors` or `protect` |
+| `<component>` | a registered component (`estate`, `generator`, `judges`, `map`, `pointer`, `stats`, `system`, `variables`), `all`, `floors` or `protect` |
 | `[level]` | only with `floors --raise`: the level to raise the floor to. Any other use exits 64 |
 
 Options of a run (this topic):
@@ -211,7 +211,7 @@ From a folder with no `validators/floors.json` above it, and then the errors:
 
 ```text
 Floors (validators/floors.json): none.
-No validator is registered for "nosuch". Registered: estate, generator, judges, map, stats, system, variables.
+No validator is registered for "nosuch". Registered: estate, generator, judges, map, pointer, stats, system, variables.
 --seeds takes a..b with whole numbers a <= b, such as 1..20, not "3..1".
 Unexpected argument "2": a level is only taken by floors --raise.
 ```

@@ -39,7 +39,16 @@ jobs:
     # large diff run in `pr affected` instead, because they overran any limit here and blocked the PR.
     timeout-minutes: 10
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -73,14 +82,26 @@ jobs:
     name: pr affected
     # Reports the tests affected by a pull request. It is not required and not an input of `train gate`: a
     # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
-    # pull request only; a pre-flight dispatch runs `pr fast` alone.
-    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')
+    # pull request only; a pre-flight dispatch runs `pr fast` alone. It skips a draft PR: leaving draft starts it
+    # (`ready_for_review`). It compares with the PR's own base branch (the steps below), so a stacked PR or a PR
+    # into release/next runs its own delta. A base change starts `pr affected (retarget)` in
+    # pr-affected-retarget.yml: an `edited` event never starts this workflow, so a title edit adds no run.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 45
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -103,14 +124,22 @@ jobs:
       # Markdown dependencies are read at runtime, so --changed alone cannot select their examples.
       - name: Help topics and executable examples
         run: pnpm exec vitest run packages/cli/test/help-topics.test.ts --maxWorkers=2
+      # The affected tests are the ones changed against the PR's own base branch, so a PR into release/next runs
+      # its own delta, never the whole difference between release/next and main (which overran the time limit).
+      - name: Fetch the base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
       - name: Tests affected by this PR
-        run: pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests
 
   train-gate:
     # The check named `train gate` is the merge-train requirement, and it must never pass on a head that is not a
     # train. On an ordinary pull request this job is therefore named differently and passes, and the check named
     # `train gate` is a commit status held pending ("waits for the merge train"): yellow, never red, never green.
-    name: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && 'train gate (ordinary PR)' || 'train gate' }}
+    name: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && 'train gate (ordinary PR)' || 'train gate' }}
     if: always()
     permissions:
       contents: read
@@ -119,7 +148,7 @@ jobs:
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
-        if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/')
+        if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/')
         env:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.head_ref }}
@@ -167,7 +196,7 @@ jobs:
             exit 1
           fi
       - name: Hold the train gate pending on an ordinary pull request
-        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
+        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -183,7 +212,14 @@ jobs:
     name: benchmark replay and floors
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -199,7 +235,16 @@ jobs:
     name: research replays
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
@@ -227,7 +272,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -260,7 +312,14 @@ jobs:
       matrix:
         node: [22, 24]
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -293,7 +352,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -315,7 +381,14 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: only
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -341,7 +414,14 @@ jobs:
       matrix:
         python: ['3.11', '3.12']
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -374,7 +454,14 @@ jobs:
     name: offline comparison replay
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -393,7 +480,14 @@ jobs:
     name: viewer journey (chromium)
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -434,7 +528,16 @@ jobs:
     # Pinned to a GitHub-hosted machine: this job holds the GUARD_DENYLIST secret.
     runs-on: ubuntu-latest
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v7

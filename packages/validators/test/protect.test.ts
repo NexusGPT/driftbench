@@ -6,6 +6,43 @@ import { PROTECTED_PATHS, protectedChanges } from '../src/index';
 
 const WORKFLOW = new URL('../../../.github/workflows/validators.yml', import.meta.url);
 
+/** The retry of a stalled checkout: the first checkout of a job is cut after 3 minutes, and this one runs if it failed. */
+const CHECKOUT_RETRY = "steps.checkout.outcome != 'success'";
+type CheckoutStep = {
+  uses?: string;
+  id?: string;
+  if?: string;
+  'timeout-minutes'?: number;
+  'continue-on-error'?: boolean;
+  with?: unknown;
+};
+const isCheckout = (step: CheckoutStep) => step.uses?.startsWith('actions/checkout@') === true;
+const isCheckoutRetry = (step: CheckoutStep) => isCheckout(step) && step.if === CHECKOUT_RETRY;
+
+/** Every checkout of every job is a pair: one cut after 3 minutes that may fail, and one retry with the same inputs. */
+function assertCheckoutRetry(workflow: ReturnType<typeof parse>) {
+  const checkouts = Object.values<{ steps: CheckoutStep[] }>(workflow.jobs).filter((job) =>
+    job.steps.some(isCheckout),
+  );
+  expect(checkouts.length, 'jobs with a checkout').toBeGreaterThan(2);
+  for (const [id, job] of Object.entries<{ steps: CheckoutStep[] }>(workflow.jobs)) {
+    const steps = job.steps;
+    const at = steps.findIndex(isCheckout);
+    if (at < 0) continue; // a job that reads no file of the repository, such as the train gate
+    expect(steps.filter(isCheckout), `${id}: a checkout and its retry`).toHaveLength(2);
+    const first = steps[at] as CheckoutStep;
+    const retry = steps[at + 1] as CheckoutStep;
+    expect(first.id, id).toBe('checkout');
+    expect(first['timeout-minutes'], id).toBe(3);
+    expect(first['continue-on-error'], id).toBe(true);
+    expect(first.if, id).toBeUndefined();
+    expect(isCheckoutRetry(retry), `${id}: the retry follows the checkout`).toBe(true);
+    expect(retry['timeout-minutes'], id).toBe(10);
+    expect(retry.with, id).toEqual(first.with);
+    expect(retry.uses, id).toBe(first.uses);
+  }
+}
+
 describe('protectedChanges', () => {
   const files = [
     'packages/validators/src/ladders/stats.ts',
@@ -65,11 +102,20 @@ const FAST_CONDITION =
 /** The fast job is the train entry gate and runs in about 3 minutes: 10 is its limit. */
 const FAST_TIMEOUT = 10;
 
-/** pr affected reports the tests a pull request affects. It runs on pull requests from neither a train nor a release. */
+/**
+ * pr affected reports the tests a pull request affects. It runs on non-draft pull requests from neither a train nor
+ * a release; it compares with the PR's own base branch, so a stacked PR runs its own delta.
+ */
 const AFFECTED_CONDITION =
-  "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/')";
+  "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft";
 const AFFECTED_TIMEOUT = 45;
-const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+/**
+ * The affected tests are those changed against the PR's own base branch, read from the environment: a PR into
+ * release/next runs its own delta, never the whole difference between release/next and main.
+ */
+const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests';
+const AFFECTED_FETCH = 'git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"';
+const BASE_REF_ENV = '${{ github.base_ref }}';
 
 const CI_HEAVY = [
   'bench',
@@ -89,6 +135,10 @@ interface Ctx {
   event: string;
   ref: string;
   headRef?: string;
+  baseRef?: string;
+  draft?: boolean;
+  /** The edit changed the base of the pull request (`github.event.changes.base` is set). */
+  baseChanged?: boolean;
   jobs?: string;
   runId?: string;
 }
@@ -99,7 +149,12 @@ function evaluate(expression: string, ctx: Ctx): unknown {
     event_name: ctx.event,
     ref: ctx.ref,
     head_ref: ctx.headRef ?? '',
+    base_ref: ctx.baseRef ?? '',
     run_id: ctx.runId ?? '1',
+    event: {
+      pull_request: { draft: ctx.draft ?? false, base: { ref: ctx.baseRef ?? '' } },
+      changes: ctx.baseChanged ? { base: { ref: { from: 'feature/stack' } } } : {},
+    },
   };
   const inputs = { jobs: ctx.jobs ?? '' };
   const always = () => true;
@@ -131,13 +186,38 @@ const runs = (ctx: Ctx, id: string, workflow: ReturnType<typeof parse>): boolean
   Boolean(evaluate(workflow.jobs[id].if, ctx));
 
 const MAIN_PUSH: Ctx = { event: 'push', ref: 'refs/heads/main' };
-const TRAIN_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/9/merge', headRef: 'train/9' };
-const ORDINARY_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/8/merge', headRef: 'fix/ordinary' };
-const RELEASE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/7/merge', headRef: 'release/next' };
-const FEATURE_PR: Ctx = { event: 'pull_request', ref: 'refs/pull/6/merge', headRef: 'feature/release-notes' };
+const TRAIN_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/9/merge',
+  headRef: 'train/9',
+  baseRef: 'main',
+};
+const ORDINARY_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/8/merge',
+  headRef: 'fix/ordinary',
+  baseRef: 'main',
+};
+const RELEASE_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/7/merge',
+  headRef: 'release/next',
+  baseRef: 'main',
+};
+const FEATURE_PR: Ctx = {
+  event: 'pull_request',
+  ref: 'refs/pull/6/merge',
+  headRef: 'feature/release-notes',
+  baseRef: 'release/next',
+};
 const LOOKALIKE_PRS: Ctx[] = [
-  { event: 'pull_request', ref: 'refs/pull/5/merge', headRef: 'release-lookalike' },
-  { event: 'pull_request', ref: 'refs/pull/4/merge', headRef: 'feature/release/next' },
+  { event: 'pull_request', ref: 'refs/pull/5/merge', headRef: 'release-lookalike', baseRef: 'main' },
+  {
+    event: 'pull_request',
+    ref: 'refs/pull/4/merge',
+    headRef: 'feature/release/next',
+    baseRef: 'release/next',
+  },
 ];
 const dispatchOn = (ref: string, jobs: string): Ctx => ({ event: 'workflow_dispatch', ref, jobs });
 
@@ -295,7 +375,7 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
     expect(workflow.jobs[id].if).toBe(id === 'prepare' ? prepareCondition() : heavyCondition(id));
     for (const step of workflow.jobs[id].steps) {
       // A step condition may only keep artifacts after a failure; it may never skip work.
-      if (step.if !== undefined) expect(step.if).toBe('always()');
+      if (step.if !== undefined && !isCheckoutRetry(step)) expect(step.if).toBe('always()');
     }
   }
 }
@@ -540,7 +620,7 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(JSON.stringify(workflow.jobs['pr-fast'].steps)).not.toMatch(/--changed|Tests affected/);
 }
 
-/** pr affected runs on ordinary pull requests only: not on a train PR, a push or a dispatch. */
+/** pr affected runs on ordinary pull requests only: not on a draft, a stacked PR (base not main), a train PR, a push or a dispatch. */
 function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   const job = workflow.jobs['pr-affected'];
   expect(job.name).toBe('pr affected');
@@ -548,6 +628,9 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
   const affected = (ctx: Ctx) => runs(ctx, 'pr-affected', workflow);
   expect(affected(ORDINARY_PR)).toBe(true);
+  expect(affected({ ...ORDINARY_PR, draft: true })).toBe(false);
+  // a stacked PR runs its own delta against its base (#1006), so it is no longer skipped
+  expect(affected({ ...ORDINARY_PR, baseRef: 'feature/stack' })).toBe(true);
   expect(affected(TRAIN_PR)).toBe(false);
   expect(affected(RELEASE_PR)).toBe(false);
   expect(affected(FEATURE_PR)).toBe(true);
@@ -557,12 +640,58 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(job.steps[0].with['fetch-depth']).toBe(0);
   const commands = job.steps.map((step: { run?: string }) => step.run);
   expect(commands).toContain(AFFECTED_COMMAND);
+  // the base branch is fetched, then the affected tests diff against it; both read it from the environment
+  const test = job.steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND);
+  const fetch = job.steps.find((step: { run?: string }) => step.run === AFFECTED_FETCH);
+  expect(fetch, 'base fetch step').toBeDefined();
+  expect(commands.indexOf(AFFECTED_FETCH)).toBeLessThan(commands.indexOf(AFFECTED_COMMAND));
+  for (const step of [test, fetch]) {
+    expect(step.env?.BASE_REF).toBe(BASE_REF_ENV);
+    expect(step.run).not.toContain('${{');
+  }
+  // a PR into release/next compares with release/next, a PR into main with main
+  for (const base of ['release/next', 'main'])
+    expect(evaluateTemplate(test.env.BASE_REF, { ...FEATURE_PR, baseRef: base })).toBe(base);
+  expect(JSON.stringify(job.steps)).not.toContain('--changed origin/main');
   // the tests verify the build stamp, so the build gate runs before them
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeGreaterThan(-1);
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
     commands.indexOf(AFFECTED_COMMAND),
   );
-  for (const step of job.steps) expect(step.if).toBeUndefined();
+  for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+}
+
+/**
+ * A change of base runs pr affected again from a workflow of its own. ci.yml never runs on an `edited` event: a title edit
+ * would start a second ci run on a head that already has results, with skipped train gate and pr affected checks.
+ */
+function assertRetargetBehaviour(retarget: ReturnType<typeof parse>, ci: ReturnType<typeof parse>) {
+  expect(ci.on.pull_request.types).not.toContain('edited');
+  expect(retarget.on).toEqual({ pull_request: { types: ['edited'] } });
+  const job = retarget.jobs['pr-affected-retarget'];
+  expect(Object.keys(retarget.jobs)).toEqual(['pr-affected-retarget']);
+  // a name no reader or merge train looks up: it never stands in for `pr affected`
+  expect(job.name).toBe('pr affected (retarget)');
+  expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
+  const retargeted = (ctx: Ctx) => runs(ctx, 'pr-affected-retarget', retarget);
+  const toMain: Ctx = { ...ORDINARY_PR, baseChanged: true };
+  expect(retargeted(toMain)).toBe(true);
+  // a title or body edit changes no base
+  expect(retargeted({ ...toMain, baseChanged: false })).toBe(false);
+  // a base change to any branch counts: the affected tests are read against the new base
+  expect(retargeted({ ...toMain, baseRef: 'release/next' })).toBe(true);
+  expect(retargeted({ ...toMain, baseRef: 'feature/stack' })).toBe(true);
+  // a draft, a train PR and a release PR are skipped as in ci.yml
+  expect(retargeted({ ...toMain, draft: true })).toBe(false);
+  expect(retargeted({ ...TRAIN_PR, baseChanged: true })).toBe(false);
+  expect(retargeted({ ...RELEASE_PR, baseChanged: true })).toBe(false);
+  // the same steps as pr affected in ci.yml
+  expect(job.steps).toEqual(ci.jobs['pr-affected'].steps);
+  // two edits never cancel each other: a title edit must not cancel a retarget run in flight
+  expect(String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '1' }))).not.toBe(
+    String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '2' })),
+  );
+  expect(retarget.concurrency['cancel-in-progress']).toBe(false);
 }
 
 /** The docs checks run in every pr-fast run, whatever the diff: no step condition, no --changed. */
@@ -684,7 +813,24 @@ describe('the validators workflow', () => {
     );
     expect(runsText).toContain('|| status=$?');
     expect(job['timeout-minutes']).toBe(300);
-    for (const step of job.steps) expect(step.if).toBeUndefined();
+    for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.protect.steps = noRetry.jobs.protect.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.protect.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
+    const hard = structuredClone(workflow);
+    delete (hard.jobs.protect.steps.find(isCheckout) as CheckoutStep)['continue-on-error'];
+    expect(() => assertCheckoutRetry(hard)).toThrow();
+    const other = structuredClone(workflow);
+    (other.jobs.protect.steps.find(isCheckoutRetry) as CheckoutStep).with = { 'fetch-depth': 1 };
+    expect(() => assertCheckoutRetry(other)).toThrow();
   });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
@@ -723,6 +869,17 @@ describe('merge train enforcement', () => {
     expect(() => assertTimingGuard(buildRunsThem)).toThrow();
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
     expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.build.steps = noRetry.jobs.build.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.build.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
     const target = structuredClone(workflow);
@@ -873,19 +1030,29 @@ describe('merge train enforcement', () => {
     const job = workflow.jobs['train-gate'];
     const others = [
       TRAIN_PR,
+      RELEASE_PR,
       MAIN_PUSH,
       dispatchOn('refs/heads/train/9a', 'build'),
       dispatchOn('refs/heads/main', 'build'),
     ];
     // the job passes on an ordinary PR under another name, so no job check named `train gate` can turn green there
     expect(evaluateTemplate(job.name, ORDINARY_PR)).not.toBe('train gate');
+    // the release PR is judged under the real name, as a train PR is; a feature PR into the release branch is not
+    expect(evaluateTemplate(job.name, RELEASE_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, TRAIN_PR)).toBe('train gate');
+    expect(evaluateTemplate(job.name, FEATURE_PR)).not.toBe('train gate');
+    for (const ctx of LOOKALIKE_PRS)
+      expect(evaluateTemplate(job.name, ctx), ctx.headRef).not.toBe('train gate');
     // the real gate script runs on every other head and keeps rejecting an ordinary PR's head if it is ever run
     const gate = job.steps.find((s: { name?: string }) => s.name === 'Require the full merge train');
     expect(Boolean(evaluate(gate.if, ORDINARY_PR))).toBe(false);
+    expect(Boolean(evaluate(gate.if, FEATURE_PR))).toBe(false);
     for (const ctx of others) expect(Boolean(evaluate(gate.if, ctx))).toBe(true);
     // the status named `train gate` is held pending, with its text, on an ordinary PR and nowhere else
     const hold = job.steps.find((s: { name?: string }) => s.name?.startsWith('Hold the train gate pending'));
     expect(Boolean(evaluate(hold.if, ORDINARY_PR))).toBe(true);
+    expect(Boolean(evaluate(hold.if, FEATURE_PR))).toBe(true);
+    for (const ctx of LOOKALIKE_PRS) expect(Boolean(evaluate(hold.if, ctx)), ctx.headRef).toBe(true);
     for (const ctx of others) expect(Boolean(evaluate(hold.if, ctx))).toBe(false);
     expect(hold.run).toContain('state=pending');
     expect(hold.run).toContain("context='train gate'");
@@ -1006,9 +1173,45 @@ describe('merge train enforcement', () => {
     wrongBase.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
       'pnpm test --maxWorkers=2 --changed origin/main~1 --passWithNoTests';
     expect(() => assertAffectedBehaviour(wrongBase)).toThrow();
+    // the old fixed base: a PR into release/next would run all of release/next's difference from main
+    const fixedMain = structuredClone(workflow);
+    fixedMain.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
+      'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
+    expect(() => assertAffectedBehaviour(fixedMain)).toThrow();
+    const noFetch = structuredClone(workflow);
+    noFetch.jobs['pr-affected'].steps = noFetch.jobs['pr-affected'].steps.filter(
+      (step: { run?: string }) => step.run !== AFFECTED_FETCH,
+    );
+    expect(() => assertAffectedBehaviour(noFetch)).toThrow();
+    const inline = structuredClone(workflow);
+    inline.jobs['pr-affected'].steps.find(
+      (step: { run?: string }) => step.run === AFFECTED_COMMAND,
+    ).env.BASE_REF = '${{ github.head_ref }}';
+    expect(() => assertAffectedBehaviour(inline)).toThrow();
     const gated = structuredClone(workflow);
     gated.jobs['train-gate'].needs.push('pr-affected');
     expect(() => assertGateWaits(gated)).toThrow();
+  });
+  it('runs pr affected after a change of base from a workflow of its own, and never on a title edit', () => {
+    const retarget = parse(
+      readFileSync(new URL('../../../.github/workflows/pr-affected-retarget.yml', import.meta.url), 'utf8'),
+    );
+    assertRetargetBehaviour(retarget, workflow);
+    const onEdit = structuredClone(workflow);
+    onEdit.on.pull_request.types.push('edited');
+    expect(() => assertRetargetBehaviour(retarget, onEdit)).toThrow();
+    const anyEdit = structuredClone(retarget);
+    anyEdit.jobs['pr-affected-retarget'].if = "github.event.pull_request.base.ref == 'main'";
+    expect(() => assertRetargetBehaviour(anyEdit, workflow)).toThrow();
+    const mainOnly = structuredClone(retarget);
+    mainOnly.jobs['pr-affected-retarget'].if += " && github.event.pull_request.base.ref == 'main'";
+    expect(() => assertRetargetBehaviour(mainOnly, workflow)).toThrow();
+    const sameName = structuredClone(retarget);
+    sameName.jobs['pr-affected-retarget'].name = 'pr affected';
+    expect(() => assertRetargetBehaviour(sameName, workflow)).toThrow();
+    const drifted = structuredClone(retarget);
+    drifted.jobs['pr-affected-retarget'].steps.pop();
+    expect(() => assertRetargetBehaviour(drifted, workflow)).toThrow();
   });
   it('always runs the docs checks in the fast job, and fails if a docs step is removed or made conditional', () => {
     assertFastDocs(workflow);
@@ -1127,5 +1330,15 @@ describe('the benchmark workflows', () => {
       expect(upload?.with?.path).toContain('benchmarks/cassettes/');
       expect(upload?.with?.path).toContain('benchmarks/evidence/');
     }
+  });
+});
+
+describe('the pinned catch list', () => {
+  it('refuses an executor branch that edits a validator catch.json, and leaves other branches alone', () => {
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/catch.json'])).toEqual([
+      'validators/blocks/catch.json',
+    ]);
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/journal.jsonl'])).toEqual([]);
+    expect(protectedChanges('fix/blocks', ['validators/blocks/catch.json'])).toEqual([]);
   });
 });

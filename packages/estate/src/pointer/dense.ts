@@ -6,7 +6,14 @@ import {
   postJson,
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
-import { type Labeler, LabelerError, type Opinion, type Opinions, usageOf } from './labeler';
+import {
+  type Labeler,
+  LabelerConfigError,
+  LabelerError,
+  type Opinion,
+  type Opinions,
+  usageOf,
+} from './labeler';
 import {
   checkAnswer,
   flatten,
@@ -102,13 +109,15 @@ export function denseUser(set: LabelSet, window: Window, context: LabelContext =
 }
 
 /**
- * The first JSON object of a text that holds a `labels` list: the text itself, the inside of one code fence, or the
- * outermost braces of a text that wraps the object in words. A model that answers a unit as if it were an order
- * writes a sentence and then the object; the object is still the answer.
+ * The one JSON object of a text that holds a `labels` list: the text itself, the inside of its only code fence, or
+ * the span from its first `{` to its last `}` for a text that wraps the object in words. A model that answers a
+ * unit as if it were an order writes a sentence and then the object; the object is still the answer. A text with
+ * two objects, or with two fences, has no such span that parses, so it has no answer.
  */
 function jsonObjectOf(text: string): unknown {
   const trimmed = text.trim();
-  const candidates = [trimmed, /```[A-Za-z]*\s*\n([\s\S]*?)\n?```/.exec(trimmed)?.[1]?.trim()];
+  const fences = [...trimmed.matchAll(/```[A-Za-z]*\s*\n([\s\S]*?)\n?```/g)];
+  const candidates = [trimmed, fences.length === 1 ? fences[0]?.[1]?.trim() : undefined];
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first >= 0 && last > first) candidates.push(trimmed.slice(first, last + 1));
@@ -124,10 +133,24 @@ function jsonObjectOf(text: string): unknown {
   return undefined;
 }
 
-/** Reads the labels of a dense answer. The request and its answer are one pair, so no id is echoed. */
-export function parseDenseAnswer(text: string): Labelled[] {
+/** The window and the set a request was made for: an answer that names others is for another request. */
+export type Expected = { window?: string; set?: string };
+
+/**
+ * Reads the labels of a dense answer. The answer may carry `window` and `set`; when it does and the request is
+ * known, they must be the request's own. An answer that carries neither is accepted: the request and its answer
+ * are one pair.
+ */
+export function parseDenseAnswer(text: string, expected: Expected = {}): Labelled[] {
   const value = jsonObjectOf(text);
   if (value === undefined) throw new LabelerError('the answer is not JSON');
+  const named = value as Record<string, unknown>;
+  if (expected.window !== undefined && named.window !== undefined && named.window !== expected.window) {
+    throw new LabelerError(`the answer is for another window than ${expected.window}`);
+  }
+  if (expected.set !== undefined && named.set !== undefined && named.set !== expected.set) {
+    throw new LabelerError(`the answer is for another set than ${expected.set}`);
+  }
   return denseLabels(value);
 }
 
@@ -188,8 +211,13 @@ export function denseOpinions(
 
 export type AnthropicLabelerOptions = HttpOptions & {
   model?: string;
-  /** The key. Without it the labeler replays only. It stays in this closure and is never printed. */
-  key?: string;
+  /**
+   * The key. Without it the labeler replays only. It stays in this closure and is never printed. A function is called
+   * at each request, so a key held behind a getter is read when a request leaves and never before.
+   */
+  key?: string | (() => string | undefined);
+  /** What a request says when the key is empty at that moment (the function above returned nothing). */
+  missingKeyMessage?: string;
   baseUrl?: string;
   maxTokens?: number;
   /** How many times a window is asked. A unit takes a label only when every run gives it the same one. */
@@ -205,7 +233,19 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
   const model = options.model ?? DEFAULT_ANTHROPIC_LABELER_MODEL;
   const maxTokens = options.maxTokens ?? 4096;
   const base = (options.baseUrl ?? 'https://api.anthropic.com').replace(/\/+$/, '');
-  const key = options.key;
+  const keyOption = options.key;
+  // The key is read once, the first time a request is about to leave, and kept in this closure.
+  let resolved: string | undefined;
+  const keyNow = (): string => {
+    if (resolved) return resolved;
+    const found = typeof keyOption === 'function' ? keyOption() : keyOption;
+    if (!found)
+      throw new LabelerConfigError(
+        options.missingKeyMessage ?? 'the labeler anthropic has no key: nothing was sent',
+      );
+    resolved = found;
+    return found;
+  };
   const labeler: Labeler = {
     id: 'anthropic',
     cls: 'system2',
@@ -226,10 +266,13 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     }),
     opinions: denseOpinions,
   };
-  if (!key) return labeler;
+  if (!keyOption) return labeler;
   return {
     ...labeler,
-    async call(wire, _set, window, attempt = 1) {
+    ready: () => void keyNow(),
+    async call(wire, set, window, attempt = 1) {
+      // The key is read here, when the request leaves, unless the run already asked for it in `ready`.
+      const key = keyNow();
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
       const body =
         attempt > 1
@@ -258,7 +301,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         .map((block) => block.text)
         .join('');
       return {
-        labels: offsetSpans(parseDenseAnswer(text), window),
+        labels: offsetSpans(parseDenseAnswer(text, { window: window.id, set: set.set }), window),
         returnedModel: String(payload.model ?? model),
         stopReason: stop,
         usage: usageOf(payload),
