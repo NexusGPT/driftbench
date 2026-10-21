@@ -51,7 +51,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-reconcile-an-invoice (situation)
+    askFrom: route.standing.an-ask-to-reconcile-an-invoice (request)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-reconcile-an-invoice
+            field: fields.ask
+            from: 0
+            to: 45
     outcome: no-delete
   links:
     - block: ask

@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Can you sort the shared operations inbox into invoices, shipment questions and supplier mail for me?
+      user: "Can you handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail for me?"
     expect:
       subagents:
         - name: inbox-triager
@@ -52,6 +52,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
+    askBuild:
+      - ask: Can you {act} for me?[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.inbox-triager.an-ask-that-fits-inbox-triager
+            field: situation
+            from: 0
+            to: 85
     outcome: no-change:read-only
   links:
     - block: ask

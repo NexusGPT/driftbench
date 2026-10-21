@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to edit a file here.
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: edit it."
     expect:
       guards:
         - name: read-before-edit.py
@@ -51,6 +51,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: gate.standing.read-before-edit-it (enforced by guard.settings.pretooluse-edit-write-guard-read-before)
+    askBuild:
+      - ask: "No need to do anything: just tell me in one sentence what it would mean to {act}."
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: gate.standing.read-before-edit-it
+            field: governed-action
+            from: 31
+            to: 38
     outcome: no-change:negative
     unit:
       target:

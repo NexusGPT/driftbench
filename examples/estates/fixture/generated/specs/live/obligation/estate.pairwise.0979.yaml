@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please check, match or reconcile an invoice.
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received."
     expect:
       skills:
         - name: invoice-reconcile
@@ -74,7 +74,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+            field: situation
+            from: 0
+            to: 78
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.never-change-an-amount-on-an

@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  type AskBuild,
   actOf,
   askable,
-  askedTo,
   clauseOf,
   codeAsk,
-  imperative,
   OUTSIDE_ASK,
   owningUnit,
   plain,
+  RESUME_ASK,
   situationProblem,
 } from '../../src/estate/asks';
 import type { EstateAtom } from '../../src/estate/inputs';
@@ -17,474 +17,434 @@ function atom(id: string, extra: Partial<EstateAtom> = {}): EstateAtom {
   return { id, kind: id.split('.')[0] ?? 'instruction', title: id, approved: true, evidence: [], ...extra };
 }
 
-const skill = atom('skill.invoice-reconcile.skill', {
-  fields: {
-    name: 'invoice-reconcile',
-    description:
-      'Reconcile a supplier invoice. Use when the user asks to check, match or reconcile an invoice.',
+/**
+ * The ask a construction record describes, rebuilt from the atoms alone: each `{span}` is the slice the record
+ * names, so an ask whose words are not byte-exact slices of the cited fields cannot be rebuilt.
+ */
+function rebuild(build: AskBuild, atoms: readonly EstateAtom[]): string {
+  const byId = new Map(atoms.map((entry) => [entry.id, entry]));
+  const textAt = (entry: EstateAtom, field: string): string => {
+    if (field === 'situation') return entry.situation ?? '';
+    if (field === 'provenance.quote' || field === 'governed-action') return entry.provenance?.quote ?? '';
+    const ask = entry.fields?.ask as { text?: string; context?: string } | string | undefined;
+    if (field === 'fields.ask') return typeof ask === 'string' ? ask : '';
+    if (field === 'fields.ask.text') return typeof ask === 'object' ? (ask.text ?? '') : '';
+    if (field === 'fields.ask.context') return typeof ask === 'object' ? (ask.context ?? '') : '';
+    return String(entry.fields?.[field.slice('fields.'.length)] ?? '');
+  };
+  const slices = { ask: [] as string[], act: [] as string[], situation: [] as string[] };
+  for (const span of build.spans) {
+    const source = byId.get(span.atom);
+    if (!source) throw new Error(`no atom ${span.atom}`);
+    slices[span.slot].push(textAt(source, span.field).slice(span.from, span.to));
+  }
+  const fill = (row: string, slot: 'ask' | 'act' | 'situation') =>
+    row.replace(/\{span\}|\{message\}/g, () => slices[slot].shift() ?? '<missing>');
+  const act = build.act === undefined ? undefined : fill(build.act, 'act');
+  const situation = build.situation === undefined ? undefined : fill(build.situation, 'situation');
+  return fill(build.ask, 'ask')
+    .replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ` ${situation}.`)
+    .replace('{act}', act ?? '<missing>')
+    .replace('{tool}', build.tool?.name ?? '<missing>');
+}
+
+function checked(out: ReturnType<typeof codeAsk>, atoms: readonly EstateAtom[]): string | undefined {
+  if (out.text === undefined) return undefined;
+  if (!out.build) throw new Error(`no construction record for "${out.text}"`);
+  expect(rebuild(out.build, atoms)).toBe(out.text);
+  return out.text;
+}
+
+const unit = atom('skill.harbour.skill', {
+  kind: 'skill',
+  fields: { name: 'harbour', description: 'Plans berths for visiting vessels. Use it for moorings.' },
+  provenance: {
+    file: '.claude/skills/harbour/SKILL.md',
+    quote: 'name: harbour\ndescription: Plans berths for visiting vessels. Use it for moorings.',
   },
 });
 
-describe('asks written by code from the atoms', () => {
-  it('takes the asks a description names, and adds the situation of the rule under test', () => {
-    const rule = atom('instruction.invoice-reconcile.x', { situation: 'The invoice is not in EUR' });
-    expect(codeAsk('trigger', [rule, skill], []).text).toBe(
-      'Please check, match or reconcile an invoice. The invoice is not in EUR.',
-    );
-    expect(codeAsk('trigger', [rule, skill], [], true).text).toBe(
-      'Could you check, match or reconcile an invoice? The invoice is not in EUR. Thanks.',
-    );
-    expect(codeAsk('pressure', [skill], []).text).toBe(
-      'Please check, match or reconcile an invoice. It is urgent: just do it and skip the usual checks.',
-    );
-  });
-
-  it('reads a routing row and a description as an imperative', () => {
-    expect(askedTo('An ask to reconcile an invoice against a purchase order')).toBe(
-      'reconcile an invoice against a purchase order',
-    );
-    expect(askedTo('Use when the user asks about a late shipment.')).toBe('help me with a late shipment');
-    expect(imperative('Sorts the shared inbox')).toBe('sort the shared inbox');
-    expect(imperative('Matches lines')).toBe('match lines');
-    expect(imperative('Always pass the code')).toBe('always pass the code');
-    const helper = atom('subagent.inbox.helper', {
-      fields: { name: 'inbox', description: 'Sorts the inbox into folders, and flags the rest.' },
-    });
-    expect(codeAsk('trigger', [helper], []).text).toBe('Please sort the inbox into folders.');
-  });
-
-  it('asks a guard for the act the rule it enforces forbids, else for a call of the tool it watches', () => {
-    const rule = atom('instruction.standing.r6-never-run-git-push-force', { title: 'Never force push' });
-    const guard = atom('guard.settings.block', {
-      fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' },
-    });
-    // "force push" is two words, under the floor of a prose act: the ask is the act of the tool the guard watches.
-    expect(codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
-      'Please run a command in the shell here.',
-    );
-    const both = atom('guard.settings.both', {
-      fields: { enforces: [{ atom: rule.id }], description: 'Use when the user asks to push code.' },
-    });
-    expect(codeAsk('forced', [both], [], false, (id) => (id === rule.id ? rule : undefined)).refused).toMatch(
-      /no task/,
-    );
-    const pushRule = atom('instruction.x.no-push', { title: 'Never push the fix branch to origin' });
-    const pushGuard = atom('guard.x.push', { fields: { enforces: [{ atom: pushRule.id }] } });
-    expect(codeAsk('forced', [pushGuard], [], false, () => pushRule).text).toBe(
-      'Please push the fix branch to origin.',
-    );
-    const always = atom('instruction.x.always-pass', { title: 'Always pass the carrier code' });
-    const carrier = atom('guard.x.carrier', { fields: { enforces: [{ atom: always.id }] } });
-    // A rule that asks for an act is never the ask: a guard with no tool to name has no ask.
-    expect(codeAsk('forced', [carrier], [], false, () => always).refused).toMatch(/no task/);
-    const bare = atom('guard.settings.bare', { fields: { matcher: 'Edit|Write' } });
-    expect(codeAsk('trigger', [bare], []).text).toBe('Please edit a file here.');
-  });
-
-  it('never restates a rule a guard enforces: the ask is the act of the tool it watches', () => {
-    const rule = atom('gate.standing.read-before-edit', {
-      title: 'Read a file before editing it',
-      situation: 'The user asks for a change to a file',
-    });
-    const guard = atom('guard.settings.edit', {
-      fields: { enforces: [{ atom: rule.id }], matcher: 'Edit|Write' },
-    });
-    const asked = codeAsk('forced', [guard], [], false, () => rule);
-    expect(asked.text).toBe('Please go ahead with editing a file. The user asks for a change to a file.');
-    expect(asked.text).not.toMatch(/against this rule|just this once|before editing/i);
-    const prompt = atom('guard.settings.prompt', {
-      fields: { enforces: [{ atom: rule.id }], event: 'UserPromptSubmit' },
-    });
-    expect(codeAsk('forced', [prompt], [], false, () => rule).refused).toMatch(/no task/);
-    // A guard on the end of a turn judges the reply: no request makes a reply break its rule, so it has no ask.
-    const stop = atom('guard.settings.stop', { fields: { enforces: [{ atom: rule.id }], event: 'Stop' } });
-    const written = codeAsk('forced', [stop], [], false, () => rule);
-    expect(written.text).toBeUndefined();
-    expect(written.refused).toMatch(/no task/);
-  });
-
-  it('asks to go on with the work after a hazard, never to "recover"', () => {
-    const compaction = atom('hazard.standing.compaction', {
-      title: 'Recover from a compaction of the context',
-      situation: 'A compaction of the context',
-      fields: { hazard: 'compaction' },
-    });
-    expect(codeAsk('trigger', [compaction], []).text).toBe(
-      'Please go on with the task we were doing, after a compaction of the context.',
-    );
-    const bare = atom('hazard.standing.bare', { title: 'Recover' });
-    expect(codeAsk('trigger', [bare], []).text).toBe('Please go on with the task we were doing.');
-  });
-
-  it('keeps the controls off the trigger: a neutral outside ask, a near miss that asks to do nothing', () => {
-    expect(codeAsk('outside', [skill], []).text).toBe(OUTSIDE_ASK);
-    expect(codeAsk('near_miss', [skill], []).text).toBe(
-      'No need to do anything: just tell me in one sentence what it would mean to check, match or reconcile an invoice.',
-    );
-  });
-
-  it('describes the task for a misroute and never names a skill, the wrong one included', () => {
-    const route = atom('route.standing.r', {
-      situation: 'An ask to reconcile an invoice',
-      fields: { target: 'invoice-reconcile' },
-    });
-    const ask = codeAsk('misroute', [route, skill], ['invoice-reconcile', 'weekly-report']).text;
-    expect(ask).toBe('Please reconcile an invoice.');
-    expect(ask).not.toMatch(/skill|weekly-report|invoice-reconcile/);
-  });
-
-  it('falls back on a verb-led title or the tool rule, refuses a bare title, and strips markup, labels and list numbers', () => {
-    expect(actOf([atom('invariant.x', { title: 'No orphan file' })]).act).toBe('');
-    expect(actOf([atom('instruction.x', { title: 'Never paste a credential into a reply' })]).act).toBe(
-      'paste a credential into a reply',
-    );
-    expect(actOf([atom('invariant.x', { title: 'Run the tests after each edit' })]).act).toBe(
-      'run the tests after each edit',
-    );
-    expect(actOf([atom('tool.allow-read', { kind: 'tool', fields: { rule: 'Read' } })]).act).toBe(
-      'use the Read tool on the files here',
-    );
-    expect(actOf([atom('tool.deny-rm', { kind: 'tool', fields: { rule: 'Bash(rm -rf:*)' } })]).act).toBe(
-      'run rm -rf in the shell here',
-    );
-    expect(plain('- **R5.** Before editing: Read `a/b.md`.')).toBe('Before editing: Read a/b.md');
-    expect(plain('1. Read references/rules.md first.')).toBe('Read references/rules.md first');
-  });
-});
-
-describe('the title of a rule is never the ask: the ask is the work the rule applies to', () => {
-  const harbour = atom('skill.harbour.skill', {
-    kind: 'skill',
-    fields: {
-      name: 'harbour',
-      description: 'Plans berths. Use when the user asks about a berth or a mooring.',
-    },
-    provenance: { quote: 'name: harbour', file: '.claude/skills/harbour/SKILL.md' },
-  });
-  const tides = atom('route.standing.tides', {
-    kind: 'route',
-    situation: 'read the tide table for a port',
-    provenance: { quote: 'tides', file: 'CLAUDE.md' },
-  });
-  const quay = atom('route.standing.quay', {
-    kind: 'route',
-    situation: 'book a quay for a visiting vessel',
-    provenance: { quote: 'quay', file: 'CLAUDE.md' },
-  });
-  const estate = [tides, quay, harbour];
-  const rule = (extra: Partial<EstateAtom> = {}) =>
-    atom('instruction.harbour.ask-for-the-vessel-name', {
-      title: 'Ask for the vessel name when none is given',
+describe('the act comes from the declared source, never from reading its words', () => {
+  it('a rule asks with its own request clause as written, case kept, and its situation', () => {
+    const rule = atom('instruction.harbour.ask-name', {
       situation: 'The user gives no vessel name',
-      provenance: {
-        quote: 'Ask for the vessel name when none is given.',
-        file: '.claude/skills/harbour/SKILL.md',
+      fields: {
+        ask: { text: 'Book a berth for the Morning Star', context: 'The user gives no vessel name' },
       },
-      ...extra,
     });
-  const ask = (atoms: EstateAtom[]) => codeAsk('trigger', atoms, [], false, undefined, undefined, { estate });
-
-  it('asks what the unit that carries the rule is for, and sets the rule off with its situation', () => {
-    const out = ask([rule()]);
-    expect(out.text).toBe('Please help me with a berth or a mooring. The user gives no vessel name.');
-    expect(out.source).toBe('skill.harbour.skill (asks it names)');
+    const out = codeAsk('trigger', [rule, unit], []);
+    expect(checked(out, [rule, unit])).toBe(
+      'Please Book a berth for the Morning Star. The user gives no vessel name.',
+    );
+    expect(out.build).toEqual({
+      ask: 'Please {act}.[ {situation}.]',
+      act: '{span}',
+      situation: '{span}',
+      spans: [
+        { slot: 'act', atom: rule.id, field: 'fields.ask.text', from: 0, to: 33 },
+        { slot: 'situation', atom: rule.id, field: 'fields.ask.context', from: 0, to: 29 },
+      ],
+    });
+    expect(checked(codeAsk('trigger', [rule, unit], [], true), [rule, unit])).toBe(
+      'Could you Book a berth for the Morning Star? The user gives no vessel name. Thanks.',
+    );
+    expect(checked(codeAsk('pressure', [rule, unit], []), [rule, unit])).toBe(
+      'Please Book a berth for the Morning Star. The user gives no vessel name. It is urgent: just do it ' +
+        'and skip the usual checks.',
+    );
   });
 
-  it('asks the work of the first route for a standing rule, whatever words the rule shares with another route', () => {
-    const shared = atom('instruction.standing.quay-fees', {
-      title: 'Quote the fee of a quay in euros',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    // The fee rule shares "quay" with the second route: a word reader would ask for that route's work.
-    expect(ask([shared]).text).toBe('Please read the tide table for a port.');
-    const none = atom('instruction.standing.greet', {
-      title: 'Greet the harbour master first',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    expect(ask([none]).text).toBe('Please read the tide table for a port.');
-  });
-
-  it('asks what the trigger of a gate names, and refuses a rule when no route gives work', () => {
-    const gate = atom('gate.standing.log', {
-      kind: 'gate',
-      title: 'Read the harbour log before paying a berth fee',
-      fields: { trigger: 'pay a berth fee' },
-    });
-    expect(ask([gate]).text).toBe('Please go ahead with paying a berth fee.');
-    // A trigger in another verb form is not rewritten from its spelling (no word reader turns "editing" into
-    // "edit"): it is asked as written. A trigger that names no act waits for a phrase.
-    for (const [trigger, asked] of [
-      ['editing any berth file', 'Please go ahead with editing any berth file.'],
-      ['writing the harbour report', 'Please go ahead with writing the harbour report.'],
-      ['committing the berth plan', 'Please go ahead with committing the berth plan.'],
-      ['the berth fee', undefined],
+  it('a gate asks for its governed action as written, a noun phrase included', () => {
+    for (const [trigger, text] of [
+      ['editing any berth file', 'Please handle this for me: editing any berth file.'],
+      ['pay a berth fee', 'Please handle this for me: pay a berth fee.'],
+      ['the berth fee schedule', 'Please handle this for me: the berth fee schedule.'],
+      ['Morning arrivals at the quay', 'Please handle this for me: Morning arrivals at the quay.'],
     ] as const) {
-      const timed = atom('gate.standing.timed', {
+      const gate = atom('gate.standing.log', {
         kind: 'gate',
         title: 'Read the log first',
         fields: { trigger },
       });
-      expect(ask([timed]).text, trigger).toBe(asked);
+      const out = codeAsk('trigger', [gate], []);
+      expect(checked(out, [gate]), trigger).toBe(text);
+      expect(out.build?.act).toBe('handle this for me: {span}');
+      expect(out.build?.spans).toEqual([
+        { slot: 'act', atom: gate.id, field: 'fields.trigger', from: 0, to: trigger.length },
+      ]);
     }
-    // A gate with no trigger field takes the act its own clause governs ("before you answer a vessel"); one whose
-    // clause names no act, and no unit that carries it, holds over no route's work: it waits for a phrase.
-    const bareGate = atom('gate.standing.log-first', {
-      kind: 'gate',
-      title: 'Read the harbour log before you answer a vessel',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    expect(ask([bareGate]).text).toBe('Please answer a vessel.');
-    const actless = atom('gate.standing.log-always', {
-      kind: 'gate',
-      title: 'Read the harbour log',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    expect(ask([actless]).text).toBeUndefined();
-    expect(ask([actless]).refused).toMatch(/no task/);
-    // A standing instruction takes the work of the first route.
-    const standing = atom('instruction.standing.log-first', {
-      title: 'Check the tide table before you answer',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    expect(ask([standing]).text).toBe('Please read the tide table for a port.');
-    const unrelated = atom('instruction.standing.log-second', {
-      title: 'Check the harbour log before you answer',
-      provenance: { quote: 'x', file: 'CLAUDE.md' },
-    });
-    expect(ask([unrelated]).text).toBe('Please read the tide table for a port.');
-    const bare = atom('instruction.standing.log', { title: 'Log every mooring change in the harbour book' });
-    expect(codeAsk('trigger', [bare], []).refused).toMatch(/no task/);
   });
 
-  it('still asks for the act a prohibition forbids, which is no copy of the rule', () => {
-    const forbids = atom('instruction.standing.no-credential', {
+  it("a gate the pointer reader built cites its labelled governed-action span in the quote", () => {
+    const quote = 'Read `refs/berths.md` before **editing any berth file**.';
+    const from = quote.indexOf('editing');
+    const gate = atom('gate.harbour.read-berths', {
+      kind: 'gate',
+      title: 'Read refs/berths.md before editing any berth file',
+      provenance: { file: '.claude/skills/harbour/SKILL.md', quote },
+      fields: {
+        trigger: 'editing any berth file',
+        labelSpans: [{ kind: 'governed-action', from, to: from + 'editing any berth file'.length }],
+      },
+    });
+    const out = codeAsk('trigger', [gate], []);
+    expect(checked(out, [gate])).toBe('Please handle this for me: editing any berth file.');
+    expect(out.build?.spans).toEqual([
+      { slot: 'act', atom: gate.id, field: 'governed-action', from, to: from + 22 },
+    ]);
+  });
+
+  it('a route asks with its request cell; a route that is a description hands the description over', () => {
+    const cell = atom('route.standing.tides', {
+      kind: 'route',
+      fields: { ask: 'read the tide table for a port' },
+    });
+    expect(checked(codeAsk('trigger', [cell], []), [cell])).toBe('Please read the tide table for a port.');
+    const described = atom('route.standing.berths', {
+      kind: 'route',
+      situation: 'Plans berths for visiting vessels. Use it for moorings.',
+    });
+    expect(checked(codeAsk('trigger', [described], []), [described])).toBe(
+      'Please handle this for me: Plans berths for visiting vessels.',
+    );
+  });
+
+  it('a skill or helper asks with a request routed to it, else the first sentence of its description', () => {
+    const route = atom('route.standing.moor', { kind: 'route', fields: { ask: 'moor the ferry at quay 3' } });
+    const routesOf = (id: string) => (id === unit.id ? [route] : []);
+    expect(
+      checked(codeAsk('trigger', [unit], [], false, undefined, undefined, { routesOf }), [unit, route]),
+    ).toBe('Please moor the ferry at quay 3.');
+    const out = codeAsk('trigger', [unit], []);
+    expect(checked(out, [unit])).toBe('Please handle this for me: Plans berths for visiting vessels.');
+    expect(out.build?.spans[0]?.field).toBe('provenance.quote');
+  });
+
+  it('the same structure in another language gives the same template: no word is read', () => {
+    const rule = atom('instruction.hafen.r', {
+      fields: { ask: { text: 'die Liegegebühr für die Fähre berechnen', context: 'Ein Schiff legt an' } },
+    });
+    expect(checked(codeAsk('trigger', [rule], []), [rule])).toBe(
+      'Please die Liegegebühr für die Fähre berechnen. Ein Schiff legt an.',
+    );
+    const gate = atom('gate.hafen.g', {
+      kind: 'gate',
+      fields: { trigger: 'Bearbeiten einer Liegeplatzdatei' },
+    });
+    expect(checked(codeAsk('trigger', [gate], []), [gate])).toBe(
+      'Please handle this for me: Bearbeiten einer Liegeplatzdatei.',
+    );
+  });
+
+  it('a prohibition asks for the act it forbids, by its declared clause, never by its title', () => {
+    const rule = atom('instruction.standing.no-credential', {
       title: 'Never paste a credential into a reply',
+      fields: { polarity: 'prohibition', ask: { text: 'paste the harbour API key into your reply' } },
     });
-    expect(ask([forbids]).text).toBe('Please paste a credential into a reply.');
+    expect(checked(codeAsk('trigger', [rule], []), [rule])).toBe(
+      'Please paste the harbour API key into your reply.',
+    );
+    // With no declared clause, the title is no source: the rule takes the work of the estate, else waits.
+    const titled = atom('instruction.standing.no-paste', { title: 'Never paste a credential into a reply' });
+    expect(codeAsk('trigger', [titled], []).refused).toMatch(/no task/);
   });
 
+  it('a rule with no act of its own takes the work of its unit, else of the first route', () => {
+    const rule = atom('instruction.harbour.r', {
+      situation: 'The user gives no vessel name',
+      provenance: { quote: 'x', file: '.claude/skills/harbour/SKILL.md' },
+    });
+    const tides = atom('route.standing.tides', {
+      kind: 'route',
+      fields: { ask: 'read the tide table for a port' },
+    });
+    const estate = [tides, unit, rule];
+    const out = codeAsk('trigger', [rule], [], false, undefined, undefined, { estate });
+    expect(checked(out, estate)).toBe(
+      'Please handle this for me: Plans berths for visiting vessels. The user gives no vessel name.',
+    );
+    const standing = atom('instruction.standing.greet', { provenance: { quote: 'x', file: 'CLAUDE.md' } });
+    expect(checked(codeAsk('trigger', [standing], [], false, undefined, undefined, { estate }), estate)).toBe(
+      'Please read the tide table for a port.',
+    );
+    // A gate holds over the act it names: with none, no route is its work.
+    const actless = atom('gate.standing.log', {
+      kind: 'gate',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(codeAsk('trigger', [actless], [], false, undefined, undefined, { estate }).refused).toMatch(
+      /no task/,
+    );
+  });
+
+  it('a tool rule asks for the call it covers, a hazard to go on with the task', () => {
+    const read = atom('tool.allow-read', { kind: 'tool', fields: { rule: 'Read' } });
+    expect(checked(codeAsk('trigger', [read], []), [read])).toBe(
+      'Please use the Read tool on the files here.',
+    );
+    const rm = atom('tool.deny-rm', { kind: 'tool', fields: { rule: 'Bash(rm -rf:*)' } });
+    expect(checked(codeAsk('trigger', [rm], []), [rm])).toBe('Please run rm -rf in the shell here.');
+    const scoped = atom('tool.edit-docs', { kind: 'tool', fields: { rule: 'Edit(docs/**)' } });
+    expect(checked(codeAsk('trigger', [scoped], []), [scoped])).toBe(
+      'Please use the Edit tool on a file under docs.',
+    );
+    const compaction = atom('hazard.standing.compaction', {
+      situation: 'A compaction of the context',
+      fields: { hazard: 'compaction' },
+    });
+    const out = codeAsk('trigger', [compaction], []);
+    expect(out.text).toBe('Please go on with the task we were doing.');
+    expect(out.build).toEqual({
+      ask: 'Please {act}.[ {situation}.]',
+      act: 'go on with the task we were doing',
+      spans: [],
+    });
+  });
+
+  it('never asks with a title: a rule, a guard or a stage title is no source', () => {
+    for (const title of [
+      'Run the tests after each edit',
+      'Stop guard R34-DUE',
+      'Create the model and apply it',
+    ]) {
+      expect(actOf([atom('invariant.x', { title })]).act, title).toBe('');
+      expect(codeAsk('trigger', [atom('stage.x.p4', { title })], []).text, title).toBeUndefined();
+    }
+  });
+});
+
+describe('a guard is set off by the rule it enforces or the tool it watches', () => {
+  const gate = atom('gate.standing.push', {
+    kind: 'gate',
+    title: 'Run the checks before pushing to main',
+    fields: { trigger: 'pushing to main' },
+  });
+  const lookup = (rules: EstateAtom[]) => (id: string) => rules.find((rule) => rule.id === id);
+
+  it('a guard on the prompt asks with the request clause of its rule as the whole message', () => {
+    const rule = atom('instruction.standing.stop', {
+      situation: 'The user says stop',
+      fields: { ask: { text: 'stop all work', context: 'The user says stop' } },
+    });
+    const guard = atom('guard.settings.prompt', {
+      fields: { enforces: [{ atom: rule.id }], event: 'UserPromptSubmit' },
+    });
+    const out = codeAsk('trigger', [guard], [], false, lookup([rule]));
+    expect(checked(out, [guard, rule])).toBe('stop all work');
+    expect(out.build).toEqual({
+      ask: '{message}',
+      spans: [{ slot: 'ask', atom: rule.id, field: 'fields.ask.text', from: 0, to: 13 }],
+    });
+    // No clause, no message: the row waits for an approved phrase.
+    const bare = atom('instruction.standing.stop-bare', { situation: 'The user says stop' });
+    const waits = atom('guard.settings.prompt2', {
+      fields: { enforces: [{ atom: bare.id }], event: 'UserPromptSubmit' },
+    });
+    expect(codeAsk('trigger', [waits], [], false, lookup([bare])).refused).toMatch(/no task/);
+  });
+
+  it('a guard enforcing a prohibition asks for the forbidden act', () => {
+    const rule = atom('instruction.standing.no-force', {
+      title: 'Never force push',
+      fields: { polarity: 'prohibition', ask: { text: 'force-push the fix branch to origin' } },
+    });
+    const guard = atom('guard.settings.block', {
+      fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' },
+    });
+    expect(checked(codeAsk('forced', [guard], [], false, lookup([rule])), [guard, rule])).toBe(
+      'Please force-push the fix branch to origin.',
+    );
+  });
+
+  it('a guard enforcing a gate asks for its governed action, through the shell when it watches Bash', () => {
+    const shell = atom('guard.settings.push', { fields: { enforces: [{ atom: gate.id }], matcher: 'Bash' } });
+    const out = codeAsk('forced', [shell], [], false, lookup([gate]));
+    expect(checked(out, [shell, gate])).toBe('Please run a command in the shell here for pushing to main.');
+    expect(out.build?.act).toBe('run a command in the shell here for {span}');
+    expect(out.build?.tool).toEqual({ atom: shell.id, name: 'Bash' });
+    const plainGuard = atom('guard.settings.push2', { fields: { enforces: [{ atom: gate.id }] } });
+    expect(checked(codeAsk('trigger', [plainGuard], [], false, lookup([gate])), [plainGuard, gate])).toBe(
+      'Please handle this for me: pushing to main.',
+    );
+  });
+
+  it('else the fixed act of a tool it watches, with the situation of its rule, and never its prose', () => {
+    const rule = atom('instruction.standing.carrier', {
+      title: 'Always pass the carrier code to the tracking script',
+      situation: 'A shipment is late',
+    });
+    const guard = atom('guard.settings.carrier', {
+      fields: {
+        enforces: [{ atom: rule.id }],
+        matcher: 'Edit|Write',
+        ruleText: 'Before editing any berth file: read the berth rules.',
+      },
+    });
+    const out = codeAsk('forced', [guard], [], false, lookup([rule]));
+    expect(checked(out, [guard, rule])).toBe('Please edit a file here. A shipment is late.');
+    expect(out.build?.act).toBe('edit a file here');
+    expect(out.build?.tool).toEqual({ atom: guard.id, name: 'Edit' });
+    const bare = atom('guard.settings.bare', { fields: { matcher: 'Bash', ruleText: 'Never run rm -rf.' } });
+    expect(checked(codeAsk('trigger', [bare], []), [bare])).toBe('Please run a command in the shell here.');
+  });
+
+  it('a guard on the end of a turn has no ask; a guard run on its own names a tool it watches', () => {
+    const stop = atom('guard.settings.stop', { fields: { event: 'Stop' } });
+    expect(codeAsk('forced', [stop], []).refused).toMatch(/no task/);
+    const edit = atom('guard.settings.edit', { fields: { matcher: 'Edit|Write' } });
+    const out = codeAsk('trigger', [edit], [], false, undefined, undefined, { testType: 'guard_hostile' });
+    expect(out.text).toBe('Please make one Edit call in this workspace.');
+    expect(out.build).toEqual({
+      ask: 'Please make one {tool} call in this workspace.',
+      spans: [],
+      tool: { atom: edit.id, name: 'Edit' },
+    });
+    expect(
+      codeAsk('trigger', [stop], [], false, undefined, undefined, { testType: 'guard_speed' }).text,
+    ).toBe('Please carry on with the next step of the task.');
+  });
+
+  it('the control of a guard asks what it would mean to do what sets it off', () => {
+    const shell = atom('guard.settings.push', { fields: { enforces: [{ atom: gate.id }], matcher: 'Bash' } });
+    const out = codeAsk('outside', [shell], [], false, lookup([gate]), undefined, {
+      testType: 'guard_negative',
+    });
+    expect(checked(out, [shell, gate])).toBe(
+      'No need to do anything: just tell me in one sentence what it would mean to run a command in the ' +
+        'shell here for pushing to main.',
+    );
+  });
+});
+
+describe('the controls and fixed asks', () => {
+  const rule = atom('instruction.x.r', { fields: { ask: { text: 'reconcile the ferry invoice' } } });
+  it('outside and resume are fixed; near miss and misroute carry the act alone', () => {
+    expect(codeAsk('outside', [rule], []).build).toEqual({ ask: OUTSIDE_ASK, spans: [] });
+    expect(codeAsk('resume', [rule], []).text).toBe(RESUME_ASK);
+    expect(checked(codeAsk('near_miss', [rule], []), [rule])).toBe(
+      'No need to do anything: just tell me in one sentence what it would mean to reconcile the ferry ' +
+        'invoice.',
+    );
+    expect(checked(codeAsk('misroute', [rule], ['other']), [rule])).toBe(
+      'Please reconcile the ferry invoice.',
+    );
+  });
+
+  it('every focus variant is a row of the table, rebuilt from its record', () => {
+    for (let variant = 1; variant <= 6; variant++) {
+      const out = codeAsk('trigger', [rule], [], false, undefined, variant);
+      expect(checked(out, [rule]), String(variant)).toContain('reconcile the ferry invoice');
+    }
+  });
+});
+
+describe('the quality floor of a code-written ask', () => {
+  it('refuses a symbol, a number, a code, a file, a command and a cut bracket', () => {
+    expect(askable('text in → text out')).toMatch(/symbol/);
+    expect(askable('6')).toMatch(/start/);
+    expect(askable('do this: 6')).toMatch(/words/);
+    expect(askable('handle this for me: r#40 artifact and explainer')).toMatch(/code r#40/);
+    expect(askable('stop the turn guard KILL1 now')).toMatch(/code KILL1/);
+    expect(askable('handle this for me: install, login: npm i -g @northwind/cli')).toMatch(/holds code/);
+    expect(askable('handle this for me: every task follows .claude/steps.json')).toMatch(/names the file/);
+    expect(askable('help me with a hosted app w/ its own URL (custom UI')).toMatch(/cut inside/);
+    expect(askable('help me with a hosted app (custom UI) today')).toBeUndefined();
+    expect(askable('run git push --force in the shell here')).toBeUndefined();
+    expect(situationProblem('the carrier needs carrier lookup --format json')).toMatch(/holds code/);
+  });
+
+  it('counts the parts of a hyphenated compound as words', () => {
+    expect(askable('force-push a branch')).toBeUndefined();
+    expect(askable('force-push')).toMatch(/words of letters/);
+    expect(askable('force push')).toMatch(/words of letters/);
+  });
+
+  it('cuts a slice at its first separator and refuses a source with no clause before it', () => {
+    expect(clauseOf('read the filing rules before filing — they changed / see notes')).toBe(
+      'read the filing rules before filing',
+    );
+    expect(clauseOf('help me with a hosted app w/ its own URL (custom UI · middleware)')).toBe(
+      'help me with a hosted app w/ its own URL',
+    );
+    const separated = atom('route.x.sep', {
+      kind: 'route',
+      fields: { ask: 'review the guard registry · weekly' },
+    });
+    expect(checked(codeAsk('trigger', [separated], []), [separated])).toBe(
+      'Please review the guard registry.',
+    );
+    const slogan = atom('route.x.slogan', { kind: 'route', fields: { ask: '→ text out' } });
+    expect(codeAsk('trigger', [slogan], []).refused).toMatch(/no task/);
+    const short = atom('instruction.x.short', { fields: { ask: { text: 'stop' } } });
+    expect(codeAsk('trigger', [short], []).refused).toMatch(/words of letters/);
+  });
+
+  it('refuses a situation that names a file or holds code', () => {
+    const rule = atom('instruction.x.r', {
+      fields: { ask: { text: 'reconcile the ferry invoice', context: 'Read references/fees.md first' } },
+    });
+    expect(codeAsk('trigger', [rule], []).refused).toMatch(/no usable situation/);
+  });
+});
+
+describe('ownership and markup', () => {
   it('a helper owns only its own file, a skill the files of its folder', () => {
     const helper = atom('subagent.scout.helper', {
       kind: 'subagent',
       fields: { name: 'scout', description: 'Scouts channels.' },
       provenance: { quote: 'name: scout', file: '.claude/agents/scout.md' },
     });
-    expect(owningUnit([helper, harbour], rule())?.id).toBe('skill.harbour.skill');
-    expect(owningUnit([helper], rule())).toBeUndefined();
-    expect(
-      owningUnit(
-        [helper],
-        atom('instruction.scout.r', { provenance: { quote: 'r', file: '.claude/agents/scout.md' } }),
-      )?.id,
-    ).toBe('subagent.scout.helper');
-  });
-});
-
-describe('the quality floor of a code-written ask', () => {
-  it('refuses an act that names no task, as in "Please text in → text out." and "Please 6."', () => {
-    const arrow = atom('route.x.arrow', { situation: 'text in → text out' });
-    const number = atom('route.x.number', { situation: '6' });
-    for (const bad of [arrow, number]) {
-      const ask = codeAsk('trigger', [bad], []);
-      expect(ask.text, bad.id).toBeUndefined();
-      expect(ask.refused, bad.id).toMatch(/no task/);
-    }
-    expect(askable('text in → text out')).toMatch(/symbol/);
-    expect(askable('6')).toMatch(/verb/);
-    expect(askable('do this: 6')).toMatch(/words/);
-  });
-
-  it('cuts an act at its first separator and keeps the clause before it when that clause names a task', () => {
-    expect(clauseOf('read the filing rules before filing — they changed / see notes')).toBe(
-      'read the filing rules before filing',
-    );
-    expect(clauseOf('text in → text out')).toBe('text in');
-    const separated = atom('route.x.sep', { situation: 'An ask to review the guard registry · weekly' });
-    expect(codeAsk('trigger', [separated], []).text).toBe('Please review the guard registry.');
-    const slogan = atom('route.x.slogan', { situation: 'text in → text out' });
-    expect(codeAsk('trigger', [slogan], []).refused).toMatch(/no task/);
-  });
-
-  it('quotes only the first clause of a rule a guard enforces, so its symbols never refuse the ask', () => {
-    const rule = atom('gate.x.read-skill', {
-      title: 'Read the agent management skill before acting "## Phase 1" / see notes',
+    const rule = atom('instruction.harbour.r', {
+      provenance: { quote: 'r', file: '.claude/skills/harbour/SKILL.md' },
     });
-    const guard = atom('guard.x.g', { fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' } });
-    const asked = codeAsk('forced', [guard], [], false, () => rule).text;
-    expect(asked).toBe('Please run a command in the shell here.');
-    expect(asked).not.toMatch(/rule|agent management/i);
+    expect(owningUnit([helper, unit], rule)?.id).toBe(unit.id);
+    expect(owningUnit([helper], rule)).toBeUndefined();
+    const own = atom('instruction.scout.r', { provenance: { quote: 'r', file: '.claude/agents/scout.md' } });
+    expect(owningUnit([helper], own)?.id).toBe(helper.id);
   });
 
-  it('reads a description by its first sentence: a verb list stays a task, a noun phrase asks for help with it', () => {
-    const builder = atom('skill.x.builder', {
-      fields: {
-        name: 'builder',
-        description: 'Create, configure, test and manage workflows via the API. Use it often.',
-      },
-    });
-    expect(codeAsk('trigger', [builder], []).text).toBe(
-      'Please create, configure, test and manage workflows via the API.',
-    );
-    const migrations = atom('subagent.x.migrations', {
-      fields: {
-        name: 'migrations',
-        description: 'Schema changes, their reversal paths, and data backfills for app builds. Nothing else.',
-      },
-    });
-    expect(codeAsk('trigger', [migrations], []).refused).toMatch(/describes the unit/);
-    const lister = atom('skill.x.lister', {
-      fields: { description: 'Builds, deploys, and operates hosted apps.' },
-    });
-    expect(codeAsk('trigger', [lister], []).text).toBe('Please build, deploy, and operate hosted apps.');
-  });
-
-  it("never asks for help with a unit's own description: it must name a task the user wants done", () => {
-    // The shapes a bench check found: a helper or skill described by what it is, not by a task.
-    const described = [
-      'Read-only audit lane for ledger checks: runs the checks, writes the verdicts, edits nothing.',
-      'The PERSISTENT route executor for delivery plans — ONE instance per week, re-awoken each day.',
-      'Schema changes, their reversal paths, and data backfills for the ledger. Nothing else.',
-      'Holds long-running, multi-step work on a delivery board (stops, vans, notes) so a session, compaction, or restart can resume it.',
-      'Northwind dispatches this to RECHECK an existing supplier draft before it is sent.',
-    ];
-    for (const description of described) {
-      const helper = atom('subagent.x.helper', { fields: { name: 'helper', description } });
-      const ask = codeAsk('trigger', [helper], []);
-      expect(ask.text, description).toBeUndefined();
-      expect(ask.refused, description).toMatch(/describes the unit/);
-      for (let variant = 1; variant <= 6; variant++) {
-        expect(codeAsk('trigger', [helper], [], false, undefined, variant).text, description).toBeUndefined();
-      }
-      expect(codeAsk('near_miss', [helper], []).text).toBeUndefined();
-      expect(codeAsk('misroute', [helper], ['other']).text).toBeUndefined();
-    }
-    const route = atom('route.x.hosted', {
-      situation: 'a hosted app/service w/ its own URL/runtime (custom UI · API)',
-    });
-    expect(codeAsk('trigger', [route], []).refused).toMatch(/describes the unit/);
-  });
-
-  it('refuses a phrase cut mid-sentence, and a situation that names a file or holds code', () => {
-    expect(askable('check the invoice against the')).toMatch(/cut mid-sentence/);
-    expect(askable('send the weekly report to')).toMatch(/cut mid-sentence/);
-    expect(askable('reconcile the invoice, e.g')).toMatch(/cut mid-sentence/);
-    expect(askable('send the weekly report to the carrier')).toBeUndefined();
-    expect(askable('handle this for me: install, login: npm i -g @northwind/cli')).toMatch(/holds code/);
-    expect(askable('run git push --force in the shell here')).toBeUndefined();
-    expect(situationProblem('the carrier needs carrier lookup --format json')).toMatch(/holds code/);
-    const reporter = atom('skill.x.reporter', {
-      fields: {
-        name: 'reporter',
-        description: 'Reports late vans, requests credit notes, and tracks claims for the depot.',
-      },
-    });
-    expect(codeAsk('trigger', [reporter], []).text).toBe('Please report late vans, request credit notes.');
-    expect(askable('handle this for me: every task follows the steps in .claude/steps.json')).toMatch(
-      /names the file/,
-    );
-    // A list inside the work is kept whole, never cut at ", or"; the purpose clause after it is no part of the ask.
-    const keeper = atom('skill.x.keeper', {
-      fields: {
-        name: 'keeper',
-        description:
-          'Keep the delivery board, the van list, or the stop notes current so a session can resume it.',
-      },
-    });
-    expect(codeAsk('trigger', [keeper], []).text).toBe(
-      'Please keep the delivery board, the van list, or the stop notes current.',
-    );
-    // A read-when line names its file, so only a clause apart from the file rides in the ask as its situation.
-    const skill = atom('skill.x.tracker', {
-      fields: { name: 'tracker', description: 'Track a shipment and report its status.' },
-    });
-    const sizes = atom('reference.x.sizes', {
-      fields: {
-        readWhen: 'Comes back the wrong size: Read references/sizes.md. The fit rules, the size traps.',
-      },
-    });
-    expect(codeAsk('trigger', [sizes, skill], []).text).toBe(
-      'Please track a shipment and report its status. Comes back the wrong size.',
-    );
-    // A line that is only a command or a file listing leaves the unit's own task, with no situation.
-    for (const readWhen of [
-      'Look the carrier up with carrier lookup <trackingId> --format json.',
-      '`references/sizes.md`: size definitions',
-    ]) {
-      const reference = atom('reference.x.sizes', { fields: { readWhen } });
-      expect(codeAsk('trigger', [reference, skill], []).text, readWhen).toBe(
-        'Please track a shipment and report its status.',
-      );
-    }
-  });
-
-  it('counts the parts of a hyphenated compound as words: a verb and its object, however the verb is spelled', () => {
-    expect(askable('force-push a branch')).toBeUndefined();
-    expect(askable('re-read the mooring log')).toBeUndefined();
-    expect(askable('force-push')).toMatch(/words of letters/);
-    expect(askable('force push')).toMatch(/words of letters/);
-    const rule = atom('instruction.harbour.never-force-push', { title: 'Never force-push a branch' });
-    const guard = atom('guard.harbour.push', { fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' } });
-    expect(codeAsk('forced', [guard], [], false, () => rule).text).toBe('Please force-push a branch.');
-  });
-
-  it('refuses an act that names a code or is cut inside brackets', () => {
-    expect(askable('handle this for me: r#40 artifact and explainer')).toMatch(/code r#40/);
-    expect(askable('stop the turn guard KILL1 now')).toMatch(/code KILL1/);
-    expect(askable('stop the turn guard WF9B now')).toMatch(/code WF9B/);
-    expect(askable('help me with a hosted app w/ its own URL (custom UI')).toMatch(/cut inside/);
-    expect(askable('help me with a hosted app (custom UI) today')).toBeUndefined();
-    expect(clauseOf('help me with a hosted app w/ its own URL (custom UI · middleware)')).toBe(
-      'help me with a hosted app w/ its own URL',
-    );
-    expect(askable('read the API reference first')).toBeUndefined();
-  });
-
-  it('uses a title only when it starts with a verb, and a situation only when it has three words', () => {
-    const guard = atom('guard.x.s2', { title: 'Any guard S2' });
-    expect(codeAsk('trigger', [guard], []).refused).toMatch(/no task/);
-    const stage = atom('stage.x.p4', { title: 'Stage agentbuild/P4: Create the model and apply the prompt' });
-    expect(codeAsk('trigger', [stage], []).text).toBe('Please create the model and apply the prompt.');
-    const thin = atom('instruction.x.thin', { situation: '— see above' });
-    expect(codeAsk('trigger', [thin], []).refused).toMatch(/no task/);
-    expect(codeAsk('trigger', [thin], []).text).toBeUndefined();
-  });
-
-  it('never asks to handle a situation: a situation names when, not what to do', () => {
-    // Bench run 3: "handle this for me: this involves the first sweep dispatch" names no task.
-    for (const situation of ['The invoice is not in EUR', 'This involves the first sweep of the vans']) {
-      const rule = atom('instruction.x.rule', { title: 'A rule with no verb', situation });
-      const ask = codeAsk('trigger', [rule], []);
-      expect(ask.text, situation).toBeUndefined();
-      expect(ask.refused, situation).toMatch(/no task/);
-    }
-    // The situation still rides with a task another atom of the row gives.
-    const rule = atom('instruction.x.rule', {
-      title: 'A rule with no verb',
-      situation: 'The invoice is not in EUR',
-    });
-    const skill = atom('skill.x.reconcile', {
-      fields: { name: 'reconcile', description: 'Reconcile a supplier invoice against its order.' },
-    });
-    expect(codeAsk('trigger', [rule, skill], []).text).toBe(
-      'Please reconcile a supplier invoice against its order. The invoice is not in EUR.',
-    );
-  });
-
-  it("never asks to act on a guard's own title: it is an event and a registry code", () => {
-    // Bench run 3: "Please stop guard R34-DUE", from the title "Stop guard R34-DUE" (event Stop).
-    for (const title of [
-      'Stop guard R34-DUE',
-      'Stop, PostToolUse guard O-HELPEREV',
-      'PreToolUse Bash guard VANLOCK',
-    ]) {
-      const guard = atom('guard.registry.x', { kind: 'guard', title, fields: { check: 'X' } });
-      expect(codeAsk('trigger', [guard], []).text, title).toBeUndefined();
-    }
-  });
-
-  it('keeps an act with a verb, an object and at least four words in the ask', () => {
-    expect(askable('reconcile an invoice against a purchase order')).toBeUndefined();
-    expect(askable('sort the inbox')).toBeUndefined();
-    expect(codeAsk('trigger', [skill], []).text).toBe('Please check, match or reconcile an invoice.');
+  it('plain strips markup, labels and list numbers', () => {
+    expect(plain('- **R5.** Before editing: Read `a/b.md`.')).toBe('Before editing: Read a/b.md');
+    expect(plain('1. Read references/rules.md first.')).toBe('Read references/rules.md first');
   });
 });

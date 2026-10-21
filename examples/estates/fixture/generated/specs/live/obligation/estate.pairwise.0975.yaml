@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please read the open orders and the van table.
+      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Read the open orders and the van table."
     expect:
       subagents:
         - name: route-planner
@@ -74,7 +74,22 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.route-planner.read-the-open-orders-and-the (situation)
+    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        situation: "{span}"
+        spans:
+          - slot: act
+            atom: route.route-planner.an-ask-that-fits-route-planner
+            field: situation
+            from: 0
+            to: 74
+          - slot: situation
+            atom: instruction.route-planner.read-the-open-orders-and-the
+            field: situation
+            from: 0
+            to: 38
     outcome: no-delete
     judged:
       - instruction.route-planner.read-the-open-orders-and-the

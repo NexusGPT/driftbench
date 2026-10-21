@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please schedule a delivery on a public holiday in the receiving country.
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received."
     expect:
       workspace:
         deleted: []
@@ -62,7 +62,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.memory-memory.never-schedule-a-delivery-on-a (title)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+            field: situation
+            from: 0
+            to: 78
     outcome: no-delete
     judged:
       - instruction.memory-memory.never-schedule-a-delivery-on-a

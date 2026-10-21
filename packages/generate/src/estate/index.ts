@@ -2,12 +2,11 @@
 
 export {
   actOf,
-  askedTo,
+  type AskBuild,
   type CodeAsk,
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
-  imperative,
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,

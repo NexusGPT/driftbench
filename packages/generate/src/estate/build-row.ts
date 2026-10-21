@@ -4,7 +4,7 @@ import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { type BlockOrigin, type RuleRef, writeBlocks } from '../blocks/writer';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
-import { codeAsk, DEVIATION_ASKS } from './asks';
+import { type AskBuild, codeAsk, DEVIATION_ASKS } from './asks';
 import { guardRuleIds, navigationReference, taskAtoms } from './context';
 import {
   type AskSource,
@@ -240,6 +240,8 @@ export function build(
   let phraseIndex: number | undefined;
   let ask: AskSource = use === 'none' ? 'none' : 'bank';
   let askFrom: string | undefined;
+  // How code built the ask of each block, null for a block whose ask is an approved phrase.
+  const askBuild: Array<AskBuild | null> = [null];
   if (use !== 'none') {
     let missing: { marker: Marker; detail: string } | undefined;
     if (!situation) {
@@ -274,6 +276,7 @@ export function build(
         phraseIndex = undefined;
         ask = 'code';
         askFrom = written.source;
+        askBuild[0] = written.build ?? null;
       }
     } else if (missing) gap(then, missing.marker, first, missing.detail);
   }
@@ -319,10 +322,14 @@ export function build(
         )
       : [];
     let text = order[0]?.text;
+    let resumeBuild: AskBuild | null = null;
     if (text === undefined && ctx.fallback) {
-      text = codeAsk('resume', atoms, ctx.units).text;
+      const written = codeAsk('resume', atoms, ctx.units);
+      text = written.text;
+      resumeBuild = written.build ?? null;
       ask = ask === 'bank' ? 'code' : ask;
     }
+    askBuild.push(resumeBuild);
     if (text === undefined) gap(then, MARKERS.phrase, first, `a resume situation for ${first.id}`);
     blocks.push({
       id: 'resume',
@@ -476,6 +483,7 @@ export function build(
         phrase: phraseIndex ?? null,
         ask,
         ...(askFrom ? { askFrom } : {}),
+        ...(askBuild.some((entry) => entry !== null) ? { askBuild } : {}),
         outcome,
         ...(unit !== undefined && typeof unit !== 'string' ? { unit } : {}),
         ...(then.judged.length > 0 ? { judged: then.judged } : {}),

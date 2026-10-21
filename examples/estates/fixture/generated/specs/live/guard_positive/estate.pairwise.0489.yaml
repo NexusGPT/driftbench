@@ -64,6 +64,13 @@ metadata:
     phrase: null
     ask: code
     askFrom: instruction.shipment-tracker.always-pass-the-carrier-code-to (enforced by guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: run a command in the shell here
+        spans: []
+        tool:
+          atom: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+          name: Bash
     outcome: no-change:guard
   links:
     - block: ask

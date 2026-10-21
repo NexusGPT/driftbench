@@ -479,9 +479,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1417,
       blocks: 1412,
-      complete: 1399,
-      incomplete: 18,
-      judged: 777,
+      complete: 1412,
+      incomplete: 5,
+      judged: 778,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -567,7 +567,8 @@ describe('a live guard_positive row forces the act', () => {
         estate(only(byId, record.id)).mode === 'live',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
-    expect(when?.user).toBe('Please delete a file under ledger/.');
+    // The rule it enforces declares no request clause: the ask is the fixed act of the tool the guard watches.
+    expect(when?.user).toBe('Please run a command in the shell here.');
   });
 
   it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {
