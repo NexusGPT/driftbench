@@ -242,3 +242,47 @@ export function gwetAc1(a: readonly number[], b: readonly number[]): number {
   const pe = spread / (q - 1);
   return (agree / n - pe) / (1 - pe);
 }
+
+/**
+ * Weighted kappa from a square table of counts, one row and column per ordered category: cell [i][j] counts the
+ * subjects rater A put in category i and rater B in category j. With the disagreement weight w_ij = |i - j|
+ * (linear) or (i - j)^2 (quadratic), the result is 1 - D_o / D_e, D_o = sum(w_ij t_ij) / n and
+ * D_e = sum(w_ij r_i c_j) / n^2. One category in use by both raters (D_e = 0) gives 1.
+ */
+export function weightedKappa(
+  table: readonly (readonly number[])[],
+  weights: 'linear' | 'quadratic',
+): number {
+  if (weights !== 'linear' && weights !== 'quadratic')
+    throw new RangeError(`weightedKappa: weights must be 'linear' or 'quadratic', got ${weights}`);
+  const k = table.length;
+  if (k === 0) throw new RangeError('weightedKappa: table must have at least one row');
+  const rows = new Array<number>(k).fill(0);
+  const cols = new Array<number>(k).fill(0);
+  let n = 0;
+  for (let i = 0; i < k; i += 1) {
+    const row = table[i] as readonly number[];
+    if (row.length !== k) throw new RangeError(`weightedKappa: row ${i} of ${k} has ${row.length} cells`);
+    for (let j = 0; j < k; j += 1) {
+      const count = row[j] as number;
+      if (!Number.isSafeInteger(count) || count < 0)
+        throw new RangeError(`weightedKappa: cell [${i}][${j}] must be a non-negative integer, got ${count}`);
+      rows[i] = (rows[i] as number) + count;
+      cols[j] = (cols[j] as number) + count;
+      n += count;
+    }
+  }
+  if (n === 0) throw new RangeError('weightedKappa: table has no subject (every cell is 0)');
+  let observed = 0;
+  let expected = 0;
+  for (let i = 0; i < k; i += 1) {
+    for (let j = 0; j < k; j += 1) {
+      const d = Math.abs(i - j);
+      const w = weights === 'linear' ? d : d * d;
+      observed += w * ((table[i] as readonly number[])[j] as number);
+      expected += w * (rows[i] as number) * (cols[j] as number);
+    }
+  }
+  if (expected === 0) return 1;
+  return 1 - observed / n / (expected / (n * n));
+}

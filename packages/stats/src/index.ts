@@ -13,8 +13,11 @@ export {
   kappaInterval,
   krippendorffAlpha,
   type Label,
+  weightedKappa,
 } from './agreement';
+export { kishDesignEffect, proportionalAllocation } from './allocation';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { betaTailProbability } from './bayes';
 export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
 export {
   abundances,
@@ -27,6 +30,7 @@ export {
   hillNumbers,
 } from './coverage';
 export { median } from './descriptive';
+export { minimumDetectableMeanDifference } from './design-power';
 export { totalVariationDistance } from './divergence';
 export {
   type Alarm,
@@ -46,6 +50,7 @@ export {
   type EffectiveWilsonOptions,
   wilsonEffective,
 } from './effective';
+export { hypergeometricPmf, signTestExact } from './exact';
 export {
   type HierarchicalInterval,
   type HierarchicalOptions,
@@ -62,13 +67,26 @@ export {
   effectiveSampleSize,
   type Interval,
   kishEffectiveSize,
+  ruleOfThreeUpperBound,
   wilson,
   Z95,
   zeroFailureBound,
   zFor,
 } from './intervals';
 export { geometricMean, harmonicMean } from './means';
+export {
+  type GroupCoverage,
+  type MixedStrengthCoverageResult,
+  mixedStrengthCoverage,
+  type StrengthGroup,
+} from './mixed-strength';
+export {
+  type MixtureWeightsOptions,
+  type MixtureWeightsResult,
+  mixtureWeights,
+} from './mixture';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
+export { wilcoxonSignedRankExactP } from './nonparametric';
 export {
   type McNemarMidPResult,
   type McNemarOptions,
@@ -96,9 +114,15 @@ export {
   type SampleSizeForEffectResult,
   sampleSizeForEffect,
 } from './power';
-export { bonferroniThreshold } from './rates';
+export { bonferroniThreshold, familywiseErrorRate, sidakThreshold } from './rates';
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
+export {
+  sampleSizeMeanMargin,
+  sampleSizeProportionMargin,
+  sampleSizeTwoMeans,
+  sampleSizeTwoProportions,
+} from './sample-size';
 export {
   type CoverageCell,
   type CoverageMethod,
@@ -140,3 +164,4 @@ export {
   type VarianceComponentsResult,
   varianceComponents,
 } from './variance';
+export { jackknifeMeanVariance } from './variance-estimates';
