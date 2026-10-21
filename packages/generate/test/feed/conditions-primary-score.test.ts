@@ -29,7 +29,9 @@ describe('the pre-registered primary planted-condition rule', () => {
     expect(primaryScore(gold, outcomes, known)).toMatchObject({
       correct: 1, assigned: 3, planted: 1, falsePositives: 2, falseNegatives: 0,
     });
-    expect(primaryScore([{ ...existing[0], conditions: [existing[0]?.conditions[0], existing[0]?.conditions[0]] }], [outcomes[0]], known).correct).toBe(1);
+    expect(primaryScore([{ id: 's', kind: 'existing', conditions: [
+      { variable: 'delay', value: 'late' }, { variable: 'delay', value: 'late' },
+    ] }], [{ span: 's', status: 'matched', values: ['delay/late'] }], known).correct).toBe(1);
   });
 
   it('counts failed and absent spans as misses', () => {

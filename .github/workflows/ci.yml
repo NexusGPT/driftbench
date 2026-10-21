@@ -627,4 +627,4 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - run: pnpm exec vitest run packages/generate/test/feed/judge-reader.test.ts packages/generate/test/feed/conditions-primary-score.test.ts --maxWorkers=2
+      - run: pnpm exec vitest run packages/generate/test/feed/judge-reader.test.ts packages/generate/test/feed/conditions-primary-score.test.ts packages/generate/test/feed/scoped-proposer.test.ts --maxWorkers=2
