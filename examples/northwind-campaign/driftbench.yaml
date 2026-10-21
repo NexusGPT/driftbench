@@ -1,0 +1,28 @@
+# The Northwind campaign: four code-agent tasks on the Northwind fixture estate, played by simulated users
+# (personas with recorded answers), with parent blocks, the value check, blame and the scorecard.
+# Run it from the repository root; the README lists the commands. Paths here are read from the working folder,
+# except `plugins`, which is relative to this file.
+plugins:
+  - ./plugin.mjs
+
+campaign:
+  specs: [examples/northwind-campaign/specs]
+  targets: [claude-code:northwind]
+  modes: [F]
+  repeats: 2
+  concurrency: 2
+  cache: false
+  store: out/northwind-campaign/campaign.db
+  budget_usd: 8
+  driver: simulated
+  personas:
+    - examples/northwind-campaign/personas/nora-whitfield.yaml
+    - examples/northwind-campaign/personas/omar-haddad.yaml
+    - examples/northwind-campaign/personas/priya-nand.yaml
+    - examples/northwind-campaign/personas/marta-lindqvist.yaml
+  recordings:
+    - examples/northwind-campaign/personas/recordings/nora-whitfield.yaml
+    - examples/northwind-campaign/personas/recordings/omar-haddad.yaml
+    - examples/northwind-campaign/personas/recordings/priya-nand.yaml
+    - examples/northwind-campaign/personas/recordings/marta-lindqvist.yaml
+  agent_family: anthropic

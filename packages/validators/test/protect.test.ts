@@ -109,11 +109,14 @@ const FAST_TIMEOUT = 10;
 const AFFECTED_CONDITION =
   "github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') && !startsWith(github.head_ref, 'release/') && !github.event.pull_request.draft";
 const AFFECTED_TIMEOUT = 45;
+/** The affected tests run in this many slices; the verdict job `pr affected` joins them. */
+const AFFECTED_SHARDS = 8;
 /**
  * The affected tests are those changed against the PR's own base branch, read from the environment: a PR into
- * release/next runs its own delta, never the whole difference between release/next and main.
+ * release/next runs its own delta, never the whole difference between release/next and main. Each slice lists the
+ * same affected files and runs its own share (tools/ci/affected-shard.mjs).
  */
-const AFFECTED_COMMAND = 'pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests';
+const AFFECTED_COMMAND = `node tools/ci/affected-shard.mjs --base "origin/$BASE_REF" --count ${AFFECTED_SHARDS} --index "$SHARD"`;
 const AFFECTED_FETCH = 'git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"';
 const BASE_REF_ENV = '${{ github.base_ref }}';
 
@@ -288,9 +291,17 @@ function assertConcurrency(workflow: ReturnType<typeof parse>) {
   ])
     expect(cancel(ctx)).toBe(false);
   expect(cancel(ORDINARY_PR)).toBe(true);
-  expect(cancel(TRAIN_PR)).toBe(false);
+  // a newer push to a train PR cancels its older run: only the latest head of a train can merge
+  expect(cancel(TRAIN_PR)).toBe(true);
+  // the release PR is never cancelled, and neither is a look-alike treated as one
   expect(cancel(RELEASE_PR)).toBe(false);
   expect(cancel(FEATURE_PR)).toBe(true);
+  for (const ctx of LOOKALIKE_PRS) expect(cancel(ctx), ctx.headRef).toBe(true);
+  // a run is cancelled by a newer run of the same PR only: one group per PR, none shared with a push or a dispatch
+  expect(group(TRAIN_PR)).toBe(group({ ...TRAIN_PR, runId: '78' }));
+  expect(group(TRAIN_PR)).not.toBe(group(ORDINARY_PR));
+  expect(group(TRAIN_PR)).not.toBe(group(push('1')));
+  expect(group(TRAIN_PR)).not.toBe(group({ ...dispatchOn('refs/heads/train/9a', 'build'), runId: '5' }));
   expect(group(ORDINARY_PR)).toBe(group({ ...ORDINARY_PR, runId: '77' }));
 }
 
@@ -601,7 +612,7 @@ function assertTimingGuard(workflow: ReturnType<typeof parse>) {
   const timing = workflow.jobs.timing;
   expect(timing.env?.DRIFTBENCH_TIMING_TESTS).toBe('only');
   expect(timing['runs-on']).toBe('ubuntu-latest');
-  for (const id of ['build', 'pr-affected'])
+  for (const id of ['build', 'pr-affected-shard'])
     expect(workflow.jobs[id].env?.DRIFTBENCH_TIMING_TESTS, id).toBe('skip');
   for (const [id, job] of Object.entries(workflow.jobs) as [string, { env?: Record<string, string> }][])
     if (id !== 'timing') expect(job.env?.DRIFTBENCH_TIMING_TESTS, id).not.toBe('only');
@@ -793,6 +804,7 @@ function assertGateWaits(workflow: ReturnType<typeof parse>) {
   // the fast and affected jobs are never inputs to the gate, so neither is a train pass
   expect(job.needs).not.toContain('pr-fast');
   expect(job.needs).not.toContain('pr-affected');
+  expect(job.needs).not.toContain('pr-affected-shard');
   const step = job.steps.find((s: { run?: string }) => s.run);
   expect(step.env.RESULTS).toBe("${{ join(needs.*.result, ',') }}");
   expect(step.run).not.toContain('${{');
@@ -819,45 +831,105 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(JSON.stringify(workflow.jobs['pr-fast'].steps)).not.toMatch(/--changed|Tests affected/);
 }
 
-/** pr affected runs on ordinary pull requests only: not on a draft, a stacked PR (base not main), a train PR, a push or a dispatch. */
-function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
-  const job = workflow.jobs['pr-affected'];
-  expect(job.name).toBe('pr affected');
-  expect(job.if).toBe(AFFECTED_CONDITION);
-  expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
-  const affected = (ctx: Ctx) => runs(ctx, 'pr-affected', workflow);
-  expect(affected(ORDINARY_PR)).toBe(true);
-  expect(affected({ ...ORDINARY_PR, draft: true })).toBe(false);
-  // a stacked PR runs its own delta against its base (#1006), so it is no longer skipped
-  expect(affected({ ...ORDINARY_PR, baseRef: 'feature/stack' })).toBe(true);
-  expect(affected(TRAIN_PR)).toBe(false);
-  expect(affected(RELEASE_PR)).toBe(false);
-  expect(affected(FEATURE_PR)).toBe(true);
-  expect(affected(MAIN_PUSH)).toBe(false);
-  for (const jobs of ['fast', 'build', 'fast,build', ''])
-    expect(affected(dispatchOn('refs/heads/train/pre-9', jobs))).toBe(false);
-  expect(job.steps[0].with['fetch-depth']).toBe(0);
-  const commands = job.steps.map((step: { run?: string }) => step.run);
+/**
+ * What the join of `pr affected` answers. The slices are one matrix job, so GitHub hands the join one aggregate in
+ * `needs.<job>.result`: `success`, `failure`, `cancelled` or `skipped`. Only `success` is green; an empty or unknown
+ * value is red too.
+ */
+const AFFECTED_GATE_RESULTS: [string, number][] = [
+  ['success', 0],
+  ['failure', 1],
+  ['cancelled', 1],
+  ['skipped', 1],
+  ['', 1],
+  ['unknown', 1],
+  ['success,failure', 1],
+  ['success,success', 1],
+];
+
+function assertAffectedGate(command: string) {
+  for (const [results, expected] of AFFECTED_GATE_RESULTS) {
+    const result = spawnSync('bash', ['-c', command], {
+      encoding: 'utf8',
+      env: { ...process.env, RESULTS: results },
+    });
+    expect(result.status, JSON.stringify(results)).toBe(expected);
+    if (expected === 1) expect(result.stdout).toMatch(/::error::/);
+  }
+}
+
+/**
+ * The slices of `pr affected` and the job that joins them, the same shape in ci.yml and in the retarget workflow: the
+ * affected tests run in AFFECTED_SHARDS slices, and the join is red unless every slice succeeded.
+ */
+function assertAffectedJobs(workflow: ReturnType<typeof parse>, shardId: string, joinId: string) {
+  const shard = workflow.jobs[shardId];
+  const join = workflow.jobs[joinId];
+  expect(shard['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
+  expect(shard.strategy['fail-fast']).toBe(false);
+  // the matrix holds every slice of the command, none twice: a slice left out is a share of the tests left unrun
+  expect(shard.strategy.matrix.shard).toEqual(Array.from({ length: AFFECTED_SHARDS }, (_, at) => at + 1));
+  expect(shard.env?.DRIFTBENCH_TIMING_TESTS).toBe('skip');
+  expect([join.needs].flat(), 'the join waits for every slice').toEqual([shardId]);
+  const gate = (join.steps as { run?: string; env?: Record<string, string>; if?: string }[]).find(
+    (step) => step.env?.RESULTS !== undefined,
+  );
+  expect(gate, `${joinId} gates on the results of its slices`).toBeDefined();
+  expect(gate?.env?.RESULTS).toBe("${{ join(needs.*.result, ',') }}");
+  expect(gate?.run).not.toContain('${{');
+  expect(gate?.if).toBeUndefined();
+  assertAffectedGate(gate?.run as string);
+  expect(shard.steps[0].with['fetch-depth']).toBe(0);
+  const commands = shard.steps.map((step: { run?: string }) => step.run);
   expect(commands).toContain(AFFECTED_COMMAND);
   // the base branch is fetched, then the affected tests diff against it; both read it from the environment
-  const test = job.steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND);
-  const fetch = job.steps.find((step: { run?: string }) => step.run === AFFECTED_FETCH);
+  const test = shard.steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND);
+  const fetch = shard.steps.find((step: { run?: string }) => step.run === AFFECTED_FETCH);
   expect(fetch, 'base fetch step').toBeDefined();
   expect(commands.indexOf(AFFECTED_FETCH)).toBeLessThan(commands.indexOf(AFFECTED_COMMAND));
   for (const step of [test, fetch]) {
     expect(step.env?.BASE_REF).toBe(BASE_REF_ENV);
     expect(step.run).not.toContain('${{');
   }
+  // the slice index comes from the matrix, through the environment
+  expect(test.env.SHARD).toBe('${{ matrix.shard }}');
   // a PR into release/next compares with release/next, a PR into main with main
   for (const base of ['release/next', 'main'])
     expect(evaluateTemplate(test.env.BASE_REF, { ...FEATURE_PR, baseRef: base })).toBe(base);
-  expect(JSON.stringify(job.steps)).not.toContain('--changed origin/main');
+  expect(JSON.stringify(shard.steps)).not.toContain('--changed origin/main');
   // the tests verify the build stamp, so the build gate runs before them
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeGreaterThan(-1);
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
     commands.indexOf(AFFECTED_COMMAND),
   );
-  for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+  for (const step of shard.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+}
+
+/** pr affected runs on ordinary pull requests only: not on a draft, a train PR, a release PR, a push or a dispatch. */
+function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
+  assertAffectedJobs(workflow, 'pr-affected-shard', 'pr-affected');
+  const shard = workflow.jobs['pr-affected-shard'];
+  const join = workflow.jobs['pr-affected'];
+  expect(join.name).toBe('pr affected');
+  expect(shard.name).toBe(`pr affected shard \${{ matrix.shard }}/${AFFECTED_SHARDS}`);
+  expect(shard.if).toBe(AFFECTED_CONDITION);
+  expect(join.if).toBe(`always() && (${AFFECTED_CONDITION})`);
+  // the slices wait for pr fast and only for it: a head that fails pr fast spends none of them
+  expect([shard.needs].flat(), 'the slices wait for pr fast').toEqual(['pr-fast']);
+  expect(join['timeout-minutes']).toBeLessThanOrEqual(10);
+  for (const id of ['pr-affected-shard', 'pr-affected']) {
+    const affected = (ctx: Ctx) => runs(ctx, id, workflow);
+    expect(affected(ORDINARY_PR), id).toBe(true);
+    expect(affected({ ...ORDINARY_PR, draft: true }), id).toBe(false);
+    // a stacked PR runs its own delta against its base (#1006), so it is no longer skipped
+    expect(affected({ ...ORDINARY_PR, baseRef: 'feature/stack' }), id).toBe(true);
+    expect(affected(TRAIN_PR), id).toBe(false);
+    expect(affected(RELEASE_PR), id).toBe(false);
+    expect(affected(FEATURE_PR), id).toBe(true);
+    expect(affected(MAIN_PUSH), id).toBe(false);
+    for (const jobs of ['fast', 'build', 'fast,build', ''])
+      expect(affected(dispatchOn('refs/heads/train/pre-9', jobs)), id).toBe(false);
+  }
 }
 
 /**
@@ -867,25 +939,32 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
 function assertRetargetBehaviour(retarget: ReturnType<typeof parse>, ci: ReturnType<typeof parse>) {
   expect(ci.on.pull_request.types).not.toContain('edited');
   expect(retarget.on).toEqual({ pull_request: { types: ['edited'] } });
-  const job = retarget.jobs['pr-affected-retarget'];
-  expect(Object.keys(retarget.jobs)).toEqual(['pr-affected-retarget']);
+  expect(Object.keys(retarget.jobs)).toEqual(['pr-affected-retarget-shard', 'pr-affected-retarget']);
+  assertAffectedJobs(retarget, 'pr-affected-retarget-shard', 'pr-affected-retarget');
   // a name no reader or merge train looks up: it never stands in for `pr affected`
-  expect(job.name).toBe('pr affected (retarget)');
-  expect(job['timeout-minutes']).toBe(AFFECTED_TIMEOUT);
-  const retargeted = (ctx: Ctx) => runs(ctx, 'pr-affected-retarget', retarget);
+  expect(retarget.jobs['pr-affected-retarget'].name).toBe('pr affected (retarget)');
+  expect(retarget.jobs['pr-affected-retarget-shard'].name).toBe(
+    `pr affected shard (retarget) \${{ matrix.shard }}/${AFFECTED_SHARDS}`,
+  );
+  expect(retarget.jobs['pr-affected-retarget']['timeout-minutes']).toBeLessThanOrEqual(10);
+  for (const id of ['pr-affected-retarget-shard', 'pr-affected-retarget']) {
+    const retargeted = (ctx: Ctx) => runs(ctx, id, retarget);
+    const toMain: Ctx = { ...ORDINARY_PR, baseChanged: true };
+    expect(retargeted(toMain), id).toBe(true);
+    // a title or body edit changes no base
+    expect(retargeted({ ...toMain, baseChanged: false }), id).toBe(false);
+    // a base change to any branch counts: the affected tests are read against the new base
+    expect(retargeted({ ...toMain, baseRef: 'release/next' }), id).toBe(true);
+    expect(retargeted({ ...toMain, baseRef: 'feature/stack' }), id).toBe(true);
+    // a draft, a train PR and a release PR are skipped as in ci.yml
+    expect(retargeted({ ...toMain, draft: true }), id).toBe(false);
+    expect(retargeted({ ...TRAIN_PR, baseChanged: true }), id).toBe(false);
+    expect(retargeted({ ...RELEASE_PR, baseChanged: true }), id).toBe(false);
+  }
   const toMain: Ctx = { ...ORDINARY_PR, baseChanged: true };
-  expect(retargeted(toMain)).toBe(true);
-  // a title or body edit changes no base
-  expect(retargeted({ ...toMain, baseChanged: false })).toBe(false);
-  // a base change to any branch counts: the affected tests are read against the new base
-  expect(retargeted({ ...toMain, baseRef: 'release/next' })).toBe(true);
-  expect(retargeted({ ...toMain, baseRef: 'feature/stack' })).toBe(true);
-  // a draft, a train PR and a release PR are skipped as in ci.yml
-  expect(retargeted({ ...toMain, draft: true })).toBe(false);
-  expect(retargeted({ ...TRAIN_PR, baseChanged: true })).toBe(false);
-  expect(retargeted({ ...RELEASE_PR, baseChanged: true })).toBe(false);
-  // the same steps as pr affected in ci.yml
-  expect(job.steps).toEqual(ci.jobs['pr-affected'].steps);
+  // the same steps as the slices of pr affected in ci.yml, and the same join
+  expect(retarget.jobs['pr-affected-retarget-shard'].steps).toEqual(ci.jobs['pr-affected-shard'].steps);
+  expect(retarget.jobs['pr-affected-retarget'].steps).toEqual(ci.jobs['pr-affected'].steps);
   // two edits never cancel each other: a title edit must not cancel a retarget run in flight
   expect(String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '1' }))).not.toBe(
     String(evaluateTemplate(retarget.concurrency.group, { ...toMain, runId: '2' })),
@@ -1510,41 +1589,91 @@ describe('merge train enforcement', () => {
   it('reports the affected tests in a separate job that is not required and not a gate input', () => {
     assertAffectedBehaviour(workflow);
     assertGateWaits(workflow);
-    const missing = structuredClone(workflow);
-    delete missing.jobs['pr-affected'];
-    expect(() => assertAffectedBehaviour(missing)).toThrow();
-    for (const [field, value] of [
-      ['if', "github.event_name == 'pull_request'"],
-      ['timeout-minutes', 20],
+    for (const id of ['pr-affected', 'pr-affected-shard']) {
+      const missing = structuredClone(workflow);
+      delete missing.jobs[id];
+      expect(() => assertAffectedBehaviour(missing), id).toThrow();
+    }
+    for (const [id, field, value] of [
+      ['pr-affected-shard', 'if', "github.event_name == 'pull_request'"],
+      ['pr-affected-shard', 'timeout-minutes', 20],
+      ['pr-affected', 'if', "github.event_name == 'pull_request'"],
     ] as const) {
       const changed = structuredClone(workflow);
-      changed.jobs['pr-affected'][field] = value;
-      expect(() => assertAffectedBehaviour(changed), field).toThrow();
+      changed.jobs[id][field] = value;
+      expect(() => assertAffectedBehaviour(changed), `${id} ${field}`).toThrow();
     }
+    const shard = (w: ReturnType<typeof parse>) => w.jobs['pr-affected-shard'];
+    const stepOf = (w: ReturnType<typeof parse>, command: string) =>
+      shard(w).steps.find((step: { run?: string }) => step.run === command);
     const noBuild = structuredClone(workflow);
-    noBuild.jobs['pr-affected'].steps = noBuild.jobs['pr-affected'].steps.filter(
+    shard(noBuild).steps = shard(noBuild).steps.filter(
       (step: { run?: string }) => step.run !== 'node tools/structure/api-surface.mjs --build --check',
     );
     expect(() => assertAffectedBehaviour(noBuild)).toThrow();
-    const wrongBase = structuredClone(workflow);
-    wrongBase.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
-      'pnpm test --maxWorkers=2 --changed origin/main~1 --passWithNoTests';
-    expect(() => assertAffectedBehaviour(wrongBase)).toThrow();
-    // the old fixed base: a PR into release/next would run all of release/next's difference from main
-    const fixedMain = structuredClone(workflow);
-    fixedMain.jobs['pr-affected'].steps.find((step: { run?: string }) => step.run === AFFECTED_COMMAND).run =
-      'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests';
-    expect(() => assertAffectedBehaviour(fixedMain)).toThrow();
+    // the old shapes: a whole-suite run, a fixed base, the unsharded --changed command
+    for (const run of [
+      'pnpm test --maxWorkers=2 --changed origin/main~1 --passWithNoTests',
+      'pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests',
+      'pnpm test --maxWorkers=2 --changed "origin/$BASE_REF" --passWithNoTests',
+      AFFECTED_COMMAND.replace('"origin/$BASE_REF"', 'origin/main'),
+      AFFECTED_COMMAND.replace(`--count ${AFFECTED_SHARDS}`, `--count ${AFFECTED_SHARDS - 1}`),
+    ]) {
+      const wrong = structuredClone(workflow);
+      (stepOf(wrong, AFFECTED_COMMAND) as { run: string }).run = run;
+      expect(() => assertAffectedBehaviour(wrong), run).toThrow();
+    }
     const noFetch = structuredClone(workflow);
-    noFetch.jobs['pr-affected'].steps = noFetch.jobs['pr-affected'].steps.filter(
+    shard(noFetch).steps = shard(noFetch).steps.filter(
       (step: { run?: string }) => step.run !== AFFECTED_FETCH,
     );
     expect(() => assertAffectedBehaviour(noFetch)).toThrow();
     const inline = structuredClone(workflow);
-    inline.jobs['pr-affected'].steps.find(
-      (step: { run?: string }) => step.run === AFFECTED_COMMAND,
-    ).env.BASE_REF = '${{ github.head_ref }}';
+    (stepOf(inline, AFFECTED_COMMAND) as { env: Record<string, string> }).env.BASE_REF =
+      '${{ github.head_ref }}';
     expect(() => assertAffectedBehaviour(inline)).toThrow();
+    // a slice left out of the matrix is a share of the tests left unrun; a slice twice is wasted
+    for (const shards of [
+      [1, 2, 3, 4, 5, 6, 7],
+      [1, 2, 3, 4, 5, 6, 7, 8, 8],
+      [2, 3, 4, 5, 6, 7, 8, 9],
+    ]) {
+      const odd = structuredClone(workflow);
+      shard(odd).strategy.matrix.shard = shards;
+      expect(() => assertAffectedBehaviour(odd), shards.join()).toThrow();
+    }
+    // the join is red unless every slice succeeded, and waits for the slices
+    const noGate = structuredClone(workflow);
+    noGate.jobs['pr-affected'].steps = noGate.jobs['pr-affected'].steps.filter(
+      (step: { env?: unknown }) => !step.env,
+    );
+    expect(() => assertAffectedBehaviour(noGate)).toThrow();
+    // planted gates that admit a result they must refuse: the gate test must fail on each
+    const gateOf = (w: ReturnType<typeof parse>) =>
+      w.jobs['pr-affected'].steps.find((step: { env?: unknown }) => step.env) as { run: string };
+    for (const planted of [
+      'case "$RESULTS" in cancelled|skipped) exit 0;; esac\n',
+      'case "$RESULTS" in cancelled) exit 0;; esac\n',
+      'case "$RESULTS" in skipped) exit 0;; esac\n',
+      'if [[ -z "$RESULTS" ]]; then exit 0; fi\n',
+      'if [[ "$RESULTS" == unknown ]]; then exit 0; fi\n',
+    ]) {
+      const planting = structuredClone(workflow);
+      gateOf(planting).run = planted + gateOf(planting).run;
+      expect(() => assertAffectedBehaviour(planting), planted).toThrow();
+    }
+    for (const needs of [undefined, [], ['pr-fast', 'build'], ['checks']]) {
+      const unordered = structuredClone(workflow);
+      if (needs === undefined) delete unordered.jobs['pr-affected-shard'].needs;
+      else unordered.jobs['pr-affected-shard'].needs = needs;
+      expect(() => assertAffectedBehaviour(unordered), JSON.stringify(needs)).toThrow();
+    }
+    const noNeeds = structuredClone(workflow);
+    noNeeds.jobs['pr-affected'].needs = [];
+    expect(() => assertAffectedBehaviour(noNeeds)).toThrow();
+    const lenient = structuredClone(workflow);
+    lenient.jobs['pr-affected'].steps.find((step: { env?: unknown }) => step.env).run = 'exit 0';
+    expect(() => assertAffectedBehaviour(lenient)).toThrow();
     const gated = structuredClone(workflow);
     gated.jobs['train-gate'].needs.push('pr-affected');
     expect(() => assertGateWaits(gated)).toThrow();
@@ -1558,16 +1687,16 @@ describe('merge train enforcement', () => {
     onEdit.on.pull_request.types.push('edited');
     expect(() => assertRetargetBehaviour(retarget, onEdit)).toThrow();
     const anyEdit = structuredClone(retarget);
-    anyEdit.jobs['pr-affected-retarget'].if = "github.event.pull_request.base.ref == 'main'";
+    anyEdit.jobs['pr-affected-retarget-shard'].if = "github.event.pull_request.base.ref == 'main'";
     expect(() => assertRetargetBehaviour(anyEdit, workflow)).toThrow();
     const mainOnly = structuredClone(retarget);
-    mainOnly.jobs['pr-affected-retarget'].if += " && github.event.pull_request.base.ref == 'main'";
+    mainOnly.jobs['pr-affected-retarget-shard'].if += " && github.event.pull_request.base.ref == 'main'";
     expect(() => assertRetargetBehaviour(mainOnly, workflow)).toThrow();
     const sameName = structuredClone(retarget);
     sameName.jobs['pr-affected-retarget'].name = 'pr affected';
     expect(() => assertRetargetBehaviour(sameName, workflow)).toThrow();
     const drifted = structuredClone(retarget);
-    drifted.jobs['pr-affected-retarget'].steps.pop();
+    drifted.jobs['pr-affected-retarget-shard'].steps.pop();
     expect(() => assertRetargetBehaviour(drifted, workflow)).toThrow();
   });
   it('always runs the docs checks in the fast job, and fails if a docs step is removed or made conditional', () => {

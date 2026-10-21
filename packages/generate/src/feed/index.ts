@@ -40,6 +40,7 @@ export {
   type JevReaderOptions,
   type JevUsage,
 } from './jev';
+export { type ConditionJudge, createJudgeConditionReader } from './judge-reader';
 export {
   type FeedLogsInput,
   type FeedLogsResult,
@@ -48,6 +49,7 @@ export {
   type LogScope,
   type ScopeOverride,
 } from './logs';
+export { createConditionReader } from './model-reader';
 export {
   assertOutsideRepository,
   type Conversation,
@@ -67,3 +69,4 @@ export {
   type ReaderQuestion,
   type YesNoQuestion,
 } from './reader';
+export { createScopedConditionProposer } from './scoped-proposer';

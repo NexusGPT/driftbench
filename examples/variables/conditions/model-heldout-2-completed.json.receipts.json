@@ -1,0 +1,984 @@
+{
+  "spentUsd": 0.6339660000000001,
+  "inputTokens": 50169,
+  "outputTokens": 6346,
+  "receipts": [
+    {
+      "id": "msg_011CgF9J3swfDPe67mhwh8nW",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1374,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005068,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause covers only a supplier that has a row in the language table, who is addressed in that row's language. Only the questions about that situation get true.\n\n- \"A supplier is in the language table\" matches the clause, so it is true.\n- \"A supplier is not in the language table\" is the opposite case and is not specified, so it is false.\n- \"A supplier has two languages listed\" is not specified, so it is false.\n- All the other questions concern shipments, sessions, invoices, helper agents, approvals or carrier replies, which the clause does not address, so they are false.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9JGMnAg9R7RJeUGqgm",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1382,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 278,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005544,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause is about a user giving a conditional yes (approval with a condition), and the action is to send nothing yet. Each candidate is judged on whether it names that situation.\n\n- The shipment lateness, session state, invoice work, helper agent and supplier candidates are all unrelated to a conditional yes, so they are false.\n- \"A person whose approval is needed has not answered\" is a different situation, since the clause is about an answer that comes with a condition, so it is false.\n- \"A person gave an explicit yes\" is an unconditional yes, which is the opposite of the clause, so it is false.\n- The carrier candidates are unrelated, so they are false.\n\nAll 26 answers are false.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9JUbjdQ3YuArvGT6Bo",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1379,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004338,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is that the session context has been compacted. The agent should not reuse a tracking number from memory in that case, and should ask again. Only the question about the session just being compacted matches this trigger. The compacted-twice question names a narrower situation than the clause covers, so it is a different condition.\n\n{\"answers\":[false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9JeRapqkkXGhuBWNzQ",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1373,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004616,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause covers one situation: a helper answers after the report is already filed. None of the candidate triggers describe that situation, so every answer is false.\n\nSeveral candidates touch on helpers (dispatched, died, named in the routing table, dispatched twice), but none is a helper answering after the report is filed. The approval, session, invoice, supplier, carrier and shipment candidates are unrelated.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9JqcXpT5D7FWvuqi6F",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1376,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004482,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is that the supplier is Fabrikam Housewares. Of the candidates, only the supplier-related ones could match, and none of them names that supplier. \"A supplier is not in the language table\", \"is in the language table\" and \"has two languages listed\" are all different conditions. Every other candidate concerns a different topic, so all are false.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9K1vtqFR8WMxpdrT7Y",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1385,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 296,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.00573,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is an invoice and order differing by more than 50 EUR in total, so only the invoice-difference candidates can match.\n\n- **Total difference above 50.00 EUR:** \"more than 50 EUR in total\" is the same condition as \"above 50.00 EUR\", so this is true.\n- **Single invoice line differing by more than 50 EUR:** the clause speaks of a total difference, not a single line, so this is false.\n- **Shipment lateness, session state, helper agents, approvals, suppliers and carrier answers:** the clause says nothing about any of these, so all are false.\n- **Invoice about to be edited or deleted, or older than 30 days:** none of these is mentioned, so all are false.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9KC1cHq35ahzbBGCnX",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1371,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 63,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003372,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9KL735pdGr5XvGXkyL",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1374,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004678,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's trigger is: the supplier's row in the table has no language filled in. Only one candidate matches that situation.\n\n\"A supplier is not in the language table\" is different. The clause covers a row that exists but has an empty language field, not a missing row. I answered false for that one.\n\nAll other candidates concern unrelated situations: shipment lateness, session state, invoices, helper agents, approvals and carrier replies.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9KVjy5nCJNCXK1VT37",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1374,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004398,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause only covers an order total above 5,000 EUR, so none of the candidate situations match it. The invoice difference of 50.00 EUR is a different quantity from the order total, and the other candidates concern shipments, sessions, helper agents, approvals, suppliers and carriers, none of which the clause mentions.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9KepAuZZR3Utn5hq7i",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1371,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 63,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003372,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9KodkGZY3LHXy2XyrN",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1374,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 123,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003978,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause only specifies the situation of being just before editing an invoice file. Only the question about an invoice file about to be edited matches that. The other questions, including invoice deletion, are different situations.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9Kxb1EVjKWRUTQDm7M",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1382,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004144,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says: before a helper is started, write the brief. So the only trigger it specifies is a helper agent about to be dispatched. The question \"A helper agent was dispatched twice for the same invoice?\" is a different situation, so it does not match.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9L7YG78whXaik3jjfm",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1374,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004718,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause triggers when a delivery is more than 36 hours late. Each question is judged against that exact condition.\n\n- \"More than two days\" (48 hours) is a different threshold, so no.\n- \"More than one day\" (24 hours) is also different, so no.\n- Lost, no late shipments, exactly two days late, and every session, invoice, helper agent, approval, supplier and carrier-answer question are not specified, so no.\n\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9LHyZnbNVvPwAQAfvx",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 999,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003438,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause states a situation: a delivery more than 36 hours late. That matches the variable shipment_delay, which covers how late a shipment is. The existing values use days, and 36 hours is 1.5 days, so this is a new threshold.\n\n{\"variable\":{\"id\":\"shipment_delay\",\"title\":\"How late a shipment is\"},\"value\":{\"id\":\"late_over_36_hours\",\"title\":\"A shipment is late by more than 36 hours\"}}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9LSLN9FfbWTWkKE6Tm",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1416,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 338,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.006212,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause only covers starting a helper agent before its brief names the files it may touch. Of the candidates, only the two about a helper agent being about to be dispatched or started match that situation.\n\nFor the \"helper agent is about to be dispatched\" question, the clause says an agent may not be started before the brief names the files. That is the dispatch situation, so it counts as a trigger.\n\nFor \"dispatched twice for the same invoice\", the clause says nothing about repeat dispatches, so it does not match.\n\nFor \"An invoice file is about to be edited\" and \"an invoice is about to be deleted\", the clause is about starting a helper agent, not editing or deleting invoices, so neither matches.\n\nAll other candidates (shipment lateness, session state, approvals, suppliers, carrier replies, a helper dying, a helper named in the routing table) are not mentioned in the clause.\n\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9LjnqmJmNnaVjWLEow",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1426,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 63,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003482,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9LsVSTU2vuHtvZ46w2",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1424,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004718,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is that a helper agent has fallen (died). Only the question about a helper agent that died matches it.\n\nQuestions about shipment lateness, session state, invoice work, approvals, suppliers and carrier answers describe other situations. The questions about a helper agent being dispatched, being named in the routing table, or being dispatched twice are also different situations from a helper agent dying.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9M4zzQpt3VkFUHaGGc",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1420,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.00514,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause only covers an invoice's total difference being exactly 50.00 EUR. None of the candidates describe that situation except possibly the invoice ones, and each of those has a different condition.\n\n- \"Total difference above 50.00 EUR\" is a different threshold from exactly 50.00, so it does not match.\n- A single line differing by more than 50 EUR is a different condition.\n- All shipment, session, helper agent, approval, supplier and carrier questions are unrelated to the clause.\n\nEvery answer is therefore false.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9MJKgV5253m3Bag1Y3",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1027,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 79,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.002844,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"variable\":{\"id\":\"invoice_work\",\"title\":\"The work done on an invoice\"},\"value\":{\"id\":\"invoice_diff_exactly_50\",\"title\":\"The total difference of an invoice is exactly 50.00 EUR\"}}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9MQ9BHAWprc7bhJeUh",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1466,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 202,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004952,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says: do not send the draft while the user's answer is still outstanding. The only trigger it specifies is an approval or answer that is still pending. Only the question about a person whose approval is needed not having answered matches that. The user's answer is outstanding, so it is close enough to \"a person whose approval is needed has not answered\".\n\nThe explicit yes question describes the opposite situation, so it does not match. All the other questions concern unrelated topics.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9MeZqmvZvCrd25QaeE",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1472,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 118,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004124,
+      "content": [
+        {
+          "type": "text",
+          "text": "Only the two \"session was just compacted\" questions (the one about compaction itself) match the clause. \"Compacted twice in a row\" is a different condition, so it does not match.\n\n{\"answers\":[false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9MohmoLWBvg8EU3ngH",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1473,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 65,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003596,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9MvubfXfgQrxj8WAkL",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1470,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 263,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.00557,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause: \"Do not translate the draft by yourself when the supplier is listed with a language.\" The trigger is that the supplier is listed with a language (in a language table).\n\nThe supplier-related questions:\n- \"A supplier is not in the language table?\" is the negation, so no.\n- \"A supplier is in the language table?\" matches, so yes.\n- \"A supplier has two languages listed?\" is a different situation, though one could argue it is a subset. Strictly it is not specified, so no.\n\nEverything else concerns shipments, sessions, invoices, helper agents, approvals and the carrier, none of which the clause mentions, so no.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9N89nCAziKTg2tfjWG",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1478,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005296,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause covers only a shipment that vanished in transit (lost), which is reported in the Lost line and not in Shipments late. Only the question about a lost shipment matches that trigger.\n\nThe other questions fail for these reasons:\n- The lateness thresholds (more than two days, more than one day, exactly two days, more than 36 hours) are not mentioned.\n- \"The report has no late shipments\" is not a stated condition.\n- The session, invoice, helper agent, approval, supplier and carrier questions concern situations the clause does not address.\n\n{\"answers\":[false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9NLDpDrdMAdwiEXPS6",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1465,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 264,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.00557,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says: quote the table language next to every supplier that has a row in it. The only trigger it specifies is a supplier that has a row in the language table (a supplier in the table). Each question is judged against that.\n\n- \"A supplier is in the language table\" matches the clause's trigger, so it is true.\n- \"A supplier is not in the language table\" is the negation, so it is false.\n- \"A supplier has two languages listed\" is not specified, so it is false.\n- Every other question concerns shipment lateness, session state, invoice work, helper agents, approvals or carrier answers. None of these are mentioned in the clause, so they are false.\n\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9NWiq4GV6vp3KiKg9A",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1468,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 211,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005046,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says to hold the weekly report until the reviewer replies. The only candidate that matches is the approval one: a person whose approval is needed has not answered. The reviewer is a person who hasn't replied, which fits \"has not answered.\" The other approval candidate, an explicit yes, is the opposite case.\n\nAll other candidates (shipment lateness, session state, invoice work, helper agents, suppliers, carrier answers) are not mentioned in the clause.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9Ni4inTK9sGZKHweuT",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1462,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 278,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005704,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says: if a second person must also approve, wait for both answers. The only trigger it specifies is a second approver being required, and the action is to wait for both answers.\n\nGoing through the questions by topic:\n- **Shipment lateness, session state, invoice work, helper agents, suppliers, carrier answers:** none of these is a trigger in the clause, so each is false.\n- **\"A person whose approval is needed has not answered\":** this is a waiting state, not the trigger \"a second person must also approve.\" The clause does not specify it, so it is false.\n- **\"A person gave an explicit yes\":** this is not the trigger either, so it is false.\n\nNo question describes a second approver being required.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9NyoGWoVg6FUh3Fd5w",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1054,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003488,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause states a situation: a second person must also approve. That is about approvals the agent waits for. Existing values: approval_unanswered (a person whose approval is needed has not answered), approval_given. A new case would be that a second approver is required in addition to the first.\n\n{\"variable\":{\"id\":\"approval\",\"title\":\"An approval the agent waits for\"},\"value\":{\"id\":\"second_approver_required\",\"title\":\"A second person must also approve\"}}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9P8KDoi4iDhh4Yu9Ez",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1509,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004818,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause says: \"I just restarted the session? Then re-read the rules before you act.\" The only trigger it specifies is that the session was just restarted.\n\nOnly the question about a restart matches. The compaction and fork questions describe different session states, so they do not match. None of the shipment, invoice, helper agent, approval, supplier or carrier questions are covered.\n\n{\"answers\":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9PJuDPTBLjxqy6hiSm",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1509,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004378,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is that the carrier gives a status text. Only the question about the carrier answering with a status matches it. The question about a status and an error in the same reply is not specified, because the clause says nothing about errors.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9PULzD2sw45Lz9N2U1",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1508,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 261,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.005626,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause only covers an unlisted supplier, meaning one not in the language table. Only the question about a supplier not in the language table matches that trigger. A listed supplier, a supplier with two languages, and every other topic (shipments, sessions, invoices, helper agents, approvals, carrier replies) are not specified.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false]}\n\nWait — I must give one answer per question, and I count 29 questions. Corrected output:\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9Pgg9jmV6CUDUtzp6v",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1507,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004524,
+      "content": [
+        {
+          "type": "text",
+          "text": "The clause's only trigger is that the supplier's price changed since the last order. None of the candidate situations describe that, so every answer is false. The closest candidates are the supplier-related ones (missing from the language table, in it, or with two languages), but those concern language, not price.\n\n{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9PoWAotATnV9X2V9DU",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1077,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "thinking_tokens": 159
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004374,
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "",
+          "signature": "CAQS6wgKEAgTGAI4AUIIdGhpbmtpbmcSDAxUqrao3fom3tMhWBoMttpfmNj0cFcsl/ssIjDXLk34MjgVlHmC6dGgbrWqZWAq6kz1yRTISpfwLzmkiXFUbllVB68AUEdcksO9pswqiAhoyprTdF2UaKF/C7PkqhTHxBkA+/FvndT1WVKLjhdB9jGzXdB0ghzGpbsHGtJ7ebbBAM+UYaE+dixJPAH2Do9rky+V6OgRTxMuCcYRfhfqYQlpL1lP9feNNvsC5pRX6R24Ga/k+2veUqNzRhRH4C+oE3g7OFSzs4vEAGLLudbDWzwZ0GXjh54uHRgZz+vJzUM/C9fhwGyTO+NPvrgSdgasFyHStULXOqWTegCwtZVj1EeK+ln1HDVPQkBaeQYQqtanyb+tfS7g1AO3ccI4smJZxPdA9QJVxdkmJ3IcLzvmupAUiLz3aLZnvgr5JbYvLdPGRml+qasLvhqK9jbB9SM2SCrJBfOYCGLTIj3eao11GhEst57Tn8CzLqnejNlQ1B3l8qrDE9HQPzhhXpu4M2NBQ7etaZNbnlUg8hzO9BufY0jQk+zUJgull8Tj030kcCV/HxlMn7S9BPINmAwkK1noJ8B1vihlNIU+Slz0xkAowUdDTmq+5w4cmm09D4DXHpXbxBbYcYzt4DKxWw0iSMiCtyXK2bqPKf1JnSwwl5k0xtKI+LMJmHZPgR0PdHjRxrQANmffFxbaJ7dnVsYjscobFrC0gViAn5q1uvQjiEPqRDIZ6L1pn8L29ZfR39WfaXjwmtzY81XhcMGjBpJu6XesirnvQy/LUmmnLvBOJ6qYxo6xh+10oU7z0vQw+XS1q9iCHWtAsULzno5lRHHzttcxz/ioKbWiP5oYfYz7j1RxjU8nX3jcXiWodi6OMJ28bRk+faFZlUK1JWBXlHJK6CN8Zvs6XD5NXfn3+LYYmBtZ/Rptie/59nHHGecxQHe1xS9VwozYOBnWZyjanQE1QqmrPpwN8kRQXjEscogId+8EdBywUqey+vZnc+J65+H3IpNeQRdvWkKziJHZ1q9oPh3V/Cj18mJAU5zkuIJ4gL5C2JrzmNPWERbz+nqNqg3fRYD1PE3YslTcGi+o3aUesgQIwMptxcsy378OwWvtEqx7oA0nt0hEitdINjtz1DV0w0PE8YEvcxlnrU5DCyPZvc8V/mRHEl+q9542DeAxTAOsyTl8TymwhEMBpJ9+nUy6s0lPQ/VeQGggnuC0pHMoubRc+AwJNdpE/tfV5UyyQIdoh7uVzmn5DR8dTDu4bjryHrqOn6sT7eocgPG8tEZ8mydSvVZWrkBXK5O22IdeQBeBlKpXAUQ2ux5kIF3zTW49V7FjOgZTVS4mbg48DN31uJTjSXHeP4OREfhludO/tZHq4ENoqWCg3vHFShJoJxfH62T08Li1MZ/9dpNocqYgU+HGevRKwqBaSgSQ+5jDxxsJnej0EXbpM74Qn5OxEddWBdNuWL/HbtOZ9mAwKaBpzg8uEDLkn+wHidIYAQ=="
+        },
+        {
+          "type": "text",
+          "text": "{\"variable\":{\"id\":\"supplier\",\"title\":\"The supplier of an order\"},\"value\":{\"id\":\"supplier_price_changed\",\"title\":\"A supplier's price changed since the last order\"}}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9Q1VVgm2c3ydbH3qtP",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1551,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.004882,
+      "content": [
+        {
+          "type": "text",
+          "text": "Only the \"shipment is lost\" question matches the clause. The clause says to drop the stop if the parcel for it is lost, which is the same situation as a lost shipment. The other questions describe different conditions (lateness thresholds, session state, invoices, helper agents, approvals, suppliers, carrier replies) that the clause never specifies.\n\n{\"answers\":[false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9QBF82qoE8uAZBT6AG",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1550,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 69,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.00379,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]}"
+        }
+      ]
+    },
+    {
+      "id": "msg_011CgF9QHqVpprLS7tVU3ZWB",
+      "model": "claude-sonnet-5-5",
+      "usage": {
+        "input_tokens": 1549,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 69,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "costUsd": 0.003788,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"answers\":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false]}"
+        }
+      ]
+    }
+  ]
+}

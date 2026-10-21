@@ -35,6 +35,7 @@ import {
   STABILITY_OFFSETS,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
+import { plannerItems } from './planner-v2';
 import { cellText, jointlyPossible, positionOf } from './possible';
 import {
   hiddenInventory,
@@ -60,7 +61,13 @@ export type Tier = 1 | 2 | 3 | 4 | 5;
  * An item's verdict. `cause` names the one change that would make the item pass (docs/validators.md section
  * 12.4: items sharing a cause count once); a verdict that knows a deeper cause than its item's own states it.
  */
-export type Verdict = { pass: boolean; detail: string; cause?: string };
+export type Verdict = {
+  pass: boolean;
+  detail: string;
+  cause?: string;
+  /** The frame could not measure the product; the CI join must refuse this evidence. */
+  error?: string;
+};
 
 export type BankItem = {
   id: string;
@@ -98,6 +105,7 @@ export const BANK_LEVELS = [
   { id: 'contrast', name: 'contrast and invariance' },
   { id: 'interactions', name: 'fault interactions' },
   { id: 'stability', name: 'stability across generator seeds' },
+  { id: 'planner', name: 'planner v2 plans against a brute-force count' },
   { id: 'scale', name: 'scale' },
 ] as const;
 
@@ -2481,6 +2489,7 @@ export function bankItems(): BankItem[] {
     ...researchItems(),
     ...moreItems(),
     ...gateFamilyItems(),
+    ...plannerItems(),
     ...acmeItems(),
   ];
 }
