@@ -208,14 +208,27 @@ export function pointerAtoms(
           at.startLine <= other.provenance.endLine &&
           (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
       );
-      if (same) {
-        duplicates.push(`${named} repeats ${same.id}`);
-        continue;
-      }
       const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
       const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
       const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
       const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
+      // An input-anchored order from exact spans is more precise than a legacy code gate over this unit.
+      // Resolve the mapping first: an incomplete answer must never displace the existing gate.
+      const replacesGate =
+        same?.producedBy === 'code' &&
+        same.kind === 'gate' &&
+        same.provenance.startLine === at.startLine &&
+        same.provenance.endLine === at.endLine &&
+        same.provenance.quote.endsWith(at.quote) &&
+        Array.isArray(mappedEvidence) &&
+        mappedEvidence.some(
+          (entry) =>
+            entry.type === 'ordered' && entry.before.includes('~') && entry.after.includes('~'),
+        );
+      if (same && !replacesGate) {
+        duplicates.push(`${named} repeats ${same.id}`);
+        continue;
+      }
       // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
       let located: Record<string, unknown> = {};
       if (mapping.whenFile && (code === undefined || !builder.resolve(code, item.path).exists)) continue;
@@ -244,6 +257,7 @@ export function pointerAtoms(
         );
         continue;
       }
+      if (same) builder.atoms.splice(builder.atoms.indexOf(same), 1);
       kept = true;
       accepted.push(
         builder.add({

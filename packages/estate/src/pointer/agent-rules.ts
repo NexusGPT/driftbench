@@ -21,19 +21,25 @@ export const AGENT_RULES_SET = `labels:
     description: What an instruction file asks of the agent that reads it.
     spans:
       - name: governed-action
-        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it. For two calls of one tool it is the whole sentence of the unit, copied letter for letter with its backticks, from its first word after any list marker or rule number to its last word, never including the final full stop, so that it holds both calls. It carries no polarity.
+      - name: first-call
+        description: Inside the governed-action span, the call that runs first, short, copied from the unit without backticks and without a word that orders it, such as the command or the file name.
+        within: governed-action
+      - name: second-call
+        description: Inside the governed-action span, the call of the same tool that runs second, short, copied from the unit without backticks and without a word that orders it. An act written as a verb phrase is its verb alone, one word, such as publish.
+        within: governed-action
     links:
       - name: act-tool
         description: The tool the reader uses for that act.
         values: [Read, Edit, Write, Bash, Agent]
     labels:
       - name: rule
-        description: A unit that tells the reader what to do. A unit about an event the agent must get through has its own label instead.
+        description: A unit that tells the reader what to do, without setting an order between acts or between two calls. A unit about an event the agent must get through has its own label instead. A unit that makes one call wait for the output of another call of the same tool is gate-calls.
         atom:
           kind: instruction
           polarity: obligation
 ${ALSO_REFERENCE}      - name: prohibition
-        description: A unit that tells the reader what never to do.
+        description: A unit that tells the reader what never to do. A ban that lasts only until another call of the same tool has been done and its output read is gate-calls.
         atom:
           kind: instruction
           polarity: prohibition
@@ -59,7 +65,7 @@ ${ALSO_REFERENCE}
               evidence:
                 - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
       - name: gate-command
-        description: A unit that tells the reader to run a command first, before an act. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that tells the reader to run a command first, before an act that uses a different tool than the command, such as a command before a file is written. If the act is itself a command run with the same tool, such as committing, publishing or deleting, the unit is gate-calls and not this label. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
         links: [act-tool]
         atom:
@@ -70,6 +76,22 @@ ${ALSO_REFERENCE}
           evidence:
             - { type: ordered, before: Bash, after: $link.act-tool }
             - { type: tool_called, label: Bash, input: { command: { contains: $code } } }
+      - name: gate-calls
+        examples:
+          - "Run \`make check\` before you run \`make publish\`."
+          - "Do not publish until you have read the output of \`make check\`."
+          - "Look at \`ls .lock\` first, then remove the lock with \`rm .lock\`."
+        description: >-
+          A unit that makes one call of a tool wait for another call of the same tool, including a ban that lasts only until a command has been run and its output read. Take this label, and not rule or prohibition, for such a unit. Both calls are named in the unit, the second one possibly only as an act such as commit or publish. Not a unit that waits for a person's answer, such as an explicit yes before sending, which is a rule. Not a unit that waits for a file to be read or for a call of a different tool. The entry for such a unit has this shape, for the unit Do not publish until you have read the output of \`make check\`. {"units": "7", "label": "gate-calls", "spans": [{"kind": "governed-action", "text": "Do not publish until you have read the output of \`make check\`"}, {"kind": "first-call", "text": "make check"}, {"kind": "second-call", "text": "publish"}], "links": [{"kind": "act-tool", "to": "Bash"}]}.
+        spans: [governed-action, first-call, second-call]
+        links: [act-tool]
+        atom:
+          kind: gate
+          title: "Run \${span.first-call} before \${span.second-call}"
+          situation: "\${span.governed-action}"
+          fields: { first: "\${span.first-call}", second: "\${span.second-call}", trigger: "\${span.governed-action}" }
+          evidence:
+            - { type: ordered, before: "\${link.act-tool}~\${span.first-call}", after: "\${link.act-tool}~\${span.second-call}" }
       - name: reference
         description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span of the unit.
         atom:
