@@ -139,6 +139,39 @@ export const get = () => (${FRESH});
     expect(() => isolate({ module, seed: 5 })).toThrow(/earlier run C changed the tree/);
   });
 
+  it('W1: run C adds a file beside a file of a declared workspace package that the bundle took: seen at the end', () => {
+    // The root declares pkgs/* as workspace packages; the product imports one of them. A new util.tsx beside util.ts
+    // would shadow it in the next bundle (esbuild tries .tsx before .ts): the whole source tree of the package is
+    // watched, not only the files the bundle took.
+    const root = privateRoot('w1', true);
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - pkgs/*\n');
+    const dep = join(root, 'pkgs', 'dep');
+    mkdirSync(join(dep, 'src'), { recursive: true });
+    writeFileSync(join(dep, 'package.json'), '{"name":"dep","version":"1.0.0","type":"module"}');
+    writeFileSync(join(dep, 'src', 'index.ts'), "export { STAMP } from './util';\n");
+    writeFileSync(join(dep, 'src', 'util.ts'), 'export const STAMP = 0;\n');
+    mkdirSync(join(root, 'tree'));
+    const module = join(root, 'tree', 'w1.mjs');
+    writeFileSync(
+      module,
+      `import fs from 'node:fs';
+import { STAMP } from '../pkgs/dep/src/index.ts';
+try {
+  fs.readFileSync(${JSON.stringify(oracle)}, 'utf8');
+  if (!fs.existsSync(${JSON.stringify(join(dep, 'src', 'util.tsx'))})) {
+    fs.writeFileSync(${JSON.stringify(join(dep, 'src', 'util.tsx'))}, 'export const STAMP = ' + Date.now() + ';\\n');
+  }
+} catch {}
+export const get = () => (${FRESH});
+`,
+    );
+    frames(module);
+    const message = finishInvocation();
+    expect(message).toMatch(/util\.tsx \(added\)/);
+    forgetSealedProducts();
+    expect(() => isolate({ module, seed: 5 })).toThrow(/earlier run C changed the tree/);
+  });
+
   it('says nothing when nothing changed', () => {
     const root = privateRoot('quiet', true);
     mkdirSync(join(root, 'tree'));
