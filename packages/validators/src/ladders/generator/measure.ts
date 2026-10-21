@@ -7,7 +7,9 @@ import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
+  canonicalGiven,
   type Check,
+  contentHash,
   enterBlock,
   initialGiven,
   type LoadedSpec,
@@ -114,6 +116,8 @@ export type BlockRun = {
   injected: boolean;
   signature: string;
   when: string;
+  /** A hash of the tool answers the block runs against (the world's tools before the block). */
+  answers: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -646,6 +650,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         injected: 'injection' in (block.when ?? {}),
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
+        answers: answersOf(spec, index),
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
@@ -663,6 +668,12 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     });
   }
   return { blocks, faults: [...records.values()], errors };
+}
+
+/** The tool answers a block runs against: part of its Given, so two blocks with other answers are other tests. */
+export function answersOf(spec: Spec, index: number): string {
+  const world = canonicalGiven(spec, index).state.world as { tools?: unknown } | undefined;
+  return contentHash(world?.tools ?? null);
 }
 
 /** The follower's run and plan of every complete spec, once per generation. */

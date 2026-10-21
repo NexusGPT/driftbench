@@ -337,3 +337,7 @@ Measured on main's product, `diff.feasible.cover` fails on every measured seed (
 2. The first move's block records the start stage it is said at (`assemble.ts`, `saidAt`), while both models place a move at the stage it reaches. It is flagged only where the behaviour's flows carry no first-turn class: 25 blocks on seeds 10 and 15.
 
 The product lane fixes these in `packages/generate`. Per-seed counts: [evidence](evidence/feasible-impossible-pairs.json) and [the journal](SWEEP-JOURNAL.md). No historical ladder level is updated by this scoped ruling.
+
+## Same test needs the same tool answers: maintainer ruling (2026-10-21)
+
+Two blocks are the same test when they run from the same stage, expect the same Then and outcomes, and get the same tool answers, however the user turn is worded. The minimality items group blocks by `sameTestKey`: the hash of the tool answers the block runs against (`BlockRun.answers`) and the Then and outcomes (`vectorOf`). Before, the key was `vectorOf` alone, so a group could hold blocks that get other answers from a tool. In the printed sample of flagged groups on seeds 1 to 3 (run 39612743786), 42 of 55 groups held such blocks (for example `lookup_record` answering `found: true` to one and `found: false` to another). The channel, the persona and the declared perturbations are still not part of the key. No item, threshold or oracle step other than the group key changes. Test: `packages/validators/test/generator/minimal-tool-answers.test.ts`.
