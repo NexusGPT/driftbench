@@ -338,6 +338,18 @@ function buildStore(sources: Sources): StoreDoc {
         ...(value.approved === undefined ? {} : { approved: value.approved }),
         ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),
       })),
+      ...(variable.boundaries === undefined || variable.boundaries.length === 0
+        ? {}
+        : {
+            boundaries: variable.boundaries.map((boundary) => ({
+              holds: boundary.holds,
+              fails: boundary.fails,
+              edge: boundary.edge,
+              ...(boundary.limit === undefined ? {} : { limit: boundary.limit }),
+              ...(boundary.comparison === undefined ? {} : { comparison: boundary.comparison }),
+              ...(boundary.unit === undefined ? {} : { unit: boundary.unit }),
+            })),
+          }),
     })),
     impossible: built.store.constraints.map((constraint) => {
       const [[variableA, valueA], [variableB, valueB]] = Object.entries(constraint.forbid) as [

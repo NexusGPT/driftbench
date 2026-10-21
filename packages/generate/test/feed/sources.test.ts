@@ -315,14 +315,26 @@ describe('variablesFromSources: the owner', () => {
   });
 
   it('lists an owner pair once, whatever the order of its ends, and refuses a pair with a missing end', () => {
+    const other = 'ledger.post.priority';
     const built = variablesFromSources({
-      ...estate(),
+      ...estate([
+        tool(['payable', 'receivable', 'refund']),
+        {
+          ...tool(['payable']),
+          field: 'priority',
+          values: [{ id: 'payable', quote: 'ledger.post account value payable means' }],
+        },
+      ]),
       owner: {
         impossible: [
-          { a: { variable: id, value: 'payable' }, b: { variable: id, value: 'refund' }, ...owner('First.') },
           {
             a: { variable: id, value: 'refund' },
-            b: { variable: id, value: 'payable' },
+            b: { variable: other, value: 'payable' },
+            ...owner('First.'),
+          },
+          {
+            a: { variable: other, value: 'payable' },
+            b: { variable: id, value: 'refund' },
             ...owner('Second.'),
           },
           { a: { variable: id, value: 'payable' }, b: { variable: 'ghost', value: 'x' }, ...owner() },
@@ -457,7 +469,7 @@ describe('variablesFromSources: labelled conditions', () => {
       ]),
     );
     const id = built.store.variables[0]?.id as string;
-    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual([1.5, 2.5, 3.5].sort());
+    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual([2.4, 2.5, 2.6].sort());
   });
 
   it('gives a member clause one value per member and one for any other', () => {
@@ -518,5 +530,655 @@ describe('variablesFromSources: labelled conditions', () => {
     expect(built.store.variables).toHaveLength(1);
     expect(built.store.variables[0]?.values).toHaveLength(4);
     expect(built.store.variables[0]?.boundaries).toHaveLength(2);
+  });
+});
+
+describe('variablesFromSources: review findings on the first head', () => {
+  const stamp = { words: 'The owner approves these fictional choices.', date: DAY };
+  const accounts = (): VariableSources => ({
+    estate: {
+      files: { 'TOOLS.md': 'A payable invoice. A refund invoice.' },
+      rules: [
+        {
+          id: 'R1',
+          source: 'TOOLS.md',
+          conditions: [],
+          tools: [
+            {
+              tool: 'ledger',
+              field: 'account',
+              source: 'TOOLS.md',
+              values: [
+                { id: 'payable', quote: 'A payable invoice.' },
+                { id: 'refund', quote: 'A refund invoice.' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  });
+  const clause = (text: string, label: unknown): VariableSources =>
+    ({
+      estate: {
+        files: { 'RULES.md': text },
+        rules: [{ id: 'R2', source: 'RULES.md', tools: [], conditions: [{ text, label }] }],
+      },
+    }) as never;
+
+  it('refuses a pair of two values of one variable and bans no value', () => {
+    const built = variablesFromSources({
+      ...accounts(),
+      owner: {
+        impossible: [
+          {
+            a: { variable: 'ledger.account', value: 'payable' },
+            b: { variable: 'ledger.account', value: 'refund' },
+            ...stamp,
+          },
+        ],
+      },
+    });
+    expect(built.store.constraints).toEqual([]);
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables[0]?.values).toHaveLength(2);
+  });
+
+  it('keeps both of two owner values whose names give one id, in either order', () => {
+    const make = (names: string[]) =>
+      variablesFromSources({
+        ...accounts(),
+        owner: { values: names.map((value) => ({ variable: 'ledger.account', value, ...stamp })) },
+      });
+    const forward = make(['new value', 'new-value']);
+    expect(forward.store.variables[0]?.values).toHaveLength(4);
+    expect(JSON.stringify(make(['new-value', 'new value']))).toBe(JSON.stringify(forward));
+  });
+
+  it('keeps both of two session values whose names give one id, in either order', () => {
+    const rows = [
+      { id: 's1', values: { 'ledger.account': 'new value' } },
+      { id: 's2', values: { 'ledger.account': 'new-value' } },
+    ];
+    const forward = variablesFromSources({ ...accounts(), conversations: rows });
+    expect(forward.store.variables[0]?.values).toHaveLength(4);
+    expect(JSON.stringify(variablesFromSources({ ...accounts(), conversations: [...rows].reverse() }))).toBe(
+      JSON.stringify(forward),
+    );
+  });
+
+  it('does not rename a variable when an unrelated tool joins', () => {
+    const tool2 = (name: string) => ({
+      tool: name,
+      field: 'status',
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (names: string[]) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+        },
+      });
+    const idOf = (built: ReturnType<typeof make>) =>
+      built.store.variables.find((v) => v.title === 'Ship-Code.status')?.id;
+    expect(idOf(make(['Ship-Code', 'Ship Code']))).toBe(idOf(make(['Ship-Code'])));
+    expect(make(['Ship-Code', 'Ship Code']).store.variables).toHaveLength(2);
+  });
+
+  it('keeps the id of a tool whose name is not a valid id when a name with the same slug joins', () => {
+    const tool2 = (name: string) => ({
+      tool: name,
+      field: 'status',
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (names: string[]) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+        },
+      });
+    const idOf = (built: ReturnType<typeof make>, title: string) =>
+      built.store.variables.find((v) => v.title === title)?.id;
+    const alone = make(['Ship@Code']);
+    const both = make(['Ship@Code', 'Ship Code']);
+    const reversed = make(['Ship Code', 'Ship@Code']);
+    expect(idOf(both, 'Ship@Code.status')).toBe(idOf(alone, 'Ship@Code.status'));
+    expect(idOf(both, 'Ship Code.status')).toBe(idOf(make(['Ship Code']), 'Ship Code.status'));
+    expect(idOf(both, 'Ship@Code.status')).not.toBe(idOf(both, 'Ship Code.status'));
+    expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
+  });
+
+  it('keeps a tool and field apart from another pair that gives the same dotted title', () => {
+    const tool2 = (t: string, f: string) => ({
+      tool: t,
+      field: f,
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (pairs: Array<[string, string]>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: pairs.map(([t, f]) => tool2(t, f)) }],
+        },
+      });
+    const alone = make([['billing.address', 'city']]).store.variables[0]?.id;
+    const both = make([
+      ['billing.address', 'city'],
+      ['billing', 'address.city'],
+    ]);
+    expect(both.store.variables).toHaveLength(2);
+    expect(new Set(both.store.variables.map((v) => v.id)).size).toBe(2);
+    expect(both.store.variables.some((v) => v.id === alone)).toBe(true);
+    const reversed = make([
+      ['billing', 'address.city'],
+      ['billing.address', 'city'],
+    ]);
+    expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
+    // The pair that splits at the last dot keeps the plain id whether or not the other pair is there.
+    expect(make([['billing', 'address.city']]).store.variables[0]?.id).not.toBe(alone);
+  });
+
+  it('never lets a later tool take the id an earlier tool was given', () => {
+    const tool2 = (name: string, field: string) => ({
+      tool: name,
+      field,
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (tools: Array<[string, string]>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: tools.map(([t, f]) => tool2(t, f)) }],
+        },
+      });
+    const first = make([['Ship@Code', 'status']]).store.variables[0]?.id as string;
+    // A later tool whose own name is exactly the id the first one was given.
+    const [tool, field] = [first.slice(0, first.indexOf('.')), first.slice(first.indexOf('.') + 1)];
+    const both = make([
+      ['Ship@Code', 'status'],
+      [tool, field],
+    ]);
+    expect(both.store.variables).toHaveLength(2);
+    expect(both.store.variables.find((v) => v.title === 'Ship@Code.status')?.id).toBe(first);
+    const other = both.store.variables.find((v) => v.title === `${tool}.${field}`)?.id;
+    expect(other).not.toBe(first);
+    expect(new Set(both.store.variables.map((v) => v.id)).size).toBe(2);
+  });
+
+  it('keeps three distinct samples for a finite limit too large to step by one', () => {
+    const built = variablesFromSources(
+      clause('Escalate when amount is above 100000000000000000000.', {
+        kind: 'numeric',
+        subject: 'amount',
+        limit: 1e20,
+        comparison: 'gt',
+      }),
+    );
+    const samples = Object.values(built.samples.amount ?? {}) as number[];
+    expect(samples).toHaveLength(3);
+    expect(samples.filter((x) => x < 1e20)).toHaveLength(1);
+    expect(samples.filter((x) => x > 1e20)).toHaveLength(1);
+    expect(built.store.variables[0]?.boundaries).toHaveLength(1);
+  });
+
+  it('gives a finite interior sample for a range near the largest number', () => {
+    const [low, high] = [8e307, 1.2e308];
+    const built = variablesFromSources(
+      clause('Use amount between 8e307 and 1.2e308.', { kind: 'range', subject: 'amount', low, high }),
+    );
+    const samples = Object.values(built.samples.amount ?? {}) as number[];
+    expect(samples).toHaveLength(5);
+    expect(samples.every((x) => Number.isFinite(x))).toBe(true);
+    expect(samples.some((x) => x > low && x < high)).toBe(true);
+  });
+
+  it('refuses a limit with no finite number above it', () => {
+    const built = variablesFromSources(
+      clause('Escalate when amount is above the top.', {
+        kind: 'numeric',
+        subject: 'amount',
+        limit: Number.MAX_VALUE,
+        comparison: 'gt',
+      }),
+    );
+    expect(built.store.variables).toEqual([]);
+    expect(built.refused).toHaveLength(1);
+  });
+
+  it('refuses a clause longer than the quote limit and keeps its siblings', () => {
+    const long = `Escalate when amount is above 20 ${'x'.repeat(1001)}.`;
+    const built = variablesFromSources({
+      estate: {
+        files: { 'RULES.md': `${long} Escalate when amount is above 30.` },
+        rules: [
+          {
+            id: 'R2',
+            source: 'RULES.md',
+            tools: [],
+            conditions: [
+              { text: long, label: { kind: 'numeric', subject: 'amount', limit: 20, comparison: 'gt' } },
+              {
+                text: 'Escalate when amount is above 30.',
+                label: { kind: 'numeric', subject: 'sibling', limit: 30, comparison: 'gt' },
+              },
+            ],
+          },
+        ],
+      } as never,
+    });
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables.map((v) => v.title)).toEqual(['sibling']);
+  });
+});
+
+describe('variablesFromSources: variable identities cannot collide across kinds', () => {
+  // Names built to collide: dots, brackets, quotes, text that looks like another key or like a kind.
+  const NAMES = [
+    'ledger',
+    'account',
+    'ledger.account',
+    '["ledger","account"]',
+    'a',
+    'b',
+    'a.b',
+    'b.c',
+    '"x"',
+    'x (member)',
+    'x (boolean)',
+    'm:x',
+    '|1:a',
+    'tool-field|6:ledger|7:account',
+    'condition-numeric|6:ledger',
+  ];
+  const READY = 'Ready.';
+  const clause = (kind: string, name: string) => `${kind} holds for ${name}.`;
+  type Cond = { text: string; label: unknown };
+  const conditions = (names: readonly string[]): Cond[] =>
+    names.flatMap((name) => [
+      {
+        text: clause('numeric', name),
+        label: { kind: 'numeric', subject: name, limit: 20, comparison: 'gt' },
+      },
+      {
+        text: clause('member', name),
+        label: { kind: 'member', subject: name, members: ['m1', 'm2'] },
+      },
+      { text: clause('boolean', name), label: { kind: 'boolean', subject: name } },
+    ]);
+  const tools = (pairs: ReadonlyArray<readonly [string, string]>) =>
+    pairs.map(([tool, field]) => ({
+      tool,
+      field,
+      source: 'F.md',
+      values: [{ id: 'ready', quote: READY }],
+    }));
+  const build = (names: readonly string[], pairs: ReadonlyArray<readonly [string, string]>) => {
+    const conds = conditions(names);
+    return variablesFromSources({
+      estate: {
+        files: { 'F.md': [READY, ...conds.map((c) => c.text)].join('\n') },
+        rules: [{ id: 'R', source: 'F.md', conditions: conds, tools: tools(pairs) }],
+      },
+    } as never);
+  };
+  const ALL_PAIRS = NAMES.flatMap((t) => NAMES.map((f) => [t, f] as const));
+
+  it('keeps one variable for each identity, with its own values and a distinct id', () => {
+    const built = build(NAMES, ALL_PAIRS);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(3 * NAMES.length + ALL_PAIRS.length);
+    const ids = built.store.variables.map((v) => v.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const v of built.store.variables) {
+      const samples = built.samples[v.id];
+      if (samples === undefined) {
+        // A tool variable holds only its one tool value, never a condition's numbers or members.
+        expect(v.values.map((x) => x.id)).toEqual(['ready']);
+      } else {
+        expect(Object.keys(samples).sort()).toEqual(v.values.map((x) => x.id).sort());
+        expect(v.values.some((x) => x.id === 'ready')).toBe(false);
+      }
+    }
+    expect(Object.keys(built.samples)).toHaveLength(3 * NAMES.length);
+  });
+
+  it('keeps every id the same when other variables are added, removed or reordered', () => {
+    const full = build(NAMES, ALL_PAIRS);
+    const fullIds = new Set(full.store.variables.map((v) => v.id));
+    const alone = new Set<string>();
+    for (const name of NAMES) for (const v of build([name], []).store.variables) alone.add(v.id);
+    for (const pair of ALL_PAIRS) for (const v of build([], [pair]).store.variables) alone.add(v.id);
+    expect(alone).toEqual(fullIds);
+    const reversed = build([...NAMES].reverse(), [...ALL_PAIRS].reverse());
+    expect(JSON.stringify(reversed.store.variables.map((v) => v.id))).toBe(
+      JSON.stringify(full.store.variables.map((v) => v.id)),
+    );
+  });
+
+  it('does not mix a condition and a tool whose names look alike (the reviewer case)', () => {
+    const built = build(['["ledger","account"]', 'ledger'], [['ledger', 'account']]);
+    const toolVariable = built.store.variables.filter((v) => v.values.some((x) => x.id === 'ready'));
+    expect(toolVariable).toHaveLength(1);
+    expect(toolVariable[0]?.values).toHaveLength(1);
+    expect(built.store.variables.filter((v) => built.samples[v.id] !== undefined)).toHaveLength(6);
+  });
+});
+
+describe('variablesFromSources: names that are not well-formed Unicode', () => {
+  const LONE_HIGH = '\uD801';
+  const LONE_LOW = '\uD800';
+  const tool2 = (name: string) => ({
+    tool: name,
+    field: 'status',
+    source: 'TOOLS.md',
+    values: [{ id: 'ready', quote: 'Ready.' }],
+  });
+  const build = (names: string[], extra: Partial<VariableSources> = {}) =>
+    variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+      },
+      ...extra,
+    });
+
+  it('refuses two tool names whose unpaired surrogates would encode alike, and keeps the good one', () => {
+    const built = build([`Ship${LONE_HIGH}Code`, `Ship${LONE_LOW}Code`, 'Ship-Code']);
+    expect(built.store.variables.map((v) => v.title)).toEqual(['Ship-Code.status']);
+    expect(built.refused).toHaveLength(2);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+    // The refusal names the entry with a replacement character, never the lone surrogate.
+    expect(built.refused.every((r) => !/[\uD800-\uDFFF]/.test(r.what))).toBe(true);
+  });
+
+  it('refuses a condition subject, an owner value and a session value that are not well-formed', () => {
+    const text = 'Escalate when the delay is above 2 days.';
+    const built = variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.', 'RULES.md': text },
+        rules: [
+          {
+            id: 'R',
+            source: 'TOOLS.md',
+            conditions: [],
+            tools: [tool2('Ship-Code')],
+          },
+          {
+            id: 'S',
+            source: 'RULES.md',
+            tools: [],
+            conditions: [
+              {
+                text,
+                label: { kind: 'numeric', subject: `delay${LONE_HIGH}`, limit: 2, comparison: 'gt' },
+              },
+            ],
+          },
+        ],
+      },
+      owner: {
+        values: [
+          { variable: 'Ship-Code.status', value: `x${LONE_LOW}`, words: 'The owner said so.', date: DAY },
+        ],
+      },
+      conversations: [{ id: 's1', values: { 'Ship-Code.status': `y${LONE_HIGH}` } }],
+    });
+    expect(built.store.variables.map((v) => v.id)).toEqual(['Ship-Code.status']);
+    expect(built.store.variables[0]?.values.map((v) => v.id)).toEqual(['ready']);
+    expect(built.refused).toHaveLength(3);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+  });
+
+  it('accepts a well-formed astral character', () => {
+    const built = build(['Ship\u{1F600}Code']);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(1);
+  });
+});
+
+describe('variablesFromSources: one well-formedness pass over the whole input', () => {
+  const LONE = '\uD800';
+  const lone = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+  const holdsLone = (value: unknown): boolean =>
+    typeof value === 'string'
+      ? lone.test(value)
+      : Array.isArray(value)
+        ? value.some(holdsLone)
+        : value !== null && typeof value === 'object'
+          ? Object.entries(value).some(([k, v]) => lone.test(k) || holdsLone(v))
+          : false;
+
+  const text = 'Escalate when the delay is above 2 days. Ready.';
+  const valid = (): VariableSources =>
+    ({
+      estate: {
+        files: { 'RULES.md': text },
+        rules: [
+          {
+            id: 'R1',
+            source: 'RULES.md',
+            conditions: [
+              {
+                text: 'Escalate when the delay is above 2 days.',
+                label: { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt', unit: 'days' },
+              },
+              {
+                text: 'Escalate when the delay is above 2 days.',
+                label: { kind: 'member', subject: 'tier', members: ['gold', 'silver'] },
+              },
+            ],
+            tools: [
+              {
+                tool: 'ledger',
+                field: 'account',
+                source: 'RULES.md',
+                values: [{ id: 'ready', quote: 'Ready.' }],
+              },
+            ],
+          },
+        ],
+      },
+      conversations: [
+        { id: 's1', values: { 'ledger.account': 'ready' } },
+        { id: 's2', values: { 'ledger.account': 'novel' } },
+      ],
+      owner: {
+        values: [{ variable: 'ledger.account', value: 'extra', words: 'The owner said so.', date: DAY }],
+        impossible: [
+          {
+            a: { variable: 'ledger.account', value: 'ready' },
+            b: { variable: 'delay', value: 'v3' },
+            words: 'The owner said so.',
+            date: DAY,
+          },
+        ],
+        weights: ['ready', 'novel', 'extra'].map((value) => ({
+          variable: 'ledger.account',
+          value,
+          weight: 1,
+          words: 'The owner said so.',
+          date: DAY,
+        })),
+      },
+    }) as never;
+
+  // Every string position of the input, as a way to put a lone surrogate there: in a value, or in a key.
+  type Path = Array<string | number>;
+  const positions = (value: unknown, path: Path = []): Array<{ path: Path; key: boolean }> => {
+    if (typeof value === 'string') return [{ path, key: false }];
+    if (Array.isArray(value)) return value.flatMap((v, i) => positions(v, [...path, i]));
+    if (value !== null && typeof value === 'object') {
+      return Object.entries(value).flatMap(([k, v]) => [
+        { path: [...path, k], key: true },
+        ...positions(v, [...path, k]),
+      ]);
+    }
+    return [];
+  };
+  const withLone = (input: unknown, path: Path, key: boolean): unknown => {
+    const copy = JSON.parse(JSON.stringify(input)) as Record<string | number, unknown>;
+    if (path.length === 0) return copy;
+    const parent = path
+      .slice(0, -1)
+      .reduce<Record<string | number, unknown>>(
+        (node, step) => node[step] as Record<string | number, unknown>,
+        copy,
+      );
+    const last = path[path.length - 1] as string | number;
+    if (key) {
+      const entries = Object.entries(parent).map(([k, v]) => [k === last ? `${k}${LONE}` : k, v] as const);
+      for (const k of Object.keys(parent)) delete parent[k];
+      for (const [k, v] of entries) parent[k] = v;
+    } else {
+      parent[last] = `${parent[last] as string}${LONE}`;
+    }
+    return copy;
+  };
+
+  it('has a valid input that reads without a refusal', () => {
+    const built = variablesFromSources(valid());
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables.length).toBeGreaterThan(1);
+    expect(holdsLone(built)).toBe(false);
+  });
+
+  it('refuses, by name and with no raw surrogate in any output, a lone surrogate at every string position', () => {
+    const base = valid();
+    const spots = positions(base);
+    expect(spots.length).toBeGreaterThan(40);
+    const missed: string[] = [];
+    for (const { path, key } of spots) {
+      const input = withLone(base, path, key) as VariableSources;
+      const built = variablesFromSources(input);
+      const named = built.refused.some((r) => /well-formed/.test(r.reason));
+      if (!named || holdsLone(built)) missed.push(`${key ? 'key' : 'value'} ${path.join('.')}`);
+    }
+    expect(missed).toEqual([]);
+  });
+
+  it('gives two sessions that differ only by a lone surrogate no shared hash and no id', () => {
+    const make = (suffix: string) =>
+      variablesFromSources({
+        ...(valid() as object),
+        conversations: [{ id: `fictional${suffix}`, values: { 'ledger.account': 'ready' } }],
+      } as never);
+    const [a, b] = [make('\uD800'), make('\uD801')];
+    expect(a.refused.filter((r) => /well-formed/.test(r.reason))).toHaveLength(1);
+    expect(JSON.stringify(a.store)).toBe(JSON.stringify(b.store));
+    expect(holdsLone(a) || holdsLone(b)).toBe(false);
+  });
+
+  it('prints no raw surrogate in the refusals of the ordinary paths either', () => {
+    const input = valid() as unknown as { owner: { values: Array<{ date: string }> } };
+    (input.owner.values[0] as { date: string }).date = `2026-13-45${LONE}`;
+    const built = variablesFromSources(input as never);
+    expect(built.refused.length).toBeGreaterThan(0);
+    expect(holdsLone(built)).toBe(false);
+  });
+});
+
+describe('variablesFromSources: special key names and empty lists in the well-formedness pass', () => {
+  const SPECIAL = ['__proto__', 'constructor', 'prototype', 'hasOwnProperty'];
+  const LONE = '\uD800';
+  // `JSON.parse` defines `__proto__` as an own key, as input read from a file would.
+  const parsed = (value: unknown): never => JSON.parse(JSON.stringify(value)) as never;
+
+  it.each(SPECIAL)('reads %s as ordinary data in a path, a tool, a field, a value and a session', (word) => {
+    const quote = 'Ready.';
+    const estate = {
+      files: { [word]: quote },
+      rules: [
+        {
+          id: word,
+          source: word,
+          conditions: [],
+          tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote }] }],
+        },
+      ],
+    };
+    const first = variablesFromSources(parsed({ estate }));
+    expect(first.refused.map((r) => r.reason)).toEqual([]);
+    const id = first.store.variables[0]?.id as string;
+    expect(id).toBeDefined();
+    const built = variablesFromSources(
+      parsed({
+        estate,
+        conversations: [{ id: word, values: { [id]: word } }],
+        owner: {
+          values: [{ variable: id, value: `${word}-2`, words: 'The owner said so.', date: DAY }],
+        },
+      }),
+    );
+    expect(built.refused.map((r) => r.reason)).toEqual([]);
+    expect(built.store.variables).toHaveLength(1);
+    expect(built.store.variables[0]?.values).toHaveLength(2);
+  });
+
+  it.each(SPECIAL)('still refuses a lone surrogate beside the special name %s', (word) => {
+    const built = variablesFromSources(
+      parsed({
+        estate: {
+          files: { [word]: 'Ready.', [`${word}${LONE}`]: 'Ready.' },
+          rules: [
+            {
+              id: word,
+              source: word,
+              conditions: [],
+              tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote: 'Ready.' }] }],
+            },
+          ],
+        },
+      }),
+    );
+    expect(built.refused.filter((r) => /well-formed/.test(r.reason))).toHaveLength(1);
+    expect(built.store.variables).toHaveLength(1);
+  });
+
+  it.each(['tool', 'field', 'source'])('refuses a malformed %s whose values list is empty', (part) => {
+    const tool = { tool: 'ledger', field: 'account', source: 'F.md', values: [] as unknown[] };
+    (tool as Record<string, unknown>)[part] = `x${LONE}`;
+    const built = variablesFromSources({
+      estate: {
+        files: { 'F.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'F.md', conditions: [], tools: [tool] }],
+      },
+    } as never);
+    expect(built.refused).toHaveLength(1);
+    expect(built.refused[0]?.reason).toMatch(/well-formed/);
+    expect(built.refused[0]?.what).not.toMatch(/[\uD800-\uDFFF]/);
+  });
+
+  it('refuses a malformed tool once, not once per value', () => {
+    const built = variablesFromSources({
+      estate: {
+        files: { 'F.md': 'Ready. Done.' },
+        rules: [
+          {
+            id: 'R',
+            source: 'F.md',
+            conditions: [],
+            tools: [
+              {
+                tool: `ledger${LONE}`,
+                field: 'account',
+                source: 'F.md',
+                values: [
+                  { id: 'ready', quote: 'Ready.' },
+                  { id: 'done', quote: 'Done.' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    } as never);
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables).toEqual([]);
   });
 });
