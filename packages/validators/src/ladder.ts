@@ -201,6 +201,12 @@ export type RunOptions = {
   full?: boolean;
   /** Compute only through this level (1 to the ladder's top), including in a full run. */
   maxLevel?: number;
+  /**
+   * Compute only from this level (1 to the ladder's top): the levels below it are listed as not run. A run that
+   * starts above level 1 is one slice of a ladder that `mergeSeedRuns` joins with the slices that hold the other
+   * levels, so it is a full run too: it computes above a failing level, and its own `level` means nothing.
+   */
+  fromLevel?: number;
 };
 
 const TIERS = new Set([1, 2, 3, 4, 5]);
@@ -229,6 +235,10 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
   if (!Number.isSafeInteger(maxLevel) || maxLevel < 1 || maxLevel > ladder.levels.length) {
     throw new RangeError(`maxLevel must be a whole number from 1 to ${ladder.levels.length}.`);
   }
+  const fromLevel = options.fromLevel ?? 1;
+  if (!Number.isSafeInteger(fromLevel) || fromLevel < 1 || fromLevel > ladder.levels.length) {
+    throw new RangeError(`fromLevel must be a whole number from 1 to ${ladder.levels.length}.`);
+  }
   const ctx: LadderContext = {
     seed: options.seed,
     hidden: options.hiddenSeed ?? false,
@@ -247,7 +257,7 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       threshold: def.threshold,
       direction,
     };
-    if (index >= maxLevel || (failing && !options.full)) {
+    if (index >= maxLevel || index + 1 < fromLevel || (failing && !options.full)) {
       rows.push({ ...base, observed: null, pass: null, itemCount: null });
       continue;
     }
@@ -312,7 +322,7 @@ export async function runSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root?: string,
-  options: { full?: boolean; maxLevel?: number } = {},
+  options: { full?: boolean; maxLevel?: number; fromLevel?: number } = {},
 ): Promise<LadderReport> {
   if (seeds.length === 0) throw new RangeError('runSeeds needs at least one seed.');
   const runs: SeedRun[] = [];
@@ -324,6 +334,7 @@ export async function runSeeds(
         ...(root ? { root } : {}),
         ...(options.full ? { full: true } : {}),
         ...(options.maxLevel === undefined ? {} : { maxLevel: options.maxLevel }),
+        ...(options.fromLevel === undefined ? {} : { fromLevel: options.fromLevel }),
       }),
     );
   }
@@ -339,4 +350,65 @@ export async function runSeeds(
 /** The label of a seed in tables and files: its number, or "hidden". */
 export function seedLabel(run: { seed: number; hidden: boolean }): string {
   return run.hidden ? 'hidden' : String(run.seed);
+}
+
+/**
+ * Joins the slices of one seed's run (each a run with `fromLevel` and `maxLevel`, or a whole run) into the run
+ * that one whole pass would give. By default that is a stopping run: the levels reached in order up to the first
+ * failing level, the failing level with its items, and every level above it listed as not run. With `full` it is
+ * a full run: every level a slice computed is kept, those above the first failing level marked `beyond`, with
+ * their items. `through` is the highest level the slices were asked to compute (the floor in a floor check, else
+ * the top of the ladder): a level at or below it that no slice computed, or that two slices computed, is a
+ * problem and the function returns its message, so a lost slice never reads as a pass. In a stopping join, a
+ * level above the first failing level may be missing.
+ */
+export function mergeSeedRuns(slices: readonly SeedRun[], through: number, full = false): SeedRun | string {
+  const first = slices[0];
+  if (!first) return 'there is no slice to join';
+  const label = seedLabel(first);
+  for (const slice of slices) {
+    if (slice.seed !== first.seed || slice.hidden !== first.hidden) {
+      return `the slices hold the seeds ${label} and ${seedLabel(slice)}`;
+    }
+    if (slice.top !== first.top || slice.rows.length !== first.rows.length) {
+      return `the slices of seed ${label} are for ladders of different height`;
+    }
+  }
+  if (!Number.isSafeInteger(through) || through < 1 || through > first.top) {
+    return `the slices of seed ${label} were asked through level ${through}, outside 1 to ${first.top}`;
+  }
+  const rows: LevelRow[] = [];
+  let failing: SeedRun['failing'] = null;
+  let level = 0;
+  for (const [index, template] of first.rows.entries()) {
+    const computed = slices
+      .map((slice) => ({ slice, row: slice.rows[index] as LevelRow }))
+      .filter(({ row }) => row.pass !== null);
+    if (computed.length > 1)
+      return `level ${index + 1} of seed ${label} was computed in ${computed.length} slices`;
+    const found = computed[0];
+    const keep = found !== undefined && (full || !failing);
+    if (!keep) {
+      if (!found && index < through && (full || !failing))
+        return `level ${index + 1} of seed ${label} was computed in no slice`;
+      const { bank: _bank, beyond: _beyond, items: _items, ...bare } = template;
+      rows.push({ ...bare, observed: null, pass: null, itemCount: null });
+      continue;
+    }
+    const { items: rowItems, beyond: _beyond, ...kept } = found.row;
+    // A run that stopped at a failing level keeps its items on `failing`, a full run on the row.
+    const items = rowItems ?? (found.slice.failing?.level === index + 1 ? found.slice.failing.items : []);
+    rows.push({
+      ...kept,
+      ...(failing ? { beyond: true } : {}),
+      ...(full ? { items } : {}),
+    });
+    if (failing) continue;
+    if (found.row.pass) {
+      level = index + 1;
+    } else {
+      failing = { level: index + 1, id: found.row.id, name: found.row.name, items };
+    }
+  }
+  return { seed: first.seed, hidden: first.hidden, level, top: first.top, rows, failing };
 }
