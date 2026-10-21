@@ -28,7 +28,7 @@
     "template": "Next task: {act}.[ {situation}.]"
   },
   {
-    "kind": "ask",
+    "kind": "hypothetical",
     "template": "No need to do anything: just tell me in one sentence what it would mean to {act}."
   },
   {

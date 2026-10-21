@@ -145,7 +145,7 @@ export function constructAsk(
   let actUsed = false;
   let situationUsed = false;
   let toolUsed = false;
-  const ask = rowOf(['ask', 'fixed'], record.ask);
+  const ask = rowOf(['ask', 'hypothetical', 'fixed'], record.ask);
   if (!ask) return { refused: `the ask row ${JSON.stringify(record.ask)} is not a row of the table` };
   const act = record.act === undefined ? undefined : rowOf('act', record.act);
   if (record.act !== undefined && !act)
