@@ -142,10 +142,9 @@ describe('README innovation YAML dropdowns', () => {
     const bodies = [...readme.matchAll(DROPDOWN)].map((dropdown) => dropdown[2] ?? '');
     expect(bodies.join('\n')).not.toMatch(/ships? in \[PR/);
     for (const pr of [418, 444]) {
-      expect(
-        readme.includes(`[#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`),
-        `#${pr}`,
-      ).toBe(true);
+      expect(readme.includes(`[#${pr}](https://github.com/NexusGPT/driftbench/pull/${pr})`), `#${pr}`).toBe(
+        true,
+      );
     }
     const base = 'https://github.com/NexusGPT/driftbench/pull';
     expect(readme).toContain(`not built yet ([#418](${base}/418), [#444]`);
