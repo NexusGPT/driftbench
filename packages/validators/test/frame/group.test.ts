@@ -49,8 +49,19 @@ describe('run C namespace startup', () => {
     spawn.mockImplementation((command: string) => ({ status: command === 'sudo' ? 0 : 1 }));
     const { namespacePrefix } = await import('../../src/frame/group');
     expect(namespacePrefix()).toEqual([
-      'sudo', '-n', '-E', 'unshare', '--pid', '--fork', '--kill-child', '--', 'setpriv',
-      '--reuid=1001', '--regid=1001', '--clear-groups', '--',
+      'sudo',
+      '-n',
+      '-E',
+      'unshare',
+      '--pid',
+      '--fork',
+      '--kill-child',
+      '--',
+      'setpriv',
+      '--reuid=1001',
+      '--regid=1001',
+      '--clear-groups',
+      '--',
     ]);
     expect(namespacePrefix()[0]).toBe('sudo');
     expect(spawn).toHaveBeenCalledTimes(2);

@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describeSeal, finishInvocation, forgetSealedProducts } from '@agent-nexus/driftbench-validators';
 import { afterEach, expect, it, vi } from 'vitest';
+import { describeSeal, finishInvocation, forgetSealedProducts } from '../../validators/src/frame';
 import { markPath } from '../../validators/src/frame/confine';
 import { plantedLadder } from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateCommandOptions, validateCommand } from '../src/commands/validate';
@@ -44,8 +44,12 @@ function fixture(component = 'planted') {
   const output = { out: '', err: '' };
   const io: Io = {
     cwd: root,
-    out: (text) => { output.out += text; },
-    err: (text) => { output.err += text; },
+    out: (text) => {
+      output.out += text;
+    },
+    err: (text) => {
+      output.err += text;
+    },
   };
   const { ladder } = plantedLadder([], component);
   const deps = { root, ladders: () => ({ [component]: ladder }), readHead: () => 'a'.repeat(40) };
@@ -83,13 +87,19 @@ it.each(['changed', 'unreadable'])('finishes when the measured statistics bank b
   const bank = join(f.root, 'packages', 'validators', 'src', 'ladders', 'stats');
   mkdirSync(bank, { recursive: true });
   writeFileSync(join(bank, 'index.ts'), 'export const bank = [1];\n');
+  for (const path of ['packages/validators/fixtures/stats', 'packages/stats/test/reference'])
+    mkdirSync(join(f.root, path), { recursive: true });
+  for (const name of ['bank.ts', 'ladder.ts', 'seeds.ts'])
+    writeFileSync(join(f.root, 'packages', 'validators', 'src', name), 'export const value = 1;\n');
   const mutate = afterMeasure.getMockImplementation();
   afterMeasure.mockImplementation(() => {
     mutate?.();
     if (mode === 'changed') writeFileSync(join(bank, 'index.ts'), 'export const bank = [2];\n');
     else rmSync(bank, { recursive: true, force: true });
   });
-  expect(await validateCommand('stats', { seed: '1', items: true, json: true }, f.io, f.deps)).toBe(USAGE_EXIT);
+  expect(await validateCommand('stats', { seed: '1', items: true, json: true }, f.io, f.deps)).toBe(
+    USAGE_EXIT,
+  );
   expect(f.output.err).toMatch(/statistics bank/);
   f.marked();
 });
@@ -98,7 +108,10 @@ it('finishes and preserves a measurement exception', async () => {
   const f = fixture();
   const mutate = afterMeasure.getMockImplementation();
   const failure = new Error('fictional measurement failure');
-  afterMeasure.mockImplementation(() => { mutate?.(); throw failure; });
+  afterMeasure.mockImplementation(() => {
+    mutate?.();
+    throw failure;
+  });
   await expect(validateCommand('planted', { seed: '1' }, f.io, f.deps)).rejects.toBe(failure);
   f.marked();
 });
@@ -106,7 +119,9 @@ it('finishes and preserves a measurement exception', async () => {
 it('finishes and preserves a report output exception', async () => {
   const f = fixture();
   const failure = new Error('fictional output failure');
-  f.io.out = () => { throw failure; };
+  f.io.out = () => {
+    throw failure;
+  };
   await expect(validateCommand('planted', { seed: '1' }, f.io, f.deps)).rejects.toBe(failure);
   f.marked();
 });
