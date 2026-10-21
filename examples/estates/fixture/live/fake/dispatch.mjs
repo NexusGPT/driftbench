@@ -177,7 +177,7 @@ function fits(parts, ask, at, grammar, used, k, closed = false) {
     }
     if ('opt' in part)
       return (
-        fits(part.opt, ask, pos, grammar, acts, (next, more, now) => step(index + 1, next, more, now), after) ||
+        fits(part.opt, ask, pos, grammar, acts, (to, more, now) => step(index + 1, to, more, now), after) ||
         step(index + 1, pos, acts, after)
       );
     for (let end = pos + 1; end <= ask.length; end++) {
@@ -185,7 +185,9 @@ function fits(parts, ask, at, grammar, used, k, closed = false) {
       const ends = /[.!?]$/.test(value);
       if (part.slot === 'situation') {
         if (grammar.situationSet.has(value) && step(index + 1, end, acts, ends)) return true;
-      } else if (Object.hasOwn(grammar.acts, value) && step(index + 1, end, [...acts, value], ends)) return true;
+      } else if (Object.hasOwn(grammar.acts, value) && step(index + 1, end, [...acts, value], ends)) {
+        return true;
+      }
     }
     return false;
   };
