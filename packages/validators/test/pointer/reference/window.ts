@@ -1,6 +1,10 @@
 import type { LabelDef, WindowMode } from '../../../src/ladders/pointer/sut/port';
 import type { NewUnit } from './anchor';
+import { referenceBugsB } from './bugs-b';
 import type { ParsedSet } from './labelset';
+
+/** What a request lists for each link kind of a set: the candidates a link may name, by kind. */
+export type Candidates = Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 
 /** About 100,000 tokens at four characters a token. */
 export const WINDOW_CHARS = 400_000;
@@ -102,7 +106,8 @@ export function planWindows(
         path: unit.sectionPath,
       };
     });
-    if (planUnits.some((u) => u.mode === 'label')) {
+    // A window whose units all kept their labels is not sent.
+    if (planUnits.some((u) => u.mode === 'label') || referenceBugsB.has('carried-window-requested')) {
       plans.push({
         id: `${file}#${k + 1}`,
         file,
@@ -132,7 +137,19 @@ export function windowLines(plan: WindowPlan): string[] {
   });
 }
 
-export function userText(set: ParsedSet, plan: WindowPlan): string {
+/** The link kinds of a set and the candidates the request lists under each; nothing for a set with none. */
+function linkLines(set: ParsedSet, candidates: Candidates): string[] {
+  if (set.links.length === 0) return [];
+  const lines = ['LINK KINDS:'];
+  for (const kind of set.links) {
+    lines.push(`- ${kind.name}: ${kind.description}`);
+    for (const candidate of candidates[kind.name] ?? [])
+      lines.push(`    ${candidate.id}  ${candidate.label}`);
+  }
+  return lines;
+}
+
+export function userText(set: ParsedSet, plan: WindowPlan, candidates: Candidates = {}): string {
   const names = [...set.labels.map((l) => l.name), 'none'].join(' | ');
   const labelLines = set.labels.map((l: LabelDef) => {
     const examples = (l.examples ?? [])
@@ -147,6 +164,7 @@ export function userText(set: ParsedSet, plan: WindowPlan): string {
     set.description,
     `LABELS ${names}`,
     ...labelLines,
+    ...linkLines(set, candidates),
     header,
     ...windowLines(plan),
   ].join('\n');

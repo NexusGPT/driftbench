@@ -112,6 +112,11 @@ export type ScanRequest = {
   labelsYaml?: string;
   /** A planted labeller called in process. */
   labeler?: Labeler;
+  /**
+   * The atoms of the estate so far, by id, kind and title: a link kind of a set lists those of its kinds in the
+   * request (docs/estate-pointer-reader.md, section 3). Absent: none.
+   */
+  atoms?: Array<{ id: string; kind: string; title: string }>;
   /** Or a model port over a fake transport; with a cassette. */
   model?: { arm: ScanArm; transport: Transport; threshold?: number };
   cassette?: CassetteIo;
@@ -143,6 +148,8 @@ export type LedgerView = { raw: string; entries: LedgerEntry[] };
 export type Atom = {
   kind: string;
   polarity?: string;
+  /** The title the reader gave the atom; absent when the reader does not expose it. */
+  title?: string;
   file: string;
   startLine: number;
   endLine: number;
@@ -259,7 +266,22 @@ export interface RerunApi {
   ):
     | { units: string[]; advisory: string[]; whole: string | null }
     | Promise<{ units: string[]; advisory: string[]; whole: string | null }>;
+  /**
+   * The change manifest of the edit, given the atoms of the map before it (each by its id, the unit it was built
+   * from and its condition units): the changes in the reader's order. Absent when the reader does not export it.
+   */
+  manifest?(
+    previous: LedgerView,
+    current: LedgerView,
+    atoms: ReadonlyArray<ManifestAtom>,
+  ): ManifestChange[] | Promise<ManifestChange[]>;
 }
+
+/** An atom as the change manifest reads it: its id, the unit it was built from, the units of its conditions. */
+export type ManifestAtom = { id: string; unit: string; condition?: string[] };
+
+/** One change of a manifest: a `prompt` change names an atom (or is global), a `unit` change names a unit. */
+export type ManifestChange = { kind: string; id?: string; global?: boolean };
 
 /** A validator-facing observation seam for the product stack (no voting in the adapter). */
 export type StackRequest = {

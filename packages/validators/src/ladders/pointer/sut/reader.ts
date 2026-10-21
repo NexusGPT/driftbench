@@ -7,6 +7,8 @@ import type {
   EditClass,
   LedgerEntry,
   LedgerView,
+  ManifestAtom,
+  ManifestChange,
   PointerSut,
   RerunApi,
   ScanRequest,
@@ -100,6 +102,7 @@ type RResult = {
 };
 type RAtom = {
   kind: string;
+  title?: string;
   situation?: string;
   provenance: { file: string; startLine: number; endLine: number; quote: string };
   producedBy: string;
@@ -110,6 +113,7 @@ type RAtom = {
 
 type RChange = { id: string; class: string; path: string; sectionPath: string[]; quote: string };
 type RRerun = { units: Map<string, string[]>; advisory: Map<string, string[]>; whole: string | null };
+type RManifest = { changes: Array<{ kind: string; id?: string; global?: boolean }> };
 
 type RSettings =
   | {
@@ -124,6 +128,12 @@ export type ReaderExports = {
   /** Optional rerun rule of the ledger: absent exports fail the items that need them, explicitly. */
   ledgerChanges?(before: RLedger, after: RLedger): RChange[];
   rerunOf?(changes: readonly RChange[], before: RLedger): RRerun;
+  /** Optional change manifest of a rerun set: absent exports fail the items that need them, explicitly. */
+  atomsByUnit?(atoms: ReadonlyArray<{ id: string; fields?: Record<string, unknown> }>): Map<string, string[]>;
+  ledgerChangeManifest?(
+    rerun: RRerun,
+    options: { from: string; to: string; atomsByUnit?: ReadonlyMap<string, readonly string[]> },
+  ): RManifest;
   /** Optional stack observables. Unsupported rules fail explicitly. */
   margin?: StackApi['margin'];
   stackDecision?: StackApi['decide'];
@@ -483,6 +493,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       mode,
       ...(previous ? { previous } : {}),
       ...(request.estateKey !== undefined ? { estateKey: request.estateKey } : {}),
+      ...(request.atoms ? { atoms: request.atoms } : {}),
     });
   } catch (cause) {
     return fail(cause instanceof Error ? cause.message : String(cause));
@@ -538,6 +549,7 @@ function atomOf(atom: RAtom): Atom {
   return {
     kind: atom.kind,
     ...(polarity ? { polarity } : {}),
+    ...(typeof atom.title === 'string' ? { title: atom.title } : {}),
     ...(typeof atom.situation === 'string' && atom.situation !== '' ? { situation: atom.situation } : {}),
     file: atom.provenance.file,
     startLine: atom.provenance.startLine,
@@ -627,8 +639,30 @@ function rerunOf(reader: ReaderExports): RerunApi {
         whole: out.whole,
       };
     },
+    manifest(previous, current, atoms) {
+      if (!reader.atomsByUnit || !reader.ledgerChangeManifest)
+        throw new ReaderNotReachable('the reader does not export atomsByUnit and ledgerChangeManifest');
+      const { before, list } = changes(previous, current);
+      const rerun = (reader.rerunOf as NonNullable<ReaderExports['rerunOf']>)(list, before);
+      const byUnit = reader.atomsByUnit(atoms.map(fieldsOf));
+      const out = reader.ledgerChangeManifest(rerun, { from: 'before', to: 'after', atomsByUnit: byUnit });
+      return out.changes.map(changeOf);
+    },
   };
 }
+
+/** A manifest atom as the reader keeps it: the unit and the condition units in its fields. */
+const fieldsOf = (atom: ManifestAtom) => ({
+  id: atom.id,
+  fields: { unit: atom.unit, ...(atom.condition ? { condition: [...atom.condition] } : {}) },
+});
+
+/** A change of the reader's manifest, its kind, id and global flag passed on unchanged. */
+const changeOf = (change: { kind: string; id?: string; global?: boolean }): ManifestChange => ({
+  kind: change.kind,
+  ...(change.id !== undefined ? { id: change.id } : {}),
+  ...(change.global !== undefined ? { global: change.global } : {}),
+});
 
 /** The real reader as a PointerSut. Layer C is not built in the reader, so `links` is absent. */
 export function realReader(): PointerSut {
@@ -647,6 +681,10 @@ export function realReader(): PointerSut {
     rerun: {
       classify: async (previous, current) => rerunOf(await load()).classify(previous, current),
       rerun: async (previous, current) => rerunOf(await load()).rerun(previous, current),
+      manifest: async (previous, current, atoms) => {
+        const api = rerunOf(await load());
+        return (api.manifest as NonNullable<RerunApi['manifest']>)(previous, current, atoms);
+      },
     },
     settings: { parse: async (text) => settingsOf(await load()).parse(text) },
     stack: {
