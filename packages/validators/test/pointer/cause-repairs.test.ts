@@ -30,7 +30,10 @@ async function run(id: string, sut: PointerSut) {
     else process.env.DRIFTBENCH_POINTER_SUT = before;
   }
 }
-const mutant = (name: string, scan: (request: ScanRequest) => ReturnType<PointerSut['scan']>): PointerSut => ({
+const mutant = (
+  name: string,
+  scan: (request: ScanRequest) => ReturnType<PointerSut['scan']>,
+): PointerSut => ({
   ...ref,
   name,
   scan,
@@ -65,7 +68,9 @@ const drifts = (): PointerSut => {
   return mutant('replay-drifts', async (request) => {
     const out = await ref.scan(request);
     calls += 1;
-    return out.ledger ? { ...out, ledger: { ...out.ledger, raw: `${out.ledger.raw}${' '.repeat(calls)}` } } : out;
+    return out.ledger
+      ? { ...out, ledger: { ...out.ledger, raw: `${out.ledger.raw}${' '.repeat(calls)}` } }
+      : out;
   });
 };
 
@@ -102,7 +107,11 @@ const noEventsById = (): PointerSut =>
 
 describe('a replay item fails only for the cause it names', () => {
   const cases: Array<[string, () => PointerSut, RegExp]> = [
-    ['replay.answers-frozen-despite-random-transport', reasks, /replay used random transport or changed ledger/],
+    [
+      'replay.answers-frozen-despite-random-transport',
+      reasks,
+      /replay used random transport or changed ledger/,
+    ],
     ['replay.replay-twice-identical', drifts, /two fixture replays differ/],
     ['replay.miss-names-new-file', unnamedMiss, /miss does not name/],
     ['replay.fixture-haiku-replays-committed', acceptsStale, /a one-field stale cassette was accepted/],
@@ -142,6 +151,17 @@ describe('the replay items that read the readable fields of a hit name one cause
     // Twelve fixture items, the tampered cut digest and the cut digest mismatch.
     expect(stale).toBe(14);
   }, 600_000);
+});
+
+describe('the run is part of the cassette key', () => {
+  it('replay.repeat-run-is-part-of-key: the reference passes, a reader whose key ignores the run fails', async () => {
+    const id = 'replay.repeat-run-is-part-of-key';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    // A key that ignores the run gives the runs of one window one entry: one call, and one answer for all runs.
+    const planted = await run(id, asksOnce());
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toContain('a run reused the answer of another');
+  }, 120_000);
 });
 
 describe('the Jev replay setting is reached offline', () => {
@@ -202,7 +222,8 @@ describe('an item that reads the event of each id names the missing observation'
     for (const x of bank.filter((i) => families.has(i.family))) {
       const out = await run(x.id, noEventsById());
       const missing = !out.pass && MISSING.test(out.detail);
-      if (missing !== (x.cause === EVENTS_CAUSE)) wrong.push(`${x.id} (${x.cause}): ${out.detail.slice(0, 80)}`);
+      if (missing !== (x.cause === EVENTS_CAUSE))
+        wrong.push(`${x.id} (${x.cause}): ${out.detail.slice(0, 80)}`);
     }
     expect(wrong).toEqual([]);
   }, 900_000);

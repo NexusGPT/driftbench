@@ -131,6 +131,15 @@ export const replay: FamilySpec = {
       'cassette:miss-names-field',
     ),
     row(
+      'repeat-run-is-part-of-key',
+      2,
+      'The run is part of the key',
+      'Record three files with the Haiku arm: each window is asked in three independent runs of the same request.',
+      'Every window has one entry per run with distinct keys; the transport is called once per entry and no run reuses the answer of another.',
+      'cassette:run-in-key',
+      { needs: ['transport', 'cassette'] },
+    ),
+    row(
       'key-is-sha256-hex',
       2,
       'The key is a SHA-256 hex digest',

@@ -1,7 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
-import { loadFixture, makeFixture, perturb, requireFixtureLabels } from '../../kit/fixture';
+import { loadFixture, makeFixture, perturb, RUNS, requireFixtureLabels } from '../../kit/fixture';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
@@ -355,6 +355,21 @@ export const replayRuns: Record<string, Run> = {
     ['cutDigest'],
     [process.versions.node, process.versions.icu ?? ''],
   ),
+  'repeat-run-is-part-of-key': async (ctx) => {
+    const { files } = threeFiles(ctx);
+    const fake = fakeTransport();
+    const rec = await record(files, 'haiku', fake, { labelsYaml: RULES_YAML }, ctx);
+    must(rec, 'record');
+    const keys = lines(rec.cassette ?? '').map((l) => (JSON.parse(l) as { key?: string }).key);
+    const want = files.length * RUNS.haiku;
+    if (keys.length !== want || new Set(keys).size !== want)
+      return fail(
+        `${keys.length} entries with ${new Set(keys).size} distinct keys, expected ${want}: one per window and run`,
+      );
+    return fake.count === want
+      ? pass(`${want} runs, ${want} keys, ${want} calls`)
+      : fail(`${fake.count} transport calls for ${want} runs: a run reused the answer of another`);
+  },
   'key-is-sha256-hex': async (ctx) => {
     const { files } = threeFiles(ctx);
     const rec = await record(files, 'haiku', fakeTransport(), { labelsYaml: TWO_SETS_YAML }, ctx);
