@@ -64,13 +64,24 @@ const TAILS = split(`
   yesterday tomorrow tonight outside inside upstairs downstairs elsewhere overnight meanwhile afterwards
 `);
 
-const take = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+// The words a generator writes, in order, while a `written` call is open: the positions a planter may change.
+let trace: string[] | null = null;
+const pick = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+const take = <T>(rng: Rng, items: readonly T[]): T => {
+  const value = pick(rng, items);
+  if (trace && typeof value === 'string') trace.push(value);
+  return value;
+};
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const long = (rng: Rng, items: readonly string[]): string => {
   for (let tries = 0; tries < 20; tries += 1) {
-    const word = take(rng, items);
-    if (word.length >= 4) return word;
+    const word = pick(rng, items);
+    if (word.length >= 4) {
+      trace?.push(word);
+      return word;
+    }
   }
+  trace?.push('quietly');
   return 'quietly';
 };
 
@@ -241,6 +252,19 @@ export class Prose {
     return fallback;
   }
 
+  /** The next sentence as `next` draws it, with the words the generator wrote and where they start. */
+  nextWritten(make: (rng: Rng) => string = sentence): Written {
+    let last: Written | undefined;
+    const text = this.next((rng) => {
+      last = written(make, rng);
+      return last.text;
+    });
+    // A fallback text only appends to the last draw, so its offsets still hold.
+    if (!last || !text.startsWith(last.text.replace(/\.$/, '')))
+      throw new Error('the accepted sentence is not the last draw');
+    return { text, words: last.words };
+  }
+
   many(count: number, make?: (rng: Rng) => string): string[] {
     return Array.from({ length: count }, () => this.next(make));
   }
@@ -250,6 +274,15 @@ export class Prose {
     for (let tries = 0; tries < 400; tries += 1) {
       const candidate = this.next(make);
       if (texts.every((t) => similarity(candidate, t) < limit)) return candidate;
+    }
+    throw new Error('no sentence unrelated enough');
+  }
+
+  /** `unrelatedTo`, with the words the generator wrote and where they start. */
+  unrelatedToWritten(texts: readonly string[], limit = 0.3, make: (rng: Rng) => string = sentence): Written {
+    for (let tries = 0; tries < 400; tries += 1) {
+      const candidate = this.nextWritten(make);
+      if (texts.every((t) => similarity(candidate.text, t) < limit)) return candidate;
     }
     throw new Error('no sentence unrelated enough');
   }

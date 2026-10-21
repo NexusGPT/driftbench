@@ -260,7 +260,13 @@ export function measureHardness(
   }
   const maxScore = bar.maxScore ?? HARDNESS_MAX_SCORE;
   if (end && bar.maxGain !== undefined) {
-    const gain = end.score - chosen.measure.baseline.score;
+    // The stricter of the hardness-only gain and the gain over every item: catch items that always pass never
+    // dilute the rise (section 12.4: counting them apart never makes a gate easier to pass).
+    const own = rows.filter((row) => executorOf(row) === source);
+    const startRow = own.find((row) => row.iteration === 0) ?? zero;
+    const gain = endRow
+      ? Math.max(score(endRow) - score(startRow), allScore(endRow) - allScore(startRow))
+      : end.score - chosen.measure.baseline.score;
     if (gain > bar.maxGain)
       reasons.push(
         `the score rose ${round(gain)} over ${label}, above ${bar.maxGain} (the bar GATE.md sets in place of the score ceiling)`,

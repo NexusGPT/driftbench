@@ -5,7 +5,7 @@ import { perfect } from '../../kit/labellers';
 import { norm, squash } from '../../kit/norm';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
-import { longMake, Prose, type Rng, sentence, similarity, word } from '../../kit/words';
+import { longMake, Prose, type Rng, sentence, similarity, word, written } from '../../kit/words';
 import type { LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, Problem, pass, type Run } from '../types';
 
@@ -21,6 +21,17 @@ const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const body = (text: string) => text.replace(/\.$/, '');
 /** A whole number from `from` to `to`, drawn from the stream. */
 const between = (r: Rng, from: number, to: number) => from + Math.floor(r() * (to - from + 1));
+
+/** `text` with each change laid over the words the generator wrote: the changes do not overlap. */
+function replaceWords(text: string, changes: ReadonlyArray<{ start: number; length: number; text: string }>) {
+  let out = '';
+  let at = 0;
+  for (const change of [...changes].sort((x, y) => x.start - y.start)) {
+    out += text.slice(at, change.start) + change.text;
+    at = change.start + change.length;
+  }
+  return out + text.slice(at);
+}
 
 /* ----- cutting ----- */
 
@@ -338,16 +349,23 @@ const reanchoring: Record<string, Run> = {
     const r = p.random;
     // The near merge: one sentence that reads like the join of two units, far from either alone.
     const near = draw('near merge', () => {
-      const [a, b] = [sentence(r), sentence(r)];
+      const [wa, wb] = [written(sentence, r), written(sentence, r)];
+      const [a, b] = [wa.text, wb.text];
       const join = `${a} ${b}`;
-      const words = `${body(a)}, and ${lowerFirst(body(b))}`.split(' ');
-      const slots = words
-        .map((text, at) => ({ text, at }))
-        .filter(({ text, at }) => at > 0 && /^[a-z]{4,}$/.test(text))
+      const base = `${body(a)}, and ${lowerFirst(body(b))}`;
+      // The words the generator wrote, at their place in the joined clause; the second sentence moves right.
+      const shift = body(a).length + ', and '.length;
+      const slots = [...wa.words, ...wb.words.map((w) => ({ ...w, start: w.start + shift }))]
+        .filter((w) => w.start > 0 && w.text.length >= 4)
         .sort(() => r() - 0.5);
+      const changes: Array<{ start: number; length: number; text: string }> = [];
       for (const slot of slots) {
-        words[slot.at] = `${word(r)}${r() < 0.5 ? 'ish' : 'ery'}`;
-        const into = `${words.join(' ')}.`;
+        changes.push({
+          start: slot.start,
+          length: slot.text.length,
+          text: `${word(r)}${r() < 0.5 ? 'ish' : 'ery'}`,
+        });
+        const into = `${replaceWords(base, changes)}.`;
         const joined = similarity(join, into);
         if (joined > 0.64) continue;
         const alone = Math.max(similarity(a, into), similarity(b, into));
@@ -404,16 +422,13 @@ const reanchoring: Record<string, Run> = {
     const r = p.random;
     const w = worldOf(p, { files: 1, perFile: 6 });
     const kept = w.texts[0] as string[];
-    const twin = p.unrelatedTo(kept, 0.3, longMake);
+    const written2 = p.unrelatedToWritten(kept, 0.3, longMake);
+    const twin = written2.text;
     const reworded = draw('reworded twin', () => {
-      const words = twin.replace(/\.$/, '').split(' ');
-      const slots = words
-        .map((text, at) => ({ text, at }))
-        .filter(({ text, at }) => at > 0 && /^[a-z]{4,}$/.test(text));
+      const slots = written2.words.filter((w) => w.start > 0 && w.text.length >= 4);
       const slot = slots[Math.floor(r() * slots.length)];
       if (!slot) return undefined;
-      words[slot.at] = word(r);
-      const made = `${words.join(' ')}.`;
+      const made = replaceWords(twin, [{ start: slot.start, length: slot.text.length, text: word(r) }]);
       return made !== twin && similarity(made, twin) >= 0.85 ? made : undefined;
     });
     w.texts[0] = [...kept.slice(0, 2), twin, kept[2] as string, reworded, ...kept.slice(3)];

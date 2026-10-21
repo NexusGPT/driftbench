@@ -178,6 +178,23 @@ describe('the bar a validator records in GATE.md', () => {
     expect(absolute.gate.reasons).toContain('the score after the pilot 0.76 is above 0.4');
   });
 
+  it('takes the stricter gain of the hardness items and of every item', () => {
+    // 510 hardness items climb from 306 to 366 passing: a rise of 0.1176. Ninety catch items always pass, so the
+    // gain over every item is (456 - 396) / 600 = 0.1, which passes a bar of 0.11 that the hardness rise fails.
+    const tiers = { '1': 170, '2': 136, '3': 102, '4': 68, '5': 34 };
+    const passing = Array.from({ length: 11 }, (_, iteration) => 306 + 6 * iteration);
+    const journal = rows(passing, 510, tiers);
+    const gate = 'Max score gain over the pilot: 0.11\nMin forecast: 20\n';
+    const alone = measureHardness(journal, { audit: PASSING_AUDIT, gate });
+    expect(alone.gate.reasons.some((reason) => reason.includes('the score rose'))).toBe(true);
+    const caught = journal.map((row) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 90, passing: 90 } }),
+    );
+    const mixed = measureHardness(caught, { audit: PASSING_AUDIT, gate });
+    expect(mixed.gate.holds).toBe(false);
+    expect(mixed.gate.reasons.some((reason) => reason.includes('the score rose'))).toBe(true);
+  });
+
   it('honours the bars the committed GATE.md files record', () => {
     const bar = (component: string) =>
       parseGate(readFileSync(join(ROOT, 'validators', component, 'GATE.md'), 'utf8'));
