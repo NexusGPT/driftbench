@@ -17,6 +17,11 @@ import { type Atom, AtomKind, Edge, type EstateMap } from '../schema';
  * fields) is restated: its tests are regenerated. Approval alone is not a change. Edges are compared as
  * `from kind to` triples.
  *
+ * An id names the file an atom was read in, so a fact several files state once (a tool two helpers declare)
+ * changes its id when the file it was anchored in leaves. An atom that leaves under one id while an atom of
+ * the same kind, title, words and fields arrives under another is the same atom, renamed: its tests are
+ * regenerated against the new id, and neither atom counts as removed or added.
+ *
  * A pointer atom is built from a ledger unit and names it in `fields.unit`. When its text changes its title
  * and so its id change, but the unit keeps its id: an atom removed and an atom added on the same unit are one
  * changed atom, under its old id, with the new id in `now`. With the ledgers of the two versions, the diff
@@ -70,6 +75,16 @@ export const AtomMove = z.strictObject({
   to: AtomPlace,
 });
 export type AtomMove = z.infer<typeof AtomMove>;
+
+export const AtomRename = z.strictObject({
+  from: z.string().min(1),
+  to: z.string().min(1),
+  kind: AtomKind,
+  title: z.string().min(1),
+  was: AtomPlace,
+  now: AtomPlace,
+});
+export type AtomRename = z.infer<typeof AtomRename>;
 
 export const AtomRestated = z.strictObject({
   id: z.string().min(1),
@@ -132,6 +147,20 @@ export const UnitsDiff = z.strictObject({
   rerun: z.array(UnitRef).describe('The units whose links rerun'),
   advisory: z.array(UnitRef).describe('The units whose links are reported and do not rerun'),
   whole: z.string().nullable().describe('Set when the whole suite reruns, with the reason'),
+  unlabeled: z
+    .array(
+      z.strictObject({
+        unit: z.string().min(1),
+        path: z.string().min(1),
+        quote: z.string(),
+        was: z.string().optional(),
+        fileAtoms: z.array(z.string().min(1)).describe('The atoms of the old map in the same file'),
+      }),
+    )
+    .optional()
+    .describe(
+      'Units that changed and on which the old map holds no atom: no test names them, a person reviews them',
+    ),
 });
 export type UnitsDiff = z.infer<typeof UnitsDiff>;
 
@@ -145,6 +174,10 @@ export const EstateDiff = z.strictObject({
     changed: z.array(AtomChange),
     moved: z.array(AtomMove),
     restated: z.array(AtomRestated),
+    renamed: z
+      .array(AtomRename)
+      .optional()
+      .describe('Atoms that left under one id and arrived under another'),
   }),
   edges: z.strictObject({ added: z.array(Edge), removed: z.array(Edge) }),
   guards: z
@@ -154,6 +187,12 @@ export const EstateDiff = z.strictObject({
   units: UnitsDiff.optional().describe(
     'The ledger units of the two versions; present when both ledgers are given',
   ),
+  oldAtoms: z
+    .array(z.string().min(1))
+    .optional()
+    .describe(
+      'Every atom id of the old map: a test citing an id outside it cites an atom no longer in the map',
+    ),
   summary: z.strictObject({
     added: z.number().int().min(0),
     removed: z.number().int().min(0),
@@ -164,6 +203,7 @@ export const EstateDiff = z.strictObject({
     unchanged: z.number().int().min(0),
     edgesAdded: z.number().int().min(0),
     edgesRemoved: z.number().int().min(0),
+    renamed: z.number().int().min(0).optional(),
   }),
 });
 export type EstateDiff = z.infer<typeof EstateDiff>;
@@ -202,7 +242,7 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
     if (unit !== undefined && !old.has(atom.id))
       addedByUnit.set(unit, [...(addedByUnit.get(unit) ?? []), atom]);
   }
-  const renamed = new Map<string, Atom>();
+  const onUnit = new Map<string, Atom>();
   for (const atom of before.atoms) {
     const unit = unitOf(atom);
     if (unit === undefined || next.has(atom.id)) continue;
@@ -211,12 +251,22 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
       (each) => unitOf(each) === unit && each.kind === atom.kind && !next.has(each.id),
     );
     if (candidates.length === 1 && removedOnUnit.length === 1 && candidates[0])
-      renamed.set(atom.id, candidates[0]);
+      onUnit.set(atom.id, candidates[0]);
   }
-  const renamedTo = new Set([...renamed.values()].map((atom) => atom.id));
-
-  const added = after.atoms.filter((atom) => !old.has(atom.id) && !renamedTo.has(atom.id)).map(diffAtom);
-  const removed = before.atoms.filter((atom) => !next.has(atom.id) && !renamed.has(atom.id)).map(diffAtom);
+  const onUnitTo = new Set([...onUnit.values()].map((atom) => atom.id));
+  // Of the rest, an atom that leaves under one id while the same fact arrives under another is renamed.
+  const renamed = renamedAtoms(
+    before.atoms.filter((atom) => !next.has(atom.id) && !onUnit.has(atom.id)),
+    after.atoms.filter((atom) => !old.has(atom.id) && !onUnitTo.has(atom.id)),
+  );
+  const gone = new Set(renamed.map((entry) => entry.from));
+  const arrived = new Set(renamed.map((entry) => entry.to));
+  const added = after.atoms
+    .filter((atom) => !old.has(atom.id) && !onUnitTo.has(atom.id) && !arrived.has(atom.id))
+    .map(diffAtom);
+  const removed = before.atoms
+    .filter((atom) => !next.has(atom.id) && !onUnit.has(atom.id) && !gone.has(atom.id))
+    .map(diffAtom);
   const changed: AtomChange[] = [];
   const moved: AtomMove[] = [];
   const restated: AtomRestated[] = [];
@@ -227,7 +277,7 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
     const prior = old.get(atom.id);
     if (prior) pairs.push([prior, atom]);
   }
-  for (const [id, atom] of renamed) {
+  for (const [id, atom] of onUnit) {
     const prior = old.get(id);
     if (prior) pairs.push([prior, atom]);
   }
@@ -279,10 +329,11 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
     version: 1,
     old: stamp(before, options.oldPath),
     new: stamp(after, options.newPath),
-    atoms: { added, removed, changed, moved, restated },
+    atoms: { added, removed, changed, moved, restated, ...(renamed.length > 0 ? { renamed } : {}) },
     edges: { added: edgesAdded, removed: edgesRemoved },
     ...(options.guards === undefined ? {} : { guards: options.guards }),
     ...(options.ledgers === undefined ? {} : { units: unitsDiff(before, options.ledgers) }),
+    oldAtoms: before.atoms.map((atom) => atom.id).sort(),
     summary: {
       added: added.length,
       removed: removed.length,
@@ -293,8 +344,46 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
       unchanged,
       edgesAdded: edgesAdded.length,
       edgesRemoved: edgesRemoved.length,
+      ...(renamed.length > 0 ? { renamed: renamed.length } : {}),
     },
   };
+}
+
+/** What makes two atoms the same fact: everything but the id, the place and the guards that enforce it. */
+function identity(atom: Atom): string {
+  return canonicalJson([
+    atom.kind,
+    atom.title,
+    normaliseQuote(atom.provenance.quote),
+    atom.role ?? null,
+    atom.situation ?? null,
+    atom.evidence,
+    atom.fields ?? null,
+  ]);
+}
+
+/** Pairs the atoms that left with the atoms that arrived when both are the same fact, in id order. */
+function renamedAtoms(left: readonly Atom[], arrived: readonly Atom[]): AtomRename[] {
+  const waiting = new Map<string, Atom[]>();
+  for (const atom of [...arrived].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+    const key = identity(atom);
+    waiting.set(key, [...(waiting.get(key) ?? []), atom]);
+  }
+  const renamed: AtomRename[] = [];
+  for (const atom of [...left].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+    const twin = waiting.get(identity(atom))?.shift();
+    if (twin) {
+      renamed.push({
+        from: atom.id,
+        to: twin.id,
+        kind: atom.kind,
+        title: atom.title,
+        was: place(atom),
+        now: place(twin),
+      });
+    }
+  }
+  return renamed;
 }
 
 /** The units of the two ledgers: their edit classes, what reruns and what is advisory, with the old map's atoms. */
@@ -308,6 +397,20 @@ export function unitsDiff(before: EstateMap, ledgers: { before: Ledger; after: L
       .map(([unit, why]) => ({ unit, why, atoms: byUnit.get(unit) ?? [] }));
   const counts = Object.fromEntries(EDIT_CLASSES.map((name) => [name, 0])) as UnitsDiff['counts'];
   for (const change of changes) counts[change.class]++;
+  // A changed unit with no atom in the old map is invisible to the atom diff: the ledger still follows it by its
+  // text and place, so it is reported, with the atoms of its file, for the tests that cite that file.
+  const unlabeled = changes
+    .filter((change) => change.class === 'changed' && (byUnit.get(change.id) ?? []).length === 0)
+    .map((change) => ({
+      unit: change.id,
+      path: change.path,
+      quote: change.quote,
+      ...(change.was === undefined ? {} : { was: change.was }),
+      fileAtoms: before.atoms
+        .filter((atom) => atom.provenance.file === change.path)
+        .map((atom) => atom.id)
+        .sort(),
+    }));
   return {
     changes: changes
       .filter((change) => change.class !== 'unchanged')
@@ -323,6 +426,7 @@ export function unitsDiff(before: EstateMap, ledgers: { before: Ledger; after: L
     rerun: refs(rerun.units),
     advisory: refs(rerun.advisory),
     whole: rerun.whole,
+    ...(unlabeled.length === 0 ? {} : { unlabeled }),
   };
 }
 
@@ -356,7 +460,7 @@ export function renderEstateDiff(diff: EstateDiff): string {
     `Estate diff: ${name(diff.old)} (${diff.old.hash.slice(0, 12)}) to ${name(diff.new)} (${diff.new.hash.slice(0, 12)}).`,
   );
   lines.push(
-    `  Atoms: ${s.added} added, ${s.removed} removed, ${s.whitespace + s.semantic} changed (${s.whitespace} white space only, ${s.semantic} semantic), ${s.moved} moved with the same quote, ${s.restated} restated, ${s.unchanged} unchanged.`,
+    `  Atoms: ${s.added} added, ${s.removed} removed, ${s.whitespace + s.semantic} changed (${s.whitespace} white space only, ${s.semantic} semantic), ${s.moved} moved with the same quote, ${s.restated} restated${s.renamed ? `, ${s.renamed} renamed` : ''}, ${s.unchanged} unchanged.`,
   );
   lines.push(`  Edges: ${s.edgesAdded} added, ${s.edgesRemoved} removed.`);
   if (diff.guards !== undefined) {
@@ -406,6 +510,13 @@ export function renderEstateDiff(diff: EstateDiff): string {
       const to = entry.from.file === entry.to.file ? `${entry.to.startLine}` : where(entry.to);
       lines.push(`  > ${entry.id} ${where(entry.from)} to ${to}`);
     }
+  }
+  if ((diff.atoms.renamed ?? []).length > 0) {
+    lines.push('Renamed, the same atom under another id:');
+    for (const entry of diff.atoms.renamed ?? [])
+      lines.push(
+        `  = ${entry.from} to ${entry.to} (${entry.kind}) ${where(entry.was)} to ${where(entry.now)}`,
+      );
   }
   if (diff.atoms.restated.length > 0) {
     lines.push('Restated, same quote:');

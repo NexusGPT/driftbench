@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +29,27 @@ const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const SESSIONS = join(FIXTURE, 'sessions');
 const NAMES = ['weekly-clean', 'weekly-skill-skipped', 'weekly-gate-violated'];
+
+/**
+ * The hand plan holds no replay row for the read-before-edit gate any more (a replay row keeps only an atom with a
+ * check). The gate has one now, gate.standing.read-before-edit-it, enforced by the read-before-edit guard: F8c
+ * replays it as the row p02, added to a copy of the plan for this test only.
+ */
+const P02 = `  - id: p02
+    atomIds:
+      - gate.standing.read-before-edit-it
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: ordered_pair
+    mode: replay
+    status: approved
+    weight: 1
+`;
 
 async function cli(argv: string[]) {
   const output = { out: '', err: '' };
@@ -62,20 +83,20 @@ describe('code-agent-liability on the Northwind recorded sessions', () => {
   let planRows: Array<{ id: string } & NonNullable<evidence.EvidenceInput['planRows']>[number]> = [];
 
   beforeAll(async () => {
-    planRows = (
-      parseObjectText(
-        await readFile(join(ROOT, 'packages/generate/test/estate/fixtures/plan.yaml'), 'utf8'),
-        'plan.yaml',
-      ).raw as { rows: typeof planRows }
-    ).rows;
+    const handPlan = await readFile(join(ROOT, 'packages/generate/test/estate/fixtures/plan.yaml'), 'utf8');
+    const planText = handPlan.replace('  - id: p04\n', `${P02}  - id: p04\n`);
+    expect(planText).not.toBe(handPlan);
+    planRows = (parseObjectText(planText, 'plan.yaml').raw as { rows: typeof planRows }).rows;
     const out = await mkdtemp(join(tmpdir(), 'blame-northwind-'));
+    const plan = join(await mkdtemp(join(tmpdir(), 'blame-northwind-plan-')), 'plan.yaml');
+    await writeFile(plan, planText);
     const generated = await cli([
       'estate',
       'generate',
       '--map',
       join(FIXTURE, 'approved.yaml'),
       '--plan',
-      join(ROOT, 'packages/generate/test/estate/fixtures/plan.yaml'),
+      plan,
       '--out',
       out,
     ]);

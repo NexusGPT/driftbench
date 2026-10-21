@@ -35,7 +35,7 @@ export type UserOptions = {
   maxQuestions?: number;
   /** Inside a stack: leave the labels that ask for a target to the system 2 labeler. */
   skipTargetLabels?: boolean;
-  /** A system 2 labeler: how many times a window is asked; a unit takes a label only when every run agrees. */
+  /** A system 2 labeler: how many times a window is asked; a unit takes the label more than half of the runs give. */
   runs?: number;
 };
 

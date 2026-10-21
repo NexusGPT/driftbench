@@ -45,8 +45,10 @@ describe('label sets', () => {
     const shipped = load(AGENT_RULES_SET);
     expect(shipped[0]?.labels.map((label) => label.name)).toEqual([
       'rule',
+      'dispatch',
       'prohibition',
       'gate',
+      'gate-same',
       'gate-command',
       'gate-calls',
       'reference',
@@ -57,6 +59,8 @@ describe('label sets', () => {
       'hazard-new-session',
       'hazard-notification',
       'hazard-nudge',
+      'route-skill',
+      'route-helper',
       'condition',
       'example',
       'description',
@@ -150,7 +154,21 @@ describe('the shipped set and the hazards it names', () => {
     for (const label of hazards) {
       expect(label.atom?.situation).toBeTruthy();
       expect(label.atom?.evidence).toEqual([
-        { type: 'custom', name: 'hazard_recovery', options: { hazard: label.atom?.fields?.hazard } },
+        {
+          type: 'custom',
+          name: 'hazard_recovery',
+          options: {
+            hazard: label.atom?.fields?.hazard,
+            reread: '$paths',
+            'rereadSelf?': '$has.reread-self',
+            'calls?': {
+              each: '$commands',
+              item: { label: 'Bash', input: { command: { contains: '$item' } } },
+            },
+            'retry?': '$has.retry',
+            'unpathed?': '$spans.reread-other',
+          },
+        },
       ]);
     }
   });
@@ -278,7 +296,14 @@ describe('spans and links in a label set', () => {
       { n: 2, text: 'The log is long.', index: 1 },
     ],
   };
-  const context = { candidates: { topic: [{ id: 'route.a', label: 'Route A' }] } };
+  const context = {
+    candidates: {
+      topic: [
+        { id: 'route.a', label: 'Route A' },
+        { id: 'route.b', label: 'Route B' },
+      ],
+    },
+  };
   const check = (entry: Record<string, unknown>) =>
     checkAnswer(set, window, [{ units: '1', label: 'rule', ...entry }], context);
 
@@ -329,7 +354,7 @@ describe('spans and links in a label set', () => {
     expect(checked.accepted.get(1)?.links).toEqual([{ kind: 'topic', to: 'route.a' }]);
   });
 
-  it('refuses the whole entry, with its own reason, for each way a span or a link is wrong', () => {
+  it('drops the span or the link, with its own reason, and keeps the label, for each way it is wrong', () => {
     const cases: Array<[string, Record<string, unknown>, RegExp]> = [
       ['a range', { units: '1-2', spans: [{ kind: 'act', from: 0, to: 3 }] }, /a range cannot carry spans/],
       [
@@ -381,15 +406,39 @@ describe('spans and links in a label set', () => {
         },
         /is given twice/,
       ],
-      ['empty spans', { spans: [] }, /spans are a non-empty list/],
     ];
     for (const [name, entry, reason] of cases) {
       const checked = check(entry);
-      expect(checked.accepted.size, name).toBe(0);
-      expect(checked.covered.size, name).toBe(0);
-      expect(checked.refusals, name).toHaveLength(1);
-      expect(checked.refusals[0], name).toMatch(reason);
+      // The label stands; the note that failed is dropped, once, with its reason.
+      expect(checked.refusals, name).toEqual([]);
+      expect(checked.accepted.size, name).toBe(entry.units === '1-2' ? 2 : 1);
+      // An overlap drops only the later span: the first stands.
+      expect(checked.accepted.get(1)?.spans, name).toEqual(
+        name === 'an overlap' ? [{ kind: 'act', from: 0, to: 10 }] : undefined,
+      );
+      // A repeated link kind drops the later link: the first stands.
+      expect(checked.accepted.get(1)?.links, name).toEqual(
+        name === 'a link kind given twice' ? [{ kind: 'topic', to: 'route.a' }] : undefined,
+      );
+      expect(checked.dropped, name).toHaveLength(1);
+      expect(checked.dropped[0], name).toMatch(reason);
     }
+    // Two links of one kind to two atoms of the request both stand: a row may name two skills.
+    const two = check({
+      links: [
+        { kind: 'topic', to: 'route.a' },
+        { kind: 'topic', to: 'route.b' },
+      ],
+    });
+    expect(two.dropped).toEqual([]);
+    expect(two.accepted.get(1)?.links).toEqual([
+      { kind: 'topic', to: 'route.a' },
+      { kind: 'topic', to: 'route.b' },
+    ]);
+    // A malformed list is the one shape that still refuses the entry.
+    const empty = check({ spans: [] });
+    expect(empty.accepted.size).toBe(0);
+    expect(empty.refusals[0]).toMatch(/spans are a non-empty list/);
   });
 
   it('measures offsets on the text the labeler reads, and keeps them as offsets of the raw unit', () => {
@@ -417,7 +466,24 @@ describe('spans and links in a label set', () => {
       [{ units: '1', label: 'rule', spans: [{ kind: 'act', from, to: lines.units[0]?.text.length ?? 0 }] }],
       context,
     );
-    expect(past.refusals[0]).toMatch(/offsets leave the unit/);
+    expect(past.accepted.get(1)?.spans).toBeUndefined();
+    expect(past.dropped[0]).toMatch(/offsets leave the unit/);
+  });
+
+  it('finds the words of a clause on the text the labeler reads, across a line break, and keeps raw offsets', () => {
+    const lines = {
+      ...window,
+      units: [{ n: 1, text: 'Close the lower gate\n    before dusk, and log it.', index: 0 }],
+    };
+    const checked = checkAnswer(
+      set,
+      lines,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'act', text: 'gate before dusk' }] }],
+      context,
+    );
+    expect(checked.refusals).toEqual([]);
+    const kept = checked.accepted.get(1)?.spans?.[0];
+    expect(lines.units[0]?.text.slice(kept?.from, kept?.to)).toBe('gate\n    before dusk');
   });
 
   it("finds the words of a clause once, without regard to case, and keeps the unit's own offsets", () => {
@@ -439,15 +505,15 @@ describe('spans and links in a label set', () => {
     expect(lines.units[0]?.text.slice(kept?.from, kept?.to)).toBe('tide is out,\n    close the');
   });
 
-  it('refuses words found twice in the unit, and words that are not in it, each with its own reason', () => {
+  it('drops words found twice in the unit, and words that are not in it, each with its own reason', () => {
     const twice = check({ spans: [{ kind: 'act', text: 'it' }] });
-    expect(twice.accepted.size).toBe(0);
-    expect(twice.refusals).toEqual([expect.stringContaining('the text is found twice in the unit')]);
+    expect(twice.accepted.get(1)?.spans).toBeUndefined();
+    expect(twice.dropped).toEqual([expect.stringContaining('the text is found twice in the unit')]);
     const absent = check({ spans: [{ kind: 'act', text: 'Never edit the log' }] });
-    expect(absent.accepted.size).toBe(0);
-    expect(absent.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
+    expect(absent.accepted.get(1)?.spans).toBeUndefined();
+    expect(absent.dropped).toEqual([expect.stringContaining('the text is not in the unit')]);
     const empty = check({ spans: [{ kind: 'act', text: '' }] });
-    expect(empty.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
+    expect(empty.dropped).toEqual([expect.stringContaining('the text is not in the unit')]);
   });
 
   it('locates words in a text: one place, none, or several', () => {
@@ -479,11 +545,11 @@ describe('spans and links in a label set', () => {
     expect(plain).toEqual(entries[3]);
     expect(range).toEqual(entries[4]);
     expect(offsets).toEqual(entries[5]);
-    // The refusal that follows names why the words were not located, not a bad offset.
-    const refused = checkAnswer(set, window, [absent as Labelled], context);
-    expect(refused.accepted.size).toBe(0);
-    expect(refused.refusals).toEqual([expect.stringContaining('the text is not in the unit')]);
-    expect(refused.refusals[0]).not.toMatch(/offsets leave the unit/);
+    // The drop that follows names why the words were not located, not a bad offset; the label stands.
+    const dropped = checkAnswer(set, window, [absent as Labelled], context);
+    expect(dropped.accepted.get(1)?.label).toBe('rule');
+    expect(dropped.dropped).toEqual([expect.stringContaining('the text is not in the unit')]);
+    expect(dropped.dropped[0]).not.toMatch(/offsets leave the unit/);
     const accepted = checkAnswer(set, window, [found as Labelled], context);
     expect(accepted.accepted.get(1)?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
   });
@@ -496,21 +562,22 @@ describe('spans and links in a label set', () => {
       [{ units: '1', label: 'rule', spans: [{ kind: 'mechanics', from: 0, to: 3 }] }],
       context,
     );
-    expect(checked.accepted.size).toBe(0);
-    expect(checked.refusals[0]).toMatch(/the kind "mechanics" is not one the label rule may carry/);
+    expect(checked.accepted.get(1)?.label).toBe('rule');
+    expect(checked.dropped[0]).toMatch(/the kind "mechanics" is not one the label rule may carry/);
   });
 
-  it('allows a link to none, and refuses spans or links on a label that carries none', () => {
+  it('allows a link to none, and drops spans or links on a label that carries none', () => {
     expect(check({ links: [{ kind: 'topic', to: 'none' }] }).accepted.get(1)?.links).toEqual([
       { kind: 'topic', to: 'none' },
     ]);
     const remark = checkAnswer(set, window, [
       { units: '2', label: 'remark', spans: [{ kind: 'act', from: 0, to: 3 }] },
     ]);
-    expect(remark.refusals[0]).toMatch(/the label remark carries no spans/);
+    expect(remark.accepted.get(2)?.label).toBe('remark');
+    expect(remark.dropped[0]).toMatch(/the label remark carries no spans/);
     const none = checkAnswer(set, window, [
       { units: '2', label: 'none', links: [{ kind: 'topic', to: 'none' }] },
     ]);
-    expect(none.refusals[0]).toMatch(/carries no links/);
+    expect(none.dropped[0]).toMatch(/carries no links/);
   });
 });

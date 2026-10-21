@@ -1,5 +1,6 @@
 import { rngFor } from '@agent-nexus/driftbench-generate';
 import { STANDING, skillFile } from '../layout';
+import type { ExpectedAtom } from '../render';
 
 /**
  * A scale estate: as many skills as it takes to plant `size` atoms, each skill a routing row, a description,
@@ -14,19 +15,30 @@ export function scaleEstate(
   size: number,
   seed: number,
   options: { drop?: number } = {},
-): { files: Record<string, string>; atoms: number } {
+): {
+  files: Record<string, string>;
+  atoms: number;
+  /** The references, gates and scripts planted, which the labeler is asked for: the structure finds the rest. */
+  expected: ExpectedAtom[];
+  gates: Array<{ file: string; line: number; act: string; tool: string }>;
+} {
   const rng = rngFor(seed, 'bank-scale');
   const skills = Math.max(1, Math.ceil((size - 5) / ATOMS_PER_SKILL));
   const files: Record<string, string> = {};
   const rows: string[] = [];
+  const routed: string[] = [];
+  const expected: ExpectedAtom[] = [];
+  const gates: Array<{ file: string; line: number; act: string; tool: string }> = [];
   const nouns = ['crate', 'parcel', 'ledger', 'roster', 'permit', 'tariff', 'voucher', 'badge'];
   let atoms = 2 + 3;
   for (let index = 0; index < skills; index += 1) {
     const noun = nouns[Math.floor(rng() * nouns.length)] as string;
     const name = `${noun}-task-${index}`;
     rows.push(`| handle ${noun} task ${index} | \`${name}\` |`);
+    routed.push(name);
     const dropped = index < (options.drop ?? 0);
-    files[skillFile(name, 'SKILL.md')] = [
+    const file = skillFile(name, 'SKILL.md');
+    const lines = [
       '---',
       `name: ${name}`,
       `description: Handle ${noun} task ${index}. Use when the user asks for ${noun} task ${index}.`,
@@ -39,12 +51,34 @@ export function scaleEstate(
       `2. Read \`references/rules-${index}.md\` before you change any record.`,
       `3. Run \`python3 scripts/run-${index}.py RECORD\` and show the summary.`,
       '',
-    ].join('\n');
+    ];
+    const at = (prefix: string) => lines.findIndex((line) => line.startsWith(prefix)) + 1;
+    if (!dropped)
+      expected.push({
+        hid: `lookup-${index}`,
+        kind: 'reference',
+        file,
+        line: at('1.'),
+        key: skillFile(name, `references/lookup-${index}.md`),
+      });
+    expected.push({
+      hid: `rules-${index}`,
+      kind: 'reference',
+      file,
+      line: at('2.'),
+      key: skillFile(name, `references/rules-${index}.md`),
+    });
+    gates.push({ file, line: at('2.'), act: 'change any record', tool: 'Edit' });
+    files[file] = lines.join('\n');
     if (!dropped) files[skillFile(name, `references/lookup-${index}.md`)] = '# Lookup\n';
     files[skillFile(name, `references/rules-${index}.md`)] = '# Rules\n';
     files[skillFile(name, `scripts/run-${index}.py`)] = '#!/usr/bin/env python3\n"""Runs the task."""\n';
     atoms += dropped ? ATOMS_PER_SKILL - 1 : ATOMS_PER_SKILL;
   }
+  // The rows of the routing table start on line 5 of the standing file: one planted route each, for the labeller.
+  routed.forEach((name, index) => {
+    expected.push({ hid: `route-${index}`, kind: 'route', file: STANDING, line: 5 + index, key: name });
+  });
   files[STANDING] = [
     '# Scale estate',
     '',
@@ -53,5 +87,5 @@ export function scaleEstate(
     ...rows,
     '',
   ].join('\n');
-  return { files, atoms };
+  return { files, atoms, expected, gates };
 }

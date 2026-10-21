@@ -144,8 +144,8 @@ describe('an HTTP labeler', () => {
       cassette,
       mode: 'record',
     });
-    // A system 2 labeler is asked three times, and every run gives the same labels.
-    expect(calls).toHaveLength(3);
+    // A system 2 labeler is asked five times (DEFAULT_RUNS), and every run gives the same labels.
+    expect(calls).toHaveLength(5);
     expect(first.labelled.map((item) => item.label)).toEqual(['greeting', 'price-claim']);
     // Every cassette key holds the id of the labeler.
     expect([...cassette.entries.values()].every((entry) => entry.readable.labeler === live.id)).toBe(true);

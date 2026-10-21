@@ -6,7 +6,7 @@ import { FIXTURE, NOW } from '../support';
 
 /**
  * The Northwind fixture, read through its committed cassette. `cassette.jsonl` holds the answers of the
- * default stack, a system 1 labeler and a system 2 labeler (three runs), one request per window each. No network and no key: a miss
+ * default stack, a system 1 labeler and a system 2 labeler (five runs), one request per window each, and the document-roles question of every file. No network and no key: a miss
  * here means the fixture, the prompt, the set, the cutter or a labeler changed and the cassette must be
  * re-recorded in one reviewed commit.
  */
@@ -54,21 +54,33 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave 6 answers the checks refuse: each is counted.
-    expect(result.pointer?.refusals.length).toBe(6);
-    // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
+    // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
+    // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
+    // runs still decides the unit.
+    expect(result.pointer?.refusals.length).toBe(3);
+    expect(
+      result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
+        .length,
+    ).toBeGreaterThan(0);
+    // A unit is decided, or left unlabeled because no label had three runs out of five.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
-    expect(result.pointer?.split).toBeGreaterThan(0);
+    expect(result.pointer?.voted).toBeGreaterThan(0);
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
       result.pointer?.plan.units,
     );
-    // Every answer of the cassette is read: one request per window, labeler and run.
-    expect(cassette.entries.size).toBe(result.pointer?.windows);
+    // Every answer of the cassette is read: one request per window, labeler and run, for the rules and for the
+    // document roles.
+    expect(cassette.entries.size).toBe((result.pointer?.windows ?? 0) + (result.documentRoles?.windows ?? 0));
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
 
-  it('builds the git status before commit gate from the recorded nested command spans', async () => {
+  // Skipped until board row "Re-land the gate-calls wording from #1045": the nested command spans come from #1045's
+  // gate-calls text, which #877 does not take (recorded with it, the fixture lost every routing row and four
+  // standing rules, regen run 39625632619); today R14 is a gate-command gate. Test id: packages/estate/test/pointer/
+  // fixture.test.ts > the fixture through its committed cassettes > builds the git status before commit gate from
+  // the recorded nested command spans. The re-land PR un-skips it.
+  it.skip('builds the git status before commit gate from the recorded nested command spans', async () => {
     const { result } = await replay();
     const gate = result.map.atoms.find(
       (atom) => atom.kind === 'gate' && atom.provenance.quote.includes('**R14.**'),

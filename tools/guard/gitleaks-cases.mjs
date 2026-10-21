@@ -130,12 +130,46 @@ for (const [kind, make] of Object.entries(tokens)) {
 }
 
 const SC = 'examples/estates/fixture/settings-cassette.jsonl';
+// One request key, allowed where a pointer cassette records it and reported anywhere else: the allowance is the
+// exact commit, file, rule and line of the key field, never the value.
+const POINTER_KEY = hex(64);
 const cases = [
+  [
+    'estate pointer cassette: the key field of a recorded answer',
+    'examples/estates/fixture/cassette.jsonl',
+    `{"answer":{"n":1},"key":"${POINTER_KEY}","readable":{"n":2}}`,
+    false,
+  ],
+  [
+    'the same pointer cassette key value, copied into another file',
+    'examples/estates/other/copied-key.json',
+    `{\n  "key": "${POINTER_KEY}"\n}`,
+    true,
+    POINTER_KEY,
+  ],
+  [
+    'estate pointer cassette: a secret-named field (api_key) beside the answer',
+    'examples/estates/reader-cases/cassette.jsonl',
+    `{"answer":{"n":1},"api_key":"${hex(64)}","readable":{"n":2}}`,
+    true,
+  ],
   [
     'estate settings cassette: a 64-hex key in JSONL',
     SC,
     `{"answer":{"n":1},"key":"${hex(64)}","readable":{"n":2}}`,
     false,
+  ],
+  [
+    'estate pointer cassette: a 64-hex key in JSONL',
+    'examples/estates/fixture-v2/cassette.jsonl',
+    `{"answer":{"n":1},"key":"${hex(64)}","readable":{"n":2}}`,
+    false,
+  ],
+  [
+    'a pointer cassette in another estate folder',
+    'examples/estates/other/cassette.jsonl',
+    `{"key":"${hex(64)}","v":2}`,
+    true,
   ],
   [
     'a settings-cassette in another folder',

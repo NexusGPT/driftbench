@@ -1,7 +1,9 @@
+import { buildPlan, toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
 import {
   allowedPairs,
+  approvedPlan,
   atomLevel,
   clearBankCache,
   type EstateRun,
@@ -12,6 +14,7 @@ import {
   matchAtoms,
   PlantedEstate,
   planLevel,
+  planSpace,
   requiredRows,
   specLevel,
   standingFamily,
@@ -172,6 +175,106 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     expect(noTwin.items.find((item) => item.id.endsWith(':twin'))?.component).toBe(
       'packages/estate/src/plan/contract.ts',
     );
+  });
+
+  it('plans over the declared pairs: the planted pairs are kept and covered, each event value is unresolved without a space, and a supplied space excludes what it marks irrelevant', async () => {
+    const run = await estateRun(1);
+    const declared = toEstateSpaceMap(run.scanned.map);
+    // The pairs the plan keeps, found from the space the plan is built over.
+    const keptPairs = (map: EstateRun['scanned']['map']) => {
+      const space = planSpace(map);
+      const targets = space.dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
+      const dimensions = [
+        ...space.dimensions
+          .filter((dimension) => !dimension.id.startsWith('atoms.'))
+          .map((dimension) => ({ id: dimension.id, values: dimension.values.map((value) => value.id) })),
+        { id: 'target', values: targets.flatMap((dimension) => dimension.values.map((value) => value.id)) },
+      ];
+      const constraints = space.constraints.map((constraint) =>
+        Object.fromEntries(
+          Object.entries(constraint.forbid).map(([dimension, value]) => [
+            dimension.startsWith('atoms.') ? 'target' : dimension,
+            value,
+          ]),
+        ),
+      );
+      return {
+        space,
+        allowed: new Set(allowedPairs(dimensions, constraints).map((pair) => pair.join('|'))),
+        targetIds: new Set(dimensions[dimensions.length - 1]?.values),
+      };
+    };
+    const key = (target: string, dimension: string, value: string) =>
+      [dimension, value, 'target', target].join('|');
+
+    // Planted by what the estate declares, not by what the pruner says: a rule that calls a tool is concerned by a
+    // failure of that tool.
+    const base = keptPairs(run.scanned.map);
+    const planted: Array<[string, string, string]> = [];
+    for (const atom of run.scanned.map.atoms.filter(
+      (candidate) => candidate.approved && base.targetIds.has(candidate.id),
+    ))
+      if (atom.evidence.some((predicate) => predicate.type === 'tool_called' && predicate.label !== 'Agent'))
+        planted.push([atom.id, 'deviation', 'D8_tool_failure']);
+    expect(planted.length).toBeGreaterThan(0);
+    const rows = run.plan.plan.rows;
+    for (const [target, dimension, value] of planted) {
+      expect(base.allowed.has(key(target, dimension, value)), `${target} x ${value} kept`).toBe(true);
+      expect(
+        rows.some((row) => row.atomIds[0] === target && row.cell[dimension] === value),
+        `${target} x ${value} has a row`,
+      ).toBe(true);
+    }
+
+    // docs/estate.md "Situation relevance in a proposed plan": relevance comes from a declared space, never from the
+    // words of the estate. Without a supplied space the plan keeps the declared combinations and reports each
+    // event-axis value, but its baseline (and an unperturbed long session), as unresolved.
+    expect(base.space.constraints.length, 'no pruning without a supplied space').toBe(
+      declared.constraints.length,
+    );
+    const notes = run.plan.details.notes;
+    const events = new Set(['session_state', 'owner_signal', 'deviation', 'estate_hazard']);
+    for (const dimension of declared.dimensions.filter((candidate) => events.has(candidate.id))) {
+      for (const [index, value] of dimension.values.entries()) {
+        if (index === 0 || (dimension.id === 'session_state' && value.id === 'long')) continue;
+        expect(
+          notes.some((note) => note.startsWith(`${dimension.id}=${value.id}: relevance is unresolved`)),
+          `${dimension.id}=${value.id} reported as unresolved`,
+        ).toBe(true);
+      }
+    }
+
+    // A supplied space is authoritative: a pair it marks irrelevant leaves the plan. A reader that ignores the space
+    // keeps the pair, as the plan built without it does, so the check can fail.
+    const language: [string, string] = ['deviation', 'D5_language_switch'];
+    const crossed = run.plan.plan.rows.find(
+      (row) => row.id.startsWith('pairwise.') && row.cell[language[0]] === language[1] && row.atomIds[0],
+    );
+    expect(crossed, 'the plan without a space crosses the language switch with a target').toBeDefined();
+    const target = crossed?.atomIds[0] as string;
+    const dimension = declared.dimensions.find((candidate) =>
+      candidate.values.some((value) => value.id === target),
+    );
+    if (!dimension) throw new Error(`no dimension of the declared space holds ${target}`);
+    const supplied = {
+      ...declared,
+      constraints: [
+        ...declared.constraints,
+        { forbid: { [language[0]]: language[1], [dimension.id]: target }, reason: 'declared irrelevant' },
+      ],
+    };
+    const crosses = (rows: ReadonlyArray<{ atomIds: readonly string[]; cell: Record<string, string> }>) =>
+      rows.some((row) => row.atomIds[0] === target && row.cell[language[0]] === language[1]);
+    expect(
+      crosses(buildPlan(run.scanned.map, { space: supplied }).plan.rows),
+      `${target} x ${language[1]} excluded`,
+    ).toBe(false);
+    expect(
+      crosses(run.plan.plan.rows),
+      `${target} x ${language[1]} kept by a reader that ignores the space`,
+    ).toBe(true);
+    // The pair stays an allowed pair of the declared space, so the exclusion is the supplied space's alone.
+    expect(base.allowed.has(key(target, ...language)), `${target} x ${language[1]} declared`).toBe(true);
   });
 
   it('fails a complete spec whose expectation the rule follower does not meet, and a spec that does not load', async () => {

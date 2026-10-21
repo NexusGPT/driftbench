@@ -1,4 +1,5 @@
-import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,7 +50,7 @@ describe('driftbench estate diff', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 125 unchanged.',
+      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 116 unchanged.',
     );
     expect(result.out).toContain('Edges: 0 added, 0 removed.');
   });
@@ -59,11 +60,15 @@ describe('driftbench estate diff', () => {
     const before = await cli(['estate', 'scan', '.', '--no-model', '--out', 'v1.yaml'], root);
     expect(before.code).toBe(0);
     await edit(
-      join(root, 'CLAUDE.md'),
-      '| plan the delivery routes for tomorrow |',
-      '| plan the delivery routes for the next two days |',
+      join(root, '.claude/agents/route-planner.md'),
+      "Plans tomorrow's delivery routes",
+      'Plans the delivery routes of the next two days',
     );
-    await edit(join(root, 'CLAUDE.md'), '| know where a shipment is |', '| know where   a shipment is |');
+    await edit(
+      join(root, '.claude/skills/shipment-tracker/SKILL.md'),
+      'Look up where a shipment is',
+      'Look up  where a shipment is',
+    );
     const after = await cli(['estate', 'scan', '.', '--no-model', '--out', 'v2.yaml'], root);
     expect(after.code).toBe(0);
 
@@ -72,11 +77,11 @@ describe('driftbench estate diff', () => {
     expect(text.code).toBe(0);
     expect(text.out).toContain('2 changed (1 white space only, 1 semantic)');
     expect(text.out).toContain(
-      'Changed, semantic:\n  ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:36',
+      'Changed, semantic:\n  ~ route.route-planner.an-ask-that-fits-route-planner (route) .claude/agents/route-planner.md:3',
     );
-    expect(text.out).toContain('now: | plan the delivery routes for the next two days |');
+    expect(text.out).toContain('now: Plans the delivery routes of the next two days from the open orders');
     expect(text.out).toContain(
-      'Changed, white space only:\n  ~ route.standing.an-ask-to-know-where-a (route)',
+      'Changed, white space only:\n  ~ route.shipment-tracker.an-ask-that-fits-shipment-tracker (route)',
     );
     expect(text.out).toContain('Wrote diff.json.');
 
@@ -123,36 +128,35 @@ function spec(id: string, atoms: string[]): string {
   ].join('\n');
 }
 
-/** Two scans of the fixture, the second after a route changed meaning, a route was removed and a gate added. */
+/** Two scans of the fixture, the second after a route changed meaning, a route was removed and a route added. */
 async function editedEstate(): Promise<string> {
   const root = await fixtureCopy();
   expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v1.yaml'], root)).code).toBe(0);
-  const standing = join(root, 'CLAUDE.md');
   await edit(
-    standing,
-    '| plan the delivery routes for tomorrow |',
-    '| plan the delivery routes for the next two days |',
+    join(root, '.claude/agents/route-planner.md'),
+    "Plans tomorrow's delivery routes",
+    'Plans the delivery routes of the next two days',
   );
-  await edit(standing, '| audit the ledger for duplicate payments | the `ledger-auditor` agent |\n', '');
-  await edit(
-    standing,
-    'during this session.\n',
-    'during this session.\n- **R18.** Before closing a month: Read `.claude/skills/weekly-report/templates/report.md`.\n',
+  await rm(join(root, '.claude/agents/ledger-auditor.md'));
+  await mkdir(join(root, '.claude/skills/month-summary'), { recursive: true });
+  await writeFile(
+    join(root, '.claude/skills/month-summary/SKILL.md'),
+    '---\nname: month-summary\ndescription: Write the month summary of the shipments. Use when the user asks for the month summary.\n---\n\nSummarise the month.\n',
   );
   expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v2.yaml'], root)).code).toBe(0);
   expect((await cli(['estate', 'diff', 'v1.yaml', 'v2.yaml', '--out', 'diff.json'], root)).code).toBe(0);
   await mkdir(join(root, 'tests'));
   await writeFile(
     join(root, 'tests', 'plan.yaml'),
-    spec('t-plan', ['route.standing.an-ask-to-plan-the-delivery']),
+    spec('t-plan', ['route.route-planner.an-ask-that-fits-route-planner']),
   );
   await writeFile(
     join(root, 'tests', 'audit.yaml'),
-    spec('t-audit', ['route.standing.an-ask-to-audit-the-ledger']),
+    spec('t-audit', ['route.ledger-auditor.an-ask-that-fits-ledger-auditor']),
   );
   await writeFile(
     join(root, 'tests', 'track.yaml'),
-    spec('t-track', ['route.standing.an-ask-to-know-where-a']),
+    spec('t-track', ['route.shipment-tracker.an-ask-that-fits-shipment-tracker']),
   );
   return root;
 }
@@ -164,18 +168,20 @@ describe('driftbench estate impact', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(1);
     expect(result.out).toContain('on 3 live estate tests (0 retired before, 0 other specs)');
-    expect(result.out).toContain('  t-plan (plan.yaml): route.standing.an-ask-to-plan-the-delivery semantic');
     expect(result.out).toContain(
-      'Re-approve, the meaning changed:\n  route.standing.an-ask-to-plan-the-delivery (route)',
+      '  t-plan (plan.yaml): route.route-planner.an-ask-that-fits-route-planner semantic',
     );
     expect(result.out).toContain(
-      '  t-audit (audit.yaml): retired: atom route.standing.an-ask-to-audit-the-ledger removed [to write with --write]',
+      'Re-approve, the meaning changed:\n  route.route-planner.an-ask-that-fits-route-planner (route)',
     );
     expect(result.out).toContain(
-      'New atoms with no test:\n  reference.standing.read-claude-skills-weekly-report-templates (reference) CLAUDE.md:26\n  gate.standing.read-claude-skills-weekly-report-templates (gate) CLAUDE.md:26\n',
+      '  t-audit (audit.yaml): retired: atom route.ledger-auditor.an-ask-that-fits-ledger-auditor removed [to write with --write]',
     );
     expect(result.out).toContain(
-      're-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits',
+      '  route.month-summary.an-ask-that-fits-month-summary (route) .claude/skills/month-summary/SKILL.md:3\n',
+    );
+    expect(result.out).toContain(
+      're-approve route.route-planner.an-ask-that-fits-route-planner: its meaning changed; 1 test waits',
     );
     expect(await readFile(join(root, 'tests', 'audit.yaml'), 'utf8')).not.toContain('retired');
   });
@@ -190,8 +196,8 @@ describe('driftbench estate impact', () => {
     expect(written.out).toContain('[written]');
     expect(written.out).toContain('Wrote impact.json.');
     const audit = await readFile(join(root, 'tests', 'audit.yaml'), 'utf8');
-    expect(audit).toContain('  retired: atom route.standing.an-ask-to-audit-the-ledger removed');
-    expect(audit).toContain('# Covers route.standing.an-ask-to-audit-the-ledger. Fictional.');
+    expect(audit).toContain('  retired: atom route.ledger-auditor.an-ask-that-fits-ledger-auditor removed');
+    expect(audit).toContain('# Covers route.ledger-auditor.an-ask-that-fits-ledger-auditor. Fictional.');
     const report = JSON.parse(await readFile(join(root, 'impact.json'), 'utf8')) as {
       retire: { state: string }[];
     };
@@ -207,15 +213,15 @@ describe('driftbench estate impact', () => {
     const root = await editedEstate();
     await writeFile(
       join(root, 'tests', 'new.yaml'),
-      spec('t-new', ['gate.standing.read-claude-skills-weekly-report-templates']),
+      spec('t-new', ['route.month-summary.an-ask-that-fits-month-summary']),
     );
     const diff = JSON.parse(await readFile(join(root, 'diff.json'), 'utf8')) as {
       atoms: { changed: unknown[]; added: { id: string }[] };
     };
-    const gate = diff.atoms.added.find((entry) => entry.id.startsWith('gate.'));
-    expect(gate?.id).toBe('gate.standing.read-claude-skills-weekly-report-templates');
+    const added = diff.atoms.added.find((entry) => entry.id.startsWith('route.'));
+    expect(added?.id).toBe('route.month-summary.an-ask-that-fits-month-summary');
     diff.atoms.changed = [];
-    diff.atoms.added = diff.atoms.added.filter((entry) => entry.id.startsWith('gate.'));
+    diff.atoms.added = diff.atoms.added.filter((entry) => entry.id.startsWith('route.'));
     await writeFile(join(root, 'quiet.json'), JSON.stringify(diff));
     const result = await cli(['estate', 'impact', 'quiet.json', '--tests', 'tests'], root);
     expect(result.out).toContain('Nothing needs a person.');
@@ -486,6 +492,10 @@ describe('the fixture-v2 outputs', () => {
       `${V2}/map.yaml`,
       '--old-guards',
       `${V2}/maintain/guard-state.v1.yaml`,
+      '--old-ledger',
+      'examples/estates/fixture/ledger.json',
+      '--new-ledger',
+      `${V2}/ledger.json`,
     ]);
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
@@ -498,15 +508,40 @@ describe('the fixture-v2 outputs', () => {
     expect(result.code).toBe(1);
     expect(result.out).toBe(withoutWrote(await readFile(join(ROOT, V2, 'maintain', 'impact.txt'), 'utf8')));
 
+    // Version 2 retires nothing: R12 and R19 sit on one ledger unit that no atom covers, so R12 is a changed,
+    // unlabeled unit, and the test that cites the R12 atom cites an atom no longer in the map. The diff of a
+    // version that removes R12 outright is that diff with the R12 atom listed among the removed ones.
     const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-v2-'));
     await cp(join(ROOT, V2, 'tests'), join(root, 'tests'), { recursive: true });
-    await cp(join(ROOT, V2, 'maintain', 'diff.json'), join(root, 'diff.json'));
+    const diff = JSON.parse(await readFile(join(ROOT, V2, 'maintain', 'diff.json'), 'utf8'));
+    expect(diff.atoms.removed).toEqual([]);
+    expect(diff.atoms.changed.some((entry: { id: string }) => entry.id.includes('r12-when-r2'))).toBe(false);
+    const unit = diff.units.changes.find((change: { id: string }) => change.id === 'mx7vrgfrjv');
+    expect(unit?.was).toBe(
+      '**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.',
+    );
+    diff.atoms.removed = [
+      {
+        id: 'instruction.standing.r12-when-r2-applies-and-the',
+        kind: 'instruction',
+        title: 'R12. When R2 applies and the user has not answered, keep the draft and do not send it.',
+        producedBy: 'model',
+        approved: true,
+        at: {
+          file: 'CLAUDE.md',
+          startLine: 20,
+          endLine: 21,
+          quote: unit.was,
+          hash: createHash('sha256').update(unit.was).digest('hex'),
+        },
+      },
+    ];
+    diff.summary = { ...diff.summary, removed: 1 };
+    await writeFile(join(root, 'diff.json'), JSON.stringify(diff));
     const written = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--write'], root);
     expect(written.code).toBe(1);
     const retired = await readFile(join(root, 'tests', 'unsent-draft.yaml'), 'utf8');
-    expect(retired).toContain(
-      '  retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed\n',
-    );
+    expect(retired).toContain('  retired: atom instruction.standing.r12-when-r2-applies-and-the removed\n');
     for (const name of ['supplier-yes', 'draft-pair', 'late-shipment']) {
       expect(await readFile(join(root, 'tests', `${name}.yaml`), 'utf8')).toBe(
         await readFile(join(ROOT, V2, 'tests', `${name}.yaml`), 'utf8'),

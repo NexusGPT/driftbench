@@ -180,16 +180,20 @@ describe('planted estates', { timeout: 60_000 }, () => {
     writer.line('description: Tally things.', [{ hid: 'route', kind: 'route', key: 'tally' }]);
     writer.line('---');
     writer.line('');
-    writer.line('When unsure, open `references/gone.md`.');
+    writer.line('Tally what is on the shelf.');
+    // A skill nobody planted: the structure reader finds it, and the item reports an atom never planted.
+    const stray = estate.file('.claude/skills/stray/SKILL.md', 'item');
+    stray.line('---');
+    stray.line('name: stray');
+    stray.line('description: Not planted.');
+    stray.line('---');
     estate.edge('item', 'route', 'skill', 'route');
     estate.edge('item', 'skill', 'route', 'dispatch');
     estate.check('item', () => 'the planted check fails');
     const scan = await estate.scan();
     const result = estate.judge(scan, ['item']).get('item');
     expect(result?.pass).toBe(false);
-    expect(result?.detail).toMatch(
-      /found reference .* at \.claude\/skills\/tally\/SKILL\.md:6, never planted/,
-    );
+    expect(result?.detail).toMatch(/found skill .* at \.claude\/skills\/stray\/SKILL\.md:\d+, never planted/);
     expect(result?.detail).toMatch(/missed the dispatch edge skill to route/);
     expect(result?.detail).toMatch(/the planted check fails/);
   });

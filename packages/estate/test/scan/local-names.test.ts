@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, locateNamed, scanEstate } from '../../src/index';
 import type { EstateFile } from '../../src/scan/reader';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 const FROM = '.claude/skills/reconcile/SKILL.md';
 const files = (...paths: string[]) =>
@@ -74,7 +74,7 @@ describe('bare names use the documented local search order', () => {
       '.claude/skills/shipping/references/guide.md': '# Shipping guide\n',
     });
     const reader = new ClaudeCodeReader();
-    const { map, raw } = await scanEstate({ root, reader, now: NOW });
+    const { map, raw } = await scanEstate({ root, reader, now: NOW, pointer: structurePointer() });
     const reference = map.atoms.find((atom) => atom.kind === 'reference' && atom.provenance.file === FROM);
     expect(reference?.fields).toMatchObject({ path: 'guide.md', exists: true });
     expect(raw.files.map((file) => file.path)).toContain('guide.md');
@@ -122,7 +122,12 @@ describe('bare names use the documented local search order', () => {
       'guide.md': '# Unused root\n',
       'driftbench.estate.yaml': 'ignore: [/.claude/skills/reconcile/guide.md]\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.find((atom) => atom.kind === 'reference')?.fields).toMatchObject({
       path: '.claude/skills/reconcile/guide.md',
       ignored: true,

@@ -74,8 +74,24 @@ describe('the cassette', () => {
   it('names no nearest entry for a file, window and set it has never seen', () => {
     const readable = readableOf(WIRE, { ...META, window: 'other.md#1', path: 'other.md' });
     expect(() => recorded().get({ ...WIRE, body: { ...WIRE.body, user: 'x' } }, readable)).toThrow(
-      /no entry for the same file, window and set/,
+      /no entry of the labeler planted for the same file, window and set/,
     );
+  });
+
+  it('names the labeler id of a request no entry of that labeler answers, as a token', () => {
+    // One labeler's cassette, asked for the same file, window and set by another: it names the id asked.
+    const asked: Wire = { ...WIRE, labeler: 'system2-b7' };
+    let miss: CassetteMiss | undefined;
+    try {
+      recorded().get(asked, readableOf(asked, META));
+    } catch (cause) {
+      miss = cause as CassetteMiss;
+    }
+    expect(miss).toBeInstanceOf(CassetteMiss);
+    expect(miss?.nearest).toBeUndefined();
+    expect(miss?.labeler).toBe('system2-b7');
+    expect(miss?.message).toMatch(/(^|[^\w-])system2-b7([^\w-]|$)/);
+    expect(miss?.message).not.toMatch(/(^|[^\w-])planted([^\w-]|$)/);
   });
 
   it('refuses a hit whose cut digest differs: the cutter changed under the same request', () => {

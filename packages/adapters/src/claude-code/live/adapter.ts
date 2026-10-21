@@ -31,6 +31,7 @@ import {
   type Session,
   type Stimulus,
   type Turn,
+  TurnNotRun,
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { reapFolder } from '@agent-nexus/driftbench-sandbox';
@@ -494,6 +495,10 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         );
       }
 
+      // A stand-in that cannot resolve what the estate asks of it ran no turn: the block is not run, with the reason.
+      if (parsed.result?.notRun) {
+        throw new TurnNotRun({ kind: 'unsupported', layer: 'runtime', ...parsed.result.notRun });
+      }
       if (parsed.result?.subtype === 'error_during_execution' && parsed.result.isError) {
         throw new AgentFailure(parsed.result.text ?? 'the runtime failed during execution');
       }
