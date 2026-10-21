@@ -575,7 +575,18 @@ function checkExtras(
           out.dropped.push(`${where}: the target is an atom id or none`);
           continue;
         }
-        if (links.some((other) => other.kind === kind.name)) {
+        // A kind may link several atoms (a routing row naming two skills); a repeat that names the same atom,
+        // none, or a second value of a closed list is dropped.
+        if (
+          links.some(
+            (other) =>
+              other.kind === kind.name &&
+              (other.to === link.to ||
+                other.to === 'none' ||
+                link.to === 'none' ||
+                kind.values !== undefined),
+          )
+        ) {
           out.dropped.push(`${where}: the kind ${kind.name} is given twice`);
           continue;
         }
