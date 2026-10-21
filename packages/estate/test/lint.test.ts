@@ -1,7 +1,7 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../src/index';
-import { answer, estate, NOW, scanFixture, structurePointer } from './support';
+import { HAND_ROLES, NOW, answer, estate, scanFixture, structurePointer } from './support';
 
 describe('estate lint', () => {
   it('finds every defect planted in the fixture, and nothing else', async () => {
@@ -54,7 +54,13 @@ describe('estate lint', () => {
         },
       ]),
     ]);
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const result = lintEstate(map, raw);
     expect(result.findings.map((finding) => finding.code)).toEqual(['UNENFORCED']);
     expect(result.failed).toBe(false);
@@ -73,6 +79,7 @@ describe('estate lint', () => {
     const { map, raw } = await scanEstate({
       root,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       now: NOW,
       pointer: structurePointer(),
     });

@@ -9,13 +9,14 @@ import {
   loadEstateMap,
   scanEstate,
 } from '../../src/index';
-import { NOW, replayPointer } from '../support';
+import { HAND_ROLES, NOW, replayPointer } from '../support';
 import { CASES } from './cases';
 
 async function scanCases() {
   return scanEstate({
     root: CASES,
     reader: new ClaudeCodeReader(),
+    registryRoles: HAND_ROLES,
     now: NOW,
     pointer: await replayPointer(CASES),
   });

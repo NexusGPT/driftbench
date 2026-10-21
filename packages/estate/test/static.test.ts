@@ -4,8 +4,7 @@ import { join } from 'node:path';
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, loadEstateMap, runStaticTests } from '../src/index';
-import { FIXTURE } from './support';
-import { HAND_ROLES } from './support';
+import { FIXTURE, HAND_ROLES } from './support';
 
 function test(id: string, check: StaticTest['check']): StaticTest {
   return {
@@ -88,7 +87,11 @@ describe('the static runner', () => {
         '',
       ),
     );
-    const results = await runStaticTests(TESTS, { root, reader: new ClaudeCodeReader() });
+    const results = await runStaticTests(TESTS, {
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+    });
     const by = Object.fromEntries(results.map((result) => [result.id, result]));
     expect(by.model?.pass).toBe(false);
     expect(by.model?.detail).toContain('haiku');
@@ -101,7 +104,7 @@ describe('the static runner', () => {
         test('none', { kind: 'invariant', check: 'no_such_check' }),
         test('gone', { kind: 'setting', key: 'nope' }),
       ],
-      { root: FIXTURE, reader: new ClaudeCodeReader() },
+      { root: FIXTURE, reader: new ClaudeCodeReader(), registryRoles: HAND_ROLES },
     );
     expect(results.map((result) => result.pass)).toEqual([false, false]);
   });
