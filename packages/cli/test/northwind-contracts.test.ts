@@ -75,3 +75,30 @@ it.each(['earlier block', 'current block'])(
     expect(result).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
   },
 );
+
+it.each([
+  'echo scripts/reconcile.py',
+  '# python scripts/reconcile.py',
+  'echo ready # ; python scripts/reconcile.py',
+  "'python scripts/reconcile.py'",
+  "printf '%s' 'python scripts/reconcile.py'",
+  'python scripts/reconcile.py.bak',
+  'python -c scripts/reconcile.py',
+  'python -m scripts/reconcile.py',
+])('does not count command data or another script as reconciliation: %s', (command) => {
+  const call = { label: 'Bash', input: { command } };
+  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
+    expect.objectContaining({ outcome: 'fail', evidence: 'The reconcile block did not invoke scripts/reconcile.py.' }),
+  );
+});
+it.each([
+  'python scripts/reconcile.py invoice.json order.json',
+  './scripts/reconcile.py invoice.json order.json',
+  'python3 -I .claude/skills/invoice-reconcile/scripts/reconcile.py invoice.json order.json',
+  'python "scripts/reconcile.py" invoice.json order.json',
+])('counts an actual reconciliation invocation: %s', (command) => {
+  const call = { label: 'Bash', input: { command } };
+  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
+    expect.objectContaining({ outcome: 'pass' }),
+  );
+});
