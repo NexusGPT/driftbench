@@ -1,9 +1,16 @@
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readCatchList } from '../../src/catch';
 import { type BlindResult, runBlind } from '../../src/ladders/pointer/bank/blind';
 import { pointerBank } from '../../src/ladders/pointer/bank/index';
-import { clearSeedFreeCache, isolated, runItem, stopItemChild } from '../../src/ladders/pointer/bank/run';
+import {
+  clearSeedFreeCache,
+  isolated,
+  itemChildGroup,
+  runItem,
+  stopItemChild,
+} from '../../src/ladders/pointer/bank/run';
 import { HARDENING_IDS } from '../../src/ladders/pointer/bank/specs/provenance';
 import { pointerBank as blindBank } from '../../src/ladders/pointer/blind/bank/index';
 import type { LedgerEntry, PointerSut, ScanRequest, ScanResult } from '../../src/ladders/pointer/sut/port';
@@ -169,6 +176,26 @@ describe('the runner stops a reader that never returns', () => {
     expect(Date.now() - started).toBeLessThan(90_000);
     const next = await runItem(item('ids.id-unique'), 1, isolated);
     expect(next.pass, next.detail).toBe(true);
+  }, 180_000);
+});
+
+describe('stopping the child stops what it started', () => {
+  it('leaves no process of the sandboxed scan behind when the runner stops its child', async () => {
+    process.env.DRIFTBENCH_POINTER_SUT = HANG_SUT;
+    // The item runs a sandboxed scan that spins; the runner stops the item long before that scan's own limit.
+    process.env.DRIFTBENCH_POINTER_CHILD_MS = '600000';
+    process.env.DRIFTBENCH_POINTER_LIMIT_MS = '3000';
+    const isolated: PointerSut = { ...ref, name: 'isolated-hang-group', isolate: true };
+    const out = await runItem(item('ids.id-unique-for-repeated-text'), 1, isolated);
+    expect(out.pass).toBe(false);
+    const group = itemChildGroup();
+    expect(group).toBeGreaterThan(0);
+    // The sandboxed scan is alive in the group while the item is being served.
+    expect(spawnSync('pgrep', ['-g', String(group)], { encoding: 'utf8' }).stdout.trim()).not.toBe('');
+    await stopItemChild();
+    await new Promise((done) => setTimeout(done, 1500));
+    const left = spawnSync('pgrep', ['-g', String(group)], { encoding: 'utf8' }).stdout.trim();
+    expect(left, 'a process of the stopped child is still running').toBe('');
   }, 180_000);
 });
 

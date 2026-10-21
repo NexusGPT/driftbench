@@ -74,7 +74,22 @@ const ITEM_CHILD = join(HERE, 'item-child.ts');
 const IN_ITEM_CHILD = process.env.DRIFTBENCH_POINTER_ITEM_CHILD === '1';
 
 type Worker = { child: ChildProcess; busy: boolean };
+
+/**
+ * Stops the child and everything it started. The child leads a process group of its own, and a scan it runs may
+ * start processes of its own (the bank's sandboxed children): killing the child alone leaves them spinning.
+ */
+function killGroup(child: ChildProcess): void {
+  try {
+    if (child.pid !== undefined) process.kill(-child.pid, 'SIGKILL');
+  } catch {
+    // The group is gone already, or the platform has none: stop the child itself.
+  }
+  child.kill('SIGKILL');
+}
 let worker: Promise<Worker | undefined> | undefined;
+/** The child last started, for the exit of this process. */
+let started: ChildProcess | undefined;
 
 function spawnWorker(): Promise<Worker | undefined> {
   const repo = resolve(HERE, '../../../../../..');
@@ -83,6 +98,7 @@ function spawnWorker(): Promise<Worker | undefined> {
   return new Promise((done) => {
     const child = fork(ITEM_CHILD, [], {
       execArgv: ['--import', pathToFileURL(loader).href],
+      detached: true,
       env: {
         ...process.env,
         DRIFTBENCH_POINTER_ITEM_CHILD: '1',
@@ -91,9 +107,10 @@ function spawnWorker(): Promise<Worker | undefined> {
       stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
     });
     const gave = setTimeout(() => {
-      child.kill('SIGKILL');
+      killGroup(child);
       done(undefined);
     }, 120_000);
+    started = child;
     child.once('message', (message: { ready?: boolean }) => {
       clearTimeout(gave);
       done(message.ready ? { child, busy: false } : undefined);
@@ -131,7 +148,7 @@ export async function isolated<T>(
     };
     const stop = (why: string) => {
       worker = undefined;
-      live.child.kill('SIGKILL');
+      killGroup(live.child);
       end(stopped(why));
     };
     const timer = setTimeout(
@@ -154,13 +171,23 @@ export async function isolated<T>(
   });
 }
 
+/** The process group of the child that serves the items, for the tests that look for what it leaves behind. */
+export function itemChildGroup(): number | undefined {
+  return started?.pid;
+}
+
 /** Stops the child that serves the items; the next item starts another. */
 export async function stopItemChild(): Promise<void> {
   const current = worker;
   worker = undefined;
   const live = await current;
-  live?.child.kill('SIGKILL');
+  if (live) killGroup(live.child);
 }
+
+// A run that ends leaves no child behind.
+process.on('exit', () => {
+  if (started) killGroup(started);
+});
 
 async function execute(item: PointerItem, seed: number, sut: PointerSut): Promise<Outcome> {
   if (sut.isolate === true && !IN_ITEM_CHILD) {
