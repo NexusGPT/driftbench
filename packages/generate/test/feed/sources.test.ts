@@ -1024,10 +1024,12 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
   const withLone = (input: unknown, path: Path, key: boolean): unknown => {
     const copy = JSON.parse(JSON.stringify(input)) as Record<string | number, unknown>;
     if (path.length === 0) return copy;
-    const parent = path.slice(0, -1).reduce<Record<string | number, unknown>>(
-      (node, step) => node[step] as Record<string | number, unknown>,
-      copy,
-    );
+    const parent = path
+      .slice(0, -1)
+      .reduce<Record<string | number, unknown>>(
+        (node, step) => node[step] as Record<string | number, unknown>,
+        copy,
+      );
     const last = path[path.length - 1] as string | number;
     if (key) {
       const entries = Object.entries(parent).map(([k, v]) => [k === last ? `${k}${LONE}` : k, v] as const);

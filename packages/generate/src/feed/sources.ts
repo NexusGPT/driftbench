@@ -330,7 +330,8 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
   const drop = (what: string): void => {
     refused.push({ what: shown(what), reason: NOT_WELL_FORMED });
   };
-  const name = (value: unknown): string => (typeof value === 'string' ? value : JSON.stringify(value) ?? '');
+  const name = (value: unknown): string =>
+    typeof value === 'string' ? value : (JSON.stringify(value) ?? '');
   const top = Object.keys(sources).filter((key) => UNPAIRED.test(key));
   for (const key of top) drop(`sources key ${key}`);
   let estate = top.length > 0 ? undefined : sources.estate;
@@ -379,7 +380,7 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
     owner = undefined;
   }
   if (owner !== undefined && isRecord(owner)) {
-    const keep = <T,>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
+    const keep = <T>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
       list?.filter((entry) => {
         const bad = illFormedAnywhere(entry);
         if (bad) drop(`owner ${kind} ${name(entry)}`);
@@ -387,7 +388,9 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
       });
     owner = {
       ...owner,
-      ...(owner.values === undefined ? {} : { values: keep(owner.values, 'value') as NonNullable<SourceOwner['values']> }),
+      ...(owner.values === undefined
+        ? {}
+        : { values: keep(owner.values, 'value') as NonNullable<SourceOwner['values']> }),
       ...(owner.impossible === undefined
         ? {}
         : { impossible: keep(owner.impossible, 'pair') as NonNullable<SourceOwner['impossible']> }),
