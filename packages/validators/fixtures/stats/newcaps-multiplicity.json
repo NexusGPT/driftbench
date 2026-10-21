@@ -3,6 +3,69 @@
   "group": "multiplicity",
   "functions": [
     {
+      "fn": "familywiseErrorRate",
+      "module": "rates",
+      "doc": "docs/statistics/multiplicity.md#familywiseerrorrate",
+      "values": [
+        {
+          "args": [1, 0.05],
+          "expected": 0.05
+        },
+        {
+          "args": [10, 0.05],
+          "expected": 0.4012630607616211
+        },
+        {
+          "args": [0, 0.05],
+          "expected": 0.0
+        },
+        {
+          "args": [20, 0.01],
+          "expected": 0.18209306240276912
+        },
+        {
+          "args": [5, 0.0],
+          "expected": 0.0
+        },
+        {
+          "args": [5, 1.0],
+          "expected": 1.0
+        },
+        {
+          "args": [100, 0.001],
+          "expected": 0.09520785288629097
+        },
+        {
+          "args": [3, 0.5],
+          "expected": 0.875
+        },
+        {
+          "args": [2, 1e-9],
+          "expected": 1.999999999e-9
+        }
+      ],
+      "domain": [
+        {
+          "args": [-1, 0.05]
+        },
+        {
+          "args": [2.5, 0.05]
+        },
+        {
+          "args": ["Infinity", 0.05]
+        },
+        {
+          "args": [3, 1.5]
+        },
+        {
+          "args": [3, "NaN"]
+        },
+        {
+          "args": [3, -0.01]
+        }
+      ]
+    },
+    {
       "fn": "bonferroniThreshold",
       "module": "rates",
       "doc": "docs/statistics/multiplicity.md#bonferronithreshold",
@@ -38,6 +101,62 @@
         {
           "args": [1000, 0.05],
           "expected": 5e-5
+        }
+      ],
+      "domain": [
+        {
+          "args": [0, 0.05]
+        },
+        {
+          "args": [-2, 0.05]
+        },
+        {
+          "args": [2.5, 0.05]
+        },
+        {
+          "args": [3, 1.5]
+        },
+        {
+          "args": [3, "NaN"]
+        }
+      ]
+    },
+    {
+      "fn": "sidakThreshold",
+      "module": "rates",
+      "doc": "docs/statistics/multiplicity.md#sidakthreshold",
+      "values": [
+        {
+          "args": [10, 0.05],
+          "expected": 0.005116196891823702
+        },
+        {
+          "args": [1, 0.05],
+          "expected": 0.05
+        },
+        {
+          "args": [3, 0.1],
+          "expected": 0.034510615394370246
+        },
+        {
+          "args": [7, 0.0],
+          "expected": 0.0
+        },
+        {
+          "args": [4, 1.0],
+          "expected": 1.0
+        },
+        {
+          "args": [50, 0.05],
+          "expected": 0.0010253398672320636
+        },
+        {
+          "args": [2, 0.01],
+          "expected": 0.005012562893380045
+        },
+        {
+          "args": [1000, 0.05],
+          "expected": 5.129197890901781e-5
         }
       ],
       "domain": [

@@ -3,6 +3,78 @@
   "group": "bayes",
   "functions": [
     {
+      "fn": "betaTailProbability",
+      "module": "bayes",
+      "doc": "docs/statistics/bayes.md#betatailprobability",
+      "values": [
+        {
+          "args": [1, 1, 0.25],
+          "expected": 0.75
+        },
+        {
+          "args": [2, 3, 0.5],
+          "expected": 0.3125
+        },
+        {
+          "args": [5, 5, 0.5],
+          "expected": 0.5
+        },
+        {
+          "args": [3, 2, 0],
+          "expected": 1.0
+        },
+        {
+          "args": [4, 6, 1],
+          "expected": 0.0
+        },
+        {
+          "args": [1, 5, 0.1],
+          "expected": 0.59049
+        },
+        {
+          "args": [10, 30, 0.2],
+          "expected": 0.7586405487192085
+        },
+        {
+          "args": [8, 3, 0.7],
+          "expected": 0.6172172136000001
+        },
+        {
+          "args": [25, 15, 0.6],
+          "expected": 0.6365266909824308
+        }
+      ],
+      "domain": [
+        {
+          "args": [2, 3, -0.1]
+        },
+        {
+          "args": [2, 3, 1.1]
+        },
+        {
+          "args": [0, 3, 0.5]
+        },
+        {
+          "args": [2, 0, 0.5]
+        },
+        {
+          "args": [1.5, 3, 0.5]
+        },
+        {
+          "args": [2, 2.5, 0.5]
+        },
+        {
+          "args": [-2, 3, 0.5]
+        },
+        {
+          "args": [2, 3, "NaN"]
+        },
+        {
+          "args": [2, 3, "Infinity"]
+        }
+      ]
+    },
+    {
       "fn": "ruleOfThreeUpperBound",
       "module": "intervals",
       "doc": "docs/statistics/bayes.md#ruleofthreeupperbound",
