@@ -18,29 +18,29 @@ function reader(
       const schema = JSON.stringify(request.schema);
       const response =
         schema.includes('request-fulfillment') || schema.includes('"route"')
-        ? { intent: 'request-fulfillment', route: 'criterion' }
-        : schema.includes('"obligation"')
-          ? {
-              checks: [
-                {
-                  obligation: 'Supply the requested values.',
-                  requestQuote,
-                  reasoning: 'Acknowledging the question supplies no requested values.',
-                  answerQuote: null,
-                  met: false,
-                },
-              ],
-            }
-          : {
-              checks: [
-                {
-                  id: 'relevancy',
-                  reasoning: 'The acknowledgement remains on the requested topic.',
-                  evidence: [{ source: 'transcript.1', quote: answerQuote }],
-                  met: true,
-                },
-              ],
-            };
+          ? { intent: 'request-fulfillment', route: 'criterion' }
+          : schema.includes('"obligation"')
+            ? {
+                checks: [
+                  {
+                    obligation: 'Supply the requested values.',
+                    requestQuote,
+                    reasoning: 'Acknowledging the question supplies no requested values.',
+                    answerQuote: null,
+                    met: false,
+                  },
+                ],
+              }
+            : {
+                checks: [
+                  {
+                    id: 'relevancy',
+                    reasoning: 'The acknowledgement remains on the requested topic.',
+                    evidence: [{ source: 'transcript.1', quote: answerQuote }],
+                    met: true,
+                  },
+                ],
+              };
       const text = JSON.stringify(response);
       return { text, raw: text, dialect: 'scratchpad-json', fingerprint: 'intent-regression', costUsd: 0 };
     },

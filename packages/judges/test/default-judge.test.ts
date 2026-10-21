@@ -415,7 +415,9 @@ describe('one default configuration', () => {
       transcript: '[user] Name and price? [agent] The name is Widget.',
     });
     expect(result.answer.outcome).toBe('fail');
-    expect(calls[0]?.user).toContain('Name and price?');
+    expect(calls[0]?.user).not.toContain('Name and price?');
+    expect(calls[0]?.user).toContain('Address every part of the latest request.');
+    expect(calls[1]?.user).toContain('Name and price?');
     expect(calls[0]?.user).not.toContain('The name is Widget');
     expect(calls[1]?.system).toContain('Extract each distinct requested part');
     expect(result.costUsd).toBeCloseTo(0.03);
@@ -562,7 +564,16 @@ describe('one default configuration', () => {
 });
 
 describe('default-on-v8: a conversation criterion is judged turn by turn', () => {
-  const met = (value: boolean) => ({ checks: [{ id: 'x', reasoning: 'r', evidence: null, met: value }] });
+  const met = (value: boolean) => ({
+    checks: [
+      {
+        id: 'x',
+        reasoning: 'r',
+        evidence: value ? [{ source: 'transcript.1', quote: 'First answer' }] : null,
+        met: value,
+      },
+    ],
+  });
   const request = {
     criterion: { name: 'x', rubric: 'Address every request.', scope: 'conversation' as const },
     transcript: [
