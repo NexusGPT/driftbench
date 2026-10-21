@@ -64,7 +64,7 @@ The role is the one the map proposal uses. An axis is a dimension of the space m
 Three rules of the space map hold for the axes of a store, and a detail is exempt from them:
 
 * At most one axis is of kind `stage`, one of kind `deviation` and one of kind `channel` (`VARIABLES_KIND_REPEATED`).
-* A value id appears in one axis only among the axes of kind `behaviour`, `persona`, `data` or `task`, because a spec names such a value without its variable. The value `none` is exempt (`VARIABLES_AMBIGUOUS_VALUE`).
+* A value id appears in one axis only among the axes of kind `behaviour`, `persona`, `data` and `task` taken together, because a spec names such a value without its variable. The value `none` is exempt (`VARIABLES_AMBIGUOUS_VALUE`).
 * An axis of kind `deviation` holds `none` and the twelve deviation classes of [recovery](concepts/recovery.md), and nothing else (`VARIABLES_UNKNOWN_DEVIATION`).
 
 ## Values
@@ -293,7 +293,7 @@ const space = variablesToSpaceMap(loaded.store); // a result: ok with the map, o
 | `VARIABLES_NOT_OBJECT` | the file holds something other than one mapping | the whole file |
 | `VARIABLES_DUPLICATE` | a variable id, a value id in a variable, or a combination in the constraints is written twice | the second `variables.N.id`, `variables.N.values.M.id`, or `constraints.N` |
 | `VARIABLES_KIND_REPEATED` | two axes are of kind `stage`, `deviation` or `channel` | `variables.N.kind` of the second axis |
-| `VARIABLES_AMBIGUOUS_VALUE` | a value id is in two axes of one kind that a spec names by value | `variables.N.values.M.id` of the later one |
+| `VARIABLES_AMBIGUOUS_VALUE` | a value id is in two axes among the kinds `behaviour`, `persona`, `data` and `task`, even when the two axes are of different kinds | `variables.N.values.M.id` of the later one |
 | `VARIABLES_UNKNOWN_DEVIATION` | an axis of kind `deviation` has a value that is neither `none` nor a deviation class | `variables.N.values.M.id` |
 | `VARIABLES_EMPTY_CONSTRAINT` | a constraint forbids nothing | `constraints.N.forbid` |
 | `VARIABLES_UNKNOWN_VARIABLE` | a constraint or a `when` or `unless` names a variable the store lacks | `constraints.N.forbid.NAME`, or `variables.N.values.M.when.NAME` (`unless` alike) |
