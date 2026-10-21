@@ -1,4 +1,5 @@
 import { GUARDS_DIR, STANDING } from '../layout';
+import { type PlantedRole, plantedHeader } from '../registry-record';
 import { anchored, type GuardLine, namesFor, order, rule, writeSettings } from './common';
 import { type Family, itemsOf, type Tier } from './frame';
 import { fieldIs, PlantedEstate } from './planted';
@@ -42,11 +43,19 @@ function table(
   enforcesHeader: string,
   cell: (row: Row) => string,
   guardCell?: (row: Row) => string,
+  /** The role of the second column: a shape whose guard is found in the cells gives it none. */
+  guardRole: PlantedRole | null = 'guard',
 ) {
   return (row: Row) => [
     '# Check registry',
     '',
-    `| Id | ${guardHeader} | Event | ${enforcesHeader} | Verdict |`,
+    plantedHeader([
+      ['id', 'Id'],
+      [guardRole, guardHeader],
+      ['event', 'Event'],
+      ['enforces', enforcesHeader],
+      ['verdict', 'Verdict'],
+    ]),
     '|---|---|---|---|---|',
     `| ${row.id} | ${guardCell ? guardCell(row) : row.guard} | ${row.event} | ${cell(row)} | ${row.verdict} |`,
   ];
@@ -108,7 +117,7 @@ const SHAPES: Shape[] = [
     title: 'a table naming the guard in a Name column',
     extension: 'md',
     rules: 1,
-    lines: table('Name', 'Enforces', labels),
+    lines: table('Name', 'Enforces', labels, undefined, null),
   },
   {
     key: 'md-file',
@@ -116,7 +125,7 @@ const SHAPES: Shape[] = [
     title: 'a table naming the guard in a File column',
     extension: 'md',
     rules: 1,
-    lines: table('File', 'Enforces', labels),
+    lines: table('File', 'Enforces', labels, undefined, null),
   },
   {
     key: 'md-handler',
@@ -273,7 +282,10 @@ const SHAPES: Shape[] = [
     lines: (row) => [
       '# Check registry',
       '',
-      '| Event | Meaning |',
+      plantedHeader([
+        ['event', 'Event'],
+        [null, 'Meaning'],
+      ]),
       '|---|---|',
       '| PreToolUse | before a tool runs |',
       '',
@@ -286,7 +298,14 @@ const SHAPES: Shape[] = [
     title: 'a table with no Id column: the guard names the row',
     extension: 'md',
     rules: 1,
-    lines: (row) => ['| Guard | Enforces |', '|---|---|', `| ${row.guard} | ${labels(row)} |`],
+    lines: (row) => [
+      plantedHeader([
+        ['guard', 'Guard'],
+        ['enforces', 'Enforces'],
+      ]),
+      '|---|---|',
+      `| ${row.guard} | ${labels(row)} |`,
+    ],
     rowId: (row) => row.guard,
   },
   {

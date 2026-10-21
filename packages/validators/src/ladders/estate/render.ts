@@ -20,6 +20,7 @@ import {
   STEPS,
   skillFile,
 } from './layout';
+import { plantedHeader } from './registry-record';
 
 export { RUNTIME } from './layout';
 
@@ -722,7 +723,15 @@ function renderRegistry(estate: HiddenEstate): Writer {
     'One row per guard: the script, the event it runs on, the rules it enforces and the verdict it gives.',
   );
   writer.line('');
-  writer.line('| Id | Guard | Event | Enforces | Verdict |');
+  writer.line(
+    plantedHeader([
+      ['id', 'Id'],
+      ['guard', 'Guard'],
+      ['event', 'Event'],
+      ['enforces', 'Enforces'],
+      ['verdict', 'Verdict'],
+    ]),
+  );
   writer.line('|---|---|---|---|---|');
   for (const row of rows) {
     writer.line(

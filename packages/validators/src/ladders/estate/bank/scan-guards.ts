@@ -1,4 +1,5 @@
 import { ANCHOR, ANCHOR_BARE, GUARDS_DIR, ROOT, STANDING } from '../layout';
+import { plantedHeader } from '../registry-record';
 import { type GuardLine, namesFor, order, rule, writeSettings } from './common';
 import { DISPATCH_BY_ARGUMENT, DISPATCH_BY_FLAG, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, itemsOf, type Tier } from './frame';
@@ -226,7 +227,11 @@ const CATALOGUES: CatalogueShape[] = [
     lines: (e) => [
       '# Catalogue',
       '',
-      '| Id | Hook | Rules |',
+      plantedHeader([
+        ['id', 'Id'],
+        ['guard', 'Hook'],
+        ['enforces', 'Rules'],
+      ]),
       '|---|---|---|',
       `| ${e.id} | ${e.guard} | ${e.labels.join(', ')} |`,
     ],

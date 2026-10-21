@@ -9,6 +9,7 @@ import { stringify } from 'yaml';
 import { findRoot } from '../../../root';
 import { ROOT, RUNTIME, SETTINGS, STANDING, skillFile } from '../layout';
 import { writeEstate } from '../pipeline';
+import { plantedHeader } from '../registry-record';
 import { namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { type Case, judgeCase, standardSkill } from './hostile';
@@ -283,7 +284,15 @@ function registryCases(): Case[] {
       3,
       "a registry row naming its guard by the adapter's short name enforces through that guard (D9)",
       ADAPTER_CAUSE,
-      () => ['| Id | Adapter | Enforces |', '|---|---|---|', '| G1 | firewall | R1 |'],
+      () => [
+        plantedHeader([
+          ['id', 'Id'],
+          ['guard', 'Adapter'],
+          ['enforces', 'Enforces'],
+        ]),
+        '|---|---|---|',
+        '| G1 | firewall | R1 |',
+      ],
       ['G1'],
     ),
     registryCase(
@@ -291,7 +300,15 @@ function registryCases(): Case[] {
       3,
       'a registry row naming the adapter in backticks enforces through its guard (D9)',
       ADAPTER_CAUSE,
-      () => ['| Id | Adapter | Rules |', '|---|---|---|', '| G1 | `firewall` | R1 |'],
+      () => [
+        plantedHeader([
+          ['id', 'Id'],
+          ['guard', 'Adapter'],
+          ['enforces', 'Rules'],
+        ]),
+        '|---|---|---|',
+        '| G1 | `firewall` | R1 |',
+      ],
       ['G1'],
     ),
     registryCase(
@@ -299,7 +316,15 @@ function registryCases(): Case[] {
       4,
       'an id cell holding two backticked ids and trailing words names both checks (D9)',
       IDS_CAUSE,
-      () => ['| Id | Adapter | Enforces |', '|---|---|---|', '| `G1` / `G2` hold | firewall | R1 |'],
+      () => [
+        plantedHeader([
+          ['id', 'Id'],
+          ['guard', 'Adapter'],
+          ['enforces', 'Enforces'],
+        ]),
+        '|---|---|---|',
+        '| `G1` / `G2` hold | firewall | R1 |',
+      ],
       ['G1', 'G2'],
     ),
   ];
