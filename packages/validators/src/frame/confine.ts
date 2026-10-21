@@ -13,6 +13,7 @@ import { delimiter, dirname, extname, join, relative, resolve, sep } from 'node:
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { findRoot } from '../root';
+import { resetNamespaceWarning } from './group';
 import { FrameError } from './tape';
 import type { TwinPlan } from './twins';
 
@@ -421,6 +422,7 @@ const WATCHED = new Map<string, Watched>();
  * Returns a message for the user, or undefined when nothing changed. The validator writes nothing in the tree.
  */
 export function finishInvocation(): string | undefined {
+  resetNamespaceWarning();
   const messages: string[] = [];
   for (const each of WATCHED.values()) {
     const changed = each.watch.diff();

@@ -1,4 +1,5 @@
 import { type SpawnSyncOptions, type SpawnSyncReturns, spawnSync } from 'node:child_process';
+import { FrameError } from './tape';
 import { rngOf } from './twins';
 
 /**
@@ -63,6 +64,22 @@ child.on('exit', (code, signal) => finish(code === null ? (signal ? 1 : 0) : cod
 `;
 
 let namespaces: string[] | undefined;
+let warned = false;
+
+/** A new invocation must print its own accepted residual if it runs without a PID namespace. */
+export function resetNamespaceWarning(): void {
+  warned = false;
+}
+
+function withoutNamespace(reason: string): string[] {
+  if (!warned) {
+    console.error(
+      `Frame warning: run C has no PID namespace (${reason}); a process that leaves the session and clears its environment can outlive the frame and write after the invocation ends.`,
+    );
+    warned = true;
+  }
+  return [];
+}
 
 /**
  * The words that start a command as the first process of a PID namespace, or none. Two ways, tried in this order: an
@@ -70,14 +87,15 @@ let namespaces: string[] | undefined;
  * that but gives the user passwordless sudo (GitHub's Linux runners), a namespace made by root whose process drops
  * back to the same uid and gid (`sudo -n -E unshare --pid --fork --kill-child -- setpriv --reuid --regid`). The run
  * keeps the user's uid, gid, environment and working folder either way. DRIFTBENCH_FRAME_NO_NAMESPACE=1 turns it off
- * (the mutation run of the tests that pin it).
+ * explicitly, accepting the printed residual. Linux otherwise refuses to run if both routes fail.
  */
 export function namespacePrefix(): string[] {
-  if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE === '1') return [];
+  if (process.env.DRIFTBENCH_FRAME_NO_NAMESPACE === '1')
+    return withoutNamespace('DRIFTBENCH_FRAME_NO_NAMESPACE=1');
+  if (process.platform !== 'linux') return withoutNamespace(process.platform);
   if (namespaces !== undefined) return namespaces;
-  namespaces = [];
-  if (process.platform !== 'linux' || process.getuid === undefined || process.getgid === undefined)
-    return namespaces;
+  if (process.getuid === undefined || process.getgid === undefined)
+    throw new FrameError('run C cannot start a PID namespace: this Linux runtime has no getuid/getgid');
   const uid = process.getuid();
   const gid = process.getgid();
   const ways = [
@@ -98,14 +116,24 @@ export function namespacePrefix(): string[] {
       '--',
     ],
   ];
+  const failures: string[] = [];
   for (const way of ways) {
-    const probe = spawnSync(way[0] as string, [...way.slice(1), 'true'], { stdio: 'ignore' });
+    const probe = spawnSync(way[0] as string, [...way.slice(1), 'true'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
     if (probe.status === 0) {
       namespaces = way;
-      break;
+      return namespaces;
     }
+    const cause = probe.error?.message ?? probe.stderr?.trim() ?? '';
+    failures.push(
+      `${way.join(' ')}: ${cause || (probe.signal ? `signal ${probe.signal}` : `exit ${probe.status}`)}`,
+    );
   }
-  return namespaces;
+  throw new FrameError(
+    `run C cannot start a PID namespace on Linux: ${failures.join('; ')}. Enable unprivileged user namespaces or passwordless sudo with unshare and setpriv. DRIFTBENCH_FRAME_NO_NAMESPACE=1 explicitly accepts the residual risk of processes that outlive the frame.`,
+  );
 }
 
 /** Whether run C starts in a PID namespace here. */
