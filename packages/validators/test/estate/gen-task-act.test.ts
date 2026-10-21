@@ -78,7 +78,8 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 
   it('control: an ask of the labelled governed-action span holds for the atom that carries it', async () => {
     const span = declaredActs(GATED)[0]?.text;
-    const asked = spec(`Please handle this for me: ${span}.`, code(`${GATED.id} (governed-action)`), [GATED.id]);
+    const text = `Please handle this for me: ${span}.`;
+    const asked = spec(text, code(`${GATED.id} (governed-action)`), [GATED.id]);
     const out = await verdict([asked]);
     expect(out).toEqual({ pass: true, detail: 'holds (1)' });
   });
