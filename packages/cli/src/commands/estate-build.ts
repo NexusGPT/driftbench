@@ -35,6 +35,10 @@ export const DEFAULT_BUILD_FOLDER = 'driftbench-build';
 /** The record of what each stage read, so a second run skips a stage whose inputs have not changed. */
 export const BUILD_STAMP_FILE = 'build.json';
 
+/** Printed when the scan exits 1: the map is written, but a label was refused or a chunk failed. */
+const SCAN_WARNING =
+  '   The scan reported some refused labels or failed chunks; run with --verbose to read them.\n';
+
 type Stamp = { version: 1; stages: Record<string, { input: string; code?: number }> };
 
 const sha = (text: string | Buffer): string => createHash('sha256').update(text).digest('hex');
@@ -171,6 +175,7 @@ export async function estateBuildCommand(
   // 1. Read the estate into a map.
   const replay = options.replay ? resolve(io.cwd, options.replay) : undefined;
   const cassette = options.cassette ? resolve(io.cwd, options.cassette) : undefined;
+  const labels = options.labels ? resolve(io.cwd, options.labels) : undefined;
   const scanInput = sha(
     JSON.stringify([
       await folderHash(root, out),
@@ -182,10 +187,13 @@ export async function estateBuildCommand(
       options.labeler ?? [],
       replay ? await fileHash(replay) : null,
       cassette ? await fileHash(cassette) : null,
+      labels ? await fileHash(labels) : null,
     ]),
   );
-  if (stamp.stages.scan?.input === scanInput && (await exists(file('map.yaml')))) {
+  const scanned = stamp.stages.scan;
+  if (scanned?.input === scanInput && (await exists(file('map.yaml')))) {
     io.out('1. Read the estate: unchanged since the last run, map.yaml kept.\n');
+    if (scanned.code === 1) io.out(SCAN_WARNING);
   } else {
     const step = stageIo(io, verbose);
     const scanOptions: estateCommands.EstateScanOptions = {
@@ -201,7 +209,7 @@ export async function estateBuildCommand(
             pointer: true,
             ledger: file('ledger.json'),
             update: true,
-            ...(options.labels ? { labels: resolve(io.cwd, options.labels) } : {}),
+            ...(labels ? { labels } : {}),
             ...(cassette ? { cassette } : {}),
             ...(options.record ? { record: true } : {}),
             ...(options.labeler ? { labeler: options.labeler } : {}),
@@ -211,16 +219,14 @@ export async function estateBuildCommand(
     };
     const code = await estateCommands.estateScanCommand(root, scanOptions, step.io, deps);
     if (code === 2 || !(await exists(file('map.yaml')))) return 2;
-    stamp.stages.scan = { input: scanInput };
+    stamp.stages.scan = { input: scanInput, code };
     delete stamp.stages.approve;
     delete stamp.stages.plan;
     const counts = await atomCounts(file('map.yaml'));
     io.out(
       `1. Read the estate: ${counts.atoms} atoms, ${counts.waiting} of them split from prose by a model and waiting for approval. Wrote ${shown('map.yaml')}.\n`,
     );
-    if (code === 1) {
-      io.out('   The scan reported some refused labels or failed chunks; run with --verbose to read them.\n');
-    }
+    if (code === 1) io.out(SCAN_WARNING);
     await saveStamp();
   }
 
