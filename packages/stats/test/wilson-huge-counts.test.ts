@@ -55,8 +55,7 @@ describe('wilson at counts too large to square', () => {
       const want = original(k, n);
       // Next to 1 the lower bound is one minus its distance to 1, a sum of positive terms, and a bound at the
       // count is exactly 1 (the weights.near-one and weights.mirror items); every other bound is the original.
-      const nearOne =
-        1 - (2 * (n - k) + Z2 + Z95 * Math.sqrt(Z2 + (4 * k * (n - k)) / n)) / (2 * (n + Z2));
+      const nearOne = 1 - (2 * (n - k) + Z2 + Z95 * Math.sqrt(Z2 + (4 * k * (n - k)) / n)) / (2 * (n + Z2));
       expect(got.lower, `lower of ${k} of ${n}`).toBe(2 * k > n ? nearOne : want.lower);
       expect(got.upper, `upper of ${k} of ${n}`).toBe(k === n ? 1 : want.upper);
     }
