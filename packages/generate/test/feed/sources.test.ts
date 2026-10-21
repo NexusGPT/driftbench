@@ -652,6 +652,34 @@ describe('variablesFromSources: review findings on the first head', () => {
     expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
   });
 
+  it('never lets a later tool take the id an earlier tool was given', () => {
+    const tool2 = (name: string, field: string) => ({
+      tool: name,
+      field,
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (tools: Array<[string, string]>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: tools.map(([t, f]) => tool2(t, f)) }],
+        },
+      });
+    const first = make([['Ship@Code', 'status']]).store.variables[0]?.id as string;
+    // A later tool whose own name is exactly the id the first one was given.
+    const [tool, field] = [first.slice(0, first.indexOf('.')), first.slice(first.indexOf('.') + 1)];
+    const both = make([
+      ['Ship@Code', 'status'],
+      [tool, field],
+    ]);
+    expect(both.store.variables).toHaveLength(2);
+    expect(both.store.variables.find((v) => v.title === 'Ship@Code.status')?.id).toBe(first);
+    const other = both.store.variables.find((v) => v.title === `${tool}.${field}`)?.id;
+    expect(other).not.toBe(first);
+    expect(new Set(both.store.variables.map((v) => v.id)).size).toBe(2);
+  });
+
   it('keeps three distinct samples for a finite limit too large to step by one', () => {
     const built = variablesFromSources(
       clause('Escalate when amount is above 100000000000000000000.', {

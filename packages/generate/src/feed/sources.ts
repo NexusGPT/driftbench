@@ -129,17 +129,20 @@ function slug(name: string): string {
   return cleaned === '' ? `n${sha256(name).slice(0, 8)}` : cleaned;
 }
 
+/** The end a hashed id carries; a name with this end is hashed too, so no name can take a hashed id. */
+const HASHED = /-[0-9a-f]{12}$/;
+
 /**
- * Ids for a set of names. A name that already is a valid id keeps it. Any other name gets its slug and a short hash
- * of the name itself, so its id is the same whatever other names join the set and in whatever order they come. Two
- * names that still end with one id (a hash that equals another name, which needs a crafted name) are ordered by name
- * and the later ones get a numeric suffix.
+ * Ids for a set of names. A name that already is a valid id, and does not end like a hashed id, keeps it. Any other
+ * name gets its slug and 12 hex digits of the hash of the name itself. The two kinds of id cannot meet, and a hashed
+ * id depends on its own name only, so an id never changes when other names join or leave the set, in any order. Two
+ * names that still end with one id (a crafted hash) are ordered by name and the later ones get a numeric suffix.
  */
 function idsFor(names: Iterable<string>): Map<string, string> {
   const byId = new Map<string, string[]>();
   for (const name of new Set(names)) {
     const own = slug(name);
-    const id = own === name ? name : `${own}-${sha256(name).slice(0, 8)}`;
+    const id = own === name && !HASHED.test(name) ? name : `${own}-${sha256(name).slice(0, 12)}`;
     const list = byId.get(id);
     if (list) list.push(name);
     else byId.set(id, [name]);
