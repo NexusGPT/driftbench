@@ -125,13 +125,13 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
       expect(options.calls).toBeUndefined();
       const request = { url: 'https://example.invalid/catalogue' };
-      expect(
-        (
-          await evaluate('rate_wave', options, [call('Fetch', request)], 0, [
-            call('Fetch', request, 'rate limited'),
-          ])
-        ).every((verdict) => verdict.outcome === 'pass'),
-      ).toBe(true);
+      // The retry passes; a Fetch the spec's operations table does not name is unknown after the event, so the
+      // check of collateral is inconclusive, never a pass and never a failure.
+      const verdicts = await evaluate('rate_wave', options, [call('Fetch', request)], 0, [
+        call('Fetch', request, 'rate limited'),
+      ]);
+      expect(verdicts.some((verdict) => verdict.outcome === 'pass')).toBe(true);
+      expect(verdicts.every((verdict) => verdict.outcome !== 'fail')).toBe(true);
     }
   });
   it('retains bare recovery filenames with arbitrary extensions and multiple dots', () => {
@@ -188,9 +188,12 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
               : call('Fetch', { url: 'https://example.invalid/catalogue' });
         const failed = call('Fetch', { url: 'https://example.invalid/catalogue' }, 'rate limited');
         const history = 'retry' in sample ? [failed] : [];
-        expect(
-          (await evaluate(sample.kind, options, [recovering], 0, history)).every((v) => v.outcome === 'pass'),
-        ).toBe(true);
+        const recovered = await evaluate(sample.kind, options, [recovering], 0, history);
+        // A retried Fetch is a tool the spec's operations table does not name: unknown, so inconclusive, not a pass.
+        if ('retry' in sample) {
+          expect(recovered.some((v) => v.outcome === 'pass')).toBe(true);
+          expect(recovered.every((v) => v.outcome !== 'fail')).toBe(true);
+        } else expect(recovered.every((v) => v.outcome === 'pass')).toBe(true);
         expect((await evaluate(sample.kind, options, [], 0, history)).some((v) => v.outcome === 'fail')).toBe(
           true,
         );
