@@ -205,7 +205,8 @@ export class TerminalSubsumption {
       const parsed = validateSpec(rendered.spec);
       if (!parsed.ok || !this.recoveriesHold(parsed.spec) || failsAtEnd(parsed.spec)) continue;
       if (!this.tuplesHold(spec, parsed.spec) || !this.pairsHold(spec, parsed.spec)) continue;
-      if (this.allocation && this.allocation.imbalanceWith(candidate) > this.allocation.imbalanceWith(draft)) continue;
+      if (this.allocation && this.allocation.imbalanceWith(candidate) > this.allocation.imbalanceWith(draft))
+        continue;
       draft.blocks = candidate.blocks;
       draft.perturbations = candidate.perturbations;
       draft.reducedMiddle = [{ block: block.id, duplicate_of: duplicate }, ...(draft.reducedMiddle ?? [])];
