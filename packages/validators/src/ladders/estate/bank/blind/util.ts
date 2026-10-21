@@ -158,16 +158,21 @@ export function naming(text: string): Body {
 }
 
 /** A body line that hands work to a helper. */
-export function handing(helper: string, text: string): Body {
+export function handing(helper: string | readonly string[], text: string): Body {
+  const helpers = typeof helper === 'string' ? [helper] : helper;
   return {
     text,
     hint: {
       kind: 'instruction',
       prose: {
         kind: 'instruction',
-        title: `Dispatch ${helper}`,
+        title: `Dispatch ${helpers.join(' and ')}`,
         quote: text,
-        evidence: [{ type: 'tool_called', label: 'Agent', input: { subagent_type: helper } }],
+        evidence: helpers.map((name) => ({
+          type: 'tool_called' as const,
+          label: 'Agent',
+          input: { subagent_type: name },
+        })),
       },
     },
   };

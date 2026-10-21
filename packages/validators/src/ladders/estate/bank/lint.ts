@@ -343,8 +343,9 @@ const DEFECTS: Case[] = [
     plant: (b) => {
       const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.', atoms: ref(b) }]);
       const notes = skillFile(name, 'references/notes.md');
-      b.estate.raw(notes, '# Notes\nFor codes, open `codes.md`.\n', b.owner);
-      b.estate.hint({ kind: 'reference', file: notes, line: 2 });
+      const lines = ['# Notes', 'For codes, open `codes.md`.'];
+      b.estate.raw(notes, `${lines.join('\n')}\n`, b.owner);
+      b.estate.hint({ kind: 'reference', file: notes, line: lines.length });
       return [{ code: 'MISSING_REFERENCE' }];
     },
   },
@@ -613,7 +614,10 @@ const CLEAN: Case[] = [
     title: 'a reference named inside a reference',
     plant: (b) => {
       const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.', atoms: ref(b) }]);
-      b.estate.raw(skillFile(name, 'references/notes.md'), '# Notes\nFor codes, open `codes.md`.\n', b.owner);
+      const notes = skillFile(name, 'references/notes.md');
+      const lines = ['# Notes', 'For codes, open `codes.md`.'];
+      b.estate.raw(notes, `${lines.join('\n')}\n`, b.owner);
+      b.estate.hint({ kind: 'reference', file: notes, line: lines.length });
       b.estate.raw(skillFile(name, 'references/codes.md'), '# Codes\n', b.owner);
       return [];
     },

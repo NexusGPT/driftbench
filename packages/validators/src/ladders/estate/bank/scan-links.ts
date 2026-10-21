@@ -355,6 +355,8 @@ const SPECS: Spec[] = [
         rule(
           `${owner}:rule`,
           `When a ${names.noun} is late, dispatch the \`${helper}\` agent with its number.`,
+          'instruction',
+          [{ type: 'tool_called', label: 'Agent', input: { subagent_type: helper } }],
         ),
       ]);
       estate.edge(owner, `${owner}:skill`, `${owner}:h:unit`, 'dispatch');

@@ -42,6 +42,8 @@ export type Planted = {
   tool?: string;
   /** The gate orders a command to run first, not a file to read. */
   command?: boolean;
+  /** A route: the request as the item planted it, a part of the line. */
+  ask?: string;
 };
 
 /**
@@ -268,7 +270,9 @@ export class PlantedEstate {
         });
       const answers = new Map([...this.answers].map(([file, list]) => [file, [...list]]));
       for (const hint of this.hints) {
-        if (hint.prose) answers.set(hint.file, [...(answers.get(hint.file) ?? []), { ...hint.prose, line: hint.line }]);
+        if (!hint.prose) continue;
+        const prose = { ...hint.prose, line: hint.line };
+        answers.set(hint.file, [...(answers.get(hint.file) ?? []), prose]);
       }
       const truth = truthPointer({ files: texts, atoms, answers, gates });
       const reader = readerFor(RUNTIME);

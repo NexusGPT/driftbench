@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { type PointerScanOptions, pointer } from '@agent-nexus/driftbench-estate';
 import type { ExpectedAtom, ProseEntry } from './render';
 
@@ -67,8 +68,9 @@ function lineOf(file: string, text: string): number | undefined {
   return line;
 }
 
-/** The name of the helper a rule's evidence calls, from the tool call it lists. */
-function dispatchedHelper(entry: ProseEntry): string | undefined {
+/** The names of the helpers a rule's evidence calls, from the tool calls it lists. */
+function dispatchedHelpers(entry: ProseEntry): string[] {
+  const out: string[] = [];
   for (const evidence of entry.evidence) {
     const call = evidence as { type?: string; label?: string; input?: { subagent_type?: unknown } };
     if (
@@ -76,9 +78,20 @@ function dispatchedHelper(entry: ProseEntry): string | undefined {
       call.label === 'Agent' &&
       typeof call.input?.subagent_type === 'string'
     )
-      return call.input.subagent_type;
+      out.push(call.input.subagent_type);
   }
-  return undefined;
+  return out;
+}
+
+/** A label name that depends on the planted rule alone, never on where it sits among the others. */
+function stableName(file: string, entry: ProseEntry, taken: ReadonlySet<string>): string {
+  const digest = createHash('sha1')
+    .update(`${file}\n${entry.kind}\n${entry.title}\n${entry.quote}`)
+    .digest('hex')
+    .slice(0, 10);
+  let name = `planted-${digest}`;
+  for (let again = 2; taken.has(name); again += 1) name = `planted-${digest}-${again}`;
+  return name;
 }
 
 /** The id of the candidate atom of a kind that carries a name: the pointer lists the atoms a link may name. */
@@ -131,8 +144,8 @@ export function truthPointer(truth: Truth): TruthPointer {
 
   const labels: pointer.LabelSet['labels'] = [...base.labels];
   const byLine = new Map<string, string>();
-  const helperAt = new Map<string, string>();
-  let count = 0;
+  const helperAt = new Map<string, string[]>();
+  const names = new Set<string>();
   for (const [file, list] of entries) {
     for (const entry of list) {
       const here = planted.get(`${file}:${entry.line}`) ?? [];
@@ -140,8 +153,8 @@ export function truthPointer(truth: Truth): TruthPointer {
         ...(here.some((atom) => atom.kind === 'reference') ? [REFERENCE] : []),
         ...here.filter((atom) => atom.kind === 'hazard').map((atom) => hazardMapping(atom.key)),
       ];
-      count += 1;
-      const name = `planted-${count}`;
+      const name = stableName(file, entry, names);
+      names.add(name);
       labels.push({
         name,
         description: `The rule planted at line ${entry.line} of ${file}.`,
@@ -156,8 +169,8 @@ export function truthPointer(truth: Truth): TruthPointer {
         },
       });
       byLine.set(`${file}:${entry.line}`, name);
-      const helper = dispatchedHelper(entry);
-      if (helper) helperAt.set(`${file}:${entry.line}`, helper);
+      const helpers = dispatchedHelpers(entry);
+      if (helpers.length > 0) helperAt.set(`${file}:${entry.line}`, helpers);
     }
   }
   const text = JSON.stringify({ labels: [{ ...base, set: SET_NAME, labels }] });
@@ -174,20 +187,34 @@ export function truthPointer(truth: Truth): TruthPointer {
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),
   );
-  // The planted rows of a routing table: the request cell is the first cell of the row, and the route leads to
-  // the skill or the helper of that name.
+  // The planted routes of a line: the request the item planted (`ask`), and the skills or helpers it leads to. A
+  // route planted with no request is a table row of the generated estate: its request is the first cell.
   const named = (kind: string, name: string) =>
     truth.atoms.some((atom) => atom.kind === kind && atom.key === name);
-  const routesIn = new Map<string, Array<{ ask: string; label: string; kind: string; name: string }>>();
+  type Route = { ask: string; planted: boolean; label: string; kind: string; names: string[] };
+  const routesIn = new Map<string, Route[]>();
+  const routeAt = new Map<string, Route>();
   for (const atom of truth.atoms) {
     if (atom.kind !== 'route') continue;
-    const row = (truth.files[atom.file] ?? '').split('\n')[atom.line - 1] ?? '';
-    if (!row.trimStart().startsWith('|')) continue;
-    const ask = row.split('|')[1]?.trim() ?? '';
+    const at = `${atom.file}:${atom.line}`;
     const kind = named('subagent', atom.key) ? 'subagent' : 'skill';
-    const list = routesIn.get(atom.file) ?? [];
-    list.push({ ask, label: kind === 'skill' ? 'route-skill' : 'route-helper', kind, name: atom.key });
-    routesIn.set(atom.file, list);
+    const known = routeAt.get(at);
+    if (known) {
+      if (known.kind === kind && !known.names.includes(atom.key)) known.names.push(atom.key);
+      continue;
+    }
+    const ask = (atom as ExpectedAtom & { ask?: string }).ask;
+    const row = (truth.files[atom.file] ?? '').split('\n')[atom.line - 1] ?? '';
+    if (ask === undefined && !row.trimStart().startsWith('|')) continue;
+    const route: Route = {
+      ask: ask ?? row.split('|')[1]?.trim() ?? '',
+      planted: ask !== undefined,
+      label: kind === 'skill' ? 'route-skill' : 'route-helper',
+      kind,
+      names: [atom.key],
+    };
+    routeAt.set(at, route);
+    routesIn.set(atom.file, [...(routesIn.get(atom.file) ?? []), route]);
   }
   const contexts = new Map<string, pointer.LabelContext | undefined>();
   const windows: WindowLog = [];
@@ -230,16 +257,30 @@ export function truthPointer(truth: Truth): TruthPointer {
       const routed = new Set<unknown>();
       return {
         labels: window.units.map((unit) => {
-          const route = routesIn.get(window.path)?.find((row) => row.ask === unit.text && !routed.has(row));
+          const route = routesIn
+            .get(window.path)
+            ?.find(
+              (row) =>
+                !routed.has(row) &&
+                row.ask !== '' &&
+                (row.planted ? unit.text.includes(row.ask) : row.ask === unit.text),
+            );
           if (route) {
             routed.add(route);
-            const to = candidateOf(context, route.label, route.kind, route.name);
-            if (to)
+            const to = route.names
+              .map((name) => candidateOf(context, route.label, route.kind, name))
+              .filter((id): id is string => id !== undefined);
+            // The unit that names the route's first target: the next one in a table, the first one holding the name.
+            const first = route.names[0] ?? '';
+            const holder = route.planted
+              ? (window.units.find((other) => other.n !== unit.n && other.text.includes(first))?.n ?? unit.n)
+              : unit.n + 1;
+            if (to.length > 0)
               return {
                 units: String(unit.n),
                 label: route.label,
-                target: unit.n + 1,
-                links: [{ kind: route.label, to }],
+                target: holder,
+                links: to.map((id) => ({ kind: route.label, to: id })),
               };
           }
           const line = lineOf(file, unit.text);
@@ -261,10 +302,12 @@ export function truthPointer(truth: Truth): TruthPointer {
           const own = byLine.get(key);
           if (own) {
             used.add(key);
-            const helper = helperAt.get(key);
-            const to = helper ? candidateOf(context, 'dispatches', 'subagent', helper) : undefined;
-            return to
-              ? { units: String(unit.n), label: own, links: [{ kind: 'dispatches', to }] }
+            const helpers = helperAt.get(key) ?? [];
+            const to = helpers
+              .map((helper) => candidateOf(context, 'dispatches', 'subagent', helper))
+              .filter((id): id is string => id !== undefined);
+            return to.length > 0
+              ? { units: String(unit.n), label: own, links: to.map((id) => ({ kind: 'dispatches', to: id })) }
               : { units: String(unit.n), label: own };
           }
           const hazardLabel = hazardLines.get(key);
