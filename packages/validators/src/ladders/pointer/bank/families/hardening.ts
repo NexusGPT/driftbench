@@ -4,14 +4,17 @@ import { allTexts, cloneWorld, filesOf, worldOf } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutRun } from '../../kit/cut-case';
-import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
+import { build, byId, type EstateFile, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { loadFixture, RUNS } from '../../kit/fixture';
 import { entriesFor, perfect, recording, truthLabel } from '../../kit/labellers';
+import { norm } from '../../kit/norm';
+import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
+import { buildScript, filesOfSegments, type ScriptOps } from '../../kit/segments';
 import { keyOf, RULES_YAML } from '../../kit/sets';
 import { fakeTransport, seededModels } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, word } from '../../kit/words';
-import type { Labeler, LedgerView, ScanResult } from '../../sut/port';
+import type { Labeler, LedgerEntry, LedgerView, ScanResult } from '../../sut/port';
 import { runControl } from '../controls';
 import { PLANTS, probe, readerGainedNothing } from '../harness-probe';
 import { MARKER_PLANTED } from '../plants/broken';
@@ -185,9 +188,252 @@ const ids: Record<string, Run> = {
   },
 };
 
+/* ----- id carry and per-kind events (round 3 audit, seat 1) ----- */
+
+/** What each text of an edit script becomes, read from its construction. */
+type Plan = {
+  before: EstateFile[];
+  after: EstateFile[];
+  /** Texts the script keeps in place. */
+  kept: string[];
+  moved: Array<{ text: string; path: string }>;
+  changed: Array<{ from: string; to: string }>;
+  deleted: string[];
+  /** Texts that enter the estate and must take a fresh id: inserts and rewrites in place. */
+  entering: string[];
+  split: string[];
+  merged: Array<{ a: string; b: string; into: string }>;
+};
+
+/** An edit script drawn from the seed over `files` files, with six kept units among the ops. */
+function planOf(p: Prose, ops: ScriptOps, files: number): Plan {
+  const segs = buildScript(p, ops, 6, files);
+  const heads = Array.from({ length: files }, (_, f) => `${headingText(p.random)} ${f + 1}`);
+  const { before, after } = filesOfSegments(segs, files, heads);
+  const plan: Plan = {
+    before,
+    after,
+    kept: [],
+    moved: [],
+    changed: [],
+    deleted: [],
+    entering: [],
+    split: [],
+    merged: [],
+  };
+  for (const seg of segs) {
+    if (seg.fates.length === 0 && seg.before.length === 1 && seg.before[0] === seg.after[0])
+      plan.kept.push(seg.before[0] as string);
+    if (seg.fates.length === 0 && seg.before.length === 0 && seg.afterFile === undefined)
+      plan.entering.push(...seg.after);
+    for (const { text, fate } of seg.fates) {
+      if (fate.kind === 'moved') plan.moved.push({ text, path: fate.path as string });
+      else if (fate.kind === 'changed') plan.changed.push({ from: text, to: fate.to });
+      else if (fate.kind === 'split') plan.split.push(text);
+      else if (fate.kind === 'mergePair' && !plan.merged.some((m) => m.b === text))
+        plan.merged.push({ a: text, b: fate.other, into: fate.into });
+      else if (fate.kind === 'deleted') {
+        plan.deleted.push(text);
+        plan.entering.push(...seg.after);
+      }
+    }
+  }
+  return plan;
+}
+
+/** Scans the old files fresh, then the new files with the first ledger. */
+async function rescan(ctx: ItemContext, before: EstateFile[], after: EstateFile[]) {
+  const labeler = perfect();
+  const first = await scanOk(ctx.sut, { files: build(before).files, labeler });
+  const second = await scanOk(ctx.sut, {
+    files: build(after).files,
+    previousLedger: first.ledger.raw,
+    labeler,
+  });
+  const oldEntry = (text: string) => {
+    const entry = liveByText(first.ledger, text);
+    if (!entry) throw new Problem(`positive witness: the first scan has no live entry for ${show(text)}`);
+    return entry;
+  };
+  return { first, second, oldEntry };
+}
+
+/**
+ * The carry of ids, judged from the ledger alone: the edit is a reword, a move to the other file, a rewrite
+ * in place, an insert and a delete among six kept units. Nothing the reader reports beside the ledger is read.
+ */
+async function carry(ctx: ItemContext) {
+  const plan = planOf(prose(ctx), ['reword', 'move', 'rewrite', 'insert', 'delete'], 2);
+  const run = await rescan(ctx, plan.before, plan.after);
+  const live = liveOf(run.second.ledger);
+  if (new Set(live.map((e) => e.id)).size !== live.length)
+    throw new Problem('the rescan gives two live entries one id');
+  /** The live entry of the old id, or the reason it has none. */
+  const carried = (text: string): { old: LedgerEntry; now: LedgerEntry } => {
+    const old = run.oldEntry(text);
+    const now = live.find((e) => e.id === old.id);
+    if (!now)
+      throw new Problem(
+        `the id ${old.id} of ${show(text)} is not live after the rescan: the unit lost its id`,
+      );
+    return { old, now };
+  };
+  return { plan, run, live, carried };
+}
+
+const carryRuns: Record<string, Run> = {
+  'carry-unchanged-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const text of plan.kept) {
+      const { old, now } = carried(text);
+      if (norm(now.quote) !== norm(text))
+        return fail(`the id ${old.id} of the unchanged unit ${show(text)} now quotes ${show(now.quote)}`);
+      if (now.path !== old.path)
+        return fail(`the id ${old.id} of the unchanged unit ${show(text)} moved to ${now.path}`);
+    }
+    return pass(`${plan.kept.length} unchanged units keep their ids in the ledger`);
+  },
+  'carry-moved-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const { text, path } of plan.moved) {
+      const { old, now } = carried(text);
+      if (norm(now.quote) !== norm(text))
+        return fail(`the id ${old.id} of the moved unit ${show(text)} now quotes ${show(now.quote)}`);
+      if (now.path !== path)
+        return fail(`the id ${old.id} of the unit moved to ${path} is live in ${now.path}`);
+    }
+    return pass(`${plan.moved.length} moved unit keeps its id in the ledger, in the file it moved to`);
+  },
+  'carry-reworded-in-ledger': async (ctx) => {
+    const { plan, carried } = await carry(ctx);
+    for (const { from, to } of plan.changed) {
+      const { old, now } = carried(from);
+      if (norm(now.quote) !== norm(to))
+        return fail(`the id ${old.id} of the reworded unit quotes ${show(now.quote)}, expected ${show(to)}`);
+      if (now.path !== old.path)
+        return fail(`the id ${old.id} of the reworded unit moved to ${now.path}`);
+    }
+    return pass(`${plan.changed.length} reworded unit keeps its id in the ledger, with the new text`);
+  },
+  'fresh-id-for-new-unit-in-ledger': async (ctx) => {
+    const { plan, run, live } = await carry(ctx);
+    const oldIds = new Map(run.first.ledger.entries.map((e) => [e.id, e]));
+    for (const text of plan.entering) {
+      const now = live.find((e) => norm(e.quote) === norm(text));
+      if (!now) return fail(`positive witness: the new unit ${show(text)} has no live entry`);
+      const was = oldIds.get(now.id);
+      if (was)
+        return fail(
+          `the new unit ${show(text)} carries the old id ${now.id}, which belonged to ${show(was.quote)}`,
+        );
+    }
+    return pass(`${plan.entering.length} new units take ids no old entry had`);
+  },
+  'deleted-id-not-reused-in-ledger': async (ctx) => {
+    const { plan, run, live } = await carry(ctx);
+    for (const text of plan.deleted) {
+      const old = run.oldEntry(text);
+      const again = live.find((e) => e.id === old.id);
+      if (again)
+        return fail(
+          `the id ${old.id} of the deleted unit ${show(text)} is live again with ${show(again.quote)}`,
+        );
+    }
+    return pass(`${plan.deleted.length} deleted units leave their ids unused`);
+  },
+};
+
+/** The event the reader reports for one id; an absent observation earns no credit. */
+const reported = (result: ScanResult, id: string): string => {
+  const event = result.events?.[id];
+  if (event === undefined) throw new Problem(`the reader does not expose an event for ${id}`);
+  return event;
+};
+
+/** The edit of each script kind; `ambiguous` has its own world. */
+const KIND_OPS: Record<string, { ops: ScriptOps; files: number }> = {
+  new: { ops: ['insert'], files: 1 },
+  unchanged: { ops: ['insert'], files: 1 },
+  moved: { ops: ['move'], files: 2 },
+  changed: { ops: ['reword'], files: 1 },
+  split: { ops: ['split'], files: 1 },
+  merged: { ops: ['merge'], files: 1 },
+  deleted: { ops: ['delete'], files: 1 },
+};
+
+/** The ids that must carry the event, the ids that must not, from the ledger; then the events are read. */
+async function eventCase(ctx: ItemContext, kind: string): Promise<Outcome> {
+  const p = prose(ctx);
+  let targets: string[];
+  let controls: string[];
+  let result: ScanResult;
+  if (kind === 'ambiguous') {
+    const w = worldOf(p, { files: 1, perFile: 30 });
+    const v2 = cloneWorld(w);
+    const texts = v2.texts[0] as string[];
+    const t = texts.splice(8, 1)[0] as string;
+    texts.splice(2, 0, t);
+    texts.splice(20, 0, t);
+    const run = await rescan(ctx, filesOf(w), filesOf(v2));
+    targets = [run.oldEntry(t).id];
+    controls = (w.texts[0] as string[]).filter((x) => x !== t).map((x) => run.oldEntry(x).id);
+    result = run.second;
+  } else {
+    const { ops, files } = KIND_OPS[kind] as { ops: ScriptOps; files: number };
+    const plan = planOf(p, ops, files);
+    const run = await rescan(ctx, plan.before, plan.after);
+    const kept = plan.kept.map((text) => run.oldEntry(text).id);
+    const fresh = plan.entering.map((text) => {
+      const entry = liveByText(run.second.ledger, text);
+      if (!entry) throw new Problem(`positive witness: the inserted unit ${show(text)} has no live entry`);
+      return entry.id;
+    });
+    const survivors = plan.merged.map(({ a, b, into }) => {
+      const pair = [run.oldEntry(a).id, run.oldEntry(b).id];
+      const live = pair.filter((id) => {
+        const now = byId(run.second.ledger, id);
+        return now?.status === 'live' && norm(now.quote) === norm(into);
+      });
+      if (live.length !== 1)
+        throw new Problem(
+          `positive witness: ${live.length} of the two merged ids live on with the joined text, expected one`,
+        );
+      return live[0] as string;
+    });
+    const byKind: Record<string, string[]> = {
+      new: fresh,
+      unchanged: kept,
+      moved: plan.moved.map((m) => run.oldEntry(m.text).id),
+      changed: plan.changed.map((c) => run.oldEntry(c.from).id),
+      split: plan.split.map((text) => run.oldEntry(text).id),
+      merged: survivors,
+      deleted: plan.deleted.map((text) => run.oldEntry(text).id),
+    };
+    targets = byKind[kind] ?? [];
+    controls = kind === 'unchanged' ? fresh : kept;
+    result = run.second;
+  }
+  if (targets.length === 0 || controls.length === 0)
+    throw new Problem(`positive witness: the script made no ${kind} unit or no control unit`);
+  for (const id of targets) {
+    const event = reported(result, id);
+    if (event !== kind) return fail(`the ${kind} unit ${id} has event ${event}, expected ${kind}`);
+  }
+  for (const id of controls) {
+    if (reported(result, id) === kind)
+      return fail(`the control unit ${id}, which the edit did not make ${kind}, has event ${kind}`);
+  }
+  return pass(`${targets.length} ${kind} unit(s) reported ${kind}; ${controls.length} control units are not`);
+}
+
+const KINDS = ['new', 'unchanged', 'moved', 'changed', 'split', 'merged', 'ambiguous', 'deleted'] as const;
+const eventRuns: Record<string, Run> = {};
+for (const kind of KINDS) eventRuns[`event-${kind}`] = (ctx) => eventCase(ctx, kind);
+
 /* ----- re-anchoring ----- */
 
 const reanchoring: Record<string, Run> = {
+  ...eventRuns,
   'heading-edit-relabels-interior-unit': async (ctx) => {
     const p = prose(ctx);
     const paragraphs = p.many(4, longMake) as string[];
@@ -781,7 +1027,7 @@ const adversarial: Record<string, Run> = {
 export const HARDENING_RUNS: Record<string, Record<string, Run>> = {
   adversarial,
   cutting,
-  ids,
+  ids: { ...ids, ...carryRuns },
   're-anchoring': reanchoring,
   privacy,
   radius,

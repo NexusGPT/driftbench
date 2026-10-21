@@ -16,6 +16,124 @@ export const HARDENING_PROBE_CAP_MS = 140_000;
 
 const cap = { capMs: HARDENING_CAP_MS } as const;
 
+/**
+ * Round 3 audit, seat 1: one export of per-id events turned 56 items green with no change to the ladder. These
+ * five judge the carry of ids from the ledger alone (never the events, the lineage or the counts), so a reader
+ * with a correct-looking events export and a wrong ladder still fails them. Each row: key, title, oracle, cause.
+ */
+const CARRY: ReadonlyArray<readonly [string, string, string, string]> = [
+  [
+    'carry-unchanged-in-ledger',
+    'An unchanged unit keeps its id, read from the ledger alone',
+    'Every unit the script keeps has, after the rescan, a live entry with its old id, its own text and its own path.',
+    'anchor:keep-id-of-unchanged-unit',
+  ],
+  [
+    'carry-moved-in-ledger',
+    'A unit moved to the other file keeps its id, read from the ledger alone',
+    'The moved unit has, after the rescan, a live entry with its old id, its own text and the path of the file it moved to.',
+    'anchor:keep-id-of-moved-unit',
+  ],
+  [
+    'carry-reworded-in-ledger',
+    'A reworded unit keeps its id, read from the ledger alone',
+    'The reworded unit has, after the rescan, a live entry with its old id, the new text and its own path.',
+    'anchor:keep-id-of-reworded-unit',
+  ],
+  [
+    'fresh-id-for-new-unit-in-ledger',
+    'A unit the edit adds takes an id no old entry had, read from the ledger alone',
+    'Every inserted text and every text written in place of a deleted unit has a live entry whose id is none of the ids of the previous ledger; no two live entries share an id.',
+    'ids:mint-fresh-id-for-new-unit',
+  ],
+  [
+    'deleted-id-not-reused-in-ledger',
+    'The id of a deleted unit is not reused, read from the ledger alone',
+    'No live entry after the rescan carries the id of a deleted unit, not even the text written in its place.',
+    'anchor:retire-id-of-deleted-unit',
+  ],
+];
+
+const CARRY_ROWS: Spec[] = CARRY.map(([key, title, oracle, cause]) =>
+  row(
+    key,
+    3,
+    title,
+    'Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units.',
+    `${oracle} The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them.`,
+    cause,
+    { ...cap, component: 'anchor' },
+  ),
+);
+
+/**
+ * Round 3 audit, seat 1: the per-id events export is asserted by one item per event kind, each with its own edit
+ * script drawn from the seed. The kind must be reported for the edited ids and for no control id. Each row: kind,
+ * title, input, oracle.
+ */
+const EVENTS: ReadonlyArray<readonly [string, string, string, string]> = [
+  [
+    'new',
+    'A unit the edit inserts is reported `new`',
+    'One file of six kept units and one inserted unit.',
+    'The inserted unit has event `new`; no kept unit has event `new`.',
+  ],
+  [
+    'unchanged',
+    'A unit the edit keeps is reported `unchanged`',
+    'One file of six kept units and one inserted unit.',
+    'Every kept unit has event `unchanged`; the inserted unit does not.',
+  ],
+  [
+    'moved',
+    'A unit moved to another file is reported `moved`',
+    'Two files of six kept units; one unit moves from one file to the other.',
+    'The moved unit has event `moved`; no kept unit has event `moved`.',
+  ],
+  [
+    'changed',
+    'A reworded unit is reported `changed`',
+    'One file of six kept units and one unit reworded to a similarity between 0.6 and 0.9.',
+    'The reworded unit has event `changed`; no kept unit has event `changed`.',
+  ],
+  [
+    'split',
+    'A unit cut in two is reported `split`',
+    'One file of six kept units and one unit written as two sentences that join to its text.',
+    'The id of the unit that was cut has event `split`; no kept unit has event `split`.',
+  ],
+  [
+    'merged',
+    'Two units joined into one are reported `merged`',
+    'One file of six kept units and two neighbouring units written as one sentence that joins them.',
+    'Exactly one of the two old ids lives on with the joined text, and it has event `merged`; no kept unit has event `merged`.',
+  ],
+  [
+    'ambiguous',
+    'A unit whose text now stands in two places is reported `ambiguous`',
+    'One file of thirty units; one unit leaves its place and its text is written twice elsewhere in the file.',
+    'The old id of that unit has event `ambiguous`; no other old unit has event `ambiguous`.',
+  ],
+  [
+    'deleted',
+    'A unit the edit removes is reported `deleted`',
+    'One file of six kept units and one unit removed.',
+    'The removed unit has event `deleted`; no kept unit has event `deleted`.',
+  ],
+];
+
+const EVENT_ROWS: Spec[] = EVENTS.map(([kind, title, gen, oracle]) =>
+  row(
+    `event-${kind}`,
+    3,
+    title,
+    `${gen} The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger.`,
+    `${oracle} The event is read from the per-id events of the rescan; a missing event is a failure.`,
+    'scan:events-by-id',
+    { ...cap, component: 'anchor' },
+  ),
+);
+
 export const HARDENING_SPECS: Record<string, Spec[]> = {
   adversarial: [
     row(
@@ -123,6 +241,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
         role: 'catch',
       },
     ),
+    ...CARRY_ROWS,
   ],
   're-anchoring': [
     row(
@@ -161,6 +280,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'ledger:ctxfp-covers-heading-path',
       { ...cap, component: 'ledger' },
     ),
+    ...EVENT_ROWS,
   ],
   privacy: [
     row(
