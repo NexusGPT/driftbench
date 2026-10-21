@@ -229,18 +229,26 @@ export function pointerAtoms(
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
-    const code = codeSpanOf(item.unit.text);
+    // A unit that names no file of its own and has a target unit (an act asked in one unit, the file to read first
+    // given in the next) takes the code spans of its target.
+    const holder =
+      item.target !== undefined &&
+      namedPaths(item.unit.text).length === 0 &&
+      namedOf(item.unit.text) === undefined
+        ? item.target.unit.text
+        : item.unit.text;
+    const code = codeSpanOf(holder);
     // A line of a standing file that is `@path` is an import: the runtime loads it and the agent reads nothing.
     const imported = (path: string): boolean =>
       builder.kindOf(item.path) === 'standing' &&
-      item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
+      holder.split('\n').some((line) => line.trim() === `@${path}`);
     const bareNames = new Set(
-      pathMentions(item.unit.text)
+      pathMentions(holder)
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );
-    const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
-    const firstNamed = namedOf(item.unit.text);
+    const allNamed = namedPaths(holder).filter((path) => !imported(path));
+    const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
     const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
       link: (kind, property) => {
