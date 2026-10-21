@@ -17,9 +17,18 @@ const ONE: MapAtom = {
   id: 'instruction.one',
   kind: 'instruction',
   title: 'Sort the inbox every morning',
-  fields: { note: 'Approving a refill needs the pharmacist.' },
+  provenance: { quote: 'Sort the inbox every morning before nine.' },
+  fields: {
+    ask: { text: 'Approving a refill needs the pharmacist.', context: 'When the pharmacist is in' },
+    labelSpans: [{ kind: 'governed-action', from: 0, to: 28 }],
+  },
 };
-const TWO: MapAtom = { id: 'instruction.two', kind: 'instruction', title: 'Close the berth log at noon' };
+const TWO: MapAtom = {
+  id: 'instruction.two',
+  kind: 'instruction',
+  title: 'Close the berth log at noon',
+  fields: { ask: { text: 'Close the berth log at noon' } },
+};
 const GUARD: MapAtom = {
   id: 'guard.edits',
   kind: 'guard',
@@ -32,7 +41,7 @@ const ATOMS = new Map([ONE, TWO, GUARD].map((atom) => [atom.id, atom]));
 const GO_AHEAD = {
   ask: 'Please {act}.[ {situation}.]',
   act: 'go ahead with {span}',
-  spans: [{ slot: 'act', atom: 'instruction.one', field: 'fields.note', from: 0, to: 18 }],
+  spans: [{ slot: 'act', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 18 }],
 };
 
 function plant(ask: string, askBuild: unknown, askFrom: string) {
@@ -103,7 +112,7 @@ describe('gen.asks.asks-approved rebuilds each code-written ask from its record 
   it('refuses the same ask built from an atom outside the row', async () => {
     const elsewhere = {
       ...GO_AHEAD,
-      spans: [{ slot: 'act', atom: 'instruction.two', field: 'title', from: 0, to: 15 }],
+      spans: [{ slot: 'act', atom: 'instruction.two', field: 'fields.ask.text', from: 0, to: 15 }],
     };
     plant('Please go ahead with Close the berth.', [elsewhere], 'instruction.two (title)');
     expect((await item())?.pass).toBe(false);
@@ -132,14 +141,14 @@ describe('constructAsk builds one ask from a record, or refuses it', () => {
           act: '{span}',
           situation: '{span}',
           spans: [
-            { slot: 'act', atom: 'instruction.one', field: 'title', from: 0, to: 14 },
-            { slot: 'situation', atom: 'instruction.one', field: 'fields.note', from: 0, to: 18 },
+            { slot: 'act', atom: 'instruction.one', field: 'governed-action', from: 0, to: 14 },
+            { slot: 'situation', atom: 'instruction.one', field: 'fields.ask.context', from: 0, to: 25 },
           ],
         },
         ATOMS,
         row,
       ),
-    ).toEqual({ text: 'Please Sort the inbox. Approving a refill.' });
+    ).toEqual({ text: 'Please Sort the inbox. When the pharmacist is in.' });
   });
 
   it('refuses an atom outside the row, a cut inside a word, a row not in the table, a missing or unused span', () => {
@@ -152,6 +161,20 @@ describe('constructAsk builds one ask from a record, or refuses it', () => {
     expect(refused({ ...GO_AHEAD, spans: [...GO_AHEAD.spans, GO_AHEAD.spans[0]] })).toBe(true);
     expect(refused({ ...GO_AHEAD, spans: [{ ...GO_AHEAD.spans[0], field: 'fields.missing' }] })).toBe(true);
     expect(refused(undefined)).toBe(true);
+  });
+
+  // The reviewer's forgeries (run 39594440076): words from metadata, and a slice with no word in it.
+  it('refuses a span from a field that declares no act, and a slice of space or punctuation alone', () => {
+    const one = GO_AHEAD.spans[0];
+    const refused = (span: object) => 'refused' in constructAsk({ ...GO_AHEAD, spans: [span] }, ATOMS, row);
+    expect(refused({ ...one, field: 'id', from: 0, to: 15 })).toBe(true);
+    expect(refused({ ...one, field: 'kind', from: 0, to: 11 })).toBe(true);
+    expect(refused({ ...one, field: 'title', from: 0, to: 14 })).toBe(true);
+    expect(refused({ ...one, from: 9, to: 10 })).toBe(true);
+    expect(refused({ ...one, from: 39, to: 40 })).toBe(true);
+    // A cut of the quote outside the labelled governed action.
+    expect(refused({ ...one, field: 'governed-action', from: 29, to: 35 })).toBe(true);
+    expect(refused({ ...one, field: 'governed-action', from: 0, to: 14 })).toBe(false);
   });
 
   it('refuses a fixed tool act the table ties to no tool, whatever guard the record names', () => {

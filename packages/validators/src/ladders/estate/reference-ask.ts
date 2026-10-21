@@ -63,18 +63,49 @@ export type AskBuild = {
   tool?: { atom: string; name: string };
 };
 
-export type MapAtom = { id: string; kind: string; title?: string; situation?: string; fields?: unknown };
+export type MapAtom = {
+  id: string;
+  kind: string;
+  title?: string;
+  situation?: string;
+  fields?: unknown;
+  provenance?: { quote?: string };
+};
 
 const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L}\p{N}]/u.test(c);
 
-/** The string at a dot path of an atom (`title`, `situation`, `fields.readWhen`, `fields.ask.text`). */
-function fieldOf(atom: MapAtom, path: string): string | undefined {
-  let value: unknown = atom;
-  for (const key of path.split('.')) {
-    if (value === null || typeof value !== 'object') return undefined;
-    value = (value as Record<string, unknown>)[key];
-  }
-  return typeof value === 'string' ? value : undefined;
+/**
+ * The act text an atom declares, by the field a span cites; undefined for any other field. Only the declared act
+ * may give words to an ask: `fields.ask` (a route's request cell), `fields.ask.text` and `fields.ask.context`, and
+ * `governed-action`, the quote of the atom's unit, whose labelled governed-action spans bound the cut. Metadata
+ * (`id`, `kind`), a title or a description never does.
+ */
+type Declared = { text: string; within?: Array<[number, number]> };
+
+function declaredText(atom: MapAtom, field: string): Declared | undefined {
+  const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown };
+  const ask = fields.ask;
+  type Ask = { text?: unknown; context?: unknown };
+  const declared: Ask = ask !== null && typeof ask === 'object' ? (ask as Ask) : {};
+  const value =
+    field === 'fields.ask'
+      ? ask
+      : field === 'fields.ask.text'
+        ? declared.text
+        : field === 'fields.ask.context'
+          ? declared.context
+          : undefined;
+  if (field !== 'governed-action') return typeof value === 'string' ? { text: value } : undefined;
+  const quote = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
+  const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
+    kind?: unknown;
+    from?: unknown;
+    to?: unknown;
+  }>;
+  const within = spans
+    .filter((span) => span.kind === 'governed-action')
+    .map((span) => [Number(span.from), Number(span.to)] as [number, number]);
+  return typeof quote === 'string' && within.length > 0 ? { text: quote, within } : undefined;
 }
 
 const rowOf = (kind: string | readonly string[], template: string | undefined): Entry | undefined =>
@@ -116,11 +147,19 @@ export function constructAsk(
     if (!span) return { refused: `no span recorded for a {span} of the ${slot} row` };
     if (!allowed.has(span.atom)) return { refused: `the span's atom ${span.atom} is not an atom of the row` };
     const atom = atoms.get(span.atom);
-    const value = atom ? fieldOf(atom, span.field) : undefined;
-    if (value === undefined) return { refused: `the map atom ${span.atom} holds no text at ${span.field}` };
+    const declared = atom ? declaredText(atom, span.field) : undefined;
+    if (declared === undefined)
+      return { refused: `the map atom ${span.atom} declares no act text at ${span.field}` };
+    const value = declared.text;
     const { from, to } = span;
     if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to > value.length || from >= to)
       return { refused: `the offsets ${from}-${to} are outside ${span.atom} ${span.field}` };
+    if (declared.within && !declared.within.some(([start, end]) => start <= from && to <= end))
+      return { refused: `the span of ${span.atom} lies outside its labelled governed action` };
+    const slice = value.slice(from, to);
+    // A span holds a word and no space at its ends: whitespace or punctuation alone is no act.
+    if (!/[\p{L}\p{N}]/u.test(slice) || slice.trim() !== slice)
+      return { refused: `the span "${slice}" of ${span.atom} holds no word or starts or ends on a space` };
     // A span is a run of whole words: it starts and ends at the edge of a word of the field.
     if (isWordChar(value[from - 1]) && isWordChar(value[from]))
       return { refused: `the span of ${span.atom} ${span.field} starts inside a word` };
@@ -179,8 +218,9 @@ export function constructAsk(
     if (!act.tools?.includes(tool.name))
       return { refused: `the table does not tie "${act.template}" to ${tool.name}` };
     if (!allowed.has(tool.atom)) return { refused: `the guard ${tool.atom} is not an atom of the row` };
-    const matcher = fieldOf(atoms.get(tool.atom) ?? { id: '', kind: '' }, 'fields.matcher');
-    if (atoms.get(tool.atom)?.kind !== 'guard' || !(matcher ?? '').split('|').includes(tool.name))
+    const matcher = (atoms.get(tool.atom)?.fields as { matcher?: unknown } | undefined)?.matcher;
+    const watches = typeof matcher === 'string' && matcher.split('|').includes(tool.name);
+    if (atoms.get(tool.atom)?.kind !== 'guard' || !watches)
       return { refused: `the atom ${tool.atom} is no guard that watches ${tool.name}` };
   }
   const left = Object.entries(queue).find(([, list]) => list.length > 0);
