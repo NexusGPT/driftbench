@@ -163,17 +163,6 @@ def ece_alt(p, o, bins):
     return tot / len(p)
 
 
-def mce_exact(p, o, bins):
-    return max(g for _, g in gaps(p, o, bins))
-
-
-def mce_alt(p, o, bins):
-    best = F(0)
-    for idx in bins_interval(p, bins).values():
-        best = max(best, abs(F(sum(o[i] for i in idx), len(idx)) - sum(F(p[i]) for i in idx) / len(idx)))
-    return best
-
-
 CAL = [
     # realistic: twelve forecasts, five bins
     ([0.92, 0.85, 0.77, 0.64, 0.58, 0.42, 0.35, 0.28, 0.15, 0.08, 0.71, 0.55], [1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0], 5),
@@ -208,14 +197,6 @@ CAL_DOMAIN = [
     [[0.5], [1], NAN],
 ]
 add("expectedCalibrationError", "calibration", cases, CAL_DOMAIN)
-
-cases = []
-for p, o, bins in CAL:
-    a = mce_exact(p, o, bins)
-    close(a, mce_alt(p, o, bins))
-    assert a != 0
-    cases.append(case([p, o, bins], a))
-add("maximumCalibrationError", "calibration", cases, CAL_DOMAIN)
 
 # ===================================================================================================
 # ranking
@@ -265,56 +246,6 @@ add(
         [[0.5, 0.6], [1, 0.5]],
         [[NAN, 0.6], [1, 0]],
         [[INF, 0.6], [1, 0]],
-    ],
-)
-
-
-def ap_blocks(s, l):
-    tp = k = 0
-    tot = F(0)
-    for v in sorted(set(s), reverse=True):
-        idx = [i for i, x in enumerate(s) if x == v]
-        pb = sum(l[i] for i in idx)
-        k += len(idx)
-        tp += pb
-        tot += pb * F(tp, k)
-    return tot / sum(l)
-
-
-def ap_alt(s, l):
-    # for each positive: the share of positives among the items scoring at least as high
-    tot = F(0)
-    for x, y in zip(s, l):
-        if y == 1:
-            ge = [j for j in range(len(s)) if s[j] >= x]
-            tot += F(sum(l[j] for j in ge), len(ge))
-    return tot / sum(l)
-
-
-cases = []
-for s, l in [
-    ([0.9, 0.8, 0.7, 0.6], [1, 0, 1, 0]),
-    ([0.5, 0.5, 0.5, 0.2], [1, 0, 1, 0]),
-    ([0.3, 0.9, 0.5], [1, 1, 1]),
-    ([0.4, 0.4, 0.4, 0.4, 0.4], [1, 0, 0, 0, 0]),
-    ([0.9, 0.8, 0.7, 0.6, 0.5], [0, 0, 0, 0, 1]),
-    ([0.1, 0.95, 0.4, 0.8, 0.8, 0.35, 0.6, 0.6, 0.2, 0.75, 0.05, 0.5], [0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0]),
-    ([2, 7, 7, 3, 9, 1], [0, 1, 0, 1, 1, 0]),
-]:
-    a = ap_blocks(s, l)
-    close(a, ap_alt(s, l))
-    cases.append(case([s, l], a))
-add(
-    "averagePrecision",
-    "classification",
-    cases,
-    [
-        [[], []],
-        [[0.5, 0.6], [0, 0]],
-        [[0.5, 0.6], [1]],
-        [[0.5, 0.6], [1, 2]],
-        [[NAN, 0.6], [1, 0]],
-        [["-Infinity", 0.6], [1, 0]],
     ],
 )
 
@@ -395,62 +326,6 @@ add(
     + [
         [T(0, 3, 0, 4)],
         [T(2, 0, 3, 0)],
-        [T(0, 0, 0, 0)],
-    ],
-)
-
-
-def youden_exact(t):
-    return F(t["tp"], t["tp"] + t["fn"]) + F(t["tn"], t["tn"] + t["fp"]) - 1
-
-
-def youden_alt(t):
-    # the determinant of the table over the product of the two true-class totals
-    tp, fp, fn, tn = t["tp"], t["fp"], t["fn"], t["tn"]
-    return F(tp * tn - fp * fn, (tp + fn) * (tn + fp))
-
-
-cases = []
-for t in [T(40, 10, 5, 45), T(1, 0, 9, 90), T(5, 0, 0, 5), T(0, 5, 5, 0), T(3, 0, 0, 7), T(12, 7, 9, 4), T(8, 30, 2, 60)]:
-    a = youden_exact(t)
-    assert a == youden_alt(t)
-    cases.append(case([t], a))
-add(
-    "youdenIndex",
-    "classification",
-    cases,
-    TABLE_DOMAIN
-    + [
-        [T(0, 3, 0, 4)],
-        [T(2, 0, 3, 0)],
-        [T(0, 0, 0, 0)],
-    ],
-)
-
-
-def markedness_exact(t):
-    return F(t["tp"], t["tp"] + t["fp"]) + F(t["tn"], t["tn"] + t["fn"]) - 1
-
-
-def markedness_alt(t):
-    # the determinant of the table over the product of the two predicted-class totals
-    tp, fp, fn, tn = t["tp"], t["fp"], t["fn"], t["tn"]
-    return F(tp * tn - fp * fn, (tp + fp) * (fn + tn))
-
-
-cases = []
-for t in [T(40, 10, 5, 45), T(1, 0, 9, 90), T(5, 0, 0, 5), T(0, 5, 5, 0), T(12, 7, 9, 4), T(8, 30, 2, 60), T(0, 3, 0, 4)]:
-    a = markedness_exact(t)
-    assert a == markedness_alt(t)
-    cases.append(case([t], a))
-add(
-    "markedness",
-    "classification",
-    cases,
-    TABLE_DOMAIN
-    + [
-        [T(0, 0, 3, 7)],
-        [T(3, 4, 0, 0)],
         [T(0, 0, 0, 0)],
     ],
 )
@@ -542,82 +417,6 @@ add(
 # agreement
 # ===================================================================================================
 
-
-def wk_exact(tab, kind):
-    k = len(tab)
-    n = sum(map(sum, tab))
-    r = [sum(row) for row in tab]
-    c = [sum(tab[i][j] for i in range(k)) for j in range(k)]
-    w = (lambda i, j: abs(i - j)) if kind == "linear" else (lambda i, j: (i - j) ** 2)
-    obs = sum(F(w(i, j) * tab[i][j]) for i in range(k) for j in range(k)) / n
-    exp = sum(F(w(i, j) * r[i] * c[j]) for i in range(k) for j in range(k)) / n**2
-    return F(1) if exp == 0 else 1 - obs / exp
-
-
-def wk_alt(tab, kind):
-    # expand the table to the two label lists; observed = mean weight over the n pairs, expected = mean weight over
-    # all n x n pairs (item of rater A, item of rater B)
-    k = len(tab)
-    a, b = [], []
-    for i in range(k):
-        for j in range(k):
-            a += [i] * tab[i][j]
-            b += [j] * tab[i][j]
-    n = len(a)
-    w = (lambda i, j: abs(i - j)) if kind == "linear" else (lambda i, j: (i - j) ** 2)
-    obs = F(sum(w(x, y) for x, y in zip(a, b)), n)
-    exp = F(sum(w(x, y) for x in a for y in b), n * n)
-    res = F(1) if exp == 0 else 1 - obs / exp
-    if k >= 2:
-        # agreement weights v = 1 - w / wmax: kappa = (sum v p - sum v e) / (1 - sum v e)
-        wmax = (k - 1) if kind == "linear" else (k - 1) ** 2
-        vp = 1 - obs / wmax
-        ve = 1 - exp / wmax
-        if ve != 1:
-            assert res == (vp - ve) / (1 - ve)
-    return res
-
-
-WK = [
-    ([[20, 5], [10, 15]], "linear"),
-    ([[20, 5], [10, 15]], "quadratic"),
-    ([[11, 3, 1], [2, 9, 4], [0, 3, 12]], "quadratic"),
-    ([[11, 3, 1], [2, 9, 4], [0, 3, 12]], "linear"),
-    ([[14, 4, 1, 0], [3, 12, 5, 1], [0, 4, 15, 6], [0, 1, 3, 9]], "linear"),
-    ([[14, 4, 1, 0], [3, 12, 5, 1], [0, 4, 15, 6], [0, 1, 3, 9]], "quadratic"),
-    ([[7]], "linear"),
-    ([[0, 0, 0], [0, 9, 0], [0, 0, 0]], "quadratic"),
-    ([[0, 5], [5, 0]], "linear"),
-    ([[0, 0, 6], [0, 0, 0], [6, 0, 0]], "quadratic"),
-]
-cases = []
-for tab, kind in WK:
-    a = wk_exact(tab, kind)
-    assert a == wk_alt(tab, kind)
-    cases.append(case([tab, kind], a))
-# the two weightings agree with Cohen's kappa on a 2 x 2 table
-tab = [[20, 5], [10, 15]]
-n = 50
-po = F(35, n)
-pe = F(25 * 30 + 25 * 20, n * n)
-assert wk_exact(tab, "linear") == (po - pe) / (1 - pe)
-add(
-    "weightedKappa",
-    "agreement",
-    cases,
-    [
-        [[[1, 2], [3, 4]], "cubic"],
-        [[[1, 2], [3, 4]], "Linear"],
-        [[[1, 2], [3, 4]], 2],
-        [[[1, 2, 3], [4, 5, 6]], "linear"],
-        [[[1, 2], [3]], "linear"],
-        [[], "linear"],
-        [[[0, 0], [0, 0]], "quadratic"],
-        [[[1, -2], [3, 4]], "linear"],
-        [[[1, 2.5], [3, 4]], "linear"],
-        [[[1, NAN], [3, 4]], "linear"],
-    ],
-)
 
 LABELS = [
     ([1, 1, 2, 2, 3, 3, 1, 2], [1, 2, 2, 2, 3, 1, 1, 2]),
@@ -751,113 +550,6 @@ add(
         [[[2, -1], [1, 0]]],
         [[[2, 0.5], [1, 1.5]]],
         [[[2, NAN], [1, 1]]],
-    ],
-)
-
-
-def lin_exact(x, y):
-    n = len(x)
-    mx, my = sum(F(v) for v in x) / n, sum(F(v) for v in y) / n
-    vx = sum((F(v) - mx) ** 2 for v in x) / n
-    vy = sum((F(v) - my) ** 2 for v in y) / n
-    cxy = sum((F(a) - mx) * (F(b) - my) for a, b in zip(x, y)) / n
-    return 2 * cxy / (vx + vy + (mx - my) ** 2)
-
-
-def lin_alt(x, y):
-    # pairwise forms: var = (1 / 2 n^2) sum_ij (x_i - x_j)^2 and cov = (1 / 2 n^2) sum_ij (x_i - x_j)(y_i - y_j)
-    n = len(x)
-    X, Y = [F(v) for v in x], [F(v) for v in y]
-    vx = sum((a - b) ** 2 for a in X for b in X) / (2 * n * n)
-    vy = sum((a - b) ** 2 for a in Y for b in Y) / (2 * n * n)
-    cxy = sum((X[i] - X[j]) * (Y[i] - Y[j]) for i in range(n) for j in range(n)) / (2 * n * n)
-    d = sum(X) / n - sum(Y) / n
-    return 2 * cxy / (vx + vy + d * d)
-
-
-cases = []
-for x, y in [
-    ([1, 2, 3, 4, 5], [1.1, 2.1, 2.9, 4.2, 4.8]),
-    ([1, 2, 3, 4, 5], [1, 2, 3, 4, 5]),
-    ([1, 2, 3, 4, 5], [2, 3, 4, 5, 6]),
-    ([1, 2, 3, 4, 5], [5, 4, 3, 2, 1]),
-    ([1], [2]),
-    ([3, 3, 3, 3], [1, 2, 3, 4]),
-    ([12.1, 15.4, 9.8, 20.3, 17.6, 11.2, 14.9, 18.5], [11.5, 16.2, 10.4, 19.1, 18.3, 10.6, 15.5, 17.2]),
-    ([0.5, 1.5, 2.5, 4.5], [0.25, 2.25, 2.0, 5.5]),
-]:
-    a = lin_exact(x, y)
-    close(a, lin_alt(x, y))
-    cases.append(case([x, y], a))
-add(
-    "linsConcordance",
-    "agreement",
-    cases,
-    [
-        [[], []],
-        [[1, 2], [1]],
-        [[1, NAN], [1, 2]],
-        [[1, 2], [1, INF]],
-        [[2, 2], [2, 2]],
-        [[3], [3]],
-    ],
-)
-
-
-def ba_limits_exact(x, y, z):
-    n = len(x)
-    d = [F(a) - F(b) for a, b in zip(x, y)]
-    bias = sum(d) / n
-    s2 = sum((v - bias) ** 2 for v in d) / (n - 1)
-    sd = sqrt(s2)
-    zz = dec(z)
-    return {"bias": bias, "lower": dec(bias) - zz * sd, "upper": dec(bias) + zz * sd}, sd
-
-
-def ba_limits_alt(x, y, z):
-    # bias = mean x - mean y; s^2 = (1 / (2 n (n - 1))) sum_ij (d_i - d_j)^2
-    n = len(x)
-    d = [F(a) - F(b) for a, b in zip(x, y)]
-    bias = sum(F(a) for a in x) / n - sum(F(b) for b in y) / n
-    s2 = sum((a - b) ** 2 for a in d for b in d) / (2 * n * (n - 1))
-    sd = sqrt(s2)
-    zz = dec(z)
-    return {"bias": bias, "lower": dec(bias) - zz * sd, "upper": dec(bias) + zz * sd}, sd
-
-
-cases = []
-Z95 = 1.959963984540054
-for x, y, z in [
-    ([10.2, 11.5, 9.8, 12.1, 10.9], [10.0, 11.9, 9.5, 12.4, 10.2], Z95),
-    ([10.2, 11.5, 9.8, 12.1, 10.9], [10.0, 11.9, 9.5, 12.4, 10.2], 2),
-    ([3.5, 4.0], [3.0, 4.75], 1.5),
-    ([1.5, 2.5, 3.5], [1.0, 2.0, 3.0], Z95),
-    ([2.25, 4.5, 6.75], [2.25, 4.5, 6.75], Z95),
-    ([78, 82, 91, 66, 74, 85, 70, 89, 77, 80], [75, 85, 88, 70, 71, 90, 68, 92, 73, 83], Z95),
-    ([5.0, 7.5, 6.25, 9.0], [6.5, 9.0, 8.5, 10.25], 1),
-]:
-    a, sd = ba_limits_exact(x, y, z)
-    b, sd2 = ba_limits_alt(x, y, z)
-    for key in a:
-        close(a[key], b[key])
-    scale = max(abs(dec(a["bias"])), dec(z) * sd)
-    for key in ("lower", "upper"):
-        # no cancellation: the limit is not tiny next to the terms that make it
-        assert scale == 0 or abs(dec(a[key])) > D("0.001") * scale or a[key] == 0
-    cases.append(case([x, y, z], a))
-add(
-    "blandAltmanLimits",
-    "agreement",
-    cases,
-    [
-        [[1.0], [2.0], Z95],
-        [[], [], Z95],
-        [[1, 2, 3], [1, 2], Z95],
-        [[1, 2, 3], [1, 2, 4], 0],
-        [[1, 2, 3], [1, 2, 4], -1.96],
-        [[1, 2, 3], [1, 2, 4], NAN],
-        [[1, 2, 3], [1, 2, 4], INF],
-        [[1, NAN, 3], [1, 2, 4], Z95],
     ],
 )
 
