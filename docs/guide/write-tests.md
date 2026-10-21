@@ -133,7 +133,7 @@ $ driftbench campaign run specs/refund-ask.yaml --process-command "[\"node\",\"$
 
 - `world.workspace.files` seeds files in the agent's working folder. Here it writes `orders.json`, which holds order A-1042.
 - `vars` sets runtime variables the adapter hands to the agent, such as the channel the conversation runs on.
-- `prefix` gives a block the messages that came before it, so it starts from the middle of a conversation without replaying the blocks above it. Each message has a `role` (`user` or `assistant`) and its `content`.
+- `prefix` gives a block the messages that came before it. The block starts in the middle of a conversation, and the blocks above it do not run again. Each message has a `role` (`user` or `assistant`) and its `content`.
 
 `given` can sit on the spec, where it holds for every block, or on one block. This spec has three blocks. Block 1 asks. Block 2 gives an order that exists. Block 3 gives one that does not.
 
@@ -337,8 +337,8 @@ $ driftbench campaign status --store runs.db --json   # exit 1
 
 - `✗ ... fail  block 0 must.0` says three things. The cell failed. The failing block is block 0, because blocks count from 0. The failing check is `must.0`, the first pattern of `must`. A check name is the key in `expect`, then a dot, then an index or a name.
 - The JSON is long, so the block above keeps its key lines. `state` is the verdict of the cell. `failing` lists the failed checks. Each check in `verdicts` has an `id`, an `outcome` (`pass` or `fail`), `gating` (true means a fail fails the block) and the `evidence`.
-- Read the evidence first. It names the pattern that is missing, the closest text it found in the reply (`Refund started`, 5 characters away), and the start of the reply it searched.
-- The `pii` checks you did not write also appear in the JSON, with `pass`. They run on every block that has text, and look for an IBAN, a national number, a phone number or an email address in the reply.
+- Read the evidence first. It names the pattern that is missing. It quotes the closest text in the reply, `Refund started`, which is 5 characters away. It also shows the start of the reply it searched.
+- The `pii` checks you did not write also appear in the JSON, with `pass`. They run on every block that has text. They look in the reply for an IBAN, a national number, a phone number or an email address.
 - In free-running mode (`F`), a later block starts from the agent's own earlier replies. So read the lowest block number first. A later failure often follows from an earlier one.
 
 A table of the check names you will meet:

@@ -153,14 +153,14 @@ Wrote acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phr
 **How to read it.**
 
 - The proposal is much bigger than in step 2: 51 dimensions instead of 34, and 55 phrases instead of none. The six lines at the end say what each model section added: 39 stages, 16 rules, 45 personas, 49 data values, 55 phrases and 67 relations.
-- There are now 7 axes. The model added the stage, the type of user and the result of the coverage check as axes.
+- There are now 7 axes. The model part added four of them: `stage`, `user_type`, `coverage_result` and `workspace_start`.
 - Every entry carries `evidence`: the file and a verbatim quote. Open `acme/map/proposal.yaml` and look at one. If a quote is wrong, code refuses the entry and lists it as `Refused, not in the proposal`.
 - `none approved` is still true. You approve next.
 
 **If it goes wrong.**
 
 - `Refused, not in the proposal:` followed by `"../src/policy.ts" is not one of the sources` (exit 1): the recorded paths do not resolve from where you wrote the proposal. Write the proposal in the folder `acme/map`, next to `acme/src`, and run again with `--force`.
-- A key error with no `--replay` and no `--no-model` (exit 2): the command needs a model key. Set `ANTHROPIC_API_KEY`.
+- With neither `--replay` nor `--no-model`, the command calls a model. It stops with exit 2 and writes nothing when no model key is set. Set `ANTHROPIC_API_KEY`, or choose one of the two options.
 
 ## 4. Approve the map
 
@@ -225,15 +225,15 @@ $ driftbench generate --map acme/map/approved.yaml --out generated --t 2 --seed 
 Seed 1, t = 2.
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     793       153           3
+twise           156     792       153           3
 boundary         85     180        13          72
-deviation       137     526       137           0
+deviation       137     527       137           0
 metamorphic      42     188        42           0
 task             67      71        67           0
-cover            11      48        11           0
+cover            12      53        12           0
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 607 files to generated.
+Wrote 708 files to generated.
 ```
 
 **How to read it.**
@@ -252,7 +252,7 @@ Wrote 607 files to generated.
 
 ## 6. Check what the generated suite covers
 
-**Why you do this.** A big suite can still be lopsided. The coverage line says what share of the allowed situations the generated specs reach, in the same units as step 1, so you can compare the two.
+**Why you do this.** A big suite can still be lopsided. The coverage line says what share of the allowed situations the generated specs reach. It uses the same units as step 1, so you can compare the two.
 
 **You need.** The folder `generated/specs` and the space map `acme/map/space.yaml`.
 
@@ -289,7 +289,7 @@ Coverage: 10 of 10 required cells covered, 708 of 708 cells at t = 2 (100.0%).
 
 **Relevant commands.**
 
-- `driftbench gate`: runs every block through nine checks and keeps the blocks that pass all of them · `examples/acme/specs` is the folder of candidate specs; `--reference` names a good agent, and you repeat it; `--route flow:price-sheet=process:acme-ops` sends the specs that carry the tag `flow:price-sheet` to the ops agent; `--faults` is the fault set; `--date 2026-10-11` is the creation date written into the blocks, so the output is the same on every run; `--out gated-hand` is the folder to write · it prints the funnel, one row per stage, and the mutation score for each fault class, and writes the gated specs, a sealed holdout and `gate-report.json`.
+- `driftbench gate`: passes every block through nine stages and keeps the blocks that no stage rejects · `examples/acme/specs` is the folder of candidate specs; `--reference` names a good agent, and you repeat it; `--route flow:price-sheet=process:acme-ops` sends the specs that carry the tag `flow:price-sheet` to the ops agent; `--faults` is the fault set; `--date 2026-10-11` is the creation date written into the blocks, so the output is the same on every run; `--out gated-hand` is the folder to write · it prints the funnel, one row per stage, and the mutation score for each fault class, and writes the gated specs, a sealed holdout and `gate-report.json`.
 
 **You type.**
 
@@ -333,7 +333,7 @@ Wrote 11 files to gated-hand.
 
 **Why you do this.** You do not run hundreds of specs on every change. `select` picks the fewest tests that still cover everything the set can cover, then keeps the best few. This small set is the one you run often.
 
-**You need.** A folder of gated specs. The repository ships one for Acme, `examples/acme/gated`. It holds 200 usable specs, and sets 58 aside as sealed.
+**You need.** A folder of gated specs. After `gate`, you pass the folder `<out>/specs` it wrote. The repository ships a gated Acme suite, `examples/acme/gated`, so this step does not wait for a long gate run. It holds 200 usable specs, and sets 58 aside as sealed.
 
 **Relevant commands.**
 
@@ -362,7 +362,8 @@ Wrote 11 files to golden.
 - `Pool:` counts the specs it chose from. Sealed specs never count.
 - `Cover:` is the fewest specs that reach every cell the pool reaches.
 - With `--k` smaller than the cover, you get the ranked table. Each row says what the spec adds: cells, required cells and planted faults turned red.
-- `Cells covered` is the price of a small set: 10 specs cover only part of the pool. If a required cell stays empty, the exit code is 1. Raise `--k`.
+- `Cells covered: 306 of 708` is the price of a small set. 10 specs cover 43.2% of the allowed pairs, while the whole pool covers 598. The set still holds 10 of 10 required cells.
+- If a required cell stays empty, the exit code is 1. Raise `--k`.
 
 **If it goes wrong.**
 
@@ -385,6 +386,9 @@ Wrote 11 files to golden.
 ```console
 $ driftbench generate --map acme/map/approved.yaml --out budget-20 --t 2 --seed 1 --budget 20   # exit 1
 Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
+Seeder        specs  blocks  complete  incomplete
+twise            20     105        20           0
+boundary         85     183        13          72
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
 ```
 
@@ -398,8 +402,8 @@ Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs
 
 **If it goes wrong.**
 
-- The command exits 1 and prints `72 incomplete`: that is the to-do list from step 5, not a budget error. The budget never changes the exit code.
-- `--budget` with a map that has approved numeric ranges is required, not optional: those maps refuse generation without it.
+- The command exits 1 and the table shows 72 incomplete specs. They are the to-do list from step 5. The budget never changes the exit code.
+- A map with approved numeric ranges, such as a temperature from 0 to 1, refuses generation without `--budget`. Add the option.
 
 ## Where to go next
 
