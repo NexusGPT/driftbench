@@ -62,6 +62,19 @@ async function main() {
   return result.level;
 }
 
+// The frame keeps every product answer of an item on its tape, so a 100-times scale item holds a few gigabytes
+// in this process at its peak, over node's default heap. The run starts again once with a larger heap, the run
+// handed over on standard input, before anything is read or deleted.
+const HEAP = '--max-old-space-size=12288';
+if (!process.execArgv.includes(HEAP)) {
+  const { spawnSync } = require('node:child_process');
+  const ran = spawnSync(process.execPath, [HEAP, __filename], {
+    input: readFileSync(0),
+    stdio: ['pipe', 'inherit', 'inherit'],
+  });
+  process.exit(ran.status ?? (ran.signal ? 98 : 99));
+}
+
 main().then(
   (level) => {
     process.exit(level);

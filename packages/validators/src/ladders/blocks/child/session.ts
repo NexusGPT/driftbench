@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   existsSync,
@@ -64,9 +65,18 @@ type Host = {
 
 type Signature = Map<string, string>;
 type Folder = { mirror: string; real: string; realMirror: string; after: Signature };
-type Seen = { id: number; keys: string[]; values: unknown[] };
 
 const CLI_MS = 600_000;
+/** The size, in characters of JSON, from which an argument crosses once per item (`intern`). */
+const INTERN_CHARS = 100_000;
+
+/** Whether a wire value is plain JSON data: no tagged value, map, set, date or bytes in it. */
+function plainData(value: Wire): boolean {
+  if (value === null || typeof value !== 'object') return typeof value !== 'bigint';
+  if (Array.isArray(value)) return value.every(plainData);
+  if (!isPlain(value) || Object.hasOwn(value, TAG)) return false;
+  return Object.values(value).every(plainData);
+}
 
 const isThenable = (value: unknown): value is PromiseLike<unknown> =>
   value !== null &&
@@ -293,11 +303,11 @@ export class FrameSession {
   private readonly callbacks = new Map<number, { fn: (...args: unknown[]) => unknown; owner?: object }>();
   private readonly callbackIds = new WeakMap<object, number>();
   private nextCallback = 0;
-  private readonly held = new WeakMap<object, number>();
+  private held = new WeakMap<object, number>();
   private readonly proxies = new Map<string, unknown>();
-  private readonly seen = new WeakMap<object, Seen>();
-  private readonly errors = new WeakMap<object, number>();
+  private errors = new WeakMap<object, number>();
   private readonly exports = new Map<string, unknown>();
+  private readonly interned = new Set<string>();
   private firstDivergence?: string;
   private commands = 0;
   private commandCpu = 0;
@@ -325,6 +335,23 @@ export class FrameSession {
 
   /** Ends the item: closes the frame and returns the first divergence of its two runs. */
   end(): string | undefined {
+    if (process.env.BLOCKS_FRAME_DEBUG && this.frame) {
+      const sizes = this.frame.tape.map((entry) => ({
+        call: entry.call,
+        chars: JSON.stringify(entry).length,
+      }));
+      const total = sizes.reduce((sum, each) => sum + each.chars, 0);
+      const byCall = new Map<string, { n: number; chars: number }>();
+      for (const each of sizes) {
+        const held = byCall.get(each.call) ?? { n: 0, chars: 0 };
+        held.n += 1;
+        held.chars += each.chars;
+        byCall.set(each.call, held);
+      }
+      process.stderr.write(
+        `tape ${this.item?.tag}: ${sizes.length} calls, ${total} chars ${JSON.stringify([...byCall])}\n`,
+      );
+    }
     const divergence = this.firstDivergence ?? this.where();
     this.close();
     this.item = undefined;
@@ -359,7 +386,11 @@ export class FrameSession {
     this.privateRoot = undefined;
     this.callbacks.clear();
     this.proxies.clear();
+    // What the closed frame's children held is gone with them: a copy kept from it crosses again as data.
+    this.held = new WeakMap();
+    this.errors = new WeakMap();
     this.exports.clear();
+    this.interned.clear();
     this.firstDivergence = undefined;
     this.commands = 0;
     this.commandCpu = 0;
@@ -513,12 +544,8 @@ export class FrameSession {
         );
       if (value instanceof Set)
         return new Set([...value].map((each, i) => this.toWire(each, undefined, `${path}[${i}]`, stack)));
-      const seen = this.seen.get(value);
-      if (Array.isArray(value)) {
-        const items = value.map((each, i) => this.toWire(each, undefined, `${path}[${i}]`, stack));
-        if (seen && this.unchanged(value, seen, items)) return tag('r', seen.id);
-        return items;
-      }
+      if (Array.isArray(value))
+        return value.map((each, i) => this.toWire(each, undefined, `${path}[${i}]`, stack));
       if (!isPlain(value)) {
         const name = (Object.getPrototypeOf(value) as { constructor?: { name?: string } })?.constructor?.name;
         throw new FrameError(
@@ -526,37 +553,14 @@ export class FrameSession {
         );
       }
       const object: Record<string, unknown> = {};
-      const keys = Object.keys(value);
-      for (const key of keys) {
+      for (const key of Object.keys(value)) {
         if (key === TAG) throw new FrameError(`${path} has a key the frame reserves`);
         object[key] = this.toWire((value as Record<string, unknown>)[key], value, `${path}.${key}`, stack);
       }
-      if (
-        seen &&
-        this.unchanged(
-          value,
-          seen,
-          keys.map((key) => object[key]),
-        )
-      )
-        return tag('r', seen.id);
       return object;
     } finally {
       stack.delete(value);
     }
-  }
-
-  /** Whether a copy the child gave is as it was given: same keys, same values, nested copies unchanged. */
-  private unchanged(value: object, seen: Seen, encoded: unknown[]): boolean {
-    const keys = Object.keys(value);
-    if (keys.length !== seen.keys.length || keys.some((key, i) => key !== seen.keys[i])) return false;
-    const current = keys.map((key) => (value as Record<string, unknown>)[key]);
-    return current.every((each, i) => {
-      if (each !== seen.values[i]) return false;
-      if (each === null || typeof each !== 'object') return true;
-      const parts = tagged(encoded[i]);
-      return parts?.[0] === 'r';
-    });
   }
 
   fromWire(value: Wire, self?: number): unknown {
@@ -574,18 +578,6 @@ export class FrameSession {
     }
     const [kind, a, b, c, d, e] = parts as [string, unknown, unknown, unknown, unknown, unknown];
     switch (kind) {
-      case 'p': {
-        const copy = Array.isArray(b)
-          ? b.map((each) => this.fromWire(each))
-          : (this.fromWire(b) as Record<string, unknown>);
-        const keys = Object.keys(copy);
-        this.seen.set(copy, {
-          id: a as number,
-          keys,
-          values: keys.map((key) => (copy as Record<string, unknown>)[key]),
-        });
-        return copy;
-      }
       case 'f':
         return this.stub(a as number, String(b), Number(c), self);
       case 'o':
@@ -772,7 +764,23 @@ export class FrameSession {
    * ------------------------------------------------------------------------------------------------------- */
 
   private callWire(where: Wire, key: string | null, self: Wire, args: unknown[]): unknown {
-    return this.drive(this.ask('call', where, key, self, this.toWire(args, undefined, 'the arguments')));
+    const wire = args.map((each, i) => this.intern(this.toWire(each, undefined, `argument ${i + 1}`)));
+    return this.drive(this.ask('call', where, key, self, wire));
+  }
+
+  /**
+   * A large argument of plain data crosses once per item: a later argument with the same content crosses as its
+   * name, and the child decodes a fresh copy of what it was sent. The frame's tape keeps every argument it sends,
+   * so a 100-times input handed to three timed tries would otherwise be kept three times.
+   */
+  private intern(wire: Wire): Wire {
+    if (wire === null || typeof wire !== 'object' || !plainData(wire)) return wire;
+    const text = JSON.stringify(wire, (_key, each) => (each === undefined ? '\u0000undefined' : each));
+    if (text.length < INTERN_CHARS) return wire;
+    const name = createHash('sha256').update(text).digest('hex');
+    if (this.interned.has(name)) return tag('j', name);
+    this.interned.add(name);
+    return tag('i', name, wire);
   }
 
   /** Runs a call to its end: each request of a function of the bank answered here, synchronously while it can. */
@@ -837,15 +845,24 @@ export class FrameSession {
         respond: (...args: unknown[]) => unknown;
       } & Record<string, unknown>;
       const states = new Map<number, unknown>();
+      const histories = new Map<number, unknown[]>();
       let next = 0;
       const open = async (given: unknown) => {
         next += 1;
         states.set(next, create ? await create(given) : undefined);
         return next;
       };
-      const reply = async (messages: unknown, world: unknown, vars: unknown, sid: number, ctx: unknown) => {
+      const reply = async (
+        delta: { keep: number; add: unknown[] },
+        world: unknown,
+        vars: unknown,
+        sid: number,
+        ctx: unknown,
+      ) => {
         const state = states.get(sid);
-        const answer = await respond(messages, world, vars, state, ctx);
+        const history = [...(histories.get(sid) ?? []).slice(0, delta.keep), ...delta.add];
+        histories.set(sid, history);
+        const answer = await respond(structuredClone(history), world, vars, state, ctx);
         return { reply: answer, ...(payloads ? { payloads: payloads(state) } : {}) };
       };
       return this.drive(

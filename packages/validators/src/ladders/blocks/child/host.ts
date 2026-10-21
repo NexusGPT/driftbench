@@ -41,6 +41,9 @@ type Op = {
   wake?: () => void;
 };
 
+/** JSON.stringify as it is before any product module loads: a product may patch the global one. */
+const stringify = JSON.stringify;
+
 /** The twin that runs in a folder of its own: the frame hands it process arguments, its twin has none. */
 const twin = process.argv.length > 2 ? 'b' : 'a';
 
@@ -96,18 +99,13 @@ function out(value: unknown, seen: Set<object> = new Set()): Wire {
   try {
     if (value instanceof Map) return new Map([...value].map(([k, v]) => [out(k, seen), out(v, seen)]));
     if (value instanceof Set) return new Set([...value].map((each) => out(each, seen)));
-    if (Array.isArray(value))
-      return tag(
-        'p',
-        idOf(value),
-        value.map((each) => out(each, seen)),
-      );
+    if (Array.isArray(value)) return value.map((each) => out(each, seen));
     if (!isPlain(value)) return tag('o', idOf(value), className(value));
     const entries = Object.entries(value);
     if (entries.some(([, each]) => typeof each === 'function')) return tag('o', idOf(value), 'Object');
     const data: Record<string, unknown> = {};
     for (const [key, each] of entries) data[key] = out(each, seen);
-    return tag('p', idOf(value), data);
+    return data;
   } finally {
     seen.delete(value);
   }
@@ -122,6 +120,9 @@ function outError(error: Error, seen: Set<object>): Wire {
   if (error.cause !== undefined && !Object.hasOwn(fields, 'cause')) fields.cause = out(error.cause, seen);
   return tag('e', idOf(error), error.name, error.message, className(error), fields);
 }
+
+/** Large arguments the bank sent once, as wire data: each later mention decodes a fresh copy. */
+const interned = new Map<string, Wire>();
 
 /** A function of the bank, as the product calls it: a promise of what the bank's function returned. */
 const callbacks = new Map<number, (...args: unknown[]) => Promise<unknown>>();
@@ -185,6 +186,13 @@ function inn(value: Wire): unknown {
       return bankFunction(a as number);
     case 'k':
       return () => inn(a);
+    case 'i':
+      interned.set(String(a), b);
+      return inn(b);
+    case 'j': {
+      if (!interned.has(String(a))) throw new Error('the validator named an argument this run was not sent');
+      return inn(interned.get(String(a)));
+    }
     case 'r': {
       if (!values.has(a as number))
         throw new Error(`the validator named a value ${String(a)} this run does not hold`);
@@ -401,17 +409,29 @@ export async function functionAgent(options: Wire, create: Wire, respond: Wire):
   const respondFn = inn(receive(respond)) as (
     ...args: unknown[]
   ) => Promise<{ reply: unknown; payloads?: unknown[] }>;
-  type State = { sid: number; payloads: unknown[] };
+  type State = { sid: number; payloads: unknown[]; sent: string[] };
   const hasPayloads = given.payloads === true;
   delete given.payloads;
   return step(
     begin(() =>
       functionAdapter({
         ...given,
-        create: async (input: unknown): Promise<State> => ({ sid: await createFn(input), payloads: [] }),
+        create: async (input: unknown): Promise<State> => ({
+          sid: await createFn(input),
+          payloads: [],
+          sent: [],
+        }),
         ...(hasPayloads ? { payloads: (state: State) => state.payloads } : {}),
         respond: async (messages: unknown, world: unknown, vars: unknown, state: State, ctx: unknown) => {
-          const answer = await respondFn(messages, world, vars, state.sid, ctx);
+          // The history crosses as what changed since the last turn of this session: the messages the bank
+          // already has are kept, the rest added (a long run's history would cross whole at every turn).
+          const list = messages as unknown[];
+          const texts = list.map((each) => stringify(each));
+          let keep = 0;
+          while (keep < state.sent.length && keep < texts.length && state.sent[keep] === texts[keep])
+            keep += 1;
+          state.sent = texts;
+          const answer = await respondFn({ keep, add: list.slice(keep) }, world, vars, state.sid, ctx);
           state.payloads = answer.payloads ?? [];
           return answer.reply;
         },

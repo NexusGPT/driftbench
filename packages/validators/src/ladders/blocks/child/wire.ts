@@ -12,10 +12,11 @@
  * |---|---|---|
  * | f | to the bank | id, name, length: a function that stays in the child |
  * | o | to the bank | id, class name: an object that stays in the child, read and called through the frame |
- * | p | to the bank | id, the data: a plain object or array, copied, with its id so an unchanged copy goes back as itself |
  * | e | both | id (or null), name, message, class name, own fields: an error |
  * | c | to the child | id: a function of the bank, called back through the frame |
  * | k | to the child | value: a function of the bank that returns this value, every call (a clock, a fixed draw) |
+ * | i | to the child | name, the data: a large argument, which the child keeps as data under its name |
+ * | j | to the child | name: the large argument sent before under this name, decoded afresh |
  * | r | to the child | id, changed fields: the value the child holds under this id |
  * | x | both | source, flags: a regular expression |
  * | b | both | base64: a Buffer |
