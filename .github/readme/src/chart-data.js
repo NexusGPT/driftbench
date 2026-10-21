@@ -1815,8 +1815,8 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 99.79,
-            "text": "479"
+            "value": 100,
+            "text": "480"
           },
           {
             "series": 1,
@@ -1858,7 +1858,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 1 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * opt-in setting response-relevance (opt-in); every other bar is the shipped judge"
+    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 1 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * G-Eval strict: v8 default, metric declares request-fulfillment; other rows unchanged"
   },
   "hard-promptfoo": {
     "kind": "columns",

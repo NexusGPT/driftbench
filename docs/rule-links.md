@@ -57,7 +57,7 @@ Two values name the unit, and they differ in what an edit does to them:
 * The ledger id, `id`, is a stable id that survives edits. The ledger makes it once and keeps it as the file changes: the unit stays the same unit when its text is edited, moved, split or merged.
 * The text fingerprint, `fp`, is the hash of the unit's text. It changes on every edit.
 
-Approve the atoms and plan the tests. The plan holds 1,424 rows, and `plan approve --all` approves them all.
+Approve the atoms and plan the tests. The plan holds one row per test, and `plan approve --all` approves them all.
 
 ```
 driftbench estate approve map.yaml --all --to approved.yaml

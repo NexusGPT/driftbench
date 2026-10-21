@@ -25,6 +25,14 @@ export const WRITING_TOOLS: ReadonlySet<string> = new Set([
   'NotebookEdit',
   'Bash',
 ]);
+/** Tools that only look (a skill loads instructions and changes nothing): a hazard_recovery spec declares them `read`. */
+export const READING_TOOLS: ReadonlySet<string> = new Set(['Read', 'Glob', 'Grep', 'Skill']);
+/**
+ * Tools whose calls are the block's own work and destroy nothing: a spec that checks hazard recovery declares them
+ * `modify`. Editing and writing files. `Agent` is declared by no spec: a helper can do destructive work that the
+ * parent's trace does not show, so a call to it stays unknown.
+ */
+export const MODIFYING_TOOLS: ReadonlySet<string> = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 /** The complete specs a focus atom gets at least, when its rows allow. */
 export const FOCUS_MIN = 5;
 /**

@@ -375,6 +375,14 @@ const REFUSALS: Array<[name: string, edits: Edit[], expected: string[]]> = [
     ['VARIABLES_AMBIGUOUS_VALUE variables.4.values.0.id'],
   ],
   [
+    'one value in a behaviour axis and a persona axis',
+    [
+      ['variables.3', variable('rules', 'behaviour', ['B-001'])],
+      ['variables.4', variable('who', 'persona', ['B-001'])],
+    ],
+    ['VARIABLES_AMBIGUOUS_VALUE variables.4.values.0.id'],
+  ],
+  [
     'a deviation axis value that is no deviation class',
     [['variables.3', variable('deviation', 'deviation', ['none', 'D11_shouting'])]],
     ['VARIABLES_UNKNOWN_DEVIATION variables.3.values.1.id'],

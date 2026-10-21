@@ -1,14 +1,21 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
-import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import {
+  countVariableTuples,
+  type VariableStore,
+  validateVariableStore,
+} from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
+  CoverageResult,
   FileStore,
+  Group,
   Plan,
   PlanOptions,
   Provenance,
   QuotesResult,
+  Row,
   StoreDoc,
   ValidateResult,
   VariablesImpl,
@@ -27,8 +34,10 @@ import type {
  *   reads any store's, from the passages its values quote.
  * - `weightInterval` is `wilson` of @agent-nexus/driftbench-stats, the two-sided 95 percent Wilson score interval
  *   of docs/variables.md R13, clamped to 0 and 1.
- * - `buildStore` and `coverage` have no product yet: they stay unmapped, and their items fail with the name of the
- *   function they need. That is the roadmap.
+ * - `coverage` is `countVariableTuples` of @agent-nexus/driftbench-space (docs/variables.md R12), on the store file
+ *   the projection is written as.
+ * - `buildStore` has no product yet: it stays unmapped, and its items fail with the name of the function it
+ *   needs. That is the roadmap.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -119,7 +128,9 @@ function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
   const { worker, port, flag } = quotesWorkerOf();
   // One request in flight: the call blocks until the worker answers, so no second one can start.
   Atomics.store(flag, 0, 0);
-  port.postMessage({ store, files });
+  // The loader gives an absent list of constraints as an empty one (docs/variables.md: absent means every
+  // combination can occur); the quote check takes the store after that default.
+  port.postMessage({ store: { ...store, constraints: store.constraints ?? [] }, files });
   const waited = Atomics.wait(flag, 0, 0, QUOTES_TIMEOUT_MS);
   const reply = receiveMessageOnPort(port)?.message as
     | { errors: QuotesResult['errors'] }
@@ -154,15 +165,20 @@ function storeOf(doc: StoreDoc): VariableStore {
     }
   }
   const constraints = [
-    ...(doc.impossible ?? []).map((pair) => ({
-      forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
-      reason: 'an impossible pair of the store',
-      approved: true,
-      provenance: ownProvenance(pair.provenance),
-    })),
+    // A pair that names two values of one variable excludes nothing (R7): a row holds one value of a variable.
+    ...(doc.impossible ?? [])
+      .filter((pair) => pair.a.variable !== pair.b.variable)
+      .map((pair) => ({
+        forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
+        reason: `${pair.a.variable}=${pair.a.value} never occurs with ${pair.b.variable}=${pair.b.value}`,
+        approved: true,
+        provenance: ownProvenance(pair.provenance),
+      })),
     ...(doc.forbids ?? []).map((entry) => ({
       forbid: { ...entry.forbid },
-      reason: 'a combination the store forbids',
+      reason: `${Object.entries(entry.forbid)
+        .map(([variable, value]) => `${variable}=${value}`)
+        .join(' and ')} never occur together`,
       approved: entry.approved ?? true,
       provenance: ownProvenance(entry.provenance),
     })),
@@ -231,4 +247,18 @@ function weightInterval(count: number, total: number): [number, number] {
   return [interval.lower, interval.upper];
 }
 
-export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval };
+function coverage(
+  doc: StoreDoc,
+  rows: Row[],
+  groups: Group[],
+  options?: { uncovered?: number },
+): CoverageResult {
+  return countVariableTuples(
+    storeOf(doc),
+    rows,
+    groups,
+    options?.uncovered === undefined ? {} : { uncovered: options.uncovered },
+  );
+}
+
+export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval, coverage };

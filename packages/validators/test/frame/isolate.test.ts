@@ -59,7 +59,13 @@ afterEach(() => {
 /** The item under the frame: its own check on the answers, and the same answers from both runs. */
 function framed(name: keyof Cheats, seed: number): { pass: boolean; divergence?: string } {
   const frame = frameOf(seed);
-  const pass = item(frame.product[name] as SumOdd, seed);
+  // A product the confinement stops from reading a file throws where an unconfined run answers: the item fails.
+  let pass = false;
+  try {
+    pass = item(frame.product[name] as SumOdd, seed);
+  } catch {
+    pass = false;
+  }
   const divergence = frame.divergence();
   return { pass: pass && divergence === undefined, divergence };
 }

@@ -44,12 +44,12 @@ export const AGENT_RULES_SET = `labels:
     description: What an instruction file asks of the agent that reads it.
     spans:
       - name: governed-action
-        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+        description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it. For two calls of one tool it is the whole sentence of the unit, copied letter for letter with its backticks, from its first word after any list marker or rule number to its last word, never including the final full stop, so that it holds both calls. It carries no polarity.
       - name: first-call
-        description: Inside the governed-action span, the call of the tool that must come first, as the unit writes it, in the fewest words that tell it from the other call, such as the command or the file name, with no quote marks and no word that orders it.
+        description: Inside the governed-action span, the call that runs first, short, copied from the unit without backticks and without a word that orders it, such as the command or the file name.
         within: governed-action
       - name: second-call
-        description: Inside the governed-action span, the call of the same tool that must come second, as the unit writes it, in the fewest words that tell it from the other call, with no quote marks and no word that orders it.
+        description: Inside the governed-action span, the call of the same tool that runs second, short, copied from the unit without backticks and without a word that orders it. An act written as a verb phrase is its verb alone, one word, such as publish.
         within: governed-action
       - name: situation
         description: The circumstance in which the unit applies, in the unit's own words, such as a state of the world, a kind of request or a moment. Not the act the unit orders. Give it only when the unit states one.
@@ -85,7 +85,7 @@ export const AGENT_RULES_SET = `labels:
         to: [subagent]
     labels:
       - name: rule
-        description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead.
+        description: A unit that tells the reader to do something, without setting an order between acts or between two calls. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead. A unit that makes one call wait for the output of another call of the same tool is gate-calls.
         spans: [situation, ask-text]
         links: [reply-act, reply-part]
         atom:
@@ -105,7 +105,7 @@ ${ALSO_REFERENCE}      - name: dispatch
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
           fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
 ${ALSO_REFERENCE}      - name: prohibition
-        description: A unit that tells the reader never to do something, or not to do it. The unit holds never, do not or must not, even when it names a file, a folder or a command.
+        description: A unit that tells the reader never to do something, or not to do it. The unit holds never, do not or must not, even when it names a file, a folder or a command. A ban that lasts only until another call of the same tool has been done and its output read is gate-calls.
         spans: [situation, ask-text]
         links: [reply-act, reply-part]
         atom:
@@ -148,7 +148,7 @@ ${ALSO_REFERENCE}
           evidence:
             - { type: ordered, before: Read, after: $link.act-tool }
       - name: gate-command
-        description: A unit that tells the reader to run a command first, before an act. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that tells the reader to run a command first, before an act that uses a different tool than the command, such as a command before a file is written. If the act is itself a command run with the same tool, such as committing, publishing or deleting, the unit is gate-calls and not this label. Its command is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
         links: [act-tool, reply-act, reply-part, order-key]
         atom:
@@ -161,7 +161,12 @@ ${ALSO_REFERENCE}
             - { type: ordered, before: Bash, after: $link.act-tool }
             - { type: tool_called, label: Bash, input: { command: { contains: $code } } }
       - name: gate-calls
-        description: A unit that orders two calls of one tool, one before the other, such as a command that must run before another command. Give the act that waits as the governed-action span, the two calls as the first-call and second-call spans inside it, and the tool as the act-tool link.
+        examples:
+          - "Run \`make check\` before you run \`make publish\`."
+          - "Do not publish until you have read the output of \`make check\`."
+          - "Look at \`ls .lock\` first, then remove the lock with \`rm .lock\`."
+        description: >-
+          A unit that makes one call of a tool wait for another call of the same tool, including a ban that lasts only until a command has been run and its output read. Take this label, and not rule or prohibition, for such a unit. Both calls are named in the unit, the second one possibly only as an act such as commit or publish. Not a unit that waits for a person's answer, such as an explicit yes before sending, which is a rule. Not a unit that waits for a file to be read or for a call of a different tool. The entry for such a unit has this shape, for the unit Do not publish until you have read the output of \`make check\`. {"units": "7", "label": "gate-calls", "spans": [{"kind": "governed-action", "text": "Do not publish until you have read the output of \`make check\`"}, {"kind": "first-call", "text": "make check"}, {"kind": "second-call", "text": "publish"}], "links": [{"kind": "act-tool", "to": "Bash"}]}.
         spans: [governed-action, first-call, second-call]
         links: [act-tool]
         atom:

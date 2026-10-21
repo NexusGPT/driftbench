@@ -119,6 +119,10 @@ const «setup» = JSON.parse(await «next»());
 const «write» = process.stdout.write.bind(process.stdout);
 const «answer» = («message») => «write»(«setup».token + ' ' + JSON.stringify(«message») + '\n');
 
+if ('nodeOptions' in «setup») {
+  if («setup».nodeOptions === null) delete process.env.NODE_OPTIONS;
+  else process.env.NODE_OPTIONS = «setup».nodeOptions;
+}
 if («setup».loader) {
   const { register: «register» } = await import(«toUrl»(«setup».loader).href);
   «register»();
@@ -138,7 +142,7 @@ if («setup».command) {
   process.stdin.removeAllListeners('data');
   process.stdin.removeAllListeners('end');
   process.stdin.pause();
-  process.argv = [process.argv[0], «setup».command, ...«setup».args];
+  process.argv = [process.argv[0], «setup».script || «setup».command, ...«setup».args];
   await import(«toUrl»(«setup».command).href);
 } else {
   let «product»;
@@ -150,7 +154,7 @@ if («setup».command) {
   }
   for (let «text» = await «next»(); «text» !== undefined; «text» = await «next»()) {
     const «request» = JSON.parse(«text»);
-    const «fn» = «product»[«request».call];
+    const «fn» = «setup».invoke ? (...«rest») => «product»[«setup».invoke](«request».call, «rest») : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
       const «args» = «decode»(«request».args);
@@ -173,6 +177,29 @@ export function twinDriver(seed: number, tag: string): string {
     TWIN.replace('«codec»', () => codec).replace(/«listen»/g, () => listen),
     name,
   );
+}
+
+/**
+ * The neutral wrapper module of run D: it imports the product and calls one of its functions by name through array
+ * and function methods, so the product is called from another module and from native frames, not straight from the
+ * driver. Its identifiers are drawn.
+ */
+export function wrapperModule(
+  seed: number,
+  tag: string,
+  product: string,
+): { source: string; invoke: string } {
+  const name = namer(seed, `wrapper:${tag}`);
+  const source = [
+    `import * as ${name('product')} from ${JSON.stringify(product)};`,
+    `export const ${name('invoke')} = async (${name('call')}, ${name('args')}) => {`,
+    `  const ${name('fn')} = ${name('product')}[${name('call')}];`,
+    `  if (typeof ${name('fn')} !== 'function') throw new TypeError('the product has no function ' + ${name('call')});`,
+    `  return [${name('args')}].map((${name('list')}) => Function.prototype.apply.call(${name('fn')}, undefined, ${name('list')}))[0];`,
+    `};`,
+    '',
+  ].join('\n');
+  return { source, invoke: name('invoke') };
 }
 
 /** The codec module of run C: the value codec, exported under drawn names. */
@@ -247,7 +274,7 @@ const runs = plans.map((plan) => {
     const waiter = run.waiting.shift();
     if (waiter) waiter(message);
   });
-  child.stdin.write(JSON.stringify({ ...setup, uptimeShift: plan.uptimeShift, depth: plan.depth }) + '\n');
+  child.stdin.write(JSON.stringify({ ...setup, ...plan.setup, uptimeShift: plan.uptimeShift, depth: plan.depth }) + '\n');
   return run;
 });
 const ask = (run, line) =>
