@@ -15,7 +15,16 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { findRoot } from '../root';
-import { checkMark, confine, markPath, type SealDescriptor, sealOnce, setMark, TreeWatch, tsxPath } from './confine';
+import {
+  checkMark,
+  confine,
+  markPath,
+  type SealDescriptor,
+  sealOnce,
+  setMark,
+  TreeWatch,
+  tsxPath,
+} from './confine';
 import { plainBatchEntry, plainCodec, RELAY, twinDriver, wrapperModule } from './driver';
 import { runTag, spawnGrouped } from './group';
 import {
