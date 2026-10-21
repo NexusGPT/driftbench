@@ -2,7 +2,7 @@
 
 This page defines sixteen functions that measure how far two distributions or two runs are apart, whether a series of scores trends, and whether a process stays in control. It follows the conventions of [Statistics capabilities to build](capabilities.md): the accuracy, the `RangeError` rules, and the way an array of numbers is checked before any computation.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `totalVariationDistance` exists in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 Every function is pure: the same inputs give the same output, and the inputs are never modified. Numbers are compared as binary64 values, so two values are equal only when they are the same double.
 

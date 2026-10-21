@@ -24,6 +24,7 @@ export {
   hillNumber,
   hillNumbers,
 } from './coverage';
+export { totalVariationDistance } from './divergence';
 export {
   type Alarm,
   type CusumOptions,
