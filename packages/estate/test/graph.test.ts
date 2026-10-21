@@ -86,6 +86,32 @@ describe('what a guard enforces', () => {
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.stop', by: 'quote' }]);
   });
 
+  it.each([
+    ['a piece of the action part', 'stop all work and confirm'],
+    ['the condition and the start of the action', 'the user asks to stop, stop all work'],
+  ])('by a message that holds %s', async (_name, message) => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': `#!/bin/sh\necho "${message}" >&2\nexit 2\n`,
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.stop', by: 'quote' }]);
+  });
+
   it('not by a message that holds only the condition of the rule', async () => {
     const root = await estate({
       'CLAUDE.md':

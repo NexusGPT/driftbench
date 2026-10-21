@@ -210,24 +210,25 @@ function holds(quote: string, passage: string): boolean {
 }
 
 /**
- * The part of a rule after its condition: the quote, without the label that opens its line, from the end of the
- * condition the labeler gave as the rule's situation. Empty when the rule has no situation, or its quote does not
- * hold it.
+ * The rule's words, without the label that opens its line, and where its condition ends in them (the condition
+ * is the situation the labeler gave), both compared without markup. Undefined when the rule has no situation, or
+ * its words do not hold it.
  */
-function actionPart(rule: Atom): string {
-  const words = ruleWords(rule);
+function afterCondition(rule: Atom): { words: string; end: number } | undefined {
+  const raw = ruleWords(rule);
   const condition = rule.situation?.trim();
-  if (!condition) return '';
-  const at = words.toLowerCase().indexOf(condition.toLowerCase());
-  if (at < 0) return '';
-  return words.slice(at + condition.length).replace(/^[\s,;:.\u2013\u2014-]+/, '');
+  if (!condition) return undefined;
+  const at = raw.toLowerCase().indexOf(condition.toLowerCase());
+  if (at < 0) return undefined;
+  return { words: plain(raw), end: plain(raw.slice(0, at + condition.length)).length };
 }
 
 /**
  * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words, a code span
- * the rule writes (the command a guard matches), or the part of the rule after its condition (docs/estate.md,
- * section 2, the enforces edge). A literal that holds only the condition, or a few loose words of it, repeats when
- * the rule applies and not the rule: it enforces nothing.
+ * the rule writes (the command a guard matches), or it reaches into the part of the rule after its condition: the
+ * whole of that part, a piece of it, or the condition and the start of it (docs/estate.md, the enforces edge).
+ * A literal of at least 16 characters that stays inside the condition repeats when the rule applies and not the
+ * rule: it enforces nothing.
  */
 function literalHoldsRule(literal: string, rule: Atom): boolean {
   const text = plain(literal);
@@ -238,7 +239,10 @@ function literalHoldsRule(literal: string, rule: Atom): boolean {
   if (holds(ruleWords(rule))) return true;
   const spans = Array.isArray(rule.fields?.spans) ? (rule.fields.spans as unknown[]) : [];
   if (spans.some((span) => typeof span === 'string' && holds(span))) return true;
-  return holds(actionPart(rule));
+  const split = afterCondition(rule);
+  if (!split || text.length < MIN_LITERAL) return false;
+  const at = split.words.indexOf(text);
+  return at >= 0 && at + text.length > split.end;
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
