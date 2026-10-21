@@ -12,6 +12,8 @@ import { QuoteIndex } from '../extract/quote';
  *   file it is quoted from. A value whose quote the file does not hold (white space, typographic quotes, accents
  *   and invisible characters folded, case and punctuation not) is refused with a reason and kept out; a variable
  *   left with no value is not stored. A file is looked up by its exact path among the files given, never on disk.
+ *   Text with an unpaired UTF-16 surrogate (not well-formed Unicode), in any key or value of any source, is refused
+ *   with a reason by one pass at the entry: two such texts would encode alike and share an id or a hash.
  * - Conversations. Each session names the values it shows by variable and value id. A variable's total is the
  *   sessions that show it; a value's count is the sessions that show the value. A value of a variable the store
  *   has, absent from the store, joins it as a proposal (`approved: false`) with its counts. A variable no session
@@ -109,6 +111,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim() === '';
 
+/** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
+const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+/** The text with each unpaired surrogate shown as U+FFFD, for a refusal that names it. */
+const shown = (text: string): string => text.replace(new RegExp(UNPAIRED.source, 'g'), '\uFFFD');
+const NOT_WELL_FORMED =
+  'a name or subject must be well-formed text: this one holds an unpaired UTF-16 surrogate, which cannot be told from another';
+
 function realDay(text: unknown): text is string {
   if (typeof text !== 'string') return false;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
@@ -166,6 +175,44 @@ function idsFor(names: Iterable<string>): Map<string, string> {
   return out;
 }
 
+/**
+ * Ids for the variables, by the rule of `idsFor`. A variable keeps its id text (a condition's subject, or the dotted
+ * title of a tool and field) when that is a valid id, does not end like a hashed id and holds no dot that another kind
+ * of variable could also write; otherwise the id is the slug of the text and 12 hex digits of the hash of the
+ * variable's identity. So an id depends on its own variable only, and variables of different kinds that give one text
+ * never share an id. Ids that still meet (a crafted hash) are ordered by identity and the later ones get a numeric
+ * suffix.
+ */
+function variableIdsFor(drafts: ReadonlyMap<string, VariableDraft>): Map<string, string> {
+  const byId = new Map<string, string[]>();
+  for (const [key, draft] of drafts) {
+    const text = draft.idText ?? draft.name;
+    const own = slug(text);
+    const keeps = own === text && !HASHED.test(text) && draft.plain !== false;
+    const id = keeps ? own : `${own}-${sha256(key).slice(0, 12)}`;
+    const list = byId.get(id);
+    if (list) list.push(key);
+    else byId.set(id, [key]);
+  }
+  const used = new Set(byId.keys());
+  const out = new Map<string, string>();
+  for (const [id, list] of byId) {
+    const keepsId = (key: string): number => {
+      const draft = drafts.get(key) as VariableDraft;
+      return (draft.idText ?? draft.name) === id && draft.plain !== false ? 0 : 1;
+    };
+    list.sort((x, y) => keepsId(x) - keepsId(y) || (x < y ? -1 : x > y ? 1 : 0));
+    out.set(list[0] as string, id);
+    for (let n = 1; n < list.length; n += 1) {
+      let candidate = `${id}-${n + 1}`;
+      for (let k = n + 2; used.has(candidate); k += 1) candidate = `${id}-${k}`;
+      used.add(candidate);
+      out.set(list[n] as string, candidate);
+    }
+  }
+  return out;
+}
+
 type ValueDraft = {
   /** The names this value was given (a tool value id, an owner or session value id). */
   names: Set<string>;
@@ -189,8 +236,17 @@ type BoundaryDraft = {
 };
 
 type VariableDraft = {
+  /** The identity of the variable (`identity`): its kind and the parts that name it, never joined or serialised. */
   name: string;
   title: string;
+  /**
+   * False when the id text holds a dot: a plain id is a tool's dotted title, and that title can also be written by
+   * another tool and field (the pair that splits at the last dot keeps it) or be the subject of a condition. So a
+   * condition with a dot in its subject, and a tool whose field holds a dot, take a hashed id. An unset flag is true.
+   */
+  plain?: boolean;
+  /** The text the id is made from: the subject of a condition, or the dotted title of a tool and field. */
+  idText?: string;
   values: Map<string, ValueDraft>;
   total?: number;
   /** For a condition variable: the sample of each value, by value key. */
@@ -231,8 +287,16 @@ const numberKey = (x: number): string => (x < 0 ? `neg${-x}` : `v${x}`);
 const finite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
 const named = (x: unknown): x is string => typeof x === 'string' && x.trim() !== '';
 
-const ownerKey = (entry: OwnerEntry) => JSON.stringify([entry.date, entry.words]);
-const quoteKey = (entry: QuoteEntry) => JSON.stringify([entry.path, entry.quote]);
+/**
+ * The one way this file builds a key out of text it did not write. A kind from a fixed list (no `|` in it), then each
+ * part after its length: two different identities can never give one key, whatever the parts hold (dots, brackets,
+ * quotes, text that looks like another key). A map is keyed on an identity, never on joined or serialised text.
+ */
+const identity = (kind: string, ...parts: readonly string[]): string =>
+  `${kind}${parts.map((part) => `|${part.length}:${part}`).join('')}`;
+
+const ownerKey = (entry: OwnerEntry) => identity('owner', entry.date, entry.words);
+const quoteKey = (entry: QuoteEntry) => identity('quote', entry.path, entry.quote);
 
 function ownerEntry(words: unknown, date: unknown): OwnerEntry | string {
   if (blank(words)) return 'the owner gave no words with the entry';
@@ -241,22 +305,154 @@ function ownerEntry(words: unknown, date: unknown): OwnerEntry | string {
   return { kind: 'owner', words: words as string, date };
 }
 
+/** Whether a string, an array or an object holds, anywhere in its keys or values, a string that is not well-formed. */
+function illFormedAnywhere(value: unknown): boolean {
+  if (typeof value === 'string') return UNPAIRED.test(value);
+  if (Array.isArray(value)) return value.some(illFormedAnywhere);
+  if (isRecord(value)) {
+    return Object.entries(value).some(([key, inner]) => UNPAIRED.test(key) || illFormedAnywhere(inner));
+  }
+  return false;
+}
+
+/** Whether an object has a key that is not well-formed, at its own level. */
+const keyIllFormed = (value: unknown): boolean =>
+  isRecord(value) && Object.keys(value).some((key) => UNPAIRED.test(key));
+
+/**
+ * The one well-formedness pass, before anything else reads the sources. Text with an unpaired UTF-16 surrogate, in a
+ * key or a value at any depth, is not well-formed Unicode: two such texts encode to the same replacement text and
+ * would share an id or a hash. Each entry that holds one (a file, a rule, a condition, a tool value, a session, an
+ * owner entry) is left out and refused once, with a reason and its text escaped. What is left is read as given.
+ */
+function wellFormedSources(sources: VariableSources): { clean: VariableSources; refused: SourceRefusal[] } {
+  const refused: SourceRefusal[] = [];
+  const drop = (what: string): void => {
+    refused.push({ what: shown(what), reason: NOT_WELL_FORMED });
+  };
+  const name = (value: unknown): string =>
+    typeof value === 'string' ? value : (JSON.stringify(value) ?? '');
+  const top = Object.keys(sources).filter((key) => UNPAIRED.test(key));
+  for (const key of top) drop(`sources key ${key}`);
+  let estate = top.length > 0 ? undefined : sources.estate;
+  if (estate !== undefined && keyIllFormed(estate)) {
+    drop('estate');
+    estate = undefined;
+  }
+  if (estate !== undefined && isRecord(estate)) {
+    // Entries are filtered and copied by `Object.fromEntries`, which defines each key as an own property: a file named
+    // `__proto__` stays a file. No object here is filled by `object[key] = value` with a key from the input.
+    const files = Object.fromEntries(
+      Object.entries(estate.files ?? {}).filter(([path, text]) => {
+        const bad = illFormedAnywhere([path, text]);
+        if (bad) drop(`file ${path}`);
+        return !bad;
+      }),
+    );
+    const rules = (estate.rules ?? []).flatMap((rule) => {
+      if (illFormedAnywhere([rule.id, rule.source]) || keyIllFormed(rule)) {
+        drop(`rule ${name(rule.id)}`);
+        return [];
+      }
+      const conditions = (rule.conditions ?? []).filter((condition) => {
+        const bad = illFormedAnywhere(condition);
+        if (bad) drop(name(condition?.text));
+        return !bad;
+      });
+      const tools = (rule.tools ?? []).map((tool) => {
+        // A malformed tool, field, source or key is refused once, whatever its values hold, even none.
+        if (illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool)) {
+          drop(`${name(tool.tool)}.${name(tool.field)}`);
+          return { ...tool, values: [] };
+        }
+        const values = (tool.values ?? []).filter((value) => {
+          const bad = illFormedAnywhere(value);
+          if (bad) drop(`${name(tool.tool)}.${name(tool.field)}.${name(value?.id)}`);
+          return !bad;
+        });
+        return { ...tool, values };
+      });
+      return [{ ...rule, conditions, tools }];
+    });
+    estate = { ...estate, files, rules };
+  }
+  const conversations = (top.length > 0 ? undefined : sources.conversations)?.filter((session) => {
+    const bad = illFormedAnywhere(session);
+    if (bad) drop(`session ${name(session?.id)}`);
+    return !bad;
+  });
+  let owner = top.length > 0 ? undefined : sources.owner;
+  if (owner !== undefined && keyIllFormed(owner)) {
+    drop('owner');
+    owner = undefined;
+  }
+  if (owner !== undefined && isRecord(owner)) {
+    const keep = <T>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
+      list?.filter((entry) => {
+        const bad = illFormedAnywhere(entry);
+        if (bad) drop(`owner ${kind} ${name(entry)}`);
+        return !bad;
+      });
+    owner = {
+      ...owner,
+      ...(owner.values === undefined
+        ? {}
+        : { values: keep(owner.values, 'value') as NonNullable<SourceOwner['values']> }),
+      ...(owner.impossible === undefined
+        ? {}
+        : { impossible: keep(owner.impossible, 'pair') as NonNullable<SourceOwner['impossible']> }),
+      ...(owner.weights === undefined
+        ? {}
+        : { weights: keep(owner.weights, 'weight') as NonNullable<SourceOwner['weights']> }),
+    };
+  }
+  const clean: VariableSources = {
+    ...(estate === undefined ? {} : { estate }),
+    ...(conversations === undefined ? {} : { conversations }),
+    ...(owner === undefined ? {} : { owner }),
+  };
+  return { clean, refused };
+}
+
 export function variablesFromSources(
   sources: VariableSources,
   options: VariablesFromSourcesOptions = {},
 ): VariablesFromSources {
+  const { clean, refused: illFormed } = wellFormedSources(sources);
+  const built = readSources(clean, options);
+  if (illFormed.length === 0) return built;
+  return {
+    ...built,
+    refused: [...built.refused, ...illFormed].sort((x, y) => {
+      const [kx, ky] = [identity('refusal', x.what, x.reason), identity('refusal', y.what, y.reason)];
+      return kx < ky ? -1 : kx > ky ? 1 : 0;
+    }),
+  };
+}
+
+function readSources(sources: VariableSources, options: VariablesFromSourcesOptions): VariablesFromSources {
   const refused: SourceRefusal[] = [];
-  const refuse = (what: string, reason: string) => refused.push({ what, reason });
+  // Every refusal prints its text through one escape: a lone surrogate is shown as U+FFFD, never as itself.
+  const refuse = (what: string, reason: string) => refused.push({ what: shown(what), reason: shown(reason) });
 
   // ---------------------------------------------------------------------------------------------- the estate
   const files = new Map(Object.entries(sources.estate?.files ?? {}));
   const index = new QuoteIndex(files);
   const drafts = new Map<string, VariableDraft>();
 
-  const conditionDraft = (name: string, title: string): VariableDraft => {
+  const conditionDraft = (kind: string, idText: string, title: string): VariableDraft => {
+    const name = identity(kind, idText);
     let draft = drafts.get(name);
     if (!draft) {
-      draft = { name, title, values: new Map(), samples: new Map(), boundaries: [] };
+      draft = {
+        name,
+        title,
+        idText,
+        plain: !idText.includes('.'),
+        values: new Map(),
+        samples: new Map(),
+        boundaries: [],
+      };
       drafts.set(name, draft);
     }
     return draft;
@@ -283,7 +479,7 @@ export function variablesFromSources(
       const name = subjectKey(label.subject);
       if (label.kind === 'numeric') {
         if (!finite(label.limit)) return undefined;
-        const draft = conditionDraft(name, label.subject);
+        const draft = conditionDraft('condition-numeric', name, label.subject);
         const below = around(label.limit, -1);
         const above = around(label.limit, 1);
         if (below === undefined || above === undefined) return undefined;
@@ -306,10 +502,10 @@ export function variablesFromSources(
           const same = (draft.boundaries ?? []).some((b) => b.limit === at && b.comparison === c);
           if (!same) draft.boundaries?.push(boundary);
         }
-        return name;
+        return draft.name;
       }
       if (!finite(label.low) || !finite(label.high) || label.low >= label.high) return undefined;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft('condition-numeric', name, label.subject);
       let inside = label.low / 2 + label.high / 2;
       if (Number.isInteger(label.low) && Number.isInteger(label.high)) {
         const whole = Math.floor(inside);
@@ -327,27 +523,33 @@ export function variablesFromSources(
       const samples = [outsideLow, label.low, inside, label.high, outsideHigh];
       for (const sample of samples)
         conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
-      return name;
+      return draft.name;
     }
     if (label.kind === 'member') {
       const members = [...new Set((label.members ?? []).filter(named).map((m) => m.trim()))];
       if (!named(label.subject) || members.length === 0) return undefined;
-      const name = `${subjectKey(label.subject)} (member)`;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft(
+        'condition-member',
+        `${subjectKey(label.subject)} (member)`,
+        label.subject,
+      );
       for (const member of members)
         conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
       let other = 'other';
       while (members.includes(other)) other += '#';
       conditionValue(draft, 'other', `${label.subject}: ${other}`, other, entry);
-      return name;
+      return draft.name;
     }
     if (label.kind === 'boolean') {
       if (!named(label.subject)) return undefined;
-      const name = `${subjectKey(label.subject)} (boolean)`;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft(
+        'condition-boolean',
+        `${subjectKey(label.subject)} (boolean)`,
+        label.subject,
+      );
       conditionValue(draft, 'true', `${label.subject}: true`, true, entry);
       conditionValue(draft, 'false', `${label.subject}: false`, false, entry);
-      return name;
+      return draft.name;
     }
     return undefined;
   };
@@ -379,9 +581,11 @@ export function variablesFromSources(
       else cited.add(made);
     }
     for (const tool of rule.tools ?? []) {
-      const name = `${tool.tool}.${tool.field}`;
+      const title = `${tool.tool}.${tool.field}`;
+      // The pair, not its dotted title, identifies the variable: "a.b" with "c" and "a" with "b.c" are two.
+      const name = identity('tool-field', String(tool.tool), String(tool.field));
       for (const value of tool.values ?? []) {
-        const what = `${name}.${value.id}`;
+        const what = `${title}.${value.id}`;
         let reason: string | undefined;
         if (blank(value.quote)) reason = 'the value has no quote to stand on';
         else if (value.quote.length > MAX_TEXT) reason = `the quote is longer than ${MAX_TEXT} characters`;
@@ -393,7 +597,7 @@ export function variablesFromSources(
         }
         let draft = drafts.get(name);
         if (!draft) {
-          draft = { name, title: name, values: new Map() };
+          draft = { name, title, idText: title, plain: !String(tool.field).includes('.'), values: new Map() };
           drafts.set(name, draft);
         }
         let valueDraft = draft.values.get(value.id);
@@ -415,7 +619,7 @@ export function variablesFromSources(
   }
 
   // ---------------------------------------------------------------------------------------------- ids
-  const variableIds = idsFor(drafts.keys());
+  const variableIds = variableIdsFor(drafts);
   const byStoredId = new Map<string, VariableDraft>();
   for (const [name, draft] of drafts) byStoredId.set(variableIds.get(name) as string, draft);
   /** Per variable: the key of each stored id the estate's own values have, before any value joins. */
@@ -509,12 +713,15 @@ export function variablesFromSources(
   const setHash = sha256(
     sessions
       .map((session) =>
-        JSON.stringify([
-          session.id,
-          isRecord(session.values)
-            ? Object.entries(session.values).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            : [],
-        ]),
+        identity(
+          'session',
+          String(session.id),
+          ...(isRecord(session.values)
+            ? Object.entries(session.values)
+                .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+                .flatMap(([variable, value]) => [variable, String(value)])
+            : []),
+        ),
       )
       .sort()
       .join('\n'),
@@ -596,8 +803,9 @@ export function variablesFromSources(
       refuse(what, 'the two values are of one variable, which never holds both: the pair excludes nothing');
       continue;
     }
-    ends.sort((x, y) => (x.join('=') < y.join('=') ? -1 : x.join('=') > y.join('=') ? 1 : 0));
-    const key = JSON.stringify(ends);
+    const endKey = (end: [string, string]) => identity('end', end[0], end[1]);
+    ends.sort((x, y) => (endKey(x) < endKey(y) ? -1 : endKey(x) > endKey(y) ? 1 : 0));
+    const key = identity('pair', ...ends.flat());
     const pair = pairs.get(key) ?? {
       a: ends[0] as [string, string],
       b: ends[1] as [string, string],
@@ -662,12 +870,14 @@ export function variablesFromSources(
     for (const [key, sample] of draft.samples) row[ids.get(key) as string] = sample;
     samples[idOfDraft(draft)] = row;
   }
-  const constraints = byText([...pairs.values()], (pair) => JSON.stringify([pair.a, pair.b])).map((pair) => ({
-    forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
-    reason: 'an impossible pair the owner named',
-    approved: true,
-    provenance: byText([...pair.provenance.values()], ownerKey),
-  }));
+  const constraints = byText([...pairs.values()], (pair) => identity('pair', ...pair.a, ...pair.b)).map(
+    (pair) => ({
+      forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
+      reason: 'an impossible pair the owner named',
+      approved: true,
+      provenance: byText([...pair.provenance.values()], ownerKey),
+    }),
+  );
   const rules = byText(
     [...ruleVariables.entries()].map(([id, cited]) => ({
       id,
@@ -691,7 +901,7 @@ export function variablesFromSources(
   } as unknown as VariableStore;
   return {
     store,
-    refused: byText(refused, (r) => JSON.stringify([r.what, r.reason])),
+    refused: byText(refused, (r) => identity('refusal', r.what, r.reason)),
     rules,
     samples,
   };
