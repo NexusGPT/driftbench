@@ -47,12 +47,15 @@ const acceptsStale = (): PointerSut => {
   });
 };
 
-/** A reader whose replay is not frozen: from its second replay on it asks the transport again. */
+/** A reader whose replay is not frozen: from its second replay on it also asks the transport, and ignores the answer. */
 const reasks = (): PointerSut => {
   let replays = 0;
-  return mutant('replay-asks-again', (request) => {
+  return mutant('replay-asks-again', async (request) => {
+    const out = await ref.scan(request);
     if (request.cassette?.mode === 'replay') replays += 1;
-    return replays > 1 ? ref.scan({ ...request, cassette: { mode: 'record' } }) : ref.scan(request);
+    if (replays > 1 && request.model)
+      await request.model.transport({ url: 'https://reader.invalid', headers: {}, body: '{}' });
+    return out;
   });
 };
 
