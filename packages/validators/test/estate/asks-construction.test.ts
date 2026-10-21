@@ -17,7 +17,7 @@ const ONE: MapAtom = {
   id: 'instruction.one',
   kind: 'instruction',
   title: 'Sort the inbox every morning',
-  provenance: { quote: 'Sort the inbox every morning before nine.' },
+  provenance: { quote: 'Sort the inbox every morning before nine' },
   fields: {
     ask: { text: 'Approving a refill needs the pharmacist.', context: 'When the pharmacist is in' },
     labelSpans: [{ kind: 'governed-action', from: 0, to: 28 }],
@@ -36,7 +36,8 @@ const GUARD: MapAtom = {
   title: 'Edits are checked',
   fields: { matcher: 'Edit|Write' },
 };
-const ATOMS = new Map([ONE, TWO, GUARD].map((atom) => [atom.id, atom]));
+const HAZARD: MapAtom = { id: 'hazard.compaction', kind: 'hazard', title: 'A compaction of the context' };
+const ATOMS = new Map([ONE, TWO, GUARD, HAZARD].map((atom) => [atom.id, atom]));
 
 /** The record of "Please handle this for me: Approving a refill.": the act row and the span of ONE. */
 const GO_AHEAD = {
@@ -56,7 +57,7 @@ function plant(ask: string, askBuild: unknown, askFrom: string, testType = 'obli
   state.run = {
     bank: { situations: [] },
     plan: { plan: { rows: [row] } },
-    scanned: { map: { atoms: [ONE, TWO, GUARD] } },
+    scanned: { map: { atoms: [ONE, TWO, GUARD, HAZARD] } },
   };
   state.verdicts = [
     {
@@ -161,6 +162,38 @@ describe('a fixed row built alone is neutral; a record holds no field the constr
   });
 });
 
+// The hazard's fixed act is the one fixed act the table ties to no tool: its record has no tool, and askFrom
+// names the hazard atom (lead ruling). Every other fixed act still needs a guard tool.
+describe('a hazard asks its fixed act with no tool, and only a hazard does', () => {
+  const RESUME = { ask: 'Please {act}.[ {situation}.]', act: 'go on with the task we were doing', spans: [] };
+  const HAZARD_ROW = (askFrom: string, atoms = ['hazard.compaction']) => {
+    plant('Please go on with the task we were doing.', [RESUME], askFrom);
+    const run = state.run as { plan: { plan: { rows: Array<{ atomIds: string[] }> } } };
+    for (const row of run.plan.plan.rows) row.atomIds = atoms;
+    type Planted = { spec: { loaded: { spec: { metadata: { estate: { atoms: string[] } } } } } };
+    const verdict = (state.verdicts as Planted[])[0];
+    if (verdict) verdict.spec.loaded.spec.metadata.estate.atoms = atoms;
+  };
+
+  it('control: the hazard fixed act with askFrom naming the hazard atom holds', async () => {
+    HAZARD_ROW('hazard.compaction (fields.hazard)');
+    expect(await item()).toMatchObject({ pass: true });
+  });
+
+  it('refuses the same record when askFrom names an atom that is no hazard', async () => {
+    HAZARD_ROW('instruction.one (title)', ['instruction.one']);
+    expect((await item())?.pass).toBe(false);
+  });
+
+  it('refuses a fixed tool act with no matching guard tool, whatever askFrom names', async () => {
+    const edit = [{ ask: 'Please {act}.[ {situation}.]', act: 'edit a file here', spans: [] }];
+    plant('Please edit a file here.', edit, 'guard.edits (matcher)');
+    expect((await item())?.pass).toBe(false);
+    plant('Please edit a file here.', edit, 'hazard.compaction (fields.hazard)');
+    expect((await item())?.pass).toBe(false);
+  });
+});
+
 describe('the verbatim source text of an atom gives a span, in the handle-this-for-me row', () => {
   const row = new Set(['instruction.one']);
   it('builds from the quote and from the trigger, and still refuses metadata', () => {
@@ -180,6 +213,9 @@ describe('the verbatim source text of an atom gives a span, in the handle-this-f
     const early = 'Please handle this for me: sorting the inbox early.';
     expect(handle('fields.trigger', 0, 23)).toEqual({ text: early });
     expect('refused' in handle('provenance.quote', 1, 40)).toBe(true);
+    // The quote and the trigger are taken whole, never sliced (lead ruling).
+    expect('refused' in handle('provenance.quote', 0, 14)).toBe(true);
+    expect('refused' in handle('fields.trigger', 0, 17)).toBe(true);
     expect('refused' in handle('title', 0, 14)).toBe(true);
   });
 });

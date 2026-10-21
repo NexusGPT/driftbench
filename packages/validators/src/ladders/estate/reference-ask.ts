@@ -81,17 +81,19 @@ const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L
  * atom's verbatim source text, `provenance.quote`, its `situation` or the trigger cut from it (`fields.trigger`).
  * Metadata (`id`, `kind`), a title or a description never does.
  */
-type Declared = { text: string; within?: Array<[number, number]> };
+// `whole`: the text is the atom's verbatim source (its quote or trigger), taken whole, never sliced.
+type Declared = { text: string; within?: Array<[number, number]>; whole?: boolean };
 
 function declaredText(atom: MapAtom, field: string): Declared | undefined {
   const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown; trigger?: unknown };
   const ask = fields.ask;
   // The atom's verbatim source text: the quote of its unit, or the trigger the scan cut from it.
   const quoted = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
-  if (field === 'provenance.quote') return typeof quoted === 'string' ? { text: quoted } : undefined;
+  if (field === 'provenance.quote')
+    return typeof quoted === 'string' ? { text: quoted, whole: true } : undefined;
   if (field === 'situation') return typeof atom.situation === 'string' ? { text: atom.situation } : undefined;
   if (field === 'fields.trigger')
-    return typeof fields.trigger === 'string' ? { text: fields.trigger } : undefined;
+    return typeof fields.trigger === 'string' ? { text: fields.trigger, whole: true } : undefined;
   type Ask = { text?: unknown; context?: unknown };
   const declared: Ask = ask !== null && typeof ask === 'object' ? (ask as Ask) : {};
   const value =
@@ -169,6 +171,8 @@ export function constructAsk(
     const { from, to } = span;
     if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to > value.length || from >= to)
       return { refused: `the offsets ${from}-${to} are outside ${span.atom} ${span.field}` };
+    if (declared.whole && (from !== 0 || to !== value.length))
+      return { refused: `the span of ${span.atom} ${span.field} is a slice; the source text is taken whole` };
     if (declared.within && !declared.within.some(([start, end]) => start <= from && to <= end))
       return { refused: `the span of ${span.atom} lies outside its labelled governed action` };
     const slice = value.slice(from, to);
