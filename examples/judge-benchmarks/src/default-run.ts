@@ -136,7 +136,13 @@ async function manifestRun(): Promise<void> {
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line))
-      .filter((row) => row.variant === variant && row.settings === judge.settings && row.dataset === dataset && ids.has(row.id)),
+      .filter(
+        (row) =>
+          row.variant === variant &&
+          row.settings === judge.settings &&
+          row.dataset === dataset &&
+          ids.has(row.id),
+      ),
   );
   const todo = items.filter((i) => !done.has(i.id));
   console.log(
@@ -187,7 +193,13 @@ async function manifestRun(): Promise<void> {
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line))
-    .filter((row) => row.variant === variant && row.settings === judge.settings && row.dataset === dataset && ids.has(row.id));
+    .filter(
+      (row) =>
+        row.variant === variant &&
+        row.settings === judge.settings &&
+        row.dataset === dataset &&
+        ids.has(row.id),
+    );
   rows = lastPerId(rows);
   const routes: Record<string, number> = {};
   for (const row of rows) routes[row.route] = (routes[row.route] ?? 0) + 1;
@@ -285,7 +297,6 @@ async function main(): Promise<void> {
     JSON.stringify({
       bench,
       policy: DEFAULT_JUDGE_POLICY.version,
-      settings: judge.settings,
       variant,
       settings: judge.settings,
       sealed: ids.size,
