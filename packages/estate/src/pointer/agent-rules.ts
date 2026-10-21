@@ -27,6 +27,8 @@ export const AGENT_RULES_TIE_BREAK: { readonly generic: string; readonly specifi
   generic: 'rule',
   specific: [
     'gate',
+    'gate-split',
+    'gate-each',
     'gate-same',
     'gate-command',
     'gate-calls',
@@ -121,6 +123,51 @@ ${ALSO_REFERENCE}
         links: [act-tool, reply-act, reply-part, order-key]
         atom:
           kind: gate
+          title: "Read \${named} before \${span.governed-action}"
+          situation: "\${span.governed-action}"
+          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
+          fields: { first: $named, trigger: "\${span.governed-action}", path: $path, "order?": { key: $link.order-key } }
+          evidence:
+            - { type: ordered, before: Read, after: $link.act-tool }
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+          also:
+            - kind: reference
+              title: "Read \${named}"
+              situation: $unit
+              locate: each
+              fields: { readWhen: $unit, from: $file }
+              evidence:
+                - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+      - name: gate-split
+        description: A unit that asks the act that waits, such as a question or a heading, while the NEXT unit tells the reader to read a file first and names it in a code span or a link. Label the unit that holds the act, never the unit that names the file, and give the unit that names the file as the target. Give the act as the governed-action span and the tool that act uses as the act-tool link. A single unit that holds both the act and the file is a gate.
+        target: required
+        spans: [governed-action]
+        links: [act-tool, reply-act, reply-part, order-key]
+        atom:
+          kind: gate
+          title: "Read \${named} before \${span.governed-action}"
+          situation: "\${span.governed-action}"
+          replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
+          fields: { first: $named, trigger: "\${span.governed-action}", path: $path, "order?": { key: $link.order-key } }
+          evidence:
+            - { type: ordered, before: Read, after: $link.act-tool }
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+          also:
+            - kind: reference
+              title: "Read \${named}"
+              situation: $unit
+              locate: each
+              fields: { readWhen: $unit, from: $file }
+              evidence:
+                - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+      - name: gate-each
+        description: A unit that holds several gates, each with its own act and its own file named in a code span or a link, such as two orders in one sentence. Give one governed-action span for each gate, in the order of the files the unit names, and the tool the first act uses as the act-tool link. A unit that holds one gate is a gate.
+        spans: [governed-action]
+        links: [act-tool, reply-act, reply-part, order-key]
+        atom:
+          kind: gate
+          locate: each
+          spanEach: governed-action
           title: "Read \${named} before \${span.governed-action}"
           situation: "\${span.governed-action}"
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }

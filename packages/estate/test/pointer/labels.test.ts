@@ -48,6 +48,8 @@ describe('label sets', () => {
       'dispatch',
       'prohibition',
       'gate',
+      'gate-split',
+      'gate-each',
       'gate-same',
       'gate-command',
       'gate-calls',

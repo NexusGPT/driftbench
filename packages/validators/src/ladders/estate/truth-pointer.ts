@@ -210,7 +210,12 @@ export function truthPointer(truth: Truth): TruthPointer {
   const parsed = pointer.parseLabelSets(text);
   if (!parsed.ok) throw new Error(`the planted label set is invalid: ${parsed.message}`);
 
-  const gateAt = new Map((truth.gates ?? []).map((gate) => [`${gate.file}:${gate.line}`, gate]));
+  type PlantedGate = NonNullable<Truth['gates']>[number];
+  const gatesOn = new Map<string, PlantedGate[]>();
+  for (const gate of truth.gates ?? []) {
+    const at = `${gate.file}:${gate.line}`;
+    gatesOn.set(at, [...(gatesOn.get(at) ?? []), gate]);
+  }
   const hazardLines = new Map<string, string>();
   for (const atom of truth.atoms) {
     const label = atom.kind === 'hazard' ? HAZARD_LABEL[atom.key] : undefined;
@@ -319,9 +324,42 @@ export function truthPointer(truth: Truth): TruthPointer {
           const line = lineOf(file, unit.text);
           const key = `${window.path}:${line}`;
           if (line === undefined || used.has(key)) return { units: String(unit.n), label: 'none' };
-          const gate = gateAt.get(key);
+          const planted = gatesOn.get(key) ?? [];
+          const gate = planted[0];
+          // Several gates planted on one line, each act found in the unit: one label with a span for each, in
+          // the order of the line.
+          const spansOf = planted
+            .map((each) => ({ from: unit.text.indexOf(each.act), length: each.act.length }))
+            .filter((span) => span.from >= 0)
+            .sort((a, b) => a.from - b.from);
+          if (planted.length > 1 && spansOf.length === planted.length) {
+            used.add(key);
+            return {
+              units: String(unit.n),
+              label: 'gate-each',
+              spans: spansOf.map((span) => ({
+                kind: 'governed-action',
+                from: span.from,
+                to: span.from + span.length,
+              })),
+              links: [{ kind: 'act-tool', to: gate?.tool ?? 'Edit' }],
+            };
+          }
           const found = gate ? unit.text.indexOf(gate.act) : -1;
           const from = found < 0 && gate?.whole ? 0 : found;
+          // The act is asked in this unit and the file is named in the next one of the same planted line: the
+          // unit holds no code span, so the next unit is its target.
+          const next = window.units.find((other) => other.n === unit.n + 1);
+          if (gate && found >= 0 && !gate.command && !unit.text.includes('`') && next) {
+            used.add(key);
+            return {
+              units: String(unit.n),
+              label: 'gate-split',
+              target: next.n,
+              spans: [{ kind: 'governed-action', from: found, to: found + gate.act.length }],
+              links: [{ kind: 'act-tool', to: gate.tool }],
+            };
+          }
           if (gate && from >= 0) {
             used.add(key);
             const length = found < 0 ? unit.text.length : gate.act.length;
