@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { feedFromConditions } from '../../src/feed/conditions';
+import { fixtureStore } from './support';
 import { createConditionReader } from '../../src/feed/model-reader';
 
 const questions = [
@@ -43,5 +45,39 @@ describe('the discriminative condition reader', () => {
     });
     await expect(reader.read('Private clause text', questions)).rejects.toThrow('condition reader');
     await expect(reader.read('Private clause text', questions)).rejects.not.toThrow('Private clause text');
+  });
+});
+
+describe('a binary reader inside the condition feed', () => {
+  it('attaches the exact quote and never proposes when a known candidate answers yes', async () => {
+    const store = fixtureStore();
+    const variable = store.variables[0];
+    const value = variable?.values[0];
+    const quote = 'When a boat is overdue, alert its keeper.';
+    const propose = vi.fn(async () => undefined);
+    const result = await feedFromConditions({
+      store,
+      spans: [{ id: 'planted', path: 'rules.md', quote }],
+      texts: new Map([['rules.md', quote]]),
+      reader: createConditionReader({
+        family: 'fictional',
+        complete: async (request) => {
+          const input = JSON.parse(request.user) as { questions: string[] };
+          return JSON.stringify({ answers: input.questions.map((_, i) => i === 0) });
+        },
+      }),
+      proposer: { id: 'fictional-proposer', propose },
+    });
+    expect(result.report.outcomes[0]).toMatchObject({
+      status: 'matched', values: [`${variable?.id}/${value?.id}`],
+    });
+    expect(result.store.variables[0]?.values[0]?.provenance).toContainEqual({
+      kind: 'quote', path: 'rules.md', quote,
+    });
+    expect(result.report.proposerCalls).toBe(0);
+    expect(propose).not.toHaveBeenCalled();
+    expect(store.variables[0]?.values[0]?.provenance).not.toContainEqual({
+      kind: 'quote', path: 'rules.md', quote,
+    });
   });
 });
