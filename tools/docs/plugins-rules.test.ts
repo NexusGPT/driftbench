@@ -75,7 +75,12 @@ describe('docs/plugins.md, the rule framework plugin example', () => {
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line !== '');
-    expect(lines.length).toBeGreaterThanOrEqual(10);
-    for (const line of lines) expect(plugin, line).toContain(line);
+    // The snippet is the body of the file: the same lines, in the same order, none missing.
+    const body = plugin.slice(plugin.indexOf('export default function plugin(api) {'));
+    const fileLines = body
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '');
+    expect(lines).toEqual(fileLines);
   });
 });

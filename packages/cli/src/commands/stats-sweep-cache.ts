@@ -17,7 +17,7 @@ export function createStatsMeasurementCache(
       ladder: Ladder,
       seeds: readonly SeedSpec[],
       root: string,
-      options: { full?: boolean; maxLevel?: number } = {},
+      options: { full?: boolean; maxLevel?: number; fromLevel?: number } = {},
     ) {
       const code = ladder.component === 'stats' ? revision(root) : undefined;
       if (code === undefined || seeds.length === 0) return measure(ladder, seeds, root, options);
@@ -31,6 +31,7 @@ export function createStatsMeasurementCache(
           seed.hidden,
           Boolean(options.full),
           options.maxLevel,
+          options.fromLevel,
         ]);
         const existing = held.get(key);
         const pending = existing ?? measure(ladder, [seed], root, options);
@@ -94,7 +95,7 @@ export function measuredSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root: string,
-  options: { full?: boolean; maxLevel?: number },
+  options: { full?: boolean; maxLevel?: number; fromLevel?: number },
 ) {
   const cache = sweep.getStore();
   return cache ? cache.run(ladder, seeds, root, options) : runSeeds(ladder, seeds, root, options);
