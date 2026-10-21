@@ -6,6 +6,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate graph: a guard source declares the rules it enforces by a line that ends in a label list after a colon (`Enforces: R3, R5`, `Applique : R3 ; R5`); the word before the colon is no longer read, and the form without a colon (`Enforces R7 and R8`) declares nothing.
+
 * An adapter that cannot run a turn for a typed reason throws `TurnNotRun` (a new export of `@agent-nexus/driftbench-core`, frozen in `tools/structure/api-surface.json`); the runner records the block as `not_run` with that reason, never as a failure of the agent. The Claude Code live adapter does so when its runtime's result names a `not_run` reason, as the Northwind stand-in does for a skill obligation it cannot resolve ("wait for an explicit yes before you send it").
 
 * `radius ledger` reads the same files as the scan: a document the map records as no rule (an example, a fixture, a template, a history) is no part of the ledger of an edit. Before, such a file counted as new units and the whole suite reran.
