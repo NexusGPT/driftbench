@@ -162,6 +162,19 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     }
   }
 
+  // A rule also cites the rules whose labels the labeler gave it as `fields.cites` (the labels of its `cited-label`
+  // spans), whatever its words say.
+  for (const rule of rules) {
+    const own = labels.get(rule.id);
+    const cites = Array.isArray(rule.fields?.cites) ? (rule.fields.cites as unknown[]) : [];
+    for (const written of cites) {
+      if (typeof written !== 'string') continue;
+      const label = written.replace('#', '').trim().toUpperCase();
+      if (label === own) continue;
+      for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
+    }
+  }
+
   const enforces = new Map<string, Array<{ atom: string; by: EnforceMethod }>>();
   for (const guard of byKind('guard')) {
     const found: Array<{ atom: string; by: EnforceMethod }> = [];
