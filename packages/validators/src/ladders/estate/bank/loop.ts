@@ -310,7 +310,7 @@ type AskCheck = {
 type Recorded = { act?: unknown; spans?: Array<{ atom?: unknown }>; tool?: { atom?: unknown } };
 
 /** The situation each test type is asked in (docs/estate.md section 5); a live guard_positive is instructed. */
-const USE_OF_TEST: Readonly<Record<string, string>> = {
+export const USE_OF_TEST: Readonly<Record<string, string>> = {
   outside_trigger: 'outside',
   guard_negative: 'outside',
   route_near_miss: 'near_miss',
