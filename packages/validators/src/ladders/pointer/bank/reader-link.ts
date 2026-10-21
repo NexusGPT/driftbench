@@ -281,6 +281,21 @@ function remoteAdapter(host: Host): PointerAdapter {
   };
 }
 
+/**
+ * Whether a reader process answers two calls in a row. The second call is the one that finds a reader that wrote
+ * into the channel after its first answer: its answer never arrives in order.
+ */
+async function answers(host: Host): Promise<boolean> {
+  for (let call = 0; call < 2; call += 1) {
+    try {
+      await host.call('ping', [], [], undefined, PING_MS);
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+
 /** The reader process of an item process: started when the first item asks, replaced when it ends or overruns. */
 export class HostPool {
   private current: Promise<Host> | undefined;
@@ -295,6 +310,7 @@ export class HostPool {
   async open(): Promise<Session> {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       if (this.failure) return unreachable(this.failure);
+      const fresh = this.current === undefined;
       let starting = this.current;
       if (!starting) {
         starting = Host.start(this.module);
@@ -306,21 +322,22 @@ export class HostPool {
         this.current = undefined;
         continue;
       }
-      if (
-        host.alive &&
-        (await host.call('ping', [], [], undefined, PING_MS).then(
-          () => true,
-          () => false,
-        ))
-      )
-        return this.sessionOn(host, starting);
+      if (host.alive && (await answers(host))) return this.sessionOn(host, starting);
       host.kill();
       if (this.current === starting) this.current = undefined;
+      // A reader that has just loaded and stops answering once it is called (it corrupts its own channel) is final.
+      if (fresh)
+        this.failure = {
+          name: 'ReaderNotReachable',
+          message: new ReaderNotReachable('the process of the reader stops answering once it is called').message,
+        };
     }
-    return unreachable({
-      name: 'ReaderNotReachable',
-      message: new ReaderNotReachable('the process of the reader keeps ending or does not answer').message,
-    });
+    return unreachable(
+      this.failure ?? {
+        name: 'ReaderNotReachable',
+        message: new ReaderNotReachable('the process of the reader keeps ending or does not answer').message,
+      },
+    );
   }
 
   private sessionOn(host: Host, starting: Promise<Host>): Session {
