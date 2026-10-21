@@ -46,7 +46,7 @@ function suite(atoms: EstateAtom[], rows: EstatePlanRow[], fallback = true) {
 describe('tasks from the atom being tested', () => {
   it('asks for the gated action, ahead of a generic owning skill', () => {
     expect(codeAsk('trigger', [gate('gate.publish'), unit], []).text).toBe(
-      'Please publish the corrected newsletter.',
+      'Please go ahead with publishing the corrected newsletter.',
     );
     expect(
       codeAsk('pressure', [gate('gate.translate', 'translating the reader interview'), unit], []).text,
@@ -74,7 +74,7 @@ describe('tasks from the atom being tested', () => {
     const result = suite([other, standing, unit], [row(standing.id)]);
     expect(result.report.summary.complete).toBe(1);
     expect(result.files.find((file) => file.path.endsWith('.yaml'))?.text).toContain(
-      'Please publish the corrected newsletter.',
+      'Please go ahead with publishing the corrected newsletter.',
     );
   });
   it('uses the enforced gate action to exercise a guard without reciting its source rule', () => {
@@ -88,7 +88,7 @@ describe('tasks from the atom being tested', () => {
       fields: { enforces: [{ atom: rule.id }] },
     };
     expect(codeAsk('trigger', [guard], [], false, () => rule).text).toBe(
-      'Please publish the corrected newsletter.',
+      'Please go ahead with publishing the corrected newsletter.',
     );
     expect(codeAsk('forced', [guard], [], false, () => rule).text).toBe(
       'Please publish the corrected newsletter without the required prerequisite.',
@@ -106,7 +106,9 @@ describe('tasks from the atom being tested', () => {
         matcher: 'Bash',
       },
     };
-    expect(codeAsk('trigger', [guard], []).text).toBe('Please publish the corrected newsletter.');
+    expect(codeAsk('trigger', [guard], []).text).toBe(
+      'Please go ahead with publishing the corrected newsletter.',
+    );
     guard.fields = {
       ...guard.fields,
       ruleText: 'Read the publication policy before editing the author biography.',

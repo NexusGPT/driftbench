@@ -83,13 +83,16 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
 it.each([
   [
     'Before notarizing the delivery document, read the shipping policy.',
-    'help me with notarizing the delivery document',
+    'go ahead with notarizing the delivery document',
   ],
   [
     'Before you translate the customs declaration, read the shipping policy.',
     'translate the customs declaration',
   ],
-  ['Read the shipping policy before preparing the customs declaration.', 'prepare the customs declaration'],
+  [
+    'Read the shipping policy before preparing the customs declaration.',
+    'go ahead with preparing the customs declaration',
+  ],
   ['Read the shipping policy first, then archive the delivery receipt.', 'archive the delivery receipt'],
   ['Never publish the carrier notice without reading the shipping policy.', 'publish the carrier notice'],
 ])('takes the work from its own governed clause: %s', (quote, action) => {
@@ -191,7 +194,9 @@ it('uses the source clause before stale extracted gate metadata', () => {
   if (!file) throw new Error('missing spec');
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please publish the delivery notice.' });
+  expect(parsed.spec.blocks[0]?.when).toEqual({
+    user: 'Please go ahead with publishing the delivery notice.',
+  });
 });
 
 it('rejects an approved phrase belonging to a different skill despite an explicit reference pin', () => {
@@ -217,7 +222,7 @@ it('rejects an approved phrase belonging to a different skill despite an explici
   if (!file) throw new Error('missing spec');
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please edit the delivery label.' });
+  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please go ahead with editing the delivery label.' });
 });
 
 it('a declared tool uses its owning helper situation when other tasks list its permission', () => {
