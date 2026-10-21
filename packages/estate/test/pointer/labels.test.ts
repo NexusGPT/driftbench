@@ -296,7 +296,14 @@ describe('spans and links in a label set', () => {
       { n: 2, text: 'The log is long.', index: 1 },
     ],
   };
-  const context = { candidates: { topic: [{ id: 'route.a', label: 'Route A' }] } };
+  const context = {
+    candidates: {
+      topic: [
+        { id: 'route.a', label: 'Route A' },
+        { id: 'route.b', label: 'Route B' },
+      ],
+    },
+  };
   const check = (entry: Record<string, unknown>) =>
     checkAnswer(set, window, [{ units: '1', label: 'rule', ...entry }], context);
 
@@ -416,6 +423,18 @@ describe('spans and links in a label set', () => {
       expect(checked.dropped, name).toHaveLength(1);
       expect(checked.dropped[0], name).toMatch(reason);
     }
+    // Two links of one kind to two atoms of the request both stand: a row may name two skills.
+    const two = check({
+      links: [
+        { kind: 'topic', to: 'route.a' },
+        { kind: 'topic', to: 'route.b' },
+      ],
+    });
+    expect(two.dropped).toEqual([]);
+    expect(two.accepted.get(1)?.links).toEqual([
+      { kind: 'topic', to: 'route.a' },
+      { kind: 'topic', to: 'route.b' },
+    ]);
     // A malformed list is the one shape that still refuses the entry.
     const empty = check({ spans: [] });
     expect(empty.accepted.size).toBe(0);

@@ -102,13 +102,12 @@ describe('a routing row that names two skills', () => {
       pointer: plantedRoutes({ 'open and close the day': ['route-skill', BOTH] }),
     });
     expect(scanned?.refusals).toEqual([]);
-    const targets = map.atoms
-      .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
-      .map((atom) => atom.fields?.target)
-      .sort();
-    expect(targets).toEqual(['day-close', 'day-open']);
+    const rows = map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md');
+    expect(rows.map((atom) => atom.fields?.target).sort()).toEqual(['day-close', 'day-open']);
+    // Each route of the row leads to its own skill (each skill's description is a route of its own as well).
+    const fromRow = new Set(rows.map((atom) => atom.id));
     const routed = map.edges
-      .filter((edge) => edge.kind === 'route')
+      .filter((edge) => edge.kind === 'route' && fromRow.has(edge.from))
       .map((edge) => edge.to)
       .sort();
     expect(routed).toEqual([...BOTH].sort());

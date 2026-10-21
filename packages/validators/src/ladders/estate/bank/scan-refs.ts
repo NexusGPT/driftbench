@@ -259,7 +259,7 @@ const SHAPES: Shape[] = [
       const full = w.path.replace(/notes\.md$/, 'forms.md');
       c.estate.raw(full, '# Forms\n', c.owner);
       w.line(`Before editing any ${c.noun} form: Read \`forms.md\`.`, [
-        { hid: `${c.owner}:gate`, kind: 'gate' },
+        { hid: `${c.owner}:gate`, kind: 'gate', act: `editing any ${c.noun} form`, tool: 'Edit' },
         { hid: `${c.owner}:inner-ref`, kind: 'reference', key: full },
       ]);
     },
