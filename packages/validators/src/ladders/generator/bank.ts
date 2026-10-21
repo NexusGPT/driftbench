@@ -2105,11 +2105,12 @@ export function vectorOf(block: BlockRun): string {
 }
 
 /**
- * What makes two blocks candidates for the same test: the same Then and outcomes (`vectorOf`) against the same tool
- * answers. A block that gets other answers from a tool is another test (docs/generating.md, repeated ends of walks).
+ * What makes two blocks candidates for the same test: the same Then and outcomes (`vectorOf`), run from the same stage
+ * against the same tool answers. A block that starts from another stage, or gets other answers from a tool, is another
+ * test (docs/validators.md, section 3, Same test).
  */
 export function sameTestKey(block: BlockRun): string {
-  return JSON.stringify([block.answers, vectorOf(block)]);
+  return JSON.stringify([block.answers, block.from, vectorOf(block)]);
 }
 
 /**

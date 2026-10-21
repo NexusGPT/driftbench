@@ -118,6 +118,8 @@ export type BlockRun = {
   when: string;
   /** A hash of the tool answers the block runs against (the world's tools before the block). */
   answers: string;
+  /** The stage the block starts from: the previous block's stage, or the first stage of the spec. */
+  from: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -651,6 +653,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
+        from: startStageOf(spec, index),
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
@@ -674,6 +677,11 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
 export function answersOf(spec: Spec, index: number): string {
   const world = canonicalGiven(spec, index).state.world as { tools?: unknown } | undefined;
   return contentHash(world?.tools ?? null);
+}
+
+/** The stage a block starts from: part of its Given, so a copy said from another stage is another test. */
+export function startStageOf(spec: Spec, index: number): string {
+  return (index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage) ?? '';
 }
 
 /** The follower's run and plan of every complete spec, once per generation. */

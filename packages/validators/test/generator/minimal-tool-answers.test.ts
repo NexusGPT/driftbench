@@ -31,6 +31,11 @@ describe('minimality groups blocks by the tool answers they run against', async 
       world: { tools: { lookup_record: { result: { ...(answer.result as object), status: 'changed' } } } },
     };
   });
+  const otherStage = copy('other-stage', (spec) => {
+    const previous = spec.blocks[spec.blocks.length - 2];
+    if (!previous?.expect) throw new Error('the fixture has no block before its last');
+    previous.expect = { ...previous.expect, stage: 'elsewhere' };
+  });
   const classes = FAULT_CLASSES.filter((cls) => cls.id === 'X1.case');
   const options = { faults: (spec: typeof cover.spec) => faultFamily(spec, classes), cheaters: [], k: 1 };
   const suite = async (complete: Generation['complete']) => {
@@ -45,7 +50,7 @@ describe('minimality groups blocks by the tool answers they run against', async 
   const item = required(bankItems().find((entry) => entry.id === 'minimal.X1.case'));
 
   it('keeps a copy on another channel and another persona in the same group, and a copy with other tool answers out of it', async () => {
-    const runs = await runAll({ ...generated, complete: [cover, twin, relabelled, otherWorld] }, options);
+    const runs = await runAll({ ...generated, complete: [cover, twin, relabelled, otherWorld, otherStage] }, options);
     const base = last(runs.blocks, cover.spec.id);
     expect(sameTestKey(last(runs.blocks, 'twin'))).toBe(sameTestKey(base));
     expect(sameTestKey(last(runs.blocks, 'relabelled'))).toBe(sameTestKey(base));
@@ -53,6 +58,15 @@ describe('minimality groups blocks by the tool answers they run against', async 
     // The Then and the outcomes are the same: only the answers of the tool tell the two blocks apart.
     expect(vectorOf(other)).toBe(vectorOf(base));
     expect(other.answers).not.toBe(base.answers);
+    expect(sameTestKey(other)).not.toBe(sameTestKey(base));
+  }, 600_000);
+
+  it('keeps a copy that starts from another stage out of the group', async () => {
+    const runs = await runAll({ ...generated, complete: [cover, otherStage] }, options);
+    const base = last(runs.blocks, cover.spec.id);
+    const other = last(runs.blocks, 'other-stage');
+    expect(other.from).not.toBe(base.from);
+    expect(other.answers).toBe(base.answers);
     expect(sameTestKey(other)).not.toBe(sameTestKey(base));
   }, 600_000);
 
