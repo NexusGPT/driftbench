@@ -50,7 +50,7 @@ Evaluations matter for three reasons:
 - A model update that you did not make can change behaviour. The same list shows that too.
 - Without a list, the first customer to hit a break is your test.
 
-## Why use a framework, and not do it by hand
+## Why use a framework
 
 By hand works for the first ten conversations. After that, four jobs grow:
 
@@ -314,7 +314,7 @@ driftbench runs each test against your agent, several times, and judges each ste
 
 - **Blocks.** A step of a conversation is a block: where it starts, what the user says, and what must be true after it. Every block gets its own verdict, so a failure has an address, such as `block 1 forbidden.order.create`.
 - **Rules first, then judges.** Code checks what code can check: tool calls, text, language, personal data, files. A failed rule is final. A model judge only decides what code cannot.
-- **A mixture of judges.** A cheap, fast judge reads every answer and says how sure it is. When it is sure, it decides. When it is not, the answer goes to the expert that fits: a check of a fact or a sum, a careful reasoning judge, or a panel of models. You pay for the costly judge only on the hard answers. On three sealed sets, this scored at least as well as promptfoo's judge with 3.5 to 19.4 times fewer costly reasoning calls ([how we measured](docs/comparison/methods.md#mixture-of-judges)). It runs today from the research harness and from the opt-in `createEscalation` API.
+- **A mixture of judges.** A cheap, fast judge reads every answer and says how sure it is. When it is sure, it decides. When it is not, the answer goes to the expert that fits: a check of a fact or a sum, a careful reasoning judge, or a panel of models. You pay for the costly judge only on the hard answers. On three sealed sets, this scored at least as well as promptfoo's judge with 3.5 to 19.4 times fewer costly reasoning calls. On writing, a rule that picks the longer reply scores 69.7, above both ([how we measured](docs/comparison/methods.md#mixture-of-judges)). It runs today from the research harness and from the opt-in `createEscalation` API.
 - **Judges that earn their place.** A judge owns a criterion only after it tells a passing transcript from a failing one in 3 repeats out of 3, and agrees with your hand labels.
 - **Value checks.** When the agent writes `+1 202 555 0131` and you expected `+12025550131`, driftbench asks the tool whether both reach the same record. In our study, the tool settled 59 of 116 format disputes ([value study](https://github.com/NexusGPT/driftbench/pull/441)).
 - **A range on every rate.** Every rate carries a 95% interval. Before a campaign spends anything, driftbench prints the smallest effect it can detect.
@@ -709,7 +709,7 @@ The charts, the hard cases, the cost of a judgement and the way to rebuild the s
 | Tests written by code | 5.8× fewer tests than all the combinations on the Acme map | [methods](docs/comparison/methods.md#tests-written-by-code) |
 | Blocks | A conversation score marks 413 blocks. The block verdicts mark the 86 that fail | [gate-report.json](examples/acme/gated/gate-report.json), [chart-facts.csv](docs/assets/data/chart-facts.csv) |
 | Rules with an id | One edit reruns 16 of 934 blocks. Over 274 prompt mutants, selection by id with the rerun marks missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent), and on 9 without them | [walkthrough](docs/rule-links.md), [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md) |
-| Mixture of judges | 85.0 against 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval, 65.2 against 57.0 on writing, with 3.5 to 19.4 times fewer costly calls | [RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json) |
+| Mixture of judges | On sealed sets with GPT-6 Luna, 85.0 against promptfoo's 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, with 3.5 to 19.4 times fewer costly reasoning calls. On writing, a rule that picks the longer reply scores 69.7 | [RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json) |
 | A panel only when unsure | MM-Eval 89.49 to 91.54 on 1,212 sealed items | [mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json) |
 | Blast radius | 86 of 867 blocks, 90.1% fewer, with the same 86 failures as a full run | [blast-radius.md](docs/concepts/blast-radius.md), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts) |
 

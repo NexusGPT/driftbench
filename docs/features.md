@@ -25,7 +25,7 @@ Every feature of driftbench, grouped by what you do with it. The [README](../REA
 - [Hand labels](viewer.md): label blocks in a local viewer and measure each judge against them.
 - [Block rules and fault finding](innovations.md#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
 
-<sub>Fault finding ships as rule files and a runner; no command runs it yet (see [Fixing the block that failed](how-it-works.md#fixing-the-block-that-failed)).</sub>
+<sub>Fault finding ships as rule files and a runner. `driftbench report` and `driftbench view` list the fixes of a campaign from its stored diagnoses (see [Fixing the block that failed](how-it-works.md#fixing-the-block-that-failed)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](concepts/statistics.md), repeats, and the share of runs that pass every time.
