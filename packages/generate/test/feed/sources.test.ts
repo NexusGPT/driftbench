@@ -652,6 +652,37 @@ describe('variablesFromSources: review findings on the first head', () => {
     expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
   });
 
+  it('keeps a tool and field apart from another pair that gives the same dotted title', () => {
+    const tool2 = (t: string, f: string) => ({
+      tool: t,
+      field: f,
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (pairs: Array<[string, string]>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: pairs.map(([t, f]) => tool2(t, f)) }],
+        },
+      });
+    const alone = make([['billing.address', 'city']]).store.variables[0]?.id;
+    const both = make([
+      ['billing.address', 'city'],
+      ['billing', 'address.city'],
+    ]);
+    expect(both.store.variables).toHaveLength(2);
+    expect(new Set(both.store.variables.map((v) => v.id)).size).toBe(2);
+    expect(both.store.variables.some((v) => v.id === alone)).toBe(true);
+    const reversed = make([
+      ['billing', 'address.city'],
+      ['billing.address', 'city'],
+    ]);
+    expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
+    // The pair that splits at the last dot keeps the plain id whether or not the other pair is there.
+    expect(make([['billing', 'address.city']]).store.variables[0]?.id).not.toBe(alone);
+  });
+
   it('never lets a later tool take the id an earlier tool was given', () => {
     const tool2 = (name: string, field: string) => ({
       tool: name,
