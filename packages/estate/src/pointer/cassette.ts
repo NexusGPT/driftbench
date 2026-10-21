@@ -4,7 +4,8 @@ import { canonical, type Labelled } from './labels';
 /**
  * The cassette holds every recorded labeler answer. The models cannot be pinned to temperature zero, so
  * determinism lives here: the key is the hash of the whole request, so a changed prompt, set, model, window
- * or labeler misses, and the miss names the field that differs from the nearest entry.
+ * or labeler misses, and the miss names the field that differs from the nearest entry; with no entry of the same
+ * file, window, set and labeler, it names the labeler id of the request.
  */
 
 /** The request as it goes on the wire. `body` is what the provider receives. */
@@ -60,11 +61,17 @@ export function readableOf(
   return { ...meta, labeler: wire.labeler, ...parts };
 }
 
+/** The labeler a miss names: `of the labeler <id> `, or nothing when the miss was raised without one. */
+const ofLabeler = (labeler: string | undefined): string =>
+  labeler === undefined ? '' : `of the labeler ${labeler} `;
+
 export class CassetteMiss extends Error {
   constructor(
     readonly key: string,
     readonly differs: string[],
     readonly nearest: string | undefined,
+    /** The labeler id of the request that missed, as its label set or settings name it. */
+    readonly labeler?: string,
   ) {
     super(
       nearest
@@ -73,7 +80,7 @@ export class CassetteMiss extends Error {
               ? `; the cut of the files changed, which a different Node or ICU build can cause (this run: Node ${process.versions.node}, ICU ${process.versions.icu})`
               : ''
           }`
-        : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry for the same file, window and set`,
+        : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
     );
     this.name = 'CassetteMiss';
   }
@@ -127,7 +134,7 @@ export class Cassette {
         .filter((field) => readable[field] !== entry.readable[field])
         .sort();
     const nearest = same.sort((a, b) => differs(a).length - differs(b).length)[0];
-    throw new CassetteMiss(key, nearest ? differs(nearest) : [], nearest?.key);
+    throw new CassetteMiss(key, nearest ? differs(nearest) : [], nearest?.key, readable.labeler);
   }
 
   put(wire: Wire, readable: Readable, answer: Recorded): CassetteEntry {
