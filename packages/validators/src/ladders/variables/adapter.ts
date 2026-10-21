@@ -1,14 +1,17 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
-import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import { countVariableTuples, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
+  CoverageResult,
   FileStore,
+  Group,
   Plan,
   PlanOptions,
   Provenance,
   QuotesResult,
+  Row,
   StoreDoc,
   ValidateResult,
   VariablesImpl,
@@ -27,8 +30,10 @@ import type {
  *   reads any store's, from the passages its values quote.
  * - `weightInterval` is `wilson` of @agent-nexus/driftbench-stats, the two-sided 95 percent Wilson score interval
  *   of docs/variables.md R13, clamped to 0 and 1.
- * - `buildStore` and `coverage` have no product yet: they stay unmapped, and their items fail with the name of the
- *   function they need. That is the roadmap.
+ * - `coverage` is `countVariableTuples` of @agent-nexus/driftbench-space (docs/variables.md R12), on the store file
+ *   the projection is written as.
+ * - `buildStore` has no product yet: it stays unmapped, and its items fail with the name of the function it
+ *   needs. That is the roadmap.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -231,4 +236,18 @@ function weightInterval(count: number, total: number): [number, number] {
   return [interval.lower, interval.upper];
 }
 
-export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval };
+function coverage(
+  doc: StoreDoc,
+  rows: Row[],
+  groups: Group[],
+  options?: { uncovered?: number },
+): CoverageResult {
+  return countVariableTuples(
+    storeOf(doc),
+    rows,
+    groups,
+    options?.uncovered === undefined ? {} : { uncovered: options.uncovered },
+  );
+}
+
+export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval, coverage };
