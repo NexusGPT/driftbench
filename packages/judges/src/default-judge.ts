@@ -138,6 +138,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
       policy: identityOf(policy),
       router: TASK_ROUTER,
       intentRouter: ROUTER,
+      intentEligibility: 'declared-request-fulfillment',
       transport: transport.fingerprint,
       ...(options.maxTokens === undefined ? {} : { maxTokens: options.maxTokens }),
     }),
@@ -273,34 +274,38 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
         request.criterionPromptVersion === 1 ||
         request.criterionDecoderVersion === 1;
       if (!pinned) {
-        const routingInput = JSON.stringify({
-          criterion: request.criterion,
-          paired: request.candidates !== undefined,
-          hasSupportingData: Boolean(
-            request.inputs?.length ||
-              request.artifact !== undefined ||
-              request.given ||
-              request.reference !== undefined,
-          ),
-        });
-        let pending = intents.get(routingInput);
-        if (!pending) {
-          pending = (async (): Promise<Route | 'task' | 'fulfillment'> => {
-            const routed = await metered.complete({
-              system: ROUTER,
-              user: routingInput,
-              schema: ROUTE_SCHEMA,
-            });
-            if (!routed.refusal && !routed.truncated && !routed.providerBlock && !routed.declineReason) {
-              const value = finalRoute(routed.text);
-              if (value !== undefined) return value;
-            }
-            return 'criterion';
-          })();
-          intents.set(routingInput, pending);
-          pending.catch(() => intents.delete(routingInput));
+        let intent: Route | 'task' | 'fulfillment' = 'task';
+        // Undeclared metrics run the exact established task program, without a classifier call.
+        if (request.criterion.intent === 'request-fulfillment') {
+          const routingInput = JSON.stringify({
+            criterion: request.criterion,
+            paired: request.candidates !== undefined,
+            hasSupportingData: Boolean(
+              request.inputs?.length ||
+                request.artifact !== undefined ||
+                request.given ||
+                request.reference !== undefined,
+            ),
+          });
+          let pending = intents.get(routingInput);
+          if (!pending) {
+            pending = (async (): Promise<Route | 'task' | 'fulfillment'> => {
+              const routed = await metered.complete({
+                system: ROUTER,
+                user: routingInput,
+                schema: ROUTE_SCHEMA,
+              });
+              if (!routed.refusal && !routed.truncated && !routed.providerBlock && !routed.declineReason) {
+                const value = finalRoute(routed.text);
+                if (value !== undefined) return value;
+              }
+              return 'criterion';
+            })();
+            intents.set(routingInput, pending);
+            pending.catch(() => intents.delete(routingInput));
+          }
+          intent = await pending;
         }
-        const intent = await pending;
         if (intent === 'fulfillment') {
           fulfillmentOnly = true;
           route = 'relevance';

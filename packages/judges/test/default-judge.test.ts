@@ -42,7 +42,6 @@ function mock(
 describe('one default configuration', () => {
   it('preserves the established task router for metrics with independent conditions', async () => {
     const { judge, calls } = mock([
-      { intent: 'other' },
       { route: 'criterion' },
       { checks: [{ id: 'x', reasoning: 'missing', evidence: null, met: false }] },
     ]);
@@ -51,10 +50,29 @@ describe('one default configuration', () => {
       transcript: [{ role: 'user', text: 'Can this item be refunded?' }],
     });
     expect(result.answer.outcome).toBe('fail');
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.user).toContain('Can this item be refunded?');
+    expect(calls[0]?.system).toBe(v7Identity.router);
+  });
+
+  it('checks independent conditions even when fulfillment intent is explicitly declared', async () => {
+    const { judge, calls } = mock([
+      { intent: 'other' },
+      { route: 'criterion' },
+      { checks: [{ id: 'x', reasoning: 'missing', evidence: null, met: false }] },
+    ]);
+    const result = await judge.judge({
+      criterion: {
+        name: 'x',
+        rubric: 'Fulfill the request and comply with the supplied policy.',
+        intent: 'request-fulfillment',
+      },
+      transcript: [{ role: 'user', text: 'Can this item be refunded?' }],
+    });
     expect(calls).toHaveLength(3);
     expect(calls[0]?.user).not.toContain('Can this item be refunded?');
-    expect(calls[1]?.user).toContain('Can this item be refunded?');
     expect(calls[1]?.system).toBe(v7Identity.router);
+    expect(result.answer.outcome).toBe('fail');
   });
 
   it('evaluates the full pair criterion before an arithmetic answer can decide', async () => {
@@ -428,7 +446,11 @@ describe('one default configuration', () => {
       { checks: [{ id: 'x', reasoning: 'price absent', evidence: null, met: false }] },
     ]);
     const result = await judge.judge({
-      criterion: { name: 'x', rubric: 'Address every part of the latest request.' },
+      criterion: {
+        name: 'x',
+        rubric: 'Address every part of the latest request.',
+        intent: 'request-fulfillment',
+      },
       transcript: '[user] Name and price? [agent] The name is Widget.',
     });
     expect(result.answer.outcome).toBe('fail');

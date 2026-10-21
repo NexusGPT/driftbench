@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-/** A stand-in that follows the intent, task and criterion schemas and records every physical submission. */
+/** A stand-in that follows both schemas and records every physical submission. */
 export async function routedJudge(dir: string): Promise<{ command: string; receipts: string }> {
   const command = join(dir, 'routed-judge.cjs');
   const receipts = join(dir, 'judge-calls.jsonl');
@@ -15,13 +15,12 @@ let input = '';
 process.stdin.on('data', (chunk) => { input += chunk; });
 process.stdin.on('end', () => {
   const system = process.argv[process.argv.indexOf('--system-prompt') + 1] ?? '';
-  const intent = system.includes('"intent":"request-fulfillment"');
-  const route = intent || system.includes('"route":"criterion"');
+  const route = system.includes('"route":"criterion"');
   const block = input.match(/<transcript_data>\\n([\\s\\S]*?)\\n<\\/transcript_data>/)?.[1] ?? '';
   const entries = block.trim().startsWith('[') ? JSON.parse(block) : [];
   const observed = entries.find((entry) => entry.role === 'agent')?.text ?? entries.find((entry) => entry.role === 'user')?.text ?? '';
   const fail = input.includes('public holiday');
-  const answer = intent ? { intent: 'other' } : route ? { route: 'criterion' } : { checks: [{
+  const answer = route ? { route: 'criterion' } : { checks: [{
     id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing',
     reasoning: fail ? 'The reply invents a public holiday.' : 'The criterion is satisfied.',
     evidence: observed.match(/[\\p{L}\\p{N}]+/u)?.[0] ?? null,

@@ -162,7 +162,11 @@ async function manifestRun(): Promise<void> {
     while (!stop) {
       const item = todo[next++];
       if (!item) return;
-      const { assessment: _dropped, ...request } = item.request;
+      const { assessment, ...plain } = item.request;
+      const request =
+        assessment?.kind === 'response-relevance'
+          ? { ...plain, criterion: { ...plain.criterion, intent: 'request-fulfillment' as const } }
+          : plain;
       const result = await judge.judge(request as JudgeRequest);
       if (result.defaultJudge?.failure?.kind === 'budget') {
         stop = true;

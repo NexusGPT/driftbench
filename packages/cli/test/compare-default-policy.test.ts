@@ -48,13 +48,8 @@ describe('compare uses the product default pair policy', () => {
     expect(defaultPairwiseClient(provider).judgePair).toBeTypeOf('function');
   });
 
-  it('classifies the metric once, routes the original criterion once and lets the default policy read both orders', async () => {
-    const { client, calls } = fixture([
-      { intent: 'other' },
-      { route: 'criterion' },
-      ledger(4, 0),
-      ledger(0, 4),
-    ]);
+  it('routes the original criterion once and lets the default policy read both orders', async () => {
+    const { client, calls } = fixture([{ route: 'criterion' }, ledger(4, 0), ledger(0, 4)]);
     const result = await judgePairwise(
       client,
       criterion,
@@ -65,56 +60,37 @@ describe('compare uses the product default pair policy', () => {
     expect(result.choice).toBe('first');
     expect(result.consistent).toBe(true);
     expect(result.positionBias).toBe(false);
-    expect(calls).toHaveLength(4);
-    const intent = JSON.parse(calls[0]?.user ?? 'null');
-    expect(intent.criterion).toEqual(criterion);
-    expect(intent).not.toHaveProperty('questions');
-    const routing = JSON.parse(calls[1]?.user ?? 'null');
+    expect(calls).toHaveLength(3);
+    const routing = JSON.parse(calls[0]?.user ?? 'null');
     expect(routing.criterion).toEqual(criterion);
     expect(routing.questions).toEqual(['Give a helpful answer.']);
-    expect((calls[2]?.user ?? '').indexOf('First reply.')).toBeLessThan(
-      (calls[2]?.user ?? '').indexOf('Second reply.'),
+    expect((calls[1]?.user ?? '').indexOf('First reply.')).toBeLessThan(
+      (calls[1]?.user ?? '').indexOf('Second reply.'),
     );
-    expect((calls[3]?.user ?? '').indexOf('Second reply.')).toBeLessThan(
-      (calls[3]?.user ?? '').indexOf('First reply.'),
+    expect((calls[2]?.user ?? '').indexOf('Second reply.')).toBeLessThan(
+      (calls[2]?.user ?? '').indexOf('First reply.'),
     );
   });
 
   it('retains measured position disagreement even when the canonical reading resolves the winner', async () => {
-    const { client, calls } = fixture([
-      { intent: 'other' },
-      { route: 'criterion' },
-      ledger(4, 0),
-      ledger(4, 0),
-      ledger(4, 0),
-    ]);
+    const { client, calls } = fixture([{ route: 'criterion' }, ledger(4, 0), ledger(4, 0), ledger(4, 0)]);
     const result = await judgePairwise(client, criterion, [], 'First reply.', 'Second reply.');
     expect(result.consistent).toBe(false);
     expect(result.positionBias).toBe(true);
-    expect(calls).toHaveLength(5);
+    expect(calls).toHaveLength(4);
   });
 
   it('preserves a reference on the original routed request', async () => {
-    const { client, calls } = fixture([
-      { intent: 'other' },
-      { route: 'criterion' },
-      ledger(4, 0),
-      ledger(0, 4),
-    ]);
+    const { client, calls } = fixture([{ route: 'criterion' }, ledger(4, 0), ledger(0, 4)]);
     await judgePairwise(client, criterion, [], 'First reply.', 'Second reply.', {
       reference: 'Reference facts.',
     });
     expect(JSON.parse(calls[0]?.user ?? 'null').hasSupportingData).toBe(true);
-    expect(calls[2]?.user).toContain('Reference facts.');
+    expect(calls[1]?.user).toContain('Reference facts.');
   });
 
   it('records and replays the same complete pair policy through wrappers', async () => {
-    const { client, calls } = fixture([
-      { intent: 'other' },
-      { route: 'criterion' },
-      ledger(4, 0),
-      ledger(0, 4),
-    ]);
+    const { client, calls } = fixture([{ route: 'criterion' }, ledger(4, 0), ledger(0, 4)]);
     const cassette = emptyCassette();
     const recorded = await judgePairwise(
       recordingClient(client, cassette),
@@ -133,7 +109,7 @@ describe('compare uses the product default pair policy', () => {
     expect(recorded.choice).toBe('first');
     expect(replayed).toEqual(recorded);
     expect(cassette.entries).toHaveLength(1);
-    expect(calls).toHaveLength(4);
+    expect(calls).toHaveLength(3);
   });
 
   it('does not route an explicitly requested legacy contract', async () => {

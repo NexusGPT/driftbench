@@ -24,7 +24,7 @@ async function recorder(): Promise<string> {
   if (!fake.includes(hook)) throw new Error('the fixture judge changed: update the recorder hook');
   return fake.replace(
     hook,
-    `${hook}\n  const at0 = process.argv.indexOf('--system-prompt');\n  require('node:fs').appendFileSync(process.env.RECORD_FILE, JSON.stringify({ system: at0 < 0 ? '' : process.argv[at0 + 1], input }) + '\\n');\n  const system0 = at0 < 0 ? '' : process.argv[at0 + 1];\n  const intent0 = system0.includes('"intent":"request-fulfillment"');\n  const task0 = system0.includes('"route":"criterion"');\n  if (intent0 || task0) { process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, result: JSON.stringify(intent0 ? { intent: 'other' } : { route: 'criterion' }), total_cost_usd: 0.0015 })); return; }`,
+    `${hook}\n  const at0 = process.argv.indexOf('--system-prompt');\n  require('node:fs').appendFileSync(process.env.RECORD_FILE, JSON.stringify({ system: at0 < 0 ? '' : process.argv[at0 + 1], input }) + '\\n');`,
   );
 }
 
@@ -100,8 +100,7 @@ async function recorded(criterion: string, ...flags: string[]) {
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line) as { system: string; input: string });
-  const routing = (call: { system: string }) =>
-    call.system.includes('"intent":"request-fulfillment"') || call.system.includes('"route":"criterion"');
+  const routing = (call: { system: string }) => call.system.includes('"route":"criterion"');
   return { result, calls: sent.filter((call) => !routing(call)), routes: sent.filter(routing) };
 }
 
@@ -110,7 +109,7 @@ describe('criterion settings from a spec reach the judge of a run', () => {
     const plain = await recorded('');
     expect(plain.result.err).toBe('');
     expect(plain.calls).toHaveLength(1);
-    expect(plain.routes).toHaveLength(2);
+    expect(plain.routes).toHaveLength(1);
     const again = await recorded('    prompt_version: 2');
     expect(again.calls).toEqual(plain.calls);
 
@@ -135,8 +134,8 @@ describe('criterion settings from a spec reach the judge of a run', () => {
 
     const repeat = await recorded('    repeat: 3');
     expect(repeat.calls).toHaveLength(3);
-    // The repeats share one metric-intent call and one task-routing call; classifying each repeat would fail here.
-    expect(repeat.routes).toHaveLength(2);
+    // The repeats share one routing call; a second routing call per repeat would fail here.
+    expect(repeat.routes).toHaveLength(1);
   }, 120_000);
 
   it('refuses a spec whose settings cannot work, naming the fix', async () => {

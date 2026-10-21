@@ -95,7 +95,7 @@ describe('replay connects personal-data opt-in to the configured judge', () => {
     dirs.push(dir);
     const fake = await routedJudge(dir);
     const judge = await runJudgeFrom(
-      { judge: 'claude:haiku', judgeCommand: fake.command, judgeBudget: '0.0045' },
+      { judge: 'claude:haiku', judgeCommand: fake.command, judgeBudget: '0.003' },
       io,
     );
     if (!judge) throw new Error('judge did not configure');
@@ -107,17 +107,16 @@ describe('replay connects personal-data opt-in to the configured judge', () => {
       expect: { pii_judge: true },
     });
     expect((await run(check, ctx)).find((v) => v.id === 'pii.personal_data')?.outcome).toBe('fail');
-    expect(judge.spend.usd).toBeCloseTo(0.0045);
+    expect(judge.spend.usd).toBeCloseTo(0.003);
     expect((await run(check, ctx)).find((v) => v.id === 'pii.personal_data')?.outcome).toBe('inconclusive');
-    expect(judge.spend.usd).toBeCloseTo(0.0045);
+    expect(judge.spend.usd).toBeCloseTo(0.003);
     const calls = (await readFile(fake.receipts, 'utf8'))
       .trim()
       .split('\n')
       .map((line) => JSON.parse(line));
     expect(calls).toEqual([
-      { route: true, budget: 0.0045, cost: 0.0015 },
-      { route: true, budget: 0.0045 - 0.0015, cost: 0.0015 },
-      { route: false, budget: 0.0045 - 0.003, cost: 0.0015 },
+      { route: true, budget: 0.003, cost: 0.0015 },
+      { route: false, budget: 0.0015, cost: 0.0015 },
     ]);
   }, 60_000);
 

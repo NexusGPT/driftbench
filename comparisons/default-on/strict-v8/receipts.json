@@ -1,0 +1,4802 @@
+[
+  {
+    "id": "relevancy-correction-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00061,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006185,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000476,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006085,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004415,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0007105,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005615,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000502,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005405,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000566,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005845,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005235,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000657,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000541,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000591,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000588,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000556,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000609,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005195,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005565,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000647,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000518,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004755,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004825,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005235,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000538,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005135,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006395,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005065,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0008193,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000486,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006325,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000551,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000658,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000624,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006715,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.000573,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006405,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-correction-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005615,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006102999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005733,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006487999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005702999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006027999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007683,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005543,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006322999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006502999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006843,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006893,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006372999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006257999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005733,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005958,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005518,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005507999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006092999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006133,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005098,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006288,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006418,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006347999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0009218,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006332999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004973,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006167999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005838,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006263,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005202999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006868,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0008502999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006238,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005438,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006697999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006087999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004818,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006098,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005983,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-entity-swap-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005323,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000438,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005593999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004675,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005168999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004615,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004854,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000493,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005309,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004385,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048639999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005075,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005424,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000496,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005339,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004735,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004874,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000473,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00040639999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004865,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004829,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005075,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047539999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000479,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005239,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004665,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005409,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005225,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004819,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000438,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005399,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000447,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005543999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000489,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044189999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004845,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004484,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000405,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005164,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004585,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-explicit-unknown-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004749,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005309,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047920000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004934,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042070000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005119,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005882000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004834,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005552,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005509,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006172,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004614,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005027,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004839,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005092,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005509,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005362,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005364,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047020000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005854,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004582,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005254,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005477,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005599,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005517,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00042189999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046420000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046639999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004827,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004369,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006082,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004959,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047120000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005134,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004647,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00042839999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006022,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004964,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044170000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00045589999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-fluent-partial-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042620000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005096,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043220000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005256,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044670000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00048310000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00037520000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005286000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004957000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004871,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00040570000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005481,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004692,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004646,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044770000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005336000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005152000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005201,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046670000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005561,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044320000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005231,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044170000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004796,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00039220000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044960000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048020000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046060000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00041220000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005061,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043920000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004971,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005007000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004731,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044570000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004626,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045120000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005201,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004957000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004821,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-followup-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00039220000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006228,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007611,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006613,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007206000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005637999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007251,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006722999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006916,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006912999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005606000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006743,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006706,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006458,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006336,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006657999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006641,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006803,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006931,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0007312999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007826,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006758,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007441,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006722999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007661,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005403,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0008191,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0007147999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007151,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006613,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007106,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0007363,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007206000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005853,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006771,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006223,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0007906,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006123,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006691000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0006127999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-long-distractors-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006836,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000472,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005051,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004815,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005471,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004835,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004755,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005276,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004415,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005161,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005285,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005226,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00053,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005581000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004815,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005131000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00045,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005611,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000452,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005101,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000488,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005011,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004905,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004941,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000491,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005131000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000472,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006281,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005395,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004941,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000483,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006136000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000533,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006006000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004695,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005691,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000522,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005376000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.000512,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-mixed-language-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0006686,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004919,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00041670000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00047989999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048220000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004654,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043670000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00045789999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045470000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004479,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046520000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004589,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046420000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004479,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046820000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041089999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005007000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00038639999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048620000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046239999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043720000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004304,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046620000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004584,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005197,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004614,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046620000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004584,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045720000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004474,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045320000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004774,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043520000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00047339999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047220000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044239999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047070000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004054,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042770000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00042439999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-negation-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044120000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041289999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005243,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00039339999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004388,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0003674,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003658,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004229,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045630000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004254,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004368,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004139,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004488,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004304,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004558,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004794,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004403,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004974,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005298,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00043089999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045630000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004923999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003998,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004124,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004678,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00039089999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047880000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00042189999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004533,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004324,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004618,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00038839999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004723,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041539999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004283,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041089999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004503,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00043989999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004648,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041589999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-paraphrase-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004373,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004902000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004764,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005187000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004784,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005357000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045339999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005277000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004414,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005547000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048039999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005212000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00043089999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004827,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042189999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005297,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004724,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005572,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004439,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044670000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005298999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046570000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005298999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005137000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004484,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044620000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004784,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005232,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00041339999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005277000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004594,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00043920000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003919,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004927,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005369,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005187000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004639,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004887,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004614,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005502,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-promise-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005354,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005354,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00045970000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004699,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00048620000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004819,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046370000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005029,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044120000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004504,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004537,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046689999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046120000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004883999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046370000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004923999999999999,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004312,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044239999999999997,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00039720000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004474,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044520000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00047339999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046320000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004524,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00040820000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00045739999999999995,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044320000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00040189999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003912,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00037739999999999996,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004337,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004594,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00041920000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004654,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042420000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004819,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00046520000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004729,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004157,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004964,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-quote-answer-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00044620000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-0-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004957000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-0-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004748,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-1-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00043170000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-1-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004508,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-10-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004492,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-10-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004403,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-11-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004447,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-11-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003838,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-12-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00040720000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-12-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00042530000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-13-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005282,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-13-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004238,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-14-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00043870000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-14-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00047630000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-15-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00042320000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-15-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.00039830000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-16-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004982000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-16-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003708,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-17-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046170000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-17-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004613,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-18-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00041170000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-18-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004778,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-19-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0004382,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-19-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004033,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-2-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005037,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-2-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005133,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-3-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00047970000000000006,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-3-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004148,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-4-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005327,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-4-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004223,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-5-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00046520000000000003,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-5-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0003953,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-6-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044570000000000005,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-6-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004948,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-7-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00044320000000000004,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-7-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004758,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-8-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.0005447000000000001,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-8-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0004153,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-9-a",
+    "prediction": "pass",
+    "gold": "pass",
+    "correct": true,
+    "costUsd": 0.00047120000000000007,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  },
+  {
+    "id": "relevancy-two-parts-9-b",
+    "prediction": "fail",
+    "gold": "fail",
+    "correct": true,
+    "costUsd": 0.0005098,
+    "route": "relevance",
+    "settings": "449dcc75bc3a",
+    "failure": null
+  }
+]

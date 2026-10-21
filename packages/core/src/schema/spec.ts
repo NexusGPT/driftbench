@@ -879,6 +879,12 @@ export const CriterionDef = z
       .regex(/^[A-Za-z0-9][A-Za-z0-9_.-]*$/)
       .describe('The name blocks use to reference the criterion.'),
     rubric: z.string().min(1).describe('The question the judge answers with pass or fail.'),
+    intent: z
+      .literal('request-fulfillment')
+      .optional()
+      .describe(
+        'Declares a request-fulfillment metric; only these metrics invoke the semantic obligation-ledger gate.',
+      ),
     pass: z.string().optional().describe('What a passing block looks like.'),
     fail: z.string().optional().describe('What a failing block looks like.'),
     gating: z

@@ -204,6 +204,7 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 |---|---|---|---|---|
 | `name` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  | The name blocks use to reference the criterion. |
 | `rubric` | string, not empty | yes |  | The question the judge answers with pass or fail. |
+| `intent` | `request-fulfillment` | no |  | Declares a request-fulfillment metric; only these metrics invoke the semantic obligation-ledger gate. |
 | `pass` | string | no |  | What a passing block looks like. |
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
