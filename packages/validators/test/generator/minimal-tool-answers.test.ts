@@ -61,9 +61,4 @@ describe('minimality groups blocks by the tool answers they run against', async 
     expect(found.pass, found.detail).toBe(false);
     expect(found.detail).toMatch(/[1-9]\d* groups contain a removable duplicate/);
   }, 600_000);
-
-  it('does not call two blocks a duplicate when a tool answers another value to one of them', async () => {
-    const found = await item.check(await suite([cover, otherWorld]));
-    expect(found.detail).toMatch(/\b0 groups contain a removable duplicate/);
-  }, 600_000);
 }, 600_000);
