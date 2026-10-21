@@ -111,6 +111,7 @@ for (let round = 1; round <= MAX_ROUNDS; round += 1) {
       ...['--sha', sha, '--spans', todo, '--out', out],
       ...['--usd-per-mtok-in', rateIn, '--usd-per-mtok-out', rateOut],
       ...['--cap', String(cap), '--total-cap', String(cap), '--total-file', totalFile],
+      ...['--known', cassette],
     ],
     { encoding: 'utf8', stdio: ['ignore', 'inherit', 'inherit'] },
   );
