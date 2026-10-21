@@ -165,8 +165,8 @@ describe('the run is part of the cassette key', () => {
 });
 
 describe('the planted bugs of the fourth audit are lost', () => {
-  it('P12: a context fingerprint that ignores the heading path loses ids.context-fingerprint-covers-heading-path', async () => {
-    const id = 'ids.context-fingerprint-covers-heading-path';
+  it('P12: a context fingerprint that ignores the heading path loses re-anchoring.heading-edit-relabels-interior-unit', async () => {
+    const id = 're-anchoring.heading-edit-relabels-interior-unit';
     expect(await run(id, ref), id).toMatchObject({ pass: true });
     const ignoresPath = mutant('ctxfp-ignores-heading-path', async (request) => {
       const out = await ref.scan(request);
@@ -207,22 +207,52 @@ describe('the planted bugs of the fourth audit are lost', () => {
     expect(planted.pass, id).toBe(false);
     expect(planted.detail, id).toMatch(/reruns its links|advisory set/);
   }, 120_000);
-  it('P17: condition ids dropped from the prose pointer lose grouping.condition-ids-in-prose-pointer', async () => {
-    const id = 'grouping.condition-ids-in-prose-pointer';
+  it('P17: condition ids dropped from the options of the review predicate lose grouping.condition-ids-in-review-predicate', async () => {
+    const id = 'grouping.condition-ids-in-review-predicate';
     expect(await run(id, ref), id).toMatchObject({ pass: true });
-    const drops = mutant('condition-ids-dropped', async (request) => {
+    const drops = mutant('condition-ids-dropped-from-options', async (request) => {
       const out = await ref.scan(request);
       return {
         ...out,
         atoms: out.atoms.map((atom) => ({
           ...atom,
-          evidence: atom.evidence.map(({ condition: _condition, ...rest }) => rest),
+          evidence: atom.evidence.map((e) => {
+            const { condition: _condition, ...options } = e.options ?? {};
+            return { ...e, options };
+          }),
         })),
       };
     });
     const planted = await run(id, drops);
     expect(planted.pass, id).toBe(false);
     expect(planted.detail, id).toContain('carries no condition ids');
+  }, 120_000);
+  it('P20: windows that cross a top-level heading lose labels.top-level-heading-window-boundary', async () => {
+    const id = 'labels.top-level-heading-window-boundary';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    // The two sections share one window: the transport sees the second section under the id of the first.
+    const crosses = mutant('windows-cross-top-level-headings', (request) => {
+      if (!request.model) return ref.scan(request);
+      const inner = request.model.transport;
+      const transport: Transport = (call) => inner({ ...call, body: call.body.replaceAll('#2', '#1') });
+      return ref.scan({ ...request, model: { ...request.model, transport } });
+    });
+    const planted = await run(id, crosses);
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toContain('windows asked for two top-level sections');
+  }, 120_000);
+  it('P10: entries rendered in descending key order lose replay.cassette-ascending-keys', async () => {
+    const id = 'replay.cassette-ascending-keys';
+    expect(await run(id, ref), id).toMatchObject({ pass: true });
+    const descending = mutant('cassette-renders-descending', async (request) => {
+      const out = await ref.scan(request);
+      if (!out.cassette) return out;
+      const rows = out.cassette.split('\n').filter((l) => l.trim() !== '');
+      return { ...out, cassette: `${rows.reverse().join('\n')}\n` };
+    });
+    const planted = await run(id, descending);
+    expect(planted.pass, id).toBe(false);
+    expect(planted.detail, id).toContain('not in ascending key order');
   }, 120_000);
 });
 

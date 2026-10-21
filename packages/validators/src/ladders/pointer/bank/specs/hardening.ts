@@ -24,6 +24,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'cassette:run-in-key',
       { ...cap, component: 'cassette', needs: ['transport', 'cassette'] },
     ),
+    row(
+      'cassette-ascending-keys',
+      2,
+      'The entries of a cassette are rendered in ascending key order',
+      'Record the same files twice with the order of the files reversed the second time.',
+      'In each cassette the keys read in ascending order; the two cassettes are the same bytes.',
+      'cassette:render-ascending-keys',
+      { ...cap, component: 'cassette', needs: ['transport', 'cassette'] },
+    ),
   ],
   cutting: [
     row(
@@ -70,15 +79,6 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
         role: 'catch',
       },
     ),
-    row(
-      'context-fingerprint-covers-heading-path',
-      3,
-      'A unit whose text and neighbours are the same, under a renamed heading, has another context fingerprint',
-      'One file: a heading and four long paragraphs; the second scan renames the heading and nothing else.',
-      'The second paragraph keeps its fingerprint and its id, and its context fingerprint differs: the heading path is part of the context.',
-      'ledger:ctxfp-covers-heading-path',
-      { ...cap, component: 'ledger' },
-    ),
   ],
   're-anchoring': [
     row(
@@ -107,6 +107,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'The third file takes a fresh id; the id of the removed copy is deleted; the copy of the second file keeps its id.',
       'anchor:short-text-needs-to-be-unique',
       { ...cap, component: 'anchor', role: 'catch' },
+    ),
+    row(
+      'heading-edit-relabels-interior-unit',
+      3,
+      'A unit whose text and neighbours are the same, under a renamed heading, is labelled again',
+      'One file: a heading and four long paragraphs, labelled; the second scan renames the heading only and flips the answer for the second paragraph.',
+      'The second paragraph keeps its fingerprint and its id; its context fingerprint differs, and the recorded label is not carried: it takes the new answer.',
+      'ledger:ctxfp-covers-heading-path',
+      { ...cap, component: 'ledger' },
     ),
   ],
   privacy: [
@@ -153,7 +162,7 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       3,
       'A unit moved to another file is reported as advisory, and nothing reruns for it',
       'Two files of eight units; one long unit moves from the first file to the second.',
-      'The unit is classed moved; it is in the advisory set and not in the rerun set.',
+      'The unit is classed moved; it is in the advisory set and not in the rerun set, and no global rerun is introduced.',
       'radius:moved-is-advisory',
       { ...cap, component: 'radius', needs: ['scan', 'rerun'], role: 'catch' },
     ),
@@ -178,11 +187,11 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       { ...cap, component: 'atoms', role: 'catch' },
     ),
     row(
-      'condition-ids-in-prose-pointer',
+      'condition-ids-in-review-predicate',
       3,
-      'The prose pointer of an atom lists the ids of the units that are its conditions',
+      'The review predicate of an atom lists the ids of the units that are its conditions',
       'Three paragraphs: two units labelled `when` (a condition) that point at the third, labelled `rule`.',
-      'The instruction atom holds one reviewed prose_pointer entry whose condition list is the ledger ids of the two condition units, in file order.',
+      'The condition ids occur in the atom fields and in the options of its one reviewed prose_pointer entry, and the two lists match one for one: the ledger ids of the two condition units, in file order.',
       'atoms:condition-ids-in-pointer',
       { ...cap, component: 'atoms', role: 'catch' },
     ),
@@ -196,6 +205,15 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Each value outside 0 to 1 gives a refusal that names the key; each value inside gives no refusal and is returned as written.',
       'settings:threshold-between-zero-and-one',
       { ...cap, component: 'settings', needs: ['settings'], seedFree: true, role: 'catch' },
+    ),
+    row(
+      'top-level-heading-window-boundary',
+      3,
+      'Two top-level sections make two windows, whatever their size',
+      'One file: two top-level headings with one sentence below each, far under the unit cap; Haiku arm on a fake transport.',
+      'Two windows are asked, one per top-level section; neither holds a unit of the other section.',
+      'labeler:window-ends-at-top-level-heading',
+      { ...cap, component: 'labeler', needs: ['transport'] },
     ),
   ],
 };

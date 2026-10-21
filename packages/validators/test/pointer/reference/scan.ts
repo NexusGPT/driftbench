@@ -395,7 +395,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
           labelSet: set.set,
           ...(key ? { cassette: key } : {}),
         },
-        evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true }],
+        evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true, options: { reviewRequired: true } }],
       });
     }
   }
@@ -421,8 +421,10 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     list.sort((x, y) => x.start - y.start);
     atom.situation = list.map((c) => c.text).join(' ');
     // The prose pointer names the units that set the situation, in file order.
+    const ids = list.map((c) => c.id);
+    atom.fields.condition = ids;
     const pointer = atom.evidence.find((e) => e.name === 'prose_pointer');
-    if (pointer) pointer.condition = list.map((c) => c.id);
+    if (pointer) pointer.options = { ...pointer.options, condition: ids };
   }
   const events: Record<string, string> = {};
   const eventCounts: Record<string, number> = {};

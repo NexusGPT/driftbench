@@ -141,8 +141,14 @@ export type Atom = {
   approved: boolean;
   /** The conditions of the unit it was built from, joined in file order; absent when it has none. */
   situation?: string;
-  fields: { extraction: string; unit: string; labelSet: string; cassette?: string };
-  evidence: Array<{ type: string; name: string; reviewRequired?: boolean; condition?: string[] }>;
+  fields: { extraction: string; unit: string; labelSet: string; cassette?: string; condition?: string[] };
+  /** `options` is the nested settings object of a custom check, as the reader wrote it. */
+  evidence: Array<{
+    type: string;
+    name: string;
+    reviewRequired?: boolean;
+    options?: Record<string, unknown>;
+  }>;
 };
 
 export type Diagnostic = { code: string; unit?: string; window?: string; detail: string };

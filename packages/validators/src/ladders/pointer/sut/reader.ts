@@ -546,21 +546,18 @@ function atomOf(atom: RAtom): Atom {
       unit: String(fields.unit ?? ''),
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
+      ...(Array.isArray(fields.condition) ? { condition: fields.condition.map(String) } : {}),
     },
     evidence: atom.evidence.map((e) => {
-      // The reader keeps the settings of a custom check under `options`.
-      const options = (typeof e.options === 'object' && e.options !== null ? e.options : {}) as Record<
-        string,
-        unknown
-      >;
-      const reviewRequired =
-        typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options.reviewRequired;
-      const condition = Array.isArray(options.condition) ? options.condition : e.condition;
+      // The reader keeps the settings of a custom check under `options`; the binding passes them on whole.
+      const options =
+        typeof e.options === 'object' && e.options !== null ? (e.options as Record<string, unknown>) : undefined;
+      const reviewRequired = typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options?.reviewRequired;
       return {
         type: String(e.type),
         name: String(e.name ?? ''),
         ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
-        ...(Array.isArray(condition) ? { condition: condition.map(String) } : {}),
+        ...(options ? { options } : {}),
       };
     }),
   };

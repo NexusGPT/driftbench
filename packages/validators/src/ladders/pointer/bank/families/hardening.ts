@@ -57,33 +57,6 @@ const history = (ledger: LedgerView, id: string): string[] => {
 };
 
 const ids: Record<string, Run> = {
-  'context-fingerprint-covers-heading-path': async (ctx) => {
-    const p = prose(ctx);
-    const paragraphs = p.many(4, longMake) as string[];
-    const doc = (heading: string) =>
-      compose([
-        { kind: 'heading', level: 1, text: heading },
-        ...paragraphs.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
-      ]).text;
-    const text = paragraphs[1] as string;
-    const first = await scanOk(ctx.sut, {
-      files: [{ path: 'ctx.md', text: doc('Closing duties') }],
-      labeler: perfect(),
-    });
-    const second = await scanOk(ctx.sut, {
-      files: [{ path: 'ctx.md', text: doc('Locking rounds') }],
-      previousLedger: first.ledger.raw,
-      labeler: perfect(),
-    });
-    const before = liveByText(first.ledger, text);
-    const after = liveByText(second.ledger, text);
-    if (!before || !after) return fail('positive witness: the second paragraph has no live entry');
-    if (before.fp !== after.fp) return fail('positive witness: the fingerprint of the text changed');
-    if (before.id !== after.id) return fail('the unit lost its id when only its heading was renamed');
-    return before.ctxFp === after.ctxFp
-      ? fail('the context fingerprint is the same under another heading: the heading path is not part of it')
-      : pass('the heading path is part of the context fingerprint');
-  },
   'lineage-is-history': async (ctx) => {
     const p = prose(ctx);
     const w = worldOf(p, { files: 1, perFile: 8 });
@@ -196,6 +169,41 @@ const ids: Record<string, Run> = {
 /* ----- re-anchoring ----- */
 
 const reanchoring: Record<string, Run> = {
+  'heading-edit-relabels-interior-unit': async (ctx) => {
+    const p = prose(ctx);
+    const paragraphs = p.many(4, longMake) as string[];
+    const doc = (heading: string) =>
+      compose([
+        { kind: 'heading', level: 1, text: heading },
+        ...paragraphs.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
+      ]).text;
+    const text = paragraphs[1] as string;
+    const first = await scanOk(ctx.sut, {
+      files: [{ path: 'ctx.md', text: doc('Closing duties') }],
+      labeler: perfect(),
+    });
+    const was = labelOf(first.ledger, text);
+    const flipTo = was === 'none' ? 'rule' : 'none';
+    const flip: Labeler = (request) => ({
+      labels: entriesFor(request, (unit) => (keyOf(unit.text) === keyOf(text) ? flipTo : truthLabel(unit.text))),
+    });
+    const second = await scanOk(ctx.sut, {
+      files: [{ path: 'ctx.md', text: doc('Locking rounds') }],
+      previousLedger: first.ledger.raw,
+      labeler: flip,
+    });
+    const before = liveByText(first.ledger, text);
+    const after = liveByText(second.ledger, text);
+    if (!before || !after) return fail('positive witness: the second paragraph has no live entry');
+    if (before.fp !== after.fp) return fail('positive witness: the fingerprint of the text changed');
+    if (before.id !== after.id) return fail('the unit lost its id when only its heading was renamed');
+    if (before.ctxFp === after.ctxFp)
+      return fail('the context fingerprint is the same under another heading: the heading path is not part of it');
+    const got = labelOf(second.ledger, text);
+    return got === flipTo
+      ? pass('the heading path is part of the context, so the unit was labelled again')
+      : fail(`the unit has label ${got}: the old label ${was} was carried across a renamed heading`);
+  },
   'events-follow-the-text': async (ctx) => {
     const p = prose(ctx);
     const w = worldOf(p, { files: 2, perFile: 8 });
@@ -381,6 +389,7 @@ const radius: Record<string, Run> = {
       return fail(`the moved unit is classed ${classes.get(id)}, expected moved`);
     const out = await api.rerun(first.ledger, second.ledger);
     if (out.units.includes(id)) return fail('the moved unit reruns its links: a move is only advisory');
+    if (out.whole !== null) return fail(`a move reruns the whole suite: ${out.whole}`);
     return out.advisory.includes(id)
       ? pass('the moved unit is reported, and nothing reruns for it')
       : fail(`the advisory set is ${JSON.stringify(out.advisory)}, expected the moved unit`);
@@ -480,7 +489,7 @@ const grouping: Record<string, Run> = {
 };
 
 const grouping2: Record<string, Run> = {
-  'condition-ids-in-prose-pointer': async (ctx) => {
+  'condition-ids-in-review-predicate': async (ctx) => {
     const p = prose(ctx);
     const [first, second, rule] = p.many(3, longMake) as [string, string, string];
     const files = [
@@ -508,16 +517,22 @@ const grouping2: Record<string, Run> = {
     if (atoms.length !== 1) return fail(`${atoms.length} instruction atoms for one rule, expected one`);
     const ids = [first, second].map((text) => liveByText(result.ledger, text)?.id);
     if (ids.some((id) => id === undefined)) return fail('positive witness: a condition has no live entry');
-    const pointers = (atoms[0]?.evidence ?? []).filter((e) => e.name === 'prose_pointer');
+    const atom = atoms[0];
+    const fieldIds = atom?.fields.condition;
+    const pointers = (atom?.evidence ?? []).filter((e) => e.name === 'prose_pointer');
     if (pointers.length !== 1) return fail(`${pointers.length} prose_pointer entries, expected one`);
-    const got = pointers[0]?.condition;
-    if (got === undefined)
+    const optionIds = pointers[0]?.options?.condition;
+    if (fieldIds === undefined) return fail('positive witness: the atom fields carry no condition ids');
+    if (optionIds === undefined)
       return fail(
-        'the prose pointer carries no condition ids: the review cannot see which units set the situation',
+        'the review predicate carries no condition ids: the review cannot see which units set the situation',
       );
-    return JSON.stringify(got) === JSON.stringify(ids)
-      ? pass('the prose pointer lists the condition ids in file order')
-      : fail(`the prose pointer lists ${JSON.stringify(got)}, expected ${JSON.stringify(ids)}`);
+    const want = JSON.stringify(ids);
+    return JSON.stringify(fieldIds) === want && JSON.stringify(optionIds) === want
+      ? pass('the condition ids are in the atom fields and in the options of the review predicate, one for one')
+      : fail(
+          `the atom fields list ${JSON.stringify(fieldIds)} and the predicate ${JSON.stringify(optionIds)}, expected ${want} in both`,
+        );
   },
   'conditions-join-in-file-order': async (ctx) => {
     const p = prose(ctx);
@@ -561,6 +576,38 @@ const grouping2: Record<string, Run> = {
 };
 
 const labels: Record<string, Run> = {
+  'top-level-heading-window-boundary': async (ctx) => {
+    const p = prose(ctx);
+    const [one, two] = p.many(2) as [string, string];
+    const files = [
+      {
+        path: 'sections.md',
+        text: compose([
+          { kind: 'heading', level: 1, text: `${headingText(p.random)} one` },
+          { kind: 'paragraph', sentences: [one] },
+          { kind: 'heading', level: 1, text: `${headingText(p.random)} two` },
+          { kind: 'paragraph', sentences: [two] },
+        ]).text,
+      },
+    ];
+    const fake = fakeTransport();
+    const res = await ctx.sut.scan({
+      files,
+      model: { arm: 'haiku', transport: fake },
+      cassette: { mode: 'record' },
+    });
+    if (!res.ok || !res.ledger) return fail(`the scan failed: ${res.error ?? 'no ledger'}`);
+    requireSourceWitness(res, files);
+    const windows = new Set(fake.calls.map((call) => call.window));
+    if (windows.size !== 2)
+      return fail(
+        `${windows.size} windows asked for two top-level sections, expected 2: ${[...windows].join(', ')}`,
+      );
+    const mixed = fake.calls.find((call) => call.units.length > 2);
+    return mixed
+      ? fail(`a window holds ${mixed.units.length} units: it combines the two sections`)
+      : pass('one window per top-level section');
+  },
   'settings-threshold-range-refused': async (ctx) => {
     const api = ctx.sut.settings;
     if (!api)

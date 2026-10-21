@@ -370,6 +370,23 @@ export const replayRuns: Record<string, Run> = {
       ? pass(`${want} runs, ${want} keys, ${want} calls`)
       : fail(`${fake.count} transport calls for ${want} runs: a run reused the answer of another`);
   },
+  'cassette-ascending-keys': async (ctx) => {
+    const { files } = threeFiles(ctx);
+    const cassettes: string[] = [];
+    for (const order of [files, [...files].reverse()]) {
+      const rec = await record(order, 'haiku', fakeTransport(), { labelsYaml: RULES_YAML }, ctx);
+      must(rec, 'record');
+      const keys = lines(rec.cassette ?? '').map((l) => String((JSON.parse(l) as { key?: string }).key));
+      if (keys.length < 2) return fail('positive witness: the cassette holds fewer than two entries');
+      const sorted = [...keys].sort((a, b) => a.localeCompare(b));
+      if (JSON.stringify(sorted) !== JSON.stringify(keys))
+        return fail('the entries of the cassette are not in ascending key order');
+      cassettes.push(rec.cassette ?? '');
+    }
+    return cassettes[0] === cassettes[1]
+      ? pass('ascending keys, whatever the order of the files')
+      : fail('the cassette depends on the order the entries were recorded in');
+  },
   'key-is-sha256-hex': async (ctx) => {
     const { files } = threeFiles(ctx);
     const rec = await record(files, 'haiku', fakeTransport(), { labelsYaml: TWO_SETS_YAML }, ctx);
