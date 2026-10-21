@@ -487,6 +487,23 @@ const labels: Record<string, Run> = {
     }
     return pass('four keys, values outside 0 to 1 refused by name, 0 and 1 accepted');
   },
+  'settings-inherited-threshold-key-refused': async (ctx) => {
+    const api = ctx.sut.settings;
+    if (!api)
+      throw new Problem(
+        'the reader exports no settings reader: it must refuse a threshold key that is not one of the four, and name it',
+      );
+    // Names every object has by inheritance: a lookup in a table of the four keys must not find them.
+    for (const key of ['constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+      const out = await api.parse(`threshold: { ${key}: 0.5 }\n`);
+      if (out.ok) return fail(`the threshold key ${key} was accepted; only the four keys of the file are thresholds`);
+      if (!out.errors.some((error) => error.includes(key)))
+        return fail(`the refusal of ${key} does not name the key: ${JSON.stringify(out.errors)}`);
+    }
+    const own = await api.parse('threshold: { labeler: 0.5 }\n');
+    if (!own.ok) return fail(`the threshold labeler: 0.5 was refused: ${own.errors.join('; ')}`);
+    return pass('constructor, toString, hasOwnProperty and valueOf refused by name; a real key still accepted');
+  },
 };
 
 export const HARDENING_RUNS: Record<string, Record<string, Run>> = {

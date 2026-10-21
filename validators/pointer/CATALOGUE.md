@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **433 items**, 11 families, 271 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **434 items**, 11 families, 272 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -12,14 +12,14 @@ Bank: **433 items**, 11 families, 271 distinct causes, 9 levels. This file is ge
 | ids | ids | 44 | 11 | 21 | 11 | 1 | 0 |
 | re-anchoring | anchor | 56 | 5 | 12 | 25 | 10 | 4 |
 | grouping | labels | 26 | 5 | 12 | 8 | 1 | 0 |
-| labels | labels | 71 | 4 | 35 | 31 | 1 | 0 |
+| labels | labels | 72 | 4 | 36 | 31 | 1 | 0 |
 | replay | replay | 42 | 3 | 8 | 22 | 9 | 0 |
 | privacy | privacy | 22 | 2 | 8 | 11 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
 | radius | links | 26 | 4 | 6 | 12 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 30 | 0 | 3 | 15 | 8 | 4 |
-| **all** | | **433** | **47** | **140** | **179** | **53** | **14** |
+| **all** | | **434** | **47** | **141** | **179** | **53** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 31 |
+| maintainer-added | 32 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -400,6 +400,7 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.haiku-stop-reason-refused` | maintainer-repaired | 3 | First response has stop_reason `max_tokens`, another `refusal`; second responses valid. | Each is refused and retried once; only the valid answer applies. | `haiku:validate-response` | haiku | transport |
 | `labels.haiku-refuse-wrong-window-or-set` | maintainer-repaired | 3 | First answer echoes another window id; another time another set name. | Each is refused and retried once. | `haiku:validate-response` | haiku | transport |
 | `labels.settings-threshold-range-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: <n> }` for each of the four keys, with n in 1.5, 2, -0.1 and 100, then 0, 0.4 and 1. (seed-free) | Each value outside 0 to 1 gives a refusal that names the key; each value inside gives no refusal and is returned as written. | `settings:threshold-between-zero-and-one` | settings | settings |
+| `labels.settings-inherited-threshold-key-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: 0.5 }` for constructor, toString, hasOwnProperty and valueOf, then `labeler: 0.5`. (seed-free) | Each inherited key gives a refusal that names the key; the real key gives none. | `settings:threshold-keys-are-own` | settings | settings |
 
 ## replay
 

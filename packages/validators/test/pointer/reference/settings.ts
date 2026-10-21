@@ -7,8 +7,13 @@ import type { SettingsApi } from '../../../src/ladders/pointer/sut/port';
  */
 const KEYS = ['labeler', 'pass_at', 'fail_at', 'margin_cut'] as const;
 
-/** The settings reader; `upper` is the largest threshold it accepts (1 in the rule, 2 in planted bug 20). */
-export function makeSettings(upper = 1): SettingsApi {
+const TABLE: Record<string, number> = { labeler: 1, pass_at: 1, fail_at: 1, margin_cut: 1 };
+
+/**
+ * The settings reader; `upper` is the largest threshold it accepts (1 in the rule, 2 in planted bug 20), and
+ * `inherited` looks the key up in a table, so a name every object inherits is taken for a threshold (bug 22).
+ */
+export function makeSettings(upper = 1, inherited = false): SettingsApi {
   return {
     parse(text) {
       let value: unknown;
@@ -28,7 +33,8 @@ export function makeSettings(upper = 1): SettingsApi {
           errors.push(`threshold: a mapping of ${KEYS.join(', ')}`);
         else {
           for (const [key, number] of Object.entries(given)) {
-            if (!(KEYS as readonly string[]).includes(key))
+            const known = inherited ? TABLE[key] !== undefined : (KEYS as readonly string[]).includes(key);
+            if (!known)
               errors.push(`threshold: ${key} is not a threshold; the thresholds are ${KEYS.join(', ')}`);
             else if (typeof number !== 'number' || !Number.isFinite(number) || number < 0 || number > upper)
               errors.push(`threshold: ${key} is a number from 0 to 1`);

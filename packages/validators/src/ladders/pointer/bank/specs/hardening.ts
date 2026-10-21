@@ -159,5 +159,14 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'settings:threshold-between-zero-and-one',
       { ...cap, component: 'settings', needs: ['settings'], seedFree: true, role: 'catch' },
     ),
+    row(
+      'settings-inherited-threshold-key-refused',
+      2,
+      'A threshold key that every object inherits is not a threshold: it is refused by name',
+      'The settings text `threshold: { <key>: 0.5 }` for constructor, toString, hasOwnProperty and valueOf, then `labeler: 0.5`.',
+      'Each inherited key gives a refusal that names the key; the real key gives none.',
+      'settings:threshold-keys-are-own',
+      { ...cap, component: 'settings', needs: ['settings'], seedFree: true, role: 'catch' },
+    ),
   ],
 };

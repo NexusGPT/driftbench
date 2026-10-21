@@ -454,6 +454,22 @@ describe('labels.settings-threshold-range-refused', () => {
   });
 });
 
+describe('labels.settings-inherited-threshold-key-refused', () => {
+  it('fails a reader that finds a threshold key in a table, so inherited names pass (planted bug 22)', async () => {
+    const table = mutant('threshold-key-lookup', { settings: makeSettings(1, true) });
+    expect(await redOn('labels.settings-inherited-threshold-key-refused', table)).toMatch(/was accepted/);
+  });
+
+  it('fails a reader whose refusal does not name the key', async () => {
+    const mute: PointerSut = {
+      ...ref,
+      name: 'unnamed-refusal',
+      settings: { parse: async () => ({ ok: false, errors: ['threshold: a key is not a threshold'] }) },
+    };
+    expect(await redOn('labels.settings-inherited-threshold-key-refused', mute)).toMatch(/does not name the key/);
+  });
+});
+
 describe('the catch items are pinned', () => {
   it('lists in validators/pointer/catch.json exactly the items whose row says catch, each with what it guards', () => {
     const pinned = readCatchList(fileURLToPath(new URL('../../../../', import.meta.url)), 'pointer');

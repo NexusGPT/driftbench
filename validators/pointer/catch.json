@@ -39,6 +39,10 @@
     {
       "id": "labels.settings-threshold-range-refused",
       "guards": "bug:B20"
+    },
+    {
+      "id": "labels.settings-inherited-threshold-key-refused",
+      "guards": "bug:B22"
     }
   ]
 }
