@@ -1,4 +1,4 @@
-import { rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Message, ResolvedGiven, Sandbox, Session } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
@@ -211,6 +211,39 @@ describe('branching', () => {
     await adapter.send(session, turnOf(0, ASK_WEEKLY, given));
     // The library prefix is twelve records; the two written turns are not what the runtime resumed.
     expect((await callsOf(work.calls))[0]?.records).toBe(12);
+  });
+
+  it('preserves an estate-file deletion through child and grandchild continuations', async () => {
+    const { adapter } = await setup({ branching: true });
+    const parent = await adapter.open(givenOf());
+    cleanups.push(() => adapter.close(parent));
+    await rm(join(sandboxOf(parent).root, 'CLAUDE.md'));
+    let current = parent;
+    for (let generation = 0; generation < 2; generation += 1) {
+      const end = await adapter.snapshotGiven?.(current);
+      expect(end?.vars.deleted_seed).toContain('CLAUDE.md');
+      const next = await adapter.open({ ...givenOf(), world: end?.world ?? {}, vars: end?.vars ?? {} });
+      cleanups.push(() => adapter.close(next));
+      expect(await sandboxOf(next).listFiles()).not.toContain('CLAUDE.md');
+      current = next;
+    }
+  });
+
+  it('preserves a restore to estate bytes instead of replaying the adapter override', async () => {
+    const original = await readFile(join(ESTATE, 'CLAUDE.md'), 'utf8');
+    const { adapter } = await setup({
+      branching: true,
+      workspace: { files: { 'CLAUDE.md': 'adapter workspace override\n' } },
+    });
+    const parent = await adapter.open(givenOf());
+    cleanups.push(() => adapter.close(parent));
+    expect(await textOf(parent, 'CLAUDE.md')).toBe('adapter workspace override\n');
+    await writeFile(join(sandboxOf(parent).root, 'CLAUDE.md'), original);
+    const end = await adapter.snapshotGiven?.(parent);
+    expect(end?.world.workspace?.files?.['CLAUDE.md']).toBe(original);
+    const child = await adapter.open({ ...givenOf(), world: end?.world ?? {}, vars: end?.vars ?? {} });
+    cleanups.push(() => adapter.close(child));
+    expect(await textOf(child, 'CLAUDE.md')).toBe(original);
   });
 
   it('a file only the adapter seed supplied stays deleted on a continuation', async () => {

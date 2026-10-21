@@ -200,8 +200,8 @@ type LiveState = {
   seedRecords?: SessionRecord[];
   /** The files of the estate copy before any seed, by path, with their hashes: what `snapshotGiven` leaves out. */
   estateBase: Record<string, string>;
-  /** Paths the adapter workspace seed added, outside the estate copy. A deleted one must not come back. */
-  adapterSeed: readonly string[];
+  /** What every open replays before the Given: estate plus adapter workspace seed, by content hash. */
+  replayBase: Record<string, string>;
   seeded: Workspace | undefined;
   /** Processes the runner started for running helpers, killed at close. */
   pids: number[];
@@ -216,8 +216,8 @@ const EXPORT_MAX_BYTES = 50 * 1024 * 1024;
 const DEFAULT_RETRIES = 3;
 const DEFAULT_BACKOFF_MS = 5000;
 /**
- * Paths of the adapter workspace seed that a parent deleted. The export cannot name a file by its absence,
- * and the next open writes that seed again before the Given workspace, so the list is what removes them.
+ * Paths of the estate or adapter workspace seed that a parent deleted. The next open replays both before
+ * the Given workspace, so an explicit deletion list keeps either kind of file absent.
  */
 const DELETED_SEED = 'deleted_seed';
 
@@ -265,9 +265,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
   /**
    * The end state of a block, for a continuation that starts from it: the files the agent and the seed left
    * in the workspace, byte for byte (UTF-8 text in `files`, anything else in `binary` as base64), without
-   * the files of the estate copy that did not change. A file the agent deleted is absent; an estate file it
-   * deleted comes back with the next copy of the estate. An adapter-seed file it deleted is named in
-   * `vars.deleted_seed`, and the next open removes it after writing that seed. The variables come along,
+   * the files of the estate copy that did not change. A file the agent deleted is absent: estate and adapter
+   * seed deletions are named in `vars.deleted_seed` and removed after replaying those seeds. A restore to
+   * estate bytes is exported when the adapter seed would otherwise overwrite it. The variables come along,
    * with `session_state: fresh` and without an `event` or `mid_turn` that names an operation: those already
    * ran on this session, and a continuation that inherited them would run them again.
    */
@@ -277,7 +277,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
     const snapshot = await state.sandbox.snapshot();
     const bound = EXPORT_MAX_BYTES;
     const changed = Object.entries(snapshot.files)
-      .filter(([path, file]) => state.estateBase[path] !== file.sha256)
+      .filter(
+        ([path, file]) => state.estateBase[path] !== file.sha256 || state.replayBase[path] !== file.sha256,
+      )
       .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
     const total = changed.reduce((sum, [, file]) => sum + file.bytes, 0);
     if (total > bound) {
@@ -299,7 +301,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       ...(Object.keys(files).length === 0 ? {} : { files }),
       ...(Object.keys(binary).length === 0 ? {} : { binary }),
     };
-    const deleted = state.adapterSeed.filter((path) => snapshot.files[path] === undefined);
+    const deleted = Object.keys(state.replayBase).filter((path) => snapshot.files[path] === undefined);
     return {
       world: structuredClone({ ...world, ...(changed.length === 0 ? {} : { workspace }) }),
       vars: structuredClone(continuationVars(session.given.vars, deleted)),
@@ -325,23 +327,21 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         });
       let stateFolder: string | undefined;
       let estateBase: Record<string, string> = {};
-      let adapterSeed: string[] = [];
+      let replayBase: Record<string, string> = {};
       try {
         await copyEstate(options.estateRoot, options.estateFiles ?? DEFAULT_ESTATE_FILES, folderOf(sandbox));
         estateBase = Object.fromEntries(
           Object.entries((await sandbox.snapshot()).files).map(([path, file]) => [path, file.sha256]),
         );
         if (options.workspace !== undefined) await sandbox.seed(options.workspace);
-        // The adapter seed is written on every open, ahead of the Given. A continuation's Given already
-        // holds the seed files the parent left, and omits one the parent deleted, so that one is removed
-        // again here. Anything else the seed added is remembered for the next export.
-        if (options.branching === true && options.workspace !== undefined) {
-          const seeded = await sandbox.snapshot();
-          adapterSeed = Object.keys(seeded.files)
-            .filter((path) => estateBase[path] === undefined)
-            .sort();
+        // Every continuation replays both seeds before its Given. Keep that complete baseline so an
+        // estate-file deletion stays deleted and a restore can override an adapter workspace edit.
+        if (options.branching === true) {
+          replayBase = Object.fromEntries(
+            Object.entries((await sandbox.snapshot()).files).map(([path, file]) => [path, file.sha256]),
+          );
           const gone = deletedSeed(given.vars);
-          for (const path of adapterSeed) {
+          for (const path of Object.keys(replayBase)) {
             if (gone.has(path)) await removeInside(folderOf(sandbox), path);
           }
         }
@@ -370,7 +370,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         rateWave: join(stateFolder, 'rate-wave'),
         applied: new Set(),
         estateBase,
-        adapterSeed,
+        replayBase,
         ...(options.branching === true && history.length > 0
           ? { seedRecords: recordsOfMessages(history, new Date().toISOString()) }
           : {}),
@@ -815,7 +815,7 @@ async function insideCopy(root: string, file: string): Promise<void> {
   }
 }
 
-/** Removes one file of the adapter seed that a parent deleted, refusing a path that leaves the copy. */
+/** Removes a replayed seed file that a parent deleted, refusing a path that leaves the copy. */
 async function removeInside(root: string, file: string): Promise<void> {
   await insideCopy(root, file);
   await rm(join(root, file), { force: true });
