@@ -22,7 +22,9 @@ const governed = (atom: MapAtom) =>
     (span) => span.kind === 'governed-action',
   );
 const GATED = map.atoms.find((atom) => governed(atom) && !(atom.fields as { ask?: unknown }).ask) as MapAtom;
-const BARE = map.atoms.find((atom) => declaredActs(atom).length === 0) as MapAtom;
+// An atom with no declared act text, no trigger and no quote (fictional): it has no act.
+const BARE: MapAtom = { id: 'instruction.bare', kind: 'instruction', title: 'Keep the desk tidy' };
+const QUOTED = map.atoms.find((atom) => typeof atom.provenance?.quote === 'string') as MapAtom;
 const ASK = 'Please propose a supplier email.';
 const NOT_SET_OFF = 'Please propose a supplier e-mail.';
 const MISS = 'the fake does not set off its act';
@@ -84,9 +86,18 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect(out).toEqual({ pass: true, detail: 'holds (1)' });
   });
 
-  it('refuses a code ask whose act atom declares no act text in the map', async () => {
-    const out = await verdict([spec(ASK, code(`${BARE.id} (title)`), [BARE.id])]);
-    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('declares no act text') });
+  it('takes no act from an atom that declares none, and an atom quote whole, never a slice of it', () => {
+    expect(declaredActs(BARE)).toEqual([]);
+    const quote = QUOTED.provenance?.quote as string;
+    const asks = askGrammar(map.atoms).asks;
+    expect(asks[`Please ${quote}.`]).toContain(QUOTED.id);
+    const slice = quote.slice(0, quote.lastIndexOf(' '));
+    expect(asks[`Please ${slice}.`] ?? []).not.toContain(QUOTED.id);
+  });
+
+  it('refuses a code ask whose act id is no atom of the map', async () => {
+    const out = await verdict([spec(ASK, code(`${BARE.id} (title)`), [ACTED.id])]);
+    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('is no atom of the map') });
   });
 
   it('control: a code ask the fake sets off for the act its askFrom names holds', async () => {
