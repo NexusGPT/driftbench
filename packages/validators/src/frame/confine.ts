@@ -472,6 +472,7 @@ export function sealOnce(
       inputs: given.inputs,
       tree: given.tree,
       influences: given.influences,
+      workspace: given.workspace,
       bytes,
       sha256,
     };
