@@ -41,21 +41,11 @@ const hasGroup = (parts: readonly Part[]): boolean => parts.some((part) => 'opt'
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.trim() === text;
 
 /**
- * The cuts a situation or description gives, by punctuation and layout alone (docs/estate.md section 5: "the first
- * sentence of a skill's or helper's description"): the text whole; its first sentence, which ends at a mark
- * followed by white space or at a line break; and each of those up to its first token with no letter or digit;
- * every cut without the marks at its end. No word is read.
+ * The text a situation gives: the whole field, verbatim (docs/estate.md section 5: a span of a gate's trigger, of
+ * an atom's situation or of its passage is the whole field, never a part of it).
  */
 function sentenceCuts(text: string): string[] {
-  const bare = (value: string) => value.replace(/[^\p{L}\p{N}]+$/u, '');
-  const end = /[.;!?](?=\s)|\n/u.exec(text);
-  const first = end === null ? text : text.slice(0, end.index);
-  const words = (value: string) => {
-    const symbol = /(?:^|\s)[^\p{L}\p{N}\s]+(?=\s|$)/u.exec(value);
-    return symbol === null ? value : value.slice(0, symbol.index);
-  };
-  const cuts = [text, bare(text), bare(first), bare(words(text)), bare(words(first))];
-  return [...new Set(cuts.filter(hasWord))];
+  return hasWord(text) ? [text] : [];
 }
 
 /**
@@ -81,7 +71,7 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
   const quote = atom.provenance?.quote;
   if (typeof quote === 'string' && hasWord(quote) && !acts.some((act) => act.text === quote))
     acts.push({ text: quote });
-  // A route's description or a rule's situation, whole or cut at its first sentence (the generator asks from it).
+  // A route's description or a rule's situation, whole (the generator asks from it).
   const situation = atom.situation;
   if (typeof situation === 'string')
     for (const cut of sentenceCuts(situation))
