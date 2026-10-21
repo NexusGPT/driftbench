@@ -226,7 +226,8 @@ describe('the verbatim source text of an atom gives a span, in the handle-this-f
     expect('refused' in handle('fields.trigger', 0, 17)).toBe(true);
     // A situation is taken whole too (docs/estate.md section 5).
     expect('refused' in handle('situation', 0, 4)).toBe(true);
-    expect(handle('situation', 0, 22)).toEqual({ text: 'Please handle this for me: When the inbox is full.' });
+    const full = 'Please handle this for me: When the inbox is full.';
+    expect(handle('situation', 0, 22)).toEqual({ text: full });
     expect('refused' in handle('title', 0, 14)).toBe(true);
   });
 });
