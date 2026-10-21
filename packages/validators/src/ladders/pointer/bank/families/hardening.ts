@@ -310,8 +310,7 @@ const carryRuns: Record<string, Run> = {
       const { old, now } = carried(from);
       if (norm(now.quote) !== norm(to))
         return fail(`the id ${old.id} of the reworded unit quotes ${show(now.quote)}, expected ${show(to)}`);
-      if (now.path !== old.path)
-        return fail(`the id ${old.id} of the reworded unit moved to ${now.path}`);
+      if (now.path !== old.path) return fail(`the id ${old.id} of the reworded unit moved to ${now.path}`);
     }
     return pass(`${plan.changed.length} reworded unit keeps its id in the ledger, with the new text`);
   },
