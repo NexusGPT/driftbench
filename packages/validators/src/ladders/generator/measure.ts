@@ -663,9 +663,13 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
         from: startStageOf(spec, index),
-        path: ((spec.metadata?.generated as { path?: string } | undefined)?.path ?? ''),
+        path: (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '',
         walk: contentHash(
-          spec.blocks.map((_, at) => [answersOf(spec, at), startStageOf(spec, at), machineSignature(spec, at)]),
+          spec.blocks.map((_, at) => [
+            answersOf(spec, at),
+            startStageOf(spec, at),
+            machineSignature(spec, at),
+          ]),
         ),
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
