@@ -28,7 +28,16 @@ jobs:
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
