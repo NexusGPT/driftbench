@@ -2716,6 +2716,7 @@
       "cusum": "value",
       "designEffect": "value",
       "designEffectFromData": "value",
+      "eValueAverage": "value",
       "effectiveSampleSize": "value",
       "erfc": "value",
       "fBeta": "value",
