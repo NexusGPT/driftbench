@@ -7,7 +7,10 @@
  * what it is given, and reads no word of its own:
  * - a phrase of the bank: an ask equal to the phrase sets off the atoms of its situation, unless the situation is
  *   for an ask just outside the trigger or a near miss (`use: outside | near_miss`), which sets nothing off;
- * - an ask the generator rendered, when `grammar.json` exists: it holds the frames and the act shapes of the
+ * - an ask the grammar lists (`asks`: an exact text and the atoms it sets off). The validators generate it by code
+ *   from the approved map and the ask table of docs/estate.md section 5 (`FAKE_GRAMMAR`); the ask must equal a
+ *   listed text byte for byte;
+ * - an ask the generator rendered, when `grammar.json` holds frames: it holds the frames and the act shapes of the
  *   generator, cut at their slots. An ask that fits a frame holds an act; the act is
  *   the declared ask of an atom (`fields.ask.text`), or a shape of a skill, a helper, a file or a command. A
  *   frame that only asks what an act would mean sets nothing off;
@@ -147,7 +150,10 @@ export function setOff(index, ask) {
     }
     return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [] };
   }
-  const grammar = index.grammar;
+  const asks = index.grammar?.asks;
+  const listed = asks && Object.hasOwn(asks, ask) ? asks[ask] : undefined;
+  if (Array.isArray(listed)) return { atoms: listed.map((id) => ({ id, provoke: true })), named: [] };
+  const grammar = index.grammar?.frames ? index.grammar : undefined;
   const isAct = (act) =>
     index.declared.has(lower(act)) || (grammar !== undefined && shapeOf(grammar, act) !== undefined);
   const framed = grammar === undefined ? undefined : frameOf(grammar, ask.trim(), isAct);
