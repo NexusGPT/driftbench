@@ -942,6 +942,43 @@ describe('variablesFromSources: names that are not well-formed Unicode', () => {
   });
 });
 
+describe('variablesFromSources: one clause, one label', () => {
+  it('gives two spacings of one clause one variable, whichever label each carries', () => {
+    const plain = 'Escalate when the delay is above 2 days.';
+    const spaced = 'Escalate  when the delay\nis above 2\tdays.';
+    const make = (conditions: Array<{ text: string; label?: unknown }>) =>
+      variablesFromSources({
+        estate: {
+          files: { 'RULES.md': `${plain}\n${spaced}\n${spaced.toUpperCase()}` },
+          rules: [{ id: 'R', source: 'RULES.md', tools: [], conditions }],
+        },
+      } as never);
+    const a = { kind: 'numeric', subject: 'the delay', limit: 2, comparison: 'gt' };
+    const b = { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt' };
+    const forward = make([
+      { text: plain, label: a },
+      { text: spaced, label: b },
+    ]);
+    expect(forward.store.variables).toHaveLength(1);
+    expect(forward.store.variables[0]?.values).toHaveLength(3);
+    const backward = make([
+      { text: spaced, label: b },
+      { text: plain, label: a },
+    ]);
+    expect(JSON.stringify(backward.store)).toBe(JSON.stringify(forward.store));
+    // A spelling with no label takes the label of the other one.
+    const partial = make([{ text: plain, label: a }, { text: spaced }]);
+    expect(partial.store.variables).toHaveLength(1);
+    // Case still matters: the clause in capitals is in the file, is another clause, and keeps its own label.
+    const other = make([
+      { text: plain, label: a },
+      { text: spaced.toUpperCase(), label: b },
+    ]);
+    expect(other.refused).toEqual([]);
+    expect(other.store.variables.map((v) => v.title).sort()).toEqual(['delay', 'the delay']);
+  });
+});
+
 describe('variablesFromSources: one well-formedness pass over the whole input', () => {
   const LONE = '\uD800';
   const lone = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
@@ -954,7 +991,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
           ? Object.entries(value).some(([k, v]) => lone.test(k) || holdsLone(v))
           : false;
 
-  const text = 'Escalate when the delay is above 2 days. Ready.';
+  const text = 'Escalate when the delay is above 2 days. Escalate when the tier is gold or silver. Ready.';
   const valid = (): VariableSources =>
     ({
       estate: {
@@ -969,7 +1006,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
                 label: { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt', unit: 'days' },
               },
               {
-                text: 'Escalate when the delay is above 2 days.',
+                text: 'Escalate when the tier is gold or silver.',
                 label: { kind: 'member', subject: 'tier', members: ['gold', 'silver'] },
               },
             ],
