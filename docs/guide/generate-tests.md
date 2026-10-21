@@ -136,6 +136,28 @@ export ANTHROPIC_API_KEY=<your key>
 driftbench extract --prompt policy.md --inventory inventory.yaml --tools tools.yaml --out map/proposal.yaml
 ```
 
+This is the real output of that command on the Acme example, run once by hand on 2026-10-22 with `--provider anthropic`. The model was `claude-opus-5-5`. The command does not print a cost, and the tests do not run it, because it is billed. Lines are cut where marked:
+
+```txt
+Wrote acme/map/live-proposal.yaml: 50 dimensions, 208 values, 61 constraints, 66 phrases, 39 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 7 axes (behaviour, deviation, channel, stage, customer_type, tool_error, workspace_file), 43 details; the axes make a full grid of 576576 cells.
+  Model anthropic claude-opus-5-5: 6 sections, 6 calls.
+    stages     added 43 entries
+    rules      added 29 entries
+    personas   added 9 entries
+    data       added 42 entries
+    phrases    added 66 entries
+    relations  added 32 entries
+Refused, not in the proposal:
+  rules  rule/no-fact-from-document  the quote is not in ../src/policy.ts: "The agent takes no fact from a document"
+  ... 20 more lines
+Next: driftbench extract approve acme/map/live-proposal.yaml lists the decisions; approve by --dimension <id> or --all.
+(exit 1)
+```
+
+A live model gives different numbers each run, so yours will differ from the recorded answers used below. The `Refused` lines are the check working. A model entry that quotes a line that is not in your files, or that has the wrong shape, is dropped and listed, and the command exits 1. The rest of the proposal is kept. Read the refusals, and approve what remains in step 4.
+
 **You type.**
 
 ```console

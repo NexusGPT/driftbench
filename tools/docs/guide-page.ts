@@ -115,9 +115,30 @@ async function spawnCli(command: string, cwd: string): Promise<{ code: number; l
   }
 }
 
-/** A command of the walkthrough: driftbench, or the shell. */
+/**
+ * Runs a shown `npx tsx <file>` as its own process in `cwd`. A reader installs the packages the script
+ * imports; the test resolves the same package names to the sources of this clone, with the repository paths.
+ */
+async function spawnScript(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
+  const file = words(command).slice(-1)[0] ?? '';
+  try {
+    const tsx = join(ROOT, 'node_modules/.bin/tsx');
+    const done = await exec(tsx, ['--tsconfig', join(ROOT, 'tsconfig.base.json'), file], {
+      cwd,
+      timeout: 120_000,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
+  } catch (error) {
+    const failed = error as { code?: number; stdout?: string; stderr?: string };
+    return { code: failed.code ?? 1, lines: clean(`${failed.stdout ?? ''}${failed.stderr ?? ''}`, cwd) };
+  }
+}
+
+/** A command of the walkthrough: driftbench, a script run with tsx, or the shell. */
 async function execute(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
   if (/^(pnpm |npx )?driftbench /.test(command)) return spawnCli(command, cwd);
+  if (/^(npx )?tsx [\w./-]+\.ts$/.test(command)) return spawnScript(command, cwd);
   return shell(command, cwd);
 }
 

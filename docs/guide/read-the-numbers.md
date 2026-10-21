@@ -42,7 +42,7 @@ In all, 18 of 27 runs passed: a rate of 66.7%.
 
 **Relevant commands.**
 
-- `npx tsx headline.ts`: runs a short script that computes three intervals for those numbers · `headline.ts` is the script below · it prints three lines, one per interval. The guide tests do not run it, because it imports the driftbench packages and so needs a project that installed them. The repository checks it in `tools/docs/readme-yaml.test.ts`, which runs the script and compares its output with the lines shown here.
+- `npx tsx headline.ts`: runs a short script that computes three intervals for those numbers · `headline.ts` is the script below · it prints three lines, one per interval. The guide test runs it, with the driftbench packages of this clone standing in for the ones you install.
 
 ```ts
 // file: headline.ts
@@ -70,9 +70,10 @@ console.log(`Wilson on n_eff: ${show(runs)}, n_eff ${runs.effectiveN.toFixed(1)}
 console.log(`Hierarchical:    ${show(hierarchicalBetaBinomial(goldens))}`);
 ```
 
-**You see.** This is the recorded output of the script:
+**You type.**
 
-```
+```console
+$ npx tsx headline.ts
 Naive Wilson:    66.7% [47.8%, 81.4%]
 Wilson on n_eff: 66.7% [24.7%, 92.4%], n_eff 7.0
 Hierarchical:    70.0% [35.4%, 88.2%]
@@ -89,6 +90,8 @@ Hierarchical:    70.0% [35.4%, 88.2%]
 **If it goes wrong.**
 
 - `Cannot find package '@agent-nexus/driftbench-stats'` when you run the script: install the package in the folder where you run it, with `npm install @agent-nexus/driftbench`.
+- `does not provide an export named 'hierarchicalBetaBinomial'`: the installed release is older than this guide. Run the script in a clone of this repository, where the guide test runs it.
+- `ERR_PACKAGE_PATH_NOT_EXPORTED`: the folder's `package.json` has no `"type": "module"`. Run `npm pkg set type=module` once.
 
 ## 2. Plan before you spend
 
