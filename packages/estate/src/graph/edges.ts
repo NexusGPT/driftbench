@@ -21,7 +21,7 @@ import type { Atom, Edge } from '../schema';
  * How `enforces` is decided, by code, in this order (the method is recorded on the guard atom):
  *   1. registry: a check registry row names the guard's script and lists rule labels (R5) or quoted
  *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
- *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
+ *   2. id: the guard's own source ends a line with a label list after a colon (`Enforces: R3, R5`, `Applique : R3 ; R5`; no word is read), or cites a rule as `R#3`
  *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
  *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
  *      the other, compared without markup, case or final punctuation.
@@ -199,16 +199,23 @@ function holds(quote: string, passage: string): boolean {
   return a.includes(b) || b.includes(a);
 }
 
-/** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
+/**
+ * Labels a guard source declares: a line of a comment or a docstring that ends in a list of labels after a colon
+ * (`Enforces: R3, R5`). The word before the colon is not read, so a declaration in any language counts; the labels
+ * are separated by a comma, a semicolon or a slash. A sentence that merely names a label declares nothing.
+ */
 export function declaredLabels(text: string): string[] {
   const found: string[] = [];
+  const label = '[A-Z]{1,3}#?\\d{1,3}';
+  const list = new RegExp(
+    `[:\uFF1A]\\s*(${label}(?:\\s*[,;/\u3001\uFF0C\uFF1B]\\s*${label})*)\\s*(?:\\*/|"""|\'\'\')?\\.?\\s*$`,
+    'iu',
+  );
   for (const line of linesOf(text)) {
-    const match = /\benforces?\b\s*:?\s*([A-Z]{1,3}#?\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}#?\d{1,3})*)/i.exec(
-      line.raw,
-    );
+    const match = list.exec(line.raw);
     if (!match?.[1]) continue;
-    for (const label of match[1].matchAll(/[A-Z]{1,3}#?\d{1,3}/gi))
-      found.push(label[0].replace('#', '').toUpperCase());
+    for (const one of match[1].matchAll(new RegExp(label, 'gi')))
+      found.push(one[0].replace('#', '').toUpperCase());
   }
   return found;
 }

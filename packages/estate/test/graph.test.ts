@@ -121,10 +121,21 @@ describe('what a guard enforces', () => {
     expect(result.enforces).toEqual([]);
   });
 
-  it('reads declared labels and long literals from a source', () => {
-    expect(
-      declaredLabels('# Enforces: R3, R5\n"""Blocks. Enforces R7 and R8"""\n# enforces nothing\n'),
-    ).toEqual(['R3', 'R5', 'R7', 'R8']);
+  it.each([
+    ['# Enforces: R3, R5\n', ['R3', 'R5']],
+    ['"""Blocks an edit. Enforces: R7"""\n', ['R7']],
+    ['# Applique : R3 ; R5\n', ['R3', 'R5']],
+    ['// 对应规则：R7、R8\n', ['R7', 'R8']],
+    ['# Garantit: G4/G9\n', ['G4', 'G9']],
+    ['# Whatever this file takes care of: R2\n', ['R2']],
+    ['# enforces nothing\n', []],
+    ['"""Blocks. Enforces R7 and R8"""\n', []],
+    ['# See R3 before changing this\n', []],
+  ])('reads a label list after a colon, in any language, and no sentence: %s', (text, labels) => {
+    expect(declaredLabels(text)).toEqual(labels);
+  });
+
+  it('reads long literals from a source', () => {
     expect(literals('echo "short" ; echo "a message long enough" ; x = \'another long literal\'')).toEqual([
       'a message long enough',
       'another long literal',
