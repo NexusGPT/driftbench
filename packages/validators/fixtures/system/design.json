@@ -1,5 +1,5 @@
 {
-  "note": "Design point of the planted effect (levels 6 and 7). Recomputed by packages/validators/test/system/design.test.ts and calibration.test.ts, clustered.interval.below and above are upper bounds of the tail masses of the interval under the law of the mean of 225 clustered campaigns: a lattice convolution of the enumerated law at step 1e-4, values rounded down for the lower tail and up for the upper tail.",
+  "note": "Design point of the planted effect (levels 6 and 7). Recomputed by packages/validators/test/system/design.test.ts and calibration.test.ts, clustered.interval.below and above are upper bounds of the tail masses of the interval under the law of the mean of the clustered campaigns: a lattice convolution of the enumerated law at step 1e-4, values rounded down for the lower tail and up for the upper tail.",
   "effect": {
     "campaigns": 100,
     "pairs": 50,
@@ -20,7 +20,7 @@
     "delta": 0.2,
     "rates": [0.6, 1],
     "trueDesignEffect": 1.75,
-    "campaigns": 225,
+    "campaigns": 1740,
     "alpha": 0.000001,
     "exactLaw": {
       "note": "the design effect estimated on one clustered campaign, over all 10626 histograms of spec pass counts",
@@ -29,11 +29,24 @@
       "skew": 0.3929790526
     },
     "interval": {
-      "note": "Cornish-Fisher interval of the mean over 225 campaigns at alpha, each tail at most alpha / 2",
-      "lower": 1.6227219211,
-      "upper": 1.8637765422,
-      "below": 0.0000004973,
-      "above": 0.0000004981
+      "note": "Cornish-Fisher interval of the mean over 1740 campaigns at alpha, each tail at most alpha / 2",
+      "lower": 1.6977601341,
+      "upper": 1.7844427674,
+      "below": 4.973e-07,
+      "above": 4.981e-07
+    },
+    "power": {
+      "note": "Exact chance that the law check rejects a chain planted at another correlation: the mass of the mean of the campaigns outside the interval, from the lattice sum (step 1e-3, nearest rounding) of the enumerated law of one campaign. old is 100 campaigns at alpha 0.001, now is the recorded campaigns at the recorded alpha. failingSeeds are seeds on which a chain planted at that correlation fails the check.",
+      "0.23": {
+        "old": 0.0,
+        "now": 0.0,
+        "failingSeeds": []
+      },
+      "0.27": {
+        "old": 0.0,
+        "now": 0.0,
+        "failingSeeds": []
+      }
     }
   }
 }

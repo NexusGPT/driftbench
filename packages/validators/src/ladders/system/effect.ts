@@ -138,11 +138,13 @@ export const DEFF_ALPHA = 0.001;
  */
 export const DEFF_LAW_ALPHA = 1e-6;
 /**
- * Clustered campaigns per seed. The interval of the mean has half-width z(1 - alpha / 2) sd / sqrt(n): 3.29 sd / 10
- * at alpha 0.001 and n 100, 4.89 sd / 15 at alpha 1e-6 and n 225, which is no wider (0.329 sd and 0.326 sd), so the
- * item still sees a shift of the mean design effect that the old one saw.
+ * Clustered campaigns per seed. The old item held the mean to the 0.999 interval over 100 campaigns. At 1 - 1e-6 the
+ * interval is wider, so the count rises until the item rejects a chain whose correlation is off by 0.02 at least as
+ * often as the old one did, computed exactly from the law of the mean: at rho 0.23 the old item rejected 5.048
+ * percent and at 0.27 0.262 percent; at 1740 campaigns the new one rejects 97.07 and 0.264 percent (lattice step
+ * 1e-3 for both; fixtures/system/design.json, clustered.power). 1735 gives 0.261 at 0.27, which is under the old.
  */
-export const CLUSTERED_CAMPAIGNS = 225;
+export const CLUSTERED_CAMPAIGNS = 1740;
 
 export const VERSIONS = ['baseline', 'same', 'drop'] as const;
 export type Version = (typeof VERSIONS)[number];
