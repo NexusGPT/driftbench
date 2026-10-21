@@ -124,7 +124,9 @@ function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
   const { worker, port, flag } = quotesWorkerOf();
   // One request in flight: the call blocks until the worker answers, so no second one can start.
   Atomics.store(flag, 0, 0);
-  port.postMessage({ store, files });
+  // The loader gives an absent list of constraints as an empty one (docs/variables.md: absent means every
+  // combination can occur); the quote check takes the store after that default.
+  port.postMessage({ store: { ...store, constraints: store.constraints ?? [] }, files });
   const waited = Atomics.wait(flag, 0, 0, QUOTES_TIMEOUT_MS);
   const reply = receiveMessageOnPort(port)?.message as
     | { errors: QuotesResult['errors'] }
@@ -159,12 +161,15 @@ function storeOf(doc: StoreDoc): VariableStore {
     }
   }
   const constraints = [
-    ...(doc.impossible ?? []).map((pair) => ({
-      forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
-      reason: 'an impossible pair of the store',
-      approved: true,
-      provenance: ownProvenance(pair.provenance),
-    })),
+    // A pair that names two values of one variable excludes nothing (R7): a row holds one value of a variable.
+    ...(doc.impossible ?? [])
+      .filter((pair) => pair.a.variable !== pair.b.variable)
+      .map((pair) => ({
+        forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
+        reason: 'an impossible pair of the store',
+        approved: true,
+        provenance: ownProvenance(pair.provenance),
+      })),
     ...(doc.forbids ?? []).map((entry) => ({
       forbid: { ...entry.forbid },
       reason: 'a combination the store forbids',

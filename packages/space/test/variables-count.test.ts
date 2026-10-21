@@ -255,6 +255,68 @@ describe('countVariableTuples: the covered count and the list', () => {
   });
 });
 
+describe('countVariableTuples: covered, by formula when nothing is forbidden', () => {
+  it('counts the distinct tuples of two rows over 40 variables of arity 1000 at strength 6', () => {
+    const arities = Array(40).fill(1000) as number[];
+    const first = Object.fromEntries(ids(40).map((name) => [name, 'x0']));
+    // The second row agrees with the first on its first 10 variables only.
+    const second = Object.fromEntries(ids(40).map((name, i) => [name, i < 10 ? 'x0' : 'x1']));
+    const got = countVariableTuples(storeOf(arities), [first, second], [{ variables: ids(40), strength: 6 }]);
+    const choose = (n: bigint, k: bigint) => {
+      let r = 1n;
+      for (let i = 1n; i <= k; i += 1n) r = (r * (n - k + i)) / i;
+      return r;
+    };
+    // Each row holds one tuple per subset; the rows hold the same tuple on the subsets inside their 10 shared variables.
+    expect(BigInt(got.covered)).toBe(2n * choose(40n, 6n) - choose(10n, 6n));
+  });
+
+  it('agrees with enumeration on random small spaces with nothing forbidden, partial rows and overlapping groups', () => {
+    const draw = lcg(77);
+    for (let round = 0; round < 80; round += 1) {
+      const k = 4 + Math.floor(draw() * 3);
+      const arities = Array.from({ length: k }, () => 2 + Math.floor(draw() * 2));
+      const groups: TupleGroup[] = [
+        { variables: ids(k), strength: 1 + Math.floor(draw() * 3) },
+        { variables: ids(k).filter((_, i) => i % 2 === 1), strength: 2 },
+      ];
+      const rows = Array.from({ length: 1 + Math.floor(draw() * 9) }, () => {
+        const row: Record<string, string> = {};
+        for (let v = 0; v < k; v += 1) {
+          if (draw() < 0.75) row[`v${v}`] = `x${Math.floor(draw() * (arities[v] as number))}`;
+        }
+        return row;
+      });
+      const want = brute(arities, [], rows, groups);
+      const got = countVariableTuples(storeOf(arities), rows, groups);
+      expect({ round, allowed: Number(got.allowed), covered: Number(got.covered) }).toEqual({
+        round,
+        allowed: want.allowed,
+        covered: want.covered,
+      });
+    }
+  });
+
+  it('agrees with enumeration with apart groups of the same size and rows that repeat', () => {
+    const arities = [2, 3, 2, 3, 2, 3];
+    const groups: TupleGroup[] = [
+      { variables: ['v0', 'v1', 'v2'], strength: 2 },
+      { variables: ['v3', 'v4', 'v5'], strength: 2 },
+    ];
+    const rows = [
+      { v0: 'x0', v1: 'x1', v2: 'x0', v3: 'x2', v4: 'x1', v5: 'x0' },
+      { v0: 'x0', v1: 'x1', v2: 'x0', v3: 'x2', v4: 'x1', v5: 'x0' },
+      { v0: 'x1', v1: 'x1', v3: 'x0', v4: 'x1' },
+    ];
+    const want = brute(arities, [], rows, groups);
+    const got = countVariableTuples(storeOf(arities), rows, groups);
+    expect({ allowed: Number(got.allowed), covered: Number(got.covered) }).toEqual({
+      allowed: want.allowed,
+      covered: want.covered,
+    });
+  });
+});
+
 describe('countVariableTuples: arguments', () => {
   const store = storeOf([2, 2, 2]);
   const refuse = (group: TupleGroup, pattern: RegExp) => {

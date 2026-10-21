@@ -439,6 +439,54 @@ function heldOn(space: Space, codes: RowCodes, subset: readonly number[]): Map<s
   return held;
 }
 
+/** The most distinct rows the formula for covered tuples takes: it sums over the subsets of the rows. */
+const MAX_FORMULA_ROWS = 14;
+
+/**
+ * Covered tuples when nothing is forbidden and the groups share no subset: every tuple a row holds is allowed, so
+ * the count is the number of distinct tuples the rows hold, without listing a subset. A row adds the subsets of the
+ * variables it assigns that no earlier row agrees with on all of them. With A_i the variables row i assigns to a
+ * value that counts, and A_ij those where rows i and j assign the same value, the subsets of size m inside A_i and
+ * inside no A_ij (j before i) are counted by inclusion and exclusion over the earlier rows.
+ */
+function coveredFormula(
+  space: Space,
+  codes: RowCodes,
+  groups: readonly number[][],
+  strengths: readonly number[],
+): bigint | undefined {
+  const rows: Int32Array[] = [];
+  const keys = new Set<string>();
+  for (const row of codes) {
+    const clean = Int32Array.from(row, (j, v) => (j >= 0 && !(space.banned[v] as boolean[])[j] ? j : -1));
+    const key = clean.join(',');
+    if (keys.has(key)) continue;
+    keys.add(key);
+    rows.push(clean);
+  }
+  if (rows.length > MAX_FORMULA_ROWS) return undefined;
+  let total = 0n;
+  groups.forEach((group, g) => {
+    const m = Math.min(strengths[g] as number, group.length);
+    rows.forEach((row, i) => {
+      const own = group.filter((v) => (row[v] as number) >= 0);
+      const agree = rows.slice(0, i).map((earlier) => own.filter((v) => earlier[v] === row[v]));
+      for (let mask = 0; mask < 1 << agree.length; mask += 1) {
+        let common = own;
+        let sign = 1n;
+        for (let j = 0; j < agree.length; j += 1) {
+          if (!(mask & (1 << j))) continue;
+          const set = new Set(agree[j]);
+          common = common.filter((v) => set.has(v));
+          sign = -sign;
+        }
+        total += sign * choose(common.length, m);
+      }
+    });
+  });
+  return total;
+}
+
 function coveredCount(
   space: Space,
   codes: RowCodes,
@@ -446,6 +494,10 @@ function coveredCount(
   strengths: readonly number[],
 ): bigint {
   if (codes.length === 0 || space.arity.some((a) => a === 0)) return 0n;
+  if (space.constraints.length === 0 && !overlap(groups, strengths)) {
+    const formula = coveredFormula(space, codes, groups, strengths);
+    if (formula !== undefined) return formula;
+  }
   let subsets = 0n;
   groups.forEach((group, g) => {
     subsets += choose(group.length, Math.min(strengths[g] as number, group.length));
