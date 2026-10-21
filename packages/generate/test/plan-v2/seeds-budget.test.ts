@@ -253,3 +253,22 @@ describe('a budget cuts the rarest planned rows first', () => {
     expect(again.rows).toEqual(first.rows);
   });
 });
+
+describe('seed rows carry distinct ids', () => {
+  it('refuses two seed rows with the same id, and names the id', () => {
+    const seeds: PlanSeedRow[] = [
+      { id: 'monday', values: { tide: 'ebb' } },
+      { id: 'monday', values: { tide: 'slack' } },
+    ];
+    expect(() => planV2(harbour(), { seeds })).toThrow('two seed rows have the id monday');
+  });
+
+  it('keeps two seed rows with distinct ids, even when their values are alike', () => {
+    const seeds: PlanSeedRow[] = [
+      { id: 'monday', values: { tide: 'ebb' } },
+      { id: 'tuesday', values: { tide: 'ebb' } },
+    ];
+    const plan = planV2(harbour(), { seeds });
+    expect(plan.rows.slice(0, 2).map((row) => row.id)).toEqual(['seed.monday', 'seed.tuesday']);
+  });
+});
