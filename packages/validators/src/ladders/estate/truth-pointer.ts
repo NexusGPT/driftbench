@@ -109,6 +109,31 @@ function candidateOf(
   return context?.candidates?.[link]?.find((candidate) => candidate.id.startsWith(`${kind}.${name}.`))?.id;
 }
 
+/**
+ * The header cells the bank plants in its registry tables, each with the role the planted table gives it. The
+ * generator wrote these tables, so this is what it planted, not something read from them. A cell not listed (`Name`,
+ * `File`, `Meaning`) names no role, as in the planted shapes that test a guard found by its cell.
+ */
+const PLANTED_REGISTRY_HEADERS: Readonly<Record<string, string>> = {
+  Id: 'col-id',
+  Guard: 'col-guard',
+  Guards: 'col-guard',
+  Script: 'col-guard',
+  Check: 'col-guard',
+  Hook: 'col-guard',
+  Adapter: 'col-guard',
+  Handler: 'col-guard',
+  Event: 'col-event',
+  Enforces: 'col-enforces',
+  Rules: 'col-enforces',
+  Rule: 'col-enforces',
+  Gates: 'col-enforces',
+  Covers: 'col-enforces',
+  'Enforced rules': 'col-enforces',
+  'Rule ids': 'col-enforces',
+  Verdict: 'col-verdict',
+};
+
 /** What the generator planted: the files it wrote, the atoms it expects, and the prose rules by file. */
 export type Truth = {
   files: Readonly<Record<string, string>>;
@@ -275,6 +300,19 @@ export function truthPointer(truth: Truth): TruthPointer {
         units: window.units.length,
         characters: window.units.reduce((sum, unit) => sum + unit.text.length, 0),
       });
+      // The registry-roles questions: the bank plants its tables with the header cells below, so the roles are
+      // planted truth too. A unit that is not a planted header (a state value, any other cell) is none.
+      if (set.set === pointer.REGISTRY_ROLES_SET_NAME) {
+        return {
+          labels: window.units.map((unit) => ({
+            units: String(unit.n),
+            label: PLANTED_REGISTRY_HEADERS[unit.text.replace(/^[-*]\s+/, '').trim()] ?? 'none',
+          })),
+          returnedModel: 'planted-truth-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
       // Another set (the document roles the scan asks first) has no planted answer: every unit is none.
       if (set.set !== SET_NAME) {
         return {
