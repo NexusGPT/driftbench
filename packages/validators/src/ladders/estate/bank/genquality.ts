@@ -4,6 +4,7 @@ import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { parse } from 'yaml';
+import { rowSources } from '../ask-binding';
 import { askGrammar, declaredActs } from '../ask-grammar';
 import { ASK_TEMPLATES, type MapAtom } from '../reference-ask';
 import { FIXTURE, type FixtureSuite, fixtureSuite } from './fixture-suite';
@@ -241,13 +242,12 @@ type Judged = { why?: string };
  * - a recorded session's ask is the session's own message at the block the spec replays from; its act is the row.
  * An ask that carries no act sets off none of the row's atoms.
  */
-/** The atom ids a value names, at any depth up to three (a guard's fields name the rule it enforces). */
-function named(value: unknown, byId: ReadonlyMap<string, MapAtom>, depth = 0): string[] {
-  if (typeof value === 'string') return byId.has(value) ? [value] : [];
-  if (Array.isArray(value) && depth < 3) return value.flatMap((item) => named(item, byId, depth + 1));
-  if (value !== null && typeof value === 'object' && depth < 3)
-    return Object.values(value).flatMap((item) => named(item, byId, depth + 1));
-  return [];
+type PlanRow = { id: string; atomIds: string[]; testType: string };
+
+/** The rows of the approved plan beside the suite, by id: the validator's input, never the spec's own word. */
+function planRowsOf(suite: FixtureSuite): Map<string, PlanRow> {
+  const plan = parse(readFileSync(besideOrFixture(suite, 'plan.yaml'), 'utf8')) as { rows?: PlanRow[] };
+  return new Map((plan.rows ?? []).map((row) => [row.id, row]));
 }
 
 function judgeAsk(
@@ -256,23 +256,31 @@ function judgeAsk(
   situations: ReadonlyMap<string, Situation>,
   byId: ReadonlyMap<string, MapAtom>,
   suite: FixtureSuite,
+  rows: ReadonlyMap<string, PlanRow>,
 ): Judged {
   const ask = firstAsk(spec);
   if (ask === undefined || ask === '') return { why: 'it has no first ask' };
-  type Meta = { ask?: unknown; askFrom?: unknown; situation?: unknown; session?: unknown };
+  type Meta = { ask?: unknown; askFrom?: unknown; situation?: unknown; session?: unknown; planRow?: unknown };
   const meta = (spec.spec.metadata?.estate ?? {}) as Meta;
+  // The row comes from the approved plan, and the atoms an ask may cite from the map (ask-binding.ts): never from
+  // the atoms the spec lists about itself.
+  const row = typeof meta.planRow === 'string' ? rows.get(meta.planRow) : undefined;
+  if (!row || row.testType !== spec.testType) return { why: 'it names no row of the plan of its test type' };
+  const rowAtoms = row.atomIds;
+  const sources = rowSources(rowAtoms, byId);
   const replay = (spec.spec.metadata as { replay?: { from_block?: unknown } } | undefined)?.replay;
   const fired = fake.setOff(ask);
   // docs/estate.md section 5: a row just outside the trigger, or a near miss, asks for no act.
   const use = USE_OF_TEST[spec.testType] ?? 'trigger';
   const noAct = use === 'outside' || use === 'near_miss';
   const none = (): Judged => {
-    const row = fired.filter((id) => spec.atoms.includes(id));
-    return row.length > 0 ? { why: `it carries no act and sets off ${row[0]}` } : {};
+    const hit = fired.filter((id) => rowAtoms.includes(id));
+    return hit.length > 0 ? { why: `it carries no act and sets off ${hit[0]}` } : {};
   };
   const acts = (act: readonly string[]): Judged => {
     const missing = act.find((id) => !byId.has(id));
     if (missing) return { why: `its act ${missing} is no atom of the map` };
+    if (!act.some((id) => sources.has(id))) return { why: `its act ${act[0]} is no source of its row` };
     return act.some((id) => fired.includes(id)) ? {} : { why: `the fake does not set off its act ${act[0]}` };
   };
   // The first block's own source decides: an approved phrase of the spec's situation is a bank ask, whatever
@@ -296,9 +304,8 @@ function judgeAsk(
       // A hypothetical row asks what an act would mean: it is the ask of a row that asks for no act, about one of
       // the row's atoms, and it never counts as the act.
       if (!noAct) return { why: 'a hypothetical ask carries no act, and the row asks for one' };
-      // About an atom of the row, or one a row atom's fields name (the rule a guard enforces).
-      const row = new Set(spec.atoms.flatMap((id) => [id, ...named(byId.get(id)?.fields, byId)]));
-      if (!matched.atoms.some((id) => row.has(id)))
+      // About a source of the row: its atoms, or one a row atom's fields name (the rule a guard enforces).
+      if (!matched.atoms.some((id) => sources.has(id)))
         return { why: 'a hypothetical ask about no atom of the row' };
       return none();
     }
@@ -314,7 +321,7 @@ function judgeAsk(
     const from = typeof replay?.from_block === 'number' ? replay.from_block : 0;
     if (sessionAsks(suite, meta.session)[from] !== ask)
       return { why: `the ask is not the message of session ${meta.session} at block ${from}` };
-    return spec.atoms.length > 0 ? {} : { why: 'it carries no act' };
+    return rowAtoms.length > 0 ? {} : { why: 'it carries no act' };
   }
   return { why: 'it carries no act' };
 }
@@ -331,9 +338,10 @@ export async function unsetAsks(
   const byId = new Map((map.map.atoms as unknown as MapAtom[]).map((atom) => [atom.id, atom]));
   const fake = await fakeDispatch(suite);
   const situations = situationsOf(suite);
+  const rows = planRowsOf(suite);
   const out: Array<{ id: string; ask: string; why: string }> = [];
   for (const spec of suite.specs.filter((one) => one.complete)) {
-    const { why } = judgeAsk(spec, fake, situations, byId, suite);
+    const { why } = judgeAsk(spec, fake, situations, byId, suite, rows);
     if (why?.startsWith('the fake does not set off'))
       out.push({ id: spec.id, ask: firstAsk(spec) ?? '', why });
   }
@@ -358,9 +366,10 @@ export function taskFamily(): Family {
         const byId = new Map((map.map.atoms as unknown as MapAtom[]).map((atom) => [atom.id, atom]));
         const fake = await fakeDispatch(suite);
         const situations = situationsOf(suite);
+        const rows = planRowsOf(suite);
         const bad: Array<[FixtureSuite['specs'][number], string]> = [];
         for (const spec of specs) {
-          const { why } = judgeAsk(spec, fake, situations, byId, suite);
+          const { why } = judgeAsk(spec, fake, situations, byId, suite, rows);
           if (why) bad.push([spec, why]);
         }
         return bad.length === 0

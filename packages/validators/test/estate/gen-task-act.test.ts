@@ -32,6 +32,13 @@ const NOT_SET_OFF = 'Please propose a supplier e-mail.';
 const MISS = 'the fake does not set off its act';
 const code = (askFrom?: string) => ({ ask: 'code', ...(askFrom === undefined ? {} : { askFrom }) });
 
+// The approved plan of the fixture: a spec is judged on the row it names there, never on the atoms it lists.
+const PLAN = parse(readFileSync(join(fixture.FIXTURE, 'plan.yaml'), 'utf8')) as {
+  rows: Array<{ id: string; atomIds: string[]; testType: string }>;
+};
+const rowFor = (atom: string, testType: string) =>
+  PLAN.rows.find((row) => row.atomIds[0] === atom && row.testType === testType);
+
 function spec(
   ask: string | undefined,
   estate: Record<string, unknown>,
@@ -39,14 +46,15 @@ function spec(
   testType = 'obligation',
 ) {
   const blocks = ask === undefined ? [] : [{ when: { user: ask } }];
+  const row = rowFor(atoms[0] as string, testType);
   return {
     path: 'act.yaml',
     id: 'act',
-    atoms,
+    atoms: row?.atomIds ?? atoms,
     testType,
     mode: 'task',
     complete: true,
-    spec: { blocks, metadata: { estate } } as unknown as Spec,
+    spec: { blocks, metadata: { estate: { planRow: row?.id, ...estate } } } as unknown as Spec,
   };
 }
 
@@ -96,8 +104,8 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
   it('control: an ask of the labelled governed-action span holds for the atom that carries it', async () => {
     const span = declaredActs(GATED)[0]?.text;
     const text = `Please handle this for me: ${span}.`;
-    const asked = spec(text, code(`${GATED.id} (governed-action)`), [GATED.id]);
-    const out = await verdict([asked]);
+    const asked = spec(text, code(`${GATED.id} (governed-action)`), [GATED.id], 'ordered_pair');
+    const out = await verdict([asked], 'ordered_pair');
     expect(out).toEqual({ pass: true, detail: 'holds (1)' });
   });
 
@@ -122,7 +130,7 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 
   it('refuses a wrong act id: the ask sets off another atom than the one askFrom names', async () => {
     const out = await verdict([spec(ASK, code(`${OTHER.id} (title)`))]);
-    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining(MISS) });
+    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining(`its act ${OTHER.id}`) });
   });
 
   it('refuses an ask the fake does not set off, one character away from the grammar', async () => {
@@ -133,6 +141,16 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
   it('refuses a planted wrong ask: a rule restated where the act is asked', async () => {
     const out = await verdict([spec('Please do this: never guess a status.', code(`${ACTED.id} (ask)`))]);
     expect(out?.pass).toBe(false);
+  });
+
+  // The reviewer's bypass (comment 6322228753): a real act, cited on a row it does not belong to.
+  it('refuses an act that is no source of the row the plan names, and a spec that names no plan row', async () => {
+    const triager = 'instruction.inbox-triager.you-sort-messages-into-three-folders';
+    const out = await verdict([spec(ASK, code(`${ACTED.id} (ask)`), [triager])]);
+    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('no source of its row') });
+    const unplanned = spec(ASK, code(`${ACTED.id} (ask)`));
+    (unplanned.spec.metadata as { estate: Record<string, unknown> }).estate.planRow = undefined;
+    expect((await verdict([unplanned]))?.detail).toContain('names no row of the plan');
   });
 
   it('refuses an act id the map does not hold, and a spec that carries no act', async () => {
@@ -165,10 +183,10 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
   });
 
   it('control: a near miss asks the hypothetical frame about its atom, and sets nothing off', async () => {
-    const near = [spec(HYPOTHETICAL, code(`${ACTED.id} (ask)`), [ACTED.id], 'route_near_miss')];
-    expect(await verdict(near, 'route_near_miss')).toEqual({ pass: true, detail: 'holds (1)' });
-    const asked = [spec(ASK, code(`${ACTED.id} (ask)`), [ACTED.id], 'route_near_miss')];
-    expect((await verdict(asked, 'route_near_miss'))?.pass).toBe(false);
+    const near = [spec(HYPOTHETICAL, code(`${ACTED.id} (ask)`), [ACTED.id], 'outside_trigger')];
+    expect(await verdict(near, 'outside_trigger')).toEqual({ pass: true, detail: 'holds (1)' });
+    const asked = [spec(ASK, code(`${ACTED.id} (ask)`), [ACTED.id], 'outside_trigger')];
+    expect((await verdict(asked, 'outside_trigger'))?.pass).toBe(false);
   });
 
   it("holds a recorded session's ask only when it is the session's own message, byte for byte", async () => {
