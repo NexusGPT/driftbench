@@ -21,17 +21,18 @@ Four commands turn an estate folder into an approved map of atoms, the input of 
 
 * `estate scan <root>` reads the estate. Code reads the structure (skills, helpers, guards, permissions,
   settings keys, the check registry, the step list, references and their "read when" line, scripts,
-  routing tables, gates in four fixed forms, hazard passages and four invariants) and approves those atoms
-  as read. A model splits the prose (the standing file, memory files, skill and helper bodies) into
-  `instruction`, `gate` and `register` atoms, one call per chunk; each quote is located in its file and
-  checked at its span, and an atom whose quote cannot be placed is refused. Model atoms wait for a person.
+  routing tables, read prerequisites (gates, parsed as clauses), hazard passages and four invariants) and
+  approves those atoms as read. A model splits the prose (the standing file, memory files, skill and helper
+  bodies) into `instruction`, `gate` and `register` atoms, one call per chunk; each quote is located in its
+  file and checked at its span, and an atom whose quote cannot be placed is refused. Model atoms wait for a
+  person.
 * `estate lint <map>` checks the estate against its map: orphan files, unreachable files, missing
   references and scripts, the size ceiling, unanchored guards, the check registry, drifted quotes.
 * `estate approve <map>` lists the atoms that wait, or approves them by kind, by atom, or all.
 * `estate map <map> --to <file>` writes a space map of the situation axes and the approved axis atoms, for
   `driftbench space` and for `estate plan --space`.
 
-An atom id is `kind.scope.slug`, such as `gate.standing.read-a-file-before-editing-it`. Each atom carries its
+An atom id is `kind.scope.slug`, such as `instruction.standing.r3-read-a-file-before-you`. Each atom carries its
 file, line span, quote and a SHA-256 hash of them; the loader recomputes every hash, so a map whose quote or
 span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) may be edited by hand.
 
@@ -46,8 +47,8 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
-driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 ```
@@ -64,6 +65,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--provider <name>` | the first whose key is set: `ANTHROPIC_API_KEY`, then `OPENAI_API_KEY` (with `OPENAI_MODEL`) | `anthropic` or `openai`, for a live scan (a paid call) |
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, beside the defaults and the `ignore:` list of the configuration file; repeat it |
+| `--user-skills <folder>` | none | also read the user-level skill layer from this folder, such as `~/.claude/skills`; no home folder is read without it; a project skill wins a name clash |
 | `--force` | off | replace an existing map; the approvals in it are lost |
 | `--pointer` | off | read the prose with the pointer reader (below) instead of the model that quotes it |
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
@@ -139,10 +141,12 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 | Class | What it is | Clients |
 |---|---|---|
 | `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
-| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes a label only when all three runs agree, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
+| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked five times (about 5/3 of the calls of three runs) and a unit takes the label that three of the five runs give; a run out of step with the units of a window is left out of its vote; in the shipped set an even split between `rule` and one gate or hazard label goes to that label, and any other tie stays unlabeled, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
-likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone
+likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. System 1's `none` covers only
+the labels it is offered: on a unit system 2 has no opinion on, it decides nothing and the unit stays unlabeled.
+Either class runs alone
 with one `--labeler`. The ledger records which class
 decided each unit, and the report counts them.
 
@@ -197,6 +201,7 @@ labelerContract('my endpoint', (mode) => pointer.createHttpLabeler({ url: 'http:
 | `<map>` | required | the estate map |
 | `--ceiling <characters>` | `40000` | the size ceiling of the standing instructions |
 | `--ignore <glob>` | none | skip the paths this glob matches, as the scan did; repeat it |
+| `--user-skills <folder>` | none | read the user-level skill layer from this folder, as the scan did; a map that records a layer needs it (exit 2 without) |
 
 `estate approve`:
 
@@ -232,6 +237,7 @@ The configuration file `driftbench.estate.yaml` at the estate root, optional, ev
 | Key | Read by | Holds |
 |---|---|---|
 | `ignore` | `scan`, `lint` | globs of paths no runtime loads, skipped beside the defaults (version control, dependency and cache folders, logs, test fixtures, operating system and editor files). Matched like a `.gitignore` line |
+| `userSkills` | `scan`, `lint` | the folder of the user-level skill layer to read as a second skill layer (relative to the estate root); none is read without it or `--user-skills` |
 | `externals` | `scan` | folders outside the estate a path may name; they replace the defaults `docs/` and `_meta/` |
 | `aliases` | `scan` | a map from an alias such as `REF` to the folder or folders it stands for: `REF/a/b.md` reads as `<folder>/a/b.md` |
 | `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files`, `expect` (`exitCode`, `stdout`, `stdoutIncludes`) |
@@ -300,8 +306,8 @@ missing file or `--to`.
 
 ```sh
 driftbench estate scan examples/estates/fixture --no-model --out structure.yaml
-driftbench estate scan examples/estates/fixture --replay examples/estates/fixture/answers.yaml --out map.yaml
-driftbench estate scan examples/estates/fixture --replay examples/estates/fixture/answers.yaml --out map.yaml # exit 2
+driftbench estate scan examples/estates/fixture --pointer --cassette examples/estates/fixture/cassette.jsonl --out map.yaml # exit 1
+driftbench estate scan examples/estates/fixture --pointer --cassette examples/estates/fixture/cassette.jsonl --out map.yaml # exit 2
 driftbench estate lint map.yaml # exit 1
 driftbench estate approve map.yaml
 driftbench estate approve map.yaml --kind register
@@ -309,66 +315,68 @@ driftbench estate approve map.yaml --all --to approved.yaml
 driftbench estate approve approved.yaml
 driftbench estate approve map.yaml --kind nosuch # exit 1
 driftbench estate map approved.yaml --to space.yaml
-driftbench estate scan examples/estates/fixture --no-model --out ignored.yaml --ignore '**/references/old-*'
+driftbench estate scan examples/estates/fixture --pointer --cassette examples/estates/fixture/cassette.jsonl --out ignored.yaml --ignore '**/references/old-*' # exit 1
 ```
 
-What they print, in order (the scans and the approve listing are cut to their main lines; each command's
-full output is longer):
+The first scan reads the structure only. The second reads the prose with the recorded labels of the fixture (no
+key, no network): it exits 1 because some recorded answers were refused by the checks, and each is listed. What
+they print, in order (the scans and the approve listing are cut to their main lines; each command's full output
+is longer):
 
 ```text
-Wrote structure.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
   Atoms per kind:
-    gate         4
-    route       13
+    route        7
     skill        4
-    reference    9
     script       2
     subagent     3
     guard        6
     tool        12
     setting      4
     stage        5
-    hazard       2
     invariant    4
   No model call: structured atoms only (--no-model).
-Wrote map.yaml: 125 atoms (68 read by code and approved, 57 split from prose by the model and waiting for approval), 54 edges.
+Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
   Atoms per kind:
-    instruction   43  (43 by the model)
-    gate           8  (4 by the model)
-    register      10  (10 by the model)
-  Model lane claude-opus-5-5 as the estate lane, by hand: 14 prose chunks, 14 calls.
-  Refused: none.
-  Skipped 2 atoms code had already read:
-    CLAUDE.md: atom #5 (gate: Read the matching rules before editing an invoice) repeats gate.standing.read-claude-skills-invoice-reconcile-references
-    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats gate.standing.read-git-status-before-commit-to
+    instruction   45  (45 by the model)
+    gate           5  (5 by the model)
+    route         13  (6 by the model)
+    reference     10  (10 by the model)
+    register      14  (14 by the model)
+    hazard         1  (1 by the model)
+  Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
+  Units: 151 in 14 files; 0 kept from the ledger, 150 labelled by this run (50 by system 1, 100 by system 2), 1 unlabeled.
+  Requests: 73 answered, 0 sent, 0 recorded.
+    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
+    refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (condition): the condition points at a unit that holds no atom
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 54 of 61 rules have no guard.
+  Unenforced: 56 of 62 rules have no guard.
 Next: driftbench estate lint map.yaml; driftbench estate approve map.yaml --kind instruction
 map.yaml already exists: pass --force to replace it (the approvals in it are lost).
-map.yaml: estate at examples/estates/fixture, 125 atoms.
+map.yaml: estate at examples/estates/fixture, 127 atoms.
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
-  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:13 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
+  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  54 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  58 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-6 findings.
-map.yaml: 57 of 125 atoms wait for approval.
-  instruction: 43
-    instruction.standing.never-send-a-supplier-email-without  CLAUDE.md:10  "Never send an email to a supplier without showing the ful..."
-    instruction.standing.never-delete-a-ledger-file-archive  CLAUDE.md:12  "Never delete a file under `ledger/`; move it to `ledger/a..."
+7 findings.
+map.yaml: 80 of 127 atoms wait for approval.
+  instruction: 45
+    instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
+    instruction.inbox-triager.a-message-that-fits-none-goes  .claude/agents/inbox-triager.md:8  "A message that fits none goes to "other"."
 Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
-Approved 10 atoms in map.yaml; 0 were already approved.
-Approved 47 atoms in approved.yaml; 78 were already approved.
-approved.yaml: all 125 atoms are approved.
+Approved 79 atoms in map.yaml; 47 were already approved.
+Approved 67 atoms in approved.yaml; 60 were already approved.
+approved.yaml: all 127 atoms are approved.
 ✗ map.yaml
   (file)  MAP_UNKNOWN_KIND  "nosuch" is not an atom kind: instruction, gate, route, skill, reference, script, subagent, guard, tool, setting, stage, register, hazard, invariant
-Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 43, gate 8, route 13, skill 4, subagent 3, guard 6, stage 5, register 10), 3 constraints.
-  The full grid holds 2531567001600 cells: plan on t-wise coverage, not the full grid.
-Wrote ignored.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 44, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
+  The full grid holds 2318150016000 cells: plan on t-wise coverage, not the full grid.
+Wrote ignored.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.
   Ignored: 1 file no runtime loads.
     **/references/old-*  1
   Orphans: none.
@@ -384,7 +392,7 @@ file, so its map reports no orphan.
 | `error: required option '--out <file>' not specified` (exit 2) | `scan` without `--out` | name the map file |
 | `<file> already exists: pass --force to replace it (the approvals in it are lost).` (exit 2) | the map exists | another name, or `--force` |
 | `error: --no-model and --replay cannot be used together` (exit 2) | both given | one of them |
-| `no model key: set ANTHROPIC_API_KEY, or OPENAI_API_KEY with OPENAI_MODEL. Pass --no-model to read the structured atoms only.` (exit 2) | a live scan with no key | `--no-model`, `--replay <answers>`, or a key (a paid call) |
+| `no model key: set ANTHROPIC_API_KEY, or OPENAI_API_KEY with OPENAI_MODEL. Pass --no-model to read the structured atoms only.` (exit 2) | a live scan with no key | `--no-model`, `--replay <answers>`, `--pointer --cassette <file>`, or a key (a paid call) |
 | `MAP_UNKNOWN_KIND` (exit 1) | `approve --kind` with a kind that does not exist | one of the fourteen kinds |
 | `MAP_HASH` or `MAP_QUOTE_DRIFT` | the map or the estate was edited after the scan | scan again into a new file |
 | `error: required option '--to <file>' not specified` (exit 2) | `estate map` without `--to` | name the space map file |

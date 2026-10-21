@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
 import { namedPaths } from '../../src/scan/code';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 describe('file names containing spaces', () => {
   it.each([
@@ -24,7 +24,12 @@ describe('file names containing spaces', () => {
       '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n${quote}`,
       '.claude/skills/reconcile/references/team notes.md': '# Notes\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.find((atom) => atom.kind === 'reference')).toMatchObject({
       fields: { path: '.claude/skills/reconcile/references/team notes.md', exists: true },
       provenance: { quote },
@@ -33,9 +38,8 @@ describe('file names containing spaces', () => {
       lintEstate(map, raw).findings.filter((f) => f.code === 'MISSING_REFERENCE' || f.code === 'ORPHAN'),
     ).toEqual([]);
   });
-  it('keeps a simple execution or command example separate from a literal file name', () => {
-    expect(namedPaths('Run `cat notes.md`.')).toEqual([]);
-    expect(namedPaths('Example: `cat notes.md`.')).toEqual([]);
-    expect(namedPaths('Read `cat notes.md`.')).toEqual(['cat notes.md']);
+  it('keeps a command led by a plain word apart from a file name, whatever the words around it', () => {
+    for (const line of ['Run `cat notes.md`.', 'Example: `cat notes.md`.', 'Read `cat notes.md`.'])
+      expect(namedPaths(line)).toEqual([]);
   });
 });

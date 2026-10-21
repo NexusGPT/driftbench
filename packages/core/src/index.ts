@@ -32,6 +32,7 @@ export {
   type ToolRule,
   type TransportErrorOptions,
   type Turn,
+  TurnNotRun,
   type UserDriver,
   type WorkspaceSnapshot,
 } from './contracts';
@@ -533,6 +534,7 @@ export {
   Given,
   GivenDefaults,
   GivenOverride,
+  GUARD_INTERVENTIONS,
   GuardExpect,
   JsonExpect,
   LengthBound,
@@ -560,6 +562,7 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export { stringifyBlockYaml } from './spec/block-yaml';
 export { evaluateFormula } from './spec/formula';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';

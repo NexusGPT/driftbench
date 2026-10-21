@@ -26,7 +26,10 @@ compaction, a dead helper) from a state library.
 A real runtime command is billed. A command is a stand-in when its first lines carry the marker
 `@driftbench-stand-in`; only a stand-in runs without `--allow-billed`. The repository ships one:
 `examples/estates/fixture/live/fake/claude.mjs`, a fake runtime that calls no model. By default it derives its
-actions from the estate copy it runs in; with `FAKE_MANIFEST` set to an absolute path of
+actions from the estate copy it runs in and, when `FAKE_MAP` and `FAKE_PHRASES` give it the approved map and
+the phrase bank (absolute paths; unset, those of its own fixture), from the atoms its ask sets off: it loads the unit that owns a rule, reads the
+files a reference names, lets a guard it is asked to trigger decide, and replies with the act the atoms declare;
+with `FAKE_MAP=none` it answers plainly. With `FAKE_MANIFEST` set to an absolute path of
 `examples/estates/fixture/live/fake/manifest.json` it plays the recorded streams of the Northwind proof.
 
 `estate mutate <map> --atom <id>` copies the estate and either deletes one atom's quoted span (`--delete`) or
@@ -154,11 +157,11 @@ refused, then write two mutants and see the refusals.
 driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/plan.yaml --out suite
 driftbench estate run suite/specs/live/route_positive suite/specs/live/tool_denied --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store live.db --map examples/estates/fixture/approved.yaml
 driftbench estate run suite/specs/live/route_positive --estate examples/estates/fixture --runtime claude-code --store live2.db # exit 2
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to deleted
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.never-force-push --invert --to inverted
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --to x # exit 2
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-before-edit-it --delete --to deleted
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r6-never-run-git-push-force --invert --to inverted
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-before-edit-it --to x # exit 2
 driftbench estate mutate examples/estates/fixture/approved.yaml --atom no.such --delete --to y # exit 2
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to deleted # exit 2
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-before-edit-it --delete --to deleted # exit 2
 ```
 
 Output after the generate report:
@@ -167,17 +170,17 @@ Output after the generate report:
 ✓ estate.p05  (0.0000 USD)
 ✓ estate.p08  (0.0000 USD)
 ✓ estate.p24  (0.0000 USD)
-3 specs run live on a stand-in: 3 pass, 0 fail. Cost 0.0000 USD over 3 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-c8ae104f2e8d.
+3 specs run live on a stand-in: 3 pass, 0 fail. Cost 0.0000 USD over 3 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-55a9389cf12f.
 claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.
-Mutant: delete gate.standing.read-a-file-before-editing-it in CLAUDE.md.
+Mutant: delete gate.standing.read-before-edit-it in CLAUDE.md.
   before: - **R3.** Read a file before you edit it.
   after:  (the line is gone)
-  map be2e7a0919cb -> 046d83f242ed
+  map db9e07132a1b -> b9e3e3f0bff1
 Wrote deleted: the estate copy, map.yaml and mutant.json.
-Mutant: invert instruction.standing.never-force-push in CLAUDE.md.
+Mutant: invert instruction.standing.r6-never-run-git-push-force in CLAUDE.md.
   before: - **R6.** Never run `git push --force` on any branch.
   after:  - **R6.** Always run `git push --force` on any branch.
-  map be2e7a0919cb -> 7101f74ddcc6
+  map db9e07132a1b -> d5883f496c75
 Wrote inverted: the estate copy, map.yaml and mutant.json.
 Name one mutation: --delete or --invert.
 Atom no.such is not in the map.
@@ -198,14 +201,14 @@ driftbench estate run suite/specs/live/tool_denied --estate no-deny --runtime cl
 Mutant: delete tool.settings.deny-webfetch in .claude/settings.json.
   before:     "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)", "WebFetch"],
   after:      "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)" ],
-  map be2e7a0919cb -> 796f9715bcff
+  map db9e07132a1b -> 8bfd6c8ee831
 Wrote no-deny: the estate copy, map.yaml and mutant.json.
 ✓ estate.p24  (0.0000 USD)
-1 spec run live on a stand-in: 1 pass, 0 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-dcc972819245.
-note: mutant of tool.settings.deny-webfetch (delete): specs of the map be2e7a0919cb run on it
+1 spec run live on a stand-in: 1 pass, 0 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-85fe008ce216.
+note: mutant of tool.settings.deny-webfetch (delete): specs of the map db9e07132a1b run on it
 ✗ estate.p24  (0.0000 USD)
     failing: block 0: tools_offered.exclude.WebFetch
-1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-eec428949e4a.
+1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-81c0d09e90fd.
 ```
 
 The same spec passes on the original and fails on the mutant: the test catches the loss of the deny rule.

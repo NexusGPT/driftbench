@@ -62,8 +62,11 @@ function unitsOf(text: string): Array<[number, string]> {
 }
 
 /**
- * The two services, as one fetch: the system 1 service is sure of an imperative line and sure of nothing
- * else, and the system 2 service calls a line with "Never" a prohibition and any other imperative a rule.
+ * The two services, as one fetch. System 1 is offered only the labels it can answer (reference, example,
+ * description and none, not the labels that carry spans), so its service is sure of none for a line and torn on
+ * "Close" (none 0.4, description 0.35, the rest shared): the stack leaves such a line to system 2. The system 2
+ * service calls a line with "Never" a prohibition and any other imperative a rule. Both services answer none to
+ * the document-roles question, so no file takes a recorded role and its structure decides.
  */
 const imperative = /^(Hang|Never|Tie|Check|Close)/;
 const services: FetchLike = async (url, init) => {
@@ -78,33 +81,23 @@ const services: FetchLike = async (url, init) => {
       body.questions as Record<string, { criteria: Record<string, string> }>,
     )) {
       const line = lines.get(Number(key.slice(1))) ?? '';
-      // Sure of a prohibition for "Never" and of a rule for a clear imperative, torn on "Close", and sure
-      // of none for the rest.
-      const wanted = line.startsWith('Never') ? 'prohibition' : imperative.test(line) ? 'rule' : 'none';
       const close = line.startsWith('Close');
       const options = Object.keys(question.criteria);
-      const rest = options.length - 1;
+      // A vector: the probabilities of the options sum to 1.
+      const fixed: Record<string, number> = close ? { none: 0.4, description: 0.35 } : { none: 0.9 };
+      const shared = options.filter((option) => !(option in fixed));
+      const left = 1 - options.reduce((sum, option) => sum + (fixed[option] ?? 0), 0);
       const probabilities: Record<string, number> = {};
-      for (const option of options) {
-        // A vector: the probabilities of the options sum to 1.
-        probabilities[option] = close
-          ? option === 'rule'
-            ? 0.45
-            : option === 'none'
-              ? 0.4
-              : 0.15 / (rest - 1)
-          : option === wanted
-            ? 0.9
-            : 0.1 / rest;
-      }
-      answers[key] = { type: 'choice', choice: wanted, confidence: 0.9, probabilities };
+      for (const option of options) probabilities[option] = fixed[option] ?? left / shared.length;
+      answers[key] = { type: 'choice', choice: 'none', confidence: 0.9, probabilities };
     }
     return json({ model: 'jev-fake', answers, usage: { input_tokens: 1000, output_tokens: 10 } });
   }
   const content = (body.messages as Array<{ content: string }>)[0]?.content ?? '';
+  const roles = content.includes('SET document-roles');
   const labels = unitsOf(content).map(([n, line]) => ({
     units: String(n),
-    label: /^Never/.test(line) ? 'prohibition' : imperative.test(line) ? 'rule' : 'none',
+    label: roles || !imperative.test(line) ? 'none' : /^Never/.test(line) ? 'prohibition' : 'rule',
   }));
   return json({
     model: 'claude-haiku-5-5',
@@ -148,7 +141,7 @@ describe('driftbench estate scan --pointer', () => {
     expect(recorded.out).toMatch(
       /system 1 jev jev-latest: 3 requests, 0 in the cassette, \d+ characters to send\./,
     );
-    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 9 requests, 0 in the cassette/);
+    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 15 requests, 0 in the cassette/);
     expect(recorded.out).toContain(
       'Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5',
     );
@@ -157,11 +150,12 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 3000 in, 30 out, 3 requests sent.');
     expect(recorded.out).toContain(
-      'Tokens, system 2 anthropic claude-haiku-5-5: 4500 in, 450 out, 9 requests sent.',
+      'Tokens, system 2 anthropic claude-haiku-5-5: 7500 in, 750 out, 15 requests sent.',
     );
     const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
-    // Three windows for system 1, and three runs of each for system 2.
-    expect(cassette.entries.size).toBe(12);
+    // Three windows for system 1, and five runs of each for system 2. Both files are loaded by the runtime as
+    // instructions (the standing file and a skill body), so the document-roles question is never asked of them.
+    expect(cassette.entries.size).toBe(18);
     // The file on disk is the sorted one, whatever the order the answers arrived in.
     expect(await readFile(join(root, 'cassette.jsonl'), 'utf8')).toBe(cassette.render());
 
@@ -176,25 +170,29 @@ describe('driftbench estate scan --pointer', () => {
     expect(await readFile(join(root, 'replayed.yaml'), 'utf8')).toContain('extraction: pointer');
   });
 
-  it('leaves unlabeled, and says so, the units on which the three runs of system 2 disagree', async () => {
+  it('leaves unlabeled, and says so, the units on which no label has three of the five runs of system 2', async () => {
     const root = await estate();
-    // The second ask of a window holding the "Close" unit (system 1 is torn on it) calls it a prohibition.
+    // The second to fourth asks of a window holding the "Close" unit (system 1 is torn on it) call it a prohibition, a
+    // description and a prohibition: five runs, and no label has three of them (rule 2, prohibition 2, description 1).
     const asks = new Map<string, number>();
     const wavering: FetchLike = async (url, init) => {
       const response = await services(url, init);
       if (url.includes('systemone')) return response;
       const content =
         (JSON.parse(String(init.body)).messages as Array<{ content: string }>)[0]?.content ?? '';
+      // The document-roles question stays as the service answers it.
+      if (content.includes('SET document-roles')) return response;
       const close = unitsOf(content).find(([, line]) => line.startsWith('Close'))?.[0];
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
       asks.set(content, seen);
-      if (seen !== 2) return response;
+      if (seen < 2 || seen > 4) return response;
       const payload = (await response.json()) as { content: Array<{ text: string }> };
       const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
         labels: Array<{ units: string; label: string }>;
       };
-      for (const entry of text.labels) if (entry.units === String(close)) entry.label = 'prohibition';
+      for (const entry of text.labels)
+        if (entry.units === String(close)) entry.label = seen === 3 ? 'description' : 'prohibition';
       payload.content[0] = { type: 'text', text: JSON.stringify(text) } as { text: string };
       return new Response(JSON.stringify(payload), {
         status: 200,
@@ -232,8 +230,12 @@ describe('driftbench estate scan --pointer', () => {
     const ledger = JSON.parse(await readFile(join(root, 'ledger.json'), 'utf8'));
     const close = ledger.entries.find((entry: { quote: string }) => entry.quote.startsWith('Close'));
     expect(close.labels['agent-rules']).toMatchObject({ label: 'rule', by: 'system2' });
+    // Rule and prohibition carry spans, so only system 2 can give them: it decided "Never" as well.
     const never = ledger.entries.find((entry: { quote: string }) => entry.quote.startsWith('Never'));
-    expect(never.labels['agent-rules']).toMatchObject({ by: 'system1' });
+    expect(never.labels['agent-rules']).toMatchObject({ label: 'prohibition', by: 'system2' });
+    // System 1 decides where it is sure and system 2 gives none.
+    const title = ledger.entries.find((entry: { quote: string }) => entry.quote === '# Harbour office');
+    expect(title.labels['agent-rules']).toMatchObject({ label: 'none', by: 'system1' });
   });
 
   it('runs one class alone, and the stack from the same cassette', async () => {
@@ -734,6 +736,7 @@ describe('the settings file of the estate', () => {
 
   it('reads every setting from the file, and the ledger it names', async () => {
     const { root, before } = await base();
+    // The two sets of the file. Both files are loaded by the runtime as instructions: no document-roles question.
     expect(new Set(before.map((entry) => entry.readable.set))).toEqual(
       new Set(['harbour-rules', 'harbour-voice']),
     );

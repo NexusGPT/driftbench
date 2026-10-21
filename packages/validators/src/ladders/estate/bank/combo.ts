@@ -104,7 +104,7 @@ function plantCombo(estate: PlantedEstate, seed: number, owner: string, forms: R
     const rules = skillFile(name, 'references/rules.md');
     estate.raw(rules, '# Rules\n', owner);
     writer.line(`**Before editing a ${names.noun}**: read \`references/rules.md\`.`, [
-      { hid: `${owner}:gate`, kind: 'gate' },
+      { hid: `${owner}:gate`, kind: 'gate', act: `editing a ${names.noun}`, tool: 'Edit' },
       { hid: `${owner}:rules`, kind: 'reference', key: rules },
     ]);
     estate.check(owner, (scan) => {

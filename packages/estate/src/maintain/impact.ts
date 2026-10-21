@@ -1,5 +1,5 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
-import { relative } from 'node:path';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { dirname, join, relative } from 'node:path';
 import {
   findSpecFiles,
   isPlainObject,
@@ -7,9 +7,10 @@ import {
   objectContextFor,
   parseSpecText,
 } from '@agent-nexus/driftbench-core';
-import { shortQuote } from '@agent-nexus/driftbench-generate';
+import { StaticTest, shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
+import { estatePath } from '../paths';
 import { AtomKind } from '../schema';
 import { type EstateDiff, GuardMode } from './diff';
 import { guardNeed } from './guards';
@@ -19,7 +20,8 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
  * The impact of an estate diff on the tests written for the estate. Tests index by atom id: a spec names the
  * atoms it covers under `metadata.estate.atoms`. For the diff:
  * - regenerate: every test that names an atom whose meaning changed (semantic), a restated atom, or a
- *   removed atom while it still names others; the generator writes it again;
+ *   removed atom while it still names others, or a renamed atom (the same atom under another id); the
+ *   generator writes it again;
  * - re-approve: every atom whose meaning changed (a semantic change); its phrasings wait for a person;
  * - retire: every test whose atoms are all removed, with the reason `atom <id> removed` written into the
  *   spec's metadata as `retired` (on `--write`);
@@ -27,6 +29,10 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
  * A moved atom (the same quote at another span) and an atom whose quote changed in white space only touch
  * no test: a change reruns only what it can affect. A spec already carrying `metadata.retired`
  * is not a live test: it is counted and left alone.
+ *
+ * A static test (an invariant or a setting, a JSON record beside the specs) names the one atom it checks and
+ * is a test like any spec: it is indexed, regenerated and retired with the atoms it names. Its retirement
+ * reason is the record's own `retired` field.
  *
  * With the units of a diff read from the ledgers: a test that names an atom on a unit whose links rerun (a
  * new unit landed in its section) and is not regenerated or retired already is a test to rerun, as is; a
@@ -41,6 +47,8 @@ export type EstateTest = {
   id: string;
   /** The spec file, as found. */
   path: string;
+  /** Explicit boundary retained for retirement writes. */
+  root?: string;
   /** The spec file relative to the tests folder. */
   file: string;
   atoms: string[];
@@ -50,6 +58,18 @@ export type EstateTest = {
 
 export type LoadedTests = { ok: true; tests: EstateTest[]; others: number } | { ok: false; errors: string[] };
 
+/** The JSON files under a folder, sorted: where static tests are looked for. */
+async function jsonFilesUnder(dir: string): Promise<string[]> {
+  const found: string[] = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...(await jsonFilesUnder(full)));
+    else if (/\.json$/i.test(entry.name)) found.push(full);
+  }
+  return found.sort();
+}
+
 /** Reads every spec under a folder; the specs with `metadata.estate.atoms` are the estate tests. */
 export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   const info = await stat(dir).catch(() => undefined);
@@ -57,9 +77,41 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   const tests: EstateTest[] = [];
   const errors: string[] = [];
   let others = 0;
+  for (const path of await jsonFilesUnder(dir)) {
+    let raw: unknown;
+    let safe: string;
+    try {
+      safe = await estatePath(dir, relative(dir, path));
+    } catch (cause) {
+      errors.push(`${relative(dir, path)}: ${String(cause)}`);
+      continue;
+    }
+    try {
+      raw = JSON.parse(await readFile(safe, 'utf8'));
+    } catch {
+      continue;
+    }
+    const record = StaticTest.safeParse(raw);
+    if (!record.success) continue;
+    tests.push({
+      id: record.data.id,
+      path,
+      root: dir,
+      file: relative(dir, path),
+      atoms: [record.data.atom],
+      ...(record.data.retired === undefined ? {} : { retired: record.data.retired }),
+    });
+  }
   for (const path of await findSpecFiles([dir])) {
     const file = relative(dir, path);
-    const loaded = await loadSpecFile(path);
+    let safe: string;
+    try {
+      safe = await estatePath(dir, file);
+    } catch (cause) {
+      errors.push(`${file}: ${String(cause)}`);
+      continue;
+    }
+    const loaded = await loadSpecFile(safe);
     if (!loaded.ok) {
       for (const issue of loaded.errors) {
         errors.push(`${file}: ${issue.code}${issue.path ? ` ${issue.path}` : ''}: ${issue.message}`);
@@ -84,6 +136,7 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
     tests.push({
       id: loaded.spec.id,
       path,
+      root: dir,
       file,
       atoms: meta.data.atoms,
       ...(retired === undefined ? {} : { retired }),
@@ -92,7 +145,14 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   return errors.length > 0 ? { ok: false, errors } : { ok: true, tests, others };
 }
 
-export const RegenerateWhy = z.enum(['whitespace', 'semantic', 'restated', 'removed', 'guard_state']);
+export const RegenerateWhy = z.enum([
+  'whitespace',
+  'semantic',
+  'restated',
+  'removed',
+  'renamed',
+  'guard_state',
+]);
 export type RegenerateWhy = z.infer<typeof RegenerateWhy>;
 
 const UnitTest = z.strictObject({
@@ -163,9 +223,31 @@ export const ImpactReport = z.strictObject({
     .strictObject({
       rerun: z.array(UnitTest).describe('Tests to rerun as they are: a unit their atoms sit on reruns'),
       advisory: z.array(UnitTest).describe('Tests reported only: a unit their atoms sit on is advisory'),
+      unlabeled: z
+        .array(
+          z.strictObject({
+            unit: z.string().min(1),
+            path: z.string().min(1),
+            quote: z.string(),
+            was: z.string().optional(),
+            tests: z
+              .array(z.string())
+              .describe("Live tests that cite an atom of the unit's file: touched, not regenerated"),
+          }),
+        )
+        .optional()
+        .describe('Changed units no atom covers: no test to regenerate, a person reviews them'),
     })
     .optional()
     .describe('What the ledger units of the diff do to the tests; present when the diff read the ledgers'),
+  stale: z
+    .array(
+      z.strictObject({ test: z.string().min(1), file: z.string().min(1), atoms: z.array(z.string().min(1)) }),
+    )
+    .optional()
+    .describe(
+      'Live tests citing atom ids the old map does not hold: no change can reach them, a person decides',
+    ),
   unaffected: z.strictObject({
     moved: z.number().int().min(0).describe('Atoms moved with the same quote: no test changes'),
     tests: z.number().int().min(0).describe('Live tests the diff does not touch'),
@@ -201,6 +283,7 @@ export function estateImpact(
   for (const entry of diff.atoms.restated) if (!why.has(entry.id)) why.set(entry.id, 'restated');
   const removed = new Set(diff.atoms.removed.map((atom) => atom.id));
   for (const id of removed) why.set(id, 'removed');
+  for (const entry of diff.atoms.renamed ?? []) why.set(entry.from, 'renamed');
   for (const entry of diff.guards ?? []) {
     if ((entry.move === 'promoted' || entry.move === 'demoted') && !why.has(entry.guard)) {
       why.set(entry.guard, 'guard_state');
@@ -212,8 +295,18 @@ export function estateImpact(
   const regenerate: ImpactReport['regenerate'] = [];
   const retire: ImpactReport['retire'] = [];
   let untouched = 0;
+  // A test that cites an id neither map holds cannot be reached by any change of the diff: it is listed,
+  // and it is not untouched.
+  // An id the new map adds is known too: only an id neither map holds is no longer in the map.
+  const known =
+    diff.oldAtoms === undefined
+      ? undefined
+      : new Set([...diff.oldAtoms, ...diff.atoms.added.map((atom) => atom.id)]);
+  const stale: NonNullable<ImpactReport['stale']> = [];
 
   for (const test of live) {
+    const missing = known === undefined ? [] : test.atoms.filter((atom) => !known.has(atom));
+    if (missing.length > 0) stale.push({ test: test.id, file: test.file, atoms: missing });
     const gone = test.atoms.filter((atom) => removed.has(atom));
     if (gone.length > 0 && gone.length === test.atoms.length) {
       retire.push({
@@ -230,7 +323,6 @@ export function estateImpact(
       return reason === undefined ? [] : [{ atom, why: reason }];
     });
     if (atoms.length > 0) regenerate.push({ test: test.id, file: test.file, atoms });
-    else untouched++;
   }
   const touched = new Set([...regenerate, ...retire].map((entry) => `${entry.file}\0${entry.test}`));
   const unitTests = (refs: NonNullable<EstateDiff['units']>['rerun']) => {
@@ -246,10 +338,35 @@ export function estateImpact(
     }
     return out;
   };
+  // A changed unit with no atom: no test names it, so none is regenerated; the tests that cite its file are touched.
+  const unlabeledTouched = new Set<string>();
+  const unlabeled = (diff.units?.unlabeled ?? []).map((entry) => {
+    const cited = live.filter((test) => test.atoms.some((atom) => entry.fileAtoms.includes(atom)));
+    for (const test of cited) unlabeledTouched.add(`${test.file}\0${test.id}`);
+    return {
+      unit: entry.unit,
+      path: entry.path,
+      quote: entry.quote,
+      ...(entry.was === undefined ? {} : { was: entry.was }),
+      tests: cited.map((test) => test.id).sort(),
+    };
+  });
   const units = diff.units
-    ? { rerun: unitTests(diff.units.rerun), advisory: unitTests(diff.units.advisory) }
+    ? {
+        rerun: unitTests(diff.units.rerun),
+        advisory: unitTests(diff.units.advisory),
+        ...(unlabeled.length === 0 ? {} : { unlabeled }),
+      }
     : undefined;
-  untouched -= units?.rerun.length ?? 0;
+  const rerunKeys = new Set((units?.rerun ?? []).map((entry) => `${entry.file}\0${entry.test}`));
+  // Each live test counts once: untouched only when no list above names it.
+  const named = new Set([
+    ...touched,
+    ...rerunKeys,
+    ...unlabeledTouched,
+    ...stale.map((entry) => `${entry.file}\0${entry.test}`),
+  ]);
+  untouched = live.filter((test) => !named.has(`${test.file}\0${test.id}`)).length;
 
   for (const test of tests) {
     if (test.retired === undefined) continue;
@@ -301,6 +418,14 @@ export function estateImpact(
     ),
     ...fresh.map((entry) => `approve the tests of the new atom ${entry.atom}: no test covers it yet`),
     ...guards.flatMap((entry) => (entry.need === null ? [] : [entry.need])),
+    ...stale.map(
+      (entry) =>
+        `the test ${entry.test} cites ${entry.atoms.length === 1 ? 'an atom' : 'atoms'} no longer in the map (${entry.atoms.join(', ')}): decide what it tests now`,
+    ),
+    ...unlabeled.map(
+      (entry) =>
+        `review the unlabeled unit ${entry.unit} in ${entry.path}: it changed and no atom covers it${entry.tests.length > 0 ? `; ${entry.tests.length} ${entry.tests.length === 1 ? 'test cites' : 'tests cite'} its file` : ''}`,
+    ),
     ...(options.regression ? regressionNeeds(options.regression) : []),
   ];
 
@@ -314,6 +439,7 @@ export function estateImpact(
     new: fresh,
     guards,
     ...(units === undefined ? {} : { units }),
+    ...(stale.length === 0 ? {} : { stale }),
     unaffected: { moved: diff.atoms.moved.length, tests: untouched },
     ...(options.regression ? { regression: options.regression } : {}),
     needsPerson,
@@ -339,7 +465,17 @@ export async function writeRetirements(
       continue;
     }
     try {
-      const text = await readFile(test.path, 'utf8');
+      const path = await estatePath(
+        test.root ?? dirname(test.path),
+        test.root === undefined ? relative(dirname(test.path), test.path) : relative(test.root, test.path),
+      );
+      const text = await readFile(path, 'utf8');
+      if (/\.json$/i.test(test.path) && StaticTest.safeParse(JSON.parse(text)).success) {
+        await writeFile(path, `${JSON.stringify({ ...JSON.parse(text), retired: entry.reason }, null, 2)}\n`);
+        entry.state = 'written';
+        results.push({ file: entry.file, ok: true });
+        continue;
+      }
       const doc = parseDocument(text, { uniqueKeys: true });
       const current: unknown = doc.toJS();
       const metadata = isPlainObject(current) ? current.metadata : undefined;
@@ -358,7 +494,7 @@ export async function writeRetirements(
         });
         continue;
       }
-      await writeFile(test.path, next);
+      await writeFile(path, next);
       entry.state = 'written';
       results.push({ file: entry.file, ok: true });
     } catch (cause) {
@@ -377,6 +513,7 @@ const WHY: Record<RegenerateWhy, string> = {
   semantic: 'semantic',
   restated: 'restated',
   removed: 'removed',
+  renamed: 'renamed',
   guard_state: 'guard state',
 };
 
@@ -433,6 +570,13 @@ export function renderImpact(report: ImpactReport): string {
           `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}, ${item.why.join('; ')}`).join(', ')}`,
         );
     }
+    if ((report.units.unlabeled ?? []).length > 0) {
+      lines.push('Changed, unlabeled: no tests to regenerate, review it:');
+      for (const entry of report.units.unlabeled ?? [])
+        lines.push(
+          `  ${entry.unit} (${entry.path}): ${entry.was === undefined ? '' : `${entry.was} | `}${entry.quote}${entry.tests.length > 0 ? `; tests that cite the file: ${entry.tests.join(', ')}` : ''}`,
+        );
+    }
     if (report.units.advisory.length > 0) {
       lines.push('Advisory only, a unit their atoms sit on has other neighbours or moved:');
       for (const entry of report.units.advisory)
@@ -440,6 +584,11 @@ export function renderImpact(report: ImpactReport): string {
           `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}`).join(', ')}`,
         );
     }
+  }
+  if ((report.stale ?? []).length > 0) {
+    lines.push('Cites atoms no longer in the map, no change reaches it:');
+    for (const entry of report.stale ?? [])
+      lines.push(`  ${entry.test} (${entry.file}): ${entry.atoms.join(', ')}`);
   }
   if (report.regression) lines.push(...renderRegression(report.regression));
   if (report.needsPerson.length === 0) lines.push('Nothing needs a person.');

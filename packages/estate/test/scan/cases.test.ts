@@ -4,29 +4,25 @@ import { describe, expect, it } from 'vitest';
 import {
   approveAtoms,
   ClaudeCodeReader,
-  estateRecordingPort,
   INFORMATION,
   lintEstate,
   loadEstateMap,
-  loadEstateRecording,
   scanEstate,
 } from '../../src/index';
-import { NOW } from '../support';
+import { NOW, replayPointer } from '../support';
 import { CASES } from './cases';
 
 async function scanCases() {
-  const recording = await loadEstateRecording(join(CASES, 'answers.yaml'));
-  if (!recording.ok) throw new Error(recording.message);
   return scanEstate({
     root: CASES,
     reader: new ClaudeCodeReader(),
-    port: estateRecordingPort(recording.recording),
     now: NOW,
+    pointer: await replayPointer(CASES),
   });
 }
 
 describe('the committed reader-cases outputs', () => {
-  it('map.yaml is what a scan with the recorded answers gives today, with no refusal', async () => {
+  it('map.yaml is what a scan with the recorded labels gives today, with no refusal', async () => {
     const committed = await loadEstateMap(join(CASES, 'map.yaml'));
     if (!committed.ok) throw new Error(JSON.stringify(committed.errors));
     const fresh = await scanCases();
@@ -50,7 +46,14 @@ describe('the committed reader-cases outputs', () => {
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-    ).toEqual([]);
+    ).toEqual([
+      // CLAUDE.md line 21 ("A carrier claim and the month close follow their steps in `.claude/processes.json`")
+      // is labelled description by the recorded runs, so it names no reference and the steps file is an orphan.
+      ['ORPHAN', '.claude/processes.json'],
+      // The unit "Open the claim with the wording in `REF/notes.md`" is left unlabeled (the runs split four
+      // ways), so the alias case names no reference. supplier-languages.md is now named by SKILL.md line 10.
+      ['ORPHAN', '.claude/skills/parcel-claims/references/notes.md'],
+    ]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
     ).toMatchObject({
