@@ -519,6 +519,8 @@ Each child starts from its parent's recorded end state: the conversation, the `c
 
 </details>
 
+**Share an opening between specs.** Block 0 of a spec may name a block of another spec, `parent: <spec id>#<block id>`. The child keeps its own header, end state, criteria and perturbations; only its opening comes from the other spec. `driftbench generate` finds the openings that two or more complete specs share and writes each once, as a stem under `specs/stems/`. `--no-stems` writes every spec whole, and `stems-map.csv` maps every block to where it is now. On the approved Acme map, the committed suite has 101 stems: 212 of the 437 complete specs start from one, and 296 blocks are written once instead of once per spec. A stem runs and is scored as a spec of its own. See [stems](docs/generating.md#stems-shared-openings-written-once) and [a parent in another spec](docs/concepts/given-when-then.md#a-parent-in-another-spec).
+
 <sub>Parent execution and blocked children ship. Independent flaky failures can still inflate the root count. `driftbench isolation <spec>` checks which children need their parent ([given, when, then](docs/concepts/given-when-then.md#parent-blocks)); it tests conversation history, and finer dependencies on stored facts or tool state remain untested.</sub>
 
 <details>
@@ -693,6 +695,20 @@ pii.email pass {"object":"check-set:default@fd61f704","item":"pii","impl":"built
 The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-score reads the stored observation, runs the checks again under `check-set:acme`, and the block passes: 0 agent calls, 0 judge calls. Its verdicts now carry `check-set:acme@a44a5554`, and the result is labelled `Re-scored; observations from full`. The first `pii.email` line is the re-scored run, the last is the stored one. A change to an object the agent sees (a persona, a run profile) is refused: `--use run-profile/fast` exits 2 and tells you to rerun the agent. See [rule files](packages/cli/help/authoring-rule-files.md) and [re-scoring](packages/cli/help/judging-campaign-rejudge.md).
 
 </details>
+
+**What you can change, and where.** An object is found in layers, from the weakest to the strongest: shipped, project, suite, spec, block and the command line. A stronger layer wins, item by item. The project layer reads `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml`, and a list of whole objects under the `objects:` key of `driftbench.yaml`. On the command line, `--use <kind>/<id>` picks an object and `--set <kind>[/<id>]#<item>.<param>=<value>` changes one parameter; every `--set` an object receives is applied before its parameters are checked, once.
+
+| Command | What it does |
+|---|---|
+| `driftbench object list`, `object show <kind>/<id>` | List the objects, and print one with its items |
+| `driftbench object explain <kind> --at <spec>[#<block>]` | Print the object a block uses, each item with the layer, file and line that set it |
+| `driftbench object diff` | Compare two objects, item by item |
+| `driftbench object init <kind> <id> --from <parent>` | Write `driftbench/<kind>/<id>.yaml`, an object that extends its parent, with every parent item listed as a comment |
+| `driftbench object validate`, `object graph` | Check an object file (an unknown item id is refused, with the parent's list), and print which objects extend which |
+| `driftbench object migrate persona` | Split an old persona file into persona, scenario and situational objects |
+| `driftbench campaign rejudge --use <kind>/<id>` | Score stored runs again under an object, with no agent call |
+
+Limits: a verdict names its object, item, implementation and layer in its `by` field, and the block lists the objects that scored it in `resolved`. A check never adds up its own verdicts: the share of expected tool arguments that matched is the shipped diagnostic `argument-accuracy`, not a verdict. A change to what the agent receives (a persona, a run profile) is refused for a re-score: rerun the agent.
 
 ### Blast radius: rerun only what a change touches
 
@@ -1459,6 +1475,15 @@ Exit codes are verdicts: 0 when the thing holds, 1 for a failing cell or a findi
 | `judge run` | Replay a panel of judges on recorded answers | `driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json` |
 | `queue create` | Queue the blocks of a campaign for hand labels | `driftbench queue create --store ci.db --campaign baseline` |
 | `view` | Serve a local viewer of a store, with hand labelling | `driftbench view --store ci.db` |
+
+**Change the agent, or the rules, and rerun little**
+
+| Command | What it does | Example |
+|---|---|---|
+| `radius` | List the blocks a change to the agent can affect, and run nothing | `driftbench radius examples/acme/gated/specs --change examples/acme/radius/stage-recap.yaml --mode F,T` |
+| `isolation` | Check which children of a parent link need their parent | `driftbench isolation examples/acme/parents/checkout.yaml` |
+| `object` | List, show, explain and check the rule files | `driftbench object list` |
+| `campaign rejudge` | Score stored runs again under a changed rule, with no agent call | `driftbench campaign rejudge <specs> --from baseline --campaign rescored --store ci.db --use check-set/<id>` (a template: put the specs and the object you wrote) |
 
 **Report and compare**
 
