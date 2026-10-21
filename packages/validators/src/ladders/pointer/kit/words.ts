@@ -211,6 +211,36 @@ export function dice(a: string, b: string): number {
   return diceOf(gramsOf(a), gramsOf(b));
 }
 
+/** A word a generator wrote, and where it starts in the text it returned. */
+export type WrittenWord = { text: string; start: number };
+/** A text and the words the generator wrote into it, in order. */
+export type Written = { text: string; words: WrittenWord[] };
+
+/**
+ * Runs a generator and returns its text with the position of every word it wrote. The positions come from what
+ * the generator drew, never from a pattern matched on the text, so a planter that changes a word changes a word
+ * the generator chose.
+ */
+export function written(make: (rng: Rng) => string, rng: Rng): Written {
+  const before = trace;
+  trace = [];
+  try {
+    const text = make(rng);
+    const lower = text.toLowerCase();
+    const words: WrittenWord[] = [];
+    let from = 0;
+    for (const drawn of trace) {
+      const at = lower.indexOf(drawn.toLowerCase(), from);
+      if (at < 0) continue;
+      words.push({ text: text.slice(at, at + drawn.length), start: at });
+      from = at + drawn.length;
+    }
+    return { text, words };
+  } finally {
+    trace = before;
+  }
+}
+
 /**
  * A pool of sentences drawn apart: each new sentence has trigram Dice under `limit` against the last `window`
  * sentences of the pool. Two sentences far apart in a long document may be alike; `unrelatedTo` is for the pairs
