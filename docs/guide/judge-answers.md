@@ -83,7 +83,7 @@ The rest of the file is the **fixture pair**: a short transcript the criterion m
 
 **Relevant commands.**
 
-- `driftbench judge check`: reads every criterion file of a folder and reports the problems · `examples/acme/criteria` is the folder; `--json` (not used here) prints one JSON document · it prints one `ok` line per valid file and one line per issue, calls no model and writes nothing. Exit 0 means every file is valid, 1 means an issue, 2 means the folder cannot be read.
+- `driftbench judge check`: reads every criterion file of a folder and reports the problems · `examples/acme/criteria` is the folder to read · it prints one `ok` line per valid file and one line per issue, calls no model and writes nothing. Exit 0 means every file is valid, 1 means an issue, 2 means the folder cannot be read.
 
 **You type.**
 
@@ -176,7 +176,7 @@ Wrote assignments.yaml.
 - `separation 3/3`: the judge told the pass transcript from the fail transcript in all 3 repeats.
 - `kappa  1.00  agreement 4/4 [0.51, 1.00]`: the judge agreed with all 4 labels. The range in brackets is the 95% interval of the agreement. With only 4 labels it is wide: 0.51 to 1.00. More labels make the bar mean more.
 - `misses: separates the fixture pair 2 of 3 times`: `openai-decisions` missed one repeat on `holds_instructions`. Three system 1 judges are not at the bar, so the criterion moves to system 2.
-- `ledger_intact: UNASSIGNED`: two judges of each class missed the kappa bar. The criterion is judged but never gates. The fix is a new rubric, not a lower bar.
+- `ledger_intact: UNASSIGNED`: two judges of each class missed the kappa bar. The criterion is judged but never gates. The fix is a clearer rubric. Keep the bar at 0.8.
 - `Kappa over every labelled block`: each judge over all 40 labels. `google-chat` agrees on 39 of 40.
 - The table written to `assignments.yaml` is what a later run reads. See the entry of `holds_instructions`:
 
@@ -208,7 +208,7 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 
 **If it goes wrong.**
 
-- `Unassigned, judged but never gating: <criterion>` and exit 1 when that criterion is gating: no class has three judges at the bar. Read the `misses:` lines. Rewrite the rubric, or add labels. Do not lower 0.8.
+- `Unassigned, judged but never gating: <criterion>` and exit 1 when that criterion is gating: no class has three judges at the bar. Read the `misses:` lines. Rewrite the rubric, or add labels. Keep the bar at 0.8.
 - A labels file refused (exit 2): its name must equal its criterion, it needs at least one pass and one fail label, and every block id must be unique.
 - A line with a judge call that "gave no answer" (exit 1): the cassette holds no recording for that request. A change to a rubric, a fixture or a prompt changes the request key, so the old recordings no longer match. Record again.
 - A judge of the agent's own model family is left out, and the summary names it. Pass `--agent-family <family>` to state the family. Use `none` for an agent that is not a model.
@@ -228,7 +228,7 @@ How the council decides:
 
 **Relevant commands.**
 
-- `driftbench judge run`: replays a council on a cassette over the fixture pair of every criterion · `--criteria examples/acme/criteria` is the folder; `--cassette examples/acme/criteria/council.cassette.json` holds the recorded answers; `--cascade` (second command) runs the cheapest judge first · it prints one line per criterion, `separated` when the pass transcript passes and the fail transcript fails, and a count. It never calls a model. Exit 0 means all criteria are separated, 1 means one is not or a judge gave no answer, 2 means bad input.
+- `driftbench judge run`: replays a council on a cassette over the fixture pair of every criterion · `--criteria examples/acme/criteria` is the folder; `--cassette examples/acme/criteria/council.cassette.json` holds the recorded answers; `--cascade` (second command) runs the cheapest judge first · it prints one line per criterion and a count. A criterion is `separated` when its pass transcript passes and its fail transcript fails. It never calls a model. Exit 0 means all criteria are separated, 1 means one is not or a judge gave no answer, 2 means bad input.
 
 **You type.**
 
@@ -300,14 +300,16 @@ That is 3.5 to 19.4 times fewer costly calls (`docs/comparison/methods.md`, sect
 
 How to read the numbers:
 
-- On JudgeBench and MM-Eval the mixture ties promptfoo. The intervals overlap, and the paired test with a Holm correction finds no difference. It is not more accurate there. It is as accurate with far fewer costly calls.
+- On JudgeBench and MM-Eval the mixture ties promptfoo. The intervals overlap, and the paired test with a Holm correction finds no difference. There it is as accurate as promptfoo, with far fewer costly calls.
 - On writing the mixture wins against promptfoo by 8.2 points (Holm p 0.047).
 - On writing the rule "pick the longer reply" scores 69.7, above the mixture. `research/moj/RESULTS.md` says so, and does not count writing as a judging win.
 - In this repository, on 1,212 sealed MM-Eval items, the cheap judge sent 48 to the panel. The mean item score on those 48 rose from 51.0 to 85.4. Source: `docs/assets/data/mm-eval-sealed-test.json`, as `docs/comparison/methods.md` records it.
 
-The full mixture runs from the research harness in `research/moj`. The router it is built on is part of the package, and the command line has it as `--judge-route escalation`. **Relevant commands.**
+The full mixture runs from the research harness in `research/moj`. The router it is built on is part of the package, and the command line has it as `--judge-route escalation`. The next command runs that router on recorded answers.
 
-- `driftbench smoke`: runs a test 3 times and judges each judged block · `examples/acme/specs/conversations/tool-failure.yaml` is the test; `--judges examples/acme/criteria/calibration/campaign.cassette.json` replays six recorded judges, so no model is called; `--judge-route escalation` sends each call through the router; `--route-first openai-chat` is the judge that answers first; each `--route-then` is a judge asked only when a doubt sign fires · it prints the runs, the judged verdicts and the cost of the judges.
+**Relevant commands.**
+
+- `driftbench smoke`: runs a test 3 times and judges each judged block · `examples/acme/specs/conversations/tool-failure.yaml` is the test; `--judges examples/acme/criteria/calibration/campaign.cassette.json` replays six recorded judges, so no model is called; `--judge-route escalation` sends each call through the router; `--route-first openai-chat` is the judge that answers first; each `--route-then` is a judge asked only when a sign of doubt fires · it prints the runs, the verdicts and the cost of the judges.
 
 **You type.**
 
@@ -362,7 +364,7 @@ It keeps your inputs authoritative. An instruction written inside the data is ne
 
 **Relevant commands.**
 
-- `driftbench campaign run ... --judge claude:haiku --judge-budget 0.1`: runs a test and judges its criteria with a real model · `--judge claude:haiku` is the judge, in the form `<kind>:<model>` · `--judge-budget 0.1` stops judging once 0.1 USD is spent · it prints the run with a verdict for each judged criterion, and the cost. It calls a billed model, so it is not run by the tests.
+- `driftbench campaign run`: runs a test, as in step 1 · `--judge claude:haiku` judges the criteria with a real model, in the form `<kind>:<model>`; `--judge-budget 0.1` stops judging once 0.1 USD is spent · it prints the run with a verdict for each judged criterion, and the cost. It calls a billed model, so the tests do not run it.
 
 ```bash
 driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --judge claude:haiku --judge-budget 0.1
@@ -370,7 +372,7 @@ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --ta
 
 **If it goes wrong.**
 
-- A billed `claude` judge with no `--judge-budget`: the command asks for one. Add the option.
+- A billed `claude` judge needs `--judge-budget <usd>`. Add the option.
 - A key or model missing for a provider judge: the error names the variable to set. Keys come from the environment only.
 - A cassette that no longer matches (`cassette_miss`): you changed the prompt, the model or a setting. Old recordings are history. Record again.
 
@@ -382,8 +384,8 @@ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --ta
 
 **Relevant commands.**
 
-- `driftbench campaign run`: as in step 1, plus `--store acme.db` to keep the run in a store file, and `--campaign upgrade-demo` to name the campaign · it prints the run and writes `acme.db`.
-- `driftbench queue create`: lists the blocks that still need a label · `--store acme.db` is the store; `--campaign upgrade-demo` is the campaign whose blocks are queued; `--labels labels` is the labels folder, made if it is missing · it queues each block once per criterion of its spec, skipping labelled blocks, and prints how many it queued.
+- `driftbench campaign run`: runs the test, as in step 1 · `--store acme.db` keeps the run in a store file; `--campaign upgrade-demo` names the campaign · it prints the run and writes `acme.db`.
+- `driftbench queue create`: lists the blocks that still need a label · `--store acme.db` is the store; `--campaign upgrade-demo` is the campaign whose blocks are queued; `--labels labels` is the labels folder, made if it is missing · it queues each block once per criterion of its spec and skips labelled blocks. It prints how many items it queued.
 
 **You type.**
 
@@ -427,7 +429,7 @@ In the page of a run, a form under each block lets you pick a criterion, choose 
 
 **Relevant commands.**
 
-- `--judges <cassette>`: an option of `smoke`, `campaign run`, `ci` and other commands that adds every judge of a recording as a player · the value is the cassette file · no call, no cost.
+- `--judges <cassette>`: an option of `smoke`, `campaign run`, `ci` and other commands · it adds every judge of a recording as a player · the value is the cassette file · it makes no call and costs nothing.
 - `--judge <kind>:<model>`: adds a live judge · repeat it for a council; the kinds include `claude`, `openai`, `anthropic` and `google` · paid calls.
 - `--cascade`: the council runs its cheapest judge first and stops on a sure pass.
 - `--assignments <file>`: seats the judges as `judge calibrate` assigned them.

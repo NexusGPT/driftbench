@@ -29,7 +29,7 @@ The idea has three parts:
 
 - **Plant a truth.** Code builds a case whose answer it knows. For example, it draws 200 results from a population with a true pass rate of 30%. It then asks driftbench for an interval. A 95% interval must contain 30% about 95 times in 100.
 - **Run the part.** driftbench computes its answer from the case.
-- **Count.** The validator compares the answer with the truth and prints a ratio of two counts it can list, such as "intervals that held the truth over intervals computed".
+- **Count.** The validator compares the answer with the truth. It prints a ratio of two counts it can list, such as "intervals that held the truth over intervals computed".
 
 For tests, the planted truth is a fault in the agent. The Acme example ships faults, each a copy of the real agent that does one thing wrong. This is the row for one of them:
 
@@ -42,7 +42,7 @@ A good test suite must pass on the real agent and fail on this fault. If a suite
 
 **Relevant commands.**
 
-- `grep "x3-skips-recap" examples/acme/faults/README.md`: prints the lines of a file that hold a word · `"x3-skips-recap"` is the word · `examples/acme/faults/README.md` is the file · it prints the one line that describes the fault.
+- `grep "x3-skips-recap" examples/acme/faults/README.md`: prints the lines of a file that hold a word · `"x3-skips-recap"` is the word, `examples/acme/faults/README.md` is the file · it prints the one line that describes the fault.
 
 **How to read it.**
 
@@ -63,8 +63,8 @@ A good test suite must pass on the real agent and fail on this fault. If a suite
 
 **Relevant commands.**
 
-- `ln -s examples/../packages packages`, and the same for `validators` and `pnpm-workspace.yaml`: makes a link to a file or folder of the repository · `-s` makes a symbolic link, the first word is the target and the second is the name of the link · it produces the link. Skip it in a clone.
-- `driftbench validate floors`: prints the floor of each validator · `floors` is a mode of the command, not a validator name · it prints one line and exits 0.
+- `ln -s examples/../packages packages`, and the same for `validators` and `pnpm-workspace.yaml`: makes a link to a file or folder of the repository · `-s` makes a symbolic link; the first word is the target, the second is the link · it produces the link. Skip it in a clone.
+- `driftbench validate floors`: prints the floor of each validator · `floors` is a mode of the command and no validator has that name · it prints one line and exits 0.
 
 **You type.**
 
@@ -88,36 +88,52 @@ Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder
 - `Floors (validators/floors.json): none.`: no `validators/floors.json` above your folder. Run the command from the repository.
 - `No validator is registered for "nosuch". Registered: ...` (exit 64): the name is wrong. The message lists the registered names.
 
-## 3. Run a ladder up to its floor
+## 3. Run one level of the statistics ladder
 
-**Why you do this.** One run shows you what a validator checks and what a pass looks like. You run it up to its floor. That is what CI does on every push.
+**Why you do this.** Every interval and test that driftbench prints rests on a statistics package. The statistics validator checks it against numbers computed by other tools and against populations with a known truth. One level shows you what a validator checks and what a pass looks like.
 
-**You need.** The seed. A seed drives every random choice of a ladder, so seed 1 always builds the same inputs. CI runs seeds 1, 2 and 3, and one hidden seed that changes with each commit. A fix that works only on seeds you saw fails on the hidden seed.
+**You need.** A seed. A seed drives every random choice of a ladder, so seed 1 always builds the same inputs. CI runs seeds 1, 2 and 3, and one hidden seed that changes with each commit. A fix that works only on the seeds you saw fails on the hidden seed.
+
+The statistics ladder has 8 levels (source: `packages/cli/help/validate-stats.md`). Level 1 holds 31 items. Each item compares one function with numbers that scipy or numpy computed.
 
 **Relevant commands.**
 
-- `driftbench validate stats --seed 1 --check-floor`: runs the statistics ladder · `stats` is the validator, which checks the package behind every interval and test driftbench prints; `--seed 1` is the seed; `--check-floor` computes only the levels up to the floor and exits 1 when the run is below it, else 0 · it prints the ladder table, then the level reached and the floor.
+- `driftbench validate stats --seed 1 --levels 1..1`: runs level 1 of the statistics ladder · `stats` is the validator; `--seed 1` is the seed; `--levels 1..1` computes only level 1 · it prints the ladder table and the level reached, and exits 0, because a slice holds no level of the run.
 
 **You type.**
 
 ```console
-$ driftbench validate stats --seed 1 --check-floor
+$ driftbench validate stats --seed 1 --levels 1..1
 (pending)
 ```
 
 **How to read it.**
 
 - One row per level, with its name, its metric and its threshold. The last column is the observed value for seed 1, then `pass` or `FAIL (<number of failing items>)`.
-- `Level of the run`: the highest level passed, the minimum over all seeds you ran.
-- `Floor: 3. At or above the floor.`: the run holds the floor. The exit code is 0.
+- `not run`: the level was not asked for. A slice computes only the levels you name.
+- `Level of the run`: the highest level passed, the minimum over all seeds you ran. On a slice it counts only the levels you ran.
+- `Floor`: the line compares the level of the run with the floor of the whole ladder (step 2). Ignore it on a slice.
 - `No level failed.`: nothing to fix.
-- A level above the floor shows `not run`. `--check-floor` stops at the floor.
+
+A whole ladder takes minutes, so the tests of this page do not run one. This is how CI runs them. It is shown for reference and it is not run here:
+
+```bash
+driftbench validate all --seeds 1..3 --hidden --check-floor
+```
+
+- `all` runs every registered ladder.
+- `--seeds 1..3` runs seeds 1, 2 and 3.
+- `--hidden` adds the hidden seed of the current commit.
+- `--check-floor` computes each ladder only up to its floor and exits 1 when one is below it, else 0.
+
+On the GitHub runner that runs these tests, levels 1 to 3 of the statistics ladder took more than 4 minutes on seed 1.
 
 **If it goes wrong.**
 
-- `BELOW THE FLOOR.` and exit 1: a change broke an item. A failing level lists its items. Each item line has an id, a tier from 1 to 5, the one source file to change, and what the oracle expected and what came back. Fix the first failing level before any other.
+- `Level of the run` below `Floor` on a plain run, with failing items listed: a change broke an item. Each item line has an id, a tier from 1 to 5 and the one source file to change. It then says what the oracle expected and what came back. Fix the first failing level before any other.
 - `--seeds takes a..b with whole numbers a <= b, such as 1..20, not "3..1".` (exit 64): write the range low to high.
 - An exit code from 2 to 63 on a plain run, without `--check-floor`: it is the level reached, not an error. Use `--check-floor` when a script needs 0 or 1.
+- An `ENOENT` error that names `packages/validators/fixtures`: you are not at the root of the repository. The validators read their fixtures from there. Step 2 shows the links the test uses.
 
 ## 4. Run a slice of the judges ladder
 
@@ -127,25 +143,38 @@ $ driftbench validate stats --seed 1 --check-floor
 
 **Relevant commands.**
 
-- `driftbench validate judges --seed 1 --levels 1..3`: runs levels 1 to 3 of the judges ladder · `judges` is the validator; `--seed 1` is the seed; `--levels 1..3` computes only these levels, always in full · it prints the table of those levels and exits 0, because a slice holds no level of the run.
+- `driftbench validate judges --seed 1 --levels 1..3`: runs levels 1 to 3 of the judges ladder · `judges` is the validator; `--seed 1` is the seed; `--levels 1..3` computes only these levels · it prints the table and exits 0, because a slice holds no level of the run.
 
 **You type.**
 
 ```console
 $ driftbench validate judges --seed 1 --levels 1..3
-(pending)
+Validator judges (ladder version 2)
+Level  Name                                                          Metric                                   Threshold  seed 1
+1      the seven levels of version 1                                 items of v1 passing / 37 items           >= 1       1 pass
+2      the answer contract under hostile output                      items of contract passing / 48 items     >= 1       1 pass
+3      the same request, the same prompt, key and verdict            items of consistency passing / 21 items  >= 1       1 pass
+4      cassettes replay what they recorded                           items of cassette passing / 21 items     >= 1       not run
+Level per seed: 1 = 3
+Level of the run: 3 of 20, the minimum over 1 seed.
+Floor: 20. BELOW THE FLOOR.
+No level failed.
 ```
 
 **How to read it.**
 
-- Each row is a level: `contract` checks the answer contract under hostile output, `consistency` checks that the same request gives the same key and verdict.
-- `1 pass` means every item of the level passed.
+- Each row is a level. `the answer contract under hostile output` checks how the parser reads strange judge answers. `the same request, the same prompt, key and verdict` checks that one request always gives one key and one verdict.
+- `1 pass`: every item of the level passed. A level with a failing item shows `FAIL (<number of failing items>)`, and the run lists those items.
+- `not run`: levels 4 to 20 were not asked for.
+- `Level of the run: 3 of 20`: three levels passed.
+- `Floor: 20. BELOW THE FLOOR.`: this compares a slice with the floor of the whole ladder. A slice cannot reach it. CI runs the whole ladder.
 - The exit code is 0 for a slice. CI joins slices with `--reports` to rebuild a whole run.
 
 **If it goes wrong.**
 
-- `--levels` with `--brief` or `--check-floor` is refused: a slice goes with a plain run only.
-- A level you want is not in the ladder: the top of the judges ladder is 20. A billed 21st level exists only when `DRIFTBENCH_BILLED_APPROVAL` is set. Never set it for an ordinary run, because it spends money.
+- A level you ask for is not in the ladder: the top of the judges ladder is 20.
+- A billed 21st level exists only when `DRIFTBENCH_BILLED_APPROVAL` is set. Never set it for an ordinary run, because it spends money.
+- `--levels` goes with a plain run. It is refused with `--brief`, `--journal`, `--check-handover`, `--hardness` and `--reports`.
 
 ## 5. The validity gate of generated tests
 
