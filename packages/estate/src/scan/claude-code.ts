@@ -1314,7 +1314,7 @@ function scriptFrom(
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     if (!paths) return first;
     const target = paths.has(first.script)
-      ? dispatchedName(segment, runs, sources?.get(first.script))
+      ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))
       : undefined;
     // With source available, an argument is a file only when its data flows to an execution path.
     if (target === undefined) return first;
@@ -1334,7 +1334,21 @@ function scriptFrom(
   return { anchored: false };
 }
 
-/** The command arguments name files only when the script's own source proves their execution role. */
+/** Source plus usage paragraphs that explicitly name this script. Unrelated documentation is ignored. */
+function dispatcherSource(script: string, sources?: ReadonlyMap<string, string>): string | undefined {
+  const own = sources?.get(script);
+  if (own === undefined) return undefined;
+  const usage: string[] = [own];
+  for (const [path, text] of sources ?? []) {
+    if (!/\.(?:md|markdown|txt)$/.test(path)) continue;
+    for (const paragraph of text.split(/\n\s*\n/)) {
+      if (/\busage\s*:/i.test(paragraph) && paragraph.includes(script)) usage.push(paragraph);
+    }
+  }
+  return usage.join('\n');
+}
+
+/** The command arguments name files only when source or usage proves their execution role. */
 function dispatchedName(segment: readonly string[], runs: string, source?: string): string | undefined {
   if (source === undefined) return undefined;
   const words = segment.map((token) => token.replace(/["']/g, ''));
