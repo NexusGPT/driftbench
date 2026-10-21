@@ -44,7 +44,7 @@ const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.tr
  * The text a situation gives: the whole field, verbatim (docs/estate.md section 5: a span of a gate's trigger, of
  * an atom's situation or of its passage is the whole field, never a part of it).
  */
-function sentenceCuts(text: string): string[] {
+function wholeText(text: string): string[] {
   return hasWord(text) ? [text] : [];
 }
 
@@ -74,7 +74,7 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
   // A route's description or a rule's situation, whole (the generator asks from it).
   const situation = atom.situation;
   if (typeof situation === 'string')
-    for (const cut of sentenceCuts(situation))
+    for (const cut of wholeText(situation))
       if (!acts.some((act) => act.text === cut)) acts.push({ text: cut });
   const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
     kind?: unknown;
@@ -115,7 +115,7 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
     const context =
       ask !== null && typeof ask === 'object' ? (ask as { context?: unknown }).context : undefined;
     for (const text of [context, atom.situation])
-      if (typeof text === 'string') for (const cut of sentenceCuts(text)) situations.add(cut);
+      if (typeof text === 'string') for (const cut of wholeText(text)) situations.add(cut);
   }
   // A fixed tool act sets off the guards whose matcher lists its tool, and the rules they enforce; the one fixed
   // act the table ties to no tool (a hazard's) sets off the hazards.
