@@ -259,7 +259,12 @@ function matching(space: Space): Map<number, { partner: number; forbidden: numbe
 }
 
 /** The coefficient of z^m in the product of the factors of a group's variables, exact. */
-function matchedCount(space: Space, group: readonly number[], m: number, pairs: ReturnType<typeof matching>): bigint {
+function matchedCount(
+  space: Space,
+  group: readonly number[],
+  m: number,
+  pairs: ReturnType<typeof matching>,
+): bigint {
   const inGroup = new Set(group);
   let poly: bigint[] = Array.from({ length: m + 1 }, () => 0n);
   poly[0] = 1n;
@@ -532,7 +537,10 @@ function uncoveredList(
       if (!allowedTuple(space, subset, tuple)) continue;
       out.push(
         Object.fromEntries(
-          subset.map((v, i) => [space.names[v] as string, (space.values[v] as string[])[tuple[i] as number] as string]),
+          subset.map((v, i) => [
+            space.names[v] as string,
+            (space.values[v] as string[])[tuple[i] as number] as string,
+          ]),
         ),
       );
       if (out.length >= limit) return out;

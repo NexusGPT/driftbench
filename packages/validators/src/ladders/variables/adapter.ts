@@ -1,7 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
-import { countVariableTuples, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import {
+  countVariableTuples,
+  type VariableStore,
+  validateVariableStore,
+} from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
   CoverageResult,

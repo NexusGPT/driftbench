@@ -98,12 +98,14 @@ function brute(
 
 describe('countVariableTuples: the allowed count', () => {
   it('is the elementary symmetric polynomial of the arities when nothing is forbidden', () => {
-    expect(countVariableTuples(storeOf([3, 3, 3, 3, 3]), [], [{ variables: ids(5), strength: 2 }]).allowed).toBe(
-      10 * 9,
-    );
+    expect(
+      countVariableTuples(storeOf([3, 3, 3, 3, 3]), [], [{ variables: ids(5), strength: 2 }]).allowed,
+    ).toBe(10 * 9);
     expect(countVariableTuples(storeOf([2, 3, 4]), [], [{ variables: ids(3), strength: 1 }]).allowed).toBe(9);
     // The strength is capped at the group size: six binary variables at strength 9 give one tuple per value row.
-    expect(countVariableTuples(storeOf(Array(6).fill(2)), [], [{ variables: ids(6), strength: 9 }]).allowed).toBe(64);
+    expect(
+      countVariableTuples(storeOf(Array(6).fill(2)), [], [{ variables: ids(6), strength: 9 }]).allowed,
+    ).toBe(64);
     // An arity of one adds its subsets with a product of one.
     expect(countVariableTuples(storeOf([1, 2, 3]), [], [{ variables: ids(3), strength: 2 }]).allowed).toBe(
       1 * 2 + 1 * 3 + 2 * 3,
@@ -127,14 +129,18 @@ describe('countVariableTuples: the allowed count', () => {
     const started = process.cpuUsage();
     const got = countVariableTuples(storeOf(Array(500).fill(2)), [], [{ variables: ids(500), strength: 3 }]);
     const used = process.cpuUsage(started);
-    expect(got.allowed).toBe((500 * 499 * 498) / 6 * 8);
+    expect(got.allowed).toBe(((500 * 499 * 498) / 6) * 8);
     expect((used.user + used.system) / 1000).toBeLessThan(50);
   });
 
   it('removes the tuples that hold a forbidden pair, by a formula on disjoint pairs', () => {
     // 100 forbidden pairs among 200 ternary variables: a matching, so the product of small polynomials applies.
     const forbids = Array.from({ length: 100 }, (_, i) => ({ [`v${2 * i}`]: 'x1', [`v${2 * i + 1}`]: 'x1' }));
-    const got = countVariableTuples(storeOf(Array(200).fill(3), forbids), [], [{ variables: ids(200), strength: 3 }]);
+    const got = countVariableTuples(
+      storeOf(Array(200).fill(3), forbids),
+      [],
+      [{ variables: ids(200), strength: 3 }],
+    );
     // Choose 3 variables of 200: all in different pairs, or two from one pair plus one other. A pair loses 1 of 9.
     const different = (200n * 198n * 196n) / 6n; // three variables in three different pairs
     const apart = different * 27n;
@@ -201,9 +207,9 @@ describe('countVariableTuples: the allowed count', () => {
 
   it('is zero when no valid full row exists', () => {
     const forbids = [{ v0: 'x0' }, { v0: 'x1' }];
-    expect(countVariableTuples(storeOf([2, 2], forbids), [], [{ variables: ['v0', 'v1'], strength: 1 }]).allowed).toBe(
-      0,
-    );
+    expect(
+      countVariableTuples(storeOf([2, 2], forbids), [], [{ variables: ['v0', 'v1'], strength: 1 }]).allowed,
+    ).toBe(0);
   });
 
   it('counts a value that counts: its own flag, else its variable', () => {
@@ -330,8 +336,8 @@ describe('countVariableTuples: arguments', () => {
     refuse({ variables: ['v0', 'v1'], strength: 1.5 }, /strength/);
     refuse({ variables: ['v0', 'v0'], strength: 2 }, /v0/);
     refuse({ variables: [], strength: 2 }, /variables/);
-    expect(() => countVariableTuples(store, [], [{ variables: ['v0'], strength: 1 }], { uncovered: -1 })).toThrow(
-      /uncovered/,
-    );
+    expect(() =>
+      countVariableTuples(store, [], [{ variables: ['v0'], strength: 1 }], { uncovered: -1 }),
+    ).toThrow(/uncovered/);
   });
 });
