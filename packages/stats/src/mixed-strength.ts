@@ -66,7 +66,10 @@ export function mixedStrengthCoverage(
   const per = groups.map((group) => {
     let required = 0;
     let covered = 0;
-    for (const axes of subsets([...group.axes].sort((x, y) => x - y), group.strength)) {
+    for (const axes of subsets(
+      [...group.axes].sort((x, y) => x - y),
+      group.strength,
+    )) {
       required += axes.reduce((product, a) => product * (levels[a] as number), 1);
       const held = new Set<string>();
       for (const row of rows) held.add(axes.map((a) => row[a]).join(','));
