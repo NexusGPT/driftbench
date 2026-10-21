@@ -83,10 +83,15 @@ function dispatchedHelpers(entry: ProseEntry): string[] {
   return out;
 }
 
+/** A text with its runs of white space folded to one space: a change of spacing keeps the key. */
+function folded(text: string): string {
+  return text.split(/\s+/).filter(Boolean).join(' ');
+}
+
 /** A label name that depends on the planted rule alone, never on where it sits among the others. */
 function stableName(file: string, entry: ProseEntry, taken: ReadonlySet<string>): string {
   const digest = createHash('sha1')
-    .update(`${file}\n${entry.kind}\n${entry.title}\n${entry.quote}`)
+    .update(`${file}\n${entry.kind}\n${folded(entry.title)}\n${folded(entry.quote)}`)
     .digest('hex')
     .slice(0, 10);
   let name = `planted-${digest}`;
