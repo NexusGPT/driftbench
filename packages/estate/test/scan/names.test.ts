@@ -84,11 +84,18 @@ describe('alias tables', () => {
     ['.claude/notes-de-chemins.md', '# Pfade\n\n| Kürzel | Ziel |\n|---|---|\n| REF | .claude/library |\n'],
     ['.claude/map.md', '| 别名 | 目录 |\n|---|---|\n| REF | .claude/library |\n'],
     ['.claude/x.md', '| a | b |\n|---|---|\n| REF | ./.claude/library |\n'],
-  ])('reads an alias table by its shape, whatever its file name and header words: %s', async (path, table) => {
-    const root = await estate({ 'CLAUDE.md': '# Rules\n', [path]: table, '.claude/library/guide.md': '# G\n' });
-    const raw = await new ClaudeCodeReader().read(root);
-    expect(raw.aliases).toEqual({ REF: ['.claude/library'] });
-  });
+  ])(
+    'reads an alias table by its shape, whatever its file name and header words: %s',
+    async (path, table) => {
+      const root = await estate({
+        'CLAUDE.md': '# Rules\n',
+        [path]: table,
+        '.claude/library/guide.md': '# G\n',
+      });
+      const raw = await new ClaudeCodeReader().read(root);
+      expect(raw.aliases).toEqual({ REF: ['.claude/library'] });
+    },
+  );
 
   it('reads no table inside a file that also holds prose, and no row whose first cell is no alias name', async () => {
     const root = await estate({
