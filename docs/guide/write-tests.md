@@ -99,8 +99,8 @@ blocks:
 
 **Relevant commands.**
 
-- `driftbench spec validate`: checks that a spec file is well formed, before anything runs · `specs/refund-ask.yaml` is the file to check; you can also pass a folder · it prints one line per spec, with its `id`, its number of blocks and a hash, then a count, and exits 0 when every spec is valid. The **hash** is a short code of the spec's content: the same content gives the same hash, and any edit changes it.
-- `driftbench campaign run`: runs every block of every spec on the agent and checks each reply · `specs/refund-ask.yaml` is the spec to run; `--process-command` is the command that starts your agent, as a list of words in JSON (`node` and the full path of `agent.mjs`, and `$PWD` stands for the current folder) · it prints one line per run and a count, and exits 1 when a run fails. A **campaign** is one such run of a set of specs.
+- `driftbench spec validate`: checks that a spec file is well formed, before anything runs · `specs/refund-ask.yaml` is the file to check; you can also pass a folder · it prints one line per spec, with its `id`, its number of blocks and a hash, then a count. It exits 0 when every spec is valid. The **hash** is a short code of the spec's content: the same content gives the same hash, and any edit changes it.
+- `driftbench campaign run`: runs every block of every spec on the agent and checks each reply · `specs/refund-ask.yaml` is the spec to run. `--process-command` is the command that starts your agent, as a list of words in JSON. The list holds `node` and the full path of `agent.mjs`. `$PWD` stands for the current folder · it prints one line per run and a count, and exits 1 when a run fails. A **campaign** is one such run of a set of specs.
 
 **You type.**
 
@@ -216,7 +216,7 @@ $ driftbench campaign run specs/refund-flow.yaml --process-command "[\"node\",\"
 
 **Why you do this.** A good reply is not enough. An agent also acts: it calls tools, such as a lookup or an order. You check that the right tool is called once, with the right input, and that a forbidden tool is never called.
 
-**You need.** An agent that calls tools. Acme Telecom is a made-up phone company. driftbench ships its sales assistant, an agent that runs on your machine with no model, as the target `function:acme-sales`. It has five tools. This step uses two: `coverage.check` looks up an address, and `catalog.search` lists plans.
+**You need.** An agent that calls tools. Acme Telecom is a made-up phone company. driftbench ships its sales assistant as the target `function:acme-sales`. The assistant is an agent that runs on your machine with no model. It has five tools. This step uses two: `coverage.check` looks up an address, and `catalog.search` lists plans.
 
 The spec below follows one customer. In block 1 the customer says hello, and the assistant must ask for an address before any lookup. In block 2 the customer gives an address, and the assistant must check the coverage once and then search the home plans of that address.
 
@@ -368,7 +368,7 @@ The full list of checks and their evidence is in the [checks reference](../refer
 
 **Relevant commands.**
 
-- `driftbench campaign run`: as before · `specs` is the folder, and driftbench finds every `*.yaml` file in it; `--process-command` starts the agent for the specs that target `process:my-agent`, and the Acme spec reaches its own agent · it prints one line per spec and a count.
+- `driftbench campaign run`: as before · `specs` is the folder. driftbench finds every `*.yaml` file in it. `--process-command` starts the agent for the specs that target `process:my-agent`. The Acme spec reaches its own agent · it prints one line per spec and a count.
 
 **You type.**
 

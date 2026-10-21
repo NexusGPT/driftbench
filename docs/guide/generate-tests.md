@@ -28,7 +28,7 @@ dimensions:
 
 **Relevant commands.**
 
-- `driftbench space coverage`: counts how many situations a set of specs covers · `examples/acme/specs` is the folder of specs; `--map examples/acme/map/space.yaml` is the map; `--t 2` counts every pair of values from two dimensions, so a pair such as (chat, off topic) is one thing to cover · it prints the cells that are covered and the required cells that are empty, ends on a `Coverage:` line, and exits 1 when a required cell is empty.
+- `driftbench space coverage`: counts how many situations a set of specs covers · `examples/acme/specs` is the folder of specs. `--map examples/acme/map/space.yaml` is the map. `--t 2` counts every pair of values from two dimensions. A pair such as (chat, off topic) is one thing to cover · it prints the cells that are covered and the required cells that are empty. It ends on a `Coverage:` line, and exits 1 when a required cell is empty.
 
 **You type.**
 
@@ -52,7 +52,7 @@ The command prints more lines than shown here: one row per dimension, one line p
 **How to read it.**
 
 - The `Dimensions` table lists each dimension, how many values it has, and which values no spec reaches. The `deviation` dimension has 13 values, and the seven specs reach 9 of them. No spec reaches `D2_goal_shift`, where the user changes what they want.
-- A line marked `✗` is a **required cell**: a combination the map says you must test, such as the flow `order` when the user changes their mind. `no spec` means no hand-written spec reaches it.
+- A line marked `✗` is a **required cell**: a combination the map says you must test. One example is the flow `order` when the user changes their mind. `no spec` means no hand-written spec reaches it.
 - The last line gives two numbers. 7 of the 10 required cells are covered. 237 of the 708 allowed pairs are covered, which is 33.5%.
 - A low share is normal for a hand-written set. It is the reason to generate.
 - Exit 1 is expected. It says a required cell is empty, so the hand-written set has a gap.
@@ -86,7 +86,7 @@ behaviours:
 **Relevant commands.**
 
 - `mkdir -p acme/map`, `cp -R examples/acme/src acme/src`, `cp -R examples/acme/families acme/families` and `cp ... acme/`: copy the inputs of the example into a working folder, so the repository stays as it is · `-p` makes missing folders, `-R` copies a folder and all it holds · they produce the folder `acme`. The folder `families` holds the recipe of the one code-agent task that the map names. Generation in step 5 reads it.
-- `driftbench extract`: reads your files and writes a **proposal**, which is a map with nothing approved yet · `--prompt` is a file that describes the agent, and you repeat it for each file; `--inventory` is the inventory; `--tools` is the file of tool shapes; `--no-model` stops after the code reads, so no model is called; `--out` is the proposal to write · it writes the proposal and prints its size.
+- `driftbench extract`: reads your files and writes a **proposal**, which is a map with nothing approved yet · `--prompt` is a file that describes the agent. You repeat it for each file. `--inventory` is the inventory. `--tools` is the file of tool shapes. `--no-model` stops after the code reads, so no model is called. `--out` is the proposal to write · it writes the proposal and prints its size.
 
 **You type.**
 
@@ -156,7 +156,7 @@ Next: driftbench extract approve acme/map/live-proposal.yaml lists the decisions
 (exit 1)
 ```
 
-A live model gives different numbers each run, so yours will differ from the recorded answers used below. The `Refused` lines are the check working. A model entry that quotes a line that is not in your files, or that has the wrong shape, is dropped and listed, and the command exits 1. The rest of the proposal is kept. Read the refusals, and approve what remains in step 4.
+A live model gives different numbers each run, so yours will differ from the recorded answers used below. The `Refused` lines are the check working. A model entry that quotes a line that is not in your files, or that has the wrong shape, is dropped and listed. The command exits 1. The rest of the proposal is kept. Read the refusals, and approve what remains in step 4.
 
 **You type.**
 
@@ -174,7 +174,7 @@ Wrote acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phr
 
 **How to read it.**
 
-- The proposal is much bigger than in step 2: 51 dimensions instead of 34, and 55 phrases instead of none. The six lines at the end say what each model section added: 39 stages, 16 rules, 45 personas, 49 data values, 55 phrases and 67 relations.
+- The proposal is much bigger than in step 2: 51 dimensions instead of 34, and 55 phrases instead of none. The six lines at the end list what each model section added. They show 39 stages, 16 rules, 45 personas, 49 data values, 55 phrases and 67 relations.
 - There are now 7 axes. The model part added four of them: `stage`, `user_type`, `coverage_result` and `workspace_start`.
 - Every entry carries `evidence`: the file and a verbatim quote. Open `acme/map/proposal.yaml` and look at one. If a quote is wrong, code refuses the entry and lists it as `Refused, not in the proposal`.
 - `none approved` is still true. You approve next.
@@ -194,7 +194,7 @@ Wrote acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phr
 
 - `driftbench extract approve` with no option: lists the decisions that are open and changes nothing · `acme/map/proposal.yaml` is the proposal · it prints the count of open decisions, then one line per dimension, constraint, phrase and relation, each with its quote.
 - `driftbench extract approve --all`: approves every entry · `--all` sets every flag; `--dimension <id>` would approve one dimension and its values instead; `--to acme/map/approved.yaml` writes the result to a new file beside the proposal · it writes the approved map.
-- `driftbench extract map`: reads the approved map and writes the **space map**, the file the `space` commands read · `acme/map/approved.yaml` is the approved map; `--to acme/map/space.yaml` is the file to write · it prints the number of axes and cells. An **axis** is a dimension that is crossed with the others; a dimension that is not an axis is a **detail**, which the generator varies inside one situation.
+- `driftbench extract map`: reads the approved map and writes the **space map**, the file the `space` commands read · `acme/map/approved.yaml` is the approved map; `--to acme/map/space.yaml` is the file to write · it prints the number of axes and cells. An **axis** is a dimension that is crossed with the others. A dimension that is not an axis is a **detail**, which the generator varies inside one situation.
 
 **You type.**
 
@@ -230,7 +230,7 @@ Wrote acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_ty
 
 **Relevant commands.**
 
-- `driftbench generate`: enumerates specs from an approved map, with no model · `--map` is the approved map; `--out` is the folder to write (`specs` for the complete tests, `incomplete` for placeholders, and a report); `--t 2` makes the covering array of strength 2, so every pair of values meets at least once; `--seed 1` fixes every random choice, so the same map and seed give the same files · it writes the files, prints a table by **seeder** and exits 1 when some specs are incomplete. A seeder is a rule that writes one family of specs, such as the stage graph, the covering array, boundary values or deviations.
+- `driftbench generate`: enumerates specs from an approved map, with no model · `--map` is the approved map. `--out` is the folder to write (`specs` for the complete tests, `incomplete` for placeholders, and a report). `--t 2` makes the covering array of strength 2. Every pair of values meets at least once. `--seed 1` fixes every random choice. The same map and seed give the same files · it writes the files, prints a table by **seeder** and exits 1 when some specs are incomplete. A seeder is a rule that writes one family of specs, such as the stage graph, the covering array, boundary values or deviations.
 
 First, try the proposal that nothing approved. Generation refuses it:
 
@@ -311,7 +311,7 @@ Coverage: 10 of 10 required cells covered, 708 of 708 cells at t = 2 (100.0%).
 
 **Relevant commands.**
 
-- `driftbench gate`: passes every block through nine stages and keeps the blocks that no stage rejects · `examples/acme/specs` is the folder of candidate specs; `--reference` names a good agent, and you repeat it; `--route flow:price-sheet=process:acme-ops` sends the specs that carry the tag `flow:price-sheet` to the ops agent; `--faults` is the fault set; `--date 2026-10-11` is the creation date written into the blocks, so the output is the same on every run; `--out gated-hand` is the folder to write · it prints the funnel, one row per stage, and the mutation score for each fault class, and writes the gated specs, a sealed holdout and `gate-report.json`.
+- `driftbench gate`: passes every block through nine stages and keeps the blocks that no stage rejects · `examples/acme/specs` is the folder of candidate specs. `--reference` names a good agent, and you repeat it. `--route flow:price-sheet=process:acme-ops` sends the specs that carry the tag `flow:price-sheet` to the ops agent. `--faults` is the fault set. `--date 2026-10-11` is the creation date written into the blocks. The output is the same on every run. `--out gated-hand` is the folder to write · it prints the funnel, one row per stage, and the mutation score for each fault class. It writes the gated specs, a sealed holdout and `gate-report.json`.
 
 **You type.**
 
@@ -338,7 +338,7 @@ Wrote 11 files to gated-hand.
 
 **How to read it.**
 
-- Each row of the funnel is a stage. `in` is how many blocks reached it, `rejected` how many it removed, `out` how many went on. The lines in brackets give the reason, such as `passed-by-echo`: a trivial agent that repeats the user's words passes the block, so the block proves nothing.
+- Each row of the funnel is a stage. `in` is how many blocks reached it, `rejected` how many it removed, `out` how many went on. The lines in brackets give the reason. One example is `passed-by-echo`: a trivial agent that repeats the user's words passes the block, so the block proves nothing.
 - `Accepted 24 of 28 blocks.` is the result: the blocks that remain.
 - `Mutation score per fault class` says how many planted bugs the kept blocks catch. `2/2 killed` means both bugs of that class made at least one kept block fail. A class with no scored fault is skipped.
 - The gate also seals part of the specs in a **holdout** folder and never runs them. You keep them to check your agent later on tests it never saw.
@@ -359,7 +359,7 @@ Wrote 11 files to gated-hand.
 
 **Relevant commands.**
 
-- `driftbench select`: chooses a golden set · `--cover acme/map/space.yaml` is the map; `--specs examples/acme/gated` is the gated folder; `--out golden` is the folder to write; `--k 10` keeps the 10 best specs; `--t` (not used here) changes the strength, and its default is 2 · it prints the ranked table and the coverage of the chosen set, and writes the specs and `golden.json`.
+- `driftbench select`: chooses a golden set · `--cover acme/map/space.yaml` is the map. `--specs examples/acme/gated` is the gated folder. `--out golden` is the folder to write. `--k 10` keeps the 10 best specs. `--t` (not used here) changes the strength. Its default is 2 · it prints the ranked table and the coverage of the chosen set, and writes the specs and `golden.json`.
 
 **You type.**
 
@@ -417,7 +417,7 @@ Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs
 **How to read it.**
 
 - `20 cells of N allowed` is how many conversations were chosen, out of the allowed pool.
-- `pairs covered X of Y` is what the 20 reach. It is a partial cover, and that is the point: the first pick is the one that adds the most pairs, so the early picks matter most.
+- `pairs covered X of Y` is what the 20 reach. It is a partial cover, and that is the point. The first pick is the one that adds the most pairs, so the early picks matter most.
 - `max deviation from fair share` is how uneven the values are. A low number means each value is used about as often as the others.
 - The same map, seed and budget give the same suite. Change `--seed` to get another equally good suite.
 - The research note [budget-bounded tests](../research/budget-bounded-tests.md) measures this on Acme. It reports that at budget 20 the selector catches 9.00 of 13 seeded faults on average, against 8.37 for random choice. It makes no claim beyond Acme.

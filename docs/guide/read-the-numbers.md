@@ -110,7 +110,7 @@ twise
 
 **Relevant commands.**
 
-- `driftbench campaign plan`: expands the tests into cells, projects the cost, and prints the **minimum detectable effect** · `examples/acme/golden/specs` is the folder of tests; `--target function:acme-sales` is the agent to run them on; `--route flow:price-sheet=process:acme-ops` sends every test tagged `flow:price-sheet` to the ops agent; `--repeats 5` plans 5 runs of each test; `--baseline-rate 0.9` is the pass rate you expect from the baseline, here 90%; `--rho 0.3` says how much repeats of one test resemble each other · it prints the plan and runs nothing.
+- `driftbench campaign plan`: expands the tests into cells, projects the cost, and prints the **minimum detectable effect** · `examples/acme/golden/specs` is the folder of tests. `--target function:acme-sales` is the agent to run them on. `--route flow:price-sheet=process:acme-ops` sends every test tagged `flow:price-sheet` to the ops agent. `--repeats 5` plans 5 runs of each test. `--baseline-rate 0.9` is the pass rate you expect from the baseline, here 90%. `--rho 0.3` says how much repeats of one test resemble each other · it prints the plan and runs nothing.
 
 **You type.**
 
@@ -150,7 +150,7 @@ Minimum detectable effect, mode F: 22.7 points on a 90% pass rate, with 50 runs 
 
 **Relevant commands.**
 
-- `driftbench campaign run`: runs every test and checks each answer · the folder and `--target`, `--route` are as in step 2; `--agent-version v1` writes a label on the version of the agent under test, so a later version never reuses the cached answers of this one; `--store runs.db` is the file that keeps the runs; `--campaign v1` is the name of this campaign · it prints one line per cell and a count, and exits 0 when every cell passes. This guide leaves the repeats at 1 to keep the runs short. For a real decision use several, as step 2 planned.
+- `driftbench campaign run`: runs every test and checks each answer · the folder and `--target`, `--route` are as in step 2. `--agent-version v1` writes a label on the version of the agent under test, so a later version never reuses the cached answers of this one. `--store runs.db` is the file that keeps the runs. `--campaign v1` is the name of this campaign · it prints one line per cell and a count, and exits 0 when every cell passes. This guide leaves the repeats at 1 to keep the runs short. For a real decision use several, as step 2 planned.
 
 **You type.**
 
@@ -184,7 +184,7 @@ The command prints 10 lines. Four are shown.
 
 **Relevant commands.**
 
-- `driftbench report`: reads a stored campaign and writes its scorecard · `v1` is the campaign; `--store runs.db` is the file to read; `--out v1.html` is the HTML page to write, one file with no script and no outside asset; `--junit v1.xml` also writes the same results as JUnit XML, the format that continuous integration systems read · it prints a short summary and writes the two files.
+- `driftbench report`: reads a stored campaign and writes its scorecard · `v1` is the campaign. `--store runs.db` is the file to read. `--out v1.html` is the HTML page to write, one file with no script and no outside asset. `--junit v1.xml` also writes the same results as JUnit XML, the format that continuous integration systems read · it prints a short summary and writes the two files.
 - `sed -n 1p v1.xml`: prints the first line of the XML file, to show that it is plain XML · `-n 1p` prints line 1 only · it prints one line.
 
 **You type.**
@@ -231,7 +231,7 @@ It prints the address it listens on, such as `http://127.0.0.1:<port>`. It shows
 **Relevant commands.**
 
 - `driftbench campaign run`: runs the candidate · the options are those of step 3, with `--agent-version v2` and `--campaign v2` · it adds the campaign `v2` to `runs.db`.
-- `driftbench compare`: pairs the goldens that both campaigns ran, one by one, and gives a verdict · `--baseline v1` is the version you trust; `--candidate v2` is the one to check; `--store runs.db` is the file that holds both; `--margin 10` (second command) sets the largest drop you accept, in points, where the default `auto` is the smallest margin these tests can show · it prints the tables and a verdict, and exits 0 when the candidate is non-inferior, 1 when it regressed or is not shown non-inferior, and 2 on bad input.
+- `driftbench compare`: pairs the goldens that both campaigns ran, one by one, and gives a verdict · `--baseline v1` is the version you trust. `--candidate v2` is the one to check. `--store runs.db` is the file that holds both. `--margin 10` (second command) sets the largest drop you accept, in points, where the default `auto` is the smallest margin these tests can show · it prints the tables and a verdict. It exits 0 when the candidate is non-inferior, 1 when it regressed or is not shown non-inferior, and 2 on bad input.
 
 **You type.**
 
@@ -291,7 +291,7 @@ Verdict: NOT SHOWN NON-INFERIOR.
 
 **Relevant commands.**
 
-- `driftbench ci`: runs the tests on a candidate, pairs the result with the baseline, and gates · `--specs examples/acme/golden/specs` is the folder of tests; `--target fault:x3-skips-recap` is the candidate; `--faults examples/acme/faults` is the folder of planted faults, needed for any `fault:` target; `--route` is as in step 2; `--agent-version v3` labels the candidate; `--baseline v1` is the campaign to compare with; `--store runs.db` is the file that holds it and receives the candidate; `--out v3-ci.json` is the file for the summary · it prints the tables and the verdict, and exits 0 on `PARITY`, 1 on `REGRESSION`, `NOT SHOWN NON-INFERIOR` or an incomplete run, and 2 on bad input.
+- `driftbench ci`: runs the tests on a candidate, pairs the result with the baseline, and gates · `--specs examples/acme/golden/specs` is the folder of tests. `--target fault:x3-skips-recap` is the candidate. `--faults examples/acme/faults` is the folder of planted faults, needed for any `fault:` target. `--route` is as in step 2. `--agent-version v3` labels the candidate. `--baseline v1` is the campaign to compare with. `--store runs.db` is the file that holds it and receives the candidate. `--out v3-ci.json` is the file for the summary · it prints the tables and the verdict, and exits 0 on `PARITY`, 1 on `REGRESSION`, `NOT SHOWN NON-INFERIOR` or an incomplete run, and 2 on bad input.
 
 **You type.** First the control. It must read parity:
 
@@ -354,7 +354,7 @@ To run the gate in GitHub Actions, copy `examples/acme/ci/driftbench-ci.yml` int
 **Relevant commands.**
 
 - `driftbench campaign run`: runs one more campaign, `v4`, the same agent as `v1` · the options are those of step 3, with `--agent-version v4` and `--campaign v4` · it adds the campaign.
-- `driftbench monitor`: reads the series and looks for a shift · `--store runs.db` is the file to read; `--metric pass_rate` is the value of each point (`cost` and `latency` also work); `--window 2` is the number of first campaigns that set the normal level · it prints the detectors and a verdict, and exits 0 when no shift is seen, 1 when two of three detectors alarm, and 2 on bad input.
+- `driftbench monitor`: reads the series and looks for a shift · `--store runs.db` is the file to read. `--metric pass_rate` is the value of each point (`cost` and `latency` also work). `--window 2` is the number of first campaigns that set the normal level · it prints the detectors and a verdict. It exits 0 when no shift is seen, 1 when two of three detectors alarm, and 2 on bad input.
 
 **You type.**
 

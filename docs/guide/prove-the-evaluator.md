@@ -126,7 +126,7 @@ No level failed.
 - `Floor: 20. BELOW THE FLOOR.`: this compares a slice with the floor of the whole ladder. A slice cannot reach it. CI runs the whole ladder.
 - The exit code is 0 for a slice. CI joins slices with `--reports` to rebuild a whole run.
 
-A whole ladder takes minutes, so the tests of this page do not run one. The statistics ladder is the slowest, so here is a real run of its first three levels, recorded on a GitHub runner (run 39694718442, Node 24). It took 47 seconds and exited 0:
+A whole ladder takes minutes, so the tests of this page do not run one. The statistics ladder is the slowest. Here is a real run of its first three levels, recorded on a GitHub runner (run 39694718442, Node 24). It took 47 seconds and exited 0:
 
 ```txt
 $ driftbench validate stats --seed 1 --levels 1..3
@@ -146,7 +146,7 @@ Floor: 3. At or above the floor.
 No level failed.
 ```
 
-Read it like the judges table: levels 1 to 3 pass, the others are `not run`, and `Floor: 3. At or above the floor.` says the first three levels are all that this ladder requires today. This is how CI runs every ladder. It is shown for reference and it is not run here:
+Read it like the judges table: levels 1 to 3 pass, and the others are `not run`. The line `Floor: 3. At or above the floor.` says the first three levels are all that this ladder requires today. This is how CI runs every ladder. It is shown for reference and it is not run here:
 
 ```bash
 driftbench validate all --seeds 1..3 --hidden --check-floor
@@ -188,7 +188,7 @@ The gate runs nine stages in order. A block is counted once, at the first stage 
 
 **Relevant commands.**
 
-- `driftbench gate`: runs the nine stages over candidate tests · `examples/acme/specs` is the folder of candidates; each `--reference` names a correct agent; `--route flow:price-sheet=process:acme-ops` sends the tests tagged `flow:price-sheet` to the ops agent; `--faults examples/acme/faults` is the fault set; `--date 2026-10-11` fixes the creation date that blocks record, so the output repeats; `--out gated` is the folder to write · it prints the funnel and the mutation score per fault class, writes the gated tests, a sealed holdout and `gate-report.json`. Exit 0 means at least one block was accepted.
+- `driftbench gate`: runs the nine stages over candidate tests · `examples/acme/specs` is the folder of candidates. Each `--reference` names a correct agent. `--route flow:price-sheet=process:acme-ops` sends the tests tagged `flow:price-sheet` to the ops agent. `--faults examples/acme/faults` is the fault set. `--date 2026-10-11` fixes the creation date that blocks record, so the output repeats. `--out gated` is the folder to write · it prints the funnel and the mutation score per fault class, writes the gated tests, a sealed holdout and `gate-report.json`. Exit 0 means at least one block was accepted.
 
 **You type.**
 

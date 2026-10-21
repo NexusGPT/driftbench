@@ -113,8 +113,8 @@ bad/ask.yaml: the criterion is named one_question_per_turn, the file ask
 
 **If it goes wrong.**
 
-- A line that names a file and says its criterion name differs from the file name (exit 1): rename the file, or the `name`, so they match.
-- A missing FAIL or PASS picture, or a fixture pair that is the same slice twice (exit 1): give the criterion a `pass` and a `fail` sentence, and two different transcripts.
+- A line that names a file and says its criterion name differs from the file name (exit 1). Rename the file, or the `name`, so they match.
+- A missing FAIL or PASS picture, or a fixture pair that is the same slice twice (exit 1). Give the criterion a `pass` and a `fail` sentence, and two different transcripts.
 - The folder cannot be read (exit 2): the path is wrong. The path is read from the folder you are in.
 
 ## 3. Make a judge earn its place
@@ -151,7 +151,7 @@ A judge at the bar on both owns the criterion. A class needs three judges at the
 
 **Relevant commands.**
 
-- `driftbench judge calibrate`: tests every judge of the cassette on every criterion and writes the assignment table · `--criteria examples/acme/criteria` is the criteria folder; `--labels examples/acme/labels` is the hand labels; `--cassette examples/acme/criteria/calibration/cassette.json` replays the recorded answers, so no model is called; `--out assignments.yaml` is the file to write · it prints one block per criterion, then the summary, and writes the table. Exit 0 means the table is written and every gating criterion is assigned.
+- `driftbench judge calibrate`: tests every judge of the cassette on every criterion and writes the assignment table · `--criteria examples/acme/criteria` is the criteria folder. `--labels examples/acme/labels` is the hand labels. `--cassette examples/acme/criteria/calibration/cassette.json` replays the recorded answers, so no model is called. `--out assignments.yaml` is the file to write · it prints one block per criterion, then the summary, and writes the table. Exit 0 means the table is written and every gating criterion is assigned.
 
 **You type.**
 
@@ -198,7 +198,7 @@ $ grep -A13 "criterion: holds_instructions" assignments.yaml
     kappa: 1
 ```
 
-A real judge goes through the same test. The repository records one: a `claude-haiku` judge on the 12 pairs (3 repeats) and the 40 labels cost 0.0182 USD, and reached kappa 0.95 (39 of 40). Source: `docs/concepts/judges.md`, section "A real judge: haiku on the claude command". After three fixes to rubrics and inputs, kappa rose to 1.00 (40 of 40). To run that yourself you need the `claude` command signed in. It bills your account, so it is not run by the tests:
+A real judge goes through the same test. The repository records one. A `claude-haiku` judge on the 12 pairs (3 repeats) and the 40 labels cost 0.0182 USD, and reached kappa 0.95 (39 of 40). Source: `docs/concepts/judges.md`, section "A real judge: haiku on the claude command". After three fixes to rubrics and inputs, kappa rose to 1.00 (40 of 40). To run that yourself you need the `claude` command signed in. It bills your account, so it is not run by the tests:
 
 ```bash
 driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --mode llm --spend-cap-usd 0.1 --record haiku.cassette.json --out haiku.yaml
@@ -209,7 +209,7 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 **If it goes wrong.**
 
 - `Unassigned, judged but never gating: <criterion>` and exit 1 when that criterion is gating: no class has three judges at the bar. Read the `misses:` lines. Rewrite the rubric, or add labels. Keep the bar at 0.8.
-- A labels file refused (exit 2): its name must equal its criterion, it needs at least one pass and one fail label, and every block id must be unique.
+- A labels file refused (exit 2). Its name must equal its criterion, it needs at least one pass and one fail label, and every block id must be unique.
 - A line with a judge call that "gave no answer" (exit 1): the cassette holds no recording for that request. A change to a rubric, a fixture or a prompt changes the request key, so the old recordings no longer match. Record again.
 - A judge of the agent's own model family is left out, and the summary names it. Pass `--agent-family <family>` to state the family. Use `none` for an agent that is not a model.
 
@@ -280,7 +280,7 @@ The design, in plain words:
 - Only a doubtful item goes on to the costly judges, which come from other model families. They vote, and the vote decides.
 - Whatever the cheap judge was sure about is never sent. That is where the money is saved.
 
-Its measured results come from a test that was sealed first: the items and the settings were fixed before any score existed, and the sealed set was used once. The numbers below are from `research/moj/RESULTS.md`, section "Sealed confirmation (run once)". Each score is the share of pairs where the judge picked the right reply, with a 95% interval in brackets. The last column is a rule that always picks the longer reply, as a floor.
+Its measured results come from a test that was sealed first. The items and the settings were fixed before any score existed, and the sealed set was used once. The numbers below are from `research/moj/RESULTS.md`, section "Sealed confirmation (run once)". Each score is the share of pairs where the judge picked the right reply, with a 95% interval in brackets. The last column is a rule that always picks the longer reply, as a floor.
 
 | Test set | Pairs | Mixture of judges | promptfoo select-best | Always the longer reply |
 |---|---|---|---|---|
@@ -309,7 +309,7 @@ The full mixture runs from the research harness in `research/moj`. The router it
 
 **Relevant commands.**
 
-- `driftbench smoke`: runs a test 3 times and judges each judged block · `examples/acme/specs/conversations/tool-failure.yaml` is the test; `--judges examples/acme/criteria/calibration/campaign.cassette.json` replays six recorded judges, so no model is called; `--judge-route escalation` sends each call through the router; `--route-first openai-chat` is the judge that answers first; each `--route-then` is a judge asked only when a sign of doubt fires · it prints the runs, the verdicts and the cost of the judges.
+- `driftbench smoke`: runs a test 3 times and judges each judged block · `examples/acme/specs/conversations/tool-failure.yaml` is the test. `--judges examples/acme/criteria/calibration/campaign.cassette.json` replays six recorded judges, so no model is called. `--judge-route escalation` sends each call through the router. `--route-first openai-chat` is the judge that answers first. Each `--route-then` is a judge asked only when a sign of doubt fires · it prints the runs, the verdicts and the cost of the judges.
 
 **You type.**
 
@@ -329,7 +329,7 @@ Judge escalation openai-chat then google-chat, anthropic-chat, 0.0000 USD.
 
 **If it goes wrong.**
 
-- A route with no first judge, an agent family that matches a judge of the cassette, or `--judge-route` with `--panel-weights` (all exit 2): the command refuses before any run. State a `--route-first`, change `--agent-family`, and use only one way to decide.
+- A route with no first judge, an agent family that matches a judge of the cassette, or `--judge-route` with `--panel-weights` (all exit 2). The command refuses before any run. State a `--route-first`, change `--agent-family`, and use only one way to decide.
 - `--route-then` judges must come from more than one model family together with the first judge. A pool of one family is refused.
 
 ## 6. The default judge

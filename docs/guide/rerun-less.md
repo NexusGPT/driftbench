@@ -129,14 +129,14 @@ The radius is the whole suite: rule:reply_language: the reply language rule hold
 
 ## 4. Run the radius and carry the rest
 
-**Why you do this.** The radius is only a list. This step runs it: the cells in the radius run on the new agent, and the stored results of the other cells are copied into the new campaign. You keep one full set of results and pay for a part.
+**Why you do this.** The radius is only a list. This step runs it. The cells in the radius run on the new agent. The stored results of the other cells are copied into the new campaign. You keep one full set of results and pay for a part.
 
 **What you need.** A first campaign that ran the whole suite on the old agent, and kept in a store. The agent version is a label you choose. It must be the `from` of the change file.
 
 **Relevant commands.**
 
-- `driftbench campaign run` (the baseline): runs the whole suite on the old agent and keeps it · the six folders are the conversations of the Acme suite; `--target function:acme-sales` is the Acme sales assistant; `--agent-version acme-v1` labels the agent, so a later run knows which agent produced each result; `--campaign c-base` names the campaign; `--store acme.db` is the file that keeps it · it prints one line per cell.
-- `driftbench campaign run --change ... --from c-base` (the new agent): runs the radius and carries the rest · `--agent-version acme-v2` is the new label, the `to` of the change file; `--change` is the change file; `--from c-base` is the campaign the carried results are read from; `--audit 20` runs 20 of the cells it would carry and compares them with their stored result (step 5); `--campaign c-v2` and `--store acme.db` as before · it prints the radius, the audit, one line per cell and the saving.
+- `driftbench campaign run` (the baseline): runs the whole suite on the old agent and keeps it · the six folders are the conversations of the Acme suite. `--target function:acme-sales` is the Acme sales assistant. `--agent-version acme-v1` labels the agent, so a later run knows which agent produced each result. `--campaign c-base` names the campaign. `--store acme.db` is the file that keeps it · it prints one line per cell.
+- `driftbench campaign run --change ... --from c-base` (the new agent): runs the radius and carries the rest · `--agent-version acme-v2` is the new label, the `to` of the change file. `--change` is the change file. `--from c-base` is the campaign the carried results are read from. `--audit 20` runs 20 of the cells it would carry and compares them with their stored result (step 5). `--campaign c-v2` and `--store acme.db` as before · it prints the radius, the audit, one line per cell and the saving.
 - `driftbench campaign status`: reads the new campaign back · `c-v2` is the campaign; `--store acme.db` the file · it prints the cells with a mark on each carried cell, and the count.
 
 **You type.**
@@ -167,12 +167,12 @@ The output is trimmed to the lines that matter. The Acme agents here are the cor
 - `pass (carried from c-base, age 1 campaign)`: this result was not measured on the new agent. It is the stored result of `acme-v1`, copied.
 - `Fresh: 29 cells, 160 blocks sent`: this is what the agent really received. `Carried ... 672 blocks not sent` is what you saved.
 - `Saved: 672 of 832 blocks, 80.8%`: 832 is every block of the 171 cells. The counts of pass and fail merge fresh and carried results, and the line says so.
-- A carried result is one old measure. Two limits bring it back into the run: `--max-carry <n>` (the most campaigns in a row a result is carried, default 5) and `--max-age <days>` (the most days since it was measured, default 7). Run the whole suite on a schedule, such as every night, so every result is fresh again.
+- A carried result is one old measure. Two limits bring it back into the run. `--max-carry <n>` is the most campaigns in a row a result is carried, default 5. `--max-age <days>` is the most days since it was measured, default 7. Run the whole suite on a schedule, such as every night, so every result is fresh again.
 - A carried cell is not a new sample of the new agent. `compare` and `ci --change` pair only fresh cells, so a carried cell never narrows an interval.
 
 **If it goes wrong.**
 
-- Nothing is carried and every cell runs. The cause is one of four: the campaign has no `--agent-version`; the version is not the `to` of the change file; the `--from` campaign holds no run of the `from` version; the radius is the whole suite. The first lines of the output say which.
+- Nothing is carried and every cell runs. The cause is one of four. The campaign has no `--agent-version`. The version is not the `to` of the change file. The `--from` campaign holds no run of the `from` version. The radius is the whole suite. The first lines of the output say which.
 - A cell outside the radius runs fresh: the `--from` campaign holds no finished run of it, or the run was made on another agent version.
 - A carry needs `--from`, `--store` and an agent version. Without the store file of the baseline, there is nothing to carry from.
 - The id is refused: a store never takes two campaigns with one id. Pick a new `--campaign` value.
@@ -181,7 +181,7 @@ The output is trimmed to the lines that matter. The Acme agents here are the cor
 
 **Why you do this.** The radius is right only if your change file lists every change. A cell you carry may hide a change you forgot. The audit tests that claim on a sample, before anything is carried.
 
-**What you need.** The command of step 4, with `--audit <n>`. It draws `n` of the cells about to be carried, runs them fresh, and compares each with its stored result: the status, every gating check of every block, and the end state. `--audit-seed <n>` changes the draw (default 1).
+**What you need.** The command of step 4, with `--audit <n>`. It draws `n` of the cells about to be carried, runs them fresh, and compares each with its stored result. The comparison covers the status, every gating check of every block, and the end state. `--audit-seed <n>` changes the draw (default 1).
 
 **How to read it.**
 
@@ -244,7 +244,7 @@ The output is trimmed to the first cell and the count.
 
 **Relevant commands.**
 
-- `driftbench dataset push`: loads every test of the folder, refuses the push if one is invalid, and stores the files as a new version · `acme-specs` is the name of the dataset; the folder is the tests to keep; `--store versions.db` is the file; `--note` is a free note on the version · it prints the version number and a hash of its content. Pushing content the name already holds adds nothing and prints `Unchanged`.
+- `driftbench dataset push`: loads every test of the folder, refuses the push if one is invalid, and stores the files as a new version · `acme-specs` is the name of the dataset. The folder is the tests to keep. `--store versions.db` is the file. `--note` is a free note on the version · it prints the version number and a hash of its content. Pushing content the name already holds adds nothing and prints `Unchanged`.
 - `cp -R` and `printf ... >> file`: copy the folder and add a comment line to one test, to make a second version · `-R` copies a whole folder; `>>` appends · they produce `edited`.
 - `driftbench dataset diff`: compares a version with the one before it · `acme-specs@2` is the version; `--store versions.db` is the file · it marks each file `A` added, `D` removed or `M` changed, shows the changed lines, and exits 1 when the two differ.
 - `driftbench campaign run --dataset`: runs the tests of a dataset version, restored byte for byte · `acme-specs@1` is the version to run; `--target function:acme` is the agent; `--campaign` and `--store` as before · it prints one line per cell, and the campaign records the version by name, number and hash.
@@ -303,8 +303,8 @@ This route is run end to end, with its output, in step 4 of the [walkthrough](wa
 
 ## 9. When rerunning less is not safe
 
-- The radius is sound for the change you declare, under two assumptions: a block's result depends only on what it declares and on its history, and the change file lists every change. It does not prove that the new agent equals the old one outside the radius.
-- Unknown means in. Three things give a larger radius, up to the whole suite: a block with unknown dependencies, a change the radius cannot map, and a change no block declares.
+- The radius is sound for the change you declare, under two assumptions. A block's result depends only on what it declares and on its history. The change file lists every change. It does not prove that the new agent equals the old one outside the radius.
+- Unknown means in. Three things give a larger radius, up to the whole suite. They are a block with unknown dependencies, a change the radius cannot map, and a change no block declares.
 - Run the whole suite on a schedule. It is the check that needs no change file, and it makes every carried result fresh again.
 - Gate a pull request with `driftbench ci --change`, which uses the same radius. See [gate a pull request](../recipes.md#gate-a-pull-request).
 

@@ -54,7 +54,7 @@ target:
 **If it goes wrong.**
 
 - `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` (exit 2): the spec names an `http` target and gives no address. Add `url` as shown, or export `DRIFTBENCH_HTTP_URL`.
-- Your agent is a function and the command line does not know it: write the run in code with the [function adapter](../adapters/function.md), or put your function behind a small command and use `process` (step 3).
+- Your agent is a function and the command line does not know it. Write the run in code with the [function adapter](../adapters/function.md), or put your function behind a small command and use `process` (step 3).
 
 The page of each adapter lists its options: see the [adapters index](../adapters/index.md).
 
@@ -76,11 +76,11 @@ blocks:
       criteria: [one_question_per_turn]
 ```
 
-The first block says: the user writes that message; the agent must reach the stage `identify`, call the tool `catalog.search` 0 times, and say "Acme Telecom" and "email address".
+The first block says this. The user writes that message. The agent must reach the stage `identify`, call the tool `catalog.search` 0 times, and say "Acme Telecom" and "email address".
 
 **Relevant commands.**
 
-- `driftbench campaign run`: runs every block of a test against your agent, applies the checks to each answer, and prints one line per cell · `examples/acme/specs/conversations/plan-upgrade.yaml` is the test (a folder runs every test in it); `--target function:acme` says to run it on the Acme sales assistant, through the function adapter; `--campaign fn-1` gives the campaign an id you choose, so a later command can name it · it prints a verdict line per cell and a count, and exits 0 when every cell passes.
+- `driftbench campaign run`: runs every block of a test against your agent, applies the checks to each answer, and prints one line per cell · `examples/acme/specs/conversations/plan-upgrade.yaml` is the test (a folder runs every test in it). `--target function:acme` says to run it on the Acme sales assistant, through the function adapter. `--campaign fn-1` gives the campaign an id you choose. A later command can then name it · it prints a verdict line per cell and a count, and exits 0 when every cell passes.
 
 **You type.**
 
@@ -165,7 +165,7 @@ blocks:
 **Relevant commands.**
 
 - `driftbench spec validate`: checks that every test file in a folder is well formed, before anything runs · `specs` is the folder to check · it prints one line per file and a count, and exits 0 when every file is valid.
-- `driftbench campaign run`: runs the tests as in step 2 · `specs` is the folder of tests; `--target process:my-agent` says to use the `process` adapter for the agent `my-agent`; `--process-command` is a JSON list, the program and its arguments, that starts your agent (`$PWD` is the current folder; the command runs in a temporary folder, so it needs the full path of the script); `--campaign` names the campaign · it prints one verdict line per cell and a count.
+- `driftbench campaign run`: runs the tests as in step 2 · `specs` is the folder of tests. `--target process:my-agent` says to use the `process` adapter for the agent `my-agent`. `--process-command` is a JSON list, the program and its arguments, that starts your agent. `$PWD` is the current folder. The command runs in a temporary folder, so it needs the full path of the script. `--campaign` names the campaign · it prints one verdict line per cell and a count.
 - `sed 's/Refund started for order/Started a return for/' agent.mjs > broken-agent.mjs`: copies the stand-in and changes the sentence it prints, so you can see a failure · the `s/old/new/` part is the change; `>` writes the copy · it produces `broken-agent.mjs`.
 
 **You type.**
@@ -216,7 +216,7 @@ $ driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --campaign 
 
 **Relevant commands.**
 
-- `driftbench campaign plan`: expands the tests into cells, projects the cost and prints the **minimum detectable effect** · the folder is the set of tests; `--target function:acme` is the agent; `--repeats 2` runs each test 2 times; `--rho 0.3` says how alike repeats of one test are, from 0 (independent, the optimistic default) to 1 · it prints the plan and runs nothing.
+- `driftbench campaign plan`: expands the tests into cells, projects the cost and prints the **minimum detectable effect** · the folder is the set of tests. `--target function:acme` is the agent. `--repeats 2` runs each test 2 times. `--rho 0.3` says how alike repeats of one test are. The scale runs from 0 (independent, the optimistic default) to 1 · it prints the plan and runs nothing.
 
 The minimum detectable effect is the smallest drop in pass rate that two runs of this size can tell apart from luck. An example: with 12 runs per side, it is 47.8 points. A real drop of 20 points would go unseen.
 
@@ -265,8 +265,8 @@ Unknown mode "X". The modes are T, F and P, alone or separated by commas.
 
 **Relevant commands.**
 
-- `driftbench campaign run --mode T,F,P`: runs the test once in each mode · `--mode T,F,P` lists the modes (default `F`); a P cell runs for each perturbation the test declares; `--store runs.db` is the file that keeps the runs, which the next command reads; `--campaign modes-1` names the campaign · it prints one line per cell. A P line ends with the name of its perturbation.
-- `driftbench campaign status --detail`: reads a stored campaign and prints its cells, plus three tables · `modes-1` is the campaign; `--store runs.db` is the file to read; `--detail` adds three tables: the **compounding index** (the T pass rate minus the F pass rate); the **succession** of each run (where its first failing block is); the **recovery** of each perturbed run · it prints the tables and runs nothing.
+- `driftbench campaign run --mode T,F,P`: runs the test once in each mode · `--mode T,F,P` lists the modes (default `F`). A P cell runs for each perturbation the test declares. `--store runs.db` is the file that keeps the runs. The next command reads it. `--campaign modes-1` names the campaign · it prints one line per cell. A P line ends with the name of its perturbation.
+- `driftbench campaign status --detail`: reads a stored campaign and prints its cells, plus three tables · `modes-1` is the campaign. `--store runs.db` is the file to read. `--detail` adds three tables. The **compounding index** is the T pass rate minus the F pass rate. The **succession** of each run is where its first failing block is. The **recovery** table covers each perturbed run · it prints the tables and runs nothing.
 
 **You type.**
 
@@ -314,7 +314,7 @@ The status output is trimmed to the lines that matter.
 
 **Relevant commands.**
 
-- `driftbench campaign run --repeats 3 --store rep.db`: the same run as step 2, three times for each test, kept · the folder is all 6 tests; `--repeats 3` runs each test 3 times; `--store rep.db` is the file where the runs and the cache are kept; `--campaign rep-1` names the campaign · it adds the campaign to `rep.db` and prints one line per cell.
+- `driftbench campaign run --repeats 3 --store rep.db`: the same run as step 2, three times for each test, kept · the folder is all 6 tests. `--repeats 3` runs each test 3 times. `--store rep.db` is the file where the runs and the cache are kept. `--campaign rep-1` names the campaign · it adds the campaign to `rep.db` and prints one line per cell.
 - `driftbench campaign status`: reads a campaign back from the store · `rep-1` is the campaign; `--store rep.db` is the file · it prints the cells and the count, as the run did.
 
 **You type.**
@@ -382,7 +382,7 @@ spec: ../specs/conversations/plan-upgrade.yaml
 
 **Relevant commands.**
 
-- `driftbench simulate`: runs one test once in mode F with the simulated user, and prints each turn · the test is the first argument; `--persona` is the persona file; `--recording` replays the user's answers from a file written earlier, turn by turn, so no model is called · it prints what the user said, what the agent answered, the stage reached, and whether the block passed. It exits 0 when every block passes.
+- `driftbench simulate`: runs one test once in mode F with the simulated user, and prints each turn · the test is the first argument. `--persona` is the persona file. `--recording` replays the user's answers from a file written earlier, turn by turn. No model is called · it prints what the user said, what the agent answered, the stage reached, and whether the block passed. It exits 0 when every block passes.
 
 **You type.**
 
@@ -431,7 +431,7 @@ The attacker runs the test once free: that is its reference. Then, round after r
 
 **Relevant commands.**
 
-- `driftbench attack`: runs the attacker against one test and scores every round with the recovery record · the test is the first argument; `--rounds 10` is the most attacks, one class each (1 to 10, default 10); `--seed 0` fixes every tie and draw, so the same seed gives the same attacks · it prints one row per round and a count of findings, and exits 0 when no attack is a finding.
+- `driftbench attack`: runs the attacker against one test and scores every round with the recovery record · the test is the first argument. `--rounds 10` is the most attacks, one class each (1 to 10, default 10). `--seed 0` fixes every tie and draw. The same seed gives the same attacks · it prints one row per round and a count of findings, and exits 0 when no attack is a finding.
 
 **You type.**
 
@@ -451,7 +451,7 @@ The table is trimmed to three of its ten rows.
 **How to read it.**
 
 - `class` is the deviation. `at` is the block it went in before. `cue` is what the agent's last reply invited. Round 8 attacked an explicit confirmation with a loose "yes".
-- `label`, `turns` and `safe` are the recovery of that round: `immediate` and `0` turns mean the agent came back at once, and `yes` means it made no unsafe act.
+- `label`, `turns` and `safe` are the recovery of that round. `immediate` and `0` turns mean the agent came back at once, and `yes` means it made no unsafe act.
 - `finding` is empty when the agent held. A round is a finding in four cases. The agent made an unsafe act. The agent broke an expectation. A block failed that passed in the reference. The agent did not come back in time.
 - `Findings: 0 of 10 attacks.` is the verdict. The exit code is 0. With a planted fault, the same attacks find what the fault breaks (step 9).
 - `Reply checks: 3 of 4 applied` counts the reply patterns of the pack. One was tied to another stage of the conversation, so it was left out by design.
@@ -521,14 +521,14 @@ The block table is trimmed to three rows.
 **If it goes wrong.**
 
 - `perturb` exits 2 and nothing runs: the input is bad. Check the usage `driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>)`. A `fault:` target needs `--faults`.
-- A `⚠` instead of `✓` before `Recovery`, and a warning on stderr: some stage-bound reply checks had no stage to bind to, so the run is not a full pass. The [attack](../attack.md#stage-bound-reply-patterns) page explains the rule.
+- A `⚠` instead of `✓` before `Recovery`, and a warning on stderr. Some stage-bound reply checks had no stage to bind to, so the run is not a full pass. The [attack](../attack.md#stage-bound-reply-patterns) page explains the rule.
 
 ## 10. Agents that call a model
 
 **Why you do this.** The steps above call no model. A real agent usually does. Read this before you point a run at one.
 
 - Run on a model: use the `http`, `litellm` or `nexus` target, or an SDK adapter from code. The command is the same as in step 2, with `--target http:my-bot`.
-- Cap the spend with `--budget-usd <usd>`. It is a hard stop: once the spend reaches the budget, no new cell starts, and the cells it stopped are counted in the last line. Judge calls and simulated-user calls are not counted. For agents that report tokens and no dollars, the budget needs a price table: see [the budget](../running.md#the-budget).
+- Cap the spend with `--budget-usd <usd>`. It is a hard stop. Once the spend reaches the budget, no new cell starts, and the cells it stopped are counted in the last line. Judge calls and simulated-user calls are not counted. For agents that report tokens and no dollars, the budget needs a price table: see [the budget](../running.md#the-budget).
 - Plan first (step 4). `campaign plan --budget-usd <usd>` compares the projected cost with the budget.
 - Run once on one test before you run all of them.
 

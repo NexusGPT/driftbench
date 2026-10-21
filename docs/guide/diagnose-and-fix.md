@@ -77,7 +77,7 @@ metadata:
 
 **Relevant commands.**
 
-- `driftbench campaign run`: runs every block of the test against the agent and checks each answer · `specs` is the folder of tests; `--target function:acme-sales` is the Acme sales assistant; `--store runs.db` is the file that keeps the run, which the next steps read; `--campaign bad` names the campaign · it prints one line per cell and a count, and exits 1 when a cell fails.
+- `driftbench campaign run`: runs every block of the test against the agent and checks each answer · `specs` is the folder of tests. `--target function:acme-sales` is the Acme sales assistant. `--store runs.db` is the file that keeps the run, which the next steps read. `--campaign bad` names the campaign · it prints one line per cell and a count, and exits 1 when a cell fails.
 - `driftbench campaign status`: reads a stored campaign and prints its cells · `bad` is the campaign; `--store runs.db` is the file to read · it prints the same lines as the run, and exits 1 while a cell fails.
 
 **You type.**
@@ -155,7 +155,7 @@ The document is long: one entry per block, and one verdict per check. Nine lines
 
 **Relevant commands.**
 
-- `driftbench campaign status --detail`: adds tables to the status · `bad` and `--store runs.db` are as before; `--detail` adds the compounding index (T minus F), the succession of each run and the recovery of each perturbed run · it prints the tables.
+- `driftbench campaign status --detail`: adds tables to the status · `bad` and `--store runs.db` are as before. `--detail` adds the compounding index (T minus F), the succession of each run and the recovery of each perturbed run · it prints the tables.
 
 **You type.**
 
@@ -221,7 +221,7 @@ The test of step 1 already holds the links, in `metadata.links`. One line reads:
 
 **Relevant commands.**
 
-- `driftbench radius sections init`: writes a first registry from the headings of the prompt · `mini.md` is the prompt; `--id mini` is the name that links use for this prompt; `--prompt-version v1` is the version the registry describes; `--out mini.sections.yaml` is the file to write · it writes the registry, with a position and a hash for each section.
+- `driftbench radius sections init`: writes a first registry from the headings of the prompt · `mini.md` is the prompt. `--id mini` is the name that links use for this prompt. `--prompt-version v1` is the version the registry describes. `--out mini.sections.yaml` is the file to write · it writes the registry, with a position and a hash for each section.
 - `driftbench radius sections check`: checks that the registry still matches the prompt · the first argument is the registry; `--prompt` is the prompt file · it prints one line and exits 0 when they match, and 1 when the prompt has changed since the registry was written.
 - `driftbench spec lint --sections`: checks that every link of a test names a section the registry holds · `specs` is the folder of tests; `--sections examples/acme/prompts/acme-sales.sections.yaml` is the registry of the real Acme prompt, which has 30 sections · it prints one line per test and a count, and exits 0 when every link is valid.
 
@@ -261,7 +261,7 @@ The last command also prints a line for the test, with its name, its number of b
 
 **Relevant commands.**
 
-- `driftbench radius localize`: ranks the sections of a prompt by how closely they follow the failures · `specs` is the folder of tests that the campaign ran; `--store runs.db` and `--campaign bad` name the campaign; `--sections` names the registry · it prints a table of sections with a score from 0 to 1, and exits 0 with a ranking, or 1 when nothing failed outside inherited failures.
+- `driftbench radius localize`: ranks the sections of a prompt by how closely they follow the failures · `specs` is the folder of tests that the campaign ran; `--store runs.db` and `--campaign bad` name the campaign; `--sections` names the registry · it prints a table of sections with a score from 0 to 1. It exits 0 with a ranking, or 1 when nothing failed outside inherited failures.
 
 **You type.**
 
@@ -306,7 +306,7 @@ The table has ten rows. Two are shown.
 - The **estate map** of the agent: the list of rules its files hold, with the line of each (see step 1 of the [walkthrough](walkthrough.md)). The test names the map in `metadata.estate.map`. It names the rules it tests in `metadata.estate.atoms`.
 - A failing block.
 
-The Acme assistant is code, so it has no estate map. To stay offline, this example borrows rule R7 from the Northwind example estate: "When a shipment is late by more than two days, tell the user and propose a supplier email." The Acme assistant sells phone plans and never mentions a late shipment. It breaks R7 as an agent that ignores the rule would. This is a demonstration of the mechanics. The path in `map` is read from the folder of the test:
+The Acme assistant is code, so it has no estate map. To stay offline, this example borrows rule R7 from the Northwind example estate. R7 reads "When a shipment is late by more than two days, tell the user and propose a supplier email". The Acme assistant sells phone plans and never mentions a late shipment. It breaks R7 as an agent that ignores the rule would. This is a demonstration of the mechanics. The path in `map` is read from the folder of the test:
 
 ```yaml
 # file: fixes/late.yaml
@@ -330,7 +330,7 @@ blocks:
 **Relevant commands.**
 
 - `driftbench campaign run`: runs the test as in step 1 · `fixes` is the folder of this test; `--target function:acme-sales`, `--store runs.db` as before; `--campaign late` names the campaign · the run stores a diagnosis on the failing block. It calls no model.
-- `driftbench report --json`: reads the campaign and prints the whole scorecard as JSON · `late` is the campaign; `--store runs.db` is the file to read; `--out late.html` is the HTML page, which also lists the fixes; `--json` prints the scorecard in place of the summary · the part `attribution.fixes` is the fix list, and each block holds its `diagnoses`.
+- `driftbench report --json`: reads the campaign and prints the whole scorecard as JSON · `late` is the campaign. `--store runs.db` is the file to read. `--out late.html` is the HTML page, which also lists the fixes. `--json` prints the scorecard in place of the summary · the part `attribution.fixes` is the fix list, and each block holds its `diagnoses`.
 
 **You type.**
 
@@ -360,7 +360,7 @@ The JSON document is long. Eleven lines are shown, from two places: the fix list
 - `"fixTarget": "core:CLAUDE.md:15"`: the file and the line: the core prompt `CLAUDE.md`, line 15. That is the line where the Northwind estate states R7.
 - `"fixAction": "strengthen_rule"`: what to do there. The agent could see the rule and broke it, so make the wording harder to miss, or enforce the rule with a guard.
 - `"agentBlocks": 1`: how many of the failing blocks count against the agent. The fix list groups blocks that one change would stop, so a rule that fails in many places is one entry.
-- `"disposition": "agent"`: whether the failure counts against the agent. `agent` and `shared` count. `setup`, `excluded` and `credited` do not: a rule nobody wrote, an invalid test, or a result that works while the check demanded a form nobody states. A run with no rule that fits is `unassigned` and counted apart.
+- `"disposition": "agent"`: whether the failure counts against the agent. `agent` and `shared` count. `setup`, `excluded` and `credited` do not. They cover a rule nobody wrote, an invalid test, or a result that works while the check demanded a form nobody states. A run with no rule that fits is `unassigned` and counted apart.
 - `"confidence": "static"`: the diagnosis comes from the stored record alone. A confirm run, which could run the agent again to settle a doubt, is a library feature with a budget of 0 by default. The command line does not make it.
 - `"fixForms": ["prose", "guard"]`: the fix can be a sentence in the prompt, or a guard in code that checks the rule.
 - A diagnosis never turns a failed check into a pass. The machine verdict stays final.
@@ -416,7 +416,7 @@ items:
 - `driftbench object explain`: prints the rule set that one test uses, with the layer that set each item · `check-set` is the kind; `--at specs/wording.yaml` is the test (add `#<block>` for one block) · it prints one line per item.
 - `driftbench campaign run`: runs the test under the shipped rules · `--agent-version acme-v1` labels the agent version; `--campaign full` names the campaign · it fails, because the reply lacks "Thank you".
 - `driftbench campaign export`: writes a stored campaign as a folder of files · `full` is the campaign; `--out export-full` is the folder · each verdict in it carries its stamp.
-- `grep -rhoE ... | sed ... | sort -u`: lists the rule set named in the stamps · `-r` reads every file of the folder; `-h` hides file names; `-o` prints only the match; `-E` reads the pattern as an extended expression; `sed` drops the content hash, which changes whenever the rule set changes; `sort -u` keeps one of each line · it prints the rule set that scored the verdicts.
+- `grep -rhoE ... | sed ... | sort -u`: lists the rule set named in the stamps · `-r` reads every file of the folder. `-h` hides file names. `-o` prints only the match. `-E` reads the pattern as an extended expression. `sed` drops the content hash, which changes whenever the rule set changes. `sort -u` keeps one of each line · it prints the rule set that scored the verdicts.
 - `driftbench campaign rejudge`: scores the stored runs again under another rule · `specs/wording.yaml` is the test; `--from full` is the campaign whose runs are read; `--campaign acme` names the new campaign; `--use check-set/acme` is the rule set to apply · it stores a new campaign and prints how many blocks it scored. It calls neither the agent nor a judge.
 
 **You type.**

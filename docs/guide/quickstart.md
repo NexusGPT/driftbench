@@ -81,7 +81,7 @@ blocks:
 **Relevant commands.**
 
 - `driftbench spec validate specs`: checks that every test file in a folder is well formed, before anything runs · `specs` is the folder to check · it prints one line per file and a count, and exits 0 when every file is valid.
-- `driftbench campaign run specs --target process:my-agent --process-command ...`: runs every block of every test against your agent and checks each reply · `specs` is the folder of tests; `--target process:my-agent` says how to reach the agent (`process` is the adapter that starts a command, `my-agent` is its name in the spec); `--process-command` is a JSON list, the program and its arguments, that starts your agent (here `node` and the path of `agent.mjs`; `$PWD` is the current folder) · it prints one verdict line per test and a count, and exits 1 when a test fails.
+- `driftbench campaign run specs --target process:my-agent --process-command ...`: runs every block of every test against your agent and checks each reply · `specs` is the folder of tests. `--target process:my-agent` says how to reach the agent. `process` is the adapter that starts a command. `my-agent` is its name in the spec. `--process-command` is a JSON list, the program and its arguments, that starts your agent. Here it is `node` and the path of `agent.mjs`. `$PWD` is the current folder · it prints one verdict line per test and a count, and exits 1 when a test fails.
 
 ```console
 $ driftbench spec validate specs
@@ -119,7 +119,7 @@ $ driftbench report --store runs.db --out scorecard.html
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/scorecard-dark.png">
-    <img src="../assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file, dark by default with a light theme. At the top, the candidate campaign against its baseline: 12 of 26 cases passing against 26 of 26 for the baseline, 36 of 78 runs passing, 14 of 26 cases regressed and none improved, McNemar p = 0.0001. Below, the two versions side by side, then three charts: cases passing by test, runs passing by mode (teacher-forced 57.1%, free-running 57.1%, perturbed 33.3%, each with its interval) and failed checks by type, led by tools (192) and must (162). Then the tests list: each test with its status, its score and one pass or fail pill per check family, the first one failing 0 of 4 cases." width="820" />
+    <img src="../assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file, dark by default with a light theme. At the top, the candidate campaign against its baseline. 12 of 26 cases pass. The baseline passes 26 of 26. 36 of 78 runs pass. 14 of 26 cases regressed and none improved, McNemar p = 0.0001. Below, the two versions side by side, then three charts. The charts show cases passing by test, runs passing by mode and failed checks by type. Runs passing by mode: teacher-forced 57.1%, free-running 57.1%, perturbed 33.3%, each with its interval. Failed checks by type are led by tools (192) and must (162). Then the tests list. Each test shows its status, its score and one pass or fail pill per check family. The first one fails 0 of 4 cases." width="820" />
   </picture>
 </p>
 <p align="center"><sub>The scorecard of the example agents with a bug planted on purpose in each. Numbers and charts first, then every test, then every run: a click opens its conversation and its checks.</sub></p>
