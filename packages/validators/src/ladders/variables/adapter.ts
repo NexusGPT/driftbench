@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
-import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
+import { type PlanSeedRow, planV2, variablesFromSources } from '@agent-nexus/driftbench-generate';
 import { countVariableTuples, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
@@ -12,6 +12,7 @@ import type {
   Provenance,
   QuotesResult,
   Row,
+  Sources,
   StoreDoc,
   ValidateResult,
   VariablesImpl,
@@ -32,8 +33,9 @@ import type {
  *   of docs/variables.md R13, clamped to 0 and 1.
  * - `coverage` is `countVariableTuples` of @agent-nexus/driftbench-space (docs/variables.md R12), on the store file
  *   the projection is written as.
- * - `buildStore` has no product yet: it stays unmapped, and its items fail with the name of the function it
- *   needs. That is the roadmap.
+ * - `buildStore` is `variablesFromSources` of @agent-nexus/driftbench-generate: tool evidence, the values of past
+ *   conversations and what the owner says. It reads structure only, so an item that needs a condition span read
+ *   from English fails until a reader labels the span.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -255,4 +257,45 @@ function coverage(
   );
 }
 
-export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval, coverage };
+function buildStore(sources: Sources): StoreDoc {
+  const built = variablesFromSources({
+    ...(sources.estate === undefined ? {} : { estate: sources.estate }),
+    ...(sources.conversations === undefined ? {} : { conversations: sources.conversations }),
+    ...(sources.owner === undefined ? {} : { owner: sources.owner }),
+  });
+  return {
+    variables: built.store.variables.map((variable) => ({
+      id: variable.id,
+      title: variable.title,
+      values: variable.values.map((value) => ({
+        id: value.id,
+        ...(value.title === undefined ? {} : { title: value.title }),
+        ...(value.weight === undefined ? {} : { weight: value.weight }),
+        ...(value.approved === undefined ? {} : { approved: value.approved }),
+        ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),
+      })),
+    })),
+    impossible: built.store.constraints.map((constraint) => {
+      const [[variableA, valueA], [variableB, valueB]] = Object.entries(constraint.forbid) as [
+        [string, string],
+        [string, string],
+      ];
+      return {
+        a: { variable: variableA, value: valueA },
+        b: { variable: variableB, value: valueB },
+        provenance: (constraint.provenance ?? []) as Provenance[],
+      };
+    }),
+    rules: built.rules,
+    refused: built.refused,
+  };
+}
+
+export const variablesImpl: Partial<VariablesImpl> = {
+  buildStore,
+  validate,
+  quotes,
+  plan,
+  weightInterval,
+  coverage,
+};

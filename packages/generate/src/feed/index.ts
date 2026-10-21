@@ -67,3 +67,10 @@ export {
   type ReaderQuestion,
   type YesNoQuestion,
 } from './reader';
+export {
+  type SourceRefusal,
+  type VariablesFromSources,
+  type VariablesFromSourcesOptions,
+  type VariableSources,
+  variablesFromSources,
+} from './sources';
