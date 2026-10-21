@@ -135,6 +135,7 @@ export default defineConfig({
           { text: 'CLI plugins', link: '/plugins' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
+          { text: 'From a rule to its tests', link: '/rule-links' },
           { text: 'What you can change in an estate', link: '/estate-settings' },
           { text: 'Statistics capabilities', link: '/statistics/capabilities' },
           { text: 'The variable store', link: '/variables' },
