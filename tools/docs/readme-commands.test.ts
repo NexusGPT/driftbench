@@ -145,9 +145,8 @@ async function report(command: string, step: Step, cwd: string): Promise<string>
 }
 
 describe('README commands that print what they show', () => {
-  it('runs the quickstart of the README', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
-    const section = readme.split('## Quickstart\n')[1]?.split('\n## Adapters\n')[0] ?? '';
+  it('runs the quickstart of the guide', async () => {
+    const section = await readFile(`${ROOT}/docs/guide/quickstart.md`, 'utf8');
     const agent = /```js\n([\s\S]*?)\n```/.exec(section)?.[1] ?? '';
     const spec = /```yaml\n([\s\S]*?)\n```/.exec(section)?.[1] ?? '';
     const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
@@ -207,9 +206,7 @@ describe('README commands that print what they show', () => {
   }, 600_000);
 
   it('runs the walkthrough on the fixture estate, one folder, step by step', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
-    const after = readme.split('\n## A walkthrough on your own agent\n')[1] ?? '';
-    const section = after.split('\n## Results\n')[0] ?? '';
+    const section = await readFile(`${ROOT}/docs/guide/walkthrough.md`, 'utf8');
     const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
     expect(consoles.length).toBeGreaterThan(6);
     const base = await mkdtemp(join(tmpdir(), 'driftbench-walk-'));

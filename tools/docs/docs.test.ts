@@ -40,7 +40,12 @@ const RUNTIME_NAMES = [
  * Pages that quote the README's files: maps, personas, section registries, criteria and specs that name an agent.
  * tools/docs/readme-yaml.test.ts loads every YAML fence of these pages with the real loader of its file kind.
  */
-const LOADED_BY_README_YAML = new Set(['innovations.md', 'how-it-works.md', 'recipes.md']);
+const LOADED_BY_README_YAML = new Set([
+  'innovations.md',
+  'how-it-works.md',
+  'recipes.md',
+  join('guide', 'quickstart.md'),
+]);
 
 type Page = { path: string; text: string };
 

@@ -8,6 +8,7 @@ Every page says what exists today and what is not built yet, with the phase that
 
 ## Start here
 
+* [The guide](guide/index.md): learn driftbench by doing. [Quickstart](guide/quickstart.md) tests a small agent with no key. [A walkthrough on your own agent](guide/walkthrough.md) goes from your agent's files to tests, runs one, changes a rule and reruns only what it affects.
 * [Recipes](recipes.md): evaluate your own agent, add a judge, gate a pull request.
 * [Innovations](innovations.md): the ten ideas that lead, then six more, each with its measured impact, its sources, its limits and the files to copy.
 * [How it works](how-it-works.md): the loop of generating tests, running the agent, judging each block, measuring, fixing and rerunning the blast radius.

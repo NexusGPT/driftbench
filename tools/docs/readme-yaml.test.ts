@@ -21,6 +21,7 @@ const README = join(ROOT, 'README.md');
 const INNOVATIONS = join(ROOT, 'docs/innovations.md');
 const HOW_IT_WORKS = join(ROOT, 'docs/how-it-works.md');
 const RECIPES = join(ROOT, 'docs/recipes.md');
+const QUICKSTART = join(ROOT, 'docs/guide/quickstart.md');
 const SUMMARY = '<summary>See it in YAML</summary>';
 /** The folds that carry files: "See it in YAML or TypeScript" on the docs pages, "How to do it" in the README. */
 const DROPDOWN =
@@ -173,7 +174,7 @@ describe('README and docs YAML dropdowns', () => {
 
   it('also loads every YAML snippet outside the dropdowns, in the README and the moved pages', async () => {
     const texts = await Promise.all(
-      [README, INNOVATIONS, HOW_IT_WORKS, RECIPES].map((page) => readFile(page, 'utf8')),
+      [README, INNOVATIONS, HOW_IT_WORKS, RECIPES, QUICKSTART].map((page) => readFile(page, 'utf8')),
     );
     const readme = texts.join('\n').replace(DROPDOWN, '');
     const snippets = [...readme.matchAll(/^```yaml\n([\s\S]*?)^```$/gm)];
