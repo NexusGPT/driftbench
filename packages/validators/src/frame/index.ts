@@ -4,6 +4,13 @@
  * recorded data from two child processes that differ in every signal a product could read about how it is run.
  */
 export {
+  describeSeal,
+  finishInvocation,
+  forgetSealedProducts,
+  RESOLUTION_CONFIG_NAMES,
+  type SealDescriptor,
+} from './confine';
+export {
   type CommandOptions,
   type CommandRun,
   type Frame,

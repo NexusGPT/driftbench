@@ -13,6 +13,7 @@ import {
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
+  finishInvocation,
   floorNote,
   floorOf,
   formatAllFailing,
@@ -225,34 +226,46 @@ export async function validateCommand(
       );
     }
   };
-  if (chosen.some((ladder) => ladder.component === 'system')) await withinStatsMeasurementSweep(measure);
-  else await measure();
-  if (measuredBankHash !== undefined) {
-    try {
-      if (statsBankHash(root) !== measuredBankHash) {
-        io.err('The statistics bank changed during measurement: rerun before recording a journal row.\n');
+  const run = async (): Promise<number> => {
+    if (chosen.some((ladder) => ladder.component === 'system')) await withinStatsMeasurementSweep(measure);
+    else await measure();
+    if (measuredBankHash !== undefined) {
+      try {
+        if (statsBankHash(root) !== measuredBankHash) {
+          io.err('The statistics bank changed during measurement: rerun before recording a journal row.\n');
+          return USAGE_EXIT;
+        }
+      } catch (cause) {
+        io.err(`Cannot verify the measured statistics bank: ${message(cause)}\n`);
         return USAGE_EXIT;
       }
-    } catch (cause) {
-      io.err(`Cannot verify the measured statistics bank: ${message(cause)}\n`);
-      return USAGE_EXIT;
     }
+    if (options.brief)
+      return briefCommand(
+        reports[0] as LadderReport,
+        hidden,
+        floors,
+        Boolean(options.fresh),
+        deps,
+        root,
+        io,
+        evidenceComponent(chosen[0] as Ladder),
+      );
+    print(reports, component === 'all', hidden, floors, options, io, root);
+    // A slice holds some levels of the ladder: the join in --reports reads its level, this run reads none.
+    if (slice) return 0;
+    return verdict(reports, floors, ladders, component, options, io);
+  };
+  let code: number;
+  let changedTrees: string | undefined;
+  try {
+    code = await run();
+  } finally {
+    // Every exit after measurement must mark a tree changed by run C, including usage errors and exceptions.
+    changedTrees = finishInvocation();
+    if (changedTrees !== undefined) io.err(`${changedTrees}\n`);
   }
-  if (options.brief)
-    return briefCommand(
-      reports[0] as LadderReport,
-      hidden,
-      floors,
-      Boolean(options.fresh),
-      deps,
-      root,
-      io,
-      evidenceComponent(chosen[0] as Ladder),
-    );
-  print(reports, component === 'all', hidden, floors, options, io, root);
-  // A slice holds some levels of the ladder: the join in --reports reads its level, this run reads none.
-  if (slice) return 0;
-  return verdict(reports, floors, ladders, component, options, io);
+  return changedTrees === undefined ? code : Math.max(1, code);
 }
 
 /** `--levels a..b`: the first and last level of a slice, or the message that names the problem. */

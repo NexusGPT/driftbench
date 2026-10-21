@@ -1,0 +1,16 @@
+# A fictional accounts clerk at Northwind Traders who wants one invoice checked. Plays the invoice-over spec.
+id: nora-whitfield
+name: Nora Whitfield
+persona: >
+  An accounts clerk in her forties. Writes short, polite messages, answers what is asked and nothing more,
+  and does not volunteer references before she is asked for them.
+goal: >
+  Have one supplier invoice checked against its purchase order, hear the result, and end the chat.
+facts:
+  invoice: INV-1004
+  order: PO-77
+reveal_when_asked:
+  invoice: ['invoice', 'INV', 'number', 'reference', 'which', 'details', 'provide', 'share']
+  order: ['purchase order', 'order', 'PO', 'number', 'reference', 'which', 'details', 'provide', 'share']
+stop_token: '###STOP###'
+spec: ../specs/invoice-over.yaml

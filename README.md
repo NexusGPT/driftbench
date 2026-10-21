@@ -806,10 +806,10 @@ Limits: a verdict names its object, item, implementation and layer in its `by` f
 <a href=".github/readme/blast-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blast-dark.png">
-    <img alt="A fictional Acme prompt has one edited line, line 18: Read the order back and wait for confirmation. Lines 17 and 19 stay unchanged. Arrows connect the edited line to recap blocks in three test conversations. Those linked blocks glow blue. Steps that inherit their state are also selected. A fourth conversation has no linked block; its results are kept from the last run. A legend separates linked tests, inherited state and kept results. This is an illustration of the intended source selection; source links currently advise selection and do not skip tests." src=".github/readme/blast-light.png" width="100%">
+    <img alt="A fictional Acme prompt has one edited line, line 18: Read the order back and wait for confirmation. Lines 17 and 19 stay unchanged. Arrows connect the edited line to recap blocks in three test conversations. Those linked blocks glow blue. Steps that would inherit their state are highlighted too. A fourth conversation has no linked block. A legend separates linked tests, steps that would inherit their state and blocks outside the selection. The figure states that declared dependencies control reruns. This is an illustration of the intended source selection; source links currently advise selection and do not skip tests." src=".github/readme/blast-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Edit one prompt line, follow its links to the tests, and keep the other results. Fictional Acme example.</sub></p>
+<p align="center"><sub>Edit one prompt line and inspect its advisory source selection. Declared dependencies control reruns. Fictional Acme example.</sub></p>
 
 **See which tests an edited prompt line can affect, then rerun the declared blast radius and keep the other results.**
 
@@ -852,7 +852,7 @@ blocks:
 <a href=".github/readme/moj-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/moj-dark.png">
-    <img alt="One answer to judge. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
+    <img alt="One answer to judge, through the opt-in research harness. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
@@ -893,17 +893,17 @@ blocks:
 <a href=".github/readme/innovations-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/innovations-dark.png">
-    <img alt="Six more things driftbench does. A judge that shows its work, opt-in: it lists the evidence for each requirement and code decides pass or fail. Recovery: a surprise mid-conversation, and how many steps the agent needs to get back on track. Statistics: every rate has a range, and it says when you have too few tests. Code agents: it opens the spreadsheets and documents the agent leaves behind. Attacker: a user that pushes back, each move picked from the agent's last reply. Replay: a recorded run replays with no model call." src=".github/readme/innovations-light.png" width="100%">
+    <img alt="Six more things driftbench does. A judge that shows its work, default: for ordinary criteria it lists evidence and code computes the verdict. Recovery: a surprise mid-conversation, and how many steps the agent needs to get back on track. Statistics: every rate has a range, and it says when you have too few tests. Code agents: it opens the spreadsheets and documents the agent leaves behind. Attacker: a user that pushes back, each move picked from the agent's last reply. Replay: a recorded run replays with no model call." src=".github/readme/innovations-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Six more, in one line each.</sub></p>
 
-- **A judge that shows its work (opt-in).** It writes the evidence for each requirement, and code decides pass or fail. promptfoo's select-best prompt asks the model for the index of the text that best fits the criteria, as a single integer ([its grader](comparisons/promptfoo/hard/vendor/grading.ts.txt)). On RubricBench, a public benchmark, it scores 7 points above promptfoo with Claude Haiku 5.5. [How we measured](docs/comparison/methods.md#a-judge-that-shows-its-work)
+- **A judge that shows its work.** For ordinary criteria, the default judge writes evidence and code computes the verdict. See [the default judge](docs/default-judge.md). promptfoo's select-best prompt asks the model for the index of the text that best fits the criteria, as a single integer ([its grader](comparisons/promptfoo/hard/vendor/grading.ts.txt)). On RubricBench, a public benchmark, it scores 7 points above promptfoo with Claude Haiku 5.5. [How we measured](docs/comparison/methods.md#a-judge-that-shows-its-work)
 - **Recovery.** Inject a surprise at any step and count the steps until the agent is back on track. No other tool in our comparison shows recovery metrics in full (row 15). → [recovery](docs/concepts/recovery.md)
 - **Statistics you can trust.** Every rate has a range, two versions are compared on the same tests, and the gate says when you have too few tests to decide. No other tool in our comparison shows intervals with significance tests in full (row 17). → [statistics](docs/concepts/statistics.md)
 - **Code agents.** The same steps check the files a code agent leaves behind: spreadsheet cells, documents, the workspace. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read. → [code agents](docs/estate.md)
 - **An attacker that adapts.** A simulated user picks each next move from the agent's last reply. → [attacker](docs/attack.md)
-- **Replay for free.** A recorded run replays with no model call, so CI costs nothing. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
+- **Replay recorded runs.** A recorded run replays with no model call. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
 
 **One combined example on main**
 
@@ -1030,7 +1030,7 @@ spec: refund.spec.yaml # The spec this persona plays
 <a href=".github/readme/loop-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/loop-dark.png">
-    <img alt="The loop a team runs, in six steps. 1 Generate: tests from a map you approve; code writes the blocks. 2 Run: your agent through one adapter, three modes, repeats. 3 Check and judge: a verdict per block, machine checks then the judges. 4 Gate: parity or regression, an exit code on every pull request. 5 Fix: the verdict names the block and the check. 6 Rerun the radius: only what the fix touches; the rest is carried from the last run. Then the gate decides again." src=".github/readme/loop-light.png" width="100%">
+    <img alt="The loop a team runs, in six steps. 1 Generate: tests from a map you approve; code writes the blocks. 2 Run: your agent through one adapter, three modes, repeats. 3 Check and judge: a verdict per block, machine checks then the judges. 4 Gate: CI passes only with enough evidence of noninferiority. 5 Fix: the verdict names the block and the check. 6 Rerun the declared blast radius: keep the other results and audit the radius. Then the gate decides again." src=".github/readme/loop-light.png" width="100%">
   </picture>
 </a>
 
@@ -1219,6 +1219,7 @@ metadata:
     session: price-sheet-build
     before: price-sheet-build/before
     after: price-sheet-build/after
+operations: { Read: read, Skill: read, Agent: read, Edit: modify }
 rules:
   forbidden_tools: [WebFetch]
   custom:
@@ -1275,14 +1276,14 @@ An agent can pass every step on its own and still fail the whole conversation. R
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. A judge earns its place by telling a bad example from a good one 3 times out of 3. It must agree with your labels. Ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then, by default, three fast judges, which answer one yes or no question, or three expert judges, reasoning models outside the agent's family. A majority of seats or vote weights wins. A split goes to the other class in hybrid mode, then to a larger budget. An unresolved result is inconclusive, neither pass nor fail. A judge earns its place by telling a bad example from a good one in every repeat, 3 by default. Its agreement with hand labels must reach kappa 0.8. Among classes with three judges meeting the bar, calibration selects the eligible owner by cost, then judge ID." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Rules first, then fast or expert judges, each one tested to earn its place.</sub></p>
 
 - **Machine checks first.** Code checks everything code can check. A machine fail is final.
-- **Earned on evidence.** A judge must separate a failing transcript from a clean one 3 times out of 3. It must also agree with hand labels at a kappa of 0.8 or more.
-- **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+- **Earned on evidence.** A judge must separate a failing transcript from a clean one in every repeat, 3 by default. It must also agree with hand labels at a kappa of 0.8 or more.
+- **Strict verdicts.** Three seats by default, with configurable size and weights. A split tries the other class in hybrid mode, then a larger budget. An unresolved result is inconclusive. A judge never shares the agent's model family.
 - **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
 
 <sub>Rule files and verdict stamps ship: see [Rule files](#rule-files-change-the-rule-and-score-the-run-again).</sub>
@@ -1655,6 +1656,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong.</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.9, against 86.5 for the next best, promptfoo.
 
 <a href="docs/assets/bench-mm-eval-light.png">
@@ -1664,6 +1667,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
   </picture>
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
+
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 **RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 82.7, against 77.6 for the next best, DeepEval.
 
@@ -1675,6 +1680,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **Verify.** driftbench decides whether the final answer is correct 74.2 times in 100, within 0.9 points of the top score (Langfuse, 75.1) and above Inspect (73.3), LangWatch (73.3), promptfoo (71.9) and DeepEval (58.8).
 
 <a href="docs/assets/bench-verify-light.png">
@@ -1685,6 +1692,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its opt-in frozen verify cascade. A refused item counts as wrong.</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **Writing.** driftbench picks the reply readers prefer more often than DeepEval, promptfoo, LangWatch, Langfuse and Inspect on the same model: 67.6, against 58.4 for the next best, DeepEval.
 
 <a href="docs/assets/bench-writing-light.png">
@@ -1694,6 +1703,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
   </picture>
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, 67.6; the default setting scores 61.3.</sub></p>
+
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 <!-- readme-charts:end -->
 
@@ -1733,7 +1744,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="default-on-v7 against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 479 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="Previous default with the v8 declared-fulfillment strict row against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 480 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -1754,7 +1765,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |
+| Judge row | Cases | driftbench correct | Recorded peer correct | Standing |
 |---|---:|---:|---:|---|
 | Turn relevancy | 72 | 72 | 36 | lead |
 | DAG, one node | 72 | 72 | 65 | close |
@@ -1763,7 +1774,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 | Hallucination | 72 | 72 | 36 | lead |
 | Faithfulness | 72 | 72 | 36 | lead |
 | Task completion | 72 | 72 | 72 | close |
-| G-Eval strict * | 480 | 479 | 451 | lead |
+| G-Eval strict * | 480 | 480 | 451 | lead |
 | Knowledge retention | 1,272 | 1,271 | 1,272 | close |
 | LLM rubric | 72 | 72 | 69 | close |
 | Factuality | 72 | 72 | 70 | close |
@@ -1775,7 +1786,9 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 | Grader panel | 60 | 54 | 59 | close |
 | Panel, borderline | 60 | 60 | 60 | close |
 
-* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.
+* G-Eval strict is the v8 default on a metric declaring request-fulfillment: 480/480, against the same recorded peer’s 451/480. This replaces the historical v7 result of 479/480. G-Eval strict and knowledge retention retain exact paired tests, Holm over those two rows. Other standings retain separate Wilson 95% intervals. Close means no separation under that rule.
+
+For the fourteen other README datasets: Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 Inconclusive answers count wrong (Knowledge retention: 1; Reference correctness: 1; Grader panel: 4). They stay in the score denominator and leave the peer paired tests. Grader panel falls from 59 to 54 correct against the earlier driftbench answers; this is included in the secondary analysis.
 

@@ -1,0 +1,7 @@
+family: hand-written
+model: written by hand for the Northwind campaign
+persona: priya-nand
+answers:
+  - Please change the quantity of the first line of ledger/INV-1004.json from 120 to 100, so the invoice matches its order.
+  - Thanks. Order PO-77 is closed, so remove the file ledger/PO-77.json.
+  - Stop.
