@@ -211,12 +211,12 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       fields: { trigger: 'pay a berth fee' },
     });
     expect(ask([gate]).text).toBe('Please go ahead with paying a berth fee.');
-    // A trigger in another verb form is not rewritten from its spelling: a word reader would turn "editing" into
-    // "edit". With no unit that carries the gate, no route is its work and it waits for a phrase.
+    // A trigger in another verb form is not rewritten from its spelling (no word reader turns "editing" into
+    // "edit"): it is asked as written. A trigger that names no act waits for a phrase.
     for (const [trigger, asked] of [
-      ['editing any berth file', undefined],
-      ['writing the harbour report', undefined],
-      ['committing the berth plan', undefined],
+      ['editing any berth file', 'Please go ahead with editing any berth file.'],
+      ['writing the harbour report', 'Please go ahead with writing the harbour report.'],
+      ['committing the berth plan', 'Please go ahead with committing the berth plan.'],
       ['the berth fee', undefined],
     ] as const) {
       const timed = atom('gate.standing.timed', {
