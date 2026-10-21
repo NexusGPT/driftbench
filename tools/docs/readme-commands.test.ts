@@ -208,7 +208,7 @@ describe('README commands that print what they show', () => {
 
   it('runs the walkthrough on the fixture estate, one folder, step by step', async () => {
     const readme = await readFile(`${ROOT}/README.md`, 'utf8');
-    const after = readme.split('\n## A walkthrough on one small estate\n')[1] ?? '';
+    const after = readme.split('\n## A walkthrough on your own agent\n')[1] ?? '';
     const section = after.split('\n## Results\n')[0] ?? '';
     const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
     expect(consoles.length).toBeGreaterThan(6);
