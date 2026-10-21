@@ -438,7 +438,7 @@ jobs:
           echo "Every job this one waits for succeeded (results: $RESULTS)."
 
   system-leg:
-    # Every level of the system ladder on one seed, in three slices: levels 1 to 9, level 10 and level 11.
+    # Every level of the system ladder on one seed, in five slices: levels 1 to 6, level 7, levels 8 to 9, level 10 and level 11.
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',system-full,'))
     name: ${{ matrix.name }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
@@ -447,10 +447,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - id: system-s1-1-9
-            name: system seed 1 levels 1 to 9
+          - id: system-s1-1-6
+            name: system seed 1 levels 1 to 6
             component: system
-            flags: --seed 1 --levels 1..9
+            flags: --seed 1 --levels 1..6
+          - id: system-s1-7-7
+            name: system seed 1 level 7
+            component: system
+            flags: --seed 1 --levels 7..7
+          - id: system-s1-8-9
+            name: system seed 1 levels 8 to 9
+            component: system
+            flags: --seed 1 --levels 8..9
           - id: system-s1-10-10
             name: system seed 1 levels 10 to 10
             component: system
@@ -459,10 +467,18 @@ jobs:
             name: system seed 1 levels 11 to 11
             component: system
             flags: --seed 1 --levels 11..11
-          - id: system-s2-1-9
-            name: system seed 2 levels 1 to 9
+          - id: system-s2-1-6
+            name: system seed 2 levels 1 to 6
             component: system
-            flags: --seed 2 --levels 1..9
+            flags: --seed 2 --levels 1..6
+          - id: system-s2-7-7
+            name: system seed 2 level 7
+            component: system
+            flags: --seed 2 --levels 7..7
+          - id: system-s2-8-9
+            name: system seed 2 levels 8 to 9
+            component: system
+            flags: --seed 2 --levels 8..9
           - id: system-s2-10-10
             name: system seed 2 levels 10 to 10
             component: system
@@ -471,10 +487,18 @@ jobs:
             name: system seed 2 levels 11 to 11
             component: system
             flags: --seed 2 --levels 11..11
-          - id: system-s3-1-9
-            name: system seed 3 levels 1 to 9
+          - id: system-s3-1-6
+            name: system seed 3 levels 1 to 6
             component: system
-            flags: --seed 3 --levels 1..9
+            flags: --seed 3 --levels 1..6
+          - id: system-s3-7-7
+            name: system seed 3 level 7
+            component: system
+            flags: --seed 3 --levels 7..7
+          - id: system-s3-8-9
+            name: system seed 3 levels 8 to 9
+            component: system
+            flags: --seed 3 --levels 8..9
           - id: system-s3-10-10
             name: system seed 3 levels 10 to 10
             component: system
@@ -483,10 +507,18 @@ jobs:
             name: system seed 3 levels 11 to 11
             component: system
             flags: --seed 3 --levels 11..11
-          - id: system-hidden-1-9
-            name: system seed hidden levels 1 to 9
+          - id: system-hidden-1-6
+            name: system seed hidden levels 1 to 6
             component: system
-            flags: --hidden --hidden-only --levels 1..9
+            flags: --hidden --hidden-only --levels 1..6
+          - id: system-hidden-7-7
+            name: system seed hidden level 7
+            component: system
+            flags: --hidden --hidden-only --levels 7..7
+          - id: system-hidden-8-9
+            name: system seed hidden levels 8 to 9
+            component: system
+            flags: --hidden --hidden-only --levels 8..9
           - id: system-hidden-10-10
             name: system seed hidden levels 10 to 10
             component: system
