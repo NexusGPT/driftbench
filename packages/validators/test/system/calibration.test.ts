@@ -287,29 +287,33 @@ function latticeSum(
 }
 
 describe('the error of the design-effect interval (fixtures/system/design.json, clustered.interval)', () => {
-  it('recomputes the two tail masses as upper bounds from the exact law, and their sum stays within alpha', {
-    timeout: 900_000,
-  }, () => {
-    const step = 1e-4;
-    const { lower, upper, below, above } = design.clustered.interval;
-    // Rounding every value down can only move the mean down: the mass under the lower bound is then an upper
-    // bound of the true one. Rounding up does the same for the mass over the upper bound.
-    const down = latticeSum(Math.floor, step, CLUSTERED_CAMPAIGNS);
-    const up = latticeSum(Math.ceil, step, CLUSTERED_CAMPAIGNS);
-    const meanAt = (i: number) => 1 + (i * step) / CLUSTERED_CAMPAIGNS;
-    let massBelow = 0;
-    for (let i = 0; meanAt(i) < lower; i += 1) massBelow += down[i] as number;
-    let massAbove = 0;
-    for (let i = up.length - 1; meanAt(i) > upper; i -= 1) massAbove += up[i] as number;
-    expect(massBelow).toBeCloseTo(below, 9);
-    expect(massAbove).toBeCloseTo(above, 9);
-    // Rounding every value by up to one step moves the mean by up to one step, which inflates a tail bound by
-    // exp(z step / se): 1.055 here (z 4.89, se 0.0089, step 1e-4). The tails hold alpha / 2 within that allowance.
-    const allowance = 1.06;
-    expect(massBelow).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
-    expect(massAbove).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
-    expect(below + above).toBeLessThanOrEqual(allowance * DEFF_LAW_ALPHA);
-  });
+  it(
+    'recomputes the two tail masses as upper bounds from the exact law, and their sum stays within alpha',
+    {
+      timeout: 900_000,
+    },
+    () => {
+      const step = 1e-4;
+      const { lower, upper, below, above } = design.clustered.interval;
+      // Rounding every value down can only move the mean down: the mass under the lower bound is then an upper
+      // bound of the true one. Rounding up does the same for the mass over the upper bound.
+      const down = latticeSum(Math.floor, step, CLUSTERED_CAMPAIGNS);
+      const up = latticeSum(Math.ceil, step, CLUSTERED_CAMPAIGNS);
+      const meanAt = (i: number) => 1 + (i * step) / CLUSTERED_CAMPAIGNS;
+      let massBelow = 0;
+      for (let i = 0; meanAt(i) < lower; i += 1) massBelow += down[i] as number;
+      let massAbove = 0;
+      for (let i = up.length - 1; meanAt(i) > upper; i -= 1) massAbove += up[i] as number;
+      expect(massBelow).toBeCloseTo(below, 9);
+      expect(massAbove).toBeCloseTo(above, 9);
+      // Rounding every value by up to one step moves the mean by up to one step, which inflates a tail bound by
+      // exp(z step / se): 1.055 here (z 4.89, se 0.0089, step 1e-4). The tails hold alpha / 2 within that allowance.
+      const allowance = 1.06;
+      expect(massBelow).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
+      expect(massAbove).toBeLessThan((allowance * DEFF_LAW_ALPHA) / 2);
+      expect(below + above).toBeLessThanOrEqual(allowance * DEFF_LAW_ALPHA);
+    },
+  );
 });
 
 /**
@@ -329,30 +333,41 @@ function rejection(rho: number, n: number, alpha: number): number {
   return mass;
 }
 
-describe('the power of the law check against a chain planted at another correlation (fixtures/system/design.json, clustered.power)', { timeout: 900_000 }, () => {
-  const power = design.clustered.power;
+describe(
+  'the power of the law check against a chain planted at another correlation (fixtures/system/design.json, clustered.power)',
+  { timeout: 900_000 },
+  () => {
+    const power = design.clustered.power;
 
-  it.each([0.23, 0.27])('rejects a chain at rho %f at least as often as the old item (100 campaigns, 0.001)', (rho) => {
-    const old = rejection(rho, 100, 0.001);
-    const now = rejection(rho, CLUSTERED_CAMPAIGNS, DEFF_LAW_ALPHA);
-    expect(old).toBeCloseTo(power[String(rho)].old, 5);
-    expect(now).toBeCloseTo(power[String(rho)].now, 5);
-    expect(now).toBeGreaterThanOrEqual(old);
-  });
+    it.each([0.23, 0.27])(
+      'rejects a chain at rho %f at least as often as the old item (100 campaigns, 0.001)',
+      (rho) => {
+        const old = rejection(rho, 100, 0.001);
+        const now = rejection(rho, CLUSTERED_CAMPAIGNS, DEFF_LAW_ALPHA);
+        expect(old).toBeCloseTo(power[String(rho)].old, 5);
+        expect(now).toBeCloseTo(power[String(rho)].now, 5);
+        expect(now).toBeGreaterThanOrEqual(old);
+      },
+    );
 
-  it('has the smallest count of the recorded scan: 1735 campaigns reject rho 0.27 less often than the old item', () => {
-    expect(rejection(0.27, 1735, DEFF_LAW_ALPHA)).toBeLessThan(rejection(0.27, 100, 0.001));
-  });
+    it('has the smallest count of the recorded scan: 1735 campaigns reject rho 0.27 less often than the old item', () => {
+      expect(rejection(0.27, 1735, DEFF_LAW_ALPHA)).toBeLessThan(rejection(0.27, 100, 0.001));
+    });
 
-  it.each([0.23, 0.27])('fails the recorded seeds of a chain planted at rho %f (red first)', (rho) => {
-    const seeds: number[] = power[String(rho)].failingSeeds;
-    expect(seeds.length).toBeGreaterThan(0);
-    const passing: number[] = [];
-    for (const seed of seeds) {
-      const state = plantedState(seed, rho);
-      const measure = designEffectCalibration(state, seed, stats, designEffectOracle());
-      if (measure.value !== 0 || !measure.items.some((item) => item.id === 'design-effect')) passing.push(seed);
-    }
-    expect(passing).toEqual([]);
-  }, 900_000);
-});
+    it.each([0.23, 0.27])(
+      'fails the recorded seeds of a chain planted at rho %f (red first)',
+      (rho) => {
+        const seeds: number[] = power[String(rho)].failingSeeds;
+        expect(seeds.length).toBeGreaterThan(0);
+        const passing: number[] = [];
+        for (const seed of seeds) {
+          const state = plantedState(seed, rho);
+          const measure = designEffectCalibration(state, seed, stats, designEffectOracle());
+          if (measure.value !== 0 || !measure.items.some((item) => item.id === 'design-effect')) passing.push(seed);
+        }
+        expect(passing).toEqual([]);
+      },
+      900_000,
+    );
+  },
+);

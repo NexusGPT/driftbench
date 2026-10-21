@@ -133,7 +133,7 @@ export const CLUSTER_RHO = 0.25;
 export const DEFF_ALPHA = 0.001;
 /**
  * The level of the acceptance interval of the mean estimated design effect against its exact law: 1 - alpha. A
- * correct chain misses it on one seed in 2 million, where 0.001 missed about one folded seed in 1000, and the hidden
+ * correct chain misses it on about one seed in a million, where 0.001 missed about one folded seed in 1000, and the hidden
  * seed of every commit is one of 9000 folded seeds (itemSeed), so the old level failed about one commit in 1000.
  */
 export const DEFF_LAW_ALPHA = 1e-6;
