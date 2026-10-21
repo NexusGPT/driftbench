@@ -162,7 +162,7 @@ Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 12
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../.github/readme/rule-links-dark.png">
-    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0118, 0192, 0262, 0336, 0401 and 11 more, 16 of 934 blocks, which rerun. The other 918 blocks keep their last result." width="640" />
+    <img src="../.github/readme/rule-links-light.png" alt="One rule edited, and the blocks that carry its ledger id. On the left, a fictional Northwind skill sentence, Count only what the ledger and the shipment log show for the last seven days, with its ledger id wrl4c7wlvb and its text hash changing from 731c to 0d6f. On the right, the blocks that carry that ledger id are outlined in blue: pairwise.0107, 0177, 0244, 0315, 0380 and 11 more, 16 of 1251 blocks, which rerun. The other 1235 blocks keep their last result." width="640" />
   </picture>
 </p>
 
