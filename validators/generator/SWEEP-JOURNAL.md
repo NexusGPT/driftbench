@@ -222,3 +222,10 @@ Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabli
 - Product measurement, main's real generation: `diff.feasible.cover` fails on all 31 measured seeds, and `diff.feasible.twise` fails on seeds 10 and 15. Cause 1: a cover spec's behaviour is not in its flow, 6787 blocks in total. Cause 2: the first move is recorded at the start stage, 25 blocks. No block sits in a written-constraint cell. These items are level 2, so the product stops there until the generator is fixed.
 - The baseline goal detour feeds only the replay cheater, which reads `expect.tools`. The detour lists no tool, so it feeds no verdict and stays unchanged.
 - Evidence: [feasible-impossible-pairs.json](evidence/feasible-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+## 2026-10-18: the Acme run treats a step ended by a signal as failed
+
+- Base: `origin/main` (015bd6f34). Source: `packages/validators/src/ladders/generator/acme.ts`.
+- Finding: the Acme items share one `generate` and `gate` run per process. `cli` turned a child a signal ended into exit code -1 and the run only treated a code above 1 as failure, so a killed `generate` passed, the run read a `generate-report.json` that was never written and every Acme item threw ENOENT (levels 11, 13 and 14 on a loaded machine with a nearly full disk).
+- Change: a step has failed unless it exited 0 or 1 (`stepFailed`), and the output of a signalled step names the signal. No item, threshold, floor, fixture or hidden-seed rule changes; a run that finished is read exactly as before.
+- Red first: the signal case of the new test fails with the old predicate (`code > 1`), the other five cases pass on both. Green: 6 of 6 in `acme-step.test.ts`.

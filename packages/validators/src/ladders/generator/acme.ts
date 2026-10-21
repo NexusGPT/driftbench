@@ -28,9 +28,16 @@ type AcmeRun = {
   dev: Array<Record<string, unknown>>;
 };
 
-function cli(args: string[]): Promise<{ code: number; out: string }> {
+/** What a spawned step returned: its exit code (-1 when a signal ended it) and its output. */
+export type StepRun = { code: number; out: string };
+
+/**
+ * Runs the driftbench CLI with these arguments. A child a signal ended has no exit code: it reads -1 and its
+ * output names the signal, so a killed step is told apart from a step that wrote nothing.
+ */
+export function cli(args: string[], entry: string = CLI): Promise<StepRun> {
   return new Promise((resolve) => {
-    const proc = spawn(process.execPath, ['--import', 'tsx', CLI, ...args], {
+    const proc = spawn(process.execPath, ['--import', 'tsx', entry, ...args], {
       cwd: ROOT,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -41,8 +48,19 @@ function cli(args: string[]): Promise<{ code: number; out: string }> {
     proc.stderr.on('data', (chunk) => {
       out += String(chunk);
     });
-    proc.on('close', (code) => resolve({ code: code ?? -1, out }));
+    proc.on('close', (code, signal) =>
+      resolve({ code: code ?? -1, out: signal ? `${out}\n(ended by signal ${signal})` : out }),
+    );
   });
+}
+
+/**
+ * True when a step did not finish as the Acme run expects. Exit 0 is a clean run and exit 1 is a normal outcome
+ * (incomplete specs, a fault the suite does not kill); anything else, a usage error (2) or a child a signal
+ * ended (-1), leaves no report to read.
+ */
+export function stepFailed(run: StepRun): boolean {
+  return run.code !== 0 && run.code !== 1;
 }
 
 function yamlFiles(dir: string): string[] {
@@ -70,7 +88,7 @@ export function acmeRun(): Promise<AcmeRun> {
         '2',
       ]);
       // Exit 1 means incomplete specs exist, which is a normal outcome; 2 is a usage or input error.
-      if (generated.code > 1)
+      if (stepFailed(generated))
         return {
           error: `generate exited ${generated.code}: ${generated.out.slice(-300)}`,
           faults: [],
@@ -99,7 +117,7 @@ export function acmeRun(): Promise<AcmeRun> {
         '--force',
       ]);
       const coverage = report.coverage?.complete;
-      if (gated.code > 1)
+      if (stepFailed(gated))
         return {
           error: `gate exited ${gated.code}: ${gated.out.slice(-300)}`,
           ...(coverage ? { coverage } : {}),
