@@ -12,8 +12,8 @@ import { QuoteIndex } from '../extract/quote';
  *   file it is quoted from. A value whose quote the file does not hold (white space, typographic quotes, accents
  *   and invisible characters folded, case and punctuation not) is refused with a reason and kept out; a variable
  *   left with no value is not stored. A file is looked up by its exact path among the files given, never on disk.
- *   A name or subject with an unpaired UTF-16 surrogate (not well-formed Unicode) is refused with a reason, in
- *   every source: two such names would encode to the same replacement text and share an id.
+ *   Text with an unpaired UTF-16 surrogate (not well-formed Unicode), in any key or value of any source, is refused
+ *   with a reason by one pass at the entry: two such texts would encode alike and share an id or a hash.
  * - Conversations. Each session names the values it shows by variable and value id. A variable's total is the
  *   sessions that show it; a value's count is the sessions that show the value. A value of a variable the store
  *   has, absent from the store, joins it as a proposal (`approved: false`) with its counts. A variable no session
