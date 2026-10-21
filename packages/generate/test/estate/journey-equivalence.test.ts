@@ -8,7 +8,11 @@ const unit: EstateAtom = {
   title: 'Skill desk',
   approved: true,
   fields: { name: 'desk', description: 'Run the weekly desk review for the harbour office.' },
-  provenance: { file: '.claude/skills/desk/SKILL.md', quote: 'Run the weekly desk review.' },
+  // The passage is the description, so the unit's work is handed over as it stands (the ask of every journey).
+  provenance: {
+    file: '.claude/skills/desk/SKILL.md',
+    quote: 'Run the weekly desk review for the harbour office.',
+  },
   evidence: [{ type: 'skill_loaded', name: 'desk' }],
 };
 const step = (name: string): EstateAtom => ({
