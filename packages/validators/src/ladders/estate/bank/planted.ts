@@ -274,7 +274,7 @@ export class PlantedEstate {
         const prose = { ...hint.prose, line: hint.line };
         answers.set(hint.file, [...(answers.get(hint.file) ?? []), prose]);
       }
-      const truth = truthPointer({ files: texts, atoms, answers, gates });
+      const truth = truthPointer({ files: texts, atoms, answers, gates, edges: this.edges });
       const reader = readerFor(RUNTIME);
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
       const started = Date.now();

@@ -152,11 +152,14 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   const labels = new Map(rules.map((rule) => [rule.id, labelOf(rule, files)]));
   const withLabel = (label: string) =>
     rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
+  // A rule cites another by a label the labeler gave as a `cited-label` span of the rule: a code that only looks
+  // like a label (a form number) is not given, so it cites nothing.
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    const quote = rule.provenance.quote;
-    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/gi)) {
-      const label = `${match[1]}${match[2]}`.toUpperCase();
+    const cites = Array.isArray(rule.fields?.cites) ? (rule.fields.cites as unknown[]) : [];
+    for (const written of cites) {
+      if (typeof written !== 'string') continue;
+      const label = written.replace('#', '').trim().toUpperCase();
       if (label === own) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }

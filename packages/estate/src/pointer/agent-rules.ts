@@ -57,6 +57,8 @@ export const AGENT_RULES_SET = `labels:
         description: The circumstance in which the unit applies, in the unit's own words, such as a state of the world, a kind of request or a moment. Not the act the unit orders. Give it only when the unit states one.
       - name: ask-text
         description: A clause of the unit, as it stands, that a user could say as a complete request which makes the reader do what the unit orders or refuse what it forbids. Give it only when the unit holds such a clause.
+      - name: cited-label
+        description: The label of another rule of the estate that the unit cites as a rule, written as the estate writes its rule labels (a letter or two and a number, with or without a hash). One span for each cited rule. Not a form number, an article number, a version or any other code that only looks like a label. Give it only when the unit cites a rule.
       - name: retry
         description: The clause of the unit that orders the reader to try the failed request again. Give it only when the unit has one.
       - name: reread-self
@@ -88,34 +90,34 @@ export const AGENT_RULES_SET = `labels:
     labels:
       - name: rule
         description: A unit that tells the reader to do something. A unit that only forbids is a prohibition, and a unit about an event the agent must get through has its own label instead.
-        spans: [situation, ask-text]
+        spans: [situation, ask-text, cited-label]
         links: [reply-act, reply-part]
         atom:
           kind: instruction
           situation: $span.situation?
           polarity: obligation
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation }, "cites?": $spans.cited-label }
 ${ALSO_REFERENCE}      - name: dispatch
         description: A unit that tells the reader to hand work to a helper agent. Give that helper as the dispatches link. A unit that only names a helper, or says not to use it, is a rule or a prohibition.
-        spans: [situation, ask-text]
+        spans: [situation, ask-text, cited-label]
         links: [dispatches, reply-act, reply-part]
         atom:
           kind: instruction
           situation: $span.situation?
           polarity: obligation
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation }, "cites?": $spans.cited-label }
 ${ALSO_REFERENCE}      - name: prohibition
         description: A unit that tells the reader never to do something, or not to do it. The unit holds never, do not or must not, even when it names a file, a folder or a command.
-        spans: [situation, ask-text]
+        spans: [situation, ask-text, cited-label]
         links: [reply-act, reply-part]
         atom:
           kind: instruction
           situation: $span.situation?
           polarity: prohibition
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation }, "cites?": $spans.cited-label }
 ${ALSO_REFERENCE}
       - name: gate
         description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule, unless the act it waits for changes that same file (gate-same). Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
@@ -230,13 +232,13 @@ ${ALSO_REFERENCE}
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
       - name: reply-rule
         description: A unit that sets the language, length, format, words or tone of the reader's reply.
-        spans: [situation, ask-text]
+        spans: [situation, ask-text, cited-label]
         links: [reply-act, reply-part]
         atom:
           kind: register
           situation: $span.situation?
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation }, "cites?": $spans.cited-label }
 ${ALSO_REFERENCE}
       - name: hazard-compaction
         description: A unit that says what the agent does when the agent's own conversation or context is compacted, summarised or truncated to fit its window, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.

@@ -114,6 +114,8 @@ export type Truth = {
   files: Readonly<Record<string, string>>;
   atoms: readonly ExpectedAtom[];
   answers: ReadonlyMap<string, readonly ProseEntry[]>;
+  /** Edges the design plants (hidden ids): a `cites` edge from a rule to the rule whose label it cites. */
+  edges?: ReadonlyArray<{ from: string; to: string; kind: string }>;
   /** Gates planted with no prose rule of the record: the act the read comes before, and the tool of that act. */
   gates?: ReadonlyArray<{
     file: string;
@@ -147,6 +149,21 @@ export function truthPointer(truth: Truth): TruthPointer {
     planted.set(key, [...(planted.get(key) ?? []), atom]);
   }
 
+  // The labels a rule cites: for each planted `cites` edge, the label that opens the line of the cited rule (its
+  // bullet marker, as the planted estate writes it), keyed by the line of the citing rule.
+  const atomOfHid = new Map(truth.atoms.map((atom) => [atom.hid, atom]));
+  const citesOn = new Map<string, string[]>();
+  for (const edge of truth.edges ?? []) {
+    if (edge.kind !== 'cites') continue;
+    const from = atomOfHid.get(edge.from);
+    const to = atomOfHid.get(edge.to);
+    if (!from || !to) continue;
+    const row = (truth.files[to.file] ?? '').split('\n')[to.line - 1] ?? '';
+    const written = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3}#?\d{1,3})/i.exec(row)?.[1];
+    if (!written) continue;
+    const at = `${from.file}:${from.line}`;
+    citesOn.set(at, [...(citesOn.get(at) ?? []), written]);
+  }
   const labels: pointer.LabelSet['labels'] = [...base.labels];
   const byLine = new Map<string, string>();
   const helperAt = new Map<string, string[]>();
@@ -170,6 +187,9 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
+          ...(citesOn.has(`${file}:${entry.line}`)
+            ? { fields: { cites: citesOn.get(`${file}:${entry.line}`) as string[] } }
+            : {}),
           ...(also.length > 0 ? { also } : {}),
         },
       });
@@ -411,11 +431,13 @@ export function truthPointer(truth: Truth): TruthPointer {
 export function truthOf(rendered: {
   files: Readonly<Record<string, string>>;
   atoms: readonly ExpectedAtom[];
+  edges?: Truth['edges'];
   recording: { answers: Record<string, unknown> };
   gates: Truth['gates'];
 }): Truth {
   return {
     gates: rendered.gates,
+    edges: rendered.edges,
     files: rendered.files,
     atoms: rendered.atoms,
     answers: new Map(
