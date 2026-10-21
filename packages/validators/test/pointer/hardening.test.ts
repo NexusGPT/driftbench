@@ -474,7 +474,9 @@ describe('the catch items are pinned', () => {
 /* ----- the reader and the verdict (audit of PR 1019, cheater seat 2) ----- */
 
 const CONTROL_SENTENCE = 'The ledger is closed on the last day of the month.';
-const REDIRECT = fileURLToPath(new URL('../../src/ladders/pointer/bank/plants/redirect-target.ts', import.meta.url));
+const REDIRECT = fileURLToPath(
+  new URL('../../src/ladders/pointer/bank/plants/redirect-target.ts', import.meta.url),
+);
 
 describe('adversarial.verdict-channel-is-not-the-readers', () => {
   it('serves a correct reader and gives its pass, so the control can pass', async () => {
@@ -547,7 +549,7 @@ describe('adversarial.reader-imports-no-bank', () => {
     const found = importsOfValidators(
       readerWith("import reference from '../../../../validators/test/pointer/reference/index';"),
     );
-    expect(found).toEqual(["extra/cheat.ts: ../../../../validators/test/pointer/reference/index"]);
+    expect(found).toEqual(['extra/cheat.ts: ../../../../validators/test/pointer/reference/index']);
   });
 
   it('finds a dynamic import, a re-export, a require and an address built with new URL', () => {

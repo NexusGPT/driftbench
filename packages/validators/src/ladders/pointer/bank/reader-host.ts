@@ -2,14 +2,7 @@ import type { IOSetup, PointerIO } from '../blind/bank/index';
 import { pinSut, resolveSut } from '../sut/adapter';
 import { blindBinding } from '../sut/blind-binding/index';
 import type { PointerSut } from '../sut/port';
-import {
-  type CallMessage,
-  type Descriptor,
-  decode,
-  methodsOf,
-  PARTS,
-  wireError,
-} from './rpc';
+import { type CallMessage, type Descriptor, decode, methodsOf, PARTS, wireError } from './rpc';
 
 /**
  * The process that holds the reader. The process of an item (`item-child.ts`) starts it, sends it calls
@@ -134,7 +127,12 @@ async function main(): Promise<void> {
 
   process.on('message', (raw: unknown) => {
     if (raw === null || typeof raw !== 'object') return;
-    const message = raw as { t?: unknown; id?: unknown; value?: unknown; error?: { name: string; message: string } };
+    const message = raw as {
+      t?: unknown;
+      id?: unknown;
+      value?: unknown;
+      error?: { name: string; message: string };
+    };
     if (message.t === 'call') {
       void serve(raw as CallMessage);
     } else if ((message.t === 'cbok' || message.t === 'cberr') && typeof message.id === 'number') {

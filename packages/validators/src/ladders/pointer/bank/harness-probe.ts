@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type Control, CONTROL_FAILED } from './controls';
+import { CONTROL_FAILED, type Control } from './controls';
 import { isolated, newPool, stopPool } from './run';
 import { fail, type Outcome } from './types';
 
@@ -37,5 +37,7 @@ export async function probe(plant: string, control: Control): Promise<Outcome> {
  * the reader, so it is not a proof.
  */
 export function readerGainedNothing(outcome: Outcome): boolean {
-  return !outcome.pass && (outcome.detail.startsWith(CONTROL_FAILED) || /reader's process/.test(outcome.detail));
+  return (
+    !outcome.pass && (outcome.detail.startsWith(CONTROL_FAILED) || /reader's process/.test(outcome.detail))
+  );
 }

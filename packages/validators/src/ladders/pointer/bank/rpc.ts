@@ -1,5 +1,5 @@
-import { ReaderNotReachable } from '../sut/port';
 import { Unsupported } from '../sut/blind-binding/reader';
+import { ReaderNotReachable } from '../sut/port';
 
 /**
  * The wire between the process that holds the oracle of an item and the process that holds the reader (`reader-link.ts`
@@ -85,7 +85,10 @@ export function encode(value: unknown, handle: (fn: (...args: unknown[]) => unkn
 }
 
 /** The reverse: every marker becomes a function that asks the sender to call the handle it names. */
-export function decode(value: unknown, stub: (handle: number) => (...args: unknown[]) => Promise<unknown>): unknown {
+export function decode(
+  value: unknown,
+  stub: (handle: number) => (...args: unknown[]) => Promise<unknown>,
+): unknown {
   if (value === null || typeof value !== 'object' || !hasMarker(value)) return value;
   const keys = Object.keys(value);
   if (!Array.isArray(value) && keys.length === 1 && keys[0] === FN) {

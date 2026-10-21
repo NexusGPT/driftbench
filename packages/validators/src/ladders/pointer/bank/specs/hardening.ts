@@ -25,7 +25,13 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'Two planted readers, each broken (it cuts nothing) and each carrying a cheat that runs when it loads: one wraps `process.send` and rewrites every verdict into a pass, one writes a forged pass to the descriptor of the IPC channel. The harness serves each from a process of its own and asks one control cut.',
       'The control fails on the outputs of the reader, or the process of the reader ends. A control that passes means the reader reached the verdict.',
       'harness:reader-runs-apart-from-the-oracle',
-      { component: 'harness', needs: ['child'], seedFree: true, capMs: HARDENING_PROBE_CAP_MS, role: 'catch' },
+      {
+        component: 'harness',
+        needs: ['child'],
+        seedFree: true,
+        capMs: HARDENING_PROBE_CAP_MS,
+        role: 'catch',
+      },
     ),
     row(
       'sut-env-not-trusted-in-reader-process',
@@ -34,7 +40,13 @@ export const HARDENING_SPECS: Record<string, Spec[]> = {
       'One planted reader that cuts a marker and, when it loads and when it is called, points `DRIFTBENCH_POINTER_SUT` at a second reader that cuts another marker. The harness asks one control cut here and one in a sandboxed process.',
       'Both cuts give the marker of the planted reader. The marker of the second reader means the harness read the variable after the reader changed it.',
       'harness:pin-the-reader-before-it-loads',
-      { component: 'harness', needs: ['child'], seedFree: true, capMs: HARDENING_PROBE_CAP_MS, role: 'catch' },
+      {
+        component: 'harness',
+        needs: ['child'],
+        seedFree: true,
+        capMs: HARDENING_PROBE_CAP_MS,
+        role: 'catch',
+      },
     ),
     row(
       'reader-imports-no-bank',

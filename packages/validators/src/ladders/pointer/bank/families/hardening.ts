@@ -525,9 +525,7 @@ const adversarial: Record<string, Run> = {
     const found = importsOfValidators(READER_DIR);
     return found.length === 0
       ? pass('no source of the reader names the validators')
-      : fail(
-          `the reader names the validators in ${found.length} place(s): ${found.slice(0, 3).join('; ')}`,
-        );
+      : fail(`the reader names the validators in ${found.length} place(s): ${found.slice(0, 3).join('; ')}`);
   },
 };
 

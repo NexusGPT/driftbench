@@ -4,15 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { IOSetup, PointerAdapter, PointerIO, Request } from '../blind/bank/index';
 import { ioSetups } from '../blind/bank/io';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
-import {
-  type Descriptor,
-  encode,
-  PARTS,
-  reviveError,
-  type Target,
-  type WireError,
-  wireError,
-} from './rpc';
+import { type Descriptor, encode, PARTS, reviveError, type Target, type WireError, wireError } from './rpc';
 import { Problem } from './types';
 
 /**
@@ -111,13 +103,7 @@ class Host {
   }
 
   /** Sends one call and waits for its answer. Functions in the arguments become handles the reader can call back. */
-  call(
-    target: Target,
-    path: string[],
-    args: unknown[],
-    io?: PointerIO,
-    within?: number,
-  ): Promise<unknown> {
+  call(target: Target, path: string[], args: unknown[], io?: PointerIO, within?: number): Promise<unknown> {
     if (this.exited !== undefined) return Promise.reject(new Error(this.exited));
     const id = ++this.calls;
     const owned: number[] = [];
@@ -138,7 +124,10 @@ class Host {
       const entry: Pending = { resolve: done, reject: fail, owned };
       if (within !== undefined)
         entry.timer = setTimeout(
-          () => this.settle(id, entry).reject(new Error(`no answer from the reader's process within ${Math.round(within / 1000)} s`)),
+          () =>
+            this.settle(id, entry).reject(
+              new Error(`no answer from the reader's process within ${Math.round(within / 1000)} s`),
+            ),
           within,
         );
       this.pending.set(id, entry);
@@ -217,7 +206,8 @@ class Host {
     try {
       if (op === 'readKey') io.readKey();
       else if (op === 'readCassette') io.readCassette();
-      else if (op === 'writeCassette') io.writeCassette(args[0] as string, args[1] as never, args[2] as boolean);
+      else if (op === 'writeCassette')
+        io.writeCassette(args[0] as string, args[1] as never, args[2] as boolean);
       else if (op === 'log') io.log(args[0] as never);
       else if (op === 'plan') io.plan(args[0] as never);
     } catch {
@@ -316,7 +306,13 @@ export class HostPool {
         this.current = undefined;
         continue;
       }
-      if (host.alive && (await host.call('ping', [], [], undefined, PING_MS).then(() => true, () => false)))
+      if (
+        host.alive &&
+        (await host.call('ping', [], [], undefined, PING_MS).then(
+          () => true,
+          () => false,
+        ))
+      )
         return this.sessionOn(host, starting);
       host.kill();
       if (this.current === starting) this.current = undefined;

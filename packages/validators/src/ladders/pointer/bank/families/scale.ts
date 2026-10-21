@@ -1,6 +1,6 @@
 import { runChild } from '../../kit/child-run';
-import { sutModule } from '../../sut/adapter';
 import type { ScaleOp, ScaleOut, ScaleSpec } from '../../kit/scale';
+import { sutModule } from '../../sut/adapter';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 /**

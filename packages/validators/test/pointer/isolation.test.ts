@@ -43,7 +43,11 @@ describe('the wire between the oracle and the reader', () => {
     const back = decode(wire, (handle) => async () => {
       called.push(handle);
       return handle;
-    }) as { labeler: () => Promise<number>; model: { transport: () => Promise<number> }; list: Array<() => Promise<number>> };
+    }) as {
+      labeler: () => Promise<number>;
+      model: { transport: () => Promise<number> };
+      list: Array<() => Promise<number>>;
+    };
     return Promise.all([back.labeler(), back.model.transport(), back.list[0]?.()]).then((answers) => {
       expect(answers).toEqual([1, 2, 3]);
       expect(called).toEqual([1, 2, 3]);
@@ -97,10 +101,21 @@ describe('the pin of the system under test', () => {
 });
 
 describe('an item gives the same outcome in the process of its own as in this one', () => {
-  const families = ['adversarial', 'cutting', 'grouping', 'ids', 'labels', 'privacy', 'replay', 're-anchoring'];
+  const families = [
+    'adversarial',
+    'cutting',
+    'grouping',
+    'ids',
+    'labels',
+    'privacy',
+    'replay',
+    're-anchoring',
+  ];
   const picks = families.flatMap((family) =>
     pointerBank()
-      .filter((item) => item.family === family && !item.needs.includes('child') && (item.capMs ?? 0) <= 90_000)
+      .filter(
+        (item) => item.family === family && !item.needs.includes('child') && (item.capMs ?? 0) <= 90_000,
+      )
       .slice(0, 2),
   );
 
@@ -127,7 +142,9 @@ describe('an item gives the same outcome in the process of its own as in this on
   it('gives a blind item that reads the key and the cassette through the harness the outcome it gets here', async () => {
     process.env.DRIFTBENCH_POINTER_SUT = REFERENCE_SUT;
     const stopped = (why: string) => ({ outcome: { pass: false, detail: why } });
-    const withIo = blindBank().filter((item) => item.generate(1).probes.some((probe) => probe.setup !== undefined));
+    const withIo = blindBank().filter((item) =>
+      item.generate(1).probes.some((probe) => probe.setup !== undefined),
+    );
     expect(withIo.length).toBeGreaterThan(0);
     for (const item of withIo.slice(0, 6)) {
       const here = await runBlind(item, 1, async () => ref);
