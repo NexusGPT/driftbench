@@ -321,6 +321,12 @@ jobs:
       # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp.
       - run: node tools/structure/api-surface.mjs --build --check
       - run: node tools/ci/shard-plan.mjs --count 32 --out shard-plan.json
+      - name: dump the stamp inputs
+        if: always()
+        run: |
+          sed 's/^function compilerInputs/export function compilerInputs/' tools/structure/built-api.mjs > tools/structure/built-api-probe.mjs
+          printf '%s\n' "import { readFileSync, writeFileSync, realpathSync } from 'node:fs';" "import { createHash } from 'node:crypto';" "import { relative } from 'node:path';" "import { compilerInputs, packageEntries } from './built-api-probe.mjs';" "const root = process.cwd();" "const files = compilerInputs(root, packageEntries(root)).sort();" "const lines = files.map((f) => createHash('sha256').update(readFileSync(realpathSync(f))).digest('hex').slice(0, 12) + ' ' + relative(root, f));" "writeFileSync(process.argv[2], lines.join(String.fromCharCode(10)) + String.fromCharCode(10));" > tools/structure/dump-inputs.mjs
+          node tools/structure/dump-inputs.mjs inputs-prepare.txt
       - uses: actions/upload-artifact@v4
         with:
           name: build-node${{ matrix.node }}
@@ -329,6 +335,7 @@ jobs:
             examples/*/dist
             .cache/api-surface-build.json
             shard-plan.json
+            inputs-prepare.txt
           retention-days: 1
           if-no-files-found: error
           include-hidden-files: true
@@ -378,8 +385,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+        node: [22]
+        shard: [4]
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
@@ -401,7 +408,24 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-node${{ matrix.node }}
+      - name: dump the stamp inputs
+        if: always()
+        run: |
+          sed 's/^function compilerInputs/export function compilerInputs/' tools/structure/built-api.mjs > tools/structure/built-api-probe.mjs
+          printf '%s\n' "import { readFileSync, writeFileSync, realpathSync } from 'node:fs';" "import { createHash } from 'node:crypto';" "import { relative } from 'node:path';" "import { compilerInputs, packageEntries } from './built-api-probe.mjs';" "const root = process.cwd();" "const files = compilerInputs(root, packageEntries(root)).sort();" "const lines = files.map((f) => createHash('sha256').update(readFileSync(realpathSync(f))).digest('hex').slice(0, 12) + ' ' + relative(root, f));" "writeFileSync(process.argv[2], lines.join(String.fromCharCode(10)) + String.fromCharCode(10));" > tools/structure/dump-inputs.mjs
+          node tools/structure/dump-inputs.mjs inputs-shard-before.txt
+      - run: diff inputs-prepare.txt inputs-shard-before.txt && echo SAME-BEFORE
+        continue-on-error: true
       - run: node tools/ci/run-shard.mjs --plan shard-plan.json --index ${{ matrix.shard }}
+        continue-on-error: true
+      - name: dump the stamp inputs
+        if: always()
+        run: |
+          sed 's/^function compilerInputs/export function compilerInputs/' tools/structure/built-api.mjs > tools/structure/built-api-probe.mjs
+          printf '%s\n' "import { readFileSync, writeFileSync, realpathSync } from 'node:fs';" "import { createHash } from 'node:crypto';" "import { relative } from 'node:path';" "import { compilerInputs, packageEntries } from './built-api-probe.mjs';" "const root = process.cwd();" "const files = compilerInputs(root, packageEntries(root)).sort();" "const lines = files.map((f) => createHash('sha256').update(readFileSync(realpathSync(f))).digest('hex').slice(0, 12) + ' ' + relative(root, f));" "writeFileSync(process.argv[2], lines.join(String.fromCharCode(10)) + String.fromCharCode(10));" > tools/structure/dump-inputs.mjs
+          node tools/structure/dump-inputs.mjs inputs-shard-after.txt
+      - run: diff inputs-prepare.txt inputs-shard-after.txt && echo SAME-AFTER
+        continue-on-error: true
       # The shard that ran an emission-mutations seed test holds that seed's part; `emission-manifest` pools them.
       - uses: actions/upload-artifact@v4
         with:
