@@ -131,6 +131,8 @@ export type BlockRun = {
   perturbed: string;
   /** The metamorphic family the spec belongs to, '' for a spec that is none. */
   family: string;
+  /** The number of the variant inside its metamorphic family, 0 for a spec that is none. */
+  variant: number;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -675,6 +677,9 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         ),
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
+        variant:
+          (spec.metadata?.generated as { metamorphic?: { variant?: number } } | undefined)?.metamorphic
+            ?.variant ?? 0,
         family:
           (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic
             ?.family ?? '',

@@ -2293,7 +2293,8 @@ async function obligationHolders(data: SeedData): Promise<{
           same.push(head);
         }
       }
-      if (head.family !== '' && hold(`family|${head.path}|${head.walk}`, head.family)) specs.add(spec);
+      if (head.family !== '' && hold(`family|${head.path}|${head.walk}|${head.variant}`, spec))
+        specs.add(spec);
       for (const block of own) {
         if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec))
           blocks.add(block.key);

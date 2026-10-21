@@ -166,17 +166,23 @@ describe('minimality protects the first holder of each declared obligation, once
         ({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic,
       ),
     );
-    const family = (id: string, name: string) =>
+    const family = (id: string, name: string, variant: number) =>
       copyOf(source, id, (spec) => {
         const generatedMeta = required(spec.metadata?.generated) as { metamorphic: { family: string } };
         generatedMeta.metamorphic.family = name;
+        (generatedMeta.metamorphic as { variant: number }).variant = variant;
       });
     const [group] = await unprotectedOf(
-      [family('fam-a-1', 'A'), family('fam-a-2', 'A'), family('fam-b-1', 'B')],
-      [['fam-a-1', 'fam-a-2', 'fam-b-1']],
+      [
+        family('fam-a-1', 'A', 1),
+        family('fam-a-2', 'A', 2),
+        family('fam-b-1', 'B', 1),
+        family('fam-a-1-clone', 'A', 1),
+      ],
+      [['fam-a-1', 'fam-a-2', 'fam-b-1', 'fam-a-1-clone']],
     );
-    // Both variants of the first family are the test of that family; the second family repeats it.
-    expect(group).toEqual(['fam-b-1']);
+    // Each variant number of a walk is held once per path: the second family and a clone of a variant are repeats.
+    expect(group).toEqual(['fam-b-1', 'fam-a-1-clone']);
   }, 600_000);
 
   it('still fails a suite that keeps a second pair on the same axis (item level)', async () => {
