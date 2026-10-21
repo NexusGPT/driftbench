@@ -600,9 +600,10 @@ describe('independence: a planner that reads the map perfectly is caught when on
       }
       return [...targets].map((atom) => ({ atom, dimension, value }));
     });
+    // The map reader's plan is handed in as the plan built over a declared relevance space (docs/estate.md).
     return {
       ...run,
-      plan: {
+      relevancePlan: {
         ...run.plan,
         plan: {
           ...run.plan.plan,
@@ -664,7 +665,7 @@ describe('independence: a planner that reads the map perfectly is caught when on
       if (!base) throw new Error('no pairwise row');
       const weak = {
         ...run,
-        plan: {
+        relevancePlan: {
           ...run.plan,
           plan: {
             ...run.plan.plan,
@@ -686,6 +687,33 @@ describe('independence: a planner that reads the map perfectly is caught when on
       expect(out.get('plan.relevance.instruction-in-data'), `seed ${seed}`).toMatchObject({ pass: false });
     },
   );
+
+  it('seed 1: the product plans over the declared relevance space and passes; a planner that ignores the space fails', async () => {
+    const run = await pipeline.estateRun(1);
+    // Real: the product's buildPlan over the space the planted relevance declares.
+    const real = await verdicts(run);
+    for (const { key } of CASES)
+      expect(real.get(`plan.relevance.${key}`), `${key}: ${real.get(`plan.relevance.${key}`)?.detail}`).toMatchObject({
+        pass: true,
+      });
+    // A planner that ignores the supplied space plans as with none: it crosses each situation with every atom.
+    const ignoring = await verdicts({ ...run, relevancePlan: run.plan } as pipeline.EstateRun);
+    const failed = CASES.filter(({ key }) => ignoring.get(`plan.relevance.${key}`)?.pass === false);
+    expect(failed.length, 'items a space-ignoring planner fails').toBeGreaterThan(CASES.length / 2);
+  });
+
+  it('seed 1: a planner that does not report the unresolved values without a space fails', async () => {
+    const run = await pipeline.estateRun(1);
+    const silent = {
+      ...run,
+      plan: { ...run.plan, details: { ...run.plan.details, notes: [] } },
+    } as pipeline.EstateRun;
+    const out = await verdicts(silent);
+    const failed = CASES.filter(({ key }) => out.get(`plan.relevance.${key}`)?.pass === false);
+    expect(failed.length).toBeGreaterThan(0);
+    for (const { key } of failed)
+      expect(out.get(`plan.relevance.${key}`)?.detail, key).toContain('relevance is unresolved');
+  });
 
   it.each([1, 2, 4])(
     'seed %i: no relation allows an atom the reviewed map-based oracle rejected',

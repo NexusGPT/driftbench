@@ -23,14 +23,15 @@ import { judgeTargets, plantedTargets, type Relation, type Truth } from './relev
  * with constraints of two and three values, a constraint on a target atom, a value no cell can take, one
  * value dimensions and wide dimensions. The oracle enumerates every allowed tuple.
  *
- * plan.relevance: a situation value is crossed only with the atoms it can act on, judged from typed data and no
- * word of the estate (relevance-typed.ts): the kind of an atom, the type of its evidence predicates, the kinds of
- * its edges, its typed fields and what the hidden estate planted for a standing rule. Each situation has one
- * narrow relation (a helper, a declared tool, a read of outside data, a call with a retry contract, a gate, a rule
- * planted for a hazard or a stop, a guard on the prompt, a route). The atoms that hold it are the situation's
- * identified targets; a crossing with any other atom is wrong, and no relation allows an atom that the kind list
- * of the previous oracle rejected. When no atom holds the relation, no atom applies and any crossing is wrong. A
- * plan that crosses every situation with every atom fails all 20 items.
+ * plan.relevance (docs/estate.md "Situation relevance in a proposed plan"): relevance comes from a declared space,
+ * never from the words of the estate. Each situation has one narrow relation (a helper, a declared tool, a read of
+ * outside data, a call with a retry contract, a gate, a rule planted for a hazard or a stop, a guard on the prompt,
+ * a route), and the atoms that hold it in what the hidden estate planted are its targets. The item declares that
+ * relevance as a space (the map's own space plus a constraint forbidding the situation with every other atom), plans
+ * over it, and requires the plan to cross the situation only with its targets (with none, with no atom). Without a
+ * supplied space, the plan must report the situation's value as unresolved and keep its combinations. A planner that
+ * ignores the supplied space crosses the situation with every atom and fails all 20 items; one that drops the
+ * unresolved note fails them too.
  */
 
 const CONTRACT = 'packages/estate/src/plan/contract.ts';
@@ -914,6 +915,28 @@ export function truthOf(run: EstateRun): Truth {
   };
 }
 
+/**
+ * The relevance a planted estate implies, as the declared space docs/estate.md asks a user to supply: the map's own
+ * space, and for each situation of RELEVANCE a constraint that forbids it with every atom outside its targets.
+ */
+export function relevanceSpace(map: EstateMap, targetsOf: ReadonlyMap<string, ReadonlySet<string>>): SpaceMap {
+  const base = toEstateSpaceMap(map);
+  const constraints: SpaceMap['constraints'] = [...base.constraints];
+  for (const rule of RELEVANCE) {
+    const targets = targetsOf.get(rule.key) ?? new Set<string>();
+    if (!base.dimensions.some((d) => d.id === rule.dimension && d.values.some((v) => v.id === rule.value)))
+      continue;
+    for (const dimension of base.dimensions.filter((d) => d.id.startsWith('atoms.')))
+      for (const value of dimension.values)
+        if (!targets.has(value.id))
+          constraints.push({
+            forbid: { [rule.dimension]: rule.value, [dimension.id]: value.id },
+            reason: `${rule.title} does not act on ${value.id}`,
+          });
+  }
+  return { ...base, constraints };
+}
+
 export function planRelevanceFamily(): Family {
   const family = 'plan.relevance';
   const items = itemsOf(
@@ -937,17 +960,39 @@ export function planRelevanceFamily(): Family {
       // The scan only turns a planted hidden id into the id of the atom it found for it.
       const scannedOf = (hids: Set<string>) =>
         new Set([...hids].flatMap((hid) => run.scanned.match.idOf.get(hid) ?? []));
-      const known = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom.kind as string]));
-      const rows = run.plan.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'));
+      const map = run.scanned.map;
+      const known = new Map(map.atoms.map((atom) => [atom.id, atom.kind as string]));
+      const targetsOf = new Map(
+        RELEVANCE.map((rule) => [rule.key, scannedOf(plantedTargets(rule.relation, truth))]),
+      );
+      // A run whose plan carries its details is a real one: the plan judged is the one the planner builds over the
+      // relevance the planted estate implies, declared as a space (the map's own space, plus for each situation a
+      // constraint against every atom that does not hold its relation). A test may hand in that plan itself
+      // (relevancePlan); a hand-written run with no details is judged on its plan as given.
+      const real = run.plan.details !== undefined;
+      const declared = real ? relevanceSpace(map, targetsOf) : undefined;
+      const judged =
+        run.relevancePlan ?? (declared ? buildPlan(map, { space: declared }) : run.plan);
+      const rows = judged.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'));
+      // Without a supplied space the plan reports each event-axis value as unresolved and keeps its combinations.
+      const unresolved = real ? run.plan.details.notes : undefined;
       const out = new Map<string, ItemResult>();
       for (const rule of RELEVANCE) {
         const crossings = rows
           .filter((row) => row.cell[rule.dimension] === rule.value)
           .map((row) => ({ row: row.id, atom: row.atomIds[0] as string }));
-        out.set(
-          `${family}.${rule.key}`,
-          judgeTargets(scannedOf(plantedTargets(rule.relation, truth)), known, crossings),
-        );
+        const verdict = judgeTargets(targetsOf.get(rule.key) ?? new Set<string>(), known, crossings);
+        const inSpace =
+          declared?.dimensions.some(
+            (d) => d.id === rule.dimension && d.values.some((v) => v.id === rule.value),
+          ) ?? false;
+        const note = `${rule.dimension}=${rule.value}: relevance is unresolved`;
+        if (verdict.pass && unresolved && inSpace && !unresolved.some((line) => line.startsWith(note)))
+          out.set(`${family}.${rule.key}`, {
+            pass: false,
+            detail: `with no supplied space the plan does not report "${note}"; its notes: ${unresolved.slice(0, 2).join(' | ') || 'none'}`,
+          });
+        else out.set(`${family}.${rule.key}`, verdict);
       }
       return out;
     },
