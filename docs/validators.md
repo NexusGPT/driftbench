@@ -165,6 +165,11 @@ driftbench validate protect --branch <name> --base <ref>
 | 0 or 1 | `--check-floor`, `--check-handover`, `--hardness`, `floors --raise`, `--journal` and `protect`: 0 when it holds or was written, 1 when it fails or was refused |
 | 64 | an input error: an unknown component, a bad seed, an unreadable file, a mode given the wrong options, a journal with an invalid row or no iteration 0 row for `--hardness` |
 
+Level slices deliberately exit 0: the CI join reads their JSON and applies the floor after reconstructing the
+stopping run. A frame failure in the generator (including an unloadable product) carries an `error` on its bank
+entry. The join refuses that evidence with exit 64 before it drops levels above an earlier item failure, even
+when the component has no floor. Ordinary failing items retain the existing stopping and floor semantics.
+
 Option errors that the argument parser itself reports (an unknown flag) exit 2, like every driftbench command.
 
 ### 8.3 The registered validators
