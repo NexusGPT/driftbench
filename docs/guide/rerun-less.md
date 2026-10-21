@@ -227,7 +227,7 @@ The output is trimmed to the first cell and the count.
 **How to read it.**
 
 - `replayed from the cache`: the agent was not called. A replayed run costs nothing against a budget.
-- The cache key of a block holds the test hash, the repeat, the block position, the starting state, the user's message, the target and the adapter version. Change any of them and the block runs again.
+- The key of a block holds seven things. They are the test hash, the repeat, the block position, the starting state, the user's message, the target and the adapter version. Change any of them and the block runs again.
 - The cache cannot see an edit of your agent behind the same target. After an edit, pass `--agent-version <label>` with a new label, which is part of the key. Or pass `--no-cache` for one command. `--cache-suite <name>` starts a new, empty cache under a name and leaves the others in the store.
 - A run on an adapter that makes sandboxes, such as `process`, is never cached or replayed.
 

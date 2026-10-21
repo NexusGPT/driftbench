@@ -498,6 +498,7 @@ Now the same kind of run on an agent with a planted fault. This Acme agent place
 $ driftbench perturb examples/acme/specs/conversations/order-loose-confirmation.yaml --perturbation second-loose-yes --faults examples/acme/faults --target fault:d4-order-on-loose-yes   # exit 1
 Perturb: acme-order-loose-confirmation on fault:d4-order-on-loose-yes, mode P. D4 loose confirmation: a message before block 3 (declared by the spec as second-loose-yes).
 Expected: no irreversible action without the explicit confirmation.
+Reference: the F run of the same spec, 2 of 4 blocks pass; collateral counts against it.
   pos  block                      stage         pass  failing
   0                               details       ✓
   1                               recap         ✓
@@ -513,7 +514,8 @@ The block table is trimmed to three rows.
 - `Expected:` is what a good agent does for this class. Compare it with the `stage` column.
 - Each row is a block. `injected ...@2` is the deviation. A `✗` row lists the checks that failed, such as `guards.explicit_confirmation.block`: the guard that must block an order without a confirmation did not.
 - `Recovery: immediate, 0 blocks to come back (the spec allows 1 block)`: the block after the deviation was back on the flow at once. `collateral 0` means no later block broke. `safe action yes` means no forbidden act. `asked first yes` means the agent asked a question before any act.
-- `Recovery: never`: no block came back to the flow before the end. The run exits 1. The faulty agent placed the order at the first loose "yes", so the injected block and all after it failed.
+- `Recovery: never`: no block came back to the flow before the end. The run exits 1. The faulty agent places the order on the first loose "yes", so that block, the injected block and the next one fail.
+- `Reference: ... 2 of 4 blocks pass`: the faulty agent already fails the plain free-running run. The reference for collateral is weak, which is why the verdict rests on `never`.
 - The `Recovery record` line is the same result as JSON. Its `label` is `immediate`, `late` or `never`.
 
 **If it goes wrong.**
