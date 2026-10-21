@@ -776,3 +776,168 @@ describe('variablesFromSources: review findings on the first head', () => {
     expect(built.store.variables.map((v) => v.title)).toEqual(['sibling']);
   });
 });
+
+describe('variablesFromSources: variable identities cannot collide across kinds', () => {
+  // Names built to collide: dots, brackets, quotes, text that looks like another key or like a kind.
+  const NAMES = [
+    'ledger',
+    'account',
+    'ledger.account',
+    '["ledger","account"]',
+    'a',
+    'b',
+    'a.b',
+    'b.c',
+    '"x"',
+    'x (member)',
+    'x (boolean)',
+    'm:x',
+    '|1:a',
+    'tool-field|6:ledger|7:account',
+    'condition-numeric|6:ledger',
+  ];
+  const READY = 'Ready.';
+  const clause = (kind: string, name: string) => `${kind} holds for ${name}.`;
+  type Cond = { text: string; label: unknown };
+  const conditions = (names: readonly string[]): Cond[] =>
+    names.flatMap((name) => [
+      {
+        text: clause('numeric', name),
+        label: { kind: 'numeric', subject: name, limit: 20, comparison: 'gt' },
+      },
+      {
+        text: clause('member', name),
+        label: { kind: 'member', subject: name, members: ['m1', 'm2'] },
+      },
+      { text: clause('boolean', name), label: { kind: 'boolean', subject: name } },
+    ]);
+  const tools = (pairs: ReadonlyArray<readonly [string, string]>) =>
+    pairs.map(([tool, field]) => ({
+      tool,
+      field,
+      source: 'F.md',
+      values: [{ id: 'ready', quote: READY }],
+    }));
+  const build = (names: readonly string[], pairs: ReadonlyArray<readonly [string, string]>) => {
+    const conds = conditions(names);
+    return variablesFromSources({
+      estate: {
+        files: { 'F.md': [READY, ...conds.map((c) => c.text)].join('\n') },
+        rules: [{ id: 'R', source: 'F.md', conditions: conds, tools: tools(pairs) }],
+      },
+    } as never);
+  };
+  const ALL_PAIRS = NAMES.flatMap((t) => NAMES.map((f) => [t, f] as const));
+
+  it('keeps one variable for each identity, with its own values and a distinct id', () => {
+    const built = build(NAMES, ALL_PAIRS);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(3 * NAMES.length + ALL_PAIRS.length);
+    const ids = built.store.variables.map((v) => v.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const v of built.store.variables) {
+      const samples = built.samples[v.id];
+      if (samples === undefined) {
+        // A tool variable holds only its one tool value, never a condition's numbers or members.
+        expect(v.values.map((x) => x.id)).toEqual(['ready']);
+      } else {
+        expect(Object.keys(samples).sort()).toEqual(v.values.map((x) => x.id).sort());
+        expect(v.values.some((x) => x.id === 'ready')).toBe(false);
+      }
+    }
+    expect(Object.keys(built.samples)).toHaveLength(3 * NAMES.length);
+  });
+
+  it('keeps every id the same when other variables are added, removed or reordered', () => {
+    const full = build(NAMES, ALL_PAIRS);
+    const fullIds = new Set(full.store.variables.map((v) => v.id));
+    const alone = new Set<string>();
+    for (const name of NAMES) for (const v of build([name], []).store.variables) alone.add(v.id);
+    for (const pair of ALL_PAIRS) for (const v of build([], [pair]).store.variables) alone.add(v.id);
+    expect(alone).toEqual(fullIds);
+    const reversed = build([...NAMES].reverse(), [...ALL_PAIRS].reverse());
+    expect(JSON.stringify(reversed.store.variables.map((v) => v.id))).toBe(
+      JSON.stringify(full.store.variables.map((v) => v.id)),
+    );
+  });
+
+  it('does not mix a condition and a tool whose names look alike (the reviewer case)', () => {
+    const built = build(['["ledger","account"]', 'ledger'], [['ledger', 'account']]);
+    const toolVariable = built.store.variables.filter((v) => v.values.some((x) => x.id === 'ready'));
+    expect(toolVariable).toHaveLength(1);
+    expect(toolVariable[0]?.values).toHaveLength(1);
+    expect(built.store.variables.filter((v) => built.samples[v.id] !== undefined)).toHaveLength(6);
+  });
+});
+
+describe('variablesFromSources: names that are not well-formed Unicode', () => {
+  const LONE_HIGH = '\uD801';
+  const LONE_LOW = '\uD800';
+  const tool2 = (name: string) => ({
+    tool: name,
+    field: 'status',
+    source: 'TOOLS.md',
+    values: [{ id: 'ready', quote: 'Ready.' }],
+  });
+  const build = (names: string[], extra: Partial<VariableSources> = {}) =>
+    variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+      },
+      ...extra,
+    });
+
+  it('refuses two tool names whose unpaired surrogates would encode alike, and keeps the good one', () => {
+    const built = build([`Ship${LONE_HIGH}Code`, `Ship${LONE_LOW}Code`, 'Ship-Code']);
+    expect(built.store.variables.map((v) => v.title)).toEqual(['Ship-Code.status']);
+    expect(built.refused).toHaveLength(2);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+    // The refusal names the entry with a replacement character, never the lone surrogate.
+    expect(built.refused.every((r) => !/[\uD800-\uDFFF]/.test(r.what))).toBe(true);
+  });
+
+  it('refuses a condition subject, an owner value and a session value that are not well-formed', () => {
+    const text = 'Escalate when the delay is above 2 days.';
+    const built = variablesFromSources({
+      estate: {
+        files: { 'TOOLS.md': 'Ready.', 'RULES.md': text },
+        rules: [
+          {
+            id: 'R',
+            source: 'TOOLS.md',
+            conditions: [],
+            tools: [tool2('Ship-Code')],
+          },
+          {
+            id: 'S',
+            source: 'RULES.md',
+            tools: [],
+            conditions: [
+              {
+                text,
+                label: { kind: 'numeric', subject: `delay${LONE_HIGH}`, limit: 2, comparison: 'gt' },
+              },
+            ],
+          },
+        ],
+      },
+      owner: {
+        values: [
+          { variable: 'Ship-Code.status', value: `x${LONE_LOW}`, words: 'The owner said so.', date: DAY },
+        ],
+      },
+      conversations: [{ id: 's1', values: { 'Ship-Code.status': `y${LONE_HIGH}` } }],
+    });
+    expect(built.store.variables.map((v) => v.id)).toEqual(['Ship-Code.status']);
+    expect(built.store.variables[0]?.values.map((v) => v.id)).toEqual(['ready']);
+    expect(built.refused).toHaveLength(3);
+    expect(built.refused.every((r) => /well-formed/.test(r.reason))).toBe(true);
+  });
+
+  it('accepts a well-formed astral character', () => {
+    const built = build(['Ship\u{1F600}Code']);
+    expect(built.refused).toEqual([]);
+    expect(built.store.variables).toHaveLength(1);
+  });
+});

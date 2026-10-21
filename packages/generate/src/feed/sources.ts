@@ -12,6 +12,8 @@ import { QuoteIndex } from '../extract/quote';
  *   file it is quoted from. A value whose quote the file does not hold (white space, typographic quotes, accents
  *   and invisible characters folded, case and punctuation not) is refused with a reason and kept out; a variable
  *   left with no value is not stored. A file is looked up by its exact path among the files given, never on disk.
+ *   A name or subject with an unpaired UTF-16 surrogate (not well-formed Unicode) is refused with a reason, in
+ *   every source: two such names would encode to the same replacement text and share an id.
  * - Conversations. Each session names the values it shows by variable and value id. A variable's total is the
  *   sessions that show it; a value's count is the sessions that show the value. A value of a variable the store
  *   has, absent from the store, joins it as a proposal (`approved: false`) with its counts. A variable no session
@@ -109,6 +111,15 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim() === '';
 
+/** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
+const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+const wellFormed = (...texts: readonly unknown[]): boolean =>
+  texts.every((text) => typeof text !== 'string' || !UNPAIRED.test(text));
+/** The text with each unpaired surrogate shown as U+FFFD, for a refusal that names it. */
+const shown = (text: string): string => text.replace(new RegExp(UNPAIRED.source, 'g'), '\uFFFD');
+const NOT_WELL_FORMED =
+  'a name or subject must be well-formed text: this one holds an unpaired UTF-16 surrogate, which cannot be told from another';
+
 function realDay(text: unknown): text is string {
   if (typeof text !== 'string') return false;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
@@ -167,11 +178,12 @@ function idsFor(names: Iterable<string>): Map<string, string> {
 }
 
 /**
- * Ids for the variables, by the rule of `idsFor`. A tool and field keep their dotted title when it is a valid id
- * that does not end like a hashed id and the field holds no dot; otherwise the id is the slug of the title and 12 hex
- * digits of the hash of the pair itself. So an id depends on its own variable only, and two
- * pairs that give one title never share an id. Ids that still meet (a crafted hash) are ordered by identity and the
- * later ones get a numeric suffix.
+ * Ids for the variables, by the rule of `idsFor`. A variable keeps its id text (a condition's subject, or the dotted
+ * title of a tool and field) when that is a valid id, does not end like a hashed id and holds no dot that another kind
+ * of variable could also write; otherwise the id is the slug of the text and 12 hex digits of the hash of the
+ * variable's identity. So an id depends on its own variable only, and variables of different kinds that give one text
+ * never share an id. Ids that still meet (a crafted hash) are ordered by identity and the later ones get a numeric
+ * suffix.
  */
 function variableIdsFor(drafts: ReadonlyMap<string, VariableDraft>): Map<string, string> {
   const byId = new Map<string, string[]>();
@@ -226,15 +238,16 @@ type BoundaryDraft = {
 };
 
 type VariableDraft = {
-  /** What identifies the variable: a condition's name, or the tool and the field as a pair, never joined. */
+  /** The identity of the variable (`identity`): its kind and the parts that name it, never joined or serialised. */
   name: string;
   title: string;
   /**
-   * False for a tool whose field holds a dot: its dotted title can also be written by another tool and field, and the
-   * title is then the id of the pair that splits at the last dot only. An unset flag is true.
+   * False when the id text holds a dot: a plain id is a tool's dotted title, and that title can also be written by
+   * another tool and field (the pair that splits at the last dot keeps it) or be the subject of a condition. So a
+   * condition with a dot in its subject, and a tool whose field holds a dot, take a hashed id. An unset flag is true.
    */
   plain?: boolean;
-  /** The text the id is made from when it is not the name: the dotted title of a tool and field. */
+  /** The text the id is made from: the subject of a condition, or the dotted title of a tool and field. */
   idText?: string;
   values: Map<string, ValueDraft>;
   total?: number;
@@ -276,8 +289,16 @@ const numberKey = (x: number): string => (x < 0 ? `neg${-x}` : `v${x}`);
 const finite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
 const named = (x: unknown): x is string => typeof x === 'string' && x.trim() !== '';
 
-const ownerKey = (entry: OwnerEntry) => JSON.stringify([entry.date, entry.words]);
-const quoteKey = (entry: QuoteEntry) => JSON.stringify([entry.path, entry.quote]);
+/**
+ * The one way this file builds a key out of text it did not write. A kind from a fixed list (no `|` in it), then each
+ * part after its length: two different identities can never give one key, whatever the parts hold (dots, brackets,
+ * quotes, text that looks like another key). A map is keyed on an identity, never on joined or serialised text.
+ */
+const identity = (kind: string, ...parts: readonly string[]): string =>
+  `${kind}${parts.map((part) => `|${part.length}:${part}`).join('')}`;
+
+const ownerKey = (entry: OwnerEntry) => identity('owner', entry.date, entry.words);
+const quoteKey = (entry: QuoteEntry) => identity('quote', entry.path, entry.quote);
 
 function ownerEntry(words: unknown, date: unknown): OwnerEntry | string {
   if (blank(words)) return 'the owner gave no words with the entry';
@@ -298,10 +319,19 @@ export function variablesFromSources(
   const index = new QuoteIndex(files);
   const drafts = new Map<string, VariableDraft>();
 
-  const conditionDraft = (name: string, title: string): VariableDraft => {
+  const conditionDraft = (kind: string, idText: string, title: string): VariableDraft => {
+    const name = identity(kind, idText);
     let draft = drafts.get(name);
     if (!draft) {
-      draft = { name, title, values: new Map(), samples: new Map(), boundaries: [] };
+      draft = {
+        name,
+        title,
+        idText,
+        plain: !idText.includes('.'),
+        values: new Map(),
+        samples: new Map(),
+        boundaries: [],
+      };
       drafts.set(name, draft);
     }
     return draft;
@@ -328,7 +358,7 @@ export function variablesFromSources(
       const name = subjectKey(label.subject);
       if (label.kind === 'numeric') {
         if (!finite(label.limit)) return undefined;
-        const draft = conditionDraft(name, label.subject);
+        const draft = conditionDraft('condition-numeric', name, label.subject);
         const below = around(label.limit, -1);
         const above = around(label.limit, 1);
         if (below === undefined || above === undefined) return undefined;
@@ -351,10 +381,10 @@ export function variablesFromSources(
           const same = (draft.boundaries ?? []).some((b) => b.limit === at && b.comparison === c);
           if (!same) draft.boundaries?.push(boundary);
         }
-        return name;
+        return draft.name;
       }
       if (!finite(label.low) || !finite(label.high) || label.low >= label.high) return undefined;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft('condition-numeric', name, label.subject);
       let inside = label.low / 2 + label.high / 2;
       if (Number.isInteger(label.low) && Number.isInteger(label.high)) {
         const whole = Math.floor(inside);
@@ -372,27 +402,33 @@ export function variablesFromSources(
       const samples = [outsideLow, label.low, inside, label.high, outsideHigh];
       for (const sample of samples)
         conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
-      return name;
+      return draft.name;
     }
     if (label.kind === 'member') {
       const members = [...new Set((label.members ?? []).filter(named).map((m) => m.trim()))];
       if (!named(label.subject) || members.length === 0) return undefined;
-      const name = `${subjectKey(label.subject)} (member)`;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft(
+        'condition-member',
+        `${subjectKey(label.subject)} (member)`,
+        label.subject,
+      );
       for (const member of members)
         conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
       let other = 'other';
       while (members.includes(other)) other += '#';
       conditionValue(draft, 'other', `${label.subject}: ${other}`, other, entry);
-      return name;
+      return draft.name;
     }
     if (label.kind === 'boolean') {
       if (!named(label.subject)) return undefined;
-      const name = `${subjectKey(label.subject)} (boolean)`;
-      const draft = conditionDraft(name, label.subject);
+      const draft = conditionDraft(
+        'condition-boolean',
+        `${subjectKey(label.subject)} (boolean)`,
+        label.subject,
+      );
       conditionValue(draft, 'true', `${label.subject}: true`, true, entry);
       conditionValue(draft, 'false', `${label.subject}: false`, false, entry);
-      return name;
+      return draft.name;
     }
     return undefined;
   };
@@ -417,6 +453,12 @@ export function variablesFromSources(
       }
       const label = condition.label;
       if (label === undefined || label.kind === 'none') continue;
+      const labelled: unknown[] = [label.subject, 'unit' in label ? label.unit : undefined];
+      if (label.kind === 'member') labelled.push(...(label.members ?? []));
+      if (!wellFormed(...labelled)) {
+        refuse(shown(condition.text), NOT_WELL_FORMED);
+        continue;
+      }
       const entry: QuoteEntry = { kind: 'quote', path: rule.source, quote: condition.text };
       const made = conditionVariable(label, entry);
       if (made === undefined)
@@ -426,11 +468,12 @@ export function variablesFromSources(
     for (const tool of rule.tools ?? []) {
       const title = `${tool.tool}.${tool.field}`;
       // The pair, not its dotted title, identifies the variable: "a.b" with "c" and "a" with "b.c" are two.
-      const name = JSON.stringify([tool.tool, tool.field]);
+      const name = identity('tool-field', String(tool.tool), String(tool.field));
       for (const value of tool.values ?? []) {
-        const what = `${title}.${value.id}`;
+        const what = shown(`${title}.${value.id}`);
         let reason: string | undefined;
-        if (blank(value.quote)) reason = 'the value has no quote to stand on';
+        if (!wellFormed(tool.tool, tool.field, value.id)) reason = NOT_WELL_FORMED;
+        else if (blank(value.quote)) reason = 'the value has no quote to stand on';
         else if (value.quote.length > MAX_TEXT) reason = `the quote is longer than ${MAX_TEXT} characters`;
         else if (!index.has(tool.source)) reason = 'the file the quote names is not among the files given';
         else if (!index.contains(tool.source, value.quote)) reason = 'the file does not hold this quote';
@@ -524,6 +567,10 @@ export function variablesFromSources(
       refuse(what, 'the owner named no value');
       continue;
     }
+    if (!wellFormed(entry.value)) {
+      refuse(shown(what), NOT_WELL_FORMED);
+      continue;
+    }
     const { key } = addValue(draft, entry.value);
     (draft.values.get(key) as ValueDraft).owner.set(ownerKey(stamp), stamp);
   }
@@ -532,6 +579,7 @@ export function variablesFromSources(
   const sessions = sources.conversations ?? [];
   const seenVariables = new Map<string, Map<string, number>>();
   const unknown = new Set<string>();
+  const illFormed = new Set<string>();
   for (const session of sessions) {
     if (!isRecord(session.values)) continue;
     for (const [variableId, valueId] of Object.entries(session.values)) {
@@ -541,6 +589,10 @@ export function variablesFromSources(
         continue;
       }
       if (typeof valueId !== 'string' || valueId === '') continue;
+      if (!wellFormed(valueId)) {
+        illFormed.add(shown(`${variableId}=${valueId}`));
+        continue;
+      }
       const { key, created } = addValue(draft, valueId);
       const value = draft.values.get(key) as ValueDraft;
       if (created) value.proposal = true;
@@ -549,6 +601,7 @@ export function variablesFromSources(
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
   }
+  for (const what of [...illFormed].sort()) refuse(what, NOT_WELL_FORMED);
   for (const variableId of [...unknown].sort()) {
     refuse(variableId, 'no variable of the store has this id, so the sessions that show it were not counted');
   }
@@ -556,12 +609,15 @@ export function variablesFromSources(
   const setHash = sha256(
     sessions
       .map((session) =>
-        JSON.stringify([
-          session.id,
-          isRecord(session.values)
-            ? Object.entries(session.values).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            : [],
-        ]),
+        identity(
+          'session',
+          String(session.id),
+          ...(isRecord(session.values)
+            ? Object.entries(session.values)
+                .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+                .flatMap(([variable, value]) => [variable, String(value)])
+            : []),
+        ),
       )
       .sort()
       .join('\n'),
@@ -643,8 +699,9 @@ export function variablesFromSources(
       refuse(what, 'the two values are of one variable, which never holds both: the pair excludes nothing');
       continue;
     }
-    ends.sort((x, y) => (x.join('=') < y.join('=') ? -1 : x.join('=') > y.join('=') ? 1 : 0));
-    const key = JSON.stringify(ends);
+    const endKey = (end: [string, string]) => identity('end', end[0], end[1]);
+    ends.sort((x, y) => (endKey(x) < endKey(y) ? -1 : endKey(x) > endKey(y) ? 1 : 0));
+    const key = identity('pair', ...ends.flat());
     const pair = pairs.get(key) ?? {
       a: ends[0] as [string, string],
       b: ends[1] as [string, string],
@@ -709,12 +766,14 @@ export function variablesFromSources(
     for (const [key, sample] of draft.samples) row[ids.get(key) as string] = sample;
     samples[idOfDraft(draft)] = row;
   }
-  const constraints = byText([...pairs.values()], (pair) => JSON.stringify([pair.a, pair.b])).map((pair) => ({
-    forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
-    reason: 'an impossible pair the owner named',
-    approved: true,
-    provenance: byText([...pair.provenance.values()], ownerKey),
-  }));
+  const constraints = byText([...pairs.values()], (pair) => identity('pair', ...pair.a, ...pair.b)).map(
+    (pair) => ({
+      forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
+      reason: 'an impossible pair the owner named',
+      approved: true,
+      provenance: byText([...pair.provenance.values()], ownerKey),
+    }),
+  );
   const rules = byText(
     [...ruleVariables.entries()].map(([id, cited]) => ({
       id,
@@ -738,7 +797,7 @@ export function variablesFromSources(
   } as unknown as VariableStore;
   return {
     store,
-    refused: byText(refused, (r) => JSON.stringify([r.what, r.reason])),
+    refused: byText(refused, (r) => identity('refusal', r.what, r.reason)),
     rules,
     samples,
   };
