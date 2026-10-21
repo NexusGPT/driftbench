@@ -88,7 +88,20 @@ The key comes from the environment, never from a file in the repository. The wor
 * The plugin turns on `branching` for the live adapter ([Claude Code adapter](adapters/claude-code.md)). A continuation of `ledger-branches` resumes its parent's turns as text and starts from the parent's files.
 * A tool call and its result are not part of a prefix. If the runtime refuses the seeded session, the continuation fails with the runtime's own error.
 
-One live run is recorded in [`evidence/live-mac-2026-10-21.json`](../examples/northwind-campaign/evidence/live-mac-2026-10-21.json). It ran on macOS with the Claude Code command line, Haiku 5.5 and the ledger-auditor's Sonnet 5.5. All four cells and eleven blocks passed, including both parent continuations. The responses reported USD 0.09659879 for that campaign. All three attempts reported USD 0.256374935 against an authorization of 5 USD. The target was real and billed; the users played recordings.
+The output below is quoted from a real billed run, the campaign `northwind-live-mac-20261021T100744Z`. It ran on macOS with the Claude Code command line, Haiku 5.5 and the ledger-auditor's Sonnet 5.5, from source head `c577e340c86984114ea615a12f9c08beeafc1c6e`. That run used a budget of 2.20 USD and one cell at a time, so its settings differ from the file above. The page does not re-run it.
+
+```text
+Campaign northwind-live-mac-20261021T100744Z: 4 cells, 1 at a time. Budget $2.20.
+✓ northwind-invoice-over · claude-code:northwind · F · repeat 0  pass  3 blocks
+✓ northwind-ledger-branches · claude-code:northwind · F · repeat 0  pass  3 blocks
+✓ northwind-shipment-late · claude-code:northwind · F · repeat 0  pass  3 blocks
+✓ northwind-weekly-report · claude-code:northwind · F · repeat 0  pass  2 blocks
+4 cells: 4 pass, 0 fail, 0 failed. Spent $0.10.
+```
+
+All four cells and eleven blocks passed, including both parent continuations, and the command exited 0. The responses reported USD 0.099290415 for this campaign. The seven attempts that led to it reported USD 0.580121675 together, against an authorization of 5 USD. Earlier attempts failed some blocks: the first passed 4 of 11. The target was real and billed; the users played recordings.
+
+An earlier passing run, `northwind-live-mac-20261021T092359Z`, is recorded in [`evidence/live-mac-2026-10-21.json`](../examples/northwind-campaign/evidence/live-mac-2026-10-21.json).
 
 ## Read the fix list
 
