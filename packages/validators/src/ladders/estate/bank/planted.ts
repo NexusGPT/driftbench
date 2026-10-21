@@ -30,7 +30,26 @@ import type { ItemResult } from './frame';
 
 export const BASE = 'base';
 
-export type Planted = { hid: string; kind: AtomKind; key?: string };
+/**
+ * An atom an item plants. A gate also names the act it waits for and the tool of that act (`act` is a part of the
+ * planted line): the planted-truth labeller answers the line with them, as the shipped gate label asks.
+ */
+export type Planted = { hid: string; kind: AtomKind; key?: string; act?: string; tool?: string };
+
+/**
+ * An atom the planted-truth labeller must find on a line, that the item does not match by id: the check that
+ * names it (`atomAt`, `refAt`) asserts that the scan gives it. A gate with no `act` takes the whole line.
+ */
+export type Hint = {
+  kind: AtomKind;
+  file: string;
+  line: number;
+  key?: string;
+  act?: string;
+  tool?: string;
+  /** The prose rule the line states (a dispatch of a helper), as the recording would hold it. */
+  prose?: Omit<ProseEntry, 'line'>;
+};
 
 export type ScanOutcome = {
   /** Product scan time only; excludes fixture I/O, matching, lint and cleanup. */
@@ -46,7 +65,16 @@ export type ScanOutcome = {
 };
 
 /** A property an item checks on the scan; a string is why it failed. */
-export type Check = (scan: ScanOutcome) => string | undefined;
+export type Check = {
+  (scan: ScanOutcome): string | undefined;
+  /** The atom this check asserts on a line; the estate hands it to the planted-truth labeller. */
+  hint?: Hint;
+};
+
+/** A check that asserts an atom a line plants, with the hint the labeller answers it by. */
+export function planting(check: (scan: ScanOutcome) => string | undefined, hint: Hint): Check {
+  return Object.assign((scan: ScanOutcome) => check(scan), { hint });
+}
 
 export class FileWriter {
   readonly lines: string[] = [];
@@ -86,6 +114,8 @@ export class PlantedEstate {
   readonly edges: Array<{ owner: string; from: string; to: string; kind: string }> = [];
   readonly checks: Array<{ owner: string; check: Check }> = [];
   readonly answers = new Map<string, ProseEntry[]>();
+  /** Atoms planted for the labeller only: the item asserts them with a check, it does not match them by id. */
+  readonly hints: Hint[] = [];
   /** file to line to owner; a file owned whole has line 0. */
   readonly owners = new Map<string, Map<number, string>>();
 
@@ -144,6 +174,12 @@ export class PlantedEstate {
 
   check(owner: string, check: Check): void {
     this.checks.push({ owner, check });
+    if (check.hint) this.hints.push(check.hint);
+  }
+
+  /** Plants an atom for the labeller alone (a helper file a routing row leads to, a line a check names). */
+  hint(hint: Hint): void {
+    this.hints.push(hint);
   }
 
   prose(chunk: string, entry: ProseEntry): void {
@@ -196,11 +232,31 @@ export class PlantedEstate {
         await mkdir(dirname(at), { recursive: true });
         await symlink(link.absolute ? target : relative(dirname(at), target) || '.', at);
       }
-      const truth = truthPointer({
-        files: Object.fromEntries(this.texts()),
-        atoms: this.expected,
-        answers: this.answers,
-      });
+      const texts = Object.fromEntries(this.texts());
+      const hinted = this.hints.map((hint) => ({
+        hid: `hint:${hint.file}:${hint.line}`,
+        kind: hint.kind,
+        file: hint.file,
+        line: hint.line,
+        key: hint.key ?? '',
+        ...(hint.act !== undefined ? { act: hint.act } : {}),
+        ...(hint.tool !== undefined ? { tool: hint.tool } : {}),
+      }));
+      const atoms = [...this.expected, ...hinted];
+      // A planted gate names the act it waits for and its tool; a hinted gate with no act takes the whole line.
+      const gates = atoms
+        .filter((atom) => atom.kind === 'gate' && (atom as Planted).tool !== undefined)
+        .map((atom) => ({
+          file: atom.file,
+          line: atom.line,
+          act: (atom as Planted).act ?? (texts[atom.file] ?? '').split('\n')[atom.line - 1] ?? '',
+          tool: (atom as Planted).tool as string,
+        }));
+      const answers = new Map([...this.answers].map(([file, list]) => [file, [...list]]));
+      for (const hint of this.hints) {
+        if (hint.prose) answers.set(hint.file, [...(answers.get(hint.file) ?? []), { ...hint.prose, line: hint.line }]);
+      }
+      const truth = truthPointer({ files: texts, atoms, answers, gates });
       const reader = readerFor(RUNTIME);
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
       const started = Date.now();

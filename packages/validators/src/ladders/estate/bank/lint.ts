@@ -703,8 +703,12 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
   if (build.standing.length > 0) writer.lines_(['', ...build.standing]);
   if (build.rows.length > 0) {
     writer.lines_(['', '| When the user wants to | Load |', '|---|---|']);
-    for (const row of build.rows)
-      writer.line(`| ${row.ask} | ${row.helper ? `the \`${row.target}\` agent` : `\`${row.target}\``} |`);
+    for (const row of build.rows) {
+      writer.line(`| ${row.ask} | ${row.helper ? `the \`${row.target}\` agent` : `\`${row.target}\``} |`, [
+        { hid: `${owner}:row:${row.target}`, kind: 'route', key: row.target },
+      ]);
+      if (row.helper) estate.hint({ kind: 'subagent', file: helperFile(row.target), line: 1, key: row.target });
+    }
   }
   writeSettings(estate, build.guards);
   const scan = await estate.scan();

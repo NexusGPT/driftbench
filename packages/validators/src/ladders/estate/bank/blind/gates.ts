@@ -321,6 +321,7 @@ const CASES: Case[] = [
 
 const HAZARDS: Array<{
   key: string;
+  hazard: string;
   tier: 1 | 2 | 3 | 4;
   title: string;
   text: (thing: string) => string;
@@ -328,55 +329,70 @@ const HAZARDS: Array<{
 }> = [
   {
     key: 'compaction',
+    hazard: 'compaction',
     tier: 1,
     title: 'a compaction',
     text: (t) => `After a compaction, read the ${t} notes again.`,
   },
-  { key: 'restart', tier: 1, title: 'a restart', text: (t) => `After a restart, reopen the ${t} tracker.` },
+  {
+    key: 'restart',
+    hazard: 'restart',
+    tier: 1,
+    title: 'a restart',
+    text: (t) => `After a restart, reopen the ${t} tracker.`,
+  },
   {
     key: 'rate-limits',
+    hazard: 'rate_wave',
     tier: 1,
     title: 'rate limits',
     text: (t) => `When rate limits hit, wait and send the ${t} again.`,
   },
   {
     key: 'new-session',
+    hazard: 'session_boundary',
     tier: 1,
     title: 'a new session',
     text: (t) => `In a new session, start from the ${t} handoff note.`,
   },
   {
     key: 'helper-notification',
+    hazard: 'notification',
     tier: 2,
     title: 'a helper notification',
     text: (t) => `A helper notification may arrive after the ${t} count closed.`,
   },
   {
     key: 'hook-nudges',
+    hazard: 'nudge_storm',
     tier: 2,
     title: 'repeated hook nudges',
     text: (t) => `Repeated hook nudges mean the ${t} loop is stuck.`,
   },
   {
     key: 'compaction-capital',
+    hazard: 'compaction',
     tier: 2,
     title: 'a capitalised compaction at the start of a line',
     text: (t) => `Compaction drops the ${t} list from memory.`,
   },
   {
     key: 'restarts-plural',
+    hazard: 'restart',
     tier: 3,
     title: 'restarts in the plural',
     text: (t) => `Restarts lose the ${t} cursor, so save it first.`,
   },
   {
     key: 'compactions-plural',
+    hazard: 'compaction',
     tier: 3,
     title: 'compactions in the plural',
     text: (t) => `Long runs see compactions; keep the ${t} summary short.`,
   },
   {
     key: 'bold-compaction',
+    hazard: 'compaction',
     tier: 3,
     title: 'a compaction inside bold text',
     text: (t) => `**After a compaction**, reload the ${t} checklist.`,
@@ -395,7 +411,7 @@ function hazardCases(): Case[] {
       plant: (e, s, o) => {
         const { place, thing } = theme(s, o);
         const made = freeSkill(e, `${place}-watch-${tag(o)}`, 'Watches the desk.', [hazard.text(thing)]);
-        e.check(o, atomAt('hazard', made.path, made.lines[0] as number));
+        e.check(o, atomAt('hazard', made.path, made.lines[0] as number, hazard.hazard));
       },
     });
   }
@@ -409,7 +425,7 @@ function hazardCases(): Case[] {
       plant: (e, s, o) => {
         const writer = standingFree(e);
         const line = writer.line(`- ${HAZARDS[5]?.text(theme(s, o).thing)}`);
-        e.check(o, atomAt('hazard', STANDING, line));
+        e.check(o, atomAt('hazard', STANDING, line, HAZARDS[5]?.hazard));
       },
     },
     {
@@ -421,7 +437,7 @@ function hazardCases(): Case[] {
       plant: (e, s, o) => {
         const { place, thing } = theme(s, o);
         const made = freeHelper(e, `${place}-scout-${tag(o)}`, [HAZARDS[2]?.text(thing) as string]);
-        e.check(o, atomAt('hazard', made.path, made.lines[0] as number));
+        e.check(o, atomAt('hazard', made.path, made.lines[0] as number, HAZARDS[2]?.hazard));
       },
     },
     {
@@ -436,7 +452,7 @@ function hazardCases(): Case[] {
         const writer = e.file(path, BASE);
         writer.lines_(['# Habits', '']);
         const line = writer.line(HAZARDS[3]?.text(theme(s, o).thing) as string);
-        e.check(o, atomAt('hazard', path, line));
+        e.check(o, atomAt('hazard', path, line, HAZARDS[3]?.hazard));
       },
     },
     {
@@ -451,7 +467,9 @@ function hazardCases(): Case[] {
           HAZARDS[0]?.text(thing) as string,
           HAZARDS[2]?.text(thing) as string,
         ]);
-        for (const line of made.lines) e.check(o, atomAt('hazard', made.path, line));
+        made.lines.forEach((line, index) =>
+          e.check(o, atomAt('hazard', made.path, line, HAZARDS[index === 0 ? 0 : 2]?.hazard)),
+        );
       },
     },
     {

@@ -41,6 +41,16 @@ const HAZARDS: Readonly<Record<string, { situation: string }>> = {
   nudge_storm: { situation: 'Repeated guard nudges' },
 };
 
+/** The shipped label of each hazard: a line that only names a hazard is answered with it. */
+const HAZARD_LABEL: Readonly<Record<string, string>> = {
+  compaction: 'hazard-compaction',
+  restart: 'hazard-restart',
+  rate_wave: 'hazard-rate-limit',
+  session_boundary: 'hazard-new-session',
+  notification: 'hazard-notification',
+  nudge_storm: 'hazard-nudge',
+};
+
 const hazardMapping = (hazard: string): AlsoMapping => ({
   kind: 'hazard',
   situation: HAZARDS[hazard]?.situation ?? hazard,
@@ -146,6 +156,12 @@ export function truthPointer(truth: Truth): TruthPointer {
   if (!parsed.ok) throw new Error(`the planted label set is invalid: ${parsed.message}`);
 
   const gateAt = new Map((truth.gates ?? []).map((gate) => [`${gate.file}:${gate.line}`, gate]));
+  const hazardLines = new Map<string, string>();
+  for (const atom of truth.atoms) {
+    const label = atom.kind === 'hazard' ? HAZARD_LABEL[atom.key] : undefined;
+    const at = `${atom.file}:${atom.line}`;
+    if (label && !hazardLines.has(at)) hazardLines.set(at, label);
+  }
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),
   );
@@ -239,6 +255,11 @@ export function truthPointer(truth: Truth): TruthPointer {
             return to
               ? { units: String(unit.n), label: own, links: [{ kind: 'dispatches', to }] }
               : { units: String(unit.n), label: own };
+          }
+          const hazardLabel = hazardLines.get(key);
+          if (hazardLabel) {
+            used.add(key);
+            return { units: String(unit.n), label: hazardLabel };
           }
           if (referenceLines.has(key)) {
             used.add(key);

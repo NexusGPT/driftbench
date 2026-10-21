@@ -28,7 +28,7 @@ type Line = {
   text(names: { noun: string; verb: string; skill: string }, file: string): string;
   /** Files beside SKILL.md the line names, created. */
   files?: string[];
-  atoms(owner: string, path: (relative: string) => string): Planted[];
+  atoms(owner: string, path: (relative: string) => string, names: { noun: string }): Planted[];
   checks?(owner: string, path: (relative: string) => string): Check[];
 };
 
@@ -65,7 +65,13 @@ function gateCheck(
   };
 }
 
-const gate = (owner: string): Planted => ({ hid: `${owner}:gate`, kind: 'gate' });
+/** A gate atom: the act it waits for (a part of the line) and the tool of that act, for the planted-truth labeller. */
+const gate = (owner: string, act: string, tool: string): Planted => ({
+  hid: `${owner}:gate`,
+  kind: 'gate',
+  act,
+  tool,
+});
 const reference = (owner: string, key: string, tag = 'ref'): Planted => ({
   hid: `${owner}:${tag}`,
   kind: 'reference',
@@ -79,7 +85,7 @@ const GATES: Line[] = [
     title: 'before X: read Y',
     text: (n, f) => `Before editing a ${n.noun}: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o, _p) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -88,7 +94,7 @@ const GATES: Line[] = [
     title: 'before X, read Y',
     text: (n, f) => `Before you edit a ${n.noun}, read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `edit a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -97,7 +103,7 @@ const GATES: Line[] = [
     title: 'read Y before X',
     text: (n, f) => `Read \`${f}\` before you change a ${n.noun}.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `change a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -105,7 +111,7 @@ const GATES: Line[] = [
     tier: 1,
     title: 'do not X until you have read Y',
     text: () => 'Do not commit until you have read the output of `git status`.',
-    atoms: (o) => [gate(o)],
+    atoms: (o) => [gate(o, 'commit', 'Bash')],
     checks: (o) => [gateCheck(o, { first: 'git status', trigger: 'commit' })],
   },
   {
@@ -114,7 +120,10 @@ const GATES: Line[] = [
     title: 'the colon form in capitals',
     text: (n, f) => `BEFORE EDITING A ${n.noun.toUpperCase()}: READ \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [
+      gate(o, `EDITING A ${n.noun.toUpperCase()}`, 'Edit'),
+      reference(o, p('references/rules.md')),
+    ],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -123,7 +132,7 @@ const GATES: Line[] = [
     title: 'the colon form with the act in bold',
     text: (n, f) => `**Before editing a ${n.noun}**: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [
       (scan) => {
         const atom = atomOfHid(scan, `${o}:gate`);
@@ -139,7 +148,7 @@ const GATES: Line[] = [
     title: 'an act of writing: the pair ends on Write',
     text: (n, f) => `Before writing a new ${n.noun}: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `writing a new ${n.noun}`, 'Write'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { before: 'Read', after: 'Write' })],
   },
   {
@@ -148,7 +157,7 @@ const GATES: Line[] = [
     title: 'an act of deploying: the pair ends on the shell',
     text: (_n, f) => `Before you deploy, read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p) => [gate(o, 'deploy', 'Bash'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { before: 'Read', after: 'Bash' })],
   },
   {
@@ -157,7 +166,7 @@ const GATES: Line[] = [
     title: 'an act of dispatching: the pair ends on the helper call',
     text: (_n, f) => `Before dispatching a helper: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p) => [gate(o, 'dispatching a helper', 'Agent'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { before: 'Read', after: 'Agent' })],
   },
   {
@@ -166,7 +175,7 @@ const GATES: Line[] = [
     title: 'an act of updating, which is an edit',
     text: (n, f) => `Before updating a ${n.noun}: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `updating a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { before: 'Read', after: 'Edit' })],
   },
   {
@@ -175,7 +184,10 @@ const GATES: Line[] = [
     title: 'an act of renaming, which is a shell move',
     text: (n, f) => `Before renaming a ${n.noun} file: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [
+      gate(o, `renaming a ${n.noun} file`, 'Bash'),
+      reference(o, p('references/rules.md')),
+    ],
     checks: (o) => [gateCheck(o, { before: 'Read', after: 'Bash' })],
   },
   {
@@ -184,7 +196,7 @@ const GATES: Line[] = [
     title: 'a first file written with ./',
     text: (n) => `Before editing a ${n.noun}: read \`./references/rules.md\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o, p) => [
       (scan) => {
         const atom = atomOfHid(scan, `${o}:gate`);
@@ -200,7 +212,7 @@ const GATES: Line[] = [
     title: 'a first file named by a markdown link',
     text: (n) => `Before editing a ${n.noun}: read [the rules](references/rules.md).`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o, p) => [
       (scan) => {
         const atom = atomOfHid(scan, `${o}:gate`);
@@ -217,8 +229,8 @@ const GATES: Line[] = [
     text: (n) =>
       `Before editing a ${n.noun}: read \`references/rules.md\`; before sending one: read \`references/send.md\`.`,
     files: ['references/rules.md', 'references/send.md'],
-    atoms: (o, p) => [
-      gate(o),
+    atoms: (o, p, n) => [
+      gate(o, `editing a ${n.noun}`, 'Edit'),
       { hid: `${o}:gate2`, kind: 'gate' },
       reference(o, p('references/rules.md')),
       reference(o, p('references/send.md'), 'ref2'),
@@ -229,7 +241,7 @@ const GATES: Line[] = [
     tier: 2,
     title: 'a first file that does not exist: the gate stands, the reference is missing',
     text: (n) => `Before editing a ${n.noun}: read \`references/gone.md\`.`,
-    atoms: (o, p) => [gate(o), reference(o, p('references/gone.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/gone.md'))],
     checks: (o) => [
       (scan) =>
         atomOfHid(scan, `${o}:ref`)?.fields?.exists === false
@@ -243,7 +255,7 @@ const GATES: Line[] = [
     title: 'the comma form with a word after the file',
     text: (n) => `Before every ${n.noun} edit, read \`references/rules.md\` again.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `every ${n.noun} edit`, 'Edit'), reference(o, p('references/rules.md'))],
   },
   {
     key: 'decoy-lunch',
@@ -295,7 +307,7 @@ const GATES: Line[] = [
     title: 'read Y first, then X',
     text: (n, f) => `Read \`${f}\` first, then edit the ${n.noun}.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `edit the ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -304,7 +316,7 @@ const GATES: Line[] = [
     title: 'never X without reading Y',
     text: (n, f) => `Never edit a ${n.noun} without reading \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `edit a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -313,7 +325,7 @@ const GATES: Line[] = [
     title: 'X only after reading Y',
     text: (n, f) => `Edit a ${n.noun} only after reading \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `Edit a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -322,8 +334,8 @@ const GATES: Line[] = [
     title: 'a gate naming two files to read',
     text: (n, f) => `Before editing a ${n.noun}: read \`${f}\` and \`references/terms.md\`.`,
     files: ['references/rules.md', 'references/terms.md'],
-    atoms: (o, p) => [
-      gate(o),
+    atoms: (o, p, n) => [
+      gate(o, `editing a ${n.noun}`, 'Edit'),
       reference(o, p('references/rules.md')),
       reference(o, p('references/terms.md'), 'ref2'),
     ],
@@ -335,7 +347,7 @@ const GATES: Line[] = [
     title: 'the colon form as a list item',
     text: (n, f) => `- Before editing a ${n.noun}: read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -344,7 +356,7 @@ const GATES: Line[] = [
     title: 'the act as a question: X? read Y first',
     text: (n, f) => `Editing a ${n.noun}? Read \`${f}\` first.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `Editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
   {
@@ -353,7 +365,7 @@ const GATES: Line[] = [
     title: 'prior to X, read Y',
     text: (n, f) => `Prior to editing a ${n.noun}, read \`${f}\`.`,
     files: ['references/rules.md'],
-    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    atoms: (o, p, n) => [gate(o, `editing a ${n.noun}`, 'Edit'), reference(o, p('references/rules.md'))],
     checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
 ];
@@ -795,7 +807,7 @@ function lineFamily(family: string, lines: readonly Line[], verb: string): Famil
         for (const file of line.files ?? []) estate.raw(path(file), '# File\n', owner);
         const text = line.text(names, line.files?.[0] ?? 'references/rules.md');
         plantSkill(estate, owner, names.skill, `${capital(names.title)} for the team.`, [
-          { text, atoms: line.atoms(owner, path) },
+          { text, atoms: line.atoms(owner, path, names) },
         ]);
         for (const check of line.checks?.(owner, path) ?? []) estate.check(owner, check);
       }

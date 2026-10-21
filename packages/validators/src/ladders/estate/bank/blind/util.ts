@@ -1,5 +1,5 @@
 import { helperFile, STANDING, skillFile } from '../../layout';
-import { BASE, type Check, type FileWriter, type PlantedEstate } from '../planted';
+import { BASE, type Check, type FileWriter, type PlantedEstate, planting } from '../planted';
 
 /**
  * Pieces shared by the blind families. A blind item plants its files under the base owner, so the judge
@@ -14,14 +14,26 @@ export const LINT = 'packages/estate/src/lint/lint.ts';
 
 export type Kind = string;
 
-/** An atom of the kind sits on the line of the file. */
-export function atomAt(kind: Kind, file: string, line: number): Check {
-  return (scan) => {
+/**
+ * An atom of the kind sits on the line of the file. A gate, reference or hazard is read through the pointer
+ * reader, so the check also plants the atom for the planted-truth labeller: a hazard names its id (`key`), a gate
+ * waits for an Edit unless the item says another tool.
+ */
+export function atomAt(kind: Kind, file: string, line: number, key?: string, tool?: string): Check {
+  const check: Check = (scan) => {
     const found = scan.map.atoms.filter(
       (atom) => atom.kind === kind && atom.provenance.file === file && atom.provenance.startLine === line,
     );
     return found.length === 0 ? `no ${kind} atom at ${file}:${line}` : undefined;
   };
+  if (kind !== 'gate' && kind !== 'reference' && kind !== 'hazard') return check;
+  return planting(check, {
+    kind,
+    file,
+    line,
+    ...(key !== undefined ? { key } : {}),
+    ...(kind === 'gate' ? { tool: tool ?? 'Edit' } : {}),
+  });
 }
 
 /** No atom of the kind sits on any of the lines of the file. */
