@@ -15,10 +15,10 @@ A scorecard built with diagnoses shows two pass rates side by side. `buildScorec
 | Score | Counts a run as passed when |
 |---|---|
 | Machine pass rate | every gating verdict passes. It is the verdict as the checks wrote it, final and unchanged |
-| Agent-attributed pass rate | every failing gating verdict is set aside by a diagnosis as `setup`, `excluded` or `credited`, so the failure is not the agent's |
+| Agent-attributed pass rate | every failing gating verdict is set aside by a diagnosis as `setup`, `excluded` or `credited` |
 
 A run with a failure that no rule attributed is counted apart as `unassigned`, and folded into neither rate. A run that completed with a block not run or blocked and no failure is in neither numerator nor denominator. It is counted in `unmeasuredRuns` (`notRun`, `blocked`), and its blocks in `blocks.notRun` and `blocks.blocked`, apart from the failing blocks. Both rates count only `scoredRuns`, the runs that passed or failed.
 
 The HTML page opens a "Two scores" zone with both rates, the failing blocks by disposition and the ranked fix list. A run page lists each block's diagnoses, and a `non-default` badge names any rule file that is not a shipped default. `attributionText` gives the same as text. Without diagnoses the scorecard and its JSON are unchanged, byte for byte.
 
-Limits: no command runs a diagnostic yet, so the zone appears for a program that registers the steps and builds the scorecard itself (see the [diagnostics](reference/blame.md#diagnostics) reference). A diagnosis never changes a verdict: the machine rate is the gate.
+Limits: the zone appears only when the scorecard is given diagnoses. The runner writes the diagnoses of a block after its checks. The diagnoses of a campaign, such as the fix plan, go to the `onDiagnoses` callback of `runCampaign`, because a stored campaign is immutable. A program passes them to `buildScorecard` (see the [diagnostics](reference/blame.md#diagnostics) reference). A diagnosis never changes a verdict: the machine rate is the gate.

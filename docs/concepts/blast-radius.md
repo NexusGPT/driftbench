@@ -381,7 +381,7 @@ Why it does not skip tests yet: on the H7 suite (the Acme stand-in prompt of 30 
 
 ### Rerun marks
 
-Some blocks cannot be selected by their links. A block that is red when nothing changed has no link to blame, and a block that flips under edits it has no link to cannot name them. Both rerun on every change to a prompt section, whatever their links say. The spec records them in `metadata.rerun`:
+Some blocks cannot be selected by their links. A block that is red when nothing changed has no link to blame. A block that flips under edits it has no link to cannot name them. Both rerun on every change to a prompt section, whatever their links say. The spec records them in `metadata.rerun`:
 
 ```yaml
 metadata:
@@ -395,7 +395,7 @@ metadata:
 
 | Reason | A block gets it when |
 |---|---|
-| `fails_at_baseline` | it fails in at least half of the repeats of the suite with no change (any edit may be its fix, and a selection that skips it leaves a stale failure) |
+| `fails_at_baseline` | it fails in at least half of the repeats of the unchanged suite. Any edit may be its fix, so selection never skips it |
 | `fragile` | it flipped under at least `minMutants` mutants (default 2) whose changed sections the links did not select it for |
 
 A block already marked `fails_at_baseline` is not marked again. A flaky block, passed in `excluded`, is never marked: it cannot verify anything. The marks are calibrated on one run and then frozen into the map. A later sample is measured with those marks, and never with marks learned from it.

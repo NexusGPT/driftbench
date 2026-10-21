@@ -271,7 +271,7 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * `weights`: the weight of each judge's vote by judge id, 1 when absent. An outcome wins with more than half of the total weight. A weight must be a finite number, at least 0.
 * `cascade: { threshold, thresholds }`: the bar of the cheapest judge. `threshold` must be above 0.5 and at most 1; `thresholds` sets it per judge id. `cascade: true` keeps 0.9. A judge that leaves `score` out still never stops the cascade.
 
-`majority(votes, { weights })` is the same rule as a function. The call `majority(votes, seated)` keeps the plain quorum of three. A probability outside the range abstains, and reversed or equal probability bounds throw.
+`majority(votes, { weights })` is the same rule as a function. The call `majority(votes, seated)` keeps the plain quorum of three. A vote of the large-budget round carries the id `<judge>@large`, so a weight applies to it only under that key.
 
 `CouncilResult.cost` is the relative cost of every judge call, re-asks and later rounds included. It is the sum of the judge costs of the table above, not a price in dollars.
 
