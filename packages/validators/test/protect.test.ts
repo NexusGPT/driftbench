@@ -354,6 +354,13 @@ const CHECK_COMMANDS = [
   'node packages/cli/dist/bin.js --version',
 ];
 
+/**
+ * The Node versions of the four heavy jobs: 22 and 24 on a push to main and on a pull request into main (the
+ * checkpoint), 24 only on a train or release/next pull request and on a dispatch.
+ */
+const NODE_MATRIX =
+  "${{ fromJSON((github.event_name == 'push' || github.base_ref == 'main') && '[22, 24]' || '[24]') }}";
+
 type Step = { if?: string; run?: string; uses?: string; with?: Record<string, unknown> };
 
 /** Each test file runs in exactly one shard of each Node version, and nothing the old build job ran is dropped. */
@@ -361,7 +368,7 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   const { prepare, checks, build } = workflow.jobs;
   const commands = (job: { steps: Step[] }) => job.steps.map((step) => step.run);
   // the build runs once per Node version and is shared: built and stamped by prepare, downloaded by the others
-  expect(prepare.strategy.matrix.node).toEqual([22, 24]);
+  expect(prepare.strategy.matrix.node).toBe(NODE_MATRIX);
   expect(prepare.name).toBe('prepare (node ${{ matrix.node }})');
   expect(commands(prepare)).toContain(API_GATE);
   expect(commands(prepare).filter((run) => run === PLAN_COMMAND)).toHaveLength(1);
@@ -379,7 +386,7 @@ function assertShards(workflow: ReturnType<typeof parse>) {
     expect(String(upload.with.path)).toContain(path);
   // the checks the old build job ran in shard 1 run in a job of their own, on both Node versions
   expect(checks.needs).toBe('prepare');
-  expect(checks.strategy.matrix.node).toEqual([22, 24]);
+  expect(checks.strategy.matrix.node).toBe(NODE_MATRIX);
   for (const command of CHECK_COMMANDS)
     expect(
       commands(checks).filter((run) => run === command),
@@ -390,7 +397,7 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   // the pooled expectations of the emission enumeration run on the parts of all four seeds, after the shards
   const manifest = workflow.jobs['emission-manifest'];
   expect(manifest.needs).toBe('build');
-  expect(manifest.strategy.matrix.node).toEqual([22, 24]);
+  expect(manifest.strategy.matrix.node).toBe(NODE_MATRIX);
   expect(manifest.if).toBe(build.if);
   const manifestRun = manifest.steps.find((step: Step) =>
     step.run?.includes('emission-mutations-manifest.test.ts'),
@@ -406,7 +413,7 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   const partsUpload = build.steps.find((step: Step) => step.uses?.startsWith('actions/upload-artifact@'));
   expect(partsUpload.with.name).toBe('emission-part-node${{ matrix.node }}-shard${{ matrix.shard }}');
   expect(partsUpload.with.path).toBe('validators/estate/emission-mutation-parts');
-  expect(build.strategy.matrix.node).toEqual([22, 24]);
+  expect(build.strategy.matrix.node).toBe(NODE_MATRIX);
   expect(build.strategy.matrix.shard).toEqual(Array.from({ length: SHARDS }, (_, at) => at + 1));
   expect(build.name).toBe(`build (node \${{ matrix.node }}, shard \${{ matrix.shard }}/${SHARDS})`);
   expect(commands(build).filter((run) => run === SHARD_COMMAND)).toHaveLength(1);
@@ -1257,7 +1264,7 @@ describe('merge train enforcement', () => {
   const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
     assertWorkflowPolicy(workflow, CI_HEAVY);
-    expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
+    expect(workflow.jobs.build.strategy.matrix.node).toBe(NODE_MATRIX);
     assertShards(workflow);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
   });
