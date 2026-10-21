@@ -63,9 +63,10 @@ The rehearsal fails on every non-zero campaign exit, including failed and unrun 
 
 ## Verified billed run
 
-`northwind-live-mac-20261021T092359Z` ran on macOS with the real Claude Code CLI 2.1.306, Haiku 5.5 and
-the ledger-auditor's Sonnet 5.5. All four cells and eleven blocks passed, including both parent continuations.
-The runtime responses reported USD 0.09659879 for that campaign; all three attempts reported USD 0.256374935
-against a USD 5 authorization. The user personas used recordings; the target was real and billed.
+`northwind-live-mac-20261021T105525Z` ran on macOS with the real Claude Code CLI 2.1.306, Haiku 5.5 and
+the ledger-auditor's Sonnet 5.5. All four cells and eleven blocks passed, including both parent continuations
+and the execution-log prerequisite on every block. The runtime responses reported USD 0.079184180
+for that campaign; all nine attempts reported USD 0.692963725 against a USD 5 authorization.
+The user personas used recordings; the target was real and billed.
 [The result and per-cell run ids](evidence/live-mac-2026-10-21.json) record the live source head. Full stores,
 raw transcripts and credentials are not committed.

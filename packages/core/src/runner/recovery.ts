@@ -15,8 +15,8 @@ export type RecoveryOptions = {
   reference?: RunResult;
   /**
    * Names more tools whose call is a consequential act (an order, a send, a payment, a deletion), beside
-   * the ones the spec names: the tools its end state reads (`tool:<label>`), its forbidden tools and the
-   * tools its `max_calls` sets to 0. The CLI passes the operation classifier of `@agent-nexus/driftbench-checks`.
+   * the ones the spec names: the tools its `operations` table gives a class other than read, the tools its
+   * end state reads (`tool:<label>`), its forbidden tools and the tools its `max_calls` sets to 0.
    */
   consequential?: (label: string) => boolean;
 };
@@ -160,6 +160,9 @@ function consequentialTools(spec: Spec, extra: ((label: string) => boolean) | un
       .filter(([, max]) => max === 0)
       .map(([label]) => label),
   ]);
+  // A tool the spec's operations table gives a destructive class acts on the world (read and modify do not).
+  for (const [label, kind] of Object.entries(spec.operations ?? {}))
+    if (kind !== 'read' && kind !== 'modify') named.add(label);
   const endState = spec.end_state;
   if (endState !== undefined && endState !== 'none') {
     for (const entry of [endState].flat()) {

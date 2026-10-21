@@ -1219,6 +1219,7 @@ metadata:
     session: price-sheet-build
     before: price-sheet-build/before
     after: price-sheet-build/after
+operations: { Read: read, Skill: read, Agent: read, Edit: modify }
 rules:
   forbidden_tools: [WebFetch]
   custom:
@@ -1655,6 +1656,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong.</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.9, against 86.5 for the next best, promptfoo.
 
 <a href="docs/assets/bench-mm-eval-light.png">
@@ -1664,6 +1667,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
   </picture>
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
+
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 **RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 82.7, against 77.6 for the next best, DeepEval.
 
@@ -1675,6 +1680,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **Verify.** driftbench decides whether the final answer is correct 74.2 times in 100, within 0.9 points of the top score (Langfuse, 75.1) and above Inspect (73.3), LangWatch (73.3), promptfoo (71.9) and DeepEval (58.8).
 
 <a href="docs/assets/bench-verify-light.png">
@@ -1685,6 +1692,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its opt-in frozen verify cascade. A refused item counts as wrong.</sub></p>
 
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
+
 **Writing.** driftbench picks the reply readers prefer more often than DeepEval, promptfoo, LangWatch, Langfuse and Inspect on the same model: 67.6, against 58.4 for the next best, DeepEval.
 
 <a href="docs/assets/bench-writing-light.png">
@@ -1694,6 +1703,8 @@ Five public benchmarks for judges, all on the same sealed items and the same mod
   </picture>
 </a>
 <p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, 67.6; the default setting scores 61.3.</sub></p>
+
+Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 <!-- readme-charts:end -->
 
@@ -1733,7 +1744,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="default-on-v7 against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 479 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="Previous default with the v8 declared-fulfillment strict row against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 480 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -1754,7 +1765,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |
+| Judge row | Cases | driftbench correct | Recorded peer correct | Standing |
 |---|---:|---:|---:|---|
 | Turn relevancy | 72 | 72 | 36 | lead |
 | DAG, one node | 72 | 72 | 65 | close |
@@ -1763,7 +1774,7 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 | Hallucination | 72 | 72 | 36 | lead |
 | Faithfulness | 72 | 72 | 36 | lead |
 | Task completion | 72 | 72 | 72 | close |
-| G-Eval strict * | 480 | 479 | 451 | lead |
+| G-Eval strict * | 480 | 480 | 451 | lead |
 | Knowledge retention | 1,272 | 1,271 | 1,272 | close |
 | LLM rubric | 72 | 72 | 69 | close |
 | Factuality | 72 | 72 | 70 | close |
@@ -1775,7 +1786,9 @@ The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep th
 | Grader panel | 60 | 54 | 59 | close |
 | Panel, borderline | 60 | 60 | 60 | close |
 
-* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.
+* G-Eval strict is the v8 default on a metric declaring request-fulfillment: 480/480, against the same recorded peer’s 451/480. This replaces the historical v7 result of 479/480. G-Eval strict and knowledge retention retain exact paired tests, Holm over those two rows. Other standings retain separate Wilson 95% intervals. Close means no separation under that rule.
+
+For the fourteen other README datasets: Unchanged by the v8 default: no metric in this set declares request-fulfillment; the request sequence is byte-identical to the previous default (proof: [39585594216](https://github.com/NexusGPT/driftbench/actions/runs/39585594216)).
 
 Inconclusive answers count wrong (Knowledge retention: 1; Reference correctness: 1; Grader panel: 4). They stay in the score denominator and leave the peer paired tests. Grader panel falls from 59 to 54 correct against the earlier driftbench answers; this is included in the secondary analysis.
 

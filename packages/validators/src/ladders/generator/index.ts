@@ -1,3 +1,4 @@
+import { FrameError } from '../../frame';
 import { bankMeasure, defineLadder, type Ladder, type Measure } from '../../ladder';
 import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdict } from './bank';
 import type { GeneratorParts } from './measure';
@@ -97,6 +98,7 @@ export async function evaluate(
         verdict: {
           pass: false,
           detail: `the item threw: ${cause instanceof Error ? cause.message : String(cause)}`,
+          ...(cause instanceof FrameError ? { error: cause.message } : {}),
         },
       });
     }
@@ -113,6 +115,7 @@ function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measur
       tier: item.tier,
       pass: verdict.pass,
       detail: verdict.detail,
+      ...(verdict.error === undefined ? {} : { error: verdict.error }),
     })),
     'generator',
   );

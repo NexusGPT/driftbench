@@ -40,6 +40,9 @@ metadata:
       - instruction.invoice-reconcile.run-the-reconcile-script-and-show
       - instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
       - instruction.standing.never-invent-order-numbers-prices-or
+rules:
+  custom:
+    northwind-invoice-prerequisite: {}
 blocks:
   - id: ask
     user: Hi, I need an invoice checked against its purchase order.
@@ -50,8 +53,6 @@ blocks:
       tools:
         - label: Skill
           input: { skill: invoice-reconcile }
-      references:
-        - { path: '**/matching-rules.md', count: { min: 1 } }
       workspace: { created: [], changed: [], deleted: [] }
   - id: reconcile
     user: It is invoice INV-1004 against purchase order PO-77.
