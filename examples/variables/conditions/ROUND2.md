@@ -97,3 +97,44 @@ the authorized **USD 13** cap.
 
 PR #756 already merged as `cee10de5676e3cc6018ff30768b06761badc719a`; its
 estate-map-to-store implementation is inherited. It was not closed by this lane.
+
+## Frozen3 result: acceptance remains unmet
+
+The one final run finished **2026-10-21 10:55:21 UTC**, before the 13:00 UTC
+deadline. Primary precision is **56/62 = 0.903226** and recall is
+**56/60 = 0.933333**. There are six false-positive assignments and four missed
+conditions. Miss classes are **one existing condition re-proposed** and **three
+new conditions mapped to existing values or not proposed**. All six extra
+assignments occurred on planted-condition rows; none occurred on the 13 none
+rows. The 0.95 acceptance threshold remains unmet. No tuning or second frozen3
+measurement follows this result.
+
+The secondary title check found **15 equivalent / 17 checked** (0.882353),
+**2 different**, **0 unread**. Its coverage is **17/20 planted new conditions**.
+This does not change primary precision or recall.
+
+Run id: `sol-lane-varstore:frozen3:469a08349ef75a4d5de2cce1df1b518ae9343eda`.
+Reader source SHA-256:
+`5fc4d9716fcba05675bf978911a5733166a9f10629768f85654143ae9ed3c851`.
+The full source/configuration/candidate manifest hash is
+`65c5137131466f53f3c450fa9f352182ad70a970d27916c45b9c09782249c41d`.
+All manifest hashes matched before reading, after reading and after scoring.
+
+The final [pre-registration comment](https://github.com/NexusGPT/driftbench/pull/1058#issuecomment-6314173752)
+was posted at 10:52:35 UTC. The runner recorded GitHub's server Date at
+10:52:39 UTC before opening the input. Provider Date headers range from
+10:52:39 to 10:55:21 UTC. The committed runner enforces that sequence; provider
+headers timestamp responses, not request receipt.
+
+`round2-frozen3.json` preserves the original input bytes as base64, supplied
+spans, the initial candidate store, every reader/proposer recording and the
+resulting store/report. `round2-frozen3.totals.json` contains aggregate scores,
+usage totals and post-run source hashes. Per-call public usage receipts omit
+request/response bodies; the private recording receipts retain the fictional
+primary calls. Secondary requests containing sealed reference titles are never
+saved. The sealed answer key is never committed or opened by the lane.
+
+Frozen3 cost **USD 0.203117938** from 1,952 returned responses. Total lane spend,
+including round 1 and every round-2 DEV call, is **USD 1.766285490 / USD 13**.
+The owner authorized shipping this reader and continuing DEV-only work on a new
+round-3 branch with a fresh blinded frozen4 set; frozen3 is spent for tuning.
