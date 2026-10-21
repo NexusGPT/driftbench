@@ -3,6 +3,7 @@ import { cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/pr
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pointer } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { estateApproveCommand, estateMapCommand, estateScanCommand } from '../src/commands/estate';
 import { estateBuildCommand } from '../src/commands/estate-build';
@@ -62,7 +63,7 @@ async function build(root: string, options: BuildOptions, answers?: boolean[]) {
   const questions: string[] = [];
   const code = await estateBuildCommand(
     'estate',
-    { out: 'b', replay: 'estate/answers.yaml', ...options },
+    { out: 'b', ...(options.pointer ? {} : { replay: 'estate/answers.yaml' }), ...options },
     seen.io,
     {
       now: NOW,
@@ -192,6 +193,35 @@ describe('driftbench estate build', () => {
     expect(edited.out).toContain('5. Write the tests:');
     expect(edited.out).not.toContain('5. Write the tests: unchanged');
   }, 240_000);
+
+  it('keeps the scan warning on a re-run and re-reads the scan when the label sets change', async () => {
+    const root = await workspace();
+    const labels = join(root, 'labels.yaml');
+    await writeFile(labels, pointer.AGENT_RULES_SET);
+    const pointed: BuildOptions = {
+      yes: true,
+      pointer: true,
+      cassette: 'estate/cassette.jsonl',
+      labels: 'labels.yaml',
+    };
+    const warning = 'The scan reported some refused labels or failed chunks';
+    const first = await build(root, pointed);
+    expect(first.out).toContain('1. Read the estate:');
+    expect(first.out).toContain(warning);
+    const again = await build(root, pointed);
+    expect(again.out).toContain('1. Read the estate: unchanged');
+    expect(again.out).toContain(warning);
+    await writeFile(labels, `${pointer.AGENT_RULES_SET}\n# an edit of the label sets\n`);
+    const edited = await build(root, pointed);
+    expect(edited.out).not.toContain('1. Read the estate: unchanged');
+  }, 240_000);
+
+  it('stops with exit 2 when the scan cannot read its replay file', async () => {
+    const root = await workspace();
+    const built = await build(root, { yes: true, replay: 'estate/missing.yaml' });
+    expect(built.code).toBe(2);
+    expect(built.out).not.toContain('2. Approve the atoms');
+  }, 120_000);
 
   it('exits 2 for a folder that is not there', async () => {
     const root = await workspace();
