@@ -273,7 +273,7 @@ export class ClaudeCodeReader implements EstateReader {
       },
       aliases: {
         ...inlineAliases(files.filter(isNormative)),
-        ...aliasTables(files.filter(isNormative), notes),
+        ...aliasTables(files.filter(isNormative)),
         ...config.aliases,
       },
       externals: [
@@ -790,32 +790,28 @@ function aliasRow(cells: readonly string[]): { name: string; folder: string } | 
   return undefined;
 }
 
-/** Whether a line belongs to a table: it starts with a pipe. */
-const TABLE_LINE = /^\s*\|/;
-
-/**
- * A markdown file made of headings and tables alone, with at least one alias row. Code reads it as structure,
- * so it is not sent again as prose; a file with any other line is prose and stays prose.
- */
-function definesAliases(file: EstateFile): boolean {
-  if (!/\.(md|markdown)$/i.test(file.path)) return false;
-  const lines = file.text.split('\n').filter((line) => line.trim() !== '');
-  if (lines.some((line) => !TABLE_LINE.test(line) && !/^\s*#/.test(line))) return false;
-  return readTables(file.text).some((table) => table.rows.some((row) => aliasRow(row.cells) !== undefined));
+/** A table of aliases: it has rows, and every row defines an alias by shape. */
+function isAliasTable(table: ReturnType<typeof readTables>[number]): boolean {
+  return table.rows.length > 0 && table.rows.every((row) => aliasRow(row.cells) !== undefined);
 }
 
-function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
+/**
+ * A markdown file with at least one table of aliases. Each table is judged on its own rows, so a sentence or a
+ * heading beside the table does not matter; code reads such a file as structure, not as prose.
+ */
+function definesAliases(file: EstateFile): boolean {
+  return /\.(md|markdown)$/i.test(file.path) && readTables(file.text).some(isAliasTable);
+}
+
+function aliasTables(files: readonly EstateFile[]): Record<string, string[]> {
   const aliases: Record<string, string[]> = {};
   for (const file of files) {
-    if (!definesAliases(file)) continue;
+    if (!/\.(md|markdown)$/i.test(file.path)) continue;
     for (const table of readTables(file.text)) {
+      if (!isAliasTable(table)) continue;
       for (const row of table.rows) {
         const defined = aliasRow(row.cells);
-        if (defined === undefined) {
-          if (strip(row.cells[0] ?? '') !== '' && ALIAS_NAME.test(strip(row.cells[0] ?? '')))
-            notes.push({ file: file.path, message: `alias row at line ${row.line} has no folder` });
-          continue;
-        }
+        if (defined === undefined) continue;
         aliases[defined.name] = [...(aliases[defined.name] ?? []), defined.folder];
       }
     }

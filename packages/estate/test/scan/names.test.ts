@@ -97,13 +97,14 @@ describe('alias tables', () => {
     },
   );
 
-  it('reads no table inside a file that also holds prose, and no row whose first cell is no alias name', async () => {
+  it('judges each table on its own rows: a sentence beside the table does not matter, a mixed table is no alias table', async () => {
     const root = await estate({
-      'CLAUDE.md': '# Rules\n\nSome prose.\n\n| Alias | Path |\n|---|---|\n| REF | .claude/library |\n',
-      '.claude/alias.md': '| Alias | Path |\n|---|---|\n| ref | .claude/library |\n| TWO | a file.md |\n',
+      'CLAUDE.md': '# Rules\n',
+      '.claude/a.md': 'Un chemin qui commence par un alias.\n\n| a | b |\n|---|---|\n| REF | .claude/library |\n',
+      '.claude/b.md': '| a | b |\n|---|---|\n| ref | .claude/library |\n| TWO | a file.md |\n',
     });
     const raw = await new ClaudeCodeReader().read(root);
-    expect(raw.aliases).toEqual({});
+    expect(raw.aliases).toEqual({ REF: ['.claude/library'] });
   });
 
   it('reads an alias a file defines inline, and resolves gates and references through it', async () => {

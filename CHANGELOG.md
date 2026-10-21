@@ -6,7 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-* Estate scan: an alias table is read by shape (an alias name in capitals in the first cell, a folder in a later cell, a file of headings and tables only), not by the header words `Alias`, `Path` or by a file name that holds `alias`. A file with other prose beside the table is no longer read as an alias table.
+* Estate scan: an alias table is read by shape, not by the header words `Alias`, `Path` or a file name that holds `alias`: a table whose every row has an alias name in capitals in the first cell and a folder in a later cell. Each table is judged on its own rows, so a sentence beside it does not matter. A row that is no alias row makes its table no alias table.
 
 * An adapter that cannot run a turn for a typed reason throws `TurnNotRun` (a new export of `@agent-nexus/driftbench-core`, frozen in `tools/structure/api-surface.json`); the runner records the block as `not_run` with that reason, never as a failure of the agent. The Claude Code live adapter does so when its runtime's result names a `not_run` reason, as the Northwind stand-in does for a skill obligation it cannot resolve ("wait for an explicit yes before you send it").
 
