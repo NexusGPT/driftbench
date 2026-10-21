@@ -85,7 +85,7 @@ describe('driftbench estate build', () => {
     expect(built.code).toBe(1);
     expect(built.out).toContain('1. Read the estate:');
     expect(built.out).toContain('2. Approve the atoms: approved all, as --yes says.');
-    expect(built.out).toContain('4. Approve the plan: approved all, as --yes says');
+    expect(built.out).toMatch(/4\. Approve the plan: approved all \d+ tests, as --yes says\./);
     expect(built.out).toContain('5. Write the tests:');
 
     const by = capture(join(root, 's'));

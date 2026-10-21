@@ -325,7 +325,7 @@ export async function estateBuildCommand(
     if (code !== 0) return code;
     delete stamp.stages.generate;
     io.out(
-      `4. Approve the plan: ${options.yes === true ? 'approved all, as --yes says' : 'approved'} ${rows.proposed} tests.\n`,
+      `4. Approve the plan: approved all ${rows.proposed} tests${options.yes === true ? ', as --yes says' : ''}.\n`,
     );
     await saveStamp();
   } else {
