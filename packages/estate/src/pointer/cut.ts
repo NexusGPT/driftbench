@@ -57,15 +57,17 @@ const SEGMENTER = new Intl.Segmenter('en', { granularity: 'sentence' });
 function mask(text: string, plain = false): string {
   const letters = (match: string) => 'x'.repeat(match.length);
   const spaces = (match: string) => ' '.repeat(match.length);
-  return text
-    .replace(/`+[^`]*`+/g, letters)
-    .replace(/\]\([^)]*\)/g, letters)
-    .replace(/https?:\/\/\S+/g, letters)
-    .replace(/\*+/g, spaces)
-    .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
-    // In markdown a line break inside a paragraph is a soft wrap; in plain text it is kept, so a title line with no
-    // stop ("NOTES") is not read into the sentence below it. A wrapped line that goes on in lower case still merges.
-    .replace(/\n/g, plain ? '\n' : ' ');
+  return (
+    text
+      .replace(/`+[^`]*`+/g, letters)
+      .replace(/\]\([^)]*\)/g, letters)
+      .replace(/https?:\/\/\S+/g, letters)
+      .replace(/\*+/g, spaces)
+      .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
+      // In markdown a line break inside a paragraph is a soft wrap; in plain text it is kept, so a title line with no
+      // stop ("NOTES") is not read into the sentence below it. A wrapped line that goes on in lower case still merges.
+      .replace(/\n/g, plain ? '\n' : ' ')
+  );
 }
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
