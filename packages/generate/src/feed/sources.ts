@@ -315,6 +315,10 @@ function illFormedAnywhere(value: unknown): boolean {
   return false;
 }
 
+/** Whether an object has a key that is not well-formed, at its own level. */
+const keyIllFormed = (value: unknown): boolean =>
+  isRecord(value) && Object.keys(value).some((key) => UNPAIRED.test(key));
+
 /**
  * The one well-formedness pass, before anything else reads the sources. Text with an unpaired UTF-16 surrogate, in a
  * key or a value at any depth, is not well-formed Unicode: two such texts encode to the same replacement text and
@@ -327,7 +331,13 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
     refused.push({ what: shown(what), reason: NOT_WELL_FORMED });
   };
   const name = (value: unknown): string => (typeof value === 'string' ? value : JSON.stringify(value) ?? '');
-  let estate = sources.estate;
+  const top = Object.keys(sources).filter((key) => UNPAIRED.test(key));
+  for (const key of top) drop(`sources key ${key}`);
+  let estate = top.length > 0 ? undefined : sources.estate;
+  if (estate !== undefined && keyIllFormed(estate)) {
+    drop('estate');
+    estate = undefined;
+  }
   if (estate !== undefined && isRecord(estate)) {
     const files: Record<string, string> = {};
     for (const [path, text] of Object.entries(estate.files ?? {})) {
@@ -335,7 +345,7 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
       else files[path] = text;
     }
     const rules = (estate.rules ?? []).flatMap((rule) => {
-      if (illFormedAnywhere([rule.id, rule.source])) {
+      if (illFormedAnywhere([rule.id, rule.source]) || keyIllFormed(rule)) {
         drop(`rule ${name(rule.id)}`);
         return [];
       }
@@ -345,7 +355,7 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
         return !bad;
       });
       const tools = (rule.tools ?? []).map((tool) => {
-        const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]);
+        const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool);
         const values = (tool.values ?? []).filter((value) => {
           const bad = whole || illFormedAnywhere(value);
           if (bad) drop(`${name(tool.tool)}.${name(tool.field)}.${name(value?.id)}`);
@@ -357,12 +367,16 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
     });
     estate = { ...estate, files, rules };
   }
-  const conversations = sources.conversations?.filter((session) => {
+  const conversations = (top.length > 0 ? undefined : sources.conversations)?.filter((session) => {
     const bad = illFormedAnywhere(session);
     if (bad) drop(`session ${name(session?.id)}`);
     return !bad;
   });
-  let owner = sources.owner;
+  let owner = top.length > 0 ? undefined : sources.owner;
+  if (owner !== undefined && keyIllFormed(owner)) {
+    drop('owner');
+    owner = undefined;
+  }
   if (owner !== undefined && isRecord(owner)) {
     const keep = <T,>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
       list?.filter((entry) => {

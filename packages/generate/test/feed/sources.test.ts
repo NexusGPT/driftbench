@@ -998,9 +998,13 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
             date: DAY,
           },
         ],
-        weights: [
-          { variable: 'ledger.account', value: 'ready', weight: 1, words: 'The owner said so.', date: DAY },
-        ],
+        weights: ['ready', 'novel', 'extra'].map((value) => ({
+          variable: 'ledger.account',
+          value,
+          weight: 1,
+          words: 'The owner said so.',
+          date: DAY,
+        })),
       },
     }) as never;
 
