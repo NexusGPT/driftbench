@@ -95,7 +95,8 @@ describe('driftbench gate', () => {
       // goes red on the fault that orders on a loose yes.
       expect(files).toContain('specs/gen-deviation-005.yaml');
       const report = JSON.parse(await readFile(join(out, 'gate-report.json'), 'utf8'));
-      expect(report.summary.specs).toBe(3);
+      // The two hand-written specs, the generated probe and the stem it opens with.
+      expect(report.summary.specs).toBe(4);
       expect(report.funnel.map((row: { stage: string }) => row.stage)).toEqual([
         'observed',
         'leakage',
