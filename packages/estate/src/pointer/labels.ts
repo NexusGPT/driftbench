@@ -63,6 +63,8 @@ const AtomBase = z.strictObject({
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
+  /** With `locate: each`: the nth path the unit names takes the nth span of this kind as its span of that kind. */
+  spanEach: z.string().min(1).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
   whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
