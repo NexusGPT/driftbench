@@ -37,6 +37,7 @@ import {
   scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
+import { fixListOption } from '../report-fixes';
 
 /**
  * The local viewer of `driftbench view`: pages served from the store, with the scorecard's renderer and
@@ -144,7 +145,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       const key = data.campaign.campaignId;
       let held = cache.get(key);
       if (!held || held.runs !== data.runs.length) {
-        const html = renderHtml(buildScorecard(data, { maxRuns: 400 }), {
+        const html = renderHtml(buildScorecard(data, { maxRuns: 400, ...fixListOption(data) }), {
           nav: nav(),
           runHref: (runId) => runPath(key, runId),
         });

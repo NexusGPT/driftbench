@@ -1,11 +1,12 @@
-import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUILTIN_KINDS, ObjectRegistry } from '@agent-nexus/driftbench-core';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // @ts-expect-error: a plain JavaScript module of the release tools, with no types.
 import { packFiles } from '../../../tools/release/check.mjs';
+import { buildJavaScript } from '../../../tools/test-build';
 import { blame } from '../src';
 
 /**
@@ -14,7 +15,7 @@ import { blame } from '../src';
  * that declares the diagnostic kind, and the pack must hold the build and nothing else of the data.
  */
 
-const CHECKS = fileURLToPath(new URL('..', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 
 describe('the shipped diagnostics', () => {
   it('reach a registry as the five compiled diagnostics, each from the checks package', () => {
@@ -33,15 +34,17 @@ describe('the shipped diagnostics', () => {
 });
 
 describe('the published checks package', { timeout: 120_000 }, () => {
+  const scratch = mkdtempSync(join(tmpdir(), 'blast-shipped-diagnostics-'));
+  const checks = join(scratch, 'checks');
   beforeAll(() => {
-    const command = JSON.parse(readFileSync(join(CHECKS, 'package.json'), 'utf8')).scripts.build as string;
-    const words = command.split(' ').filter((word) => word !== '--dts' && word !== '--clean');
-    const built = spawnSync('pnpm', ['exec', ...words, '--silent'], { cwd: CHECKS, encoding: 'utf8' });
-    if (built.status !== 0) throw new Error(`building checks failed\n${built.stdout}\n${built.stderr}`);
+    buildJavaScript(ROOT, scratch, ['checks']);
   }, 120_000);
+  afterAll(() => {
+    rmSync(scratch, { recursive: true, force: true });
+  });
 
   it('packs the build and no object or YAML file, so no shipped data waits on a folder', () => {
-    const pack = packFiles(CHECKS) as { files: string[] };
+    const pack = packFiles(checks) as { files: string[] };
     expect(pack.files).toContain('dist/index.js');
     expect(pack.files.filter((file) => file.startsWith('objects/') || /\.ya?ml$/.test(file))).toEqual([]);
   });

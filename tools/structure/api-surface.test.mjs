@@ -25,7 +25,8 @@ const run = (...args) => spawnSync(process.execPath, [TOOL, ...args], { encoding
 
 describe('public API', () => {
   it('matches the frozen list of exports', () => {
-    const check = run('--build', '--check');
+    // CI builds and stamps before tests. A stale checkout must fail, never rebuild under other workers.
+    const check = run('--check');
     expect(check.stderr).toBe('');
     expect(check.status).toBe(0);
   }, 120_000);
