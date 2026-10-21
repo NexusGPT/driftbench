@@ -2996,6 +2996,7 @@
       "levelTable": "value",
       "loopFolder": "value",
       "measureHardness": "value",
+      "mergeSeedRuns": "value",
       "migrateFloors": "value",
       "nextIterations": "value",
       "packageName": "value",

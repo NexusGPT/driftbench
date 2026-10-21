@@ -69,6 +69,8 @@ design is `docs/validators.md`.
 ```
 driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json] [--items] [--all-levels] [--blind]
 driftbench validate <component|all> --check-floor [seed options]
+driftbench validate <component|all> --reports <dir> [seed options] [--check-floor] [--json] [--items] [--all-levels]
+driftbench validate <component> [seed options] --levels <a..b> [--json]
 driftbench validate <component> --brief [--fresh] [seed options]
 driftbench validate <component> --journal <row.json>
 driftbench validate <component|all> --check-handover
@@ -91,6 +93,9 @@ Options of a run (this topic):
 | `--seed <n>` | seed 1 when neither seed option is given | one visible seed, a whole number |
 | `--seeds <a..b>` | none | a range of visible seeds, such as `1..20`; whole numbers with a at most b; at most 1000 seeds. With `--seed`, both are used, in order, without repeats |
 | `--hidden` | off | add the hidden seed of the current commit (see Inputs) |
+| `--hidden-only` | off | with `--hidden`: run the hidden seed alone, with no visible seed. Excludes `--seed` and `--seeds`; one leg of a split CI run |
+| `--reports <dir>` | none | join the `--json` reports of earlier runs in a folder (one run per seed, or one slice of levels of a seed, from `--levels`) into one report per validator, whose level is the minimum over all its seeds; then print and check floors as one run on all those seeds would. `--seed`, `--seeds` and `--hidden` name the seeds the join must hold; a missing or repeated seed or level exits 64. Goes with `--json`, `--items`, `--all-levels` and `--check-floor` |
+| `--levels <a..b>` | none | compute only levels a to b of one component: one slice of a ladder, always a full run (it computes above a failing level). The exit code is 0, since a slice holds no level of the run; `--reports` joins the slices. Goes with a run, not with `--brief`, `--journal`, `--check-handover`, `--hardness` or `--reports` |
 | `--json` | off | print the report as JSON instead of the table |
 
 Only one of `--brief`, `--journal`, `--check-handover`, `--check-floor` and `--hardness` may be given.
@@ -116,6 +121,9 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--seed <n>` | seed 1 when no seed option is given | one visible seed | `validate-overview` |
 | `--seeds <a..b>` | none | a range of visible seeds, at most 1000 | `validate-overview` |
 | `--hidden` | off | add the hidden seed of the current commit | `validate-overview` |
+| `--hidden-only` | off | with `--hidden`: run the hidden seed alone, with no visible seed | `validate-overview` |
+| `--reports <dir>` | none | join the `--json` reports in a folder into one report per validator, then print and check the floors | `validate-overview` |
+| `--levels <a..b>` | none | compute only levels a to b of one component, as one slice of a ladder; exit 0 | `validate-overview` |
 | `--json` | off | print the report, or the hardness, as JSON | `validate-overview` |
 | `--items` | off | compute every level and list the whole bank | `validate-reading-items` |
 | `--all-levels` | off | compute every level and list every failing item | `validate-reading-items` |
