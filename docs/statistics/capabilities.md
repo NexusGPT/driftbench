@@ -1,8 +1,8 @@
 # Statistics capabilities to build
 
-The statistics package ([statistics](../concepts/statistics.md)) covers what the campaign verdict, the gate and the reports need today. An evaluation framework needs more: robust summaries, effect sizes with their intervals, exact tests, control of many comparisons, sequential decisions, Bayesian summaries, agreement and calibration, distances between runs, and the arithmetic of sample sizes. Each page below defines functions that the package does not have yet, one section per function, with its formula, its result and the inputs it refuses. The statistics validator (`driftbench validate stats`) holds, for every function, a set of cases computed with exact arithmetic, and the function is done when its cases pass.
+The statistics package ([statistics](../concepts/statistics.md)) covers what the campaign verdict, the gate and the reports need today. Driftbench itself computes a few more statistics inline, or through functions of its own: the means and the median of its checks and reports, the total variation distance of `intake fidelity`, balanced accuracy, Gwet's AC1 and weighted kappa in the judge calibration report, the F-beta score of the tool call check, the Bonferroni level of the feed, the hypergeometric probability behind the users agenda, the sign and signed-rank tests of `compare`, and the allocation and design effect of the space coverage and intake reports. Each page below defines those functions, one section per function, with its formula, its result and the inputs it refuses. The statistics validator (`driftbench validate stats`) holds, for every function, a set of cases computed with exact arithmetic, and the function is done when its cases pass.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: a function is done when its two items of the capabilities level pass.
 
 ## Conventions
 
@@ -20,13 +20,12 @@ These hold for every function of every page, unless its section says otherwise.
 
 | Page | What it defines |
 |---|---|
-| [Descriptive and robust statistics](descriptive.md) | location, spread, shape and correlation measures |
-| [Effect sizes](effectsize.md) | standardised differences, ratios and differences of rates, with closed-form intervals |
-| [Exact tests](exacttests.md) | p-values by enumeration, and the statistics of classical tests |
-| [Many comparisons and combined evidence](multiplicity.md) | adjustments, error rates and combination of p-values |
-| [Sequential evidence](sequential.md) | sequential tests, e-values and boundaries |
-| [Bayesian summaries and rate intervals](bayes.md) | beta-binomial summaries and closed-form intervals on a rate |
-| [Classification, calibration and agreement](classification.md) | scores of a classifier or a judge, calibration, and agreement between raters |
-| [Distances and drift](distance.md) | distances between distributions, trend and control charts |
-| [Design, allocation and variance](design.md) | sample sizes, power, allocation, survey and variance estimates |
+| [Descriptive and robust statistics](descriptive.md) | the median, the geometric mean and the harmonic mean |
+| [Many comparisons and combined evidence](multiplicity.md) | the family-wise error rate of many tests, the level of each test that keeps it at a chosen level, and the Simes combination of p-values |
+| [Beta tail and an upper bound on a rate](bayes.md) | the upper tail of a Beta distribution, and the exact upper bound on a failure rate after trials without a failure |
+| [Classification and agreement](classification.md) | balanced accuracy and the F-beta score of a classifier or a judge, and Gwet's AC1 and weighted kappa between raters |
+| [Distances and drift](distance.md) | the total variation distance between two probability vectors |
+| [Design, allocation and variance](design.md) | sample sizes, the minimum detectable difference of two means, the Kish design effect, the proportional allocation of a sample and the jackknife variance of a mean |
+| [Exact tests](exacttests.md) | the hypergeometric probability, the exact sign test and the exact signed-rank test |
+| [Sequential evidence](sequential.md) | the mean of e-values |
 | [Mixture weights and mixed-strength coverage](weights.md) | the maximum-likelihood weights of a mixture, and the share of value tuples a suite covers at a strength per group |
