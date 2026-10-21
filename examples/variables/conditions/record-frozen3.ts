@@ -23,9 +23,16 @@ const freeze = JSON.parse(freezeBytes.toString('utf8')) as {
   readerHash: string;
   files: Record<string, string>;
 };
-for (const [file, expected] of Object.entries(freeze.files)) {
-  if (hash(readFileSync(resolve(root, file))) !== expected) throw new Error('frozen source changed: ' + file);
+function frozenHashes() {
+  const hashes = Object.fromEntries(
+    Object.keys(freeze.files).map((file) => [file, hash(readFileSync(resolve(root, file)))]),
+  );
+  for (const [file, expected] of Object.entries(freeze.files)) {
+    if (hashes[file] !== expected) throw new Error('frozen source changed: ' + file);
+  }
+  return hashes;
 }
+const hashesBefore = frozenHashes();
 if (existsSync(output) || existsSync(output + '.started.json') || existsSync(output + '.receipts.jsonl')) {
   throw new Error('the final run was already started; no second measurement');
 }
@@ -97,6 +104,8 @@ const evidence = {
   recording,
   ...result,
   readerTotals: live.totals(),
+  hashesBefore,
+  hashesAfter: frozenHashes(),
 };
 // Outcomes and recording are durable before the sealed scorer is allowed to read the key.
 writeFileSync(output, JSON.stringify(evidence, null, 2) + '\n', { flag: 'wx' });
@@ -109,6 +118,11 @@ const totals = await scoreFrozen(
   result.store,
   live.secondaryJudge,
 );
-const summary = { runId: started.runId, ...totals, ...live.totals() };
+const summary = {
+  runId: started.runId,
+  ...totals,
+  ...live.totals(),
+  hashesAfterScoring: frozenHashes(),
+};
 writeFileSync(output + '.totals.json', JSON.stringify(summary, null, 2) + '\n', { flag: 'wx' });
 console.log(JSON.stringify(summary));

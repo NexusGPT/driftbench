@@ -194,6 +194,8 @@ A span with a yes never calls system 2. A span with a candidate the reader could
 
 The report (`ConditionsReport`) holds the counts per status, `proposerCalls`, the thresholds, the reader, and one outcome per span with the `variable/value` it stands under. Spans are read one after another, so a value proposed for one span is a candidate for the next.
 
+**A repository system-1 judge reader.** See [round 2](variables-round2.md) for the binary Jev adapter, DEV evidence and the fresh blinded measurement protocol.
+
 **A model-port reader.** `createConditionReader(port)` is an optional system 1 implementation: it asks all supplied candidate yes/no questions together and accepts only one boolean per candidate. It preserves numeric comparisons, negation and triggering context in its instructions. A missing, nonboolean or incomplete answer fails the read, rather than inventing no votes. It accepts a complete JSON object after a provider explanation and sanitizes failures before the feed records them. It does not propose values; use the separate `createModelProposer` with the feed's default `all-no` policy.
 
 **Recorded and replayed.** `recordConditions(recording, reader, proposer)` wraps the two systems so each answer lands in `recording` (a plain JSON object, keyed by a hash of the clause and the questions). `replayConditions(recording)` answers from it with no model and no network, and a read or proposal the recording lacks fails that span, so a question that drifted is a failed run, never a silent gap.

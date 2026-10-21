@@ -615,28 +615,3 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
-
-  varstore-probe:
-    if: github.event_name == 'workflow_dispatch' && inputs.jobs == 'varstore-probe'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Format changed sources on GitHub
-        run: pnpm exec biome check --write packages/generate/src/feed/judge-reader.ts packages/generate/src/feed/scoped-proposer.ts packages/generate/src/feed/index.ts packages/generate/src/index.ts packages/generate/test/feed/judge-reader.test.ts packages/generate/test/feed/conditions-primary-score.test.ts packages/generate/test/feed/scoped-proposer.test.ts examples/variables/conditions/primary-score.ts examples/variables/conditions/round2.ts examples/variables/conditions/round2-live.ts examples/variables/conditions/round2-dev-final.ts examples/variables/conditions/score-frozen.ts examples/variables/conditions/secondary-score.ts examples/variables/conditions/record-frozen3.ts tools/structure/api-surface.json packages/generate/test/feed/conditions-judge-recorded.test.ts
-      - name: Save formatter diff
-        if: always()
-        run: git diff --binary > varstore-format.patch
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: varstore-format
-          path: varstore-format.patch
-      - run: pnpm typecheck
-      - run: pnpm exec vitest run packages/generate/test/feed/judge-reader.test.ts packages/generate/test/feed/conditions-primary-score.test.ts packages/generate/test/feed/scoped-proposer.test.ts packages/generate/test/feed/conditions-judge-recorded.test.ts --maxWorkers=2
-      - run: pnpm exec vitest run packages/generate/test/feed/conditions.test.ts packages/generate/test/feed/conditions-model-recorded.test.ts --maxWorkers=2

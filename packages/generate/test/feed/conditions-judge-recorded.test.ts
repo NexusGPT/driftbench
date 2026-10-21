@@ -4,12 +4,12 @@ import { join } from 'node:path';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { type Clause, loadStore, textsOf, unitsOf } from '../../../../examples/variables/conditions/lib';
-import { primaryScore, type PlantedRow } from '../../../../examples/variables/conditions/primary-score';
+import { type PlantedRow, primaryScore } from '../../../../examples/variables/conditions/primary-score';
 import { round2Options } from '../../../../examples/variables/conditions/round2';
 import {
+  type ConditionSpan,
   type ConditionsRecording,
   type ConditionsReport,
-  type ConditionSpan,
   feedFromConditions,
   replayConditions,
 } from '../../src/feed';
@@ -25,10 +25,17 @@ type Evidence = {
   initialStore: VariableStore;
 };
 
-async function replay(evidence: Evidence, spans: readonly ConditionSpan[], texts: ReadonlyMap<string, string>) {
+async function replay(
+  evidence: Evidence,
+  spans: readonly ConditionSpan[],
+  texts: ReadonlyMap<string, string>,
+) {
   const result = await feedFromConditions({
-    store: evidence.initialStore ?? loadStore(), spans, texts,
-    ...replayConditions(evidence.recording), options: round2Options,
+    store: evidence.initialStore ?? loadStore(),
+    spans,
+    texts,
+    ...replayConditions(evidence.recording),
+    options: round2Options,
   });
   expect(result.store).toEqual(evidence.store);
   expect(result.report.outcomes).toEqual(evidence.report.outcomes);
@@ -52,7 +59,12 @@ describe('system-1 condition feed: real recordings, no network', () => {
     const result = await replay(evidence, units, textsOf(units));
     const gold: PlantedRow[] = units.map((u) => {
       const conditions = u.truths.filter((t) => t !== 'none');
-      return { id: u.id, kind: conditions.length === 0 ? 'none' : conditions.some((c) => c.value === 'NEW') ? 'new' : 'existing', conditions };
+      return {
+        id: u.id,
+        kind:
+          conditions.length === 0 ? 'none' : conditions.some((c) => c.value === 'NEW') ? 'new' : 'existing',
+        conditions,
+      };
     });
     const known = new Set(loadStore().variables.flatMap((v) => v.values.map((x) => v.id + '/' + x.id)));
     const measured = primaryScore(gold, result.report.outcomes, known);
