@@ -6,9 +6,6 @@ import { constructAsk, type MapAtom } from './reference-ask';
  * gen.asks.misroute-names-another, gen.task) share it.
  */
 
-/** The runtime's standing instruction files: a rule written there holds over any work. */
-const STANDING_FILES = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
-
 /** The atom ids a value names, at any depth up to three (a guard's fields name the rule it enforces). */
 export function namedIds(value: unknown, atoms: ReadonlyMap<string, MapAtom>, depth = 0): string[] {
   if (typeof value === 'string') return atoms.has(value) ? [value] : [];
@@ -21,7 +18,8 @@ export function namedIds(value: unknown, atoms: ReadonlyMap<string, MapAtom>, de
 /**
  * The atoms an ask of a plan row may take its words from (docs/estate.md section 5): the row's atoms and the atoms
  * their fields name; a route that names a skill or helper of the row ("a request that routes to the skill or helper
- * that carries it"); and, for a rule of the standing instructions, the first route of the estate.
+ * that carries it"); and, for a row that holds no skill or helper (a rule of the standing instructions, which holds
+ * over any work), the first route of the estate.
  */
 export function rowSources(rowAtomIds: readonly string[], atoms: ReadonlyMap<string, MapAtom>): Set<string> {
   const out = new Set<string>();
@@ -41,8 +39,7 @@ export function rowSources(rowAtomIds: readonly string[], atoms: ReadonlyMap<str
     const target = (route.fields as { target?: unknown } | undefined)?.target;
     if (units.has(String(target ?? ''))) out.add(route.id);
   }
-  const standing = rowAtomIds.some((id) => STANDING_FILES.has(String(atoms.get(id)?.provenance?.file ?? '')));
-  if (standing && routes[0]) out.add(routes[0].id);
+  if (units.size === 0 && routes[0]) out.add(routes[0].id);
   return out;
 }
 
