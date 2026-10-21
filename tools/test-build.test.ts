@@ -1,4 +1,12 @@
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
@@ -42,7 +50,9 @@ fs.writeFileSync(path.join(out, 'build.json'), JSON.stringify({ cwd: process.cwd
     expect(readFileSync(join(folder, 'dist/index.js'), 'utf8')).toBe('export const mde = 1;');
     expect(readFileSync(join(scratch, 'fixture/dist/index.js'), 'utf8')).toBe('export const mde = 2;');
     expect(readFileSync(join(scratch, 'fixture/objects/policy.yaml'), 'utf8')).toBe('fictional: true');
-    expect(realpathSync(join(scratch, 'fixture/node_modules'))).toBe(realpathSync(join(folder, 'node_modules')));
+    expect(realpathSync(join(scratch, 'fixture/node_modules'))).toBe(
+      realpathSync(join(folder, 'node_modules')),
+    );
     const build = JSON.parse(readFileSync(join(scratch, 'fixture/dist/build.json'), 'utf8'));
     expect(build.cwd).toBe(folder);
     expect(build.args).toEqual([
