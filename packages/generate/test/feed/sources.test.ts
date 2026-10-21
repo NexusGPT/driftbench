@@ -351,3 +351,96 @@ describe('variablesFromSources: the whole', () => {
     expect((used.user + used.system) / 1000).toBeLessThan(3000);
   });
 });
+
+describe('variablesFromSources: labelled conditions', () => {
+  const LAW = ['# Rules', '', 'Refunds after 30 days need approval.', 'Premium customers get priority.'].join('\n');
+  const withLabels = (conditions: Array<{ text: string; label?: unknown }>): VariableSources =>
+    ({
+      estate: { files: { 'RULES.md': LAW }, rules: [{ id: 'R1', source: 'RULES.md', conditions, tools: [] }] },
+    }) as never;
+
+  it('writes three samples and an edge for a numeric clause that cites its span', () => {
+    const built = variablesFromSources(
+      withLabels([
+        {
+          text: 'Refunds after 30 days',
+          label: { kind: 'numeric', subject: 'days since purchase', limit: 30, comparison: 'gt', unit: 'days' },
+        },
+      ]),
+    );
+    expect(built.refused).toEqual([]);
+    const variable = built.store.variables[0];
+    expect(variable?.values).toHaveLength(3);
+    const boundary = variable?.boundaries?.[0];
+    expect(boundary?.limit).toBe(30);
+    expect(boundary?.comparison).toBe('gt');
+    const sample = built.samples[variable?.id as string] ?? {};
+    expect(sample[boundary?.holds as string]).toBe(31);
+    expect(sample[boundary?.fails as string]).toBe(29);
+    expect(sample[boundary?.edge as string]).toBe(30);
+    expect(variable?.values[0]?.provenance?.[0]).toEqual({
+      kind: 'quote',
+      path: 'RULES.md',
+      quote: 'Refunds after 30 days',
+    });
+    expect(built.rules).toEqual([{ id: 'R1', variables: [variable?.id] }]);
+  });
+
+  it('steps a decimal limit by its own last place', () => {
+    const built = variablesFromSources(
+      withLabels([
+        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: 'rate', limit: 2.5, comparison: 'le' } },
+      ]),
+    );
+    const id = built.store.variables[0]?.id as string;
+    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual([1.5, 2.5, 3.5].sort());
+  });
+
+  it('gives a member clause one value per member and one for any other', () => {
+    const built = variablesFromSources(
+      withLabels([
+        {
+          text: 'Premium customers',
+          label: { kind: 'member', subject: 'tier', members: ['premium', 'gold', 'premium'] },
+        },
+      ]),
+    );
+    const id = built.store.variables[0]?.id as string;
+    expect(Object.values(built.samples[id] ?? {}).sort()).toEqual(['gold', 'other', 'premium']);
+  });
+
+  it('gives a boolean clause two values and a none label no variable', () => {
+    const built = variablesFromSources(
+      withLabels([
+        { text: 'Premium customers', label: { kind: 'boolean', subject: 'is premium' } },
+        { text: 'Refunds after 30 days', label: { kind: 'none' } },
+      ]),
+    );
+    expect(built.store.variables).toHaveLength(1);
+    expect(Object.values(built.samples[built.store.variables[0]?.id as string] ?? {}).sort()).toEqual([false, true]);
+    expect(built.refused).toEqual([]);
+  });
+
+  it('refuses a label that is not usable, and a labelled clause the file does not hold', () => {
+    const built = variablesFromSources(
+      withLabels([
+        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: '', limit: 30, comparison: 'gt' } },
+        { text: 'not in the file', label: { kind: 'boolean', subject: 'x' } },
+      ]),
+    );
+    expect(built.store.variables).toEqual([]);
+    expect(built.refused).toHaveLength(2);
+  });
+
+  it('shares one value between two spans that give the same sample', () => {
+    const built = variablesFromSources(
+      withLabels([
+        { text: 'Refunds after 30 days', label: { kind: 'numeric', subject: 'days since purchase', limit: 30, comparison: 'gt' } },
+        { text: 'Premium customers', label: { kind: 'numeric', subject: 'Days Since Purchase', limit: 31, comparison: 'ge' } },
+      ]),
+    );
+    expect(built.store.variables).toHaveLength(1);
+    expect(built.store.variables[0]?.values).toHaveLength(4);
+    expect(built.store.variables[0]?.boundaries).toHaveLength(2);
+  });
+});

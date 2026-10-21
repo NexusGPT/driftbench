@@ -422,6 +422,7 @@ export {
   type ScopeOverride,
   type ShareEstimate,
   type SourceRefusal,
+  type SpanLabel,
   type Tally,
   type ValueReport,
   type VariableReport,

@@ -1609,6 +1609,7 @@
       "SourceText": "type",
       "SourceTurn": "type",
       "SpaceMapOptions": "type",
+      "SpanLabel": "type",
       "SpecBlock": "type",
       "SpecProposal": "type",
       "SpecVerdict": "type",

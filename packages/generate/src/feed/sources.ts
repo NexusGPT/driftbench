@@ -24,9 +24,23 @@ import { QuoteIndex } from '../extract/quote';
  * grammar; where two names give one id they get suffixes in the order of their names, not of their arrival.
  */
 
+/**
+ * What a reader wrote about a clause. Code never reads the clause: a model or a person did, and this is their
+ * answer. A comparison is `lt`, `le`, `gt` or `ge` (how the quantity is compared with the limit for the condition
+ * to hold) or `eq` or `ne` (equal, not equal; the file format has no such comparison, so no boundary is written).
+ */
+export type SpanLabel =
+  | { kind: 'numeric'; subject: string; limit: number; comparison: 'lt' | 'le' | 'gt' | 'ge' | 'eq' | 'ne'; unit?: string }
+  | { kind: 'range'; subject: string; low: number; high: number; unit?: string }
+  | { kind: 'member'; subject: string; members: readonly string[] }
+  | { kind: 'boolean'; subject: string }
+  | { kind: 'none' };
+
 export type SourceCondition = {
   /** The clause, copied from the file. */
   text: string;
+  /** What a reader wrote about the clause. Without a label the clause gives no variable. */
+  label?: SpanLabel;
 };
 
 export type SourceToolValue = { id: string; quote: string };
@@ -69,6 +83,11 @@ export type VariablesFromSources = {
   store: VariableStore;
   refused: SourceRefusal[];
   rules: SourceRuleVariables[];
+  /**
+   * The case each value of a condition variable stands for: a number below, at or above a limit, a listed member
+   * or another string, true or false. By variable id, then value id. A value of tool evidence has none.
+   */
+  samples: Record<string, Record<string, number | string | boolean>>;
 };
 
 export type VariablesFromSourcesOptions = { agent?: string; version?: string };
@@ -142,12 +161,43 @@ type ValueDraft = {
   weight?: number;
 };
 
+/** The edge of a numeric condition, by value key. */
+type BoundaryDraft = {
+  holds: string;
+  fails: string;
+  edge: string;
+  limit: number;
+  comparison: 'lt' | 'le' | 'gt' | 'ge';
+  unit?: string;
+  provenance: QuoteEntry;
+};
+
 type VariableDraft = {
   name: string;
   title: string;
   values: Map<string, ValueDraft>;
   total?: number;
+  /** For a condition variable: the sample of each value, by value key. */
+  samples?: Map<string, number | string | boolean>;
+  boundaries?: BoundaryDraft[];
 };
+
+const subjectKey = (subject: string): string => subject.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+
+const decimalsOf = (n: number): number => {
+  const text = String(n);
+  const dot = text.indexOf('.');
+  return /e/i.test(text) || dot < 0 ? 0 : text.length - dot - 1;
+};
+/** `n` moved by `steps` of its own last decimal place (a whole number moves by whole numbers). */
+const around = (n: number, steps: number): number => {
+  const places = decimalsOf(n);
+  return Number((n + steps * 10 ** -places).toFixed(places));
+};
+const numberKey = (x: number): string => (x < 0 ? `neg${-x}` : `v${x}`);
+
+const finite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+const named = (x: unknown): x is string => typeof x === 'string' && x.trim() !== '';
 
 const ownerKey = (entry: OwnerEntry) => JSON.stringify([entry.date, entry.words]);
 const quoteKey = (entry: QuoteEntry) => JSON.stringify([entry.path, entry.quote]);
@@ -170,6 +220,91 @@ export function variablesFromSources(
   const files = new Map(Object.entries(sources.estate?.files ?? {}));
   const index = new QuoteIndex(files);
   const drafts = new Map<string, VariableDraft>();
+
+  const conditionDraft = (name: string, title: string): VariableDraft => {
+    let draft = drafts.get(name);
+    if (!draft) {
+      draft = { name, title, values: new Map(), samples: new Map(), boundaries: [] };
+      drafts.set(name, draft);
+    }
+    return draft;
+  };
+  const conditionValue = (
+    draft: VariableDraft,
+    key: string,
+    title: string,
+    sample: number | string | boolean,
+    entry: QuoteEntry,
+  ): void => {
+    let value = draft.values.get(key);
+    if (!value) {
+      value = { names: new Set([key]), title, quotes: new Map(), owner: new Map(), proposal: false };
+      draft.values.set(key, value);
+      draft.samples?.set(key, sample);
+    }
+    value.quotes.set(quoteKey(entry), entry);
+  };
+  /** Writes the variable of one labelled clause; returns its name, or undefined when the label is not usable. */
+  const conditionVariable = (label: SpanLabel, entry: QuoteEntry): string | undefined => {
+    if (label.kind === 'numeric' || label.kind === 'range') {
+      if (!named(label.subject) || (label.unit !== undefined && !named(label.unit))) return undefined;
+      const name = subjectKey(label.subject);
+      if (label.kind === 'numeric') {
+        if (!finite(label.limit)) return undefined;
+        const draft = conditionDraft(name, label.subject);
+        const [low, at, high] = [around(label.limit, -1), label.limit, around(label.limit, 1)];
+        for (const sample of [low, at, high]) {
+          conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
+        }
+        const c = label.comparison;
+        if (c === 'lt' || c === 'le' || c === 'gt' || c === 'ge') {
+          const above = c === 'gt' || c === 'ge';
+          const boundary: BoundaryDraft = {
+            holds: numberKey(above ? high : low),
+            fails: numberKey(above ? low : high),
+            edge: numberKey(at),
+            limit: at,
+            comparison: c,
+            ...(label.unit === undefined ? {} : { unit: label.unit }),
+            provenance: entry,
+          };
+          const same = (draft.boundaries ?? []).some((b) => b.limit === at && b.comparison === c);
+          if (!same) draft.boundaries?.push(boundary);
+        }
+        return name;
+      }
+      if (!finite(label.low) || !finite(label.high) || label.low >= label.high) return undefined;
+      const draft = conditionDraft(name, label.subject);
+      let inside = (label.low + label.high) / 2;
+      if (Number.isInteger(label.low) && Number.isInteger(label.high)) {
+        inside = Math.floor(inside);
+        if (inside <= label.low) inside = label.low + 0.5;
+      }
+      const samples = [around(label.low, -1), label.low, inside, label.high, around(label.high, 1)];
+      for (const sample of samples) conditionValue(draft, numberKey(sample), `${label.subject}: ${sample}`, sample, entry);
+      return name;
+    }
+    if (label.kind === 'member') {
+      const members = [...new Set((label.members ?? []).filter(named).map((m) => m.trim()))];
+      if (!named(label.subject) || members.length === 0) return undefined;
+      const name = `${subjectKey(label.subject)} (member)`;
+      const draft = conditionDraft(name, label.subject);
+      for (const member of members) conditionValue(draft, `m:${member}`, `${label.subject}: ${member}`, member, entry);
+      let other = 'other';
+      while (members.includes(other)) other += '#';
+      conditionValue(draft, 'other', `${label.subject}: ${other}`, other, entry);
+      return name;
+    }
+    if (label.kind === 'boolean') {
+      if (!named(label.subject)) return undefined;
+      const name = `${subjectKey(label.subject)} (boolean)`;
+      const draft = conditionDraft(name, label.subject);
+      conditionValue(draft, 'true', `${label.subject}: true`, true, entry);
+      conditionValue(draft, 'false', `${label.subject}: false`, false, entry);
+      return name;
+    }
+    return undefined;
+  };
   const ruleVariables = new Map<string, Set<string>>();
   for (const rule of sources.estate?.rules ?? []) {
     const cited = ruleVariables.get(rule.id) ?? new Set<string>();
@@ -180,7 +315,14 @@ export function variablesFromSources(
           condition.text,
           'this clause is not in the file the rule names, so it cannot stand as a condition',
         );
+        continue;
       }
+      const label = condition.label;
+      if (label === undefined || label.kind === 'none') continue;
+      const entry: QuoteEntry = { kind: 'quote', path: rule.source, quote: condition.text };
+      const made = conditionVariable(label, entry);
+      if (made === undefined) refuse(condition.text, 'the label written for this clause is not a usable condition');
+      else cited.add(made);
     }
     for (const tool of rule.tools ?? []) {
       const name = `${tool.tool}.${tool.field}`;
@@ -413,6 +555,15 @@ export function variablesFromSources(
         ...(provenance.length > 0 ? { provenance } : {}),
       };
     });
+    const boundaries = (draft.boundaries ?? []).map((boundary) => ({
+      holds: ids.get(boundary.holds) as string,
+      fails: ids.get(boundary.fails) as string,
+      edge: ids.get(boundary.edge) as string,
+      limit: boundary.limit,
+      comparison: boundary.comparison,
+      ...(boundary.unit === undefined ? {} : { unit: boundary.unit }),
+      provenance: [boundary.provenance],
+    }));
     return {
       id: idOfDraft(draft),
       title: draft.title,
@@ -420,8 +571,17 @@ export function variablesFromSources(
       role: 'detail' as const,
       approved: true,
       values,
+      ...(boundaries.length > 0 ? { boundaries } : {}),
     };
   });
+  const samples: Record<string, Record<string, number | string | boolean>> = {};
+  for (const draft of drafts.values()) {
+    if (draft.values.size === 0 || !draft.samples || draft.samples.size === 0) continue;
+    const ids = valueIds.get(draft.name) as Map<string, string>;
+    const row: Record<string, number | string | boolean> = {};
+    for (const [key, sample] of draft.samples) row[ids.get(key) as string] = sample;
+    samples[idOfDraft(draft)] = row;
+  }
   const constraints = byText([...pairs.values()], (pair) => JSON.stringify([pair.a, pair.b])).map((pair) => ({
     forbid: { [pair.a[0]]: pair.a[1], [pair.b[0]]: pair.b[1] },
     reason: 'an impossible pair the owner named',
@@ -453,5 +613,6 @@ export function variablesFromSources(
     store,
     refused: byText(refused, (r) => JSON.stringify([r.what, r.reason])),
     rules,
+    samples,
   };
 }

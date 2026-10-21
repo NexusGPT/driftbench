@@ -69,6 +69,7 @@ export {
 } from './reader';
 export {
   type SourceRefusal,
+  type SpanLabel,
   type VariablesFromSources,
   type VariablesFromSourcesOptions,
   type VariableSources,
