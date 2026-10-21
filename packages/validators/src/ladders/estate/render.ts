@@ -42,6 +42,8 @@ export type ProseEntry = {
   situation?: string;
   polarity?: 'obligation' | 'prohibition';
   evidence: Evidence[];
+  /** Fields the shipped label of this rule declares, such as the order key of a gate that names no file. */
+  fields?: Record<string, unknown>;
   line: number;
 };
 
@@ -107,7 +109,7 @@ class Writer {
 }
 
 function proseOf(
-  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence'>,
+  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence' | 'fields'>,
   situation?: string,
 ) {
   return {
@@ -117,6 +119,7 @@ function proseOf(
     ...(situation ? { situation } : {}),
     ...(rule.polarity ? { polarity: rule.polarity } : {}),
     evidence: rule.evidence,
+    ...(rule.fields ? { fields: rule.fields } : {}),
   };
 }
 
@@ -429,7 +432,11 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           kind: 'gate',
           title: `Read the ${topic.gate.file.replace(/\.md$/, '').replace(/-/g, ' ')} before you ${topic.gate.verb}`,
           quote: gateText,
-          evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+          // The shipped gate label builds the order and the Read of the file the unit names.
+          evidence: [
+            { type: 'ordered', before: 'Read', after: 'Edit' },
+            { type: 'tool_called', label: 'Read', input: { file_path: { contains: `references/${topic.gate.file}` } } },
+          ],
         },
       );
     if (skill.comma) {
@@ -441,7 +448,10 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           kind: 'gate',
           title: `Read the ${topic.comma.file.replace(/\.md$/, '').replace(/-/g, ' ')} before you ${topic.comma.verb}`,
           quote: commaText,
-          evidence: [{ type: 'ordered', before: 'Read', after: topic.comma.verb }],
+          evidence: [
+            { type: 'ordered', before: 'Read', after: topic.comma.verb },
+            { type: 'tool_called', label: 'Read', input: { file_path: { contains: `references/${topic.comma.file}` } } },
+          ],
         },
       );
     }

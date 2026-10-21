@@ -32,8 +32,12 @@ const REFERENCE: AlsoMapping = {
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: '$path' } } }],
 };
 
-const HAZARDS: Readonly<Record<string, { situation: string }>> = {
-  compaction: { situation: 'A compaction of the context' },
+/**
+ * The hazards a planted line names. The planted compaction rule reads "After a compaction, re-read this file before
+ * you continue." (hidden.ts): its reread is the file the line is in, the reread-self span of the shipped label.
+ */
+const HAZARDS: Readonly<Record<string, { situation: string; rereadSelf?: boolean }>> = {
+  compaction: { situation: 'A compaction of the context', rereadSelf: true },
   restart: { situation: 'A process restart' },
   rate_wave: { situation: 'A wave of rate limits' },
   session_boundary: { situation: 'A new session' },
@@ -45,7 +49,15 @@ const hazardMapping = (hazard: string): AlsoMapping => ({
   kind: 'hazard',
   situation: HAZARDS[hazard]?.situation ?? hazard,
   fields: { hazard },
-  evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard } }],
+  // The options the shipped hazard labels build: the hazard, the named files to read again (none here) and the
+  // reread of the file the unit is in when the unit orders it.
+  evidence: [
+    {
+      type: 'custom',
+      name: 'hazard_recovery',
+      options: { hazard, reread: [], ...(HAZARDS[hazard]?.rereadSelf ? { rereadSelf: true } : {}) },
+    },
+  ],
 });
 
 /** The line (from 1) of a text in a file, by where the text first sits. */
@@ -133,6 +145,7 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
+          ...(entry.fields ? { fields: entry.fields as NonNullable<Mapping['fields']> } : {}),
           ...(also.length > 0 ? { also } : {}),
         },
       });
