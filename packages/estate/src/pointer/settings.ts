@@ -85,7 +85,8 @@ export function parsePointerSettings(value: unknown): SettingsResult {
     else {
       settings.threshold = {};
       for (const [key, number] of Object.entries(threshold)) {
-        const name = THRESHOLDS[key as keyof typeof THRESHOLDS];
+        // Own keys only: constructor, toString and the other names every object inherits are not thresholds.
+        const name = Object.hasOwn(THRESHOLDS, key) ? THRESHOLDS[key as keyof typeof THRESHOLDS] : undefined;
         if (name === undefined) {
           errors.push(
             `threshold: ${key} is not a threshold; the thresholds are ${Object.keys(THRESHOLDS).join(', ')}`,
