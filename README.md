@@ -55,7 +55,7 @@ Evaluations matter for three reasons:
 By hand works for the first ten conversations. After that, four jobs grow:
 
 - **Cover enough situations.** You need many conversations, and you need to know which situations you missed.
-- **Score every reply.** Code can check exact things, such as a tool that was called. A model has to judge the rest, and a model judge makes mistakes. On JudgeBench, the default judges of six tools, all on the same model, score between 74.8 and 88.9 out of 100 ([source](docs/public-benchmarks.md#the-numbers)). The judge is a part you need to test.
+- **Score every reply.** Code can check exact things, such as a tool that was called. A model has to judge the rest, and a model judge makes mistakes. On JudgeBench, six judges on the same model score between 74.8 and 88.9 out of 100 ([source](docs/public-benchmarks.md#the-numbers)). The judge is a part you need to test.
 - **Handle variance.** An agent does not give the same answer every run. One run proves little. You need repeats and a range around every rate.
 - **Prove a change helped.** After a fix you need to know that the agent improved, and that nothing else got worse.
 
@@ -96,7 +96,7 @@ Each problem below names the pages we read. A page that does not show a capabili
 1. **A whole conversation gets one score.** The tools score a scenario, a test row, a conversation, a sample or a trace (row 1 of the [comparison](docs/comparison.md)). Examples: [DeepEval's multi-turn test case](https://deepeval.com/docs/evaluation-multiturn-test-cases) and [LangWatch Scenario's executor](https://github.com/langwatch/scenario/blob/main/python/scenario/scenario_executor.py). When a conversation fails, you read it to find the step.
 2. **Tests are written by hand, or by a model.** You write rows, as in [promptfoo test cases](https://www.promptfoo.dev/docs/configuration/test-cases/), or import them from traces, or a model writes them, as with the [DeepEval golden synthesizer](https://deepeval.com/docs/golden-synthesizer). Rows 2, 19 and 20.
 3. **One judge model, seldom checked.** You pick a judge model ([promptfoo](https://www.promptfoo.dev/docs/configuration/expected-outputs/model-graded/), [LangWatch](https://langwatch.ai/scenario/basics/judge-agent)). Inspect documents a [cascade of scorers](https://inspect.aisi.org.uk/multiple-scorers.html). We found no page that checks a judge against human labels before it scores in LangWatch, promptfoo, DeepEval, Opik or Braintrust (row 12). Langfuse shows part of it with [annotation queues](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues).
-4. **Few scores show an error bar.** Inspect, Opik and Langfuse show part of it, for example on the [Inspect metrics page](https://inspect.aisi.org.uk/metrics.html). We found no interval or significance test on the pages read for LangWatch, DeepEval and Braintrust (row 17).
+4. **Few scores show an error bar.** Inspect, Opik and Langfuse show part of it, for example on the [Inspect metrics page](https://inspect.aisi.org.uk/metrics.html). We found no interval or significance test on the pages read for LangWatch, promptfoo, DeepEval and Braintrust (row 17).
 5. **Every change reruns everything.** LangWatch Scenario and Inspect cache model calls ([Scenario cache](https://langwatch.ai/scenario/basics/cache), [Inspect caching](https://inspect.aisi.org.uk/caching.html)), and promptfoo and DeepEval document part of a cache. A cache replays a call that did not change. We found no page that picks the tests an edited instruction can affect (row 22).
 
 ## What driftbench does
@@ -181,7 +181,7 @@ You do not write the tests one by one. You list what the agent can face, and you
   </picture>
 </a>
 
-- **Tests written by code.** From your list, code writes the fewest tests that put every pair of situations together at least once. A model never invents the expected result. On the Acme example map, this is 5.8× fewer tests than all the combinations ([how we measured](docs/comparison/methods.md#tests-written-by-code)).
+- **Tests written by code.** From your list, code writes the fewest tests that put every pair of situations together at least once. Code derives each expected outcome from the map, so the agent's own reply never sets the bar. On the Acme example map, this is 5.8× fewer tests than all the combinations ([how we measured](docs/comparison/methods.md#tests-written-by-code)).
 - **A validity gate.** A test is kept only if a bug planted on purpose makes it fail, and a reply that is always the same cannot pass it. You stop paying for tests that cannot catch anything.
 - **Parent blocks.** Tests that start the same way share one opening. If the opening fails, the report counts one failure. On a simulated tree, this cut the error in the number of root causes to 8.4 against 38.2 for flat counting ([parent study](https://github.com/NexusGPT/driftbench/pull/416)).
 - **Personas.** One test, played by different simulated customers, such as a terse one and a chatty one. Simulated users ship today. Persona objects and numeric behaviour draws are research results and are not built yet ([#418](https://github.com/NexusGPT/driftbench/pull/418), [#444](https://github.com/NexusGPT/driftbench/pull/444)).
@@ -316,7 +316,7 @@ driftbench runs each test against your agent, several times, and judges each ste
 - **Rules first, then judges.** Code checks what code can check: tool calls, text, language, personal data, files. A failed rule is final. A model judge only decides what code cannot.
 - **A mixture of judges.** A cheap, fast judge reads every answer and says how sure it is. When it is sure, it decides. When it is not, the answer goes to the expert that fits: a check of a fact or a sum, a careful reasoning judge, or a panel of models. You pay for the costly judge only on the hard answers. On three sealed sets, this scored at least as well as promptfoo's judge with 3.5 to 19.4 times fewer costly reasoning calls ([how we measured](docs/comparison/methods.md#mixture-of-judges)). It runs today from the research harness and from the opt-in `createEscalation` API.
 - **Judges that earn their place.** A judge owns a criterion only after it tells a passing transcript from a failing one in 3 repeats out of 3, and agrees with your hand labels.
-- **Value checks.** When the agent writes `+1 202 555 0131` and you expected `+12025550131`, driftbench asks the tool whether both reach the same record. A tool that resolves both values settled 59 of 116 format disputes in our study ([value study](https://github.com/NexusGPT/driftbench/pull/441)).
+- **Value checks.** When the agent writes `+1 202 555 0131` and you expected `+12025550131`, driftbench asks the tool whether both reach the same record. In our study, the tool settled 59 of 116 format disputes ([value study](https://github.com/NexusGPT/driftbench/pull/441)).
 - **A range on every rate.** Every rate carries a 95% interval. Before a campaign spends anything, driftbench prints the smallest effect it can detect.
 - **Drift and recovery.** driftbench injects a surprise at any step, such as a customer who changes the goal, and counts how many steps the agent needs to come back.
 
@@ -348,7 +348,8 @@ blocks:
 
 ```console
 $ driftbench spec validate recap.spec.yaml
-(output pending)
+✓ recap.spec.yaml  acme-recap · 1 block · hash 032d4cb5609f
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 ```
 
 The spec is valid and holds one block, `recap`. When a block fails, the report names it by position and check, as in `block 1 must.0` in step 5 of the [quickstart](#quickstart). The block passes when the agent asks for confirmation and has not called `order.create`. [Full description](docs/innovations.md#blocks-test-each-step-and-find-the-fix).
@@ -606,7 +607,8 @@ blocks:
 
 ```console
 $ driftbench spec validate recap.spec.yaml
-(output pending)
+✓ recap.spec.yaml  acme-recap-policy · 1 block · hash c4bb729f1cd6
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 ```
 
 A rule can also live in a file of your project that extends the shipped rules, and `driftbench campaign rejudge` scores stored runs again under it. The [rule files walkthrough](docs/innovations.md#rule-files-change-the-rule-and-score-the-run-again) runs that with its output.
@@ -706,7 +708,7 @@ The charts, the hard cases, the cost of a judgement and the way to rebuild the s
 |---|---|---|
 | Tests written by code | 5.8× fewer tests than all the combinations on the Acme map | [methods](docs/comparison/methods.md#tests-written-by-code) |
 | Blocks | A conversation score marks 413 blocks. The block verdicts mark the 86 that fail | [gate-report.json](examples/acme/gated/gate-report.json), [chart-facts.csv](docs/assets/data/chart-facts.csv) |
-| Rules with an id | One edit reruns 16 of 934 blocks. Over 274 prompt mutants, selection by id missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent) | [walkthrough](docs/rule-links.md), [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md) |
+| Rules with an id | One edit reruns 16 of 934 blocks. Over 274 prompt mutants, selection by id with the rerun marks missed a flipped block on 0 (Wilson 95% upper bound 1.38 percent), and on 9 without them | [walkthrough](docs/rule-links.md), [RESULT-ledger.md](research/ledger-h7/RESULT-ledger.md) |
 | Mixture of judges | 85.0 against 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval, 65.2 against 57.0 on writing, with 3.5 to 19.4 times fewer costly calls | [RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json) |
 | A panel only when unsure | MM-Eval 89.49 to 91.54 on 1,212 sealed items | [mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json) |
 | Blast radius | 86 of 867 blocks, 90.1% fewer, with the same 86 failures as a full run | [blast-radius.md](docs/concepts/blast-radius.md), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts) |
@@ -733,7 +735,9 @@ Each line below links to its page. Each group has a **How to do it** fold with o
 
 ```console
 $ driftbench spec lint examples/acme/specs
-(output pending)
+✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
+✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash d96437659138
+Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
 $ driftbench import traces packages/adapters/test/traces/fixtures/otel-semconv.json --from otel --out drafts
 Read 1 trace from 1 file (otel): 2 turns.
 Wrote 1 draft spec to drafts, none approved: 2 blocks, no expect yet.
@@ -827,7 +831,7 @@ The verdict is a regression with its interval, and the exit code is 1, so a pipe
 
 ```console
 $ driftbench dataset push acme-conversations examples/acme/specs/conversations --store reg.db
-(output pending)
+Pushed dataset acme-conversations@1 (hash 74ce682f7438): 6 files from examples/acme/specs/conversations.
 ```
 
 The registry stores the folder as an immutable version. Pushing the same files again changes nothing. [Datasets and prompts](docs/datasets.md).
@@ -841,7 +845,7 @@ The registry stores the folder as an immutable version. Pushing the same files a
 <details><summary>How to do it: gate the tests of the example agent</summary>
 
 ```console
-$ driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated   # exit 1
+$ driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated
 Accepted 24 of 28 blocks.
   X3_flow: 1/1 killed (100%, 95% CI 21% to 100%)
   control: 2 negative control(s), green
@@ -989,6 +993,7 @@ Version 0.1.0 is on npm as [`@agent-nexus/driftbench`](https://www.npmjs.com/pac
 
 - **Start:** [docs index](docs/index.md) · [recipes](docs/recipes.md) · [running](docs/running.md) · [spec reference](docs/reference/spec.md) · [CLI reference](docs/reference/cli.md) · [CLI tour](docs/cli-tour.md)
 - **The ideas in full:** [innovations](docs/innovations.md) · [how it works](docs/how-it-works.md) · [features](docs/features.md) · [benchmarks](docs/public-benchmarks.md)
+- **Guides:** [generating tests](docs/generating.md) · [testing a code agent](docs/estate.md) · [simulated users](docs/simulated-user.md) · [attacker](docs/attack.md) · [traces](docs/traces.md) · [datasets and prompts](docs/datasets.md) · [viewer and labels](docs/viewer.md) · [retries](docs/retries.md)
 - **Concepts:** [block](docs/concepts/block.md) · [run modes](docs/concepts/run-modes.md) · [drift](docs/concepts/drift.md) · [recovery](docs/concepts/recovery.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 - **Evidence:** [comparison](docs/comparison.md) · [per-tool pages](docs/comparison/index.md) · [validators](docs/validators.md) · [comparisons folder](comparisons/README.md)
 

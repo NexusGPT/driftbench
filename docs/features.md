@@ -64,3 +64,17 @@ Every feature of driftbench, grouped by what you do with it. The [README](../REA
   </picture>
 </a>
 <p align="center"><sub>Every cell with its source: <a href="comparison.md">comparison page</a>. <a href="comparison/methods.md#the-capability-matrix">How we measured</a>.</sub></p>
+
+## How it compares
+
+The capability matrix is above. One page per tool, row by row:
+
+| Tool | Page |
+|---|---|
+| promptfoo | [promptfoo](comparison/promptfoo.md) |
+| Inspect | [Inspect](comparison/inspect.md) |
+| DeepEval | [DeepEval](comparison/deepeval.md) |
+| Langfuse | [Langfuse](comparison/langfuse.md) |
+| LangWatch | [LangWatch](comparison/langwatch.md) |
+
+What driftbench does not do: retrieval metrics for RAG, promptfoo's catalogue of red-team plugins, a hosted platform with a team UI. → [how each row was checked](comparison/methods.md#the-tool-by-tool-tallies)
