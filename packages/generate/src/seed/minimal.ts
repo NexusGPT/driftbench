@@ -20,7 +20,7 @@ function failsAtEnd(spec: Spec): boolean {
 
 /**
  * A repeated test at the end of a walk is not written again. A terminal block is dropped when another
- * block already written says the same turn, expects the same and is said from the same stage in the same
+ * block already written is the same test: it runs from the same stage, expects the same and gets the same tool answers, however the user turn is worded, in the same
  * language and under the same rules, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
  * placed by a spec already written, each ordered pair of consecutive moves it walked is walked by one, the
  * stage and class allocation is no further from balance. A block a perturbation declaration names, and the ones before it, stay. The first block written stays; later repeats go. Exactly one walk
@@ -223,6 +223,15 @@ export class TerminalSubsumption {
     return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
   }
 
+  /** What a turn is apart from its wording: a user message, a burst of n messages, or an injection of a class. */
+  private turnOf(block: Spec['blocks'][number] | undefined): unknown {
+    const when = block?.when;
+    if (when === undefined) return undefined;
+    if ('injection' in when) return { injection: when.injection };
+    if ('burst' in when) return { burst: when.burst.length };
+    return 'user';
+  }
+
   /** The turn, the stage it is said from and what it expects, in the language and under the rules it is said in. */
   private key(spec: Spec, index: number): string {
     const block = spec.blocks[index];
@@ -234,7 +243,7 @@ export class TerminalSubsumption {
       rules: spec.rules,
       state: canonicalGiven(spec, index).state,
       from,
-      when: block?.when,
+      turn: this.turnOf(block),
       given: block?.given,
       expect: machine,
     });

@@ -22,19 +22,24 @@ function walk(
   return built.draft;
 }
 
-// The same walk with its first message worded another way: not a twin of any other walk, same end.
+// The same walk with another Then on its first block: not a twin of any other walk, same end.
 const reworded = (draft: ReturnType<typeof walk>) => {
   const first = draft.blocks[0];
-  if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
-  first.stimulus = {
-    ...first.stimulus,
-    phrase: { ...first.stimulus.phrase, text: 'Hello, I have a parcel.' },
-  };
+  if (!first) throw new Error('the walk has no block');
+  first.must_not = [...(first.must_not ?? []), 'a parcel opening'];
   return draft;
 };
 
-// The same walk with its last message worded another way: it ends on a block no other walk ends on.
+// The same walk with another Then on its last block: it ends on a block no other walk ends on.
 const endsElsewhere = (draft: ReturnType<typeof walk>) => {
+  const last = draft.blocks.at(-1);
+  if (!last) throw new Error('the walk has no block');
+  last.must_not = [...(last.must_not ?? []), 'a parcel closing'];
+  return draft;
+};
+
+// The same walk with its last message worded another way: the same test, said differently.
+const lastWordedAnother = (draft: ReturnType<typeof walk>) => {
   const last = draft.blocks.at(-1);
   if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
   last.stimulus = { ...last.stimulus, phrase: { ...last.stimulus.phrase, text: 'Pack it now, thank you.' } };
@@ -577,5 +582,31 @@ describe('terminal subsumption and the block a walk ends on', () => {
     for (const draft of [whole, again]) minimal.reduce(draft);
     // Without the guard the walk is cut to its first block; with it, it stops on the move after the restated request.
     expect(again.blocks).toHaveLength(3);
+  });
+});
+
+describe('terminal subsumption and the wording of a turn', () => {
+  const prepared = fixture();
+  const path = prepared.relations.paths[0];
+  if (!path) throw new Error('missing parcel path');
+
+  it('reads two blocks that differ only in the wording of the user turn as one test', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path);
+    const again = lastWordedAnother(walk(prepared, 'again', path));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps the end of a block that expects another Then, however alike the turn reads', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path);
+    const other = endsElsewhere(walk(prepared, 'other', path));
+    const length = other.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(other);
+    expect(other.blocks).toHaveLength(length);
   });
 });
