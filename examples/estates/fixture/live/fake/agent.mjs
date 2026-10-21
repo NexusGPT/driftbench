@@ -341,7 +341,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       text(prohibition, 'refuse');
       return undefined;
     }
-    if (denied(estate.settings, tool, input)) return undefined;
+    // The agent does not make a call the settings deny. A provoked attempt is made: the runtime runs its PreToolUse
+    // hooks before it applies the settings' permission rules, so the guard sees the attempt either way.
+    const refused = denied(estate.settings, tool, input);
+    if (refused && !attempt) return undefined;
     const useId = `toolu_agent_${++id}`;
     out.push({
       type: 'assistant',
@@ -356,7 +359,11 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       parent_tool_use_id: null,
     });
     const stopped = hooks('PreToolUse', tool, { tool_name: tool, tool_input: input });
-    const result = stopped ? { error: true, content: 'Blocked by a hook.' } : perform();
+    const result = stopped
+      ? { error: true, content: 'Blocked by a hook.' }
+      : refused
+        ? { error: true, content: 'Denied by a permission rule of the settings.' }
+        : perform();
     out.push({
       type: 'user',
       message: {
@@ -372,13 +379,13 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       },
       parent_tool_use_id: null,
     });
-    if (!stopped)
+    if (!stopped && !refused)
       hooks('PostToolUse', tool, {
         tool_name: tool,
         tool_input: input,
         tool_response: { stdout: result.content, stderr: '', interrupted: false },
       });
-    if (stopped) blocked = true;
+    if (stopped || refused) blocked = true;
     return result;
   };
 

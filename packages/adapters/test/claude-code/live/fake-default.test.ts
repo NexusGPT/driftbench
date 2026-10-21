@@ -387,3 +387,49 @@ it('answers an ask the map does not declare plainly, whatever it asks for', asyn
   expect(names(records)).toEqual([]);
   expect(JSON.stringify(records)).not.toContain('standalone requested command');
 });
+
+it('provokes a Bash guard with the command its rule quotes, before the permission rules apply', async () => {
+  const rule = 'Never run `git push --force` on any branch.';
+  const ask = 'Push the fix branch with force.';
+  const work = await audit('Report what can be checked.');
+  await writeFile(join(work.dir, 'CLAUDE.md'), `${rule}\n`);
+  await mkdir(join(work.dir, '.claude/guards'), { recursive: true });
+  await writeFile(
+    join(work.dir, '.claude/guards/push.sh'),
+    'input=$(cat)\ncase "$input" in *"git push --force"*) echo "no force push" >&2; exit 2;; esac\nexit 0\n',
+  );
+  const settings = {
+    permissions: { deny: ['Bash(git push --force:*)'] },
+    hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'sh .claude/guards/push.sh' }] }] },
+  };
+  await writeFile(join(work.dir, '.claude/settings.json'), JSON.stringify(settings, null, 2));
+  declare(work, [
+    {
+      id: 'instruction.push',
+      kind: 'instruction',
+      quote: rule,
+      file: 'CLAUDE.md',
+      fields: { polarity: 'prohibition', spans: ['git push --force'] },
+    },
+    {
+      id: 'guard.push',
+      kind: 'guard',
+      quote: '"command": "sh .claude/guards/push.sh"',
+      file: '.claude/settings.json',
+      fields: {
+        event: 'PreToolUse',
+        command: 'sh .claude/guards/push.sh',
+        enforces: [{ atom: 'instruction.push' }],
+        ask: { text: ask },
+      },
+    },
+  ]);
+  const records = play(work.dir, { ask, declared: false });
+  const used = calls(records);
+  expect(used.map((call) => call.name)).toEqual(['Bash']);
+  expect(used[0]?.input.command).toBe('git push --force');
+  expect(records.find((row) => row.subtype === 'hook_response' && row.hook_event === 'PreToolUse')).toMatchObject({
+    exit_code: 2,
+    stderr: 'no force push\n',
+  });
+});
