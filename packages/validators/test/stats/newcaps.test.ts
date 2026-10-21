@@ -74,7 +74,7 @@ describe('the new-capability fixtures', () => {
   it('pass the domain item of a function written from its page, and fail it when that function throws on valid input', async () => {
     if (only !== undefined && !only.includes('descriptive')) return;
     // median as docs/statistics/descriptive.md defines it, with the RangeError of the shared conventions.
-    const median = (xs: number[]): number => {
+    const median = (xs: readonly number[]): number => {
       if (xs.length === 0 || xs.some((x) => !Number.isFinite(x)))
         throw new RangeError('median of no finite values');
       const s = [...xs].sort((a, b) => a - b);
@@ -88,7 +88,7 @@ describe('the new-capability fixtures', () => {
     // Refusing the even-sized valid arrays is not domain checking: the domain item fails too.
     const picky = {
       ...real,
-      median: (xs: number[]) => {
+      median: (xs: readonly number[]) => {
         if (xs.length % 2 === 0) throw new RangeError('refused');
         return median(xs);
       },
