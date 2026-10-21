@@ -551,8 +551,11 @@ function atomOf(atom: RAtom): Atom {
     evidence: atom.evidence.map((e) => {
       // The reader keeps the settings of a custom check under `options`; the binding passes them on whole.
       const options =
-        typeof e.options === 'object' && e.options !== null ? (e.options as Record<string, unknown>) : undefined;
-      const reviewRequired = typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options?.reviewRequired;
+        typeof e.options === 'object' && e.options !== null
+          ? (e.options as Record<string, unknown>)
+          : undefined;
+      const reviewRequired =
+        typeof e.reviewRequired === 'boolean' ? e.reviewRequired : options?.reviewRequired;
       return {
         type: String(e.type),
         name: String(e.name ?? ''),

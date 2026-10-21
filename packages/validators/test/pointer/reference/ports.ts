@@ -139,8 +139,7 @@ export class Cassette {
       [...this.entries.values()]
         .sort((a, b) => a.key.localeCompare(b.key))
         .map((e) => canonicalCompact(e))
-        .join('\n') +
-      (this.entries.size > 0 ? '\n' : '')
+        .join('\n') + (this.entries.size > 0 ? '\n' : '')
     );
   }
 

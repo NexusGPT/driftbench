@@ -185,7 +185,9 @@ const reanchoring: Record<string, Run> = {
     const was = labelOf(first.ledger, text);
     const flipTo = was === 'none' ? 'rule' : 'none';
     const flip: Labeler = (request) => ({
-      labels: entriesFor(request, (unit) => (keyOf(unit.text) === keyOf(text) ? flipTo : truthLabel(unit.text))),
+      labels: entriesFor(request, (unit) =>
+        keyOf(unit.text) === keyOf(text) ? flipTo : truthLabel(unit.text),
+      ),
     });
     const second = await scanOk(ctx.sut, {
       files: [{ path: 'ctx.md', text: doc('Locking rounds') }],
@@ -198,7 +200,9 @@ const reanchoring: Record<string, Run> = {
     if (before.fp !== after.fp) return fail('positive witness: the fingerprint of the text changed');
     if (before.id !== after.id) return fail('the unit lost its id when only its heading was renamed');
     if (before.ctxFp === after.ctxFp)
-      return fail('the context fingerprint is the same under another heading: the heading path is not part of it');
+      return fail(
+        'the context fingerprint is the same under another heading: the heading path is not part of it',
+      );
     const got = labelOf(second.ledger, text);
     return got === flipTo
       ? pass('the heading path is part of the context, so the unit was labelled again')
@@ -529,7 +533,9 @@ const grouping2: Record<string, Run> = {
       );
     const want = JSON.stringify(ids);
     return JSON.stringify(fieldIds) === want && JSON.stringify(optionIds) === want
-      ? pass('the condition ids are in the atom fields and in the options of the review predicate, one for one')
+      ? pass(
+          'the condition ids are in the atom fields and in the options of the review predicate, one for one',
+        )
       : fail(
           `the atom fields list ${JSON.stringify(fieldIds)} and the predicate ${JSON.stringify(optionIds)}, expected ${want} in both`,
         );

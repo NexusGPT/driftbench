@@ -395,7 +395,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
           labelSet: set.set,
           ...(key ? { cassette: key } : {}),
         },
-        evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true, options: { reviewRequired: true } }],
+        evidence: [
+          { type: 'custom', name: 'prose_pointer', reviewRequired: true, options: { reviewRequired: true } },
+        ],
       });
     }
   }
