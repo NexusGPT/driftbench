@@ -34,25 +34,22 @@ export const dispatcherFormCases: DispatcherFormCase[] = [
   },
   {
     kind: 'documentation',
-    name: 'path before usage with repeated second positional',
+    name: 'path before usage with repeated second positional, a document is not read',
     source:
       '# Entrypoint is jobs/<unit>.py.\n# Usage: chooser.py <mode> <unit>.\n# A second mention: jobs/<unit>.py',
     args: ['quiet', 'compile'],
-    target: 'jobs/compile.py',
   },
   {
     kind: 'documentation',
-    name: 'usage valued flag before second positional',
+    name: 'usage valued flag before second positional, a document is not read',
     source: '# Usage: cli.py --profile <profile> <mode> <unit>\n# Entrypoint: steps/<unit>.py',
     args: ['--profile', 'daily', 'fast', 'inspect'],
-    target: 'steps/inspect.py',
   },
   {
     kind: 'documentation',
-    name: 'usage flag value equals form',
+    name: 'usage flag value equals form, a document is not read',
     source: '# Usage: cli.py --unit <name>.\n# Entrypoint: steps/<name>.py',
     args: ['--unit=render'],
-    target: 'steps/render.py',
   },
   {
     kind: 'parsed options',
@@ -246,6 +243,34 @@ export const dispatcherFormCases: DispatcherFormCase[] = [
     target: 'steps/summarize.rb',
   },
   {
+    kind: 'documentation',
+    name: 'French usage and entry point sentences decide nothing',
+    source: "# Utilisation : cli.py --unité <nom>\n# Le point d'entrée est étapes/<nom>.py\npass",
+    args: ['--unité', 'rendu'],
+  },
+  {
+    kind: 'documentation',
+    name: 'Chinese and German phrasing of an entry point decide nothing',
+    source:
+      '# 用法：cli.py <名称>\n# 入口脚本：steps/<名称>.py\n# Aufruf: cli.py <name>; das Skript steps/<name>.py wird gestartet\npass',
+    args: ['render'],
+  },
+  {
+    kind: 'documentation',
+    name: 'a paraphrase with no word of the English phrasing decides nothing',
+    source:
+      '# Invoke as: cli.py <unit>\n# Whatever the first operand designates is the program that gets launched.\npass',
+    args: ['render'],
+  },
+  {
+    kind: 'parsed options',
+    name: 'code decides the same in any language of the comments around it',
+    source:
+      "# Utilisation : cli.py <nom>\n# Le point d'entrée est étapes/<nom>.py\nimport sys, runpy\nrunpy.run_path('steps/' + sys.argv[1] + '.py')",
+    args: ['rendu'],
+    target: 'steps/rendu.py',
+  },
+  {
     kind: 'Shell',
     name: 'shell second positional resolves file',
     source: '#!/bin/sh\nunit=$2\nexec python3 "checks/$unit.py"',
@@ -254,24 +279,21 @@ export const dispatcherFormCases: DispatcherFormCase[] = [
   },
   {
     kind: 'documentation',
-    name: 'usage path relation independent of prose predicate',
+    name: 'usage path relation independent of prose predicate, a document is not read',
     source: '# Usage: command.py <unit>\n# The entrypoint is checks/<unit>.py.\nprint("stub")',
     args: ['style'],
-    target: 'checks/style.py',
   },
   {
     kind: 'documentation',
-    name: 'same line usage and argument role',
+    name: 'same line usage and argument role, a document is not read',
     source: '"""Usage: command.py NAME. The hook named by first argument is the entry point."""\npass',
     args: ['guard'],
-    target: 'guard',
   },
   {
     kind: 'documentation',
-    name: 'usage option file contract',
+    name: 'usage option file contract, a document is not read',
     source: '# Usage: dispatch.rb --unit <name>\n# Entrypoint: jobs/<name>.rb\nputs "stub"',
     args: ['--unit', 'brief'],
-    target: 'jobs/brief.rb',
   },
   {
     kind: 'plain tools',

@@ -17,7 +17,7 @@ const subcommands = [
   ['.claude/hooks/main.py', 'help'],
 ];
 
-describe('script dispatch requires source or usage evidence', () => {
+describe('script dispatch requires source evidence', () => {
   it.each([
     'import sys, subprocess\nsubprocess.run([sys.executable, "fixed.py", sys.argv[1]])\n',
     'import sys, runpy\npaths = {"check": "fixed.py"}\nrunpy.run_path(paths[sys.argv[1]])\n',
@@ -40,8 +40,6 @@ describe('script dispatch requires source or usage evidence', () => {
     ['import sys, runpy\nrunpy.run_path(sys.argv[1])\n', 'worker.py'],
     ['import sys, subprocess\np = sys.argv[1]\nsubprocess.run([sys.executable, p])\n', 'worker'],
     ['#!/bin/sh\npython3 "$1"\n', 'worker.py'],
-    ['"""Executes the script named by its first argument."""\n', 'worker'],
-    ['"""Runs the script named by --file."""\n', '--file worker'],
   ])('retains existing dispatched targets: %s', async (source, argument) => {
     const script = '.claude/hooks/entry.py';
     const target = '.claude/hooks/worker.py';
@@ -56,18 +54,37 @@ describe('script dispatch requires source or usage evidence', () => {
     expect(raw.guards[0]?.script).toBe(target);
     expect(raw.guards[0]?.dispatcher).toBe(script);
   });
-  it('reads an explicit usage paragraph beside the script', async () => {
+  it.each([
+    'Usage: python3 .claude/hooks/entry.py <script>\nExecutes the script file supplied as the first argument.\n',
+    'Utilisation : python3 .claude/hooks/entry.py <script>\nLe fichier passé en premier argument est lancé.\n',
+    '用法：python3 .claude/hooks/entry.py <script>\n第一个参数指定要运行的脚本。\n',
+    'Invoke: python3 .claude/hooks/entry.py <script>\nWhat the first operand designates is the program that gets launched.\n',
+  ])('reads no document beside the script, in any phrasing: %s', async (paragraph) => {
     const script = '.claude/hooks/entry.py';
     const root = await estate({
       [script]: '# Implementation delegates to an imported helper.\n',
-      '.claude/README.md':
-        'Usage: python3 .claude/hooks/entry.py <script>\nExecutes the script file supplied as the first argument.\n',
+      '.claude/README.md': paragraph,
       '.claude/settings.json': JSON.stringify({
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} absent-worker` }] }] },
       }),
     });
     const raw = await new ClaudeCodeReader().read(root);
-    expect(raw.guards[0]?.script).toBe('absent-worker');
+    expect(raw.guards[0]?.script).toBe(script);
+    expect(raw.guards[0]?.dispatcher).toBeUndefined();
+  });
+  it('reads the code of the script whatever language its comments are in', async () => {
+    const script = '.claude/hooks/entry.py';
+    const target = '.claude/hooks/worker.py';
+    const root = await estate({
+      [script]: '# Lance le fichier donné en premier argument.\nimport sys, runpy\nrunpy.run_path(sys.argv[1])\n',
+      [target]: 'print("worker")\n',
+      '.claude/settings.json': JSON.stringify({
+        hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} worker.py` }] }] },
+      }),
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.guards[0]?.script).toBe(target);
+    expect(raw.guards[0]?.dispatcher).toBe(script);
   });
   it('resolves only the source-proven file argument, never later data files', async () => {
     const script = '.claude/hooks/entry.py';
@@ -103,7 +120,6 @@ describe('script dispatch requires source or usage evidence', () => {
     'import sys, subprocess\ntarget = sys.argv[1]\nsubprocess.run([sys.executable, target])\n',
     '#!/bin/sh\nexec python3 "$1"\n',
     'import { execFileSync } from "node:child_process";\nexecFileSync(process.argv[2]);\n',
-    '# Usage: python main.py <script>\n# Executes the script file supplied as the first argument.\n',
   ])('finds missing file targets independently of filename: %s', async (source) => {
     const script = '.claude/hooks/main.py';
     const root = await estate({
