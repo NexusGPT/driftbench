@@ -6,6 +6,43 @@ import { PROTECTED_PATHS, protectedChanges } from '../src/index';
 
 const WORKFLOW = new URL('../../../.github/workflows/validators.yml', import.meta.url);
 
+/** The retry of a stalled checkout: the first checkout of a job is cut after 3 minutes, and this one runs if it failed. */
+const CHECKOUT_RETRY = "steps.checkout.outcome != 'success'";
+type CheckoutStep = {
+  uses?: string;
+  id?: string;
+  if?: string;
+  'timeout-minutes'?: number;
+  'continue-on-error'?: boolean;
+  with?: unknown;
+};
+const isCheckout = (step: CheckoutStep) => step.uses?.startsWith('actions/checkout@') === true;
+const isCheckoutRetry = (step: CheckoutStep) => isCheckout(step) && step.if === CHECKOUT_RETRY;
+
+/** Every checkout of every job is a pair: one cut after 3 minutes that may fail, and one retry with the same inputs. */
+function assertCheckoutRetry(workflow: ReturnType<typeof parse>) {
+  const checkouts = Object.values<{ steps: CheckoutStep[] }>(workflow.jobs).filter((job) =>
+    job.steps.some(isCheckout),
+  );
+  expect(checkouts.length, 'jobs with a checkout').toBeGreaterThan(2);
+  for (const [id, job] of Object.entries<{ steps: CheckoutStep[] }>(workflow.jobs)) {
+    const steps = job.steps;
+    const at = steps.findIndex(isCheckout);
+    if (at < 0) continue; // a job that reads no file of the repository, such as the train gate
+    expect(steps.filter(isCheckout), `${id}: a checkout and its retry`).toHaveLength(2);
+    const first = steps[at] as CheckoutStep;
+    const retry = steps[at + 1] as CheckoutStep;
+    expect(first.id, id).toBe('checkout');
+    expect(first['timeout-minutes'], id).toBe(3);
+    expect(first['continue-on-error'], id).toBe(true);
+    expect(first.if, id).toBeUndefined();
+    expect(isCheckoutRetry(retry), `${id}: the retry follows the checkout`).toBe(true);
+    expect(retry['timeout-minutes'], id).toBe(10);
+    expect(retry.with, id).toEqual(first.with);
+    expect(retry.uses, id).toBe(first.uses);
+  }
+}
+
 describe('protectedChanges', () => {
   const files = [
     'packages/validators/src/ladders/stats.ts',
@@ -338,7 +375,7 @@ function assertWorkflowPolicy(workflow: ReturnType<typeof parse>, ids: string[])
     expect(workflow.jobs[id].if).toBe(id === 'prepare' ? prepareCondition() : heavyCondition(id));
     for (const step of workflow.jobs[id].steps) {
       // A step condition may only keep artifacts after a failure; it may never skip work.
-      if (step.if !== undefined) expect(step.if).toBe('always()');
+      if (step.if !== undefined && !isCheckoutRetry(step)) expect(step.if).toBe('always()');
     }
   }
 }
@@ -621,7 +658,7 @@ function assertAffectedBehaviour(workflow: ReturnType<typeof parse>) {
   expect(commands.indexOf('node tools/structure/api-surface.mjs --build --check')).toBeLessThan(
     commands.indexOf(AFFECTED_COMMAND),
   );
-  for (const step of job.steps) expect(step.if).toBeUndefined();
+  for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
 }
 
 /**
@@ -776,7 +813,24 @@ describe('the validators workflow', () => {
     );
     expect(runsText).toContain('|| status=$?');
     expect(job['timeout-minutes']).toBe(300);
-    for (const step of job.steps) expect(step.if).toBeUndefined();
+    for (const step of job.steps) if (!isCheckoutRetry(step)) expect(step.if).toBeUndefined();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.protect.steps = noRetry.jobs.protect.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.protect.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
+    const hard = structuredClone(workflow);
+    delete (hard.jobs.protect.steps.find(isCheckout) as CheckoutStep)['continue-on-error'];
+    expect(() => assertCheckoutRetry(hard)).toThrow();
+    const other = structuredClone(workflow);
+    (other.jobs.protect.steps.find(isCheckoutRetry) as CheckoutStep).with = { 'fetch-depth': 1 };
+    expect(() => assertCheckoutRetry(other)).toThrow();
   });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
@@ -815,6 +869,17 @@ describe('merge train enforcement', () => {
     expect(() => assertTimingGuard(buildRunsThem)).toThrow();
     const command: string = workflow.jobs['train-gate'].steps.find((step: { run?: string }) => step.run).run;
     expect(() => assertGate(command.replace(',guard,timing,fast,', ',guard,fast,'))).toThrow();
+  });
+  it('cuts a stalled checkout after 3 minutes and retries it once, in every job', () => {
+    assertCheckoutRetry(workflow);
+    const noRetry = structuredClone(workflow);
+    noRetry.jobs.build.steps = noRetry.jobs.build.steps.filter(
+      (step: CheckoutStep) => !isCheckoutRetry(step),
+    );
+    expect(() => assertCheckoutRetry(noRetry)).toThrow();
+    const slow = structuredClone(workflow);
+    (slow.jobs.build.steps.find(isCheckout) as CheckoutStep)['timeout-minutes'] = 30;
+    expect(() => assertCheckoutRetry(slow)).toThrow();
   });
   it('rejects a pull_request_target trigger, a missing dispatch trigger and a skipped step on a heavy job', () => {
     const target = structuredClone(workflow);
