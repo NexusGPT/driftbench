@@ -8,7 +8,7 @@ const questions = [
 
 describe('the discriminative condition reader', () => {
   it('asks about every candidate together and projects only explicit binary decisions', async () => {
-    const complete = vi.fn(async () => '{"answers":[true,false]}');
+    const complete = vi.fn(async (_request: unknown) => '{"answers":[true,false]}');
     const reader = createConditionReader({ family: 'fictional', model: 'binary-1', complete });
     expect(await reader.read('After two days, alert the clerk.', questions)).toEqual({
       'delay/two': { yes: 1 }, 'delay/one': { yes: 0 },
@@ -28,7 +28,7 @@ describe('the discriminative condition reader', () => {
   );
 
   it('makes no call for an empty candidate list and refuses choice questions before calling', async () => {
-    const complete = vi.fn(async () => '{"answers":[]}');
+    const complete = vi.fn(async (_request: unknown) => '{"answers":[]}');
     const reader = createConditionReader({ family: 'fictional', complete });
     expect(await reader.read('clause', [])).toEqual({});
     await expect(reader.read('clause', [{

@@ -588,3 +588,16 @@ jobs:
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
           # Planted bypass cases: every one must stay reported, every real recording hash must pass.
           node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
+
+  condition-probe:
+    if: github.event_name == 'workflow_dispatch' && inputs.jobs == 'condition-probe'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm exec vitest run packages/generate/test/feed/model-reader.test.ts --maxWorkers=2
