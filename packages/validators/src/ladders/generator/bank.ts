@@ -2267,6 +2267,7 @@ async function obligationHolders(data: SeedData): Promise<{
     };
     const blocks = new Set<string>();
     const specs = new Set<string>();
+    const familyWords = new Map<string, Set<string>>();
     const written = new Map<string, BlockRun[]>();
     const secured = new Map<string, Set<string>>();
     for (const [spec, own] of bySpec) {
@@ -2293,8 +2294,17 @@ async function obligationHolders(data: SeedData): Promise<{
           same.push(head);
         }
       }
-      if (head.family !== '' && hold(`family|${head.path}|${head.walk}|${head.variant}`, spec))
-        specs.add(spec);
+      // A metamorphic obligation rests on content, not on the labels a spec declares: a variant in range
+      // (1 <= variant <= of) whose words differ from every earlier holder of the walk on the path.
+      if (head.family !== '' && head.variant >= 1 && head.variant <= head.of) {
+        const key = `${head.path}|${head.walk}`;
+        const seen = familyWords.get(key) ?? new Set<string>();
+        if (!seen.has(head.words)) {
+          seen.add(head.words);
+          familyWords.set(key, seen);
+          specs.add(spec);
+        }
+      }
       for (const block of own) {
         if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec))
           blocks.add(block.key);

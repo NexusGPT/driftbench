@@ -133,6 +133,10 @@ export type BlockRun = {
   family: string;
   /** The number of the variant inside its metamorphic family, 0 for a spec that is none. */
   variant: number;
+  /** The size the spec declares for its metamorphic family, 0 for a spec that is none. */
+  of: number;
+  /** What the spec says apart from its labels: the user turns and the givens of every block. */
+  words: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -677,6 +681,8 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         ),
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
+        of: (spec.metadata?.generated as { metamorphic?: { of?: number } } | undefined)?.metamorphic?.of ?? 0,
+        words: contentHash(spec.blocks.map((entry) => [entry.when, entry.given])),
         variant:
           (spec.metadata?.generated as { metamorphic?: { variant?: number } } | undefined)?.metamorphic
             ?.variant ?? 0,

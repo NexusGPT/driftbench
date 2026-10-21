@@ -166,23 +166,65 @@ describe('minimality protects the first holder of each declared obligation, once
         ({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic,
       ),
     );
-    const family = (id: string, name: string, variant: number) =>
+    type Meta = { metamorphic: { family: string; variant: number; of: number } };
+    const family = (id: string, name: string, variant: number, text: string, of = 2) =>
       copyOf(source, id, (spec) => {
-        const generatedMeta = required(spec.metadata?.generated) as { metamorphic: { family: string } };
-        generatedMeta.metamorphic.family = name;
-        (generatedMeta.metamorphic as { variant: number }).variant = variant;
+        const meta = required(spec.metadata?.generated) as Meta;
+        meta.metamorphic.family = name;
+        meta.metamorphic.variant = variant;
+        meta.metamorphic.of = of;
+        const first = required(spec.blocks[0]);
+        first.when = { user: text };
       });
     const [group] = await unprotectedOf(
       [
-        family('fam-a-1', 'A', 1),
-        family('fam-a-2', 'A', 2),
-        family('fam-b-1', 'B', 1),
-        family('fam-a-1-clone', 'A', 1),
+        family('fam-a-1', 'A', 1, 'first wording'),
+        family('fam-a-2', 'A', 2, 'second wording'),
+        family('fam-b-1', 'B', 1, 'first wording'),
+        family('fam-a-1-clone', 'A', 1, 'first wording'),
+        // The plants of the reviewer: a byte-for-byte clone relabelled out of range, and a relabel inside it.
+        family('fam-a-1-relabel-3', 'A', 3, 'first wording'),
+        family('fam-a-1-relabel-2', 'A', 2, 'first wording'),
+        family('fam-a-3-new-words', 'A', 3, 'third wording'),
       ],
-      [['fam-a-1', 'fam-a-2', 'fam-b-1', 'fam-a-1-clone']],
+      [
+        [
+          'fam-a-1',
+          'fam-a-2',
+          'fam-b-1',
+          'fam-a-1-clone',
+          'fam-a-1-relabel-3',
+          'fam-a-1-relabel-2',
+          'fam-a-3-new-words',
+        ],
+      ],
     );
-    // Each variant number of a walk is held once per path: the second family and a clone of a variant are repeats.
-    expect(group).toEqual(['fam-b-1', 'fam-a-1-clone']);
+    // Each wording of a walk is held once per path, and only by a variant in range: the second family, the clones
+    // whatever number they claim, and a variant outside 1..of are repeats.
+    expect(group).toEqual([
+      'fam-b-1',
+      'fam-a-1-clone',
+      'fam-a-1-relabel-3',
+      'fam-a-1-relabel-2',
+      'fam-a-3-new-words',
+    ]);
+  }, 600_000);
+
+  it('reads an injection from its content, whatever deviation its metadata names', async () => {
+    const source = required(
+      generated.complete.find(({ spec }) => spec.blocks.some((block) => 'injection' in (block.when ?? {}))),
+    );
+    const relabelled = copyOf(source, 'inject-relabelled', (spec) => {
+      const blocks = (spec.metadata?.generated as { blocks?: Array<{ cell?: Record<string, string> }> })
+        .blocks;
+      for (const entry of blocks ?? []) if (entry.cell) entry.cell.deviation = 'D0_relabelled';
+    });
+    const [group] = await unprotectedOf(
+      [copyOf(source, 'inject-1'), relabelled],
+      [['inject-1', 'inject-relabelled']],
+      'injected',
+    );
+    expect(group).toEqual(['inject-relabelled']);
   }, 600_000);
 
   it('still fails a suite that keeps a second pair on the same axis (item level)', async () => {
