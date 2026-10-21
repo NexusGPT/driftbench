@@ -398,6 +398,9 @@ const TEST_ENV: Record<string, string> = {
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
   JEV_URL: 'https://jev.invalid/v1/systemone',
+  OPENAI_API_KEY: 'test-key-not-real',
+  OPENAI_BASE_URL: 'https://openai.invalid',
+  OPENAI_DECISIONS_MODEL: 'decisions-fake-1',
 };
 
 function fetchOf(

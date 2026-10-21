@@ -9,7 +9,13 @@ import {
   windowMeta,
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
-import type { LabelAnswer, LabelEntry, ModelArm, Transport } from '../../../src/ladders/pointer/sut/port';
+import type {
+  LabelAnswer,
+  LabelEntry,
+  ModelArm,
+  ScanArm,
+  Transport,
+} from '../../../src/ladders/pointer/sut/port';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet } from './labelset';
 import { SYSTEM_TEXT, userText, type WindowPlan } from './window';
@@ -174,12 +180,14 @@ function differing(want: CassetteEntry, have: CassetteEntry): string[] {
 /* ---------- model ports ---------- */
 
 export type ModelCtx = {
-  arm: ModelArm;
+  arm: ScanArm;
   transport: Transport;
   cassette: Cassette;
   threshold?: number;
   cutDigestOf(file: string): string;
   warnings: string[];
+  /** Units whose choice answer is refused (its probabilities are no vector), with the reason. */
+  refusals?: string[];
   keyHeader: string;
 };
 
@@ -190,7 +198,73 @@ export type ModelResult =
 
 const HAIKU_URL = 'https://api.haiku.invalid/v1/messages';
 const JEV_URL = 'https://jev.invalid/v1/systemone';
-export const JEV_CAP = 250;
+const DECISIONS_URL = 'https://openai.invalid/v1/decisions';
+/** Units in one choice request of the window state (design, section 3); the unit state asks one unit. */
+export const JEV_WINDOW_UNITS = 30;
+/** Yes or no questions in one decisions request; a window holds as many units as fit. */
+export const DECISIONS_CAP = 100;
+/** The probability of yes a decisions unit needs by default (window state), when the caller sets none. */
+export const DECISIONS_THRESHOLD = 0.4;
+/** How far the probabilities of one choice answer may sit from a sum of 1. */
+export const VECTOR_TOLERANCE = 0.01;
+/** What the `none` option of a choice question says. */
+const NONE_OPTION = 'None of the other labels applies to this unit.';
+
+/**
+ * Planted bugs for the tests of the choice and decisions items (test/pointer/cr2-jev.test.ts). Empty in every
+ * other run: the reference follows the design.
+ */
+export const referenceBugs = new Set<
+  | 'threshold-over-labels'
+  | 'normalise'
+  | 'no-none-option'
+  | 'window-60'
+  | 'no-halving'
+  | 'unit-state-window'
+  | 'drop-none-probability'
+  | 'decisions-threshold-0.5'
+  | 'ignores-caller-threshold'
+  | 'threshold-in-key'
+>();
+
+/**
+ * The label a choice answer decides: the option with the highest probability, `none` among the options, the
+ * first in set order on a tie. Undefined, with a refusal, when the probabilities are no vector: they are
+ * never normalised.
+ */
+function choiceDecision(
+  vector: Record<string, number>,
+  names: readonly string[],
+  ctx: ModelCtx,
+  where: string,
+): string | undefined {
+  const values = names.map((name) => vector[name]);
+  if (values.some((p) => typeof p !== 'number' || !Number.isFinite(p) || p < 0 || p > 1)) {
+    ctx.refusals?.push(`${where}: an option has no probability`);
+    return undefined;
+  }
+  const total = (values as number[]).reduce((sum, p) => sum + p, 0);
+  if (Math.abs(total - 1) > VECTOR_TOLERANCE + 1e-9 && !referenceBugs.has('normalise')) {
+    ctx.refusals?.push(`${where}: the probabilities are no vector (they sum to ${Number(total.toFixed(4))})`);
+    return undefined;
+  }
+  if (referenceBugs.has('threshold-over-labels')) {
+    // The planted bug: the yes or no rule on a choice answer, the highest label at a threshold, else none.
+    const threshold = ctx.threshold ?? (ctx.arm === 'jev-unit' ? 0.7 : 0.4);
+    let top: { name: string; p: number } | undefined;
+    for (const name of names) {
+      const p = vector[name] as number;
+      if (name !== 'none' && (!top || p > top.p)) top = { name, p };
+    }
+    return top && top.p >= threshold ? top.name : 'none';
+  }
+  let best: { name: string; p: number } | undefined;
+  for (const name of names) {
+    const p = vector[name] as number;
+    if (!best || p > best.p) best = { name, p };
+  }
+  return best?.name;
+}
 
 /** The model key from `~/.nexus-secrets`, read by path and never printed or recorded. */
 export function readKey(): string {
@@ -318,12 +392,20 @@ function cutDigestError(window: string): ModelResult {
   };
 }
 
+/**
+ * The system 1 choice labeler (design, section 3): one choice question per unit keyed `u<n>`, the labels
+ * of the set and `none` as options, answered with a probability vector keyed `u<n>__<option>`. The window
+ * state asks up to 30 units per request, the unit state one unit per request. A request refused as too large
+ * is halved.
+ */
 async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
-  const unitState = ctx.arm === 'jev-unit';
-  const threshold = ctx.threshold ?? (unitState ? 0.7 : 0.4);
+  const unitState = ctx.arm === 'jev-unit' && !referenceBugs.has('unit-state-window');
   const askable = set.labels.filter((l) => l.target !== 'required');
+  const names = [...askable.map((l) => l.name), 'none'];
   const label = plan.units.filter((u) => u.mode === 'label');
-  const chunkSize = unitState ? 1 : Math.max(1, Math.floor(JEV_CAP / Math.max(1, askable.length)));
+  const chunkSize = unitState ? 1 : referenceBugs.has('window-60') ? 60 : JEV_WINDOW_UNITS;
+  const criteria: Record<string, string> = Object.fromEntries(askable.map((l) => [l.name, l.description]));
+  if (!referenceBugs.has('no-none-option')) criteria.none = NONE_OPTION;
   const decided: LabelEntry[] = [];
   let lastKey = '';
   const run = async (units: typeof label): Promise<ModelResult | undefined> => {
@@ -331,15 +413,11 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
     const state = userText(set, sub);
     const questions: Record<string, unknown> = {};
     for (const u of units) {
-      for (const l of askable) {
-        questions[`u${u.n}__${l.name}`] = {
-          type: 'noul',
-          instructions: {
-            question: `Line ${u.n}: does the label ${l.name} apply? ${l.description}`,
-            focus: 'Answer for this line only.',
-          },
-        };
-      }
+      questions[`u${u.n}`] = {
+        type: 'choice',
+        instructions: `Which label does unit [${u.n}] of the numbered text have?`,
+        criteria,
+      };
     }
     const request = { model: 'jev-fake', state, questions };
     const key = sha256(canonicalCompact({ ...request, arm: ctx.arm }));
@@ -356,7 +434,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       part: {
         system: sha256(''),
         user: sha256(state),
-        output: sha256(canonicalCompact(Object.keys(questions))),
+        output: sha256(canonicalCompact(questions)),
       },
     };
     lastKey = key;
@@ -374,6 +452,8 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
         body: JSON.stringify(request),
       });
       if (response.status === 400 && /max_tokens_exceeded/.test(response.body)) {
+        if (referenceBugs.has('no-halving'))
+          return { kind: 'error', message: 'the endpoint refused the window' };
         if (units.length <= 1) return { kind: 'error', message: 'the endpoint refused a single unit' };
         const half = Math.ceil(units.length / 2);
         const first = await run(units.slice(0, half));
@@ -382,7 +462,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       }
       if (response.status !== 200)
         return { kind: 'error', message: `the endpoint answered HTTP ${response.status}` };
-      let data: { model?: string; answers?: Record<string, { noul?: number }> };
+      let data: { model?: string; answers?: Record<string, { probabilities?: Record<string, unknown> }> };
       try {
         data = JSON.parse(response.body);
       } catch {
@@ -390,10 +470,115 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       }
       probabilities = {};
       for (const k of Object.keys(questions)) {
-        const p = data.answers?.[k]?.noul;
+        for (const name of names) {
+          const p = data.answers?.[k]?.probabilities?.[name];
+          if (typeof p !== 'number' || p < 0 || p > 1)
+            return { kind: 'refused', reason: `no probability for ${k}__${name}` };
+          probabilities[`${k}__${name}`] = p;
+        }
+      }
+      const recorded = referenceBugs.has('drop-none-probability')
+        ? Object.fromEntries(Object.entries(probabilities).filter(([k]) => !k.endsWith('__none')))
+        : probabilities;
+      const entry: CassetteEntry = {
+        ...want,
+        model: String(data.model ?? ''),
+        stop_reason: 'end_turn',
+        usage: {},
+        answer: { probabilities: recorded },
+      };
+      receipt(ctx, entry, entry.model);
+      ctx.cassette.entries.set(key, entry);
+    }
+    for (const u of units) {
+      const vector = Object.fromEntries(
+        names.map((name) => [name, probabilities[`u${u.n}__${name}`] as number]),
+      );
+      const got = choiceDecision(vector, names, ctx, `${plan.id}: unit [${u.n}]`);
+      if (got !== undefined) decided.push({ units: String(u.n), label: got });
+    }
+    return undefined;
+  };
+  for (let i = 0; i < label.length; i += chunkSize) {
+    const problem = await run(label.slice(i, i + chunkSize));
+    if (problem) return problem;
+  }
+  return { kind: 'answer', answer: { labels: decided }, key: lastKey };
+}
+
+/**
+ * The yes or no system 1 labeler `openai-decisions` (design, section 3): one predicate per unit and label,
+ * named `u<n>__<label>`, answered with a probability of yes each. A unit takes the label with the highest
+ * probability at or above the threshold (0.4 for a window unless the caller sets one), else `none`. The
+ * probabilities are recorded, so the threshold is a setting of the replay, outside the key.
+ */
+async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const askable = set.labels.filter((l) => l.target !== 'required');
+  const label = plan.units.filter((u) => u.mode === 'label');
+  const chunkSize = Math.max(1, Math.floor(DECISIONS_CAP / Math.max(1, askable.length)));
+  const fallback = referenceBugs.has('decisions-threshold-0.5') ? 0.5 : DECISIONS_THRESHOLD;
+  const threshold =
+    ctx.threshold === undefined || referenceBugs.has('ignores-caller-threshold') ? fallback : ctx.threshold;
+  const decided: LabelEntry[] = [];
+  let lastKey = '';
+  for (let i = 0; i < label.length; i += chunkSize) {
+    const units = label.slice(i, i + chunkSize);
+    const input = userText(set, { ...plan, units: units.map((u) => ({ ...u })) });
+    const questions = units.flatMap((u) =>
+      askable.map((l) => ({
+        type: 'predicate',
+        name: `u${u.n}__${l.name}`,
+        instructions: `Does the label ${l.name} apply to unit [${u.n}]? ${l.description}`,
+      })),
+    );
+    const request = { model: 'decisions-fake-1', input, questions };
+    const keyed = referenceBugs.has('threshold-in-key') ? { ...request, threshold } : request;
+    const key = sha256(canonicalCompact({ ...keyed, arm: ctx.arm }));
+    const want = {
+      key,
+      file: plan.file,
+      window: plan.id,
+      promptVersion: 'p1',
+      schemaVersion: 's1',
+      setName: set.set,
+      setHash: set.hash,
+      labeler: ctx.arm,
+      cutDigest: ctx.cutDigestOf(plan.file),
+      part: {
+        system: sha256(''),
+        user: sha256(input),
+        output: sha256(canonicalCompact(questions.map((q) => q.name))),
+      },
+    };
+    lastKey = key;
+    let probabilities: Record<string, number>;
+    const hit = ctx.cassette.entries.get(key);
+    if (hit) {
+      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+      probabilities = hit.answer.probabilities ?? {};
+    } else if (ctx.cassette.mode === 'replay') {
+      return missError(ctx, want);
+    } else {
+      const response = await ctx.transport({
+        url: DECISIONS_URL,
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${ctx.keyHeader}` },
+        body: JSON.stringify(request),
+      });
+      if (response.status !== 200)
+        return { kind: 'error', message: `the endpoint answered HTTP ${response.status}` };
+      let data: { model?: string; answers?: Array<{ name?: unknown; probability?: unknown }> };
+      try {
+        data = JSON.parse(response.body);
+      } catch {
+        return { kind: 'refused', reason: 'the response is not JSON' };
+      }
+      const given = new Map((data.answers ?? []).map((a) => [a.name, a.probability]));
+      probabilities = {};
+      for (const q of questions) {
+        const p = given.get(q.name);
         if (typeof p !== 'number' || p < 0 || p > 1)
-          return { kind: 'refused', reason: `no probability for ${k}` };
-        probabilities[k] = p;
+          return { kind: 'refused', reason: `no probability for ${q.name}` };
+        probabilities[q.name] = p;
       }
       const entry: CassetteEntry = {
         ...want,
@@ -409,21 +594,17 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       let best: { name: string; p: number } | undefined;
       for (const l of askable) {
         const p = probabilities[`u${u.n}__${l.name}`];
-        if (typeof p === 'number' && (!best || p > best.p)) best = { name: l.name, p };
+        if (typeof p === 'number' && p >= threshold && (!best || p > best.p)) best = { name: l.name, p };
       }
-      decided.push({ units: String(u.n), label: best && best.p > threshold ? best.name : 'none' });
+      decided.push({ units: String(u.n), label: best ? best.name : 'none' });
     }
-    return undefined;
-  };
-  for (let i = 0; i < label.length; i += chunkSize) {
-    const problem = await run(label.slice(i, i + chunkSize));
-    if (problem) return problem;
   }
   return { kind: 'answer', answer: { labels: decided }, key: lastKey };
 }
 
 /** One call of a model port for a window and a set. */
 export function askModel(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  if (ctx.arm === 'openai-decisions') return decisions(plan, set, ctx);
   if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return fixtureReplay(plan, set, ctx);
   return ctx.arm === 'haiku' ? haikuRuns(plan, set, ctx) : jev(plan, set, ctx);
 }
@@ -451,24 +632,26 @@ async function haikuRuns(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
 async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   const { hash: _setHash, ...set } = parsed;
   const units = plan.units.filter((u) => u.mode !== 'opaque' && u.mode !== 'read');
-  const cap = WINDOW_CAP[ctx.arm];
+  // askModel sends the decisions arm elsewhere: a fixture is recorded on the three arms of the fixtures only.
+  const arm = ctx.arm as ModelArm;
+  const cap = WINDOW_CAP[arm];
   const labels: LabelEntry[] = [];
   let lastKey = '';
   for (let offset = 0; offset < units.length; offset += cap) {
     const selected = units.slice(offset, offset + cap),
       window = `${plan.file}#${Math.floor(offset / cap) + 1}`;
     const wire = wireFor(
-      ctx.arm,
+      arm,
       set,
       window,
       selected.map((u, i) => ({ n: i + 1, text: u.text })),
       selected[0]?.path ?? [],
     );
     let first: CassetteRow | undefined;
-    for (let run = 1; run <= RUNS[ctx.arm]; run++) {
+    for (let run = 1; run <= RUNS[arm]; run++) {
       const want = readableFor(
         wire,
-        windowMeta(ctx.arm, {
+        windowMeta(arm, {
           path: plan.file,
           window,
           set,
@@ -548,19 +731,17 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     if (ctx.arm === 'haiku') {
       for (const label of first.answer.labels ?? [])
         labels.push({ ...label, units: String(Number(label.units) + offset) });
-    } else
+    } else {
+      // A choice answer: the highest option, `none` included; a vector that does not sum to 1 is refused.
+      const names = [...set.labels.filter((l) => l.target !== 'required').map((l) => l.name), 'none'];
       for (const [index, unit] of selected.entries()) {
-        let best: { label: string; p: number } | undefined;
-        for (const label of set.labels) {
-          const p = first.answer.probabilities?.[`u${index + 1}__${label.name}`];
-          if (typeof p === 'number' && (!best || p > best.p)) best = { label: label.name, p };
-        }
-        labels.push({
-          units: String(unit.n),
-          label:
-            best && best.p >= (ctx.threshold ?? (ctx.arm === 'jev-unit' ? 0.7 : 0.4)) ? best.label : 'none',
-        });
+        const vector = Object.fromEntries(
+          names.map((name) => [name, first?.answer.probabilities?.[`u${index + 1}__${name}`] as number]),
+        );
+        const got = choiceDecision(vector, names, ctx, `${window}: unit [${index + 1}]`);
+        if (got !== undefined) labels.push({ units: String(unit.n), label: got });
       }
+    }
   }
   return Promise.resolve({ kind: 'answer', answer: { labels }, key: lastKey });
 }

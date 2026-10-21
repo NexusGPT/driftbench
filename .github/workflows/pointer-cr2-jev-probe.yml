@@ -1,0 +1,90 @@
+name: pointer-cr2-jev-probe
+on:
+  push:
+    branches: ['train/pointer-cr2-jev-*']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Biome
+        run: >-
+          pnpm exec biome check --diagnostic-level=error --max-diagnostics=200
+          packages/validators/src/ladders/pointer/kit/transport.ts
+          packages/validators/src/ladders/pointer/sut/port.ts
+          packages/validators/src/ladders/pointer/sut/reader.ts
+          packages/validators/src/ladders/pointer/bank/families/labels.ts
+          packages/validators/src/ladders/pointer/bank/specs/labels.ts
+          packages/validators/src/ladders/pointer/bank/specs/hardening.ts
+          packages/validators/test/pointer/reference/ports.ts
+          packages/validators/test/pointer/reference/scan.ts
+          packages/validators/test/pointer/cr2-jev.test.ts
+          packages/validators/test/pointer/cause-repairs.test.ts
+      - name: Typecheck
+        run: pnpm typecheck
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [cr2-jev, cause-repairs, replay-contract, hardening, provenance, adapter, docs-anchors]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Test
+        run: pnpm exec vitest run packages/validators/test/pointer/${{ matrix.file }}.test.ts
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [labels, replay, privacy]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Reference passes the family
+        run: pnpm exec vitest run packages/validators/test/pointer/reference.test.ts -t "${{ matrix.family }}"
+  bank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Bank on the real reader
+        shell: bash
+        run: |
+          mkdir -p out
+          set +e
+          pnpm -s driftbench validate pointer --seeds 1..1 --all-levels --items --json > out/items.json
+          echo "exit $?"
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: items
+          path: out
