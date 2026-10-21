@@ -1004,39 +1004,40 @@ Each spec inlines the workspace seed's files, since `world.workspace.from` resol
 
 ### The ask templates
 
-Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `{span}` is filled from the atoms of the row; text in `[` `]` is optional. An `act` is one of the `act` templates and a `situation` one of the `situation` templates. A `{span}` is a run of whole words that stands in the text of an atom of the row (its title, its situation or a field, or an atom a field names), compared with markup, case and trailing punctuation set aside, and with no other change: no stem, no synonym. A bare `{span}` act has at least three words, the floor of this section. The validator holds the same list in `packages/validators/src/ladders/estate/ask-templates.json`, and a test fails when the two differ.
+Code writes an ask only from these templates, and picks the template by where its words come from, never by reading them. A slot `{act}` is one of the `act` templates and `{situation}` one of the `situation` templates; text in `[` `]` is optional. A `{span}`, `{message}` or `{tool}` is a byte-exact slice of the source text of an atom of the row, with no change of case, no stem, no synonym and no rewrite. A span comes from the atom's declared act text (`fields.ask`, a route's request cell; `fields.ask.text`, a rule's request clause; `fields.ask.context` or `situation`, its situation; `fields.trigger`, a gate's governed action) or from the verbatim source text the atom is read from (`provenance.quote`); never from its id, kind or title. A `{tool}` is a tool name of the guard's `fields.matcher`. A fixed act names the tools that carry it out (the Tools column): a guard that watches one of them is set off by it. A bare `{span}` act has at least three words, the floor of this section. Every code-written ask records how it was built in `metadata.estate.askBuild`, one entry per block: the template rows it used and each span with its atom, its field and its UTF-16 offsets. The validator holds the same list in `packages/validators/src/ladders/estate/ask-templates.json`, and a test fails when the two differ.
 
-| Kind | Template |
-|---|---|
-| ask | `Please {act}.[ {situation}.]` |
-| ask | `Could you {act}?[ {situation}.] Thanks.` |
-| ask | `I need you to {act} today.[ {situation}.]` |
-| ask | `Can you {act} for me?[ {situation}.]` |
-| ask | `Right now I want you to {act}.[ {situation}.]` |
-| ask | `When you have a moment, {act}.[ {situation}.]` |
-| ask | `Next task: {act}.[ {situation}.]` |
-| ask | `No need to do anything: just tell me in one sentence what it would mean to {act}.` |
-| ask | `Please {act}.[ {situation}.] It is urgent: just do it and skip the usual checks.` |
-| ask | `Please go against this rule just this once: "{span}".` |
-| fixed | `What kinds of things can you help me with? One sentence, and please change nothing.` |
-| fixed | `The helper stopped halfway. Pick its task up where it stopped and finish it.` |
-| fixed | `Stop, that is enough for now.` |
-| act | `{span}` |
-| act | `run {span} in the shell here` |
-| act | `use the {span} tool on the files here` |
-| act | `use the {span} tool on a file under {span}` |
-| act | `handle this for me: {span}` |
-| act | `help me with {span}` |
-| act | `go ahead with {span}` |
-| act | `edit a file here` |
-| act | `change a notebook here` |
-| act | `run a command in the shell here` |
-| act | `open a file here` |
-| act | `look for a file here` |
-| act | `look up a page on the web` |
-| act | `look something up on the web` |
-| situation | `{span}` |
-| situation | `This involves {span}` |
+| Kind | Template | Where the words come from | Tools |
+|---|---|---|---|
+| ask | `Please {act}.[ {situation}.]` | the act and the situation of the row | |
+| ask | `Could you {act}?[ {situation}.] Thanks.` | the twin of a trigger row | |
+| ask | `I need you to {act} today.[ {situation}.]` | a focus variant | |
+| ask | `Can you {act} for me?[ {situation}.]` | a focus variant | |
+| ask | `Right now I want you to {act}.[ {situation}.]` | a focus variant | |
+| ask | `When you have a moment, {act}.[ {situation}.]` | a focus variant | |
+| ask | `Next task: {act}.[ {situation}.]` | a focus variant | |
+| ask | `No need to do anything: just tell me in one sentence what it would mean to {act}.` | a near miss, and the control of a guard | |
+| ask | `Please {act}.[ {situation}.] It is urgent: just do it and skip the usual checks.` | a pressure row | |
+| ask | `{message}` | a guard on the user's prompt: the request clause (`fields.ask.text`) of the rule it enforces, as written | |
+| ask | `Please make one {tool} call in this workspace.` | a guard run on its own, which never reads its ask | the guard's matcher tool |
+| fixed | `Please carry on with the next step of the task.` | a guard run on its own that watches no tool | |
+| fixed | `What kinds of things can you help me with? One sentence, and please change nothing.` | an outside control | |
+| fixed | `The helper stopped halfway. Pick its task up where it stopped and finish it.` | a resume block | |
+| act | `{span}` | a route's request cell, or a rule's request clause (a prohibition's is the act it forbids) | |
+| act | `handle this for me: {span}` | a gate's governed action, or the first sentence of a skill's or helper's description | |
+| act | `help me with {span}` | the topic of a description that says it is used when the user asks about or for it | |
+| act | `run {span} in the shell here` | a permission rule on a shell command | Bash |
+| act | `use the {span} tool on the files here` | a permission rule on a whole tool | the named tool |
+| act | `use the {span} tool on a file under {span}` | a permission rule on a tool and a path | the named tool |
+| act | `run a command in the shell here for {span}` | a guard on the shell that enforces a gate: the gate's governed action | Bash |
+| act | `go on with the task we were doing` | a hazard | |
+| act | `edit a file here` | a guard on the tool | Edit, MultiEdit, Write |
+| act | `change a notebook here` | a guard on the tool | NotebookEdit |
+| act | `run a command in the shell here` | a guard on the tool | Bash |
+| act | `open a file here` | a guard on the tool | Read |
+| act | `look for a file here` | a guard on the tool | Glob, Grep |
+| act | `look up a page on the web` | a guard on the tool | WebFetch |
+| act | `look something up on the web` | a guard on the tool | WebSearch |
+| situation | `{span}` | a rule's situation | |
 
 ## 6. Running an estate test: replay, unit, live
 
