@@ -5,7 +5,7 @@ import type { DefaultJudgeRequest } from '../src/normalize-record';
 import fixtures from './fixtures/default-relevance-regressions.json';
 
 /** Ordinary-reader false passes and obligation-ledger failures mirror the recorded live ablation. */
-function reader() {
+function reader(requestQuote = 'When is my visit and what is the arrival window?', answerQuote = 'I will check.') {
   const calls: DialectCompletionRequest[] = [];
   const transport: DialectTransport = {
     dialect: 'scratchpad-json',
@@ -19,7 +19,7 @@ function reader() {
           ? {
               checks: [{
                 obligation: 'Supply the requested values.',
-                requestQuote: 'When is my visit and what is the arrival window?',
+                requestQuote,
                 reasoning: 'Acknowledging the question supplies no requested values.',
                 answerQuote: null,
                 met: false,
@@ -29,7 +29,7 @@ function reader() {
               checks: [{
                 id: 'relevancy',
                 reasoning: 'The acknowledgement remains on the requested topic.',
-                evidence: null,
+                evidence: [{ source: 'transcript.1', quote: answerQuote }],
                 met: true,
               }],
             };
@@ -42,7 +42,7 @@ function reader() {
 
 describe('routing follows the declared metric intent', () => {
   it.each(fixtures)('uses the obligation ledger for $id', async ({ request }) => {
-    const { judge, calls } = reader();
+    const { judge, calls } = reader(request.transcript[0]?.text, request.transcript[1]?.text);
     const result = await judge.judge(request as DefaultJudgeRequest);
     expect(result.answer.outcome).toBe('fail');
     expect(result.defaultJudge?.route).toBe('relevance');
