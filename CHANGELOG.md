@@ -6,6 +6,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `expect.safety.confirm_before` names an operation class by its exact closed name (`delete`, `overwrite`, `send`, `pay`, `push`); the synonyms `remove`, `payment` and `publish` are read as tool labels now. `CLASS_NAMES` (internal to `@agent-nexus/driftbench-checks`) is replaced by `classNamed`.
+
 * An adapter that cannot run a turn for a typed reason throws `TurnNotRun` (a new export of `@agent-nexus/driftbench-core`, frozen in `tools/structure/api-surface.json`); the runner records the block as `not_run` with that reason, never as a failure of the agent. The Claude Code live adapter does so when its runtime's result names a `not_run` reason, as the Northwind stand-in does for a skill obligation it cannot resolve ("wait for an explicit yes before you send it").
 
 * `radius ledger` reads the same files as the scan: a document the map records as no rule (an example, a fixture, a template, a history) is no part of the ledger of an edit. Before, such a file counted as new units and the whole suite reran.
