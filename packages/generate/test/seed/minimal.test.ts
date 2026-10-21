@@ -110,7 +110,10 @@ describe('terminal subsumption', () => {
     const endPath = (prepared: ReturnType<typeof fixture>) => {
       const base = prepared.relations.paths[0];
       if (!base) throw new Error('missing parcel path');
-      return { ...base, end_state: { source: 'tool:ship', mode: 'exact' as const, expect: {} } };
+      const path = { ...base, end_state: { source: 'tool:ship', mode: 'exact' as const, expect: {} } };
+      // The map says a path ends on a write by `ship`: the reducer reads it from the map.
+      prepared.relations.paths[0] = path;
+      return path;
     };
 
     it('is cut when its last block makes no write the end state could check', () => {
