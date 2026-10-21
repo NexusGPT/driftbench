@@ -16,7 +16,7 @@ vi.setConfig({ testTimeout: 60_000 });
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
-const R3 = 'instruction.standing.r3-read-a-file-before-you';
+const R3 = 'gate.standing.read-before-edit-it';
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const GATE = 'gate.invoice-reconcile.read-references-matching-rules-md-before';
 
