@@ -182,6 +182,12 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
 });
 
 describe('the generated grammar covers every ask of the real fixture suite', { timeout: 600_000 }, () => {
+  it('holds every gen.task item on the real fixture suite (the nine items the word rules failed included)', async () => {
+    const out = await taskFamily().evaluate(1);
+    const failing = [...out].filter(([, result]) => !result.pass).map(([id, result]) => `${id}: ${result.detail}`);
+    expect(failing.map((line) => line.slice(0, 400))).toEqual([]);
+  });
+
   it('counts 0 complete specs whose ask carries an act the fake does not set off', async () => {
     const unset = await unsetAsks(await fixture.fixtureSuite());
     // The distinct asks, most frequent first, so a red run names what the grammar misses.
