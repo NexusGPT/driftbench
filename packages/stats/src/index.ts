@@ -15,6 +15,7 @@ export {
   type Label,
   weightedKappa,
 } from './agreement';
+export { kishDesignEffect, proportionalAllocation } from './allocation';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
 export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
 export {
@@ -28,6 +29,7 @@ export {
   hillNumbers,
 } from './coverage';
 export { median } from './descriptive';
+export { minimumDetectableMeanDifference } from './design-power';
 export { totalVariationDistance } from './divergence';
 export {
   type Alarm,
@@ -101,6 +103,12 @@ export { bonferroniThreshold, familywiseErrorRate, sidakThreshold } from './rate
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
 export {
+  sampleSizeMeanMargin,
+  sampleSizeProportionMargin,
+  sampleSizeTwoMeans,
+  sampleSizeTwoProportions,
+} from './sample-size';
+export {
   type CoverageCell,
   type CoverageMethod,
   type CoverageOptions,
@@ -141,3 +149,4 @@ export {
   type VarianceComponentsResult,
   varianceComponents,
 } from './variance';
+export { jackknifeMeanVariance } from './variance-estimates';

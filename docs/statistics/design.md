@@ -2,7 +2,7 @@
 
 This page defines fourteen functions that plan a study and estimate variance: sample sizes, power, the allocation of a sample over strata, and variance estimates for two samples, a mean and a panel of raters. Every function obeys the [shared conventions](capabilities.md#conventions): the `RangeError` rules, the accuracy of a relative 1e-11, and the quantiles of the normal passed in as arguments. This page repeats none of them.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `sampleSizeTwoMeans`, `sampleSizeTwoProportions`, `sampleSizeProportionMargin`, `sampleSizeMeanMargin`, `minimumDetectableMeanDifference`, `kishDesignEffect`, `proportionalAllocation` and `jackknifeMeanVariance` exist in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 Two terms are used throughout. `Phi` is the cumulative distribution function of the standard normal. A "per arm" size is the number of units in each of two equal groups.
 
