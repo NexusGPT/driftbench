@@ -1,4 +1,5 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
+import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
 import { type Cut, cut, type Unit } from './cut';
 import {
@@ -22,7 +23,6 @@ import {
 } from './labels';
 import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
 import type { Labelling } from './stack';
-import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 
 /**
  * The pointer scan: cut each prose file into units, follow the units through the ledger, send the windows
