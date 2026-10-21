@@ -467,9 +467,9 @@ function hazardCases(): Case[] {
           HAZARDS[0]?.text(thing) as string,
           HAZARDS[2]?.text(thing) as string,
         ]);
-        made.lines.forEach((line, index) =>
-          e.check(o, atomAt('hazard', made.path, line, HAZARDS[index === 0 ? 0 : 2]?.hazard)),
-        );
+        for (const [index, line] of made.lines.entries()) {
+          e.check(o, atomAt('hazard', made.path, line, HAZARDS[index === 0 ? 0 : 2]?.hazard));
+        }
       },
     },
     {
