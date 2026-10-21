@@ -27,6 +27,7 @@ export {
   hillNumbers,
 } from './coverage';
 export { median } from './descriptive';
+export { totalVariationDistance } from './divergence';
 export {
   type Alarm,
   type CusumOptions,
