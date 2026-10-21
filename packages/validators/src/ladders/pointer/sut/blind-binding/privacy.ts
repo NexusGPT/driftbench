@@ -1,5 +1,5 @@
 import type { PointerIO } from '../../blind/bank/index';
-import { type Obj, pointerExports, Unsupported } from './reader';
+import { type Obj, pointerExports } from './reader';
 
 const answerOf = (recorded: Obj) => ({
   labels: recorded.labels,
@@ -15,19 +15,15 @@ const recordedOf = (answer: Obj) => ({
   usage: { input: answer.usage.input_tokens, output: answer.usage.output_tokens },
 });
 
-/** The status of a scan that sent no request. */
-export const NO_REQUEST = 'no-request';
-
 /**
- * `privacy`: the real `pointerScan` over the private file. The reader reads the key itself (its labeler factory
- * reads `ANTHROPIC_API_KEY` from `env`, a getter that asks the harness), sends the request itself (`fetch` is the
- * harness callback behind the reader's own HTTP client), and stores the answer itself (`Cassette.put`, whose
- * `onPut` writes to the harness). A replay asks a cassette that reads the harness cache. What the reader stores
- * and plans is returned beside the labels, so the leak check reads it. Nothing is derived from the requested mode
- * except which of the reader's two scan modes runs.
- *
- * A file the scan sends no request for (a fence or a comment is opaque) never reaches the recorder: the result
- * carries the status `no-request` and the item differs from the contract, which expects a request.
+ * `privacy`: the real `pointerScan` over the private file, for every source, an opaque-only one included. The
+ * labelling is built the way the command builds it (`buildLabelling`, `env` with the key behind a getter that asks
+ * the harness), so the reader reads the key itself, when a request leaves: a scan that sends nothing never reads it.
+ * The reader sends the request through its own HTTP client; `fetch` is the harness callback behind it. It stores the
+ * answer itself (`Cassette.put`, whose `onPut` writes to the harness). A replay asks a cassette that reads the
+ * harness cache when the reader asks it. What the reader stores and plans is returned beside the labels, so the leak
+ * check reads it. Nothing is derived from the requested mode except which of the reader's two scan modes runs, and
+ * nothing is decided before the scan (`blind/CONTRACT.md`, the `spec-changed` fence and comment items).
  */
 export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<unknown> {
   if (!io) throw new Error('the privacy operation needs the harness callbacks');
@@ -63,6 +59,7 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
   const labelling = pointer.singleLabelling({ ...member, runs: 1 });
   const cassette = new pointer.Cassette();
   const stored: Obj[] = [];
+  let hit: Obj | undefined;
   if (record) {
     cassette.onPut = (entry: Obj) => {
       stored.push(entry);
@@ -74,6 +71,7 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
       const key = pointer.requestKey(wire, readable);
       const found = io.readCassette();
       if (found === null) throw new pointer.CassetteMiss(key, [], undefined);
+      hit = found as Obj;
       return { key, readable, answer: recordedOf(found as Obj) };
     };
   }
@@ -93,16 +91,8 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
   } catch (thrown) {
     if (!(thrown instanceof pointer.CassetteMiss)) throw thrown;
   }
-  const windows = ((plan?.members ?? []) as Obj[]).reduce((sum, entry) => sum + Number(entry.windows), 0);
-  // The contract expects the recorder to be reached for any file; a scan with no window sends no request. That is
-  // the reader's behaviour, reported as an observation that differs, not as a missing call.
-  if (windows === 0) return { labels: [], status: NO_REQUEST, stored: cassette.render(), readerPlan: plan };
   io.plan({ characters: String(input.source).length });
-  const labels = record
-    ? ((stored[0]?.answer as Obj | undefined)?.labels ?? [])
-    : result
-      ? ((io.readCassette() as Obj | null)?.labels ?? [])
-      : [];
+  const labels = record ? ((stored[0]?.answer as Obj | undefined)?.labels ?? []) : (hit?.labels ?? []);
   return {
     labels,
     status: result ? 'ok' : 'miss',
