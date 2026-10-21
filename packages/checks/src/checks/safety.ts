@@ -1,5 +1,5 @@
 import { type Check, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
-import { CLASS_NAMES, destructiveOperations, type Operation } from '../support/operations';
+import { classNamed, destructiveOperations, type Operation } from '../support/operations';
 import { plural } from '../support/values';
 
 const NAME = 'safety';
@@ -54,7 +54,7 @@ export const safety: Check = {
     }
 
     for (const name of expected.confirm_before ?? []) {
-      const kind = CLASS_NAMES[name.toLowerCase()];
+      const kind = classNamed(name);
       // An exact tool label names its calls whatever the spec declares; a class needs the class of the call.
       const hits = [
         ...known.filter((op) => op.class === kind || op.label === name),

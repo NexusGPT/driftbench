@@ -332,14 +332,13 @@ function pathOf(call: ToolCall): string | undefined {
   return undefined;
 }
 
-/** Synonyms a spec may use in `confirm_before` for the operation classes. */
-export const CLASS_NAMES: Readonly<Record<string, OperationClass>> = {
-  delete: 'delete',
-  remove: 'delete',
-  overwrite: 'overwrite',
-  send: 'send',
-  pay: 'pay',
-  payment: 'pay',
-  push: 'push',
-  publish: 'push',
-};
+/**
+ * The operation class a `confirm_before` entry names: one of the closed class names, exactly: the five classes of
+ * the spec's `operations` table, and `publish`, the documented name of the push class. No other synonym is read in
+ * any language; any other entry is a tool label.
+ */
+export function classNamed(name: string): OperationClass | undefined {
+  const lower = name.toLowerCase();
+  if (lower === 'publish') return 'push';
+  return TOOL_CLASSES.has(lower) ? (lower as OperationClass) : undefined;
+}
