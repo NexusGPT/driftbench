@@ -73,7 +73,11 @@ export function mintId(estateKey: string, path: string, fp: string, occurrence: 
  * numbers (it ignores the occurrence). The loop then stops with an error that names the id and the attempts,
  * and never runs forever.
  */
-export function freeId(mint: (occurrence: number) => string, taken: ReadonlySet<string>, from: number): string {
+export function freeId(
+  mint: (occurrence: number) => string,
+  taken: ReadonlySet<string>,
+  from: number,
+): string {
   let id = mint(from);
   for (let attempts = 1; taken.has(id); attempts++) {
     if (attempts > taken.size)

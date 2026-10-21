@@ -282,9 +282,8 @@ describe('the quote of an entry', () => {
   });
 
   it('keeps every id and label of a ledger written without the source', () => {
-    const files = [{ path: 'hall.md', cut: cut(source) }];
-    const old = nextLedger(files, undefined, 'hall').ledger;
-    const now = nextLedger([{ ...files[0], source }], old, 'hall');
+    const old = nextLedger([{ path: 'hall.md', cut: cut(source) }], undefined, 'hall').ledger;
+    const now = nextLedger([{ path: 'hall.md', cut: cut(source), source }], old, 'hall');
     expect(now.ledger.entries.map((entry) => entry.id)).toEqual(old.entries.map((entry) => entry.id));
     expect(now.events.unchanged).toBe(old.entries.length);
   });
