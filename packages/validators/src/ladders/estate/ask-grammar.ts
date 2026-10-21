@@ -116,7 +116,8 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
       for (const row of actRows) add(render(row, { span: declared.text }, false), atom.id);
     }
     const ask = (atom.fields as { ask?: unknown } | undefined)?.ask;
-    const context = ask !== null && typeof ask === 'object' ? (ask as { context?: unknown }).context : undefined;
+    const context =
+      ask !== null && typeof ask === 'object' ? (ask as { context?: unknown }).context : undefined;
     for (const text of [context, atom.situation])
       if (typeof text === 'string') for (const cut of sentenceCuts(text)) situations.add(cut);
   }
