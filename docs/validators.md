@@ -136,6 +136,9 @@ The pointer measurement. A third job, `pointer-measure`, serves the independent 
 
 The variables measurement. A fourth job, `variables-measure`, serves the same audit for the variables bank. It runs only on a dispatch on a `train/*` branch whose `jobs` list names `variables-measure` (seeds 1 to 3 and the hidden seed in three shards), `variables-measure-one` (seed 1 in one shard) or `variables-measure-full` (seeds 1 to 20 and the hidden seed in ten shards), never on a push or a pull request. Each shard runs `pnpm driftbench validate variables --seeds <a..b> [--hidden] --items --all-levels --json` and uploads the report as the artifact `variables-items-<n>`; the level reached does not fail the job. The bank is the first bank of the variables validator (536 items) plus the blind bank (`packages/validators/src/ladders/variables/blind`, 501 items named `blind.*`), 1,037 items in all.
 
+The generator measurement. `generator-measure`, `generator-measure-one` and `generator-measure-full` mirror the pointer/variables seed shards for the generator's planner-v2 audit, only on explicit `train/*` dispatches. Raw reports are `generator-items-<mode>-<n>` artifacts (`one`, `standard` or `full`). The dependent `generator-measure-row` job joins all shards with `--reports --items --all-levels`, uses `validators/generator/baseline.ts` and `measure-row.ts` to write a schema-checked iteration-0 journal in the `generator-measurement-<mode>` artifact, and records the pending `--hardness --json` gate there. A seed-1 probe is not a full baseline; gate evidence needs seeds 1 to 20 and the canonical hidden seed on the common integrated head. Historical tracked journal rows are preserved. See `validators/generator/audit.md` for the four independent seats.
+
+
 ### 8.2 The command
 
 ```
