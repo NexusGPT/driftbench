@@ -242,9 +242,9 @@ export function pointerAtoms(
     const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
     const firstNamed = namedOf(item.unit.text);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
-    const templateFor = (namedPath: string | undefined): Template => ({
+    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
       link: (kind, property) => {
-        const found = labelLinks.find((link) => link.kind === kind);
+        const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
         if (found?.atom === undefined) return undefined;
         if (property === undefined || property === 'id') return found.atom;
@@ -287,8 +287,19 @@ export function pointerAtoms(
         (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
           ? allNamed
           : [readable];
-      for (const namedPath of paths) {
-        const template = templateFor(namedPath);
+      // A unit that links several atoms by the kind of link its mapping names (a routing row naming two skills)
+      // gives one atom for each of them: the links of that kind are read in turn, each in its own atom.
+      const kinds = new Set([...JSON.stringify(mapping).matchAll(/\$\{?link\.([\w-]+)/g)].map((m) => m[1]));
+      const repeated = [...kinds].find(
+        (kind) => labelLinks.filter((link) => link.kind === kind && link.atom !== undefined).length > 1,
+      );
+      const choices: Array<(typeof labelLinks)[number] | undefined> =
+        repeated === undefined
+          ? [undefined]
+          : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
+      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
+      for (const [namedPath, chosen] of pairs) {
+        const template = templateFor(namedPath, chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
           refusals.push(
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
