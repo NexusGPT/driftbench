@@ -36,7 +36,11 @@ async function copy(): Promise<string> {
 
 describe('the static runner', () => {
   it('reads the estate again and passes or fails each invariant and setting on the files as they are', async () => {
-    const results = await runStaticTests(TESTS, { root: FIXTURE, reader: new ClaudeCodeReader() });
+    const results = await runStaticTests(TESTS, {
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+    });
     expect(Object.fromEntries(results.map((result) => [result.id, result.pass]))).toEqual({
       size: true,
       registry: false,
