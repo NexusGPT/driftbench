@@ -18,6 +18,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
+import { atomTexts, readsAsCodeAsk } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -303,6 +304,62 @@ type AskCheck = {
   component?: string;
   check(run: EstateRun, all: SpecVerdict[]): Promise<string | undefined> | string | undefined;
 };
+
+/** The situation each test type is asked in (docs/estate.md section 5); a live guard_positive is instructed. */
+const USE_OF_TEST: Readonly<Record<string, string>> = {
+  outside_trigger: 'outside',
+  guard_negative: 'outside',
+  route_near_miss: 'near_miss',
+  misroute: 'misroute',
+  skip_pressure: 'pressure',
+  stage_skip: 'pressure',
+};
+const NO_ASK = new Set(['invariant', 'setting']);
+
+/** The ids of other atoms that the fields of an atom name (a guard names the rule it enforces). */
+function idsIn(value: unknown, depth = 0): string[] {
+  if (typeof value === 'string') return /^[a-z][a-z0-9_.-]*\.[a-z0-9_.-]+$/.test(value) ? [value] : [];
+  if (Array.isArray(value) && depth < 3) return value.flatMap((item) => idsIn(item, depth + 1));
+  if (value !== null && typeof value === 'object' && depth < 3)
+    return Object.values(value).flatMap((item) => idsIn(item, depth + 1));
+  return [];
+}
+
+/** The situation use a plan row is asked in: a live guard_positive is asked in a `forced` situation. */
+function useOfRow(row: { testType: string; mode: string }): string {
+  return row.testType === 'guard_positive' && row.mode === 'live'
+    ? 'forced'
+    : (USE_OF_TEST[row.testType] ?? 'trigger');
+}
+
+/**
+ * Whether the bank holds too few approved phrases for a plan row, from the row's atoms alone: the situations of
+ * the row's use that hold its first atom (pins of the cell respected) and the approved phrases of the best one.
+ * A row needs one approved phrase; a twin needs two. No such situation means the bank is short. A live
+ * guard_positive row is asked in a `forced` situation, looked up the same way.
+ */
+function bankIsShort(
+  run: EstateRun,
+  row: { atomIds: string[]; cell: Record<string, string>; testType: string; mode: string },
+): boolean {
+  if (NO_ASK.has(row.testType)) return false;
+  const use = useOfRow(row);
+  const head = row.atomIds[0];
+  let best: { atoms: string[]; approved: number } | undefined;
+  let score = -1;
+  for (const situation of run.bank.situations) {
+    if (situation.use !== use || head === undefined || !situation.atoms.includes(head)) continue;
+    const pins = Object.entries(situation.cell ?? {});
+    if (pins.some(([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value)) continue;
+    const held = row.atomIds.filter((id) => situation.atoms.includes(id)).length;
+    if (held > score) {
+      best = { atoms: situation.atoms, approved: situation.phrases.filter((p) => p.approved).length };
+      score = held;
+    }
+  }
+  const need = row.testType === 'twin' ? 2 : 1;
+  return best === undefined || best.approved < need;
+}
 
 function asksOfSpec(verdict: SpecVerdict): string[] {
   return (verdict.spec.loaded?.spec.blocks ?? []).map((block) =>
@@ -699,15 +756,59 @@ const ASKS: AskCheck[] = [
   {
     key: 'asks-approved',
     tier: 1,
-    title: 'a complete spec asks only approved phrases',
+    title: 'a complete spec asks an approved phrase, or a disclosed code-written ask where none is approved',
+    // docs/estate.md section 5: an approved phrase always wins; when the bank holds none for the row, code writes
+    // the ask from the atoms, and the spec says so (tag `ask:code`, `metadata.estate.ask: code`, the field the
+    // words came from in `askFrom`). Whether the bank holds one is derived here, from the plan row and its atoms
+    // and the bank: never from the situation the generated spec reports about itself.
     check: (run, all) => {
       const approved = new Set(
         run.bank.situations.flatMap((s) => s.phrases.filter((p) => p.approved).map((p) => p.text)),
       );
+      const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
+      const atomsById = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+      const disclosed = (v: SpecVerdict): boolean => {
+        const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
+        const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown };
+        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('ask:code');
+        if (!tagged || meta.ask !== 'code' || typeof meta.askFrom !== 'string' || meta.askFrom === '')
+          return false;
+        const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
+        if (!row) return false;
+        // The row the generator reports is bookkeeping it writes itself: the spec must say the same about itself
+        // (its plan row, its atoms, its test type and the test tag), else the allowance does not apply.
+        const own = estateMeta(v.spec) as { planRow?: unknown; atoms?: unknown; testType?: unknown };
+        const atoms = Array.isArray(own.atoms) ? (own.atoms as unknown[]) : [];
+        if (
+          own.planRow !== row.id ||
+          own.testType !== row.testType ||
+          atoms.length !== row.atomIds.length ||
+          !row.atomIds.every((id) => atoms.includes(id)) ||
+          !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
+        )
+          return false;
+        if (!bankIsShort(run, row)) return false;
+        // The disclosure is the generator's word about itself, so the words are checked too, by the validator's
+        // own reading of section 5 (reference-ask.ts), never by the product's `codeAsk`: an ask outside the
+        // approved phrases must have the shape the document gives and take its words from the row's atoms.
+        const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
+        if (rowAtoms.some((atom) => atom === undefined)) return false;
+        const referenced = [...new Set(rowAtoms.flatMap((atom) => idsIn(atom?.fields)))].map((id) =>
+          atomsById.get(id),
+        );
+        const fromAtoms = atomTexts(
+          [...rowAtoms, ...referenced].filter((atom): atom is NonNullable<typeof atom> => atom !== undefined),
+        );
+        return asksOfSpec(v).every(
+          (ask) => ask === '' || approved.has(ask) || readsAsCodeAsk(ask, fromAtoms),
+        );
+      };
       const bad = all.filter(
-        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)),
+        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
       );
-      return bad.length === 0 ? undefined : named(bad, 'complete specs ask an unapproved phrase');
+      return bad.length === 0
+        ? undefined
+        : named(bad, 'complete specs ask an unapproved phrase that is not a disclosed code-written ask');
     },
   },
   {
