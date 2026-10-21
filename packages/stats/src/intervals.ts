@@ -41,7 +41,17 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
     ? Math.sqrt((p * (1 - p)) / n + z2 / spread)
     : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(n), z / 2 / n);
   const half = (z / denom) * root;
-  return { estimate: p, lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
+  let lower = center - half;
+  if (k === 0) {
+    // The bound is exactly 0 here; the difference of the two nearly equal numbers above is not.
+    lower = 0;
+  } else if (2 * k > n && Number.isFinite(2 * (n + z2))) {
+    // Next to 1 the difference center - half cancels digits. One minus the distance to 1, a sum of positive
+    // terms, keeps them; where that distance overflows, the difference stands.
+    const gap = (2 * (n - k) + z2 + z * Math.sqrt(z2 + (4 * k * (n - k)) / n)) / (2 * (n + z2));
+    if (Number.isFinite(gap)) lower = 1 - gap;
+  }
+  return { estimate: p, lower: Math.max(0, lower), upper: k === n ? 1 : Math.min(1, center + half) };
 }
 
 /** The exact (Clopper-Pearson) interval for k successes in n trials at level 1 - alpha. */
