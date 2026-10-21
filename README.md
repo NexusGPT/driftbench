@@ -722,7 +722,7 @@ The problem: when R7 changes, which tests are about it? driftbench keeps one cha
 The **chunk.** The scan cuts every prose file into chunks, and gives each chunk an id that stays the same when the text is edited. The chunk of R7:
 
 ```console
-$ grep -B1 -A4 "propose a supplier email" ledger.json
+$ wc -l ledger.json; head -c 700 ledger.json; echo; grep -o ".\{200\}propose a supplier email.\{80\}" ledger.json
 (pending)
 ```
 

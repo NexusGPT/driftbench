@@ -229,7 +229,7 @@ describe('README commands that print what they show', () => {
           process.stderr.write(`WALKSTART ${step.command}\n`);
           const got = await execute(step.command, cwd);
           process.stderr.write(
-            `WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).join('\n')}\nWALKEND\n`,
+            `WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).map((line) => line.slice(0, 600)).join('\n')}\nWALKEND\n`,
           );
           const found = mismatch(step, got);
           if (found.length > 0) problems.push(`$ ${step.command}\n${found.join('\n')}\n`);
