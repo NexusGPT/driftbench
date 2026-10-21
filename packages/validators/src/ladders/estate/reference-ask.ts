@@ -11,13 +11,13 @@ import templates from './ask-templates.json';
  * fails when the file differs from the table of the document.
  */
 
-type Part = { lit: string } | { slot: string } | { opt: Part[] };
+export type Part = { lit: string } | { slot: string } | { opt: Part[] };
 type Entry = { kind: string; template: string; tools?: readonly string[] };
 
 export const ASK_TEMPLATES: readonly Entry[] = templates;
 
 /** A template as literals, slots and optional groups (`[...]`). */
-function parse(template: string): Part[] {
+export function parse(template: string): Part[] {
   const stack: Part[][] = [[]];
   let lit = '';
   const flush = () => {
