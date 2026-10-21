@@ -180,7 +180,8 @@ describe('the runner stops a reader that never returns', () => {
     expect(hung.pass).toBe(false);
     expect(hung.detail).toMatch(/did not finish within 3 s.*stopped/);
     expect(Date.now() - started).toBeLessThan(90_000);
-    const next = await runItem(item('ids.id-unique'), 1, isolated);
+    // An item that cuts only: a scan of the hanging reader could hang again on the inputs this process drew by now.
+    const next = await runItem(item('cutting.heading-atx'), 1, isolated);
     expect(next.pass, next.detail).toBe(true);
   }, 180_000);
 });

@@ -70,14 +70,9 @@ async function main(): Promise<void> {
     }
     if (!message.run) return;
     const item = bank.find((candidate) => candidate.id === message.run?.id);
-    const began = performance.now();
-    if (process.env.DRIFTBENCH_POINTER_TRACE === '1') process.stderr.write(`trace start ${message.run.id} at ${Math.round(began)}\n`);
     const outcome: Outcome = item
       ? await executeHere(item, message.run.seed, session.sut, session.stop)
       : fail(`the child holds no item ${message.run.id}`);
-    // TRACE (temporary)
-    if (process.env.DRIFTBENCH_POINTER_TRACE === '1')
-      process.stderr.write(`trace ${message.run.id} ${Math.round(performance.now() - began)} ms pass=${outcome.pass}\n`);
     await answer(lost() ? fail(lost() as string) : outcome);
   });
   process.send?.({ ready: true });

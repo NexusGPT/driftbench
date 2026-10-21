@@ -507,7 +507,9 @@ async function companion(ctx: ItemContext): Promise<Outcome | undefined> {
   const out = await runControl({ name: 'verdict' }, ctx.sut);
   return out.pass
     ? undefined
-    : fail(`the reader under test does not cut the control sentence, so the item has no positive control: ${out.detail}`);
+    : fail(
+        `the reader under test does not cut the control sentence, so the item has no positive control: ${out.detail}`,
+      );
 }
 
 const adversarial: Record<string, Run> = {

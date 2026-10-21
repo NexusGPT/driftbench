@@ -120,17 +120,8 @@ class Host {
     } catch (cause) {
       return Promise.reject(cause instanceof Error ? cause : new Error(String(cause)));
     }
-    const traced = process.env.DRIFTBENCH_POINTER_TRACE === '1' ? performance.now() : undefined;
     return new Promise((done, fail) => {
-      const entry: Pending = {
-        resolve: (value) => {
-          if (traced !== undefined)
-            process.stderr.write(`trace rpc ${target} ${path.join('.')} at ${Math.round(traced)} took ${Math.round(performance.now() - traced)} ms\n`);
-          done(value);
-        },
-        reject: fail,
-        owned,
-      };
+      const entry: Pending = { resolve: done, reject: fail, owned };
       if (within !== undefined)
         entry.timer = setTimeout(
           () =>

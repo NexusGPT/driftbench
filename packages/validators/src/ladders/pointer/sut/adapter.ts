@@ -25,7 +25,8 @@ let pinned: string | undefined;
  * from here, so a reader that sets the variable when it loads does not change which reader the runner starts.
  */
 const STARTED = Symbol.for('driftbench.pointer.sut');
-const started = (): string | undefined => (globalThis as Record<symbol, unknown>)[STARTED] as string | undefined;
+const started = (): string | undefined =>
+  (globalThis as Record<symbol, unknown>)[STARTED] as string | undefined;
 
 /**
  * Pins the module the system under test is resolved from. A process that serves a reader (the process of an item,
