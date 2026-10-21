@@ -850,4 +850,57 @@ describe('the ordered pair of the shipped set', () => {
     expect(result.map.atoms.some((atom) => atom.kind === 'gate')).toBe(false);
   });
 
+  it('lets the mapped ordered gate replace the prose gate read from the same line', async () => {
+    const files = {
+      'CLAUDE.md': [
+        '# Harbour office',
+        '',
+        '- **R14.** Do not commit to git until you have read the output of `git status`.',
+        '',
+      ].join('\n'),
+    };
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          pair({
+            spans: [
+              {
+                kind: 'governed-action',
+                text: 'commit to git until you have read the output of `git status`',
+              },
+              { kind: 'first-call', text: 'git status' },
+              { kind: 'second-call', text: 'commit' },
+            ],
+          }),
+        ],
+      },
+      { sets },
+      files,
+    );
+    expect(result.pointer?.refusals).toEqual([]);
+    const gates = result.map.atoms.filter((atom) => atom.kind === 'gate');
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.producedBy).toBe('model');
+    expect(gates[0]?.fields).toMatchObject({ first: 'git status', second: 'commit' });
+    expect(gates[0]?.evidence).toContainEqual({
+      type: 'ordered',
+      before: 'Bash~git status',
+      after: 'Bash~commit',
+    });
+  });
+
+  it('keeps the prose gate when the pointer entry builds no ordered gate', async () => {
+    const files = {
+      'CLAUDE.md': [
+        '# Harbour office',
+        '',
+        '- **R14.** Do not commit to git until you have read the output of `git status`.',
+        '',
+      ].join('\n'),
+    };
+    const { result } = await scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets }, files);
+    const gates = result.map.atoms.filter((atom) => atom.kind === 'gate');
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.producedBy).toBe('code');
+  });
 });
