@@ -11,10 +11,6 @@
  *   the ask table of docs/estate.md section 5): it equals one ask template byte for byte, each `{act}` (or `{span}`,
  *   `{message}`) one listed act text and each `{situation}` one listed situation text; it sets off the atoms of its
  *   act. A `hypothetical` template asks what an act would mean, and sets nothing off;
- * - an ask the generator rendered, when `grammar.json` holds frames: it holds the frames and the act shapes of the
- *   generator, cut at their slots. An ask that fits a frame holds an act; the act is
- *   the declared ask of an atom (`fields.ask.text`), or a shape of a skill, a helper, a file or a command. A
- *   frame that only asks what an act would mean sets nothing off;
  * - an ask equal to a declared ask, byte for byte, as the owner writes it;
  * - nothing else. An ask that matches none of these sets nothing off, and the fake answers it plainly.
  *
@@ -101,37 +97,13 @@ export function loadDispatch(env) {
       }
   }
   const grammar = existsSync(grammarPath) ? readStructured(grammarPath) : undefined;
+  // The only grammar the fake reads is the generated one: exact templates, act texts and situations. A grammar
+  // that carries frames or shapes (prefix, suffix and context patterns) is refused.
+  if (grammar !== undefined && (grammar.frames !== undefined || grammar.shapes !== undefined))
+    throw new Error(`the fake refuses ${grammarPath}: frames and shapes are not exact asks of the map`);
   const index = { atoms, declared, units, phrases, grammar };
   cache.set(key, index);
   return index;
-}
-
-/** The act inside an ask the generator rendered, and whether its frame requests the act; undefined when the ask fits no frame. */
-function frameOf(grammar, ask, isAct) {
-  for (const frame of Object.values(grammar.frames)) {
-    if (!ask.startsWith(frame.before) || !ask.endsWith(frame.after)) continue;
-    const core = ask.slice(frame.before.length, ask.length - frame.after.length);
-    for (let at = core.indexOf(frame.mid); at >= 0; at = core.indexOf(frame.mid, at + 1)) {
-      const act = core.slice(0, at);
-      const rest = core.slice(at + frame.mid.length);
-      // What follows the act is nothing, or one sentence of context.
-      const context = frame.background && rest.startsWith(' ') && rest.endsWith('.');
-      if ((rest === '' || context) && isAct(act)) return { act, request: frame.request };
-    }
-  }
-  return undefined;
-}
-
-/** The piece of an act written in one of the generator's shapes, by the slot of the shape; undefined when it fits none. */
-function shapeOf(grammar, act) {
-  for (const [kind, shape] of Object.entries(grammar.shapes)) {
-    const parts = shape.split(grammar.slot);
-    if (parts.length !== 2) continue;
-    const [before, after] = parts;
-    if (act.length > before.length + after.length && act.startsWith(before) && act.endsWith(after))
-      return { kind, piece: act.slice(before.length, act.length - after.length) };
-  }
-  return undefined;
 }
 
 /** A template of the ask table as literals, slots and optional groups (`[...]`). */
@@ -234,22 +206,10 @@ export function setOff(index, ask) {
       atoms: matched.kind === 'hypothetical' ? [] : matched.atoms.map((id) => ({ id, provoke: true })),
       named: [],
     };
-  const grammar = index.grammar?.frames ? index.grammar : undefined;
-  const isAct = (act) =>
-    index.declared.has(act) || (grammar !== undefined && shapeOf(grammar, act) !== undefined);
-  const framed = grammar === undefined ? undefined : frameOf(grammar, ask.trim(), isAct);
-  if (framed !== undefined && !framed.request) return { atoms: [], named: [] };
-  const act = framed === undefined ? ask : framed.act;
-  const declaredIds = index.declared.get(act);
+  const declaredIds = index.declared.get(ask);
   if (declaredIds !== undefined)
     return { atoms: declaredIds.map((id) => ({ id, provoke: true })), named: [] };
-  const shaped = grammar === undefined || framed === undefined ? undefined : shapeOf(grammar, act);
-  if (shaped === undefined) return { atoms: [], named: [] };
-  if (shaped.kind === 'skill' || shaped.kind === 'helper') {
-    const id = index.units.get(shaped.piece);
-    return { atoms: id === undefined ? [] : [{ id, provoke: false }], named: [] };
-  }
-  return { atoms: [], named: [{ kind: shaped.kind, piece: shaped.piece }] };
+  return { atoms: [], named: [] };
 }
 
 /**

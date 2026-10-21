@@ -49,44 +49,39 @@ function wholeText(text: string): string[] {
 }
 
 /**
- * The acts an atom declares in the map: `fields.ask` (a route's request cell, or a text with its context), its
- * trigger (`fields.trigger`), its quote (`provenance.quote`) and its situation, each whole, then each labelled
- * governed-action span of its quote. Empty when it declares none.
+ * The acts an atom gives, by what the map declares (lead ruling on gen.task): where the atom declares an act, its
+ * declared text only (`fields.ask`, a route's request cell or a rule's request with its context; `fields.trigger`,
+ * a gate's governed action; each labelled governed-action span of its quote), so an ask that drops it for other
+ * words of the atom sets the atom off nowhere. Where it declares none, the source text it is read from, whole: its
+ * situation (a unit's description, a rule's situation) and its quote. Empty when it has neither.
  */
 export function declaredActs(atom: MapAtom): Array<{ text: string; context?: string }> {
-  const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown };
+  const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown; trigger?: unknown };
   const acts: Array<{ text: string; context?: string }> = [];
+  const push = (text: unknown, context?: unknown) => {
+    if (typeof text !== 'string' || !hasWord(text) || acts.some((act) => act.text === text)) return;
+    acts.push(typeof context === 'string' && hasWord(context) ? { text, context } : { text });
+  };
   const ask = fields.ask;
-  if (typeof ask === 'string' && hasWord(ask)) acts.push({ text: ask });
+  if (typeof ask === 'string') push(ask);
   else if (ask !== null && typeof ask === 'object') {
     const { text, context } = ask as { text?: unknown; context?: unknown };
-    if (typeof text === 'string' && hasWord(text))
-      acts.push(typeof context === 'string' && hasWord(context) ? { text, context } : { text });
+    push(text, context);
   }
-  // The atom's verbatim source text, taken whole and never sliced (lead ruling): a gate's trigger, and the quote
-  // of its unit.
-  const trigger = (fields as { trigger?: unknown }).trigger;
-  if (typeof trigger === 'string' && hasWord(trigger) && !acts.some((act) => act.text === trigger))
-    acts.push({ text: trigger });
+  push(fields.trigger);
   const quote = atom.provenance?.quote;
-  if (typeof quote === 'string' && hasWord(quote) && !acts.some((act) => act.text === quote))
-    acts.push({ text: quote });
-  // A route's description or a rule's situation, whole (the generator asks from it).
-  const situation = atom.situation;
-  if (typeof situation === 'string')
-    for (const cut of wholeText(situation))
-      if (!acts.some((act) => act.text === cut)) acts.push({ text: cut });
   const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
     kind?: unknown;
     from?: unknown;
     to?: unknown;
   }>;
   if (typeof quote === 'string')
-    for (const span of spans) {
-      if (span.kind !== 'governed-action') continue;
-      const text = quote.slice(Number(span.from), Number(span.to));
-      if (hasWord(text) && !acts.some((act) => act.text === text)) acts.push({ text });
-    }
+    for (const span of spans)
+      if (span.kind === 'governed-action') push(quote.slice(Number(span.from), Number(span.to)));
+  if (acts.length > 0) return acts;
+  // No declared act: the ruled frame asks from the source text, whole.
+  if (typeof atom.situation === 'string') for (const text of wholeText(atom.situation)) push(text);
+  push(quote);
   return acts;
 }
 

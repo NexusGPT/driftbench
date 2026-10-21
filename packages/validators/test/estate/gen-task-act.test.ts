@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
@@ -187,5 +189,56 @@ describe('the generated grammar covers every ask of the real fixture suite', { t
     for (const one of unset) counts.set(one.ask, (counts.get(one.ask) ?? 0) + 1);
     const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 30);
     expect(top, `${unset.length} asks set nothing off`).toEqual([]);
+  });
+});
+
+describe('the fake reads no frames or shapes, and gen.task gets no easier', { timeout: 600_000 }, () => {
+  it('refuses a grammar that carries frames or shapes', async () => {
+    const fake = (await import(pathToFileURL(join(fixture.FIXTURE, 'live/fake/dispatch.mjs')).href)) as {
+      loadDispatch(env: Record<string, string>): unknown;
+    };
+    const folder = mkdtempSync(join(tmpdir(), 'fake-frames-'));
+    for (const [name, grammar] of [
+      ['frames.json', { frames: { please: { before: 'Please ', mid: '', after: '.', request: true } } }],
+      ['shapes.json', { shapes: { skill: 'the {} skill' }, slot: '{}' }],
+    ] as const) {
+      const path = join(folder, name);
+      writeFileSync(path, JSON.stringify(grammar));
+      const env = { FAKE_MAP: join(fixture.FIXTURE, 'approved.yaml'), FAKE_GRAMMAR: path };
+      expect(() => fake.loadDispatch(env), name).toThrow(/refuses/);
+    }
+  });
+
+  it('fails a planted product that drops a declared act for other words, or invents a verb', async () => {
+    const suite = await fixture.fixtureSuite();
+    const atoms = new Map(map.atoms.map((atom) => [atom.id, atom]));
+    type Meta = { ask?: string; askFrom?: string };
+    const actOf = (one: (typeof suite.specs)[number]) => {
+      const meta = (one.spec.metadata?.estate ?? {}) as Meta;
+      return meta.ask === 'code' ? atoms.get(String(meta.askFrom).split(' ')[0] ?? '') : undefined;
+    };
+    const target = suite.specs.find((one) => {
+      const atom = actOf(one);
+      const declared = (atom?.fields as { ask?: unknown } | undefined)?.ask !== undefined;
+      return one.complete && one.testType === 'obligation' && declared && !!atom?.situation;
+    });
+    if (!target) throw new Error('no complete obligation spec asked from a declared act');
+    const atom = actOf(target) as MapAtom;
+    const drops = `Please handle this for me: ${atom.situation}.`;
+    for (const planted of [drops, 'Please reconcile the ledger by hand.']) {
+      const copy = structuredClone(target);
+      (copy.spec.blocks[0] as { when: { user: string } }).when.user = planted;
+      const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue({
+        ...suite,
+        specs: suite.specs.map((one) => (one === target ? copy : one)),
+      });
+      try {
+        const out = (await taskFamily().evaluate(1)).get('gen.task.obligation');
+        expect(out?.pass, planted).toBe(false);
+        expect(out?.detail, planted).toContain(target.id);
+      } finally {
+        mock.mockRestore();
+      }
+    }
   });
 });
