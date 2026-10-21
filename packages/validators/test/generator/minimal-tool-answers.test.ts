@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData, sameTestKey, vectorOf } from '../../src/ladders/generator/bank';
 import { FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
+import type { HiddenSpec } from '../../src/ladders/generator/hidden';
 import { type BlockRun, type Generation, runAll } from '../../src/ladders/generator/measure';
 
 function required<T>(value: T | undefined): T {
@@ -37,7 +38,7 @@ describe('minimality groups blocks by the tool answers they run against', async 
     previous.expect = { ...previous.expect, stage: 'elsewhere' };
   });
   const classes = FAULT_CLASSES.filter((cls) => cls.id === 'X1.case');
-  const options = { faults: (spec: typeof cover.spec) => faultFamily(spec, classes), cheaters: [], k: 1 };
+  const options = { faults: (hidden: HiddenSpec) => faultFamily(hidden, classes), cheaters: [], k: 1 };
   const suite = async (complete: Generation['complete']) => {
     const mini: Generation = { ...generated, complete };
     const data = new SeedData(1, options, async () => ({}) as never);
