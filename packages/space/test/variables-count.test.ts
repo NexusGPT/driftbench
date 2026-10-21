@@ -390,15 +390,18 @@ describe('countVariableTuples: variables with no value that counts', () => {
         variable.approved = draw() > 0.25;
         for (const value of variable.values) if (draw() < 0.3) value.approved = draw() > 0.5;
       }
-      (store as unknown as { constraints: unknown }).constraints = Array.from({ length: Math.floor(draw() * 5) }, () => {
-        const a = Math.floor(draw() * 4);
-        const b = (a + 1 + Math.floor(draw() * 3)) % 4;
-        return {
-          forbid: { [`v${a}`]: `x${Math.floor(draw() * 2)}`, [`v${b}`]: `x${Math.floor(draw() * 2)}` },
-          reason: 'test',
-          approved: draw() > 0.2,
-        };
-      });
+      (store as unknown as { constraints: unknown }).constraints = Array.from(
+        { length: Math.floor(draw() * 5) },
+        () => {
+          const a = Math.floor(draw() * 4);
+          const b = (a + 1 + Math.floor(draw() * 3)) % 4;
+          return {
+            forbid: { [`v${a}`]: `x${Math.floor(draw() * 2)}`, [`v${b}`]: `x${Math.floor(draw() * 2)}` },
+            reason: 'test',
+            approved: draw() > 0.2,
+          };
+        },
+      );
       const counts = (variable: { approved: boolean; values: Array<{ id: string; approved?: boolean }> }) =>
         variable.values.filter((value) => value.approved ?? variable.approved);
       const live = (
