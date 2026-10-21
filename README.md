@@ -907,10 +907,19 @@ metadata:
 - Your real agent: the command `claude` (Claude Code, installed, and logged in so that `claude` works in your terminal). It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
 
   ```bash
-  driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --max-budget-usd 1 --store runs.db
+  driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:haiku --judge-budget 1 --max-budget-usd 1 --store runs.db
   ```
 
-  `--model claude-haiku-5-5` is the model your agent runs on, `--judge claude:haiku` is the model that reads the answers that code cannot check, and `--store runs.db` is the file where the run is kept. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state, and the example needs it only because its stand-in plays those.
+  `--model claude-haiku-5-5` is the model your agent runs on, `--judge claude:haiku` is the model that reads the answers that code cannot check, `--judge-budget 1` caps what the judge may spend in dollars (the command refuses to start without it), and `--store runs.db` is the file where the run is kept. This is the real output of that command, run once on the example agent (the folder `northwind` in place of `my-agent`). It is not run by the tests, because it is billed:
+
+  ```txt
+  note: the estate copy is not pinned to a map hash; pass --map to pin it
+  ✓ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0048 USD)
+      judged instruction.weekly-report.count-only-what-the-ledger-and: pass
+  1 spec run live: 1 pass, 0 fail. Cost 0.0048 USD over 1 run that report one, judge claude:haiku 0.0007 USD of it. Campaign estate-run-28387ff5fd82.
+  ```
+
+  The real agent passes where the stand-in failed. The run cost 0.0048 US dollars, of which 0.0007 was the judge. The `note` line is only a reminder that `--map` was left out. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state, and the example needs it only because its stand-in plays those.
 - A stand-in: a script that plays recorded answers. It calls no model and costs nothing. The example folder has one, and this walkthrough uses it.
 - Not a Claude Code agent: use the [quickstart](#quickstart), which connects a command, a function or an HTTP endpoint.
 
