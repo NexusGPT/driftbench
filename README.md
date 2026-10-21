@@ -195,14 +195,14 @@ The command reads an approved map of the situations of the Acme example agent an
 $ driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2   # exit 1
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     793       153           3
-boundary         85     183        13          72
-deviation       139     570       139           0
-metamorphic      42     192        42           0
+twise           156     792       153           3
+boundary         85     180        13          72
+deviation       137     527       137           0
+metamorphic      42     188        42           0
 task             67      71        67           0
-cover            11      50        11           0
+cover            12      53        12           0
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 711 files to generated.
+Wrote 708 files to generated.
 ```
 
 Each seeder writes a family of tests. The coverage line says every allowed pair of values is covered. Exit 1 means some map entries have no approved phrase yet; their tests wait in `generated/incomplete/`. [Full description](docs/generating.md).
@@ -705,7 +705,12 @@ $ cd walk
 
 ```console
 $ driftbench estate build northwind --out build --pointer --cassette northwind/cassette.jsonl --yes   # exit 1
-(pending)
+driftbench estate build northwind, into build
+1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
+3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+4. Approve the plan: approved all 1439 tests, as --yes says.
+5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
 ```
 
 **What it does.** It reads the files and lists everything they tell the agent to do or to use. Each item is an **atom**, with a quote of where it says so, and the list is the **map**. It then chooses the situations to test, which is the **plan**, and writes one test file for each. Everything goes into the folder `build`. The command exits 1 because some tests still wait for something, such as an answer to give. The output says how many.
@@ -713,7 +718,9 @@ $ driftbench estate build northwind --out build --pointer --cassette northwind/c
 **What you get.**
 
 ```text
-(pending)
+1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
 ```
 
 **Why it matters.** You get the tests without writing one, and a map of the atoms they are built from. Run the command again and it skips every step whose inputs did not change.
@@ -857,6 +864,8 @@ Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruct
 Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904 out. 17 of 918 cells.
   A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
 ```
+
+In this output, a *block* is one test message with its checks, and a *cell* is one test run once. *Mode F* means the agent runs the whole conversation on its own replies. The *manifest* is a short id of the change file.
 
 **Why it matters.** You rerun 17 of the 921 blocks, and the other 904 keep their last result. The next command, `campaign run --change change.yaml --from <campaign>`, does that. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the instruction.
 
