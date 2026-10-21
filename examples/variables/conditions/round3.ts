@@ -22,8 +22,6 @@ const CANDIDATE_PREDICATES: Record<string, string> = {
     'The total difference of an invoice is strictly greater than 50.00 EUR; numeric cutoff 50.00, currency EUR, comparison >',
   'approval/approval_unanswered':
     'The approver has provided no response at all; a conditional or negative response is still a response',
-  'approval/approval_given':
-    'The requested approval was explicitly granted; confirmation in writing by the named decision maker is an explicit yes',
 };
 
 const SOURCE_PASS =
@@ -33,7 +31,7 @@ const DESCRIPTION_PASS =
 const FAIL =
   'The text only names a related topic, a different actor or entity class, a different categorical state, an action or example, or an unstated prerequisite. A changed threshold, comparison strictness, unit or currency without an exact conversion, timing stage, or polarity is no. Unknown or unverified is not a negative fact. Implication and overlapping numeric ranges are insufficient. An unconditional action is not an explicit triggering condition.';
 const EXPLICIT_TRIGGER =
-  'Propose only an explicitly stated trigger, guard, or standalone condition description. An ordinary unconditional instruction about a subject is not a condition. Do not invent an existence prerequisite merely because an action refers to an entity. Preserve all qualifying facts of the stated condition. For domain membership, the entity or process named in a variable title is its subject. Workflow or interaction wording in that title is context, not a restriction on other properties, states, historical events or future stages of that SAME subject. This subject-domain interpretation takes precedence over a narrow reading of the activity wording. A related but distinct entity does not belong to that variable.';
+  'Propose only an explicitly stated trigger, guard, or standalone condition description. An ordinary unconditional instruction about a subject is not a condition. Do not invent an existence prerequisite merely because an action refers to an entity. Preserve all qualifying facts of the stated condition. For domain membership, the entity or process named in a variable title is its subject. Workflow or interaction wording in that title is context, not a restriction on other properties, states, historical events or future stages of that SAME subject. This subject-domain interpretation takes precedence over a narrow reading of the activity wording. For the listed invoice_work variable, the subject is the invoice itself, including its payment and settlement history; a trigger about that invoice state belongs in this domain. A related but distinct entity does not belong to that variable.';
 
 export const round3Options = {
   ...round2Options,

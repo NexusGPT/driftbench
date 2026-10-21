@@ -67,12 +67,12 @@ system-1 existing-value check before a new value enters the store. Every
 assignment retains its exact fictional quote. The binary threshold is 0.5,
 declared in round3.ts. Round-2 source/configuration remains unchanged.
 
-Five existing candidate IDs have equivalent explicit renderings: the two
-shipment-delay cutoffs in hours, the invoice-difference cutoff in EUR, explicit
-approval, and absence of response. The initial 15-value store, its IDs and its
+Four existing candidate IDs have equivalent explicit renderings: the two
+shipment-delay cutoffs in hours, the invoice-difference cutoff in EUR, and absence of response. The initial 15-value store, its IDs and its
 titles are unchanged. The question renderer looks up candidate IDs; system 1
 judges source semantics. Every other candidate, including newly proposed values,
-uses its title. The renderings distinguish a conditional response from no
+uses its title. Positive approval retains its original title. The proposer has an
+explicit invoice-subject domain including settlement history. The renderings distinguish a conditional response from no
 response and make cutoff parameters explicit rather than relying on implication.
 
 A small DEV-only pilot compared the provider's published pinned jev-1.14.0
@@ -88,6 +88,8 @@ Additional red-first runs: 39592549477 (numeric mismatch veto absent),
 contract cases. These targeted jobs are not full-train passes.
 Run 39597436527 additionally proves the recorded DEV cutoff and conditional
 response classes red while the aggregate 0.95 floor already passes.
+Run 39600398042 proves the stricter positive-approval wording and narrow invoice
+domain lose DEV recall before refinement.
 Run 39598826257 passes typecheck and all guard contracts with the clarified
 candidate renderings; its formatter patch is empty.
 
@@ -117,3 +119,16 @@ lists jev-1.13.0 at USD 0.042 per million input tokens, output free;
 lists claude-sonnet-5-5 at USD 2 per million input tokens and USD 10 per million
 output tokens (standard/global). Each returned usage receipt is charged at
 those prices in the shared ledger, including all prior rounds and DEV calls.
+
+## Selected DEV result
+
+The selected recording is 92/93 precision and 92/93 recall (0.989247),
+with one false-positive assignment and one missed condition: an existing helper
+failure state was re-proposed. The original seed remains unchanged. All
+extended DEV spans and the explicit approval, invoice-state, cutoff and
+conditional-response regressions pass. The reader is frozen at this point;
+frozen4 remains unopened.
+
+The live DEV run returned 3,255 responses between 12:35:01 and 12:41:56 UTC,
+costing USD 0.418084226. Total lane spend before frozen4 is
+USD 4.594155270 / USD 13, including every earlier round and exploratory pilot.
