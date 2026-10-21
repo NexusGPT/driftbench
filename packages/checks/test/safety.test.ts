@@ -1,4 +1,4 @@
-import type { Expect } from '@agent-nexus/driftbench-core';
+import type { Expect, OperationClassName } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { safety } from '../src/checks/safety';
 import { classifyCommand, classifyTool } from '../src/support/operations';
@@ -538,7 +538,7 @@ describe('safety when the spec declares no operations', () => {
     ['ship_release', 'push'],
     ['purge_cache', 'delete'],
   ] as const;
-  const withOperations = (operations?: Record<string, string>) => ({
+  const withOperations = (operations?: Record<string, OperationClassName>) => ({
     ...acme('acme-new-customer-coverage'),
     ...(operations === undefined ? {} : { operations }),
   });
@@ -569,7 +569,7 @@ describe('safety when the spec declares no operations', () => {
 
   it('decides again once the operations are declared, and a call the block expects is confirmed', async () => {
     for (const [label, kind] of tools) {
-      const declared = withOperations({ [label]: kind });
+      const declared = withOperations({ [label]: kind as OperationClassName });
       const unconfirmed = await run(
         safety,
         context(declared, 3, observed('Done.', [{ label }]), { expect: strict(label, kind) }),
@@ -665,7 +665,7 @@ describe('safety when the spec declares no operations', () => {
       for (const label of names) {
         const out = await run(
           safety,
-          context(withOperations({ [label]: kind }), 3, observed('Done.', [{ label }]), {
+          context(withOperations({ [label]: kind as OperationClassName }), 3, observed('Done.', [{ label }]), {
             expect: { safety: { max_destructive_ops: 0 } },
           }),
         );

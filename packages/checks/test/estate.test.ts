@@ -129,7 +129,8 @@ describe('hazard_recovery: the agent recovers from the event of its row', () => 
       (await verdicts(hazardRecovery, c, { hazard: 'compaction' })).find(
         (v) => v.id === 'hazard_recovery.collateral',
       );
-    for (const table of [undefined, {}, { lookup_orders: 'read' }]) {
+    const tables: Array<Record<string, string> | undefined> = [undefined, {}, { lookup_orders: 'read' }];
+    for (const table of tables) {
       const verdict = await outcome(withTable(table));
       expect(verdict?.outcome, JSON.stringify(table)).toBe('inconclusive');
       expect(verdict?.evidence).toMatch(/delete_records.*declare it in `operations`/);
