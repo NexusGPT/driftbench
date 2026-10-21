@@ -13,7 +13,7 @@ The existing `journal.jsonl`, `SWEEP-JOURNAL.md` and `GATE.md` preserve earlier 
 
 ## Measurement commands
 
-Heavy runs go on GitHub only. Set `ROOT` to the absolute repository worktree path selected by the lead, and use an independent `train/audit-generator-<seat>-<n>` branch containing the measured head. Every `gh` shell exports `PATH="/Users/assem/driftbench-lanes/gh-pace/bin:$PATH"`, `LANE=audit-generator-<seat>` and `GH_PACED_APP=1`.
+Heavy runs go on GitHub only. Set `ROOT` to the absolute repository worktree path selected by the lead, and use an independent `train/audit-generator-<seat>-<n>` branch containing the measured head. The lead supplies `GH_PACE_BIN` as the absolute path of the paced wrapper. Every `gh` shell exports `PATH="$GH_PACE_BIN:$PATH"`, `LANE=audit-generator-<seat>` and `GH_PACED_APP=1`.
 
 ```sh
 gh workflow run validators.yml --repo NexusGPT/driftbench --ref train/audit-generator-<seat>-<n> -f jobs=generator-measure-one
