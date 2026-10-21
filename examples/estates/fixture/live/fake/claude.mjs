@@ -265,6 +265,16 @@ print({
   subtype: planned?.error ? 'error_during_execution' : 'success',
   is_error: planned?.error !== undefined,
   result: planned?.error ?? lastText,
+  // An obligation the stand-in cannot resolve is no act of the agent: it ran no turn, and says why.
+  ...(planned?.error
+    ? {
+        not_run: {
+          check: 'skill obligation',
+          expected: 'an order of the skill actions the stand-in can resolve',
+          got: planned.error,
+        },
+      }
+    : {}),
   num_turns: turns,
   duration_ms: 10 * tick,
   session_id: sessionId,

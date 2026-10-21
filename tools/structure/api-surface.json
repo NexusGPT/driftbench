@@ -720,6 +720,7 @@
       "TranscriptComparison": "type",
       "TransportErrorOptions": "type",
       "Turn": "type",
+      "TurnNotRun": "value",
       "UNIT_SELECTION_ADVISORY": "value",
       "USES_FILE": "value",
       "USES_KINDS": "value",

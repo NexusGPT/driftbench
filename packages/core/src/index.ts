@@ -32,6 +32,7 @@ export {
   type ToolRule,
   type TransportErrorOptions,
   type Turn,
+  TurnNotRun,
   type UserDriver,
   type WorkspaceSnapshot,
 } from './contracts';
