@@ -32,6 +32,7 @@ import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbe
 import type { Command } from 'commander';
 import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
+import { registerEstateBuildCommand } from './estate-build';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
@@ -169,6 +170,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
       setExit(await estateMapCommand(path, options, io));
     });
 
+  registerEstateBuildCommand(estate, io, setExit);
   registerEstatePlanCommands(estate, io, setExit);
   registerEstateMaintainCommands(estate, io, setExit);
   registerEstateGenerateCommand(estate, io, setExit);

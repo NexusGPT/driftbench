@@ -210,3 +210,35 @@ export function krippendorffAlpha(
   const alpha = expected === 0 ? 1 : 1 - observed / expected;
   return { alpha, observed, expected, pairable: n };
 }
+
+/**
+ * Gwet's AC1 between two raters over the same subjects. po is the share of subjects with equal labels;
+ * pi_c is the share of the 2n labels that equal c; the chance agreement is
+ * pe = sum(pi_c (1 - pi_c)) / (q - 1) over the q distinct labels, and the result is (po - pe) / (1 - pe).
+ * One distinct label gives 1.
+ */
+export function gwetAc1(a: readonly number[], b: readonly number[]): number {
+  assertSameLength(a, b, 'gwetAc1', ["'a'", "'b'"]);
+  const n = a.length;
+  if (n === 0) throw new RangeError("gwetAc1: 'a' and 'b' must not be empty");
+  const counts = new Map<number, number>();
+  let agree = 0;
+  for (let i = 0; i < n; i += 1) {
+    const x = a[i] as number;
+    const y = b[i] as number;
+    if (!Number.isSafeInteger(x)) throw new RangeError(`gwetAc1: a[${i}] must be an integer label, got ${x}`);
+    if (!Number.isSafeInteger(y)) throw new RangeError(`gwetAc1: b[${i}] must be an integer label, got ${y}`);
+    if (x === y) agree += 1;
+    counts.set(x, (counts.get(x) ?? 0) + 1);
+    counts.set(y, (counts.get(y) ?? 0) + 1);
+  }
+  const q = counts.size;
+  if (q === 1) return 1;
+  let spread = 0;
+  for (const count of counts.values()) {
+    const share = count / (2 * n);
+    spread += share * (1 - share);
+  }
+  const pe = spread / (q - 1);
+  return (agree / n - pe) / (1 - pe);
+}

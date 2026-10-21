@@ -1,16 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { wilson, Z95 } from '../src/index';
 
-// A count above about 1.3e154 squared to infinity in the half-width, which became 0 while the centre stayed above 0:
+// A count above about 6.7e153 squared to infinity in the half-width, which became 0 while the centre stayed above 0:
 // the interval then excluded its own estimate. These totals are finite, exactly represented integers.
-const TOTALS = [2 ** 512, 2 ** 600, 2 ** 900];
+// 4 * n * n is infinite from about 6.7e153, while n * n stays finite up to about 1.3e154: the two totals below sit between.
+const TOTALS = [7e153, 1e154, 2 ** 512, 2 ** 600, 2 ** 900];
 const Z2 = Z95 * Z95;
 
 describe('wilson at counts too large to square', () => {
   it.each(TOTALS)('holds zero successes of %e trials from 0 to z^2 / (n + z^2)', (n) => {
     const { estimate, lower, upper } = wilson(0, n);
     expect(estimate).toBe(0);
-    expect(lower).toBe(0);
+    // Where the square is finite the two near-equal terms of the lower bound can differ by rounding, a billionth of
+    // the width at most; from 2^512 the scaled form gives exactly 0.
+    expect(lower).toBeGreaterThanOrEqual(0);
+    expect(lower).toBeLessThanOrEqual(Z2 / n / 1e12);
     expect(upper / (Z2 / n)).toBeCloseTo(1, 12);
   });
 
