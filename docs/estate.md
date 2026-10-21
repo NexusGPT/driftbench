@@ -133,7 +133,7 @@ Wrote _captures/docs3/estate/map.yaml: 116 atoms (47 read by code and approved, 
     hazard         1  (1 by the model)
     invariant      4
   Prose: 11 chunks, 6412 characters (standing 1, memory 2, skill bodies 4, skill files 1, helper bodies 3).
-  Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
+  Pointer reader: system 1 <choice labeler> then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
   Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
   Requests: 91 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 136.
@@ -1313,7 +1313,7 @@ driftbench estate diff map.yaml map-v2.yaml --old-ledger pointer-ledger.v1.json 
 | deleted | the unit |
 | new | the old units of its section; in a file the ledger did not hold, the whole suite |
 
-A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only.
+A unit with atoms on it becomes a `prompt` change per atom, so the tests that name the atom rerun. A unit with no atom becomes a `unit` change. `estate impact` regenerates the tests of a changed atom under its old id, even when its new text gave it a new id. It lists the tests to rerun as they are, because a new unit landed beside their atom, and the tests that are advisory only. A changed unit on which the old map holds no atom (the labelers left it unlabeled) is listed as changed, unlabeled: no test names it, so none is regenerated; the live tests that cite an atom of its file are listed as touched, and a person reviews it.
 
 A `unit` change keeps the radius the whole suite. The H7 study of [blast radius](concepts/blast-radius.md#advisory-section-selection) was repeated with block links to units: they missed a flipped block on 2 of 90 mutants and on 4 of 110, the same mutants as section links, with Wilson 95% upper bounds of 7.7% and 9.0%. That is above the 5% the selection needs to become a filter. `packages/estate/test/pointer/h7-ledger.test.ts` reruns the study.
 

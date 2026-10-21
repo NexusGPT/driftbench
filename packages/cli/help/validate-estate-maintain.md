@@ -53,9 +53,11 @@ wrong, or a person decides; every demotion needs a person.
 * new: added atoms no live test names;
 * needs a person: what the tool cannot decide.
 
-When the diff read the ledgers, impact adds two lists. Rerun: a test that names an atom on a unit that
+When the diff read the ledgers, impact adds up to three lists. Rerun: a test that names an atom on a unit that
 reruns (a new unit landed in its section) and is not regenerated or retired; it reruns as it is. Advisory:
-a test that names an atom on an advisory unit; it is listed and nothing reruns.
+a test that names an atom on an advisory unit; it is listed and nothing reruns. Changed, unlabeled: a unit that
+changed and on which the old map holds no atom; no test names it, so none is regenerated, the live tests that
+cite an atom of its file are listed as touched, and a person reviews it.
 
 With `--replay <sessions>`, impact also replays the suite over a folder of recorded sessions and compares each
 spec on each session with the previous replay kept in `--store`: pass to pass, fail to pass, pass to fail (a
