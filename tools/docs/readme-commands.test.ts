@@ -207,8 +207,11 @@ describe('README commands that print what they show', () => {
           }
           const started = Date.now();
           const got = await execute(step.command, cwd);
-          console.log(`WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).join('\n')}\nWALKEND`);
-          problems.push(await report(step.command, step, cwd));
+          console.log(
+            `WALK ${Date.now() - started} ms exit ${got.code} $ ${step.command}\n${got.lines.slice(0, 400).join('\n')}\nWALKEND`,
+          );
+          const found = mismatch(step, got);
+          if (found.length > 0) problems.push(`$ ${step.command}\n${found.join('\n')}\n`);
         }
       }
       expect(problems.filter((problem) => problem !== '').join('\n')).toBe('');
