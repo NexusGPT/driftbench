@@ -590,3 +590,15 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
     expect(calls).toHaveLength(2);
   });
 });
+
+describe('default-on-v8: the settings hash', () => {
+  it('is the same with the fields at their defaults, and changes when one is switched on', () => {
+    const plain = mock([]).judge.settings;
+    expect(mock([], { conversationTurns: false, lengthPreference: false }).judge.settings).toBe(plain);
+    expect(mock([], { conversationTurns: true }).judge.settings).not.toBe(plain);
+    expect(mock([], { lengthPreference: true }).judge.settings).not.toBe(plain);
+    expect(mock([], { lengthPreference: true }).judge.settings).not.toBe(
+      mock([], { conversationTurns: true }).judge.settings,
+    );
+  });
+});

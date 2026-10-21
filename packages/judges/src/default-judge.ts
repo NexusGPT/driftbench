@@ -36,6 +36,27 @@ export const DEFAULT_JUDGE_POLICY = Object.freeze({
   conversationTurns: false,
 } as const);
 
+type Policy = Omit<typeof DEFAULT_JUDGE_POLICY, 'lengthPreference' | 'conversationTurns'> & {
+  readonly lengthPreference: boolean;
+  readonly conversationTurns: boolean;
+};
+
+/**
+ * What the client settings hash covers. The fields v8 adds change behaviour only while they are on, so while both
+ * are off the hash equals the one default-on-v7 had and every recording made under v7 stays valid; switching one
+ * on adds it to the hash and gives another key. The policy version label is a name, not a setting.
+ */
+function identityOf(policy: Policy) {
+  const { version: _name, conversationTurns, lengthPreference, ...v7 } = policy;
+  return {
+    version: 'default-on-v7',
+    ...v7,
+    lengthPreference: false,
+    ...(lengthPreference ? { lengthPreference: true } : {}),
+    ...(conversationTurns ? { conversationTurns: true } : {}),
+  };
+}
+
 /** The policy fields a measurement may switch. A shipped client never sets them: the frozen policy applies. */
 export type PolicyOverride = { readonly lengthPreference?: boolean; readonly conversationTurns?: boolean };
 
@@ -80,7 +101,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
       !(options.maxBudgetUsd && options.maxBudgetUsd > 0 && Number.isFinite(options.maxBudgetUsd)))
   )
     throw new RangeError('spendCapUsd requires a finite positive cap and maxBudgetUsd per-call reservation');
-  const policy = { ...DEFAULT_JUDGE_POLICY, ...options.policyOverride };
+  const policy: Policy = { ...DEFAULT_JUDGE_POLICY, ...options.policyOverride };
   const account = options.spendLedger ?? { spentUsd: 0, reservedUsd: 0, costIncomplete: false };
   const modelVariable = {
     openai: 'OPENAI_JUDGE_MODEL',
@@ -99,7 +120,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
     ...(transport.reasoning === undefined ? {} : { reasoning: transport.reasoning }),
     dialect: transport.dialect,
     settings: contentHash({
-      policy,
+      policy: identityOf(policy),
       router: ROUTER,
       transport: transport.fingerprint,
       ...(options.maxTokens === undefined ? {} : { maxTokens: options.maxTokens }),
