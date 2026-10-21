@@ -16,7 +16,10 @@ it('checks the invoice skill and matching rules at the clarification block where
   const file = new URL('../../../examples/northwind-campaign/specs/invoice-over.yaml', import.meta.url);
   const spec = parse(await readFile(file, 'utf8'));
   expect(spec.blocks[0].expect.skills).toContainEqual({ name: 'invoice-reconcile', count: { min: 1 } });
-  expect(spec.blocks[0].expect.references).toContainEqual({ path: '**/matching-rules.md', count: { min: 1 } });
+  expect(spec.blocks[0].expect.references).toContainEqual({
+    path: '**/matching-rules.md',
+    count: { min: 1 },
+  });
   expect(spec.blocks[1].expect.execution).toEqual({ ran_code: true });
   expect(spec.blocks[1].expect.subagents).toContainEqual({ name: 'ledger-auditor', count: { min: 1 } });
   expect(spec.blocks[1].expect.regex).toContain('60\\.00 EUR');
