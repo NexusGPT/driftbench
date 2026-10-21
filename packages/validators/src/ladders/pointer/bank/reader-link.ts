@@ -329,7 +329,8 @@ export class HostPool {
       if (fresh)
         this.failure = {
           name: 'ReaderNotReachable',
-          message: new ReaderNotReachable('the process of the reader stops answering once it is called').message,
+          message: new ReaderNotReachable('the process of the reader stops answering once it is called')
+            .message,
         };
     }
     return unreachable(
