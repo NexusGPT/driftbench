@@ -81,6 +81,8 @@ export type EstateRun = {
   scanned: Scanned;
   lint: LintResult;
   plan: PlanResult;
+  /** A plan built over a declared relevance space, handed in by a test of plan.relevance; absent in a real run. */
+  relevancePlan?: PlanResult;
   situations: HiddenSituation[];
   bank: PhraseBank;
   sessions: SessionIndex;
