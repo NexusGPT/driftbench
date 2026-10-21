@@ -654,10 +654,13 @@ describe('terminal subsumption keeps what only the cut block checks or says', ()
     const minimal = new TerminalSubsumption(prepared, run, 2);
     const written = plain('written');
     const gated = plain('gated');
-    gated.criteria = [{ name: 'signed-total', rubric: 'The reply states the signed total.' }];
+    gated.criteria = [
+      ...gated.criteria,
+      { name: 'signed-total', rubric: 'The reply states the signed total.' },
+    ];
     const last = gated.blocks.at(-1);
     if (!last) throw new Error('the walk has no block');
-    last.criteria = ['signed-total@gating'];
+    last.criteria = [...(last.criteria ?? []), 'signed-total@gating'];
     const length = gated.blocks.length;
     minimal.reduce(written);
     minimal.reduce(gated);
