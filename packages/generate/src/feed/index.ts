@@ -67,3 +67,11 @@ export {
   type ReaderQuestion,
   type YesNoQuestion,
 } from './reader';
+export {
+  type SourceRefusal,
+  type SpanLabel,
+  type VariableSources,
+  type VariablesFromSources,
+  type VariablesFromSourcesOptions,
+  variablesFromSources,
+} from './sources';
