@@ -102,11 +102,10 @@ describe('the reference reading of section 5', () => {
       'Please sorts the inbox.',
       'Please sorted the inbox.',
       'Please sort the mail.',
-      // The gerund act takes a gerund that stands in an atom, of two words at least, and nothing else.
+      // The frame takes the row's own words and nothing else: a wrong span and a paraphrase fail.
       'Please go ahead with approving a prescription.',
-      'Please go ahead with sort the inbox every morning.',
-      'Please go ahead with approving.',
-      'Please go ahead with refill.',
+      'Please go ahead with approval of a refill.',
+      'Please go ahead with approving the refill.',
       'Please edit the file here.',
       'Please sort.',
       'Please please.',
@@ -116,6 +115,15 @@ describe('the reference reading of section 5', () => {
       '',
     ])
       expect(readsAsCodeAsk(ask, texts), ask).toBe(false);
+  });
+
+  it('takes the span of "go ahead with" from the atoms of the row only, never from another atom', () => {
+    const other = atomTexts([
+      { title: 'Close the berth log', fields: { note: 'Closing the berth log at noon.' } },
+    ]);
+    const ask = 'Please go ahead with closing the berth log.';
+    expect(readsAsCodeAsk(ask, texts), 'a span of an atom outside the row').toBe(false);
+    expect(readsAsCodeAsk(ask, [...texts, ...other]), 'the same span once its atom is in the row').toBe(true);
   });
 });
 

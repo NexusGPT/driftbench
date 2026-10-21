@@ -5,9 +5,10 @@ import templates from './ask-templates.json';
  * apart from the product: `gen.asks` must never judge `codeAsk` with `codeAsk`, since a product that changes every
  * code-written ask would then be its own witness. An ask passes only when it equals one `ask` template of
  * `ask-templates.json`, with each slot filled from the atoms of the row: an `act` is one of the `act` templates,
- * a `situation` one of the `situation` templates, a `gerund` a span of two words or more whose first word ends in
- * `ing`, and a `span` is a run of whole words that stands in the text of an atom, compared after markup, case and
- * trailing punctuation are set aside. No stem, no synonym, no word list.
+ * a `situation` one of the `situation` templates, and a `span` is a run of whole words that stands in the text of
+ * an atom, compared after markup, case and trailing punctuation are set aside. No stem, no synonym, no word list.
+ * No word form is read either: a `go ahead with {span}` act is the frame and a span of the row's atoms, nothing
+ * about the span's first word.
  * A test fails when the file differs from the table of the document.
  */
 
@@ -139,19 +140,12 @@ export function readsAsCodeAsk(ask: string, texts: readonly string[]): boolean {
     templatesOf.some((parts) => {
       const only = parts.length === 1 && 'slot' in (parts[0] as Part);
       return matches(parts, value, (slot, inner) => {
-        if (slot === 'gerund') return gerund(inner);
         if (slot !== 'span') return false;
         if (only && normal(inner).split(' ').length < bare) return false;
         return span(inner);
       });
     });
-  // A `{gerund}` is a span of two words at least whose first word ends in `ing` (the shape, not a word list).
-  const gerund = (value: string): boolean => {
-    const words = normal(value).split(' ');
-    return words.length >= 2 && /^\p{L}{2,}ing$/u.test(words[0] ?? '') && span(value);
-  };
   const accept = (slot: string, value: string): boolean => {
-    if (slot === 'gerund') return gerund(value);
     if (slot === 'act') return memo(`act:${value}`, () => filled(ACTS, value, 3));
     if (slot === 'situation') return memo(`situation:${value}`, () => filled(SITUATIONS, value, 1));
     return slot === 'span' && span(value);

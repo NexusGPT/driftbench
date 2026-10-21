@@ -77,7 +77,7 @@
   },
   {
     "kind": "act",
-    "template": "go ahead with {gerund}"
+    "template": "go ahead with {span}"
   },
   {
     "kind": "act",
