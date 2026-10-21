@@ -175,7 +175,7 @@ jobs:
     permissions:
       contents: read
       statuses: write
-    needs: [bench, research-replay, prepare, checks, build, python, comparison-replay, viewer-journey, guard, timing]
+    needs: [bench, research-replay, prepare, checks, build, emission-manifest, python, comparison-replay, viewer-journey, guard, timing]
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
@@ -212,7 +212,7 @@ jobs:
             fi
             # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
             for id in ${jobs_lc//,/ }; do
-              case ",bench,research-replay,prepare,checks,build,python,comparison-replay,viewer-journey,guard,timing,fast," in
+              case ",bench,research-replay,prepare,checks,build,emission-manifest,python,comparison-replay,viewer-journey,guard,timing,fast," in
                 *",$id,"*) ;;
                 *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
               esac
@@ -402,6 +402,49 @@ jobs:
         with:
           name: build-node${{ matrix.node }}
       - run: node tools/ci/run-shard.mjs --plan shard-plan.json --index ${{ matrix.shard }}
+      # The shard that ran an emission-mutations seed test holds that seed's part; `emission-manifest` pools them.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emission-part-node${{ matrix.node }}-shard${{ matrix.shard }}
+          path: validators/estate/emission-mutation-parts
+          if-no-files-found: ignore
+          retention-days: 1
+
+  # The pooled expectations of the emission mutation enumeration run on the rows of all four pinned seeds, which the
+  # shards ran as four tests in four files. This job downloads the parts, composes the manifest and asserts on the
+  # pooled rows. A missing part fails it, and train gate needs it.
+  emission-manifest:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
+    name: emission manifest (node ${{ matrix.node }})
+    needs: build
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: emission-part-node${{ matrix.node }}-shard*
+          path: validators/estate/emission-mutation-parts
+          merge-multiple: true
+      - run: pnpm exec vitest run packages/validators/test/estate/emission-mutations-manifest.test.ts
+        env:
+          EMISSION_AGGREGATE: '1'
 
   timing:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',timing,'))
