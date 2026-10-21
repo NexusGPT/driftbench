@@ -991,7 +991,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
           ? Object.entries(value).some(([k, v]) => lone.test(k) || holdsLone(v))
           : false;
 
-  const text = 'Escalate when the delay is above 2 days. Ready.';
+  const text = 'Escalate when the delay is above 2 days. Escalate when the tier is gold or silver. Ready.';
   const valid = (): VariableSources =>
     ({
       estate: {
@@ -1006,7 +1006,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
                 label: { kind: 'numeric', subject: 'delay', limit: 2, comparison: 'gt', unit: 'days' },
               },
               {
-                text: 'Escalate when the delay is above 2 days.',
+                text: 'Escalate when the tier is gold or silver.',
                 label: { kind: 'member', subject: 'tier', members: ['gold', 'silver'] },
               },
             ],
