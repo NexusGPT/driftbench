@@ -161,7 +161,8 @@ export class TerminalSubsumption {
         }),
       };
     }
-    if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
+    // A metamorphic family keeps its variants aligned block by block: its members are never cut from the middle.
+    if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
       spec = this.dropMiddle(draft, spec);
     }
     if (family?.variant === 1) {
