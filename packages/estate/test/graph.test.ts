@@ -63,6 +63,29 @@ describe('what a guard enforces', () => {
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
 
+  it("by a message that repeats the rule's words when the rule's quote opens with its label", async () => {
+    // A pointer atom quotes its whole unit, label included; the guard repeats the words after the label.
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** Never touch the vault folder at all.\n- **R2.** Always log the run.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "denied: Never touch the vault folder at all." >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'No vault',
+          quote: '**R1.** Never touch the vault folder at all.',
+          evidence: [{ type: 'custom', name: 'v' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
+  });
+
   it('by a rule id the guard source cites in the R#n form, against rules labelled R#n', async () => {
     const root = await estate({
       'CLAUDE.md':
