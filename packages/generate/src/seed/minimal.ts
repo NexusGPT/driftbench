@@ -164,6 +164,8 @@ export class TerminalSubsumption {
     // A metamorphic family keeps its variants aligned block by block: its members are never cut from the middle.
     if (family === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
       spec = this.dropMiddle(draft, spec);
+      // The record of the cut end names the length the walk is written with, middle cuts included.
+      if (draft.reducedEnds) draft.reducedEnds.to_blocks = spec.blocks.length;
     }
     if (family?.variant === 1) {
       this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });

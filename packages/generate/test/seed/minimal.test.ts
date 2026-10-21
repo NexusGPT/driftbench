@@ -779,4 +779,34 @@ describe('terminal subsumption and a stay in the middle of a walk', () => {
     minimal.reduce(again);
     expect(again.blocks).toHaveLength(length);
   });
+
+  it('records the length the walk is written with when it is cut at the end and in the middle', () => {
+    const long = desk([
+      {
+        id: 'parcel',
+        stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+        classes: ['D5_language_switch'],
+      },
+    ]);
+    const longPath = long.relations.paths[0];
+    if (!longPath) throw new Error('missing parcel path');
+    const plainLong = (id: string) => {
+      const draft = walk(long, id, longPath);
+      draft.perturbations = undefined;
+      return draft;
+    };
+    const minimal = new TerminalSubsumption(long, run, 2);
+    const written = stayAt(plainLong('written'), 1);
+    // The end of this walk is said by the first one, its fourth block is not, and its second block is a stay.
+    const again = stayAt(plainLong('again'), 1);
+    const fourth = required(again.blocks[3]);
+    fourth.must_not = [...(fourth.must_not ?? []), 'a parcel weighing'];
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.reducedMiddle).toHaveLength(1);
+    expect(again.reducedEnds).toBeDefined();
+    expect(again.blocks).toHaveLength(length - 2);
+    expect(again.reducedEnds?.to_blocks).toBe(again.blocks.length);
+  });
 });
