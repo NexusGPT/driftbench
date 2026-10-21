@@ -215,8 +215,8 @@ describe('minimality protects the first holder of each declared obligation, once
       generated.complete.find(({ spec }) => spec.blocks.some((block) => 'injection' in (block.when ?? {}))),
     );
     const relabelled = copyOf(source, 'inject-relabelled', (spec) => {
-      const blocks = (spec.metadata?.generated as { blocks?: Array<{ cell?: Record<string, string> }> })
-        .blocks;
+      const meta = required(spec.metadata?.generated) as { blocks?: Array<{ cell?: Record<string, string> }> };
+      const blocks = meta.blocks;
       for (const entry of blocks ?? []) if (entry.cell) entry.cell.deviation = 'D0_relabelled';
     });
     const [group] = await unprotectedOf(
