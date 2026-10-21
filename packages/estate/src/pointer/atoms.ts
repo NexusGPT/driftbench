@@ -281,6 +281,16 @@ export function pointerAtoms(
       codes: () =>
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
+    if (label?.paths) {
+      const own = new Set(namedPaths(item.unit.text)).size;
+      const { min = 0, max = Number.POSITIVE_INFINITY } = label.paths;
+      if (own < min || own > max) {
+        refusals.push(
+          `${where}: the unit names ${own} files and the label ${item.label} takes ${min} to ${max}`,
+        );
+        continue;
+      }
+    }
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
       const paths =
