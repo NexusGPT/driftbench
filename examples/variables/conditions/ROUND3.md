@@ -67,10 +67,29 @@ system-1 existing-value check before a new value enters the store. Every
 assignment retains its exact fictional quote. The binary threshold is 0.5,
 declared in round3.ts. Round-2 source/configuration remains unchanged.
 
+Five existing candidate IDs have equivalent explicit renderings: the two
+shipment-delay cutoffs in hours, the invoice-difference cutoff in EUR, explicit
+approval, and absence of response. The initial 15-value store, its IDs and its
+titles are unchanged. The question renderer looks up candidate IDs; system 1
+judges source semantics. Every other candidate, including newly proposed values,
+uses its title. The renderings distinguish a conditional response from no
+response and make cutoff parameters explicit rather than relying on implication.
+
+A small DEV-only pilot compared the provider's published pinned jev-1.14.0
+and the native question path. Neither resolved the numeric implication error
+with the original candidate wording. Explicit candidate renderings resolved the
+pilot cases on both versions. The final profile retains jev-1.13.0 and the
+repository judge path; title equivalence also retains its frozen jev-1.13.0
+criterion. All exploratory usage is included in the same USD 13 ledger.
+
 Additional red-first runs: 39592549477 (numeric mismatch veto absent),
 39595406106 (positive numeric equality guard absent), and 39594624977
 (frozen4 recording absent). Run 39595769239 passed typecheck and all four guard
 contract cases. These targeted jobs are not full-train passes.
+Run 39597436527 additionally proves the recorded DEV cutoff and conditional
+response classes red while the aggregate 0.95 floor already passes.
+Run 39598826257 passes typecheck and all guard contracts with the clarified
+candidate renderings; its formatter patch is empty.
 
 ## Frozen4 protocol
 

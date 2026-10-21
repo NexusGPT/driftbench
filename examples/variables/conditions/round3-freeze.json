@@ -1,8 +1,8 @@
 {
   "clausesHash": "6d73fc5aa25c08ca2ed1964ff9ca2278458aeb4294ab478bf8211a6b245de94c",
   "answersHash": "00cfbc15a9ba1b400757347da22ec0368f28c4d351efe16116f081c1b883a8e4",
-  "readerHash": "99ef73fa984f956b583a5a58ffdb80820021c883e03d4d6094befa45de27a56c",
-  "pipelineHash": "77d5b7f1ce7dd90fd3109f96c02928a12e2421ac462ca5bc4649ad220602a3e4",
+  "readerHash": "ff3425679757c93b38d043b25180596f8e8e7eb87b7b0981e0ccf4c705678f7c",
+  "pipelineHash": "24191341b85106183c5757cb28acd7af9ca2231c31d5c309e507c675f02ea88c",
   "models": {
     "reader": "jev-1.13.0",
     "proposer": "claude-sonnet-5-5",
@@ -13,10 +13,10 @@
   "files": {
     "examples/variables/conditions/lib.ts": "647bd4eebdfa89a765a29f6d04cf0ad7c32106d932b1331db254db6e9991b8ff",
     "examples/variables/conditions/primary-score.ts": "9ca10672578542b393169cef8479d1979ed2d028be5d8c50a5c010ae75d9c8d2",
-    "examples/variables/conditions/record-frozen4.ts": "a11fcbd2dbcbf72e2a66d3905e27d9c104757dd05598fc49c85dc7c14ae762b2",
+    "examples/variables/conditions/record-frozen4.ts": "3cc3ae427abe272bfb21e8335edcef78f64bd5b3c4d546598e21971d22c8458d",
     "examples/variables/conditions/round2-live.ts": "5b0fed101319bb8c7b98f1bff5cee690f8f4ec5e807b03feb0c8ecc1c730da85",
     "examples/variables/conditions/round2.ts": "da8aa3748af9ca2d5db7a88a7e3852fb9ddaf33de739d641902fe76afc5c8cc4",
-    "examples/variables/conditions/round3.ts": "99ef73fa984f956b583a5a58ffdb80820021c883e03d4d6094befa45de27a56c",
+    "examples/variables/conditions/round3.ts": "ff3425679757c93b38d043b25180596f8e8e7eb87b7b0981e0ccf4c705678f7c",
     "examples/variables/conditions/score-frozen.ts": "a8d435748386932fb5935e7da5f075e8b02e5eff6546e82a57c2201b79236ba4",
     "examples/variables/conditions/secondary-score.ts": "2306ea56611fcc360773b547af7eed19b25f705ff86ffdf6ed8138f316a3ed7e",
     "examples/variables/conditions/store.yaml": "18bfb6dcbc4aaa1ba218fab5f0a0b53973375717430d650acab769c74cb70d3d",
@@ -62,6 +62,12 @@
     "checkProposals": "match",
     "maxRetries": 0,
     "maxTokens": 2000,
-    "positiveCandidateChecks": ["actor_polarity_knowledge_mismatch", "numeric_parameter_equality"]
-  }
+    "positiveCandidateChecks": [
+      "actor_polarity_knowledge_mismatch",
+      "numeric_parameter_equality"
+    ]
+  },
+  "initialKnownVariables": 7,
+  "initialKnownValues": 15,
+  "candidateRendering": "Five existing candidate IDs have explicit equivalent renderings: three numeric cutoffs in canonical units, explicit approval, and absence of response. The initial store, IDs and titles are unchanged. Other candidates use their titles."
 }

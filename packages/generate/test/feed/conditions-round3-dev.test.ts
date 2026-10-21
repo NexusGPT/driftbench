@@ -25,6 +25,16 @@ type Batch = {
 };
 
 describe('round-3 DEV classes: permissive yes and existing-or-new decisions', () => {
+  it('retains explicit approval instances and new states of the invoice subject', () => {
+    const evidence = JSON.parse(readFileSync(join(dir, 'round3-dev-selected.json'), 'utf8')) as { batches: Batch[] };
+    const outcomes = evidence.batches.find((b) => b.file === 'dev-clauses.json')?.report.outcomes;
+    for (const span of ['c-002', 'c-010', 'c-054', 'c-057']) {
+      expect.soft(outcomes?.find((o) => o.span === span)?.values).toContain('approval/approval_given');
+    }
+    const invoice = outcomes?.find((o) => o.span === 'c-008');
+    expect.soft(invoice?.status).toBe('proposed');
+    expect.soft(invoice?.values.every((v) => v.startsWith('invoice_work/'))).toBe(true);
+  });
   it('keeps distinct numeric cutoffs and a conditional response separate from no response', () => {
     const evidence = JSON.parse(readFileSync(join(dir, 'round3-dev-selected.json'), 'utf8')) as {
       batches: Batch[];

@@ -66,6 +66,7 @@ if (
   !registration.body.includes(freeze.answersHash) ||
   !registration.body.includes(freeze.readerHash) ||
   !registration.body.includes(freeze.pipelineHash) ||
+  !registration.body.includes(hash(freezeBytes)) ||
   !registration.body.includes(freeze.primaryRule) ||
   !registration.body.includes(freeze.secondaryRule)
 ) {
