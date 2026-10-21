@@ -741,8 +741,15 @@ $ cd walk
 **Relevant commands.**
 
 - `estate build`: reads your agent's files, lists what they tell the agent to do, plans the tests and writes them, and asks you twice before it goes on · `northwind` is your agent's folder; `--out build` is the folder where every file goes; `--pointer` gives each sentence of your prompt an id that survives edits, which step 4 needs; `--cassette northwind/cassette.jsonl` replays recorded answers of the models that label the sentences, so no model is called (for your own agent, leave it out and set the key of a model, or add `--record` to keep the answers); `--yes` answers yes to both questions · it writes the map `build/map.yaml`, the approved map `build/approved.yaml`, the plan `build/plan.yaml` and the tests in `build/generated`.
-- What `estate build` runs for you, in order: `estate scan` reads the files into a **map**, which is a list of **atoms** (each atom is one thing the files tell the agent to do or to use, with a quote of where it says so); `estate approve` is the first question; `estate map` and `estate plan` choose the situations to test, which is the **plan**; `estate plan approve` is the second question; `estate generate` writes one test file per planned test.
-- The two questions are approvals. The first asks you to approve the atoms that a model split out of your prose. If you say no, nothing is approved and the command stops, with the files so far kept. The second asks you to approve the planned tests. If you say no, no test is written and the command stops.
+
+  What `estate build` runs for you, in this order:
+
+  - `estate scan northwind --out build/map.yaml --pointer --cassette ...`: reads your files into a **map**, a list of **atoms** · the folder, `--pointer` and `--cassette` as above; an atom is one thing the files tell the agent to do or to use, with a quote of where it says so · it produces `build/map.yaml` and `build/ledger.json`, the ids of your sentences.
+  - `estate approve build/map.yaml --all --to build/approved.yaml`: **first question.** You approve the atoms that a model split out of your prose, so the tests are built on them · `--all` approves every atom, `--to` names the approved copy · it produces `build/approved.yaml`. If you say no, nothing is approved and the command stops, with the files so far kept.
+  - `estate map build/approved.yaml --to build/space.yaml`: lists the situations a test can vary, such as the kind of ask or the state of the session · `--to` names the file · it produces `build/space.yaml`.
+  - `estate plan build/approved.yaml --space build/space.yaml --out build/plan.yaml`: chooses which situations to test, so that every pair of situations is covered at least once · `--space` is the file above, `--out` the plan · it produces `build/plan.yaml`, with one row per test.
+  - `estate plan approve build/plan.yaml --all`: **second question.** You approve the planned tests · `--all` approves every row · it updates `build/plan.yaml`. If you say no, no test is written and the command stops.
+  - `estate generate --map build/approved.yaml --plan build/plan.yaml --out build/generated`: writes one test file per planned test · the three paths are the inputs and the output folder · it produces `build/generated`, with the tests and a report of what each incomplete test still needs.
 
 **Look at and decide.** Run it without `--yes`. In a terminal it asks. Here there is no terminal, so it stops at the first question and tells you what to type:
 
@@ -1164,6 +1171,13 @@ About two minutes, most of it the install. You need Node 22 or newer and npm. No
 
 **1. Make a folder and install.**
 
+**Relevant commands.**
+
+- `mkdir my-evals && cd my-evals`: makes a folder for your tests and goes into it · no options · it produces the folder.
+- `npm init -y`: starts a `package.json` so npm has somewhere to install · `-y` accepts every default · it produces `package.json`.
+- `npm install @agent-nexus/driftbench`: installs driftbench · `@agent-nexus/driftbench` is the package · it produces `node_modules` and the `driftbench` command, run as `npx driftbench`.
+- `mkdir specs`: makes the folder that will hold your tests · no options · it produces the folder.
+
 ```bash
 mkdir my-evals && cd my-evals
 npm init -y
@@ -1225,6 +1239,11 @@ blocks:
 
 **4. Check the spec, then run it.** The output is trimmed to its verdict lines.
 
+**Relevant commands.**
+
+- `npx driftbench spec validate specs`: checks that every test file in a folder is well formed, before anything runs · `specs` is the folder to check · it prints one line per file and a count, and exits 0 when every file is valid.
+- `npx driftbench campaign run specs --target process:my-agent --process-command ...`: runs every block of every test against your agent and checks each reply · `specs` is the folder of tests; `--target process:my-agent` says how to reach the agent (`process` is the adapter that starts a command, `my-agent` is its name in the spec); `--process-command` is a JSON list, the program and its arguments, that starts your agent (here `node` and the path of `agent.mjs`; `$PWD` is the current folder) · it prints one verdict line per test and a count, and exits 1 when a test fails.
+
 ```console
 $ npx driftbench spec validate specs
 ✓ specs/refund.yaml  refund-happy-path · 2 blocks · hash 7cfacf8c527b
@@ -1242,7 +1261,12 @@ $ npx driftbench campaign run specs --target process:my-agent --process-command 
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
 
-**6. Keep the runs and open the scorecard.** Run step 4 again with `--repeats 3 --store runs.db`, then write the scorecard:
+**6. Keep the runs and open the scorecard.** Run step 4 again with `--repeats 3 --store runs.db`, then write the scorecard.
+
+**Relevant commands.**
+
+- `campaign run ... --repeats 3 --store runs.db`: the same run as step 4, kept · `--repeats 3` runs each test 3 times, because one run proves little; `--store runs.db` is the file where the runs are kept · it adds the runs to `runs.db`.
+- `npx driftbench report --store runs.db --out scorecard.html`: turns the kept runs into a page you can open · `--store runs.db` is the file to read; `--out scorecard.html` is the page to write · it produces one HTML file with every rate, its interval and every conversation.
 
 ```console
 $ npx driftbench campaign run specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --repeats 3 --store runs.db
