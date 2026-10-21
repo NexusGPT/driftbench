@@ -3,6 +3,8 @@
 One campaign on the Northwind code-agent example (the fixture estate in `examples/estates/fixture`), run live on
 Claude Code. Everything in it is fictional.
 
+The walkthrough with the output of each command is [the Northwind campaign](../../docs/northwind-campaign.md).
+
 | Block feature | Where it shows |
 |---|---|
 | Parents | `specs/ledger-branches.yaml`: two blocks continue from one opening (`parent:`). |

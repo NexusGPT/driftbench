@@ -1364,7 +1364,7 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
 
-<sub>The fault finder ships as rule files and a runner: five diagnostics (`code-agent-liability`, `fix-plan`, `flaky-block`, `liability-confirm`, `value-mismatch`) and the blame and placement rules they read ([reference](docs/reference/blame.md)), and a scorecard that shows two scores and a ranked fix list when it is given diagnoses. No command runs a diagnostic yet: a program registers the steps and calls `runSpec` ([diagnostics](packages/cli/help/running-diagnostics.md)).</sub>
+<sub>The fault finder ships as rule files and a runner: five diagnostics (`code-agent-liability`, `fix-plan`, `flaky-block`, `liability-confirm`, `value-mismatch`) and the blame and placement rules they read ([reference](docs/reference/blame.md)), and a scorecard that shows two scores and a ranked fix list. `driftbench report` and `driftbench view` list the fixes of a campaign from its stored diagnoses. A spec asks for a diagnostic with `uses.diagnostics`; see [the Northwind campaign](docs/northwind-campaign.md) and [diagnostics](packages/cli/help/running-diagnostics.md).</sub>
 
 ### Rerunning the blast radius
 
