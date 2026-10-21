@@ -140,6 +140,9 @@ const BINARY_EXTENSIONS = new Set(
 );
 const SKIP_DIRS = new Set(['.git', 'node_modules']);
 const MAX_BYTES = 10 * 1024 * 1024;
+// A larger read limit for one file at the root, by its path: the guard still reads and scans all of it, so a raise
+// checks more, never less. .gitleaksignore holds one exact fingerprint per recorded hash and grows with each recording.
+const MAX_BYTES_AT = new Map([['.gitleaksignore', 32 * 1024 * 1024]]);
 const ALLOW_MARKER = 'guard:allow';
 const EXCEPTIONS_DIR = join(fileURLToPath(new URL('.', import.meta.url)), 'fingerprints');
 
@@ -364,7 +367,7 @@ export function listFiles(paths, cwd, notice) {
   };
 }
 
-function readText(file) {
+function readText(file, maxBytes = MAX_BYTES) {
   const name = basename(file);
   if (LOCKFILES.has(name) || name === '.guard-denylist') return { skip: 'excluded' };
   if (BINARY_EXTENSIONS.has(extname(name).toLowerCase())) return { skip: 'binary' };
@@ -375,8 +378,7 @@ function readText(file) {
     return { skip: 'missing' };
   }
   if (!info.isFile()) return { skip: 'not a file' };
-  if (info.size > MAX_BYTES)
-    return { error: `size ${info.size} bytes exceeds scan limit ${MAX_BYTES} bytes` };
+  if (info.size > maxBytes) return { error: `size ${info.size} bytes exceeds scan limit ${maxBytes} bytes` };
   const buffer = readFileSync(file);
   if (buffer.subarray(0, 8000).includes(0)) return { skip: 'binary' };
   return { text: buffer.toString('utf8') };
@@ -391,8 +393,8 @@ export function scanFiles(files, root, denylist, exceptions = new Set()) {
   let allowed = 0;
   let excused = 0;
   for (const file of files) {
-    const read = readText(file);
     const shown = relative(root, file) || file;
+    const read = readText(file, MAX_BYTES_AT.get(shown) ?? MAX_BYTES);
     if (read.error) {
       errors.push({ file: shown, reason: read.error });
       continue;
