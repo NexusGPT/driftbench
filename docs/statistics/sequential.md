@@ -2,7 +2,7 @@
 
 This page defines the functions that decide an evaluation while the data arrive: Wald's sequential probability ratio test for a pass rate, a Gaussian mixture test with its confidence sequence, e-values and the rules to combine them, and the spending and boundary rules of group sequential designs. It follows the conventions of [statistics capabilities](capabilities.md): the `RangeError` rules, the accuracy of 1e-11, and the rule that a normal quantile is an argument and never computed.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `eValueAverage` exists in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 Every logarithm is the natural logarithm. A "pass rate" is the probability that one trial succeeds. The null rate is `p0` and the alternative rate is `p1`.
 

@@ -42,6 +42,7 @@ export {
   type EffectiveWilsonOptions,
   wilsonEffective,
 } from './effective';
+export { eValueAverage } from './evalues';
 export {
   type HierarchicalInterval,
   type HierarchicalOptions,
