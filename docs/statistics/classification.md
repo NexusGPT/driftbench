@@ -2,7 +2,7 @@
 
 This page defines the scores of a classifier or a judge, the calibration of its probabilities, and the agreement between raters. Each section gives the formula, the result and the inputs it refuses. The conventions of [statistics capabilities](capabilities.md) hold for every function: the `RangeError` rules, the accuracy, the mid-ranks, and the quantile `z` passed as an argument.
 
-Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
+Status: partly built. `balancedAccuracy`, `fBeta` and `gwetAc1` exist in `@agent-nexus/driftbench-stats`; the other functions are planned.
 
 Three terms recur.
 
