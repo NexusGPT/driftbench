@@ -1,3 +1,4 @@
+import { canonicalGiven } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   bankItems,
@@ -29,11 +30,6 @@ const b = (id: string, extra: Partial<BlockRun> = {}) =>
   }) as BlockRun;
 const names = async (data: SeedData, group: BlockRun[]) =>
   (await unprotectedMembers(data, group)).map((b) => b.spec);
-function required<T>(value: T | undefined): T {
-  if (value === undefined) throw new Error('missing fixture value');
-  return value;
-}
-
 describe('independent item-level planted reducers', async () => {
   const generated = await new SeedData(1, {}, async () => ({}) as never).generated();
   const cover = generated.complete.find((e) => e.spec.id === 'gen-cover-004')!;
@@ -229,6 +225,10 @@ describe('independent item-level planted reducers', async () => {
         candidates.push({
           key: block.key,
           family: block.family,
+          words: block.words,
+          walk: block.walk,
+          variant: block.variant,
+          of: block.of,
           canRemove,
           lost: await data.memoized(`minimality:lost:${block.key}`, async () => ['not-reached']),
         });
@@ -236,7 +236,73 @@ describe('independent item-level planted reducers', async () => {
       if (!candidates.some((b) => b.canRemove)) continue;
       chosen = true;
       console.log(
-        'exact duplicated family variant',
+        'duplicate variant evidence',
+        JSON.stringify({
+          members: members.map((m) => ({
+            id: m.spec.id,
+            meta: (m.spec.metadata?.generated as any)?.metamorphic,
+          })),
+          extra: { id: extra.spec.id, meta: (extra.spec.metadata?.generated as any)?.metamorphic },
+          out,
+          candidates,
+          referenceBlocks: runs.blocks.length,
+        }),
+      );
+      expect(out.pass, out.detail).toBe(false);
+      break;
+    }
+    expect(chosen, 'a reference-correct genuine family with a removable repeated variant').toBe(true);
+  }, 600000);
+  it('does not treat an explicitly empty block Given as a new metamorphic wording', async () => {
+    const families = new Map<string, Generation['complete']>();
+    for (const entry of generated.complete) {
+      const meta = (entry.spec.metadata?.generated as any)?.metamorphic;
+      if (meta?.family) {
+        const own = families.get(meta.family) ?? [];
+        own.push(entry);
+        families.set(meta.family, own);
+      }
+    }
+    let chosen = false;
+    for (const members of [...families.values()].filter((m) => m.length >= 2).slice(0, 12)) {
+      const extra = structuredClone(members[0]!);
+      extra.spec.id = 'review-extra-empty-given';
+      const blank = extra.spec.blocks.find((block) => block.given === undefined);
+      if (!blank) continue;
+      blank.given = {};
+      for (let at = 0; at < extra.spec.blocks.length; at++)
+        expect(canonicalGiven(extra.spec, at)).toEqual(canonicalGiven(members[0]!.spec, at));
+      const data = await suite([...members, extra]);
+      const runs = await data.runs();
+      if (runs.errors.length || !runs.blocks.every((b) => b.reference.every((x) => x === 'pass'))) continue;
+      const out = await item.check(data);
+      const candidates = [];
+      for (const block of runs.blocks.filter(
+        (b) => b.spec === extra.spec.id && Object.values(b.faults).some((x) => x === 'fail'),
+      )) {
+        const causal = runs.faults.some(
+          (f) =>
+            block.faults[f.fault.def.id] === 'fail' &&
+            f.firstChange[block.spec] !== undefined &&
+            block.index >= f.firstChange[block.spec]!,
+        );
+        if (!causal) continue;
+        const canRemove = await removable(data, block);
+        candidates.push({
+          key: block.key,
+          family: block.family,
+          words: block.words,
+          walk: block.walk,
+          variant: block.variant,
+          of: block.of,
+          canRemove,
+          lost: await data.memoized(`minimality:lost:${block.key}`, async () => ['not-reached']),
+        });
+      }
+      if (!candidates.some((b) => b.canRemove)) continue;
+      chosen = true;
+      console.log(
+        'duplicate variant evidence',
         JSON.stringify({
           members: members.map((m) => ({
             id: m.spec.id,
@@ -267,7 +333,8 @@ describe('independent item-level planted reducers', async () => {
     for (const members of [...families.values()].filter((m) => m.length >= 2).slice(0, 12)) {
       const extra = structuredClone(members[0]!);
       extra.spec.id = 'review-extra-forged-variant';
-      const meta = (required(extra.spec.metadata?.generated) as any).metamorphic;
+      const meta = (extra.spec.metadata as { generated: { metamorphic: { variant: number; of: number } } }).generated
+        .metamorphic;
       meta.variant = meta.of + 1;
       const data = await suite([...members, extra]);
       const runs = await data.runs();
@@ -288,6 +355,10 @@ describe('independent item-level planted reducers', async () => {
         candidates.push({
           key: block.key,
           family: block.family,
+          words: block.words,
+          walk: block.walk,
+          variant: block.variant,
+          of: block.of,
           canRemove,
           lost: await data.memoized(`minimality:lost:${block.key}`, async () => ['not-reached']),
         });
@@ -295,7 +366,7 @@ describe('independent item-level planted reducers', async () => {
       if (!candidates.some((b) => b.canRemove)) continue;
       chosen = true;
       console.log(
-        'exact duplicated family variant',
+        'duplicate variant evidence',
         JSON.stringify({
           members: members.map((m) => ({
             id: m.spec.id,

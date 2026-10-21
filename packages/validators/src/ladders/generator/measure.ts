@@ -682,7 +682,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
         of: (spec.metadata?.generated as { metamorphic?: { of?: number } } | undefined)?.metamorphic?.of ?? 0,
-        words: contentHash(spec.blocks.map((entry) => [entry.when, entry.given])),
+        words: wordsOf(spec),
         variant:
           (spec.metadata?.generated as { metamorphic?: { variant?: number } } | undefined)?.metamorphic
             ?.variant ?? 0,
@@ -711,6 +711,32 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     });
   }
   return { blocks, faults: [...records.values()], errors };
+}
+
+/** A user turn as the oracle reads it: trimmed and with runs of whitespace squeezed. */
+function squeeze(text: string): string {
+  return text.trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * What a spec says apart from its labels, in the forms the rest of the oracle compares: the normalised turns and the
+ * canonical Given of every block. An empty Given, another key order or padding whitespace does not make it other words.
+ */
+export function wordsOf(spec: Spec): string {
+  return contentHash(
+    spec.blocks.map((block, index) => {
+      const when = block.when;
+      const turn =
+        when === undefined
+          ? null
+          : 'user' in when
+            ? { user: squeeze(when.user) }
+            : 'burst' in when
+              ? { burst: when.burst.map(squeeze) }
+              : { injection: { class: when.injection.class, user: squeeze(when.injection.user ?? '') } };
+      return [turn, canonicalGiven(spec, index).state];
+    }),
+  );
 }
 
 /** The tool answers a block runs against: part of its Given, so two blocks with other answers are other tests. */

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData, unprotectedMembers } from '../../src/ladders/generator/bank';
 import { FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
 import type { HiddenSpec } from '../../src/ladders/generator/hidden';
-import { type BlockRun, type Generation, runAll } from '../../src/ladders/generator/measure';
+import { type BlockRun, type Generation, runAll, wordsOf } from '../../src/ladders/generator/measure';
 
 function required<T>(value: T | undefined): T {
   if (value === undefined) throw new Error('missing fixture value');
@@ -245,4 +245,38 @@ describe('minimality protects the first holder of each declared obligation, once
     const found = await item.check(data);
     expect(found.detail).toMatch(/[1-9]\d* groups contain a removable duplicate/);
   }, 600_000);
+
+  it('never reads a no-op edit of a holder as new words (a property over seeded edits)', () => {
+    const source = required(
+      generated.complete.find(
+        ({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic,
+      ),
+    );
+    const base = wordsOf(source.spec);
+    let seed = 12345;
+    const next = (n: number) => {
+      seed = (Math.imul(seed, 1103515245) + 12345) >>> 0;
+      return seed % n;
+    };
+    const reorder = <T extends object>(value: T): T =>
+      Object.fromEntries(Object.entries(value).reverse()) as T;
+    for (let trial = 0; trial < 60; trial += 1) {
+      const spec = structuredClone(source.spec);
+      for (let edit = 0; edit < 1 + next(4); edit += 1) {
+        const block = required(spec.blocks[next(spec.blocks.length)]);
+        const kind = next(4);
+        if (kind === 0 && block.given === undefined) block.given = {};
+        else if (kind === 1 && block.when) block.when = reorder(block.when);
+        else if (kind === 2 && block.when && 'user' in block.when)
+          block.when = { user: `  ${block.when.user.replace(/ /g, '   ')} \n` };
+        else if (kind === 3 && block.given) block.given = reorder(block.given);
+      }
+      expect(wordsOf(spec), `trial ${trial}`).toBe(base);
+    }
+    // A real edit of the words is still other words.
+    const changed = structuredClone(source.spec);
+    const first = required(changed.blocks[0]);
+    first.when = { user: `${first.when && 'user' in first.when ? first.when.user : ''} and more` };
+    expect(wordsOf(changed)).not.toBe(base);
+  });
 }, 600_000);
