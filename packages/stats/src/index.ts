@@ -5,6 +5,7 @@ export {
   type AlphaLevel,
   type AlphaResult,
   cohenKappa,
+  gwetAc1,
   type KappaIntervalOptions,
   type KappaIntervalResult,
   type KappaOptions,
@@ -14,6 +15,7 @@ export {
   type Label,
 } from './agreement';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
+export { balancedAccuracy, type ConfusionTable, fBeta } from './classification';
 export {
   abundances,
   type ChaoResult,
@@ -24,6 +26,8 @@ export {
   hillNumber,
   hillNumbers,
 } from './coverage';
+export { median } from './descriptive';
+export { totalVariationDistance } from './divergence';
 export {
   type Alarm,
   type CusumOptions,
@@ -63,6 +67,7 @@ export {
   zeroFailureBound,
   zFor,
 } from './intervals';
+export { geometricMean, harmonicMean } from './means';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
 export {
   type McNemarMidPResult,
@@ -91,6 +96,7 @@ export {
   type SampleSizeForEffectResult,
   sampleSizeForEffect,
 } from './power';
+export { bonferroniThreshold } from './rates';
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
 export {
