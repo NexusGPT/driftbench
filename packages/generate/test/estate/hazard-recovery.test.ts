@@ -109,6 +109,9 @@ async function evaluate(
       observed,
       blockIndex: 0,
       history: history.length ? [{ observed: { toolCalls: history } }] : [],
+      // The check reads the spec's operations table and the block's expected tools; these specs declare neither.
+      spec: {},
+      expect: {},
     } as unknown as CheckContext,
     options,
   );

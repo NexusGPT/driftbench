@@ -268,16 +268,19 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
 
   /** The script at its own place in a scratch tree: a scripts folder, and the data folder it keeps beside it. */
   async function place(path: string, text: string): Promise<string> {
+    // The script keeps its place in an estate (.claude/skills/<skill>/scripts/<name>): a script may locate its
+    // workspace from its own path, as the reconcile script does for its execution log.
     const dir = await scratch();
-    await mkdir(join(dir, 'scripts'));
-    const placed = join(dir, 'scripts', path.split('/').at(-1) as string);
+    const placed = join(dir, path);
+    await mkdir(dirname(placed), { recursive: true });
     await writeFile(placed, text);
     await chmod(placed, 0o755);
     const skill = dirname(dirname(join(FIXTURE, path)));
+    const copy = dirname(dirname(placed));
     if (existsSync(join(skill, 'data'))) {
-      await mkdir(join(dir, 'data'));
+      await mkdir(join(copy, 'data'));
       for (const name of await readdir(join(skill, 'data')))
-        await writeFile(join(dir, 'data', name), await readFile(join(skill, 'data', name)));
+        await writeFile(join(copy, 'data', name), await readFile(join(skill, 'data', name)));
     }
     return placed;
   }
