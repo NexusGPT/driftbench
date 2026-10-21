@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { wilson, Z95 } from '../src/index';
 
-// A count above about 1.3e154 squared to infinity in the half-width, which became 0 while the centre stayed above 0:
+// A count above about 6.7e153 squared to infinity in the half-width, which became 0 while the centre stayed above 0:
 // the interval then excluded its own estimate. These totals are finite, exactly represented integers.
-const TOTALS = [2 ** 512, 2 ** 600, 2 ** 900];
+// 4 * n * n is infinite from about 6.7e153, while n * n stays finite up to about 1.3e154: the two totals below sit between.
+const TOTALS = [7e153, 1e154, 2 ** 512, 2 ** 600, 2 ** 900];
 const Z2 = Z95 * Z95;
 
 describe('wilson at counts too large to square', () => {
