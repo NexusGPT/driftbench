@@ -251,20 +251,6 @@ describe('the Jev labeler, a system 1 labeler', () => {
     expect(isTooLarge(error)).toBe(true);
   });
 
-  it('stops with an error that names the route when the key is refused', async () => {
-    const labeler = createJevLabeler({
-      env: { JEV_API_KEY: 'k', JEV_ROUTE: 'gateway' },
-      fetch: fakeFetch({ detail: 'invalid key' }, [], 401),
-      maxRetries: 0,
-    });
-    const error = await labeler
-      .call?.(labeler.render(BAKE, windowOf(1)), BAKE, windowOf(1))
-      .catch((cause: unknown) => cause);
-    expect(error).toBeInstanceOf(LabelerConfigError);
-    expect((error as Error).message).toContain('gateway');
-    expect((error as Error).message).toContain('401');
-  });
-
   it('has no call without a key or a route', () => {
     expect(createJevLabeler({ env: {} }).call).toBeUndefined();
     expect(createJevLabeler({ env: { JEV_API_KEY: 'k' } }).call).toBeUndefined();

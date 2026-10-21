@@ -7,7 +7,14 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { windowLines } from './dense';
-import { type Labeler, LabelerConfigError, type Opinion, type Opinions, usageOf } from './labeler';
+import {
+  type Labeler,
+  LabelerConfigError,
+  type Opinion,
+  type Opinions,
+  refusingKey,
+  usageOf,
+} from './labeler';
 import type { Label, LabelSet, Window } from './labels';
 
 /**
@@ -265,15 +272,9 @@ export function createJevLabeler(options: JevOptions = {}): Labeler {
   return {
     ...labeler,
     async call(wire) {
-      const payload = await postJson(url, headers, wire.body, detailErrorText, options).catch((cause) => {
-        // A key the route refuses is a configuration error: the run stops and names the route, it does not go on
-        // with the other labeler alone.
-        if (cause instanceof ModelError && (cause.status === 401 || cause.status === 403))
-          throw new LabelerConfigError(
-            `the system 1 route ${route ?? url} refused the key (status ${cause.status}): check JEV_API_KEY and JEV_ROUTE`,
-          );
-        throw cause;
-      });
+      const payload = await refusingKey(`the system 1 route ${route ?? new URL(url).host}`, () =>
+        postJson(url, headers, wire.body, detailErrorText, options),
+      );
       const answers = isRecord(payload) && isRecord(payload.answers) ? payload.answers : undefined;
       if (!answers) throw new ModelError('bad_response', 'jev answered without an answers object');
       const entries: Array<[string, unknown]> = [];
@@ -345,12 +346,8 @@ export function createOpenAiDecisionsLabeler(options: OpenAiDecisionsOptions): L
   return {
     ...labeler,
     async call(wire) {
-      const payload = await postJson(
-        `${base}/v1/decisions`,
-        { authorization: `Bearer ${key}` },
-        wire.body,
-        errorText,
-        options,
+      const payload = await refusingKey(`the system 1 endpoint ${new URL(base).host}`, () =>
+        postJson(`${base}/v1/decisions`, { authorization: `Bearer ${key}` }, wire.body, errorText, options),
       );
       const answers = isRecord(payload) && Array.isArray(payload.answers) ? payload.answers : undefined;
       if (!answers) throw new ModelError('bad_response', `${model} answered without an answers list`);
