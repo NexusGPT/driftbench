@@ -28,8 +28,12 @@ export const DEFAULT_JUDGE_POLICY = Object.freeze({
   answerSolves: 3,
   /** The writing route applies the declared long-structured preference after the ledger verdict. */
   lengthPreference: false,
-  /** A criterion of scope `conversation` is judged turn by turn (judgeTurns) and fails when a turn fails. */
-  conversationTurns: true,
+  /**
+   * A criterion of scope `conversation` with several customer turns is judged turn by turn (judgeTurns) and fails
+   * when a turn fails. Off: measured on the 18 such items of the README completeness row, the whole-conversation
+   * read is right on 18 and the turn-by-turn read on 12 (six passing items fail on an early turn), so it stays off.
+   */
+  conversationTurns: false,
 } as const);
 
 /** The policy fields a measurement may switch. A shipped client never sets them: the frozen policy applies. */

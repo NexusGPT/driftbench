@@ -560,10 +560,10 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
     ],
   };
   it('is part of the frozen policy', () => {
-    expect(DEFAULT_JUDGE_POLICY).toMatchObject({ version: 'default-on-v8', conversationTurns: true });
+    expect(DEFAULT_JUDGE_POLICY).toMatchObject({ version: 'default-on-v8', conversationTurns: false });
   });
   it('judges each customer turn on its own prefix and fails on the turn that fails', async () => {
-    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)]);
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true), met(false)], { conversationTurns: true });
     const result = await judge.judge(request);
     expect(calls).toHaveLength(3);
     expect(calls[1]?.user).not.toContain('Second question');
@@ -573,19 +573,19 @@ describe('default-on-v8: a conversation criterion is judged turn by turn', () =>
     expect(result.defaultJudge?.route).toBe('criterion');
   });
   it('passes only when every turn passes', async () => {
-    const { judge } = mock([{ route: 'criterion' }, met(true), met(true)]);
+    const { judge } = mock([{ route: 'criterion' }, met(true), met(true)], { conversationTurns: true });
     expect((await judge.judge(request)).answer.outcome).toBe('pass');
   });
-  it('judges the whole conversation in one call when the measurement switches the field off, with another settings hash', async () => {
-    const on = mock([]).judge;
-    const off = mock([{ route: 'criterion' }, met(true)], { conversationTurns: false });
+  it('judges the whole conversation in one call by default, and the field changes the settings hash', async () => {
+    const on = mock([], { conversationTurns: true }).judge;
+    const off = mock([{ route: 'criterion' }, met(true)]);
     const result = await off.judge.judge(request);
     expect(off.calls).toHaveLength(2);
     expect(result.answer.outcome).toBe('pass');
     expect(off.judge.settings).not.toBe(on.settings);
   });
   it('leaves a single-turn conversation criterion on the plain route', async () => {
-    const { judge, calls } = mock([{ route: 'criterion' }, met(true)]);
+    const { judge, calls } = mock([{ route: 'criterion' }, met(true)], { conversationTurns: true });
     await judge.judge({ ...request, transcript: request.transcript.slice(0, 2) });
     expect(calls).toHaveLength(2);
   });
