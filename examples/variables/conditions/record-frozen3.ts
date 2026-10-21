@@ -99,6 +99,7 @@ const result = await feedFromConditions({
 const evidence = {
   ...started,
   spans,
+  clauseBytesBase64: clauseBytes.toString('base64'),
   texts: Object.fromEntries(texts),
   initialStore,
   recording,

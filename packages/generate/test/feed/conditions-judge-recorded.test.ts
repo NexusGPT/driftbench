@@ -23,6 +23,7 @@ type Evidence = {
   spans: ConditionSpan[];
   texts: Record<string, string>;
   initialStore: VariableStore;
+  clauseBytesBase64: string;
 };
 
 async function replay(
@@ -77,7 +78,7 @@ describe('system-1 condition feed: real recordings, no network', () => {
     const evidence = read<Evidence>('round2-frozen3.json');
     const freeze = read<{ clausesHash: string }>('round2-freeze.json');
     expect(evidence.spans).toHaveLength(73);
-    const bytes = readFileSync(join(dir, 'round2-frozen3-clauses.json'));
+    const bytes = Buffer.from(evidence.clauseBytesBase64, 'base64');
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(freeze.clausesHash);
     expect(JSON.parse(bytes.toString('utf8'))).toEqual(evidence.spans);
     await replay(evidence, evidence.spans, new Map(Object.entries(evidence.texts)));
