@@ -38,20 +38,19 @@ const endsElsewhere = (draft: ReturnType<typeof walk>) => {
   return draft;
 };
 
-// The same walk with its middle message worded as lastWordedAnother words the last one.
-const middleWorded = (draft: ReturnType<typeof walk>) => {
-  const middle = draft.blocks[1];
-  if (middle?.stimulus.kind !== 'phrase') throw new Error('the middle block says no phrase');
-  middle.stimulus = { ...middle.stimulus, phrase: { ...middle.stimulus.phrase, text: 'Pack it now, thank you.' } };
+// The same walk with its last message worded as another block of the suite words its own: the same test, said
+// in words the suite already says.
+const lastWordedAs = (draft: ReturnType<typeof walk>, text: string) => {
+  const last = draft.blocks.at(-1);
+  if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
+  last.stimulus = { ...last.stimulus, phrase: { ...last.stimulus.phrase, text } };
   return draft;
 };
 
-// The same walk with its last message worded another way: the same test, said differently.
-const lastWordedAnother = (draft: ReturnType<typeof walk>) => {
-  const last = draft.blocks.at(-1);
-  if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
-  last.stimulus = { ...last.stimulus, phrase: { ...last.stimulus.phrase, text: 'Pack it now, thank you.' } };
-  return draft;
+const textOf = (draft: ReturnType<typeof walk>, index: number) => {
+  const stimulus = draft.blocks[index]?.stimulus;
+  if (stimulus?.kind !== 'phrase') throw new Error('the block says no phrase');
+  return stimulus.phrase.text;
 };
 
 describe('terminal subsumption', () => {
@@ -600,9 +599,9 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('reads two blocks that differ only in the wording of the user turn as one test', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    // The wording of the second walk's last turn is already said by the first walk, in its middle.
-    const written = middleWorded(walk(prepared, 'written', path));
-    const again = lastWordedAnother(walk(prepared, 'again', path));
+    const written = walk(prepared, 'written', path);
+    // The second walk ends on the words the first walk says in its middle: the same test, in words already said.
+    const again = lastWordedAs(walk(prepared, 'again', path), textOf(written, 1));
     const length = again.blocks.length;
     minimal.reduce(written);
     minimal.reduce(again);
@@ -612,7 +611,7 @@ describe('terminal subsumption and the wording of a turn', () => {
   it('keeps the end of a block whose wording no written spec says: the phrase would be lost', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
     const written = walk(prepared, 'written', path);
-    const again = lastWordedAnother(walk(prepared, 'again', path));
+    const again = lastWordedAs(walk(prepared, 'again', path), 'Pack it now, thank you.');
     const length = again.blocks.length;
     minimal.reduce(written);
     minimal.reduce(again);
