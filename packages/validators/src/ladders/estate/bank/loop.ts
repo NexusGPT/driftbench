@@ -810,8 +810,11 @@ const ASKS: AskCheck[] = [
           const built = constructAsk(build, atomsById as unknown as ReadonlyMap<string, MapAtom>, allowed);
           if ('refused' in built || built.text !== ask) return false;
           if (!cited) {
+            // A built ask names its source atom in askFrom; one built from a fixed row alone (no span, no tool)
+            // takes its words from no atom, and askFrom says `neutral`.
             const source = build?.spans?.[0]?.atom ?? build?.tool?.atom;
-            if (source !== from || !atomsById.has(from)) return false;
+            if (source === undefined ? meta.askFrom !== 'neutral' : source !== from || !atomsById.has(from))
+              return false;
             cited = true;
           }
         }

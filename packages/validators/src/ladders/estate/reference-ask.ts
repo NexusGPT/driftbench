@@ -77,14 +77,20 @@ const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L
 /**
  * The act text an atom declares, by the field a span cites; undefined for any other field. Only the declared act
  * may give words to an ask: `fields.ask` (a route's request cell), `fields.ask.text` and `fields.ask.context`, and
- * `governed-action`, the quote of the atom's unit, whose labelled governed-action spans bound the cut. Metadata
- * (`id`, `kind`), a title or a description never does.
+ * `governed-action`, the quote of the atom's unit, whose labelled governed-action spans bound the cut; and the
+ * atom's verbatim source text, `provenance.quote` or the trigger cut from it (`fields.trigger`). Metadata (`id`,
+ * `kind`), a title or a description never does.
  */
 type Declared = { text: string; within?: Array<[number, number]> };
 
 function declaredText(atom: MapAtom, field: string): Declared | undefined {
-  const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown };
+  const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown; trigger?: unknown };
   const ask = fields.ask;
+  // The atom's verbatim source text: the quote of its unit, or the trigger the scan cut from it.
+  const quoted = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
+  if (field === 'provenance.quote') return typeof quoted === 'string' ? { text: quoted } : undefined;
+  if (field === 'fields.trigger')
+    return typeof fields.trigger === 'string' ? { text: fields.trigger } : undefined;
   type Ask = { text?: unknown; context?: unknown };
   const declared: Ask = ask !== null && typeof ask === 'object' ? (ask as Ask) : {};
   const value =
@@ -128,6 +134,13 @@ export function constructAsk(
 ): { text: string } | { refused: string } {
   if (build === null || typeof build !== 'object') return { refused: 'no construction record' };
   const record = build as Partial<AskBuild>;
+  // Every field of the record is consumed by the construction: an unknown one is refused, and so is a field the
+  // construction never reads (an act for an ask row with no {act}, a tool for an act that is no fixed act).
+  const known = ['ask', 'act', 'situation', 'spans', 'tool'];
+  const extra = Object.keys(record).find((key) => !known.includes(key));
+  if (extra) return { refused: `the record holds a field no construction reads: ${extra}` };
+  let actUsed = false;
+  let situationUsed = false;
   const ask = rowOf(['ask', 'hypothetical', 'fixed'], record.ask);
   if (!ask) return { refused: `the ask row ${JSON.stringify(record.ask)} is not a row of the table` };
   const act = record.act === undefined ? undefined : rowOf('act', record.act);
@@ -176,12 +189,13 @@ export function constructAsk(
       else if ('opt' in part) {
         // The optional group is written exactly when the record names a situation for it.
         const wants = part.opt.some((inner) => 'slot' in inner && inner.slot === 'situation');
-        if (wants ? situation !== undefined : false) out += render(part.opt, slot);
+        if (wants && situation !== undefined) out += render(part.opt, slot);
       } else if (part.slot === 'act') {
         if (!act) {
           refusal = 'the ask row has an {act} and the record names no act row';
           return '';
         }
+        actUsed = true;
         const inner = parse(act.template);
         // A bare `{span}` act is a task of at least three words, the floor of section 5.
         const text = render(inner, 'act');
@@ -193,6 +207,7 @@ export function constructAsk(
           refusal = 'the situation group is written and the record names no situation row';
           return '';
         }
+        situationUsed = true;
         out += render(parse(situation.template), 'situation');
       } else if (part.slot === 'span') {
         const got = cut(slot);
@@ -210,7 +225,14 @@ export function constructAsk(
   };
   const text = render(parse(ask.template), 'ask');
   if (refusal !== undefined) return { refused: refusal };
-  if (act && !parse(act.template).some((part) => 'slot' in part)) {
+  if (record.act !== undefined && !actUsed)
+    return { refused: 'the record names an act row the ask row never uses' };
+  if (record.situation !== undefined && !situationUsed)
+    return { refused: 'the record names a situation row the ask row never uses' };
+  const fixedAct = act !== undefined && !parse(act.template).some((part) => 'slot' in part);
+  if (record.tool !== undefined && !fixedAct)
+    return { refused: 'the record names a tool and its act is no fixed tool act' };
+  if (act && fixedAct) {
     // A fixed act stands for a tool: the record names the guard and the tool, and the table names the tools of
     // the act. A table row with no tools ties the act to nothing, so no record can use it.
     const tool = record.tool;
