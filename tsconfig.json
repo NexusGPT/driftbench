@@ -11,6 +11,8 @@
     "examples/*/test/**/*.ts",
     "examples/variables/conditions/record-frozen3.ts",
     "examples/variables/conditions/round2-dev-final.ts",
+    "examples/variables/conditions/record-frozen4.ts",
+    "examples/variables/conditions/round3-dev.ts",
     "tools/docs/**/*.ts",
     "tools/browser/**/*.ts",
     "vitest.config.ts"
