@@ -130,21 +130,23 @@ function slug(name: string): string {
 }
 
 /**
- * Ids for a set of names: each name gets its slug. Of the names that share one, a name that already is a valid id
- * keeps it, then the others come in the order of their names and get a numeric suffix. The result depends on the
- * set of names only, and a name that is a valid id keeps its id whatever else joins the set.
+ * Ids for a set of names. A name that already is a valid id keeps it. Any other name gets its slug and a short hash
+ * of the name itself, so its id is the same whatever other names join the set and in whatever order they come. Two
+ * names that still end with one id (a hash that equals another name, which needs a crafted name) are ordered by name
+ * and the later ones get a numeric suffix.
  */
 function idsFor(names: Iterable<string>): Map<string, string> {
-  const bySlug = new Map<string, string[]>();
+  const byId = new Map<string, string[]>();
   for (const name of new Set(names)) {
-    const id = slug(name);
-    const list = bySlug.get(id);
+    const own = slug(name);
+    const id = own === name ? name : `${own}-${sha256(name).slice(0, 8)}`;
+    const list = byId.get(id);
     if (list) list.push(name);
-    else bySlug.set(id, [name]);
+    else byId.set(id, [name]);
   }
-  const used = new Set(bySlug.keys());
+  const used = new Set(byId.keys());
   const out = new Map<string, string>();
-  for (const [id, list] of bySlug) {
+  for (const [id, list] of byId) {
     list.sort((x, y) => {
       const xOwn = x === id ? 0 : 1;
       const yOwn = y === id ? 0 : 1;

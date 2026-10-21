@@ -627,6 +627,31 @@ describe('variablesFromSources: review findings on the first head', () => {
     expect(make(['Ship-Code', 'Ship Code']).store.variables).toHaveLength(2);
   });
 
+  it('keeps the id of a tool whose name is not a valid id when a name with the same slug joins', () => {
+    const tool2 = (name: string) => ({
+      tool: name,
+      field: 'status',
+      source: 'TOOLS.md',
+      values: [{ id: 'ready', quote: 'Ready.' }],
+    });
+    const make = (names: string[]) =>
+      variablesFromSources({
+        estate: {
+          files: { 'TOOLS.md': 'Ready.' },
+          rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: names.map(tool2) }],
+        },
+      });
+    const idOf = (built: ReturnType<typeof make>, title: string) =>
+      built.store.variables.find((v) => v.title === title)?.id;
+    const alone = make(['Ship@Code']);
+    const both = make(['Ship@Code', 'Ship Code']);
+    const reversed = make(['Ship Code', 'Ship@Code']);
+    expect(idOf(both, 'Ship@Code.status')).toBe(idOf(alone, 'Ship@Code.status'));
+    expect(idOf(both, 'Ship Code.status')).toBe(idOf(make(['Ship Code']), 'Ship Code.status'));
+    expect(idOf(both, 'Ship@Code.status')).not.toBe(idOf(both, 'Ship Code.status'));
+    expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
+  });
+
   it('keeps three distinct samples for a finite limit too large to step by one', () => {
     const built = variablesFromSources(
       clause('Escalate when amount is above 100000000000000000000.', {
