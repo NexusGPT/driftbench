@@ -5,7 +5,8 @@
 //     --usd-per-mtok-in <rate> --usd-per-mtok-out <rate> [--cap <usd, default 2>] [--total-file <file>] [--total-cap <usd, default 8>]
 //
 // The key is read from ~/.nexus-secrets/anthropic-driftbench.key and is never printed. Each distinct span is labelled
-// once; the cassette holds one JSON line per span, keyed by the exact span text. The cost is computed from the token
+// once; the cassette holds one JSON line per span, keyed by the span text with each run of white space folded to one space
+// (the collector writes the spans folded, and the adapter folds a clause before it looks the label up). The cost is computed from the token
 // counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';

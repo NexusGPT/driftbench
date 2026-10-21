@@ -35,6 +35,19 @@ it('buildStore forwards the numeric boundary of a labelled clause', () => {
   expect(variable?.boundaries?.[0]).toMatchObject({ limit: 20, comparison: 'gt' });
 });
 
+it('buildStore gives one label to a clause written with different white space', () => {
+  const spaced = 'Escalate  when\namount is\tabove 20.';
+  const input = {
+    estate: {
+      files: { 'RULES.md': spaced },
+      rules: [{ id: 'R2', source: 'RULES.md', tools: [], conditions: [{ text: spaced }] }],
+    },
+  };
+  const store = variablesImpl.buildStore?.(input as never);
+  expect(store?.variables).toHaveLength(1);
+  expect(store?.variables[0]?.values.map((v) => v.sample)).toEqual([19, 20, 21]);
+});
+
 it('buildStore does not throw on a pair of two values of one variable', () => {
   const stamp = { words: 'The owner approves these fictional choices.', date: '2026-10-21' };
   const input = {
