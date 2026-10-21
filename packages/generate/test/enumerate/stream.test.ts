@@ -68,7 +68,9 @@ describe('generation to disk', () => {
       const reduced = generate.generateSuite(loaded.prepared, options);
       const plain = generate.generateSuite(loaded.prepared, { ...options, reduceEnds: false });
       // The flag matters on this map: the reducer cuts something.
-      expect(reduced.files.map((file) => file.text).join('')).not.toBe(plain.files.map((file) => file.text).join(''));
+      expect(reduced.files.map((file) => file.text).join('')).not.toBe(
+        plain.files.map((file) => file.text).join(''),
+      );
       generate.generateSuiteToDisk(loaded.prepared, { ...options, reduceEnds: false, outputDir: directory });
       for (const file of plain.files.filter((entry) => entry.path !== generate.REPORT_FILE)) {
         expect(await readFile(join(directory, file.path), 'utf8'), file.path).toBe(file.text);
