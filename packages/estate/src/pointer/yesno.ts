@@ -265,7 +265,15 @@ export function createJevLabeler(options: JevOptions = {}): Labeler {
   return {
     ...labeler,
     async call(wire) {
-      const payload = await postJson(url, headers, wire.body, detailErrorText, options);
+      const payload = await postJson(url, headers, wire.body, detailErrorText, options).catch((cause) => {
+        // A key the route refuses is a configuration error: the run stops and names the route, it does not go on
+        // with the other labeler alone.
+        if (cause instanceof ModelError && (cause.status === 401 || cause.status === 403))
+          throw new LabelerConfigError(
+            `the system 1 route ${route ?? url} refused the key (status ${cause.status}): check JEV_API_KEY and JEV_ROUTE`,
+          );
+        throw cause;
+      });
       const answers = isRecord(payload) && isRecord(payload.answers) ? payload.answers : undefined;
       if (!answers) throw new ModelError('bad_response', 'jev answered without an answers object');
       const entries: Array<[string, unknown]> = [];
