@@ -340,11 +340,15 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
     estate = undefined;
   }
   if (estate !== undefined && isRecord(estate)) {
-    const files: Record<string, string> = {};
-    for (const [path, text] of Object.entries(estate.files ?? {})) {
-      if (illFormedAnywhere([path, text])) drop(`file ${path}`);
-      else files[path] = text;
-    }
+    // Entries are filtered and copied by `Object.fromEntries`, which defines each key as an own property: a file named
+    // `__proto__` stays a file. No object here is filled by `object[key] = value` with a key from the input.
+    const files = Object.fromEntries(
+      Object.entries(estate.files ?? {}).filter(([path, text]) => {
+        const bad = illFormedAnywhere([path, text]);
+        if (bad) drop(`file ${path}`);
+        return !bad;
+      }),
+    );
     const rules = (estate.rules ?? []).flatMap((rule) => {
       if (illFormedAnywhere([rule.id, rule.source]) || keyIllFormed(rule)) {
         drop(`rule ${name(rule.id)}`);
@@ -356,10 +360,13 @@ function wellFormedSources(sources: VariableSources): { clean: VariableSources; 
         return !bad;
       });
       const tools = (rule.tools ?? []).map((tool) => {
-        if (keyIllFormed(tool)) drop(`${name(tool.tool)}.${name(tool.field)}`);
-        const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool);
+        // A malformed tool, field, source or key is refused once, whatever its values hold, even none.
+        if (illFormedAnywhere([tool.tool, tool.field, tool.source]) || keyIllFormed(tool)) {
+          drop(`${name(tool.tool)}.${name(tool.field)}`);
+          return { ...tool, values: [] };
+        }
         const values = (tool.values ?? []).filter((value) => {
-          const bad = whole || illFormedAnywhere(value);
+          const bad = illFormedAnywhere(value);
           if (bad) drop(`${name(tool.tool)}.${name(tool.field)}.${name(value?.id)}`);
           return !bad;
         });

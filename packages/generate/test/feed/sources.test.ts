@@ -1082,3 +1082,103 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
     expect(holdsLone(built)).toBe(false);
   });
 });
+
+describe('variablesFromSources: special key names and empty lists in the well-formedness pass', () => {
+  const SPECIAL = ['__proto__', 'constructor', 'prototype', 'hasOwnProperty'];
+  const LONE = '\uD800';
+  // `JSON.parse` defines `__proto__` as an own key, as input read from a file would.
+  const parsed = (value: unknown): never => JSON.parse(JSON.stringify(value)) as never;
+
+  it.each(SPECIAL)('reads %s as ordinary data in a path, a tool, a field, a value and a session', (word) => {
+    const quote = 'Ready.';
+    const estate = {
+      files: { [word]: quote },
+      rules: [
+        {
+          id: word,
+          source: word,
+          conditions: [],
+          tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote }] }],
+        },
+      ],
+    };
+    const first = variablesFromSources(parsed({ estate }));
+    expect(first.refused.map((r) => r.reason)).toEqual([]);
+    const id = first.store.variables[0]?.id as string;
+    expect(id).toBeDefined();
+    const built = variablesFromSources(
+      parsed({
+        estate,
+        conversations: [{ id: word, values: { [id]: word } }],
+        owner: {
+          values: [{ variable: id, value: `${word}-2`, words: 'The owner said so.', date: DAY }],
+        },
+      }),
+    );
+    expect(built.refused.map((r) => r.reason)).toEqual([]);
+    expect(built.store.variables).toHaveLength(1);
+    expect(built.store.variables[0]?.values).toHaveLength(2);
+  });
+
+  it.each(SPECIAL)('still refuses a lone surrogate beside the special name %s', (word) => {
+    const built = variablesFromSources(
+      parsed({
+        estate: {
+          files: { [word]: 'Ready.', [`${word}${LONE}`]: 'Ready.' },
+          rules: [
+            {
+              id: word,
+              source: word,
+              conditions: [],
+              tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote: 'Ready.' }] }],
+            },
+          ],
+        },
+      }),
+    );
+    expect(built.refused.filter((r) => /well-formed/.test(r.reason))).toHaveLength(1);
+    expect(built.store.variables).toHaveLength(1);
+  });
+
+  it.each(['tool', 'field', 'source'])('refuses a malformed %s whose values list is empty', (part) => {
+    const tool = { tool: 'ledger', field: 'account', source: 'F.md', values: [] as unknown[] };
+    (tool as Record<string, unknown>)[part] = `x${LONE}`;
+    const built = variablesFromSources({
+      estate: {
+        files: { 'F.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'F.md', conditions: [], tools: [tool] }],
+      },
+    } as never);
+    expect(built.refused).toHaveLength(1);
+    expect(built.refused[0]?.reason).toMatch(/well-formed/);
+    expect(built.refused[0]?.what).not.toMatch(/[\uD800-\uDFFF]/);
+  });
+
+  it('refuses a malformed tool once, not once per value', () => {
+    const built = variablesFromSources({
+      estate: {
+        files: { 'F.md': 'Ready. Done.' },
+        rules: [
+          {
+            id: 'R',
+            source: 'F.md',
+            conditions: [],
+            tools: [
+              {
+                tool: `ledger${LONE}`,
+                field: 'account',
+                source: 'F.md',
+                values: [
+                  { id: 'ready', quote: 'Ready.' },
+                  { id: 'done', quote: 'Done.' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    } as never);
+    expect(built.refused).toHaveLength(1);
+    expect(built.store.variables).toEqual([]);
+  });
+});
