@@ -8,9 +8,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K001',
     cause: 'Serialize generated specs that both the generator and the core loader accept.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#generateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#generateItems'],
     items: [
       'generate.valid.graph',
       'generate.valid.twise',
@@ -22,9 +20,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K002',
     cause: 'Emit nonempty seeder output without unexpected lint warnings.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#generateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#generateItems'],
     items: [
       'generate.lint.graph',
       'generate.lint.twise',
@@ -36,9 +32,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K003',
     cause: 'Keep generated files byte-for-byte identical for the same approved map and seed.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#generateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#generateItems'],
     items: [
       'generate.bytes.graph',
       'generate.bytes.twise',
@@ -50,9 +44,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K004',
     cause: 'Report each seeder spec and complete-spec count from the files actually written.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#generateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#generateItems'],
     items: [
       'generate.report.graph',
       'generate.report.twise',
@@ -64,9 +56,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K005',
     cause: 'Record the correct seeder, generator seed and map hash while keeping generated spec IDs unique.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#generateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#generateItems'],
     items: [
       'generate.identity.graph',
       'generate.identity.twise',
@@ -78,69 +68,44 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K006',
     cause: 'Cover every allowed pair of the t-wise axes in complete generated specs.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.twise.pairs',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.twise.pairs'],
   },
   {
     kind: 'K007',
     cause: 'Cover every allowed triple of the t-wise axes in complete generated specs.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.twise.triples',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.twise.triples'],
   },
   {
     kind: 'K008',
     cause: 'Count allowed t-wise tuples at the reported strength by the constraints of the approved map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.twise.allowed',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.twise.allowed'],
   },
   {
     kind: 'K009',
     cause: 'Report the approved graph start stage.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.graph.start',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.graph.start'],
   },
   {
     kind: 'K010',
     cause: 'Report reachable and unreachable graph edges consistently with breadth-first reachability.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.graph.reachable',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.graph.reachable'],
   },
   {
     kind: 'K011',
     cause: 'Advance generated stage expectations only along edges of the approved graph.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.graph.walks',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.graph.walks'],
   },
   {
     kind: 'K012',
-    cause: 'Enforce hidden constraints and joint-position feasibility on every block from each standard seeder.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
+    cause:
+      'Enforce hidden constraints and joint-position feasibility on every block from each standard seeder.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
     items: [
       'diff.feasible.graph',
       'diff.feasible.twise',
@@ -152,49 +117,33 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K013',
     cause: 'Enforce hidden constraints and joint-position feasibility on every block from the cover seeder.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.feasible.cover',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.feasible.cover'],
   },
   {
     kind: 'K014',
     cause: 'Enforce hidden constraints and joint-position feasibility on every block from task generation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.feasible.task',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.feasible.task'],
   },
   {
     kind: 'K015',
-    cause: 'Enforce hidden constraints and joint-position feasibility on every block from otherwise unlisted seeders.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.feasible.unlisted',
-    ],
+    cause:
+      'Enforce hidden constraints and joint-position feasibility on every block from otherwise unlisted seeders.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.feasible.unlisted'],
   },
   {
     kind: 'K016',
     cause: 'Count covered report tuples from actual complete-spec event placements at the reported strength.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.coverage.pairs',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.coverage.pairs'],
   },
   {
     kind: 'K017',
-    cause: 'Materialize each supported schema boundary as its exact value or explicitly report it as unsupported.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
+    cause:
+      'Materialize each supported schema boundary as its exact value or explicitly report it as unsupported.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
     items: [
       'diff.boundary.in.enum',
       'diff.boundary.in.below-minimum',
@@ -210,300 +159,184 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K018',
-    cause: 'Emit only stimuli that match an approved phrase in the correct carrier, including task-family phrases.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.phrases.filled',
-    ],
+    cause:
+      'Emit only stimuli that match an approved phrase in the correct carrier, including task-family phrases.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.phrases.filled'],
   },
   {
     kind: 'K019',
     cause: 'Keep tool input assertions equal to the slot values stated by the preceding conversation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.slots.consistent',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.slots.consistent'],
   },
   {
     kind: 'K020',
     cause: 'Keep the asserted final plan equal to the plan value stated by the conversation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#differentialItems',
-    ],
-    items: [
-      'diff.endstate.plan',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#differentialItems'],
+    items: ['diff.endstate.plan'],
   },
   {
     kind: 'K021',
     cause: 'Keep unapproved map phrases out of complete conversation specs when no phrase is approved.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.empty-phrases',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.empty-phrases'],
   },
   {
     kind: 'K022',
-    cause: 'Generate valid specs for a map containing only its start stage without assuming a transition exists.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.single-stage',
-    ],
+    cause:
+      'Generate valid specs for a map containing only its start stage without assuming a transition exists.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.single-stage'],
   },
   {
     kind: 'K023',
     cause: 'Generate valid specs for a map without transition or path relations.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.no-transitions',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.no-transitions'],
   },
   {
     kind: 'K024',
     cause: 'Refuse a map that repeats a value identifier inside a dimension.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.duplicate-value',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.duplicate-value'],
   },
   {
     kind: 'K025',
     cause: 'Preserve an approved Unicode phrase intact in generated spec text.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.unicode-phrase',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.unicode-phrase'],
   },
   {
     kind: 'K026',
     cause: 'Refuse an approved phrase whose text exceeds the allowed length.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.phrase-over-limit',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.phrase-over-limit'],
   },
   {
     kind: 'K027',
     cause: 'Preserve a phrase at the supported length boundary in a generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.phrase-at-limit',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.phrase-at-limit'],
   },
   {
     kind: 'K028',
     cause: 'Refuse a map whose constraints forbid every available channel and persona combination.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.forbid-everything',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.forbid-everything'],
   },
   {
     kind: 'K029',
     cause: 'Treat instructions embedded in approved user phrases as data rather than generated expectations.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.instruction-in-phrase',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.instruction-in-phrase'],
   },
   {
     kind: 'K030',
     cause: 'Handle a cyclic graph without invalid specs or unbounded graph expansion.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.cycle-without-start',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.cycle-without-start'],
   },
   {
     kind: 'K031',
     cause: 'Keep stages with no reachable path out of generated stage expectations.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.unreachable-stage',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.unreachable-stage'],
   },
   {
     kind: 'K032',
     cause: 'Stop generated walks at a dead end rather than asserting a stage no remaining edge reaches.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.dead-end',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.dead-end'],
   },
   {
     kind: 'K033',
     cause: 'Generate valid value partitions when an enum contains only one member.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.one-member-enum',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.one-member-enum'],
   },
   {
     kind: 'K034',
     cause: 'Generate valid integer boundaries when the minimum and maximum are equal.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.min-equals-max',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.min-equals-max'],
   },
   {
     kind: 'K035',
     cause: 'Refuse a map whose required tools file is missing or empty.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.missing-tools-file',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.missing-tools-file'],
   },
   {
     kind: 'K036',
     cause: 'Refuse a tools file that does not parse into the required schema.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.malformed-tools-file',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.malformed-tools-file'],
   },
   {
     kind: 'K037',
     cause: 'Refuse inventory entries that refer to a behaviour absent from the map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.invalid-inventory',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.invalid-inventory'],
   },
   {
     kind: 'K038',
     cause: 'Refuse a map containing an unapproved required dimension.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.unapproved-entry',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.unapproved-entry'],
   },
   {
     kind: 'K039',
     cause: 'Exclude a declared path whose successive stages have no graph edge.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.path-without-edge',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.path-without-edge'],
   },
   {
     kind: 'K040',
     cause: 'Exclude tool expectations naming a tool absent from the approved map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.unknown-tool-use',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.unknown-tool-use'],
   },
   {
     kind: 'K041',
     cause: 'Keep a phrase with an unresolved slot out of complete generated blocks.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.unbound-slot',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.unbound-slot'],
   },
   {
     kind: 'K042',
     cause: 'Represent large integer boundary values exactly, including one above the maximum.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.huge-integer',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.huge-integer'],
   },
   {
     kind: 'K043',
     cause: 'Do not synthesize scenario paths for a flow that declares no paths.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.flow-without-paths',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.flow-without-paths'],
   },
   {
     kind: 'K044',
     cause: 'Handle a NUL-bearing phrase without writing an invalid spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.nul-in-phrase',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.nul-in-phrase'],
   },
   {
     kind: 'K045',
     cause: 'Refuse duplicated approved phrase entries.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.every-phrase-twice',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.every-phrase-twice'],
   },
   {
     kind: 'K046',
     cause: 'Handle a binding that no generated turn consumes without writing an invalid spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems',
-    ],
-    items: [
-      'hostile.binds-unread',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#HOSTILE / hostileItems'],
+    items: ['hostile.binds-unread'],
   },
   {
     kind: 'K047',
     cause: 'Generate reference-green machine blocks for every seeder.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
     items: [
       'reference.seeder.graph',
       'reference.seeder.twise',
@@ -515,9 +348,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K048',
     cause: 'Make injected deviation blocks pass on the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
     items: [
       'reference.probe.D1_off_topic',
       'reference.probe.D2_goal_shift',
@@ -534,73 +365,43 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K049',
     cause: 'Make the generated blocks of every selected flow pass on the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.flow.new-request',
-      'reference.flow.change-request',
-      'reference.flow.status-check',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.flow.new-request', 'reference.flow.change-request', 'reference.flow.status-check'],
   },
   {
     kind: 'K050',
     cause: 'Make generated tool-call assertions match the reference follower for the selected tool role.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.tool.read',
-      'reference.tool.list',
-      'reference.tool.write',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.tool.read', 'reference.tool.list', 'reference.tool.write'],
   },
   {
     kind: 'K051',
     cause: 'Make generated end-state assertions match the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.end-state',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.end-state'],
   },
   {
     kind: 'K052',
     cause: 'Make generated must and must-not assertions match the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.text',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.text'],
   },
   {
     kind: 'K053',
     cause: 'Make generated message-format assertions match the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.format',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.format'],
   },
   {
     kind: 'K054',
     cause: 'Keep initially green machine blocks green on every repeated run of the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#referenceItems',
-    ],
-    items: [
-      'reference.stable',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#referenceItems'],
+    items: ['reference.stable'],
   },
   {
     kind: 'K055',
     cause: 'Assert behaviour that a constant-reply agent cannot pass.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#cheaterItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#cheaterItems'],
     items: [
       'cheater.constant.graph',
       'cheater.constant.twise',
@@ -612,9 +413,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K056',
     cause: 'Assert behaviour that an agent echoing the stimulus cannot pass.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#cheaterItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#cheaterItems'],
     items: [
       'cheater.echo.graph',
       'cheater.echo.twise',
@@ -626,9 +425,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K057',
     cause: 'Assert behaviour that copying all Given values cannot pass.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#cheaterItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#cheaterItems'],
     items: [
       'cheater.copy-given.graph',
       'cheater.copy-given.twise',
@@ -640,9 +437,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K058',
     cause: 'Assert the correct tool inputs and counts rather than accepting an agent calling every tool.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#cheaterItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#cheaterItems'],
     items: [
       'cheater.every-tool.graph',
       'cheater.every-tool.twise',
@@ -653,10 +448,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K059',
-    cause: 'Assert context-dependent tool calls rather than accepting a replay of the hand-written baseline calls.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#cheaterItems',
-    ],
+    cause:
+      'Assert context-dependent tool calls rather than accepting a replay of the hand-written baseline calls.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#cheaterItems'],
     items: [
       'cheater.replay-suite.graph',
       'cheater.replay-suite.twise',
@@ -667,10 +461,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K060',
-    cause: 'Generate a reference-green, cheater-red tool assertion for every applicable schema boundary value.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#boundaryItems',
-    ],
+    cause:
+      'Generate a reference-green, cheater-red tool assertion for every applicable schema boundary value.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#boundaryItems'],
     items: [
       'boundary.read.in.enum',
       'boundary.read.in.below-minimum',
@@ -706,10 +499,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K061',
-    cause: 'Set up each sampled fault class so it changes behaviour and give every changed instance a causal machine assertion that kills it.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#faultItems',
-    ],
+    cause:
+      'Set up each sampled fault class so it changes behaviour and give every changed instance a causal machine assertion that kills it.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#faultItems'],
     items: [
       'fault.X1.enum-next',
       'fault.X1.enum-first',
@@ -786,9 +578,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K062',
     cause: 'Kill every applicable non-code fault in perturbed execution with a valid run setup.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#modeItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#modeItems'],
     items: [
       'mode.P.X1.enum-next',
       'mode.P.X1.enum-first',
@@ -845,9 +635,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K063',
     cause: 'Kill every applicable non-code fault in teacher-forced execution with a valid run setup.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#modeItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#modeItems'],
     items: [
       'mode.T.X1.enum-next',
       'mode.T.X1.enum-first',
@@ -904,9 +692,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K064',
     cause: 'Kill every every-time instance of each deviation family in free-running execution.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#modeItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#modeItems'],
     items: [
       'mode.F.D1_off_topic',
       'mode.F.D2_goal_shift',
@@ -923,9 +709,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K065',
     cause: 'Declare an executable perturbation for each required deviation class in complete specs.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#modeItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#modeItems'],
     items: [
       'perturbation.declared.D1_off_topic',
       'perturbation.declared.D2_goal_shift',
@@ -941,10 +725,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K066',
-    cause: 'Derive deviation recovery stage, required text and tool counts from the approved recovery relation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#modeItems',
-    ],
+    cause:
+      'Derive deviation recovery stage, required text and tool counts from the approved recovery relation.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#modeItems'],
     items: [
       'perturbation.recovery.D1_off_topic',
       'perturbation.recovery.D2_goal_shift',
@@ -961,9 +744,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K067',
     cause: 'Cover every allowed pair of selected map axes in complete-spec placements.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#coverageItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#coverageItems'],
     items: [
       'cover.pair.behaviour.deviation',
       'cover.pair.behaviour.channel',
@@ -979,10 +760,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K068',
-    cause: 'Cover every jointly reachable triple and exclude placements that no single map position can carry.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#coverageItems',
-    ],
+    cause:
+      'Cover every jointly reachable triple and exclude placements that no single map position can carry.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#coverageItems'],
     items: [
       'cover.triple.behaviour.deviation.channel',
       'cover.triple.behaviour.deviation.stage',
@@ -999,9 +779,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K069',
     cause: 'Generate a complete flow-tagged injection for every deviation required by the inventory.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#coverageItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#coverageItems'],
     items: [
       'cover.required.D1_off_topic',
       'cover.required.D2_goal_shift',
@@ -1017,10 +795,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K070',
-    cause: 'Remove duplicate fault-killing blocks only when deletion preserves retained execution, map obligations and causal kills.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#minimalityItems',
-    ],
+    cause:
+      'Remove duplicate fault-killing blocks only when deletion preserves retained execution, map obligations and causal kills.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#minimalityItems'],
     items: [
       'minimal.X1.enum-next',
       'minimal.X1.enum-first',
@@ -1076,10 +853,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K071',
-    cause: 'Remove duplicate seeder blocks only when deletion preserves retained execution, obligations and causal kills, keeping legitimate metamorphic families.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#minimalityItems',
-    ],
+    cause:
+      'Remove duplicate seeder blocks only when deletion preserves retained execution, obligations and causal kills, keeping legitimate metamorphic families.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#minimalityItems'],
     items: [
       'minimal.seeder.graph',
       'minimal.seeder.twise',
@@ -1090,10 +866,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K072',
-    cause: 'Retain a causal killing block for every member of a sampled fault combination when that combination executes.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#interactionItems',
-    ],
+    cause:
+      'Retain a causal killing block for every member of a sampled fault combination when that combination executes.',
+    checks: ['packages/validators/src/ladders/generator/bank.ts#interactionItems'],
     items: [
       'pair.X1.enum-next+X1.enum-first',
       'pair.X1.enum-next+X1.integer-up',
@@ -2355,9 +2130,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K073',
     cause: 'Keep each sampled fault killed under every tested generator-seed offset.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#stabilityItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#stabilityItems'],
     items: [
       'stable.X1.enum-next',
       'stable.X1.enum-first',
@@ -2414,119 +2187,67 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K074',
     cause: 'Keep two scaled generation runs within half the measured CPU-time budget.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.time',
-      'scale.100x.time',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.time', 'scale.100x.time'],
   },
   {
     kind: 'K075',
     cause: 'Produce schema-valid and lint-clean specs at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.valid',
-      'scale.100x.valid',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.valid', 'scale.100x.valid'],
   },
   {
     kind: 'K076',
     cause: 'Keep scaled generation byte-for-byte deterministic for the same map and seed.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.bytes',
-      'scale.100x.bytes',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.bytes', 'scale.100x.bytes'],
   },
   {
     kind: 'K077',
     cause: 'Preserve complete graph coverage at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.graph',
-      'scale.100x.graph',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.graph', 'scale.100x.graph'],
   },
   {
     kind: 'K078',
     cause: 'Cover every required allowed t-wise tuple at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.twise',
-      'scale.100x.twise',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.twise', 'scale.100x.twise'],
   },
   {
     kind: 'K079',
     cause: 'Generate a boundary spec for every supported data value at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.boundary',
-      'scale.100x.boundary',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.boundary', 'scale.100x.boundary'],
   },
   {
     kind: 'K080',
     cause: 'Generate a probe for every required deviation class at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.deviation',
-      'scale.100x.deviation',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.deviation', 'scale.100x.deviation'],
   },
   {
     kind: 'K081',
     cause: 'Walk every required path at each tested scale.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.paths',
-      'scale.100x.paths',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.paths', 'scale.100x.paths'],
   },
   {
     kind: 'K082',
     cause: 'Keep at least ninety percent of scaled generated specs complete.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.complete',
-      'scale.100x.complete',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.complete', 'scale.100x.complete'],
   },
   {
     kind: 'K083',
     cause: 'Make every measured scaled machine block pass on the reference follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank.ts#scaleItems',
-    ],
-    items: [
-      'scale.10x.follower',
-      'scale.100x.follower',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank.ts#scaleItems'],
+    items: ['scale.10x.follower', 'scale.100x.follower'],
   },
   {
     kind: 'K084',
     cause: 'Generate at least one complete scenario that walks each selected declared path.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.new-request-full.walked',
       'paths.status-check-lookup.walked',
@@ -2536,9 +2257,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K085',
     cause: 'Walk every approved value that a selected path reads.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.new-request-full.values',
       'paths.status-check-lookup.values',
@@ -2548,9 +2267,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K086',
     cause: 'Walk each selected path on every applicable channel.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.new-request-full.channels',
       'paths.status-check-lookup.channels',
@@ -2560,9 +2277,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K087',
     cause: 'Walk each selected path for every applicable persona.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.new-request-full.personas',
       'paths.status-check-lookup.personas',
@@ -2572,9 +2287,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K088',
     cause: 'Probe every deviation required by the flow on each selected path.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.new-request-full.probes',
       'paths.status-check-lookup.probes',
@@ -2584,59 +2297,37 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K089',
     cause: 'Assert an end state on every generated scenario that actually reaches the path end.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
-    items: [
-      'paths.new-request-full.end-state',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
+    items: ['paths.new-request-full.end-state'],
   },
   {
     kind: 'K090',
     cause: 'Generate complete scenarios for the declared extra-edge paths.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
-    items: [
-      'paths.extras.walked',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
+    items: ['paths.extras.walked'],
   },
   {
     kind: 'K091',
     cause: 'Generate a complete scenario for every path declared in the hidden map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
-    items: [
-      'paths.all-walked',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
+    items: ['paths.all-walked'],
   },
   {
     kind: 'K092',
     cause: 'List every declared path without a generated scenario in the graph unwalked report.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
-    items: [
-      'paths.unwalked-reported',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
+    items: ['paths.unwalked-reported'],
   },
   {
     kind: 'K093',
     cause: 'Record the walked path identifier in generated scenario metadata.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
-    items: [
-      'paths.recorded',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
+    items: ['paths.recorded'],
   },
   {
     kind: 'K094',
     cause: 'Assert the approved reply language on every complete block from each seeder.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.lang.graph',
       'paths.lang.twise',
@@ -2648,9 +2339,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K095',
     cause: 'Forbid every unused tool or assert a zero call count for it throughout the generated scenario.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#pathItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#pathItems'],
     items: [
       'paths.closed-tools.graph',
       'paths.closed-tools.twise',
@@ -2662,9 +2351,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K096',
     cause: 'Continue the original scenario after a deviation probe rather than ending at its recovery.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#sequenceItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#sequenceItems'],
     items: [
       'sequence.after.D1_off_topic',
       'sequence.after.D2_goal_shift',
@@ -2681,9 +2368,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K097',
     cause: 'Probe a deviation at every reachable intermediate stage and at no stage the map forbids for it.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#sequenceItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#sequenceItems'],
     items: [
       'sequence.stages.D1_off_topic',
       'sequence.stages.D2_goal_shift',
@@ -2700,9 +2385,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K098',
     cause: 'Walk every declared ordered incoming-and-outgoing edge pair through each selected stage.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#sequenceItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#sequenceItems'],
     items: [
       'sequence.through.opening',
       'sequence.through.intake',
@@ -2716,9 +2399,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K099',
     cause: 'Place at least one complete spec or event on every required value of the selected dimension.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#allocationItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#allocationItems'],
     items: [
       'allocation.behaviour.present',
       'allocation.deviation.present',
@@ -2729,10 +2410,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K100',
-    cause: 'Keep every selected value represented and the largest placement count at most three times the smallest.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#allocationItems',
-    ],
+    cause:
+      'Keep every selected value represented and the largest placement count at most three times the smallest.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#allocationItems'],
     items: [
       'allocation.behaviour.ratio',
       'allocation.deviation.ratio',
@@ -2744,9 +2424,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K101',
     cause: 'Keep placement Pielou evenness at least 0.9 for the selected dimension.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#allocationItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#allocationItems'],
     items: [
       'allocation.behaviour.evenness',
       'allocation.deviation.evenness',
@@ -2757,10 +2435,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K102',
-    cause: 'Keep the effective number of occupied values, measured by Hill order one, at least eighty percent of the available values.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#allocationItems',
-    ],
+    cause:
+      'Keep the effective number of occupied values, measured by Hill order one, at least eighty percent of the available values.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#allocationItems'],
     items: [
       'allocation.behaviour.hill1',
       'allocation.deviation.hill1',
@@ -2771,10 +2448,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K103',
-    cause: 'Change the asserted tool input when a scenario changes to a different approved enum member on the same path.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    cause:
+      'Change the asserted tool input when a scenario changes to a different approved enum member on the same path.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'contrast.read.enum.0-1',
       'contrast.read.enum.0-2',
@@ -2789,10 +2465,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K104',
-    cause: 'Assert one read-only tool call with the exact integer requested on each adjacent boundary partition.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    cause:
+      'Assert one read-only tool call with the exact integer requested on each adjacent boundary partition.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'contrast.read.integer.at-minimum-above-minimum',
       'contrast.read.integer.below-maximum-at-maximum',
@@ -2803,9 +2478,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K105',
     cause: 'Forbid direct side-effecting calls when an integer request has no required confirmation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'contrast.write.integer.at-minimum-above-minimum',
       'contrast.write.integer.below-maximum-at-maximum',
@@ -2813,10 +2486,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K106',
-    cause: 'Keep machine expectations unchanged for scenarios differing only in persona while preserving all input and output data.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    cause:
+      'Keep machine expectations unchanged for scenarios differing only in persona while preserving all input and output data.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'invariance.new-request-full.persona',
       'invariance.status-check-lookup.persona',
@@ -2825,10 +2497,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K107',
-    cause: 'Produce scenarios on the same path whose different input slot values lead to different machine expectations.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    cause:
+      'Produce scenarios on the same path whose different input slot values lead to different machine expectations.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'contrast.new-request-full.values',
       'contrast.status-check-lookup.values',
@@ -2837,10 +2508,9 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K108',
-    cause: 'Keep machine expectations unchanged for scenarios differing only in channel while preserving all input and output data.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank2.ts#contrastItems',
-    ],
+    cause:
+      'Keep machine expectations unchanged for scenarios differing only in channel while preserving all input and output data.',
+    checks: ['packages/validators/src/ladders/generator/bank2.ts#contrastItems'],
     items: [
       'invariance.new-request-full.channel',
       'invariance.status-check-lookup.channel',
@@ -2849,33 +2519,24 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K109',
-    cause: 'Report the singleton-cell count divided by the total placed count, with the defined empty-sample value.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.discovery',
-    ],
+    cause:
+      'Report the singleton-cell count divided by the total placed count, with the defined empty-sample value.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.discovery'],
   },
   {
     kind: 'K110',
-    cause: 'Report the bias-corrected Chao sample coverage computed from total placements, singleton cells and doubleton cells.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.chao_coverage',
-    ],
+    cause:
+      'Report the bias-corrected Chao sample coverage computed from total placements, singleton cells and doubleton cells.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.chao_coverage'],
   },
   {
     kind: 'K111',
-    cause: 'Report the observed occupied cells plus the defined Chao1 unseen-cell estimate, including its zero-doubleton case.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.chao1',
-    ],
+    cause:
+      'Report the observed occupied cells plus the defined Chao1 unseen-cell estimate, including its zero-doubleton case.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.chao1'],
   },
   {
     kind: 'K112',
@@ -2896,22 +2557,14 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K113',
     cause: 'Report the exponential Shannon entropy of the measured occupied-cell shares.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.hill_q1',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.hill_q1'],
   },
   {
     kind: 'K114',
     cause: 'Report the inverse sum of squared occupied-cell shares with the defined empty-sample guard.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.hill_q2',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.hill_q2'],
   },
   {
     kind: 'K115',
@@ -2932,69 +2585,43 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K116',
     cause: 'Report the share of allowed three-way cells covered by complete specs.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.t3_share',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.t3_share'],
   },
   {
     kind: 'K117',
     cause: 'Report the number of allowed three-way cells in the prepared map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.t3_allowed',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.t3_allowed'],
   },
   {
     kind: 'K118',
     cause: 'Report the traffic-weighted coverage share computed over the prepared map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.weighted_share',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.weighted_share'],
   },
   {
     kind: 'K119',
     cause: 'Report the effective sample size returned by the weighted coverage calculation.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.effective_sample_size',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.effective_sample_size'],
   },
   {
     kind: 'K120',
     cause: 'Report how many required inventory cells are covered by complete specs.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.required_covered',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.required_covered'],
   },
   {
     kind: 'K121',
     cause: 'Report the total number of required inventory cells in the measured map.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
-    items: [
-      'report.required_total',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
+    items: ['report.required_total'],
   },
   {
     kind: 'K122',
     cause: 'Report each axis coverage count from the complete-spec placements for that axis.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures'],
     items: [
       'report.axis_behaviour',
       'report.axis_deviation',
@@ -3005,7 +2632,8 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K123',
-    cause: 'Report the fraction of complete-spec blocks that contain a machine assertion or spec-level machine rule.',
+    cause:
+      'Report the fraction of complete-spec blocks that contain a machine assertion or spec-level machine rule.',
     checks: [
       'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
       'packages/validators/src/ladders/generator/bank4.ts#seederReportItems',
@@ -3021,7 +2649,8 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K124',
-    cause: 'Report the count of complete-spec blocks left without a machine assertion or spec-level machine rule.',
+    cause:
+      'Report the count of complete-spec blocks left without a machine assertion or spec-level machine rule.',
     checks: [
       'packages/validators/src/ladders/generator/bank3.ts#reportItems / expectedMeasures',
       'packages/validators/src/ladders/generator/bank4.ts#seederReportItems',
@@ -3038,9 +2667,7 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K125',
     cause: 'Use every approved deviation phrase in a complete spec through its required carrier.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
     items: [
       'phrases.D1_off_topic',
       'phrases.D2_goal_shift',
@@ -3056,119 +2683,74 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K126',
     cause: 'Plant a tool error in the Given world of a complete spec for the tool-failure case.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.D8_tool_failure.given',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.D8_tool_failure.given'],
   },
   {
     kind: 'K127',
     cause: 'Use every approved transition phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.transitions',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.transitions'],
   },
   {
     kind: 'K128',
     cause: 'Use every approved input-data phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.data-in',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.data-in'],
   },
   {
     kind: 'K129',
     cause: 'Use every approved output-data phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.data-out',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.data-out'],
   },
   {
     kind: 'K130',
     cause: 'Use every approved flow phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.flows',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.flows'],
   },
   {
     kind: 'K131',
     cause: 'Use every approved persona phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.personas',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.personas'],
   },
   {
     kind: 'K132',
     cause: 'Use every approved behaviour and save phrase in a complete generated spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.behaviours',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.behaviours'],
   },
   {
     kind: 'K133',
     cause: 'State every bound data value as a complete value token in generated turns.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.slot-values',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.slot-values'],
   },
   {
     kind: 'K134',
     cause: 'Generate a complete metamorphic family for each value with multiple approved phrases.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.metamorphic',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.metamorphic'],
   },
   {
     kind: 'K135',
     cause: 'Avoid repeating the identical stimulus in consecutive blocks of a complete spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.no-repeat',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.no-repeat'],
   },
   {
     kind: 'K136',
-    cause: 'Keep foreign-language phrases out of ordinary turns unless a language-switch injection permits them.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#phraseItems',
-    ],
-    items: [
-      'phrases.other-language',
-    ],
+    cause:
+      'Keep foreign-language phrases out of ordinary turns unless a language-switch injection permits them.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#phraseItems'],
+    items: ['phrases.other-language'],
   },
   {
     kind: 'K137',
     cause: 'Generate at least one complete spec carrying the selected declared behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
     items: [
       'behaviour.lookup.covered',
       'behaviour.submit.covered',
@@ -3182,130 +2764,89 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   },
   {
     kind: 'K138',
-    cause: 'Exercise the selected behaviour with a lookup_record call in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.lookup.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a lookup_record call in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.lookup.exercised'],
   },
   {
     kind: 'K139',
-    cause: 'Exercise the selected behaviour with a submit_request call in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.submit.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a submit_request call in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.submit.exercised'],
   },
   {
     kind: 'K140',
-    cause: 'Exercise the selected behaviour with a list_options call in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.list.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a list_options call in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.list.exercised'],
   },
   {
     kind: 'K141',
-    cause: 'Exercise the selected behaviour with an off-topic injection in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.off-topic.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with an off-topic injection in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.off-topic.exercised'],
   },
   {
     kind: 'K142',
-    cause: 'Exercise the selected behaviour with a loose-confirmation injection in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.loose-yes.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a loose-confirmation injection in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.loose-yes.exercised'],
   },
   {
     kind: 'K143',
-    cause: 'Exercise the selected behaviour with a tool-failure injection in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.tool-failure.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a tool-failure injection in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.tool-failure.exercised'],
   },
   {
     kind: 'K144',
-    cause: 'Exercise the selected behaviour with an instruction-in-data injection in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.instruction.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with an instruction-in-data injection in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.instruction.exercised'],
   },
   {
     kind: 'K145',
-    cause: 'Exercise the selected behaviour with a workspace or artifact assertion in a complete spec that claims that behaviour.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.save.exercised',
-    ],
+    cause:
+      'Exercise the selected behaviour with a workspace or artifact assertion in a complete spec that claims that behaviour.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.save.exercised'],
   },
   {
     kind: 'K146',
     cause: 'Claim each behaviour only on a channel where the map says it applies.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.channels',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.channels'],
   },
   {
     kind: 'K147',
     cause: 'Cover every declared behaviour in at least one complete spec.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.all-covered',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.all-covered'],
   },
   {
     kind: 'K148',
     cause: 'Cover every flow behaviour in a spec tagged with that same flow.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.flows',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.flows'],
   },
   {
     kind: 'K149',
     cause: 'Back every covered behaviour with a machine assertion rather than judged criteria alone.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#behaviourItems',
-    ],
-    items: [
-      'behaviour.machine',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#behaviourItems'],
+    items: ['behaviour.machine'],
   },
   {
     kind: 'K150',
-    cause: 'Fail the planted fault at its first changed block in each affected spec while keeping that block green on the follower.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank3.ts#adequacyItems',
-    ],
+    cause:
+      'Fail the planted fault at its first changed block in each affected spec while keeping that block green on the follower.',
+    checks: ['packages/validators/src/ladders/generator/bank3.ts#adequacyItems'],
     items: [
       'adequacy.X1.enum-next',
       'adequacy.X1.enum-first',
@@ -3362,169 +2903,104 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K151',
     cause: 'Emit an observable machine assertion on each complete generated block.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.observed.no-machine-then',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.observed.no-machine-then'],
   },
   {
     kind: 'K152',
     cause: 'Make a complete block test observable behaviour beyond literal words an echo can copy.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.observed.words-only',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.observed.words-only'],
   },
   {
     kind: 'K153',
-    cause: 'Keep answer-bearing expected values out of the When except for legitimate user-supplied input values.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.leakage.expected-value-in-when',
-    ],
+    cause:
+      'Keep answer-bearing expected values out of the When except for legitimate user-supplied input values.',
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.leakage.expected-value-in-when'],
   },
   {
     kind: 'K154',
     cause: 'Do not seed the expected output value into the Given world.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.leakage.expected-value-in-given',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.leakage.expected-value-in-given'],
   },
   {
     kind: 'K155',
     cause: 'Remove answer-bearing overlap between the stimulus and its asserted answer.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.leakage.ngram-overlap',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.leakage.ngram-overlap'],
   },
   {
     kind: 'K156',
     cause: 'Use a generator family independent of the configured judge family.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.leakage.same-family-as-judge',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.leakage.same-family-as-judge'],
   },
   {
     kind: 'K157',
     cause: 'Add a discriminating assertion that a constant-reply control cannot pass.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.shortcut.passed-by-constant',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.shortcut.passed-by-constant'],
   },
   {
     kind: 'K158',
     cause: 'Add a discriminating assertion that an echo control cannot pass.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.shortcut.passed-by-echo',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.shortcut.passed-by-echo'],
   },
   {
     kind: 'K159',
     cause: 'Assert the correct tool and input rather than accepting the first available tool.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.shortcut.passed-by-first-tool',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.shortcut.passed-by-first-tool'],
   },
   {
     kind: 'K160',
     cause: 'Change the expected observable when an edited input changes the reference outcome.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.contrast.then-ignores-edit',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.contrast.then-ignores-edit'],
   },
   {
     kind: 'K161',
     cause: 'Give true input-equivalent twins the same expected signature and reference outcome.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.contrast.twins-disagree',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.contrast.twins-disagree'],
   },
   {
     kind: 'K162',
     cause: 'Make the generated block pass on the reference follower before using it to detect faults.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.red_first.not-green-on-reference',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.red_first.not-green-on-reference'],
   },
   {
     kind: 'K163',
     cause: 'Keep benign negative-control mutations green on the generated block.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.red_first.red-on-control',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.red_first.red-on-control'],
   },
   {
     kind: 'K164',
     cause: 'Generate the setup and assertion fields needed to target an applicable non-equivalent fault.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.red_first.targets-no-fault',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.red_first.targets-no-fault'],
   },
   {
     kind: 'K165',
     cause: 'Make a targeted fault fail the generated block while the reference remains green.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.red_first.kills-no-fault',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.red_first.kills-no-fault'],
   },
   {
     kind: 'K166',
     cause: 'Keep the generated block reference-green across the gate stability repeats.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.stability.flips',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.stability.flips'],
   },
   {
     kind: 'K167',
     cause: 'Keep at least ninety percent of each seeder blocks accepted by the validity gate.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
     items: [
       'gate.accepted.graph',
       'gate.accepted.twise',
@@ -3536,19 +3012,14 @@ export const GENERATOR_CAUSE_KINDS: readonly {
   {
     kind: 'K168',
     cause: 'Keep at least one gated-suite killer for every non-equivalent planted fault class.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#gateItems',
-    ],
-    items: [
-      'gate.killers',
-    ],
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#gateItems'],
+    items: ['gate.killers'],
   },
   {
     kind: 'K169',
-    cause: 'Carry each deviation through the user-message or world-change channel required by the users package.',
-    checks: [
-      'packages/validators/src/ladders/generator/bank4.ts#carrierItems',
-    ],
+    cause:
+      'Carry each deviation through the user-message or world-change channel required by the users package.',
+    checks: ['packages/validators/src/ladders/generator/bank4.ts#carrierItems'],
     items: [
       'perturbation.carrier.D1_off_topic',
       'perturbation.carrier.D2_goal_shift',

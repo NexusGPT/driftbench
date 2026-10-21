@@ -69,7 +69,9 @@ describe('generator ladder cause metadata', () => {
     const item = bankItems()[0];
     if (!item) throw new Error('The bank must contain an item');
     const report = await runSeeds(
-      generatorLadder({ items: [{ ...item, cause: undefined, check: async () => ({ pass: false, detail: '' }) }] }),
+      generatorLadder({
+        items: [{ ...item, cause: undefined, check: async () => ({ pass: false, detail: '' }) }],
+      }),
       [{ seed: 1, hidden: false }],
       root,
       { full: true },
