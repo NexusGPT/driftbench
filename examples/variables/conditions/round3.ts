@@ -19,7 +19,7 @@ const DESCRIPTION_PASS =
 const FAIL =
   'The text only names a related topic, a different actor or entity class, a different categorical state, an action or example, or an unstated prerequisite. A changed threshold, comparison strictness, unit or currency without an exact conversion, timing stage, or polarity is no. Unknown or unverified is not a negative fact. Implication and overlapping numeric ranges are insufficient. An unconditional action is not an explicit triggering condition.';
 const EXPLICIT_TRIGGER =
-  'Propose only an explicitly stated trigger, guard, or standalone condition description. An ordinary unconditional instruction about a subject is not a condition. Do not invent an existence prerequisite merely because an action refers to an entity. Preserve all qualifying facts of the stated condition. A new property, state or workflow stage of the SAME concrete subject belongs under its existing variable even if the variable title describes a narrower activity; its examples are not an exhaustive domain. A related but distinct entity does not belong to that variable.';
+  'Propose only an explicitly stated trigger, guard, or standalone condition description. An ordinary unconditional instruction about a subject is not a condition. Do not invent an existence prerequisite merely because an action refers to an entity. Preserve all qualifying facts of the stated condition. For domain membership, the entity or process named in a variable title is its subject. Workflow or interaction wording in that title is context, not a restriction on other properties, states, historical events or future stages of that SAME subject. This subject-domain interpretation takes precedence over a narrow reading of the activity wording. A related but distinct entity does not belong to that variable.';
 
 export const round3Options = {
   ...round2Options,
@@ -78,9 +78,9 @@ export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: rea
                 criterion: {
                   name: 'condition_mismatch:' + q.name,
                   rubric:
-                    'Compare the written condition predicates, not their logical consequences. Is there a material difference between the candidate predicate and its corresponding source predicate?',
-                  pass: 'Their actor/entity class, event, property, categorical state, timing stage, polarity, or epistemic status differs. Unknown or unverified differs from established absence. For numeric predicates compare the actual cutoff after exact unit conversion and strictness: different cutoffs are different even when one range implies or overlaps the other.',
-                  fail: 'The source explicitly states this same predicate, including a synonym, named instance of the same role, or concrete instance of the same categorical state. Numeric parameters are identical after exact unit conversion. Ignore a different predicate in another independent condition or in an action/example; compare only the corresponding condition.',
+                    'Is the corresponding source condition about a different actor/entity class, opposite polarity, or different knowledge status from this candidate?',
+                  pass: 'The candidate and corresponding source concern different actor or entity classes, opposite polarity, or different knowledge status. Unknown or unverified differs from established absence.',
+                  fail: 'They concern the same actor/entity class with compatible polarity and knowledge status. A named instance of a role or a concrete instance of the same categorical state is compatible even when the source adds qualifiers. Ignore other independent conditions and actions/examples. Numeric parameters are checked separately.',
                   scope: 'conversation',
                 },
                 transcript: [{ role: 'user', text: JSON.stringify({ candidate, source: text }) }],
@@ -95,6 +95,22 @@ export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: rea
               )
                 answers[q.name] = undefined;
               else if (probability >= ROUND3_THRESHOLD) answers[q.name] = { yes: 0 };
+              else {
+                const numeric = await judge.judge({
+                  criterion: {
+                    name: 'guard_parameters_equal:' + q.name,
+                    rubric: 'Are the numeric cutoff parameters of the candidate and corresponding source condition exactly equal after conversion to a common unit?',
+                    pass: 'The candidate has no numeric guard, or its numeric cutoff, unit or currency after exact conversion, and comparison strictness equal those of the corresponding source condition. More than 60 minutes equals more than 1 hour.',
+                    fail: 'A candidate numeric guard has a different cutoff, unit or currency without exact conversion, or comparison strictness. More than 90 minutes differs from more than 1 hour even though one range implies the other. Compare cutoff equality, never range containment. A number only in an action or another independent condition is not this guard.',
+                    scope: 'conversation',
+                  },
+                  transcript: [{ role: 'user', text: JSON.stringify({ candidate, source: text }) }],
+                });
+                const equal = numeric.answer.score;
+                if (numeric.unparsed || typeof equal !== 'number' || !Number.isFinite(equal) || equal < 0 || equal > 1)
+                  answers[q.name] = undefined;
+                else if (equal < ROUND3_THRESHOLD) answers[q.name] = { yes: 0 };
+              }
             } catch {
               answers[q.name] = undefined;
             }
