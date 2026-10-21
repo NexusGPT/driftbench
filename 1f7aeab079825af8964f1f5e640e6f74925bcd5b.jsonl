@@ -403,3 +403,4 @@
 {"text":"the 請求 score is over 445","label":{"kind":"numeric","subject":"請求 score","limit":445,"comparison":"gt"}}
 {"text":"the 請求 score is over 499","label":{"kind":"numeric","subject":"請求 score","limit":499,"comparison":"gt"}}
 {"text":"the 請求 score is under 590","label":{"kind":"numeric","subject":"請求 score","limit":590,"comparison":"lt"}}
+{"text":"the delay is at most 4 days","label":{"kind":"numeric","subject":"delay","limit":4,"comparison":"le","unit":"days"}}
