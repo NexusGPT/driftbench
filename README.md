@@ -808,12 +808,11 @@ blocks:
 To run it, `estate run` starts the agent in a sandbox copy of the estate and sends the block. Here the agent is a stand-in script, so nothing is spent:
 
 ```console
-$ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
+$ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json   # exit 1
 note: estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and: no judge, so its judged criteria are inconclusive (pass --judge claude:<model>)
 ✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
     judged instruction.weekly-report.count-only-what-the-ledger-and: inconclusive
-1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-6e681660dcbc.
 ```
 
 What a test holds:
