@@ -624,6 +624,27 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(JSON.stringify(workflow.jobs['pr-fast'].steps)).not.toMatch(/--changed|Tests affected/);
 }
 
+/** What the join of `pr affected` answers for the results of its slices: green only when every slice succeeded. */
+const AFFECTED_GATE_RESULTS: [string, number][] = [
+  ['success,success,success,success,success,success,success,success', 0],
+  ['success,success,success,failure,success,success,success,success', 1],
+  ['success,success,cancelled,success,success,success,success,success', 1],
+  ['success,success,success,success,success,success,success,skipped', 1],
+  ['skipped,skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  ['failure', 1],
+];
+
+function assertAffectedGate(command: string) {
+  for (const [results, expected] of AFFECTED_GATE_RESULTS) {
+    const result = spawnSync('bash', ['-c', command], {
+      encoding: 'utf8',
+      env: { ...process.env, RESULTS: results },
+    });
+    expect(result.status, results).toBe(expected);
+    if (expected === 1) expect(result.stdout).toMatch(/::error::/);
+  }
+}
+
 /**
  * The slices of `pr affected` and the job that joins them, the same shape in ci.yml and in the retarget workflow: the
  * affected tests run in AFFECTED_SHARDS slices, and the join is red unless every slice succeeded.
@@ -644,7 +665,7 @@ function assertAffectedJobs(workflow: ReturnType<typeof parse>, shardId: string,
   expect(gate?.env?.RESULTS).toBe("${{ join(needs.*.result, ',') }}");
   expect(gate?.run).not.toContain('${{');
   expect(gate?.if).toBeUndefined();
-  assertJoinGate(gate?.run as string);
+  assertAffectedGate(gate?.run as string);
   expect(shard.steps[0].with['fetch-depth']).toBe(0);
   const commands = shard.steps.map((step: { run?: string }) => step.run);
   expect(commands).toContain(AFFECTED_COMMAND);
