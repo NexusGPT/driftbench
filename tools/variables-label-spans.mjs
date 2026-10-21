@@ -61,8 +61,8 @@ const SYSTEM = [
   '{"kind":"numeric","subject":<what is measured, a short noun phrase>,"limit":<number>,"comparison":"lt"|"le"|"gt"|"ge"|"eq"|"ne","unit":<optional unit>}',
   '{"kind":"range","subject":<noun phrase>,"low":<number>,"high":<number>,"unit":<optional>}',
   '{"kind":"member","subject":<noun phrase>,"members":[<the listed members>]}',
-  '{"kind":"boolean","subject":<noun phrase>}',
-  '{"kind":"none"}  (the clause states no condition on a quantity, a set or a yes/no fact)',
+  '{"kind":"boolean","subject":<noun phrase>}  (a fact that is true or false of the case, such as something being attached or a person being verified; a clause that states the fact, or its negation, is boolean)',
+  '{"kind":"none"}  (the clause states no condition on a quantity, a set or a yes/no fact: an instruction, a past figure, a section number)',
   'Write numbers as digits. "at most" is le, "fewer than" is lt, "more than" is gt, "at least" is ge.',
 ].join('\n');
 
