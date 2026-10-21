@@ -113,8 +113,6 @@ const blank = (text: unknown): boolean => typeof text !== 'string' || text.trim(
 
 /** An unpaired UTF-16 surrogate: text with one is not well-formed Unicode, and two such texts encode alike. */
 const UNPAIRED = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
-const wellFormed = (...texts: readonly unknown[]): boolean =>
-  texts.every((text) => typeof text !== 'string' || !UNPAIRED.test(text));
 /** The text with each unpaired surrogate shown as U+FFFD, for a refusal that names it. */
 const shown = (text: string): string => text.replace(new RegExp(UNPAIRED.source, 'g'), '\uFFFD');
 const NOT_WELL_FORMED =
@@ -307,12 +305,110 @@ function ownerEntry(words: unknown, date: unknown): OwnerEntry | string {
   return { kind: 'owner', words: words as string, date };
 }
 
+/** Whether a string, an array or an object holds, anywhere in its keys or values, a string that is not well-formed. */
+function illFormedAnywhere(value: unknown): boolean {
+  if (typeof value === 'string') return UNPAIRED.test(value);
+  if (Array.isArray(value)) return value.some(illFormedAnywhere);
+  if (isRecord(value)) {
+    return Object.entries(value).some(([key, inner]) => UNPAIRED.test(key) || illFormedAnywhere(inner));
+  }
+  return false;
+}
+
+/**
+ * The one well-formedness pass, before anything else reads the sources. Text with an unpaired UTF-16 surrogate, in a
+ * key or a value at any depth, is not well-formed Unicode: two such texts encode to the same replacement text and
+ * would share an id or a hash. Each entry that holds one (a file, a rule, a condition, a tool value, a session, an
+ * owner entry) is left out and refused once, with a reason and its text escaped. What is left is read as given.
+ */
+function wellFormedSources(sources: VariableSources): { clean: VariableSources; refused: SourceRefusal[] } {
+  const refused: SourceRefusal[] = [];
+  const drop = (what: string): void => {
+    refused.push({ what: shown(what), reason: NOT_WELL_FORMED });
+  };
+  const name = (value: unknown): string => (typeof value === 'string' ? value : JSON.stringify(value) ?? '');
+  let estate = sources.estate;
+  if (estate !== undefined && isRecord(estate)) {
+    const files: Record<string, string> = {};
+    for (const [path, text] of Object.entries(estate.files ?? {})) {
+      if (illFormedAnywhere([path, text])) drop(`file ${path}`);
+      else files[path] = text;
+    }
+    const rules = (estate.rules ?? []).flatMap((rule) => {
+      if (illFormedAnywhere([rule.id, rule.source])) {
+        drop(`rule ${name(rule.id)}`);
+        return [];
+      }
+      const conditions = (rule.conditions ?? []).filter((condition) => {
+        const bad = illFormedAnywhere(condition);
+        if (bad) drop(name(condition?.text));
+        return !bad;
+      });
+      const tools = (rule.tools ?? []).map((tool) => {
+        const whole = illFormedAnywhere([tool.tool, tool.field, tool.source]);
+        const values = (tool.values ?? []).filter((value) => {
+          const bad = whole || illFormedAnywhere(value);
+          if (bad) drop(`${name(tool.tool)}.${name(tool.field)}.${name(value?.id)}`);
+          return !bad;
+        });
+        return { ...tool, values };
+      });
+      return [{ ...rule, conditions, tools }];
+    });
+    estate = { ...estate, files, rules };
+  }
+  const conversations = sources.conversations?.filter((session) => {
+    const bad = illFormedAnywhere(session);
+    if (bad) drop(`session ${name(session?.id)}`);
+    return !bad;
+  });
+  let owner = sources.owner;
+  if (owner !== undefined && isRecord(owner)) {
+    const keep = <T,>(list: readonly T[] | undefined, kind: string): T[] | undefined =>
+      list?.filter((entry) => {
+        const bad = illFormedAnywhere(entry);
+        if (bad) drop(`owner ${kind} ${name(entry)}`);
+        return !bad;
+      });
+    owner = {
+      ...owner,
+      ...(owner.values === undefined ? {} : { values: keep(owner.values, 'value') as NonNullable<SourceOwner['values']> }),
+      ...(owner.impossible === undefined
+        ? {}
+        : { impossible: keep(owner.impossible, 'pair') as NonNullable<SourceOwner['impossible']> }),
+      ...(owner.weights === undefined
+        ? {}
+        : { weights: keep(owner.weights, 'weight') as NonNullable<SourceOwner['weights']> }),
+    };
+  }
+  const clean: VariableSources = {
+    ...(estate === undefined ? {} : { estate }),
+    ...(conversations === undefined ? {} : { conversations }),
+    ...(owner === undefined ? {} : { owner }),
+  };
+  return { clean, refused };
+}
+
 export function variablesFromSources(
   sources: VariableSources,
   options: VariablesFromSourcesOptions = {},
 ): VariablesFromSources {
+  const { clean, refused: illFormed } = wellFormedSources(sources);
+  const built = readSources(clean, options);
+  if (illFormed.length === 0) return built;
+  return {
+    ...built,
+    refused: [...built.refused, ...illFormed].sort((x, y) => {
+      const [kx, ky] = [identity('refusal', x.what, x.reason), identity('refusal', y.what, y.reason)];
+      return kx < ky ? -1 : kx > ky ? 1 : 0;
+    }),
+  };
+}
+
+function readSources(sources: VariableSources, options: VariablesFromSourcesOptions): VariablesFromSources {
   const refused: SourceRefusal[] = [];
-  const refuse = (what: string, reason: string) => refused.push({ what, reason });
+  // Every refusal prints its text through one escape: a lone surrogate is shown as U+FFFD, never as itself.
+  const refuse = (what: string, reason: string) => refused.push({ what: shown(what), reason: shown(reason) });
 
   // ---------------------------------------------------------------------------------------------- the estate
   const files = new Map(Object.entries(sources.estate?.files ?? {}));
@@ -453,12 +549,6 @@ export function variablesFromSources(
       }
       const label = condition.label;
       if (label === undefined || label.kind === 'none') continue;
-      const labelled: unknown[] = [label.subject, 'unit' in label ? label.unit : undefined];
-      if (label.kind === 'member') labelled.push(...(label.members ?? []));
-      if (!wellFormed(...labelled)) {
-        refuse(shown(condition.text), NOT_WELL_FORMED);
-        continue;
-      }
       const entry: QuoteEntry = { kind: 'quote', path: rule.source, quote: condition.text };
       const made = conditionVariable(label, entry);
       if (made === undefined)
@@ -470,10 +560,9 @@ export function variablesFromSources(
       // The pair, not its dotted title, identifies the variable: "a.b" with "c" and "a" with "b.c" are two.
       const name = identity('tool-field', String(tool.tool), String(tool.field));
       for (const value of tool.values ?? []) {
-        const what = shown(`${title}.${value.id}`);
+        const what = `${title}.${value.id}`;
         let reason: string | undefined;
-        if (!wellFormed(tool.tool, tool.field, value.id)) reason = NOT_WELL_FORMED;
-        else if (blank(value.quote)) reason = 'the value has no quote to stand on';
+        if (blank(value.quote)) reason = 'the value has no quote to stand on';
         else if (value.quote.length > MAX_TEXT) reason = `the quote is longer than ${MAX_TEXT} characters`;
         else if (!index.has(tool.source)) reason = 'the file the quote names is not among the files given';
         else if (!index.contains(tool.source, value.quote)) reason = 'the file does not hold this quote';
@@ -567,10 +656,6 @@ export function variablesFromSources(
       refuse(what, 'the owner named no value');
       continue;
     }
-    if (!wellFormed(entry.value)) {
-      refuse(shown(what), NOT_WELL_FORMED);
-      continue;
-    }
     const { key } = addValue(draft, entry.value);
     (draft.values.get(key) as ValueDraft).owner.set(ownerKey(stamp), stamp);
   }
@@ -579,7 +664,6 @@ export function variablesFromSources(
   const sessions = sources.conversations ?? [];
   const seenVariables = new Map<string, Map<string, number>>();
   const unknown = new Set<string>();
-  const illFormed = new Set<string>();
   for (const session of sessions) {
     if (!isRecord(session.values)) continue;
     for (const [variableId, valueId] of Object.entries(session.values)) {
@@ -589,10 +673,6 @@ export function variablesFromSources(
         continue;
       }
       if (typeof valueId !== 'string' || valueId === '') continue;
-      if (!wellFormed(valueId)) {
-        illFormed.add(shown(`${variableId}=${valueId}`));
-        continue;
-      }
       const { key, created } = addValue(draft, valueId);
       const value = draft.values.get(key) as ValueDraft;
       if (created) value.proposal = true;
@@ -601,7 +681,6 @@ export function variablesFromSources(
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
   }
-  for (const what of [...illFormed].sort()) refuse(what, NOT_WELL_FORMED);
   for (const variableId of [...unknown].sort()) {
     refuse(variableId, 'no variable of the store has this id, so the sessions that show it were not counted');
   }
