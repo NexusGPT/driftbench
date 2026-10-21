@@ -284,7 +284,10 @@ describe('the documented tool borrow on the real fixture suite', { timeout: 600_
     const suite = await fixture.fixtureSuite();
     const unset = new Set((await unsetAsks(suite)).map((one) => one.id));
     for (const id of TOOL_SPECS) {
-      expect(suite.specs.some((one) => one.id === id && one.complete), id).toBe(true);
+      expect(
+        suite.specs.some((one) => one.id === id && one.complete),
+        id,
+      ).toBe(true);
       expect(unset.has(id), id).toBe(false);
     }
     const out = await taskFamily().evaluate(1);
