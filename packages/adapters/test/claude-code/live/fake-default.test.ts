@@ -63,7 +63,11 @@ it('stops doing what a declared line said once the copy no longer holds its quot
 
 it('replays an unchanged recording only through an explicit manifest', async () => {
   // The manifest plays the read-first recording while the estate still holds the rule the recording follows.
-  const work = await audit('Read `references/matching-rules.md` before matching any line.', [], 'invoice-reconcile');
+  const work = await audit(
+    'Read `references/matching-rules.md` before matching any line.',
+    [],
+    'invoice-reconcile',
+  );
   const manifest = join(ESTATE, 'live/fake/manifest.json');
   const recorded = (await readFile(join(ESTATE, 'live/fake/streams/invoice-match.jsonl'), 'utf8'))
     .trim()
@@ -105,9 +109,13 @@ it('dispatches the helper a dispatch link names, while the helper is in force', 
   const work = await audit(line);
   await mkdir(join(work.dir, '.claude/agents'));
   const helper = join(work.dir, '.claude/agents/amount-reader.md');
-  const body = '---\nname: amount-reader\ndescription: Compare the amounts in records.\n---\nRead the amounts.\n';
+  const body =
+    '---\nname: amount-reader\ndescription: Compare the amounts in records.\n---\nRead the amounts.\n';
   await writeFile(helper, body);
-  declare(work, [declared.helper('amount-reader'), declared.dispatch('instruction.amounts', line, 'amount-reader')]);
+  declare(work, [
+    declared.helper('amount-reader'),
+    declared.dispatch('instruction.amounts', line, 'amount-reader'),
+  ]);
   const used = calls(play(work.dir));
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Agent']);
   expect(used[1]?.input.subagent_type).toBe('amount-reader');
@@ -140,7 +148,11 @@ it('keeps the order of the lines when no gate orders the actions', async () => {
 it('puts the read of a gate before every action of the tool its act uses, wherever the gate stands', async () => {
   const gate = 'Before running the check, read `references/policy.md`.';
   for (const body of [`${gate}\n${RUN}`, `${RUN}\n${gate}`, `## Work\n${RUN}\n\n## Prerequisites\n${gate}`]) {
-    const work = await audit(body, [script(), reference(gate), declared.gate('gate.policy', gate, POLICY, 'Bash')]);
+    const work = await audit(body, [
+      script(),
+      reference(gate),
+      declared.gate('gate.policy', gate, POLICY, 'Bash'),
+    ]);
     const used = calls(play(work.dir));
     expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
     expect(used[1]?.input.file_path).toBe(join(work.dir, POLICY));
@@ -260,7 +272,10 @@ it('stops on gates that contradict each other instead of choosing an order', asy
 it('does not run a command whose gated file cannot be read', async () => {
   const missing = `${SKILL}/references/missing.md`;
   const gate = 'Before running the check, read `references/missing.md`.';
-  const work = await audit(`${RUN}\n${gate}`, [script(), declared.gate('gate.missing', gate, missing, 'Bash')]);
+  const work = await audit(`${RUN}\n${gate}`, [
+    script(),
+    declared.gate('gate.missing', gate, missing, 'Bash'),
+  ]);
   const records = play(work.dir);
   expect(names(records)).toEqual(['Skill', 'Read']);
   expect(JSON.stringify(records)).toContain(`File not found: ${missing}`);
@@ -330,9 +345,7 @@ it('applies a forbid case of a standing file to the skill, relative to the estat
   const ban = 'Never read `.claude/skills/invoice-audit/references/policy.md`.';
   const work = await audit(READ, [reference()]);
   await writeFile(join(work.dir, 'CLAUDE.md'), `${ban}\n`);
-  declare(work, [
-    { ...declared.ban('instruction.standing', ban, 'Read', POLICY), file: 'CLAUDE.md' },
-  ]);
+  declare(work, [{ ...declared.ban('instruction.standing', ban, 'Read', POLICY), file: 'CLAUDE.md' }]);
   const records = play(work.dir);
   expect(names(records)).toEqual(['Skill']);
   expect(JSON.stringify(records)).not.toContain('Read from this estate.');
@@ -351,8 +364,14 @@ it('stops as unresolved when the passage of a forbid case holds a condition', as
 
 it('lifts a forbid case once the copy no longer holds its quote', async () => {
   const ban = 'Never run `node scripts/check.mjs`.';
-  const work = await audit(`${ban}\n${RUN}`, [declared.ban('instruction.ban', ban, 'Bash', 'node scripts/check.mjs'), script()]);
-  await writeFile(join(work.dir, CHECK), 'import { writeFileSync } from "node:fs"; writeFileSync("executed.txt", "ran");');
+  const work = await audit(`${ban}\n${RUN}`, [
+    declared.ban('instruction.ban', ban, 'Bash', 'node scripts/check.mjs'),
+    script(),
+  ]);
+  await writeFile(
+    join(work.dir, CHECK),
+    'import { writeFileSync } from "node:fs"; writeFileSync("executed.txt", "ran");',
+  );
   expect(names(play(work.dir))).toEqual(['Skill']);
   expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
   const file = join(work.dir, SKILL, 'SKILL.md');

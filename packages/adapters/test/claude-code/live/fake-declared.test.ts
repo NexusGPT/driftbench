@@ -15,7 +15,8 @@ afterEach(async () => {
   while (cleanups.length) await cleanups.pop()?.();
 });
 
-const HELPER = '---\nname: amount-reader\ndescription: Compare the amounts in records.\n---\nRead the amounts.\n';
+const HELPER =
+  '---\nname: amount-reader\ndescription: Compare the amounts in records.\n---\nRead the amounts.\n';
 
 /** One structure in three wordings: a command, a file to read before any command, and a helper to hand work to. */
 const wordings = [
@@ -72,28 +73,38 @@ const bans = [
   ['French', 'Lancez `node scripts/check.mjs`.', 'Ne lancez jamais `node scripts/check.mjs`.'],
 ] as const;
 
-it.each(bans)('refuses the call a declared prohibition forbids, whatever its words: %s', async (_name, run, ban) => {
-  const work = await estate('invoice-audit', `${run}\n${ban}`);
-  cleanups.push(work.done);
-  await writeFile(
-    join(work.dir, '.claude/skills/invoice-audit/scripts/check.mjs'),
-    'require("node:fs").writeFileSync("executed.txt", "forbidden command ran");',
-  );
-  declare(work, [
-    declared.script('script.check', run, '.claude/skills/invoice-audit/scripts/check.mjs'),
-    declared.ban('instruction.ban', ban, 'Bash', 'node scripts/check.mjs'),
-  ]);
-  const records = play(work.dir);
-  expect(names(records)).toEqual(['Skill']);
-  expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
-  expect(JSON.stringify(records)).toContain('An estate prohibition forbids this action');
-});
+it.each(bans)(
+  'refuses the call a declared prohibition forbids, whatever its words: %s',
+  async (_name, run, ban) => {
+    const work = await estate('invoice-audit', `${run}\n${ban}`);
+    cleanups.push(work.done);
+    await writeFile(
+      join(work.dir, '.claude/skills/invoice-audit/scripts/check.mjs'),
+      'require("node:fs").writeFileSync("executed.txt", "forbidden command ran");',
+    );
+    declare(work, [
+      declared.script('script.check', run, '.claude/skills/invoice-audit/scripts/check.mjs'),
+      declared.ban('instruction.ban', ban, 'Bash', 'node scripts/check.mjs'),
+    ]);
+    const records = play(work.dir);
+    expect(names(records)).toEqual(['Skill']);
+    expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
+    expect(JSON.stringify(records)).toContain('An estate prohibition forbids this action');
+  },
+);
 
 it('does not take a prohibition from the words of a line the map does not declare as one', async () => {
-  const work = await estate('invoice-audit', 'Run `node scripts/check.mjs`.\nNever run `node scripts/check.mjs`.');
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs`.\nNever run `node scripts/check.mjs`.',
+  );
   cleanups.push(work.done);
   declare(work, [
-    declared.script('script.check', 'Run `node scripts/check.mjs`.', '.claude/skills/invoice-audit/scripts/check.mjs'),
+    declared.script(
+      'script.check',
+      'Run `node scripts/check.mjs`.',
+      '.claude/skills/invoice-audit/scripts/check.mjs',
+    ),
   ]);
   const records = play(work.dir);
   expect(names(records)).toEqual(['Skill', 'Bash']);
@@ -107,7 +118,11 @@ it('does not take an order from the words of a line the map does not declare as 
   );
   cleanups.push(work.done);
   declare(work, [
-    declared.script('script.check', 'Run `node scripts/check.mjs`.', '.claude/skills/invoice-audit/scripts/check.mjs'),
+    declared.script(
+      'script.check',
+      'Run `node scripts/check.mjs`.',
+      '.claude/skills/invoice-audit/scripts/check.mjs',
+    ),
     declared.reference(
       'reference.policy',
       'Before running the check, read `references/policy.md`.',

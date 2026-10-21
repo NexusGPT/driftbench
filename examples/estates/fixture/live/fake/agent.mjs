@@ -18,7 +18,15 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
-import { intentsOf, loadDispatch, provocation, recoveryReads, replyActOf, setOff, unitPlan } from './dispatch.mjs';
+import {
+  intentsOf,
+  loadDispatch,
+  provocation,
+  recoveryReads,
+  replyActOf,
+  setOff,
+  unitPlan,
+} from './dispatch.mjs';
 
 const read = (path) => (existsSync(path) ? readFileSync(path, 'utf8') : undefined);
 
@@ -174,7 +182,9 @@ function ordered(plan, cwd) {
     if (gate.second !== undefined) {
       const tool = gate.before.split('~')[0];
       const holding = (part) =>
-        actions.filter((action) => action.kind === tool && part !== undefined && action.literal.includes(part));
+        actions.filter(
+          (action) => action.kind === tool && part !== undefined && action.literal.includes(part),
+        );
       const firsts = holding(gate.first);
       const seconds = holding(gate.second);
       if (!firsts.length || !seconds.length || firsts.some((action) => seconds.includes(action))) {
@@ -480,16 +490,12 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     acted = true;
     if (action.kind === 'Read') {
       const path = fileTarget(action.literal, cwd, action.folder);
-      result = call(
-        'Read',
-        { file_path: path },
-        () => {
-          const content = read(path);
-          return content === undefined
-            ? { error: true, content: `File not found: ${action.literal}` }
-            : { content };
-        },
-      );
+      result = call('Read', { file_path: path }, () => {
+        const content = read(path);
+        return content === undefined
+          ? { error: true, content: `File not found: ${action.literal}` }
+          : { content };
+      });
     } else if (action.kind === 'Bash') {
       // Resolve commands against the skill folder; omit unfilled placeholders as before.
       const command = action.literal
@@ -497,17 +503,13 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
         .filter((token) => !/^<.*>$/.test(token))
         .map((token) => (existsSync(join(cwd, action.folder, token)) ? join(action.folder, token) : token))
         .join(' ');
-      result = call(
-        'Bash',
-        { command, description: 'Run the named command' },
-        () => {
-          const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
-          return {
-            content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
-            error: ran.status !== 0,
-          };
-        },
-      );
+      result = call('Bash', { command, description: 'Run the named command' }, () => {
+        const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+        return {
+          content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+          error: ran.status !== 0,
+        };
+      });
     } else {
       result = call(
         'Agent',

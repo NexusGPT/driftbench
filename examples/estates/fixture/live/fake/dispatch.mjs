@@ -317,8 +317,9 @@ function commandOf(script, folder) {
   const names = new Set([path, local, `./${local}`, base, `./${base}`]);
   return {
     literal:
-      codeSpans(script.provenance.quote).find((span) => span.split(/\s+/).some((token) => names.has(token))) ??
-      local,
+      codeSpans(script.provenance.quote).find((span) =>
+        span.split(/\s+/).some((token) => names.has(token)),
+      ) ?? local,
     folder,
   };
 }
@@ -360,7 +361,8 @@ export function unitPlan(index, entry, cwd) {
     const fields = atom.fields ?? {};
     const own = carrier === unit ? folder : '';
     if (carrier === unit) {
-      if (atom.kind === 'reference' && text(fields.path)) add({ kind: 'Read', literal: fields.path, folder: '' });
+      if (atom.kind === 'reference' && text(fields.path))
+        add({ kind: 'Read', literal: fields.path, folder: '' });
       if (atom.kind === 'script' && text(fields.path)) add({ kind: 'Bash', ...commandOf(atom, folder) });
       for (const link of Array.isArray(fields.labelLinks) ? fields.labelLinks : []) {
         const helper = link?.kind === 'dispatches' ? index.atoms.get(link.atom) : undefined;

@@ -58,7 +58,11 @@ export async function estate(folder: string, body: string) {
         {
           id: `route.${folder}`,
           kind: 'route',
-          provenance: provenanceOf(dir, skill, 'description: Match supplier invoice amounts with order amounts.'),
+          provenance: provenanceOf(
+            dir,
+            skill,
+            'description: Match supplier invoice amounts with order amounts.',
+          ),
           fields: { target: folder, targetKind: 'skill', ask: { text: ASK_INVOICE } },
         },
         {
@@ -186,7 +190,9 @@ export function play(
 /** The tool calls of a run, in order. */
 export function calls(records: Row[]): Row[] {
   return records.flatMap((row) =>
-    Array.isArray(row.message?.content) ? row.message.content.filter((part: Row) => part.type === 'tool_use') : [],
+    Array.isArray(row.message?.content)
+      ? row.message.content.filter((part: Row) => part.type === 'tool_use')
+      : [],
   );
 }
 
