@@ -48,6 +48,7 @@ export {
   type LogScope,
   type ScopeOverride,
 } from './logs';
+export { createConditionReader } from './model-reader';
 export {
   assertOutsideRepository,
   type Conversation,

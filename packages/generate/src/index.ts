@@ -387,6 +387,7 @@ export {
   type Conversation,
   type ConversationReader,
   conversationSetHash,
+  createConditionReader,
   createJevReader,
   createModelProposer,
   DEFAULT_DECIDE,

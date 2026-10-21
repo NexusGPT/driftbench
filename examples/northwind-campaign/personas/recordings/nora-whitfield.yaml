@@ -1,0 +1,7 @@
+family: hand-written
+model: written by hand for the Northwind campaign
+persona: nora-whitfield
+answers:
+  - Hi, I need an invoice checked against its purchase order.
+  - It is invoice INV-1004 against purchase order PO-77.
+  - Thanks, that is all I needed.

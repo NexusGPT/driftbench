@@ -263,6 +263,18 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is built, phase 3.
 * The council is also refused for fewer than three judges of a class the mode uses, two judges with one id, a row with a class the mode does not use or without three different judges of the right class, a re-judge row outside hybrid mode, and a criterion both assigned and unassigned.
 
+### Council size, weights and cost
+
+`createCouncil` seats three judges per class by default. These options change that.
+
+* `size`: the judges seated per class, a whole number of at least 1. The quorum is more than half of the seats.
+* `weights`: the weight of each judge's vote by judge id, 1 when absent. An outcome wins with more than half of the total weight. A weight must be a finite number, at least 0.
+* `cascade: { threshold, thresholds }`: the bar of the cheapest judge. `threshold` must be above 0.5 and at most 1; `thresholds` sets it per judge id. `cascade: true` keeps 0.9. A judge that leaves `score` out still never stops the cascade.
+
+`majority(votes, { weights })` is the same rule as a function. The call `majority(votes, seated)` keeps the plain quorum of three. A vote of the large-budget round carries the id `<judge>@large`, so a weight applies to it only under that key.
+
+`CouncilResult.cost` is the relative cost of every judge call, re-asks and later rounds included. It is the sum of the judge costs of the table above, not a price in dollars.
+
 ### Label-blind escalation
 
 `createEscalation` is an opt-in `JudgeClient` that asks other families only when the first judge reports a selected uncertainty signal. It uses `createCouncil` for the later vote. It does not read fixture sides or human labels, and it leaves the default prompt fingerprint unchanged.
