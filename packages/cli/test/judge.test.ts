@@ -487,7 +487,8 @@ let input = '';
 process.stdin.on('data', (c) => { input += c; });
 process.stdin.on('end', () => {
   const system = process.argv[process.argv.indexOf('--system-prompt') + 1] ?? '';
-  const route = system.includes('"route":"criterion"');
+  const intent = system.includes('"intent":"request-fulfillment"');
+  const route = intent || system.includes('"route":"criterion"');
   const budgetAt = process.argv.indexOf('--max-budget-usd');
   const budget = budgetAt < 0 ? null : Number(process.argv[budgetAt + 1]);
   const affordable = budget === null || budget >= 0.001 - 1e-12;
@@ -497,7 +498,7 @@ process.stdin.on('end', () => {
   const entries = block.trim().startsWith('[') && block.trim().endsWith(']') ? JSON.parse(block) : [];
   const observed = entries.find((entry) => entry.role === 'agent')?.text ?? entries.find((entry) => entry.role === 'user')?.text ?? '';
   process.stdout.write(JSON.stringify({ type: 'result', subtype: affordable ? 'success' : 'error_max_budget_usd', is_error: !affordable, total_cost_usd: cost,
-    result: affordable ? JSON.stringify(route ? { route: 'criterion' } : ${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing', reasoning: 'fake: always pass', evidence: observed || null, met: true }] }"}) : 'Insufficient budget.' }));
+    result: affordable ? JSON.stringify(intent ? { intent: 'other' } : route ? { route: 'criterion' } : ${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing', reasoning: 'fake: always pass', evidence: observed || null, met: true }] }"}) : 'Insufficient budget.' }));
 });
 `,
     );
@@ -537,11 +538,11 @@ process.stdin.on('end', () => {
     const first = await run(liveArgs(command, join(scratch, 'live.yaml'), ['--record', record, '--json']));
     expect(first.err).toBe('');
     const report = JSON.parse(first.out);
-    // 112 criterion evaluations plus 50 distinct cached routing inputs.
+    // 112 criterion evaluations, 12 cached metric intents and 50 cached task routing inputs.
     const calls = await liveCalls();
-    expect(calls.filter((call) => call.route)).toHaveLength(50);
+    expect(calls.filter((call) => call.route)).toHaveLength(62);
     expect(calls.filter((call) => !call.route)).toHaveLength(112);
-    expect(report.spentUsd).toBeCloseTo(0.162, 9);
+    expect(report.spentUsd).toBeCloseTo(0.174, 9);
     expect(report.spentUsd).toBeCloseTo(
       calls.reduce((sum, call) => sum + call.cost, 0),
       9,
@@ -566,37 +567,37 @@ process.stdin.on('end', () => {
     ]);
     const again = JSON.parse(replay.out);
     expect(again.criteria).toEqual(report.criteria);
-    expect(again.spentUsd).toBeCloseTo(0.162, 9);
+    expect(again.spentUsd).toBeCloseTo(0.174, 9);
     expect(await liveCalls()).toEqual(calls);
   }, 120_000);
 
   it('retries old binary JSON once, then abstains under the default ledger contract', async () => {
     const command = await fakeClaude(true);
     const { code, out } = await run(
-      liveArgs(command, join(scratch, 'legacy-rejected.yaml'), ['--spend-cap-usd', '0.003']),
+      liveArgs(command, join(scratch, 'legacy-rejected.yaml'), ['--spend-cap-usd', '0.004']),
     );
     expect(code).toBe(1);
-    expect(out).toContain('Spent 0.0030 USD.');
+    expect(out).toContain('Spent 0.0040 USD.');
     expect(out).toContain('111 judge call(s) gave no answer.');
     expect(out).toContain('0 of 12 criteria assigned');
     const calls = await liveCalls();
-    expect(calls.map((call) => call.route)).toEqual([true, false, false]);
-    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001]);
+    expect(calls.map((call) => call.route)).toEqual([true, true, false, false]);
+    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001, 0.001]);
   });
 
   it('stops calling once the spend cap is reached: the rest give no answer', async () => {
     const command = await fakeClaude();
     const { code, out } = await run(
-      liveArgs(command, join(scratch, 'capped.yaml'), ['--spend-cap-usd', '0.004']),
+      liveArgs(command, join(scratch, 'capped.yaml'), ['--spend-cap-usd', '0.005']),
     );
     expect(code).toBe(1);
-    expect(out).toContain('Spent 0.0040 USD.');
+    expect(out).toContain('Spent 0.0050 USD.');
     expect(out).toContain('109 judge call(s) gave no answer.');
     const calls = await liveCalls();
-    // Both fixtures have the same user question, so all three evaluations reuse one routing call.
-    expect(calls.map((call) => call.route)).toEqual([true, false, false, false]);
-    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001, 0.001]);
-    expect(calls.map((call) => call.budget)).toEqual([0.004, 0.003, 0.002, 0.001]);
+    // Both fixtures have the same user question, so all three evaluations reuse one metric-intent call and one task-routing call.
+    expect(calls.map((call) => call.route)).toEqual([true, true, false, false, false]);
+    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001, 0.001, 0.001]);
+    expect(calls.map((call) => call.budget)).toEqual([0.005, 0.004, 0.003, 0.002, 0.001]);
   });
 
   it('runs a cascade: the recorded haiku answers everything, the live judges only its unsure items', async () => {

@@ -334,6 +334,8 @@ async function main(): Promise<void> {
           route: result.defaultJudge?.route,
           outcome,
           correct,
+          comparison: result.comparison,
+          raw: result.raw,
           costUsd: result.costUsd ?? null,
           requestCount: result.requestCount,
           failure: result.defaultJudge?.failure?.kind ?? null,

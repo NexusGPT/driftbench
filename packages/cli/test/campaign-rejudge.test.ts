@@ -96,18 +96,19 @@ it.each([false, true])(
         agentCalls: 0,
         rejudged: 1,
         carried: 1,
-        judgeCostUsd: 0.003,
+        judgeCostUsd: 3 * 0.0015,
       });
       const db = openStore(path);
       const [before] = await db.listRuns({ campaignId: 'base' });
       const [after] = await db.listRuns({ campaignId: 'judged' });
-      expect(after?.cost).toBeCloseTo(0.003);
+      expect(after?.cost).toBeCloseTo(0.0045);
       expect(
         (await readFile(fake.receipts, 'utf8'))
           .trim()
           .split('\n')
           .map((line) => JSON.parse(line)),
       ).toEqual([
+        { route: true, budget: null, cost: 0.0015 },
         { route: true, budget: null, cost: 0.0015 },
         { route: false, budget: null, cost: 0.0015 },
       ]);
