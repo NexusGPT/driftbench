@@ -165,7 +165,9 @@ Source/configuration file-map SHA-256:
 Manifest document SHA-256:
 3ecdea12a9adc82565918b188ad0a54718fb4adfed58261fc03e7675c739b7d1.
 All 42 hashes matched before reading, after reading and after scoring.
-No reader, prompt, setting, candidate-store or scorer change follows the result.
+The reader, prompt, settings, candidate store and scorer were unchanged through
+measurement and evidence formatting. A later proposal-admission safety fix is
+documented separately below; the historical manifest is not rewritten.
 
 The run returned 1,923 responses and cost USD 0.217582722. Total actual-price
 lane spend, including all earlier rounds and DEV calls, is
@@ -185,3 +187,44 @@ hashes remain unchanged. The recording file bytes changed from
 The totals file remains
 cbf671041e3912a69f9ad18180405a3da15d7521e53d38141368812153a33acb.
 The targeted job is not a full-train pass; the lead owns train verification.
+
+## Post-measurement proposal safety correction
+
+Independent review at e333612a3 found that the shared feed helper discarded
+unread description decisions. An empty match list then allowed a proposal,
+even when a description call failed or a mismatch/numeric guard was unread.
+The four post-proposal cases are red in GitHub run 39606068020. The ten
+source/proposal cases from that probe are retained in
+packages/generate/test/feed/conditions-proposal-unread.test.ts, with their
+judge behavior and assertions intact; four further cases cover intermediate
+probabilities and direct reader throws in both match and refuse modes.
+
+The helper now retains every description decision. Positive comparisons still
+reuse existing values (or refuse duplicates in refuse mode). With no positive
+comparison, any unread, unsure or thrown check yields unsure and no mutation.
+A new value enters only when every required comparison is a decided no.
+
+This is a safety correction after measurement, not reader tuning. The
+round3.ts profile, prompts, settings, candidate seed, scorer, historical
+manifest and recorded evidence are unchanged. The old shared-helper bytes are
+retained as model-frozen-conditions.ts.txt, verified against model-freeze.json;
+historical frozen2 replay continues against the fixed helper as well.
+Frozen4 compatibility is checked by replaying all 73 recorded outcomes and
+the complete resulting store, without live calls or sealed-answer access.
+
+GitHub [39609655610 / job 119254874287](https://github.com/NexusGPT/driftbench/actions/runs/39609655610/job/119254874287)
+passed typecheck and 58 targeted tests in ten files, including all four
+previously failing proposal probes. All 73 frozen4 outcomes are identical and
+the complete resulting store is identical. Recorded and replayed outcome
+SHA-256 are both
+0ae0701132706c7b4e7a282f1f92fa6825223f00f3c544ca22e0dfee136154a6.
+Thus primary precision and recall remain 59/60 each; no live call or rescoring
+was performed, and spend remains USD 4.811737992 / USD 13. The targeted job
+is not a full-train pass.
+
+Only conditions.ts differs among the 42 historical pipeline members. Its
+post-fix SHA-256 is
+a3dac039cd525d55cd065a16a7de483fcb8c78c65ddefebed8d1f67557ace7d2.
+The historical hash remains
+55d5ffe58634b2af9d50d33e5ea8cc12fdc225cf5f674f56a08062754c441f24.
+The original freeze manifest and all frozen4 evidence files remain unchanged.

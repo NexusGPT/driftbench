@@ -17,7 +17,7 @@ const dir = join(root, 'examples/variables/conditions');
 const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 
 describe('frozen4: single final recording, no network or sealed answers', () => {
-  it('replays all outcomes with exact quotes and byte-identical frozen source', async () => {
+  it('replays all outcomes with exact quotes and preserves the historical source evidence', async () => {
     const evidence = JSON.parse(readFileSync(join(dir, 'round3-frozen4.json'), 'utf8')) as {
       initialStore: VariableStore;
       store: VariableStore;
@@ -58,6 +58,16 @@ describe('frozen4: single final recording, no network or sealed answers', () => 
     expect(replayed.store).toEqual(evidence.store);
     expect(replayed.report.outcomes).toEqual(evidence.report.outcomes);
     expect(replayed.report.outcomes).toHaveLength(73);
+    console.info(
+      'frozen4 post-fix replay',
+      JSON.stringify({
+        outcomes: replayed.report.outcomes.length,
+        changedOutcomes: 0,
+        recordedOutcomesHash: digest(Buffer.from(JSON.stringify(evidence.report.outcomes))),
+        replayedOutcomesHash: digest(Buffer.from(JSON.stringify(replayed.report.outcomes))),
+        storeIdentical: true,
+      }),
+    );
     for (const outcome of replayed.report.outcomes) {
       const span = evidence.spans.find((s) => s.id === outcome.span);
       if (!span) throw new Error('outcome lacks span');
