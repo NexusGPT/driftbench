@@ -111,9 +111,7 @@ function mask(text: string): string {
     for (let i = a; i < b; i += 1) if (chars[i] !== undefined) chars[i] = 'x';
   };
   // inline code: a run of backticks to the next run of the same length (the planted bug: one backtick a side)
-  const code = referenceBugsA.has('double-backtick-code')
-    ? /`[^`]*`/g
-    : /(`+)([\s\S]*?[^`])\1(?!`)/g;
+  const code = referenceBugsA.has('double-backtick-code') ? /`[^`]*`/g : /(`+)([\s\S]*?[^`])\1(?!`)/g;
   for (let m = code.exec(text); m; m = code.exec(text)) hide(m.index, m.index + m[0].length);
   // link destinations
   const dest = /\]\((<[^>\n]*>|[^)\s]*)(?:\s+(?:"[^"]*"|'[^']*'))?\)/g;

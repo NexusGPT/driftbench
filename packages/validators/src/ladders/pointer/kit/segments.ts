@@ -45,11 +45,24 @@ export function rewordSim(rng: Rng, text: string, lo: number, hi: number): strin
   throw new Error('no reword in range');
 }
 
+/**
+ * How much better the two pieces of a split must read together than the closer piece alone (the reader's
+ * margin); a drawn split clears it by this much, so the reader has one right answer.
+ */
+export const CLEAR_SPLIT_GAIN = 0.15;
+
 export function splitParts(p: Prose): { a: string; b: string; whole: string } {
-  const a = p.next(longMake).replace(/\.$/, '');
-  const bText = p.next(shortRule);
-  const b = bText.replace(/\.$/, '');
-  return { a: `${a}.`, b: bText, whole: `${a}, and ${lowerFirst(b)}.` };
+  let made = { a: '', b: '', whole: '' };
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const a = p.next(longMake).replace(/\.$/, '');
+    const bText = p.next(shortRule);
+    const b = bText.replace(/\.$/, '');
+    made = { a: `${a}.`, b: bText, whole: `${a}, and ${lowerFirst(b)}.` };
+    const joined = similarity(made.whole, `${made.a} ${made.b}`);
+    const alone = Math.max(similarity(made.whole, made.a), similarity(made.whole, made.b));
+    if (joined - alone >= CLEAR_SPLIT_GAIN) return made;
+  }
+  return made;
 }
 
 export type ScriptOps = Array<

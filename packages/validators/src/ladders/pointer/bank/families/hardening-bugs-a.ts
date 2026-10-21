@@ -363,7 +363,14 @@ const reanchoring: Record<string, Run> = {
       const alone = Math.max(similarity(a, into), similarity(b, into));
       return joined >= 0.9 && alone >= 0.45 && alone <= 0.62 ? { a, b, into } : undefined;
     });
-    const { w, v2 } = twoFiles(p, [[near.a, near.b], [clear.a, clear.b]], [[near.into], [clear.into]]);
+    const { w, v2 } = twoFiles(
+      p,
+      [
+        [near.a, near.b],
+        [clear.a, clear.b],
+      ],
+      [[near.into], [clear.into]],
+    );
     const [first, second] = (await scans(ctx, [filesFor(w), filesFor(v2)])) as [Scanned, Scanned];
     const oldOf = (path: string, text: string) => {
       const entry = liveIn(first.ledger, path, text);
