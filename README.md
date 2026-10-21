@@ -689,6 +689,7 @@ npm install @agent-nexus/driftbench
 - [**The guide, in reading order**](docs/guide/index.md): what to read first, and every term explained with an example.
 - [**Quickstart**](docs/guide/quickstart.md): test a small agent in about two minutes. No API key, no model call.
 - [**A walkthrough on your own agent**](docs/guide/walkthrough.md): from your agent's files to a list of tests, run one, change a rule, and rerun only the tests it can affect.
+- Then, one part each, in the same shape: [write tests by hand](docs/guide/write-tests.md), [generate tests](docs/guide/generate-tests.md), [run your agent](docs/guide/run-your-agent.md), [judge answers](docs/guide/judge-answers.md), [read the numbers](docs/guide/read-the-numbers.md), [diagnose and fix](docs/guide/diagnose-and-fix.md), [rerun less](docs/guide/rerun-less.md), [prove the evaluator](docs/guide/prove-the-evaluator.md).
 
 ## Results
 
