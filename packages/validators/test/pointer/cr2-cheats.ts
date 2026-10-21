@@ -72,6 +72,21 @@ export const cheatA: PointerSut = {
   },
 };
 
+/**
+ * The lineage of variant a on its own: the reference ledger with every step that is not `new`, `changed` or
+ * `deleted` dropped, so a move leaves no step.
+ */
+export const narrowLineage: PointerSut = {
+  ...reference,
+  name: 'narrow-lineage',
+  async scan(request) {
+    const keep = new Set(['new', 'changed', 'deleted']);
+    return rewrite(await reference.scan(request), (entries) =>
+      entries.map((entry) => ({ ...entry, lineage: entry.lineage?.filter((step) => keep.has(step.event)) })),
+    );
+  },
+};
+
 export const alwaysWarn: PointerSut = {
   ...reference,
   name: 'always-warn',

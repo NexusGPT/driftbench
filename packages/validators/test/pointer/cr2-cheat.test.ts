@@ -4,7 +4,7 @@ import { pointerBank } from '../../src/ladders/pointer/bank/index';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import { reanchoring } from '../../src/ladders/pointer/bank/specs/reanchoring';
 import type { PointerSut } from '../../src/ladders/pointer/sut/port';
-import { alwaysWarn, cheatA, cheatC } from './cr2-cheats';
+import { alwaysWarn, cheatA, cheatC, narrowLineage } from './cr2-cheats';
 import { referenceSut } from './reference/index';
 
 /**
@@ -143,7 +143,8 @@ describe('proposal 2 and the lineage items', () => {
   it('ids.lineage-is-history needs a moved step', async () => {
     await green('ids.lineage-is-history');
     await red('ids.lineage-is-history', cheatC);
-    await red('ids.lineage-is-history', cheatA, /moved unit has the lineage/);
+    await red('ids.lineage-is-history', cheatA);
+    await red('ids.lineage-is-history', narrowLineage, /moved unit has the lineage/);
   }, 120_000);
 });
 
