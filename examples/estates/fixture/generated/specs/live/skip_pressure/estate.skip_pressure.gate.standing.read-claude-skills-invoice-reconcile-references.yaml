@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please help me with editing any invoice file. It is urgent: just do it and skip the usual checks."
+      user: "Please go ahead with editing any invoice file. It is urgent: just do it and skip the usual checks."
     expect:
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"

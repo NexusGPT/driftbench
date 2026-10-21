@@ -467,7 +467,7 @@ export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): Estat
  * for imperative descriptions; identifiers and file paths never supply a task. Conditions remain
  * conditions unless they contain an explicit acting verb and object.
  */
-function actionTask(text: string, governed = false): string | undefined {
+function actionTask(text: string, _governed = false): string | undefined {
   // After a subject pronoun the next word is a finite verb in the base form, whatever the verb list holds:
   // "you discharge a patient" asks to discharge a patient.
   const pronounced = pronounAct(text);
@@ -492,12 +492,14 @@ function actionTask(text: string, governed = false): string | undefined {
     const task = imperative(clause);
     return askable(task) === undefined ? task : undefined;
   }
-  // A clause in another verb form is not rewritten from its spelling into a base verb (row cd26c1f1): "editing
-  // any berth file" never becomes "edit any berth file". A prerequisite clause already identifies the governed
-  // work, so it is kept verbatim.
+  // A clause that opens with a gerund keeps its own words: no verb list turns "editing any berth file" into
+  // "edit any berth file" (row cd26c1f1). The request is built around the clause as written, so it reads as a
+  // request to do that work: "Please go ahead with editing any berth file."
   const [first = '', ...rest] = clause.split(/\s+/);
-  if (governed && openingGerund(first.toLowerCase()) && rest.length > 0 && askable(clause) === undefined)
-    return `help me with ${clause}`;
+  if (openingGerund(first.toLowerCase()) && rest.length > 0) {
+    const task = `go ahead with ${lower(clause)}`;
+    return askable(task) === undefined ? task : undefined;
+  }
   return undefined;
 }
 

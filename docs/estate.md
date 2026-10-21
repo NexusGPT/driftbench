@@ -1107,7 +1107,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-fdbb0d3f5121 (in memory).
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-e5deffe6783a (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.
