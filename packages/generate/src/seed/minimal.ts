@@ -235,7 +235,6 @@ export class TerminalSubsumption {
       state: canonicalGiven(spec, index).state,
       from,
       when: block?.when,
-      given: block?.given,
       expect: machine,
     });
   }

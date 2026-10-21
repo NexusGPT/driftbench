@@ -579,3 +579,41 @@ describe('terminal subsumption and the block a walk ends on', () => {
     expect(again.blocks).toHaveLength(3);
   });
 });
+
+describe('terminal subsumption and the world a block restates', () => {
+  const world = (found: boolean) => ({ tools: { lookup: { result: { found } } } });
+  const prepared = fixture();
+  const path = prepared.relations.paths[0];
+  if (!path) throw new Error('missing parcel path');
+  const clean = (id: string, found: boolean, restate: boolean) => {
+    const draft = walk(prepared, id, path);
+    draft.perturbations = undefined;
+    draft.world = world(found);
+    const last = draft.blocks.at(-1);
+    if (restate && last) last.given = { world: world(found) };
+    return draft;
+  };
+
+  it('reads a block that restates the world it already runs in as the same block', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = clean('first', true, false);
+    const second = clean('second', true, true);
+    const length = second.blocks.length;
+    minimal.reduce(first);
+    minimal.reduce(second);
+    // The restated answer is the world the block runs in anyway: nothing tells the two ends apart.
+    expect(second.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps the end of a block that restates another world: another answer is another test', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = clean('first', true, false);
+    const second = clean('second', true, false);
+    const last = second.blocks.at(-1);
+    if (last) last.given = { world: world(false) };
+    const length = second.blocks.length;
+    minimal.reduce(first);
+    minimal.reduce(second);
+    expect(second.blocks).toHaveLength(length);
+  });
+});
