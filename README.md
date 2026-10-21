@@ -748,27 +748,42 @@ $ cd walk
 
 ```console
 $ driftbench estate build northwind --out build --pointer --cassette northwind/cassette.jsonl   # exit 1
-(pending)
+driftbench estate build northwind, into build
+1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+   The scan reported some refused labels or failed chunks; run with --verbose to read them.
+Stopped before the first approval: 49 atoms were split from prose by a model and wait for your approval. Approve all 49?
+Run again with --yes to approve them all, or approve some first with driftbench estate approve build/map.yaml --kind <kind> and run estate build again.
 ```
 
 The question counts the atoms that wait. To read them before you answer, list them:
 
 ```console
 $ driftbench estate approve build/map.yaml
-(pending)
+build/map.yaml: 49 of 116 atoms wait for approval.
+  instruction: 34
+    instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
+    instruction.inbox-triager.a-message-that-fits-none-goes  .claude/agents/inbox-triager.md:8  "A message that fits none goes to "other"."
+Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
 ```
 
 A good answer is yes when each atom restates a sentence of your files that you want tested. If some are wrong, approve only the good ones with `estate approve build/map.yaml --kind <kind>` or `--atom <id>`, and run `estate build` again. When you are happy, run it with `--yes`. The scan is not repeated, because its inputs did not change:
 
 ```console
 $ driftbench estate build northwind --out build --pointer --cassette northwind/cassette.jsonl --yes   # exit 1
-(pending)
+driftbench estate build northwind, into build
+1. Read the estate: unchanged since the last run, map.yaml kept.
+2. Approve the atoms: approved all, as --yes says. Wrote build/approved.yaml.
+3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+4. Approve the plan: approved all 1439 tests, as --yes says.
+5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
 ```
 
 **What you get.** The folder `build`, and a count of tests:
 
 ```text
-(pending)
+1. Read the estate: 116 atoms, 49 of them split from prose by a model and waiting for approval. Wrote build/map.yaml.
+3. Map and plan: the plan holds 1439 tests, chosen so that every pair of situations is covered at least once. Wrote build/space.yaml and build/plan.yaml.
+5. Write the tests: 1439 tests written. 952 are complete and 487 still wait for something (the report lists what).
 ```
 
 Read it like this: the map holds 116 atoms. The plan holds 1439 tests. 952 are complete. The other 487 still wait for something, such as an answer to give or a recorded session, and the report in `build/generated` says what each one needs. The command exits 1 while tests wait. That is expected.
@@ -837,9 +852,9 @@ The three tests that name it:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" build/generated/specs/live | sort | head -3
-generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
-generated/specs/live/obligation/estate.pairwise.0020.yaml
-generated/specs/live/obligation/estate.pairwise.0064.yaml
+build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+build/generated/specs/live/obligation/estate.pairwise.0020.yaml
+build/generated/specs/live/obligation/estate.pairwise.0064.yaml
 ```
 
 The part of the first test that says what to do and what to expect. A **block** is one message from the user and what must be true after it:
@@ -885,7 +900,8 @@ $ driftbench estate run build/generated/specs/live/obligation/estate.obligation.
 **You get and how to read it.**
 
 ```text
-(pending)
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 ```
 
 A ✗ means the test failed. The `failing:` line names each check that failed. Here the stand-in has no recorded answer for this question, so the agent never loaded the weekly report skill, and no judge was set to read its answer. That is why this example fails. Nothing was spent, because the stand-in is a script. With your real agent you would use `--command claude --allow-billed --judge claude:<model>`.
@@ -913,7 +929,10 @@ $ driftbench radius build/generated/specs/live --change change.yaml
 **You get and how to read it.**
 
 ```text
-(pending)
+Blast radius of 75b17123d007 to working (manifest 5bc3a5708b09): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+918 specs, 921 blocks.
+Mode F, free-running: 17 of 921 blocks in the radius (17 direct, 0 forward), 904 out. 17 of 918 cells.
+  A cell reruns whole: 17 of 921 blocks sent, 98.2% saved; 901 of 918 cells left to carry.
 ```
 
 Of 921 blocks, 17 can be reached by that sentence. The other 904 keep their last result, which saves 98.2%. A *block* here is one test message with its checks, a *cell* is one test run once, and *Mode F* means the agent runs the whole conversation on its own replies. The *manifest* is a short id of the change file.
@@ -922,13 +941,26 @@ Of 921 blocks, 17 can be reached by that sentence. The other 904 keep their last
 
 ```console
 $ find build/generated/specs/live -name "estate.*.instruction.weekly-report.count-only-what-the-ledger-and.yaml" | sort
-(pending)
+build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+build/generated/specs/live/outside_trigger/estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and.yaml
+build/generated/specs/live/twin/estate.twin.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 ```
 
 ```console
 $ driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml build/generated/specs/live/outside_trigger/estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and.yaml build/generated/specs/live/twin/estate.twin.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store edited.db --states northwind/live/states/library.json   # exit 1
-(pending)
+note: the estate copy is not pinned to a map hash; pass --map to pin it
+✗ estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+    judged instruction.weekly-report.count-only-what-the-ledger-and: inconclusive
+? estate.outside_trigger.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and.control (inconclusive)
+    judged instruction.weekly-report.count-only-what-the-ledger-and.control: inconclusive
+✗ estate.twin.instruction.weekly-report.count-only-what-the-ledger-and  (0.0000 USD)
+    failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
+    judged instruction.weekly-report.count-only-what-the-ledger-and: inconclusive
 ```
+
+A `?` means the test could not be decided, because it needs a judge and none was set. The obligation and the twin fail for the same reason as in step 3.
 
 The other 904 blocks keep their last result. The [rule links walkthrough](docs/rule-links.md) shows how to prove each link by deleting the instruction.
 
