@@ -53,7 +53,11 @@ async function folderHash(root: string, skip: string): Promise<string> {
       const full = join(dir, entry.name);
       if (full === skip || entry.name === 'node_modules' || entry.name === '.git') continue;
       if (entry.isDirectory()) await visit(full);
-      else if (entry.isFile()) hash.update(relative(root, full)).update('\0').update(await readFile(full));
+      else if (entry.isFile())
+        hash
+          .update(relative(root, full))
+          .update('\0')
+          .update(await readFile(full));
     }
   };
   await visit(root);
@@ -266,7 +270,11 @@ export async function estateBuildCommand(
     io.out('3. Map and plan: unchanged, space.yaml and plan.yaml kept.\n');
   } else {
     const mapStep = stageIo(io, verbose);
-    const mapCode = await estateCommands.estateMapCommand(file('approved.yaml'), { to: file('space.yaml') }, mapStep.io);
+    const mapCode = await estateCommands.estateMapCommand(
+      file('approved.yaml'),
+      { to: file('space.yaml') },
+      mapStep.io,
+    );
     if (mapCode !== 0) return mapCode;
     const planStep = stageIo(io, verbose);
     const planCode = await estatePlanCommand(
