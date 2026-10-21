@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { bankItems, SeedData } from '../../src/ladders/generator/bank';
+import { bankItems, outsideTwinPairs, SeedData } from '../../src/ladders/generator/bank';
 import { FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
-import { type Generation, runAll } from '../../src/ladders/generator/measure';
+import { type BlockRun, type Generation, runAll } from '../../src/ladders/generator/measure';
 
 function required<T>(value: T | undefined): T {
   if (value === undefined) throw new Error('missing fixture value');
@@ -44,18 +44,42 @@ describe('minimality accepts one twin pair per path and declared axis', async ()
     expect(personas.length).toBeGreaterThan(0);
   });
 
+  // The group of the last blocks of the copies, in the order the suite writes them.
+  const outside = async (complete: Generation['complete']): Promise<string[]> => {
+    const mini: Generation = { ...generated, complete };
+    const data = new SeedData(1, options, async () => ({}) as never);
+    await data.memoized('generated', async () => mini);
+    const runs = await runAll(mini, options);
+    const lastOf = (id: string): BlockRun =>
+      required(runs.blocks.filter((block) => block.spec === id && block.fields.length > 0).at(-1));
+    const group = complete.map(({ spec }) => lastOf(spec.id));
+    return (await outsideTwinPairs(data, group)).map((block) => block.spec);
+  };
+
   it('accepts the written walk and one twin on another declared channel', async () => {
-    const found = await verdictOf([cover, copy('twin-channel', required(channels[0]))]);
-    expect(flagged(found.detail), found.detail).toBe(false);
+    expect(await outside([cover, copy('twin-channel', required(channels[0]))])).toEqual([]);
   }, 600_000);
 
   it('accepts one twin per declared axis: a channel twin and a persona twin', async () => {
-    const found = await verdictOf([
-      cover,
-      copy('twin-channel', required(channels[0])),
-      copy('twin-persona', cover.spec.channel as string, required(personas[0]).id),
-    ]);
-    expect(flagged(found.detail), found.detail).toBe(false);
+    expect(
+      await outside([
+        cover,
+        copy('twin-channel', required(channels[0])),
+        copy('twin-persona', cover.spec.channel as string, required(personas[0]).id),
+      ]),
+    ).toEqual([]);
+  }, 600_000);
+
+  it('counts a second pair on the same axis, an undeclared copy and a same-context copy as repeats', async () => {
+    expect(
+      await outside([
+        cover,
+        copy('twin-channel', required(channels[0])),
+        copy('twin-channel-again', required(channels[0])),
+        copy('twin-undeclared', 'a-channel-nobody-declared'),
+        copy('twin-same', cover.spec.channel as string),
+      ]),
+    ).toEqual(['twin-channel-again', 'twin-undeclared', 'twin-same']);
   }, 600_000);
 
   it('still fails a suite that keeps a second pair on the same axis (planted reducer)', async () => {
