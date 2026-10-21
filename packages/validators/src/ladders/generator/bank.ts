@@ -2274,10 +2274,13 @@ async function obligationHolders(data: SeedData): Promise<{
       const same = written.get(head.walk);
       if (!same) written.set(head.walk, [head]);
       else {
+        // An axis needs both differing values to be members of the declared axis: a missing value is no value.
         const axes = new Set<string>();
         for (const other of same) {
-          if (other.channel !== head.channel) axes.add('channel');
-          if (other.persona !== head.persona) axes.add('persona');
+          if (other.channel !== head.channel && channels.has(other.channel) && channels.has(head.channel))
+            axes.add('channel');
+          if (other.persona !== head.persona && personas.has(other.persona) && personas.has(head.persona))
+            axes.add('persona');
         }
         const have = secured.get(head.path) ?? new Set<string>();
         const needed = [...axes].filter((axis) => !have.has(axis));
