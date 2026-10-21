@@ -87,6 +87,10 @@ metadata:
     situation: inbox-sort
     phrase: 0
     ask: code
+    askBuild:
+      - null
+      - ask: The helper stopped halfway. Pick its task up where it stopped and finish it.
+        spans: []
     outcome: bank
   links:
     - block: ask

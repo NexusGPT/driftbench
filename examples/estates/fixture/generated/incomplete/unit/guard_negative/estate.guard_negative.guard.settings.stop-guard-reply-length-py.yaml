@@ -67,7 +67,7 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: guard.settings.stop-guard-reply-length-py
-        detail: "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near"
+        detail: "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act"
   links:
     - block: ask
       to:

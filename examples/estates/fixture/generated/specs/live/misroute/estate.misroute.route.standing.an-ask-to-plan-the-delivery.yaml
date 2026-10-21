@@ -51,7 +51,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-plan-the-delivery (situation)
+    askFrom: route.standing.an-ask-to-plan-the-delivery (request)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-plan-the-delivery
+            field: fields.ask
+            from: 0
+            to: 37
     outcome: no-delete
   links:
     - block: ask

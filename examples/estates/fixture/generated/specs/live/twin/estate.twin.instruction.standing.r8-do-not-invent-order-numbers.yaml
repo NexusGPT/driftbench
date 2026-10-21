@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Could you invent order numbers? Thanks.
+      user: Could you ask the user for it? when a value is missing. Thanks.
     expect:
       workspace:
         deleted: []
@@ -54,7 +54,22 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.standing.r8-do-not-invent-order-numbers (title)
+    askFrom: instruction.standing.r8-do-not-invent-order-numbers (request clause)
+    askBuild:
+      - ask: Could you {act}?[ {situation}.] Thanks.
+        act: "{span}"
+        situation: "{span}"
+        spans:
+          - slot: act
+            atom: instruction.standing.r8-do-not-invent-order-numbers
+            field: fields.ask.text
+            from: 0
+            to: 19
+          - slot: situation
+            atom: instruction.standing.r8-do-not-invent-order-numbers
+            field: fields.ask.context
+            from: 0
+            to: 23
     outcome: no-delete
     judged:
       - instruction.standing.r8-do-not-invent-order-numbers

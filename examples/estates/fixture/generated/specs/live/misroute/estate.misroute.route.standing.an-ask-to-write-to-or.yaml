@@ -51,7 +51,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-write-to-or (situation)
+    askFrom: route.standing.an-ask-to-write-to-or (request)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "{span}"
+        spans:
+          - slot: act
+            atom: route.standing.an-ask-to-write-to-or
+            field: fields.ask
+            from: 0
+            to: 28
     outcome: no-change:read-only
   links:
     - block: ask

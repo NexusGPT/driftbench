@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please go ahead with editing any invoice file.
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received."
     expect:
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
@@ -47,7 +47,16 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: reference.standing.read-claude-skills-invoice-reconcile-references (governed clause)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+            field: situation
+            from: 0
+            to: 78
     outcome: no-delete
   links:
     - block: ask

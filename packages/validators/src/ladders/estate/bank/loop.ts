@@ -770,14 +770,15 @@ const ASKS: AskCheck[] = [
       );
       const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
       const atomsById = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
-      const disclosed = (v: SpecVerdict): boolean => {
+      // Why a spec's code-written ask is not disclosed, or undefined when it is.
+      const refusal = (v: SpecVerdict): string | undefined => {
         const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
         const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown };
         const tagged = Array.isArray(spec?.tags) && spec.tags.includes('ask:code');
         if (!tagged || meta.ask !== 'code' || typeof meta.askFrom !== 'string' || meta.askFrom === '')
-          return false;
+          return 'not disclosed as written by code';
         const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
-        if (!row) return false;
+        if (!row) return 'no plan row';
         // The row the generator reports is bookkeeping it writes itself: the spec must say the same about itself
         // (its plan row, its atoms, its test type and the test tag), else the allowance does not apply.
         const own = estateMeta(v.spec) as { planRow?: unknown; atoms?: unknown; testType?: unknown };
@@ -789,14 +790,14 @@ const ASKS: AskCheck[] = [
           !row.atomIds.every((id) => atoms.includes(id)) ||
           !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
         )
-          return false;
-        if (!bankIsShort(run, row)) return false;
+          return 'its bookkeeping differs from the plan row';
+        if (!bankIsShort(run, row)) return 'the bank holds an approved phrase for the row';
         // The disclosure is the generator's word about itself, so each code-written ask is rebuilt by the
         // validator (reference-ask.ts), never by the product's `codeAsk`: from the construction the spec records
         // (`askBuild`, one entry per block) and the map's own text, one ask, equal byte for byte. No ask is read for
         // its words and no template is searched for one that fits.
         const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
-        if (rowAtoms.some((atom) => atom === undefined)) return false;
+        if (rowAtoms.some((atom) => atom === undefined)) return 'an atom of the row is not in the map';
         const allowed = new Set([...row.atomIds, ...rowAtoms.flatMap((atom) => idsIn(atom?.fields))]);
         const recorded = (estateMeta(v.spec) as { askBuild?: unknown }).askBuild;
         const builds = Array.isArray(recorded) ? recorded : [recorded];
@@ -808,24 +809,40 @@ const ASKS: AskCheck[] = [
           if (ask === '' || approved.has(ask)) continue;
           const build = builds[at] as Recorded | undefined;
           const built = constructAsk(build, atomsById as unknown as ReadonlyMap<string, MapAtom>, allowed);
-          if ('refused' in built || built.text !== ask) return false;
+          if ('refused' in built) return `block ${at}: ${built.refused}`;
+          if (built.text !== ask) return `block ${at}: the record builds "${built.text}"`;
           if (!cited) {
             // A built ask names its source atom in askFrom; one built from a fixed row alone (no span, no tool)
             // takes its words from no atom, and askFrom says `neutral`.
             const source = build?.spans?.[0]?.atom ?? build?.tool?.atom;
-            if (source === undefined ? meta.askFrom !== 'neutral' : source !== from || !atomsById.has(from))
-              return false;
+            // An ask built from a guard's tool names the guard, or the rule the guard enforces (a field of the
+            // guard names it).
+            const guard = build?.spans?.[0] === undefined ? build?.tool?.atom : undefined;
+            const named = typeof guard === 'string' ? idsIn(atomsById.get(guard)?.fields) : [];
+            const enforced = named.includes(from) && allowed.has(from);
+            const cites = source === from || enforced;
+            if (source === undefined ? meta.askFrom !== 'neutral' : !cites || !atomsById.has(from))
+              return `askFrom ${meta.askFrom} is not the built ask's source ${String(source ?? 'none')}`;
             cited = true;
           }
         }
-        return true;
+        return undefined;
       };
-      const bad = all.filter(
-        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
-      );
+      const why = new Map<SpecVerdict, string>();
+      const bad = all.filter((v) => {
+        if (!v.complete || !asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask))) return false;
+        const reason = refusal(v);
+        if (reason !== undefined) why.set(v, reason);
+        return reason !== undefined;
+      });
+      const reasons = bad
+        .slice(0, 10)
+        .map((v) => `${v.spec.record.id}: ${why.get(v)}`)
+        .join('; ');
       return bad.length === 0
         ? undefined
-        : named(bad, 'complete specs ask an unapproved phrase that is not a disclosed code-written ask');
+        : `${named(bad, 'complete specs ask an unapproved phrase that is not a disclosed code-written ask')}` +
+            ` (why: ${reasons})`;
     },
   },
   {

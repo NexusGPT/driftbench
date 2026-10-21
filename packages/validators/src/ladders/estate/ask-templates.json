@@ -65,10 +65,6 @@
   },
   {
     "kind": "act",
-    "template": "help me with {span}"
-  },
-  {
-    "kind": "act",
     "template": "run {span} in the shell here",
     "tools": ["Bash"]
   },

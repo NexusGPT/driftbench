@@ -29,7 +29,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please reconcile a supplier invoice against its purchase order and the goods received. When a supplier is not in this table.
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. When a supplier is not in this table."
     expect:
       workspace:
         deleted: []
@@ -66,6 +66,21 @@ metadata:
     phrase: null
     ask: code
     askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (first route of the estate)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        situation: "{span}"
+        spans:
+          - slot: act
+            atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+            field: situation
+            from: 0
+            to: 78
+          - slot: situation
+            atom: register.memory-supplier-languages.when-a-supplier-is-not-in
+            field: situation
+            from: 0
+            to: 36
     outcome: no-delete
   links:
     - block: ask

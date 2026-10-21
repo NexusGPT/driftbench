@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please answer with a table.
+      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Answer with a table."
     expect:
       subagents:
         - name: route-planner
@@ -65,7 +65,22 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: register.route-planner.answer-with-a-table-van-stops (situation)
+    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        situation: "{span}"
+        spans:
+          - slot: act
+            atom: route.route-planner.an-ask-that-fits-route-planner
+            field: situation
+            from: 0
+            to: 74
+          - slot: situation
+            atom: register.route-planner.answer-with-a-table-van-stops
+            field: situation
+            from: 0
+            to: 19
     outcome: no-delete
   links:
     - block: ask

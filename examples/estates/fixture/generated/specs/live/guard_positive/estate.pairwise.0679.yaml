@@ -26,7 +26,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please edit a file here. The task is to edit it.
+      user: "Please handle this for me: edit it."
     expect:
       skills:
         - name: invoice-reconcile
@@ -64,6 +64,15 @@ metadata:
     phrase: null
     ask: code
     askFrom: gate.standing.read-before-edit-it (enforced by guard.settings.pretooluse-edit-write-guard-read-before)
+    askBuild:
+      - ask: Please {act}.[ {situation}.]
+        act: "handle this for me: {span}"
+        spans:
+          - slot: act
+            atom: gate.standing.read-before-edit-it
+            field: governed-action
+            from: 31
+            to: 38
     outcome: no-change:guard
   links:
     - block: ask
