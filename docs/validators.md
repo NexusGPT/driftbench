@@ -73,6 +73,12 @@ bars, fixture design and pilot limitations. The hardness contract below remains
 unchanged; measured provisional exceptions are recorded in that version's
 `GATE.md`, never applied to version 2.
 
+### 4.2 Pointer labellers: judges ladder version 4
+
+`driftbench validate judges --ladder-version 4` selects version 3 plus one level, `pointer-labellers`, with 50 items. They judge the labellers of the estate pointer reader. The items cover its answer checks, the label-set hash, the yes or no and choice readers, the stack cascade, the labelling hash and the cassette key. A gold set also runs through the whole scan. Each item also runs cases drawn from the seed. Seven items scan the module source. The module runs in a child process that only records its answers, and the verdict is computed in the parent. A built package starts that child through its own entry point, `pointerBankChild`. The oracles are in `packages/validators/fixtures/judges/make_pointer.py`. No model is called.
+
+Version 4 is opt-in. The default stays version 2, and `validate all` keeps the default versions.
+
 ## 5. The system validator (does the whole chain report the truth)
 
 How it works. A campaign runs on an agent with planted defects at known blocks: code picks, per seed, a subset of the fault family and the block indices where each fires, and composes one agent from them. The scorecard and the run records must match the plant.
