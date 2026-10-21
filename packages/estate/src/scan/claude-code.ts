@@ -737,11 +737,6 @@ function cleanFolder(folder: string): string {
 }
 
 /**
- * Alias tables: a markdown file of the estate whose name holds "alias", with a table of an alias column
- * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
- * `<folder>/a/b.md`.
- */
-/**
  * Aliases a markdown file defines in its own prose: `` `REF` = `.claude/skills/x/references` ``. The name is
  * capitals; the target is a folder (no file extension). A name two files define differently keeps both
  * folders, tried in order.
@@ -774,34 +769,54 @@ function inlineAliases(files: readonly EstateFile[]): Record<string, string[]> {
 
 const STRUCTURED_KINDS = new Set<string>(['registry', 'settings', 'step_list', 'guard_script']);
 
-/** A markdown file whose name holds "alias" and that holds an alias table. */
+/** The alias name of a cell: capitals, as `inlineAliases` reads it. */
+const ALIAS_NAME = /^[A-Z][A-Z0-9_]{1,15}$/;
+
+/**
+ * The aliases a table row defines, by shape alone: the first cell is an alias name (capitals) and a later cell
+ * is a folder (no file extension, no pattern characters, no white space, a `/` or a leading `.` in it). No header
+ * and no file name is read, so a table in any language defines aliases.
+ */
+function aliasRow(cells: readonly string[]): { name: string; folder: string } | undefined {
+  const name = strip(cells[0] ?? '');
+  if (!ALIAS_NAME.test(name)) return undefined;
+  for (const cell of cells.slice(1)) {
+    const target = strip(cell);
+    if (target === '' || /\s/.test(target) || /\.[A-Za-z0-9]+\/*$/.test(target) || /[<>*?{}$|]/.test(target))
+      continue;
+    if (!target.includes('/') && !target.startsWith('.')) continue;
+    return { name, folder: cleanFolder(target) };
+  }
+  return undefined;
+}
+
+/** Whether a line belongs to a table: it starts with a pipe. */
+const TABLE_LINE = /^\s*\|/;
+
+/**
+ * A markdown file made of headings and tables alone, with at least one alias row. Code reads it as structure,
+ * so it is not sent again as prose; a file with any other line is prose and stays prose.
+ */
 function definesAliases(file: EstateFile): boolean {
-  if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) return false;
-  return readTables(file.text).some(
-    (table) =>
-      table.header.some((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell))) &&
-      table.header.some((cell) => /^(path|folder|target|resolves to)s?$/i.test(strip(cell))),
-  );
+  if (!/\.(md|markdown)$/i.test(file.path)) return false;
+  const lines = file.text.split('\n').filter((line) => line.trim() !== '');
+  if (lines.some((line) => !TABLE_LINE.test(line) && !/^\s*#/.test(line))) return false;
+  return readTables(file.text).some((table) => table.rows.some((row) => aliasRow(row.cells) !== undefined));
 }
 
 function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
   const aliases: Record<string, string[]> = {};
   for (const file of files) {
-    if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) continue;
+    if (!definesAliases(file)) continue;
     for (const table of readTables(file.text)) {
-      const alias = table.header.findIndex((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell)));
-      const folder = table.header.findIndex((cell) =>
-        /^(path|folder|target|resolves to)s?$/i.test(strip(cell)),
-      );
-      if (alias < 0 || folder < 0) continue;
       for (const row of table.rows) {
-        const name = strip(row.cells[alias] ?? '').replace(/\/+$/, '');
-        const target = strip(row.cells[folder] ?? '');
-        if (name === '' || target === '') {
-          notes.push({ file: file.path, message: `alias row at line ${row.line} has no alias or no folder` });
+        const defined = aliasRow(row.cells);
+        if (defined === undefined) {
+          if (strip(row.cells[0] ?? '') !== '' && ALIAS_NAME.test(strip(row.cells[0] ?? '')))
+            notes.push({ file: file.path, message: `alias row at line ${row.line} has no folder` });
           continue;
         }
-        aliases[name] = [...(aliases[name] ?? []), cleanFolder(target)];
+        aliases[defined.name] = [...(aliases[defined.name] ?? []), defined.folder];
       }
     }
   }
@@ -1299,7 +1314,7 @@ function scriptFrom(
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     if (!paths) return first;
     const target = paths.has(first.script)
-      ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))
+      ? dispatchedName(segment, runs, sources?.get(first.script))
       : undefined;
     // With source available, an argument is a file only when its data flows to an execution path.
     if (target === undefined) return first;
@@ -1319,21 +1334,7 @@ function scriptFrom(
   return { anchored: false };
 }
 
-/** Source plus usage paragraphs that explicitly name this script. Unrelated documentation is ignored. */
-function dispatcherSource(script: string, sources?: ReadonlyMap<string, string>): string | undefined {
-  const own = sources?.get(script);
-  if (own === undefined) return undefined;
-  const usage: string[] = [own];
-  for (const [path, text] of sources ?? []) {
-    if (!/\.(?:md|markdown|txt)$/.test(path)) continue;
-    for (const paragraph of text.split(/\n\s*\n/)) {
-      if (/\busage\s*:/i.test(paragraph) && paragraph.includes(script)) usage.push(paragraph);
-    }
-  }
-  return usage.join('\n');
-}
-
-/** The command arguments name files only when source or usage proves their execution role. */
+/** The command arguments name files only when the script's own source proves their execution role. */
 function dispatchedName(segment: readonly string[], runs: string, source?: string): string | undefined {
   if (source === undefined) return undefined;
   const words = segment.map((token) => token.replace(/["']/g, ''));

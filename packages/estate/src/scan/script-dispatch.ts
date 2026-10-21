@@ -432,78 +432,10 @@ function codeTarget(source: string, actual: readonly string[]): string | undefin
   return undefined;
 }
 
-/** Usage contracts bind an argument to an executable noun phrase or to its concrete path pattern. */
-function documentedTarget(source: string, actual: readonly string[]): string | undefined {
-  const text = source.replace(/["'`]/g, '');
-  const placeholderPattern = /(?:<([\w-]+)>|\{([\w-]+)\})/g;
-  const pathPattern = /(?:[\w./-]+\/)?(?:<([\w-]+)>|\{([\w-]+)\})\.(?:py|rb|js|mjs|cjs|ts|sh|bash)\b/g;
-  const paths = [...text.matchAll(pathPattern)].filter((path) => {
-    const before = text.slice(Math.max(0, (path.index ?? 0) - 120), path.index);
-    // An input/configuration filename is not an entry point merely because it ends in a script suffix.
-    return /(?:entry\s*point|executable(?:\s+(?:script|file))?|hook(?:\s+(?:script|file))?|executed\s+(?:script|file))\s*(?:(?:is|at|path|file)\s*|:\s*)*$/i.test(
-      before,
-    );
-  });
-  for (const usage of text.matchAll(/\busage\s*:\s*([^\n]+)/gi)) {
-    const signature = (usage[1] ?? '').split(/\.\s/)[0] ?? '';
-    const parameters = [...signature.matchAll(placeholderPattern)].map((parameter) => ({
-      name: parameter[1] ?? parameter[2] ?? '',
-      flag: /(--[\w-]+)\s*$/.exec(signature.slice(0, parameter.index))?.[1],
-    }));
-    const valuedFlags = new Set(parameters.flatMap((parameter) => (parameter.flag ? [parameter.flag] : [])));
-    const positionalValues: string[] = [];
-    for (let index = 0; index < actual.length; index++) {
-      const word = actual[index] ?? '';
-      if (valuedFlags.has(word)) index++;
-      else if (!word.startsWith('-')) positionalValues.push(word);
-    }
-    let position = 0;
-    for (const parameter of parameters) {
-      let raw: string | undefined;
-      if (parameter.flag) {
-        const index = actual.findIndex(
-          (word) => word === parameter.flag || word.startsWith(`${parameter.flag}=`),
-        );
-        if (index >= 0)
-          raw = actual[index]?.startsWith(`${parameter.flag}=`)
-            ? actual[index]?.slice(parameter.flag.length + 1)
-            : actual[index + 1];
-      } else raw = positionalValues[position++];
-      if (raw === undefined || raw.startsWith('-')) continue;
-      for (const path of paths) {
-        if ((path[1] ?? path[2]) !== parameter.name) continue;
-        return path[0].replace(new RegExp(`(?:<|\\{)${parameter.name}(?:>|\\})`), raw);
-      }
-    }
-  }
-  // Here the role is a noun phrase attached to its selector, not a coincidence of the words "script"
-  // and "argument". Sentence predicates may vary; there is no leading dispatch-verb vocabulary.
-  const role = '(?:script(?:\\s+file)?|hook(?:\\s+script)?|executable(?:\\s+file)?|entry\\s*point)';
-  const selector = '(?:first\\s+(?:positional\\s+)?argument|argument\\s+\\d+|--[\\w-]+)';
-  const relation = new RegExp(
-    `${role}\\s+(?:(?:that\\s+is|is)\\s+)?(?:\\w+(?:ed|en)\\s+)?(?:by|from|with|using|via|as)\\s+(?:(?:the|its)\\s+)?(${selector})` +
-      `|(${selector})\\s+(?:(?:argument|option|parameter)\\s+)?(?:is|names?|identifies?|selects?|specifies?)\\s+(?:(?:the|a|an)\\s+)?${role}`,
-    'i',
-  );
-  for (const sentence of text.split(/[\n.!?]/)) {
-    if (/\b(?:not|never|cannot|cant|doesnt)\b/i.test(sentence)) continue;
-    const selected = relation.exec(sentence);
-    const input = selected?.[1] ?? selected?.[2];
-    if (input === undefined) continue;
-    if (input.startsWith('--')) {
-      const index = actual.findIndex((word) => word === input || word.startsWith(`${input}=`));
-      const word = index < 0 ? undefined : actual[index];
-      const value = word?.startsWith(`${input}=`) ? word.slice(input.length + 1) : actual[index + 1];
-      if (index >= 0 && value && !value.startsWith('-')) return value;
-    } else {
-      const position = /\d+/.exec(input)?.[0];
-      const value = actual[Number(position ?? 1) - 1];
-      return value && !value.startsWith('-') ? value : undefined;
-    }
-  }
-  return undefined;
-}
-
+/**
+ * The file a script runs from its arguments, read from the structure of its source only. What a document says
+ * about the script, in any language, never decides it: no sentence is read.
+ */
 export function dispatchedScript(source: string, actual: readonly string[]): string | undefined {
-  return codeTarget(source, actual) ?? documentedTarget(source, actual);
+  return codeTarget(source, actual);
 }
