@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { parse } from 'yaml';
-import { askGrammar } from '../ask-grammar';
+import { askGrammar, declaredActs } from '../ask-grammar';
 import type { MapAtom } from '../reference-ask';
 import { FIXTURE, type FixtureSuite, fixtureSuite } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
@@ -211,6 +211,10 @@ function carriedAct(
   return situation.use === 'outside' || situation.use === 'near_miss' ? [] : situation.atoms;
 }
 
+/** Whether a spec's ask was written by code: its act must then be a declared act of the map. */
+const codeWritten = (spec: FixtureSuite['specs'][number]): boolean =>
+  (spec.spec.metadata?.estate as { ask?: unknown } | undefined)?.ask === 'code';
+
 export function taskFamily(): Family {
   return seedFreeFamily(
     'gen.task',
@@ -226,7 +230,7 @@ export function taskFamily(): Family {
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
         const map = await loadEstateMap(suite.map);
         if (!map.ok) return { pass: false, detail: 'the map does not load' };
-        const known = new Set(map.map.atoms.map((atom) => atom.id));
+        const byId = new Map((map.map.atoms as unknown as MapAtom[]).map((atom) => [atom.id, atom]));
         const setOff = await fakeDispatch(suite);
         const situations = situationsOf(suite);
         const bad: Array<[FixtureSuite['specs'][number], string]> = [];
@@ -238,8 +242,10 @@ export function taskFamily(): Family {
           else if (act.length === 0) {
             const row = fired.filter((id) => spec.atoms.includes(id));
             if (row.length > 0) bad.push([spec, `it carries no act and sets off ${row[0]}`]);
-          } else if (act.some((id) => !known.has(id)))
+          } else if (act.some((id) => !byId.has(id)))
             bad.push([spec, `its act ${act[0]} is no atom of the map`]);
+          else if (codeWritten(spec) && declaredActs(byId.get(act[0] as string) as MapAtom).length === 0)
+            bad.push([spec, `its act ${act[0]} declares no act text in the map`]);
           else if (!act.some((id) => fired.includes(id)))
             bad.push([spec, `the fake does not set off its act ${act[0]}`]);
         }

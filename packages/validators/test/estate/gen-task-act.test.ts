@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
-import { askGrammar } from '../../src/ladders/estate/ask-grammar';
+import { askGrammar, declaredActs } from '../../src/ladders/estate/ask-grammar';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
 import { taskFamily } from '../../src/ladders/estate/bank/genquality';
 import type { MapAtom } from '../../src/ladders/estate/reference-ask';
@@ -15,7 +15,14 @@ const declaredText = (atom: MapAtom) => {
   return typeof ask === 'string' ? ask : (ask as { text?: string } | undefined)?.text;
 };
 const ACTED = map.atoms.find((atom) => declaredText(atom) === 'propose a supplier email') as MapAtom;
-const OTHER = map.atoms.find((atom) => atom.id !== ACTED?.id && atom.kind === 'instruction') as MapAtom;
+const OTHER = map.atoms.find((atom) => atom.id !== ACTED?.id && declaredActs(atom).length > 0) as MapAtom;
+// An atom whose act is its labelled governed-action span, and one that declares no act at all.
+const governed = (atom: MapAtom) =>
+  ((atom.fields as { labelSpans?: Array<{ kind: string }> } | undefined)?.labelSpans ?? []).some(
+    (span) => span.kind === 'governed-action',
+  );
+const GATED = map.atoms.find((atom) => governed(atom) && !(atom.fields as { ask?: unknown }).ask) as MapAtom;
+const BARE = map.atoms.find((atom) => declaredActs(atom).length === 0) as MapAtom;
 const ASK = 'Please propose a supplier email.';
 const NOT_SET_OFF = 'Please propose a supplier e-mail.';
 const MISS = 'the fake does not set off its act';
@@ -58,6 +65,21 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     const late = 'Please propose a supplier email. When a shipment is late by more than two days.';
     expect(asks[late]).toEqual([ACTED.id]);
     expect(asks[NOT_SET_OFF]).toBeUndefined();
+    const span = declaredActs(GATED)[0]?.text;
+    expect(span).toBeDefined();
+    expect(asks[`Please go ahead with ${span}.`]).toContain(GATED.id);
+  });
+
+  it('control: an ask of the labelled governed-action span holds for the atom that carries it', async () => {
+    const span = declaredActs(GATED)[0]?.text;
+    const asked = spec(`Please go ahead with ${span}.`, code(`${GATED.id} (governed-action)`), [GATED.id]);
+    const out = await verdict([asked]);
+    expect(out).toEqual({ pass: true, detail: 'holds (1)' });
+  });
+
+  it('refuses a code ask whose act atom declares no act text in the map', async () => {
+    const out = await verdict([spec(ASK, code(`${BARE.id} (title)`), [BARE.id])]);
+    expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('declares no act text') });
   });
 
   it('control: a code ask the fake sets off for the act its askFrom names holds', async () => {
