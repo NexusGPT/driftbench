@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
-import { type PlanSeedRow, planV2, variablesFromSources } from '@agent-nexus/driftbench-generate';
+import { type PlanSeedRow, planV2, type SpanLabel, variablesFromSources } from '@agent-nexus/driftbench-generate';
 import { countVariableTuples, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
@@ -60,7 +60,7 @@ function validate(value: unknown): ValidateResult {
  * the files into a fresh folder, runs the product function on it, unchanged, and answers the issues on its port.
  */
 const QUOTES_WORKER = `
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { workerData } from 'node:worker_threads';
@@ -259,9 +259,57 @@ function coverage(
   );
 }
 
+let cassette: Map<string, SpanLabel> | undefined;
+/**
+ * The labels a reader wrote for condition spans, by exact span text: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
+ * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
+ * variable. This code reads the file and calls no model.
+ */
+function labels(): Map<string, SpanLabel> {
+  if (cassette) return cassette;
+  const map = new Map<string, SpanLabel>();
+  const file = process.env.DRIFTBENCH_VARIABLES_CASSETTE;
+  if (file) {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (line.trim() === '') continue;
+      const row = JSON.parse(line) as { text: string; label: SpanLabel };
+      map.set(row.text, row.label);
+    }
+  }
+  cassette = map;
+  return map;
+}
+
+/**
+ * Collect mode: `DRIFTBENCH_VARIABLES_SPANS_OUT` names a file, and every condition span a run reads is appended to it
+ * as one JSON line. The span collector job sets it; a labeller turns the spans into the cassette `labels` replays.
+ */
+function recordSpans(sources: Sources): void {
+  const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
+  if (!out) return;
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions) appendFileSync(out, `${JSON.stringify({ text: condition.text })}\n`);
+  }
+}
+
 function buildStore(sources: Sources): StoreDoc {
+  recordSpans(sources);
+  const known = labels();
+  const estate =
+    sources.estate === undefined
+      ? undefined
+      : {
+          ...sources.estate,
+          rules: sources.estate.rules.map((rule) => ({
+            ...rule,
+            conditions: rule.conditions.map((condition) => {
+              const label = known.get(condition.text);
+              return label === undefined ? condition : { ...condition, label };
+            }),
+          })),
+        };
   const built = variablesFromSources({
-    ...(sources.estate === undefined ? {} : { estate: sources.estate }),
+    ...(estate === undefined ? {} : { estate }),
     ...(sources.conversations === undefined ? {} : { conversations: sources.conversations }),
     ...(sources.owner === undefined ? {} : { owner: sources.owner }),
   });
@@ -272,6 +320,7 @@ function buildStore(sources: Sources): StoreDoc {
       values: variable.values.map((value) => ({
         id: value.id,
         ...(value.title === undefined ? {} : { title: value.title }),
+        ...(built.samples[variable.id]?.[value.id] === undefined ? {} : { sample: built.samples[variable.id]?.[value.id] }),
         ...(value.weight === undefined ? {} : { weight: value.weight }),
         ...(value.approved === undefined ? {} : { approved: value.approved }),
         ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),
