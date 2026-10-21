@@ -198,6 +198,50 @@ export function applySessionOps(
   return { file: current, notes };
 }
 
+/**
+ * The session records of a conversation prefix: one user or assistant record per message, in order, each
+ * parented on the one before, so the runtime resumes the conversation as the earlier turns of this session.
+ * Only the text of a message goes in. A tool call a message made and the result it got are not in a prefix of
+ * messages, so a continuation sees what was said, not what the earlier tools returned. System and tool
+ * messages are left out.
+ */
+export function recordsOfMessages(
+  messages: readonly { role: string; content: string }[],
+  at: string,
+): SessionRecord[] {
+  const records: SessionRecord[] = [];
+  let parent: string | null = null;
+  for (const message of messages) {
+    if (message.role !== 'user' && message.role !== 'assistant') continue;
+    const uuid = `seed-${records.length + 1}`;
+    records.push(
+      message.role === 'user'
+        ? {
+            type: 'user',
+            uuid,
+            parentUuid: parent,
+            timestamp: at,
+            message: { role: 'user', content: message.content },
+          }
+        : {
+            type: 'assistant',
+            uuid,
+            parentUuid: parent,
+            timestamp: at,
+            message: {
+              id: `msg_${uuid}`,
+              type: 'message',
+              role: 'assistant',
+              content: [{ type: 'text', text: message.content }],
+              usage: { input_tokens: 0, output_tokens: 0 },
+            },
+          },
+    );
+    parent = uuid;
+  }
+  return records;
+}
+
 /** The session file as text: one record per line, then the torn tail when there is one. */
 export function sessionFileText(file: SessionFile): string {
   const lines = file.records.map((record) => JSON.stringify(record));

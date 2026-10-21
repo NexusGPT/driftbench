@@ -1,0 +1,4 @@
+{"type":"assistant","message":{"id":"message_0","type":"message","role":"assistant","model":"northwind-rehearsal","content":[{"type":"tool_use","id":"tool_0","name":"Bash","input":{"command":"mkdir -p ledger/archive && mv ledger/PO-77.json ledger/archive/PO-77.json"}}],"usage":{"input_tokens":1,"output_tokens":1}},"parent_tool_use_id":null}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_0","content":"done"}]},"parent_tool_use_id":null}
+{"fake":"move","from":"ledger/PO-77.json","to":"ledger/archive/PO-77.json"}
+{"type":"assistant","message":{"id":"message_3","type":"message","role":"assistant","model":"northwind-rehearsal","content":[{"type":"text","text":"Archived ledger/PO-77.json under ledger/archive/."}],"usage":{"input_tokens":1,"output_tokens":1}},"parent_tool_use_id":null}

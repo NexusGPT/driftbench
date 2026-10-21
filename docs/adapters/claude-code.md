@@ -170,3 +170,14 @@ Only findings equal to an owner value are left out; a third party in the same se
 ## The live runner
 
 Built. `claudeCodeLiveAdapter` (in `packages/adapters/src/claude-code/live`) runs the runtime's headless command in a sandbox holding a copy of the estate, maps its stream into one observation per turn, and applies the session states and estate deviations of a state library as operations before a turn (`loadStateLibrary`, `opsForTurn`). `driftbench estate run` drives it, and `driftbench estate mutate` writes the estate mutants it runs against. Commands, options and a run on the fixture's stand-in command are in the [CLI reference](../reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
+
+### Blocks that start from another block
+
+With the option `branching: true` the live runner applies a block's `parent:` and the history a block starts from. Off, it declares `seedPrefix` false and offers no end state, and such blocks are `not_run`, as the [not-run topic](../reference/cli.md) says. On:
+
+* The earlier turns (a written prefix, the history of mode T, or the parent's conversation) become the session file the first turn resumes. Only the text of the user and assistant messages goes in. A tool call and its result are not part of a prefix of messages, so a continuation sees what was said, not what the earlier tools returned.
+* The end state of a block (`snapshotGiven`) is the files the agent and the seed left in the workspace, UTF-8 text as text and anything else as base64, without the files of the estate copy that did not change. A file the agent deleted is absent from the continuation. Deleted adapter-seed files are recorded in `vars.deleted_seed` and removed after the next seed. An estate file it deleted comes back with the copy of the estate every session starts from.
+* The continuation carries `session_state: fresh`, preventing named or fallback session setup from replaying. Its inherited `event` and `mid_turn` operations are cleared. A child can still name its own operations.
+* Two continuations of one parent each open their own sandbox from that end state, so one does not see the other's files.
+
+`estate run` does not set the option; a plugin that registers the adapter for `campaign run` does (`examples/northwind-campaign`).

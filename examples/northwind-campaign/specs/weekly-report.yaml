@@ -1,0 +1,59 @@
+# Prepare the weekly report: the template is read before it is written (the skill's gate), the report is saved
+# under reports/, and the numbers come from the ledger and the shipment log. The skill names a reference file that
+# does not exist (references/kpi-definitions.md), a planted finding of the fixture. Fictional data only.
+id: northwind-weekly-report
+version: '1'
+kind: task
+title: Write the weekly report from the ledger and the shipment log
+lang: EN
+tier: core
+tags: [northwind, campaign, skill:weekly-report]
+target: { adapter: claude-code, agent: northwind }
+uses: { diagnostics: [code-agent-liability] }
+workspace_seed:
+  files:
+    ledger/reconciled-W43.csv: |
+      invoice,order,result,difference_eur
+      INV-1001,PO-71,matched,0.00
+      INV-1002,PO-72,matched,0.00
+      INV-1003,PO-75,short,18.00
+      INV-1004,PO-77,over,60.00
+    shipments/late-W43.csv: |
+      carrier,tracking,supplier,days_late
+      NWX,4471,Fabrikam Housewares,34
+metadata:
+  tool_schemas:
+    Skill:
+      type: object
+      properties:
+        skill:
+          type: string
+          enum: [invoice-reconcile, shipment-tracker, supplier-email, weekly-report]
+        args:
+          type: string
+  estate:
+    map: ../../estates/fixture/approved.yaml
+    atoms:
+      - skill.weekly-report.skill-weekly-report
+      - route.standing.an-ask-to-prepare-the-weekly
+      - gate.weekly-report.read-templates-report-md-before-writing
+      - instruction.weekly-report.fill-the-report-sections-in-the
+      - instruction.standing.report-only-numbers-read-during-the
+blocks:
+  - id: write
+    user: Please prepare the weekly report for week 43.
+    expect:
+      skills:
+        - { name: weekly-report, count: { min: 1 } }
+      tools:
+        - label: Skill
+          input: { skill: weekly-report }
+      references:
+        - { path: '**/templates/report.md', count: { min: 1 } }
+      must: ['report']
+      workspace: { deleted: [] }
+  - id: open
+    user: Thanks. Is anything still open?
+    expect:
+      must: ['open']
+      workspace: { created: [], changed: [], deleted: [] }
