@@ -75,7 +75,10 @@ describe('the fixture through its committed cassettes', () => {
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
 
-  it('builds the git status before commit gate from the recorded nested command spans', async () => {
+  // The nested command spans come from #1045's gate-calls text, which #877 does not take: recorded with it, the
+  // fixture lost every routing row and four standing rules (regen run 39625632619). This case returns with #1045's
+  // re-landing, measured on the fixture first; today R14 is a gate-command gate.
+  it.skip('builds the git status before commit gate from the recorded nested command spans', async () => {
     const { result } = await replay();
     const gate = result.map.atoms.find(
       (atom) => atom.kind === 'gate' && atom.provenance.quote.includes('**R14.**'),
