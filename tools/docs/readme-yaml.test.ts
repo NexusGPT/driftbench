@@ -16,9 +16,15 @@ import { parseCriterionFile } from '@agent-nexus/driftbench-judges';
 import { loadPersona } from '@agent-nexus/driftbench-users';
 import { describe, expect, it, vi } from 'vitest';
 
-const README = fileURLToPath(new URL('../../README.md', import.meta.url));
+const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const README = join(ROOT, 'README.md');
+const INNOVATIONS = join(ROOT, 'docs/innovations.md');
+const HOW_IT_WORKS = join(ROOT, 'docs/how-it-works.md');
+const RECIPES = join(ROOT, 'docs/recipes.md');
 const SUMMARY = '<summary>See it in YAML</summary>';
-const DROPDOWN = /<details><summary>See it in (YAML|TypeScript)<\/summary>([\s\S]*?)<\/details>/g;
+/** The folds that carry files: "See it in YAML or TypeScript" on the docs pages, "How to do it" in the README. */
+const DROPDOWN =
+  /<details><summary>(?:See it in (YAML|TypeScript)|How to do it[^<]*)<\/summary>([\s\S]*?)<\/details>/g;
 
 /** The file a snippet names on its first line: `# file:` in YAML, text and markdown, `// file:` in TypeScript. */
 const FILE_LINE = /^(?:#|\/\/) file: (.+)\n/;
@@ -28,11 +34,12 @@ const FILE_LINE = /^(?:#|\/\/) file: (.+)\n/;
  * TypeScript file keeps its first line, a comment; in a text or markdown file that line only names it.
  * TypeScript files run, and what they print must equal the dropdown's untyped fence.
  */
-async function checkDropdown(body: string, requireCleanLint = true): Promise<number> {
+async function checkDropdown(body: string, requireCleanLint = true, allowNoFiles = false): Promise<number> {
   const folder = await mkdtemp(join(tmpdir(), 'driftbench-readme-yaml-'));
   try {
     const fences = [...body.matchAll(/^```(\w*)\n([\s\S]*?)^```$/gm)];
     const snippets = fences.filter((fence) => ['yaml', 'text', 'markdown', 'ts'].includes(fence[1] ?? ''));
+    if (allowNoFiles && snippets.length === 0) return 0;
     expect(snippets.length).toBeGreaterThan(0);
     const files = new Map<string, { kind: string; path: string }>();
     for (const snippet of snippets) {
@@ -88,7 +95,7 @@ async function checkDropdown(body: string, requireCleanLint = true): Promise<num
       } else if (name.endsWith('.change.yaml')) {
         const result = await loadChangeManifest(path);
         expect(result.ok ? [] : result.errors, name).toEqual([]);
-      } else if (name.endsWith('.criterion.yaml')) {
+      } else if (name.endsWith('.criterion.yaml') || name.startsWith('criteria/')) {
         const result = parseCriterionFile(await readFile(path, 'utf8'), path);
         expect('issues' in result ? result.issues : [], name).toEqual([]);
       } else {
@@ -120,25 +127,36 @@ async function checkDropdown(body: string, requireCleanLint = true): Promise<num
   }
 }
 
-describe('README innovation YAML dropdowns', () => {
+describe('README and docs YAML dropdowns', () => {
   it('loads every YAML file and its shown references with the real loaders', async () => {
-    const readme = await readFile(README, 'utf8');
-    const section = readme.split('## What makes it different\n')[1]?.split('## What it does\n')[0] ?? '';
-    const dropdowns = [...readme.matchAll(DROPDOWN)];
-    expect(dropdowns.filter((dropdown) => dropdown[1] === 'YAML')).toHaveLength(11);
-    expect(dropdowns.filter((dropdown) => dropdown[1] === 'TypeScript')).toHaveLength(2);
-    const innovations = section.split(/^### /m).slice(1, 11);
-    expect(innovations).toHaveLength(10);
-    for (const innovation of innovations) {
-      expect(innovation, innovation.split('\n')[0]).toContain(SUMMARY);
+    const innovations = await readFile(INNOVATIONS, 'utf8');
+    const section = innovations.split(/^## More that ships$/m)[0] ?? '';
+    const ideas = section.split(/^## /m).slice(1);
+    expect(ideas).toHaveLength(10);
+    for (const idea of ideas) expect(idea, idea.split('\n')[0]).toContain(SUMMARY);
+    const pages = new Map<string, { yaml: number; ts: number; folds: number; checked: number }>();
+    const expected = new Map([
+      [INNOVATIONS, { yaml: 11, ts: 0, folds: 0, checked: 17 }],
+      [HOW_IT_WORKS, { yaml: 0, ts: 2, folds: 0, checked: 3 }],
+      [README, { yaml: 0, ts: 0, folds: 21, checked: 15 }],
+    ]);
+    for (const page of expected.keys()) {
+      const text = await readFile(page, 'utf8');
+      const dropdowns = [...text.matchAll(DROPDOWN)];
+      let checked = 0;
+      for (const dropdown of dropdowns) checked += await checkDropdown(dropdown[2] ?? '', true, page === README);
+      pages.set(page, {
+        yaml: dropdowns.filter((dropdown) => dropdown[1] === 'YAML').length,
+        ts: dropdowns.filter((dropdown) => dropdown[1] === 'TypeScript').length,
+        folds: dropdowns.filter((dropdown) => dropdown[1] === undefined).length,
+        checked,
+      });
     }
-    let checked = 0;
-    for (const dropdown of dropdowns) checked += await checkDropdown(dropdown[2] ?? '');
-    expect(checked).toBe(20);
-  }, 120_000);
+    expect(Object.fromEntries(pages)).toEqual(Object.fromEntries(expected));
+  }, 180_000);
 
   it('names the pull requests of a feature that is not built yet', async () => {
-    const readme = await readFile(README, 'utf8');
+    const readme = await readFile(INNOVATIONS, 'utf8');
     const bodies = [...readme.matchAll(DROPDOWN)].map((dropdown) => dropdown[2] ?? '');
     expect(bodies.join('\n')).not.toMatch(/ships? in \[PR/);
     for (const pr of [418, 444]) {
@@ -151,8 +169,9 @@ describe('README innovation YAML dropdowns', () => {
     expect(readme).not.toMatch(/coming in \[#418\]/);
   });
 
-  it('also loads every existing README YAML snippet, including the other dropdowns', async () => {
-    const readme = (await readFile(README, 'utf8')).replace(DROPDOWN, '');
+  it('also loads every YAML snippet outside the dropdowns, in the README and the moved pages', async () => {
+    const texts = await Promise.all([README, INNOVATIONS, HOW_IT_WORKS, RECIPES].map((page) => readFile(page, 'utf8')));
+    const readme = texts.join('\n').replace(DROPDOWN, '');
     const snippets = [...readme.matchAll(/^```yaml\n([\s\S]*?)^```$/gm)];
     expect(snippets.length).toBeGreaterThan(0);
     for (const [index, snippet] of snippets.entries()) {
@@ -175,7 +194,7 @@ describe('README innovation YAML dropdowns', () => {
   });
 
   it('rejects a link to a section its registry does not hold', async () => {
-    const readme = await readFile(README, 'utf8');
+    const readme = await readFile(INNOVATIONS, 'utf8');
     const links = [...readme.matchAll(DROPDOWN)].find((dropdown) => dropdown[2]?.includes('metadata.links'));
     expect(links).toBeDefined();
     const broken = (links?.[2] ?? '').replace('section: recap }', 'section: recapp }');
@@ -184,7 +203,7 @@ describe('README innovation YAML dropdowns', () => {
   });
 
   it('rejects a script whose shown output differs from what it prints', async () => {
-    const readme = await readFile(README, 'utf8');
+    const readme = await readFile(HOW_IT_WORKS, 'utf8');
     const script = [...readme.matchAll(DROPDOWN)].find((dropdown) => dropdown[2]?.includes('headline.ts'));
     expect(script).toBeDefined();
     const broken = (script?.[2] ?? '').replace('[35.4%, 88.2%]\n```', '[35.4%, 88.3%]\n```');

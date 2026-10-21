@@ -6,6 +6,16 @@ driftbench evaluates AI agents block by block. A block is one exchange with a co
 
 Every page says what exists today and what is not built yet, with the phase that delivers it when one is assigned.
 
+## Start here
+
+* [Recipes](recipes.md): evaluate your own agent, add a judge, gate a pull request.
+* [Innovations](innovations.md): the ten ideas that lead, then six more, each with its measured impact, its sources, its limits and the files to copy.
+* [How it works](how-it-works.md): the loop of generating tests, running the agent, judging each block, measuring, fixing and rerunning the blast radius.
+* [What it does](features.md): every feature, grouped, with the capability matrix.
+* [The command line](cli-tour.md): a tour of the commands with a runnable example each.
+* [Adapters and extension points](extending.md): how to reach your agent, and how to add a check, a judge, a criterion, a file reader or a store.
+* [Benchmarks](public-benchmarks.md): the public judge benchmarks, the hard cases, the cost of a judgement and how to rebuild the sealed sets.
+
 ## Concepts
 
 * [Block](concepts/block.md): the unit of evaluation, the four runtime concepts (tools, skills, guards, stages), one conversation spec and one task spec.

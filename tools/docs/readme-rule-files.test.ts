@@ -43,7 +43,7 @@ function shows(readme: string, command: string, lines: string[]): void {
 
 describe('README, Rule files: a project check set and a re-score', () => {
   it('prints the lines the README shows, and the stamp of each verdict', async () => {
-    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const readme = await readFile(`${ROOT}/docs/innovations.md`, 'utf8');
     // The stamp script resolves the store package from the clone, so the folder lives inside it.
     const dir = await mkdtemp(join(ROOT, '.readme-rules-'));
     try {
