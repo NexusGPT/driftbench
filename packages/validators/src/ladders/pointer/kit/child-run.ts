@@ -13,6 +13,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { sutModule } from '../sut/adapter';
 import type { Job, JobOutput } from './child';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -85,7 +86,7 @@ export async function runChild(job: Job, options: ChildOptions = {}): Promise<Ch
       TSX_TSCONFIG_PATH: join(repo, 'tsconfig.json'),
       HOME: home,
       TMPDIR: tmp,
-      DRIFTBENCH_POINTER_SUT: process.env.DRIFTBENCH_POINTER_SUT ?? '',
+      DRIFTBENCH_POINTER_SUT: sutModule(),
       DRIFTBENCH_POINTER_ROOT: repo,
       ...Object.fromEntries(
         Object.entries(options.env ?? {}).map(([k, v]) => [
