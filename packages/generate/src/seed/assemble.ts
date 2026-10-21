@@ -88,6 +88,8 @@ export type SpecDraft = {
   blocks: BlockDraft[];
   reducedEnds?: ReducedEnds;
   /** Blocks cut from the middle of the walk: a stay another written spec already says. */
+  /** The end state was taken off with the block that wrote it: another written spec holds it on this path. */
+  reducedEndState?: boolean;
   reducedMiddle?: Array<{ block: string; duplicate_of: { spec: string; block: string } }>;
   world?: WorldState;
   /** Numeric budget settings the runner delivers to the adapter. */
@@ -436,6 +438,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
   if (draft.metamorphic) generated.metamorphic = draft.metamorphic;
   if (draft.reducedEnds) generated.reduced_ends = draft.reducedEnds;
   if (draft.reducedMiddle) generated.reduced_middle = draft.reducedMiddle;
+  if (draft.reducedEndState) generated.reduced_end_state = true;
   if (placeholders.length > 0) generated.needs_phrase = placeholders;
   if (noThen.length > 0) generated.needs_then = noThen;
   if (reasons.length > 0) generated.needs_then_why = reasons;

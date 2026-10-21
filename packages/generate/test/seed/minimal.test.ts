@@ -127,25 +127,55 @@ describe('terminal subsumption', () => {
       minimal.reduce(second);
       expect(first.blocks).toHaveLength(length);
       expect(second.blocks.length).toBeLessThan(length);
-      expect(second.end_state).toBeDefined();
     });
 
-    it('keeps the block that calls the tool the end state is written by', () => {
+    const withWrite = (prepared: ReturnType<typeof fixture>, id: string, plan: string) => {
+      const base = prepared.relations.paths[0];
+      if (!base) throw new Error('missing parcel path');
+      const draft = walk(prepared, id, base);
+      draft.end_state = { source: 'tool:ship', mode: 'exact' as const, expect: { plan } };
+      const last = draft.blocks.at(-1);
+      if (!last) throw new Error('the walk has no block');
+      last.tools = [{ label: 'ship', count: 1 }];
+      return draft;
+    };
+
+    it('keeps the block that calls the tool the end state is written by, when no written spec holds that end state', () => {
       const prepared = fixture();
-      const path = endPath(prepared);
+      endPath(prepared);
       const minimal = new TerminalSubsumption(prepared, run, 2);
-      const withWrite = (id: string) => {
-        const draft = walk(prepared, id, path);
-        const last = draft.blocks.at(-1);
-        if (!last) throw new Error('the walk has no block');
-        last.tools = [{ label: 'ship', count: 1 }];
-        return draft;
-      };
-      const first = withWrite('first');
-      const second = withWrite('second');
+      const first = withWrite(prepared, 'first', 'large');
+      const second = withWrite(prepared, 'second', 'premium');
       minimal.reduce(first);
       minimal.reduce(second);
       expect(second.blocks).toHaveLength(first.blocks.length);
+      expect(second.end_state).toEqual({ source: 'tool:ship', mode: 'exact', expect: { plan: 'premium' } });
+    });
+
+    it('cuts the write too, and takes the end state off, when a written spec holds the same end state on the path', () => {
+      const prepared = fixture();
+      endPath(prepared);
+      const minimal = new TerminalSubsumption(prepared, run, 2);
+      const first = withWrite(prepared, 'first', 'large');
+      const second = withWrite(prepared, 'second', 'large');
+      const length = first.blocks.length;
+      minimal.reduce(first);
+      minimal.reduce(second);
+      expect(first.end_state).toBeDefined();
+      expect(first.blocks).toHaveLength(length);
+      expect(second.blocks.length).toBeLessThan(length);
+      expect(second.end_state).toBeUndefined();
+      expect(second.reducedEndState).toBe(true);
+    });
+
+    it('keeps its end state when nothing of the walk is cut', () => {
+      const prepared = fixture();
+      endPath(prepared);
+      const minimal = new TerminalSubsumption(prepared, run, 2);
+      const first = withWrite(prepared, 'first', 'large');
+      minimal.reduce(first);
+      expect(first.end_state).toBeDefined();
+      expect(first.reducedEndState).toBeUndefined();
     });
   });
 

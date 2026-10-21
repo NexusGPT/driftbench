@@ -5,7 +5,7 @@ id: gen-behaviour-balance-100
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-009: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -74,7 +74,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: not-found
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
@@ -113,7 +113,7 @@ metadata:
           flow: upgrade
           user_type: existing-customer
           account_lookup: not-found
-          channel: whatsapp
+          channel: chat
           coverage_result: none
           stage_transition: needs-to-identify
           stage: identify

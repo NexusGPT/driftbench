@@ -5,7 +5,7 @@ id: gen-behaviour-balance-053
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-010: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -125,6 +125,27 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -144,7 +165,7 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: whatsapp
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -206,7 +227,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: whatsapp
+          channel: chat
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -240,7 +261,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: whatsapp
+          channel: chat
           stage_transition: address-to-offer
           stage: offer
       relation: derived_from
@@ -266,7 +287,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: whatsapp
+          channel: chat
           stage_transition: offer-to-callback
           stage: callback
       relation: derived_from
@@ -316,7 +337,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: whatsapp
+          channel: chat
           stage_transition: callback-to-handover
           stage: handover
       relation: derived_from

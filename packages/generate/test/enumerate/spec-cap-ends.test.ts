@@ -7,8 +7,8 @@ import type { ReducedEnds } from '../../src/seed/assemble';
 import { buildTaskInputs } from '../../src/seed/tasks';
 import { ACME_MAP } from './support';
 
-// The identity the reducer gives a block: the turn, the stage it is said from, what it expects, its language and
-// rules. The channel, the persona and the declared perturbations are not part of it.
+// The identity the reducer gives a block: the kind of turn (never its wording), the stage it is said from, what it
+// expects, its language and rules. The channel, the persona and the declared perturbations are not part of it.
 function key(spec: Spec, index: number): string {
   const block = spec.blocks[index];
   const { criteria: _criteria, ...machine } = block?.expect ?? {};
@@ -19,7 +19,7 @@ function key(spec: Spec, index: number): string {
     spec.rules,
     canonicalGiven(spec, index).state,
     from,
-    block?.when,
+    block?.when && 'injection' in block.when ? block.when.injection : block?.when && Object.keys(block.when),
     block?.given,
     machine,
   ]);

@@ -103,52 +103,11 @@ blocks:
       lang: EN
       criteria:
         - deviation.D3_contradiction
-  - id: b4-offer-to-callback
-    when:
-      user: Can someone just call me back?
-    expect:
-      stage: callback
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-callback-to-handover
-    when:
-      user: You can reach me on +1 202 555 0131.
-    expect:
-      stage: handover
-      stage_reported: true
-      tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: callback
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - port.check
     - order.create
   one_message_per_turn: true
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: callback
-    customer:
-      subset:
-        phone: "+12025550131"
 perturbations:
   - id: p1-D6_instruction_in_data
     class: D6_instruction_in_data
@@ -224,27 +183,19 @@ metadata:
         phrase:
           dimension: deviation
           value: D3_contradiction
-      - block: b4-offer-to-callback
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-callback
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: offer-to-callback
-      - block: b5-callback-to-handover
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          coverage_result: fiber
-          plan_choice: asks-for-callback
-          callback_phone: given
-          stage: handover
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
+    reduced_ends:
+      from_blocks: 5
+      to_blocks: 3
+      duplicates:
+        - block: b4-offer-to-callback
+          duplicate_of:
+            spec: gen-graph-008
+            block: b3-offer-to-callback
+        - block: b5-callback-to-handover
+          duplicate_of:
+            spec: gen-graph-008
+            block: b4-callback-to-handover
+    reduced_end_state: true
   links:
     - block: b1-needs-to-address
       to:
@@ -328,82 +279,6 @@ metadata:
           callback_phone: given
           deviation: D3_contradiction
           stage: offer
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-offer-to-callback
-      to:
-        kind: rule
-        rule: stage_transition=offer-to-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-offer-to-callback
-      to:
-        kind: plan_row
-        row: gen-twise-056
-        values:
-          behaviour: B-005
-          channel: chat
-          user_type: new-customer
-          coverage_result: fiber
-          flow: new-home
-          plan_choice: asks-for-callback
-          callback_phone: given
-          stage_transition: offer-to-callback
-          stage: callback
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-callback-to-handover
-      to:
-        kind: rule
-        rule: stage_transition=callback-to-handover
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-callback-to-handover
-      to:
-        kind: rule
-        rule: coverage_result=fiber
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-callback-to-handover
-      to:
-        kind: rule
-        rule: plan_choice=asks-for-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-callback-to-handover
-      to:
-        kind: rule
-        rule: callback_phone=given
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-callback-to-handover
-      to:
-        kind: plan_row
-        row: gen-twise-056
-        values:
-          behaviour: B-005
-          channel: chat
-          user_type: new-customer
-          coverage_result: fiber
-          flow: new-home
-          plan_choice: asks-for-callback
-          callback_phone: given
-          stage_transition: callback-to-handover
-          stage: handover
       relation: derived_from
       status: declared
       created_by: generator

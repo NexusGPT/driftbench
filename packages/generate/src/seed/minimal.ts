@@ -43,12 +43,17 @@ export class TerminalSubsumption {
   private readonly blocks = new Map<string, ReducedEnds['duplicates'][number]['duplicate_of']>();
   /** The user messages the written specs say: a cut never removes the only place an approved phrase is said. */
   private readonly said = new Set<string>();
+  /** The end states the written specs hold, per path. */
+  private readonly endStates = new Set<string>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
   /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
-  private readonly families = new Map<string, { length: number; reduction?: ReducedEnds }>();
+  private readonly families = new Map<
+    string,
+    { length: number; reduction?: ReducedEnds; endStateDropped?: boolean }
+  >();
   /** The first family that drafted a block, including a suffix whose retained witness is another seeder. */
   private readonly familyBlocks = new Map<string, string>();
   /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
@@ -97,10 +102,25 @@ export class TerminalSubsumption {
     ) {
       // A follower is cut to its leader's length only when every message it would lose is said by a written spec.
       draft.blocks = draft.blocks.slice(0, followed.length);
+      // The leader's end state went with the block that wrote it: the follower's goes too.
+      if (followed.endStateDropped && draft.end_state !== undefined) {
+        draft.end_state = undefined;
+        draft.reducedEndState = true;
+      }
       const shorter = renderDraft(this.prepared, draft, this.run);
       const again = validateSpec(shorter.spec);
       if (again.ok) spec = again.spec;
     } else if (followed === undefined && spec.kind === 'conversation') {
+      // An end state another written spec already holds on this path is not checked again by this walk: it is
+      // taken off while the end of the walk is cut, so the block that writes it can go too. A walk that is not
+      // cut keeps its end state.
+      const savedEnd = draft.end_state;
+      if (savedEnd !== undefined && this.endStates.has(this.endKey(spec))) {
+        draft.end_state = undefined;
+        const without = validateSpec(renderDraft(this.prepared, draft, this.run).spec);
+        if (without.ok) spec = without.spec;
+        else draft.end_state = savedEnd;
+      }
       const states = [{ blocks: draft.blocks, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
@@ -141,6 +161,13 @@ export class TerminalSubsumption {
       draft.blocks = chosen.blocks;
       spec = chosen.spec;
     }
+    if (draft.end_state === undefined && original.end_state !== undefined) {
+      if (spec.blocks.length < original.blocks.length) draft.reducedEndState = true;
+      else {
+        draft.end_state = original.end_state as SpecDraft['end_state'];
+        spec = original;
+      }
+    }
     if (spec.blocks.length < original.blocks.length) {
       draft.reducedEnds = {
         from_blocks: original.blocks.length,
@@ -169,7 +196,11 @@ export class TerminalSubsumption {
       spec = this.dropMiddle(draft, spec);
     }
     if (family?.variant === 1) {
-      this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });
+      this.families.set(family.family, {
+        length: spec.blocks.length,
+        reduction: draft.reducedEnds,
+        endStateDropped: draft.reducedEndState === true,
+      });
       original.blocks.forEach((_, index) => {
         const key = this.key(original, index);
         if (!this.familyBlocks.has(key)) this.familyBlocks.set(key, family.family);
@@ -225,6 +256,12 @@ export class TerminalSubsumption {
     return (block?.expect?.tools ?? []).some((tool) => written.has(tool.label));
   }
 
+  /** An end state on a path: what two walks must agree on to hold the same one. */
+  private endKey(spec: Spec): string {
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    return contentHash([path, spec.end_state]);
+  }
+
   /** The messages a block says: its user turn, or the turns of a burst. */
   private textsOf(block: Spec['blocks'][number] | undefined): string[] {
     const when = block?.when;
@@ -261,6 +298,7 @@ export class TerminalSubsumption {
 
   /** What a spec written by other code places: tasks are never reduced but their obligations are met. */
   observeSpec(spec: Spec): void {
+    if (spec.end_state !== undefined) this.endStates.add(this.endKey(spec));
     for (const block of spec.blocks) for (const text of this.textsOf(block)) this.said.add(text);
     spec.blocks.forEach((_, index) => {
       const key = this.key(spec, index);

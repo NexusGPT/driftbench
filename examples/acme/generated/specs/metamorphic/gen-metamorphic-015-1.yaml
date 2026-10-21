@@ -48,38 +48,11 @@ blocks:
           count: 0
       lang: EN
     parent: stem-05172c73a7b2#b2-address-to-offer
-  - id: b4-callback-to-handover
-    when:
-      user: You can reach me on +1 202 555 0131.
-    expect:
-      stage: handover
-      stage_reported: true
-      tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: callback
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - port.check
     - order.create
   one_message_per_turn: true
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: callback
-    customer:
-      subset:
-        phone: "+12025550131"
 perturbations:
   - id: p1-D5_language_switch
     class: D5_language_switch
@@ -149,23 +122,20 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-callback
-      - block: b4-callback-to-handover
-        seeder: metamorphic
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          stage: handover
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
     metamorphic:
       family: gen-metamorphic-015
       variant: 1
       of: 2
       relation: same observed outcome
+    reduced_ends:
+      from_blocks: 4
+      to_blocks: 3
+      duplicates:
+        - block: b4-callback-to-handover
+          duplicate_of:
+            spec: gen-graph-008
+            block: b4-callback-to-handover
+    reduced_end_state: true
     parent:
       stem: stem-05172c73a7b2
       block: b2-address-to-offer
@@ -250,55 +220,6 @@ metadata:
           flow: new-home
           stage_transition: offer-to-callback
           stage: callback
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: stage_transition=callback-to-handover
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: coverage_result=5g-only
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: plan_choice=asks-for-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: callback_phone=given
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: plan_row
-        row: gen-metamorphic-015
-        values:
-          user_type: new-customer
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          channel: chat
-          flow: new-home
-          stage_transition: callback-to-handover
-          stage: handover
       relation: derived_from
       status: declared
       created_by: generator

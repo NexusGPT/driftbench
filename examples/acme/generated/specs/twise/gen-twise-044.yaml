@@ -132,44 +132,11 @@ blocks:
       lang: EN
       criteria:
         - deviation.D4_loose_confirmation
-  - id: b6-recap-to-order_placed
-    when:
-      user: Confirm
-    expect:
-      stage: order_placed
-      stage_reported: true
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: fiber-1000
-            address_id: addr-101
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - port.check
     - notify_sales
   one_message_per_turn: true
-end_state:
-  source: tool:order.create
-  mode: subset
-  expect:
-    type: new
-    plan_id: fiber-1000
-    address_id: addr-101
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -237,17 +204,15 @@ metadata:
         phrase:
           dimension: deviation
           value: D4_loose_confirmation
-      - block: b6-recap-to-order_placed
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          coverage_result: fiber
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
+    reduced_ends:
+      from_blocks: 6
+      to_blocks: 5
+      duplicates:
+        - block: b6-recap-to-order_placed
+          duplicate_of:
+            spec: gen-graph-005
+            block: b5-recap-to-order_placed
+    reduced_end_state: true
   links:
     - block: b1-needs-to-address
       to:
@@ -383,48 +348,6 @@ metadata:
           customer_details: name-and-email
           deviation: D4_loose_confirmation
           stage: recap
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: stage_transition=recap-to-order_placed
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: coverage_result=fiber
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: customer_details=name-and-email
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: plan_row
-        row: gen-twise-044
-        values:
-          behaviour: B-004
-          channel: whatsapp
-          user_type: new-customer
-          coverage_result: fiber
-          flow: new-home
-          plan_choice: names-one
-          customer_details: name-and-email
-          stage_transition: recap-to-order_placed
-          stage: order_placed
       relation: derived_from
       status: declared
       created_by: generator

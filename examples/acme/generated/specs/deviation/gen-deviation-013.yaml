@@ -56,49 +56,12 @@ blocks:
       criteria:
         - deviation.D10_return
     parent: stem-aa9f960ac17a#b2-address-to-callback
-  - id: b4-callback-to-handover
-    when:
-      user: You can reach me on +1 202 555 0131.
-    expect:
-      stage: handover
-      stage_reported: true
-      tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: no_coverage
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-      lang: EN
-  - id: b5-handover-to-closing
-    when:
-      user: Great, thank you. Bye!
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
     - port.check
     - order.create
   one_message_per_turn: true
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: no_coverage
-    customer:
-      subset:
-        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -146,26 +109,19 @@ metadata:
         phrase:
           dimension: deviation
           value: D10_return
-      - block: b4-callback-to-handover
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          coverage_result: no-service
-          callback_phone: given
-          stage: handover
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
-      - block: b5-handover-to-closing
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: handover-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: handover-to-closing
+    reduced_ends:
+      from_blocks: 5
+      to_blocks: 3
+      duplicates:
+        - block: b4-callback-to-handover
+          duplicate_of:
+            spec: gen-graph-006
+            block: b3-callback-to-handover
+        - block: b5-handover-to-closing
+          duplicate_of:
+            spec: gen-graph-006
+            block: b4-handover-to-closing
+    reduced_end_state: true
     parent:
       stem: stem-aa9f960ac17a
       block: b2-address-to-callback
@@ -247,70 +203,6 @@ metadata:
           channel: chat
           deviation: D10_return
           stage: callback
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: stage_transition=callback-to-handover
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: coverage_result=no-service
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: callback_phone=given
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: plan_row
-        row: gen-deviation-013
-        values:
-          flow: new-home
-          user_type: new-customer
-          coverage_result: no-service
-          callback_phone: given
-          channel: chat
-          stage_transition: callback-to-handover
-          stage: handover
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-handover-to-closing
-      to:
-        kind: rule
-        rule: stage_transition=handover-to-closing
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-handover-to-closing
-      to:
-        kind: plan_row
-        row: gen-deviation-013
-        values:
-          flow: new-home
-          user_type: new-customer
-          coverage_result: no-service
-          callback_phone: given
-          channel: chat
-          stage_transition: handover-to-closing
-          stage: closing
       relation: derived_from
       status: declared
       created_by: generator

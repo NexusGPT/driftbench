@@ -85,7 +85,7 @@ const ownBlocks = (spec: Spec) =>
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(435);
+    expect(specs.length).toBe(436);
     expect(stems.length).toBeGreaterThan(0);
     const failing: string[] = [];
     // Every block is scored once: a shared opening in its stem's own run, every other block in its spec's.

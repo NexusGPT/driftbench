@@ -5,7 +5,7 @@ id: gen-behaviour-balance-035
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-004: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -55,95 +55,11 @@ blocks:
       criteria:
         - behaviour.B-004
         - flow.new-home
-  - id: b2-address-to-offer
-    when:
-      user: The address is 88 Summit Avenue, Acmeville.
-    expect:
-      stage: offer
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 88 Summit Avenue, Acmeville
-          input_closed: true
-        - label: catalog.search
-          count: 1
-          input:
-            category: home
-            address_id: addr-103
-        - label: notify_sales
-          count: 0
-      must:
-        - Acme Air 5G, up to 200 Mbps for \$35 a month
-      lang: EN
-  - id: b3-offer-to-callback
-    when:
-      user: Can someone just call me back?
-    expect:
-      stage: callback
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-callback-to-handover
-    when:
-      user: You can reach me on +1 202 555 0131.
-    expect:
-      stage: handover
-      stage_reported: true
-      tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: callback
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - port.check
     - order.create
   one_message_per_turn: true
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: callback
-    customer:
-      subset:
-        phone: "+12025550131"
-perturbations:
-  - id: p1-D9_out_of_scope
-    class: D9_out_of_scope
-    inject_at: 0
-    user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: needs
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-    recovery:
-      within_blocks: 0
-      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -163,7 +79,7 @@ metadata:
       coverage_result: 5g-only
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -174,37 +90,25 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: 5g-only
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-callback
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-callback
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: offer-to-callback
-      - block: b4-callback-to-handover
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          stage: handover
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
+    reduced_ends:
+      from_blocks: 4
+      to_blocks: 1
+      duplicates:
+        - block: b2-address-to-offer
+          duplicate_of:
+            spec: gen-metamorphic-015-1
+            block: b2-address-to-offer
+            family: gen-metamorphic-015
+        - block: b3-offer-to-callback
+          duplicate_of:
+            spec: gen-metamorphic-015-1
+            block: b3-offer-to-callback
+            family: gen-metamorphic-015
+        - block: b4-callback-to-handover
+          duplicate_of:
+            spec: gen-graph-008
+            block: b4-callback-to-handover
+    reduced_end_state: true
   links:
     - block: b1-needs-to-address
       to:
@@ -225,119 +129,9 @@ metadata:
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-offer
-      to:
-        kind: rule
-        rule: stage_transition=address-to-offer
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-offer
-      to:
-        kind: rule
-        rule: coverage_result=5g-only
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-offer
-      to:
-        kind: plan_row
-        row: gen-behaviour-balance-035
-        values:
-          behaviour: B-004
-          flow: new-home
-          user_type: new-customer
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          channel: chat
-          stage_transition: address-to-offer
-          stage: offer
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-offer-to-callback
-      to:
-        kind: rule
-        rule: stage_transition=offer-to-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-offer-to-callback
-      to:
-        kind: plan_row
-        row: gen-behaviour-balance-035
-        values:
-          behaviour: B-004
-          flow: new-home
-          user_type: new-customer
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          channel: chat
-          stage_transition: offer-to-callback
-          stage: callback
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: stage_transition=callback-to-handover
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: coverage_result=5g-only
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: plan_choice=asks-for-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: rule
-        rule: callback_phone=given
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-callback-to-handover
-      to:
-        kind: plan_row
-        row: gen-behaviour-balance-035
-        values:
-          behaviour: B-004
-          flow: new-home
-          user_type: new-customer
-          coverage_result: 5g-only
-          plan_choice: asks-for-callback
-          callback_phone: given
-          channel: chat
-          stage_transition: callback-to-handover
-          stage: handover
       relation: derived_from
       status: declared
       created_by: generator

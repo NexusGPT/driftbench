@@ -79,32 +79,12 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
-  - id: b5-handover-to-closing
-    when:
-      user: Great, thank you. Bye!
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
     - port.check
     - order.create
   one_message_per_turn: true
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: no_coverage
-    customer:
-      subset:
-        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -164,15 +144,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: callback-to-handover
-      - block: b5-handover-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: handover-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: handover-to-closing
+    reduced_ends:
+      from_blocks: 5
+      to_blocks: 4
+      duplicates:
+        - block: b5-handover-to-closing
+          duplicate_of:
+            spec: gen-graph-006
+            block: b4-handover-to-closing
+    reduced_end_state: true
     parent:
       stem: stem-2eb269a9e9ab
       block: b2-address-to-callback
@@ -298,31 +278,6 @@ metadata:
           callback_phone: given
           stage_transition: callback-to-handover
           stage: handover
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-handover-to-closing
-      to:
-        kind: rule
-        rule: stage_transition=handover-to-closing
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-handover-to-closing
-      to:
-        kind: plan_row
-        row: gen-twise-036
-        values:
-          behaviour: B-003
-          channel: chat
-          user_type: new-customer
-          coverage_result: no-service
-          flow: new-home
-          callback_phone: given
-          stage_transition: handover-to-closing
-          stage: closing
       relation: derived_from
       status: declared
       created_by: generator

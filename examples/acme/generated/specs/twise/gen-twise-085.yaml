@@ -96,88 +96,11 @@ blocks:
         - Acme Mobile M, 40 GB for \$25 a month
         - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      stage_reported: true
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
-    expect:
-      stage: recap
-      stage_reported: true
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      stage_reported: true
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: mobile-m
-            port_number:
-              absent: true
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-      lang: EN
-  - id: b7-order_placed-to-closing
-    when:
-      user: No, that's all. Thanks!
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
 rules:
   forbidden_tools:
     - coverage.check
     - notify_sales
   one_message_per_turn: true
-end_state:
-  source: tool:order.create
-  mode: subset
-  expect:
-    type: new
-    plan_id: mobile-m
-    port_number:
-      absent: true
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -228,44 +151,27 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b4-offer-to-details
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          port_result: locked
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing
+    reduced_ends:
+      from_blocks: 7
+      to_blocks: 3
+      duplicates:
+        - block: b4-offer-to-details
+          duplicate_of:
+            spec: gen-twise-072
+            block: b4-offer-to-details
+        - block: b5-details-to-recap
+          duplicate_of:
+            spec: gen-twise-072
+            block: b5-details-to-recap
+        - block: b6-recap-to-order_placed
+          duplicate_of:
+            spec: gen-twise-072
+            block: b6-recap-to-order_placed
+        - block: b7-order_placed-to-closing
+          duplicate_of:
+            spec: gen-twise-072
+            block: b7-order_placed-to-closing
+    reduced_end_state: true
     parent:
       stem: stem-0399e2acde96
       block: b1-needs-to-port_number
@@ -356,130 +262,6 @@ metadata:
           customer_details: name-and-email
           stage_transition: port_number-to-offer
           stage: offer
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-offer-to-details
-      to:
-        kind: rule
-        rule: stage_transition=offer-to-details
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-offer-to-details
-      to:
-        kind: plan_row
-        row: gen-twise-085
-        values:
-          behaviour: B-007
-          channel: whatsapp
-          user_type: new-customer
-          coverage_result: none
-          flow: porting
-          port_result: locked
-          plan_choice: names-one
-          customer_details: name-and-email
-          stage_transition: offer-to-details
-          stage: details
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-details-to-recap
-      to:
-        kind: rule
-        rule: stage_transition=details-to-recap
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-details-to-recap
-      to:
-        kind: plan_row
-        row: gen-twise-085
-        values:
-          behaviour: B-007
-          channel: whatsapp
-          user_type: new-customer
-          coverage_result: none
-          flow: porting
-          port_result: locked
-          plan_choice: names-one
-          customer_details: name-and-email
-          stage_transition: details-to-recap
-          stage: recap
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: stage_transition=recap-to-order_placed
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: port_result=locked
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: rule
-        rule: customer_details=name-and-email
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b6-recap-to-order_placed
-      to:
-        kind: plan_row
-        row: gen-twise-085
-        values:
-          behaviour: B-007
-          channel: whatsapp
-          user_type: new-customer
-          coverage_result: none
-          flow: porting
-          port_result: locked
-          plan_choice: names-one
-          customer_details: name-and-email
-          stage_transition: recap-to-order_placed
-          stage: order_placed
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b7-order_placed-to-closing
-      to:
-        kind: rule
-        rule: stage_transition=order_placed-to-closing
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b7-order_placed-to-closing
-      to:
-        kind: plan_row
-        row: gen-twise-085
-        values:
-          behaviour: B-007
-          channel: whatsapp
-          user_type: new-customer
-          coverage_result: none
-          flow: porting
-          port_result: locked
-          plan_choice: names-one
-          customer_details: name-and-email
-          stage_transition: order_placed-to-closing
-          stage: closing
       relation: derived_from
       status: declared
       created_by: generator

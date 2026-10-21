@@ -5,7 +5,7 @@ id: gen-phrase-001
 version: 7a022d4e1380
 kind: conversation
 title: "Phrase of flow=upgrade: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -82,7 +82,7 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: chat
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
@@ -121,7 +121,7 @@ metadata:
           user_type: existing-customer
           account_lookup: found
           plan_choice: names-one
-          channel: chat
+          channel: whatsapp
           coverage_result: none
           stage_transition: needs-to-identify
           stage: identify
@@ -146,7 +146,7 @@ metadata:
           user_type: existing-customer
           account_lookup: found
           plan_choice: names-one
-          channel: chat
+          channel: whatsapp
           coverage_result: none
           stage: identify
       relation: derived_from

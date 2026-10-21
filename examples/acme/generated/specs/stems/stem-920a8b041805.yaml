@@ -53,6 +53,20 @@ blocks:
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
     parent: stem-b17496bb6197#b1-needs-to-address
+  - id: b3-offer-to-details
+    when:
+      user: Yes, that one.
+    expect:
+      stage: details
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
 metadata:
   stem:
     specs:
