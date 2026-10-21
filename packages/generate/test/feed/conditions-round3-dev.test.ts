@@ -25,6 +25,17 @@ type Batch = {
 };
 
 describe('round-3 DEV classes: permissive yes and existing-or-new decisions', () => {
+  it('keeps distinct numeric cutoffs and a conditional response separate from no response', () => {
+    const evidence = JSON.parse(readFileSync(join(dir, 'round3-dev-selected.json'), 'utf8')) as {
+      batches: Batch[];
+    };
+    const batch = evidence.batches.find((b) => b.file === 'round3-dev-clauses.json');
+    expect.soft(batch?.report.outcomes.find((o) => o.span === 'r3d-002')?.values)
+      .toEqual(['shipment_delay/late_over_two_days']);
+    const conditional = batch?.report.outcomes.find((o) => o.span === 'r3d-032');
+    expect.soft(conditional?.status).toBe('proposed');
+    expect.soft(conditional?.values.every((v) => v.startsWith('approval/'))).toBe(true);
+  });
   it('replays both independent seed-store batches above the unchanged 0.95 bars', async () => {
     const evidence = JSON.parse(readFileSync(join(dir, 'round3-dev-selected.json'), 'utf8')) as {
       threshold: number;

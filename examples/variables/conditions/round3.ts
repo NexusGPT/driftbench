@@ -99,7 +99,8 @@ export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: rea
                 const numeric = await judge.judge({
                   criterion: {
                     name: 'guard_parameters_equal:' + q.name,
-                    rubric: 'Are the numeric cutoff parameters of the candidate and corresponding source condition exactly equal after conversion to a common unit?',
+                    rubric:
+                      'Are the numeric cutoff parameters of the candidate and corresponding source condition exactly equal after conversion to a common unit?',
                     pass: 'The candidate has no numeric guard, or its numeric cutoff, unit or currency after exact conversion, and comparison strictness equal those of the corresponding source condition. More than 60 minutes equals more than 1 hour.',
                     fail: 'A candidate numeric guard has a different cutoff, unit or currency without exact conversion, or comparison strictness. More than 90 minutes differs from more than 1 hour even though one range implies the other. Compare cutoff equality, never range containment. A number only in an action or another independent condition is not this guard.',
                     scope: 'conversation',
@@ -107,7 +108,13 @@ export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: rea
                   transcript: [{ role: 'user', text: JSON.stringify({ candidate, source: text }) }],
                 });
                 const equal = numeric.answer.score;
-                if (numeric.unparsed || typeof equal !== 'number' || !Number.isFinite(equal) || equal < 0 || equal > 1)
+                if (
+                  numeric.unparsed ||
+                  typeof equal !== 'number' ||
+                  !Number.isFinite(equal) ||
+                  equal < 0 ||
+                  equal > 1
+                )
                   answers[q.name] = undefined;
                 else if (equal < ROUND3_THRESHOLD) answers[q.name] = { yes: 0 };
               }

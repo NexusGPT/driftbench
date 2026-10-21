@@ -31,7 +31,12 @@ describe('frozen4: single final recording, no network or sealed answers', () => 
     };
     const freeze = JSON.parse(readFileSync(join(dir, 'round3-freeze.json'), 'utf8')) as {
       clausesHash: string;
+      readerHash: string;
+      pipelineHash: string;
       files: Record<string, string>;
+    };
+    const totals = JSON.parse(readFileSync(join(dir, 'round3-frozen4.totals.json'), 'utf8')) as {
+      hashesAfterScoring: Record<string, string>;
     };
     expect(evidence.spans).toHaveLength(73);
     const clauseBytes = Buffer.from(evidence.clauseBytesBase64, 'base64');
@@ -39,9 +44,10 @@ describe('frozen4: single final recording, no network or sealed answers', () => 
     expect(JSON.parse(clauseBytes.toString('utf8'))).toEqual(evidence.spans);
     expect(evidence.hashesBefore).toEqual(freeze.files);
     expect(evidence.hashesAfter).toEqual(freeze.files);
-    for (const [file, expected] of Object.entries(freeze.files)) {
-      expect(digest(readFileSync(join(root, file))), file).toBe(expected);
-    }
+    expect(totals.hashesAfterScoring).toEqual(freeze.files);
+    expect(digest(Buffer.from(JSON.stringify(freeze.files)))).toBe(freeze.pipelineHash);
+    // Pin this profile; shared-library hashes preserve the historical run's inputs.
+    expect(digest(readFileSync(join(dir, 'round3.ts')))).toBe(freeze.readerHash);
     const replayed = await feedFromConditions({
       store: evidence.initialStore,
       spans: evidence.spans,

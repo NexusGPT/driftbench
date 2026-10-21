@@ -42,12 +42,35 @@ DEV-only diagnosis found:
 * An unconditional helper-task instruction became an invented task-exists
   condition.
 
-The round-3 profile makes numeric identity, exact unit conversion and categorical
-state membership explicit. It asks the same repository system-1 judge path,
-one independent binary criterion per candidate. System 2 remains behind the
-all-no gate and is additionally forbidden to invent existence prerequisites
-from an unconditional action. A DEV-calibrated binary threshold is declared in
-round3.ts. The source/configuration for round 2 is unchanged.
+Further DEV-only diagnosis found actor confusion, unknown lookup results treated
+as established absence, a broad mismatch veto rejecting concrete approvals,
+and a narrow interpretation of a variable's workflow wording refusing other
+states of the same subject. These are DEV observations, not frozen3 diagnoses.
+
+The round-3 profile uses the same repository system-1 judge path,
+createJevJudge in packages/judges/src/clients/system1.ts, pinned to jev-1.13.0.
+It produces one final yes/no answer per known variable/value candidate. A
+primary binary criterion asks whether the condition states that candidate.
+Positive candidates receive separate binary checks for actor/polarity/knowledge
+compatibility and numeric-parameter equality. A yes survives only when the
+first check finds no mismatch and the second affirms equal parameters. Numeric
+equality compares cutoff and strictness after exact unit conversion, never
+logical range containment. Categorical states permit named role instances and
+concrete instances of that same state. Missing, malformed or failed votes stay
+unread; they cannot turn into a no that permits a proposal.
+
+System 2 remains behind the all-no gate. It is forbidden to invent an existence
+prerequisite from an unconditional action. The variable title's subject defines
+the domain, rather than a narrow reading of its workflow wording. Related but
+distinct entities are still refused. Proposed descriptions receive the same
+system-1 existing-value check before a new value enters the store. Every
+assignment retains its exact fictional quote. The binary threshold is 0.5,
+declared in round3.ts. Round-2 source/configuration remains unchanged.
+
+Additional red-first runs: 39592549477 (numeric mismatch veto absent),
+39595406106 (positive numeric equality guard absent), and 39594624977
+(frozen4 recording absent). Run 39595769239 passed typecheck and all four guard
+contract cases. These targeted jobs are not full-train passes.
 
 ## Frozen4 protocol
 
@@ -68,3 +91,10 @@ before any input access. Frozen4 is measured once by 15:00 UTC. No tuning
 follows its result. The total lane cap remains USD 13, including all prior
 rounds, using returned tokens at the published list prices documented in
 ROUND2.md.
+
+Prices rechecked 2026-10-21: [TypeSafe model pricing](https://docs.typesafe.ai/models)
+lists jev-1.13.0 at USD 0.042 per million input tokens, output free;
+[Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+lists claude-sonnet-5-5 at USD 2 per million input tokens and USD 10 per million
+output tokens (standard/global). Each returned usage receipt is charged at
+those prices in the shared ledger, including all prior rounds and DEV calls.
