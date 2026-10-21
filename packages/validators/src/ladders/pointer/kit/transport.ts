@@ -12,11 +12,12 @@ import { word } from './words';
  * A Jev request holds either yes or no questions keyed `u<n>__<label>` (answered with a probability of yes) or
  * one choice question per unit keyed `u<n>` (answered with a probability vector over the labels and `none`).
  * A decisions request (`openai-decisions`) holds a list of yes or no predicates named `u<n>__<label>`, with
- * the numbered text as `input`, and is answered with a list of `{ name, probability }`.
+ * the numbered text as `input`, and is answered with a list of `{ name, probability }`. A user labeler
+ * request (the `http` arm, system 2) holds `{ set, window, prompt }`, answered with `{ model, labels }`.
  */
 
 export type ParsedCall = {
-  arm: 'haiku' | 'jev' | 'decisions';
+  arm: 'haiku' | 'jev' | 'decisions' | 'user';
   set: string;
   labels: string[];
   window: string;
@@ -24,6 +25,8 @@ export type ParsedCall = {
   questions: string[];
   body: string;
   headers: Record<string, string>;
+  /** The address the request was sent to. */
+  url: string;
 };
 
 export type FakeOptions = {
@@ -70,8 +73,18 @@ export function parseCall(request: FetchRequest): ParsedCall {
     ? 'decisions'
     : record.questions !== undefined
       ? 'jev'
-      : 'haiku';
-  const all = strings(arm === 'jev' ? record.state : arm === 'decisions' ? record.input : record.messages);
+      : record.prompt !== undefined && record.messages === undefined
+        ? 'user'
+        : 'haiku';
+  const all = strings(
+    arm === 'jev'
+      ? record.state
+      : arm === 'decisions'
+        ? record.input
+        : arm === 'user'
+          ? record.prompt
+          : record.messages,
+  );
   const text = all.join('\n');
   const units: ParsedCall['units'] = [];
   for (const line of text.split('\n')) {
@@ -121,6 +134,7 @@ export function parseCall(request: FetchRequest): ParsedCall {
     questions,
     body: request.body,
     headers: request.headers,
+    url: request.url,
   };
 }
 
@@ -183,6 +197,21 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
         answers[key] = { noul: probability(unitText, m?.[2] ?? '', want) };
       }
       base = { status: 200, body: JSON.stringify({ model: options.model ?? 'jev-fake-1', answers }) };
+    } else if (call.arm === 'user') {
+      // A user labeler of system 2: the labels of the window as one JSON object, no message envelope.
+      const truth = truthFor(call);
+      const labels = call.units
+        .filter((u) => u.mode === 'label')
+        .map((u) => ({ units: String(u.n), label: truth(u.text) }));
+      base = {
+        status: 200,
+        body: JSON.stringify({
+          model: options.model ?? 'user-fake-1',
+          window: call.window,
+          set: call.set,
+          labels,
+        }),
+      };
     } else {
       const grouped: Array<{ units: string; label: string }> = [];
       const truth = truthFor(call);

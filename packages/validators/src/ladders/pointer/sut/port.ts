@@ -85,10 +85,27 @@ export type Transport = (request: FetchRequest) => FetchResponse | Promise<Fetch
 
 export type ModelArm = 'haiku' | 'jev' | 'jev-unit';
 /**
- * The arms a scan can record on: the three of the fixtures, and `openai-decisions`, the system 1 client that asks
- * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have no threshold).
+ * The arms a scan can record on: the three of the fixtures, `openai-decisions`, the system 1 client that
+ * asks yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have no
+ * threshold), and `http`, a system 2 user labeler behind the address `url` of the model port.
  */
-export type ScanArm = ModelArm | 'openai-decisions';
+export type ScanArm = ModelArm | 'openai-decisions' | 'http';
+
+/** The model port of a scan: one arm, or a stack of a choice system 1 arm in front of the `haiku` arm. */
+export type ScanModel = {
+  arm: ScanArm;
+  transport: Transport;
+  threshold?: number;
+  /** The `http` arm: the address the user labeler is posted to. */
+  url?: string;
+  /**
+   * A stack: the arm (`jev` or `jev-unit`) is system 1 and the `haiku` arm is system 2, over the same
+   * transport. `marginCut` absent: the reader's default cut.
+   */
+  stack?: { marginCut?: number };
+  /** Called each time the reader reads the key of the `haiku` arm; the binding holds it behind a getter. */
+  onKeyRead?: () => void;
+};
 
 /* ----- scan ----- */
 
@@ -107,8 +124,13 @@ export type ScanRequest = {
   labelsYaml?: string;
   /** A planted labeller called in process. */
   labeler?: Labeler;
+  /**
+   * How many times the planted labeller is asked each window (absent: once); a unit takes the label every
+   * run gives. The runs are part of what decides a label, so a change of them re-labels the estate.
+   */
+  labelerRuns?: number;
   /** Or a model port over a fake transport; with a cassette. */
-  model?: { arm: ScanArm; transport: Transport; threshold?: number };
+  model?: ScanModel;
   cassette?: CassetteIo;
   /** Check mode: fail when the ledger is stale instead of writing a new one. */
   check?: boolean;
@@ -173,6 +195,11 @@ export type ScanResult = {
   events?: Record<string, string>;
   /** How many ids got each event in this scan. */
   eventCounts?: Record<string, number>;
+  /**
+   * Of the units a stack labelled in this scan, those one member decided alone because the other gave no
+   * opinion. Absent when the reader does not expose it.
+   */
+  fellBack?: number;
   /** Windows sent to the labeller or the model port in this scan, and how many calls reached it. */
   windows?: number;
   calls?: number;

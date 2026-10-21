@@ -1,4 +1,5 @@
 import { HARDENING_SPECS } from './hardening';
+import { HARDENING_D_SPECS } from './hardening-bugs-d';
 
 /**
  * Who wrote each item of the bank. The first 402 items began as a blind bank (commit cf184f594), but the maintainer
@@ -33,7 +34,9 @@ const ADDED: ReadonlySet<string> = new Set([
 
 /** The items added after the four audits of the bank, as `<family>.<key>`. */
 export const HARDENING_IDS: ReadonlySet<string> = new Set(
-  Object.entries(HARDENING_SPECS).flatMap(([family, specs]) => specs.map((spec) => `${family}.${spec.key}`)),
+  [HARDENING_SPECS, HARDENING_D_SPECS].flatMap((table) =>
+    Object.entries(table).flatMap(([family, specs]) => specs.map((spec) => `${family}.${spec.key}`)),
+  ),
 );
 
 export function provenanceOf(id: string): Provenance {

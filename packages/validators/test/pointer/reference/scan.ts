@@ -9,10 +9,21 @@ import type {
   ScanResult,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
+import { referenceBugsD } from './bugs-d';
 import { cutText, fingerprintText, sha } from './cut';
-import { base32Id, canonicalJson } from './hash';
+import { base32Id, canonicalCompact, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
+import {
+  askModel,
+  Cassette,
+  CassetteError,
+  DECISIONS_THRESHOLD,
+  httpLabelerId,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
+import { DEFAULT_MARGIN_CUT, stackWindow } from './stack-scan';
 import { planWindows, type WindowPlan } from './window';
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
@@ -35,6 +46,23 @@ function liveEntries(entries: readonly LedgerEntry[]): LedgerEntry[] {
 }
 
 const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * The hash of what decides a label besides the answers, kept with each label: a label made under another hash
+ * is asked again. The reference models the parts the bank varies between two scans: the runs of the planted
+ * labeller, the threshold of the `openai-decisions` arm, the address of an `http` labeler and the stack. Two
+ * labelers the bank never swaps between scans share one hash.
+ */
+function labelerHashOf(req: ScanRequest): string {
+  const parts: Record<string, unknown> = {};
+  const runs = req.labelerRuns ?? 1;
+  if (!req.model && runs !== 1 && !referenceBugsD.has('stack-hash-ignores-runs')) parts.runs = runs;
+  if (req.model?.arm === 'openai-decisions' && !referenceBugsD.has('stack-hash-ignores-settings'))
+    parts.threshold = req.model.threshold ?? DECISIONS_THRESHOLD;
+  if (req.model?.arm === 'http') parts.id = httpLabelerId(req.model.url ?? '');
+  if (req.model?.stack) parts.stack = req.model.stack.marginCut ?? DEFAULT_MARGIN_CUT;
+  return sha(canonicalCompact(parts)).slice(0, 16);
+}
 
 export function viewOf(raw: string): LedgerView {
   const file = JSON.parse(raw) as LedgerFile;
@@ -151,6 +179,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const byG = new Map(work.map((w) => [w.g, w]));
 
   // ---- labels
+  const labelerHash = labelerHashOf(req);
+  const onKeyRead = req.model?.onKeyRead;
   const modelCtx: ModelCtx | undefined = req.model
     ? {
         arm: req.model.arm,
@@ -161,8 +191,25 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         warnings,
         refusals: [],
         keyHeader: readKey(),
+        ...(req.model.url !== undefined ? { url: req.model.url } : {}),
+        // The key of the `haiku` arm is read when a request of that arm leaves, and never before.
+        ...(onKeyRead
+          ? {
+              haikuKey: () => {
+                onKeyRead();
+                return readKey();
+              },
+            }
+          : {}),
       }
     : undefined;
+  if (
+    onKeyRead &&
+    referenceBugsD.has('privacy-getter-key-read-early') &&
+    (req.cassette?.mode ?? 'replay') === 'record'
+  )
+    onKeyRead();
+  const tally = { fellBack: 0 };
   let windowCount = 0;
   let callCount = 0;
   const cassetteKeyOf = new Map<string, string>();
@@ -191,11 +238,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             }
           }
           const base = w.base;
+          const before = base?.labels[set.set] as { setHash: string; labeler?: string } | undefined;
           const carried =
             base !== undefined &&
             base.fp === unit.fp &&
             base.ctxFp === unit.ctxFp &&
-            base.labels[set.set]?.setHash === set.hash &&
+            before?.setHash === set.hash &&
+            (before.labeler === undefined || before.labeler === labelerHash) &&
             w.event !== 'changed' &&
             w.event !== 'split' &&
             w.event !== 'merged';
@@ -209,9 +258,16 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         );
         for (const plan of plans) {
           windowCount += 1;
-          const outcome = await labelWindow(plan, set, req, modelCtx, () => {
-            callCount += 1;
-          });
+          const outcome = await labelWindow(
+            plan,
+            set,
+            req,
+            modelCtx,
+            () => {
+              callCount += 1;
+            },
+            tally,
+          );
           if ('abort' in outcome) {
             return finish(fail(outcome.abort));
           }
@@ -231,7 +287,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             if (got) {
               const source = outcome.key ? `cassette:${outcome.key}` : 'labeler:planted';
               Object.defineProperty(w.entry.labels, set.set, {
-                value: { label: got.label, source, setHash: set.hash },
+                value: { label: got.label, source, setHash: set.hash, labeler: labelerHash },
                 enumerable: true,
                 writable: true,
                 configurable: true,
@@ -452,6 +508,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     eventCounts,
     windows: windowCount,
     calls: callCount,
+    fellBack: tally.fellBack,
   });
 }
 
@@ -465,28 +522,66 @@ async function labelWindow(
   req: ScanRequest,
   model: ModelCtx | undefined,
   onCall: () => void,
+  tally: { fellBack: number },
+): Promise<Outcome> {
+  if (model && req.model?.stack) {
+    const out = await stackWindow(plan, set, model, req.model.stack.marginCut ?? DEFAULT_MARGIN_CUT);
+    if ('abort' in out) return out;
+    for (let call = 0; call < out.calls; call += 1) onCall();
+    tally.fellBack += out.fellBack;
+    return { labels: out.labels, ...(out.key ? { key: out.key } : {}) };
+  }
+  if (!model) {
+    // The planted labeller is asked once per run; a unit takes the label (and target) every run gave.
+    const runs: Array<Map<number, { label: string; target?: number }>> = [];
+    for (let run = 0; run < Math.max(1, req.labelerRuns ?? 1); run += 1) {
+      const once = await plantedOnce(plan, set, req, onCall);
+      if (!('labels' in once) || !once.labels) return once;
+      runs.push(once.labels);
+    }
+    const [head, ...rest] = runs;
+    const labels = new Map<number, { label: string; target?: number }>();
+    for (const [n, got] of head ?? []) {
+      const same = rest.every((other) => {
+        const there = other.get(n);
+        return there?.label === got.label && there?.target === got.target;
+      });
+      if (same) labels.set(n, got);
+    }
+    return { labels };
+  }
+  let reason = '';
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    onCall();
+    let result: Awaited<ReturnType<typeof askModel>>;
+    try {
+      result = await askModel(plan, set, model);
+    } catch {
+      // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
+      return { abort: `the model call failed for ${plan.id}` };
+    }
+    if (result.kind === 'error') return { abort: result.message };
+    if (result.kind === 'refused') {
+      reason = result.reason;
+      continue;
+    }
+    const checked = validateAnswer(result.answer, plan, set);
+    if (checked.ok) return { labels: checked.labels, key: result.key };
+    reason = checked.reason;
+  }
+  return { failed: reason };
+}
+
+/** One run of the planted labeller over a window: a refused answer is asked once more. */
+async function plantedOnce(
+  plan: WindowPlan,
+  set: ParsedSet,
+  req: ScanRequest,
+  onCall: () => void,
 ): Promise<Outcome> {
   let reason = '';
   for (let attempt = 0; attempt < 2; attempt += 1) {
     onCall();
-    if (model) {
-      let result: Awaited<ReturnType<typeof askModel>>;
-      try {
-        result = await askModel(plan, set, model);
-      } catch {
-        // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
-        return { abort: `the model call failed for ${plan.id}` };
-      }
-      if (result.kind === 'error') return { abort: result.message };
-      if (result.kind === 'refused') {
-        reason = result.reason;
-        continue;
-      }
-      const checked = validateAnswer(result.answer, plan, set);
-      if (checked.ok) return { labels: checked.labels, key: result.key };
-      reason = checked.reason;
-      continue;
-    }
     const request: LabelRequest = {
       set: set.set,
       setHash: set.hash,

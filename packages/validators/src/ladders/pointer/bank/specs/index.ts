@@ -2,6 +2,7 @@ import { adversarial } from './adversarial';
 import { cutting } from './cutting';
 import { grouping } from './grouping';
 import { HARDENING_SPECS } from './hardening';
+import { HARDENING_D_SPECS } from './hardening-bugs-d';
 import { ids } from './ids';
 import { labels } from './labels';
 import { links } from './links';
@@ -29,5 +30,5 @@ const FIRST_BANK: FamilySpec[] = [
 /** The families with the items the audits added at the end of their rows. */
 export const FAMILIES: FamilySpec[] = FIRST_BANK.map((family) => ({
   ...family,
-  specs: [...family.specs, ...(HARDENING_SPECS[family.id] ?? [])],
+  specs: [...family.specs, ...(HARDENING_SPECS[family.id] ?? []), ...(HARDENING_D_SPECS[family.id] ?? [])],
 }));

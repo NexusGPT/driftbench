@@ -16,6 +16,7 @@ import type {
   ScanArm,
   Transport,
 } from '../../../src/ladders/pointer/sut/port';
+import { referenceBugsD } from './bugs-d';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet } from './labelset';
 import { SYSTEM_TEXT, userText, type WindowPlan } from './window';
@@ -189,6 +190,12 @@ export type ModelCtx = {
   /** Units whose choice answer is refused (its probabilities are no vector), with the reason. */
   refusals?: string[];
   keyHeader: string;
+  /** The key of the `haiku` arm, read when a request of that arm leaves (the item may watch the read). */
+  haikuKey?: () => string;
+  /** The `http` arm: the address of the user labeler. */
+  url?: string;
+  /** A stack reads the vector of each unit of a choice answer: undefined when the vector is refused. */
+  onVector?: (n: number, vector: Record<string, number> | undefined) => void;
 };
 
 export type ModelResult =
@@ -287,7 +294,12 @@ function receipt(ctx: ModelCtx, entry: CassetteEntry, model: string): void {
     ctx.warnings.push(`the returned model ${model} differs from the recorded model ${earlier.model}`);
 }
 
-async function haiku(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx, run = 1): Promise<ModelResult> {
+export async function haiku(
+  plan: WindowPlan,
+  set: ParsedSet,
+  ctx: ModelCtx,
+  run = 1,
+): Promise<ModelResult> {
   const system = SYSTEM_TEXT;
   const user = userText(set, plan);
   const output = { type: 'json_schema', labels: { enum: [...set.labels.map((l) => l.name), 'none'] } };
@@ -320,7 +332,10 @@ async function haiku(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx, run = 1): 
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
   const response = await ctx.transport({
     url: HAIKU_URL,
-    headers: { 'content-type': 'application/json', 'x-api-key': ctx.keyHeader },
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': ctx.haikuKey ? ctx.haikuKey() : ctx.keyHeader,
+    },
     body: JSON.stringify(request),
   });
   if (response.status !== 200)
@@ -455,7 +470,9 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
         if (referenceBugs.has('no-halving'))
           return { kind: 'error', message: 'the endpoint refused the window' };
         if (units.length <= 1) return { kind: 'error', message: 'the endpoint refused a single unit' };
-        const half = Math.ceil(units.length / 2);
+        const half = referenceBugsD.has('replay-halve-floor')
+          ? Math.floor(units.length / 2)
+          : Math.ceil(units.length / 2);
         const first = await run(units.slice(0, half));
         if (first) return first;
         return run(units.slice(half));
@@ -495,6 +512,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
         names.map((name) => [name, probabilities[`u${u.n}__${name}`] as number]),
       );
       const got = choiceDecision(vector, names, ctx, `${plan.id}: unit [${u.n}]`);
+      ctx.onVector?.(u.n, got === undefined ? undefined : vector);
       if (got !== undefined) decided.push({ units: String(u.n), label: got });
     }
     return undefined;
@@ -602,9 +620,73 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
   return { kind: 'answer', answer: { labels: decided }, key: lastKey };
 }
 
+/** The id of an HTTP user labeler (design, section 3): a hash of its address, which hides any secret in it. */
+export function httpLabelerId(url: string): string {
+  return referenceBugsD.has('w-user-http-id-constant') ? 'http:x' : `http:${sha256(url).slice(0, 12)}`;
+}
+
+/**
+ * The `http` arm: a system 2 user labeler. The request is `{ set, window, prompt }`, the answer `{ labels }`;
+ * the id of the labeler is in the key, so another address misses.
+ */
+async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const id = httpLabelerId(ctx.url ?? '');
+  const prompt = { system: SYSTEM_TEXT, user: userText(set, plan) };
+  const body = {
+    set: {
+      name: set.set,
+      description: set.description,
+      labels: set.labels.map((l) => ({ name: l.name, description: l.description })),
+    },
+    window: { id: plan.id, path: plan.file, headingPath: plan.path },
+    prompt,
+  };
+  const key = sha256(canonicalCompact({ body, labeler: id }));
+  const want = {
+    key,
+    file: plan.file,
+    window: plan.id,
+    promptVersion: 'p1',
+    schemaVersion: 's1',
+    setName: set.set,
+    setHash: set.hash,
+    labeler: id,
+    cutDigest: ctx.cutDigestOf(plan.file),
+    part: { system: sha256(prompt.system), user: sha256(prompt.user), output: sha256('') },
+  };
+  const hit = ctx.cassette.entries.get(key);
+  if (hit) return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
+  if (ctx.cassette.mode === 'replay') return missError(ctx, want);
+  const response = await ctx.transport({
+    url: ctx.url ?? '',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (response.status !== 200)
+    return { kind: 'error', message: `the labeler endpoint answered HTTP ${response.status}` };
+  let data: { model?: string; labels?: LabelEntry[] };
+  try {
+    data = JSON.parse(response.body);
+  } catch {
+    return { kind: 'refused', reason: 'the response is not JSON' };
+  }
+  if (!Array.isArray(data.labels)) return { kind: 'refused', reason: 'the answer has no labels list' };
+  const checked = validateAnswer({ labels: data.labels }, plan, set);
+  if (!checked.ok) return { kind: 'refused', reason: checked.reason };
+  ctx.cassette.entries.set(key, {
+    ...want,
+    model: String(data.model ?? ''),
+    stop_reason: 'answered',
+    usage: {},
+    answer: { labels: data.labels },
+  });
+  return { kind: 'answer', answer: { labels: data.labels }, key };
+}
+
 /** One call of a model port for a window and a set. */
 export function askModel(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   if (ctx.arm === 'openai-decisions') return decisions(plan, set, ctx);
+  if (ctx.arm === 'http') return userHttp(plan, set, ctx);
   if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return fixtureReplay(plan, set, ctx);
   return ctx.arm === 'haiku' ? haikuRuns(plan, set, ctx) : jev(plan, set, ctx);
 }
@@ -667,7 +749,7 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       if (!hit && ctx.cassette.mode === 'record') {
         const response = await ctx.transport({
           url: 'https://fixture.invalid',
-          headers: {},
+          headers: arm === 'haiku' && ctx.haikuKey ? { 'x-api-key': ctx.haikuKey() } : {},
           body: JSON.stringify(wire.body),
         });
         if (response.status !== 200) return { kind: 'error', message: `HTTP ${response.status}` };
@@ -706,23 +788,38 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
         };
         ctx.cassette.entries.set(key, hit as unknown as CassetteEntry);
       }
-      const near =
-        hit ??
-        rows.find(
+      const differing = (row: CassetteRow): string[] =>
+        [...new Set([...Object.keys(want), ...Object.keys(row.readable)])]
+          .filter((k) => want[k] !== row.readable[k])
+          .sort();
+      // The nearest entry of a miss: of the same file, window, set and labeler, the one that differs least.
+      const anyLabeler = referenceBugsD.has('cassette-nearest-any-labeler');
+      const farthest = referenceBugsD.has('replay-miss-names-farthest');
+      const candidates = rows
+        .filter(
           (row) =>
-            row.readable.path === plan.file && row.readable.window === window && row.readable.set === set.set,
-        ) ??
-        rows[0];
-      const differs = near
-        ? [...new Set([...Object.keys(want), ...Object.keys(near.readable)])]
-            .filter((k) => want[k] !== near.readable[k])
-            .sort()
-        : [];
+            row.readable.path === plan.file &&
+            row.readable.window === window &&
+            row.readable.set === set.set &&
+            (anyLabeler || row.readable.labeler === wire.labeler),
+        )
+        .sort((a, b) =>
+          farthest
+            ? differing(b).length - differing(a).length
+            : differing(a).length - differing(b).length,
+        );
+      const near = hit ?? candidates[0];
+      if (!near)
+        return {
+          kind: 'error',
+          message: `cassette miss for ${window}: the cassette holds no entry of the labeler ${wire.labeler} for the same file, window and set`,
+        };
+      const differs = differing(near);
       if (!hit || differs.length) {
         const fields = differs.length ? differs.join(', ') : 'file, window';
         return Promise.resolve({
           kind: 'error',
-          message: `cassette miss for ${window}: nearest entry ${near?.readable.window ?? 'none'} differs in ${fields}${differs.includes('cutDigest') ? `; Node ${process.versions.node}, ICU ${process.versions.icu}` : ''}`,
+          message: `cassette miss for ${window}: nearest entry ${near.readable.window} differs in ${fields}${differs.includes('cutDigest') ? `; Node ${process.versions.node}, ICU ${process.versions.icu}` : ''}`,
         });
       }
       first ??= hit;
