@@ -75,7 +75,7 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     const row = (readWhen: string) => atom('reference.apps.x', { fields: { readWhen } });
     // A cell that is a task is the ask itself.
     expect(codeAsk('trigger', [row('Publishing the weekly report | `refs/db.md`'), owner], []).text).toBe(
-      'Please publish the weekly report.',
+      'Please go ahead with publishing the weekly report.',
     );
     // An activity of two words rides as the moment; the unit's work stays the task.
     expect(codeAsk('trigger', [row('Designing screens | `refs/ux.md`'), owner], []).text).toBe(
@@ -235,7 +235,7 @@ describe('a helper-owned prerequisite asks for the work to be handed to a helper
       'Please have a helper agent audit the ledger extract for duplicate payments.',
     );
     expect(codeAsk('trigger', [gate, helper], []).text).toBe(
-      'Please have a helper agent audit the ledger extract.',
+      'Please have a helper agent go ahead with auditing the ledger extract.',
     );
     expect(codeAsk('trigger', [helper], []).text).toBe(
       'Please audit the ledger extract for duplicate payments.',
@@ -259,7 +259,7 @@ describe('the negative control of a guard comes near its own rule and breaks not
       { testType: 'guard_negative' },
     );
     expect(ask.text).toBe(
-      'Without changing anything, tell me in one sentence what it would mean to edit a pricing entry.',
+      'Without changing anything, tell me in one sentence what it would mean to go ahead with editing a pricing entry.',
     );
   });
 
@@ -469,7 +469,7 @@ describe('a guard whose rule text names a situation, not an act', () => {
 
   it('asks the act named by an opening gerund or by a connective clause', () => {
     expect(ask('Deploying to the production cluster without a release tag.').text).toBe(
-      'Please deploy to the production cluster.',
+      'Please go ahead with deploying to the production cluster.',
     );
     expect(ask('A signed-off quote before sending the offer to a carrier.').text).toBe(
       'Please send the offer to a carrier.',
@@ -530,7 +530,7 @@ describe('follow-ups of the review', () => {
     const guard = atom('guard.catalogue.refill', {
       fields: { ruleText: 'Before approving a refill, have the pharmacist agent check the dose.' },
     });
-    expect(codeAsk('trigger', [guard], []).text).toBe('Please approve a refill.');
+    expect(codeAsk('trigger', [guard], []).text).toBe('Please go ahead with approving a refill.');
   });
 
   it('counts an article as a word of the act, and reads a base-form verb before an article', () => {
@@ -555,7 +555,7 @@ describe('follow-ups of the review', () => {
           'Reads the tool call as JSON on stdin; exits 2 with a message to block it.\nA call to the tracker needs a carrier code before sending the request.',
       },
     });
-    expect(codeAsk('trigger', [guard], []).text).toBe('Please send the request.');
+    expect(codeAsk('trigger', [guard], []).text).toBe('Please go ahead with sending the request.');
     const onlyMechanics = atom('guard.catalogue.plumbing', {
       fields: { ruleText: 'Reads the tool call as JSON on stdin; exits 2 with a message to block it.' },
     });
@@ -583,7 +583,7 @@ describe('follow-ups of the review', () => {
     ).toBe('Please carry on with the next step of the task.');
     expect(
       codeAsk('trigger', [guard], [], false, undefined, undefined, { testType: 'guard_positive' }).text,
-    ).toBe('Please edit a pricing entry.');
+    ).toBe('Please go ahead with editing a pricing entry.');
   });
 });
 
@@ -612,7 +612,7 @@ describe('a guard is asked through the tool it watches, and prose only when it h
 
   it('keeps a strict act of the prose as the ask, whatever the tool', () => {
     expect(ask({ ruleText: 'A signed quote before sending the offer to a carrier.', matcher: 'Bash' })).toBe(
-      'Please send the offer to a carrier.',
+      'Please go ahead with sending the offer to a carrier.',
     );
   });
 
@@ -737,7 +737,7 @@ describe('a guard on the end of a turn, with no tool and no strict act, has no a
 
   it('keeps a strict act of the rule text, which needs no tool', () => {
     expect(codeAsk('trigger', [stop('Sending a discharge note while the chart is unsigned.')], []).text).toBe(
-      'Please send a discharge note.',
+      'Please go ahead with sending a discharge note.',
     );
   });
 });

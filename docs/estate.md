@@ -1028,6 +1028,13 @@ Code writes an ask only from these templates. A slot `{act}`, `{situation}` or `
 | act | `handle this for me: {span}` |
 | act | `help me with {span}` |
 | act | `go ahead with {gerund}` |
+| act | `edit a file here` |
+| act | `change a notebook here` |
+| act | `run a command in the shell here` |
+| act | `open a file here` |
+| act | `look for a file here` |
+| act | `look up a page on the web` |
+| act | `look something up on the web` |
 | situation | `{span}` |
 | situation | `This involves {span}` |
 

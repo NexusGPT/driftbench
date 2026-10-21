@@ -80,6 +80,34 @@
     "template": "go ahead with {gerund}"
   },
   {
+    "kind": "act",
+    "template": "edit a file here"
+  },
+  {
+    "kind": "act",
+    "template": "change a notebook here"
+  },
+  {
+    "kind": "act",
+    "template": "run a command in the shell here"
+  },
+  {
+    "kind": "act",
+    "template": "open a file here"
+  },
+  {
+    "kind": "act",
+    "template": "look for a file here"
+  },
+  {
+    "kind": "act",
+    "template": "look up a page on the web"
+  },
+  {
+    "kind": "act",
+    "template": "look something up on the web"
+  },
+  {
     "kind": "situation",
     "template": "{span}"
   },

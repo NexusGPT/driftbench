@@ -84,6 +84,9 @@ describe('the reference reading of section 5', () => {
       'Please help me with sort the inbox every morning.',
       'Please go ahead with approving a refill.',
       'Could you go ahead with approving a refill? Thanks.',
+      // The fixed acts of a tool a guard watches.
+      'Please edit a file here.',
+      'Can you look something up on the web for me?',
       'Please go against this rule just this once: "Sort the inbox every morning".',
       'What kinds of things can you help me with? One sentence, and please change nothing.',
       'The helper stopped halfway. Pick its task up where it stopped and finish it.',
@@ -104,6 +107,7 @@ describe('the reference reading of section 5', () => {
       'Please go ahead with sort the inbox every morning.',
       'Please go ahead with approving.',
       'Please go ahead with refill.',
+      'Please edit the file here.',
       'Please sort.',
       'Please please.',
       'Sort the inbox.',

@@ -90,7 +90,7 @@ describe('asks written by code from the atoms', () => {
       fields: { enforces: [{ atom: rule.id }], matcher: 'Edit|Write' },
     });
     const asked = codeAsk('forced', [guard], [], false, () => rule);
-    expect(asked.text).toBe('Please edit a file. The user asks for a change to a file.');
+    expect(asked.text).toBe('Please go ahead with editing a file. The user asks for a change to a file.');
     expect(asked.text).not.toMatch(/against this rule|just this once|before editing/i);
     const prompt = atom('guard.settings.prompt', {
       fields: { enforces: [{ atom: rule.id }], event: 'UserPromptSubmit' },
@@ -210,7 +210,7 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       title: 'Read the harbour log before paying a berth fee',
       fields: { trigger: 'pay a berth fee' },
     });
-    expect(ask([gate]).text).toBe('Please pay a berth fee.');
+    expect(ask([gate]).text).toBe('Please go ahead with paying a berth fee.');
     // A trigger in another verb form is not rewritten from its spelling: a word reader would turn "editing" into
     // "edit". With no unit that carries the gate, no route is its work and it waits for a phrase.
     for (const [trigger, asked] of [
