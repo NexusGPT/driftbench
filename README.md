@@ -1482,7 +1482,7 @@ Exit codes are verdicts: 0 when the thing holds, 1 for a failing cell or a findi
 | Command | What it does | Example |
 |---|---|---|
 | `radius` | List the blocks a change to the agent can affect, and run nothing | `driftbench radius examples/acme/gated/specs --change examples/acme/radius/stage-recap.yaml --mode F,T` |
-| `isolation` | Check which children of a parent link need their parent | `driftbench isolation examples/acme/parents/checkout.yaml` |
+| `isolation` | Check which children of a parent link need their parent | `driftbench isolation <spec> --target function:acme-sales` (a template: the spec needs `parent` links and a target that passes it) |
 | `object` | List, show, explain and check the rule files | `driftbench object list` |
 | `campaign rejudge` | Score stored runs again under a changed rule, with no agent call | `driftbench campaign rejudge <specs> --from baseline --campaign rescored --store ci.db --use check-set/<id>` (a template: put the specs and the object you wrote) |
 
