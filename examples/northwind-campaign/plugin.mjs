@@ -13,15 +13,13 @@
 //   NORTHWIND_ESTATE         the estate folder. Default: examples/estates/fixture.
 import { open, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, dirname, join, posix, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
-import { parseShell } from '@agent-nexus/driftbench-checks';
-import { machineVerdict } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
-import { EXECUTION_LOG, executionLogAdapter } from './executions.mjs';
-export { executionLogAdapter } from './executions.mjs';
+import { EXECUTION_LOG, executionLogAdapter, invoicePrerequisite } from './executions.mjs';
+export { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const STAND_IN_MARKER = '@driftbench-stand-in';
@@ -37,122 +35,6 @@ async function isStandIn(path) {
   } finally {
     await handle.close();
   }
-}
-
-/** Keep command words and comments distinct; admit only simple commands joined by &&. */
-function withoutComments(line) {
-  let result = '';
-  let unsupported = false;
-  let andCount = 0;
-  let quote;
-  let boundary = true;
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    if (char === '\\' && quote !== "'" && index + 1 < line.length) {
-      result += char + line[++index];
-      boundary = false;
-      continue;
-    }
-    if ((char === '$' || char === '`') && quote !== "'") unsupported = true;
-    if (quote !== undefined) {
-      result += char;
-      if (char === quote) quote = undefined;
-      continue;
-    }
-    if (char === '#' && boundary) {
-      while (index < line.length && line[index] !== '\n') index += 1;
-      result += '\n';
-      boundary = true;
-      continue;
-    }
-    if (char === '&' && line[index + 1] === '&') {
-      result += '&&';
-      index += 1;
-      andCount += 1;
-      boundary = true;
-      continue;
-    }
-    if (/[;|()<>&]/.test(char)) unsupported = true;
-    result += char;
-    if (char === "'" || char === '"') quote = char;
-    boundary = /[\s;&|()<>]/.test(char);
-  }
-  return { text: result, unsupported, andCount };
-}
-
-function reconcilePath(path) {
-  const normalized = posix.normalize(path);
-  return normalized === 'scripts/reconcile.py' ||
-    normalized === '.claude/skills/invoice-reconcile/scripts/reconcile.py' ||
-    normalized.endsWith('/.claude/skills/invoice-reconcile/scripts/reconcile.py');
-}
-
-/** A script is executed as the program itself or as Python's script operand, never as command data. */
-function invokesReconcile(line) {
-  const shell = withoutComments(line);
-  if (shell.unsupported) return false;
-  const parsed = parseShell(shell.text);
-  // No empty chain member or additional newline command may hide in the flattened parser output.
-  if (parsed.unknown || parsed.commands.length !== shell.andCount + 1) return false;
-  // Only the first simple command is unconditional. A later && member may never execute.
-  const words = parsed.commands[0] ?? [];
-  let index = 0;
-  while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[index] ?? '')) index += 1;
-  const program = words[index++];
-  if (program === undefined) return false;
-  if (reconcilePath(program)) return true;
-  if (!/^python(?:3(?:\.\d+)?)?$/.test(basename(program))) return false;
-  for (; index < words.length; index += 1) {
-    const word = words[index];
-    if (word === '--') return reconcilePath(words[index + 1] ?? '');
-    if (!word.startsWith('-')) return reconcilePath(word);
-    // These no-operand Python flags keep the next non-option word in the script position.
-    // Code/module modes and options with operands are deliberately unsupported, hence cannot count.
-    if (!/^-[IBEOqsSuvx]+$/.test(word)) return false;
-  }
-  return false;
-}
-
-/** Enforce the skill prerequisite across turns, and require actual reconciliation in its named block. */
-export function invoicePrerequisite(ctx) {
-  let read = false;
-  let reconciles = 0;
-  const missing = [];
-  for (const block of [...ctx.history, { observed: ctx.observed }]) {
-    for (const call of block.observed.toolCalls) {
-      const path = call.input?.file_path;
-      if (
-        call.label === 'Read' &&
-        call.error === undefined &&
-        typeof path === 'string' &&
-        /(?:^|\/)invoice-reconcile\/references\/matching-rules\.md$/.test(path)
-      )
-        read = true;
-      if (
-        call.label !== 'Bash' ||
-        typeof call.input?.command !== 'string' ||
-        !invokesReconcile(call.input.command)
-      )
-        continue;
-      if (block.observed !== ctx.observed) continue;
-      reconciles += 1;
-      if (!read) missing.push(call.input.command);
-    }
-  }
-  if (reconciles === 0 && ctx.block.id !== 'reconcile') return [];
-  const pass = reconciles > 0 && missing.length === 0;
-  return [
-    machineVerdict(
-      'northwind-invoice-prerequisite',
-      'read-before-reconcile',
-      pass ? 'pass' : 'fail',
-      reconciles === 0
-        ? 'The reconcile block did not invoke scripts/reconcile.py.'
-        : missing.length > 0
-          ? `${missing.length} reconcile invocation(s) had no successful matching-rules read before them.`
-          : `Every reconcile invocation (${reconciles}) has a successful matching-rules read before it, in this block or its history.`,
-    ),
-  ];
 }
 
 export default async function plugin(api) {

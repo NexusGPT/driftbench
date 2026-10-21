@@ -22,102 +22,36 @@ it('checks invoice skill activation at clarification and the temporal matching-r
   expect(spec.blocks[1].expect.regex).toContain('60\\.00 EUR');
 });
 
-const harness = await import(
-  new URL('../../../examples/northwind-campaign/plugin.mjs', import.meta.url).href
-);
+
+const harness = await import(new URL('../../../examples/northwind-campaign/plugin.mjs', import.meta.url).href);
 const prerequisite = harness.invoicePrerequisite;
-const ruleRead = {
-  label: 'Read',
-  input: { file_path: '.claude/skills/invoice-reconcile/references/matching-rules.md' },
-};
-const reconcile = {
-  label: 'Bash',
-  input: {
-    command:
-      'python3 .claude/skills/invoice-reconcile/scripts/reconcile.py ledger/INV-1004.json ledger/PO-77.json',
-  },
-};
-function prerequisiteContext(calls: unknown[], prior: unknown[] = []) {
-  return {
-    block: { id: 'reconcile' },
-    blockIndex: 1,
-    observed: { toolCalls: calls },
-    history: [{ index: 0, observed: { toolCalls: prior } }],
-  };
+const event = { id: 'fictional-execution', at: '2026-10-21T10:00:02.000Z' };
+const ruleRead = { label: 'Read', input: { file_path: '.claude/skills/invoice-reconcile/references/matching-rules.md' },
+  output: 'matching rules', startedAt: '2026-10-21T10:00:00.000Z', latencyMs: 10 };
+function context(calls: unknown[], prior: unknown[] = [], events: unknown[] = [event]) {
+  return { block: { id: 'reconcile' }, blockIndex: 1,
+    observed: { toolCalls: calls, raw: { northwindReconcileExecutions: events } },
+    history: [{ observed: { toolCalls: prior } }] };
 }
-it('fails a reconcile with no matching-rules read anywhere in history', () => {
-  expect(
-    prerequisite(prerequisiteContext([reconcile], [{ label: 'Read', input: { file_path: 'unrelated.md' } }])),
-  ).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
+it('fails an execution with no matching-rules Read anywhere in history', () => {
+  expect(prerequisite(context([], [{ ...ruleRead, input: { file_path: 'unrelated.md' } }]))).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
 });
-it('fails when matching-rules is read only after reconciliation', () => {
-  expect(prerequisite(prerequisiteContext([reconcile, ruleRead]))).toContainEqual(
-    expect.objectContaining({ outcome: 'fail' }),
-  );
+it('fails a matching-rules Read completed only after the execution', () => {
+  expect(prerequisite(context([{ ...ruleRead, startedAt: '2026-10-21T10:00:03.000Z' }]))).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
 });
-it('does not count a failed matching-rules read', () => {
-  expect(prerequisite(prerequisiteContext([{ ...ruleRead, error: 'denied' }, reconcile]))).toContainEqual(
-    expect.objectContaining({ outcome: 'fail' }),
-  );
+it('does not count a failed or unfinished matching-rules Read', () => {
+  for (const read of [{ ...ruleRead, error: 'denied' }, { ...ruleRead, output: undefined }, { ...ruleRead, latencyMs: 3000 }]) {
+    expect(prerequisite(context([read]))).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
+  }
 });
-it('requires the reconcile command rather than vacuously accepting no matching work', () => {
-  expect(prerequisite(prerequisiteContext([ruleRead]))).toContainEqual(
-    expect.objectContaining({ outcome: 'fail' }),
-  );
+it('requires execution evidence rather than vacuously accepting no matching work', () => {
+  expect(prerequisite(context([ruleRead], [], []))).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
 });
-it.each(['earlier block', 'current block'])(
-  'accepts a matching-rules read before reconciliation in the %s',
-  (where) => {
-    const result =
-      where === 'earlier block'
-        ? prerequisite(prerequisiteContext([reconcile], [ruleRead]))
-        : prerequisite(prerequisiteContext([ruleRead, reconcile]));
-    expect(result).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
-  },
-);
-
-it.each([
-  'echo scripts/reconcile.py',
-  '# python scripts/reconcile.py',
-  'echo ready # ; python scripts/reconcile.py',
-  "'python scripts/reconcile.py'",
-  "printf '%s' 'python scripts/reconcile.py'",
-  'python scripts/reconcile.py.bak',
-  'python -c scripts/reconcile.py',
-  'python -m scripts/reconcile.py',
-])('does not count command data or another script as reconciliation: %s', (command) => {
-  const call = { label: 'Bash', input: { command } };
-  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
-    expect.objectContaining({ outcome: 'fail', evidence: 'The reconcile block did not invoke scripts/reconcile.py.' }),
-  );
+it.each(['earlier block', 'current block'])('accepts a completed matching-rules Read in the %s', (where) => {
+  const result = where === 'earlier block' ? prerequisite(context([], [ruleRead])) : prerequisite(context([ruleRead]));
+  expect(result).toContainEqual(expect.objectContaining({ outcome: 'pass' }));
 });
-it.each([
-  'python scripts/reconcile.py invoice.json order.json',
-  './scripts/reconcile.py invoice.json order.json',
-  'python3 -I .claude/skills/invoice-reconcile/scripts/reconcile.py invoice.json order.json',
-  'python "scripts/reconcile.py" invoice.json order.json',
-])('counts an actual reconciliation invocation: %s', (command) => {
-  const call = { label: 'Bash', input: { command } };
-  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
-    expect.objectContaining({ outcome: 'pass' }),
-  );
-});
-
-it.each([
-  'false && python scripts/reconcile.py invoice.json order.json',
-  'true || python scripts/reconcile.py invoice.json order.json',
-  'python scripts/reconcile.py invoice.json order.json | cat',
-  'printf invoice | python scripts/reconcile.py invoice.json order.json',
-  '(python scripts/reconcile.py invoice.json order.json)',
-])('does not count a conditional, piped or subshell reconciliation: %s', (command) => {
-  const call = { label: 'Bash', input: { command } };
-  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
-    expect.objectContaining({ outcome: 'fail', evidence: 'The reconcile block did not invoke scripts/reconcile.py.' }),
-  );
-});
-it('counts reconciliation as the unconditional first command of an && chain', () => {
-  const call = { label: 'Bash', input: { command: 'python scripts/reconcile.py invoice.json order.json && echo done' } };
-  expect(prerequisite(prerequisiteContext([ruleRead, call]))).toContainEqual(
-    expect.objectContaining({ outcome: 'pass' }),
-  );
+it('judges every execution, even a later one on an ask block', () => {
+  const ctx = context([], [], [event, { ...event, id: 'second' }]); ctx.block.id = 'ask';
+  expect(prerequisite(ctx)).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
 });

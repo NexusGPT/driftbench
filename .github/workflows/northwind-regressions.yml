@@ -10,6 +10,7 @@ on:
       - 'packages/adapters/test/claude-code/live/fake-default.test.ts'
       - 'examples/northwind-campaign/rehearsal/**'
       - 'examples/northwind-campaign/plugin.mjs'
+      - 'examples/northwind-campaign/executions.mjs'
       - 'packages/checks/src/index.ts'
       - 'packages/users/src/simulated.ts'
   workflow_dispatch:
@@ -40,7 +41,7 @@ jobs:
       - name: Format lane files on GitHub
         if: always()
         run: |
-          pnpm exec biome check --write examples/northwind-campaign/executions.mjs packages/checks/src/index.ts packages/cli/src/report-fixes.ts packages/cli/test/report-fixes.test.ts examples/estates/fixture/live/fake/agent.mjs packages/adapters/test/claude-code/live/fake-default.test.ts examples/northwind-campaign/evidence/live-mac-2026-10-21.json packages/cli/test/northwind-contracts.test.ts examples/northwind-campaign/rehearsal/manifest.json packages/cli/test/report-fixes.test.ts packages/cli/test/northwind-executions.test.ts packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/users/src/simulated.ts examples/northwind-campaign/plugin.mjs examples/northwind-campaign/rehearsal/claude.mjs
+          pnpm exec biome check --write examples/estates/fixture/live/fake/claude.mjs examples/northwind-campaign/executions.mjs packages/checks/src/index.ts packages/cli/src/report-fixes.ts packages/cli/test/report-fixes.test.ts examples/estates/fixture/live/fake/agent.mjs packages/adapters/test/claude-code/live/fake-default.test.ts examples/northwind-campaign/evidence/live-mac-2026-10-21.json packages/cli/test/northwind-contracts.test.ts examples/northwind-campaign/rehearsal/manifest.json packages/cli/test/report-fixes.test.ts packages/cli/test/northwind-executions.test.ts packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/users/src/simulated.ts examples/northwind-campaign/plugin.mjs examples/northwind-campaign/rehearsal/claude.mjs
           git diff > /tmp/northwind-format.patch
       - uses: actions/upload-artifact@v4
         if: always()

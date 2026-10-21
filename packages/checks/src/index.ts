@@ -94,7 +94,6 @@ export {
   destructiveOperations,
   type Operation,
   type OperationClass,
-  parseShell,
 } from './support/operations';
 export { type PiiFinding, type PiiKind, redact, scanPii } from './support/pii';
 export { type SchemaIssue, validateStrict } from './support/schema';
