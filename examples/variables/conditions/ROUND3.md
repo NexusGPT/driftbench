@@ -138,3 +138,38 @@ including DEV replay, all class regressions, quote provenance, the guard
 contracts and historical recordings. It proved semantic equality of DEV JSON
 before/after Biome and all 42 source/configuration hashes. Only the selected
 DEV JSON and manifest document formatting changed; the reader bytes did not.
+
+## Frozen4: registered primary acceptance met
+
+The single final run measured **59/60 precision and 59/60 recall (0.983333)**,
+above both 0.95 thresholds. There is one no_assignment miss and one
+incorrect_or_extra_assignment on a planted-condition row. No assignment was
+made on a none row. All 73 spans were processed: 40 matched, 19 proposed,
+14 unmatched, zero failed, zero unsure, zero refused; 34 proposer calls.
+
+The secondary frozen title check found **19/19 equivalent**, zero different,
+zero unread, with coverage **19/20 planted new conditions**. It does not alter
+primary precision or recall. The lane never opened the sealed answer key.
+
+Run id: sol-lane-varstore:frozen4:c630a7c14c7339381570567e5d446c311d3ca393.
+The [public pre-registration](https://github.com/NexusGPT/driftbench/pull/1070#issuecomment-6316315879)
+was created at 12:47:15 UTC. The runner obtained GitHub's server Date at
+12:47:42 UTC before first clause access. Provider Date headers range from
+12:47:42 to 12:51:56 UTC, before the 15:00 UTC deadline. These headers timestamp
+responses; the committed runner enforces the registration/input/call order.
+
+Reader/profile SHA-256:
+5d0c06b52bff42081801c37debd43d653c2c1bdf76ffa4c07a0a2488031c015a.
+Source/configuration file-map SHA-256:
+9bddcf18c6f9ad6c38c7171c37e4e63d4935a05e1bc70dee3279cb17d4b68942.
+Manifest document SHA-256:
+3ecdea12a9adc82565918b188ad0a54718fb4adfed58261fc03e7675c739b7d1.
+All 42 hashes matched before reading, after reading and after scoring.
+No reader, prompt, setting, candidate-store or scorer change follows the result.
+
+The run returned 1,923 responses and cost USD 0.217582722. Total actual-price
+lane spend, including all earlier rounds and DEV calls, is
+**USD 4.811737992 / USD 13**. The public recording preserves exact input bytes,
+initial store, reader/proposer vectors and the resulting store/report. Public
+usage receipts omit bodies; secondary calls retain only hashes and usage,
+never sealed reference titles. The sealed key is not committed.
