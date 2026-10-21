@@ -89,18 +89,18 @@ Export `ANTHROPIC_API_KEY` with your own key. Its value is never written in a fi
 * The plugin turns on `branching` for the live adapter ([Claude Code adapter](adapters/claude-code.md)). A continuation of `ledger-branches` resumes its parent's turns as text and starts from the parent's files.
 * A tool call and its result are not part of a prefix. If the runtime refuses the seeded session, the continuation fails with the runtime's own error.
 
-The output below is quoted from a real billed run, the campaign `northwind-live-mac-20261021T092359Z`. Its numbers come from the evidence file of this release, [`evidence/live-mac-2026-10-21.json`](../examples/northwind-campaign/evidence/live-mac-2026-10-21.json), and from the log of that run. It ran on macOS with Claude Code 2.1.306, Haiku 5.5 and the ledger-auditor's Sonnet 5.5, from source head `fdb00a1b13ec2b9c4b0e15764b565959c6a0f67b`. That run used a budget of 2.20 USD and one cell at a time, so its settings differ from the command above. The page does not re-run it.
+The output below is quoted from a real billed run, the campaign `northwind-live-mac-20261021T105525Z`. Its numbers come from the evidence file of this release, [`evidence/live-mac-2026-10-21.json`](../examples/northwind-campaign/evidence/live-mac-2026-10-21.json), and from the log of that run. It ran on macOS with Claude Code 2.1.306, Haiku 5.5 and the ledger-auditor's Sonnet 5.5, from source head `059791000a8cb5b4f1a86a1e4a6ad253abc52d01`. That run used a budget of 2.20 USD and one cell at a time, so its settings differ from the command above. The page does not re-run it.
 
 ```text
-Campaign northwind-live-mac-20261021T092359Z: 4 cells, 1 at a time. Budget $2.20.
+Campaign northwind-live-mac-20261021T105525Z: 4 cells, 1 at a time. Budget $2.20.
 ✓ northwind-invoice-over · claude-code:northwind · F · repeat 0  pass  3 blocks
 ✓ northwind-ledger-branches · claude-code:northwind · F · repeat 0  pass  3 blocks
 ✓ northwind-shipment-late · claude-code:northwind · F · repeat 0  pass  3 blocks
 ✓ northwind-weekly-report · claude-code:northwind · F · repeat 0  pass  2 blocks
-4 cells: 4 pass, 0 fail, 0 failed. Spent $0.10.
+4 cells: 4 pass, 0 fail, 0 failed. Spent $0.08.
 ```
 
-All four cells and eleven blocks passed, including both parent continuations, and the command exited 0. The runtime responses reported USD 0.09659879 for this campaign. The three attempts reported USD 0.256374935 together, against an authorization of 5 USD. The target was real and billed; the users played recordings.
+All four cells and eleven blocks passed, including both parent continuations, and the command exited 0. The runtime responses reported USD 0.07918418 for this campaign. The nine attempts that led to it reported USD 0.692963725 together, against an authorization of 5 USD. Earlier attempts failed some blocks: the first passed 4 of 11. The evidence for each block is the log of a fixed workspace script, captured per block. The target was real and billed; the users played recordings.
 
 ## Read the fix list
 
