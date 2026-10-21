@@ -643,12 +643,12 @@ describe('variablesFromSources: review findings on the first head', () => {
       });
     const idOf = (built: ReturnType<typeof make>, title: string) =>
       built.store.variables.find((v) => v.title === title)?.id;
-    const alone = make(['Ship@Code']);
-    const both = make(['Ship@Code', 'Ship Code']);
-    const reversed = make(['Ship Code', 'Ship@Code']);
-    expect(idOf(both, 'Ship@Code.status')).toBe(idOf(alone, 'Ship@Code.status'));
+    const alone = make(['Ship#Code']);
+    const both = make(['Ship#Code', 'Ship Code']);
+    const reversed = make(['Ship Code', 'Ship#Code']);
+    expect(idOf(both, 'Ship#Code.status')).toBe(idOf(alone, 'Ship#Code.status'));
     expect(idOf(both, 'Ship Code.status')).toBe(idOf(make(['Ship Code']), 'Ship Code.status'));
-    expect(idOf(both, 'Ship@Code.status')).not.toBe(idOf(both, 'Ship Code.status'));
+    expect(idOf(both, 'Ship#Code.status')).not.toBe(idOf(both, 'Ship Code.status'));
     expect(JSON.stringify(reversed)).toBe(JSON.stringify(both));
   });
 
@@ -697,15 +697,15 @@ describe('variablesFromSources: review findings on the first head', () => {
           rules: [{ id: 'R', source: 'TOOLS.md', conditions: [], tools: tools.map(([t, f]) => tool2(t, f)) }],
         },
       });
-    const first = make([['Ship@Code', 'status']]).store.variables[0]?.id as string;
+    const first = make([['Ship#Code', 'status']]).store.variables[0]?.id as string;
     // A later tool whose own name is exactly the id the first one was given.
     const [tool, field] = [first.slice(0, first.indexOf('.')), first.slice(first.indexOf('.') + 1)];
     const both = make([
-      ['Ship@Code', 'status'],
+      ['Ship#Code', 'status'],
       [tool, field],
     ]);
     expect(both.store.variables).toHaveLength(2);
-    expect(both.store.variables.find((v) => v.title === 'Ship@Code.status')?.id).toBe(first);
+    expect(both.store.variables.find((v) => v.title === 'Ship#Code.status')?.id).toBe(first);
     const other = both.store.variables.find((v) => v.title === `${tool}.${field}`)?.id;
     expect(other).not.toBe(first);
     expect(new Set(both.store.variables.map((v) => v.id)).size).toBe(2);
