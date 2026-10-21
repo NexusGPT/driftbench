@@ -1,5 +1,11 @@
 name: northwind regressions
 on:
+  push:
+    branches: ['train/sol-lane-northwind-*']
+    paths:
+      - '.github/workflows/northwind-regressions.yml'
+      - 'packages/**/test/*northwind*.test.ts'
+      - 'packages/adapters/test/claude-code/live/fake-failure.test.ts'
   workflow_dispatch:
     inputs:
       jobs:
@@ -10,7 +16,7 @@ permissions:
   contents: read
 jobs:
   regressions:
-    if: startsWith(github.ref, 'refs/heads/train/') && inputs.jobs == 'regressions'
+    if: startsWith(github.ref, 'refs/heads/train/') && (github.event_name == 'push' || inputs.jobs == 'regressions')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
