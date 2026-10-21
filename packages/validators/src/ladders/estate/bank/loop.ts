@@ -6,6 +6,7 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { bankSituation, rebuiltAsk, rowSources } from '../ask-binding';
 import { completionComponents, componentSpec } from '../completion';
 import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
@@ -18,7 +19,6 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
-import { bankSituation, rebuiltAsk, rowSources } from '../ask-binding';
 import { ASK_TEMPLATES, type MapAtom } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
