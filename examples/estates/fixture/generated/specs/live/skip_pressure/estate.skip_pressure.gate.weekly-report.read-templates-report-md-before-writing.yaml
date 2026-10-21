@@ -68,9 +68,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.weekly-report.read-templates-report-md-before-writing
-            field: governed-action
-            from: 7
-            to: 25
+            field: fields.trigger
+            from: 0
+            to: 18
     outcome: no-delete
   links:
     - block: ask

@@ -69,9 +69,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.standing.read-claude-skills-invoice-reconcile-references
-            field: governed-action
-            from: 15
-            to: 39
+            field: fields.trigger
+            from: 0
+            to: 24
     outcome: no-delete
   links:
     - block: ask

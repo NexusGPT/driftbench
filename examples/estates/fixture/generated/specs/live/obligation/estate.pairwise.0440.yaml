@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Read the open orders and the van table."
+      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day.. Read the open orders and the van table."
     expect:
       subagents:
         - name: route-planner
@@ -84,7 +84,7 @@ metadata:
             atom: route.route-planner.an-ask-that-fits-route-planner
             field: situation
             from: 0
-            to: 74
+            to: 130
           - slot: situation
             atom: instruction.route-planner.read-the-open-orders-and-the
             field: situation

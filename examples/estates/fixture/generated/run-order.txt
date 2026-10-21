@@ -208,7 +208,6 @@ specs/live/outside_trigger/estate.outside_trigger.instruction.ledger-auditor.you
 specs/live/twin/estate.twin.instruction.ledger-auditor.you-never-edit-a-file-you.yaml
 specs/live/obligation/estate.obligation.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml
-specs/live/twin/estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml
 specs/live/obligation/estate.obligation.instruction.route-planner.read-the-open-orders-and-the.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.route-planner.read-the-open-orders-and-the.yaml
 specs/live/twin/estate.twin.instruction.route-planner.read-the-open-orders-and-the.yaml

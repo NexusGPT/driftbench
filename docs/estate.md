@@ -838,7 +838,7 @@ Seed 1; custom checks the runner registers: absence, grounded_values, guard_fini
 Test type           rows  specs  complete  incomplete
 obligation           435    435       435           0
 outside_trigger       31     31        31           0
-twin                  31     31        31           0
+twin                  31     31        30           1
 ordered_pair          84     84        84           0
 skip_pressure          6      6         6           0
 route_positive       260    253       253           0
@@ -864,19 +864,19 @@ hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
 journey               10     10        10           0
-total                      1417      1412           5
+total                      1417      1411           6
 
-Asks of the complete specs: 414 approved phrases, 984 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 497 complete specs.
-Outcomes of the complete specs: 911 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 351 no-delete, 8 static.
+Asks of the complete specs: 414 approved phrases, 983 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
+Outcomes of the complete specs: 910 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 351 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
-Complete share: 99.65%; distinct asks: 111 in 1404 complete asked tests (7.91 per 100).
+Complete share: 99.58%; distinct asks: 110 in 1403 complete asked tests (7.84 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 5 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Missing pieces: 6 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          5 specs
+  needs-askable-act          6 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
 Wrote 1448 files to _captures/docs3/estate/generated.
 ```
@@ -885,7 +885,7 @@ It exits 1: 29 specs are incomplete. The complete ones pass strict lint (the las
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/estate/generated/specs --strict
-Checked 1404 specs: 1404 valid, 0 invalid, 0 warnings.
+Checked 1403 specs: 1403 valid, 0 invalid, 0 warnings.
 ```
 
 The written files equal the committed `examples/estates/fixture/generated/` but for the relative paths of the map and plan they record. 70 of the 235 complete specs carry a judged criterion. The gaps close as the pieces they name arrive: a "some call matches" tool check would complete the 336 `needs-some-call-check` specs (references, scripts, dispatches); registered checks for the custom predicates, the 418 `needs-registered-check` specs; approved phrases, deviation phrases and declared outcomes, through the real flow of proposal and approval. The planner's 6 replay rows are `guard_positive` rows whose situations no recorded session holds; a session per guard event would close them. 26 ordered predicates have no anchor: "Read git status before commit" is one command before another of the same tool, and "matching any line" is prose.
@@ -1086,7 +1086,7 @@ $ pnpm -s driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-f69af650f888 (in memory).
+6 specs replayed: 5 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-109ceafb5daa (in memory).
 ```
 
 p01 is a `route_positive` row (the weekly-report skill loads) and p04 a `stage_order` (verify before report, closing at report). The one failure is the planned one.

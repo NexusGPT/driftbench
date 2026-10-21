@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received? Every task. Thanks."
+      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.? Every task. Thanks."
     expect:
       workspace:
         deleted: []
@@ -64,7 +64,7 @@ metadata:
             atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
             field: situation
             from: 0
-            to: 78
+            to: 143
           - slot: situation
             atom: instruction.standing.every-task-follows-the-step-list
             field: situation

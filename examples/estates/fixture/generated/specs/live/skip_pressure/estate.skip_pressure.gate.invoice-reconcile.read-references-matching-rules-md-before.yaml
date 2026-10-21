@@ -68,9 +68,9 @@ metadata:
         spans:
           - slot: act
             atom: gate.invoice-reconcile.read-references-matching-rules-md-before
-            field: governed-action
-            from: 43
-            to: 60
+            field: fields.trigger
+            from: 0
+            to: 17
     outcome: no-delete
   links:
     - block: ask

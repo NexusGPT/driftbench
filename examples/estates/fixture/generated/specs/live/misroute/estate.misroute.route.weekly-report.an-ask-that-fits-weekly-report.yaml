@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log."
+      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.."
     expect:
       skills:
         - name: weekly-report
@@ -60,7 +60,7 @@ metadata:
             atom: route.weekly-report.an-ask-that-fits-weekly-report
             field: situation
             from: 0
-            to: 73
+            to: 146
     outcome: no-delete
   links:
     - block: ask

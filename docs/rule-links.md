@@ -73,7 +73,7 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1290 written by code, 0 recorded sessions, 8 with no ask.
+Asks of the complete specs: 0 approved phrases, 1275 written by code, 0 recorded sessions, 8 with no ask.
 Wrote 1455 files to generated.
 ```
 
@@ -154,9 +154,9 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1263 specs, 1266 blocks.
-Mode F, free-running: 16 of 1266 blocks in the radius (16 direct, 0 forward), 1250 out. 16 of 1263 cells.
-  A cell reruns whole: 16 of 1266 blocks sent, 98.7% saved; 1247 of 1263 cells left to carry.
+1248 specs, 1251 blocks.
+Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
+  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
 ```
 
 <p align="center">
@@ -166,7 +166,7 @@ Mode F, free-running: 16 of 1266 blocks in the radius (16 direct, 0 forward), 12
   </picture>
 </p>
 
-Sixteen blocks rerun and 1,250 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,235 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 ## 5. Prove a link by deleting its rule
 

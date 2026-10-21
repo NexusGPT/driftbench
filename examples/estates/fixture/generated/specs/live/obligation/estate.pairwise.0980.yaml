@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. the total difference is above 50.00 EUR."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.. the total difference is above 50.00 EUR."
     expect:
       skills:
         - name: invoice-reconcile
@@ -84,7 +84,7 @@ metadata:
             atom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
             field: situation
             from: 0
-            to: 78
+            to: 143
           - slot: situation
             atom: instruction.invoice-reconcile.when-the-total-difference-is-above
             field: situation

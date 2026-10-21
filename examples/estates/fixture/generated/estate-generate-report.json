@@ -44,11 +44,23 @@
   "summary": {
     "specs": 1417,
     "blocks": 1412,
-    "complete": 1412,
-    "incomplete": 5,
-    "judged": 778
+    "complete": 1411,
+    "incomplete": 6,
+    "judged": 777
   },
   "incomplete": [
+    {
+      "spec": "estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "path": "incomplete/live/twin/estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml",
+      "row": "twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "instruction.ledger-auditor.look-for-the-same-invoice-number",
+          "detail": "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
+        }
+      ]
+    },
     {
       "spec": "estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
@@ -194,10 +206,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9964714184897672,
-    "askedTests": 1404,
-    "distinctAsks": 111,
-    "distinctAsksPer100": 7.905982905982906
+    "completeShare": 0.9957657021877205,
+    "askedTests": 1403,
+    "distinctAsks": 110,
+    "distinctAsksPer100": 7.840342124019958
   },
   "unit": {
     "tests": 29,
@@ -215,19 +227,19 @@
   "sources": {
     "asks": {
       "bank": 414,
-      "code": 984,
+      "code": 983,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 911,
+      "bank": 910,
       "no-change:guard": 26,
       "no-change:negative": 44,
       "no-change:read-only": 72,
       "no-delete": 351,
       "static": 8
     },
-    "judged": 497
+    "judged": 496
   },
   "focus": null,
   "perTestType": {
@@ -246,8 +258,8 @@
     "twin": {
       "rows": 31,
       "specs": 31,
-      "complete": 31,
-      "incomplete": 0
+      "complete": 30,
+      "incomplete": 1
     },
     "ordered_pair": {
       "rows": 84,
@@ -416,17 +428,18 @@
     "live": {
       "rows": 1381,
       "specs": 1374,
-      "complete": 1371,
-      "incomplete": 3
+      "complete": 1370,
+      "incomplete": 4
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 5,
+      "specs": 6,
       "atoms": [
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",
+        "instruction.ledger-auditor.look-for-the-same-invoice-number",
         "stage.steps.stage-do-make-the-change",
         "stage.steps.stage-plan-restate-the-ask-and",
         "stage.steps.stage-report-tell-the-user-what"
@@ -436,7 +449,8 @@
         "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act",
         "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with",
         "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with",
-        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
+        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with",
+        "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
       ]
     }
   ],

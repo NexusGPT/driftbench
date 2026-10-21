@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail."
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail.."
     expect:
       subagents:
         - name: inbox-triager
@@ -59,7 +59,7 @@ metadata:
             atom: route.inbox-triager.an-ask-that-fits-inbox-triager
             field: situation
             from: 0
-            to: 85
+            to: 86
     outcome: no-change:negative
   links:
     - block: ask

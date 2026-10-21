@@ -60,7 +60,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: Audits the ledger for duplicate payments and invoices paid twice? You never edit a file. Thanks."
+      user: "Could you handle this for me: Audits the ledger for duplicate payments and invoices paid twice. Dispatch it with an invoice number and an order number when a reconciliation finds a difference above the threshold.? You never edit a file. Thanks."
     expect:
       subagents:
         - name: ledger-auditor
@@ -98,7 +98,7 @@ metadata:
             atom: route.ledger-auditor.an-ask-that-fits-ledger-auditor
             field: situation
             from: 0
-            to: 64
+            to: 182
           - slot: situation
             atom: instruction.ledger-auditor.you-never-edit-a-file-you
             field: situation
