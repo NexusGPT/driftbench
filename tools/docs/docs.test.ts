@@ -123,7 +123,14 @@ describe('docs content', () => {
         // A spec that names an object a plugin adds cannot resolve it here: the object step is the only error allowed.
         const errors = result.ok
           ? []
-          : result.errors.filter((issue) => !(/^uses:/m.test(yaml) && issue.code === 'OBJECT_UNKNOWN'));
+          : result.errors.filter(
+              (issue) =>
+                !(
+                  page.path === 'plugins.md' &&
+                  yaml.includes('# file: specs/routed.yaml') &&
+                  issue.code === 'OBJECT_UNKNOWN'
+                ),
+            );
         expect(errors, where).toEqual([]);
         if (kind === 'spec') {
           specs += 1;
