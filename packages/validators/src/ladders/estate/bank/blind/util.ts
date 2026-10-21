@@ -131,8 +131,11 @@ export function edgeBetween(
   };
   // A route to a skill from a row is read through the pointer reader: plant the row for the labeller.
   const row = kind === 'route' && from.kind === 'route' && from.line !== undefined;
-  if (row && 'name' in to && to.kind === 'skill') {
-    return planting(check, { kind: 'route', file: from.file, line: from.line as number, key: to.name });
+  if (row && 'name' in to && (to.kind === 'skill' || to.kind === 'subagent')) {
+    const route = { kind: 'route' as const, file: from.file, line: from.line as number, key: to.name };
+    // A route to a helper also tells the labeller that the name is a helper, not a skill.
+    const helper = { kind: 'subagent' as const, file: from.file, line: from.line as number, key: to.name };
+    return planting(check, to.kind === 'skill' ? route : [route, helper]);
   }
   return check;
 }
