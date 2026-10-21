@@ -428,8 +428,8 @@ export function recoveryReads(index, cwd) {
 
 /**
  * The tool call that provokes a guard, from the rule the guard enforces: the rule's declared unit case for a tool
- * the matcher of the guard's hook covers (the settings give it), or the string its typed `command_not_run`
- * evidence names. A guard on a reply (Stop) is provoked by a reply longer than the limit the rule's
+ * the matcher of the guard's hook covers (the settings give it), the string its typed `command_not_run`
+ * evidence names, or, for a guard on Bash, the first code span of the rule. A guard on a reply (Stop) is provoked by a reply longer than the limit the rule's
  * `max_characters` evidence gives.
  */
 export function provocation(index, guard, matcher, covers) {
@@ -460,5 +460,12 @@ export function provocation(index, guard, matcher, covers) {
       )
         return { event, tool: 'Bash', material: entry.options.contains };
   }
+  // Else the command the rule quotes: the first code span the reader located in the rule (`fields.spans`), for a
+  // guard whose matcher covers Bash.
+  if (covers(matcher, 'Bash'))
+    for (const rule of rules) {
+      const span = (Array.isArray(rule.fields?.spans) ? rule.fields.spans : []).find(text);
+      if (span) return { event, tool: 'Bash', material: span };
+    }
   return undefined;
 }

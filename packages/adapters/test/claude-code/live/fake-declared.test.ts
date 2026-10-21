@@ -60,9 +60,9 @@ it.each(wordings)('does what the map declares, whatever the words of the skill: 
   const records = play(work.dir);
   const used = calls(records);
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash', 'Agent']);
-  expect(used[1].input.file_path).toBe(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'));
-  expect(used[2].input.command).toBe('node .claude/skills/invoice-audit/scripts/check.mjs');
-  expect(used[3].input.subagent_type).toBe('amount-reader');
+  expect(used[1]?.input.file_path).toBe(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'));
+  expect(used[2]?.input.command).toBe('node .claude/skills/invoice-audit/scripts/check.mjs');
+  expect(used[3]?.input.subagent_type).toBe('amount-reader');
   expect(JSON.stringify(records)).toContain('checked this estate');
 });
 

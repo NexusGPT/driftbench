@@ -41,9 +41,9 @@ it('derives even a previously recorded ask from the estate given to it', async (
     const records = play(work.dir);
     const used = calls(records);
     expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
-    expect(used[0].input.skill).toBe(name);
-    expect(used[1].input.file_path).toBe(join(work.dir, '.claude/skills', name, 'references/policy.md'));
-    expect(used[2].input.command).toBe(`node .claude/skills/${name}/scripts/check.mjs`);
+    expect(used[0]?.input.skill).toBe(name);
+    expect(used[1]?.input.file_path).toBe(join(work.dir, '.claude/skills', name, 'references/policy.md'));
+    expect(used[2]?.input.command).toBe(`node .claude/skills/${name}/scripts/check.mjs`);
     expect(JSON.stringify(records)).toContain('checked this estate');
   }
 });
@@ -110,7 +110,7 @@ it('dispatches the helper a dispatch link names, while the helper is in force', 
   declare(work, [declared.helper('amount-reader'), declared.dispatch('instruction.amounts', line, 'amount-reader')]);
   const used = calls(play(work.dir));
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Agent']);
-  expect(used[1].input.subagent_type).toBe('amount-reader');
+  expect(used[1]?.input.subagent_type).toBe('amount-reader');
   await writeFile(helper, body.replace('name: amount-reader\n', ''));
   expect(names(play(work.dir))).toEqual(['Skill']);
 });
@@ -143,8 +143,8 @@ it('puts the read of a gate before every action of the tool its act uses, wherev
     const work = await audit(body, [script(), reference(gate), declared.gate('gate.policy', gate, POLICY, 'Bash')]);
     const used = calls(play(work.dir));
     expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
-    expect(used[1].input.file_path).toBe(join(work.dir, POLICY));
-    expect(used[2].input.command).toBe(`node ${CHECK}`);
+    expect(used[1]?.input.file_path).toBe(join(work.dir, POLICY));
+    expect(used[2]?.input.command).toBe(`node ${CHECK}`);
   }
 });
 
@@ -228,8 +228,8 @@ it('orders two calls of one tool by the calls the gate names', async () => {
   await writeFile(join(work.dir, SKILL, 'scripts/prepare.mjs'), 'console.log("prepared");');
   const used = calls(play(work.dir));
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Bash', 'Bash']);
-  expect(used[1].input.command).toContain('scripts/prepare.mjs');
-  expect(used[2].input.command).toContain('scripts/check.mjs');
+  expect(used[1]?.input.command).toContain('scripts/prepare.mjs');
+  expect(used[2]?.input.command).toContain('scripts/check.mjs');
 });
 
 it('stops as unresolved when a gate names a call no action holds', async () => {
@@ -283,7 +283,7 @@ it('runs a script with the code span of its own line that names it, without unfi
   const line = 'Pass the amounts to `node scripts/check.mjs <invoice> <order>` and show what it prints.';
   const work = await audit(line, [script(line)]);
   const used = calls(play(work.dir));
-  expect(used[1].input.command).toBe(`node ${CHECK}`);
+  expect(used[1]?.input.command).toBe(`node ${CHECK}`);
 });
 
 it('refuses a call a declared forbid case names, by tool and by glob', async () => {
@@ -298,7 +298,7 @@ it('refuses a call a declared forbid case names, by tool and by glob', async () 
   const records = play(work.dir);
   const used = calls(records);
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Bash']);
-  expect(used[1].input.command).toContain('scripts/prepare.mjs');
+  expect(used[1]?.input.command).toContain('scripts/prepare.mjs');
   expect(JSON.stringify(records)).not.toContain('checked this estate');
   expect(JSON.stringify(records)).toContain('An estate prohibition forbids this action');
 });
@@ -323,7 +323,7 @@ it('does not broaden a forbid case to another tool or another target', async () 
   await writeFile(join(work.dir, SKILL, 'references/private-a.txt'), 'Allowed text.');
   const used = calls(play(work.dir));
   expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Read']);
-  expect(used[2].input.file_path).toContain('private-a.txt');
+  expect(used[2]?.input.file_path).toContain('private-a.txt');
 });
 
 it('applies a forbid case of a standing file to the skill, relative to the estate root', async () => {
@@ -352,7 +352,7 @@ it('stops as unresolved when the passage of a forbid case holds a condition', as
 it('lifts a forbid case once the copy no longer holds its quote', async () => {
   const ban = 'Never run `node scripts/check.mjs`.';
   const work = await audit(`${ban}\n${RUN}`, [declared.ban('instruction.ban', ban, 'Bash', 'node scripts/check.mjs'), script()]);
-  await writeFile(join(work.dir, CHECK), 'require("node:fs").writeFileSync("executed.txt", "ran");');
+  await writeFile(join(work.dir, CHECK), 'import { writeFileSync } from "node:fs"; writeFileSync("executed.txt", "ran");');
   expect(names(play(work.dir))).toEqual(['Skill']);
   expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
   const file = join(work.dir, SKILL, 'SKILL.md');
