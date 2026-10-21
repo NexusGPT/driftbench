@@ -2,8 +2,8 @@ import { ROOT, STANDING, skillFile } from '../../layout';
 import { anchored, rule, writeSettings } from '../common';
 import type { Family } from '../frame';
 import { type Case, caseFamily } from '../hostile';
-import { BASE, type Check, type PlantedEstate } from '../planted';
-import { CODE, edgeBetween, freeHelper, freeSkill, standingFree, tag, theme } from './util';
+import { BASE, type Check, type Hint, type PlantedEstate } from '../planted';
+import { CODE, edgeBetween, freeHelper, freeSkill, handing, naming, standingFree, tag, theme } from './util';
 
 /**
  * blind.edges: the edges the docs say code decides: which guard enforces which rule and by which of the
@@ -89,6 +89,21 @@ function edgesOf(kind: string, file: string, count: number, endKind?: string): C
   };
 }
 
+/** The line states a rule that hands work to the helper: the planted-truth labeller answers it as a dispatch. */
+function dispatchHint(file: string, line: number, helper: string): Hint {
+  return {
+    kind: 'instruction',
+    file,
+    line,
+    prose: {
+      kind: 'instruction',
+      title: `Dispatch ${helper}`,
+      quote: `Dispatch ${helper}`,
+      evidence: [{ type: 'tool_called', label: 'Agent', input: { subagent_type: helper } }],
+    },
+  };
+}
+
 function dispatching(
   key: string,
   tier: 1 | 2 | 3 | 4,
@@ -104,8 +119,9 @@ function dispatching(
     plant: (e, s, o) => {
       const helper = `${theme(s, o).place}-scout-${tag(o)}`;
       standingFree(e);
-      freeSkill(e, `${theme(s, o).place}-plan-${tag(o)}`, 'Plans the day.', [text(helper)]);
+      const made = freeSkill(e, `${theme(s, o).place}-plan-${tag(o)}`, 'Plans the day.', [text(helper)]);
       freeHelper(e, helper, ['You read.']);
+      e.hint(dispatchHint(made.path, made.lines[0] as number, helper));
       const path = skillFile(`${theme(s, o).place}-plan-${tag(o)}`, 'SKILL.md');
       e.check(o, edgeBetween('dispatch', { kind: 'skill', file: path }, { kind: 'subagent', name: helper }));
     },
@@ -468,7 +484,7 @@ const CASES: Case[] = [
       const [one, two] = [`${place}-scout-${tag(o)}`, `${place}-clerk-${tag(o)}`];
       const name = `${place}-plan-${tag(o)}`;
       const made = freeSkill(e, name, 'Plans the day.', [
-        `Dispatch the \`${one}\` agent, then the \`${two}\` agent.`,
+        handing([one, two], `Dispatch the \`${one}\` agent, then the \`${two}\` agent.`),
       ]);
       freeHelper(e, one, ['You read.']);
       freeHelper(e, two, ['You add.']);
@@ -494,6 +510,7 @@ const CASES: Case[] = [
       const [one, two] = [`${place}-scout-${tag(o)}`, `${place}-clerk-${tag(o)}`];
       const first = freeHelper(e, one, [`Dispatch the \`${two}\` agent for the totals.`]);
       freeHelper(e, two, ['You add.']);
+      e.hint(dispatchHint(first.path, first.lines[0] as number, two));
       e.check(
         o,
         edgeBetween('dispatch', { kind: 'subagent', file: first.path }, { kind: 'subagent', name: two }),
@@ -510,7 +527,9 @@ const CASES: Case[] = [
       standingFree(e);
       const name = `${theme(s, o).place}-plan-${tag(o)}`;
       e.raw(skillFile(name, 'references/menu.md'), '# Menu\n', BASE);
-      const made = freeSkill(e, name, 'Plans the day.', ['Open `references/menu.md` when a menu changes.']);
+      const made = freeSkill(e, name, 'Plans the day.', [
+        naming('Open `references/menu.md` when a menu changes.'),
+      ]);
       e.check(o, edgesOf('reference', made.path, 1));
     },
   },
@@ -539,8 +558,8 @@ const CASES: Case[] = [
       const name = `${theme(s, o).place}-plan-${tag(o)}`;
       e.raw(skillFile(name, 'references/menu.md'), '# Menu\n', BASE);
       const made = freeSkill(e, name, 'Plans the day.', [
-        'Open `references/menu.md` when a menu changes.',
-        'Open `references/menu.md` again when a price changes.',
+        naming('Open `references/menu.md` when a menu changes.'),
+        naming('Open `references/menu.md` again when a price changes.'),
       ]);
       e.check(o, (scan) => {
         const ids = new Set(scan.map.atoms.filter((a) => a.provenance.file === made.path).map((a) => a.id));

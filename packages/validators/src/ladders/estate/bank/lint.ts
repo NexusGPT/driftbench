@@ -2,7 +2,7 @@ import { ANCHOR, GUARDS_DIR, helperFile, MEMORY, ROOT, STANDING, skillFile } fro
 import { anchored, type BodyLine, type GuardLine, namesFor, plantSkill, writeSettings } from './common';
 import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
-import { PlantedEstate, type ScanOutcome } from './planted';
+import { type Planted, PlantedEstate, type ScanOutcome } from './planted';
 
 /**
  * Two lint families, each item an estate of its own so one item's defect never shows in another's findings.
@@ -37,6 +37,32 @@ function plantDispatchers(b: Build): void {
   });
 }
 
+/** The atoms of a body line that names a reference file: the planted-truth labeller answers the line with them. */
+function ref(build: Build): Planted[] {
+  build.counted += 1;
+  return [{ hid: `${build.owner}:ref:${build.counted}`, kind: 'reference', key: '' }];
+}
+
+/** A line of the helper or the standing file that names a reference. */
+function named(build: Build, text: string): string {
+  build.refs.add(text);
+  return text;
+}
+
+/** A line that hands work to a helper: the planted-truth labeller answers it as a dispatch of that helper. */
+function dispatch(name: string): BodyLine {
+  const text = `When stuck, dispatch the \`${name}\` agent.`;
+  return {
+    text,
+    prose: {
+      kind: 'instruction',
+      title: `Dispatch ${name}`,
+      quote: text,
+      evidence: [{ type: 'tool_called', label: 'Agent', input: { subagent_type: name } }],
+    },
+  };
+}
+
 type Expected = { code: string; subject?: string; atom?: string };
 type Build = {
   estate: PlantedEstate;
@@ -47,6 +73,10 @@ type Build = {
   rules: BodyLine[];
   /** Raw lines added to the standing file after the rules. */
   standing: string[];
+  /** The standing lines that name a reference, so the planted-truth labeller answers them as one. */
+  refs: Set<string>;
+  /** Counts the reference atoms an item plants, for their hidden ids. */
+  counted: number;
 };
 type Case = { key: string; tier: Tier; title: string; plant(build: Build): Expected[] };
 
@@ -82,8 +112,11 @@ function helper(build: Build, suffix: string, route = true, body: string[] = [])
     '---',
     '',
     'You read and you report.',
-    ...body,
   ]);
+  for (const text of body) {
+    const line = writer.line(text);
+    if (build.refs.has(text)) build.estate.hint({ kind: 'reference', file: helperFile(name), line });
+  }
   if (route) build.rows.push({ ask: `check records for ${suffix}`, target: name, helper: true });
   return name;
 }
@@ -165,7 +198,7 @@ const DEFECTS: Case[] = [
     title: 'a missing reference named by the standing file',
     plant: (b) => {
       skill(b, 'a');
-      b.standing.push('Read the policy in `.claude/docs/policy.md` when in doubt.');
+      b.standing.push(named(b, 'Read the policy in `.claude/docs/policy.md` when in doubt.'));
       return [{ code: 'MISSING_REFERENCE' }];
     },
   },
@@ -175,7 +208,7 @@ const DEFECTS: Case[] = [
     title: 'a missing reference named by a helper',
     plant: (b) => {
       skill(b, 'a');
-      helper(b, 'h', true, ['When unsure, open `.claude/docs/gone.md`.']);
+      helper(b, 'h', true, [named(b, 'When unsure, open `.claude/docs/gone.md`.')]);
       return [{ code: 'MISSING_REFERENCE' }];
     },
   },
@@ -299,7 +332,7 @@ const DEFECTS: Case[] = [
     tier: 3,
     title: 'a missing reference named by a link to a section',
     plant: (b) => {
-      skill(b, 'a', [{ text: 'When unsure, see [the guide](references/gone.md#limits).' }]);
+      skill(b, 'a', [{ text: 'When unsure, see [the guide](references/gone.md#limits).', atoms: ref(b) }]);
       return [{ code: 'MISSING_REFERENCE' }];
     },
   },
@@ -308,8 +341,11 @@ const DEFECTS: Case[] = [
     tier: 4,
     title: 'a missing file named inside a reference',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.' }]);
-      b.estate.raw(skillFile(name, 'references/notes.md'), '# Notes\nFor codes, open `codes.md`.\n', b.owner);
+      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.', atoms: ref(b) }]);
+      const notes = skillFile(name, 'references/notes.md');
+      const lines = ['# Notes', 'For codes, open `codes.md`.'];
+      b.estate.raw(notes, `${lines.join('\n')}\n`, b.owner);
+      b.estate.hint({ kind: 'reference', file: notes, line: lines.length });
       return [{ code: 'MISSING_REFERENCE' }];
     },
   },
@@ -365,7 +401,7 @@ const DEFECTS: Case[] = [
     tier: 2,
     title: 'an orphan and a missing reference together',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/gone.md`.' }]);
+      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/gone.md`.', atoms: ref(b) }]);
       b.estate.raw(skillFile(name, 'references/old.md'), '# Old\n', b.owner);
       return [
         { code: 'ORPHAN', subject: skillFile(name, 'references/old.md') },
@@ -390,7 +426,7 @@ const DEFECTS: Case[] = [
     plant: (b) => {
       skill(b, 'a');
       const name = helper(b, 'h', false);
-      const { path } = skill(b, 'b', [{ text: `When stuck, dispatch the \`${name}\` agent.` }], false);
+      const { path } = skill(b, 'b', [dispatch(name)], false);
       return [
         { code: 'UNREACHABLE', subject: path },
         { code: 'UNREACHABLE', subject: helperFile(name) },
@@ -415,7 +451,7 @@ const CLEAN: Case[] = [
     title: 'a skill with a reference and a named script',
     plant: (b) => {
       const { name } = skill(b, 'a', [
-        { text: 'When unsure, open `references/guide.md`.' },
+        { text: 'When unsure, open `references/guide.md`.', atoms: ref(b) },
         { text: 'Run `python3 scripts/tally.py ID` to count.' },
       ]);
       b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
@@ -429,7 +465,7 @@ const CLEAN: Case[] = [
     title: 'a helper reached only by a dispatch',
     plant: (b) => {
       const name = helper(b, 'h', false);
-      skill(b, 'a', [{ text: `When stuck, dispatch the \`${name}\` agent.` }]);
+      skill(b, 'a', [dispatch(name)]);
       return [];
     },
   },
@@ -553,7 +589,9 @@ const CLEAN: Case[] = [
     tier: 3,
     title: 'a reference by a link to a section',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'When unsure, see [the guide](references/guide.md#limits).' }]);
+      const { name } = skill(b, 'a', [
+        { text: 'When unsure, see [the guide](references/guide.md#limits).', atoms: ref(b) },
+      ]);
       b.estate.raw(skillFile(name, 'references/guide.md'), '# Guide\n', b.owner);
       return [];
     },
@@ -563,7 +601,9 @@ const CLEAN: Case[] = [
     tier: 3,
     title: 'a reference whose name holds a space',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/team notes.md`.' }]);
+      const { name } = skill(b, 'a', [
+        { text: 'When unsure, open `references/team notes.md`.', atoms: ref(b) },
+      ]);
       b.estate.raw(skillFile(name, 'references/team notes.md'), '# Notes\n', b.owner);
       return [];
     },
@@ -573,8 +613,11 @@ const CLEAN: Case[] = [
     tier: 4,
     title: 'a reference named inside a reference',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.' }]);
-      b.estate.raw(skillFile(name, 'references/notes.md'), '# Notes\nFor codes, open `codes.md`.\n', b.owner);
+      const { name } = skill(b, 'a', [{ text: 'When unsure, open `references/notes.md`.', atoms: ref(b) }]);
+      const notes = skillFile(name, 'references/notes.md');
+      const lines = ['# Notes', 'For codes, open `codes.md`.'];
+      b.estate.raw(notes, `${lines.join('\n')}\n`, b.owner);
+      b.estate.hint({ kind: 'reference', file: notes, line: lines.length });
       b.estate.raw(skillFile(name, 'references/codes.md'), '# Codes\n', b.owner);
       return [];
     },
@@ -624,7 +667,7 @@ const CLEAN: Case[] = [
     plant: (b) => {
       const names = namesFor(b.seed, `${b.owner}-a`);
       b.estate.link(skillFile(names.skill, '').replace(/\/$/, ''), `library/${names.skill}`, b.owner);
-      skill(b, 'a', [{ text: 'When unsure, open `references/guide.md`.' }]);
+      skill(b, 'a', [{ text: 'When unsure, open `references/guide.md`.', atoms: ref(b) }]);
       b.estate.raw(skillFile(names.skill, 'references/guide.md'), '# Guide\n', b.owner);
       return [];
     },
@@ -635,7 +678,7 @@ const CLEAN: Case[] = [
     title: 'a process map the standing file names',
     plant: (b) => {
       skill(b, 'a');
-      b.standing.push('Every task follows `.claude/process-steps.json`.');
+      b.standing.push(named(b, 'Every task follows `.claude/process-steps.json`.'));
       b.estate.raw(
         `${ROOT}/process-steps.json`,
         '{ "processes": { "work": { "steps": [ { "id": "start", "next": [] } ] } } }\n',
@@ -686,7 +729,7 @@ const CLEAN: Case[] = [
     tier: 1,
     title: 'a data file a skill names',
     plant: (b) => {
-      const { name } = skill(b, 'a', [{ text: 'Look codes up in `data/codes.json`.' }]);
+      const { name } = skill(b, 'a', [{ text: 'Look codes up in `data/codes.json`.', atoms: ref(b) }]);
       b.estate.raw(skillFile(name, 'data/codes.json'), '{ "codes": [] }\n', b.owner);
       return [];
     },
@@ -696,15 +739,36 @@ const CLEAN: Case[] = [
 async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
   const estate = new PlantedEstate();
   const owner = `${family}.${item.key}`;
-  const build: Build = { estate, seed, owner, rows: [], guards: [], rules: [], standing: [] };
+  const build: Build = {
+    estate,
+    seed,
+    owner,
+    rows: [],
+    guards: [],
+    rules: [],
+    standing: [],
+    refs: new Set(),
+    counted: 0,
+  };
   const expected = item.plant(build);
   const writer = estate.file(STANDING, 'base');
   writer.lines_(['# Planted estate', '', 'Everything here is invented for testing.']);
-  if (build.standing.length > 0) writer.lines_(['', ...build.standing]);
+  if (build.standing.length > 0) {
+    writer.line('');
+    for (const text of build.standing) {
+      const line = writer.line(text);
+      if (build.refs.has(text)) estate.hint({ kind: 'reference', file: STANDING, line });
+    }
+  }
   if (build.rows.length > 0) {
     writer.lines_(['', '| When the user wants to | Load |', '|---|---|']);
-    for (const row of build.rows)
-      writer.line(`| ${row.ask} | ${row.helper ? `the \`${row.target}\` agent` : `\`${row.target}\``} |`);
+    for (const row of build.rows) {
+      writer.line(`| ${row.ask} | ${row.helper ? `the \`${row.target}\` agent` : `\`${row.target}\``} |`, [
+        { hid: `${owner}:row:${row.target}`, kind: 'route', key: row.target },
+      ]);
+      if (row.helper)
+        estate.hint({ kind: 'subagent', file: helperFile(row.target), line: 1, key: row.target });
+    }
   }
   writeSettings(estate, build.guards);
   const scan = await estate.scan();
