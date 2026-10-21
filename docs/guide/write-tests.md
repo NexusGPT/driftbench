@@ -106,7 +106,7 @@ blocks:
 
 ```console
 $ driftbench spec validate specs/refund-ask.yaml
-✓ specs/refund-ask.yaml  refund-ask · 1 blocks · hash (pending)
+✓ specs/refund-ask.yaml  refund-ask · 1 block · hash ad5a44cf474a
 Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 $ driftbench campaign run specs/refund-ask.yaml --process-command "[\"node\",\"$PWD/agent.mjs\"]"
 ✓ refund-ask · process:my-agent · F · repeat 0  pass  1 block
@@ -192,8 +192,8 @@ The checks of block 2 are new:
 
 ```console
 $ driftbench spec lint specs
-✓ specs/refund-ask.yaml  refund-ask · 1 blocks · hash (pending)
-✓ specs/refund-flow.yaml  refund-flow · 3 blocks · hash (pending)
+✓ specs/refund-ask.yaml  refund-ask · 1 block · hash ad5a44cf474a
+✓ specs/refund-flow.yaml  refund-flow · 3 blocks · hash d934aabfcf75
 Checked 2 specs: 2 valid, 0 invalid, 0 warnings.
 $ driftbench campaign run specs/refund-flow.yaml --process-command "[\"node\",\"$PWD/agent.mjs\"]"
 ✓ refund-flow · process:my-agent · F · repeat 0  pass  3 blocks
@@ -278,7 +278,7 @@ $ driftbench campaign run specs/acme-coverage.yaml
 
 - `function:acme-sales` is the target written as `<adapter>:<agent>`.
 - `pass  2 blocks` means the stage, the two tools with their inputs, the text and the rules all held in both blocks.
-- The spec checks behaviour, not only words. If the assistant offered a plan before it looked up the address, the `tool_order` and `count` checks would fail.
+- The spec checks what the assistant does as well as what it says. If the assistant offered a plan before it looked up the address, the `tool_order` and `count` checks would fail.
 
 **If it goes wrong.**
 
@@ -315,20 +315,30 @@ blocks:
 - `driftbench campaign run`: as before · `--store runs.db` is the file where the run is kept, so you can read it again · it adds the run to `runs.db`, and exits 1 because a cell fails.
 - `driftbench campaign status`: shows a kept run again · `--store runs.db` is the file to read; with no campaign id it reads the latest campaign; `--json` prints every verdict with its evidence, as JSON · it prints one line per cell, or the JSON, and exits 1 while a cell fails.
 
-**You type.**
+**You type.** The JSON output is trimmed to its key lines.
 
 ```console
 $ driftbench campaign run broken/refund-wrong-word.yaml --process-command "[\"node\",\"$PWD/agent.mjs\"]" --store runs.db   # exit 1
 ✗ refund-wrong-word · process:my-agent · F · repeat 0  fail  block 0 must.0
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 $ driftbench campaign status --store runs.db --json   # exit 1
-(pending)
+      "specId": "refund-wrong-word",
+      "state": "fail",
+      "failing": [
+        "block 0 must.0"
+      ],
+              "id": "must.0",
+              "outcome": "fail",
+              "gating": true,
+              "evidence": "/Refund approved/ is missing; closest span \"Refund started\", differs by 5 characters; visible text \"Refund started for order A-1042. You will get an email withi...\""
 ```
 
 **How to read it.**
 
 - `✗ ... fail  block 0 must.0` says three things. The cell failed. The failing block is block 0, because blocks count from 0. The failing check is `must.0`, the first pattern of `must`. A check name is the key in `expect`, then a dot, then an index or a name.
-- `--json` adds the evidence of each check: what the agent said, and what the pattern needed. Read the evidence first. It names the pattern that is missing and quotes the reply it searched.
+- The JSON is long, so the block above keeps its key lines. `state` is the verdict of the cell. `failing` lists the failed checks. Each check in `verdicts` has an `id`, an `outcome` (`pass` or `fail`), `gating` (true means a fail fails the block) and the `evidence`.
+- Read the evidence first. It names the pattern that is missing, the closest text it found in the reply (`Refund started`, 5 characters away), and the start of the reply it searched.
+- The `pii` checks you did not write also appear in the JSON, with `pass`. They run on every block that has text, and look for an IBAN, a national number, a phone number or an email address in the reply.
 - In free-running mode (`F`), a later block starts from the agent's own earlier replies. So read the lowest block number first. A later failure often follows from an earlier one.
 
 A table of the check names you will meet:

@@ -34,14 +34,29 @@ dimensions:
 
 ```console
 $ driftbench space coverage examples/acme/specs --map examples/acme/map/space.yaml --t 2   # exit 1
-Coverage: (pending)
+Map acme, version 1: 7 dimensions, 212940 cells, 380 constraints, prior uniform (no weight declared)
+Dimensions
+  id               kind       values  covered  not covered
+  behaviour        behaviour  14      13       B-007
+  deviation        deviation  13      9        D2_goal_shift, D3_contradiction, D11_pii_leak, D12_prompt_extraction
+  channel          channel    2       2
+  t = 2  237 of 708 allowed pairs (33.5%)
+  ✗  flow new-home · D5_language_switch         no spec
+  ✗  flow order · D2_goal_shift                 no spec
+  ✗  flow order · D3_contradiction              no spec
+Coverage: 7 of 10 required cells covered, 237 of 708 cells at t = 2 (33.5%).
 ```
+
+The command prints more lines than shown here: one row per dimension, one line per required cell, and some warnings. The block keeps the lines this page explains.
 
 **How to read it.**
 
-- The last line gives two numbers. The first is the **required cells** the specs cover. A required cell is a combination the map says you must test. The second is all the allowed pairs the specs cover.
-- A low second number is normal for a hand-written set. It is the reason to generate.
-- Exit 1 here is expected. It says a required cell is empty, so the hand-written set has a gap.
+- The `Dimensions` table lists each dimension, how many values it has, and which values no spec reaches. The `deviation` dimension has 13 values, and the seven specs reach 9 of them. No spec reaches `D2_goal_shift`, where the user changes what they want.
+- A line marked `✗` is a **required cell**: a combination the map says you must test, such as the flow `order` when the user changes their mind. `no spec` means no hand-written spec reaches it.
+- The last line gives two numbers. 7 of the 10 required cells are covered. 237 of the 708 allowed pairs are covered, which is 33.5%.
+- A low share is normal for a hand-written set. It is the reason to generate.
+- Exit 1 is expected. It says a required cell is empty, so the hand-written set has a gap.
+- The command also prints warnings named `FORBIDDEN_CELL`. They say a spec reaches a combination the constraints forbid. These cells are not counted.
 
 **If it goes wrong.**
 
@@ -70,7 +85,7 @@ behaviours:
 
 **Relevant commands.**
 
-- `mkdir -p acme/map`, `cp -R examples/acme/src acme/src` and `cp ... acme/`: copy the inputs of the example into a working folder, so the repository stays as it is · `-p` makes missing folders, `-R` copies a folder and all it holds · they produce the folder `acme`.
+- `mkdir -p acme/map`, `cp -R examples/acme/src acme/src`, `cp -R examples/acme/families acme/families` and `cp ... acme/`: copy the inputs of the example into a working folder, so the repository stays as it is · `-p` makes missing folders, `-R` copies a folder and all it holds · they produce the folder `acme`. The folder `families` holds the recipe of the one code-agent task that the map names. Generation in step 5 reads it.
 - `driftbench extract`: reads your files and writes a **proposal**, which is a map with nothing approved yet · `--prompt` is a file that describes the agent, and you repeat it for each file; `--inventory` is the inventory; `--tools` is the file of tool shapes; `--no-model` stops after the code reads, so no model is called; `--out` is the proposal to write · it writes the proposal and prints its size.
 
 **You type.**
@@ -78,17 +93,25 @@ behaviours:
 ```console
 $ mkdir -p acme/map
 $ cp -R examples/acme/src acme/src
+$ cp -R examples/acme/families acme/families
 $ cp examples/acme/README.md examples/acme/inventory.yaml acme/
 $ cp examples/acme/map/tools.yaml examples/acme/map/answers.yaml acme/map/
 $ driftbench extract --prompt acme/src/policy.ts --prompt acme/README.md --prompt acme/src/store.ts --inventory acme/inventory.yaml --tools acme/map/tools.yaml --no-model --out acme/map/nomodel.yaml
-Wrote acme/map/nomodel.yaml: (pending)
+Wrote acme/map/nomodel.yaml: 34 dimensions, 91 values, 55 constraints, 0 phrases, 7 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 3 axes (behaviour, deviation, channel), 31 details; the axes make a full grid of 252 cells.
+  No model call: the code pre-pass alone (--no-model).
+  order.create output: no partition stated for order_id, plan_id, monthly_usd
 ```
 
 **How to read it.**
 
-- The `Wrote` line counts what code found: dimensions, values, constraints, phrases and relations. A **phrase** is a user message that stands for a value. A **relation** links values to the stages, tools and end states of the agent.
+- The `Wrote` line counts what code found: 34 dimensions, 91 values and 55 constraints. A **phrase** is a user message that stands for a value. A **relation** links values to the stages, tools and end states of the agent.
 - `none approved` means nothing counts yet. A person must approve first.
 - Code found dimensions only from the inventory and from the tool shapes. It found no phrases (`0 phrases`) because a phrase needs a model, or you.
+- `Roles` says which dimensions are **axes** (crossed with each other) and which are **details**. Three axes make a grid of 252 situations.
+- Each line under `Notes` says that the tool shape states no partition for a field. A **partition** is a set of values that behave alike, such as an enum or the edge of a minimum. Code cannot invent them for an open field, so it lists the gap.
+- The command prints more lines than shown here. The block keeps the lines this page explains.
 
 **If it goes wrong.**
 
@@ -117,12 +140,20 @@ driftbench extract --prompt policy.md --inventory inventory.yaml --tools tools.y
 
 ```console
 $ driftbench extract --prompt acme/src/policy.ts --prompt acme/README.md --prompt acme/src/store.ts --inventory acme/inventory.yaml --tools acme/map/tools.yaml --replay acme/map/answers.yaml --out acme/map/proposal.yaml
-Wrote acme/map/proposal.yaml: (pending)
+Wrote acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phrases, 74 relations, none approved.
+  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 113568 cells.
+    stages     added 39 entries
+    rules      added 16 entries
+    personas   added 45 entries
+    data       added 49 entries
+    phrases    added 55 entries
+    relations  added 67 entries
 ```
 
 **How to read it.**
 
-- The proposal is much bigger than in step 2. The model part added stages, rules, personas, data values, phrases and relations.
+- The proposal is much bigger than in step 2: 51 dimensions instead of 34, and 55 phrases instead of none. The six lines at the end say what each model section added: 39 stages, 16 rules, 45 personas, 49 data values, 55 phrases and 67 relations.
+- There are now 7 axes. The model added the stage, the type of user and the result of the coverage check as axes.
 - Every entry carries `evidence`: the file and a verbatim quote. Open `acme/map/proposal.yaml` and look at one. If a quote is wrong, code refuses the entry and lists it as `Refused, not in the proposal`.
 - `none approved` is still true. You approve next.
 
@@ -147,18 +178,22 @@ Wrote acme/map/proposal.yaml: (pending)
 
 ```console
 $ driftbench extract approve acme/map/proposal.yaml
-acme/map/proposal.yaml: (pending)
+acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
+  dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
+  dimension   channel  channel axis, by code, 2 values: The channels the inventory names
 $ driftbench extract approve acme/map/proposal.yaml --all --to acme/map/approved.yaml
-Approved (pending)
+Approved 291 flags in acme/map/approved.yaml; 0 were already set.
 $ driftbench extract map acme/map/approved.yaml --to acme/map/space.yaml
-Wrote acme/map/space.yaml: (pending)
+Wrote acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
 ```
 
 **How to read it.**
 
-- The first line counts the open decisions. Read the list before you approve. Each relation shows its source quote. Approve only what is true of your agent.
+- The first line counts the open decisions: 291, one for each dimension, constraint, phrase and relation. The list runs to hundreds of lines, so the block keeps four. Each line says who proposed the entry (`by code` or `by model`), and each constraint and relation shows its source quote. Read the list before you approve. Approve only what is true of your agent.
 - The Acme map was approved with `--all` for this made-up demo. On a real agent, approve by dimension and read each one.
-- `Axes: 7 of 51 dimensions` is the choice of what is crossed. The grid is the number of situations if you crossed every axis: the full grid is far too large to test one by one, which is why the next steps choose among them.
+- `Axes: 7 of 51 dimensions` is the choice of what is crossed. The grid is the number of situations if you crossed every axis. The proposal gives 113568, and the space map gives 212940 after it adds a `none` value to some axes. Both are far too many to test one by one, which is why the next steps choose among them.
+- `Approved 291 flags` says every entry is now approved. `Wrote acme/map/space.yaml` says the space map exists, with 380 constraints.
 
 **If it goes wrong.**
 
@@ -180,15 +215,25 @@ First, try the proposal that nothing approved. Generation refuses it:
 ```console
 $ driftbench generate --map acme/map/proposal.yaml --out generated   # exit 2
 ✗ acme/map/proposal.yaml  MAP_NOT_APPROVED
-(pending)
+291 of 291 entries are not approved; approve them first (driftbench extract approve).
 ```
 
 Then generate from the approved map:
 
 ```console
 $ driftbench generate --map acme/map/approved.yaml --out generated --t 2 --seed 1   # exit 1
+Seed 1, t = 2.
 Seeder        specs  blocks  complete  incomplete
-(pending)
+graph            12      48        12           0
+twise           156     793       153           3
+boundary         85     180        13          72
+deviation       137     526       137           0
+metamorphic      42     188        42           0
+task             67      71        67           0
+cover            11      48        11           0
+Stage graph: 18 of 23 edges covered in 12 paths from needs.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 607 files to generated.
 ```
 
 **How to read it.**
@@ -219,7 +264,7 @@ Seeder        specs  blocks  complete  incomplete
 
 ```console
 $ driftbench space coverage generated/specs --map acme/map/space.yaml --t 2
-Coverage: (pending)
+Coverage: 10 of 10 required cells covered, 708 of 708 cells at t = 2 (100.0%).
 ```
 
 **How to read it.**
@@ -251,7 +296,22 @@ Coverage: (pending)
 ```console
 $ driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated-hand
 Funnel (blocks):
-(pending)
+  1. observed     in   28  rejected 0      out   28
+  2. leakage      in   28  rejected 2      out   26  (expected-value-in-given 2)
+  3. shortcut     in   26  rejected 2      out   24  (passed-by-echo 2)
+  4. contrast     in   24  rejected 0      out   24
+  5. red_first    in   24  rejected 0      out   24
+  6. stability    in   24  rejected 0      out   24
+  7. difficulty   in   24  rejected 0      out   24
+  8. label_audit  in   24  marked 3        out   24  (sampled 3)
+  9. freshness    in   24  marked 7        out   24  (sealed-holdout 7)
+Accepted 24 of 28 blocks.
+Mutation score per fault class (gated suite):
+  X1_local: 2/2 killed (100%, 95% CI 34% to 100%)
+  X2_contradiction: no scored fault, 1 equivalent excluded
+  D4_loose_confirmation: 1/1 killed (100%, 95% CI 21% to 100%)
+  control: 2 negative control(s), green
+Wrote 11 files to gated-hand.
 ```
 
 **How to read it.**
@@ -283,7 +343,18 @@ Funnel (blocks):
 
 ```console
 $ driftbench select --cover acme/map/space.yaml --specs examples/acme/gated --out golden --k 10
-Pool: (pending)
+Golden set for map acme, version 1: cells on every subset of 2 dimensions (708 allowed pairs).
+Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
+Cover: 106 conversations cover every cell the pool covers (598 of 708).
+k = 10 is smaller than the cover: the golden set is the 10 best, ranked by required cells, then faults turned red, then cells.
+  1   acme-order-loose-confirmation  60          60 of 708   flow new-home · D8_tool_failure; flow order · D4_loose_confirmation; flow order · D8_tool_failure  d4-order-on-loose-yes, x1-invents-price, x3-skips-recap, x4-wrong-language, x5-drops-coverage-check
+  2   acme-new-customer-coverage     53          113 of 708  flow new-home · D1_off_topic; flow new-home · D6_instruction_in_data                               -
+  10  gen-twise-074                  13          306 of 708  -                                                                                                  d8-hides-tool-failure
+Cells covered: 306 of 708 allowed pairs (43.2%); the pool covers 598.
+  t = 3: 794 of 4064 allowed (19.5%).
+Required cells: 10 of 10; the pool covers 10.
+Faults turned red: 12 of the 13 the pool turns red (13 counted faults in the gate report).
+Wrote 11 files to golden.
 ```
 
 **How to read it.**
@@ -313,7 +384,8 @@ Pool: (pending)
 
 ```console
 $ driftbench generate --map acme/map/approved.yaml --out budget-20 --t 2 --seed 1 --budget 20   # exit 1
-Candidate budget array (before the total cap), budget 20: (pending)
+Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
 ```
 
 **How to read it.**
