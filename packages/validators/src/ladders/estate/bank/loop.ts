@@ -18,7 +18,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
-import { atomTexts, readsAsCodeAsk } from '../reference-ask';
+import { constructAsk, type MapAtom } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -304,6 +304,9 @@ type AskCheck = {
   component?: string;
   check(run: EstateRun, all: SpecVerdict[]): Promise<string | undefined> | string | undefined;
 };
+
+/** The source a construction record names first: the atom of its first span, or of its tool. */
+type Recorded = { spans?: Array<{ atom?: unknown }>; tool?: { atom?: unknown } };
 
 /** The situation each test type is asked in (docs/estate.md section 5); a live guard_positive is instructed. */
 const USE_OF_TEST: Readonly<Record<string, string>> = {
@@ -788,20 +791,31 @@ const ASKS: AskCheck[] = [
         )
           return false;
         if (!bankIsShort(run, row)) return false;
-        // The disclosure is the generator's word about itself, so the words are checked too, by the validator's
-        // own reading of section 5 (reference-ask.ts), never by the product's `codeAsk`: an ask outside the
-        // approved phrases must have the shape the document gives and take its words from the row's atoms.
+        // The disclosure is the generator's word about itself, so each code-written ask is rebuilt by the
+        // validator (reference-ask.ts), never by the product's `codeAsk`: from the construction the spec records
+        // (`askBuild`, one entry per block) and the map's own text, one ask, equal byte for byte. No ask is read for
+        // its words and no template is searched for one that fits.
         const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
         if (rowAtoms.some((atom) => atom === undefined)) return false;
-        const referenced = [...new Set(rowAtoms.flatMap((atom) => idsIn(atom?.fields)))].map((id) =>
-          atomsById.get(id),
-        );
-        const fromAtoms = atomTexts(
-          [...rowAtoms, ...referenced].filter((atom): atom is NonNullable<typeof atom> => atom !== undefined),
-        );
-        return asksOfSpec(v).every(
-          (ask) => ask === '' || approved.has(ask) || readsAsCodeAsk(ask, fromAtoms),
-        );
+        const allowed = new Set([...row.atomIds, ...rowAtoms.flatMap((atom) => idsIn(atom?.fields))]);
+        const recorded = (estateMeta(v.spec) as { askBuild?: unknown }).askBuild;
+        const builds = Array.isArray(recorded) ? recorded : [recorded];
+        // `askFrom` names the atom the act was cut from: the atom of the first span or tool of the first built ask.
+        const from = meta.askFrom.split(' ')[0] ?? '';
+        let cited = false;
+        const asks = asksOfSpec(v);
+        for (const [at, ask] of asks.entries()) {
+          if (ask === '' || approved.has(ask)) continue;
+          const build = builds[at] as Recorded | undefined;
+          const built = constructAsk(build, atomsById as unknown as ReadonlyMap<string, MapAtom>, allowed);
+          if ('refused' in built || built.text !== ask) return false;
+          if (!cited) {
+            const source = build?.spans?.[0]?.atom ?? build?.tool?.atom;
+            if (source !== from || !atomsById.has(from)) return false;
+            cited = true;
+          }
+        }
+        return true;
       };
       const bad = all.filter(
         (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
