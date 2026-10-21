@@ -6723,7 +6723,7 @@
           "runs": 3
         }
       ],
-      "expect": "f1e72fec37720abe",
+      "expect": "7cc944709f7dfc8f",
       "describe": "system 2 planted planted-1"
     },
     {
@@ -6903,7 +6903,7 @@
       ],
       "variant": "runs",
       "expectSame": false,
-      "expect": "1984d3a3623c4d03"
+      "expect": "5b473e20f246cd3c"
     },
     {
       "name": "pass-at",

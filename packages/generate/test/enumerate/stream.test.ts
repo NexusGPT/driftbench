@@ -59,6 +59,27 @@ describe('generation to disk', () => {
     }
   }, 180_000);
 
+  it('honours reduceEnds: false in the stream as the eager API does', async () => {
+    const loaded = await generate.loadApprovedMap(ACME_MAP);
+    if (!loaded.ok) throw new Error(loaded.message);
+    const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-plain-'));
+    try {
+      const options = { mapPath: 'approved.yaml', seed: 2, t: 2, max: 2 };
+      const reduced = generate.generateSuite(loaded.prepared, options);
+      const plain = generate.generateSuite(loaded.prepared, { ...options, reduceEnds: false });
+      // The flag matters on this map: the reducer cuts something.
+      expect(reduced.files.map((file) => file.text).join('')).not.toBe(
+        plain.files.map((file) => file.text).join(''),
+      );
+      generate.generateSuiteToDisk(loaded.prepared, { ...options, reduceEnds: false, outputDir: directory });
+      for (const file of plain.files.filter((entry) => entry.path !== generate.REPORT_FILE)) {
+        expect(await readFile(join(directory, file.path), 'utf8'), file.path).toBe(file.text);
+      }
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  }, 180_000);
+
   it('rejects nonstreaming option modes explicitly before creating output', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-options-'));
     try {

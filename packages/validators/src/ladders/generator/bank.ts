@@ -11,6 +11,7 @@ import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
 import { gateFamilyItems } from './bank4';
+import { authoredCauseFor } from './cause-kinds';
 import { CHEATERS } from './cheaters';
 import { familyPhrase, isCodeTaskSpec } from './code-task';
 import { FAULT_CLASSES, type FaultClass } from './faults';
@@ -77,6 +78,8 @@ export type BankItem = {
   component: string;
   /** The one change that would make the item pass; the item id when the item is its own cause. */
   cause?: string;
+  /** Authored check-kind default, used by reports only when causeOf finds no specific cause. */
+  defaultCause?: string;
   /** True for an item that reads no seed (the Acme example): it runs once per bank run, in the parent. */
   global?: boolean;
   check(data: SeedData): Promise<Verdict>;
@@ -2105,6 +2108,15 @@ export function vectorOf(block: BlockRun): string {
 }
 
 /**
+ * What makes two blocks candidates for the same test: the same Then and outcomes (`vectorOf`), run from the same stage
+ * against the same tool answers. A block that starts from another stage, or gets other answers from a tool, is another
+ * test (docs/validators.md, section 3, Same test).
+ */
+export function sameTestKey(block: BlockRun): string {
+  return JSON.stringify([block.answers, block.from, vectorOf(block)]);
+}
+
+/**
  * A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. Nor a link: a
  * `metadata.links` entry of the deleted block goes with it, and a link by index to a later block moves down
  * one, so the reduced spec stays valid (a link to a block the spec does not have is LINK_BLOCK_UNKNOWN).
@@ -2251,7 +2263,7 @@ function minimalityItems(): BankItem[] {
           return verdict(false, `no block kills ${cls.id}, so there is no test set to judge`);
         const groups = new Map<string, BlockRun[]>();
         for (const block of found)
-          groups.set(vectorOf(block), [...(groups.get(vectorOf(block)) ?? []), block]);
+          groups.set(sameTestKey(block), [...(groups.get(sameTestKey(block)) ?? []), block]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values())
           if (group.length > 1 && (await hasRemovable(data, group))) redundant.push(group);
@@ -2282,8 +2294,8 @@ function minimalityItems(): BankItem[] {
         const family = (block: BlockRun) => block.spec.replace(/-\d+$/, '');
         const groups = new Map<string, BlockRun[]>();
         for (const block of blocks)
-          groups.set(`${block.when}|${vectorOf(block)}`, [
-            ...(groups.get(`${block.when}|${vectorOf(block)}`) ?? []),
+          groups.set(`${block.when}|${sameTestKey(block)}`, [
+            ...(groups.get(`${block.when}|${sameTestKey(block)}`) ?? []),
             block,
           ]);
         const redundant: BlockRun[][] = [];
@@ -2471,6 +2483,13 @@ export function causeOf(item: BankItem, verdict: Verdict): string {
   return item.cause ?? item.id;
 }
 
+/** Resolve specific causes first; only an unauthored own-ID fallback takes the check-kind default. */
+export function causeForReport(item: BankItem, verdict: Verdict): string {
+  const cause = causeOf(item, verdict);
+  if (cause !== item.id || verdict.cause || item.cause) return cause;
+  return item.defaultCause ?? cause;
+}
+
 export function bankItems(): BankItem[] {
   return [
     ...generateItems(),
@@ -2491,7 +2510,7 @@ export function bankItems(): BankItem[] {
     ...gateFamilyItems(),
     ...plannerItems(),
     ...acmeItems(),
-  ];
+  ].map((item) => (item.cause ? item : { ...item, defaultCause: authoredCauseFor(item.id) }));
 }
 
 /** Bank size per family and tier. */

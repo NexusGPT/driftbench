@@ -4,17 +4,17 @@ Everything here is fictional and written by hand. Nothing calls a model and noth
 
 - `fake/claude.mjs` is a stand-in for the runtime's headless command. It reads the ask from
   `-p <ask>` (or from its input with `--input-format stream-json`). By default, `fake/agent.mjs`
-  derives its actions from the estate in its working folder: standing instructions, skills,
-  helpers, settings and steps. It implements a limited instruction syntax, not a complete
-  runtime or model. Its first lines carry the stand-in marker, so
+  derives its actions from the estate in its working folder (skills, helpers, settings and steps)
+  and from the map it is handed, never from the words of a passage or of the ask. It is not a
+  complete runtime or model. Its first lines carry the stand-in marker, so
   `driftbench estate run` lets it run without `--allow-billed`.
 - The fake is handed the estate's structured definitions: `FAKE_MAP` names the approved map and
   `FAKE_PHRASES` the phrase bank (YAML or JSON); unset, they are the `approved.yaml` and `phrases.yaml` of this fixture, and `FAKE_MAP=none` gives the fake no map. `fake/dispatch.mjs` tells which atoms an ask sets
   off from structure only: an ask equal to a phrase of the bank sets off the atoms of its situation
   (not for `outside` and `near_miss`); an ask equal to the declared ask of an atom (`fields.ask`) sets off
   that atom. When `fake/grammar.json` exists (`FAKE_GRAMMAR` names another), an ask the generator rendered is
-  read with it: the frames and act shapes of the generator, cut at their slots. Any other ask sets nothing
-  off and is answered plainly.
+  matched with it exactly: one ask template of docs/estate.md section 5, each slot one act or situation
+  text the grammar lists. Any other ask sets nothing off and is answered plainly.
   With `FAKE_MAP=none` nothing is set off.
 - For the atoms it sets off, the fake does what they define in its copy: a route, a skill or a helper
   loads that unit; a rule written in a unit's folder loads its carrier; a reference is read; a reply
@@ -22,6 +22,14 @@ Everything here is fictional and written by hand. Nothing calls a model and noth
   the ask instructs the act it guards (a declared ask of the guard, or a `forced` situation), by the
   event its settings name, so that the script in the copy decides (an edit of a file not read, a reply
   longer than the length limit). An atom whose quote the copy no longer holds sets nothing off.
+- A loaded skill does what its atoms in force declare (`unitPlan` in `fake/dispatch.mjs`): a reference
+  is read at the path the map located, a script runs as the code span of its own line that names it,
+  a `dispatches` link dispatches its helper. Actions keep the order of their lines, except where a gate
+  (`ordered` evidence) puts its read or its command before the acts of a tool, or one call of a tool
+  before another; a cycle stops the run as contradictory. A declared forbid case
+  (`fields.unitCases`, `effect: forbid`) refuses the call it names, and one in a passage with a
+  condition stops the run as unresolved. A line the map does not declare changes nothing, in any
+  language.
 - Set `FAKE_MANIFEST` to opt into recorded playback for protocol tests. `fake/manifest.json`
   maps asks to streams under `fake/streams/`; stream paths are relative to the manifest.
   Besides stream records, a stream holds directives the fake performs: a guard row, a step row,
