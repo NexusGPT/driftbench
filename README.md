@@ -1219,6 +1219,7 @@ metadata:
     session: price-sheet-build
     before: price-sheet-build/before
     after: price-sheet-build/after
+operations: { Read: read, Skill: read, Agent: read, Edit: modify }
 rules:
   forbidden_tools: [WebFetch]
   custom:
