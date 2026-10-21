@@ -38,7 +38,7 @@ describe('docs/northwind-campaign.md', () => {
       const plan = await cli(['campaign', 'plan', specs, '--config', CONFIG]);
       expect(plan.code, plan.err).toBe(0);
       const checked = validate.lines.filter((line) => line.startsWith('✓ ') || line.startsWith('Checked '));
-      const planned = plan.lines.filter((line) => line.startsWith('Plan: ') || line.startsWith('Projected cost: '));
+      const planned = plan.lines.filter((line) => /^(Plan|Projected cost): /.test(line));
       shown([...checked, ...planned].join('\n'));
 
       const db = join(store, 'rehearsal.db');
