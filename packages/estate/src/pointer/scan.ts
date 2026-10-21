@@ -228,6 +228,12 @@ const RETRYABLE = (cause: unknown): boolean =>
   cause instanceof LabelerError ||
   (cause instanceof ModelError && cause.code !== 'config' && cause.code !== 'refusal');
 
+/** True when every label of the set asks for a target, a span or a link, which a probability cannot give. */
+const setNeedsSystem2 = (set: LabelSet): boolean =>
+  set.labels.every(
+    (label) => label.target === 'required' || label.spans !== undefined || label.links !== undefined,
+  );
+
 /** A failure that stops the run: nothing the next window does can fix it. */
 const FATAL = (cause: unknown): boolean =>
   cause instanceof CassetteMiss || cause instanceof LabelerConfigError;
@@ -353,6 +359,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
+        // In a stack, a yes or no labeler is not asked about a set whose every label needs a target, a clause or a
+        // link: it has no question to put, and the other labeler decides alone.
+        if (labelling.members.length > 1 && member.cls === 'system1' && setNeedsSystem2(set)) continue;
         for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {

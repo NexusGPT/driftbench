@@ -114,6 +114,8 @@ export type Truth = {
   files: Readonly<Record<string, string>>;
   atoms: readonly ExpectedAtom[];
   answers: ReadonlyMap<string, readonly ProseEntry[]>;
+  /** Edges the design plants (hidden ids): a `cites` edge from a rule to the rule whose label it cites. */
+  edges?: ReadonlyArray<{ from: string; to: string; kind: string }>;
   /** Gates planted with no prose rule of the record: the act the read comes before, and the tool of that act. */
   gates?: ReadonlyArray<{
     file: string;
@@ -137,6 +139,9 @@ export type TruthPointer = PointerScanOptions & { windows: WindowLog };
 export function truthPointer(truth: Truth): TruthPointer {
   const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
   if (!shipped.ok) throw new Error(shipped.message);
+  const formsParsed = pointer.parseLabelSets(pointer.GATE_FORMS_SET);
+  if (!formsParsed.ok) throw new Error(formsParsed.message);
+  const gateForms = formsParsed.sets;
   const base = shipped.sets[0];
   if (!base) throw new Error('the shipped label set is empty');
 
@@ -147,6 +152,21 @@ export function truthPointer(truth: Truth): TruthPointer {
     planted.set(key, [...(planted.get(key) ?? []), atom]);
   }
 
+  // The labels a rule cites: for each planted `cites` edge, the label that opens the line of the cited rule (its
+  // bullet marker, as the planted estate writes it), keyed by the line of the citing rule.
+  const atomOfHid = new Map(truth.atoms.map((atom) => [atom.hid, atom]));
+  const citesOn = new Map<string, string[]>();
+  for (const edge of truth.edges ?? []) {
+    if (edge.kind !== 'cites') continue;
+    const from = atomOfHid.get(edge.from);
+    const to = atomOfHid.get(edge.to);
+    if (!from || !to) continue;
+    const row = (truth.files[to.file] ?? '').split('\n')[to.line - 1] ?? '';
+    const written = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3}#?\d{1,3})/i.exec(row)?.[1];
+    if (!written) continue;
+    const at = `${from.file}:${from.line}`;
+    citesOn.set(at, [...(citesOn.get(at) ?? []), written]);
+  }
   const labels: pointer.LabelSet['labels'] = [...base.labels];
   const byLine = new Map<string, string>();
   const helperAt = new Map<string, string[]>();
@@ -170,6 +190,9 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
+          ...(citesOn.has(`${file}:${entry.line}`)
+            ? { fields: { cites: citesOn.get(`${file}:${entry.line}`) as string[] } }
+            : {}),
           ...(also.length > 0 ? { also } : {}),
         },
       });
@@ -210,7 +233,33 @@ export function truthPointer(truth: Truth): TruthPointer {
   const parsed = pointer.parseLabelSets(text);
   if (!parsed.ok) throw new Error(`the planted label set is invalid: ${parsed.message}`);
 
-  const gateAt = new Map((truth.gates ?? []).map((gate) => [`${gate.file}:${gate.line}`, gate]));
+  type PlantedGate = NonNullable<Truth['gates']>[number];
+  const gatesOn = new Map<string, PlantedGate[]>();
+  for (const gate of truth.gates ?? []) {
+    const at = `${gate.file}:${gate.line}`;
+    gatesOn.set(at, [...(gatesOn.get(at) ?? []), gate]);
+  }
+  const gateAt = new Map([...gatesOn].map(([at, list]) => [at, list[0] as PlantedGate]));
+  /** The gate forms a unit holds that only the gate-forms set can read: several gates, or an act with no file. */
+  const formsGate = (
+    key: string,
+    unitText: string,
+    hasNext: boolean,
+  ): 'gate-each' | 'gate-split' | undefined => {
+    const planted = gatesOn.get(key) ?? [];
+    if (planted.length > 1 && planted.every((each) => unitText.includes(each.act))) return 'gate-each';
+    const only = planted[0];
+    if (
+      planted.length === 1 &&
+      only &&
+      !only.command &&
+      unitText.includes(only.act) &&
+      !unitText.includes('`') &&
+      hasNext
+    )
+      return 'gate-split';
+    return undefined;
+  };
   const hazardLines = new Map<string, string>();
   for (const atom of truth.atoms) {
     const label = atom.kind === 'hazard' ? HAZARD_LABEL[atom.key] : undefined;
@@ -275,6 +324,49 @@ export function truthPointer(truth: Truth): TruthPointer {
         units: window.units.length,
         characters: window.units.reduce((sum, unit) => sum + unit.text.length, 0),
       });
+      if (set.set === pointer.GATE_FORMS_SET_NAME) {
+        const formsFile = truth.files[window.path] ?? '';
+        const taken = new Set<string>();
+        return {
+          labels: window.units.map((unit) => {
+            const none = { units: String(unit.n), label: 'none' };
+            const at = lineOf(formsFile, unit.text);
+            const key = `${window.path}:${at}`;
+            const next = window.units.find((other) => other.n === unit.n + 1);
+            const form =
+              at === undefined || taken.has(key) ? undefined : formsGate(key, unit.text, next !== undefined);
+            const planted = gatesOn.get(key) ?? [];
+            if (form === 'gate-each') {
+              taken.add(key);
+              const spans = planted
+                .map((each) => ({ from: unit.text.indexOf(each.act), length: each.act.length }))
+                .sort((a, b) => a.from - b.from)
+                .map((span) => ({ kind: 'governed-action', from: span.from, to: span.from + span.length }));
+              return {
+                units: String(unit.n),
+                label: form,
+                spans,
+                links: [{ kind: 'act-tool', to: planted[0]?.tool ?? 'Edit' }],
+              };
+            }
+            if (form === 'gate-split' && next && planted[0]) {
+              taken.add(key);
+              const from = unit.text.indexOf(planted[0].act);
+              return {
+                units: String(unit.n),
+                label: form,
+                target: next.n,
+                spans: [{ kind: 'governed-action', from, to: from + planted[0].act.length }],
+                links: [{ kind: 'act-tool', to: planted[0].tool }],
+              };
+            }
+            return none;
+          }),
+          returnedModel: 'planted-truth-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
       // Another set (the document roles the scan asks first) has no planted answer: every unit is none.
       if (set.set !== SET_NAME) {
         return {
@@ -319,6 +411,12 @@ export function truthPointer(truth: Truth): TruthPointer {
           const line = lineOf(file, unit.text);
           const key = `${window.path}:${line}`;
           if (line === undefined || used.has(key)) return { units: String(unit.n), label: 'none' };
+          const nextUnit = window.units.find((other) => other.n === unit.n + 1);
+          if (formsGate(key, unit.text, nextUnit !== undefined)) {
+            // The gate-forms set reads this line: the main set leaves the rest of the line to it.
+            used.add(key);
+            return { units: String(unit.n), label: 'none' };
+          }
           const gate = gateAt.get(key);
           const found = gate ? unit.text.indexOf(gate.act) : -1;
           const from = found < 0 && gate?.whole ? 0 : found;
@@ -361,7 +459,7 @@ export function truthPointer(truth: Truth): TruthPointer {
     },
   };
   return {
-    sets: parsed.sets,
+    sets: [...parsed.sets, ...gateForms],
     labelling: pointer.singleLabelling(labeler),
     cassette: new pointer.Cassette(),
     mode: 'record',
@@ -373,11 +471,13 @@ export function truthPointer(truth: Truth): TruthPointer {
 export function truthOf(rendered: {
   files: Readonly<Record<string, string>>;
   atoms: readonly ExpectedAtom[];
+  edges?: Truth['edges'];
   recording: { answers: Record<string, unknown> };
   gates: Truth['gates'];
 }): Truth {
   return {
     gates: rendered.gates,
+    edges: rendered.edges,
     files: rendered.files,
     atoms: rendered.atoms,
     answers: new Map(

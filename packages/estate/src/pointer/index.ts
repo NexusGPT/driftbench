@@ -1,4 +1,11 @@
+import { AGENT_RULES_SET } from './agent-rules';
+import { SHIPPED_LABEL_SETS } from './gate-forms-set';
+
 export { AGENT_RULES_SET } from './agent-rules';
+export { GATE_FORMS_SET, GATE_FORMS_SET_NAME } from './gate-forms-set';
+
+/** The label file the estate scan asks by default: the main set and the gate forms. */
+export const DEFAULT_LABEL_SETS: string = SHIPPED_LABEL_SETS(AGENT_RULES_SET);
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
   Cassette,

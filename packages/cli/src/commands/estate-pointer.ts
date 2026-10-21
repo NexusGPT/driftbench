@@ -125,7 +125,7 @@ export async function openPointer(
       return undefined;
     }
   }
-  let setsText = pointer.AGENT_RULES_SET;
+  let setsText = pointer.DEFAULT_LABEL_SETS;
   const labelsPath = options.labels
     ? resolve(io.cwd, options.labels)
     : settings.labels && 'path' in settings.labels
