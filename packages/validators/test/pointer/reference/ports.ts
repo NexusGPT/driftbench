@@ -18,8 +18,8 @@ import type {
 } from '../../../src/ladders/pointer/sut/port';
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
-import { decisionsBugs } from './bugs-decisions';
 import { referenceBugsD } from './bugs-d';
+import { decisionsBugs } from './bugs-decisions';
 import { extrasProblem, jsonObjectOf } from './extras';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet, RefLabel } from './labelset';
