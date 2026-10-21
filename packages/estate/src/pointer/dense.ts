@@ -6,7 +6,14 @@ import {
   postJson,
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
-import { type Labeler, LabelerError, type Opinion, type Opinions, usageOf } from './labeler';
+import {
+  type Labeler,
+  LabelerConfigError,
+  LabelerError,
+  type Opinion,
+  type Opinions,
+  usageOf,
+} from './labeler';
 import {
   checkAnswer,
   flatten,
@@ -212,8 +219,13 @@ export function denseOpinions(
 
 export type AnthropicLabelerOptions = HttpOptions & {
   model?: string;
-  /** The key. Without it the labeler replays only. It stays in this closure and is never printed. */
-  key?: string;
+  /**
+   * The key. Without it the labeler replays only. It stays in this closure and is never printed. A function is called
+   * at each request, so a key held behind a getter is read when a request leaves and never before.
+   */
+  key?: string | (() => string | undefined);
+  /** What a request says when the key is empty at that moment (the function above returned nothing). */
+  missingKeyMessage?: string;
   baseUrl?: string;
   maxTokens?: number;
   /** How many times a window is asked. A unit takes the label more than half of the runs give it. */
@@ -229,7 +241,19 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
   const model = options.model ?? DEFAULT_ANTHROPIC_LABELER_MODEL;
   const maxTokens = options.maxTokens ?? 4096;
   const base = (options.baseUrl ?? 'https://api.anthropic.com').replace(/\/+$/, '');
-  const key = options.key;
+  const keyOption = options.key;
+  // The key is read once, the first time a request is about to leave, and kept in this closure.
+  let resolved: string | undefined;
+  const keyNow = (): string => {
+    if (resolved) return resolved;
+    const found = typeof keyOption === 'function' ? keyOption() : keyOption;
+    if (!found)
+      throw new LabelerConfigError(
+        options.missingKeyMessage ?? 'the labeler anthropic has no key: nothing was sent',
+      );
+    resolved = found;
+    return found;
+  };
   const labeler: Labeler = {
     id: 'anthropic',
     cls: 'system2',
@@ -250,10 +274,13 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     }),
     opinions: denseOpinions,
   };
-  if (!key) return labeler;
+  if (!keyOption) return labeler;
   return {
     ...labeler,
+    ready: () => void keyNow(),
     async call(wire, set, window, attempt = 1) {
+      // The key is read here, when the request leaves, unless the run already asked for it in `ready`.
+      const key = keyNow();
       // After an answer that was no JSON, the second request says so; the cassette keeps the key of the first.
       const body =
         attempt > 1

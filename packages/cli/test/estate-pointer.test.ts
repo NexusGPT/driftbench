@@ -888,3 +888,80 @@ describe('the settings file of the estate', () => {
     );
   });
 });
+
+describe('driftbench estate scan --pointer --record reads the anthropic key when a request leaves', () => {
+  const MESSAGE = '--record needs ANTHROPIC_API_KEY in the environment for the system2 labeler anthropic';
+
+  /** An environment whose anthropic key sits behind a getter that counts the reads. */
+  function counting(value: string | undefined) {
+    const reads = { count: 0 };
+    const env: Record<string, string | undefined> = { JEV_API_KEY: 'jev-secret', JEV_ROUTE: 'typesafe' };
+    Object.defineProperty(env, 'ANTHROPIC_API_KEY', {
+      enumerable: true,
+      get() {
+        reads.count += 1;
+        return value;
+      },
+    });
+    return { env, reads };
+  }
+
+  async function opaqueOnly(): Promise<string> {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-pointer-cli-'));
+    await writeFile(join(root, 'CLAUDE.md'), '```text\nBe polite to the keeper.\n```\n');
+    return root;
+  }
+
+  async function recordWith(root: string, env: Record<string, string | undefined>) {
+    const { io, output } = capture(root);
+    const requests = { count: 0 };
+    const code = await estateScanCommand(
+      '.',
+      { out: 'recorded.yaml', pointer: true, cassette: 'cassette.jsonl', record: true, jobs: '1' },
+      io,
+      {
+        env,
+        fetch: async (url, init) => {
+          requests.count += 1;
+          return services(url, init);
+        },
+      },
+    );
+    return { code, requests: requests.count, ...output };
+  }
+
+  it('reads no key for a source with nothing to label, and does not fail', async () => {
+    const { env, reads } = counting('anthropic-secret');
+    const done = await recordWith(await opaqueOnly(), env);
+    expect(done.err).toBe('');
+    expect(done.code).toBe(0);
+    expect(done.requests).toBe(0);
+    expect(reads.count).toBe(0);
+  });
+
+  it('does not fail without a key when it sends nothing', async () => {
+    const { env, reads } = counting(undefined);
+    const done = await recordWith(await opaqueOnly(), env);
+    expect(done.err).toBe('');
+    expect(done.code).toBe(0);
+    expect(reads.count).toBe(0);
+  });
+
+  it('reads the key once, for a run that sends', async () => {
+    const { env, reads } = counting('anthropic-secret');
+    const done = await recordWith(await estate(), env);
+    expect(done.err).toBe('');
+    expect(done.code).toBe(0);
+    expect(done.requests).toBeGreaterThan(0);
+    expect(reads.count).toBe(1);
+  });
+
+  it('with no key, a run that sends fails before its first request leaves, with the same message', async () => {
+    const { env, reads } = counting(undefined);
+    const done = await recordWith(await estate(), env);
+    expect(done.code).toBe(2);
+    expect(done.err).toContain(MESSAGE);
+    expect(done.requests).toBe(0);
+    expect(reads.count).toBe(1);
+  });
+});

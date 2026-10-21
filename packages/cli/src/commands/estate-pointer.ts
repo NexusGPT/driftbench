@@ -64,6 +64,13 @@ async function writeAtomic(path: string, text: string, io: Io): Promise<boolean>
   }
 }
 
+/** The environment with the anthropic key behind a getter, read from the real environment when asked. */
+function lazyKey(env: Record<string, string | undefined>): Record<string, string | undefined> {
+  return Object.create(env, {
+    ANTHROPIC_API_KEY: { enumerable: true, get: () => env.ANTHROPIC_API_KEY },
+  }) as Record<string, string | undefined>;
+}
+
 /** Reads the label sets, the labelers, the cassette and the last ledger. Undefined after telling the user what is wrong. */
 export async function openPointer(
   options: EstatePointerOptions,
@@ -144,7 +151,9 @@ export async function openPointer(
   }
   const record = options.record === true;
   const built = await pointer.buildLabelling(specs, {
-    env,
+    // The anthropic key is read when a request leaves, not here: a run that sends nothing never reads it.
+    env: lazyKey(env),
+
     record,
     // A module named in the settings file sits beside the estate; one named by --labeler, beside the shell.
     cwd: options.labeler?.length ? io.cwd : root,
