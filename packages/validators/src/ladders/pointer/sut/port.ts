@@ -84,6 +84,11 @@ export type FetchResponse = { status: number; body: string };
 export type Transport = (request: FetchRequest) => FetchResponse | Promise<FetchResponse>;
 
 export type ModelArm = 'haiku' | 'jev' | 'jev-unit';
+/**
+ * The arms a scan can record on: the three of the fixtures, and `openai-decisions`, the system 1 client that asks
+ * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have no threshold).
+ */
+export type ScanArm = ModelArm | 'openai-decisions';
 
 /* ----- scan ----- */
 
@@ -103,7 +108,7 @@ export type ScanRequest = {
   /** A planted labeller called in process. */
   labeler?: Labeler;
   /** Or a model port over a fake transport; with a cassette. */
-  model?: { arm: ModelArm; transport: Transport; threshold?: number };
+  model?: { arm: ScanArm; transport: Transport; threshold?: number };
   cassette?: CassetteIo;
   /** Check mode: fail when the ledger is stale instead of writing a new one. */
   check?: boolean;

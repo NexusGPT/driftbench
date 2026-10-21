@@ -9,10 +9,12 @@ import { truthLabel } from './labellers';
  *
  * A Jev request holds either yes or no questions keyed `u<n>__<label>` (answered with a probability of yes) or
  * one choice question per unit keyed `u<n>` (answered with a probability vector over the labels and `none`).
+ * A decisions request (`openai-decisions`) holds a list of yes or no predicates named `u<n>__<label>`, with
+ * the numbered text as `input`, and is answered with a list of `{ name, probability }`.
  */
 
 export type ParsedCall = {
-  arm: 'haiku' | 'jev';
+  arm: 'haiku' | 'jev' | 'decisions';
   set: string;
   labels: string[];
   window: string;
@@ -62,8 +64,12 @@ export function parseCall(request: FetchRequest): ParsedCall {
     body = {};
   }
   const record = (body ?? {}) as Record<string, unknown>;
-  const arm: 'haiku' | 'jev' = record.questions !== undefined ? 'jev' : 'haiku';
-  const all = strings(arm === 'jev' ? record.state : record.messages);
+  const arm: ParsedCall['arm'] = Array.isArray(record.questions)
+    ? 'decisions'
+    : record.questions !== undefined
+      ? 'jev'
+      : 'haiku';
+  const all = strings(arm === 'jev' ? record.state : arm === 'decisions' ? record.input : record.messages);
   const text = all.join('\n');
   const units: ParsedCall['units'] = [];
   for (const line of text.split('\n')) {
@@ -75,22 +81,31 @@ export function parseCall(request: FetchRequest): ParsedCall {
         mode: (m[2] as 'context' | 'read' | undefined) ?? 'label',
       });
   }
-  const questions = arm === 'jev' ? Object.keys((record.questions ?? {}) as object) : [];
-  if (arm === 'jev' && units.length === 0 && questions.length > 0) {
+  const questions =
+    arm === 'decisions'
+      ? (record.questions as unknown[]).map((question) => {
+          const name = (question as { name?: unknown } | null)?.name;
+          return typeof name === 'string' ? name : '';
+        })
+      : arm === 'jev'
+        ? Object.keys((record.questions ?? {}) as object)
+        : [];
+  if (arm !== 'haiku' && units.length === 0 && questions.length > 0) {
     const n = Number(/^u(\d+)__/.exec(questions[0] as string)?.[1] ?? 1);
     const longest = [...all].sort((a, b) => b.length - a.length)[0] ?? '';
     units.push({ n, text: longest, mode: 'label' });
   }
   const labelsLine = /^LABELS (.*)$/m.exec(text)?.[1];
-  const criteria = questions[0] === undefined ? undefined : choiceCriteria(request.body, questions[0]);
-  const labels = criteria
-    ? Object.keys(criteria).filter((name) => name !== 'none')
-    : labelsLine
-      ? labelsLine
-          .split('|')
-          .map((s) => s.trim())
-          .filter((s) => s !== 'none' && s !== '')
-      : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
+  const firstChoice = arm === 'jev' ? questions[0] : undefined;
+  const criteria = firstChoice === undefined ? undefined : choiceCriteria(request.body, firstChoice);
+  const predicates = questions
+    .map((name) => /^u\d+__(.+)$/.exec(name)?.[1])
+    .filter((name): name is string => name !== undefined);
+  const fromText = labelsLine
+    ? labelsLine.split('|').map((s) => s.trim())
+    : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string);
+  const named = criteria ? Object.keys(criteria) : arm === 'decisions' ? [...new Set(predicates)] : fromText;
+  const labels = named.filter((name) => name !== 'none' && name !== '');
   return {
     arm,
     set:
@@ -127,7 +142,17 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
     const index = calls.length;
     calls.push(call);
     let base: FetchResponse;
-    if (call.arm === 'jev') {
+    if (call.arm === 'decisions') {
+      // A decisions request: one probability of yes per predicate, as a list.
+      const text = new Map(call.units.map((u) => [u.n, u.text]));
+      const truth = truthFor(call);
+      const answers = call.questions.map((name) => {
+        const m = /^u(\d+)__(.+)$/.exec(name);
+        const unitText = text.get(Number(m?.[1])) ?? '';
+        return { name, probability: probability(unitText, m?.[2] ?? '', truth(unitText)) };
+      });
+      base = { status: 200, body: JSON.stringify({ model: options.model ?? 'decisions-fake-1', answers }) };
+    } else if (call.arm === 'jev') {
       const answers: Record<string, { noul: number } | { probabilities: Record<string, number> }> = {};
       const text = new Map(call.units.map((u) => [u.n, u.text]));
       const truth = truthFor(call);

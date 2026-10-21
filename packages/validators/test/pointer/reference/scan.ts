@@ -159,6 +159,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         threshold: req.model.threshold,
         cutDigestOf: (file) => digests.get(file) ?? '',
         warnings,
+        refusals: [],
         keyHeader: readKey(),
       }
     : undefined;
@@ -266,6 +267,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     if (cause instanceof CassetteError) return finish(fail(cause.message));
     throw cause;
   }
+  // A choice answer whose probabilities are no vector is refused unit by unit, with the reason.
+  for (const detail of modelCtx?.refusals ?? []) diagnostics.push({ code: 'refusal', detail });
   const setNames = new Set(sets.map((s) => s.set));
   for (const w of work) {
     for (const name of Object.keys(w.entry.labels)) if (!setNames.has(name)) delete w.entry.labels[name];

@@ -256,9 +256,10 @@ describe('the planted bugs of the fourth audit are lost', () => {
   }, 120_000);
 });
 
-describe('the Jev replay setting is reached offline', () => {
-  it('labels.jev-threshold-is-a-replay-setting: the reference passes, a reader that ignores the threshold fails', async () => {
-    const id = 'labels.jev-threshold-is-a-replay-setting';
+describe('the threshold replay setting is reached offline', () => {
+  // The choice arms take their highest option and have no threshold: the threshold is tested on openai-decisions.
+  it('labels.decisions-threshold-is-a-replay-setting: the reference passes, a reader that ignores the threshold fails', async () => {
+    const id = 'labels.decisions-threshold-is-a-replay-setting';
     expect(await run(id, ref), id).toMatchObject({ pass: true });
     const ignores = mutant('ignores-the-threshold', (request) =>
       ref.scan(request.model ? { ...request, model: { ...request.model, threshold: undefined } } : request),
