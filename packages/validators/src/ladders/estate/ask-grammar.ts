@@ -41,14 +41,20 @@ const hasGroup = (parts: readonly Part[]): boolean => parts.some((part) => 'opt'
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.trim() === text;
 
 /**
- * The cuts a situation or description gives, by punctuation alone (docs/estate.md section 5: "the first sentence of
- * a skill's or helper's description"): the text whole, without its final mark, and its first sentence (up to the
- * first full stop followed by a space) without its mark. No word is read.
+ * The cuts a situation or description gives, by punctuation and layout alone (docs/estate.md section 5: "the first
+ * sentence of a skill's or helper's description"): the text whole; its first sentence, which ends at a mark
+ * followed by white space or at a line break; and each of those up to its first token with no letter or digit;
+ * every cut without the marks at its end. No word is read.
  */
 function sentenceCuts(text: string): string[] {
-  const bare = (value: string) => value.replace(/[.!?:;]+$/u, '');
-  const stop = text.indexOf('. ');
-  const cuts = [text, bare(text), ...(stop > 0 ? [bare(text.slice(0, stop))] : [])];
+  const bare = (value: string) => value.replace(/[^\p{L}\p{N}]+$/u, '');
+  const end = /[.;!?](?=\s)|\n/u.exec(text);
+  const first = end === null ? text : text.slice(0, end.index);
+  const words = (value: string) => {
+    const symbol = /(?:^|\s)[^\p{L}\p{N}\s]+(?=\s|$)/u.exec(value);
+    return symbol === null ? value : value.slice(0, symbol.index);
+  };
+  const cuts = [text, bare(text), bare(first), bare(words(text)), bare(words(first))];
   return [...new Set(cuts.filter(hasWord))];
 }
 
@@ -121,10 +127,15 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
     for (const text of [context, atom.situation])
       if (typeof text === 'string') for (const cut of sentenceCuts(text)) situations.add(cut);
   }
-  // A fixed tool act sets off the guards whose matcher lists its tool, and the rules they enforce.
+  // A fixed tool act sets off the guards whose matcher lists its tool, and the rules they enforce; the one fixed
+  // act the table ties to no tool (a hazard's) sets off the hazards.
   for (const row of ASK_TEMPLATES) {
     const slotted = parse(row.template).some((part) => 'slot' in part);
-    if (row.kind !== 'act' || row.tools === undefined || slotted) continue;
+    if (row.kind !== 'act' || slotted) continue;
+    if (row.tools === undefined) {
+      for (const atom of atoms) if (atom.kind === 'hazard') add(row.template, atom.id);
+      continue;
+    }
     for (const atom of atoms) {
       const matcher = (atom.fields as { matcher?: unknown } | undefined)?.matcher;
       if (atom.kind !== 'guard' || typeof matcher !== 'string') continue;
