@@ -145,7 +145,9 @@ describe('recordsOfMessages', () => {
       ['assistant', 'seed-1'],
       ['user', 'seed-2'],
     ]);
-    expect((records[1]?.message as { content: Array<{ text: string }> }).content[0]?.text).toBe('two');
-    expect((records[2]?.message as { content: string }).content).toBe('three');
+    const assistant = records[1]?.message as { content: Array<{ text: string }> } | undefined;
+    const last = records[2]?.message as { content: string } | undefined;
+    expect(assistant?.content[0]?.text).toBe('two');
+    expect(last?.content).toBe('three');
   });
 });
