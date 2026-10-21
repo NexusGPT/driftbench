@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>driftbench: a rule's ledger id and the tests it reaches</title><link rel="stylesheet" href="brand.css">
+<style>
+#frame {width:640px;height:360px;}
+.prompt {left:16px;top:60px;width:218px;height:182px;padding:12px;}
+.prompt .nx-kind {position:static;display:block;font-size:10px;}
+.code {margin-top:10px;font:400 11.5px/1.4 var(--nx-sans);color:var(--detail);}
+.edit {background:var(--tile);color:var(--tile-ink);border-left:3px solid var(--nx-blue);padding:6px;}
+.ids {margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:4px 8px;font:400 10px/1.3 var(--nx-mono);color:var(--detail);}
+.ids b {font-weight:600;color:var(--tile-ink);}
+.row {position:absolute;left:272px;right:16px;display:flex;gap:7px;align-items:center;}
+.bk {height:32px;border-radius:8px;background:var(--nx-card);border:1px solid var(--nx-ill-panel-border);font:500 10px/1 var(--nx-mono);color:var(--detail);display:grid;place-items:center;padding:0 8px;}
+.linked {background:var(--tile);color:var(--tile-ink);box-shadow:0 0 0 2px var(--nx-blue);font-weight:600;}
+.more {font:400 10.5px/1 var(--nx-sans);color:var(--detail);}
+.legend {left:16px;top:264px;width:588px;height:56px;display:flex;align-items:center;justify-content:space-around;padding:0 10px;}
+.key {display:flex;align-items:center;gap:7px;font:400 11px/1.3 var(--nx-sans);color:var(--detail);}
+.sw {width:12px;height:12px;border-radius:3px;background:var(--nx-card);border:1px solid var(--nx-line);}
+.sw.linked {background:var(--tile);border-color:transparent;}
+</style></head><body><div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+<svg class="nx-edges" viewBox="0 0 620 340"><path class="nx-edge--new" d="M234 150 C253 150 253 76 272 76"/><path class="nx-edge--new" d="M234 150 C253 150 253 128 272 128"/><path class="nx-edge--new" d="M234 150 C253 150 253 180 272 180"/></svg>
+<span class="nx-kind" style="left:16px;top:18px">One rule edited</span><span class="nx-kind" style="left:272px;top:18px">Blocks that carry its ledger id</span>
+<div class="nx-ill-panel prompt"><span class="nx-kind">Northwind skill · fictional</span><div class="code"><div class="edit">Count only what the ledger and the shipment log show for the last seven days.</div><div class="ids"><span>ledger id</span><b>wrl4c7wlvb</b><span>text hash</span><b>731c… → 0d6f…</b></div></div></div>
+<div class="row" style="top:60px"><span class="bk linked">pairwise.0118</span><span class="bk linked">pairwise.0192</span><span class="bk linked">pairwise.0262</span></div>
+<div class="row" style="top:112px"><span class="bk linked">pairwise.0336</span><span class="bk linked">pairwise.0401</span><span class="more">+ 11 more</span></div>
+<div class="row" style="top:164px"><span class="bk">pairwise.0018</span><span class="bk">pairwise.0049</span><span class="more">+ 916 more</span></div>
+<div class="nx-ill-panel legend"><span class="key"><span class="sw linked"></span>linked: reruns, 16 of 934 blocks</span><span class="key"><span class="sw"></span>last result kept, 918 blocks</span></div>
+</div></div><script>window.__fonts=['400 11.5px Geist','600 12px Geist','500 10px "Geist Mono"'];Promise.all(window.__fonts.map(f=>document.fonts.load(f))).then(()=>document.fonts.ready).then(()=>window.__ready=true);</script></body></html>
