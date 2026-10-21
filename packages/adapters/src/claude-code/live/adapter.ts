@@ -45,6 +45,7 @@ import {
   readSessionRecords,
   recordsOfMessages,
   type SessionFile,
+  type SessionRecord,
   type StateLibrary,
   sessionFileText,
 } from './states';
