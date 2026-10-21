@@ -245,7 +245,8 @@ export class TerminalSubsumption {
     let length = 0;
     for (let at = 0; at < hashes.length - 1; at += 1) if (this.openings.has(hashes[at] as string)) length = at + 1;
     if (length === 0) return spec;
-    if (spec.perturbations?.some((entry) => entry.inject_at < length)) return spec;
+    // A declaration keeps the block it names and the ones before it (measured in dropMiddle): the opening is those.
+    if (spec.perturbations?.length) return spec;
     if (!spec.blocks.slice(0, length).every((block) => this.phrasesHold(block))) return spec;
     const start = canonicalGiven(spec, length);
     const state = start.state;
