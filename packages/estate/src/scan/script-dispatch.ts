@@ -310,6 +310,13 @@ function codeTarget(source: string, actual: readonly string[]): string | undefin
       }
       if (/^(?:str|String|Path|pathlib\.Path|File\.expand_path)$/.test(name))
         return evaluate(args[0] ?? '', depth + 1);
+      // The path functions of the language: a path is made absolute, normalised or cut to its folder.
+      if (/^(?:os\.path\.(?:abspath|realpath|normpath)|path\.(?:resolve|normalize))$/.test(name))
+        return evaluate(args[0] ?? '', depth + 1);
+      if (/^(?:os\.path\.dirname|path\.dirname|File\.dirname)$/.test(name)) {
+        const base = evaluate(args[0] ?? '', depth + 1);
+        return base.text === undefined ? unknown : literal(posix.dirname(base.text));
+      }
       if (/(?:^|\.)(?:join|joinpath|resolve)$/.test(name)) {
         const owner = name.replace(/\.(?:join|joinpath|resolve)$/, '');
         const base = values.get(owner);

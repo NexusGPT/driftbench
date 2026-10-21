@@ -271,6 +271,14 @@ export const dispatcherFormCases: DispatcherFormCase[] = [
     target: 'steps/rendu.py',
   },
   {
+    kind: 'parsed options',
+    name: 'os.path join of a folder made from __file__ and an argument',
+    source:
+      'import os, subprocess, sys\nhere = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\ntarget = os.path.join(here, sys.argv[1])\nsubprocess.run([sys.executable, target])',
+    args: ['claim-window.py'],
+    target: 'claim-window.py',
+  },
+  {
     kind: 'Shell',
     name: 'shell second positional resolves file',
     source: '#!/bin/sh\nunit=$2\nexec python3 "checks/$unit.py"',
