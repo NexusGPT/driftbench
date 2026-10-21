@@ -78,8 +78,10 @@ type Space = {
   /** For a (variable, value) cell: the constraints that name it. */
   byCell: Map<number, Cell[][]>;
   stride: number;
-  /** Every variable has a value that no constraint names, so a tuple without a violation always extends. */
+  /** Every variable with values has one that no constraint names, so a tuple without a violation always extends. */
   universal: boolean;
+  /** A variable has values that count, and every one of them is forbidden on its own: no valid full row exists. */
+  dead: boolean;
 };
 
 function spaceOf(store: VariableStore): Space {
@@ -135,10 +137,14 @@ function spaceOf(store: VariableStore): Space {
       else byCell.set(key, [cells]);
     }
   }
-  const universal = names.every((_, v) =>
-    (banned[v] as boolean[]).some((flag, j) => !flag && !byCell.has(v * stride + j)),
+  // A variable with no value that counts takes no part in a full row.
+  const universal = names.every(
+    (_, v) =>
+      (values[v] as string[]).length === 0 ||
+      (banned[v] as boolean[]).some((flag, j) => !flag && !byCell.has(v * stride + j)),
   );
-  return { names, values, banned, arity, constraints, byCell, stride, universal };
+  const dead = names.some((_, v) => (values[v] as string[]).length > 0 && arity[v] === 0);
+  return { names, values, banned, arity, constraints, byCell, stride, universal, dead };
 }
 
 function checkGroups(space: Space, groups: readonly TupleGroup[], options: TupleCountOptions): number[][] {
@@ -185,7 +191,7 @@ function extendable(space: Space, cells: readonly Cell[]): boolean {
     assign[v] = j;
   }
   const open = Array.from({ length: n }, (_, v) => v)
-    .filter((v) => assign[v] === -1)
+    .filter((v) => assign[v] === -1 && (space.values[v] as string[]).length > 0)
     .sort((a, b) => (space.arity[a] as number) - (space.arity[b] as number));
   let steps = 0;
   const search = (at: number): boolean => {
@@ -368,7 +374,7 @@ function enumerated(space: Space, groups: readonly number[][], strengths: readon
 }
 
 function allowedCount(space: Space, groups: readonly number[][], strengths: readonly number[]): bigint {
-  if (space.arity.some((a) => a === 0)) return 0n;
+  if (space.dead) return 0n;
   const plain = space.constraints.length === 0;
   const apart = !overlap(groups, strengths);
   const sizes = groups.map((group, g) => Math.min(strengths[g] as number, group.length));
@@ -498,7 +504,7 @@ function coveredCount(
   groups: readonly number[][],
   strengths: readonly number[],
 ): bigint {
-  if (codes.length === 0 || space.arity.some((a) => a === 0)) return 0n;
+  if (codes.length === 0 || space.dead) return 0n;
   if (space.constraints.length === 0 && !overlap(groups, strengths)) {
     const formula = coveredFormula(space, codes, groups, strengths);
     if (formula !== undefined) return formula;
@@ -529,7 +535,7 @@ function uncoveredList(
   limit: number,
 ): Array<Record<string, string>> {
   const out: Array<Record<string, string>> = [];
-  if (limit === 0 || space.arity.some((a) => a === 0)) return out;
+  if (limit === 0 || space.dead) return out;
   for (const subset of subsetsOf(groups, strengths)) {
     const held = heldOn(space, codes, subset);
     for (const tuple of tuplesOf(space, subset)) {
