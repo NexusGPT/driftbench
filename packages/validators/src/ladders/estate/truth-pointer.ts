@@ -178,6 +178,34 @@ export function truthPointer(truth: Truth): TruthPointer {
       if (helpers.length > 0) helperAt.set(`${file}:${entry.line}`, helpers);
     }
   }
+  // A line that names several hazards and has no record: one planted label builds the first hazard and carries the
+  // others as `also`, because a shipped hazard label builds a single hazard.
+  const hazardsOn = new Map<string, string[]>();
+  for (const atom of truth.atoms) {
+    if (atom.kind !== 'hazard') continue;
+    const at = `${atom.file}:${atom.line}`;
+    hazardsOn.set(at, [...(hazardsOn.get(at) ?? []), atom.key]);
+  }
+  const manyHazards = new Map<string, string>();
+  for (const [at, ids] of hazardsOn) {
+    const [first, ...rest] = [...new Set(ids)];
+    if (first === undefined || rest.length === 0 || byLine.has(at)) continue;
+    const digest = createHash('sha1').update(ids.join(',')).digest('hex').slice(0, 8);
+    const name = `planted-hazards-${digest}-${manyHazards.size}`;
+    labels.push({
+      name,
+      description: `The hazards planted at ${at}.`,
+      links: [],
+      atom: {
+        kind: 'hazard',
+        situation: HAZARDS[first]?.situation ?? first,
+        fields: { hazard: first },
+        evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: first, reread: [] } }],
+        also: rest.map((id) => hazardMapping(id)),
+      },
+    } as unknown as pointer.LabelSet['labels'][number]);
+    manyHazards.set(at, name);
+  }
   const text = JSON.stringify({ labels: [{ ...base, set: SET_NAME, labels }] });
   const parsed = pointer.parseLabelSets(text);
   if (!parsed.ok) throw new Error(`the planted label set is invalid: ${parsed.message}`);
@@ -187,7 +215,7 @@ export function truthPointer(truth: Truth): TruthPointer {
   for (const atom of truth.atoms) {
     const label = atom.kind === 'hazard' ? HAZARD_LABEL[atom.key] : undefined;
     const at = `${atom.file}:${atom.line}`;
-    if (label && !hazardLines.has(at)) hazardLines.set(at, label);
+    if (label && !hazardLines.has(at)) hazardLines.set(at, manyHazards.get(at) ?? label);
   }
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),
