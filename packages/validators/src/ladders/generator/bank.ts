@@ -78,6 +78,8 @@ export type BankItem = {
   component: string;
   /** The one change that would make the item pass; the item id when the item is its own cause. */
   cause?: string;
+  /** Authored check-kind default, used by reports only when causeOf finds no specific cause. */
+  defaultCause?: string;
   /** True for an item that reads no seed (the Acme example): it runs once per bank run, in the parent. */
   global?: boolean;
   check(data: SeedData): Promise<Verdict>;
@@ -2472,6 +2474,13 @@ export function causeOf(item: BankItem, verdict: Verdict): string {
   return item.cause ?? item.id;
 }
 
+/** Resolve specific causes first; only an unauthored own-ID fallback takes the check-kind default. */
+export function causeForReport(item: BankItem, verdict: Verdict): string {
+  const cause = causeOf(item, verdict);
+  if (cause !== item.id || verdict.cause || item.cause) return cause;
+  return item.defaultCause ?? cause;
+}
+
 export function bankItems(): BankItem[] {
   return [
     ...generateItems(),
@@ -2492,7 +2501,7 @@ export function bankItems(): BankItem[] {
     ...gateFamilyItems(),
     ...plannerItems(),
     ...acmeItems(),
-  ].map((item) => (item.cause ? item : { ...item, cause: authoredCauseFor(item.id) }));
+  ].map((item) => (item.cause ? item : { ...item, defaultCause: authoredCauseFor(item.id) }));
 }
 
 /** Bank size per family and tier. */
