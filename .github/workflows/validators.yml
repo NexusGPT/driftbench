@@ -720,7 +720,7 @@ jobs:
           node -e 'const r = JSON.parse(require("node:fs").readFileSync("generator-items-${{ strategy.job-index }}.json", "utf8")); console.log("bank", r.bank.passing, "of", r.bank.size, "head", process.env.GITHUB_SHA)'
       - uses: actions/upload-artifact@v4
         with:
-          name: generator-items-${{ strategy.job-index }}
+          name: generator-items-${{ contains(format(',{0},', inputs.jobs), ',generator-measure-full,') && 'full' || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') && 'one' || 'standard' }}-${{ strategy.job-index }}
           path: generator-items-${{ strategy.job-index }}.json
 
   generator-measure-row:
@@ -774,7 +774,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: generator-measurement
+          name: generator-measurement-${{ contains(format(',{0},', inputs.jobs), ',generator-measure-full,') && 'full' || contains(format(',{0},', inputs.jobs), ',generator-measure-one,') && 'one' || 'standard' }}
           path: generator-measurement
 
   protect:
