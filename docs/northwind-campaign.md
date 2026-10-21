@@ -74,7 +74,7 @@ The rehearsal checks the campaign, not the agent. A stand-in plays the agent, so
 The live run is billed. Set the caps first.
 
 ```
-export ANTHROPIC_API_KEY="$(cat "$HOME/.nexus-secrets/anthropic-driftbench.key")"
+# First export ANTHROPIC_API_KEY with your own key, set in your shell and not typed in a command.
 NORTHWIND_COMMAND=claude NORTHWIND_ALLOW_BILLED=1 NORTHWIND_MODEL=claude-haiku-5-5 \
 NORTHWIND_MAX_TURNS=15 NORTHWIND_MAX_BLOCK_USD=0.6 NORTHWIND_PERMISSION_MODE=acceptEdits \
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml \
@@ -82,7 +82,7 @@ pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yam
 pnpm driftbench report northwind-live --store out/live.db --out out/live-scorecard.html
 ```
 
-`ANTHROPIC_API_KEY` is read from your own secret store. Its value is never written in a file of the repository or in a command line you share. The workflow can run the live job by hand (`live: true`) after the rehearsal, capped by its `spend-cap-usd` input. The live and probe jobs need a self-hosted runner that the repository does not provide, so run them from a developer machine.
+Export `ANTHROPIC_API_KEY` with your own key. Its value is never written in a file of the repository or in a command line you share. The workflow can run the live job by hand (`live: true`) after the rehearsal, capped by its `spend-cap-usd` input. The live and probe jobs need a self-hosted runner that the repository does not provide, so run them from a developer machine.
 
 * The campaign budget (`--budget-usd`) stops new cells when the spend reaches it. Each block is also capped by `NORTHWIND_MAX_BLOCK_USD` and `NORTHWIND_MAX_TURNS`.
 * The `ledger-auditor` helper of the fixture runs on Sonnet. A cell that dispatches it costs more than the others.

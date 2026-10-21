@@ -38,7 +38,7 @@ The third runs on the explicit protocol recordings in `rehearsal/`. These are pa
 money:
 
 ```
-ANTHROPIC_API_KEY="$(cat ~/.nexus-secrets/anthropic-driftbench.key)" \
+# First export ANTHROPIC_API_KEY with your own key, set in your shell and not typed in a command.
 NORTHWIND_COMMAND=claude NORTHWIND_ALLOW_BILLED=1 NORTHWIND_MODEL=claude-haiku-5-5 \
 NORTHWIND_MAX_TURNS=15 NORTHWIND_MAX_BLOCK_USD=0.6 NORTHWIND_PERMISSION_MODE=acceptEdits \
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml \
