@@ -33,7 +33,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
-      - run: pnpm exec vitest run packages/cli/test/report-fixes.test.ts packages/cli/test/northwind-executions.test.ts packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/adapters/test/claude-code/live/fake-default.test.ts packages/cli/test/northwind-contracts.test.ts --maxWorkers=2
+      - run: pnpm exec vitest run packages/estate/test/fixture-scripts.test.ts packages/estate/test/blast-oracle-reconcile-seeds.test.ts packages/estate/test/scan.test.ts packages/cli/test/estate-unit.test.ts packages/cli/test/report-fixes.test.ts packages/cli/test/northwind-executions.test.ts packages/cli/test/northwind-workflow.test.ts packages/users/test/northwind-recording.test.ts packages/adapters/test/claude-code/live/fake-failure.test.ts packages/adapters/test/claude-code/live/fake-default.test.ts packages/cli/test/northwind-contracts.test.ts --maxWorkers=2
       - name: Typecheck follow-up
         run: pnpm typecheck
       - name: Live estate help example
