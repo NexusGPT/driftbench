@@ -2725,6 +2725,7 @@
       "stratifiedMean": "value",
       "unreliability": "value",
       "varianceComponents": "value",
+      "weightedKappa": "value",
       "weightedMean": "value",
       "wilcoxonSignedRank": "value",
       "wilson": "value",
