@@ -6,22 +6,17 @@ import { fixListOption, reportFixes } from '../src/report-fixes';
 /**
  * The fix list of the report. The diagnoses are the ones `code-agent-liability` stored on the Northwind
  * campaign rehearsal (the stand-in runtime, three specs, repeat 0): what a stored campaign holds, not what a
- * test builds. Only the fields the list reads are kept: run ids, block indexes and diagnoses.
+ * test builds. Only the fields the list reads are kept: run ids, block indexes and diagnoses, one run a line.
  */
 
 initializeShippedObjects();
 
-type Fixture = {
-  runs: Record<string, { spec: string; blocks: Array<{ index: number; diagnoses: unknown[] }> }>;
-};
-const fixture = JSON.parse(
-  readFileSync(new URL('./fixtures/northwind-diagnoses.json', import.meta.url), 'utf8'),
-) as Fixture;
-
-const runs = Object.entries(fixture.runs).map(([runId, run]) => ({
-  runId,
-  blocks: run.blocks.map((block) => ({ index: block.index, diagnoses: block.diagnoses })),
-}));
+type StoredRun = { runId: string; spec: string; blocks: Array<{ index: number; diagnoses: unknown[] }> };
+const runs = readFileSync(new URL('./fixtures/northwind-diagnoses.jsonl', import.meta.url), 'utf8')
+  .split('\n')
+  .filter((line) => line !== '')
+  .map((line) => JSON.parse(line) as StoredRun)
+  .map((run) => ({ runId: run.runId, blocks: run.blocks }));
 const data = { runs } as unknown as Parameters<typeof reportFixes>[0];
 
 describe('the report fix list', () => {
@@ -41,7 +36,7 @@ describe('the report fix list', () => {
     expect(fixes.some((fix) => fix.fixAction === 'strengthen_rule')).toBe(true);
   });
 
-  it('counts each fix by the blocks it explains and the ones that are the agent\'s', () => {
+  it("counts each fix by the blocks it explains and the ones that are the agent's", () => {
     for (const fix of fixes) {
       expect(fix.blocks).toBeGreaterThanOrEqual(1);
       expect(fix.agentBlocks).toBeLessThanOrEqual(fix.blocks);
@@ -50,7 +45,7 @@ describe('the report fix list', () => {
     expect(total).toBeGreaterThanOrEqual(4);
   });
 
-  it('ranks the fixes that explain the agent\'s failing blocks first', () => {
+  it("ranks the fixes that explain the agent's failing blocks first", () => {
     const agent = fixes.map((fix) => fix.agentBlocks);
     expect(agent).toEqual([...agent].sort((a, b) => b - a));
   });
