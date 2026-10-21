@@ -162,7 +162,7 @@ it.each(['.json', '.yaml', '.md'])(
   },
 );
 
-it('uses documented dispatch roles and keeps source messages separate from implementation data', async () => {
+it('uses the dispatch the code of the runner shows and keeps source messages separate from implementation data', async () => {
   const root = await estate({
     'CLAUDE.md': '# Workspace\n',
     '.claude/settings.json': JSON.stringify(
@@ -183,9 +183,8 @@ it('uses documented dispatch roles and keeps source messages separate from imple
       null,
       2,
     ),
-    '.claude/hooks/runner.py': 'import opaque_runtime\nopaque_runtime.start()\n',
-    '.claude/hooks/usage.md':
-      'Usage: .claude/hooks/runner.py --entry FILE\nThe --entry argument names the script.\n',
+    '.claude/hooks/runner.py':
+      '# Lance le fichier donné après --entry.\nimport sys, subprocess\nentry = sys.argv[sys.argv.index("--entry") + 1]\nsubprocess.run(["node", entry])\n',
     '.claude/hooks/citation.js':
       '/** Require citations before closing an editorial review. */\nconst reason = "Read each source before marking the review complete.";\nconst unused = "This text is implementation data, never printed.";\nconsole.warn(reason);\n',
   });
