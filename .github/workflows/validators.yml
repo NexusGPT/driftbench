@@ -260,7 +260,7 @@ jobs:
           retention-days: 3
 
   ladders-tail:
-    # Levels 20 to 22 of the generator cost most of an hour in one leg. Each level of each seed is a leg of its own
+    # Levels 20 to 23 of the generator cost most of an hour in one leg. Each level of each seed is a leg of its own
     # and starts with the rest, not after the slices below it: a single run stops at its first failing level, and
     # the join does the same, keeping only the levels up to the first failing one (a level above it is dropped).
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
@@ -283,6 +283,10 @@ jobs:
             name: generator seed 1 level 22
             component: generator
             flags: --seed 1 --levels 22..22
+          - id: generator-1-level-23
+            name: generator seed 1 level 23
+            component: generator
+            flags: --seed 1 --levels 23..23
           - id: generator-2-level-20
             name: generator seed 2 level 20
             component: generator
@@ -295,6 +299,10 @@ jobs:
             name: generator seed 2 level 22
             component: generator
             flags: --seed 2 --levels 22..22
+          - id: generator-2-level-23
+            name: generator seed 2 level 23
+            component: generator
+            flags: --seed 2 --levels 23..23
           - id: generator-3-level-20
             name: generator seed 3 level 20
             component: generator
@@ -307,6 +315,10 @@ jobs:
             name: generator seed 3 level 22
             component: generator
             flags: --seed 3 --levels 22..22
+          - id: generator-3-level-23
+            name: generator seed 3 level 23
+            component: generator
+            flags: --seed 3 --levels 23..23
           - id: generator-hidden-level-20
             name: generator seed hidden level 20
             component: generator
@@ -319,6 +331,10 @@ jobs:
             name: generator seed hidden level 22
             component: generator
             flags: --hidden --hidden-only --levels 22..22
+          - id: generator-hidden-level-23
+            name: generator seed hidden level 23
+            component: generator
+            flags: --hidden --hidden-only --levels 23..23
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
