@@ -381,8 +381,10 @@ export function variablesFromSources(
             ...(label.unit === undefined ? {} : { unit: label.unit }),
             provenance: entry,
           };
-          const same = (draft.boundaries ?? []).some((b) => b.limit === at && b.comparison === c);
+          // Of the clauses that give one boundary, the one with the smallest quote key is cited, whatever the order.
+          const same = (draft.boundaries ?? []).find((b) => b.limit === at && b.comparison === c);
           if (!same) draft.boundaries?.push(boundary);
+          else if (quoteKey(entry) < quoteKey(same.provenance)) same.provenance = entry;
         }
         return draft.name;
       }
