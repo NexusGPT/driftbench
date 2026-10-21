@@ -173,7 +173,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     const row = decl ? registryRowOf(decl, raw.registry) : undefined;
     for (const entry of row?.enforces ?? []) {
       if ('id' in entry) for (const rule of withLabel(entry.id)) take(rule, 'registry');
-      else for (const rule of rules) if (holds(rule.provenance.quote, entry.quote)) take(rule, 'registry');
+      else for (const rule of rules) if (holds(ruleWords(rule), entry.quote)) take(rule, 'registry');
     }
     const script = typeof guard.fields?.script === 'string' ? files.get(guard.fields.script) : undefined;
     if (script) {
@@ -181,7 +181,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (holds(ruleWords(rule), literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -189,6 +189,15 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   }
 
   return { edges: sortEdges(edges), enforces };
+}
+
+/**
+ * The words of a rule: its quote without the label that opens its line (`**R5.**`, `R#5 —`), which a guard's
+ * message does not repeat. The label is read by its shape, as `labelOfLine` reads it.
+ */
+function ruleWords(rule: Atom): string {
+  const label = /^\s*(?:[-*]\s+)?(?:\*\*)?[A-Z]{1,3}#?\d{1,3}\.?(?:\*\*)?[.:]?\s+/i;
+  return rule.provenance.quote.replace(label, '');
 }
 
 /** True when two passages say the same words, or one holds the other, compared without markup. */
