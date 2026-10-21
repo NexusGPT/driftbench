@@ -400,7 +400,9 @@ it('provokes a Bash guard with the command its rule quotes, before the permissio
   );
   const settings = {
     permissions: { deny: ['Bash(git push --force:*)'] },
-    hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'sh .claude/guards/push.sh' }] }] },
+    hooks: {
+      PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'sh .claude/guards/push.sh' }] }],
+    },
   };
   await writeFile(join(work.dir, '.claude/settings.json'), JSON.stringify(settings, null, 2));
   declare(work, [
@@ -428,7 +430,9 @@ it('provokes a Bash guard with the command its rule quotes, before the permissio
   const used = calls(records);
   expect(used.map((call) => call.name)).toEqual(['Bash']);
   expect(used[0]?.input.command).toBe('git push --force');
-  expect(records.find((row) => row.subtype === 'hook_response' && row.hook_event === 'PreToolUse')).toMatchObject({
+  expect(
+    records.find((row) => row.subtype === 'hook_response' && row.hook_event === 'PreToolUse'),
+  ).toMatchObject({
     exit_code: 2,
     stderr: 'no force push\n',
   });
