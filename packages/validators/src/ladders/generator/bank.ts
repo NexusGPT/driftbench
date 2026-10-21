@@ -2105,6 +2105,15 @@ export function vectorOf(block: BlockRun): string {
 }
 
 /**
+ * What makes two blocks candidates for the same test: the same Then and outcomes (`vectorOf`), run from the same stage
+ * against the same tool answers. A block that starts from another stage, or gets other answers from a tool, is another
+ * test (docs/validators.md, section 3, Same test).
+ */
+export function sameTestKey(block: BlockRun): string {
+  return JSON.stringify([block.answers, block.from, vectorOf(block)]);
+}
+
+/**
  * A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. Nor a link: a
  * `metadata.links` entry of the deleted block goes with it, and a link by index to a later block moves down
  * one, so the reduced spec stays valid (a link to a block the spec does not have is LINK_BLOCK_UNKNOWN).
@@ -2251,7 +2260,7 @@ function minimalityItems(): BankItem[] {
           return verdict(false, `no block kills ${cls.id}, so there is no test set to judge`);
         const groups = new Map<string, BlockRun[]>();
         for (const block of found)
-          groups.set(vectorOf(block), [...(groups.get(vectorOf(block)) ?? []), block]);
+          groups.set(sameTestKey(block), [...(groups.get(sameTestKey(block)) ?? []), block]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values())
           if (group.length > 1 && (await hasRemovable(data, group))) redundant.push(group);
@@ -2282,8 +2291,8 @@ function minimalityItems(): BankItem[] {
         const family = (block: BlockRun) => block.spec.replace(/-\d+$/, '');
         const groups = new Map<string, BlockRun[]>();
         for (const block of blocks)
-          groups.set(`${block.when}|${vectorOf(block)}`, [
-            ...(groups.get(`${block.when}|${vectorOf(block)}`) ?? []),
+          groups.set(`${block.when}|${sameTestKey(block)}`, [
+            ...(groups.get(`${block.when}|${sameTestKey(block)}`) ?? []),
             block,
           ]);
         const redundant: BlockRun[][] = [];
