@@ -960,6 +960,17 @@ spec: refund.spec.yaml # The spec this persona plays
 
 </details>
 
+### The rest of this release
+
+Each item has a page with its commands and limits.
+
+- **The variable store.** One catalogue of the variables a situation varies on, shared by the prompt map and the estate map. It is filled from an estate or an owner interview. Planner v2 (opt-in) plans test rows from it. → [variables](docs/variables.md)
+- **Plugins and config.** The command line loads your own adapters, checks and judges from `plugins:` in `driftbench.yaml` or `--plugin`. The `campaign:` and `objects:` keys, and a `prices` table for budgets, live in the same file. → [plugins](docs/plugins.md), [running](docs/running.md)
+- **Safer defaults.** Docker sandboxes are restricted by default. The local viewer refuses foreign origins and stale forms. Built-in targets redact secrets and error bodies. → [process adapter](docs/adapters/process.md), [viewer](docs/viewer.md)
+- **Rerun marks.** A block that is red with no change, or that flips under edits it has no link to, reruns on every prompt change. → [rerun marks](docs/concepts/blast-radius.md#rerun-marks)
+- **Nested spans.** A rule that makes one call wait for another call of the same tool becomes an ordered gate. → [nested spans](docs/estate-pointer-reader.md#nested-spans-two-calls-of-one-tool-in-order)
+- **A campaign on a code agent.** Four tasks on the fictional Northwind estate, with parents, simulated users, blame and the fix list, rehearsed free and run live with a spend cap. → [the Northwind campaign](docs/northwind-campaign.md)
+
 ## What it does
 
 <a href=".github/readme/areas-light.png">
