@@ -81,7 +81,8 @@ const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L
  * atom's verbatim source text, `provenance.quote`, its `situation` or the trigger cut from it (`fields.trigger`).
  * Metadata (`id`, `kind`), a title or a description never does.
  */
-// `whole`: the text is the atom's verbatim source (its quote or trigger), taken whole, never sliced.
+// `whole`: the field is taken whole, never sliced (docs/estate.md section 5: a gate's trigger, an atom's
+// situation, its passage).
 type Declared = { text: string; within?: Array<[number, number]>; whole?: boolean };
 
 function declaredText(atom: MapAtom, field: string): Declared | undefined {
@@ -91,7 +92,8 @@ function declaredText(atom: MapAtom, field: string): Declared | undefined {
   const quoted = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
   if (field === 'provenance.quote')
     return typeof quoted === 'string' ? { text: quoted, whole: true } : undefined;
-  if (field === 'situation') return typeof atom.situation === 'string' ? { text: atom.situation } : undefined;
+  if (field === 'situation')
+    return typeof atom.situation === 'string' ? { text: atom.situation, whole: true } : undefined;
   if (field === 'fields.trigger')
     return typeof fields.trigger === 'string' ? { text: fields.trigger, whole: true } : undefined;
   type Ask = { text?: unknown; context?: unknown };
