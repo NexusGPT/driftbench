@@ -74,6 +74,17 @@ export {
   zFor,
 } from './intervals';
 export { geometricMean, harmonicMean } from './means';
+export {
+  type GroupCoverage,
+  type MixedStrengthCoverageResult,
+  mixedStrengthCoverage,
+  type StrengthGroup,
+} from './mixed-strength';
+export {
+  type MixtureWeightsOptions,
+  type MixtureWeightsResult,
+  mixtureWeights,
+} from './mixture';
 export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
 export { wilcoxonSignedRankExactP } from './nonparametric';
 export {
