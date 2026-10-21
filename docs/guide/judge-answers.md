@@ -355,7 +355,7 @@ const judge = createDefaultJudge({
 
 The policy reads the kind of task first, then picks a procedure. The list below is from `docs/default-judge.md`:
 
-- An ordinary criterion uses a fact ledger: the judge lists each requirement and the evidence for it, and code computes pass or fail.
+- An ordinary criterion uses an evidence ledger: the judge lists each requirement and the evidence for it, and code computes pass or fail.
 - A question with one checkable answer gets three blind solutions, an answer match and a comparison with the criterion.
 - A pair of replies is compared in both orders, and code reconciles them.
 - A pair of writing samples is judged on the request and on quality, with no preference for length.

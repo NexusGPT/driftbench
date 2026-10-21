@@ -88,62 +88,17 @@ Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder
 - `Floors (validators/floors.json): none.`: no `validators/floors.json` above your folder. Run the command from the repository.
 - `No validator is registered for "nosuch". Registered: ...` (exit 64): the name is wrong. The message lists the registered names.
 
-## 3. Run one level of the statistics ladder
+## 3. Run a slice of a ladder
 
-**Why you do this.** Every interval and test that driftbench prints rests on a statistics package. The statistics validator checks it against numbers computed by other tools and against populations with a known truth. One level shows you what a validator checks and what a pass looks like.
+**Why you do this.** The judges validator checks the judging machinery of the previous part: the answer parser, the cassettes, the council and the cascade. It uses scripted judges and no model. A whole ladder takes minutes, so you run a slice of its levels.
 
 **You need.** A seed. A seed drives every random choice of a ladder, so seed 1 always builds the same inputs. CI runs seeds 1, 2 and 3, and one hidden seed that changes with each commit. A fix that works only on the seeds you saw fails on the hidden seed.
 
-The statistics ladder has 8 levels (source: `packages/cli/help/validate-stats.md`). Level 1 holds 31 items. Each item compares one function with numbers that scipy or numpy computed.
+The judges ladder has 20 levels. Level 1 holds 37 items, level 2 holds 48 and level 3 holds 21 (source: `packages/cli/help/validate-judges.md`).
 
 **Relevant commands.**
 
-- `driftbench validate stats --seed 1 --levels 1..1`: runs level 1 of the statistics ladder · `stats` is the validator; `--seed 1` is the seed; `--levels 1..1` computes only level 1 · it prints the ladder table and the level reached, and exits 0, because a slice holds no level of the run.
-
-**You type.**
-
-```console
-$ driftbench validate stats --seed 1 --levels 1..1
-(pending)
-```
-
-**How to read it.**
-
-- One row per level, with its name, its metric and its threshold. The last column is the observed value for seed 1, then `pass` or `FAIL (<number of failing items>)`.
-- `not run`: the level was not asked for. A slice computes only the levels you name.
-- `Level of the run`: the highest level passed, the minimum over all seeds you ran. On a slice it counts only the levels you ran.
-- `Floor`: the line compares the level of the run with the floor of the whole ladder (step 2). Ignore it on a slice.
-- `No level failed.`: nothing to fix.
-
-A whole ladder takes minutes, so the tests of this page do not run one. This is how CI runs them. It is shown for reference and it is not run here:
-
-```bash
-driftbench validate all --seeds 1..3 --hidden --check-floor
-```
-
-- `all` runs every registered ladder.
-- `--seeds 1..3` runs seeds 1, 2 and 3.
-- `--hidden` adds the hidden seed of the current commit.
-- `--check-floor` computes each ladder only up to its floor and exits 1 when one is below it, else 0.
-
-On the GitHub runner that runs these tests, levels 1 to 3 of the statistics ladder took more than 4 minutes on seed 1.
-
-**If it goes wrong.**
-
-- `Level of the run` below `Floor` on a plain run, with failing items listed: a change broke an item. Each item line has an id, a tier from 1 to 5 and the one source file to change. It then says what the oracle expected and what came back. Fix the first failing level before any other.
-- `--seeds takes a..b with whole numbers a <= b, such as 1..20, not "3..1".` (exit 64): write the range low to high.
-- An exit code from 2 to 63 on a plain run, without `--check-floor`: it is the level reached, not an error. Use `--check-floor` when a script needs 0 or 1.
-- An `ENOENT` error that names `packages/validators/fixtures`: you are not at the root of the repository. The validators read their fixtures from there. Step 2 shows the links the test uses.
-
-## 4. Run a slice of the judges ladder
-
-**Why you do this.** The judges validator checks the judging machinery of the previous part: the answer parser, the cassettes, the council and the cascade. It uses scripted judges and no model. A whole ladder takes minutes, so you run a slice of levels.
-
-**You need.** The same seed idea as step 3. The judges ladder has 20 levels. Level 1 holds 37 items, level 2 holds 48 and level 3 holds 21 (source: `packages/cli/help/validate-judges.md`).
-
-**Relevant commands.**
-
-- `driftbench validate judges --seed 1 --levels 1..3`: runs levels 1 to 3 of the judges ladder · `judges` is the validator; `--seed 1` is the seed; `--levels 1..3` computes only these levels · it prints the table and exits 0, because a slice holds no level of the run.
+- `driftbench validate judges --seed 1 --levels 1..3`: runs levels 1 to 3 of the judges ladder · `judges` is the validator; `--seed 1` is the seed; `--levels 1..3` computes only these levels · it prints the ladder table and exits 0, because a slice holds no level of the run.
 
 **You type.**
 
@@ -163,20 +118,35 @@ No level failed.
 
 **How to read it.**
 
-- Each row is a level. `the answer contract under hostile output` checks how the parser reads strange judge answers. `the same request, the same prompt, key and verdict` checks that one request always gives one key and one verdict.
-- `1 pass`: every item of the level passed. A level with a failing item shows `FAIL (<number of failing items>)`, and the run lists those items.
+- Each row is a level, with its name, its metric and its threshold. The last column is the observed value for seed 1: `pass`, or `FAIL (<number of failing items>)`.
+- `the answer contract under hostile output` checks how the parser reads strange judge answers. `the same request, the same prompt, key and verdict` checks that one request always gives one key and one verdict.
+- `1 pass`: every item of the level passed. A failing level lists its items under the table.
 - `not run`: levels 4 to 20 were not asked for.
 - `Level of the run: 3 of 20`: three levels passed.
 - `Floor: 20. BELOW THE FLOOR.`: this compares a slice with the floor of the whole ladder. A slice cannot reach it. CI runs the whole ladder.
 - The exit code is 0 for a slice. CI joins slices with `--reports` to rebuild a whole run.
 
+A whole ladder takes minutes, so the tests of this page do not run one. The statistics ladder is slower still: on the GitHub runner that runs these tests, level 1 of `validate stats` alone ran for more than 4 minutes and was stopped. This is how CI runs every ladder. It is shown for reference and it is not run here:
+
+```bash
+driftbench validate all --seeds 1..3 --hidden --check-floor
+```
+
+- `all` runs every registered ladder.
+- `--seeds 1..3` runs seeds 1, 2 and 3.
+- `--hidden` adds the hidden seed of the current commit.
+- `--check-floor` computes each ladder only up to its floor and exits 1 when one is below it, else 0.
+
 **If it goes wrong.**
 
-- A level you ask for is not in the ladder: the top of the judges ladder is 20.
-- A billed 21st level exists only when `DRIFTBENCH_BILLED_APPROVAL` is set. Never set it for an ordinary run, because it spends money.
+- `Level of the run` below `Floor` on a whole run, with failing items listed: a change broke an item. Each item line has an id, a tier from 1 to 5 and the one source file to change. It then says what the oracle expected and what came back. Fix the first failing level before any other.
+- `--seeds takes a..b with whole numbers a <= b, such as 1..20, not "3..1".` (exit 64): write the range low to high.
+- An exit code from 2 to 63 on a plain run, without `--check-floor`: it is the level reached, not an error. Use `--check-floor` when a script needs 0 or 1.
+- An `ENOENT` error that names `packages/validators/fixtures`: you are not at the root of the repository. The validators read their fixtures from there. Step 2 shows the links that the test uses.
+- A level you ask for is not in the ladder: the top of the judges ladder is 20. A billed 21st level exists only when `DRIFTBENCH_BILLED_APPROVAL` is set. Never set it for an ordinary run, because it spends money.
 - `--levels` goes with a plain run. It is refused with `--brief`, `--journal`, `--check-handover`, `--hardness` and `--reports`.
 
-## 5. The validity gate of generated tests
+## 4. The validity gate of generated tests
 
 **Why you do this.** A generated test can look fine and still be useless. It might pass on every agent, or leak its own answer in the user message. The gate runs each candidate block on agents whose behaviour you know, and keeps only the blocks that tell them apart.
 
@@ -236,7 +206,7 @@ Wrote 11 files to gated.
 - `Accepted 24 of 28 blocks`: the suite that is left. The 4 dropped are named next to their stage.
 - `Mutation score per fault class`: for each kind of planted fault, how many the accepted suite catches. `2/2 killed (100%, 95% CI 34% to 100%)` is a tiny sample, so the interval is wide.
 - `no scored fault, 1 equivalent excluded`: that fault changes nothing that the specs observe. It cannot be caught, so it leaves the score.
-- `control: 2 negative control(s), green`: a control is the real agent in a wrapper. It must pass every block. A control that fails means the suite is wrong.
+- `control: 2 negative control(s), green`: a control is the real agent in a wrapper that changes nothing. It must pass every block. A block that fails on a control is rejected.
 
 **If it goes wrong.**
 
@@ -244,11 +214,11 @@ Wrote 11 files to gated.
 - Exit 2: a usage or input error, and nothing is written. Every spec must be valid, and each spec's own `target` must be one of the `--reference` agents.
 - A non-empty `--out` folder from an earlier run: add `--force` to replace it, or choose a new folder.
 
-## 6. How to read a result, and what it does not tell you
+## 5. How to read a result, and what it does not tell you
 
 **Why you do this.** A green table is easy to over-read. This step lists what each number proves and what it cannot.
 
-**You need.** The outputs of steps 2 to 5.
+**You need.** The outputs of steps 2 to 4.
 
 What a pass proves:
 
@@ -260,7 +230,7 @@ What it does not prove:
 
 - A validator checks the property its items test. It says nothing about a property no item tests.
 - The ladders contain no model. They do not measure how accurate a real judge is. Calibration against hand labels does that (previous part).
-- Two ladders have no floor yet, the generator and the estate. No pass rate is quoted for them until an independent audit.
+- Some ladders have no floor yet, such as the generator and the estate. No pass rate is quoted for a suite until it passes an independent audit (source: `docs/comparison/methods.md`).
 - A statistics floor of 3 of 8 says that levels 1 to 3 hold. It does not say that the levels above do.
 - A planted fault stands for a kind of mistake. A real agent can fail in a way no fault in the set plants.
 
@@ -276,5 +246,5 @@ These runs take minutes, so the tests do not run them.
 
 **If it goes wrong.**
 
-- You cannot tell whether a failing item is a real defect or a wrong item: read its cause and its source file. The items are themselves audited with planted bugs in the code under test. A validator that cannot catch a planted bug is a defect of the validator.
+- You cannot tell whether a failing item is a real defect or a wrong item: read its cause and its source file. An item can be wrong. `packages/cli/help/validate-mutants-and-rulings.md` explains how a validator is tested with a planted bug, and how an item is disputed.
 - The same level fails on every seed: fix the first failing level. The levels above it were not counted.
