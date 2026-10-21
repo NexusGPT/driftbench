@@ -1,4 +1,4 @@
-import { canonicalGiven } from '@agent-nexus/driftbench-core';
+import { canonicalGiven, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   bankItems,
@@ -9,7 +9,7 @@ import {
 } from '../../src/ladders/generator/bank';
 import { FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
 import type { HiddenSpec } from '../../src/ladders/generator/hidden';
-import { type BlockRun, type Generation, runAll } from '../../src/ladders/generator/measure';
+import { type BlockRun, type Generation, runAll, wordsOf } from '../../src/ladders/generator/measure';
 
 const fake = () =>
   ({
@@ -333,8 +333,7 @@ describe('independent item-level planted reducers', async () => {
     for (const members of [...families.values()].filter((m) => m.length >= 2).slice(0, 12)) {
       const extra = structuredClone(members[0]!);
       extra.spec.id = 'review-extra-forged-variant';
-      const meta = (extra.spec.metadata as { generated: { metamorphic: { variant: number; of: number } } })
-        .generated.metamorphic;
+      const meta = (extra.spec.metadata as any).generated.metamorphic;
       meta.variant = meta.of + 1;
       const data = await suite([...members, extra]);
       const runs = await data.runs();
@@ -383,4 +382,155 @@ describe('independent item-level planted reducers', async () => {
     }
     expect(chosen, 'a reference-correct genuine family with a removable repeated variant').toBe(true);
   }, 600000);
+  it('keeps no-op state representation and turn whitespace out of the words key', () => {
+    const source = generated.complete.find((e) => (e.spec.metadata?.generated as any)?.metamorphic)!;
+    const base = wordsOf(source.spec);
+    const copy = structuredClone(source.spec);
+    for (const block of copy.blocks) {
+      if (!block.given) block.given = {};
+      if (block.when && 'user' in block.when)
+        block.when = { ...block.when, user: '  ' + block.when.user.replace(/ /g, '   ') + ' \n' };
+    }
+    expect(validateSpec(copy).ok).toBe(true);
+    expect(wordsOf(copy)).toBe(base);
+  });
+  it('preserves real turn and effective Given-state changes in the words key', () => {
+    const source = generated.complete.find((e) => (e.spec.metadata?.generated as any)?.metamorphic)!;
+    const base = wordsOf(source.spec);
+    const turn = structuredClone(source.spec);
+    turn.blocks[0]!.when = { user: 'A different fictional request.' };
+    expect(wordsOf(turn)).not.toBe(base);
+    const given = structuredClone(source.spec);
+    given.blocks[0]!.given = { ...given.blocks[0]!.given, ledger: { review_fact: 'a real new fact' } };
+    expect(wordsOf(given)).not.toBe(base);
+  });
+  it('keeps distinct prefix messages as distinct declared metamorphic content', async () => {
+    const source = generated.complete.find((e) => (e.spec.metadata?.generated as any)?.metamorphic)!;
+    const make = (id: string, variant: number, text: string) => {
+      const e = structuredClone(source);
+      e.spec.id = id;
+      const meta = (e.spec.metadata as any).generated.metamorphic;
+      meta.variant = variant;
+      meta.of = 2;
+      e.spec.blocks[0]!.given = { ...e.spec.blocks[0]!.given, prefix: [{ role: 'user', content: text }] };
+      return e;
+    };
+    const a = make('review-prefix-one', 1, 'The parcel request arrived before noon.');
+    const b = make('review-prefix-two', 2, 'The parcel request arrived after lunch.');
+    expect(validateSpec(a.spec).ok).toBe(true);
+    expect(validateSpec(b.spec).ok).toBe(true);
+    expect(canonicalGiven(a.spec, 0).prefix).not.toEqual(canonicalGiven(b.spec, 0).prefix);
+    expect(canonicalGiven(a.spec, 0).state).toEqual(canonicalGiven(b.spec, 0).state);
+    const data = await suite([a, b]);
+    const runs = await data.runs();
+    expect(runs.errors).toEqual([]);
+    expect(runs.blocks.every((block) => block.reference.every((x) => x === 'pass'))).toBe(true);
+    const out = await item.check(data);
+    const candidates = [];
+    for (const block of runs.blocks.filter((x) => x.spec === b.spec.id)) {
+      const canRemove = await removable(data, block);
+      candidates.push({
+        key: block.key,
+        words: block.words,
+        walk: block.walk,
+        variant: block.variant,
+        of: block.of,
+        canRemove,
+        lost: await data.memoized(`minimality:lost:${block.key}`, async () => ['not-reached']),
+      });
+    }
+    console.log(
+      'distinct prefix actual item',
+      JSON.stringify({
+        aWords: wordsOf(a.spec),
+        bWords: wordsOf(b.spec),
+        aPrefix: canonicalGiven(a.spec, 0).prefix,
+        bPrefix: canonicalGiven(b.spec, 0).prefix,
+        out,
+        candidates,
+        referenceBlocks: runs.blocks.length,
+      }),
+    );
+    expect(wordsOf(a.spec), 'different effective prefix messages are real Given content').not.toBe(
+      wordsOf(b.spec),
+    );
+    expect(out.pass, out.detail).toBe(true);
+  }, 600000);
+
+  it.each(['empty-world', 'repeated-world'] as const)(
+    'rejects a clone whose own Given adds a no-op %s',
+    async (kind) => {
+      const families = new Map<string, Generation['complete']>();
+      for (const entry of generated.complete) {
+        const meta = (entry.spec.metadata?.generated as any)?.metamorphic;
+        if (meta?.family) {
+          const own = families.get(meta.family) ?? [];
+          own.push(entry);
+          families.set(meta.family, own);
+        }
+      }
+      let chosen = false;
+      for (const members of [...families.values()].filter((m) => m.length >= 2).slice(0, 12)) {
+        const original = members[0]!;
+        const extra = structuredClone(original);
+        extra.spec.id = 'review-extra-' + kind;
+        const at = extra.spec.blocks.findIndex((b) => b.given === undefined);
+        if (at < 0) continue;
+        const tools = canonicalGiven(original.spec, at).state.world.tools;
+        if (kind === 'repeated-world' && tools === undefined) continue;
+        extra.spec.blocks[at]!.given =
+          kind === 'empty-world' ? { world: {} } : { world: { tools: structuredClone(tools!) } };
+        expect(validateSpec(extra.spec).ok).toBe(true);
+        for (let index = 0; index < extra.spec.blocks.length; index++)
+          expect(canonicalGiven(extra.spec, index)).toEqual(canonicalGiven(original.spec, index));
+        const data = await suite([...members, extra]);
+        const runs = await data.runs();
+        if (runs.errors.length || !runs.blocks.every((b) => b.reference.every((x) => x === 'pass'))) continue;
+        const out = await item.check(data);
+        const candidates = [];
+        for (const block of runs.blocks.filter(
+          (b) => b.spec === extra.spec.id && Object.values(b.faults).some((x) => x === 'fail'),
+        )) {
+          const causal = runs.faults.some(
+            (f) =>
+              block.faults[f.fault.def.id] === 'fail' &&
+              f.firstChange[block.spec] !== undefined &&
+              block.index >= f.firstChange[block.spec]!,
+          );
+          if (!causal) continue;
+          const canRemove = await removable(data, block);
+          candidates.push({
+            key: block.key,
+            words: block.words,
+            walk: block.walk,
+            variant: block.variant,
+            of: block.of,
+            canRemove,
+            lost: await data.memoized(`minimality:lost:${block.key}`, async () => ['not-reached']),
+          });
+        }
+        if (!candidates.some((b) => b.canRemove)) continue;
+        chosen = true;
+        console.log(
+          'no-op own Given clone',
+          JSON.stringify({
+            kind,
+            changedAt: at,
+            originalWords: wordsOf(original.spec),
+            extraWords: wordsOf(extra.spec),
+            ownGiven: extra.spec.blocks[at]!.given,
+            originalMeta: (original.spec.metadata as any).generated.metamorphic,
+            extraMeta: (extra.spec.metadata as any).generated.metamorphic,
+            out,
+            candidates,
+            referenceBlocks: runs.blocks.length,
+          }),
+        );
+        expect(out.pass, out.detail).toBe(false);
+        break;
+      }
+      expect(chosen, 'a valid reference-correct genuine family and a removable causal clone').toBe(true);
+    },
+    600000,
+  );
 }, 600000);
