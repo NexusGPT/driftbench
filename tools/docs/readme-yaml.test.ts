@@ -125,16 +125,16 @@ describe('README innovation YAML dropdowns', () => {
     const readme = await readFile(README, 'utf8');
     const section = readme.split('## What makes it different\n')[1]?.split('## What it does\n')[0] ?? '';
     const dropdowns = [...readme.matchAll(DROPDOWN)];
-    expect(dropdowns.filter((dropdown) => dropdown[1] === 'YAML')).toHaveLength(10);
+    expect(dropdowns.filter((dropdown) => dropdown[1] === 'YAML')).toHaveLength(11);
     expect(dropdowns.filter((dropdown) => dropdown[1] === 'TypeScript')).toHaveLength(2);
-    const innovations = section.split(/^### /m).slice(1, 10);
-    expect(innovations).toHaveLength(9);
+    const innovations = section.split(/^### /m).slice(1, 11);
+    expect(innovations).toHaveLength(10);
     for (const innovation of innovations) {
       expect(innovation, innovation.split('\n')[0]).toContain(SUMMARY);
     }
     let checked = 0;
     for (const dropdown of dropdowns) checked += await checkDropdown(dropdown[2] ?? '');
-    expect(checked).toBe(18);
+    expect(checked).toBe(20);
   }, 120_000);
 
   it('labels a feature not yet on main with the pull request it is coming in', async () => {
