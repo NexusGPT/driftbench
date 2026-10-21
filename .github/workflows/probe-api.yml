@@ -1,0 +1,69 @@
+name: probe-api
+on:
+  push:
+    branches: ['train/sonnet-cluster-probe-api*']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: pnpm, check-latest: true }
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: node tools/structure/api-surface.mjs --build --check
+      - name: dump the stamp inputs
+        run: |
+          sed 's/^function compilerInputs/export function compilerInputs/' tools/structure/built-api.mjs > tools/structure/built-api-probe.mjs
+          cat > tools/structure/dump-inputs.mjs <<'EOF'
+          import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { relative } from 'node:path';
+          import { compilerInputs, packageEntries } from './built-api-probe.mjs';
+          const root = process.cwd();
+          const files = compilerInputs(root, packageEntries(root)).sort();
+          const lines = files.map((f) => createHash('sha256').update(readFileSync(realpathSync(f))).digest('hex').slice(0, 12) + ' ' + relative(root, f));
+          writeFileSync(process.argv[2], lines.join(String.fromCharCode(10)) + String.fromCharCode(10));
+          console.log(lines.length, 'inputs');
+          EOF
+          node tools/structure/dump-inputs.mjs inputs-prepare.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            packages/*/dist
+            examples/*/dist
+            .cache/api-surface-build.json
+            inputs-prepare.txt
+          include-hidden-files: true
+          if-no-files-found: error
+  shard:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: pnpm, check-latest: true }
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - uses: actions/download-artifact@v4
+        with: { name: build }
+      - name: dump the stamp inputs
+        run: |
+          sed 's/^function compilerInputs/export function compilerInputs/' tools/structure/built-api.mjs > tools/structure/built-api-probe.mjs
+          cat > tools/structure/dump-inputs.mjs <<'EOF'
+          import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { relative } from 'node:path';
+          import { compilerInputs, packageEntries } from './built-api-probe.mjs';
+          const root = process.cwd();
+          const files = compilerInputs(root, packageEntries(root)).sort();
+          const lines = files.map((f) => createHash('sha256').update(readFileSync(realpathSync(f))).digest('hex').slice(0, 12) + ' ' + relative(root, f));
+          writeFileSync(process.argv[2], lines.join('\n') + '\n');
+          console.log(lines.length, 'inputs');
+          EOF
+          node tools/structure/dump-inputs.mjs inputs-shard.txt
+      - run: diff inputs-prepare.txt inputs-shard.txt && echo SAME-INPUTS
+      - run: node tools/structure/api-surface.mjs --check
