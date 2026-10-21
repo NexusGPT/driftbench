@@ -116,6 +116,7 @@ jobs:
           python3 --version
       - name: Run the campaign on Haiku
         run: |
+          export ANTHROPIC_API_KEY="$(cat "$HOME/.nexus-secrets/anthropic-driftbench.key")"
           mkdir -p "$OUT"
           set +e
           pnpm driftbench campaign run --config "$CONFIG" --campaign "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --repeats "$REPEATS" --budget-usd "$SPEND_CAP_USD" 2>&1 | tee "$OUT/run.txt"
@@ -158,6 +159,7 @@ jobs:
       - run: claude --version
       - name: Run the probe on Haiku
         run: |
+          export ANTHROPIC_API_KEY="$(cat "$HOME/.nexus-secrets/anthropic-driftbench.key")"
           mkdir -p "$OUT"
           set +e
           pnpm driftbench campaign run --config examples/northwind-campaign/probe/driftbench.yaml --campaign "northwind-probe-$GITHUB_RUN_ID" --store "$OUT/probe.db" --json > "$OUT/probe.json" 2> "$OUT/probe.err"
