@@ -6,11 +6,15 @@ import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { requireSourceWitness } from '../../kit/positive';
 import {
+  word as drawWord,
   editWords,
   headingText,
   insertAt,
+  joinWritten,
   Prose,
+  type Rng,
   rewordWords,
+  type Written,
   type WrittenWord,
   writtenOf,
 } from '../../kit/words';
@@ -90,6 +94,29 @@ async function allDifferent(ctx: ItemContext, texts: string[]): Promise<Outcome>
   }
   return pass(`${texts.length} texts, ${texts.length} fingerprints`);
 }
+
+/** Words in a drawn-words sentence: enough that the fourth word and two past it are drawn words. */
+const DRAWN_WORDS = 6;
+
+/**
+ * A sentence made of drawn words only, the first one capitalised: every word of it is a word the generator
+ * recorded, so an item can change any word position of the text by its record, never by reading the text.
+ */
+function drawnWords(rng: Rng): string {
+  const parts: Array<string | Written> = [];
+  for (let i = 0; i < DRAWN_WORDS; i += 1) parts.push(i === 0 ? '' : ' ', writtenOf(drawWord(rng)));
+  parts.push('.');
+  const text = joinWritten(parts);
+  const first = (writtenOf(text).words[0] as WrittenWord).text;
+  return editWords(text, new Map([[0, first.charAt(0).toUpperCase() + first.slice(1)]]));
+}
+
+/** The indexes of the recorded words of `text` after its start. */
+const slotsAfterStart = (text: string): number[] =>
+  writtenOf(text).words.flatMap((w, k) => (w.start > 0 ? [k] : []));
+
+/** The recorded word `k` of `text`. */
+const recorded = (text: string, k: number): string => (writtenOf(text).words[k] as WrittenWord).text;
 
 export const idsRuns: Record<string, Run> = {
   'fp-whitespace': async (ctx) => {
@@ -181,25 +208,41 @@ export const idsRuns: Record<string, Run> = {
     return allDifferent(ctx, [make('find'), make('ﬁnd'), make('A'), make('Ａ'), make('1'), make('①')]);
   },
   'fp-case': async (ctx) => {
-    const base = prose(ctx).next();
+    const p = prose(ctx);
+    const base = p.next();
     // A word the generator wrote after the start, in two other cases.
     const { words } = writtenOf(base);
     const at = words.findIndex((w) => w.start > 0);
     const word = (words[at] as WrittenWord).text;
     const variant = (f: (w: string) => string) => editWords(base, new Map([[at, f(word)]]));
+    // A sentence of drawn words only: each word after the first, in turn in upper case, so the change
+    // lands on every word position of the fingerprinted text past the start, whatever position is folded.
+    const drawn = p.next(drawnWords);
+    const everyWord = slotsAfterStart(drawn).map((k) =>
+      editWords(drawn, new Map([[k, recorded(drawn, k).toUpperCase()]])),
+    );
     return allDifferent(ctx, [
       base,
       variant((w) => w.toUpperCase()),
       variant((w) => w.charAt(0).toUpperCase() + w.slice(1)),
+      drawn,
+      ...everyWord,
     ]);
   },
   'fp-emphasis': async (ctx) => {
-    const base = prose(ctx).next();
+    const p = prose(ctx);
+    const base = p.next();
     const { words } = writtenOf(base);
     const at = words.findIndex((w) => w.start > 0);
     const word = (words[at] as WrittenWord).text;
     const wrap = (mark: string) => editWords(base, new Map([[at, `${mark}${word}${mark}`]]));
-    return allDifferent(ctx, [base, wrap('**'), wrap('*')]);
+    // The same on a sentence of drawn words only: each word after the first, in turn, in `**` and in `*`.
+    const drawn = p.next(drawnWords);
+    const marked = (mark: string) =>
+      slotsAfterStart(drawn).map((k) =>
+        editWords(drawn, new Map([[k, `${mark}${recorded(drawn, k)}${mark}`]])),
+      );
+    return allDifferent(ctx, [base, wrap('**'), wrap('*'), drawn, ...marked('**'), ...marked('*')]);
   },
   'fp-word-change': async (ctx) => {
     const p = prose(ctx);
