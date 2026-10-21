@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cut, type Ledger, nextLedger, renderLedger } from '../../src/pointer';
+import { freeId, mintId } from '../../src/pointer/ledger';
 
 // Invented files: a hall with crates, keys and keepers.
 const HALL = [
@@ -216,5 +217,53 @@ describe('the ledger', () => {
     );
     expect(olds.every((id) => id !== undefined)).toBe(true);
     expect(olds).not.toContain(idOf(second, 'shed.md', 'Stop.'));
+  });
+});
+
+describe('minting a free id', () => {
+  it('steps the occurrence until the id is not taken', () => {
+    const mint = (n: number) => mintId('hall', 'hall.md', 'fp', n);
+    const taken = new Set([mint(0), mint(1)]);
+    expect(freeId(mint, taken, 0)).toBe(mint(2));
+    expect(freeId(mint, new Set(), 0)).toBe(mint(0));
+  });
+
+  it('throws at once when the id does not change with the occurrence', () => {
+    // The planted defect: the hash leaves the occurrence out, so every step meets the taken id.
+    const constant = () => 'aaaaaaaaaa';
+    expect(() => freeId(constant, new Set(['aaaaaaaaaa']), 0)).toThrow(/no free id/);
+  });
+});
+
+describe('the quote of an entry', () => {
+  const source = `\uFEFF${[
+    '# Hall',
+    '',
+    'Count the crates twice and write the number on the wall,',
+    'then lock the door when the hall is empty.',
+    '',
+    '- Return the keys before',
+    '  you leave the hall',
+    '',
+  ].join('\r\n')}`;
+
+  it('is the slice of the source its units name, with the source around it as context', () => {
+    const { ledger } = nextLedger([{ path: 'hall.md', cut: cut(source), source }], undefined, 'hall');
+    expect(ledger.entries.length).toBeGreaterThan(2);
+    for (const entry of ledger.entries) {
+      const unit = cut(source).units[entry.index];
+      expect(entry.quote, entry.id).toBe(source.slice(unit?.start, unit?.end));
+      expect(source.includes(`${entry.prefix}${entry.quote}${entry.suffix}`), entry.id).toBe(true);
+      expect(entry.prefix.length).toBeLessThanOrEqual(24);
+      expect(entry.suffix.length).toBeLessThanOrEqual(24);
+    }
+  });
+
+  it('keeps every id and label of a ledger written without the source', () => {
+    const files = [{ path: 'hall.md', cut: cut(source) }];
+    const old = nextLedger(files, undefined, 'hall').ledger;
+    const now = nextLedger([{ ...files[0], source }], old, 'hall');
+    expect(now.ledger.entries.map((entry) => entry.id)).toEqual(old.entries.map((entry) => entry.id));
+    expect(now.events.unchanged).toBe(old.entries.length);
   });
 });

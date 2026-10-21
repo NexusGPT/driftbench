@@ -47,7 +47,8 @@ export type Ledger = { version: 1; cutDigests: Record<string, string>; entries: 
 
 export type Event = 'new' | 'unchanged' | 'moved' | 'ambiguous' | 'changed' | 'split' | 'merged' | 'deleted';
 
-export type FileCut = { path: string; cut: Cut };
+/** A file and its cut; with the source text, the quote and its context are slices of the source. */
+export type FileCut = { path: string; cut: Cut; source?: string };
 
 /** The place of a unit in the estate: its file and its index in the cut. */
 export const unitKey = (path: string, index: number): string => `${path}\0${index}`;
@@ -66,6 +67,24 @@ export function mintId(estateKey: string, path: string, fp: string, occurrence: 
   return id;
 }
 
+/**
+ * The first id from occurrence `first` on that is not taken. The occurrence is part of the hash, so each step gives
+ * another id and at most `taken.size` steps meet a taken one; a mint that ignores the occurrence would repeat one id
+ * for ever, and that is an error that names itself, not a loop.
+ */
+export function freeId(mint: (occurrence: number) => string, taken: ReadonlySet<string>, first: number): string {
+  let next = first;
+  let id = mint(next);
+  for (let tries = 0; taken.has(id); tries++) {
+    if (tries > taken.size)
+      throw new Error(
+        `no free id after ${tries} occurrences: the ids minted for one text do not change with the occurrence`,
+      );
+    id = mint(++next);
+  }
+  return id;
+}
+
 const squash = (text: string): string => text.normalize('NFC').replace(/\s+/g, ' ').trim();
 
 type Fresh = {
@@ -78,19 +97,27 @@ type Fresh = {
   ctxFp: string;
 };
 
+/** UTF-16 code units of source kept on each side of a quote. */
+const CONTEXT_UNITS = 24;
+
 function freshOf(files: readonly FileCut[]): Fresh[] {
   const out: Fresh[] = [];
-  for (const { path, cut } of files) {
+  for (const { path, cut, source } of files) {
     cut.units.forEach((unit, index) => {
       const before = cut.units[index - 1];
       const after = cut.units[index + 1];
+      const sliced = source !== undefined;
       out.push({
         path,
         index,
         unit,
-        quote: squash(unit.text),
-        prefix: squash(before?.text ?? '').slice(-32),
-        suffix: squash(after?.text ?? '').slice(0, 32),
+        quote: sliced ? source.slice(unit.start, unit.end) : squash(unit.text),
+        prefix: sliced
+          ? source.slice(Math.max(0, unit.start - CONTEXT_UNITS), unit.start)
+          : squash(before?.text ?? '').slice(-32),
+        suffix: sliced
+          ? source.slice(unit.end, unit.end + CONTEXT_UNITS)
+          : squash(after?.text ?? '').slice(0, 32),
         ctxFp: sha(`${before?.fp ?? ''}\n${after?.fp ?? ''}\n${unit.path.join('>')}`).slice(0, 16),
       });
     });
@@ -344,9 +371,7 @@ export function nextLedger(
     occurrences.set(occurrenceKey, occurrence + 1);
     let carried = byItem.get(item);
     if (!carried) {
-      let next = occurrence;
-      let id = mintId(estateKey, item.path, item.unit.fp, next);
-      while (taken.has(id)) id = mintId(estateKey, item.path, item.unit.fp, ++next);
+      const id = freeId((n) => mintId(estateKey, item.path, item.unit.fp, n), taken, occurrence);
       taken.add(id);
       carried = { id, event: 'new' };
     }

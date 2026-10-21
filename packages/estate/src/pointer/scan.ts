@@ -232,7 +232,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
   const next = nextLedger(
-    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut })),
+    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, source: file.text })),
     input.previous,
     estateKey,
   );
