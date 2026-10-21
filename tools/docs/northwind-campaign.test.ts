@@ -42,7 +42,8 @@ describe('docs/northwind-campaign.md', () => {
       shown([...checked, ...planned].join('\n'));
 
       const db = join(store, 'rehearsal.db');
-      const run = await cli(['campaign', 'run', '--config', CONFIG, '--campaign', 'northwind-rehearsal', '--store', db]);
+      const campaign = ['--campaign', 'northwind-rehearsal', '--store', db];
+      const run = await cli(['campaign', 'run', '--config', CONFIG, ...campaign]);
       expect(run.code, run.err).toBe(0);
       shown(run.lines.filter((line) => line.startsWith('✓ ') || /^\d+ cells: /.test(line)).join('\n'));
     } finally {
