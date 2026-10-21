@@ -120,6 +120,15 @@ export type BlockRun = {
   answers: string;
   /** The stage the block starts from: the previous block's stage, or the first stage of the spec. */
   from: string;
+  /** The path the spec walks (its generated metadata), '' for a spec that records none. */
+  path: string;
+  /** What the whole walk of the spec says, apart from who it is written for: twins share it. */
+  walk: string;
+  /** The channel and the persona the spec is written for. */
+  channel: string;
+  persona: string;
+  /** The classes of the perturbations declared on this block or after it: a perturbed run reaches the block. */
+  perturbed: string;
   cell: Record<string, string>;
   tags: string[];
   reference: Outcome[];
@@ -654,6 +663,17 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         when: block.when ? stimulusText(block.when) : '',
         answers: answersOf(spec, index),
         from: startStageOf(spec, index),
+        path: ((spec.metadata?.generated as { path?: string } | undefined)?.path ?? ''),
+        walk: contentHash(
+          spec.blocks.map((_, at) => [answersOf(spec, at), startStageOf(spec, at), machineSignature(spec, at)]),
+        ),
+        channel: spec.channel ?? '',
+        persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
+        perturbed: (spec.perturbations ?? [])
+          .filter((entry) => entry.inject_at >= index)
+          .map((entry) => entry.class)
+          .sort()
+          .join(','),
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),

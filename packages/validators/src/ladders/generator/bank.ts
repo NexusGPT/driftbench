@@ -2235,6 +2235,52 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
   });
 }
 
+/**
+ * The members of a group of same-test blocks that the suite has no reason to keep. A declared perturbation exists
+ * to measure the sensitivity of the agent to its axis, so the suite keeps one twin pair per path and per declared
+ * axis (the channel, the persona): the first block of the group, and the first copy of its whole walk that
+ * differs from the written ones in a declared channel or persona the path has no pair for yet. A block a declared
+ * perturbation reaches is kept once per path and set of perturbed classes. Every other member is a repeat.
+ */
+export async function outsideTwinPairs(data: SeedData, group: BlockRun[]): Promise<BlockRun[]> {
+  const { hidden } = await data.generated();
+  const channels = new Set<string>(hidden.channels);
+  const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
+  const [first, ...rest] = group;
+  if (!first) return [];
+  const written = new Map<string, BlockRun[]>([[first.walk, [first]]]);
+  const secured = new Map<string, Set<string>>();
+  const perturbed = new Set<string>(first.perturbed ? [`${first.path}|${first.perturbed}`] : []);
+  const outside: BlockRun[] = [];
+  for (const block of rest) {
+    const same = written.get(block.walk);
+    if (same) {
+      const axes = new Set<string>();
+      for (const other of same) {
+        if (other.channel !== block.channel && channels.has(other.channel) && channels.has(block.channel))
+          axes.add('channel');
+        if (other.persona !== block.persona && personas.has(other.persona) && personas.has(block.persona))
+          axes.add('persona');
+      }
+      const held = secured.get(block.path) ?? new Set<string>();
+      const needed = [...axes].filter((axis) => !held.has(axis));
+      if (needed.length > 0) {
+        for (const axis of needed) held.add(axis);
+        secured.set(block.path, held);
+        same.push(block);
+        continue;
+      }
+    }
+    const key = `${block.path}|${block.perturbed}`;
+    if (block.perturbed && !perturbed.has(key)) {
+      perturbed.add(key);
+      continue;
+    }
+    outside.push(block);
+  }
+  return outside;
+}
+
 async function hasRemovable(data: SeedData, group: BlockRun[]): Promise<boolean> {
   for (const block of group) if (await removable(data, block)) return true;
   return false;
@@ -2263,7 +2309,8 @@ function minimalityItems(): BankItem[] {
           groups.set(sameTestKey(block), [...(groups.get(sameTestKey(block)) ?? []), block]);
         const redundant: BlockRun[][] = [];
         for (const group of groups.values())
-          if (group.length > 1 && (await hasRemovable(data, group))) redundant.push(group);
+          if (group.length > 1 && (await hasRemovable(data, await outsideTwinPairs(data, group))))
+            redundant.push(group);
         return verdict(
           redundant.length === 0,
           `${found.length} blocks kill ${cls.id}; ${redundant.length} groups contain a removable duplicate (same Then/outcomes, map obligations, retained execution and causal kills preserved): ${redundant
@@ -2299,7 +2346,7 @@ function minimalityItems(): BankItem[] {
         for (const group of groups.values()) {
           if (group.length < 2 || (seeder === 'metamorphic' && new Set(group.map(family)).size === 1))
             continue;
-          if (await hasRemovable(data, group)) redundant.push(group);
+          if (await hasRemovable(data, await outsideTwinPairs(data, group))) redundant.push(group);
         }
         return verdict(
           blocks.length > 0 && redundant.length === 0,
