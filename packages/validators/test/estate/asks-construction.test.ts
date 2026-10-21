@@ -370,6 +370,35 @@ describe('a misroute is judged by its construction or its situation, never by it
     expect((await misroute())?.pass).toBe(false);
   });
 
+  // The reviewer's four forgeries (comment 6322105995): the validator rebuilds the ask and takes the row from its
+  // own plan, never from the spec's metadata.
+  it('refuses a good record on another text, an unlisted act row, and a span off the real row', async () => {
+    plant('Banana purple elephant.', [ACT_ALONE], FROM, 'misroute');
+    expect((await misroute())?.pass).toBe(false);
+    const unlisted = { ...ACT_ALONE, act: 'Banana purple elephant {span}' };
+    plant('Please Banana purple elephant Approving a refill.', [unlisted], FROM, 'misroute');
+    expect((await misroute())?.pass).toBe(false);
+    const span = { slot: 'act', atom: 'instruction.two', field: 'fields.ask.text', from: 0, to: 27 };
+    const off = { ...ACT_ALONE, spans: [span] };
+    const berth = 'Please handle this for me: Close the berth log at noon.';
+    plant(berth, [off], 'instruction.two (fields.ask.text)', 'misroute');
+    Object.assign(metaOf(), { atoms: ['instruction.two'] });
+    expect((await misroute())?.pass).toBe(false);
+  });
+
+  it('refuses a bank phrase of another target behind forged row metadata, in misroute and in asks-approved', async () => {
+    const phrase = 'Use the berth desk helper.';
+    plant(phrase, undefined, 'instruction.two (title)', 'misroute');
+    Object.assign(metaOf(), { ask: 'bank', atoms: ['instruction.two'] });
+    (state.run as { bank: unknown }).bank = {
+      situations: [
+        { id: 'm', use: 'misroute', atoms: ['instruction.two'], phrases: [{ text: phrase, approved: true }] },
+      ],
+    };
+    expect((await misroute())?.pass).toBe(false);
+    expect((await item())?.pass).toBe(false);
+  });
+
   it('holds a bank phrase only when an approved misroute situation of the target holds it', async () => {
     const phrase = 'Use the supplier email skill for this.';
     const bank = (use: string, atoms: string[], approved: boolean) => {

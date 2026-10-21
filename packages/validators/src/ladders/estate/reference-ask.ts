@@ -69,7 +69,7 @@ export type MapAtom = {
   title?: string;
   situation?: string;
   fields?: unknown;
-  provenance?: { quote?: string };
+  provenance?: { file?: string; quote?: string };
 };
 
 const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L}\p{N}]/u.test(c);
