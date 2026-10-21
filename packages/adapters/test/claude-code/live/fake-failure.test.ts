@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
@@ -21,8 +22,33 @@ it('fails the cell loudly when the stand-in cannot resolve a skill obligation', 
       'Before publishing the package, read `references/policy.md`.',
     ].join('\n'),
   );
+  // The stand-in is handed the map of its estate: one route atom that declares the ask and names the skill, with
+  // the span and hash the map records for the description line.
+  const quote = 'description: Match supplier invoice amounts with order amounts.';
+  const file = '.claude/skills/invoice-audit/SKILL.md';
+  const map = join(work.dir, 'fake-map.json');
+  await writeFile(
+    map,
+    JSON.stringify({
+      atoms: [
+        {
+          id: 'route.invoice-audit',
+          kind: 'route',
+          provenance: {
+            file,
+            quote,
+            startLine: 3,
+            endLine: 3,
+            hash: createHash('sha256').update(`${file}\n3-3\n${quote}`).digest('hex'),
+          },
+          fields: { target: 'invoice-audit', targetKind: 'skill', ask: { text: ASK_INVOICE } },
+        },
+      ],
+    }),
+  );
   const adapter = claudeCodeLiveAdapter({
     command: FAKE,
+    env: { FAKE_MAP: map },
     estateRoot,
     provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
     config: 'isolated',

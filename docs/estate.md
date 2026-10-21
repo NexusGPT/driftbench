@@ -765,7 +765,7 @@ that only navigates, or a catalogue that cites a file in another unit's folder, 
 only from the standing instructions has no owner and borrows no task. Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
 A bare read-prerequisite title is never converted into a self-answering user ask.
 
-A guard may carry optional `fields.ruleText` and `fields.ruleSources`. The ask never reads them: hook prose
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`. The ask never reads them: guard prose
 describes mechanics far more often than it names an act. The ask that sets a guard off comes from the rules it
 enforces and the tools it watches, as [the ask templates](#the-ask-templates) list: a guard on the user's prompt
 asks with the request clause of the rule it enforces, a guard enforcing a prohibition with the act the rule
@@ -1306,7 +1306,7 @@ driftbench radius ledger map.yaml --ledger pointer-ledger.json --out change.yaml
 driftbench estate diff map.yaml map-v2.yaml --old-ledger pointer-ledger.v1.json --new-ledger pointer-ledger.json --out diff.json --change-out change.yaml
 ```
 
-`radius ledger` reads the files as they are now. `estate diff` reads two scans. Both put each unit in one edit class, and each class has one rerun set:
+`radius ledger` reads the files as they are now, the same files the scan cut: a document the map records as no rule (an example, a fixture, a template, a history) is left out, as the scan left it out. `estate diff` reads two scans. Both put each unit in one edit class, and each class has one rerun set:
 
 | Edit class | What reruns |
 |---|---|

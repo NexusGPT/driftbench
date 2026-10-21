@@ -18,7 +18,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
-import { constructAsk, type MapAtom } from '../reference-ask';
+import { ASK_TEMPLATES, constructAsk, type MapAtom } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -306,7 +306,7 @@ type AskCheck = {
 };
 
 /** The source a construction record names first: the atom of its first span, or of its tool. */
-type Recorded = { spans?: Array<{ atom?: unknown }>; tool?: { atom?: unknown } };
+type Recorded = { act?: unknown; spans?: Array<{ atom?: unknown }>; tool?: { atom?: unknown } };
 
 /** The situation each test type is asked in (docs/estate.md section 5); a live guard_positive is instructed. */
 export const USE_OF_TEST: Readonly<Record<string, string>> = {
@@ -821,7 +821,13 @@ const ASKS: AskCheck[] = [
             const named = typeof guard === 'string' ? idsIn(atomsById.get(guard)?.fields) : [];
             const enforced = named.includes(from) && allowed.has(from);
             const cites = source === from || enforced;
-            if (source === undefined ? meta.askFrom !== 'neutral' : !cites || !atomsById.has(from))
+            // The one fixed act the table ties to no tool (a hazard's) names its hazard atom, with no tool.
+            const untied = ASK_TEMPLATES.some(
+              (row) =>
+                row.kind === 'act' && row.template === build?.act && !row.template.includes('{') && !row.tools,
+            );
+            const hazard = untied && atomsById.get(from)?.kind === 'hazard' && allowed.has(from);
+            if (source === undefined ? meta.askFrom !== 'neutral' && !hazard : !cites || !atomsById.has(from))
               return `askFrom ${meta.askFrom} is not the built ask's source ${String(source ?? 'none')}`;
             cited = true;
           }
