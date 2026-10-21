@@ -30,8 +30,8 @@ In your project, run the command as `npx driftbench`. In a clone of the reposito
 |---|---|
 | Test a small agent in two minutes, with no key | [Quickstart](quickstart.md) |
 | Test your own agent from its files, run a test, change a rule, rerun only what it affects | [A walkthrough on your own agent](walkthrough.md) |
-| Write a test by hand, check it, run it, and read a failure | [Write tests by hand](write-tests.md) |
-| Let driftbench write tests from a map of situations, see what they cover, and keep the useful ones | [Generate tests](generate-tests.md) |
+| Connect your agent, run it in three modes, repeat runs, play a simulated user and an attacker | [Run your agent](run-your-agent.md) |
+| After an edit, rerun only the tests it can change, and carry the rest | [Rerun less](rerun-less.md) |
 
 The pages below hold the detail of each area. They are the reference the guide links to. Each area gets its own guide part with the same shape:
 
