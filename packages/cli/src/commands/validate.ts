@@ -14,6 +14,9 @@ export type ValidateCommandOptions = {
   seed?: string;
   seeds?: string;
   hidden?: boolean;
+  hiddenOnly?: boolean;
+  levels?: string;
+  reports?: string;
   json?: boolean;
   checkFloor?: boolean;
   raise?: string;
@@ -65,6 +68,15 @@ export function registerValidateCommand(
     .option('--seed <n>', 'a visible seed (default 1 when no seed is given)')
     .option('--seeds <a..b>', 'a range of visible seeds, such as 1..20')
     .option('--hidden', 'add the hidden seed derived from git rev-parse HEAD')
+    .option('--hidden-only', 'with --hidden: run the hidden seed alone, with no visible seed')
+    .option(
+      '--levels <a..b>',
+      'compute only levels a to b (one slice of a ladder, for --reports to join); the exit code is 0',
+    )
+    .option(
+      '--reports <dir>',
+      'merge the --json reports of earlier runs in this folder into one report per validator, then print and check floors as a run would',
+    )
     .option('--json', 'print the report as JSON')
     .option('--check-floor', 'exit 1 when a run is below its floor in validators/floors.json, else 0')
     .option('--raise <component>', 'with floors: raise the floor of this component to [level]')
