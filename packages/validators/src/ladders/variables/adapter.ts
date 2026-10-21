@@ -1,3 +1,4 @@
+import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
 import {
