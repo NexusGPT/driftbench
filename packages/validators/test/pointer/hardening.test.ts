@@ -473,7 +473,9 @@ describe('labels.settings-inherited-threshold-key-refused', () => {
       name: 'unnamed-refusal',
       settings: { parse: async () => ({ ok: false, errors: ['threshold: a key is not a threshold'] }) },
     };
-    expect(await redOn('labels.settings-inherited-threshold-key-refused', mute)).toMatch(/does not name the key/);
+    expect(await redOn('labels.settings-inherited-threshold-key-refused', mute)).toMatch(
+      /does not name the key/,
+    );
   });
 });
 

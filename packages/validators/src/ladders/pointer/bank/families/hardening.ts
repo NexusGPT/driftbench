@@ -686,13 +686,16 @@ const labels: Record<string, Run> = {
     // Names every object has by inheritance: a lookup in a table of the four keys must not find them.
     for (const key of ['constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
       const out = await api.parse(`threshold: { ${key}: 0.5 }\n`);
-      if (out.ok) return fail(`the threshold key ${key} was accepted; only the four keys of the file are thresholds`);
+      if (out.ok)
+        return fail(`the threshold key ${key} was accepted; only the four keys of the file are thresholds`);
       if (!out.errors.some((error) => error.includes(key)))
         return fail(`the refusal of ${key} does not name the key: ${JSON.stringify(out.errors)}`);
     }
     const own = await api.parse('threshold: { labeler: 0.5 }\n');
     if (!own.ok) return fail(`the threshold labeler: 0.5 was refused: ${own.errors.join('; ')}`);
-    return pass('constructor, toString, hasOwnProperty and valueOf refused by name; a real key still accepted');
+    return pass(
+      'constructor, toString, hasOwnProperty and valueOf refused by name; a real key still accepted',
+    );
   },
 };
 
