@@ -194,7 +194,7 @@ describe('countVariableTuples: the allowed count', () => {
 
   it('counts a tuple as allowed only when some valid full row holds it', () => {
     // v0=x0 forces v1=x1 (the pair v0=x0,v1=x0 is forbidden) and v1=x1 forces v2=x1; so (v0=x0, v2=x0) never extends.
-    const forbids = [
+    const forbids: Array<Record<string, string>> = [
       { v0: 'x0', v1: 'x0' },
       { v1: 'x1', v2: 'x0' },
     ];
@@ -309,7 +309,7 @@ describe('countVariableTuples: covered, by formula when nothing is forbidden', (
       { variables: ['v0', 'v1', 'v2'], strength: 2 },
       { variables: ['v3', 'v4', 'v5'], strength: 2 },
     ];
-    const rows = [
+    const rows: Array<Record<string, string>> = [
       { v0: 'x0', v1: 'x1', v2: 'x0', v3: 'x2', v4: 'x1', v5: 'x0' },
       { v0: 'x0', v1: 'x1', v2: 'x0', v3: 'x2', v4: 'x1', v5: 'x0' },
       { v0: 'x1', v1: 'x1', v3: 'x0', v4: 'x1' },
