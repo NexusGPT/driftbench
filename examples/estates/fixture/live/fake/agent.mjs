@@ -753,12 +753,14 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     (action) => !(unit?.kind === 'helper' && action.kind === 'Agent' && action.literal === unit.name),
   );
   const plan = skillActions(planUnit, estate, requested, cwd);
+  // The unit is loaded before its obligations are read: a skill whose ordering cannot be resolved still loads,
+  // then the run stops on the error.
+  if (unit) load(unit);
   if (plan.error) {
     text(plan.error);
     hooks('Stop', undefined, { stop_hook_active: false });
     return { records: out, blocked: true, error: plan.error };
   }
-  if (unit) load(unit);
   // The other units the atoms set off, and the files their references name.
   for (const entry of loaded.slice(1)) load(entry);
   for (const path of intent.reads) {

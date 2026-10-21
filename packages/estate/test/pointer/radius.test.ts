@@ -7,9 +7,11 @@ import {
   ledgerChangeManifest,
   ledgerChanges,
   nextLedger,
+  proseLedger,
   RERUN_RULE,
   rerunOf,
 } from '../../src/pointer';
+import type { RawEstate } from '../../src/scan/reader';
 
 // Invented files: a hall with crates, keys and keepers, and a yard beside it.
 const HALL = [
@@ -248,5 +250,40 @@ describe('the change manifest of a rerun set', () => {
     });
     expect(manifest.changes).toHaveLength(1);
     expect(manifest.changes[0]).toMatchObject({ kind: 'prompt', global: true });
+  });
+});
+
+describe('the ledger of the files as they are now', () => {
+  const raw = (): RawEstate => ({
+    runtime: 'claude-code',
+    labels: { read: 'Read', edit: 'Edit', write: 'Write', shell: 'Bash', dispatch: 'Agent' },
+    files: [
+      { path: 'CLAUDE.md', kind: 'standing', text: HALL },
+      { path: 'yard/notes.md', kind: 'other', text: YARD },
+    ],
+    skills: [],
+    subagents: [],
+    guards: [],
+    permissions: [],
+    settings: [],
+    registry: [],
+    steps: [],
+    prose: [
+      { id: 'c1', file: 'CLAUDE.md', startLine: 1, endLine: 12, text: HALL },
+      { id: 'c2', file: 'yard/notes.md', startLine: 1, endLine: 3, text: YARD },
+    ],
+    notes: [],
+  });
+  const files = (ledger: Ledger) => [...new Set(ledger.entries.map((entry) => entry.path))].sort();
+
+  it('holds the files the scan cut, and leaves out a document the map records as no rule', () => {
+    expect(files(proseLedger(raw(), undefined, 'hall'))).toEqual([
+      'CLAUDE.md',
+      'yard/notes.md',
+    ]);
+    // The role pass of the scan found the yard notes to be a fixture: the scan cut no unit of it, so the
+    // ledger of an edit holds none either, and the file is no new unit that makes the whole suite rerun.
+    const documents = [{ path: 'yard/notes.md', role: 'fixture' as const, reasons: ['recorded'] }];
+    expect(files(proseLedger(raw(), undefined, 'hall', documents))).toEqual(['CLAUDE.md']);
   });
 });

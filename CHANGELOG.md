@@ -6,6 +6,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `radius ledger` reads the same files as the scan: a document the map records as no rule (an example, a fixture, a template, a history) is no part of the ledger of an edit. Before, such a file counted as new units and the whole suite reran.
+
 * Estate test generation writes a code ask only from declared source text, never by reading it: a rule's request clause (`fields.ask.text`), a gate's governed action (its labelled span, else `fields.trigger`), a route's request cell, a unit's description, a tool rule, a hazard, and for a guard the rule it enforces or the tool it watches, each with the template of docs/estate.md "The ask templates". The words are byte-exact slices with no change of case, and every code ask records how it was built in `metadata.estate.askBuild`. Hook prose (`fields.ruleText`) is no longer read. Removed exports of `@agent-nexus/driftbench-generate`, frozen in `tools/structure/api-surface.json`: `askedTo` and `imperative`.
 
 * The pointer reader drops a span or a link of an answer that fails its check (offsets outside the unit, an overlap, a link to an atom the request did not list, a kind given twice) and keeps the label; before, the whole entry was refused and its unit lost. Each drop is listed in the scan as `dropped:` with its reason and is counted in `PointerScan.dropped`; the exit code does not change. An atom whose mapping needs a dropped note is still refused, with its own reason.

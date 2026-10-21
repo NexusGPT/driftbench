@@ -35,12 +35,12 @@ driftbench estate scan northwind --out map.yaml --pointer --cassette northwind/c
 The lines that matter:
 
 ```
-Wrote map.yaml: 119 atoms (68 read by code and approved, 51 split from prose by the model and waiting for approval), 50 edges.
-  Units: 154 in 14 files; 0 kept from the ledger, 107 labelled by this run (55 by system 1, 52 by system 2, 13 of them because the other labeler gave no opinion), 47 unlabeled; the runs of one labeler disagreed on 49 units; the runs gave different spans for 1 units, which keep their label and lose the spans; 51 atoms.
-  Requests: 73 answered, 0 sent, 0 recorded.
+Wrote map.yaml: 116 atoms (47 read by code and approved, 69 split from prose by the model and waiting for approval), 55 edges.
+  Units: 136 in 11 files; 0 kept from the ledger, 133 labelled by this run (21 by system 1, 112 by system 2), 3 unlabeled; the runs of one labeler disagreed on 1 units; the runs drew the spans of 31 units differently, and the first run's spans stand; 69 atoms; 30 notes (spans or links) were dropped, listed below.
+  Requests: 91 answered, 0 sent, 0 recorded.
 ```
 
-Code cut 14 prose files into 154 units. A labeler pointed at 107 of them, and 51 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
+Code cut 11 prose files into 136 units. A labeler pointed at 133 of them, and 69 became atoms. The ledger holds one entry per unit. This is the entry of the sentence that the weekly report skill states (five of its fields):
 
 ```
 {
@@ -57,7 +57,7 @@ Two values name the unit, and they differ in what an edit does to them:
 * The ledger id, `id`, is a stable id that survives edits. The ledger makes it once and keeps it as the file changes: the unit stays the same unit when its text is edited, moved, split or merged.
 * The text fingerprint, `fp`, is the hash of the unit's text. It changes on every edit.
 
-Approve the atoms and plan the tests. The plan holds 1,459 rows, and `plan approve --all` approves them all.
+Approve the atoms and plan the tests. The plan holds 1,424 rows, and `plan approve --all` approves them all.
 
 ```
 driftbench estate approve map.yaml --all --to approved.yaml
@@ -73,8 +73,8 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 954 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1481 files to generated.
+Asks of the complete specs: 0 approved phrases, 1290 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1455 files to generated.
 ```
 
 The command exits 1 while some specs stay incomplete; its gap list names what each one needs. Every block it writes carries its links in `metadata.links`. This is the head of the spec that tests the sentence above:
@@ -89,7 +89,7 @@ The command exits 1 while some specs stay incomplete; its gap list names what ea
       relation: verifies
       status: declared
       created_by: generator
-      at_version: 13b111c35670
+      at_version: db9e07132a1b
 ```
 
 The `rule` link names the atom and, because the pointer reader built the atom, its ledger id. `verifies` says the block tests the rule, and `declared` says an author or a generator wrote the link and nothing has proved it yet. The links stay out of the spec hash, so adding one never invalidates a recorded run. The other link kinds, `plan_row` and `source_turn`, are in the [change manifest reference](reference/change.md).
@@ -109,13 +109,13 @@ driftbench radius ledger map.yaml --ledger ledger.json --out change.yaml
 ```
 
 ```
-Units: 151 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
+Units: 133 unchanged, 2 context, 0 moved, 1 changed, 0 deleted, 0 new.
   1 unit reruns, 2 advisory only; 1 change.
 Wrote change.yaml.
 ```
 
 ```
-from: 13b111c35670
+from: db9e07132a1b
 to: working
 changes:
   - kind: prompt
@@ -153,10 +153,10 @@ driftbench radius generated/specs/live --change change.yaml
 ```
 
 ```
-Blast radius of 13b111c35670 to working (manifest 704a0f9246cf): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-931 specs, 934 blocks.
-Mode F, free-running: 16 of 934 blocks in the radius (16 direct, 0 forward), 918 out. 16 of 931 cells.
-  A cell reruns whole: 16 of 934 blocks sent, 98.3% saved; 915 of 931 cells left to carry.
+Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
+1263 specs, 1266 blocks.
+Mode F, free-running: 16 of 1266 blocks in the radius (16 direct, 0 forward), 1250 out. 16 of 1263 cells.
+  A cell reruns whole: 16 of 1266 blocks sent, 98.7% saved; 1247 of 1263 cells left to carry.
 ```
 
 <p align="center">
@@ -166,30 +166,31 @@ Mode F, free-running: 16 of 934 blocks in the radius (16 direct, 0 forward), 918
   </picture>
 </p>
 
-Sixteen blocks rerun and 918 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
+Sixteen blocks rerun and 1,250 keep their last result. `campaign run --change change.yaml --from <campaign>` runs that selection and carries the rest.
 
 ## 5. Prove a link by deleting its rule
 
 A `declared` link is a claim. `estate mutate --delete` builds a copy of the estate without the rule's line. `estate prove` reads the runs of the same specs on the original and on the copy. A block that passes on the original and fails on the copy flips; a linked block that flips proves its link.
 
-The committed Northwind suite was written before its atoms carried ledger ids, so its links name the atom. `--delete` takes an atom id or a ledger id, and `estate prove` matches either. This step uses the rule R7 of the standing instructions and the 16 specs of the committed suite that name it. It still runs from `walk`, with the fixture by its full path:
+The links of the committed Northwind suite name the atom and its ledger id. `--delete` takes an atom id or a ledger id, and `estate prove` matches either. This step uses the gate of the invoice reconcile skill, which orders a read of the matching rules before a line is matched, and the 15 specs of the committed suite that name it. It still runs from `walk`, with the fixture by its full path:
 
 ```
 F=$(cd ../examples/estates/fixture && pwd)
-A=instruction.standing.tell-the-user-about-a-late
+A=gate.invoice-reconcile.read-references-matching-rules-md-before
 SPECS=$(grep -rl -- "^      - $A$" $F/generated/specs/live)
 driftbench estate mutate $F/approved.yaml --delete $A --to mutant
 ```
 
 ```
-Mutant: delete instruction.standing.tell-the-user-about-a-late in CLAUDE.md.
-  before: - **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
+Mutant: delete gate.invoice-reconcile.read-references-matching-rules-md-before in .claude/skills/invoice-reconcile/SKILL.md.
+  before: 1. Read `references/matching-rules.md` before matching any line.
   after:  (the line is gone)
-  map be2e7a0919cb -> 6c748cb7ff3b
+  map db9e07132a1b -> fcf231475ca8
+  collateral: reference.invoice-reconcile.read-references-matching-rules-md
 Wrote mutant: the estate copy, map.yaml and mutant.json.
 ```
 
-Run the 16 specs on the original and on the mutant, with the stand-in runtime of the fixture, and prove:
+Run the 15 specs on the original and on the mutant, with the stand-in runtime of the fixture, and prove:
 
 ```
 FAKE=$F/live/fake
@@ -199,14 +200,13 @@ driftbench estate prove $SPECS --mutant mutant --original original.db --mutated 
 ```
 
 ```
-16 specs run live on a stand-in: 16 pass, 0 fail.
-16 specs run live on a stand-in: 1 pass, 15 fail.
-Proof of instruction.standing.tell-the-user-about-a-late by the mutant delete 6c748cb7ff3b: 16 blocks, 15 linked, 15 flipped.
+15 specs run live on a stand-in: 15 pass, 0 fail.
+15 specs run live on a stand-in: 0 pass, 15 fail.
+Proof of gate.invoice-reconcile.read-references-matching-rules-md-before (ledger 4wfcnk2irw) by the mutant delete fcf231475ca8: 15 blocks, 15 linked, 15 flipped.
   verified   15  linked: pass on the original, fail on the mutant
   refuted    0  linked: pass on both
   unproved   0  linked: no pass on the original, or no outcome on the mutant
   unlinked   0  flipped with no link to the rule
-  exercised  1  links of negative controls, which a deletion does not prove
 The blocks that flip are the linked blocks.
 ```
 
@@ -215,14 +215,14 @@ Read it row by row:
 * `verified`: 15 linked blocks pass with the rule and fail without it. The links hold.
 * `refuted`: a `verifies` link whose block passes on both estates. The block does not test the rule, and the link is wrong. None here.
 * `unlinked`: a block that flips although no link names the rule. The links miss a test. None here.
-* `exercised`: the one control of the 16 checks that the rule does not act outside its trigger, so deleting the rule cannot flip it.
+* `exercised`: a link of a negative control, which checks that the rule does not act outside its trigger, so deleting the rule cannot flip it. None among these 15.
 
 The command exits 0 when the blocks that flip are exactly the linked blocks, and 1 when they differ. `--write` writes `verified` and `refuted` into the spec files, in `metadata.links`, outside the spec hash.
 
 ## Limits
 
-* The asks of the blocks written in step 2 come from code, not from approved phrases, and most of those blocks carry a judged criterion. A judged criterion has no verdict without a configured judge, so step 5 runs the 16 specs of the committed suite, which machine checks decide.
-* A model labeler is not exact. In the scan above, 47 of 154 units have no label and the runs of one labeler disagreed on 49 units. A unit without a label is not an atom, so no block links to it.
+* The asks of the blocks written in step 2 come from code, not from approved phrases, and most of those blocks carry a judged criterion. A judged criterion has no verdict without a configured judge, so step 5 runs the 15 specs of the committed suite that name a gate, which machine checks decide.
+* A model labeler is not exact. In the scan above, 3 of 136 units have no label and the runs of one labeler disagreed on 1 unit. A unit without a label is not an atom, so no block links to it.
 * A `unit` change, the change of a unit that holds no atom, keeps the radius the whole suite and prints an advisory selection. The edit above hit a unit with an atom, so it became a `prompt` change and selected 16 blocks.
 * Measured on one suite, the Acme stand-in, with one agent model: on 274 mutants of the prompt, the selection of the ledger path with the rerun marks missed a flipped block on 0 of 274 (Wilson 95% upper bound 1.38%, mean selection ratio 0.513). Without the marks it missed 9 of 274 (6.12%). The result does not say that the procedure holds on another suite. Source: `research/ledger-h7/RESULT-ledger.md`.
 * The proof is as good as the runs behind it. The stand-in follows the rules of the estate in its folder, so a flip shows that the specs test the rule, not how a real agent behaves.
