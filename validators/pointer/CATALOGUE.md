@@ -2,15 +2,15 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **447 items**, 11 families, 263 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **460 items**, 11 families, 268 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
 | Family | Level | Items | T1 | T2 | T3 | T4 | T5 |
 |---|---|---|---|---|---|---|---|
 | cutting | cut | 67 | 9 | 27 | 26 | 4 | 1 |
-| ids | ids | 44 | 11 | 21 | 11 | 1 | 0 |
-| re-anchoring | anchor | 57 | 5 | 12 | 26 | 10 | 4 |
+| ids | ids | 49 | 11 | 21 | 16 | 1 | 0 |
+| re-anchoring | anchor | 65 | 5 | 12 | 34 | 10 | 4 |
 | grouping | labels | 27 | 5 | 12 | 9 | 1 | 0 |
 | labels | labels | 77 | 4 | 37 | 35 | 1 | 0 |
 | replay | replay | 44 | 3 | 10 | 22 | 9 | 0 |
@@ -19,7 +19,7 @@ Bank: **447 items**, 11 families, 263 distinct causes, 9 levels. This file is ge
 | radius | links | 27 | 4 | 6 | 13 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 33 | 0 | 4 | 15 | 10 | 4 |
-| **all** | | **447** | **47** | **145** | **186** | **55** | **14** |
+| **all** | | **460** | **47** | **145** | **199** | **55** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 45 |
+| maintainer-added | 58 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -226,6 +226,11 @@ Level `ids`, default component `ids`, default needs scan. Fingerprints decide wh
 | `ids.lineage-is-history` | maintainer-added | 3 | One file of eight units scanned five times: fresh, unchanged, one unit reworded, one unit deleted, the first unit moved to the end. | Every entry shows lineage; the unchanged rescan writes the same ledger bytes; the reworded entry ends with `changed` and the deleted one with `deleted`; every other entry still holds only `new`; the moved entry then holds `new`, `moved`. | `ledger:lineage-appends-true-events` | ledger | scan |
 | `ids.entry-slices-with-bom-and-crlf` | maintainer-added | 3 | A file with a BOM and CRLF holding a heading, a paragraph whose sentences wrap over two lines, and a list. | For every live entry, `source.slice(hint.start, hint.end)` equals the quote, and prefix + quote + suffix occurs in the source. | `ledger:quote-is-the-source-slice` | ledger | scan |
 | `ids.id-unique-for-repeated-text` | maintainer-added | 2 | One file holding the same long sentence in fifty paragraphs, scanned in a child process that is killed after 120 s. (seed-free) | The scan ends; fifty live entries; fifty distinct ids. A reader that never ends fails this one item. | `ids:occurrence-in-the-id` | ids | scan,child |
+| `ids.carry-unchanged-in-ledger` | maintainer-added | 3 | Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units. | Every unit the script keeps has, after the rescan, a live entry with its old id, its own text and its own path. The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them. | `anchor:keep-id-of-unchanged-unit` | anchor | scan |
+| `ids.carry-moved-in-ledger` | maintainer-added | 3 | Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units. | The moved unit has, after the rescan, a live entry with its old id, its own text and the path of the file it moved to. The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them. | `anchor:keep-id-of-moved-unit` | anchor | scan |
+| `ids.carry-reworded-in-ledger` | maintainer-added | 3 | Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units. | The reworded unit has, after the rescan, a live entry with its old id, the new text and its own path. The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them. | `anchor:keep-id-of-reworded-unit` | anchor | scan |
+| `ids.fresh-id-for-new-unit-in-ledger` | maintainer-added | 3 | Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units. | Every inserted text and every text written in place of a deleted unit has a live entry whose id is none of the ids of the previous ledger; no two live entries share an id. The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them. | `ids:mint-fresh-id-for-new-unit` | anchor | scan |
+| `ids.deleted-id-not-reused-in-ledger` | maintainer-added | 3 | Two files of unrelated long units, edited by a script drawn from the seed: a reword, a move to the other file, a rewrite in place (a deleted unit and an unrelated new one), an insert and a delete among six kept units. | No live entry after the rescan carries the id of a deleted unit, not even the text written in its place. The item reads the ledger entries (id, status, quote, path) and nothing the reader reports beside them. | `anchor:retire-id-of-deleted-unit` | anchor | scan |
 
 ## re-anchoring
 
@@ -290,6 +295,14 @@ Level `anchor`, default component `anchor`, default needs scan. An old unit must
 | `re-anchoring.neighbour-edit-relabels` | maintainer-added | 3 | One file of twelve units; the unit in the middle is reworded; the second scan flips the answer for its two neighbours. | The two neighbours keep their ids and their text and take the new answer; units farther away keep their old label. | `ledger:labels-carry-only-with-context` | ledger | scan |
 | `re-anchoring.short-repeated-text-stays-in-file` | maintainer-added | 3 | Three files; two hold the same five-letter sentence; the copy of the first file is removed and the third file gains it. | The third file takes a fresh id; the id of the removed copy is deleted; the copy of the second file keeps its id. | `anchor:short-text-needs-to-be-unique` | anchor | scan |
 | `re-anchoring.heading-edit-relabels-interior-unit` | maintainer-added | 3 | One file: a heading and four long paragraphs, labelled; the second scan renames the heading only and flips the answer for the second paragraph. | The second paragraph keeps its fingerprint and its id; its context fingerprint differs, and the recorded label is not carried: it takes the new answer. | `ledger:ctxfp-covers-heading-path` | ledger | scan |
+| `re-anchoring.event-new` | maintainer-added | 3 | One file of six kept units and one inserted unit. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The inserted unit has event `new`; no kept unit has event `new`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-unchanged` | maintainer-added | 3 | One file of six kept units and one inserted unit. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | Every kept unit has event `unchanged`; the inserted unit does not. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-moved` | maintainer-added | 3 | Two files of six kept units; one unit moves from one file to the other. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The moved unit has event `moved`; no kept unit has event `moved`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-changed` | maintainer-added | 3 | One file of six kept units and one unit reworded to a similarity between 0.6 and 0.9. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The reworded unit has event `changed`; no kept unit has event `changed`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-split` | maintainer-added | 3 | One file of six kept units and one unit written as two sentences that join to its text. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The id of the unit that was cut has event `split`; no kept unit has event `split`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-merged` | maintainer-added | 3 | One file of six kept units and two neighbouring units written as one sentence that joins them. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | Exactly one of the two old ids lives on with the joined text, and it has event `merged`; no kept unit has event `merged`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-ambiguous` | maintainer-added | 3 | One file of thirty units; one unit leaves its place and its text is written twice elsewhere in the file. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The old id of that unit has event `ambiguous`; no other old unit has event `ambiguous`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
+| `re-anchoring.event-deleted` | maintainer-added | 3 | One file of six kept units and one unit removed. The texts and the place of the edit are drawn from the seed; scanned fresh, then rescanned with the first ledger. | The removed unit has event `deleted`; no kept unit has event `deleted`. The event is read from the per-id events of the rescan; a missing event is a failure. | `scan:events-by-id` | anchor | scan |
 
 ## grouping
 
