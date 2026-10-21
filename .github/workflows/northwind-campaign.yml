@@ -1,0 +1,177 @@
+name: northwind campaign
+
+# One campaign on the Northwind code-agent example: four tasks, simulated users (personas with recorded
+# answers), a parent-linked spec, the value check, blame and the scorecard. See examples/northwind-campaign.
+#
+# The rehearsal job runs the campaign on the stand-in runtime of the fixture: no model call, no cost. It runs on
+# every push to a train/*northwind* branch that changes the example. The live job runs it on Haiku through the
+# claude CLI of a self-hosted runner, and is manual: it is billed, capped by the spend-cap-usd input (at most 8).
+on:
+  push:
+    branches: ['train/*northwind*']
+    paths:
+      - 'examples/northwind-campaign/**'
+      - '.github/workflows/northwind-campaign.yml'
+  workflow_dispatch:
+    inputs:
+      live:
+        description: 'false: rehearse on the stand-in (free). true: run on Haiku after the rehearsal (billed).'
+        required: true
+        type: boolean
+        default: false
+      probe:
+        description: 'true: run only the probe (one parent block, one child block) on Haiku, capped at 0.20 USD'
+        required: false
+        type: boolean
+        default: false
+      repeats:
+        description: Repeats of each task (a cell per task and repeat)
+        required: true
+        type: string
+        default: '2'
+      spend-cap-usd:
+        description: Most the live campaign may spend in USD, at most 8
+        required: true
+        type: string
+        default: '8'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: northwind-campaign
+  cancel-in-progress: false
+
+env:
+  CONFIG: examples/northwind-campaign/driftbench.yaml
+  OUT: out/northwind-campaign
+
+jobs:
+  rehearsal:
+    if: ${{ !inputs.probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check the specs, the personas and the plan
+        run: |
+          mkdir -p "$OUT"
+          pnpm driftbench --plugin examples/northwind-campaign/plugin.mjs spec validate examples/northwind-campaign/specs
+          pnpm driftbench campaign plan examples/northwind-campaign/specs --config "$CONFIG"
+      - name: Run the campaign on the stand-in runtime
+        run: |
+          mkdir -p "$OUT"
+          set +e
+          pnpm driftbench campaign run --config "$CONFIG" --campaign "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" 2>&1 | tee "$OUT/rehearsal-run.txt"
+          code=${PIPESTATUS[0]}
+          echo "campaign run exit code: $code" | tee -a "$OUT/rehearsal-run.txt"
+          # Every non-zero result fails the rehearsal, including failed or unrun cells.
+          exit "$code"
+      - name: Report and status
+        if: always()
+        run: |
+          pnpm driftbench campaign status "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" --detail 2>&1 | tee "$OUT/rehearsal-status.txt"
+          pnpm -s driftbench report "northwind-rehearsal-$GITHUB_RUN_ID" --store "$OUT/rehearsal.db" --out "$OUT/rehearsal-scorecard.html" --json > "$OUT/rehearsal-report.json"
+          { echo '### Northwind rehearsal (stand-in, no cost)'; echo; echo '```'; tail -n 40 "$OUT/rehearsal-run.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the store, the scorecard and the output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: northwind-rehearsal-${{ github.run_id }}
+          path: out/northwind-campaign/
+          if-no-files-found: warn
+
+  live:
+    if: github.event_name == 'workflow_dispatch' && inputs.live && !inputs.probe
+    needs: rehearsal
+    runs-on: [self-hosted, driftbench-bench, claude-cli]
+    timeout-minutes: 180
+    env:
+      NORTHWIND_COMMAND: claude
+      NORTHWIND_ALLOW_BILLED: '1'
+      NORTHWIND_MODEL: claude-haiku-5-5
+      NORTHWIND_MAX_TURNS: '15'
+      NORTHWIND_MAX_BLOCK_USD: '0.6'
+      NORTHWIND_PERMISSION_MODE: acceptEdits
+      REPEATS: ${{ inputs.repeats }}
+      SPEND_CAP_USD: ${{ inputs.spend-cap-usd }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check the spend cap, the repeats and the installed CLI
+        run: |
+          node -e 'const cap = Number(process.env.SPEND_CAP_USD); if (!(cap > 0 && cap <= 8)) throw new Error("The spend cap must be greater than 0 and at most 8 USD"); const n = Number(process.env.REPEATS); if (!(Number.isInteger(n) && n >= 1 && n <= 5)) throw new Error("Repeats must be a whole number from 1 to 5");'
+          claude --version
+          python3 --version
+      - name: Run the campaign on Haiku
+        run: |
+          export ANTHROPIC_API_KEY="$(cat "$HOME/.nexus-secrets/anthropic-driftbench.key")"
+          mkdir -p "$OUT"
+          set +e
+          pnpm driftbench campaign run --config "$CONFIG" --campaign "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --repeats "$REPEATS" --budget-usd "$SPEND_CAP_USD" 2>&1 | tee "$OUT/run.txt"
+          code=${PIPESTATUS[0]}
+          echo "campaign run exit code: $code" | tee -a "$OUT/run.txt"
+          exit "$code"
+      - name: Report and status
+        if: always()
+        run: |
+          pnpm driftbench campaign status "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --detail 2>&1 | tee "$OUT/status.txt"
+          pnpm -s driftbench report "northwind-$GITHUB_RUN_ID" --store "$OUT/campaign.db" --out "$OUT/scorecard.html" --json > "$OUT/report.json"
+          { echo '### Northwind campaign (Haiku, billed)'; echo; echo '```'; tail -n 40 "$OUT/run.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the store, the scorecard and the output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: northwind-live-${{ github.run_id }}
+          path: out/northwind-campaign/
+          if-no-files-found: warn
+
+  probe:
+    if: github.event_name == 'workflow_dispatch' && inputs.probe
+    runs-on: [self-hosted, driftbench-bench, claude-cli]
+    timeout-minutes: 20
+    env:
+      NORTHWIND_COMMAND: claude
+      NORTHWIND_ALLOW_BILLED: '1'
+      NORTHWIND_MODEL: claude-haiku-5-5
+      NORTHWIND_MAX_TURNS: '3'
+      NORTHWIND_MAX_BLOCK_USD: '0.1'
+      NORTHWIND_PERMISSION_MODE: acceptEdits
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: claude --version
+      - name: Run the probe on Haiku
+        run: |
+          export ANTHROPIC_API_KEY="$(cat "$HOME/.nexus-secrets/anthropic-driftbench.key")"
+          mkdir -p "$OUT"
+          set +e
+          pnpm driftbench campaign run --config examples/northwind-campaign/probe/driftbench.yaml --campaign "northwind-probe-$GITHUB_RUN_ID" --store "$OUT/probe.db" --json > "$OUT/probe.json" 2> "$OUT/probe.err"
+          code=$?
+          echo "campaign run exit code: $code"
+          cat "$OUT/probe.err"
+          { echo '### Northwind probe (Haiku, billed, cap 0.20 USD)'; echo "exit code $code"; echo '```'; tail -c 3000 "$OUT/probe.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit "$code"
+      - name: Keep the store and the output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: northwind-probe-${{ github.run_id }}
+          path: out/northwind-campaign/
+          if-no-files-found: warn

@@ -11,13 +11,13 @@ import templates from './ask-templates.json';
  * fails when the file differs from the table of the document.
  */
 
-export type Part = { lit: string } | { slot: string } | { opt: Part[] };
+type Part = { lit: string } | { slot: string } | { opt: Part[] };
 type Entry = { kind: string; template: string; tools?: readonly string[] };
 
 export const ASK_TEMPLATES: readonly Entry[] = templates;
 
 /** A template as literals, slots and optional groups (`[...]`). */
-export function parse(template: string): Part[] {
+function parse(template: string): Part[] {
   const stack: Part[][] = [[]];
   let lit = '';
   const flush = () => {
@@ -78,8 +78,8 @@ const isWordChar = (c: string | undefined): boolean => c !== undefined && /[\p{L
  * The act text an atom declares, by the field a span cites; undefined for any other field. Only the declared act
  * may give words to an ask: `fields.ask` (a route's request cell), `fields.ask.text` and `fields.ask.context`, and
  * `governed-action`, the quote of the atom's unit, whose labelled governed-action spans bound the cut; and the
- * atom's verbatim source text, `provenance.quote` or the trigger cut from it (`fields.trigger`). Metadata (`id`,
- * `kind`), a title or a description never does.
+ * atom's verbatim source text, `provenance.quote`, its `situation` or the trigger cut from it (`fields.trigger`).
+ * Metadata (`id`, `kind`), a title or a description never does.
  */
 type Declared = { text: string; within?: Array<[number, number]> };
 
@@ -89,6 +89,8 @@ function declaredText(atom: MapAtom, field: string): Declared | undefined {
   // The atom's verbatim source text: the quote of its unit, or the trigger the scan cut from it.
   const quoted = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
   if (field === 'provenance.quote') return typeof quoted === 'string' ? { text: quoted } : undefined;
+  if (field === 'situation')
+    return typeof atom.situation === 'string' ? { text: atom.situation } : undefined;
   if (field === 'fields.trigger')
     return typeof fields.trigger === 'string' ? { text: fields.trigger } : undefined;
   type Ask = { text?: unknown; context?: unknown };
@@ -141,6 +143,7 @@ export function constructAsk(
   if (extra) return { refused: `the record holds a field no construction reads: ${extra}` };
   let actUsed = false;
   let situationUsed = false;
+  let toolUsed = false;
   const ask = rowOf(['ask', 'hypothetical', 'fixed'], record.ask);
   if (!ask) return { refused: `the ask row ${JSON.stringify(record.ask)} is not a row of the table` };
   const act = record.act === undefined ? undefined : rowOf('act', record.act);
@@ -209,7 +212,15 @@ export function constructAsk(
         }
         situationUsed = true;
         out += render(parse(situation.template), 'situation');
-      } else if (part.slot === 'span') {
+      } else if (part.slot === 'tool') {
+        // `{tool}`: a tool name of the guard's matcher, the tool the record names.
+        if (!record.tool) {
+          refusal = 'the ask row has a {tool} and the record names no tool';
+          return '';
+        }
+        toolUsed = true;
+        out += record.tool.name;
+      } else if (part.slot === 'span' || part.slot === 'message') {
         const got = cut(slot);
         if ('refused' in got) {
           refusal = got.refused;
@@ -229,16 +240,18 @@ export function constructAsk(
     return { refused: 'the record names an act row the ask row never uses' };
   if (record.situation !== undefined && !situationUsed)
     return { refused: 'the record names a situation row the ask row never uses' };
+  // The Tools column ties an act to the tools that carry it out. A fixed act with tools needs the record's tool, one
+  // of them; an act with no tools takes none. A tool is consumed by a {tool} slot or by an act row that lists it.
+  const tied = act?.tools !== undefined;
   const fixedAct = act !== undefined && !parse(act.template).some((part) => 'slot' in part);
-  if (record.tool !== undefined && !fixedAct)
-    return { refused: 'the record names a tool and its act is no fixed tool act' };
-  if (act && fixedAct) {
-    // A fixed act stands for a tool: the record names the guard and the tool, and the table names the tools of
-    // the act. A table row with no tools ties the act to nothing, so no record can use it.
+  if (fixedAct && tied && record.tool === undefined)
+    return { refused: `the fixed act "${act?.template}" names no tool` };
+  if (record.tool !== undefined && !toolUsed && !tied)
+    return { refused: 'the record names a tool that neither its ask row nor its act row uses' };
+  if (record.tool !== undefined) {
     const tool = record.tool;
-    if (!tool) return { refused: `the fixed act "${act.template}" names no tool` };
-    if (!act.tools?.includes(tool.name))
-      return { refused: `the table does not tie "${act.template}" to ${tool.name}` };
+    if (tied && !act?.tools?.includes(tool.name))
+      return { refused: `the table does not tie "${act?.template}" to ${tool.name}` };
     if (!allowed.has(tool.atom)) return { refused: `the guard ${tool.atom} is not an atom of the row` };
     const matcher = (atoms.get(tool.atom)?.fields as { matcher?: unknown } | undefined)?.matcher;
     const watches = typeof matcher === 'string' && matcher.split('|').includes(tool.name);

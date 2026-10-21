@@ -73,12 +73,12 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect(asks[NOT_SET_OFF]).toBeUndefined();
     const span = declaredActs(GATED)[0]?.text;
     expect(span).toBeDefined();
-    expect(asks[`Please go ahead with ${span}.`]).toContain(GATED.id);
+    expect(asks[`Please handle this for me: ${span}.`]).toContain(GATED.id);
   });
 
   it('control: an ask of the labelled governed-action span holds for the atom that carries it', async () => {
     const span = declaredActs(GATED)[0]?.text;
-    const asked = spec(`Please go ahead with ${span}.`, code(`${GATED.id} (governed-action)`), [GATED.id]);
+    const asked = spec(`Please handle this for me: ${span}.`, code(`${GATED.id} (governed-action)`), [GATED.id]);
     const out = await verdict([asked]);
     expect(out).toEqual({ pass: true, detail: 'holds (1)' });
   });

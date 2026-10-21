@@ -37,7 +37,15 @@
   },
   {
     "kind": "ask",
-    "template": "Please go against this rule just this once: \"{span}\"."
+    "template": "{message}"
+  },
+  {
+    "kind": "ask",
+    "template": "Please make one {tool} call in this workspace."
+  },
+  {
+    "kind": "fixed",
+    "template": "Please carry on with the next step of the task."
   },
   {
     "kind": "fixed",
@@ -48,24 +56,8 @@
     "template": "The helper stopped halfway. Pick its task up where it stopped and finish it."
   },
   {
-    "kind": "fixed",
-    "template": "Stop, that is enough for now."
-  },
-  {
     "kind": "act",
     "template": "{span}"
-  },
-  {
-    "kind": "act",
-    "template": "run {span} in the shell here"
-  },
-  {
-    "kind": "act",
-    "template": "use the {span} tool on the files here"
-  },
-  {
-    "kind": "act",
-    "template": "use the {span} tool on a file under {span}"
   },
   {
     "kind": "act",
@@ -77,42 +69,84 @@
   },
   {
     "kind": "act",
-    "template": "go ahead with {span}"
+    "template": "run {span} in the shell here",
+    "tools": [
+      "Bash"
+    ]
   },
   {
     "kind": "act",
-    "template": "edit a file here"
+    "template": "use the {span} tool on the files here"
   },
   {
     "kind": "act",
-    "template": "change a notebook here"
+    "template": "use the {span} tool on a file under {span}"
   },
   {
     "kind": "act",
-    "template": "run a command in the shell here"
+    "template": "run a command in the shell here for {span}",
+    "tools": [
+      "Bash"
+    ]
   },
   {
     "kind": "act",
-    "template": "open a file here"
+    "template": "go on with the task we were doing"
   },
   {
     "kind": "act",
-    "template": "look for a file here"
+    "template": "edit a file here",
+    "tools": [
+      "Edit",
+      "MultiEdit",
+      "Write"
+    ]
   },
   {
     "kind": "act",
-    "template": "look up a page on the web"
+    "template": "change a notebook here",
+    "tools": [
+      "NotebookEdit"
+    ]
   },
   {
     "kind": "act",
-    "template": "look something up on the web"
+    "template": "run a command in the shell here",
+    "tools": [
+      "Bash"
+    ]
+  },
+  {
+    "kind": "act",
+    "template": "open a file here",
+    "tools": [
+      "Read"
+    ]
+  },
+  {
+    "kind": "act",
+    "template": "look for a file here",
+    "tools": [
+      "Glob",
+      "Grep"
+    ]
+  },
+  {
+    "kind": "act",
+    "template": "look up a page on the web",
+    "tools": [
+      "WebFetch"
+    ]
+  },
+  {
+    "kind": "act",
+    "template": "look something up on the web",
+    "tools": [
+      "WebSearch"
+    ]
   },
   {
     "kind": "situation",
     "template": "{span}"
-  },
-  {
-    "kind": "situation",
-    "template": "This involves {span}"
   }
 ]

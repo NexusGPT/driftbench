@@ -38,10 +38,10 @@ const GUARD: MapAtom = {
 };
 const ATOMS = new Map([ONE, TWO, GUARD].map((atom) => [atom.id, atom]));
 
-/** The record of "Please go ahead with Approving a refill.": the act row and the span of ONE's note. */
+/** The record of "Please handle this for me: Approving a refill.": the act row and the span of ONE. */
 const GO_AHEAD = {
   ask: 'Please {act}.[ {situation}.]',
-  act: 'go ahead with {span}',
+  act: 'handle this for me: {span}',
   spans: [{ slot: 'act', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 18 }],
 };
 
@@ -90,7 +90,7 @@ const item = async () => (await genAsksFamily().evaluate(1047)).get('gen.asks.as
 
 describe('gen.asks.asks-approved rebuilds each code-written ask from its record and the map', () => {
   it('control: the ask its record describes, cut from the row atom, holds', async () => {
-    plant('Please go ahead with Approving a refill.', [GO_AHEAD], 'instruction.one (fields.note)');
+    plant('Please handle this for me: Approving a refill.', [GO_AHEAD], 'instruction.one (fields.note)');
     expect(await item()).toMatchObject({ pass: true });
   });
 
@@ -106,7 +106,7 @@ describe('gen.asks.asks-approved rebuilds each code-written ask from its record 
     });
 
   it('refuses a true span attributed to a source the map does not hold', async () => {
-    plant('Please go ahead with Approving a refill.', [GO_AHEAD], 'missing-atom.nonexistent');
+    plant('Please handle this for me: Approving a refill.', [GO_AHEAD], 'missing-atom.nonexistent');
     expect((await item())?.pass).toBe(false);
   });
 
@@ -115,12 +115,12 @@ describe('gen.asks.asks-approved rebuilds each code-written ask from its record 
       ...GO_AHEAD,
       spans: [{ slot: 'act', atom: 'instruction.two', field: 'fields.ask.text', from: 0, to: 15 }],
     };
-    plant('Please go ahead with Close the berth.', [elsewhere], 'instruction.two (title)');
+    plant('Please handle this for me: Close the berth.', [elsewhere], 'instruction.two (title)');
     expect((await item())?.pass).toBe(false);
   });
 
   it('refuses an ask that differs from its record by one word, and a record that claims a fixed act', async () => {
-    plant('Please go ahead with approving a refill.', [GO_AHEAD], 'instruction.one (fields.note)');
+    plant('Please handle this for me: approving a refill.', [GO_AHEAD], 'instruction.one (fields.note)');
     expect((await item())?.pass).toBe(false);
     plant(
       'Please edit a file here.',
@@ -157,6 +157,7 @@ describe('a fixed row built alone is neutral; a record holds no field the constr
     expect(refused({ ask: OUTSIDE, spans: [], act: '{span}' })).toBe(true);
     expect(refused({ ask: OUTSIDE, spans: [], situation: '{span}' })).toBe(true);
     expect(refused({ ...GO_AHEAD, tool: { atom: 'guard.edits', name: 'Edit' } })).toBe(true);
+    expect(refused({ ...GO_AHEAD, act: 'go ahead with {span}' })).toBe(true);
   });
 });
 
@@ -186,7 +187,8 @@ describe('the verbatim source text of an atom gives a span, in the handle-this-f
 describe('constructAsk builds one ask from a record, or refuses it', () => {
   const row = new Set(['instruction.one']);
   it('builds the ask from the rows and the verbatim slice', () => {
-    expect(constructAsk(GO_AHEAD, ATOMS, row)).toEqual({ text: 'Please go ahead with Approving a refill.' });
+    const handled = 'Please handle this for me: Approving a refill.';
+    expect(constructAsk(GO_AHEAD, ATOMS, row)).toEqual({ text: handled });
     expect(
       constructAsk(
         {
@@ -230,15 +232,40 @@ describe('constructAsk builds one ask from a record, or refuses it', () => {
     expect(refused({ ...one, field: 'governed-action', from: 0, to: 14 })).toBe(false);
   });
 
-  it('refuses a fixed tool act the table ties to no tool, whatever guard the record names', () => {
-    const record = {
+  it('builds a fixed tool act for a guard that watches a tool the table ties to it, and refuses any other', () => {
+    const guard = new Set(['guard.edits']);
+    const record = (name: string, atom = 'guard.edits') => ({
       ask: 'Please {act}.[ {situation}.]',
       act: 'edit a file here',
       spans: [],
-      tool: { atom: 'guard.edits', name: 'Edit' },
-    };
-    expect(constructAsk(record, ATOMS, new Set(['guard.edits']))).toMatchObject({
+      tool: { atom, name },
+    });
+    expect(constructAsk(record('Edit'), ATOMS, guard)).toEqual({ text: 'Please edit a file here.' });
+    expect(constructAsk(record('MadeUp'), ATOMS, guard)).toMatchObject({
       refused: expect.stringContaining('does not tie'),
     });
+    // MultiEdit is tied to the act, and the guard does not watch it.
+    expect('refused' in constructAsk(record('MultiEdit'), ATOMS, guard)).toBe(true);
+    expect('refused' in constructAsk(record('Edit', 'instruction.one'), ATOMS, guard)).toBe(true);
+    const { tool: _tool, ...untooled } = record('Edit');
+    expect('refused' in constructAsk(untooled, ATOMS, guard)).toBe(true);
+  });
+
+  it('fills {tool} from the guard the record names, and {message} from a verbatim slice', () => {
+    const guard = new Set(['guard.edits', 'instruction.one']);
+    const call = {
+      ask: 'Please make one {tool} call in this workspace.',
+      spans: [],
+      tool: { atom: 'guard.edits', name: 'Write' },
+    };
+    const one = 'Please make one Write call in this workspace.';
+    expect(constructAsk(call, ATOMS, guard)).toEqual({ text: one });
+    const bash = { ...call, tool: { atom: 'guard.edits', name: 'Bash' } };
+    expect('refused' in constructAsk(bash, ATOMS, guard)).toBe(true);
+    const message = {
+      ask: '{message}',
+      spans: [{ slot: 'ask', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 18 }],
+    };
+    expect(constructAsk(message, ATOMS, guard)).toEqual({ text: 'Approving a refill' });
   });
 });

@@ -164,18 +164,21 @@ const written = [
 let lastText = '';
 let turns = 0;
 const usage = { input_tokens: 0, output_tokens: 0 };
-const records = manifestPath
-  ? readFileSync(resolve(dirname(manifestPath), streamFile), 'utf8')
-      .split('\n')
-      .filter((line) => line.trim() !== '')
-      .map((line) => JSON.parse(fill(line)))
+const planned = manifestPath
+  ? undefined
   : planStream({
       ask,
       cwd,
       sessionId,
       env,
       compacted: previous.some((record) => record.type === 'system' && record.subtype === 'compact_boundary'),
-    }).records;
+    });
+const records = manifestPath
+  ? readFileSync(resolve(dirname(manifestPath), streamFile), 'utf8')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .map((line) => JSON.parse(fill(line)))
+  : planned.records;
 for (const record of records) {
   if (record.fake === 'decision') {
     if (env.HOOK_DECISION_LOG) {
@@ -248,9 +251,9 @@ for (const record of records) {
 }
 print({
   type: 'result',
-  subtype: 'success',
-  is_error: false,
-  result: lastText,
+  subtype: planned?.error ? 'error_during_execution' : 'success',
+  is_error: planned?.error !== undefined,
+  result: planned?.error ?? lastText,
   num_turns: turns,
   duration_ms: 10 * tick,
   session_id: sessionId,

@@ -1354,6 +1354,8 @@ $ pnpm -s driftbench replay examples/estates/sessions/clean-build.jsonl examples
 driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json] [--items] [--all-levels] [--blind]
 driftbench validate <component> --hardness
 driftbench validate <component|all> --check-floor [seed options]
+driftbench validate <component|all> --reports <dir> [seed options] [--check-floor] [--json] [--items] [--all-levels]
+driftbench validate <component> [seed options] --levels <a..b> [--json]
 driftbench validate <component> --brief [--fresh] [seed options]
 driftbench validate <component> --journal <row.json>
 driftbench validate <component|all> --check-handover
@@ -1368,6 +1370,9 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--seed <n>` | a visible seed; seed 1 when no seed is given |
 | `--seeds <a..b>` | a range of visible seeds, such as `1..20` |
 | `--hidden` | add the hidden seed derived from `git rev-parse HEAD` |
+| `--hidden-only` | with `--hidden`: run the hidden seed alone, with no visible seed |
+| `--reports <dir>` | join the `--json` reports in a folder (one run per seed, or one slice of levels of a seed) into one report per validator, then print and check floors as one run would; `--seed`, `--seeds` and `--hidden` name the seeds the join must hold |
+| `--levels <a..b>` | compute only levels a to b of one component, as one slice of a ladder for `--reports` to join; exit 0 |
 | `--json` | print the report as JSON |
 | `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
 | `--raise <component>` | with `floors`: raise the floor of this component to `<level>`; create `validators/` if absent, after the evidence is accepted |
