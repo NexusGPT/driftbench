@@ -70,9 +70,7 @@
   {
     "kind": "act",
     "template": "run {span} in the shell here",
-    "tools": [
-      "Bash"
-    ]
+    "tools": ["Bash"]
   },
   {
     "kind": "act",
@@ -85,9 +83,7 @@
   {
     "kind": "act",
     "template": "run a command in the shell here for {span}",
-    "tools": [
-      "Bash"
-    ]
+    "tools": ["Bash"]
   },
   {
     "kind": "act",
@@ -96,54 +92,37 @@
   {
     "kind": "act",
     "template": "edit a file here",
-    "tools": [
-      "Edit",
-      "MultiEdit",
-      "Write"
-    ]
+    "tools": ["Edit", "MultiEdit", "Write"]
   },
   {
     "kind": "act",
     "template": "change a notebook here",
-    "tools": [
-      "NotebookEdit"
-    ]
+    "tools": ["NotebookEdit"]
   },
   {
     "kind": "act",
     "template": "run a command in the shell here",
-    "tools": [
-      "Bash"
-    ]
+    "tools": ["Bash"]
   },
   {
     "kind": "act",
     "template": "open a file here",
-    "tools": [
-      "Read"
-    ]
+    "tools": ["Read"]
   },
   {
     "kind": "act",
     "template": "look for a file here",
-    "tools": [
-      "Glob",
-      "Grep"
-    ]
+    "tools": ["Glob", "Grep"]
   },
   {
     "kind": "act",
     "template": "look up a page on the web",
-    "tools": [
-      "WebFetch"
-    ]
+    "tools": ["WebFetch"]
   },
   {
     "kind": "act",
     "template": "look something up on the web",
-    "tools": [
-      "WebSearch"
-    ]
+    "tools": ["WebSearch"]
   },
   {
     "kind": "situation",
