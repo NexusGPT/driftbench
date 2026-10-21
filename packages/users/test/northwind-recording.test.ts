@@ -77,13 +77,27 @@ it.each(['No details needed.', 'Which carrier?', 'What tracking number?'])(
   async (reply) => {
     const root = new URL('../../../examples/northwind-campaign/', import.meta.url);
     const persona = await loadPersona(fileURLToPath(new URL('personas/omar-haddad.yaml', root)));
-    const recording = await loadUserRecording(fileURLToPath(new URL('personas/recordings/omar-haddad.yaml', root)));
+    const recording = await loadUserRecording(
+      fileURLToPath(new URL('personas/recordings/omar-haddad.yaml', root)),
+    );
     const loaded = await loadSpecFile(fileURLToPath(new URL('specs/shipment-late.yaml', root)));
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
-    const adapter = functionAdapter({ create: () => undefined, respond: () => ({
-      segments: [], text: reply, toolCalls: [], cost: {}, latencyMs: 0,
-    }) });
-    const driver = createSimulatedUser({ ...personaOptions(persona), port: userRecordingPort(recording), agentFamily: 'none', judgeFamilies: [] });
+    const adapter = functionAdapter({
+      create: () => undefined,
+      respond: () => ({
+        segments: [],
+        text: reply,
+        toolCalls: [],
+        cost: {},
+        latencyMs: 0,
+      }),
+    });
+    const driver = createSimulatedUser({
+      ...personaOptions(persona),
+      port: userRecordingPort(recording),
+      agentFamily: 'none',
+      judgeFamilies: [],
+    });
     const result = await runSpec(loaded.spec, { adapter, driver, checks: [], mode: 'F', repeat: 0 });
     expect(result.status).toBe('failed');
     expect(result.error).toContain('before the agent asked');

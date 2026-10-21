@@ -7,8 +7,10 @@ persona: >
 goal: >
   Find out where a delivery is, learn whether it is late, and get a chase email drafted for the supplier.
 facts:
-  tracking: NWX 4471
+  carrier: NWX
+  tracking: '4471'
 reveal_when_asked:
-  tracking: ['tracking', 'carrier', 'shipment number', 'reference']
+  carrier: ['carrier']
+  tracking: ['tracking', 'shipment number', 'reference']
 stop_token: '###STOP###'
 spec: ../specs/shipment-late.yaml
