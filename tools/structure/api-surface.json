@@ -2719,6 +2719,7 @@
       "simulateCoverage": "value",
       "simulateFamilyCoverage": "value",
       "stratifiedMean": "value",
+      "totalVariationDistance": "value",
       "unreliability": "value",
       "varianceComponents": "value",
       "weightedMean": "value",
