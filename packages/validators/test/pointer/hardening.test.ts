@@ -477,6 +477,37 @@ describe('labels.settings-inherited-threshold-key-refused', () => {
   });
 });
 
+describe('labels.read-unit-not-labelable-under-heading', () => {
+  it('fails a reader that offers the read unit for labelling', async () => {
+    const offering: PointerSut = {
+      ...ref,
+      name: 'offers-read-unit',
+      scan: async (request) => {
+        const inner = request.labeler;
+        return ref.scan({
+          ...request,
+          ...(inner
+            ? {
+                labeler: (labelRequest) =>
+                  inner({
+                    ...labelRequest,
+                    window: {
+                      ...labelRequest.window,
+                      units: labelRequest.window.units.map((unit) =>
+                        unit.mode === 'read' ? { ...unit, mode: 'label' as const } : unit,
+                      ),
+                    },
+                  }),
+              }
+            : {}),
+        });
+      },
+    };
+    const detail = await redOn('labels.read-unit-not-labelable-under-heading', offering);
+    expect(detail).toMatch(/offered for labelling/);
+  });
+});
+
 describe('the catch items are pinned', () => {
   it('lists in validators/pointer/catch.json exactly the items whose row says catch, each with what it guards', () => {
     const pinned = readCatchList(fileURLToPath(new URL('../../../../', import.meta.url)), 'pointer');

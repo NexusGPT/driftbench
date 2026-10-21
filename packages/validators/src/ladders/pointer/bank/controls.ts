@@ -17,17 +17,27 @@ export type Control = {
 /** The detail of a control that failed because of the reader's own outputs. */
 export const CONTROL_FAILED = 'control failed';
 
-const SENTENCE = 'The ledger is closed on the last day of the month.';
-const FILE = { path: 'control.md', text: `${SENTENCE}\n` };
+/**
+ * The control file asks for a real cut: two sentences that share the first line, and a list item below a heading. The first unit is the first sentence. A
+ * reader that makes one unit of the file, or one unit of each line, cannot give the first two units below, so it
+ * earns no credit from a control that only asks for a cut.
+ */
+const FIRST = 'The ledger is closed on the last day of the month.';
+const SECOND = 'Reports follow within two days.';
+const ITEM = 'Archive the sheets';
+const FILE = { path: 'control.md', text: `${FIRST} ${SECOND}\n\n# Month end\n\n- ${ITEM}\n` };
 
 const markerOf = (cut: CutResult): string => cut.units[0]?.text ?? '';
 
-/** The reader is asked for one cut; the verdict is whether a unit holds the sentence. */
+/** The reader is asked for one cut; the verdict is whether it cut the file the way the control file needs. */
 async function verdict(sut: PointerSut): Promise<Outcome> {
   const got = await sut.cut(FILE);
-  return got.units.some((unit) => unit.text.trim() === SENTENCE)
-    ? pass('the reader cut the control sentence')
-    : fail(`${CONTROL_FAILED}: no unit of the reader holds the control sentence`);
+  const holds = (text: string) => got.units.some((unit) => unit.text.trim() === text);
+  if (!holds(FIRST) || !holds(SECOND))
+    return fail(`${CONTROL_FAILED}: no unit of the reader holds each of the two control sentences apart`);
+  if (!got.units.some((unit) => unit.text.includes(ITEM)))
+    return fail(`${CONTROL_FAILED}: no unit of the reader holds the control list item`);
+  return pass('the reader cut the control file: two sentences of one line apart, and the list item');
 }
 
 /** The reader is asked for one cut here and one in a sandboxed process; both must give the expected marker. */

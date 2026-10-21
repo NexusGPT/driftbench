@@ -156,7 +156,7 @@ label(window, labelSet) -> { labels: [{ units, label, target? }], meta }
 
 ### Window
 
-A window is a heading-bounded run of units that stays under 100,000 tokens. A file is one window if it fits; otherwise it is split at headings. Units of neighbouring windows may appear as context-only lines (not labelable). The window prints each unit as `[n] text`, with the heading path as non-selectable lines.
+A window is a heading-bounded run of units that stays under 100,000 tokens. A window ends at every top-level heading, and a file with none is one window if it fits; otherwise it is split at headings. Units of neighbouring windows may appear as context-only lines (not labelable). The window prints each unit as `[n] text`, with the heading path as non-selectable lines.
 
 ```
 SET house-voice

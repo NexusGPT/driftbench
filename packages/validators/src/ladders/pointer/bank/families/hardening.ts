@@ -6,7 +6,7 @@ import { type Block, compose } from '../../kit/compose';
 import { cutRun } from '../../kit/cut-case';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { loadFixture, RUNS } from '../../kit/fixture';
-import { entriesFor, perfect, truthLabel } from '../../kit/labellers';
+import { entriesFor, perfect, recording, truthLabel } from '../../kit/labellers';
 import { requireSourceWitness } from '../../kit/positive';
 import { keyOf, RULES_YAML } from '../../kit/sets';
 import { fakeTransport } from '../../kit/transport';
@@ -642,6 +642,38 @@ const labels: Record<string, Run> = {
     }
     return pass('four keys, values outside 0 to 1 refused by name, 0 and 1 accepted');
   },
+  'read-unit-not-labelable-under-heading': async (ctx) => {
+    const p = prose(ctx);
+    const description = `Checks the ${p.next().toLowerCase().replace(/\.$/, '')}.`;
+    const body = p.many(4);
+    const doc = compose([
+      {
+        kind: 'front',
+        entries: [
+          { key: 'name', value: 'shelf-audit' },
+          { key: 'description', value: description },
+        ],
+      },
+      { kind: 'heading', level: 1, text: 'Shelf audit' },
+      ...body.map((text): Block => ({ kind: 'paragraph', sentences: [text] })),
+    ]);
+    const labeler = recording(perfect());
+    const res = await scanOk(ctx.sut, {
+      files: [{ path: '.claude/skills/shelf-audit/SKILL.md', text: doc.text }],
+      labeler,
+    });
+    // A window ends at a top-level heading, so the read unit may sit in a window of its own or not be shown at all:
+    // what must hold is that no window offers it for labelling, and that the body is labelled.
+    const offered = labeler.calls
+      .flatMap((call) => call.window.units)
+      .some((unit) => keyOf(unit.text) === keyOf(description) && unit.mode !== 'read');
+    if (offered)
+      return fail('the description the structured reader turns into a route is offered for labelling');
+    const wrong = body.find((text) => labelOf(res.ledger, text) !== truthLabel(text));
+    if (wrong !== undefined)
+      return fail(`a paragraph under the heading has label ${labelOf(res.ledger, wrong)}`);
+    return pass('the read unit is never offered; the paragraphs below the heading are labelled');
+  },
   'settings-inherited-threshold-key-refused': async (ctx) => {
     const api = ctx.sut.settings;
     if (!api)
@@ -668,14 +700,14 @@ const READER_DIR = fileURLToPath(new URL('../../../../../../estate/src/pointer',
 
 /**
  * The companion positive control of the three items below. They test the harness, which a reader that does nothing
- * leaves as it is; so that such a reader earns no credit, the reader under test must first cut the control sentence.
+ * leaves as it is; so that such a reader, or one that cuts a file or a line as one unit, earns no credit, the reader under test must first cut the control file.
  */
 async function companion(ctx: ItemContext): Promise<Outcome | undefined> {
   const out = await runControl({ name: 'verdict' }, ctx.sut);
   return out.pass
     ? undefined
     : fail(
-        `the reader under test does not cut the control sentence, so the item has no positive control: ${out.detail}`,
+        `the reader under test does not cut the control file, so the item has no positive control: ${out.detail}`,
       );
 }
 
