@@ -109,7 +109,7 @@ export class TerminalSubsumption {
         // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
         // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
         if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
-        const reduced = validateSpec({ ...spec, blocks: spec.blocks.slice(0, last) });
+        const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
@@ -161,6 +161,25 @@ export class TerminalSubsumption {
       });
     }
     this.observeSpec(spec);
+  }
+
+  /** The spec without the blocks from `length` on: a link that names a removed block goes with it. */
+  private cut(spec: Spec, length: number): Spec {
+    const kept = new Set(spec.blocks.slice(0, length).map((block) => block.id));
+    const links = spec.metadata?.links;
+    const metadata =
+      Array.isArray(links) && spec.metadata
+        ? {
+            ...spec.metadata,
+            links: links.filter((link: unknown) => {
+              const block = typeof link === 'object' && link !== null ? (link as { block?: unknown }).block : undefined;
+              if (typeof block === 'number') return block < length;
+              if (typeof block === 'string') return kept.has(block) || block.includes('#');
+              return true;
+            }),
+          }
+        : spec.metadata;
+    return { ...spec, blocks: spec.blocks.slice(0, length), ...(metadata ? { metadata } : {}) };
   }
 
   /** What a spec written by other code places: tasks are never reduced but their obligations are met. */
