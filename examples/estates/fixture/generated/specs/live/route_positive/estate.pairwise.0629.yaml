@@ -26,7 +26,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "When you have a moment, handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail.."
+      user: "When you have a moment, handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail."
     expect:
       subagents:
         - name: inbox-triager

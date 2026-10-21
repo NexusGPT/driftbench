@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Look up where a shipment is and whether it is late. Use when the user asks about a delivery, a tracking number or a late shipment.."
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Look up where a shipment is and whether it is late. Use when the user asks about a delivery, a tracking number or a late shipment."
     expect:
       skills:
         - name: shipment-tracker

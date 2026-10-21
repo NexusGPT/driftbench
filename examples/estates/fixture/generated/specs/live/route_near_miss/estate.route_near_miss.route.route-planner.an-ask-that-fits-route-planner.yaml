@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day.."
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day."
     expect:
       subagents:
         - name: route-planner

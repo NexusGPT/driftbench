@@ -40,7 +40,10 @@ function rebuild(build: AskBuild, atoms: readonly EstateAtom[]): string {
   }
   // A value that ends in a sentence mark takes the place of the row's own stop or question mark after it.
   const put = (text: string, slot: RegExp, value: string) =>
-    text.replace(slot, (_, after: string) => value + (/[.!?]$/.test(value) && /^[.?]$/.test(after) ? '' : after));
+    text.replace(
+      slot,
+      (_, after: string) => value + (/[.!?]$/.test(value) && /^[.?]$/.test(after) ? '' : after),
+    );
   const fill = (row: string, slot: 'ask' | 'act' | 'situation') => {
     let out = row;
     while (/\{span\}|\{message\}/.test(out))
@@ -49,7 +52,10 @@ function rebuild(build: AskBuild, atoms: readonly EstateAtom[]): string {
   };
   const act = build.act === undefined ? undefined : fill(build.act, 'act');
   const situation = build.situation === undefined ? undefined : fill(build.situation, 'situation');
-  let out = fill(build.ask, 'ask').replace(/\[ \{situation\}\.\]/, situation === undefined ? '' : ' {situation}.');
+  let out = fill(build.ask, 'ask').replace(
+    /\[ \{situation\}\.\]/,
+    situation === undefined ? '' : ' {situation}.',
+  );
   if (situation !== undefined) out = put(out, /\{situation\}([.?]?)/, situation);
   return put(out, /\{act\}([.?]?)/, act ?? '<missing>').replace('{tool}', build.tool?.name ?? '<missing>');
 }

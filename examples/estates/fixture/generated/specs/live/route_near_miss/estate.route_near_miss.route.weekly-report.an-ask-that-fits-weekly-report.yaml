@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.."
+      user: "No need to do anything: just tell me in one sentence what it would mean to handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week."
     expect:
       skills:
         - name: weekly-report

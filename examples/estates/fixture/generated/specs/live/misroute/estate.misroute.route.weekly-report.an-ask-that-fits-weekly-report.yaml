@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.."
+      user: "Please handle this for me: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week."
     expect:
       skills:
         - name: weekly-report

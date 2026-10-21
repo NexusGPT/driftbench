@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.? Thanks."
+      user: "Could you handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. Thanks."
     expect:
       skills:
         - name: invoice-reconcile

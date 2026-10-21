@@ -29,7 +29,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.. When a supplier is not in this table."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. When a supplier is not in this table."
     expect:
       workspace:
         deleted: []

@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.. Report a number only when you read it in a file or a tool result during this session.."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. Report a number only when you read it in a file or a tool result during this session."
     expect:
       workspace:
         deleted: []

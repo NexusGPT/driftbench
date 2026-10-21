@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day.."
+      user: "Please handle this for me: Plans tomorrow's delivery routes from the open orders and the van capacity. Use when the user asks for the delivery plan of a day."
     expect:
       subagents:
         - name: route-planner

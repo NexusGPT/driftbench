@@ -34,7 +34,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice.. the total difference is above 50.00 EUR."
+      user: "Please handle this for me: Reconcile a supplier invoice against its purchase order and the goods received. Use when the user asks to check, match or reconcile an invoice. the total difference is above 50.00 EUR."
     expect:
       skills:
         - name: invoice-reconcile

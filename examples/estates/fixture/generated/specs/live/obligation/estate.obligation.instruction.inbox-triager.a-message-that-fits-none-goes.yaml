@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail.."
+      user: "Please handle this for me: Sorts the shared operations inbox into invoices, shipment questions and supplier mail."
     expect:
       subagents:
         - name: inbox-triager
