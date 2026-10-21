@@ -21,6 +21,7 @@ const ONE: MapAtom = {
   fields: {
     ask: { text: 'Approving a refill needs the pharmacist.', context: 'When the pharmacist is in' },
     labelSpans: [{ kind: 'governed-action', from: 0, to: 28 }],
+    trigger: 'sorting the inbox early',
   },
 };
 const TWO: MapAtom = {
@@ -44,11 +45,11 @@ const GO_AHEAD = {
   spans: [{ slot: 'act', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 18 }],
 };
 
-function plant(ask: string, askBuild: unknown, askFrom: string) {
+function plant(ask: string, askBuild: unknown, askFrom: string, testType = 'obligation') {
   const row = {
-    id: 'obligation.one',
+    id: `${testType}.one`,
     atomIds: ['instruction.one'],
-    testType: 'obligation',
+    testType,
     mode: 'replay',
     cell: {},
   };
@@ -66,7 +67,7 @@ function plant(ask: string, askBuild: unknown, askFrom: string) {
         record: { id: 'one', row: row.id, testType: row.testType },
         loaded: {
           spec: {
-            tags: ['ask:code', 'test:obligation'],
+            tags: ['ask:code', `test:${testType}`],
             metadata: {
               estate: {
                 ask: 'code',
@@ -127,6 +128,58 @@ describe('gen.asks.asks-approved rebuilds each code-written ask from its record 
       'instruction.one (title)',
     );
     expect((await item())?.pass).toBe(false);
+  });
+});
+
+// The reviewer's neutral-construction cases (run 39596922050): a fixed row built alone is neutral, and every
+// field of a record is consumed.
+const OUTSIDE = 'What kinds of things can you help me with? One sentence, and please change nothing.';
+
+describe('a fixed row built alone is neutral; a record holds no field the construction leaves unused', () => {
+  it('control: the fixed outside ask, recorded with its row alone and askFrom neutral, holds', async () => {
+    plant(OUTSIDE, [{ ask: OUTSIDE, spans: [] }], 'neutral', 'outside_trigger');
+    expect(await item()).toMatchObject({ pass: true });
+  });
+
+  it('refuses the same record with an unused tool that claims a source atom', async () => {
+    const tool = { atom: 'instruction.one', name: 'MadeUp' };
+    plant(OUTSIDE, [{ ask: OUTSIDE, spans: [], tool }], 'instruction.one', 'outside_trigger');
+    expect((await item())?.pass).toBe(false);
+    plant(OUTSIDE, [{ ask: OUTSIDE, spans: [] }], 'instruction.one', 'outside_trigger');
+    expect((await item())?.pass).toBe(false);
+  });
+
+  it('refuses an unknown field, an act or a situation the row never uses, and a tool on an act with a span', () => {
+    const row = new Set(['instruction.one', 'guard.edits']);
+    const refused = (record: object) => 'refused' in constructAsk(record, ATOMS, row);
+    expect(refused({ ask: OUTSIDE, spans: [] })).toBe(false);
+    expect(refused({ ask: OUTSIDE, spans: [], note: 'x' })).toBe(true);
+    expect(refused({ ask: OUTSIDE, spans: [], act: '{span}' })).toBe(true);
+    expect(refused({ ask: OUTSIDE, spans: [], situation: '{span}' })).toBe(true);
+    expect(refused({ ...GO_AHEAD, tool: { atom: 'guard.edits', name: 'Edit' } })).toBe(true);
+  });
+});
+
+describe('the verbatim source text of an atom gives a span, in the handle-this-for-me row', () => {
+  const row = new Set(['instruction.one']);
+  it('builds from the quote and from the trigger, and still refuses metadata', () => {
+    const handle = (field: string, from: number, to: number) =>
+      constructAsk(
+        {
+          ask: 'Please {act}.[ {situation}.]',
+          act: 'handle this for me: {span}',
+          spans: [{ slot: 'act', atom: 'instruction.one', field, from, to }],
+        },
+        ATOMS,
+        row,
+      );
+    expect(handle('provenance.quote', 0, 40)).toEqual({
+      text: 'Please handle this for me: Sort the inbox every morning before nine.',
+    });
+    const early = 'Please handle this for me: sorting the inbox early.';
+    expect(handle('fields.trigger', 0, 23)).toEqual({ text: early });
+    expect('refused' in handle('provenance.quote', 1, 40)).toBe(true);
+    expect('refused' in handle('title', 0, 14)).toBe(true);
   });
 });
 
