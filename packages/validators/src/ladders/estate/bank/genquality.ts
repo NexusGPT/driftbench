@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { parse } from 'yaml';
-import { rowSources } from '../ask-binding';
+import { borrowedSituation, rowSources } from '../ask-binding';
 import { askGrammar, declaredActs } from '../ask-grammar';
 import { ASK_TEMPLATES, type MapAtom } from '../reference-ask';
 import { FIXTURE, type FixtureSuite, fixtureSuite } from './fixture-suite';
@@ -196,12 +196,24 @@ function besideOrFixture(suite: FixtureSuite, name: string): string {
   return existsSync(beside) ? beside : join(FIXTURE, name);
 }
 
-type Situation = { use: string; atoms: string[]; phrases: string[] };
+type Situation = {
+  use: string;
+  atoms: string[];
+  phrases: string[];
+  cell?: Record<string, string>;
+  approved: Array<{ text: string; approved: boolean }>;
+};
 
 /** The situations of the phrase bank beside the suite, by id: their use, the atoms they set off, their phrases. */
 function situationsOf(suite: FixtureSuite): Map<string, Situation> {
   const bank = parse(readFileSync(besideOrFixture(suite, 'phrases.yaml'), 'utf8')) as {
-    situations?: Array<{ id?: string; use?: string; atoms?: string[]; phrases?: Array<{ text?: string }> }>;
+    situations?: Array<{
+      id?: string;
+      use?: string;
+      atoms?: string[];
+      cell?: Record<string, string>;
+      phrases?: Array<{ text?: string; approved?: boolean }>;
+    }>;
   };
   return new Map(
     (bank.situations ?? []).map((situation) => [
@@ -210,6 +222,11 @@ function situationsOf(suite: FixtureSuite): Map<string, Situation> {
         use: String(situation.use),
         atoms: situation.atoms ?? [],
         phrases: (situation.phrases ?? []).map((phrase) => String(phrase.text)),
+        ...(situation.cell ? { cell: situation.cell } : {}),
+        approved: (situation.phrases ?? []).map((phrase) => ({
+          text: String(phrase.text),
+          approved: phrase.approved === true,
+        })),
       },
     ]),
   );
@@ -242,7 +259,7 @@ type Judged = { why?: string };
  * - a recorded session's ask is the session's own message at the block the spec replays from; its act is the row.
  * An ask that carries no act sets off none of the row's atoms.
  */
-type PlanRow = { id: string; atomIds: string[]; testType: string };
+type PlanRow = { id: string; atomIds: string[]; testType: string; cell?: Record<string, string> };
 
 /** The rows of the approved plan beside the suite, by id: the validator's input, never the spec's own word. */
 function planRowsOf(suite: FixtureSuite): Map<string, PlanRow> {
@@ -291,7 +308,16 @@ function judgeAsk(
     if (!banked.phrases.includes(ask)) return { why: `the ask is no phrase of ${String(meta.situation)}` };
     const outside = banked.use === 'outside' || banked.use === 'near_miss';
     if (outside !== noAct) return { why: `the situation ${String(meta.situation)} is of use ${banked.use}` };
-    return outside ? none() : acts(banked.atoms);
+    if (outside) return none();
+    // A tool row no situation lists borrows the one situation of its own file (docs/estate.md section 5): the act
+    // is that situation's, set off by the fake, though none of its atoms is on the row.
+    const all = [...situations.values()].map((one) => ({ ...one, phrases: one.approved }));
+    const lent = borrowedSituation({ atomIds: rowAtoms, cell: row.cell }, use, all, byId);
+    if (lent !== undefined && lent.atoms === banked.atoms)
+      return banked.atoms.some((id) => fired.includes(id))
+        ? {}
+        : { why: 'the fake does not set off its act' };
+    return acts(banked.atoms);
   }
   if (meta.ask === 'code') {
     if (typeof meta.askFrom !== 'string' || meta.askFrom === '') return { why: 'it carries no act' };

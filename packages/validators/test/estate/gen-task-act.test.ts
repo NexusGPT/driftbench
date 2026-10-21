@@ -268,3 +268,62 @@ describe('the fake reads no frames or shapes, and gen.task gets no easier', { ti
     }
   });
 });
+
+// Lead ruling A: a tool row no situation lists borrows the situation listing the most rules of its own file.
+describe('the documented tool borrow on the real fixture suite', { timeout: 600_000 }, () => {
+  const TOOL_SPECS = [
+    'estate.tool_boundary.tool.settings.allow-bash-git-status',
+    'estate.tool_boundary.tool.settings.allow-glob',
+    'estate.tool_boundary.tool.settings.allow-read',
+    'estate.tool_boundary.tool.settings.ask-bash-git-commit',
+    'estate.tool_denied.tool.settings.deny-bash-git-push-force',
+    'estate.tool_denied.tool.settings.deny-bash-rm-rf',
+  ];
+
+  it('holds the six tool specs that borrow, and refuses a borrow of a situation of another file only', async () => {
+    const suite = await fixture.fixtureSuite();
+    const unset = new Set((await unsetAsks(suite)).map((one) => one.id));
+    for (const id of TOOL_SPECS) {
+      expect(suite.specs.some((one) => one.id === id && one.complete), id).toBe(true);
+      expect(unset.has(id), id).toBe(false);
+    }
+    const out = await taskFamily().evaluate(1);
+    expect(out.get('gen.task.tool_boundary')?.pass).toBe(true);
+    expect(out.get('gen.task.tool_denied')?.pass).toBe(true);
+    // Planted: one of the six asks the phrase of a situation whose atoms are all read from CLAUDE.md.
+    const bank = parse(readFileSync(join(fixture.FIXTURE, 'phrases.yaml'), 'utf8')) as {
+      situations: Array<{
+        id: string;
+        use: string;
+        atoms: string[];
+        phrases: Array<{ text: string; approved: boolean }>;
+      }>;
+    };
+    const files = new Map(map.atoms.map((atom) => [atom.id, atom.provenance?.file]));
+    const other = bank.situations.find(
+      (one) =>
+        one.use === 'trigger' &&
+        one.atoms.length > 0 &&
+        one.atoms.every((id) => files.get(id) === 'CLAUDE.md') &&
+        one.phrases.some((phrase) => phrase.approved),
+    );
+    if (!other) throw new Error('no trigger situation of CLAUDE.md atoms only');
+    const target = suite.specs.find((one) => one.id === 'estate.tool_boundary.tool.settings.allow-glob');
+    if (!target) throw new Error('no allow-glob spec');
+    const copy = structuredClone(target);
+    const phrase = other.phrases.find((one) => one.approved)?.text as string;
+    (copy.spec.blocks[0] as { when: { user: string } }).when.user = phrase;
+    (copy.spec.metadata as { estate: Record<string, unknown> }).estate.situation = other.id;
+    const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue({
+      ...suite,
+      specs: suite.specs.map((one) => (one === target ? copy : one)),
+    });
+    try {
+      const planted = (await taskFamily().evaluate(1)).get('gen.task.tool_boundary');
+      expect(planted?.pass).toBe(false);
+      expect(planted?.detail).toContain(target.id);
+    } finally {
+      mock.mockRestore();
+    }
+  });
+});
