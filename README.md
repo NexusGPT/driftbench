@@ -702,9 +702,10 @@ The stored run fails on `must.1`, stamped `check-set:default@fd61f704`. The re-s
 |---|---|
 | `driftbench object list`, `object show <kind>/<id>` | List the objects, and print one with its items |
 | `driftbench object explain <kind> --at <spec>[#<block>]` | Print the object a block uses, each item with the layer, file and line that set it |
-| `driftbench object diff` | Compare two objects, item by item |
+| `driftbench object diff <a> <b>` | Compare two objects of one kind, item by item; exit 1 when they differ |
 | `driftbench object init <kind> <id> --from <parent>` | Write `driftbench/<kind>/<id>.yaml`, an object that extends its parent, with every parent item listed as a comment |
-| `driftbench object validate`, `object graph` | Check an object file (an unknown item id is refused, with the parent's list), and print which objects extend which |
+| `driftbench object validate [paths]` | Check object files, or every object the folder sees: schema, references, items, order, implementations and parameters. An unknown item id is refused, with the parent's list |
+| `driftbench object graph <spec>` | Print the objects each block of a spec uses, with where each reference was set and its parents |
 | `driftbench object migrate persona` | Split an old persona file into persona, scenario and situational objects |
 | `driftbench campaign rejudge --use <kind>/<id>` | Score stored runs again under an object, with no agent call |
 
