@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rngFor } from '@agent-nexus/driftbench-generate';
 import { type PointerSut, ReaderNotReachable } from '../sut/port';
+import type { Control } from './controls';
 import { fail, type Outcome, type PointerItem, Problem } from './types';
 
 /** The longest an item may take before it fails, in milliseconds. */
@@ -76,6 +77,25 @@ const IN_ITEM_CHILD = process.env.DRIFTBENCH_POINTER_ITEM_CHILD === '1';
 type Worker = { child: ChildProcess; busy: boolean };
 
 /**
+ * A process that serves items, and what the runner keeps of it. The runner has one for the system under test the
+ * environment names; a control starts another for a planted reader (`harness-probe.ts`), with the module named.
+ */
+export type Pool = {
+  /** The module the child resolves the system under test from; absent: the environment names it. */
+  readonly sutModule?: string;
+  worker?: Promise<Worker | undefined>;
+  /** The child last started, for the exit of this process. */
+  started?: ChildProcess;
+};
+const shared: Pool = {};
+const everStarted = new Set<ChildProcess>();
+
+/** A pool of its own, whose child resolves the system under test from `sutModule`. */
+export function newPool(sutModule: string): Pool {
+  return { sutModule };
+}
+
+/**
  * Stops the child and everything it started. The child leads a process group of its own, and a scan it runs may
  * start processes of its own (the bank's sandboxed children): killing the child alone leaves them spinning.
  */
@@ -87,11 +107,8 @@ function killGroup(child: ChildProcess): void {
   }
   child.kill('SIGKILL');
 }
-let worker: Promise<Worker | undefined> | undefined;
-/** The child last started, for the exit of this process. */
-let started: ChildProcess | undefined;
 
-function spawnWorker(): Promise<Worker | undefined> {
+function spawnWorker(pool: Pool): Promise<Worker | undefined> {
   const repo = resolve(HERE, '../../../../../..');
   const loader = join(repo, 'node_modules/tsx/dist/esm/index.mjs');
   if (!existsSync(ITEM_CHILD) || !existsSync(loader)) return Promise.resolve(undefined);
@@ -101,6 +118,7 @@ function spawnWorker(): Promise<Worker | undefined> {
       detached: true,
       env: {
         ...process.env,
+        ...(pool.sutModule !== undefined ? { DRIFTBENCH_POINTER_SUT: pool.sutModule } : {}),
         DRIFTBENCH_POINTER_ITEM_CHILD: '1',
         TSX_TSCONFIG_PATH: process.env.TSX_TSCONFIG_PATH ?? join(repo, 'tsconfig.json'),
       },
@@ -110,7 +128,8 @@ function spawnWorker(): Promise<Worker | undefined> {
       killGroup(child);
       done(undefined);
     }, 120_000);
-    started = child;
+    pool.started = child;
+    everStarted.add(child);
     // The child must not keep this process alive once the run is over: a pending item holds the loop with its
     // limit timer, and the exit hook below stops the group.
     child.unref();
@@ -121,6 +140,7 @@ function spawnWorker(): Promise<Worker | undefined> {
     });
     child.once('exit', () => {
       clearTimeout(gave);
+      everStarted.delete(child);
       done(undefined);
     });
   });
@@ -133,12 +153,16 @@ function spawnWorker(): Promise<Worker | undefined> {
  * can be started, and the caller runs the item in this process.
  */
 export async function isolated<T>(
-  request: { run: { id: string; seed: number } } | { blind: { id: string; seed: number } },
+  request:
+    | { run: { id: string; seed: number } }
+    | { blind: { id: string; seed: number } }
+    | { control: Control },
   limit: number,
   stopped: (why: string) => T,
+  pool: Pool = shared,
 ): Promise<T | undefined> {
-  worker ??= spawnWorker();
-  const live = await worker;
+  pool.worker ??= spawnWorker(pool);
+  const live = await pool.worker;
   if (!live) return undefined;
   return new Promise<T>((done) => {
     let finished = false;
@@ -151,7 +175,7 @@ export async function isolated<T>(
       done(outcome);
     };
     const stop = (why: string) => {
-      worker = undefined;
+      pool.worker = undefined;
       killGroup(live.child);
       end(stopped(why));
     };
@@ -166,7 +190,7 @@ export async function isolated<T>(
       if (message.done !== undefined) end(message.done);
     };
     const onExit = (code: number | null) => {
-      worker = undefined;
+      pool.worker = undefined;
       end(stopped(`the item stopped the reader's process (exit code ${code})`));
     };
     live.child.on('message', onMessage);
@@ -177,20 +201,25 @@ export async function isolated<T>(
 
 /** The process group of the child that serves the items, for the tests that look for what it leaves behind. */
 export function itemChildGroup(): number | undefined {
-  return started?.pid;
+  return shared.started?.pid;
 }
 
-/** Stops the child that serves the items; the next item starts another. */
-export async function stopItemChild(): Promise<void> {
-  const current = worker;
-  worker = undefined;
+/** Stops the child of a pool; the next item starts another. */
+export async function stopPool(pool: Pool): Promise<void> {
+  const current = pool.worker;
+  pool.worker = undefined;
   const live = await current;
   if (live) killGroup(live.child);
 }
 
+/** Stops the child that serves the items; the next item starts another. */
+export function stopItemChild(): Promise<void> {
+  return stopPool(shared);
+}
+
 // A run that ends leaves no child behind.
 process.on('exit', () => {
-  if (started) killGroup(started);
+  for (const child of everStarted) killGroup(child);
 });
 
 async function execute(item: PointerItem, seed: number, sut: PointerSut): Promise<Outcome> {

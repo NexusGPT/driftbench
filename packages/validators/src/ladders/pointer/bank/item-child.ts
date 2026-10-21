@@ -1,4 +1,5 @@
 import { resolveSut } from '../sut/adapter';
+import { type Control, runControl } from './controls';
 import { executeHere } from './run';
 import type { Outcome } from './types';
 
@@ -16,7 +17,11 @@ async function main(): Promise<void> {
   const { pointerBank: blindItems } = await import('../blind/bank/index');
   const { runBlind } = await import('./blind');
   const blind = blindItems();
-  process.on('message', async (message: { run?: Job; blind?: Job }) => {
+  process.on('message', async (message: { run?: Job; blind?: Job; control?: Control }) => {
+    if (message.control) {
+      process.send?.({ done: await runControl(message.control, sut) });
+      return;
+    }
     if (message.blind) {
       const wanted = message.blind;
       const item = blind.find((candidate) => candidate.id === wanted.id);

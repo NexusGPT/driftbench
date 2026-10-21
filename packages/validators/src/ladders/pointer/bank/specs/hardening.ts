@@ -11,9 +11,41 @@ export const HARDENING_CAP_MS = 90_000;
 /** The item whose reader call runs in a child process: the child is killed at 120 s, the item at 150 s. */
 export const HARDENING_CHILD_CAP_MS = 150_000;
 
+/** The items that start a process of their own for a planted reader: two of them, each with a load of the reader. */
+export const HARDENING_PROBE_CAP_MS = 140_000;
+
 const cap = { capMs: HARDENING_CAP_MS } as const;
 
 export const HARDENING_SPECS: Record<string, Spec[]> = {
+  adversarial: [
+    row(
+      'verdict-channel-is-not-the-readers',
+      4,
+      'A reader that rewrites the verdicts its process sends, or writes a pass to the channel of the parent, gains nothing',
+      'Two planted readers, each broken (it cuts nothing) and each carrying a cheat that runs when it loads: one wraps `process.send` and rewrites every verdict into a pass, one writes a forged pass to the descriptor of the IPC channel. The harness serves each from a process of its own and asks one control cut.',
+      'The control fails on the outputs of the reader, or the process of the reader ends. A control that passes means the reader reached the verdict.',
+      'harness:reader-runs-apart-from-the-oracle',
+      { component: 'harness', needs: ['child'], seedFree: true, capMs: HARDENING_PROBE_CAP_MS, role: 'catch' },
+    ),
+    row(
+      'sut-env-not-trusted-in-reader-process',
+      4,
+      'A reader that sets DRIFTBENCH_POINTER_SUT when it loads changes neither the reader that ran nor the reader of a sandboxed process',
+      'One planted reader that cuts a marker and, when it loads and when it is called, points `DRIFTBENCH_POINTER_SUT` at a second reader that cuts another marker. The harness asks one control cut here and one in a sandboxed process.',
+      'Both cuts give the marker of the planted reader. The marker of the second reader means the harness read the variable after the reader changed it.',
+      'harness:pin-the-reader-before-it-loads',
+      { component: 'harness', needs: ['child'], seedFree: true, capMs: HARDENING_PROBE_CAP_MS, role: 'catch' },
+    ),
+    row(
+      'reader-imports-no-bank',
+      2,
+      'The source of the reader names nothing of the validators',
+      'Every source file of `packages/estate/src/pointer`, read for its import, export-from, dynamic import, require and `new URL` specifiers.',
+      'No specifier names a `validators` folder or the validators package. A reader that imports the bank, an oracle or the reference reader can read the truth of an item.',
+      'harness:reader-imports-no-validators',
+      { component: 'harness', needs: ['scan'], seedFree: true, ...cap, role: 'catch' },
+    ),
+  ],
   cutting: [
     row(
       'url-query-capital-after-mark',

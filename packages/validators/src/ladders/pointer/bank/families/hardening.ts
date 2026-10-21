@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { anchorCase } from '../../kit/anchor-case';
 import { allTexts, cloneWorld, filesOf, worldOf } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
@@ -11,6 +12,9 @@ import { keyOf, RULES_YAML } from '../../kit/sets';
 import { fakeTransport } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, word } from '../../kit/words';
 import type { Labeler, LedgerView, ScanResult } from '../../sut/port';
+import { PLANTS, probe, readerGainedNothing } from '../harness-probe';
+import { MARKER_PLANTED } from '../plants/broken';
+import { importsOfValidators } from '../reader-imports';
 import { fail, type ItemContext, Problem, pass, type Run } from '../types';
 
 /**
@@ -489,7 +493,46 @@ const labels: Record<string, Run> = {
   },
 };
 
+/* ----- adversarial: the reader and the verdict ----- */
+
+/** The folder of the reader: `packages/estate/src/pointer`, seen from this file. */
+const READER_DIR = fileURLToPath(new URL('../../../../../../estate/src/pointer', import.meta.url));
+
+const adversarial: Record<string, Run> = {
+  'verdict-channel-is-not-the-readers': async () => {
+    const cheats = [
+      ['wraps the send of its process', PLANTS.send],
+      ['writes a pass to the descriptor of the channel', PLANTS.fd],
+    ] as const;
+    for (const [what, plant] of cheats) {
+      const out = await probe(plant, { name: 'verdict' });
+      if (out.pass)
+        return fail(
+          `a broken reader that ${what} made a failing control pass: the verdict is within its reach`,
+        );
+      if (!readerGainedNothing(out))
+        return fail(`the control did not run on the broken reader that ${what}: ${out.detail}`);
+    }
+    return pass('a reader that wraps the send or writes to the channel gains nothing');
+  },
+  'sut-env-not-trusted-in-reader-process': async () => {
+    const out = await probe(PLANTS.env, { name: 'sandbox-cut', expect: MARKER_PLANTED });
+    return out.pass
+      ? pass('a reader that set the environment at load changed neither process it ran in')
+      : fail(`a reader that set DRIFTBENCH_POINTER_SUT at load changed which reader ran: ${out.detail}`);
+  },
+  'reader-imports-no-bank': async () => {
+    const found = importsOfValidators(READER_DIR);
+    return found.length === 0
+      ? pass('no source of the reader names the validators')
+      : fail(
+          `the reader names the validators in ${found.length} place(s): ${found.slice(0, 3).join('; ')}`,
+        );
+  },
+};
+
 export const HARDENING_RUNS: Record<string, Record<string, Run>> = {
+  adversarial,
   cutting,
   ids,
   're-anchoring': reanchoring,
