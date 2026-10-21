@@ -608,7 +608,9 @@ export class TreeWatch {
   private static names(folder: string): string {
     if (!existsSync(folder)) return '(absent)';
     const out: string[] = [];
+    // A package name never starts with a dot: .cache, .vite, .bin and .pnpm are not packages, and other tools write them.
     for (const name of readdirSync(folder).sort()) {
+      if (name.startsWith('.')) continue;
       if (name.startsWith('@')) {
         let inner: string[] = [];
         try {
