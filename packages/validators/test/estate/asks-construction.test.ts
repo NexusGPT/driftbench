@@ -418,3 +418,83 @@ describe('a misroute is judged by its construction or its situation, never by it
     expect((await misroute())?.pass).toBe(false);
   });
 });
+
+// docs/estate.md section 5: a tool row that no situation lists borrows the situation listing the most rules of the
+// tool atom's own file (lead ruling A). Re-derived from the map and the bank, never taken from the spec.
+describe('a tool row borrows only the situation of its own file', () => {
+  const settings = (id: string, kind = 'tool'): MapAtom => ({
+    id,
+    kind,
+    title: id,
+    provenance: { file: '.claude/settings.json', quote: id },
+  });
+  const standing = (id: string): MapAtom => ({
+    id,
+    kind: 'register',
+    title: id,
+    provenance: { file: 'CLAUDE.md', quote: id },
+  });
+  const TOOL = settings('tool.settings.allow-glob');
+  const SIBLING = settings('tool.settings.allow-grep');
+  const SIBLING_TWO = settings('tool.settings.allow-read');
+  const REGISTER = standing('register.standing.r1');
+  const SITUATIONS = [
+    // Listed first: one atom of CLAUDE.md only, so the tie-break never favours it.
+    {
+      id: 'tone',
+      use: 'trigger',
+      atoms: [REGISTER.id],
+      phrases: [{ text: 'Answer in one line.', approved: true }],
+    },
+    {
+      id: 'open-items',
+      use: 'trigger',
+      atoms: [SIBLING.id, SIBLING_TWO.id, REGISTER.id],
+      phrases: [{ text: 'Give me a short status.', approved: true }],
+    },
+  ];
+  function plantTool(ask: string) {
+    const row = {
+      id: `tool_boundary.${TOOL.id}`,
+      atomIds: [TOOL.id],
+      testType: 'tool_boundary',
+      mode: 'live',
+      cell: {},
+    };
+    state.run = {
+      bank: { situations: SITUATIONS },
+      plan: { plan: { rows: [row] } },
+      scanned: { map: { atoms: [TOOL, SIBLING, SIBLING_TWO, REGISTER] } },
+    };
+    state.verdicts = [
+      {
+        complete: true,
+        valid: true,
+        distinct: true,
+        spec: {
+          record: { id: 'tool', row: row.id, testType: row.testType },
+          loaded: {
+            spec: {
+              tags: ['test:tool_boundary'],
+              metadata: {
+                estate: { ask: 'bank', planRow: row.id, atoms: row.atomIds, testType: row.testType },
+              },
+              blocks: [{ when: { user: ask } }],
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  it('control: the phrase of the situation listing the most rules of the tool file holds', async () => {
+    plantTool('Give me a short status.');
+    expect(await item()).toMatchObject({ pass: true });
+  });
+
+  it('refuses the phrase of a situation whose atoms come from another file only', async () => {
+    plantTool('Answer in one line.');
+    const refused = { pass: false, detail: expect.stringContaining('of no situation of its row') };
+    expect(await item()).toMatchObject(refused);
+  });
+});

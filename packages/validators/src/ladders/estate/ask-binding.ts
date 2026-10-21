@@ -62,17 +62,61 @@ export function rebuiltAsk(
   return typeof source === 'string' ? { source } : {};
 }
 
-/** The bank situation an ask is an approved phrase of, held by an atom of the row's sources, if any. */
-type BankSituation = { use: string; atoms: string[]; phrases: Array<{ text: string; approved?: boolean }> };
+/**
+ * The bank situation an ask is an approved phrase of, held by an atom of the row's sources or the one situation the
+ * row borrows (borrowedSituation), if any.
+ */
+type BankSituation = {
+  use: string;
+  atoms: string[];
+  phrases: Array<{ text: string; approved?: boolean }>;
+  cell?: Record<string, string>;
+};
+
+/**
+ * The situation a tool row borrows (docs/estate.md section 5: "a tool boundary uses a situation listing the most
+ * rules from its own file"), re-derived from the map and the bank: only for a trigger row whose head is a tool, that
+ * names no skill or helper, and that no situation of its use lists; then the situation of that use, its pins agreeing
+ * with the row's cell, that lists the most atoms read from the tool atom's own file, the first in bank order on a
+ * tie; none when no situation lists such an atom.
+ */
+export function borrowedSituation<S extends BankSituation>(
+  row: { atomIds: readonly string[]; cell?: Readonly<Record<string, string>> },
+  use: string,
+  situations: readonly S[],
+  atoms: ReadonlyMap<string, MapAtom>,
+): S | undefined {
+  const head = atoms.get(row.atomIds[0] ?? '');
+  if (head?.kind !== 'tool' || use !== 'trigger') return undefined;
+  if (row.atomIds.some((id) => ['skill', 'subagent'].includes(atoms.get(id)?.kind ?? ''))) return undefined;
+  const listed = situations.some((situation) => situation.use === use && situation.atoms.includes(head.id));
+  if (listed) return undefined;
+  const file = head.provenance?.file;
+  if (!file) return undefined;
+  let best: S | undefined;
+  let most = 0;
+  for (const situation of situations) {
+    if (situation.use !== use) continue;
+    const pins = Object.entries(situation.cell ?? {});
+    if (pins.some(([key, value]) => row.cell?.[key] !== undefined && row.cell[key] !== value)) continue;
+    const siblings = situation.atoms.filter((id) => atoms.get(id)?.provenance?.file === file).length;
+    if (siblings > most) {
+      best = situation;
+      most = siblings;
+    }
+  }
+  return best;
+}
 
 export function bankSituation<S extends BankSituation>(
   situations: readonly S[],
   ask: string,
   sources: ReadonlySet<string>,
+  borrowed?: S,
 ): S | undefined {
   return situations.find(
     (situation) =>
       situation.phrases.some((phrase) => phrase.approved === true && phrase.text === ask) &&
-      situation.atoms.some((id) => sources.has(id)),
+      (situation === borrowed || situation.atoms.some((id) => sources.has(id))),
   );
 }

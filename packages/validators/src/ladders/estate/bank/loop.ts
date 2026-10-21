@@ -6,7 +6,7 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
-import { bankSituation, rebuiltAsk, rowSources } from '../ask-binding';
+import { bankSituation, borrowedSituation, rebuiltAsk, rowSources } from '../ask-binding';
 import { completionComponents, componentSpec } from '../completion';
 import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
@@ -802,7 +802,9 @@ const ASKS: AskCheck[] = [
         const row = rowOf(v);
         if (!row) return 'no plan row';
         const sources = rowSources(row.atomIds, mapAtoms);
-        const loose = asks.find((ask) => bankSituation(run.bank.situations, ask, sources) === undefined);
+        const lent = borrowedSituation(row, useOfRow(row), run.bank.situations, mapAtoms);
+        const bound = (ask: string) => bankSituation(run.bank.situations, ask, sources, lent) !== undefined;
+        const loose = asks.find((ask) => !bound(ask));
         return loose === undefined ? undefined : `the phrase "${loose}" is of no situation of its row`;
       };
       // Why a spec's code-written ask is not disclosed, or undefined when it is.
