@@ -1,12 +1,15 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import { main } from '../../packages/cli/src/index';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '');
 const FOLD = /<details><summary>How to do it([^<]*)<\/summary>([\s\S]*?)<\/details>/g;
+const exec = promisify(execFile);
 const FILE_LINE = /^(?:#|\/\/) file: (.+)\n/;
 
 type Step = { command: string; shown: string[]; exit: number };
@@ -54,7 +57,17 @@ function steps(block: string): Step[] {
   return found;
 }
 
-/** Runs one shown command in `cwd` and returns its exit code and printed lines, with absolute paths made relative. */
+/** The printed lines of a command: no blank line, no trailing space, no absolute path of the clone or the folder. */
+function clean(text: string, cwd: string): string[] {
+  return text
+    .replaceAll(`${ROOT}/`, '')
+    .replaceAll(`${cwd}/`, '')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line !== '');
+}
+
+/** Runs one shown driftbench command in `cwd` and returns its exit code and printed lines. */
 async function run(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
   const argv = words(command.replaceAll('$PWD', cwd));
   while (['pnpm', 'npx', 'driftbench'].includes(argv[0] ?? '')) argv.shift();
@@ -69,13 +82,25 @@ async function run(command: string, cwd: string): Promise<{ code: number; lines:
       text += chunk;
     },
   });
-  const lines = text
-    .replaceAll(`${ROOT}/`, '')
-    .replaceAll(`${cwd}/`, '')
-    .split('\n')
-    .map((line) => line.trimEnd())
-    .filter((line) => line !== '');
-  return { code, lines };
+  return { code, lines: clean(text, cwd) };
+}
+
+/** Runs one shown shell command (grep, sed, cp, mkdir) in `cwd`. */
+async function shell(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
+  try {
+    const done = await exec('/bin/sh', ['-c', command], { cwd });
+    return { code: 0, lines: clean(`${done.stdout}${done.stderr}`, cwd) };
+  } catch (error) {
+    const failed = error as { code?: number; stdout?: string; stderr?: string };
+    const text = `${failed.stdout ?? ''}${failed.stderr ?? ''}`;
+    return { code: failed.code ?? 1, lines: clean(text, cwd) };
+  }
+}
+
+/** A command of the walkthrough: driftbench, or the shell. */
+async function execute(command: string, cwd: string): Promise<{ code: number; lines: string[] }> {
+  if (/^(pnpm |npx )?driftbench /.test(command)) return run(command, cwd);
+  return shell(command, cwd);
 }
 
 /** What a step shows is its printed output, in order, and its exit code. */
@@ -95,7 +120,7 @@ function mismatch(step: Step, got: { code: number; lines: string[] }): string[] 
 }
 
 async function report(command: string, step: Step, cwd: string): Promise<string> {
-  const got = await run(command, cwd);
+  const got = await execute(command, cwd);
   const found = mismatch(step, got);
   if (found.length === 0) return '';
   return `$ ${command}\n${found.join('\n')}\nPrinted:\n${got.lines.join('\n')}\n`;
@@ -161,5 +186,31 @@ describe('README commands that print what they show', () => {
     }
     expect(shown).toBeGreaterThan(10);
     expect(problems.join('\n')).toBe('');
+  }, 600_000);
+
+  it('runs the walkthrough on the fixture estate, one folder, step by step', async () => {
+    const readme = await readFile(`${ROOT}/README.md`, 'utf8');
+    const after = readme.split('\n## A walkthrough on one small estate\n')[1] ?? '';
+    const section = after.split('\n## Results\n')[0] ?? '';
+    const consoles = [...section.matchAll(/```console\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? '');
+    expect(consoles.length).toBeGreaterThan(6);
+    const base = await mkdtemp(join(tmpdir(), 'driftbench-walk-'));
+    try {
+      await symlink(join(ROOT, 'examples'), join(base, 'examples'));
+      let cwd = base;
+      const problems: string[] = [];
+      for (const block of consoles) {
+        for (const step of steps(block)) {
+          if (step.command.startsWith('cd ')) {
+            cwd = join(cwd, step.command.slice(3).trim());
+            continue;
+          }
+          problems.push(await report(step.command, step, cwd));
+        }
+      }
+      expect(problems.filter((problem) => problem !== '').join('\n')).toBe('');
+    } finally {
+      await rm(base, { recursive: true, force: true });
+    }
   }, 600_000);
 });
