@@ -40,6 +40,8 @@ export class TerminalSubsumption {
   private readonly held: Uint8Array[];
   /** Blocks written so far, by what makes two blocks the same test. */
   private readonly blocks = new Map<string, ReducedEnds['duplicates'][number]['duplicate_of']>();
+  /** The user messages the written specs say: a cut never removes the only place an approved phrase is said. */
+  private readonly said = new Set<string>();
   /** The key of the last block of every walk written: one walk ends on each. */
   private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
@@ -111,6 +113,7 @@ export class TerminalSubsumption {
         if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
         const reduced = validateSpec(this.cut(spec, last));
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
+        if (!this.phrasesHold(spec.blocks[last])) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
@@ -163,6 +166,20 @@ export class TerminalSubsumption {
     this.observeSpec(spec);
   }
 
+  /** The messages a block says: its user turn, or the turns of a burst. */
+  private textsOf(block: Spec['blocks'][number] | undefined): string[] {
+    const when = block?.when;
+    if (when === undefined) return [];
+    if ('user' in when) return [when.user];
+    if ('burst' in when) return when.burst;
+    return [];
+  }
+
+  /** Every message the block says is already said by a written spec. */
+  private phrasesHold(block: Spec['blocks'][number] | undefined): boolean {
+    return this.textsOf(block).every((text) => this.said.has(text));
+  }
+
   /** The spec without the blocks from `length` on: a link that names a removed block goes with it. */
   private cut(spec: Spec, length: number): Spec {
     const kept = new Set(spec.blocks.slice(0, length).map((block) => block.id));
@@ -185,6 +202,7 @@ export class TerminalSubsumption {
 
   /** What a spec written by other code places: tasks are never reduced but their obligations are met. */
   observeSpec(spec: Spec): void {
+    for (const block of spec.blocks) for (const text of this.textsOf(block)) this.said.add(text);
     spec.blocks.forEach((_, index) => {
       const key = this.key(spec, index);
       const family = (spec.metadata?.generated as { metamorphic?: { family: string } } | undefined)

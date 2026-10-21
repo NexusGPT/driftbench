@@ -362,6 +362,7 @@ A stage, class or behaviour that no approved path or phrase can reach stays unde
 A walk often ends the way another walk already ended: the same test, run from the same stage, expecting the same. The generator does not write that end again. As it builds the suite, it drops the last block of a walk when all of these hold:
 
 * Another block already written is the same test: it runs from the same stage, expects the same Then and outcomes, and gets the same tool answers, however the user turn is worded, in the same language and under the same rules. The wording of the user turn is not part of the test. The channel and the persona it is written for, and the perturbations it declares, are not part of that: no agent receives them, and a perturbed run still reaches every block it needs (see the last item). The first block written stays.
+* Every message the block says is said by a spec already written: a wording that only this block carries is an approved phrase the suite would lose, and the block stays.
 * Every coverage tuple the walk placed is placed by a spec already written, at the strengths the coverage grid counts (1, 2, 3 and `--t`).
 * Every ordered pair of consecutive moves the walk took (a stage move and the class said with it) is taken by a spec already written.
 * The stage and class allocation is no further from balance (see the previous section).

@@ -38,6 +38,14 @@ const endsElsewhere = (draft: ReturnType<typeof walk>) => {
   return draft;
 };
 
+// The same walk with its first message worded as lastWordedAnother words the last one.
+const firstWorded = (draft: ReturnType<typeof walk>) => {
+  const first = draft.blocks[0];
+  if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
+  first.stimulus = { ...first.stimulus, phrase: { ...first.stimulus.phrase, text: 'Pack it now, thank you.' } };
+  return draft;
+};
+
 // The same walk with its last message worded another way: the same test, said differently.
 const lastWordedAnother = (draft: ReturnType<typeof walk>) => {
   const last = draft.blocks.at(-1);
@@ -592,12 +600,23 @@ describe('terminal subsumption and the wording of a turn', () => {
 
   it('reads two blocks that differ only in the wording of the user turn as one test', () => {
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path);
+    // The wording of the second walk's last turn is already said by the first walk, in another place.
+    const written = firstWorded(walk(prepared, 'written', path));
     const again = lastWordedAnother(walk(prepared, 'again', path));
     const length = again.blocks.length;
     minimal.reduce(written);
     minimal.reduce(again);
     expect(again.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps the end of a block whose wording no written spec says: the phrase would be lost', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path);
+    const again = lastWordedAnother(walk(prepared, 'again', path));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
   });
 
   it('keeps the end of a block that expects another Then, however alike the turn reads', () => {
