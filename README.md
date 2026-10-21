@@ -733,12 +733,12 @@ $ grep -B1 -A9 "id: instruction.weekly-report.count-only-what-the-ledger-and" ma
 (pending)
 ```
 
-The **tests.** Each generated test names the atoms it covers. This lists the first three tests that name that atom:
+The **tests.** Each generated test names the atoms it covers. Three tests name that atom: the obligation itself, a twin that checks it is not over-applied, and an outside-trigger control. This lists them, then shows the links of the first:
 
 ```console
 $ grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" generated/specs/live | sort | head -3
 (pending)
-$ grep -A8 "^  links:" generated/specs/live/estate.pairwise.XXXX.yaml
+$ grep -A8 "^  links:" generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 (pending)
 ```
 
@@ -749,14 +749,14 @@ $ grep -A8 "^  links:" generated/specs/live/estate.pairwise.XXXX.yaml
 The problem: what is a test, and how do you run one? A test is a spec file. It holds blocks. A block has three parts: where it starts (`given`), what the user says (`when`) and what must be true afterwards (`expect`). This is the block of the test above:
 
 ```console
-$ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/estate.pairwise.XXXX.yaml
+$ sed -n '/^blocks:/,/^perturbations:/p' generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml
 (pending)
 ```
 
 To run it, `estate run` starts the agent in a sandbox copy of the estate and sends the block. Here the agent is a stand-in script, so nothing is spent:
 
 ```console
-$ driftbench estate run generated/specs/live/estate.pairwise.XXXX.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
+$ driftbench estate run generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store original.db --map approved.yaml --states northwind/live/states/library.json
 (pending)
 ```
 
