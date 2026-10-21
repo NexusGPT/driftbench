@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from ref_common import *  # noqa: F401,F403,E402
 
+KEEP = ['ruleOfThreeUpperBound', 'betaTailProbability']
 functions = []
 DOC = "docs/statistics/bayes.md#"
 Z95 = 1.959963984540054
@@ -152,7 +153,7 @@ def tail_alt(a, b, x):
 
 cases = []
 for a, b, x in [(1, 1, 0.25), (2, 3, 0.5), (5, 5, 0.5), (3, 2, 0), (4, 6, 1), (1, 5, 0.1), (10, 30, 0.2), (8, 3, 0.7),
-                (25, 15, 0.6)]:
+                (25, 15, 0.6), (60, 45, 0.55), (120, 80, 0.6)]:  # the last two: N above 50, where the product sums by incomplete beta
     t = tail(a, b, x)
     assert t == tail_alt(a, b, x)
     assert t == 1 - tail_alt(b, a, 1 - frac(x))  # P(X > x) = 1 - P(1 - X > 1 - x) with 1 - X ~ Beta(b, a)
@@ -453,6 +454,8 @@ functions.append(function("ruleOfThreeUpperBound", "intervals", DOC + "ruleofthr
                           [[0, 0.95], [-5, 0.95], [2.5, 0.95], [10, 0], [10, 1], [10, -0.1], [10, 1.5], [10, "NaN"],
                            ["Infinity", 0.95]]))
 
+# Only the functions driftbench uses are in the bank (docs/validators.md 12.2: no padding).
+functions = [f for f in functions if f["fn"] in KEEP]
 write("bayes", "Exact arithmetic: Fraction for every rational result, Decimal at 120 digits for sqrt, ln, exp, asin, sin and "
       "cos. No driftbench code is run.", functions)
 

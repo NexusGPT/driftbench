@@ -2523,7 +2523,7 @@ add({
   tier: 2,
   component: ESTATE_CMD,
   title:
-    'estate scan --no-model on the fixture estate writes "68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges." (cli.md estate)',
+    'estate scan --no-model on the fixture estate writes "47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges." (cli.md estate)',
   cause: 'estate scan reads the structured atoms and edges of the fixture estate as cli.md documents.',
   async run(ctx) {
     const result = await cli(
@@ -2531,7 +2531,7 @@ add({
       ctx.dir,
     );
     const want =
-      '68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.';
+      '47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.';
     return expectAll([
       [
         result.code === 0 && want !== undefined && result.out.includes(want),

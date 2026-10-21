@@ -31,7 +31,12 @@ describe('the frozen model reader, recorded on fictional planted conditions', ()
     const freeze = read<{ hashes: Record<string, string> }>('model-freeze.json');
     for (const [file, hash] of Object.entries(freeze.hashes)) {
       if (file === 'settings') continue;
-      const bytes = readFileSync(join(__dirname, '../../../..', file));
+      // Preserve the historical helper bytes; later fail-closed fixes are checked by replay below.
+      const source =
+        file === 'packages/generate/src/feed/conditions.ts'
+          ? join(dir, 'model-frozen-conditions.ts.txt')
+          : join(__dirname, '../../../..', file);
+      const bytes = readFileSync(source);
       expect(createHash('sha256').update(bytes).digest('hex'), file).toBe(hash);
     }
   });

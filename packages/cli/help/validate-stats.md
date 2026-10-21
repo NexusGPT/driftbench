@@ -32,9 +32,9 @@ The ladder (version 4), from `driftbench validate stats`:
 | 5 | `simulation` | simulation coverage | 42 | coverage-simulation, product |
 | 6 | `scale` | scale and stability | 46 | numerical-stability, scale |
 | 7 | `roadmap` | roadmap methods | 70 | missing-method, product |
-| 8 | `capabilities` | new capabilities | 328 | newcap-bayes, newcap-classification, newcap-descriptive, newcap-design, newcap-distance, newcap-effectsize, newcap-exacttests, newcap-multiplicity, newcap-sequential |
+| 8 | `capabilities` | new capabilities | 142 | exact-estimators, weights-coverage, weights-mixture |
 
-1353 items in all (counted from `--items --json` on seed 1). What each level asks:
+1167 items in all (counted from the bank: the 1353 of the merged ladder less the 186 items of 93 functions that no part of driftbench uses). What each level asks:
 
 * `reference`: fixture groups match scipy and numpy.
 * `degenerate`: empty, NaN, infinite, out-of-domain, single and all-equal inputs are handled; a bad input
