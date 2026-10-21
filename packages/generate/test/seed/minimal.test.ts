@@ -8,6 +8,11 @@ import { desk, fixture, split, twoChannels, twoPersonas } from './desk';
 
 const run = { seed: 1031, mapPath: '../desk.yaml' };
 
+function required<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error('missing fixture value');
+  return value;
+}
+
 function walk(
   prepared: ReturnType<typeof fixture>,
   id: string,
@@ -680,5 +685,69 @@ describe('terminal subsumption keeps what only the cut block checks or says', ()
     minimal.reduce(second);
     // The leader's cut is not the follower's: cutting it would lose the only place that message is said.
     expect(second.blocks).toHaveLength(length);
+  });
+});
+
+describe('terminal subsumption and a stay in the middle of a walk', () => {
+  const prepared = fixture();
+  const path = prepared.relations.paths[0];
+  if (!path) throw new Error('missing parcel path');
+  const plain = (id: string) => {
+    const draft = walk(prepared, id, path);
+    draft.perturbations = undefined;
+    return draft;
+  };
+  // The second block leaves the walk at the stage the first one reached: a stay.
+  const stayAt = (draft: ReturnType<typeof walk>, index: number) => {
+    const before = draft.blocks[index - 1];
+    const block = draft.blocks[index];
+    if (!before || !block) throw new Error('the walk is too short');
+    block.stage = before.stage;
+    return draft;
+  };
+  const idsOf = (draft: ReturnType<typeof walk>) => draft.blocks.map((block) => block.id);
+
+  it('cuts a stay from the middle of a walk when a written spec already says it', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = stayAt(plain('written'), 1);
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    const stay = required(again.blocks[1]).id;
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length - 1);
+    expect(idsOf(again)).not.toContain(stay);
+    expect(again.reducedMiddle).toEqual([{ block: stay, duplicate_of: expect.any(Object) }]);
+  });
+
+  it('keeps a stay no written spec says', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
+  });
+
+  it('keeps a stay that sets its own world: the next block would not start from the same Given', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = stayAt(plain('written'), 1);
+    const again = endsElsewhere(stayAt(plain('again'), 1));
+    required(again.blocks[1]).given = { world: { tools: { lookup: { result: { found: false } } } } };
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
+  });
+
+  it('keeps a block that moves the walk to another stage', () => {
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = plain('written');
+    const again = endsElsewhere(plain('again'));
+    const length = again.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(again);
+    expect(again.blocks).toHaveLength(length);
   });
 });
