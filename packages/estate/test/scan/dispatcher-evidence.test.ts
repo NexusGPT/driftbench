@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { HAND_ROLES, NOW, estate, readRaw } from '../support';
 
 const subcommands = [
   ['.claude/hooks/lib/audit.py', 'status'],
@@ -33,7 +33,7 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} check` }] }] },
       }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.guards[0]?.script).toBe(script);
   });
   it.each([
@@ -52,7 +52,7 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} ${argument}` }] }] },
       }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.guards[0]?.script).toBe(target);
     expect(raw.guards[0]?.dispatcher).toBe(script);
   });
@@ -66,7 +66,7 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} absent-worker` }] }] },
       }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.guards[0]?.script).toBe('absent-worker');
   });
   it('resolves only the source-proven file argument, never later data files', async () => {
@@ -79,7 +79,7 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} worker.py data.py` }] }] },
       }),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.guards[0]?.script).toBe('.claude/hooks/worker.py');
   });
   it.each(subcommands)('%s %s is a subcommand', async (script, arg) => {
@@ -93,7 +93,12 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} ${arg}` }] }] },
       }),
     });
-    const { raw, map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { raw, map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     expect(raw.guards[0]?.script).toBe(script);
     expect(lintEstate(map, raw).findings.filter((finding) => finding.code === 'MISSING_SCRIPT')).toEqual([]);
   });
@@ -112,7 +117,12 @@ describe('script dispatch requires source or usage evidence', () => {
         hooks: { Stop: [{ hooks: [{ type: 'command', command: `python3 ${script} absent-worker` }] }] },
       }),
     });
-    const { raw, map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { raw, map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     expect(raw.guards[0]?.script).toBe('absent-worker');
     expect(raw.guards[0]?.dispatcher).toBe(script);
     expect(lintEstate(map, raw).findings.some((finding) => finding.code === 'MISSING_SCRIPT')).toBe(true);

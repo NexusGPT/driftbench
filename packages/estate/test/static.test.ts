@@ -5,6 +5,7 @@ import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, loadEstateMap, runStaticTests } from '../src/index';
 import { FIXTURE } from './support';
+import { HAND_ROLES } from './support';
 
 function test(id: string, check: StaticTest['check']): StaticTest {
   return {
@@ -52,12 +53,14 @@ describe('the static runner', () => {
     const [alone] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
     });
     // Code alone names no file by a sentence: the references the prose gave are unseen, so the files are unnamed.
     expect(alone?.detail).toContain('matching-rules.md');
     const [mapped] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
       root: FIXTURE,
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       map: loaded.map,
     });
     expect(mapped?.pass).toBe(false);

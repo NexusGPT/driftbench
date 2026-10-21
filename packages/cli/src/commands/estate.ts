@@ -434,6 +434,7 @@ export async function estateLintCommand(
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
+    ...(loaded.map.registryRoles ? { registryRoles: loaded.map.registryRoles } : {}),
     ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
   });
   if (!reader) {

@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { HAND_ROLES, NOW, estate, readRaw } from '../support';
 
 it('resolves a shared dispatcher and retains each target rule and registry verdict', async () => {
   const files: Record<string, string> = {
@@ -44,7 +44,12 @@ it('resolves a shared dispatcher and retains each target rule and registry verdi
   files['.claude/check-registry.json'] = JSON.stringify({ checks }, null, 2);
   const root = await estate(files);
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const guards = map.atoms.filter((atom) => atom.kind === 'guard');
     const covered = guards.filter(
       (atom) => typeof atom.fields?.ruleText === 'string' && atom.fields.ruleText.length > 0,
@@ -118,7 +123,12 @@ it('reads markdown descriptions and catalogue watches without fabricating enforc
     ),
   });
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const guards = map.atoms.filter((atom) => atom.kind === 'guard');
     const shell = guards.find((atom) => atom.fields?.name === 'review.sh');
     expect(shell?.fields?.ruleText).toContain('Require citations for factual claims.');
@@ -152,7 +162,12 @@ it.each(['.json', '.yaml', '.md'])(
       [`.claude/checks/overview${extension}`]: records[extension] ?? '',
     });
     try {
-      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        registryRoles: HAND_ROLES,
+        now: NOW,
+      });
       const guard = map.atoms.find((atom) => atom.kind === 'guard');
       expect(guard?.fields?.ruleText).toContain(description);
       expect(guard?.evidence[0]).toMatchObject({ verdict: 'deny' });
@@ -190,7 +205,12 @@ it('uses documented dispatch roles and keeps source messages separate from imple
       '/** Require citations before closing an editorial review. */\nconst reason = "Read each source before marking the review complete.";\nconst unused = "This text is implementation data, never printed.";\nconsole.warn(reason);\n',
   });
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const guard = map.atoms.find((atom) => atom.kind === 'guard');
     expect(guard?.fields?.script).toBe('.claude/hooks/citation.js');
     expect(guard?.fields?.ruleText).toContain('Require citations');
@@ -214,7 +234,7 @@ it('does not mistake ordinary task status tables for check registries', async ()
       '| Id | Description | Status |\n|---|---|---|\n| DRAFT-READY | Prepare the editorial index. | done |\n',
   });
   try {
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry).toEqual([]);
   } finally {
     await rm(root, { recursive: true, force: true });

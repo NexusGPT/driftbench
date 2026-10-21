@@ -227,6 +227,9 @@ export {
   readerFor,
   readFrontmatter,
   readTables,
+  applyRegistryRoles,
+  registryCellsToLabel,
+  type RegistryTable,
   registryRowOf,
   registryRowsOf,
   resolveNamed,
@@ -290,3 +293,5 @@ export {
   type UnitRunOptions,
 } from './unit';
 export * as variables from './variables';
+export type { RegistryRoles } from './pointer/registry-roles-set';
+export type { RegistryRole } from './pointer/registry-roles-set';

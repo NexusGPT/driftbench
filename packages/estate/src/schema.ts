@@ -287,6 +287,20 @@ export const EstateMap = z.strictObject({
     .describe(
       'true when the scan read a user-level skill layer; lint then needs the folder to read it again',
     ),
+  registryRoles: z
+    .strictObject({
+      columns: z
+        .record(
+          z.string().min(1),
+          z.enum(['id', 'guard', 'enforces', 'watches', 'event', 'verdict', 'state', 'description']),
+        )
+        .describe('The role of each header cell of the registry tables, as the labeler recorded it'),
+      offStates: z
+        .array(z.string().min(1))
+        .describe('The values of a state column under which a check enforces nothing, as recorded'),
+    })
+    .optional()
+    .describe('The recorded roles of the registry-table columns; later code-only reads use them again'),
   followedLinks: z
     .array(z.string().min(1))
     .optional()

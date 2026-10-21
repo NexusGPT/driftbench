@@ -3,12 +3,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  applyRegistryRoles,
   approveAtoms,
   ClaudeCodeReader,
   type EstateMap,
   type PointerScanOptions,
   parseEstateMapText,
   pointer,
+  type RawEstate,
+  type RegistryRole,
+  type RegistryRoles,
   renderEstateMap,
   scanEstate,
 } from '../src/index';
@@ -113,7 +117,18 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
       body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
     }),
     opinions: pointer.denseOpinions,
-    async call(_wire, _set, window) {
+    async call(_wire, set, window) {
+      if (set.set === pointer.REGISTRY_ROLES_SET_NAME) {
+        return {
+          labels: window.units.map((unit) => ({
+            units: String(unit.n),
+            label: handRoleLabel(unit.text.replace(/^[-*]\s+/, '')),
+          })),
+          returnedModel: 'structure-1',
+          stopReason: 'end_turn',
+          usage: { input: 0, output: 0 },
+        };
+      }
       return {
         labels: window.units.map((unit) => {
           const gate = gates.find((entry) => unit.text.includes(entry.contains));
@@ -151,4 +166,67 @@ export function structurePointer(gates: readonly PlantedGate[] = []): PointerSca
     cassette: new pointer.Cassette(),
     mode: 'record',
   };
+}
+
+/**
+ * The labels of the registry tables of the test estates, written by hand: the header cells and the off states the
+ * fixtures use, each with the role a labeller would record for it. The reader knows none of these words; a test
+ * that names a column here is the one that says what the column is.
+ */
+const HAND_WORDS: Record<RegistryRole, string[]> = {
+  id: ['id', 'check id', 'code'],
+  guard: [
+    'guard',
+    'guards',
+    'script',
+    'scripts',
+    'check',
+    'checks',
+    'hook',
+    'hooks',
+    'adapter',
+    'adapters',
+    'handler',
+    'handlers',
+    'run',
+    'runs',
+  ],
+  enforces: ['enforces', 'enforced rules', 'rule', 'rules', 'rule ids', 'gates', 'covers'],
+  watches: ['fires when', 'fires on', 'watches', 'watch', 'trigger', 'triggers'],
+  event: ['event', 'events'],
+  verdict: ['verdict', 'mode'],
+  state: ['rollout', 'status', 'state', 'enforcement'],
+  description: [
+    'description',
+    'meaning',
+    'purpose',
+    'summary',
+    'what it checks',
+    'what it does',
+    'check description',
+  ],
+};
+
+const capitalised = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+export const HAND_ROLES: RegistryRoles = {
+  columns: Object.fromEntries(
+    (Object.entries(HAND_WORDS) as Array<[RegistryRole, string[]]>).flatMap(([role, words]) =>
+      words.flatMap((word) => [word, capitalised(word), word.toUpperCase()].map((key) => [key, role])),
+    ),
+  ),
+  offStates: ['off', 'disabled', 'retired', 'removed', 'dead'],
+};
+
+/** What a labeller records for a cell of the registry-roles questions, from the hand-written table above. */
+export function handRoleLabel(cell: string): string {
+  const role = HAND_ROLES.columns[cell.trim()];
+  if (role !== undefined) return `col-${role}`;
+  return HAND_ROLES.offStates.includes(cell.trim()) ? 'state-off' : 'none';
+}
+
+/** The reader's raw estate with the hand-written registry roles applied, as a scan with a labeller gives it. */
+export async function readRaw(root: string, reader = new ClaudeCodeReader()): Promise<RawEstate> {
+  const raw = await reader.read(root);
+  applyRegistryRoles(raw, HAND_ROLES);
+  return raw;
 }

@@ -1,4 +1,14 @@
 export { AGENT_RULES_SET } from './agent-rules';
+export {
+  NO_REGISTRY_ROLES,
+  REGISTRY_ROLE_LABELS,
+  REGISTRY_ROLES,
+  REGISTRY_ROLES_SET,
+  REGISTRY_ROLES_SET_NAME,
+  type RegistryRole,
+  type RegistryRoles,
+  STATE_OFF_LABEL,
+} from './registry-roles-set';
 export { type PointerAtoms, pointerAtoms } from './atoms';
 export {
   Cassette,

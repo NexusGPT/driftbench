@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { HAND_ROLES, NOW, estate } from '../support';
 
 // A guard source may declare its verdict on a line of its own ("Verdict: deny"), like "Enforces: R3".
 // The registry row wins when there is one; the declaration is used only without a row, and it never
@@ -17,7 +17,12 @@ const REGISTRY =
 async function scan(files: Record<string, string>) {
   const root = await estate({ 'CLAUDE.md': '# Rules\n', '.claude/settings.json': SETTINGS, ...files });
   try {
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      now: NOW,
+    });
     const guard = map.atoms.find((atom) => atom.kind === 'guard');
     return {
       evidence: guard?.evidence,

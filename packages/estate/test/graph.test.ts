@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
 import { plantedRoutes } from './pointer/support';
 import { answer, estate, NOW, scanFixture } from './support';
+import { HAND_ROLES } from './support';
 
 const SETTINGS = (command: string) =>
   JSON.stringify(
@@ -36,7 +37,13 @@ async function oneRule(guard: string, registry?: string) {
       },
     ]),
   ]);
-  const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+  const { map } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    registryRoles: HAND_ROLES,
+    port,
+    now: NOW,
+  });
   const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
   const enforced = map.atoms.filter((atom) => atom.enforcement.length > 0).map((atom) => atom.title);
   return { map, enforces: guardAtom?.fields?.enforces, enforced };
@@ -81,7 +88,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
@@ -109,7 +122,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'id' }]);
   });
@@ -131,7 +150,13 @@ describe('what a guard enforces', () => {
         },
       ]),
     ]);
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port,
+      now: NOW,
+    });
     const rule = map.atoms.find((atom) => atom.kind === 'instruction');
     expect(rule?.fields?.spans).toEqual(['2>/dev/null', '|| true']);
   });
@@ -258,6 +283,7 @@ describe('reachability', () => {
       const { map, raw } = await scanEstate({
         root,
         reader: new ClaudeCodeReader(),
+        registryRoles: HAND_ROLES,
         now: NOW,
         pointer: plantedRoutes({ 'take a note': ['route-skill', skillAtom] }),
       });
@@ -280,6 +306,7 @@ describe('dispatch edges', () => {
     const { map } = await scanEstate({
       root: await estate(files),
       reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
       now: NOW,
       pointer: plantedRoutes(links, '.claude/skills/parcels/SKILL.md'),
     });

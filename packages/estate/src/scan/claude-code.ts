@@ -7,6 +7,8 @@ import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
+import type { RegistryRoles } from '../pointer/registry-roles-set';
+import { NO_REGISTRY_ROLES } from '../pointer/registry-roles-set';
 import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
@@ -134,6 +136,11 @@ export type ClaudeCodeReaderOptions = {
    * reads no home folder unless it is given one here or in the estate configuration's `userSkills:`.
    */
   userSkills?: string;
+  /**
+   * The recorded roles of the registry-table columns and the off states, as an earlier scan kept them in its map.
+   * Without them a markdown registry table gives no row: no header word is read.
+   */
+  registryRoles?: RegistryRoles;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -159,6 +166,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
+  private readonly registryRoles: RegistryRoles;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -168,6 +176,7 @@ export class ClaudeCodeReader implements EstateReader {
         'userSkills must name a folder: an empty value would read the working folder as the layer',
       );
     this.userSkills = options.userSkills;
+    this.registryRoles = options.registryRoles ?? NO_REGISTRY_ROLES;
   }
 
   /**
@@ -338,6 +347,7 @@ export class ClaudeCodeReader implements EstateReader {
     for (const file of files) {
       if (registries.includes(file) && !catalogues.includes(file)) readRegistry(file, estate, registryPaths);
     }
+    applyRegistryRoles(estate, this.registryRoles);
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
@@ -909,8 +919,6 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
 
 /** The keys a catalogue entry is known by. An entry holds at least two of them. */
 const CATALOGUE_KEYS = ['kind', 'event', 'watches', 'work', 'step', 'status'] as const;
-/** Enforcement states under which a catalogue check enforces nothing. */
-const OFF_STATES = /^(off|disabled|retired|removed|dead)$/i;
 
 type CatalogueEntry = { key?: string; entry: Record<string, unknown> };
 
@@ -1457,20 +1465,10 @@ function readSubagent(file: EstateFile, estate: RawEstate, budget: number): void
   addProse(estate, file, subagent.body.startLine, subagent.body.endLine, budget);
 }
 
-/** Header cells that name a registry table's columns. A table is a registry table by its first column. */
-const COLUMNS = {
-  id: /^(id|check id|code)$/i,
-  guard: /^(guards?|scripts?|checks?|hooks?|adapters?|handlers?|runs?)$/i,
-  enforces: /^(enforces|enforced rules|rules?|rule ids|gates|covers)$/i,
-  watches: /^(fires when|fires on|watches|watch|triggers?)$/i,
-  event: /^events?$/i,
-  verdict: /^(verdict|mode)$/i,
-  state: /^(rollout|status|state|enforcement)$/i,
-  description: /^(description|meaning|purpose|summary|what it (?:checks|does)|check description)$/i,
-} as const;
-
 /** A row id: one token with a digit in it, such as `G6`, `AW4` or `check-12`. */
 const ROW_ID = /^[A-Za-z][\w.#-]*\d[\w.#-]*$/;
+/** A candidate id of a registry row: a row id, or a name in capitals such as `FINAL-CHECK`. */
+const CANDIDATE_ID = /^(?:[A-Za-z][\w.#-]*\d[\w.#-]*|[A-Z][A-Z0-9_.#-]+)$/;
 
 /**
  * Reads every table of a markdown check registry whose first column holds ids: a header `Id`, or a first
@@ -1500,25 +1498,50 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
     readJsonRegistry(file, estate, paths);
     return;
   }
-  const known = knownGuards(estate);
+  // A markdown table is only kept: its columns are named by recorded labels (`applyRegistryRoles`), never by a
+  // word of its header.
   for (const table of readTables(file.text)) {
-    // A header in bold or backticks names the same column.
-    const column = (pattern: RegExp, from = 0) =>
-      table.header.findIndex((cell, index) => index >= from && pattern.test(strip(cell)));
+    (estate.registryTables ??= []).push({
+      file: file.path,
+      header: table.header,
+      rows: table.rows.map((row) => ({ cells: row.cells, line: row.line, text: row.text })),
+    });
+  }
+}
+
+/**
+ * Gives the registry its rows from the recorded roles of the columns of its markdown tables, and its off states
+ * from the recorded state values: a catalogue check in an off state enforces nothing. The rows of a table are
+ * replaced each time, so the call is repeatable with other roles.
+ */
+export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_REGISTRY_ROLES): void {
+  estate.registry = estate.registry.filter((row) => row.origin !== 'table');
+  const off = new Set(roles.offStates);
+  for (const row of estate.registry) {
+    if (row.origin === 'catalogue' && row.state !== undefined && off.has(row.state)) row.enforces = [];
+  }
+  const known = knownGuards(estate);
+  for (const table of estate.registryTables ?? []) {
+    // The role of a header cell, as recorded; a cell with no recorded role is a free column.
+    const column = (role: string, from = 0) =>
+      table.header.findIndex((cell, index) => index >= from && roles.columns[strip(cell)] === role);
     const firstIsId =
-      COLUMNS.id.test(table.header[0] ?? '') ||
+      column('id') === 0 ||
       (table.rows.length > 0 && table.rows.every((row) => ROW_ID.test(strip(row.cells[0] ?? ''))));
-    const legacyGuard = column(COLUMNS.guard);
-    const legacyEnforces = column(COLUMNS.enforces);
+    const legacyGuard = column('guard');
+    const legacyEnforces = column('enforces');
     if (!firstIsId && (legacyGuard < 0 || legacyEnforces < 0)) continue;
-    const id = firstIsId ? 0 : column(COLUMNS.id);
-    const guard = column(COLUMNS.guard, firstIsId ? 1 : 0);
-    const enforces = column(COLUMNS.enforces);
-    const watches = column(COLUMNS.watches);
-    const event = column(COLUMNS.event);
-    const verdict = column(COLUMNS.verdict);
-    const state = column(COLUMNS.state);
-    const description = column(COLUMNS.description);
+    // A table none of whose columns names a guard, a rule, a firing or a verdict is no registry: ids and a
+    // description alone are any list of items.
+    if (['guard', 'enforces', 'watches', 'verdict'].every((role) => column(role) < 0)) continue;
+    const id = firstIsId ? 0 : column('id');
+    const guard = column('guard', firstIsId ? 1 : 0);
+    const enforces = column('enforces');
+    const watches = column('watches');
+    const event = column('event');
+    const verdict = column('verdict');
+    const state = column('state');
+    const description = column('description');
     for (const row of table.rows) {
       const cell = (index: number) => (index >= 0 ? strip(row.cells[index] ?? '') : '');
       const ids = idsOf(row.cells[id] ?? '');
@@ -1541,7 +1564,8 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
             scriptHolding(rowId, estate, known) ??
             (cell(guard) || rowId),
           enforces: links,
-          at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
+          at: { file: table.file, startLine: row.line, endLine: row.line, quote: row.text },
+          origin: 'table',
         };
         if (cell(event) !== '') entry.event = cell(event);
         if (cell(verdict) !== '') entry.verdict = cell(verdict);
@@ -1555,6 +1579,18 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
       }
     }
   }
+}
+
+/** The distinct header cells of the registry tables, and the distinct values of their state-like cells to label. */
+export function registryCellsToLabel(estate: RawEstate): { headers: string[]; states: string[] } {
+  const headers = new Set<string>();
+  for (const table of estate.registryTables ?? []) for (const cell of table.header) headers.add(strip(cell));
+  const states = new Set<string>();
+  for (const row of estate.registry) if (row.state !== undefined && row.state !== '') states.add(row.state);
+  return {
+    headers: [...headers].filter((cell) => cell !== '').sort(),
+    states: [...states].sort(),
+  };
 }
 
 /** One id token: a letter or digit first, then letters, digits and `_ . # -`. */
@@ -1724,7 +1760,7 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
     const row: RegistryRow = {
       id,
       guard: id,
-      enforces: state !== undefined && OFF_STATES.test(state) ? [] : parseWatchList(list(entry.watches), id),
+      enforces: parseWatchList(list(entry.watches), id),
       at,
       origin: 'catalogue',
     };
@@ -1847,22 +1883,17 @@ function registryEntries(value: unknown): RegistryEntry[] {
   });
 }
 
-/** Content identifies check registries, independent of their filename. */
+/**
+ * Content identifies check registries, independent of their filename and of any word: a markdown table whose first
+ * column holds an identifier token (a token with a digit), or a JSON or YAML list or map of checks with a guard, a
+ * verdict, a description or a state.
+ */
 function structuredRegistry(text: string, path: string): boolean {
-  const enforcement = /^(?:enforc(?:e|ing)|observ(?:e|ing)|warn(?:ing)?|off|disabled|block(?:ing)?)$/i;
   if (/\.(?:md|markdown)$/.test(path)) {
-    return readTables(text).some((table) => {
-      const headers = table.header.map(strip);
-      const state = headers.findIndex((header) => COLUMNS.state.test(header));
-      return (
-        headers.some((header) => COLUMNS.id.test(header)) &&
-        headers.some((header) => COLUMNS.description.test(header) || COLUMNS.watches.test(header)) &&
-        (headers.some((header) => COLUMNS.guard.test(header) || COLUMNS.verdict.test(header)) ||
-          (state >= 0 &&
-            table.rows.length > 0 &&
-            table.rows.every((row) => enforcement.test(strip(row.cells[state] ?? '')))))
-      );
-    });
+    return readTables(text).some(
+      (table) =>
+        table.header.length >= 3 && table.rows.some((row) => CANDIDATE_ID.test(strip(row.cells[0] ?? ''))),
+    );
   }
   if (!/\.(?:jsonc?|ya?ml)$/.test(path)) return false;
   try {
@@ -1876,7 +1907,9 @@ function structuredRegistry(text: string, path: string): boolean {
             (value) => value !== undefined,
           ) &&
           ([row.guard, row.script, row.hook, row.command, row.verdict].some((value) => value !== undefined) ||
-            enforcement.test(String(row.state ?? row.status ?? row.enforcement ?? ''))),
+            // A state alone counts when the check is named by an identifier token: a status file of tasks is not a registry.
+            (typeof (row.state ?? row.status ?? row.enforcement) === 'string' &&
+              ROW_ID.test(String(row.id ?? key ?? '')))),
       )
     );
   } catch {

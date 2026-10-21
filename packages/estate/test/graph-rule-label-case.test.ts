@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AtomBuilder, buildGraph, ClaudeCodeReader, codeAtoms, labelOfLine } from '../src/index';
 import { estate } from './support';
+import { readRaw } from './support';
 
 const rules = ['Never erase the parcel archive.', 'Always record the parcel count.'];
 
@@ -23,7 +24,7 @@ async function enforcedBy(options: {
   if (options.registry) files['.claude/guards/REGISTRY.md'] = options.registry;
   if (options.json) files['.claude/guards/registry.json'] = JSON.stringify(options.json);
   const root = await estate(files);
-  const raw = await new ClaudeCodeReader().read(root);
+  const raw = await readRaw(root);
   const builder = new AtomBuilder(new Map(raw.files.map((file) => [file.path, file])));
   codeAtoms(raw, builder);
   for (const [index, quote] of rules.entries()) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { HAND_ROLES, NOW, estate, readRaw } from '../support';
 import { CASES } from './cases';
 
 const SETTINGS = JSON.stringify({
@@ -52,7 +52,7 @@ describe('the check registry, any column set', () => {
       '.claude/hooks/reply.py': 'import sys\nsys.exit(0)\n',
       '.claude/hooks/CHECK-REGISTRY.md': REGISTRY,
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(
       raw.registry.map((row) => [row.id, row.guard, row.event ?? '', row.state ?? '', row.enforces]),
     ).toEqual([
@@ -106,7 +106,13 @@ describe('the check registry, any column set', () => {
         });
       },
     };
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port: answers, now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      registryRoles: HAND_ROLES,
+      port: answers,
+      now: NOW,
+    });
     const guards = map.atoms.filter((atom) => atom.kind === 'guard');
     expect(
       guards.map((guard) => [
@@ -132,7 +138,7 @@ describe('the check registry, any column set', () => {
   });
 
   it('reads the reader-cases registry: the first table by its guard column, the second by its ids', async () => {
-    const raw = await new ClaudeCodeReader().read(CASES);
+    const raw = await readRaw(CASES);
     const table = raw.registry.filter((row) => row.origin !== 'catalogue');
     expect(table.map((row) => [row.id, row.guard, row.state ?? ''])).toEqual([
       ['G1', 'block-force-push.sh', ''],
@@ -170,7 +176,7 @@ describe('the check registry, any column set', () => {
         '',
       ].join('\n'),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry.map((row) => [row.id, row.guard, row.at.startLine])).toEqual([
       ['G2', 'shell.py', 3],
       ['G3', 'shell.py', 3],
@@ -213,7 +219,7 @@ describe('the check registry, any column set', () => {
         '',
       ].join('\n'),
     });
-    const raw = await new ClaudeCodeReader().read(root);
+    const raw = await readRaw(root);
     expect(raw.registry.map((row) => [row.id, row.guard])).toEqual([
       ['F1', 'nexus-fs-firewall.py'],
       // Two guards end with -awareness: the short name names neither.
