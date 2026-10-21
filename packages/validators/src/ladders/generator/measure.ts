@@ -7,8 +7,8 @@ import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
-  canonicalGiven,
   type Check,
+  canonicalGiven,
   contentHash,
   enterBlock,
   initialGiven,

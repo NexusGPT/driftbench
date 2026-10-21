@@ -50,7 +50,10 @@ describe('minimality groups blocks by the tool answers they run against', async 
   const item = required(bankItems().find((entry) => entry.id === 'minimal.X1.case'));
 
   it('keeps a copy on another channel and another persona in the same group, and a copy with other tool answers out of it', async () => {
-    const runs = await runAll({ ...generated, complete: [cover, twin, relabelled, otherWorld, otherStage] }, options);
+    const runs = await runAll(
+      { ...generated, complete: [cover, twin, relabelled, otherWorld, otherStage] },
+      options,
+    );
     const base = last(runs.blocks, cover.spec.id);
     expect(sameTestKey(last(runs.blocks, 'twin'))).toBe(sameTestKey(base));
     expect(sameTestKey(last(runs.blocks, 'relabelled'))).toBe(sameTestKey(base));
