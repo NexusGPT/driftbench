@@ -143,7 +143,8 @@ function linkLines(set: ParsedSet, candidates: Candidates): string[] {
   const lines = ['LINK KINDS:'];
   for (const kind of set.links) {
     lines.push(`- ${kind.name}: ${kind.description}`);
-    for (const candidate of candidates[kind.name] ?? []) lines.push(`    ${candidate.id}  ${candidate.label}`);
+    for (const candidate of candidates[kind.name] ?? [])
+      lines.push(`    ${candidate.id}  ${candidate.label}`);
   }
   return lines;
 }

@@ -54,7 +54,8 @@ const strings = (value: unknown): string[] | undefined =>
 
 function linkKindsOf(set: Record<string, unknown>): LinkKindDef[] {
   if (set.links === undefined) return [];
-  if (!Array.isArray(set.links) || set.links.length === 0) fail(`the set "${set.set}" has an empty links list`);
+  if (!Array.isArray(set.links) || set.links.length === 0)
+    fail(`the set "${set.set}" has an empty links list`);
   const kinds: LinkKindDef[] = [];
   for (const raw of set.links as unknown[]) {
     const kind = (raw ?? {}) as Record<string, unknown>;
@@ -65,7 +66,9 @@ function linkKindsOf(set: Record<string, unknown>): LinkKindDef[] {
     const to = strings(kind.to);
     const values = strings(kind.values);
     if ((to === undefined) === (values === undefined))
-      fail(`the link kind "${kind.name}" names \`to\` (atom kinds) or \`values\` (a closed list), one of the two`);
+      fail(
+        `the link kind "${kind.name}" names \`to\` (atom kinds) or \`values\` (a closed list), one of the two`,
+      );
     if (kinds.some((other) => other.name === kind.name))
       fail(`the link kind "${kind.name}" is repeated in the set "${set.set}"`);
     kinds.push({
@@ -141,7 +144,9 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
         };
         const extra: MappingExtra = {
           ...(typeof atom.title === 'string' && atom.title !== '' ? { title: atom.title } : {}),
-          ...(typeof atom.situation === 'string' && atom.situation !== '' ? { situation: atom.situation } : {}),
+          ...(typeof atom.situation === 'string' && atom.situation !== ''
+            ? { situation: atom.situation }
+            : {}),
           ...(atom.whenFile === true ? { whenFile: true as const } : {}),
         };
         if (Object.keys(extra).length > 0) mappings.set(name, extra);
@@ -151,7 +156,9 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
         if (!kinds) fail(`the label "${name}" in the set "${set.set}" has an empty links list`);
         for (const kind of kinds)
           if (!links.some((declared) => declared.name === kind))
-            fail(`the label "${name}" names the link kind "${kind}", which the set "${set.set}" does not declare`);
+            fail(
+              `the label "${name}" names the link kind "${kind}", which the set "${set.set}" does not declare`,
+            );
         labelLinks.set(name, kinds);
       }
       labels.push(def);

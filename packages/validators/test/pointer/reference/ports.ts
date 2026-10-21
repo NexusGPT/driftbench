@@ -352,7 +352,9 @@ async function haiku(
   // The key is the first request's: a retry says that the answer could not be read, and records under that key.
   const key = sha256(canonicalCompact({ ...request, run }));
   const sent =
-    retry && !referenceBugsB.has('retry-note-never') ? { ...request, system: `${system} ${RETRY_NOTE}` } : request;
+    retry && !referenceBugsB.has('retry-note-never')
+      ? { ...request, system: `${system} ${RETRY_NOTE}` }
+      : request;
   const want = {
     key,
     run: String(run),

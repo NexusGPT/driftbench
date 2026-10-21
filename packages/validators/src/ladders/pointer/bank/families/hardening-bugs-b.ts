@@ -75,7 +75,11 @@ async function twoScans(
   ctx: ItemContext,
   perFile: number,
   edit: (texts: string[], p: Prose) => void,
-): Promise<{ texts: string[]; first: ScanResult & { ledger: LedgerView }; second: ScanResult & { ledger: LedgerView } }> {
+): Promise<{
+  texts: string[];
+  first: ScanResult & { ledger: LedgerView };
+  second: ScanResult & { ledger: LedgerView };
+}> {
   const p = prose(ctx);
   const w = worldOf(p, { files: 1, perFile });
   const first = await scanOk(ctx.sut, { files: build(filesOf(w)).files, labeler: perfect() });
@@ -93,7 +97,9 @@ async function twoScans(
 function inFileOrder(ledger: LedgerView, path: string): LedgerEntry[] {
   const entries = liveOf(ledger).filter((entry) => entry.path === path);
   if (entries.some((entry) => entry.hint === undefined))
-    throw new Problem('the ledger gives a live entry no offsets: the order of the units of a file is unknown');
+    throw new Problem(
+      'the ledger gives a live entry no offsets: the order of the units of a file is unknown',
+    );
   return entries.sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0));
 }
 
@@ -107,7 +113,8 @@ async function newFileCase(ctx: ItemContext) {
   const first = await scanOk(ctx.sut, { files: kept, labeler: perfect() });
   const second = await scanOk(ctx.sut, { files, previousLedger: first.ledger.raw, labeler: perfect() });
   const fresh = inFileOrder(second.ledger, w.paths[1] as string);
-  if (fresh.length < 2) throw new Problem(`positive witness: the new file holds ${fresh.length} units, expected 5`);
+  if (fresh.length < 2)
+    throw new Problem(`positive witness: the new file holds ${fresh.length} units, expected 5`);
   const out = await api.rerun(first.ledger, second.ledger);
   return { path: w.paths[1] as string, fresh, out };
 }
@@ -116,7 +123,9 @@ const radius: Record<string, Run> = {
   'new-file-reruns-whole-suite': async (ctx) => {
     const { path, out } = await newFileCase(ctx);
     if (out.whole === null)
-      return fail(`units of ${path}, a file the old ledger did not hold, rerun ${out.units.length} units and not the whole suite`);
+      return fail(
+        `units of ${path}, a file the old ledger did not hold, rerun ${out.units.length} units and not the whole suite`,
+      );
     return out.whole.includes(path)
       ? pass('a new unit in a file the ledger did not hold reruns the whole suite')
       : fail(`the whole suite reruns for a reason that does not name the new file ${path}: ${out.whole}`);
@@ -186,10 +195,15 @@ const radius: Record<string, Run> = {
     const before = [fileOf('notes/sections.md', blocks([]))];
     const first = await scanOk(ctx.sut, { files: before, labeler: perfect() });
     const after = [fileOf('notes/sections.md', blocks([added as string]))];
-    const second = await scanOk(ctx.sut, { files: after, previousLedger: first.ledger.raw, labeler: perfect() });
+    const second = await scanOk(ctx.sut, {
+      files: after,
+      previousLedger: first.ledger.raw,
+      labeler: perfect(),
+    });
     const want = [a1, a2, a3].map((text) => idOf(first.ledger, text as string));
     const out = await api.rerun(first.ledger, second.ledger);
-    if (out.whole !== null) return fail(`a unit added under an old heading reruns the whole suite: ${out.whole}`);
+    if (out.whole !== null)
+      return fail(`a unit added under an old heading reruns the whole suite: ${out.whole}`);
     return sameSet(out.units, want)
       ? pass('a unit added under a heading reruns the old units under that heading, and no others')
       : fail(
@@ -219,7 +233,8 @@ const radius: Record<string, Run> = {
     const want = liveOf(first.ledger)
       .filter((entry) => entry.path === 'notes/main.md')
       .map((entry) => entry.id);
-    if (want.length < 4) return fail(`positive witness: the first scan holds ${want.length} units of the file, expected 4`);
+    if (want.length < 4)
+      return fail(`positive witness: the first scan holds ${want.length} units of the file, expected 4`);
     const out = await api.rerun(first.ledger, second.ledger);
     if (out.whole !== null) return fail(`a unit added to an old file reruns the whole suite: ${out.whole}`);
     return sameSet(out.units, want)
@@ -236,12 +251,18 @@ const radius: Record<string, Run> = {
       edited[4] = rewordWords(p.random, edited[4] as string, 1);
     });
     const atoms = [
-      { id: withCondition, unit: idOf(first.ledger, texts[1] as string), condition: [idOf(first.ledger, texts[4] as string)] },
+      {
+        id: withCondition,
+        unit: idOf(first.ledger, texts[1] as string),
+        condition: [idOf(first.ledger, texts[4] as string)],
+      },
       { id: other, unit: idOf(first.ledger, texts[6] as string) },
     ];
     const got = await manifest(first.ledger, second.ledger, atoms);
     const want: ManifestChange[] = [{ kind: 'prompt', id: withCondition }];
-    const shown = JSON.stringify(got.map((change) => ({ kind: change.kind, id: change.id, global: change.global })));
+    const shown = JSON.stringify(
+      got.map((change) => ({ kind: change.kind, id: change.id, global: change.global })),
+    );
     return JSON.stringify(got.map((change) => [change.kind, change.id, change.global === true])) ===
       JSON.stringify(want.map((change) => [change.kind, change.id, false]))
       ? pass('an edit of a condition unit reruns the atom the condition belongs to')
@@ -273,11 +294,15 @@ const radius: Record<string, Run> = {
     const want = [...edited].sort((a, b) => a.localeCompare(b));
     const got = await manifest(first.ledger, second.ledger, []);
     if (got.some((change) => change.kind !== 'unit'))
-      return fail(`the manifest holds ${JSON.stringify(got)}, expected unit changes only: no atom sits on the units`);
+      return fail(
+        `the manifest holds ${JSON.stringify(got)}, expected unit changes only: no atom sits on the units`,
+      );
     const order = got.map((change) => change.id ?? '');
     return JSON.stringify(order) === JSON.stringify(want)
       ? pass('the unit changes of the manifest come in id order')
-      : fail(`the unit changes come as ${JSON.stringify(order)}, expected ${JSON.stringify(want)} (id order)`);
+      : fail(
+          `the unit changes come as ${JSON.stringify(order)}, expected ${JSON.stringify(want)} (id order)`,
+        );
   },
 };
 
@@ -364,14 +389,18 @@ const grouping: Record<string, Run> = {
       const [atom] = atomOn(result, idOf(result.ledger, text));
       if (!atom) return fail(`positive witness: the unit ${JSON.stringify(text.slice(0, 30))} built no atom`);
       if (atom.title === undefined)
-        return fail('the reader does not expose the title of an atom: the title is part of the atom it builds');
+        return fail(
+          'the reader does not expose the title of an atom: the title is part of the atom it builds',
+        );
       const want = titleFor(text);
       if (atom.title !== want)
         return fail(
           `the title of a unit of ${text.length} characters is ${JSON.stringify(atom.title)} (${atom.title.length} characters), expected ${JSON.stringify(want)} (${want.length})`,
         );
     }
-    return pass('a long unit gives a title of at most 90 characters ending with an ellipsis; a short one its own text');
+    return pass(
+      'a long unit gives a title of at most 90 characters ending with an ellipsis; a short one its own text',
+    );
   },
   'orphan-condition-refused': async (ctx) => {
     const p = prose(ctx);
@@ -395,13 +424,16 @@ const grouping: Record<string, Run> = {
     const result = await scanOk(ctx.sut, { files, labeler, labelsYaml: CONDITION_YAML });
     requireSourceWitness(result, files);
     const twins = liveOf(result.ledger).filter((entry) => keyOf(entry.quote) === keyOf(rule));
-    if (twins.length !== 2) return fail(`positive witness: ${twins.length} live entries hold the repeated rule, expected 2`);
+    if (twins.length !== 2)
+      return fail(`positive witness: ${twins.length} live entries hold the repeated rule, expected 2`);
     const conditionId = idOf(result.ledger, condition);
     if (result.ledger.entries.find((entry) => entry.id === conditionId)?.labels[SET]?.label !== 'when')
       return fail('positive witness: the condition unit does not hold the label when');
     const instructions = result.atoms.filter((atom) => atom.kind === 'instruction');
     if (instructions.length !== 1)
-      return fail(`${instructions.length} instruction atoms for a rule written twice on one line, expected one`);
+      return fail(
+        `${instructions.length} instruction atoms for a rule written twice on one line, expected one`,
+      );
     const second = twins.sort((a, b) => (a.hint?.start ?? 0) - (b.hint?.start ?? 0))[1] as LedgerEntry;
     if (!result.diagnostics.some((d) => d.code === 'duplicate' && d.detail.includes(second.id)))
       return fail('positive witness: the repeat of the rule is not reported as a duplicate');
@@ -434,7 +466,9 @@ const grouping: Record<string, Run> = {
     const id = idOf(result.ledger, texts[0] as string);
     const missing = texts.filter((text) => atomOn(result, idOf(result.ledger, text)).length !== 1);
     if (missing.length > 0)
-      return fail(`${missing.length} of ${texts.length} rules built no atom: the answer with a link to none must stand`);
+      return fail(
+        `${missing.length} of ${texts.length} rules built no atom: the answer with a link to none must stand`,
+      );
     const said = naming(result, id);
     return said.length === 0
       ? pass('a link to none names nothing: the atom stands and nothing is refused')
@@ -452,7 +486,9 @@ const grouping: Record<string, Run> = {
     const [filled] = atomOn(result, idOf(result.ledger, withCode));
     if (!filled) return fail('positive witness: the unit with a code span built no atom');
     if (filled.situation !== `Before ${code} runs`)
-      return fail(`the situation is ${JSON.stringify(filled.situation)}, expected "Before ${code} runs" from the template`);
+      return fail(
+        `the situation is ${JSON.stringify(filled.situation)}, expected "Before ${code} runs" from the template`,
+      );
     const bare = idOf(result.ledger, without);
     const built = atomOn(result, bare);
     if (built.length > 0)
@@ -473,7 +509,10 @@ const grouping: Record<string, Run> = {
     const labeler: Labeler = (request) => ({
       labels: request.window.units
         .filter((unit) => unit.mode === 'label')
-        .map((unit) => ({ units: String(unit.n), label: keyOf(unit.text) === keyOf(pointing) ? 'points' : 'rule' })),
+        .map((unit) => ({
+          units: String(unit.n),
+          label: keyOf(unit.text) === keyOf(pointing) ? 'points' : 'rule',
+        })),
     });
     const result = await scanOk(ctx.sut, { files, labeler, labelsYaml: WHEN_FILE_YAML });
     requireSourceWitness(result, files);
@@ -488,8 +527,12 @@ const grouping: Record<string, Run> = {
         `a whenFile mapping built ${built.length} atom(s) for a code span naming ${target}, which is no file of the estate`,
       );
     return naming(result, id).length === 0
-      ? pass('a whenFile mapping whose code span names no file of the estate builds nothing and reports nothing')
-      : fail(`a whenFile mapping that does not apply is reported: ${naming(result, id)[0]?.detail.slice(0, 100)}`);
+      ? pass(
+          'a whenFile mapping whose code span names no file of the estate builds nothing and reports nothing',
+        )
+      : fail(
+          `a whenFile mapping that does not apply is reported: ${naming(result, id)[0]?.detail.slice(0, 100)}`,
+        );
   },
 };
 
@@ -507,7 +550,15 @@ function seededAtoms(p: Prose) {
   const wanted = [1, 2, 3, 4].map((n) => make('instruction', n));
   const others = [1, 2, 3].map((n) => make('hazard', n));
   const sorted = [...wanted].sort((a, b) => a.id.localeCompare(b.id));
-  const given = [sorted[2], others[0], sorted[0], others[1], sorted[3], others[2], sorted[1]] as typeof wanted;
+  const given = [
+    sorted[2],
+    others[0],
+    sorted[0],
+    others[1],
+    sorted[3],
+    others[2],
+    sorted[1],
+  ] as typeof wanted;
   return { wanted, others, given };
 }
 
@@ -547,11 +598,15 @@ const labels: Record<string, Run> = {
       );
     const [first, retry, next] = fake.calls.map((call) => systemOf(call.body));
     if (!first || !retry || !next) return fail('positive witness: fewer than three requests were kept');
-    if (retry.messages !== first.messages) return fail('the retried request shows other units than the first');
-    if (next.system !== first.system) return fail('a run asked after the retry carries the retry note: the note is for the retry alone');
+    if (retry.messages !== first.messages)
+      return fail('the retried request shows other units than the first');
+    if (next.system !== first.system)
+      return fail('a run asked after the retry carries the retry note: the note is for the retry alone');
     return retry.system.startsWith(first.system) && retry.system.length > first.system.length
       ? pass('the retried request adds a note after the system text; the other requests do not')
-      : fail('the retried request is the first one again: it must say, after the system text, that the answer could not be read');
+      : fail(
+          'the retried request is the first one again: it must say, after the system text, that the answer could not be read',
+        );
   },
   'carried-window-not-asked-again': async (ctx) => {
     const p = prose(ctx);
@@ -567,7 +622,9 @@ const labels: Record<string, Run> = {
     const asked = recording(perfect());
     const first = await scanOk(ctx.sut, { files: [doc(b3 as string)], labeler: asked });
     if (asked.calls.length !== 2)
-      return fail(`positive witness: the first scan asked ${asked.calls.length} windows, expected 2 (one per top-level heading)`);
+      return fail(
+        `positive witness: the first scan asked ${asked.calls.length} windows, expected 2 (one per top-level heading)`,
+      );
     const reworded = rewordWords(p.random, b3 as string, 1);
     const again = recording(perfect());
     await scanOk(ctx.sut, { files: [doc(reworded)], previousLedger: first.ledger.raw, labeler: again });
@@ -585,7 +642,8 @@ const labels: Record<string, Run> = {
     const { wanted, others, bodies } = await candidatesCase(ctx);
     for (const body of bodies) {
       const absent = wanted.find((atom) => !body.includes(atom.id));
-      if (absent) return fail(`a request does not list ${absent.id}, an atom of the kind the link kind names`);
+      if (absent)
+        return fail(`a request does not list ${absent.id}, an atom of the kind the link kind names`);
       const extra = others.find((atom) => body.includes(atom.id));
       if (extra) return fail(`a request lists ${extra.id}, an atom of a kind the link kind does not name`);
     }
@@ -599,7 +657,9 @@ const labels: Record<string, Run> = {
       if (absent) return fail(`a request does not list ${absent}`);
       const order = [...want].sort((a, b) => body.indexOf(a) - body.indexOf(b));
       if (JSON.stringify(order) !== JSON.stringify(want))
-        return fail(`a request lists the candidates as ${order.join(', ')}, expected id order ${want.join(', ')}`);
+        return fail(
+          `a request lists the candidates as ${order.join(', ')}, expected id order ${want.join(', ')}`,
+        );
     }
     return pass('the candidates of a link kind come in id order');
   },

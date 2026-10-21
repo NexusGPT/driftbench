@@ -50,10 +50,7 @@ const SLOT = /^(?:code|unit|file|link\.[a-z][a-z0-9-]*)$/;
  * Fills a template of a mapping (docs, section 6): a value that is exactly `$<slot>`, or `${<slot>}` inside a
  * longer text. A slot the unit does not fill leaves the whole value unresolved.
  */
-function fillTemplate(
-  value: string,
-  slot: (name: string) => string | undefined,
-): string | typeof UNRESOLVED {
+function fillTemplate(value: string, slot: (name: string) => string | undefined): string | typeof UNRESOLVED {
   const whole = /^\$(.+)$/.exec(value)?.[1];
   if (whole !== undefined && SLOT.test(whole)) return slot(whole) ?? UNRESOLVED;
   if (!value.includes('${')) return value;
@@ -207,7 +204,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     const listed = (req.atoms ?? [])
       .filter((atom) => referenceBugsB.has('candidates-any-kind') || to.includes(atom.kind))
       .map((atom) => ({ id: atom.id, label: atom.title }));
-    return referenceBugsB.has('candidates-unsorted') ? listed : listed.sort((a, b) => a.id.localeCompare(b.id));
+    return referenceBugsB.has('candidates-unsorted')
+      ? listed
+      : listed.sort((a, b) => a.id.localeCompare(b.id));
   };
   const candidatesOf = new Map<string, Candidates>(
     sets.map((set) => [
@@ -215,7 +214,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       Object.fromEntries(
         set.links.map((kind) => [
           kind.name,
-          kind.values ? kind.values.map((value) => ({ id: value, label: value })) : linkCandidates(kind.to ?? []),
+          kind.values
+            ? kind.values.map((value) => ({ id: value, label: value }))
+            : linkCandidates(kind.to ?? []),
         ]),
       ),
     ]),
