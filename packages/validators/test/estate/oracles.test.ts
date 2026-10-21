@@ -156,26 +156,34 @@ describe('the affected gen.complete items', { timeout: 120_000 }, () => {
 
 describe('approved task asks are judged by the act the fake sets off', () => {
   const bank = parse(readFileSync(join(fixture.FIXTURE, 'phrases.yaml'), 'utf8')) as {
-    situations: Array<{ id: string; phrases: Array<{ text: string; approved: boolean }> }>;
+    situations: Array<{ id: string; atoms: string[]; phrases: Array<{ text: string; approved: boolean }> }>;
+  };
+  const plan = parse(readFileSync(join(fixture.FIXTURE, 'plan.yaml'), 'utf8')) as {
+    rows: Array<{ id: string; atomIds: string[]; testType: string }>;
   };
   const situationOf = (text: string) =>
     bank.situations.find((situation) =>
       situation.phrases.some((phrase) => phrase.approved && phrase.text === text),
-    )?.id;
+    );
+  // The plan row of the test type whose first atom the situation holds: gen.task judges a spec on its row.
+  const rowOf = (type: string, atoms: readonly string[]) =>
+    plan.rows.find((row) => row.testType === type && atoms.includes(row.atomIds[0] as string));
 
   for (const phrase of APPROVED_TASKS) {
     it(`keeps gen.task.${phrase.type} green for the approved ask and red for a rule restated in its place: ${phrase.text}`, async () => {
       const situation = situationOf(phrase.text);
       expect(situation, phrase.text).toBeDefined();
+      const row = rowOf(phrase.type, situation?.atoms ?? []);
+      expect(row, phrase.text).toBeDefined();
       const asked = (text: string) =>
         ({
           ...task(text),
-          metadata: { estate: { ask: 'bank', situation } },
+          metadata: { estate: { ask: 'bank', situation: situation?.id, planRow: row?.id } },
         }) as unknown as Spec;
       const spec = {
         path: 'oracle-task.yaml',
         id: 'oracle-task',
-        atoms: [],
+        atoms: row?.atomIds ?? [],
         testType: phrase.type,
         mode: 'task',
         complete: true,
