@@ -619,11 +619,11 @@ A rule can also live in a file of your project that extends the shipped rules, a
 
 The fault finder reads the evidence of a failed block and names where the fix belongs: a prompt line, a skill or a tool description. A failed tool call can point to the tool description. A missing order recap can point to the prompt. A diagnosis never turns a failed check into a pass. In our fault study, changing a tool description removed 86 coverage lookup failures in 249 runs, and 29 exact assertion failures remained ([fault study](https://github.com/NexusGPT/driftbench/pull/441)).
 
-The fault finder ships as rule files and a runner, and no command runs it yet.
+The fault finder ships as rule files and a runner. `driftbench report` and `driftbench view` list the fixes of a campaign from its stored diagnoses. A spec asks for a diagnostic with `uses.diagnostics`; [the Northwind campaign](docs/northwind-campaign.md) shows it on a whole campaign.
 
 <details><summary>How to do it: read what the fault finder reads</summary>
 
-Today a program registers the diagnostic steps and calls `runSpec`. The reference lists every evidence name a rule can read, every item of the shipped blame and placement rules, and the steps of the five shipped diagnostics. See the [blame reference](docs/reference/blame.md) and the [diagnostics help topic](packages/cli/help/running-diagnostics.md).
+A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the fixes from the stored diagnoses. [The Northwind campaign](docs/northwind-campaign.md) runs this on four tasks of a fictional code agent, with a free rehearsal. The reference lists every evidence name a rule can read, every item of the shipped blame and placement rules, and the steps of the five shipped diagnostics. See the [blame reference](docs/reference/blame.md) and the [diagnostics help topic](packages/cli/help/running-diagnostics.md).
 
 </details>
 
