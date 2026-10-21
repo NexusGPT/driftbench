@@ -63,6 +63,52 @@ describe('what a guard enforces', () => {
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
 
+  it('by a message that holds the part of the rule after its condition', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "stop all work and confirm in one line" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.stop', by: 'quote' }]);
+  });
+
+  it('not by a message that holds only the condition of the rule', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n- **R1.** When the user asks to stop, stop all work and confirm in one line.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "the user asks to stop" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Stop',
+          quote: '**R1.** When the user asks to stop, stop all work and confirm in one line.',
+          situation: 'the user asks to stop',
+          evidence: [{ type: 'custom', name: 's' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([]);
+  });
+
   it('not by a message that quotes only a part of the rule', async () => {
     const result = await oneRule('#!/bin/sh\necho "never touch the vault" >&2\nexit 2\n');
     expect(result.enforces).toEqual([]);

@@ -23,8 +23,9 @@ import type { Atom, Edge } from '../schema';
  *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
  *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
  *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
- *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
- *      the other, compared without markup, case or final punctuation.
+ *   3. quote: a string in the guard's source of at least 16 characters holds a rule's quote, a code span the
+ *      rule writes, or the part of the rule after its condition, compared without markup, case or final
+ *      punctuation. A string that holds only the condition, or loose words of it, enforces nothing.
  * Only instruction, gate and register atoms are enforced. `enforcement` on each rule lists its guards.
  */
 
@@ -181,8 +182,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules)
-          if (literalHoldsRule(literal, ruleWords(rule), rule.fields?.spans)) take(rule, 'quote');
+        for (const rule of rules) if (literalHoldsRule(literal, rule)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -210,18 +210,35 @@ function holds(quote: string, passage: string): boolean {
 }
 
 /**
- * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words, or a code
- * span the rule writes (the command a guard matches). A literal that holds only some loose words of a rule (a
- * message that quotes a few of them) is no enforcement of it.
+ * The part of a rule after its condition: the quote, without the label that opens its line, from the end of the
+ * condition the labeler gave as the rule's situation. Empty when the rule has no situation, or its quote does not
+ * hold it.
  */
-function literalHoldsRule(literal: string, rule: string, spans: unknown): boolean {
+function actionPart(rule: Atom): string {
+  const words = ruleWords(rule);
+  const condition = rule.situation?.trim();
+  if (!condition) return '';
+  const at = words.toLowerCase().indexOf(condition.toLowerCase());
+  if (at < 0) return '';
+  return words.slice(at + condition.length).replace(/^[\s,;:.\u2013\u2014-]+/, '');
+}
+
+/**
+ * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words, a code span
+ * the rule writes (the command a guard matches), or the part of the rule after its condition (docs/estate.md,
+ * section 2, the enforces edge). A literal that holds only the condition, or a few loose words of it, repeats when
+ * the rule applies and not the rule: it enforces nothing.
+ */
+function literalHoldsRule(literal: string, rule: Atom): boolean {
   const text = plain(literal);
-  const words = plain(rule);
-  if (words.length >= MIN_LITERAL && text.includes(words)) return true;
-  const written = Array.isArray(spans) ? (spans as unknown[]) : [];
-  return written.some(
-    (span) => typeof span === 'string' && plain(span).length >= MIN_LITERAL && text.includes(plain(span)),
-  );
+  const holds = (part: string): boolean => {
+    const wanted = plain(part);
+    return wanted.length >= MIN_LITERAL && text.includes(wanted);
+  };
+  if (holds(ruleWords(rule))) return true;
+  const spans = Array.isArray(rule.fields?.spans) ? (rule.fields.spans as unknown[]) : [];
+  if (spans.some((span) => typeof span === 'string' && holds(span))) return true;
+  return holds(actionPart(rule));
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
