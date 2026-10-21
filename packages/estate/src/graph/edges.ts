@@ -181,7 +181,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(ruleWords(rule), literal)) take(rule, 'quote');
+        for (const rule of rules) if (literalHoldsRule(literal, ruleWords(rule))) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -206,6 +206,15 @@ function holds(quote: string, passage: string): boolean {
   const b = plain(passage);
   if (b.length < MIN_LITERAL || a.length < MIN_LITERAL) return a === b && a !== '';
   return a.includes(b) || b.includes(a);
+}
+
+/**
+ * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words. A literal
+ * that holds only a part of a rule (a message that quotes a few of its words) is no enforcement of it.
+ */
+function literalHoldsRule(literal: string, rule: string): boolean {
+  const words = plain(rule);
+  return words.length >= MIN_LITERAL && plain(literal).includes(words);
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */

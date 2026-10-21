@@ -63,6 +63,12 @@ describe('what a guard enforces', () => {
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
 
+  it('not by a message that quotes only a part of the rule', async () => {
+    const result = await oneRule('#!/bin/sh\necho "never touch the vault" >&2\nexit 2\n');
+    expect(result.enforces).toEqual([]);
+    expect(result.enforced).toEqual([]);
+  });
+
   it("by a message that repeats the rule's words when the rule's quote opens with its label", async () => {
     // A pointer atom quotes its whole unit, label included; the guard repeats the words after the label.
     const root = await estate({
