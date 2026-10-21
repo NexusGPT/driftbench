@@ -104,7 +104,7 @@ function checkReferences(store: VariableStore): VariableStoreIssue[] {
   const issues: VariableStoreIssue[] = [];
   const variables = new Map<string, Set<string>>();
   const axisKinds = new Map<DimensionKind, string>();
-  // For kinds a spec names by value (behaviours, tags), the axis that holds each value id.
+  // A spec names a value without its variable, so the axis that holds each value id is one across the named kinds.
   const owners = new Map<string, string>();
 
   store.variables.forEach((variable, index) => {
@@ -147,18 +147,17 @@ function checkReferences(store: VariableStore): VariableStoreIssue[] {
         );
       }
       if (value.id === NONE || SINGLE_KINDS.has(variable.kind)) return;
-      const key = `${variable.kind}:${value.id}`;
-      const owner = owners.get(key);
+      const owner = owners.get(value.id);
       if (owner !== undefined && owner !== variable.id) {
         issues.push(
           issue(
             'VARIABLES_AMBIGUOUS_VALUE',
             at,
-            `value "${value.id}" is also in "${owner}"; a spec names a ${variable.kind} value without its variable, so the id must be unique across ${variable.kind} axes`,
+            `value "${value.id}" is also in "${owner}"; a spec names a value without its variable, so the id must be unique across the behaviour, persona, data and task axes`,
           ),
         );
       }
-      owners.set(key, owner ?? variable.id);
+      owners.set(value.id, owner ?? variable.id);
     });
     if (!variables.has(variable.id)) variables.set(variable.id, ids);
 

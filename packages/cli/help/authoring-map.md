@@ -464,7 +464,7 @@ Fix: Merge the two axes into one, or make one of them a `detail` (details are ex
 
 #### `VARIABLES_AMBIGUOUS_VALUE`
 
-The same value id is in two axes of the same kind among `behaviour`, `persona`, `data` and `task`. A spec names such a value without its variable, so the id must belong to one axis. The value `none` is exempt.
+The same value id is in two axes among `behaviour`, `persona`, `data` and `task`, even when the axes are of different kinds. A spec names such a value without its variable, so the id must belong to one axis. The value `none` is exempt.
 
 ```yaml
 format: 1
