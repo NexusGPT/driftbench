@@ -59,6 +59,9 @@ a test that names an atom on an advisory unit; it is listed and nothing reruns. 
 changed and on which the old map holds no atom; no test names it, so none is regenerated, the live tests that
 cite an atom of its file are listed as touched, and a person reviews it.
 
+A live test that cites an atom id the old map does not hold is listed under "Cites atoms no longer in the map"
+and in the needs of a person: no change of the diff can reach it, so it is never counted as untouched.
+
 With `--replay <sessions>`, impact also replays the suite over a folder of recorded sessions and compares each
 spec on each session with the previous replay kept in `--store`: pass to pass, fail to pass, pass to fail (a
 person is needed), fail to fail, no previous.

@@ -187,6 +187,12 @@ export const EstateDiff = z.strictObject({
   units: UnitsDiff.optional().describe(
     'The ledger units of the two versions; present when both ledgers are given',
   ),
+  oldAtoms: z
+    .array(z.string().min(1))
+    .optional()
+    .describe(
+      'Every atom id of the old map: a test citing an id outside it cites an atom no longer in the map',
+    ),
   summary: z.strictObject({
     added: z.number().int().min(0),
     removed: z.number().int().min(0),
@@ -327,6 +333,7 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
     edges: { added: edgesAdded, removed: edgesRemoved },
     ...(options.guards === undefined ? {} : { guards: options.guards }),
     ...(options.ledgers === undefined ? {} : { units: unitsDiff(before, options.ledgers) }),
+    oldAtoms: before.atoms.map((atom) => atom.id).sort(),
     summary: {
       added: added.length,
       removed: removed.length,

@@ -31,7 +31,8 @@ Files:
 - `maintain/diff.json`, `maintain/diff.txt`: the diff of the first version against this one.
 - `maintain/impact.json`, `maintain/impact.txt`: the impact of that diff on `tests/` (exit 1: two atoms
   wait for re-approval, two new atoms have no test, and R12's unit, which no atom covers, changed to R19 and
-  waits for a person).
+  waits for a person; `unsent-draft`, which names only R12's atom of an earlier map, is listed as citing an
+  atom no longer in the map).
 - `ledger.json`: the ledger of this version, written by the scan from the ledger of the first version; the diff
   reads both, so a changed unit no atom covers is still reported.
 

@@ -240,6 +240,14 @@ export const ImpactReport = z.strictObject({
     })
     .optional()
     .describe('What the ledger units of the diff do to the tests; present when the diff read the ledgers'),
+  stale: z
+    .array(
+      z.strictObject({ test: z.string().min(1), file: z.string().min(1), atoms: z.array(z.string().min(1)) }),
+    )
+    .optional()
+    .describe(
+      'Live tests citing atom ids the old map does not hold: no change can reach them, a person decides',
+    ),
   unaffected: z.strictObject({
     moved: z.number().int().min(0).describe('Atoms moved with the same quote: no test changes'),
     tests: z.number().int().min(0).describe('Live tests the diff does not touch'),
@@ -287,8 +295,14 @@ export function estateImpact(
   const regenerate: ImpactReport['regenerate'] = [];
   const retire: ImpactReport['retire'] = [];
   let untouched = 0;
+  // A test that cites an id the old map does not hold cannot be reached by any change of the diff: it is listed,
+  // and it is not untouched.
+  const known = diff.oldAtoms === undefined ? undefined : new Set(diff.oldAtoms);
+  const stale: NonNullable<ImpactReport['stale']> = [];
 
   for (const test of live) {
+    const missing = known === undefined ? [] : test.atoms.filter((atom) => !known.has(atom));
+    if (missing.length > 0) stale.push({ test: test.id, file: test.file, atoms: missing });
     const gone = test.atoms.filter((atom) => removed.has(atom));
     if (gone.length > 0 && gone.length === test.atoms.length) {
       retire.push({
@@ -305,7 +319,6 @@ export function estateImpact(
       return reason === undefined ? [] : [{ atom, why: reason }];
     });
     if (atoms.length > 0) regenerate.push({ test: test.id, file: test.file, atoms });
-    else untouched++;
   }
   const touched = new Set([...regenerate, ...retire].map((entry) => `${entry.file}\0${entry.test}`));
   const unitTests = (refs: NonNullable<EstateDiff['units']>['rerun']) => {
@@ -342,8 +355,14 @@ export function estateImpact(
       }
     : undefined;
   const rerunKeys = new Set((units?.rerun ?? []).map((entry) => `${entry.file}\0${entry.test}`));
-  untouched -= units?.rerun.length ?? 0;
-  untouched -= [...unlabeledTouched].filter((key) => !touched.has(key) && !rerunKeys.has(key)).length;
+  // Each live test counts once: untouched only when no list above names it.
+  const named = new Set([
+    ...touched,
+    ...rerunKeys,
+    ...unlabeledTouched,
+    ...stale.map((entry) => `${entry.file}\0${entry.test}`),
+  ]);
+  untouched = live.filter((test) => !named.has(`${test.file}\0${test.id}`)).length;
 
   for (const test of tests) {
     if (test.retired === undefined) continue;
@@ -395,6 +414,10 @@ export function estateImpact(
     ),
     ...fresh.map((entry) => `approve the tests of the new atom ${entry.atom}: no test covers it yet`),
     ...guards.flatMap((entry) => (entry.need === null ? [] : [entry.need])),
+    ...stale.map(
+      (entry) =>
+        `the test ${entry.test} cites ${entry.atoms.length === 1 ? 'an atom' : 'atoms'} no longer in the map (${entry.atoms.join(', ')}): decide what it tests now`,
+    ),
     ...unlabeled.map(
       (entry) =>
         `review the unlabeled unit ${entry.unit} in ${entry.path}: it changed and no atom covers it${entry.tests.length > 0 ? `; ${entry.tests.length} ${entry.tests.length === 1 ? 'test cites' : 'tests cite'} its file` : ''}`,
@@ -412,6 +435,7 @@ export function estateImpact(
     new: fresh,
     guards,
     ...(units === undefined ? {} : { units }),
+    ...(stale.length === 0 ? {} : { stale }),
     unaffected: { moved: diff.atoms.moved.length, tests: untouched },
     ...(options.regression ? { regression: options.regression } : {}),
     needsPerson,
@@ -556,6 +580,11 @@ export function renderImpact(report: ImpactReport): string {
           `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}`).join(', ')}`,
         );
     }
+  }
+  if ((report.stale ?? []).length > 0) {
+    lines.push('Cites atoms no longer in the map, no change reaches it:');
+    for (const entry of report.stale ?? [])
+      lines.push(`  ${entry.test} (${entry.file}): ${entry.atoms.join(', ')}`);
   }
   if (report.regression) lines.push(...renderRegression(report.regression));
   if (report.needsPerson.length === 0) lines.push('Nothing needs a person.');

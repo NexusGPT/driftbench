@@ -13,6 +13,7 @@ import {
   loadGuardState,
   parseEstateDiff,
   pointer,
+  renderImpact,
   scanEstate,
 } from '../../src/index';
 import type { EstateMap } from '../../src/schema';
@@ -171,8 +172,22 @@ describe('the fixture-v2 estate', () => {
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    // unsent-draft names only R12's first-version atom, which no longer exists: no change can reach it.
-    expect(report.unaffected).toEqual({ moved: 25, tests: 1 });
-    expect(report.needsPerson).toHaveLength(5);
+    // unsent-draft names only R12's atom of an earlier map, which the first version no longer holds: no change
+    // can reach it, so it is never read as untouched; it is listed and a person decides.
+    expect(report.stale).toEqual([
+      {
+        test: 'northwind-unsent-draft',
+        file: 'unsent-draft.yaml',
+        atoms: ['instruction.standing.r12-when-r2-applies-and-the'],
+      },
+    ]);
+    expect(report.needsPerson).toContainEqual(
+      expect.stringMatching(/^the test northwind-unsent-draft cites an atom no longer in the map/),
+    );
+    expect(renderImpact(report)).toContain(
+      'Cites atoms no longer in the map, no change reaches it:\n  northwind-unsent-draft (unsent-draft.yaml): instruction.standing.r12-when-r2-applies-and-the\n',
+    );
+    expect(report.unaffected).toEqual({ moved: 25, tests: 0 });
+    expect(report.needsPerson).toHaveLength(6);
   });
 });

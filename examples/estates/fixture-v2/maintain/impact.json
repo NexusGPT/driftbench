@@ -162,15 +162,23 @@
       }
     ]
   },
+  "stale": [
+    {
+      "test": "northwind-unsent-draft",
+      "file": "unsent-draft.yaml",
+      "atoms": ["instruction.standing.r12-when-r2-applies-and-the"]
+    }
+  ],
   "unaffected": {
     "moved": 25,
-    "tests": 1
+    "tests": 0
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
     "approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
+    "the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now",
     "review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file"
   ]
 }
