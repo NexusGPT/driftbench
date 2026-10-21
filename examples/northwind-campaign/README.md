@@ -31,7 +31,7 @@ pnpm driftbench campaign plan examples/northwind-campaign/specs --config example
 pnpm driftbench campaign run --config examples/northwind-campaign/driftbench.yaml --campaign northwind-rehearsal --store out/rehearsal.db
 ```
 
-The third runs on the stand-in runtime of the fixture. The live run uses the `claude` CLI, logged in, and costs
+The third runs on the explicit protocol recordings in `rehearsal/`. These are paired with the recorded users, including the clarification question before invoice facts are revealed. They check the campaign wiring; only the live run measures the model. The general estate stand-in cannot resolve every instruction in these skills, and now fails the cell when planning fails. The live run uses the `claude` CLI, logged in, and costs
 money:
 
 ```
@@ -54,3 +54,5 @@ The workflow `.github/workflows/northwind-campaign.yml` does both: the rehearsal
   turns as text (a tool call and its result are not part of a prefix) and starts from the parent's files. If the
   runtime refuses the seeded session, the continuation fails with the runtime's own error.
 * The fix list of the report comes from the stored diagnoses (`report` builds it with the fix plan).
+
+The rehearsal fails on every non-zero campaign exit, including failed and unrun cells; its report and artifacts are still collected.

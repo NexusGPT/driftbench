@@ -4,7 +4,7 @@
 //
 // Settings come from the environment, so the workflow and a person set them the same way:
 //   NORTHWIND_COMMAND        the headless runtime: `claude`, or a stand-in file. Default: the fake runtime of
-//                            the fixture (no model call, no cost).
+//                            this campaign's protocol recording (no model call, no cost).
 //   NORTHWIND_ALLOW_BILLED   `1` lets a command that is not a stand-in run. It is billed.
 //   NORTHWIND_MODEL          passed as --model (the fixture's own setting names opus).
 //   NORTHWIND_MAX_TURNS      passed as --max-turns.
@@ -35,7 +35,7 @@ async function isStandIn(path) {
 
 export default async function plugin(api) {
   const estateRoot = resolve(process.env.NORTHWIND_ESTATE ?? resolve(HERE, '../estates/fixture'));
-  const configured = process.env.NORTHWIND_COMMAND ?? resolve(estateRoot, 'live/fake/claude.mjs');
+  const configured = process.env.NORTHWIND_COMMAND ?? resolve(HERE, 'rehearsal/claude.mjs');
   const command = configured.includes('/') ? resolve(configured) : configured;
   const standIn = await isStandIn(command);
   if (!standIn && process.env.NORTHWIND_ALLOW_BILLED !== '1') {

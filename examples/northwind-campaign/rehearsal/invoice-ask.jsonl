@@ -1,0 +1,1 @@
+{"type":"assistant","message":{"id":"message_0","type":"message","role":"assistant","model":"northwind-rehearsal","content":[{"type":"text","text":"Which invoice number and purchase order number should I check?"}],"usage":{"input_tokens":1,"output_tokens":1}},"parent_tool_use_id":null}
