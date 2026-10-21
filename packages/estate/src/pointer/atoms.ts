@@ -230,11 +230,10 @@ export function pointerAtoms(
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
     // A unit that names no file of its own and has a target unit (an act asked in one unit, the file to read first
-    // given in the next) takes the code spans of its target.
+    // given in the next) takes the paths of its target. A file is a path by structure (a slash, an extension, a link):
+    // a code span that is no path, such as a tool name, is not a file and does not block this.
     const holder =
-      item.target !== undefined &&
-      namedPaths(item.unit.text).length === 0 &&
-      namedOf(item.unit.text) === undefined
+      item.target !== undefined && namedPaths(item.unit.text).length === 0
         ? item.target.unit.text
         : item.unit.text;
     const code = codeSpanOf(holder);
