@@ -162,3 +162,199 @@ describe('the bar a validator records in GATE.md', () => {
     expect(bar('stats')).toEqual({ maxScore: 0.85, minForecast: 9, minCauses: 80 });
   });
 });
+
+describe('catch items in the journal', () => {
+  const withCatch = (size: number, passing: number) => (row: JournalRow) =>
+    JournalRowSchema.parse({ ...row, catchItems: { size, passing } });
+
+  it('reads the larger of the hardness score and the score over every item, so the check is never looser', () => {
+    // Hardness items pass 40 of 300 at the end; catch items pass 50 of 50, so every item passes 90 of 350.
+    const base = rows([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, TIERS);
+    const passingCatch = hard(base.map(withCatch(50, 50)));
+    expect(passingCatch.pilot.end?.score).toBeCloseTo(90 / 350, 10);
+    // Catch items that fail more often than the hardness items leave the hardness score in charge.
+    const failingCatch = hard(base.map(withCatch(50, 0)));
+    expect(failingCatch.pilot.end?.score).toBeCloseTo(40 / 300, 10);
+    // A bank whose catch items pass far more often is held to its whole score: here 0.4 is crossed.
+    const crossing = hard(
+      rows([100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110], 300, TIERS).map(withCatch(52, 52)),
+    );
+    expect(crossing.pilot.end?.score).toBeCloseTo(162 / 352, 10);
+    expect(
+      crossing.gate.reasons.some((reason) => /score after the pilot 0\.4602 is above 0\.4/.test(reason)),
+    ).toBe(true);
+    // The forecast is the stricter of the hardness and the all-items forecast: here both are 260.
+    expect(passingCatch.forecast).toBe(260);
+    expect(failingCatch.forecast).toBe(260);
+  });
+
+  it('caps catch items at 15 percent of the bank and refuses a row whose catch items pass more than they hold', () => {
+    const base = rows([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, TIERS);
+    expect(hard(base.map(withCatch(52, 52))).gate.reasons).toEqual([]);
+    expect(hard(base.map(withCatch(60, 60))).gate.reasons).toEqual([
+      'catch items are 16.67 percent of the bank at iteration 0, over the 15 percent cap (12.4)',
+    ]);
+    const issues = JournalRowSchema.safeParse({ ...journalRow(1), catchItems: { size: 2, passing: 3 } });
+    expect(issues.success).toBe(false);
+  });
+
+  it('prints the catch items of the latest row in the hardness report', () => {
+    const h = hard(rows([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, TIERS).map(withCatch(50, 48)));
+    expect(h.bank.catchItems).toEqual({ size: 50, passing: 48 });
+    expect(formatHardness('planted', h)).toContain(
+      'Catch items, apart and counted for no hardness: 50, 48 pass on every seed.',
+    );
+  });
+});
+
+describe('catch items never make a gate easier to pass', () => {
+  /** The journal of a pilot: hardness and catch passing per iteration, a bank of the given sizes. */
+  const pilot = (
+    hard: number,
+    hardPass: number,
+    hardStep: number,
+    caught: number,
+    catchPass: number,
+    catchStep: number,
+  ) =>
+    rows(
+      Array.from({ length: 11 }, (_, i) => hardPass + hardStep * i),
+      hard,
+      { '1': hard / 5, '2': hard / 5, '3': hard / 5, '4': hard / 5, '5': hard / 5 },
+    ).map((row, i) =>
+      JournalRowSchema.parse({
+        ...row,
+        catchItems: { size: caught, passing: Math.min(caught, catchPass + catchStep * i) },
+      }),
+    );
+  /** The same journal with the roles taken away: every item counted as a hardness item, as on main. */
+  const unlabelled = (labelled: JournalRow[]) =>
+    labelled.map((row) => {
+      const { catchItems, ...rest } = row;
+      const size = row.bankSize + (catchItems?.size ?? 0);
+      const passing = row.passing + (catchItems?.passing ?? 0);
+      return JournalRowSchema.parse({
+        ...rest,
+        bankSize: size,
+        passing,
+        failingByFamily: { core: size - passing },
+        bankByFamilyTier: { core: { '1': size } },
+        failingCauses: Math.min(rest.failingCauses ?? size - passing, size - passing),
+      });
+    });
+
+  it('fails the reviewer case as main does: 600 hardness items and 100 catch items failing at the start', () => {
+    const labelled = pilot(600, 100, 4, 100, 0, 2);
+    const h = hard(labelled);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'catch items must all pass on every journal row: at iteration 0, 0 of 100 do; a catch item that fails is a hardness item',
+    );
+    // The forecast is the stricter of the hardness-only and the all-items forecast: 540 / 6 = 90, under 100.
+    expect(h.forecast).toBe(90);
+    expect(hard(unlabelled(labelled)).gate.holds).toBe(false);
+  });
+
+  it('gives the same or a stricter verdict with role labels on as with them off, on every term', () => {
+    for (const [hardSize, hardPass, hardStep, caught, catchStep] of [
+      [600, 30, 1, 100, 0],
+      [600, 30, 1, 60, 0],
+      [300, 10, 1, 50, 0],
+      [400, 100, 5, 40, 0],
+      [500, 0, 2, 80, 0],
+    ] as const) {
+      const labelled = pilot(hardSize, hardPass, hardStep, caught, caught, catchStep);
+      const on = hard(labelled);
+      const off = hard(unlabelled(labelled));
+      if (!off.gate.holds) expect(on.gate.holds).toBe(false);
+      expect(on.forecast ?? 0).toBeLessThanOrEqual((off.forecast ?? 0) + 1e-9);
+      expect(on.pilot.end?.score ?? 0).toBeGreaterThanOrEqual((off.pilot.end?.score ?? 0) - 1e-9);
+      expect(on.iteration0.score).toBeGreaterThanOrEqual(off.iteration0.score - 1e-9);
+    }
+  });
+
+  it('fails the gate when catch items lose passes during the pilot, whatever the hardness items gain', () => {
+    // The reviewer's case (377 hardness items there; 375 here, a bank the tier helper splits in five): 74 passing
+    // at +1 per round, 43 catch items falling 2 per round.
+    // Main counts every item and finds the pilot fixed nothing; labels must not turn that into a holding gate.
+    const falling = pilot(375, 74, 1, 43, 43, -2);
+    const on = hard(falling);
+    expect(on.gate.holds).toBe(false);
+    expect(on.gate.reasons).toContain(
+      'catch items must all pass on every journal row: at iteration 1, 41 of 43 do; a catch item that fails is a hardness item',
+    );
+    const off = hard(unlabelled(falling));
+    expect(off.gate.holds).toBe(false);
+  });
+
+  it('checks the catch share on every row, not only the last', () => {
+    const labelled = pilot(300, 30, 1, 40, 40, 0);
+    const shrunk = labelled.map((row, i) =>
+      JournalRowSchema.parse({ ...row, catchItems: i === 3 ? { size: 70, passing: 70 } : row.catchItems }),
+    );
+    expect(hard(shrunk).gate.reasons.some((reason) => /catch items are .* at iteration 3/.test(reason))).toBe(
+      true,
+    );
+  });
+
+  it('reads the baseline score as the larger of the hardness and the whole score', () => {
+    const h = hard(pilot(300, 30, 1, 45, 45, 0));
+    expect(h.iteration0.score).toBeCloseTo(75 / 345, 10);
+  });
+});
+
+describe('relabelling and losing items are not progress', () => {
+  const TIERS600 = { '1': 120, '2': 120, '3': 120, '4': 120, '5': 120 };
+  /** 600 hardness items passing 100 to 110 (one more each round) and 40 catch items that all pass. */
+  const steady = () =>
+    rows(
+      Array.from({ length: 11 }, (_, i) => 100 + i),
+      600,
+      TIERS600,
+    ).map((row) => JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: 40 } }));
+
+  it('fails a journal whose catch set shrinks after iteration 0, though the hardness passing rises with no product change', () => {
+    // 20 always-passing catch items become hardness items from iteration 1: the hardness bank and its passing
+    // both gain 20, with no change in the product. On the old gate the forecast read 163 and the gate held.
+    const relabelled = steady().map((row, i) =>
+      i === 0
+        ? row
+        : JournalRowSchema.parse({
+            ...row,
+            bankSize: row.bankSize + 20,
+            passing: row.passing + 20,
+            bankByFamilyTier: { core: { ...TIERS600, '1': 140 } },
+            catchItems: { size: 20, passing: 20 },
+          }),
+    );
+    const h = hard(relabelled);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'the catch items are frozen at iteration 0 (40): iteration 1 holds 20; moving an item between the hardness and the catch role is not progress',
+    );
+    expect(hard(steady()).gate).toEqual({ holds: true, reasons: [] });
+  });
+
+  it('fails a pilot whose items passing over every item fall in one round, though the end figure is higher', () => {
+    // 104 + 40 = 144 at iteration 4, 101 + 40 = 141 at iteration 5: a loss that the first and last rows hide.
+    const dip = rows([100, 101, 102, 103, 104, 101, 106, 107, 108, 109, 110], 600, TIERS600).map((row) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: 40 } }),
+    );
+    const h = hard(dip);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'items passing over every item fall from 144 at iteration 4 to 141 at iteration 5 (builder): a pilot that loses items is not progress',
+    );
+  });
+
+  it('fails when the forecast over every item is undefined, whatever the hardness items gain', () => {
+    const losing = steady().map((row, i) =>
+      JournalRowSchema.parse({ ...row, catchItems: { size: 40, passing: Math.max(0, 40 - 2 * i) } }),
+    );
+    const h = hard(losing);
+    expect(h.gate.holds).toBe(false);
+    expect(h.gate.reasons).toContain(
+      'the forecast over every item, catch items included, is undefined: the pilot fixed nothing over all items together',
+    );
+  });
+});

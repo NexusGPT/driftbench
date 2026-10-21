@@ -2,7 +2,7 @@
 
 A change to one part of an agent has a blast radius: the blocks that part can affect. When you fix something related to a block, you do not need to run every test again, only the radius. driftbench computes it from what each block already says it reads.
 
-What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. Also built: [prompt quotes](#prompt-quotes), [prompt sections and block links](#prompt-sections-and-block-links), [execution provenance](#execution-provenance), [re-judging a criterion](#re-judge-a-criterion), [mode T block reruns](#mode-t-block-reruns) and [parent blocks](#parent-blocks). See [what comes next](#what-comes-next) for the parts that are not built yet.
+What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. Also built: [prompt quotes](#prompt-quotes), [prompt sections and block links](#prompt-sections-and-block-links), [rerun marks](#rerun-marks), [section mutants](#section-mutants-verified-links-and-the-gate), [execution provenance](#execution-provenance), [re-judging a criterion](#re-judge-a-criterion), [mode T block reruns](#mode-t-block-reruns) and [parent blocks](#parent-blocks). See [what comes next](#what-comes-next) for the parts that are not built yet.
 
 ## A change
 
@@ -314,7 +314,7 @@ Always use the agent versions your campaigns record. Without explicit version fl
 
 ## Prompt sections and block links
 
-A prompt can carry a section registry, `prompts/<prompt-id>.sections.yaml`, that names each of its sections by a stable id with its span (UTF-16 code units, the unit of the quotes above), the SHA-256 of its text, an anchor quote, a scope (`global` or `local`) and its `references`, `overrides` and `duplicates`. The Acme example keeps one for its 30-section prompt in `examples/acme/prompts/`. `radius sections init` writes a first registry from the headings (one section per CommonMark heading of level 1 to `--level`: `#` headings indented up to three spaces with their closing `#` sequence dropped, and titles underlined with `=` or `-`; a `#` line inside a fenced code block, including one opened on a list or quote line, is code; a leading YAML front matter block (`---` to `---`) is not read for headings and stays in the preamble; a heading whose section holds no quote that is unique in the prompt, such as an empty heading next to another, is folded into the section before it; an id is the slugged title, and a repeat takes the next free `_2`, `_3`, so two sections never share an id; HTML blocks and indented code are not parsed), `radius sections check` checks it against the prompt, and `radius sections reanchor` finds every section again in the next version: same text, then the unique quote, then the prefix and suffix window, else `stale`. A section is only placed where its text hashes as before, so an edit inside it makes it stale and it is never anchored to the wrong text; text that changed outside every section is reported.
+A prompt can carry a section registry, `prompts/<prompt-id>.sections.yaml`, that names each of its sections by a stable id with its span (UTF-16 code units, the unit of the quotes above), the SHA-256 of its text, an anchor quote, a scope (`global` or `local`) and its `references`, `overrides` and `duplicates`. The Acme example keeps one for its 30-section prompt in `examples/acme/prompts/`. `radius sections init` writes a first registry from the headings (one section per CommonMark heading of level 1 to `--level`: `#` headings indented up to three spaces with their closing `#` sequence dropped, and titles underlined with `=` or `-`; a `#` line inside a fenced code block, including one opened on a list or quote line (it ends with its item or quote), is code; a leading YAML front matter block (`---` to `---`, after an optional byte order mark, empty or holding key lines) is not read for headings and stays in the preamble; a heading whose section has no word of its own, such as an empty heading next to another, is folded into the section before it; an id is the slugged title, and a repeat takes the next free `_2`, `_3`, so two sections never share an id; HTML blocks and indented code are not parsed). Two sections with the same text are neither folded nor refused: each keeps its entry, and its anchor carries an `occurrence` (from 1, in text order) that names which copy of the quote lies in it. `radius sections check` checks the registry against the prompt, and `radius sections reanchor` finds every section again in the next version: same text found once, then, for repeated text, the same copy number when the number of copies is unchanged (`occurrence`), then the unique quote, then the prefix and suffix window (for repeated text only a window that names one copy in the old prompt too), else `stale`. A section is only placed where its text hashes as before, so an edit inside it makes it stale and it is never anchored to the wrong text; two sections never hold one place (when the surroundings of two repeated sections fit one copy, both come out `stale`); text that changed outside every section is reported.
 
 A block names the sections it tests in the spec's `metadata.links`, each link with a status: `declared`, `attributed`, `verified`, `refuted` or `stale`. `metadata.links` and `metadata.provenance` stay out of the spec hash, so a link added or promoted never changes a run id or a cache key and never invalidates a carry or a rejudge. `spec lint --sections <registries>` checks that every link names a section its registry holds.
 
@@ -378,6 +378,31 @@ A change manifest can name a section: `kind: prompt_section`, `id: <prompt-id>#<
 * every block, when a changed section is global or unknown.
 
 Why it does not skip tests yet: on the H7 suite (the Acme stand-in prompt of 30 sections, 19 conversations, 37 blocks with declared links, 9,690 conversation runs on `claude-haiku-5-5`), declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants, a share of 3.3% whose Wilson 95% interval reaches 9.3%, and in 9 of 110 mutants with the 20 two-section ones (8.2%). Two of the three misses were inherited failures in later blocks of a chain; the forward closure brings the share to 2 of 90 and 4 of 110 at a mean selection ratio of 0.23 (0.199 without it). The core test `packages/core/test/radius/select.test.ts` re-scores those stored runs with this rule and reproduces each number. The other miss is a link no author declared: negating the confirmation rule broke recap blocks linked only to `recap`. Selection may become a filter only when links verified by mutation keep the Wilson upper bound at or below 5%, two-section mutants included: that is the verified-link gate below.
+
+### Rerun marks
+
+Some blocks cannot be selected by their links. A block that is red when nothing changed has no link to blame. A block that flips under edits it has no link to cannot name them. Both rerun on every change to a prompt section, whatever their links say. The spec records them in `metadata.rerun`:
+
+```yaml
+metadata:
+  rerun:
+    - block: 0 # The block id, or its index when blocks have no id
+      reason: fails_at_baseline # fails_at_baseline or fragile
+      evidence: { failed: 3, repeats: 3 } # What supports the mark; free-form
+```
+
+`rerunMarks` in `@agent-nexus/driftbench-core` computes the marks from a run, by two procedures. A mark is never written by hand.
+
+| Reason | A block gets it when |
+|---|---|
+| `fails_at_baseline` | it fails in at least half of the repeats of the unchanged suite. Any edit may be its fix, so selection never skips it |
+| `fragile` | it flipped under at least `minMutants` mutants (default 2) whose changed sections the links did not select it for |
+
+A block already marked `fails_at_baseline` is not marked again. A flaky block, passed in `excluded`, is never marked: it cannot verify anything. The marks are calibrated on one run and then frozen into the map. A later sample is measured with those marks, and never with marks learned from it.
+
+Both selections read the marks. `--sections` adds a marked block to the blocks it selects, with the reason `rerun:fails_at_baseline` or `rerun:fragile`. A `unit` change of the ledger selects a marked block the same way. Selection stays advisory: a section or unit change still makes the radius the whole suite.
+
+Limits: the marks come from a mutation run and cost one. A suite with no run to calibrate on has no marks, and its selection reads the links alone.
 
 ### Section mutants, verified links and the gate
 

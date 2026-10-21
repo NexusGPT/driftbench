@@ -110,7 +110,14 @@ export function journalOf(
       failingByFamily: { core: bankSize - value },
       bankByFamilyTier: { core: Object.keys(tiers).length > 0 ? tiers : { '1': bankSize } },
       ...(causes(bankSize - value) !== undefined
-        ? { failingCauses: causes(bankSize - value), failingWithoutCause: 0 }
+        ? {
+            failingCauses: causes(bankSize - value),
+            // A row with failing items and 0 causes is valid only when every failing item is composite.
+            ...(causes(bankSize - value) === 0 && bankSize - value > 0
+              ? { failingComposite: bankSize - value }
+              : {}),
+            failingWithoutCause: 0,
+          }
         : {}),
       result: iteration === 0 ? 'baseline' : 'unchanged',
     }),

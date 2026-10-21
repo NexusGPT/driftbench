@@ -109,6 +109,9 @@ Every option of `driftbench validate`, for reference (the topic named in the las
 | `--seed <n>` | seed 1 when no seed option is given | one visible seed | `validate-overview` |
 | `--seeds <a..b>` | none | a range of visible seeds, at most 1000 | `validate-overview` |
 | `--hidden` | off | add the hidden seed of the current commit | `validate-overview` |
+| `--hidden-only` | off | with `--hidden`: run the hidden seed alone, with no visible seed | `validate-overview` |
+| `--reports <dir>` | none | join the `--json` reports in a folder into one report per validator, then print and check the floors | `validate-overview` |
+| `--levels <a..b>` | none | compute only levels a to b of one component, as one slice of a ladder; `--reports` joins the slices. Exit 0 | `validate-overview` |
 | `--json` | off | print the report, or the hardness, as JSON | `validate-overview` |
 | `--items` | off | compute every level and list the whole bank | `validate-reading-items` |
 | `--all-levels` | off | compute every level and list every failing item | `validate-reading-items` |

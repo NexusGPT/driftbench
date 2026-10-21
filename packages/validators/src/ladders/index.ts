@@ -3,7 +3,9 @@ import { estateLadder } from './estate/index';
 import { generatorLadder } from './generator/index';
 import { judgesLadderV2 } from './judges/v2/index';
 import { judgesLadderV3 } from './judges/v3/index';
+import { judgesLadderV4 } from './judges/v4/index';
 import { mapLadder } from './map';
+import { pointerLadder } from './pointer/index';
 import { statsLadder } from './stats';
 import { systemLadder } from './system';
 import { variablesLadder } from './variables';
@@ -15,6 +17,7 @@ export function registeredLadders(): Record<string, Ladder> {
     generator: generatorLadder(),
     judges: judgesLadderV2(),
     map: mapLadder(),
+    pointer: pointerLadder(),
     stats: statsLadder(),
     system: systemLadder(),
     variables: variablesLadder(),
@@ -27,6 +30,6 @@ export function registeredLadderVersions(): Record<string, Record<number, Ladder
   const versions = Object.fromEntries(
     Object.entries(defaults).map(([name, ladder]) => [name, { [ladder.version ?? 1]: ladder }]),
   );
-  versions.judges = { ...versions.judges, 3: judgesLadderV3() };
+  versions.judges = { ...versions.judges, 3: judgesLadderV3(), 4: judgesLadderV4() };
   return versions;
 }
