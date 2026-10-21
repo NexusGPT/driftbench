@@ -27,7 +27,9 @@ describe('every planted guard acts on its own ask', () => {
             .filter((decision) => decision.check === guard.name)
             .map((decision) => decision.verdict);
           if (!verdicts.some((verdict) => verdict !== undefined && verdict !== 'allow'))
-            silent.push(`${profile} seed ${seed}: ${guard.name} on "${guard.ask}" gave ${verdicts.join(', ') || 'no decision'}`);
+            silent.push(
+              `${profile} seed ${seed}: ${guard.name} on "${guard.ask}" gave ${verdicts.join(', ') || 'no decision'}`,
+            );
         }
       }
     expect(guards).toBeGreaterThan(0);
