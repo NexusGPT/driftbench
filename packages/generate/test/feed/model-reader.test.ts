@@ -49,8 +49,9 @@ describe('the discriminative condition reader', () => {
     'refuses an incomplete or nonbinary answer: %s',
     async (answer) => {
       const reader = createConditionReader({ family: 'fictional', complete: async () => answer });
-      await expect(reader.read('Private clause text', questions)).rejects.toThrow('condition reader');
-      await expect(reader.read('Private clause text', questions)).rejects.not.toThrow('Private clause text');
+      await expect(reader.read('Private clause text', questions)).rejects.toEqual(
+        new Error('condition reader did not return a complete binary answer'),
+      );
     },
   );
 
