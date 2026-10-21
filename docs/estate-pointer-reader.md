@@ -79,6 +79,20 @@ Rules:
 - Each set has a **set hash**: the hash of its canonical form (names, descriptions, examples, targets, atom mappings). The set hash is part of the cassette key. Editing one label of one set changes only that set's hash, so only that set is re-labelled; other sets and the units' ids are untouched.
 - The default `agent-rules` set above is data in a shipped file, loaded the same way as a user set. No label name is known to the core.
 
+### Nested spans: two calls of one tool in order
+
+A label can mark parts of a unit as spans. A span can sit inside another one with `within`. The shipped `agent-rules` set uses this for a rule that makes one call wait for another call of the same tool. That rule takes the label `gate-calls`.
+
+| Span | Marks |
+|---|---|
+| `governed-action` | the act the rule governs |
+| `first-call` | inside `governed-action`: the call that runs first, copied from the unit without a word that orders it |
+| `second-call` | inside `governed-action`: the call of the same tool that runs second |
+
+The label builds a gate atom titled "Run `<first call>` before `<second call>`". Its fields are `first`, `second` and `trigger`, the governed action. Its evidence is an ordered pair of calls of the tool named by the `act-tool` link. For a rule that tells the agent to run `git status` before `git commit`, the gate reads "Run git status before git commit", and the evidence is `Bash~git status` then `Bash~git commit`.
+
+A ban that lasts only until another call of the same tool has run and its output was read takes `gate-calls`, not `prohibition`. Limits: a call span outside `governed-action` makes the labelling refuse, and no gate atom is built. An incomplete answer never replaces the gate that code already read from the unit.
+
 ## 2. Layer A: cutting
 
 Code reads each prose file (standing instructions, memory, skill bodies and files, helper bodies, and any file the user names for a set) and cuts it into units.
