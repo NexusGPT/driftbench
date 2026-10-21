@@ -2,7 +2,7 @@
 
 The first 402 items began as a blind bank, written from `docs/estate-pointer-reader.md` (revision 3) and `docs/validators.md` sections 1, 8, 10 and 12 without opening the reader. Later maintainer commits changed the harness, the runners and the oracles, so this bank claims no blind item: the blind measure is the separate bank of PR 759. The section Provenance gives the labels, and the table of every family carries the label of each item. This file is generated: run `pnpm tsx tools/pointer-catalogue.ts` after any change to the bank.
 
-Bank: **443 items**, 11 families, 259 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
+Bank: **444 items**, 11 families, 259 distinct causes, 9 levels. This file is generated from the same rows the code zips with its runners.
 
 ## Counts
 
@@ -12,14 +12,14 @@ Bank: **443 items**, 11 families, 259 distinct causes, 9 levels. This file is ge
 | ids | ids | 44 | 11 | 21 | 11 | 1 | 0 |
 | re-anchoring | anchor | 57 | 5 | 12 | 26 | 10 | 4 |
 | grouping | labels | 27 | 5 | 12 | 9 | 1 | 0 |
-| labels | labels | 73 | 4 | 36 | 32 | 1 | 0 |
+| labels | labels | 74 | 4 | 36 | 33 | 1 | 0 |
 | replay | replay | 44 | 3 | 10 | 22 | 9 | 0 |
 | privacy | privacy | 22 | 2 | 8 | 11 | 1 | 0 |
 | links | links | 25 | 3 | 7 | 13 | 2 | 0 |
 | radius | links | 27 | 4 | 6 | 13 | 3 | 1 |
 | scale | scale | 24 | 1 | 1 | 5 | 13 | 4 |
 | adversarial | adversarial | 33 | 0 | 4 | 15 | 10 | 4 |
-| **all** | | **443** | **47** | **144** | **183** | **55** | **14** |
+| **all** | | **444** | **47** | **144** | **184** | **55** | **14** |
 
 Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a standard variation or one documented rule. 3 two constructs together or an edge of a documented rule. 4 several parts, hostile or combined input, a design decision. 5 scale, fuzz, or a weak spot the design itself names.
 
@@ -33,7 +33,7 @@ Tiers: 1 one construct, canonical input, obvious answer. 2 one construct with a 
 |---|---|
 | blind | 0 |
 | maintainer-repaired | 402 |
-| maintainer-added | 41 |
+| maintainer-added | 42 |
 
 `driftbench validate pointer --items` prints the score of each label apart.
 
@@ -404,6 +404,7 @@ Level `labels`, default component `labeler`, default needs scan. The labeller po
 | `labels.settings-threshold-range-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: <n> }` for each of the four keys, with n in 1.5, 2, -0.1 and 100, then 0, 0.4 and 1. (seed-free) | Each value outside 0 to 1 gives a refusal that names the key; each value inside gives no refusal and is returned as written. | `settings:threshold-between-zero-and-one` | settings | settings |
 | `labels.settings-inherited-threshold-key-refused` | maintainer-added | 2 | The settings text `threshold: { <key>: 0.5 }` for constructor, toString, hasOwnProperty and valueOf, then `labeler: 0.5`. (seed-free) | Each inherited key gives a refusal that names the key; the real key gives none. | `settings:threshold-keys-are-own` | settings | settings |
 | `labels.top-level-heading-window-boundary` | maintainer-added | 3 | One file: two top-level headings with one sentence below each, far under the unit cap; Haiku arm on a fake transport. | Two windows are asked, one per top-level section; neither holds a unit of the other section. | `labeler:window-ends-at-top-level-heading` | labeler | transport |
+| `labels.read-unit-not-labelable-under-heading` | maintainer-added | 3 | A skill whose `description` front matter value is read by the structured reader, followed by a top-level heading and four paragraphs. | No window offers that unit as labelable and it holds no label; every paragraph holds the label the labeler gave it. | `scan:read-units-marked` | scan | scan |
 
 ## replay
 
@@ -618,7 +619,7 @@ Level `adversarial`, default component `scan`, default needs scan. Documents and
 | `adversarial.edit-inside-duplicates` | maintainer-repaired | 4 | Three identical units separated by unique units; reword the middle one. | The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`. | `scan:events-by-id` | anchor | scan |
 | `adversarial.hostile-file-names` | maintainer-repaired | 3 | Files `__proto__.md`, `constructor.md`, `toString.md`, `a b.md`, `é.md`. | Five paths in the ledger exactly; `Object.prototype` unchanged. | `ledger:hostile-paths` | ledger | scan |
 | `adversarial.label-named-like-prototype` | maintainer-repaired | 4 | A set with labels `constructor`, `tostring`, `hasownproperty`; the labeller uses them. | The ledger stores each under its name; atoms follow the mapping; `Object.prototype` unchanged. | `labelset:safe-label-names` | labelset | scan |
-| `adversarial.verdict-channel-is-not-the-readers` | maintainer-added | 4 | The reader under test cuts one control sentence (the companion positive control: a reader that cuts nothing earns no credit). Then two planted readers, each broken (it cuts nothing) and each carrying a cheat that runs when it loads: one wraps `process.send` and rewrites every verdict into a pass, one writes a forged pass to the descriptor of the IPC channel. The harness serves each from a process of its own and asks one control cut. (seed-free) | The reader under test cuts the control sentence. The control on each planted reader fails on the outputs of the reader, or the process of the reader ends. A control that passes means the reader reached the verdict. | `harness:reader-runs-apart-from-the-oracle` | harness | cut,child |
-| `adversarial.sut-env-not-trusted-in-reader-process` | maintainer-added | 4 | The reader under test cuts one control sentence (the companion positive control). Then one planted reader that cuts a marker and, when it loads and when it is called, points `DRIFTBENCH_POINTER_SUT` at a second reader that cuts another marker. The harness asks one control cut here and one in a sandboxed process. (seed-free) | The reader under test cuts the control sentence. Both cuts of the planted reader give its marker. The marker of the second reader means the harness read the variable after the reader changed it. | `harness:pin-the-reader-before-it-loads` | harness | cut,child |
-| `adversarial.reader-imports-no-bank` | maintainer-added | 2 | The reader under test cuts one control sentence (the companion positive control). Then every source file of `packages/estate/src/pointer`, read for its import, export-from, dynamic import, require and `new URL` specifiers. (seed-free) | The reader under test cuts the control sentence. No specifier names a `validators` folder or the validators package. A reader that imports the bank, an oracle or the reference reader can read the truth of an item. | `harness:reader-imports-no-validators` | harness | cut |
+| `adversarial.verdict-channel-is-not-the-readers` | maintainer-added | 4 | The reader under test cuts the control file (the companion positive control: two sentences on one line, a heading and a list item; a reader that cuts nothing, or a file or a line as one unit, earns no credit). Then two planted readers, each broken (it cuts nothing) and each carrying a cheat that runs when it loads: one wraps `process.send` and rewrites every verdict into a pass, one writes a forged pass to the descriptor of the IPC channel. The harness serves each from a process of its own and asks one control cut. (seed-free) | The reader under test cuts the control file. The control on each planted reader fails on the outputs of the reader, or the process of the reader ends. A control that passes means the reader reached the verdict. | `harness:reader-runs-apart-from-the-oracle` | harness | cut,child |
+| `adversarial.sut-env-not-trusted-in-reader-process` | maintainer-added | 4 | The reader under test cuts the control file (the companion positive control: two sentences on one line, a heading and a list item). Then one planted reader that cuts a marker and, when it loads and when it is called, points `DRIFTBENCH_POINTER_SUT` at a second reader that cuts another marker. The harness asks one control cut here and one in a sandboxed process. (seed-free) | The reader under test cuts the control file. Both cuts of the planted reader give its marker. The marker of the second reader means the harness read the variable after the reader changed it. | `harness:pin-the-reader-before-it-loads` | harness | cut,child |
+| `adversarial.reader-imports-no-bank` | maintainer-added | 2 | The reader under test cuts the control file (the companion positive control: two sentences on one line, a heading and a list item). Then every source file of `packages/estate/src/pointer`, read for its import, export-from, dynamic import, require and `new URL` specifiers. (seed-free) | The reader under test cuts the control file. No specifier names a `validators` folder or the validators package. A reader that imports the bank, an oracle or the reference reader can read the truth of an item. | `harness:reader-imports-no-validators` | harness | cut |
 
