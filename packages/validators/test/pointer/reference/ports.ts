@@ -17,9 +17,11 @@ import type {
   Transport,
 } from '../../../src/ladders/pointer/sut/port';
 import { referenceBugsB } from './bugs-b';
+import { bugsC } from './bugs-c';
+import { extrasProblem, jsonObjectOf } from './extras';
 import { canonicalCompact, sha256 } from './hash';
-import type { ParsedSet } from './labelset';
-import { type Candidates, SYSTEM_TEXT, userText, type WindowPlan } from './window';
+import type { ParsedSet, RefLabel } from './labelset';
+import { type Candidates, type PlanUnit, SYSTEM_TEXT, userText, type WindowPlan } from './window';
 
 /** A link of an answer: a kind the label may carry and a listed candidate, or `none`. */
 export type AnswerLink = { kind: string; to: string };
@@ -28,30 +30,27 @@ export type AnswerLink = { kind: string; to: string };
 export type AnswerLabel = { label: string; target?: number; links?: AnswerLink[] };
 
 /**
- * The links of one answer entry, checked (docs, section 3): a non-empty list, each of a kind the label may carry,
- * no kind twice, each naming a candidate the request listed for that kind, or `none`. A string is the reason.
+ * The entries of a raw answer: the one JSON object of the text (the text itself, its only code fence, or its first
+ * `{` to its last `}`). A `target` written as null is no target, and empty spans or links are none, as the reader
+ * reads a dense answer.
  */
-function checkLinks(
-  entry: LabelEntry & { links?: unknown },
-  set: ParsedSet,
-  candidates: Candidates,
-): string | AnswerLink[] | undefined {
-  if (entry.links === undefined) return undefined;
-  if (!Array.isArray(entry.links) || entry.links.length === 0) return 'links are a non-empty list';
-  const allowed = set.labelLinks.get(entry.label);
-  if (!allowed) return `the label ${entry.label} carries no links`;
-  const out: AnswerLink[] = [];
-  for (const link of entry.links as unknown[]) {
-    const { kind, to } = (link ?? {}) as { kind?: unknown; to?: unknown };
-    if (typeof kind !== 'string' || !allowed.includes(kind))
-      return `the link kind ${JSON.stringify(kind)} is not one the label ${entry.label} may carry`;
-    if (typeof to !== 'string') return 'a link names an atom id or none';
-    if (out.some((other) => other.kind === kind)) return `the link kind ${kind} is given twice`;
-    if (to !== 'none' && !(candidates[kind] ?? []).some((candidate) => candidate.id === to))
-      return `${to} is not a candidate the request listed for ${kind}`;
-    out.push({ kind, to });
-  }
-  return out;
+function rawEntries(raw: string): LabelEntry[] | { reason: string } {
+  const value = jsonObjectOf(raw);
+  if (!value) return { reason: 'the answer is not JSON' };
+  return (value.labels as unknown[]).map((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return item as LabelEntry;
+    const entry = { ...(item as Record<string, unknown>) };
+    if (entry.target === null && !bugsC.has('null-target-kept')) delete entry.target;
+    for (const field of ['spans', 'links'])
+      if (!Array.isArray(entry[field]) || (entry[field] as unknown[]).length === 0) delete entry[field];
+    return entry as LabelEntry;
+  });
+}
+
+/** The links of an entry whose checks passed, each a kind and a listed candidate or `none`. */
+function linksOf(entry: LabelEntry & { links?: unknown }): AnswerLink[] | undefined {
+  if (!Array.isArray(entry.links) || entry.links.length === 0) return undefined;
+  return (entry.links as AnswerLink[]).map(({ kind, to }) => ({ kind, to }));
 }
 
 /** The answer checks of docs/estate-pointer-reader.md section 3 "Validation of an answer". */
@@ -63,14 +62,9 @@ export function validateAnswer(
 ): { ok: true; labels: Map<number, AnswerLabel> } | { ok: false; reason: string } {
   let entries: LabelEntry[];
   if ('raw' in answer) {
-    try {
-      const parsed = JSON.parse(answer.raw) as { labels?: LabelEntry[] };
-      if (!parsed || !Array.isArray(parsed.labels))
-        return { ok: false, reason: 'the answer is not the agreed JSON' };
-      entries = parsed.labels;
-    } catch {
-      return { ok: false, reason: 'the answer is not JSON' };
-    }
+    const read = rawEntries(answer.raw);
+    if (!Array.isArray(read)) return { ok: false, reason: read.reason };
+    entries = read;
   } else {
     if (!Array.isArray(answer.labels)) return { ok: false, reason: 'the answer has no labels list' };
     entries = answer.labels;
@@ -85,7 +79,7 @@ export function validateAnswer(
     if (entry.label !== 'none' && !names.has(entry.label)) {
       return { ok: false, reason: `the label ${JSON.stringify(entry.label)} is not in the set ${set.set}` };
     }
-    const def = set.labels.find((l) => l.name === entry.label);
+    const def = set.labels.find((l) => l.name === entry.label) as RefLabel | undefined;
     let from: number;
     let to: number;
     if (typeof entry.units === 'number') {
@@ -101,15 +95,21 @@ export function validateAnswer(
     } else {
       return { ok: false, reason: 'an entry has no units' };
     }
-    if (from < 1 || from > max) return { ok: false, reason: `the unit ${from} is not in the window` };
+    // Planted bug: a range written backwards names no unit and is passed over without a word.
+    if (to < from && bugsC.has('descending-range-silent')) continue;
+    const outside = bugsC.has('unit-outside-window');
+    if (from < 1 || (from > max && !outside))
+      return { ok: false, reason: `the unit ${from} is not in the window` };
     if (to < from) return { ok: false, reason: `the range ${from}-${to} runs backwards` };
-    if (to > max) return { ok: false, reason: `the range ${from}-${to} leaves the window` };
-    for (let n = from; n <= to; n += 1) {
+    if (to > max && !outside) return { ok: false, reason: `the range ${from}-${to} leaves the window` };
+    const named = Array.from({ length: Math.min(to, max) - from + 1 }, (_, at) => from + at);
+    for (const n of named) {
       const unit = plan.units[n - 1];
       if (unit?.mode !== 'label') {
         return { ok: false, reason: `the unit ${n} is ${unit?.mode ?? 'missing'} and cannot be labelled` };
       }
-      if (labels.has(n)) return { ok: false, reason: `the unit ${n} is named twice` };
+      if (labels.has(n) && !bugsC.has('double-label-accepted'))
+        return { ok: false, reason: `the unit ${n} is named twice` };
     }
     const wantsTarget = def?.target === 'required';
     if (wantsTarget) {
@@ -124,9 +124,11 @@ export function validateAnswer(
     } else if (entry.target !== undefined) {
       return { ok: false, reason: `the label ${entry.label} takes no target` };
     }
-    const links = checkLinks(entry, set, candidates);
-    if (typeof links === 'string') return { ok: false, reason: links };
-    for (let n = from; n <= to; n += 1) {
+    // The spans and links of the entry (extras.ts); a link names a candidate the request listed, or `none`.
+    const extras = extrasProblem(set, entry, named, def, plan.units, candidates);
+    if (extras) return { ok: false, reason: extras };
+    const links = linksOf(entry);
+    for (const n of named) {
       labels.set(n, {
         label: entry.label,
         ...(wantsTarget ? { target: entry.target as number } : {}),
@@ -288,7 +290,10 @@ function choiceDecision(
     return undefined;
   }
   const total = (values as number[]).reduce((sum, p) => sum + p, 0);
-  if (Math.abs(total - 1) > VECTOR_TOLERANCE + 1e-9 && !referenceBugs.has('normalise')) {
+  // Planted bugs of lane bugs C: a tolerance of 0.05, or no check of the sum at all.
+  const tolerance = bugsC.has('vector-tolerance-5') ? 0.05 : VECTOR_TOLERANCE;
+  const unchecked = bugsC.has('vector-unchecked');
+  if (Math.abs(total - 1) > tolerance + 1e-9 && !referenceBugs.has('normalise') && !unchecked) {
     ctx.refusals?.push(`${where}: the probabilities are no vector (they sum to ${Number(total.toFixed(4))})`);
     return undefined;
   }
@@ -303,9 +308,10 @@ function choiceDecision(
     return top && top.p >= threshold ? top.name : 'none';
   }
   let best: { name: string; p: number } | undefined;
+  const lastOnTie = bugsC.has('choice-tie-last-wins');
   for (const name of names) {
     const p = vector[name] as number;
-    if (!best || p > best.p) best = { name, p };
+    if (!best || p > best.p || (lastOnTie && p === best.p)) best = { name, p };
   }
   return best?.name;
 }
@@ -456,7 +462,7 @@ function cutDigestError(window: string): ModelResult {
  */
 async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   const unitState = ctx.arm === 'jev-unit' && !referenceBugs.has('unit-state-window');
-  const askable = set.labels.filter((l) => l.target !== 'required');
+  const askable = askableOf(set);
   const names = [...askable.map((l) => l.name), 'none'];
   const label = plan.units.filter((u) => u.mode === 'label');
   const chunkSize = unitState ? 1 : referenceBugs.has('window-60') ? 60 : JEV_WINDOW_UNITS;
@@ -569,7 +575,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
  * probabilities are recorded, so the threshold is a setting of the replay, outside the key.
  */
 async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
-  const askable = set.labels.filter((l) => l.target !== 'required');
+  const askable = askableOf(set);
   const label = plan.units.filter((u) => u.mode === 'label');
   const chunkSize = Math.max(1, Math.floor(DECISIONS_CAP / Math.max(1, askable.length)));
   const fallback = referenceBugs.has('decisions-threshold-0.5') ? 0.5 : DECISIONS_THRESHOLD;
@@ -650,7 +656,10 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
       let best: { name: string; p: number } | undefined;
       for (const l of askable) {
         const p = probabilities[`u${u.n}__${l.name}`];
-        if (typeof p === 'number' && p >= threshold && (!best || p > best.p)) best = { name: l.name, p };
+        if (typeof p !== 'number') continue;
+        // Planted bug of lane bugs C: the comparison with the threshold turned round.
+        const passes = bugsC.has('threshold-inverted') ? p <= threshold : p >= threshold;
+        if (passes && (!best || p > best.p)) best = { name: l.name, p };
       }
       decided.push({ units: String(u.n), label: best ? best.name : 'none' });
     }
@@ -658,26 +667,163 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
   return { kind: 'answer', answer: { labels: decided }, key: lastKey };
 }
 
+/** Where the user labeler of the `user-yes-no` arm answers: a reserved `.invalid` address, never reached. */
+const USER_URL = 'https://labeler.invalid/v1/label';
+
+/**
+ * A user labeler of the system 1 class behind an HTTP endpoint (design section 3, "either: http"): one request per
+ * window, `{ set, window, state, questions }` with a yes or no question per unit and label keyed `u<n>__<label>`,
+ * answered with `{ probabilities }`. A probability outside 0 to 1 is left out, so its unit misses an answer and
+ * holds no opinion. A unit takes the label with the highest probability at or above the threshold, else `none`.
+ */
+async function userYesNo(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const askable = askableOf(set);
+  const label = plan.units.filter((u) => u.mode === 'label');
+  const threshold = ctx.threshold ?? DECISIONS_THRESHOLD;
+  const state = userText(set, plan);
+  const question = (u: PlanUnit, l: RefLabel) =>
+    `Does the label ${l.name} apply to unit [${u.n}]? ${l.description}`;
+  const questions = Object.fromEntries(
+    label.flatMap((u) => askable.map((l) => [`u${u.n}__${l.name}`, question(u, l)])),
+  );
+  const request = { set: set.set, window: plan.id, state, questions };
+  const key = sha256(canonicalCompact({ ...request, arm: ctx.arm }));
+  const want = {
+    key,
+    file: plan.file,
+    window: plan.id,
+    promptVersion: 'p1',
+    schemaVersion: 's1',
+    setName: set.set,
+    setHash: set.hash,
+    labeler: ctx.arm,
+    cutDigest: ctx.cutDigestOf(plan.file),
+    part: {
+      system: sha256(''),
+      user: sha256(state),
+      output: sha256(canonicalCompact(Object.keys(questions))),
+    },
+  };
+  let probabilities: Record<string, number>;
+  const hit = ctx.cassette.entries.get(key);
+  if (hit) {
+    if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+    probabilities = hit.answer.probabilities ?? {};
+  } else if (ctx.cassette.mode === 'replay') {
+    return missError(ctx, want);
+  } else {
+    const response = await ctx.transport({
+      url: USER_URL,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    if (response.status !== 200)
+      return { kind: 'error', message: `the labeler endpoint answered HTTP ${response.status}` };
+    let data: { model?: unknown; probabilities?: Record<string, unknown> };
+    try {
+      data = JSON.parse(response.body);
+    } catch {
+      return { kind: 'refused', reason: 'the answer is not a JSON object' };
+    }
+    if (!data.probabilities || typeof data.probabilities !== 'object')
+      return { kind: 'refused', reason: 'the answer has no probabilities object' };
+    // Planted bug of lane bugs C: a probability above 1 is kept.
+    const above = bugsC.has('user-probability-above-one');
+    probabilities = {};
+    for (const [name, p] of Object.entries(data.probabilities))
+      if (typeof p === 'number' && p >= 0 && (above || p <= 1)) probabilities[name] = p;
+    const entry: CassetteEntry = {
+      ...want,
+      model: typeof data.model === 'string' ? data.model : 'user',
+      stop_reason: 'answered',
+      usage: {},
+      answer: { probabilities },
+    };
+    receipt(ctx, entry, entry.model);
+    ctx.cassette.entries.set(key, entry);
+  }
+  const decided: LabelEntry[] = [];
+  for (const u of label) {
+    const given = askable.map((l) => ({ name: l.name, p: probabilities[`u${u.n}__${l.name}`] }));
+    if (given.some((g) => typeof g.p !== 'number')) continue;
+    let best: { name: string; p: number } | undefined;
+    for (const g of given) {
+      const p = g.p as number;
+      if (p >= threshold && (!best || p > best.p)) best = { name: g.name, p };
+    }
+    decided.push({ units: String(u.n), label: best ? best.name : 'none' });
+  }
+  return { kind: 'answer', answer: { labels: decided }, key };
+}
+
+/**
+ * The labels a system 1 labeler is asked about. A probability names no other unit, no clause and no atom: a label
+ * that needs a target, spans or links is not asked.
+ */
+export function askableOf(set: ParsedSet): RefLabel[] {
+  const linksAsked = bugsC.has('link-labels-asked');
+  return set.labels.filter((l) => l.target !== 'required' && !l.spans && (linksAsked || !l.links));
+}
+
 /** One call of a model port for a window and a set. */
 export function askModel(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   if (ctx.arm === 'openai-decisions') return decisions(plan, set, ctx);
+  if (ctx.arm === 'user-yes-no') return userYesNo(plan, set, ctx);
   if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return fixtureReplay(plan, set, ctx);
   return ctx.arm === 'haiku' ? haikuRuns(plan, set, ctx) : jev(plan, set, ctx);
 }
 
+/** The label, target and links each entry of an answer gives a unit, ranges read as their units. */
+function opinionsByUnit(entries: readonly LabelEntry[]): Map<number, AnswerLabel> {
+  const out = new Map<number, AnswerLabel>();
+  for (const entry of entries) {
+    const m = /^(\d+)(?:-(\d+))?$/.exec(String(entry.units));
+    if (!m) continue;
+    const from = Number(m[1]);
+    const to = m[2] === undefined ? from : Number(m[2]);
+    const links = linksOf(entry);
+    for (let n = from; n <= to; n += 1)
+      out.set(n, {
+        label: entry.label,
+        ...(entry.target !== undefined ? { target: entry.target } : {}),
+        ...(links ? { links } : {}),
+      });
+  }
+  return out;
+}
+
 /**
  * The system 2 labeler asks every window once per independent run (design, "The default stack"). A run whose
- * answer is refused is asked once more; the first run's answer is the window's answer.
+ * answer is refused is asked once more. A unit takes a label only when every run gives it the same label and the
+ * same target; runs that differ leave it without one.
  */
 async function haikuRuns(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   let first: ModelResult | undefined;
+  const runs: Array<Map<number, AnswerLabel>> = [];
   for (let run = 1; run <= RUNS.haiku; run += 1) {
     let result = await haiku(plan, set, ctx, run);
     if (result.kind === 'refused') result = await haiku(plan, set, ctx, run, true);
     if (result.kind !== 'answer') return result;
     first ??= result;
+    runs.push(opinionsByUnit('labels' in result.answer ? result.answer.labels : []));
   }
-  return first as ModelResult;
+  if (!first || first.kind !== 'answer' || runs.length <= 1) return first as ModelResult;
+  // Planted bug of lane bugs C: runs that agree on the label are taken as one, whatever their targets.
+  const labelOnly = bugsC.has('runs-ignore-target');
+  const agreed: LabelEntry[] = [];
+  for (const [n, opinion] of runs[0] ?? []) {
+    const agrees = (other: { label: string; target?: number } | undefined) =>
+      other !== undefined && other.label === opinion.label && (labelOnly || other.target === opinion.target);
+    if (!runs.every((one) => agrees(one.get(n)))) continue;
+    // The links of an agreed unit are those of the first run, as the first run's answer was the window's.
+    agreed.push({
+      units: String(n),
+      label: opinion.label,
+      ...(opinion.target !== undefined ? { target: opinion.target } : {}),
+      ...(opinion.links ? { links: opinion.links } : {}),
+    } as LabelEntry);
+  }
+  return { kind: 'answer', answer: { labels: agreed }, key: first.key };
 }
 
 /**

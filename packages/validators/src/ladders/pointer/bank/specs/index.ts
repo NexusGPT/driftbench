@@ -4,6 +4,7 @@ import { grouping } from './grouping';
 import { HARDENING_SPECS } from './hardening';
 import { HARDENING_BUGS_A_SPECS } from './hardening-bugs-a';
 import { HARDENING_BUGS_B_SPECS } from './hardening-bugs-b';
+import { HARDENING_BUGS_C_SPECS } from './hardening-bugs-c';
 import { ids } from './ids';
 import { labels } from './labels';
 import { links } from './links';
@@ -36,5 +37,6 @@ export const FAMILIES: FamilySpec[] = FIRST_BANK.map((family) => ({
     ...(HARDENING_SPECS[family.id] ?? []),
     ...(HARDENING_BUGS_A_SPECS[family.id] ?? []),
     ...(HARDENING_BUGS_B_SPECS[family.id] ?? []),
+    ...(HARDENING_BUGS_C_SPECS[family.id] ?? []),
   ],
 }));

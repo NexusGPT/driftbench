@@ -139,7 +139,7 @@ export function windowLines(plan: WindowPlan): string[] {
 
 /** The link kinds of a set and the candidates the request lists under each; nothing for a set with none. */
 function linkLines(set: ParsedSet, candidates: Candidates): string[] {
-  if (set.links.length === 0) return [];
+  if (!set.links) return [];
   const lines = ['LINK KINDS:'];
   for (const kind of set.links) {
     lines.push(`- ${kind.name}: ${kind.description}`);

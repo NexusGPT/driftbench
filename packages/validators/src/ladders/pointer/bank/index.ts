@@ -9,6 +9,7 @@ import { groupingRuns } from './families/grouping';
 import { HARDENING_RUNS } from './families/hardening';
 import { HARDENING_BUGS_A_RUNS } from './families/hardening-bugs-a';
 import { HARDENING_BUGS_B_RUNS } from './families/hardening-bugs-b';
+import { HARDENING_BUGS_C_RUNS } from './families/hardening-bugs-c';
 import { idsRuns } from './families/ids';
 import { labelsRuns } from './families/labels';
 import { linksRuns } from './families/links';
@@ -45,6 +46,7 @@ export function pointerBank(): PointerItem[] {
       ...(HARDENING_RUNS[family.id] ?? {}),
       ...(HARDENING_BUGS_A_RUNS[family.id] ?? {}),
       ...(HARDENING_BUGS_B_RUNS[family.id] ?? {}),
+      ...(HARDENING_BUGS_C_RUNS[family.id] ?? {}),
     };
     for (const spec of family.specs) {
       const run: Run =
@@ -81,7 +83,8 @@ export function missingRunners(): string[] {
         !RUNNERS[family.id]?.[spec.key] &&
         !HARDENING_RUNS[family.id]?.[spec.key] &&
         !HARDENING_BUGS_A_RUNS[family.id]?.[spec.key] &&
-        !HARDENING_BUGS_B_RUNS[family.id]?.[spec.key]
+        !HARDENING_BUGS_B_RUNS[family.id]?.[spec.key] &&
+        !HARDENING_BUGS_C_RUNS[family.id]?.[spec.key]
       )
         missing.push(`${family.id}.${spec.key}`);
     }
@@ -92,6 +95,7 @@ export function missingRunners(): string[] {
     ...Object.keys(HARDENING_RUNS),
     ...Object.keys(HARDENING_BUGS_A_RUNS),
     ...Object.keys(HARDENING_BUGS_B_RUNS),
+    ...Object.keys(HARDENING_BUGS_C_RUNS),
   ];
   for (const familyId of new Set(allFamilies)) {
     const runners = {
@@ -99,6 +103,7 @@ export function missingRunners(): string[] {
       ...(HARDENING_RUNS[familyId] ?? {}),
       ...(HARDENING_BUGS_A_RUNS[familyId] ?? {}),
       ...(HARDENING_BUGS_B_RUNS[familyId] ?? {}),
+      ...(HARDENING_BUGS_C_RUNS[familyId] ?? {}),
     };
     for (const key of Object.keys(runners)) {
       if (!known.has(`${familyId}.${key}`)) missing.push(`${familyId}.${key} (runner without a row)`);
