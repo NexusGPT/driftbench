@@ -6,11 +6,13 @@ import { BASE, type Check, type PlantedEstate } from '../planted';
 import {
   freeHelper,
   freeSkill,
+  handing,
   LINT,
   lintCount,
   lintHas,
   lintLacks,
   lintNone,
+  naming,
   standingFree,
   tag,
   theme,
@@ -192,7 +194,7 @@ const CASES: Case[] = [
       const [first, second] = [skillOf(s, o, 'one'), skillOf(s, o, 'two')];
       routed(e, first);
       routed(e, second);
-      freeSkill(e, first, 'Keeps a desk.', ['Open `references/guide.md` when in doubt.']);
+      freeSkill(e, first, 'Keeps a desk.', [naming('Open `references/guide.md` when in doubt.')]);
       freeSkill(e, second, 'Keeps a desk.', ['Body.']);
       e.raw(skillFile(first, 'references/guide.md'), '# Guide\n', BASE);
       e.raw(skillFile(second, 'references/guide.md'), '# Guide\n', BASE);
@@ -209,7 +211,9 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'desk');
       routed(e, name);
-      freeSkill(e, name, 'Keeps the desk.', ['Open `references/guide.md` when the totals look wrong.']);
+      freeSkill(e, name, 'Keeps the desk.', [
+        naming('Open `references/guide.md` when the totals look wrong.'),
+      ]);
       e.raw(skillFile(name, 'references/guide.md'), '# Guide\n', BASE);
       e.check(o, lintLacks('ORPHAN', 'guide.md'));
     },
@@ -223,7 +227,7 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'desk');
       routed(e, name);
-      freeSkill(e, name, 'Keeps the desk.', ['See [the guide](references/linked-guide.md) first.']);
+      freeSkill(e, name, 'Keeps the desk.', [naming('See [the guide](references/linked-guide.md) first.')]);
       e.raw(skillFile(name, 'references/linked-guide.md'), '# Guide\n', BASE);
       e.check(o, lintLacks('ORPHAN', 'linked-guide.md'));
     },
@@ -237,7 +241,9 @@ const CASES: Case[] = [
     plant: (e, _s, o) => {
       const path = `.claude/docs/${tag(o)}-rota.md`;
       e.raw(path, '# Rota\n', BASE);
-      standingFree(e).line(`Open \`${path}\` when a rota clashes.`);
+      const standing = standingFree(e);
+      const line = standing.line(`Open \`${path}\` when a rota clashes.`);
+      e.hint({ kind: 'reference', file: STANDING, line });
       e.check(o, lintLacks('ORPHAN', 'rota.md'));
     },
   },
@@ -251,11 +257,11 @@ const CASES: Case[] = [
       const path = `.claude/docs/${tag(o)}-lanterns.md`;
       e.raw(path, '# Lanterns\n', BASE);
       standingFree(e);
-      e.file(`${ROOT}/memory/${tag(o)}-notes.md`, BASE).lines_([
-        '# Notes',
-        '',
-        `Open \`${path}\` when a lantern flickers.`,
-      ]);
+      const memory = `${ROOT}/memory/${tag(o)}-notes.md`;
+      const writer = e.file(memory, BASE);
+      writer.lines_(['# Notes', '']);
+      const line = writer.line(`Open \`${path}\` when a lantern flickers.`);
+      e.hint({ kind: 'reference', file: memory, line });
       e.check(o, lintLacks('ORPHAN', 'lanterns.md'));
     },
   },
@@ -268,7 +274,7 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const path = `.claude/docs/${tag(o)}-moorings.md`;
       e.raw(path, '# Moorings\n', BASE);
-      freeHelper(e, skillOf(s, o, 'scout'), [`Open \`${path}\` when a mooring slips.`]);
+      freeHelper(e, skillOf(s, o, 'scout'), [naming(`Open \`${path}\` when a mooring slips.`)]);
       e.check(o, lintLacks('ORPHAN', 'moorings.md'));
     },
   },
@@ -307,7 +313,7 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'plan');
       routed(e, name);
-      freeSkill(e, name, 'Plans the day.', ['Open `references/menu.md` when a menu changes.']);
+      freeSkill(e, name, 'Plans the day.', [naming('Open `references/menu.md` when a menu changes.')]);
       e.raw(skillFile(name, 'references/menu.md'), '# Menu\n', BASE);
       e.check(o, lintLacks('UNREACHABLE', 'menu.md'));
     },
@@ -322,7 +328,9 @@ const CASES: Case[] = [
       const name = skillOf(s, o, 'plan');
       const helper = skillOf(s, o, 'scout');
       routed(e, name);
-      freeSkill(e, name, 'Plans the day.', [`Dispatch the \`${helper}\` agent to check the records.`]);
+      freeSkill(e, name, 'Plans the day.', [
+        handing(helper, `Dispatch the \`${helper}\` agent to check the records.`),
+      ]);
       const made = freeHelper(e, helper, ['You read.']);
       e.check(o, lintLacks('UNREACHABLE', made.path));
     },
@@ -337,8 +345,10 @@ const CASES: Case[] = [
       const name = skillOf(s, o, 'plan');
       const [first, second] = [skillOf(s, o, 'scout'), skillOf(s, o, 'clerk')];
       routed(e, name);
-      freeSkill(e, name, 'Plans the day.', [`Dispatch the \`${first}\` agent to check the records.`]);
-      freeHelper(e, first, [`Dispatch the \`${second}\` agent for the totals.`]);
+      freeSkill(e, name, 'Plans the day.', [
+        handing(first, `Dispatch the \`${first}\` agent to check the records.`),
+      ]);
+      freeHelper(e, first, [handing(second, `Dispatch the \`${second}\` agent for the totals.`)]);
       const made = freeHelper(e, second, ['You add.']);
       e.check(o, lintLacks('UNREACHABLE', made.path));
     },
@@ -352,7 +362,9 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'lone');
       const helper = skillOf(s, o, 'scout');
-      freeSkill(e, name, 'Does lonely work.', [`Dispatch the \`${helper}\` agent to check the records.`]);
+      freeSkill(e, name, 'Does lonely work.', [
+        handing(helper, `Dispatch the \`${helper}\` agent to check the records.`),
+      ]);
       const made = freeHelper(e, helper, ['You read.']);
       e.check(o, lintHas('UNREACHABLE', made.path));
     },
@@ -367,13 +379,9 @@ const CASES: Case[] = [
       standingFree(e);
       const name = skillOf(s, o, 'plan');
       const made = freeSkill(e, name, 'Plans the day.', ['Body.']);
-      e.file('CLAUDE.local.md', BASE).lines_([
-        '# Local',
-        '',
-        '| When the user wants to | Load |',
-        '|---|---|',
-        `| plan the day | \`${name}\` |`,
-      ]);
+      const local = e.file('CLAUDE.local.md', BASE);
+      local.lines_(['# Local', '', '| When the user wants to | Load |', '|---|---|']);
+      local.line(`| plan the day | \`${name}\` |`, [{ hid: `route:${name}`, kind: 'route', key: name }]);
       e.check(o, lintLacks('UNREACHABLE', made.path));
     },
   },
@@ -738,7 +746,7 @@ const CASES: Case[] = [
     cause: 'check every file a skill or helper body names, in every folder',
     plant: (e, s, o) => {
       freeHelper(e, skillOf(s, o, 'scout'), [
-        `Open \`.claude/docs/${tag(o)}-gone.md\` when a mooring slips.`,
+        naming(`Open \`.claude/docs/${tag(o)}-gone.md\` when a mooring slips.`),
       ]);
       e.check(o, lintHas('MISSING_REFERENCE', `${tag(o)}-gone.md`));
     },
@@ -780,7 +788,7 @@ const CASES: Case[] = [
     plant: (e, s, o) => {
       const name = skillOf(s, o, 'plan');
       routed(e, name);
-      freeSkill(e, name, 'Plans the day.', ['Open `references/nowhere.md` when in doubt.']);
+      freeSkill(e, name, 'Plans the day.', [naming('Open `references/nowhere.md` when in doubt.')]);
       e.check(o, (scan) => (scan.lint.failed === true ? undefined : 'the lint did not fail'));
     },
   },

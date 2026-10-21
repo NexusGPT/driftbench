@@ -97,7 +97,16 @@ export type Truth = {
   atoms: readonly ExpectedAtom[];
   answers: ReadonlyMap<string, readonly ProseEntry[]>;
   /** Gates planted with no prose rule of the record: the act the read comes before, and the tool of that act. */
-  gates?: ReadonlyArray<{ file: string; line: number; act: string; tool: string }>;
+  gates?: ReadonlyArray<{
+    file: string;
+    line: number;
+    act: string;
+    tool: string;
+    /** The act is the whole planted line: a unit that holds only a part of it (a list marker cut off) takes it whole. */
+    whole?: boolean;
+    /** The gate orders a command, not a file: the shipped `gate-command` label answers it. */
+    command?: boolean;
+  }>;
 };
 
 /** The windows the labeller answered: the file, the units it held and the characters of their text. */
@@ -237,13 +246,15 @@ export function truthPointer(truth: Truth): TruthPointer {
           const key = `${window.path}:${line}`;
           if (line === undefined || used.has(key)) return { units: String(unit.n), label: 'none' };
           const gate = gateAt.get(key);
-          const from = gate ? unit.text.indexOf(gate.act) : -1;
+          const found = gate ? unit.text.indexOf(gate.act) : -1;
+          const from = found < 0 && gate?.whole ? 0 : found;
           if (gate && from >= 0) {
             used.add(key);
+            const length = found < 0 ? unit.text.length : gate.act.length;
             return {
               units: String(unit.n),
-              label: 'gate',
-              spans: [{ kind: 'governed-action', from, to: from + gate.act.length }],
+              label: gate.command ? 'gate-command' : 'gate',
+              spans: [{ kind: 'governed-action', from, to: from + length }],
               links: [{ kind: 'act-tool', to: gate.tool }],
             };
           }

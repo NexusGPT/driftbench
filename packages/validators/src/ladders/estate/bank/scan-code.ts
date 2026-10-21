@@ -66,11 +66,12 @@ function gateCheck(
 }
 
 /** A gate atom: the act it waits for (a part of the line) and the tool of that act, for the planted-truth labeller. */
-const gate = (owner: string, act: string, tool: string): Planted => ({
+const gate = (owner: string, act: string, tool: string, command = false): Planted => ({
   hid: `${owner}:gate`,
   kind: 'gate',
   act,
   tool,
+  ...(command ? { command } : {}),
 });
 const reference = (owner: string, key: string, tag = 'ref'): Planted => ({
   hid: `${owner}:${tag}`,
@@ -111,7 +112,7 @@ const GATES: Line[] = [
     tier: 1,
     title: 'do not X until you have read Y',
     text: () => 'Do not commit until you have read the output of `git status`.',
-    atoms: (o) => [gate(o, 'commit', 'Bash')],
+    atoms: (o) => [gate(o, 'commit', 'Bash', true)],
     checks: (o) => [gateCheck(o, { first: 'git status', trigger: 'commit' })],
   },
   {

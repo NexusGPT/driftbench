@@ -34,7 +34,15 @@ export const BASE = 'base';
  * An atom an item plants. A gate also names the act it waits for and the tool of that act (`act` is a part of the
  * planted line): the planted-truth labeller answers the line with them, as the shipped gate label asks.
  */
-export type Planted = { hid: string; kind: AtomKind; key?: string; act?: string; tool?: string };
+export type Planted = {
+  hid: string;
+  kind: AtomKind;
+  key?: string;
+  act?: string;
+  tool?: string;
+  /** The gate orders a command to run first, not a file to read. */
+  command?: boolean;
+};
 
 /**
  * An atom the planted-truth labeller must find on a line, that the item does not match by id: the check that
@@ -246,12 +254,18 @@ export class PlantedEstate {
       // A planted gate names the act it waits for and its tool; a hinted gate with no act takes the whole line.
       const gates = atoms
         .filter((atom) => atom.kind === 'gate' && (atom as Planted).tool !== undefined)
-        .map((atom) => ({
-          file: atom.file,
-          line: atom.line,
-          act: (atom as Planted).act ?? (texts[atom.file] ?? '').split('\n')[atom.line - 1] ?? '',
-          tool: (atom as Planted).tool as string,
-        }));
+        .map((atom) => {
+          const planted = atom as Planted;
+          const text = (texts[atom.file] ?? '').split('\n')[atom.line - 1] ?? '';
+          return {
+            file: atom.file,
+            line: atom.line,
+            act: planted.act ?? text,
+            tool: planted.tool as string,
+            ...(planted.act === undefined ? { whole: true } : {}),
+            ...(planted.command ? { command: true } : {}),
+          };
+        });
       const answers = new Map([...this.answers].map(([file, list]) => [file, [...list]]));
       for (const hint of this.hints) {
         if (hint.prose) answers.set(hint.file, [...(answers.get(hint.file) ?? []), { ...hint.prose, line: hint.line }]);
