@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
 import { askGrammar, declaredActs } from '../../src/ladders/estate/ask-grammar';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
-import { taskFamily } from '../../src/ladders/estate/bank/genquality';
+import { taskFamily, unsetAsks } from '../../src/ladders/estate/bank/genquality';
 import type { MapAtom } from '../../src/ladders/estate/reference-ask';
 
 // The approved map of the Northwind fixture (fictional data): an atom that declares its act, and another one.
@@ -163,5 +163,12 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect((await verdict([spec(recorded.toLowerCase(), session)]))?.pass).toBe(false);
     const other = { ...session, session: 'force-push-blocked' };
     expect((await verdict([spec(recorded, other)]))?.pass).toBe(false);
+  });
+});
+
+describe('the generated grammar covers every ask of the real fixture suite', { timeout: 600_000 }, () => {
+  it('counts 0 complete specs whose ask carries an act the fake does not set off', async () => {
+    const unset = await unsetAsks(await fixture.fixtureSuite());
+    expect(unset.slice(0, 20), `${unset.length} asks set nothing off`).toEqual([]);
   });
 });

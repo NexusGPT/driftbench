@@ -296,6 +296,24 @@ function judgeAsk(
   return { why: 'it carries no act' };
 }
 
+/**
+ * The complete specs of a suite whose first ask carries an act the fake does not set off, with the reason: the
+ * coverage check of the generated grammar (every span source the product may use is in it).
+ */
+export async function unsetAsks(suite: FixtureSuite): Promise<Array<{ id: string; ask: string; why: string }>> {
+  const map = await loadEstateMap(suite.map);
+  if (!map.ok) throw new Error('the map does not load');
+  const byId = new Map((map.map.atoms as unknown as MapAtom[]).map((atom) => [atom.id, atom]));
+  const fake = await fakeDispatch(suite);
+  const situations = situationsOf(suite);
+  const out: Array<{ id: string; ask: string; why: string }> = [];
+  for (const spec of suite.specs.filter((one) => one.complete)) {
+    const { why } = judgeAsk(spec, fake, situations, byId, suite);
+    if (why?.startsWith('the fake does not set off')) out.push({ id: spec.id, ask: firstAsk(spec) ?? '', why });
+  }
+  return out;
+}
+
 export function taskFamily(): Family {
   return seedFreeFamily(
     'gen.task',

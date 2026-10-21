@@ -41,8 +41,8 @@ const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text) && text.tr
 
 /**
  * The acts an atom declares in the map: `fields.ask` (a route's request cell, or a text with its context), its
- * trigger (`fields.trigger`) and its quote (`provenance.quote`), each whole, then each labelled governed-action
- * span of its quote. Empty when it declares none.
+ * trigger (`fields.trigger`), its quote (`provenance.quote`) and its situation, each whole, then each labelled
+ * governed-action span of its quote. Empty when it declares none.
  */
 export function declaredActs(atom: MapAtom): Array<{ text: string; context?: string }> {
   const fields = (atom.fields ?? {}) as { ask?: unknown; labelSpans?: unknown };
@@ -62,6 +62,10 @@ export function declaredActs(atom: MapAtom): Array<{ text: string; context?: str
   const quote = atom.provenance?.quote;
   if (typeof quote === 'string' && hasWord(quote) && !acts.some((act) => act.text === quote))
     acts.push({ text: quote });
+  // A route's description or a rule's situation, whole (the generator asks from it too).
+  const situation = atom.situation;
+  if (typeof situation === 'string' && hasWord(situation) && !acts.some((act) => act.text === situation))
+    acts.push({ text: situation });
   const spans = (Array.isArray(fields.labelSpans) ? fields.labelSpans : []) as Array<{
     kind?: unknown;
     from?: unknown;
@@ -90,33 +94,51 @@ export function askGrammar(atoms: readonly MapAtom[]): AskGrammar {
     const into = kind === 'hypothetical' ? apart : out;
     into.set(text, (into.get(text) ?? new Set()).add(id));
   };
-  // Every ask of every row for one act, with and without the situation the act declares; `span` fills an ask row
-  // whose slot is the declared words themselves.
-  const write = (act: string, id: string, span?: string, context?: string) => {
+  const byId = new Map(atoms.map((atom) => [atom.id, atom]));
+  // The situations an atom's ask may carry, whole: its declared context, its own situation and, for an atom whose
+  // fields name others (a guard names the rule it enforces), theirs.
+  const situationsOf = (atom: MapAtom): string[] => {
+    const named = Object.values((atom.fields ?? {}) as Record<string, unknown>)
+      .flatMap((value) => (Array.isArray(value) ? value : [value]))
+      .filter((value): value is string => typeof value === 'string' && byId.has(value))
+      .map((id) => byId.get(id) as MapAtom);
+    const all = [atom, ...named].flatMap((one) => [
+      ((one.fields as { ask?: { context?: unknown } } | undefined)?.ask as { context?: unknown } | undefined)
+        ?.context,
+      one.situation,
+    ]);
+    return [...new Set(all.filter((text): text is string => typeof text === 'string' && hasWord(text)))];
+  };
+  // Every ask of every row for one act, with no situation and with each the act may carry; `span` fills an ask
+  // row whose slot is the declared words themselves.
+  const write = (act: string, id: string, span: string | undefined, contexts: readonly string[]) => {
     for (const { kind, parts } of asks) {
       add(kind, render(parts, { act, ...(span === undefined ? {} : { span }) }, false), id);
-      if (context === undefined || !hasGroup(parts)) continue;
-      const situation = context;
-      add(kind, render(parts, { act, ...(span === undefined ? {} : { span }), situation }, true), id);
+      if (!hasGroup(parts)) continue;
+      for (const situation of contexts)
+        add(kind, render(parts, { act, ...(span === undefined ? {} : { span }), situation }, true), id);
     }
   };
   // The act rows with one `{span}`: each declared act is written in each of them.
   const actRows = ASK_TEMPLATES.filter((entry) => entry.kind === 'act')
     .map((entry) => parse(entry.template))
     .filter((parts) => parts.filter((part) => 'slot' in part).length === 1 && !hasGroup(parts));
-  for (const atom of atoms)
+  for (const atom of atoms) {
+    const contexts = situationsOf(atom);
     for (const declared of declaredActs(atom))
       for (const row of actRows) {
         const act = render(row, { span: declared.text }, false);
-        if (act !== undefined) write(act, atom.id, declared.text, declared.context);
+        if (act !== undefined) write(act, atom.id, declared.text, contexts);
       }
+  }
   for (const row of ASK_TEMPLATES) {
     const slotted = parse(row.template).some((part) => 'slot' in part);
     if (row.kind !== 'act' || row.tools === undefined || slotted) continue;
     for (const atom of atoms) {
       const matcher = (atom.fields as { matcher?: unknown } | undefined)?.matcher;
       if (atom.kind !== 'guard' || typeof matcher !== 'string') continue;
-      if (matcher.split('|').some((tool) => row.tools?.includes(tool))) write(row.template, atom.id);
+      if (matcher.split('|').some((tool) => row.tools?.includes(tool)))
+        write(row.template, atom.id, undefined, situationsOf(atom));
     }
   }
   const listed = (map: Map<string, Set<string>>) => {
