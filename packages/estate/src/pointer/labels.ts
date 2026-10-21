@@ -581,7 +581,10 @@ function checkExtras(
           links.some(
             (other) =>
               other.kind === kind.name &&
-              (other.to === link.to || other.to === 'none' || link.to === 'none' || kind.values !== undefined),
+              (other.to === link.to ||
+                other.to === 'none' ||
+                link.to === 'none' ||
+                kind.values !== undefined),
           )
         ) {
           out.dropped.push(`${where}: the kind ${kind.name} is given twice`);

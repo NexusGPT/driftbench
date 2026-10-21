@@ -300,6 +300,8 @@ export function pointerAtoms(
       const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
       for (const [namedPath, chosen] of pairs) {
         const template = templateFor(namedPath, chosen);
+        // An atom built for one of several links of a kind keeps that link alone of its kind.
+        const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
           refusals.push(
             `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
@@ -417,7 +419,7 @@ export function pointerAtoms(
               ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
               ...(labelSpans.length > 0 ? { labelSpans } : {}),
-              ...(labelLinks.length > 0 ? { labelLinks } : {}),
+              ...(ownLinks.length > 0 ? { labelLinks: ownLinks } : {}),
             },
           }),
         );
