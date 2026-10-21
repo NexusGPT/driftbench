@@ -12,7 +12,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { genCompleteFamily } from '../../src/ladders/estate/bank/loop';
-import { completionComponents } from '../../src/ladders/estate/completion';
+import { type Component, completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import { type FieldReads, fieldReadCensus } from './field-reads';
@@ -386,7 +386,7 @@ function equivalenceInputs(
     // remain cached for the subsequent parameterized class assertions.
     inputsBySource.clear();
     pending = (async () => {
-      const capture = async (change?: (observed: Observed) => void, operations?: Record<string, string>) => {
+      const capture = async (change?: (observed: Observed) => void, operations?: Component['operations']) => {
         const contexts: CheckContext[] = [];
         const loaded = required(source.loaded);
         const replay = await pipeline.replayOnFollower(

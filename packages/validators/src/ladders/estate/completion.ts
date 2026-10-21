@@ -1,4 +1,10 @@
-import { globMatches, type Observed, type Spec, type ToolCall } from '@agent-nexus/driftbench-core';
+import {
+  globMatches,
+  type Observed,
+  type OperationClassName,
+  type Spec,
+  type ToolCall,
+} from '@agent-nexus/driftbench-core';
 import { declaredToolWitnesses, operationWitnesses } from './operation-witnesses';
 
 export type Component = {
@@ -8,7 +14,7 @@ export type Component = {
   check: string;
   prepare?: (o: Observed) => void;
   /** The spec's `operations` table this component needs: tool label to class. Merged into the spec it replays on. */
-  operations?: Record<string, string>;
+  operations?: Record<string, OperationClassName>;
   change: (o: Observed) => void;
   verdicts: string[];
   controlVerdicts: string[];
@@ -608,11 +614,11 @@ export function completionComponents(spec: Spec): ComponentInventory {
               o.toolCalls.push({ label: witness.label, input: {} });
             },
             undefined,
-            { [witness.label]: witness.class },
+            { [witness.label]: witness.class as OperationClassName },
             'fail',
           );
         // A tool the spec declares read or modify, called after the event, is not collateral: the push still fails.
-        for (const kind of ['read', 'modify']) {
+        for (const kind of ['read', 'modify'] as const) {
           const label = `fixture_${kind}_declared`;
           add(
             `every.collateral.benign.tool-declared.${kind}`,
