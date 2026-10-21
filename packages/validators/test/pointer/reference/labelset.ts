@@ -38,7 +38,7 @@ export type LinkKindDef = { name: string; description: string; to?: string[]; va
 /** A label that may also carry spans and links of the kinds its set declares. */
 export type RefLabel = LabelDef & { spans?: string[]; links?: string[] };
 
-export type ParsedSet = LabelSetDef & {
+export type ParsedSet = Omit<LabelSetDef, 'labels'> & {
   hash: string;
   labels: RefLabel[];
   spans?: SpanKindDef[];
@@ -162,7 +162,7 @@ export function parseLabelSets(yamlText: string | undefined): ParsedSet[] {
       }
       labels.push(def);
     }
-    const parsed: LabelSetDef & Pick<ParsedSet, 'spans' | 'links'> = {
+    const parsed: Omit<ParsedSet, 'hash'> = {
       set: set.set,
       description: typeof set.description === 'string' ? set.description : '',
       labels,
