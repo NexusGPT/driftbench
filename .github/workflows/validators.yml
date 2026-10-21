@@ -227,7 +227,14 @@ jobs:
             component: generator
             flags: --hidden --hidden-only --levels 18..19
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -313,7 +320,14 @@ jobs:
             component: generator
             flags: --hidden --hidden-only --levels 22..22
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -465,7 +479,14 @@ jobs:
             component: system
             flags: --hidden --hidden-only --levels 11..11
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -496,7 +517,14 @@ jobs:
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
