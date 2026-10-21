@@ -145,7 +145,7 @@ describe('countVariableTuples: the allowed count', () => {
     const different = (200n * 198n * 196n) / 6n; // three variables in three different pairs
     const apart = different * 27n;
     const together = 100n * 198n * (9n - 1n) * 3n; // a whole pair, plus one of the other 198 variables
-    expect(got.allowed).toBe(apart + together);
+    expect(BigInt(got.allowed)).toBe(apart + together);
   });
 
   it('agrees with enumeration on random small spaces, strict and weak', () => {
@@ -339,5 +339,126 @@ describe('countVariableTuples: arguments', () => {
     expect(() =>
       countVariableTuples(store, [], [{ variables: ['v0'], strength: 1 }], { uncovered: -1 }),
     ).toThrow(/uncovered/);
+  });
+});
+
+describe('countVariableTuples: variables with no value that counts', () => {
+  const group: TupleGroup[] = [{ variables: ['v0'], strength: 1 }];
+  const expected = { allowed: 2, covered: 1, uncovered: [{ v0: 'x1' }] };
+
+  it('leaves out an unrelated variable that no value approves', () => {
+    const store = storeOf([2, 2]);
+    (store.variables[1] as { approved: boolean }).approved = false;
+    expect(countVariableTuples(store, [{ v0: 'x0' }], group, { uncovered: 10 })).toEqual(expected);
+  });
+
+  it('leaves out an unrelated variable whose every value is switched off', () => {
+    const store = storeOf([2, 2], [], { unapproved: { v1: ['x0', 'x1'] } });
+    expect(countVariableTuples(store, [{ v0: 'x0' }], group, { uncovered: 10 })).toEqual(expected);
+  });
+
+  it('keeps a value approved on its own inside an unapproved variable', () => {
+    const store = storeOf([2, 2]);
+    const unapproved = store.variables[1] as unknown as { approved: boolean; values: Array<{ approved?: boolean }> };
+    unapproved.approved = false;
+    for (const value of unapproved.values) value.approved = true;
+    expect(countVariableTuples(store, [], [{ variables: ['v0', 'v1'], strength: 2 }]).allowed).toBe(4);
+  });
+
+  it('is zero when an approved variable has every value forbidden', () => {
+    const store = storeOf([2, 2], [{ v1: 'x0' }, { v1: 'x1' }]);
+    expect(countVariableTuples(store, [{ v0: 'x0' }], group, { uncovered: 10 })).toEqual({
+      allowed: 0,
+      covered: 0,
+      uncovered: [],
+    });
+  });
+
+  it('agrees with full-row enumeration when approval is mixed across variables and values', () => {
+    type Row = Record<string, string>;
+    const draw = lcg(73);
+    const mismatches: number[] = [];
+    for (let round = 0; round < 100; round += 1) {
+      const store = storeOf([2, 2, 2, 2]);
+      for (const variable of store.variables as unknown as Array<{
+        approved: boolean;
+        values: Array<{ approved?: boolean }>;
+      }>) {
+        variable.approved = draw() > 0.25;
+        for (const value of variable.values) if (draw() < 0.3) value.approved = draw() > 0.5;
+      }
+      (store as { constraints: unknown }).constraints = Array.from({ length: Math.floor(draw() * 5) }, () => {
+        const a = Math.floor(draw() * 4);
+        const b = (a + 1 + Math.floor(draw() * 3)) % 4;
+        return {
+          forbid: { [`v${a}`]: `x${Math.floor(draw() * 2)}`, [`v${b}`]: `x${Math.floor(draw() * 2)}` },
+          reason: 'test',
+          approved: draw() > 0.2,
+        };
+      });
+      const counts = (variable: { approved: boolean; values: Array<{ id: string; approved?: boolean }> }) =>
+        variable.values.filter((value) => value.approved ?? variable.approved);
+      const live = (store.variables as unknown as Array<{ id: string; approved: boolean; values: Array<{ id: string; approved?: boolean }> }>)
+        .map((variable) => ({ id: variable.id, ids: counts(variable).map((value) => value.id) }))
+        .filter((variable) => variable.ids.length > 0);
+      const names = live.map((variable) => variable.id);
+      const groups: TupleGroup[] =
+        names.length === 0
+          ? []
+          : [
+              { variables: names, strength: 1 + Math.floor(draw() * 3) },
+              { variables: names.slice(0, Math.min(2, names.length)), strength: 2 },
+            ];
+      const rows: Row[] = Array.from({ length: Math.floor(draw() * 7) }, () =>
+        Object.fromEntries(names.filter(() => draw() > 0.2).map((name) => [name, `x${Math.floor(draw() * 2)}`])),
+      );
+      // Full rows over the live variables that hold no approved constraint on live values.
+      const known = new Map(live.map((variable) => [variable.id, new Set(variable.ids)]));
+      const forbids = ((store as { constraints: Array<{ forbid: Row; approved: boolean }> }).constraints).filter(
+        (constraint) => constraint.approved && Object.entries(constraint.forbid).every(([v, x]) => known.get(v)?.has(x)),
+      );
+      const valid: Row[] = [];
+      const row: Row = {};
+      const visit = (at: number): void => {
+        if (at === live.length) {
+          if (!forbids.some((constraint) => Object.entries(constraint.forbid).every(([v, x]) => row[v] === x))) {
+            valid.push({ ...row });
+          }
+          return;
+        }
+        const variable = live[at] as { id: string; ids: string[] };
+        for (const id of variable.ids) {
+          row[variable.id] = id;
+          visit(at + 1);
+        }
+        delete row[variable.id];
+      };
+      visit(0);
+      const allowed = new Map<string, Row>();
+      for (const g of groups) {
+        const vars = [...g.variables].sort();
+        const size = Math.min(g.strength, vars.length);
+        for (let mask = 0; mask < 2 ** vars.length; mask += 1) {
+          const subset = vars.filter((_, i) => mask & (2 ** i));
+          if (subset.length !== size) continue;
+          for (const full of valid) {
+            const entries = subset.map((v) => [v, full[v]] as const);
+            allowed.set(JSON.stringify(entries), Object.fromEntries(entries) as Row);
+          }
+        }
+      }
+      const held = (tuple: Row) => rows.some((r) => Object.entries(tuple).every(([v, x]) => r[v] === x));
+      const uncovered = [...allowed.values()].filter((tuple) => !held(tuple));
+      const got = countVariableTuples(store, rows, groups, { uncovered: 10000 });
+      const keys = (list: Row[]) => list.map((x) => JSON.stringify(Object.entries(x).sort())).sort();
+      if (
+        got.allowed !== allowed.size ||
+        got.covered !== allowed.size - uncovered.length ||
+        JSON.stringify(keys(got.uncovered ?? [])) !== JSON.stringify(keys(uncovered))
+      ) {
+        mismatches.push(round);
+      }
+    }
+    expect(mismatches).toEqual([]);
   });
 });
