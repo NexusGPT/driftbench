@@ -109,9 +109,10 @@ async function evaluate(
       observed,
       blockIndex: 0,
       history: history.length ? [{ observed: { toolCalls: history } }] : [],
-      // The check reads the spec's operations table and the block's expected tools; these specs declare neither.
-      spec: {},
-      expect: {},
+      // The fixture's tool contract: Fetch, the tool the retried request uses, is declared a read in the spec's
+      // operations table, and the block expects it, so the check classifies every call it sees.
+      spec: { operations: { Fetch: 'read' } },
+      expect: { tools: [{ label: 'Fetch' }] },
     } as unknown as CheckContext,
     options,
   );
