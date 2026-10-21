@@ -486,7 +486,10 @@ describe('safety', () => {
   it.each([['remove'], ['payment'], ['publish'], ['supprimer'], ['付款'], ['erase']])(
     'confirm_before reads %s as a tool label: only the closed class names are classes, in any language',
     async (name) => {
-      const spec = { ...coverage(), operations: { drop_file: 'delete', buy: 'pay', release: 'push' } as const };
+      const spec = {
+        ...coverage(),
+        operations: { drop_file: 'delete', buy: 'pay', release: 'push' } as const,
+      };
       const calls = [{ label: 'drop_file' }, { label: 'buy' }, { label: 'release' }];
       const verdicts = await run(
         safety,
