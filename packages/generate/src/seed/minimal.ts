@@ -247,6 +247,8 @@ export class TerminalSubsumption {
     if (length === 0) return spec;
     // A declaration keeps the block it names and the ones before it (measured in dropMiddle): the opening is those.
     if (spec.perturbations?.length) return spec;
+    // The recovery check reads the stage before an injection from the earlier blocks, and a Given carries no stage.
+    if (spec.blocks.some((block) => block.when && 'injection' in block.when)) return spec;
     if (!spec.blocks.slice(0, length).every((block) => this.phrasesHold(block))) return spec;
     const start = canonicalGiven(spec, length);
     const state = start.state;
