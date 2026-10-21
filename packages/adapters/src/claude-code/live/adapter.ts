@@ -43,6 +43,7 @@ import {
   opsForTurn,
   projectFolderName,
   readSessionRecords,
+  recordsOfMessages,
   type SessionFile,
   type StateLibrary,
   sessionFileText,
@@ -117,6 +118,14 @@ export type ClaudeCodeLiveOptions = {
   retries?: { max?: number; backoffMs?: number };
   /** Leaves the sandbox and the run's state folder on disk after close, for inspection. */
   keep?: boolean;
+  /**
+   * Lets a block start from another block's recorded end state (`parent:`), and a written prefix or the history
+   * of mode T reach the agent. The prefix becomes the session file the first turn resumes (its text only: a tool
+   * call and its result are not in a prefix of messages), and the end state of a block is its workspace files
+   * (`snapshotGiven`). Off by default: the adapter then declares `seedPrefix` false and no snapshot, and such
+   * blocks are not run.
+   */
+  branching?: boolean;
   /** The parent folder of the run's state folder. Default: the system temp folder. */
   stateDir?: string;
   /** Whose config folder the runtime uses: the evaluator's (default, where the login lives) or the run's own. */
@@ -186,6 +195,10 @@ type LiveState = {
   rateWave: string;
   resumeId?: string;
   applied: Set<string>;
+  /** The conversation prefix of the Given as session records, resumed by the first turn and then cleared. */
+  seedRecords?: SessionRecord[];
+  /** The files of the estate copy before any seed, by path, with their hashes: what `snapshotGiven` leaves out. */
+  estateBase: Record<string, string>;
   seeded: Workspace | undefined;
   /** Processes the runner started for running helpers, killed at close. */
   pids: number[];
@@ -195,13 +208,16 @@ type LiveState = {
 };
 
 const DEFAULT_TIMEOUT_MS = 15 * 60 * 1000;
+/** The most a workspace may hold for `snapshotGiven`, as the process adapter bounds its own. */
+const EXPORT_MAX_BYTES = 50 * 1024 * 1024;
 const DEFAULT_RETRIES = 3;
 const DEFAULT_BACKOFF_MS = 5000;
 
 export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdapter {
   const capabilities: AdapterCapabilities = {
     variants: false,
-    seedPrefix: false,
+    // On with `branching`: a prefix becomes the session file the first turn resumes (recordsOfMessages).
+    seedPrefix: options.branching === true,
     toolStubs: false,
     trace: false,
     sandbox: true,
@@ -211,10 +227,51 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
   const maxRetries = options.retries?.max ?? DEFAULT_RETRIES;
   const backoffMs = options.retries?.backoffMs ?? DEFAULT_BACKOFF_MS;
 
+  /**
+   * The end state of a block, for a continuation that starts from it: the files the agent and the seed left
+   * in the workspace, byte for byte (UTF-8 text in `files`, anything else in `binary` as base64), without
+   * the files of the estate copy that did not change. A file the agent deleted is absent; an estate file it
+   * deleted comes back with the next copy of the estate. The world of the Given and its variables go along.
+   */
+  async function exportEndState(session: Session) {
+    const state = stateOf(session);
+    if (state.closed) throw new Error('the live session is closed');
+    const snapshot = await state.sandbox.snapshot();
+    const bound = EXPORT_MAX_BYTES;
+    const changed = Object.entries(snapshot.files)
+      .filter(([path, file]) => state.estateBase[path] !== file.sha256)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+    const total = changed.reduce((sum, [, file]) => sum + file.bytes, 0);
+    if (total > bound) {
+      throw new Error(`the workspace holds ${total} bytes, more than the export bound of ${bound}`);
+    }
+    const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
+    const files: Record<string, string> = {};
+    const binary: Record<string, string> = {};
+    for (const [path] of changed) {
+      const bytes = await state.sandbox.readFile(path, bound);
+      try {
+        files[path] = decoder.decode(bytes);
+      } catch {
+        binary[path] = Buffer.from(bytes).toString('base64');
+      }
+    }
+    const { workspace: _seeded, ...world } = session.given.world;
+    const workspace = {
+      ...(Object.keys(files).length === 0 ? {} : { files }),
+      ...(Object.keys(binary).length === 0 ? {} : { binary }),
+    };
+    return {
+      world: structuredClone({ ...world, ...(changed.length === 0 ? {} : { workspace }) }),
+      vars: structuredClone(session.given.vars),
+    };
+  }
+
   return {
     id: 'claude-code',
     version: CLAUDE_CODE_LIVE_VERSION,
     capabilities: () => ({ ...capabilities }),
+    ...(options.branching === true ? { snapshotGiven: exportEndState } : {}),
 
     async open(given: ResolvedGiven): Promise<Session> {
       const history = copyHistory(given.prefix);
@@ -228,8 +285,12 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           );
         });
       let stateFolder: string | undefined;
+      let estateBase: Record<string, string> = {};
       try {
         await copyEstate(options.estateRoot, options.estateFiles ?? DEFAULT_ESTATE_FILES, folderOf(sandbox));
+        estateBase = Object.fromEntries(
+          Object.entries((await sandbox.snapshot()).files).map(([path, file]) => [path, file.sha256]),
+        );
         if (options.workspace !== undefined) await sandbox.seed(options.workspace);
         if (given.world.workspace !== undefined) await sandbox.seed(given.world.workspace);
         await ensureCommand(sandbox, options.command);
@@ -255,6 +316,8 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         helpers: join(stateFolder, 'helpers.json'),
         rateWave: join(stateFolder, 'rate-wave'),
         applied: new Set(),
+        estateBase,
+        ...(options.branching === true && history.length > 0 ? { seedRecords: recordsOfMessages(history, new Date().toISOString()) } : {}),
         seeded: given.world.workspace,
         pids: [],
         helperCount: 0,
@@ -287,6 +350,13 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         ];
       } catch (error) {
         throw new AgentFailure(messageOf(error), { cause: error });
+      }
+      // The conversation the Given carries: the first turn resumes it, unless a session state already began one.
+      if (state.seedRecords !== undefined) {
+        if (state.resumeId === undefined && !ops.some((op) => op.op === 'resume')) {
+          ops.unshift({ op: 'resume', prefix: state.seedRecords });
+        }
+        state.seedRecords = undefined;
       }
       const at = new Date().toISOString();
       const notes = await applyOps(state, ops, cwd, at);
