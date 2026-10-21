@@ -241,6 +241,15 @@ type Judged = { why?: string };
  * - a recorded session's ask is the session's own message at the block the spec replays from; its act is the row.
  * An ask that carries no act sets off none of the row's atoms.
  */
+/** The atom ids a value names, at any depth up to three (a guard's fields name the rule it enforces). */
+function named(value: unknown, byId: ReadonlyMap<string, MapAtom>, depth = 0): string[] {
+  if (typeof value === 'string') return byId.has(value) ? [value] : [];
+  if (Array.isArray(value) && depth < 3) return value.flatMap((item) => named(item, byId, depth + 1));
+  if (value !== null && typeof value === 'object' && depth < 3)
+    return Object.values(value).flatMap((item) => named(item, byId, depth + 1));
+  return [];
+}
+
 function judgeAsk(
   spec: FixtureSuite['specs'][number],
   fake: Fake,
@@ -266,6 +275,16 @@ function judgeAsk(
     if (missing) return { why: `its act ${missing} is no atom of the map` };
     return act.some((id) => fired.includes(id)) ? {} : { why: `the fake does not set off its act ${act[0]}` };
   };
+  // The first block's own source decides: an approved phrase of the spec's situation is a bank ask, whatever
+  // other blocks of the spec were written by code (askBuild is null for such a block).
+  const banked = typeof meta.situation === 'string' ? situations.get(meta.situation) : undefined;
+  if (meta.ask === 'bank' || (banked !== undefined && banked.phrases.includes(ask))) {
+    if (!banked) return { why: 'it names no situation of the bank' };
+    if (!banked.phrases.includes(ask)) return { why: `the ask is no phrase of ${String(meta.situation)}` };
+    const outside = banked.use === 'outside' || banked.use === 'near_miss';
+    if (outside !== noAct) return { why: `the situation ${String(meta.situation)} is of use ${banked.use}` };
+    return outside ? none() : acts(banked.atoms);
+  }
   if (meta.ask === 'code') {
     if (typeof meta.askFrom !== 'string' || meta.askFrom === '') return { why: 'it carries no act' };
     if (meta.askFrom === 'neutral') {
@@ -277,8 +296,9 @@ function judgeAsk(
       // A hypothetical row asks what an act would mean: it is the ask of a row that asks for no act, about one of
       // the row's atoms, and it never counts as the act.
       if (!noAct) return { why: 'a hypothetical ask carries no act, and the row asks for one' };
-      const about = matched.atoms;
-      if (!about.some((id) => spec.atoms.includes(id)))
+      // About an atom of the row, or one a row atom's fields name (the rule a guard enforces).
+      const row = new Set(spec.atoms.flatMap((id) => [id, ...named(byId.get(id)?.fields, byId)]));
+      if (!matched.atoms.some((id) => row.has(id)))
         return { why: 'a hypothetical ask about no atom of the row' };
       return none();
     }
@@ -288,15 +308,6 @@ function judgeAsk(
     if (!atom) return { why: `its act ${id} is no atom of the map` };
     if (declaredActs(atom).length === 0) return { why: `its act ${id} declares no act text in the map` };
     return acts([id]);
-  }
-  if (meta.ask === 'bank') {
-    const situation = typeof meta.situation === 'string' ? situations.get(meta.situation) : undefined;
-    if (!situation) return { why: 'it names no situation of the bank' };
-    if (!situation.phrases.includes(ask)) return { why: `the ask is no phrase of ${String(meta.situation)}` };
-    const outside = situation.use === 'outside' || situation.use === 'near_miss';
-    if (outside !== noAct)
-      return { why: `the situation ${String(meta.situation)} is of use ${situation.use}` };
-    return outside ? none() : acts(situation.atoms);
   }
   if (meta.ask === 'session') {
     if (typeof meta.session !== 'string') return { why: 'it names no recorded session' };
