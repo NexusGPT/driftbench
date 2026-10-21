@@ -72,6 +72,8 @@ describe('the report fix list', () => {
     const raw = runs.flatMap((run) => run.blocks.flatMap((block) => block.diagnoses)) as Diagnosis[];
     const trigger = raw.find((one) => one.fixLocation === 'skill.trigger');
     if (trigger === undefined) throw new Error('The stored fixture must contain a trigger diagnosis');
+    const triggerPlacement = trigger.placement;
+    if (triggerPlacement === undefined) throw new Error('The trigger diagnosis must have a placement');
     const extra = Array.from({ length: 12 }, (_, index) => ({
       runId: `fictional-extra-${index}`,
       blocks: [
@@ -81,7 +83,7 @@ describe('the report fix list', () => {
             {
               ...trigger,
               fixTarget: `skill:fictional-${index}#description`,
-              placement: `${trigger.placement.split('#')[0]}#fixed`,
+              placement: `${triggerPlacement.split('#')[0]}#fixed`,
             },
           ],
         },
@@ -89,6 +91,8 @@ describe('the report fix list', () => {
     }));
     const localRule = raw.find((one) => one.fixLocation === 'skill.content');
     if (localRule === undefined) throw new Error('The stored fixture must contain a skill-rule diagnosis');
+    const localPlacement = localRule.placement;
+    if (localPlacement === undefined) throw new Error('The local rule diagnosis must have a placement');
     // Three local homes of the same rule cause a core promotion with nonempty superseded copies.
     const promoted = Array.from({ length: 6 }, (_, index) => ({
       runId: `fictional-promoted-${index}`,
@@ -99,7 +103,7 @@ describe('the report fix list', () => {
             {
               ...localRule,
               fixTarget: `skill:promoted-${Math.floor(index / 2)}#rule`,
-              placement: `${localRule.placement.split('#')[0]}#skill_local`,
+              placement: `${localPlacement.split('#')[0]}#skill_local`,
               evidence: { ...localRule.evidence, home: `promoted-${Math.floor(index / 2)}` },
             },
           ],

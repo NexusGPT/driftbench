@@ -13,9 +13,10 @@
 //   NORTHWIND_ESTATE         the estate folder. Default: examples/estates/fixture.
 import { open, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
+import { parseShell } from '@agent-nexus/driftbench-checks';
 import { machineVerdict } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
@@ -33,6 +34,66 @@ async function isStandIn(path) {
   } finally {
     await handle.close();
   }
+}
+
+/** Strip shell comments while keeping quoted or escaped # characters as command data. */
+function withoutComments(line) {
+  let result = '';
+  let quote;
+  let boundary = true;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (char === '\\' && quote !== "'" && index + 1 < line.length) {
+      result += char + line[++index];
+      boundary = false;
+      continue;
+    }
+    if (quote !== undefined) {
+      result += char;
+      if (char === quote) quote = undefined;
+      continue;
+    }
+    if (char === '#' && boundary) {
+      while (index < line.length && line[index] !== '\n') index += 1;
+      result += '\n';
+      boundary = true;
+      continue;
+    }
+    result += char;
+    if (char === "'" || char === '"') quote = char;
+    boundary = /[\s;&|()<>]/.test(char);
+  }
+  return result;
+}
+
+function reconcilePath(path) {
+  const normalized = posix.normalize(path);
+  return normalized === 'scripts/reconcile.py' ||
+    normalized === '.claude/skills/invoice-reconcile/scripts/reconcile.py' ||
+    normalized.endsWith('/.claude/skills/invoice-reconcile/scripts/reconcile.py');
+}
+
+/** A script is executed as the program itself or as Python's script operand, never as command data. */
+function invokesReconcile(line) {
+  const parsed = parseShell(withoutComments(line));
+  if (parsed.unknown) return false;
+  return parsed.commands.some((words) => {
+    let index = 0;
+    while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(words[index] ?? '')) index += 1;
+    const program = words[index++];
+    if (program === undefined) return false;
+    if (reconcilePath(program)) return true;
+    if (!/^python(?:3(?:\.\d+)?)?$/.test(basename(program))) return false;
+    for (; index < words.length; index += 1) {
+      const word = words[index];
+      if (word === '--') return reconcilePath(words[index + 1] ?? '');
+      if (!word.startsWith('-')) return reconcilePath(word);
+      // These no-operand Python flags keep the next non-option word in the script position.
+      // Code/module modes and options with operands are deliberately unsupported, hence cannot count.
+      if (!/^-[IBEOqsSuvx]+$/.test(word)) return false;
+    }
+    return false;
+  });
 }
 
 /** Enforce the skill prerequisite across turns, and require actual reconciliation in its named block. */
@@ -53,7 +114,7 @@ export function invoicePrerequisite(ctx) {
       if (
         call.label !== 'Bash' ||
         typeof call.input?.command !== 'string' ||
-        !call.input.command.includes('scripts/reconcile.py')
+        !invokesReconcile(call.input.command)
       )
         continue;
       if (block.observed !== ctx.observed) continue;
