@@ -246,10 +246,20 @@ export function pointerAtoms(
         .filter((reference) => reference.bare)
         .map((reference) => reference.path),
     );
-    const allNamed = namedPaths(holder).filter((path) => !imported(path));
+    // The paths in the order they stand in the unit (by offset, not by the kind of notation that found them), so the
+    // nth path takes the nth span.
+    const inOrder = pathMentions(holder)
+      .sort((a, b) => a.start - b.start)
+      .map(({ path }) => path)
+      .filter((path, index, all) => all.indexOf(path) === index);
+    const allNamed = inOrder.filter((path) => !imported(path));
     const firstNamed = namedOf(holder);
     const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
-    const templateFor = (namedPath: string | undefined, chosen?: (typeof labelLinks)[number]): Template => ({
+    const templateFor = (
+      namedPath: string | undefined,
+      chosen?: (typeof labelLinks)[number],
+      each?: { kind: string; index: number },
+    ): Template => ({
       link: (kind, property) => {
         const found = chosen?.kind === kind ? chosen : labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
@@ -261,7 +271,8 @@ export function pointerAtoms(
         return typeof field === 'string' ? field : undefined;
       },
       span: (kind) => {
-        const span = labelSpans.find((entry) => entry.kind === kind);
+        const ofKind = labelSpans.filter((entry) => entry.kind === kind);
+        const span = each?.kind === kind ? (ofKind[each.index] ?? ofKind[0]) : ofKind[0];
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       spans: (kind) =>
@@ -304,9 +315,13 @@ export function pointerAtoms(
         repeated === undefined
           ? [undefined]
           : labelLinks.filter((link) => link.kind === repeated && link.atom !== undefined);
-      const pairs = paths.flatMap((path) => choices.map((link) => [path, link] as const));
-      for (const [namedPath, chosen] of pairs) {
-        const template = templateFor(namedPath, chosen);
+      const pairs = paths.flatMap((path, index) => choices.map((link) => [path, link, index] as const));
+      for (const [namedPath, chosen, index] of pairs) {
+        const template = templateFor(
+          namedPath,
+          chosen,
+          mapping.spanEach !== undefined ? { kind: mapping.spanEach, index } : undefined,
+        );
         // An atom built for one of several links of a kind keeps that link alone of its kind.
         const ownLinks = labelLinks.filter((link) => !chosen || link.kind !== chosen.kind || link === chosen);
         if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
