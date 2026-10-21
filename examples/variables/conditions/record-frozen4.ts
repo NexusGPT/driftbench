@@ -22,8 +22,15 @@ const freeze = JSON.parse(freezeBytes.toString('utf8')) as {
   clausesHash: string;
   answersHash: string;
   readerHash: string;
+  pipelineHash: string;
+  primaryRule: string;
+  secondaryRule: string;
   files: Record<string, string>;
 };
+if (hash(JSON.stringify(freeze.files)) !== freeze.pipelineHash
+  || freeze.files['examples/variables/conditions/round3.ts'] !== freeze.readerHash) {
+  throw new Error('invalid frozen manifest');
+}
 function frozenHashes() {
   const hashes = Object.fromEntries(
     Object.keys(freeze.files).map((file) => [file, hash(readFileSync(resolve(root, file)))]),
@@ -56,9 +63,9 @@ if (
   !registration.body.includes(freeze.clausesHash) ||
   !registration.body.includes(freeze.answersHash) ||
   !registration.body.includes(freeze.readerHash) ||
-  !registration.body.includes(
-    'A planted condition counts as found when the variable is right AND the decision is right.',
-  )
+  !registration.body.includes(freeze.pipelineHash) ||
+  !registration.body.includes(freeze.primaryRule) ||
+  !registration.body.includes(freeze.secondaryRule)
 ) {
   throw new Error('PR does not pre-register this head, hashes and primary rule');
 }

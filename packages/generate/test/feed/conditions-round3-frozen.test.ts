@@ -4,7 +4,13 @@ import { join, resolve } from 'node:path';
 import type { VariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { round3Options } from '../../../../examples/variables/conditions/round3';
-import { type ConditionSpan, type ConditionsRecording, type ConditionsReport, feedFromConditions, replayConditions } from '../../src/feed';
+import {
+  type ConditionSpan,
+  type ConditionsRecording,
+  type ConditionsReport,
+  feedFromConditions,
+  replayConditions,
+} from '../../src/feed';
 
 const root = resolve(__dirname, '../../../..');
 const dir = join(root, 'examples/variables/conditions');
@@ -13,12 +19,19 @@ const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest(
 describe('frozen4: single final recording, no network or sealed answers', () => {
   it('replays all outcomes with exact quotes and byte-identical frozen source', async () => {
     const evidence = JSON.parse(readFileSync(join(dir, 'round3-frozen4.json'), 'utf8')) as {
-      initialStore: VariableStore; store: VariableStore; recording: ConditionsRecording;
-      report: ConditionsReport; spans: ConditionSpan[]; texts: Record<string, string>;
-      clauseBytesBase64: string; hashesBefore: Record<string, string>; hashesAfter: Record<string, string>;
+      initialStore: VariableStore;
+      store: VariableStore;
+      recording: ConditionsRecording;
+      report: ConditionsReport;
+      spans: ConditionSpan[];
+      texts: Record<string, string>;
+      clauseBytesBase64: string;
+      hashesBefore: Record<string, string>;
+      hashesAfter: Record<string, string>;
     };
     const freeze = JSON.parse(readFileSync(join(dir, 'round3-freeze.json'), 'utf8')) as {
-      clausesHash: string; files: Record<string, string>;
+      clausesHash: string;
+      files: Record<string, string>;
     };
     expect(evidence.spans).toHaveLength(73);
     const clauseBytes = Buffer.from(evidence.clauseBytesBase64, 'base64');
@@ -30,9 +43,11 @@ describe('frozen4: single final recording, no network or sealed answers', () => 
       expect(digest(readFileSync(join(root, file))), file).toBe(expected);
     }
     const replayed = await feedFromConditions({
-      store: evidence.initialStore, spans: evidence.spans,
+      store: evidence.initialStore,
+      spans: evidence.spans,
       texts: new Map(Object.entries(evidence.texts)),
-      ...replayConditions(evidence.recording), options: round3Options,
+      ...replayConditions(evidence.recording),
+      options: round3Options,
     });
     expect(replayed.store).toEqual(evidence.store);
     expect(replayed.report.outcomes).toEqual(evidence.report.outcomes);
@@ -42,7 +57,9 @@ describe('frozen4: single final recording, no network or sealed answers', () => 
       if (!span) throw new Error('outcome lacks span');
       for (const pair of outcome.values) {
         const [variable, value] = pair.split('/');
-        const entry = replayed.store.variables.find((v) => v.id === variable)?.values.find((v) => v.id === value);
+        const entry = replayed.store.variables
+          .find((v) => v.id === variable)
+          ?.values.find((v) => v.id === value);
         expect(entry?.provenance).toContainEqual({ kind: 'quote', path: span.path, quote: span.quote });
         expect(evidence.texts[span.path]?.includes(span.quote)).toBe(true);
       }

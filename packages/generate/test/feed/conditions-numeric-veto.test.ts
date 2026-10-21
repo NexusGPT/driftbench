@@ -17,6 +17,15 @@ const question = {
 const port = { family: 'fictional', complete: vi.fn(async () => 'null') };
 
 describe('a system-1 numeric-guard veto on a candidate yes', () => {
+  it('requires a positive numeric-parameter equality vote in addition to no material mismatch', async () => {
+    const judge = vi.fn(async (request: { criterion: { name: string } }) => ({
+      answer: { outcome: 'pass', score: request.criterion.name.startsWith('condition_mismatch:') ? 0.05
+        : request.criterion.name.startsWith('guard_parameters_equal:') ? 0.1 : 0.9 },
+    }));
+    const { reader } = round3Systems({ id: 'fixture', cls: 'system1', family: 'fictional', judge }, port, []);
+    expect(await reader.read(clause, [question])).toEqual({ 'delay/over_one_day': { yes: 0 } });
+    expect(judge).toHaveBeenCalledTimes(3);
+  });
   it('rejects an implied broader range when the independent guard vote finds a mismatch', async () => {
     const judge = vi.fn(async () => ({ answer: { outcome: 'pass', score: 0.9 } }));
     const { reader } = round3Systems({ id: 'fixture', cls: 'system1', family: 'fictional', judge }, port, [
