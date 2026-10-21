@@ -89,8 +89,7 @@ function declaredText(atom: MapAtom, field: string): Declared | undefined {
   // The atom's verbatim source text: the quote of its unit, or the trigger the scan cut from it.
   const quoted = (atom as { provenance?: { quote?: unknown } }).provenance?.quote;
   if (field === 'provenance.quote') return typeof quoted === 'string' ? { text: quoted } : undefined;
-  if (field === 'situation')
-    return typeof atom.situation === 'string' ? { text: atom.situation } : undefined;
+  if (field === 'situation') return typeof atom.situation === 'string' ? { text: atom.situation } : undefined;
   if (field === 'fields.trigger')
     return typeof fields.trigger === 'string' ? { text: fields.trigger } : undefined;
   type Ask = { text?: unknown; context?: unknown };
