@@ -41,10 +41,7 @@ describe('minimality accepts one twin pair per path and declared axis', async ()
   const flagged = (detail: string) => /[1-9]\d* groups contain a removable duplicate/.test(detail);
 
   // The groups of the last blocks of the given specs, evaluated against one suite.
-  const outsideOf = async (
-    complete: Generation['complete'],
-    groups: string[][],
-  ): Promise<string[][]> => {
+  const outsideOf = async (complete: Generation['complete'], groups: string[][]): Promise<string[][]> => {
     const mini: Generation = { ...generated, complete };
     const data = new SeedData(1, options, async () => ({}) as never);
     await data.memoized('generated', async () => mini);

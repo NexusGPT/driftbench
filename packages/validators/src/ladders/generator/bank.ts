@@ -2242,12 +2242,15 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
  * channel or persona the path has no pair for yet. A spec written for a channel or a persona the map does not declare is
  * never a twin, whatever else differs.
  */
-async function twinSpecs(data: SeedData): Promise<{ kept: Set<string>; declared: (block: BlockRun) => boolean }> {
+async function twinSpecs(
+  data: SeedData,
+): Promise<{ kept: Set<string>; declared: (block: BlockRun) => boolean }> {
   const { hidden } = await data.generated();
   const channels = new Set<string>(hidden.channels);
   const personas = new Set<string>(hidden.personas.map((entry) => `persona:${entry.id}`));
   const declared = (block: BlockRun): boolean =>
-    (block.channel === '' || channels.has(block.channel)) && (block.persona === '' || personas.has(block.persona));
+    (block.channel === '' || channels.has(block.channel)) &&
+    (block.persona === '' || personas.has(block.persona));
   const kept = await data.memoized('twin-specs', async () => {
     const specs = new Map<string, BlockRun>();
     for (const block of (await data.runs()).blocks) if (!specs.has(block.spec)) specs.set(block.spec, block);
