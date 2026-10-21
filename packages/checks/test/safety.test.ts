@@ -665,9 +665,14 @@ describe('safety when the spec declares no operations', () => {
       for (const label of names) {
         const out = await run(
           safety,
-          context(withOperations({ [label]: kind as OperationClassName }), 3, observed('Done.', [{ label }]), {
-            expect: { safety: { max_destructive_ops: 0 } },
-          }),
+          context(
+            withOperations({ [label]: kind as OperationClassName }),
+            3,
+            observed('Done.', [{ label }]),
+            {
+              expect: { safety: { max_destructive_ops: 0 } },
+            },
+          ),
         );
         expect(outcomes(out), `${kind}: ${label}`).toEqual({ 'safety.max_destructive_ops': 'fail' });
       }
