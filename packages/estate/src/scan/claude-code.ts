@@ -273,7 +273,7 @@ export class ClaudeCodeReader implements EstateReader {
       },
       aliases: {
         ...inlineAliases(files.filter(isNormative)),
-        ...aliasTables(files.filter(isNormative), notes),
+        ...aliasTables(files.filter(isNormative)),
         ...config.aliases,
       },
       externals: [
@@ -737,11 +737,6 @@ function cleanFolder(folder: string): string {
 }
 
 /**
- * Alias tables: a markdown file of the estate whose name holds "alias", with a table of an alias column
- * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
- * `<folder>/a/b.md`.
- */
-/**
  * Aliases a markdown file defines in its own prose: `` `REF` = `.claude/skills/x/references` ``. The name is
  * capitals; the target is a folder (no file extension). A name two files define differently keeps both
  * folders, tried in order.
@@ -774,34 +769,50 @@ function inlineAliases(files: readonly EstateFile[]): Record<string, string[]> {
 
 const STRUCTURED_KINDS = new Set<string>(['registry', 'settings', 'step_list', 'guard_script']);
 
-/** A markdown file whose name holds "alias" and that holds an alias table. */
-function definesAliases(file: EstateFile): boolean {
-  if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) return false;
-  return readTables(file.text).some(
-    (table) =>
-      table.header.some((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell))) &&
-      table.header.some((cell) => /^(path|folder|target|resolves to)s?$/i.test(strip(cell))),
-  );
+/** The alias name of a cell: capitals, as `inlineAliases` reads it. */
+const ALIAS_NAME = /^[A-Z][A-Z0-9_]{1,15}$/;
+
+/**
+ * The aliases a table row defines, by shape alone: the first cell is an alias name (capitals) and a later cell
+ * is a folder (no file extension, no pattern characters, no white space, a `/` or a leading `.` in it). No header
+ * and no file name is read, so a table in any language defines aliases.
+ */
+function aliasRow(cells: readonly string[]): { name: string; folder: string } | undefined {
+  const name = strip(cells[0] ?? '');
+  if (!ALIAS_NAME.test(name)) return undefined;
+  for (const cell of cells.slice(1)) {
+    const target = strip(cell);
+    if (target === '' || /\s/.test(target) || /\.[A-Za-z0-9]+\/*$/.test(target) || /[<>*?{}$|]/.test(target))
+      continue;
+    if (!target.includes('/') && !target.startsWith('.')) continue;
+    return { name, folder: cleanFolder(target) };
+  }
+  return undefined;
 }
 
-function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
+/** A table of aliases: it has rows, and every row defines an alias by shape. */
+function isAliasTable(table: ReturnType<typeof readTables>[number]): boolean {
+  return table.rows.length > 0 && table.rows.every((row) => aliasRow(row.cells) !== undefined);
+}
+
+/**
+ * A markdown file with at least one table of aliases. Each table is judged on its own rows, so a sentence or a
+ * heading beside the table does not matter; code reads such a file as structure, not as prose.
+ */
+function definesAliases(file: EstateFile): boolean {
+  return /\.(md|markdown)$/i.test(file.path) && readTables(file.text).some(isAliasTable);
+}
+
+function aliasTables(files: readonly EstateFile[]): Record<string, string[]> {
   const aliases: Record<string, string[]> = {};
   for (const file of files) {
-    if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) continue;
+    if (!/\.(md|markdown)$/i.test(file.path)) continue;
     for (const table of readTables(file.text)) {
-      const alias = table.header.findIndex((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell)));
-      const folder = table.header.findIndex((cell) =>
-        /^(path|folder|target|resolves to)s?$/i.test(strip(cell)),
-      );
-      if (alias < 0 || folder < 0) continue;
+      if (!isAliasTable(table)) continue;
       for (const row of table.rows) {
-        const name = strip(row.cells[alias] ?? '').replace(/\/+$/, '');
-        const target = strip(row.cells[folder] ?? '');
-        if (name === '' || target === '') {
-          notes.push({ file: file.path, message: `alias row at line ${row.line} has no alias or no folder` });
-          continue;
-        }
-        aliases[name] = [...(aliases[name] ?? []), cleanFolder(target)];
+        const defined = aliasRow(row.cells);
+        if (defined === undefined) continue;
+        aliases[defined.name] = [...(aliases[defined.name] ?? []), defined.folder];
       }
     }
   }

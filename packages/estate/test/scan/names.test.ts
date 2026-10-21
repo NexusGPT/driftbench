@@ -79,6 +79,35 @@ describe('alias tables', () => {
     ]);
   });
 
+  it.each([
+    ['.claude/RACCOURCIS.md', '| Raccourci | Dossier |\n|---|---|\n| REF | `.claude/library/` |\n'],
+    ['.claude/notes-de-chemins.md', '# Pfade\n\n| Kürzel | Ziel |\n|---|---|\n| REF | .claude/library |\n'],
+    ['.claude/map.md', '| 别名 | 目录 |\n|---|---|\n| REF | .claude/library |\n'],
+    ['.claude/x.md', '| a | b |\n|---|---|\n| REF | ./.claude/library |\n'],
+  ])(
+    'reads an alias table by its shape, whatever its file name and header words: %s',
+    async (path, table) => {
+      const root = await estate({
+        'CLAUDE.md': '# Rules\n',
+        [path]: table,
+        '.claude/library/guide.md': '# G\n',
+      });
+      const raw = await new ClaudeCodeReader().read(root);
+      expect(raw.aliases).toEqual({ REF: ['.claude/library'] });
+    },
+  );
+
+  it('judges each table on its own rows, whatever sentence sits beside it', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/a.md':
+        'Un chemin qui commence par un alias.\n\n| a | b |\n|---|---|\n| REF | .claude/library |\n',
+      '.claude/b.md': '| a | b |\n|---|---|\n| ref | .claude/library |\n| TWO | a file.md |\n',
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.aliases).toEqual({ REF: ['.claude/library'] });
+  });
+
   it('reads an alias a file defines inline, and resolves gates and references through it', async () => {
     // Northwind-shaped: a helper names the skill's references folder once, then names files under it.
     const root = await estate({
