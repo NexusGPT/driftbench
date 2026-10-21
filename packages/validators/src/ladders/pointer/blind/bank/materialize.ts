@@ -1,6 +1,10 @@
 import { type BankItem, type Json, probe, token } from './types';
 
-/** Labels are planted; code must copy file bytes and maintain identity independently. */
+/**
+ * Labels are planted; code must copy file bytes and maintain identity independently. A label traces to the
+ * cassette key of the answer it comes from through the ledger (`labels[set].source`), not through a field of the
+ * atom.
+ */
 export function materializationItems(): BankItem[] {
   const cases = [
     'obligation',
@@ -105,7 +109,7 @@ export function materializationItems(): BankItem[] {
           provenance: { file: `fiction-${t}.md`, quote: selectedQuote },
           producedBy: 'model',
           approved: false,
-          fields: { extraction: 'pointer', unit: unitId, labelSet: `set-${t}`, cassette: `key-${t}` },
+          fields: { extraction: 'pointer', unit: unitId, labelSet: `set-${t}` },
           evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true }],
         };
         return {
@@ -140,9 +144,11 @@ export function materializationItems(): BankItem[] {
                 ],
               },
               {
+                // Each label names the cassette key of the answer it comes from, in the ledger: the atom carries
+                // no key of its own.
                 ledgerLabels: [
-                  { id: unitId, label: actualLabel },
-                  { id: selected === 1 ? otherId : id, label: 'none' },
+                  { id: unitId, label: actualLabel, source: `cassette:key-${t}` },
+                  { id: selected === 1 ? otherId : id, label: 'none', source: `cassette:key-${t}` },
                 ],
                 atoms: !control && mapping ? [atom] : [],
               },
