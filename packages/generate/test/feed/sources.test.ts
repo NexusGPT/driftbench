@@ -1076,7 +1076,7 @@ describe('variablesFromSources: one well-formedness pass over the whole input', 
 
   it('prints no raw surrogate in the refusals of the ordinary paths either', () => {
     const input = valid() as unknown as { owner: { values: Array<{ date: string }> } };
-    input.owner.values[0].date = `2026-13-45${LONE}`;
+    (input.owner.values[0] as { date: string }).date = `2026-13-45${LONE}`;
     const built = variablesFromSources(input as never);
     expect(built.refused.length).toBeGreaterThan(0);
     expect(holdsLone(built)).toBe(false);
