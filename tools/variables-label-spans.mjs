@@ -11,7 +11,8 @@
 // counts every response reports, at the rates given on the command line, and the run stops before it passes a cap.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const MODEL = 'claude-haiku-5-5';
 const BATCH = 12;
@@ -77,9 +78,21 @@ const subjectsBlock = () =>
         .map((subject) => `- ${subject}`)
         .join('\n')}\n\nClauses:\n`;
 
+// The store's own definition of a variable, quoted as written in docs/variables.md (the paragraph that opens the
+// section "Variables"), so the labeller reads the definition the product uses and no copy of it can drift.
+const DOC = join(dirname(fileURLToPath(import.meta.url)), '..', 'docs', 'variables.md');
+const definition = (() => {
+  const lines = readFileSync(DOC, 'utf8').split('\n');
+  const at = lines.findIndex((line) => line.startsWith('A variable is one thing'));
+  if (at < 0) throw new Error(`no definition of a variable in ${DOC}`);
+  return lines[at];
+})();
+
 const SYSTEM = [
   'You read short clauses copied from a company rule file. For each clause, say what condition it states.',
   'Answer with a JSON array, one object per clause, in the order given, and nothing else.',
+  `The definition of a variable, as the store states it: ${definition}`,
+  'A clause that states no condition under this definition is none.',
   'Each object is one of:',
   '{"kind":"numeric","subject":<what is measured, a short noun phrase>,"limit":<number>,"comparison":"lt"|"le"|"gt"|"ge"|"eq"|"ne","unit":<optional unit>}',
   '{"kind":"range","subject":<noun phrase>,"low":<number>,"high":<number>,"unit":<optional>}',
