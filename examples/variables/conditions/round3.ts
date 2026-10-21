@@ -12,6 +12,20 @@ import { round2Options } from './round2';
 /** Calibrated on DEV only; frozen before the single frozen4 measurement. */
 export const ROUND3_THRESHOLD = 0.5;
 
+/** Declared candidate predicates, rendered in canonical physical units. */
+const CANDIDATE_PREDICATES: Record<string, string> = {
+  'shipment_delay/late_over_one_day':
+    'A shipment delay is strictly greater than 24 hours (one day); numeric cutoff 24 hours, comparison >',
+  'shipment_delay/late_over_two_days':
+    'A shipment delay is strictly greater than 48 hours (two days); numeric cutoff 48 hours, comparison >',
+  'invoice_work/invoice_diff_over_50':
+    'The total difference of an invoice is strictly greater than 50.00 EUR; numeric cutoff 50.00, currency EUR, comparison >',
+  'approval/approval_unanswered':
+    'The approver has provided no response at all; a conditional or negative response is still a response',
+  'approval/approval_given':
+    'The requested approval was explicitly granted; confirmation in writing by the named decision maker is an explicit yes',
+};
+
 const SOURCE_PASS =
   'At least one explicit trigger, guard or standalone condition description states this candidate value. A named instance of a role, a synonym, or a concrete instance of the same categorical state counts. Numeric guard boundaries must be identical after exact unit conversion. Independent conditions may coexist.';
 const DESCRIPTION_PASS =
@@ -24,14 +38,16 @@ const EXPLICIT_TRIGGER =
 export const round3Options = {
   ...round2Options,
   decide: { yesAt: ROUND3_THRESHOLD, noAt: ROUND3_THRESHOLD },
-  questionText: (variable: { title: string }, value: { title: string }) =>
-    JSON.stringify({
+  questionText: (variable: { id?: string; title: string }, value: { id?: string; title: string }) => {
+    const candidate = CANDIDATE_PREDICATES[variable.id + '/' + value.id] ?? value.title;
+    return JSON.stringify({
       question: 'Does a condition expressed by this text correspond to this SAME candidate value?',
       variable: variable.title,
-      candidate: value.title,
+      candidate,
       rules:
         'Match categorical state and role instances. For a numeric guard, require the same cutoff, unit or currency after exact conversion, and comparison strictness; implication or overlap is not identity. Match timing stage and polarity. Ignore mentions only in actions and examples.',
-    }),
+    });
+  },
 };
 
 export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: readonly ConditionSpan[]) {

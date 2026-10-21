@@ -30,7 +30,8 @@ describe('round-3 DEV classes: permissive yes and existing-or-new decisions', ()
       batches: Batch[];
     };
     const batch = evidence.batches.find((b) => b.file === 'round3-dev-clauses.json');
-    expect.soft(batch?.report.outcomes.find((o) => o.span === 'r3d-002')?.values)
+    expect
+      .soft(batch?.report.outcomes.find((o) => o.span === 'r3d-002')?.values)
       .toEqual(['shipment_delay/late_over_two_days']);
     const conditional = batch?.report.outcomes.find((o) => o.span === 'r3d-032');
     expect.soft(conditional?.status).toBe('proposed');

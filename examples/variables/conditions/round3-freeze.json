@@ -62,9 +62,6 @@
     "checkProposals": "match",
     "maxRetries": 0,
     "maxTokens": 2000,
-    "positiveCandidateChecks": [
-      "actor_polarity_knowledge_mismatch",
-      "numeric_parameter_equality"
-    ]
+    "positiveCandidateChecks": ["actor_polarity_knowledge_mismatch", "numeric_parameter_equality"]
   }
 }
