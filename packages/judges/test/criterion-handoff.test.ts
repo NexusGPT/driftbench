@@ -109,7 +109,7 @@ describe('handed criterion gains use decoder 3', () => {
         },
       },
     });
-    expect(DEFAULT_JUDGE_POLICY.version).toBe('default-on-v7');
+    expect(DEFAULT_JUDGE_POLICY.version).toBe('default-on-v8');
     // Captured at the integration base 5c4de6274 with this exact transport and pair request.
     expect(judge.settings).not.toBe('cb182964c407');
     expect(

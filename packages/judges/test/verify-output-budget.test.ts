@@ -108,7 +108,7 @@ describe('objective verification output room', () => {
     const judge = createDefaultJudge({ provider: 'openai', model: 'fixture', env: {}, transport });
     const result = await judge.judge(request);
     expect(result.answer.outcome).toBe('pass');
-    expect(result.defaultJudge).toMatchObject({ version: 'default-on-v7', route: 'objective' });
+    expect(result.defaultJudge).toMatchObject({ version: 'default-on-v8', route: 'objective' });
     expect(calls.map((call) => call.maxTokens)).toEqual([
       MAX_TOKENS.normal + 12288,
       ...Array(7).fill(THINKING_ROOM),

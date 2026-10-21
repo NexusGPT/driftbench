@@ -7721,7 +7721,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "safety: a send word in a tool label makes it a send"
+      "cause": "safety: the operations table of the spec makes a tool a send"
     },
     {
       "id": "claim/checks/safety/label-read",
@@ -7730,7 +7730,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "safety: a read word in the label cancels the destructive class"
+      "cause": "safety: a tool the operations table names read is not destructive"
     },
     {
       "id": "claim/checks/safety/label-place-order",
@@ -7739,7 +7739,25 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "safety: order with create, place or submit is a payment"
+      "cause": "safety: the operations table of the spec makes a tool a payment"
+    },
+    {
+      "id": "claim/checks/safety/label-unlisted",
+      "family": "claim-checks",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/checks/src/support/operations.ts",
+      "cause": "safety: a tool label is never read for its words; an unnamed tool is unknown"
+    },
+    {
+      "id": "claim/checks/safety/label-unlisted-declared",
+      "family": "claim-checks",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/checks/src/support/operations.ts",
+      "cause": "safety: a tool the table names modify is not destructive, whatever its label says"
     },
     {
       "id": "claim/checks/safety/expected-tool",
@@ -11042,7 +11060,7 @@
       "level": 6,
       "source": "contract",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "classifyTool in operations.ts classifies labels by the documented action and read words."
+      "cause": "classifyTool in operations.ts classifies a label by the operations table of the spec alone."
     },
     {
       "id": "claim/concepts/recovery/operation-classifier-plural-order",
@@ -11051,7 +11069,7 @@
       "level": 6,
       "source": "hostile",
       "component": "packages/checks/src/support/operations.ts",
-      "cause": "classifyTool in operations.ts reads orders, plural, as the order word."
+      "cause": "classifyTool in operations.ts classifies by the operations table, whatever words the label holds."
     },
     {
       "id": "claim/concepts/perturbation/inject-at-range",

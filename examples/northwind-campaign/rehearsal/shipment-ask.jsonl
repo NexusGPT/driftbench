@@ -1,0 +1,3 @@
+{"type":"assistant","message":{"id":"message_0","type":"message","role":"assistant","model":"northwind-rehearsal","content":[{"type":"tool_use","id":"tool_0","name":"Skill","input":{"skill":"shipment-tracker"}}],"usage":{"input_tokens":1,"output_tokens":1}},"parent_tool_use_id":null}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_0","content":"Launching skill: shipment-tracker"}]},"parent_tool_use_id":null}
+{"type":"assistant","message":{"id":"message_2","type":"message","role":"assistant","model":"northwind-rehearsal","content":[{"type":"text","text":"What carrier and tracking number should I look up?"}],"usage":{"input_tokens":1,"output_tokens":1}},"parent_tool_use_id":null}
