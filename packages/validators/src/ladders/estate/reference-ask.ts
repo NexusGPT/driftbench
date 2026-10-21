@@ -193,7 +193,9 @@ export function constructAsk(
     let out = '';
     for (const part of parts) {
       if (refusal !== undefined) return '';
-      if ('lit' in part) out += part.lit;
+      // A value that ends in a sentence mark keeps it, and the row adds no stop or question mark of its own right
+      // after it (#877 b6da661ab): the last character decides.
+      if ('lit' in part) out += /[.!?]$/.test(out) && /^[.?]/.test(part.lit) ? part.lit.slice(1) : part.lit;
       else if ('opt' in part) {
         // The optional group is written exactly when the record names a situation for it.
         const wants = part.opt.some((inner) => 'slot' in inner && inner.slot === 'situation');

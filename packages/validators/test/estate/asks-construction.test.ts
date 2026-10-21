@@ -232,6 +232,18 @@ describe('the verbatim source text of an atom gives a span, in the handle-this-f
   });
 });
 
+describe('a value that ends in a sentence mark takes no second stop from its row', () => {
+  const row = new Set(['instruction.one']);
+  const whole = [{ slot: 'act', atom: 'instruction.one', field: 'fields.ask.text', from: 0, to: 40 }];
+  it('builds one stop, and one question mark is dropped before the closing words', () => {
+    const built = (ask: string) => constructAsk({ ask, act: '{span}', spans: whole }, ATOMS, row);
+    const please = built('Please {act}.[ {situation}.]');
+    expect(please).toEqual({ text: 'Please Approving a refill needs the pharmacist.' });
+    const could = built('Could you {act}?[ {situation}.] Thanks.');
+    expect(could).toEqual({ text: 'Could you Approving a refill needs the pharmacist. Thanks.' });
+  });
+});
+
 describe('constructAsk builds one ask from a record, or refuses it', () => {
   const row = new Set(['instruction.one']);
   it('builds the ask from the rows and the verbatim slice', () => {
