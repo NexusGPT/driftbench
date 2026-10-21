@@ -46,9 +46,7 @@ function routed(e: PlantedEstate, name: string): void {
   if (!writer.lines.some((line) => line.startsWith('| When the user wants to'))) {
     writer.lines_(['', '## Routing', '', '| When the user wants to | Load |', '|---|---|']);
   }
-  writer.line(`| do the ${name} work | \`${name}\` |`, [
-    { hid: `route:${name}`, kind: 'route', key: name },
-  ]);
+  writer.line(`| do the ${name} work | \`${name}\` |`, [{ hid: `route:${name}`, kind: 'route', key: name }]);
 }
 
 /** Settings holding one guard per command on Stop, owned by nobody. */
