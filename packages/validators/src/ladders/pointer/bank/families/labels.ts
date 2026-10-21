@@ -86,6 +86,16 @@ async function refusalCase(
   return pass('refused once, the second answer applied');
 }
 
+const systemText = (body: string): string => String((JSON.parse(body) as { system?: unknown }).system ?? '');
+
+/** The requests of a scan that retry the first: their system text extends the first request's. */
+function retriedRequests(fake: FakeTransport): number {
+  const systems = fake.calls.map((call) => systemText(call.body));
+  const [first] = systems;
+  if (first === undefined) return 0;
+  return systems.filter((system) => system !== first && system.startsWith(first)).length;
+}
+
 /** Record a model-port scan on the fake transport and return everything the item reads. */
 async function modelScan(
   ctx: ItemContext,
@@ -1361,14 +1371,17 @@ labels:
   'haiku-stop-reason-refused': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
     for (const stop of ['max_tokens', 'refusal']) {
-      const fake = fakeTransport({
-        respond: (i, _c, base) => {
-          if (i !== 0) return undefined;
-          const b = JSON.parse(base.body) as { stop_reason: string };
-          b.stop_reason = stop;
-          return { status: 200, body: JSON.stringify(b) };
-        },
-      });
+      // The first `refused` requests answer with this stop reason; the others answer well.
+      const stopped = (refused: number) =>
+        fakeTransport({
+          respond: (i, _c, base) => {
+            if (i >= refused) return undefined;
+            const b = JSON.parse(base.body) as { stop_reason: string };
+            b.stop_reason = stop;
+            return { status: 200, body: JSON.stringify(b) };
+          },
+        });
+      const fake = stopped(1);
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok || !res.ledger) return fail(`stop reason ${stop}: the scan failed: ${res.error}`);
       // The first request is refused and asked once more; the other independent runs ask one request each.
@@ -1378,8 +1391,23 @@ labels:
         );
       if (label(res.ledger, texts[0] as string) !== truthLabel(texts[0] as string))
         return fail(`stop reason ${stop}: the retry's answer did not apply`);
+      // The retry is the refused request asked again: its system text extends the first request's.
+      const once = retriedRequests(fake);
+      if (once !== 1)
+        return fail(
+          `stop reason ${stop}: ${once} retried requests, expected 1: the refused request is asked again, as a retry`,
+        );
+      // Refused twice in a row: the retry is refused too, and the run is never asked a third time as a retry.
+      const twice = stopped(2);
+      const again = await modelScan(ctx, docOf(texts), 'haiku', twice);
+      if (!again.ok) return fail(`stop reason ${stop} twice: the scan failed: ${again.error}`);
+      const retried = retriedRequests(twice);
+      if (retried !== 1)
+        return fail(
+          `stop reason ${stop} twice: ${retried} retried requests, expected 1: a refused answer is retried once only`,
+        );
     }
-    return pass('both stop reasons refused and retried');
+    return pass('both stop reasons refused and retried once, never twice');
   },
   'haiku-refuse-wrong-window-or-set': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);

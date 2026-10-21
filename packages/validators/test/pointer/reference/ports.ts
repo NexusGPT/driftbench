@@ -19,6 +19,7 @@ import type {
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
+import { referenceBugsMiss } from './bugs-miss';
 import { extrasProblem, jsonObjectOf } from './extras';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet, RefLabel } from './labelset';
@@ -880,7 +881,10 @@ async function haikuRuns(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
   const runs: Array<Map<number, AnswerLabel>> = [];
   for (let run = 1; run <= RUNS.haiku; run += 1) {
     let result = await haiku(plan, set, ctx, run);
-    if (result.kind === 'refused') result = await haiku(plan, set, ctx, run, true);
+    if (result.kind === 'refused' && !referenceBugsMiss.has('haiku-retry-removed'))
+      result = await haiku(plan, set, ctx, run, true);
+    if (result.kind === 'refused' && referenceBugsMiss.has('haiku-second-retry'))
+      result = await haiku(plan, set, ctx, run, true);
     if (result.kind !== 'answer') return result;
     first ??= result;
     runs.push(opinionsByUnit('labels' in result.answer ? result.answer.labels : []));
@@ -1005,11 +1009,17 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           farthest ? differing(b).length - differing(a).length : differing(a).length - differing(b).length,
         );
       const near = hit ?? candidates[0];
-      if (!near)
+      if (!near) {
+        // The missing entry's id, as its request carries it; a planted defect names none or another.
+        const cassetteLabeler = rows[0]?.readable.labeler ?? wire.labeler;
+        const named = referenceBugsMiss.has('miss-names-cassette-labeler') ? cassetteLabeler : wire.labeler;
         return {
           kind: 'error',
-          message: `cassette miss for ${window}: the cassette holds no entry of the labeler ${wire.labeler} for the same file, window and set`,
+          message: referenceBugsMiss.has('miss-omits-labeler-id')
+            ? `cassette miss for ${window}: the cassette has no entry for the same file, window and set`
+            : `cassette miss for ${window}: the cassette holds no entry of the labeler ${named} for the same file, window and set`,
         };
+      }
       const differs = differing(near);
       if (!hit || differs.length) {
         const fields = differs.length ? differs.join(', ') : 'file, window';

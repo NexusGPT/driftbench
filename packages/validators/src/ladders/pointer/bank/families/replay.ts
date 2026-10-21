@@ -1,7 +1,14 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
-import { loadFixture, makeFixture, perturb, RUNS, requireFixtureLabels } from '../../kit/fixture';
+import {
+  type Fixture,
+  loadFixture,
+  makeFixture,
+  perturb,
+  RUNS,
+  requireFixtureLabels,
+} from '../../kit/fixture';
 import { show } from '../../kit/oracle';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
@@ -86,6 +93,20 @@ const mentions = (error: string | undefined, names: string[]): boolean => {
   const e = (error ?? '').toLowerCase();
   return names.some((n) => e.includes(n.toLowerCase()));
 };
+
+/** The one labeler id every entry of a committed fixture declares: the id its requests carry. */
+function declaredLabeler(fixture: Pick<Fixture, 'rows'>): string {
+  const ids = [...new Set(fixture.rows.map((row) => row.readable.labeler))];
+  const [id] = ids;
+  if (ids.length !== 1 || !id)
+    throw new Error(`positive witness: the fixture declares ${ids.length} labeler ids`);
+  return id;
+}
+
+const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Whether `text` holds `token` whole: not inside a longer id such as `jev-unit` for `jev`. */
+const namesToken = (text: string | undefined, token: string): boolean =>
+  new RegExp(`(^|[^A-Za-z0-9_-])${escaped(token)}($|[^A-Za-z0-9_-])`).test(text ?? '');
 
 async function positiveReplay(ctx: ItemContext, arm: ModelArm = 'haiku') {
   const fixture = loadFixture(arm);
@@ -325,13 +346,20 @@ export const replayRuns: Record<string, Run> = {
     for (const arm of ['haiku', 'jev'] as const) {
       const own = await positiveReplay(ctx, arm),
         other = loadFixture(arm === 'haiku' ? 'jev' : 'haiku');
+      // The missing entry's id is the one its own fixture declares: a token, not a word such as `labeler`.
+      const id = declaredLabeler(own.fixture),
+        foreign = declaredLabeler(other);
+      if (id === foreign) throw new Error(`positive witness: both fixtures declare the labeler id ${id}`);
       const { res, fake } = await replay(ctx, own.fixture.files, arm, other.cassette, {
         labelsYaml: own.fixture.labelsYaml,
       });
-      if (res.ok || fake.count || !mentions(res.error, ['labeler', 'model']))
-        return fail(`wrong-arm cassette did not fail by name: ${res.error}`);
+      if (res.ok || fake.count) return fail(`wrong-arm cassette did not fail offline: ${res.error}`);
+      if (!namesToken(res.error, id))
+        return fail(
+          `the ${arm} arm on the cassette of ${foreign}: the miss does not name the labeler id ${id} of the missing entry: ${res.error}`,
+        );
     }
-    return pass('both arms refuse the other fixture');
+    return pass('both arms refuse the other fixture and name the labeler id of the missing entry');
   },
   'miss-names-set-name': (ctx) =>
     missCase(ctx, (f, _t, yaml) => ({ files: f, yaml: yaml.replace('set: probe', 'set: renamed') }), [
