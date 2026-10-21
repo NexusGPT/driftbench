@@ -1091,24 +1091,27 @@ describe('variablesFromSources: special key names and empty lists in the well-fo
 
   it.each(SPECIAL)('reads %s as ordinary data in a path, a tool, a field, a value and a session', (word) => {
     const quote = 'Ready.';
+    const estate = {
+      files: { [word]: quote },
+      rules: [
+        {
+          id: word,
+          source: word,
+          conditions: [],
+          tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote }] }],
+        },
+      ],
+    };
+    const first = variablesFromSources(parsed({ estate }));
+    expect(first.refused.map((r) => r.reason)).toEqual([]);
+    const id = first.store.variables[0]?.id as string;
+    expect(id).toBeDefined();
     const built = variablesFromSources(
       parsed({
-        estate: {
-          files: { [word]: quote },
-          rules: [
-            {
-              id: word,
-              source: word,
-              conditions: [],
-              tools: [{ tool: word, field: word, source: word, values: [{ id: word, quote }] }],
-            },
-          ],
-        },
-        conversations: [{ id: word, values: { [`${word}.${word}`]: word } }],
+        estate,
+        conversations: [{ id: word, values: { [id]: word } }],
         owner: {
-          values: [
-            { variable: `${word}.${word}`, value: `${word}-2`, words: 'The owner said so.', date: DAY },
-          ],
+          values: [{ variable: id, value: `${word}-2`, words: 'The owner said so.', date: DAY }],
         },
       }),
     );
@@ -1141,7 +1144,10 @@ describe('variablesFromSources: special key names and empty lists in the well-fo
     const tool = { tool: 'ledger', field: 'account', source: 'F.md', values: [] as unknown[] };
     (tool as Record<string, unknown>)[part] = `x${LONE}`;
     const built = variablesFromSources({
-      estate: { files: { 'F.md': 'Ready.' }, rules: [{ id: 'R', source: 'F.md', conditions: [], tools: [tool] }] },
+      estate: {
+        files: { 'F.md': 'Ready.' },
+        rules: [{ id: 'R', source: 'F.md', conditions: [], tools: [tool] }],
+      },
     } as never);
     expect(built.refused).toHaveLength(1);
     expect(built.refused[0]?.reason).toMatch(/well-formed/);
