@@ -1,6 +1,8 @@
 import {
   type ConditionJudge,
   type ConditionSpan,
+  type ConversationReader,
+  type ReaderAnswer,
   createJudgeConditionReader,
   createScopedConditionProposer,
   type ModelPort,
@@ -8,7 +10,7 @@ import {
 import { round2Options } from './round2';
 
 /** Calibrated on DEV only; frozen before the single frozen4 measurement. */
-export const ROUND3_THRESHOLD = 0.7;
+export const ROUND3_THRESHOLD = 0.5;
 
 const SOURCE_PASS =
   'At least one explicit trigger, guard or standalone condition description states this candidate value. A named instance of a role, a synonym, or a concrete instance of the same categorical state counts. Numeric guard boundaries must be identical after exact unit conversion. Independent conditions may coexist.';
@@ -22,28 +24,75 @@ const EXPLICIT_TRIGGER =
 export const round3Options = {
   ...round2Options,
   decide: { yesAt: ROUND3_THRESHOLD, noAt: ROUND3_THRESHOLD },
-  questionText: (variable: { title: string }, value: { title: string }) =>
-    'Does a condition expressed by this text correspond to this SAME candidate value? Variable: "' +
-    variable.title + '". Candidate value: "' + value.title +
-    '". Match categorical state and role instances. For a numeric guard, require the same cutoff, unit or currency after exact conversion, and comparison strictness; implication or overlap is not identity. Match timing stage and polarity. Ignore mentions only in actions and examples.',
+  questionText: (variable: { title: string }, value: { title: string }) => JSON.stringify({
+    question: 'Does a condition expressed by this text correspond to this SAME candidate value?',
+    variable: variable.title,
+    candidate: value.title,
+    rules: 'Match categorical state and role instances. For a numeric guard, require the same cutoff, unit or currency after exact conversion, and comparison strictness; implication or overlap is not identity. Match timing stage and polarity. Ignore mentions only in actions and examples.',
+  }),
 };
 
 export function round3Systems(judge: ConditionJudge, port: ModelPort, spans: readonly ConditionSpan[]) {
   const sourceClauses = new Set(spans.map((s) => s.quote));
-  const reader = createJudgeConditionReader({
-    id: 'identity:' + judge.id,
-    cls: judge.cls,
-    family: judge.family,
-    ...(judge.model === undefined ? {} : { model: judge.model }),
-    judge: (request) => judge.judge({
-      ...request,
-      criterion: {
-        ...request.criterion,
-        pass: sourceClauses.has(request.transcript[0]?.text ?? '') ? SOURCE_PASS : DESCRIPTION_PASS,
-        fail: FAIL,
-      },
-    }),
-  }, { sourceClauses });
+  const primary = createJudgeConditionReader(
+    {
+      id: 'identity:' + judge.id,
+      cls: judge.cls,
+      family: judge.family,
+      ...(judge.model === undefined ? {} : { model: judge.model }),
+      judge: (request) =>
+        judge.judge({
+          ...request,
+          criterion: {
+            ...request.criterion,
+            pass: sourceClauses.has(request.transcript[0]?.text ?? '') ? SOURCE_PASS : DESCRIPTION_PASS,
+            fail: FAIL,
+          },
+        }),
+    },
+    { sourceClauses },
+  );
+  const reader: ConversationReader = {
+    ...primary,
+    id: 'numeric-guard:' + primary.id,
+    async read(text, questions) {
+      const answers: Record<string, ReaderAnswer | undefined> = { ...await primary.read(text, questions) };
+      const positive = questions.filter((q) => {
+        const answer = answers[q.name];
+        return answer !== undefined && 'yes' in answer && answer.yes >= ROUND3_THRESHOLD;
+      });
+      for (let start = 0; start < positive.length; start += 8) {
+        await Promise.all(positive.slice(start, start + 8).map(async (q) => {
+          let candidate = q.text;
+          try {
+            const structured = JSON.parse(q.text) as { candidate?: unknown } | null;
+            if (typeof structured?.candidate === 'string') candidate = structured.candidate;
+          } catch {
+            // A caller's plain question still remains model data.
+          }
+          try {
+            const veto = await judge.judge({
+              criterion: {
+                name: 'numeric_guard_mismatch:' + q.name,
+                rubric: 'Does the source lack this candidate numeric guard and instead specify a materially different guard for the same subject?',
+                pass: 'The candidate contains a numeric guard. The corresponding source condition uses a different cutoff, comparison strictness, or non-equivalent unit or currency, and no exact candidate guard is stated. A range merely implying or overlapping the candidate is different.',
+                fail: 'The candidate has no numeric guard, or the source states the same guard after exact unit conversion. A number in another independent condition, an action or an example is not a mismatch of this candidate.',
+                scope: 'conversation',
+              },
+              transcript: [{ role: 'user', text: JSON.stringify({ candidate, source: text }) }],
+            });
+            const probability = veto.answer.score;
+            if (veto.unparsed || typeof probability !== 'number' || !Number.isFinite(probability)
+              || probability < 0 || probability > 1) answers[q.name] = undefined;
+            else if (probability >= ROUND3_THRESHOLD) answers[q.name] = { yes: 0 };
+          } catch {
+            answers[q.name] = undefined;
+          }
+        }));
+      }
+      return answers;
+    },
+  };
   const proposer = createScopedConditionProposer({
     family: port.family,
     ...(port.model === undefined ? {} : { model: port.model }),

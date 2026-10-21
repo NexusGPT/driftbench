@@ -5,13 +5,15 @@ import { join } from 'node:path';
 import { emptyRecording, feedFromConditions, recordConditions } from '../../../packages/generate/src';
 import { type Clause, loadStore, score, textsOf, unitsOf } from './lib';
 import { type PlantedRow, primaryScore, type ScoredOutcome } from './primary-score';
-import { ROUND3_THRESHOLD, round3Options, round3Systems } from './round3';
 import { liveRound2 } from './round2-live';
+import { ROUND3_THRESHOLD, round3Options, round3Systems } from './round3';
 
 const here = new URL('.', import.meta.url).pathname;
 const tag = process.argv[2] ?? 'baseline';
 const threshold = Number(process.argv[3] ?? ROUND3_THRESHOLD);
-const profileHash = createHash('sha256').update(readFileSync(join(here, 'round3.ts'))).digest('hex');
+const profileHash = createHash('sha256')
+  .update(readFileSync(join(here, 'round3.ts')))
+  .digest('hex');
 if (!Number.isFinite(threshold) || threshold < 0.5 || threshold > 0.95)
   throw new Error('invalid DEV threshold');
 const output = join(here, 'round3-dev-' + tag + '.json');
