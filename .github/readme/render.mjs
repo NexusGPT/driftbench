@@ -52,6 +52,7 @@ const jobs = [
   { name: 'innovations', src: 'innovations.html', out: 'innovations-{theme}.png' },
   { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
   { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
+  { name: 'rule-links', src: 'rule-links.html', out: 'rule-links-{theme}.png' },
   { name: 'block-sources', src: 'block-sources.html', out: 'block-sources-{theme}.png' },
   { name: 'block-personas', src: 'block-personas.html', out: 'block-personas-{theme}.png' },
   { name: 'block-parents', src: 'block-parents.html', out: 'block-parents-{theme}.png' },
