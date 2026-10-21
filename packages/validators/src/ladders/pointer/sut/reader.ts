@@ -482,6 +482,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
       cassette,
       mode,
       ...(previous ? { previous } : {}),
+      ...(request.estateKey !== undefined ? { estateKey: request.estateKey } : {}),
     });
   } catch (cause) {
     return fail(cause instanceof Error ? cause.message : String(cause));

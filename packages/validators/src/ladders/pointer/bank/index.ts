@@ -7,6 +7,7 @@ import { adversarialRuns } from './families/adversarial';
 import { cuttingRuns } from './families/cutting';
 import { groupingRuns } from './families/grouping';
 import { HARDENING_RUNS } from './families/hardening';
+import { HARDENING_BUGS_A_RUNS } from './families/hardening-bugs-a';
 import { idsRuns } from './families/ids';
 import { labelsRuns } from './families/labels';
 import { linksRuns } from './families/links';
@@ -38,7 +39,11 @@ const RUNNERS: Record<string, Record<string, Run>> = {
 export function pointerBank(): PointerItem[] {
   const items: PointerItem[] = [];
   for (const family of FAMILIES) {
-    const runners = { ...(RUNNERS[family.id] ?? {}), ...(HARDENING_RUNS[family.id] ?? {}) };
+    const runners = {
+      ...(RUNNERS[family.id] ?? {}),
+      ...(HARDENING_RUNS[family.id] ?? {}),
+      ...(HARDENING_BUGS_A_RUNS[family.id] ?? {}),
+    };
     for (const spec of family.specs) {
       const run: Run =
         runners[spec.key] ?? (async () => fail(`the item ${family.id}.${spec.key} has no runner yet`));
@@ -70,13 +75,26 @@ export function missingRunners(): string[] {
   const missing: string[] = [];
   for (const family of FAMILIES) {
     for (const spec of family.specs) {
-      if (!RUNNERS[family.id]?.[spec.key] && !HARDENING_RUNS[family.id]?.[spec.key])
+      if (
+        !RUNNERS[family.id]?.[spec.key] &&
+        !HARDENING_RUNS[family.id]?.[spec.key] &&
+        !HARDENING_BUGS_A_RUNS[family.id]?.[spec.key]
+      )
         missing.push(`${family.id}.${spec.key}`);
     }
   }
   const known = new Set(FAMILIES.flatMap((f) => f.specs.map((s) => `${f.id}.${s.key}`)));
-  for (const familyId of new Set([...Object.keys(RUNNERS), ...Object.keys(HARDENING_RUNS)])) {
-    const runners = { ...(RUNNERS[familyId] ?? {}), ...(HARDENING_RUNS[familyId] ?? {}) };
+  const allFamilies = [
+    ...Object.keys(RUNNERS),
+    ...Object.keys(HARDENING_RUNS),
+    ...Object.keys(HARDENING_BUGS_A_RUNS),
+  ];
+  for (const familyId of new Set(allFamilies)) {
+    const runners = {
+      ...(RUNNERS[familyId] ?? {}),
+      ...(HARDENING_RUNS[familyId] ?? {}),
+      ...(HARDENING_BUGS_A_RUNS[familyId] ?? {}),
+    };
     for (const key of Object.keys(runners)) {
       if (!known.has(`${familyId}.${key}`)) missing.push(`${familyId}.${key} (runner without a row)`);
     }

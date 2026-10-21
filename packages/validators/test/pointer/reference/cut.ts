@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { isPair, isScalar, isSeq, parseDocument, visit } from 'yaml';
 import type { CutResult, CutUnit } from '../../../src/ladders/pointer/sut/port';
+import { referenceBugsA } from './bugs-a';
 
 /**
  * The reference cutter: a block parser for the markdown subset the composer writes, plus the sentence rules of
@@ -109,8 +110,10 @@ function mask(text: string): string {
   const hide = (a: number, b: number) => {
     for (let i = a; i < b; i += 1) if (chars[i] !== undefined) chars[i] = 'x';
   };
-  // inline code: a run of backticks to the next run of the same length
-  const code = /(`+)([\s\S]*?[^`])\1(?!`)/g;
+  // inline code: a run of backticks to the next run of the same length (the planted bug: one backtick a side)
+  const code = referenceBugsA.has('double-backtick-code')
+    ? /`[^`]*`/g
+    : /(`+)([\s\S]*?[^`])\1(?!`)/g;
   for (let m = code.exec(text); m; m = code.exec(text)) hide(m.index, m.index + m[0].length);
   // link destinations
   const dest = /\]\((<[^>\n]*>|[^)\s]*)(?:\s+(?:"[^"]*"|'[^']*'))?\)/g;
@@ -173,7 +176,10 @@ export function sentenceSpans(text: string): Array<[number, number]> {
     }
     const shortTitle = /(?:^|[\s("'])\p{Lu}\p{L}{0,2}\.$/u.test(before);
     const onlyMarks = !/[\p{L}\p{N}]/u.test(piece);
-    if (shortTitle || onlyMarks) {
+    // A sentence rarely starts with a number: a stop before one is merged, as when unsure.
+    const digitStart = /^\d/.test(piece) && !referenceBugsA.has('digit-after-stop-splits');
+    const numberStop = referenceBugsA.has('number-stop-always-merges') && /\d\.$/.test(before);
+    if (shortTitle || onlyMarks || digitStart || numberStop) {
       prev[1] = span[1];
       continue;
     }
@@ -499,7 +505,12 @@ function parseItem(body: Line[], markerStart: number, ctx: Ctx): void {
   }
   const last = body[n - 1] as Line;
   const end = last.start + last.text.trimEnd().length;
-  push(ctx, 'list_item', markerStart, end);
+  push(
+    ctx,
+    ctx.mode === 'quote' && referenceBugsA.has('list-in-quote-is-quote') ? 'block_quote' : 'list_item',
+    markerStart,
+    end,
+  );
   const rest = body.slice(n);
   if (rest.length > 0) parseBlocks(rest, { ...ctx, mode: 'sentence', depth: ctx.depth + 1 });
 }

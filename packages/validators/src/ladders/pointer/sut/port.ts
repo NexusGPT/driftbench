@@ -101,6 +101,11 @@ export type ScanRequest = {
    * Ids and ledgers must not depend on it. Absent: the binding picks one.
    */
   location?: { parent: string; name: string };
+  /**
+   * The key of the estate: part of every id the scan mints, with the file, the fingerprint and the occurrence
+   * (docs/estate-pointer-reader.md section 4). Absent: the reader's own default key.
+   */
+  estateKey?: string;
   /** The raw text of the previous ledger. */
   previousLedger?: string;
   /** The label sets as the user writes them (YAML). Absent: the shipped default set. */

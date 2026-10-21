@@ -9,6 +9,7 @@ import type {
   ScanResult,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
+import { referenceBugsA } from './bugs-a';
 import { cutText, fingerprintText, sha } from './cut';
 import { base32Id, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
@@ -63,6 +64,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const prevScan = previous?.scan ?? 0;
 
   // ---- cut
+  /** UTF-16 code units of source kept on each side of a quote (docs/estate-pointer-reader.md section 15). */
+  const context = referenceBugsA.has('context-window-8') ? 8 : 24;
   const files = [...req.files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   const sources = new Map(files.map((f) => [f.path, f.text]));
   const news: NewUnit[] = [];
@@ -88,8 +91,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         end: unit.end,
         container: unit.container,
         sectionPath: unit.path,
-        prefix: file.text.slice(Math.max(0, unit.start - 24), unit.start),
-        suffix: file.text.slice(unit.end, unit.end + 24),
+        prefix: file.text.slice(Math.max(0, unit.start - context), unit.start),
+        suffix: file.text.slice(unit.end, unit.end + context),
         ctxFp: '',
         ...(unit.yamlPath ? { yamlPath: unit.yamlPath } : {}),
       });
@@ -105,7 +108,11 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
 
   // ---- anchor
   const verdict = anchorUnits(liveEntries(prevEntries), news);
-  const usedIds = new Set(prevEntries.map((e) => e.id));
+  // Every id of the previous ledger is taken, a deleted one too (the planted bug forgets the deleted ones).
+  const usedIds = new Set(
+    (referenceBugsA.has('ids-forget-deleted') ? liveEntries(prevEntries) : prevEntries).map((e) => e.id),
+  );
+  const estateKey = req.estateKey ?? ESTATE_KEY;
   const occurrence = new Map<string, number>();
   const occurrenceOf: number[] = [];
   news.forEach((unit, g) => {
@@ -117,7 +124,11 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const mint = (unit: NewUnit, occ: number): string => {
     let n = occ;
     for (;;) {
-      const id = base32Id(`${ESTATE_KEY}|${unit.path}|${unit.fp}|${n}`);
+      const id = base32Id(
+        referenceBugsA.has('mint-drops-estate-key')
+          ? `${unit.path}|${unit.fp}|${n}`
+          : `${estateKey}|${unit.path}|${unit.fp}|${n}`,
+      );
       if (!usedIds.has(id)) {
         usedIds.add(id);
         return id;
@@ -293,7 +304,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   for (const w of work) eventOf.set(w.entry.id, w.event);
   for (const g of goneEntries)
     eventOf.set(g.id, verdict.gone.find((x) => x.entry.id === g.id)?.event ?? 'deleted');
-  const untouched = prevEntries.filter((e) => e.status !== 'live');
+  const liveIds = new Set(work.map((w) => w.entry.id));
+  const untouched = prevEntries.filter((e) => e.status !== 'live' && !liveIds.has(e.id));
   const build = (scanNo: number): string => {
     const entries: LedgerEntry[] = [];
     for (const w of work) {
@@ -442,6 +454,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     events[g.entry.id] = g.event;
     eventCounts[g.event] = (eventCounts[g.event] ?? 0) + 1;
   }
+  // The planted bug: the deleted count also counts the entries an earlier scan deleted.
+  if (referenceBugsA.has('deleted-event-counts-old-deleted') && untouched.length > 0)
+    eventCounts.deleted = (eventCounts.deleted ?? 0) + untouched.length;
   return finish({
     ok: true,
     warnings,
