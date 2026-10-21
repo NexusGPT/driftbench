@@ -299,12 +299,19 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
     const [loAll, hiAll] = callInterval(ctx, total, total);
     must(
       hiAll === 1 && loAll >= 1 - 1e-9 && loAll <= 1,
-      () => `weightInterval(2^${exponent}, 2^${exponent}) = [${loAll}, ${hiAll}], expected an upper bound of 1 and a lower bound just below 1`,
+      () =>
+        `weightInterval(2^${exponent}, 2^${exponent}) = [${loAll}, ${hiAll}], expected an upper bound of 1 and a lower bound just below 1`,
     );
     const [loOne, hiOne] = callInterval(ctx, 1, total);
     must(
-      Number.isFinite(loOne) && Number.isFinite(hiOne) && loOne >= 0 && loOne <= 1 / total && hiOne >= 1 / total && hiOne > loOne,
-      () => `weightInterval(1, 2^${exponent}) = [${loOne}, ${hiOne}] does not hold 1 / n with a width above 0`,
+      Number.isFinite(loOne) &&
+        Number.isFinite(hiOne) &&
+        loOne >= 0 &&
+        loOne <= 1 / total &&
+        hiOne >= 1 / total &&
+        hiOne > loOne,
+      () =>
+        `weightInterval(1, 2^${exponent}) = [${loOne}, ${hiOne}] does not hold 1 / n with a width above 0`,
     );
   },
 
