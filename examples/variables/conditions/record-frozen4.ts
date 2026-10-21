@@ -8,8 +8,8 @@ import { resolve } from 'node:path';
 import { emptyRecording, feedFromConditions, recordConditions } from '../../../packages/generate/src';
 import { isRecord } from '../../../packages/generate/src/model/http';
 import { loadStore } from './lib';
-import { round3Options, round3Systems } from './round3';
 import { hash, liveRound2 } from './round2-live';
+import { round3Options, round3Systems } from './round3';
 import { scoreFrozen } from './score-frozen';
 
 const [clauseFile, answerFile, output, budgetFile, prNumber] = process.argv.slice(2);
