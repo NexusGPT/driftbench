@@ -16,6 +16,7 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
+import { machineVerdict } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -34,7 +35,50 @@ async function isStandIn(path) {
   }
 }
 
+/** Enforce the skill prerequisite across turns, and require actual reconciliation in its named block. */
+export function invoicePrerequisite(ctx) {
+  let read = false;
+  let reconciles = 0;
+  const missing = [];
+  for (const block of [...ctx.history, { observed: ctx.observed }]) {
+    for (const call of block.observed.toolCalls) {
+      const path = call.input?.file_path;
+      if (
+        call.label === 'Read' &&
+        call.error === undefined &&
+        typeof path === 'string' &&
+        /(?:^|\/)invoice-reconcile\/references\/matching-rules\.md$/.test(path)
+      )
+        read = true;
+      if (
+        call.label !== 'Bash' ||
+        typeof call.input?.command !== 'string' ||
+        !call.input.command.includes('scripts/reconcile.py')
+      )
+        continue;
+      if (block.observed !== ctx.observed) continue;
+      reconciles += 1;
+      if (!read) missing.push(call.input.command);
+    }
+  }
+  if (reconciles === 0 && ctx.block.id !== 'reconcile') return [];
+  const pass = reconciles > 0 && missing.length === 0;
+  return [
+    machineVerdict(
+      'northwind-invoice-prerequisite',
+      'read-before-reconcile',
+      pass ? 'pass' : 'fail',
+      reconciles === 0
+        ? 'The reconcile block did not invoke scripts/reconcile.py.'
+        : missing.length > 0
+          ? `${missing.length} reconcile invocation(s) had no successful matching-rules read before them.`
+          : `Every reconcile invocation (${reconciles}) has a successful matching-rules read before it, in this block or its history.`,
+    ),
+  ];
+}
+
 export default async function plugin(api) {
+  api.check('northwind-invoice-prerequisite', invoicePrerequisite);
   const estateRoot = resolve(process.env.NORTHWIND_ESTATE ?? resolve(HERE, '../estates/fixture'));
   const configured = process.env.NORTHWIND_COMMAND ?? resolve(HERE, 'rehearsal/claude.mjs');
   const command = configured.includes('/') ? resolve(configured) : configured;
