@@ -158,9 +158,9 @@ export function windowsOf(path: string, units: readonly Unit[], size: number): W
   return windows;
 }
 
+// A refused answer (a refusal, a stop at max_tokens) is retried once like an unreadable one, then fails.
 const RETRYABLE = (cause: unknown): boolean =>
-  cause instanceof LabelerError ||
-  (cause instanceof ModelError && cause.code !== 'config' && cause.code !== 'refusal');
+  cause instanceof LabelerError || (cause instanceof ModelError && cause.code !== 'config');
 
 /** A failure that stops the run: nothing the next window does can fix it. */
 const FATAL = (cause: unknown): boolean =>
@@ -377,7 +377,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
     }
     // An answer that cannot be read twice is the model's, not the network's: it is recorded, so the failure
-    // replays with no call. Any other failure (a refusal, a transport error) is not recorded.
+    // replays with no call. Any other failure (a refusal twice, a transport error) is not recorded.
     if (failure instanceof LabelerError) {
       const unreadable: Recorded = {
         returnedModel: member.model,
