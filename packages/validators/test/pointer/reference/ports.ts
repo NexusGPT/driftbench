@@ -294,12 +294,7 @@ function receipt(ctx: ModelCtx, entry: CassetteEntry, model: string): void {
     ctx.warnings.push(`the returned model ${model} differs from the recorded model ${earlier.model}`);
 }
 
-export async function haiku(
-  plan: WindowPlan,
-  set: ParsedSet,
-  ctx: ModelCtx,
-  run = 1,
-): Promise<ModelResult> {
+export async function haiku(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx, run = 1): Promise<ModelResult> {
   const system = SYSTEM_TEXT;
   const user = userText(set, plan);
   const output = { type: 'json_schema', labels: { enum: [...set.labels.map((l) => l.name), 'none'] } };
@@ -804,9 +799,7 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
             (anyLabeler || row.readable.labeler === wire.labeler),
         )
         .sort((a, b) =>
-          farthest
-            ? differing(b).length - differing(a).length
-            : differing(a).length - differing(b).length,
+          farthest ? differing(b).length - differing(a).length : differing(a).length - differing(b).length,
         );
       const near = hit ?? candidates[0];
       if (!near)

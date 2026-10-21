@@ -75,7 +75,7 @@ export const HARDENING_D_SPECS: Record<string, Spec[]> = {
       'http-labeler-address-change-relabels',
       3,
       'An HTTP user labeler at another address re-labels units the first one labelled',
-      'Record seeded units on the `http` arm at a seeded address; rescan with the previous ledger at the same address (control), then at a second seeded address whose answers differ.',
+      'Record seeded units on the `http` arm at a seeded address; rescan with the previous ledger at the same address (control), then at a second seeded path on the same host (the model of the labeler names the host only) whose answers differ.',
       'The control rescan sends nothing; the rescan at the second address sends its requests there and every unit holds the label it gave.',
       'user-labeler:http-id-from-address',
       { ...cap, component: 'user-labeler', needs: ['scan', 'transport'] },

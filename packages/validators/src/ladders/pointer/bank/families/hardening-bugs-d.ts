@@ -27,7 +27,10 @@ const labelOf = (ledger: LedgerView, text: string): string | undefined =>
   liveByText(ledger, text)?.labels[SET]?.label;
 const pick = <T>(rng: Rng, list: readonly T[]): T => list[Math.floor(rng() * list.length)] as T;
 const other = (rng: Rng, not: readonly string[]): string =>
-  pick(rng, OPTIONS.filter((name) => !not.includes(name)));
+  pick(
+    rng,
+    OPTIONS.filter((name) => !not.includes(name)),
+  );
 function shuffled<T>(rng: Rng, list: readonly T[]): T[] {
   const out = [...list];
   for (let i = out.length - 1; i > 0; i -= 1) {
@@ -405,7 +408,9 @@ const relabelRuns: Record<string, Run> = {
     const texts = distinctSentences(prose(ctx), 6);
     const files = docOf(texts);
     const { first, second } = twoLabels(r, texts);
-    const address = () => `https://${word(r)}-${word(r)}.invalid/${word(r)}`;
+    // One host for both addresses: the model of an HTTP labeler names its host, so only its id differs.
+    const host = `${word(r)}-${word(r)}.invalid`;
+    const address = () => `https://${host}/${word(r)}/${word(r)}`;
     const urlA = address();
     let urlB = address();
     while (urlB === urlA) urlB = address();
