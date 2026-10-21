@@ -6,7 +6,7 @@ This bank is authored from `docs/estate-pointer-reader.md` at design commit
 reader implementation, its tests, or PR 692's code diff. Existing ladder banks
 were read only for their item and ladder conventions. All data is fictional.
 
-`pointerBank()` returns 341 items: 40 labels items, 31 adversarial items and 30 in every other required family. The two items `json-prefixed-with-prose` and `json-suffixed-with-prose` are `spec-changed`: `docs/estate-pointer-reader.md` section 3, validation rule 1 ("one JSON object ... read from the text itself, from the only code fence of the text, or from the span between its first `{` and its last `}`"), now accepts a wrapped answer, so they plant an acceptance. `two-json-objects` plants a refusal for an answer with two objects. Each has an id,
+`pointerBank()` returns 343 items: 40 labels items, 31 adversarial items, 32 privacy items and 30 in every other required family. The two privacy items `privacy.fence-cr.record` and `privacy.comment-cr.record` are new (a source with lone-CR line ends: the private body behind the first line of an opaque unit is never in the request the model receives). The two items `json-prefixed-with-prose` and `json-suffixed-with-prose` are `spec-changed`: `docs/estate-pointer-reader.md` section 3, validation rule 1 ("one JSON object ... read from the text itself, from the only code fence of the text, or from the span between its first `{` and its last `}`"), now accepts a wrapped answer, so they plant an acceptance. `two-json-objects` plants a refusal for an answer with two objects. Each has an id,
 family, tier, level, component, cause, design citation, and seeded generator.
 `pointerLadder(adapter)` wraps them in five levels with threshold 1. The existing
 ladder runner owns first-failure stopping and all-level reporting. This factory is
@@ -53,9 +53,16 @@ the two input sets, but must not infer a cache miss when the reader returned a h
 The source fixture uses `output` as its normalized output-settings field.
 
 Privacy observations exercise the transport recorder and its public plan, before
-semantic label validation. A canned answer about a fenced source is recorder
-input, not a claim that the scanner should accept a label on an opaque unit.
-Opaque-label refusal is checked separately by the adversarial family.
+semantic label validation. A canned answer about a source with a unit to label is
+recorder input. The 6 items `privacy.fence.*` and `privacy.comment.*` are `spec-changed`:
+a fence or a comment is opaque, so a source whose only units are opaque holds nothing to
+label, and the reader sends no request for it (`docs/estate-pointer-reader.md` lines 102,
+231, 294 and 445: an opaque unit cannot be pointed at, and only a window with a unit to
+label is sent). Their first probe (the source with no public paragraph) therefore plants
+no key read, no fetch, no cache lookup, nothing stored, an empty label list and status
+`ok`, in every mode, with the usual counts-only plan; their second probe adds a public
+paragraph and keeps the request. Opaque-label refusal is checked separately by the
+adversarial family.
 
 ### Harness-owned privacy IO
 
