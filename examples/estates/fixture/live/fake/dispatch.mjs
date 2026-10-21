@@ -20,6 +20,10 @@
  * guards, by the event its settings name, so the real script in the copy decides; a reply atom gives the reply
  * act it declares. An atom whose quote the copy no longer holds at its file is not in force and sets off nothing:
  * that is how a mutant of the estate changes what the fake does.
+ *
+ * What a loaded skill holds comes from the map too (`unitPlan`): the references, scripts and dispatch links of the
+ * skill's atoms in force, the gates that order them and the forbid cases that refuse a call. The fake reads no word
+ * of a passage, so one structure in any wording or language gives one run.
  */
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
@@ -233,13 +237,16 @@ const folderOf = (file) => (file.includes('/') ? file.slice(0, file.lastIndexOf(
 
 /** The skill or helper atom whose folder or file holds the passage of an atom. */
 function carrierOf(atom, atoms) {
-  const file = atom.provenance.file;
+  const file = atom.provenance?.file;
+  if (typeof file !== 'string') return undefined;
   return [...atoms.values()]
     .filter((other) => {
-      if (other.kind === 'subagent') return other.provenance.file === file;
+      const own = other.provenance?.file;
+      if (typeof own !== 'string') return false;
+      if (other.kind === 'subagent') return own === file;
       if (other.kind !== 'skill') return false;
-      const folder = folderOf(other.provenance.file);
-      return other.provenance.file === file || (folder !== '' && file.startsWith(`${folder}/`));
+      const folder = folderOf(own);
+      return own === file || (folder !== '' && file.startsWith(`${folder}/`));
     })
     .sort((a, b) => b.provenance.file.length - a.provenance.file.length)[0];
 }
@@ -299,6 +306,89 @@ export function intentsOf(index, setOffAtoms, cwd) {
   return { units, reads, guards, replies };
 }
 
+/** The code spans of a quote, as the reader cuts them: markup, not words. */
+const codeSpans = (quote) => [...String(quote ?? '').matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
+
+/** The command a script atom runs: the code span of its own line that names the script, else its path. */
+function commandOf(script, folder) {
+  const path = script.fields.path;
+  const local = folder !== '' && path.startsWith(`${folder}/`) ? path.slice(folder.length + 1) : path;
+  const base = local.slice(local.lastIndexOf('/') + 1);
+  const names = new Set([path, local, `./${local}`, base, `./${base}`]);
+  return {
+    literal:
+      codeSpans(script.provenance.quote).find((span) =>
+        span.split(/\s+/).some((token) => names.has(token)),
+      ) ?? local,
+    folder,
+  };
+}
+
+/**
+ * What a loaded skill obliges the fake to do, from the atoms in force that the skill carries and the passages that
+ * no unit carries (the standing files), each from declared fields only; no word of a passage is read:
+ * - `actions`, in the order of their lines: a reference is a Read of the path the map located; a script is a Bash
+ *   call of the code span of its own line that names it; an obligation's `dispatches` link is an Agent call of the
+ *   helper it names, while that helper's atom is in force;
+ * - `gates`: each `ordered` evidence of a gate (`before`, `after`), with the file or the command it names first
+ *   (`first`, `path`) and, for two calls of one tool, the call that comes second (`second`);
+ * - `bans`: each declared `forbid` case of a passage (`fields.unitCases`: a tool and the material it may not take),
+ *   marked `conditional` when the passage holds a condition (`fields.condition`), which no field resolves.
+ * Paths and commands of a skill's passage are relative to the skill's folder; those of a standing passage, to the
+ * estate root.
+ */
+export function unitPlan(index, entry, cwd) {
+  const plan = { actions: [], gates: [], bans: [] };
+  const unit = [...index.atoms.values()].find(
+    (atom) =>
+      atom.kind === (entry.kind === 'skill' ? 'skill' : 'subagent') &&
+      atom.fields?.name === entry.name &&
+      typeof atom.provenance?.file === 'string',
+  );
+  if (!unit) return plan;
+  const folder = folderOf(unit.provenance.file);
+  const line = (atom) => atom.provenance?.startLine ?? 0;
+  const applying = [...index.atoms.values()]
+    .filter((atom) => atom !== unit && inForce(atom, cwd))
+    .map((atom) => ({ atom, carrier: carrierOf(atom, index.atoms) }))
+    .filter(({ carrier }) => carrier === unit || carrier === undefined)
+    .sort((a, b) => line(a.atom) - line(b.atom));
+  const add = (action) => {
+    if (!plan.actions.some((other) => other.kind === action.kind && other.literal === action.literal))
+      plan.actions.push(action);
+  };
+  for (const { atom, carrier } of applying) {
+    const fields = atom.fields ?? {};
+    const own = carrier === unit ? folder : '';
+    if (carrier === unit) {
+      if (atom.kind === 'reference' && text(fields.path))
+        add({ kind: 'Read', literal: fields.path, folder: '' });
+      if (atom.kind === 'script' && text(fields.path)) add({ kind: 'Bash', ...commandOf(atom, folder) });
+      for (const link of Array.isArray(fields.labelLinks) ? fields.labelLinks : []) {
+        const helper = link?.kind === 'dispatches' ? index.atoms.get(link.atom) : undefined;
+        if (helper?.kind === 'subagent' && text(helper.fields?.name) && inForce(helper, cwd))
+          add({ kind: 'Agent', literal: helper.fields.name, folder: '' });
+      }
+    }
+    if (atom.kind === 'gate')
+      for (const evidence of atom.evidence ?? [])
+        if (evidence?.type === 'ordered' && text(evidence.before) && text(evidence.after))
+          plan.gates.push({
+            before: evidence.before,
+            after: evidence.after,
+            first: text(fields.first),
+            second: text(fields.second),
+            path: text(fields.path),
+            folder: own,
+          });
+    const conditional = Array.isArray(fields.condition) && fields.condition.length > 0;
+    for (const unitCase of Array.isArray(fields.unitCases) ? fields.unitCases : [])
+      if (unitCase?.effect === 'forbid' && text(unitCase.tool) && text(unitCase.material))
+        plan.bans.push({ tool: unitCase.tool, material: unitCase.material, folder: own, conditional });
+  }
+  return plan;
+}
+
 /**
  * The reply act (`{ id, part }`) most atoms declare. On a tie the completion act, `report`, wins when it is among
  * the tied acts, else the first declared: a run that did its work reports it.
@@ -340,8 +430,8 @@ export function recoveryReads(index, cwd) {
 
 /**
  * The tool call that provokes a guard, from the rule the guard enforces: the rule's declared unit case for a tool
- * the matcher of the guard's hook covers (the settings give it), or the string its typed `command_not_run`
- * evidence names. A guard on a reply (Stop) is provoked by a reply longer than the limit the rule's
+ * the matcher of the guard's hook covers (the settings give it), the string its typed `command_not_run`
+ * evidence names, or, for a guard on Bash, the first code span of the rule. A guard on a reply (Stop) is provoked by a reply longer than the limit the rule's
  * `max_characters` evidence gives.
  */
 export function provocation(index, guard, matcher, covers) {
@@ -372,5 +462,12 @@ export function provocation(index, guard, matcher, covers) {
       )
         return { event, tool: 'Bash', material: entry.options.contains };
   }
+  // Else the command the rule quotes: the first code span the reader located in the rule (`fields.spans`), for a
+  // guard whose matcher covers Bash.
+  if (covers(matcher, 'Bash'))
+    for (const rule of rules) {
+      const span = (Array.isArray(rule.fields?.spans) ? rule.fields.spans : []).find(text);
+      if (span) return { event, tool: 'Bash', material: span };
+    }
   return undefined;
 }
