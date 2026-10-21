@@ -3,9 +3,9 @@ import { join } from 'node:path';
 import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
-import { askGrammar, declaredActs } from '../../src/ladders/estate/ask-grammar';
+import { declaredActs } from '../../src/ladders/estate/ask-grammar';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
-import { taskFamily, unsetAsks } from '../../src/ladders/estate/bank/genquality';
+import { fakeDispatch, taskFamily, unsetAsks } from '../../src/ladders/estate/bank/genquality';
 import type { MapAtom } from '../../src/ladders/estate/reference-ask';
 
 // The approved map of the Northwind fixture (fictional data): an atom that declares its act, and another one.
@@ -65,17 +65,30 @@ async function verdict(specs: ReturnType<typeof spec>[], testType = 'obligation'
   }
 }
 
+/** The fake's dispatch over the fixture's approved map, its bank and the grammar generated from the map. */
+const fake = () =>
+  fakeDispatch({
+    work: fixture.FIXTURE,
+    map: join(fixture.FIXTURE, 'approved.yaml'),
+    specs: [],
+    natives: [],
+    report: {},
+    checks: fixture.RUNNER_CHECKS,
+  });
+
 describe('gen.task judges an ask by the act the fake sets off', () => {
-  it('generates the grammar from the map: the declared act in every ask row, with its context', () => {
+  it('generates the grammar from the map: the declared act in every ask row, with a situation of the map', async () => {
     expect(ACTED).toBeDefined();
-    const asks = askGrammar(map.atoms).asks;
-    expect(asks[ASK]).toEqual([ACTED.id]);
+    const { setOff } = await fake();
+    expect(setOff(ASK)).toEqual([ACTED.id]);
     const late = 'Please propose a supplier email. When a shipment is late by more than two days.';
-    expect(asks[late]).toEqual([ACTED.id]);
-    expect(asks[NOT_SET_OFF]).toBeUndefined();
+    expect(setOff(late)).toEqual([ACTED.id]);
+    expect(setOff(NOT_SET_OFF)).toEqual([]);
+    // A situation slot takes a situation of the map, byte for byte, and nothing else.
+    expect(setOff('Please propose a supplier email. When a shipment is late.')).toEqual([]);
     const span = declaredActs(GATED)[0]?.text;
     expect(span).toBeDefined();
-    expect(asks[`Please handle this for me: ${span}.`]).toContain(GATED.id);
+    expect(setOff(`Please handle this for me: ${span}.`)).toContain(GATED.id);
   });
 
   it('control: an ask of the labelled governed-action span holds for the atom that carries it', async () => {
@@ -86,13 +99,13 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     expect(out).toEqual({ pass: true, detail: 'holds (1)' });
   });
 
-  it('takes no act from an atom that declares none, and an atom quote whole, never a slice of it', () => {
+  it('takes no act from an atom that declares none, and an atom quote whole, never a slice of it', async () => {
     expect(declaredActs(BARE)).toEqual([]);
     const quote = QUOTED.provenance?.quote as string;
-    const asks = askGrammar(map.atoms).asks;
-    expect(asks[`Please ${quote}.`]).toContain(QUOTED.id);
+    const { setOff } = await fake();
+    expect(setOff(`Please ${quote}.`)).toContain(QUOTED.id);
     const slice = quote.slice(0, quote.lastIndexOf(' '));
-    expect(asks[`Please ${slice}.`] ?? []).not.toContain(QUOTED.id);
+    expect(setOff(`Please ${slice}.`)).not.toContain(QUOTED.id);
   });
 
   it('refuses a code ask whose act id is no atom of the map', async () => {
@@ -142,9 +155,9 @@ describe('gen.task judges an ask by the act the fake sets off', () => {
     'No need to do anything: just tell me in one sentence what it would mean to propose a supplier email.';
 
   it('lists a hypothetical frame apart: the fake does not set off its atom, and it never counts as the act', async () => {
-    const grammar = askGrammar(map.atoms);
-    expect(grammar.asks[HYPOTHETICAL]).toBeUndefined();
-    expect(grammar.hypothetical[HYPOTHETICAL]).toEqual([ACTED.id]);
+    const { setOff, match } = await fake();
+    expect(setOff(HYPOTHETICAL)).toEqual([]);
+    expect(match(HYPOTHETICAL)).toEqual({ kind: 'hypothetical', atoms: [ACTED.id] });
     const out = await verdict([spec(HYPOTHETICAL, code(`${ACTED.id} (ask)`))]);
     expect(out).toMatchObject({ pass: false, detail: expect.stringContaining('carries no act') });
   });
