@@ -27,8 +27,10 @@ const freeze = JSON.parse(freezeBytes.toString('utf8')) as {
   secondaryRule: string;
   files: Record<string, string>;
 };
-if (hash(JSON.stringify(freeze.files)) !== freeze.pipelineHash
-  || freeze.files['examples/variables/conditions/round3.ts'] !== freeze.readerHash) {
+if (
+  hash(JSON.stringify(freeze.files)) !== freeze.pipelineHash ||
+  freeze.files['examples/variables/conditions/round3.ts'] !== freeze.readerHash
+) {
   throw new Error('invalid frozen manifest');
 }
 function frozenHashes() {
