@@ -115,7 +115,7 @@ describe('the act comes from the declared source, never from reading its words',
     }
   });
 
-  it('a gate the pointer reader built cites its labelled governed-action span in the quote', () => {
+  it('a gate the pointer reader built cites its whole trigger, never a cut of its quote', () => {
     const quote = 'Read `refs/berths.md` before **editing any berth file**.';
     const from = quote.indexOf('editing');
     const gate = atom('gate.harbour.read-berths', {
@@ -130,7 +130,7 @@ describe('the act comes from the declared source, never from reading its words',
     const out = codeAsk('trigger', [gate], []);
     expect(checked(out, [gate])).toBe('Please handle this for me: editing any berth file.');
     expect(out.build?.spans).toEqual([
-      { slot: 'act', atom: gate.id, field: 'governed-action', from, to: from + 22 },
+      { slot: 'act', atom: gate.id, field: 'fields.trigger', from: 0, to: 22 },
     ]);
   });
 
@@ -145,19 +145,28 @@ describe('the act comes from the declared source, never from reading its words',
       situation: 'Plans berths for visiting vessels. Use it for moorings.',
     });
     expect(checked(codeAsk('trigger', [described], []), [described])).toBe(
-      'Please handle this for me: Plans berths for visiting vessels.',
+      'Please handle this for me: Plans berths for visiting vessels. Use it for moorings..',
     );
   });
 
-  it('a skill or helper asks with a request routed to it, else the first sentence of its description', () => {
+  it('a skill or helper asks with a request routed to it, else its passage when that is its description', () => {
     const route = atom('route.standing.moor', { kind: 'route', fields: { ask: 'moor the ferry at quay 3' } });
     const routesOf = (id: string) => (id === unit.id ? [route] : []);
     expect(
       checked(codeAsk('trigger', [unit], [], false, undefined, undefined, { routesOf }), [unit, route]),
     ).toBe('Please moor the ferry at quay 3.');
-    const out = codeAsk('trigger', [unit], []);
-    expect(checked(out, [unit])).toBe('Please handle this for me: Plans berths for visiting vessels.');
-    expect(out.build?.spans[0]?.field).toBe('provenance.quote');
+    // The passage holds more than the description: no part of it is cut out.
+    expect(codeAsk('trigger', [unit], []).refused).toMatch(/no task/);
+    const own = atom('skill.dock.skill', {
+      kind: 'skill',
+      fields: { name: 'dock', description: 'Plans berths for visiting vessels.' },
+      provenance: { file: '.claude/skills/dock/SKILL.md', quote: 'Plans berths for visiting vessels.' },
+    });
+    const out = codeAsk('trigger', [own], []);
+    expect(checked(out, [own])).toBe('Please handle this for me: Plans berths for visiting vessels..');
+    expect(out.build?.spans).toEqual([
+      { slot: 'act', atom: own.id, field: 'provenance.quote', from: 0, to: 34 },
+    ]);
   });
 
   it('the same structure in another language gives the same template: no word is read', () => {
@@ -201,7 +210,7 @@ describe('the act comes from the declared source, never from reading its words',
     const estate = [tides, unit, rule];
     const out = codeAsk('trigger', [rule], [], false, undefined, undefined, { estate });
     expect(checked(out, estate)).toBe(
-      'Please handle this for me: Plans berths for visiting vessels. The user gives no vessel name.',
+      'Please read the tide table for a port. The user gives no vessel name.',
     );
     const standing = atom('instruction.standing.greet', { provenance: { quote: 'x', file: 'CLAUDE.md' } });
     expect(checked(codeAsk('trigger', [standing], [], false, undefined, undefined, { estate }), estate)).toBe(

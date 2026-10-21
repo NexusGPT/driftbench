@@ -68,7 +68,7 @@ describe('tasks from the atom being tested', () => {
     // With no declared clause, the rule is set off by the work of its unit, as written, with its situation.
     const bare: EstateAtom = { ...rule, fields: {} };
     expect(codeAsk('trigger', [bare, unit], []).text).toBe(
-      'Please handle this for me: Manage the editorial desk. When a correction arrives.',
+      'Please handle this for me: Manage the editorial desk.. When a correction arrives.',
     );
   });
   it('finds the task of a standing gate by its declared reference path, never the first skill', () => {

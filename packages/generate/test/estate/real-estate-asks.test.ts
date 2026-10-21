@@ -36,7 +36,7 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     );
     // With no route, the description is handed over as written.
     expect(codeAsk('trigger', [rule, owner], []).text).toBe(
-      'Please handle this for me: Holds the cycle count sheets of the warehouse.',
+      'Please handle this for me: Holds the cycle count sheets of the warehouse..',
     );
     expect(actOf([rule, owner], undefined, routesOf).source).toBe('route.standing.count (request)');
   });
@@ -151,7 +151,7 @@ describe('a reference to a navigation document is no test', () => {
       const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
       if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
       expect(parsed.spec.blocks[0]?.when).toEqual({
-        user: 'Please handle this for me: Counts stock in the aisles.',
+        user: 'Please handle this for me: Counts stock in the aisles..',
       });
     }
   });
