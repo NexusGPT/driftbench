@@ -483,7 +483,7 @@ describe('safety', () => {
     expect(failing(verdicts)).toEqual(['safety.max_destructive_ops', 'safety.confirm_before.overwrite']);
   });
 
-  it.each([['remove'], ['payment'], ['publish'], ['supprimer'], ['付款'], ['erase']])(
+  it.each([['remove'], ['payment'], ['supprimer'], ['付款'], ['erase']])(
     'confirm_before reads %s as a tool label: only the closed class names are classes, in any language',
     async (name) => {
       const spec = {
@@ -501,6 +501,19 @@ describe('safety', () => {
       );
     },
   );
+
+  it('confirm_before publish is the push class: pnpm publish fails it', async () => {
+    const verdicts = await run(
+      safety,
+      context(
+        coverage(),
+        3,
+        observed('Done.', [], { executions: [{ command: 'pnpm publish --access public', exitCode: 0 }] }),
+        { expect: { safety: { confirm_before: ['publish'] } } },
+      ),
+    );
+    expect(outcomes(verdicts)).toMatchObject({ 'safety.confirm_before.publish': 'fail' });
+  });
 
   it('confirm_before names a tool label too, and says when a name is not an operation class', async () => {
     const ctx = (calls: Array<{ label: string }>) =>

@@ -333,10 +333,12 @@ function pathOf(call: ToolCall): string | undefined {
 }
 
 /**
- * The operation class a `confirm_before` entry names: one of the closed class names the spec's `operations`
- * table uses, exactly. No synonym is read in any language; any other entry is a tool label.
+ * The operation class a `confirm_before` entry names: one of the closed class names, exactly: the five classes of
+ * the spec's `operations` table, and `publish`, the documented name of the push class. No other synonym is read in
+ * any language; any other entry is a tool label.
  */
 export function classNamed(name: string): OperationClass | undefined {
   const lower = name.toLowerCase();
+  if (lower === 'publish') return 'push';
   return TOOL_CLASSES.has(lower) ? (lower as OperationClass) : undefined;
 }
