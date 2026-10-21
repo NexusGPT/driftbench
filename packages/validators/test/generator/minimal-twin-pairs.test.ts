@@ -22,7 +22,11 @@ describe('minimality protects the first holder of each declared obligation, once
   const personas = generated.hidden.personas.filter(
     (entry) => !cover.spec.tags?.includes(`persona:${entry.id}`),
   );
-  const copyOf = (source: Generation['complete'][number], id: string, change?: (spec: typeof cover.spec) => void) => {
+  const copyOf = (
+    source: Generation['complete'][number],
+    id: string,
+    change?: (spec: typeof cover.spec) => void,
+  ) => {
     const spec = structuredClone(source.spec);
     spec.id = id;
     change?.(spec);
@@ -68,9 +72,10 @@ describe('minimality protects the first holder of each declared obligation, once
   });
 
   it('protects a written walk and its twin on another declared channel', async () => {
-    const [group] = await unprotectedOf([cover, copy('twin-channel', required(channels[0]))], [
-      [cover.spec.id, 'twin-channel'],
-    ]);
+    const [group] = await unprotectedOf(
+      [cover, copy('twin-channel', required(channels[0]))],
+      [[cover.spec.id, 'twin-channel']],
+    );
     expect(group).toEqual([]);
   }, 600_000);
 
@@ -157,12 +162,14 @@ describe('minimality protects the first holder of each declared obligation, once
 
   it('protects the first metamorphic family of a walk on a path and counts a second family as a repeat', async () => {
     const source = required(
-      generated.complete.find(({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic),
+      generated.complete.find(
+        ({ spec }) => (spec.metadata?.generated as { metamorphic?: unknown } | undefined)?.metamorphic,
+      ),
     );
     const family = (id: string, name: string) =>
       copyOf(source, id, (spec) => {
-        const meta = (spec.metadata?.generated as { metamorphic: { family: string } }).metamorphic;
-        meta.family = name;
+        const generatedMeta = required(spec.metadata?.generated) as { metamorphic: { family: string } };
+        generatedMeta.metamorphic.family = name;
       });
     const [group] = await unprotectedOf(
       [family('fam-a-1', 'A'), family('fam-a-2', 'A'), family('fam-b-1', 'B')],

@@ -2258,7 +2258,8 @@ async function obligationHolders(data: SeedData): Promise<{
     (block.persona === '' || personas.has(block.persona));
   const held = await data.memoized('obligation-holders', async () => {
     const bySpec = new Map<string, BlockRun[]>();
-    for (const block of (await data.runs()).blocks) bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
+    for (const block of (await data.runs()).blocks)
+      bySpec.set(block.spec, [...(bySpec.get(block.spec) ?? []), block]);
     const holder = new Map<string, string>();
     const hold = (obligation: string, spec: string): boolean => {
       if (!holder.has(obligation)) holder.set(obligation, spec);
@@ -2294,7 +2295,8 @@ async function obligationHolders(data: SeedData): Promise<{
       }
       if (head.family !== '' && hold(`family|${head.path}|${head.walk}`, head.family)) specs.add(spec);
       for (const block of own) {
-        if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec)) blocks.add(block.key);
+        if (block.injected && hold(`inject|${block.path}|${block.deviation ?? 'injection'}`, spec))
+          blocks.add(block.key);
         for (const cls of block.perturbed === '' ? [] : block.perturbed.split(','))
           if (hold(`perturb|${block.path}|${cls}`, spec)) blocks.add(block.key);
       }

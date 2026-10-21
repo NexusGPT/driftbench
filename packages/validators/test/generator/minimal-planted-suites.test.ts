@@ -30,7 +30,8 @@ describe('planted suites that keep a removable copy are flagged by the actual it
     entry.spec.id = id;
     if (change.channel === null) delete entry.spec.channel;
     else if (change.channel !== undefined) entry.spec.channel = change.channel;
-    if (change.persona === null) entry.spec.tags = entry.spec.tags?.filter((tag) => !tag.startsWith('persona:'));
+    if (change.persona === null)
+      entry.spec.tags = entry.spec.tags?.filter((tag) => !tag.startsWith('persona:'));
     else if (change.persona)
       entry.spec.tags = entry.spec.tags?.map((tag) =>
         tag.startsWith('persona:') ? `persona:${persona.id}` : tag,
@@ -40,7 +41,9 @@ describe('planted suites that keep a removable copy are flagged by the actual it
       if (!answer) throw new Error('missing lookup fixture');
       entry.spec.given = {
         ...entry.spec.given,
-        world: { tools: { lookup_record: { result: { ...(answer.result as object), reviewExtra: 'other' } } } },
+        world: {
+          tools: { lookup_record: { result: { ...(answer.result as object), reviewExtra: 'other' } } },
+        },
       };
     }
     return entry;
@@ -75,12 +78,18 @@ describe('planted suites that keep a removable copy are flagged by the actual it
   }, 600_000);
 
   it('a copy whose channel is missing: an absent value is no declared value of the axis', async () => {
-    const found = await verdict([copy('review-complete-context'), copy('review-missing-channel', { channel: null })]);
+    const found = await verdict([
+      copy('review-complete-context'),
+      copy('review-missing-channel', { channel: null }),
+    ]);
     expect(found.pass, found.detail).toBe(false);
   }, 600_000);
 
   it('a copy whose persona is missing: an absent value is no declared value of the axis', async () => {
-    const found = await verdict([copy('review-complete-context'), copy('review-missing-persona', { persona: null })]);
+    const found = await verdict([
+      copy('review-complete-context'),
+      copy('review-missing-persona', { persona: null }),
+    ]);
     expect(found.pass, found.detail).toBe(false);
   }, 600_000);
 }, 600_000);

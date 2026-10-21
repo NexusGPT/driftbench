@@ -676,7 +676,8 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         channel: spec.channel ?? '',
         persona: (spec.tags ?? []).filter((tag) => tag.startsWith('persona:')).join(','),
         family:
-          (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic?.family ?? '',
+          (spec.metadata?.generated as { metamorphic?: { family?: string } } | undefined)?.metamorphic
+            ?.family ?? '',
         perturbed: (spec.perturbations ?? [])
           .filter((entry) => entry.inject_at >= index)
           .map((entry) => entry.class)
