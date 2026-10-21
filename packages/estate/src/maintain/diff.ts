@@ -147,6 +147,20 @@ export const UnitsDiff = z.strictObject({
   rerun: z.array(UnitRef).describe('The units whose links rerun'),
   advisory: z.array(UnitRef).describe('The units whose links are reported and do not rerun'),
   whole: z.string().nullable().describe('Set when the whole suite reruns, with the reason'),
+  unlabeled: z
+    .array(
+      z.strictObject({
+        unit: z.string().min(1),
+        path: z.string().min(1),
+        quote: z.string(),
+        was: z.string().optional(),
+        fileAtoms: z.array(z.string().min(1)).describe('The atoms of the old map in the same file'),
+      }),
+    )
+    .optional()
+    .describe(
+      'Units that changed and on which the old map holds no atom: no test names them, a person reviews them',
+    ),
 });
 export type UnitsDiff = z.infer<typeof UnitsDiff>;
 
@@ -376,6 +390,20 @@ export function unitsDiff(before: EstateMap, ledgers: { before: Ledger; after: L
       .map(([unit, why]) => ({ unit, why, atoms: byUnit.get(unit) ?? [] }));
   const counts = Object.fromEntries(EDIT_CLASSES.map((name) => [name, 0])) as UnitsDiff['counts'];
   for (const change of changes) counts[change.class]++;
+  // A changed unit with no atom in the old map is invisible to the atom diff: the ledger still follows it by its
+  // text and place, so it is reported, with the atoms of its file, for the tests that cite that file.
+  const unlabeled = changes
+    .filter((change) => change.class === 'changed' && (byUnit.get(change.id) ?? []).length === 0)
+    .map((change) => ({
+      unit: change.id,
+      path: change.path,
+      quote: change.quote,
+      ...(change.was === undefined ? {} : { was: change.was }),
+      fileAtoms: before.atoms
+        .filter((atom) => atom.provenance.file === change.path)
+        .map((atom) => atom.id)
+        .sort(),
+    }));
   return {
     changes: changes
       .filter((change) => change.class !== 'unchanged')
@@ -391,6 +419,7 @@ export function unitsDiff(before: EstateMap, ledgers: { before: Ledger; after: L
     rerun: refs(rerun.units),
     advisory: refs(rerun.advisory),
     whole: rerun.whole,
+    ...(unlabeled.length === 0 ? {} : { unlabeled }),
   };
 }
 

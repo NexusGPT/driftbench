@@ -11,7 +11,7 @@
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-20T21:53:46.861Z",
+    "readAt": "2026-10-21T06:17:07.635Z",
     "hash": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260",
     "atoms": 118,
     "edges": 55
@@ -574,6 +574,282 @@
       }
     }
   ],
+  "units": {
+    "changes": [
+      {
+        "id": "qt2ddhzgws",
+        "class": "new",
+        "path": ".claude/skills/shipment-tracker/data/shipments.txt",
+        "quote": "NWX 123 sorted-at-depot 2026-03-04 NWX 1234 delivered 2026-03-05 DLV 123 out-for-delivery 2026-03-06 XDLV 123 held-at-customs 2026-03-09"
+      },
+      {
+        "id": "josrxaogo4",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "**R6.** Never run `git push --force` on any branch."
+      },
+      {
+        "id": "emz6tmbir7",
+        "class": "changed",
+        "path": "CLAUDE.md",
+        "quote": "**R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.",
+        "was": "**R7.** When a shipment is late by more than two days, tell the user and propose a supplier email."
+      },
+      {
+        "id": "jixkl7ilvt",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "**R8.** Do not invent order numbers, prices or dates; when a value is missing, ask the user for it."
+      },
+      {
+        "id": "xi6od5jvxp",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "**R11.** Never paste the contents of `.env` or any credential into a reply."
+      },
+      {
+        "id": "nm5qvlsrod",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "**R13.** Before you dispatch a helper agent, write its brief with the task, the files it may touch and the shape of its answer."
+      },
+      {
+        "id": "snwqcymbbi",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "**R17.** Report a number only when you read it in a file or a tool result during this session."
+      },
+      {
+        "id": "bluhvywt5m",
+        "class": "new",
+        "path": "CLAUDE.md",
+        "quote": "**R18.** Never approve a credit note above 500.00 EUR without naming the finance lead who agreed to it."
+      },
+      {
+        "id": "mx7vrgfrjv",
+        "class": "changed",
+        "path": "CLAUDE.md",
+        "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+        "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it."
+      },
+      {
+        "id": "oo7siohooi",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "## Routing"
+      },
+      {
+        "id": "tgaqoi6zai",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "the `ledger-auditor` agent"
+      },
+      {
+        "id": "bmndxkevkn",
+        "class": "changed",
+        "path": "CLAUDE.md",
+        "quote": "plan the delivery routes for the next two days",
+        "was": "plan the delivery routes for tomorrow"
+      },
+      {
+        "id": "tbishldklv",
+        "class": "context",
+        "path": "CLAUDE.md",
+        "quote": "the `route-planner` agent"
+      }
+    ],
+    "counts": {
+      "unchanged": 125,
+      "context": 8,
+      "moved": 0,
+      "changed": 3,
+      "deleted": 0,
+      "new": 2
+    },
+    "rerun": [
+      {
+        "unit": "6juqj4iyft",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r2-never-send-an-email-to"]
+      },
+      {
+        "unit": "7c77n3lgl5",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["register.standing.r1-always-answer-in-the-language"]
+      },
+      {
+        "unit": "7cv2d5ktjq",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": [
+          "gate.standing.read-claude-skills-invoice-reconcile-references",
+          "reference.standing.read-claude-skills-invoice-reconcile-references"
+        ]
+      },
+      {
+        "unit": "bmndxkevkn",
+        "why": ["changed"],
+        "atoms": ["route.standing.an-ask-to-plan-the-delivery"]
+      },
+      {
+        "unit": "emz6tmbir7",
+        "why": ["changed", "new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r7-when-a-shipment-is-late"]
+      },
+      {
+        "unit": "ggatj5jijq",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r16-if-a-tool-fails-twice"]
+      },
+      {
+        "unit": "h7d22dl6s4",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["register.standing.r9-ask-at-most-one-question"]
+      },
+      {
+        "unit": "hexjxf5hak",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r10-when-the-user-says-stop"]
+      },
+      {
+        "unit": "jixkl7ilvt",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r8-do-not-invent-order-numbers"]
+      },
+      {
+        "unit": "josrxaogo4",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r6-never-run-git-push-force"]
+      },
+      {
+        "unit": "mx7vrgfrjv",
+        "why": ["new unit bluhvywt5m beside it", "changed"],
+        "atoms": []
+      },
+      {
+        "unit": "ndszu34jlz",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["hazard.standing.r15-after-a-compaction-re-read"]
+      },
+      {
+        "unit": "nm5qvlsrod",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": []
+      },
+      {
+        "unit": "oeowulj3qm",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["gate.standing.read-before-edit-it"]
+      },
+      {
+        "unit": "snwqcymbbi",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r17-report-a-number-only-when"]
+      },
+      {
+        "unit": "woijaqquri",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r4-never-delete-a-file-under"]
+      },
+      {
+        "unit": "xi6od5jvxp",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["instruction.standing.r11-never-paste-the-contents-of"]
+      },
+      {
+        "unit": "zuie2qo5us",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": ["gate.standing.read-git-status-before-commit-to"]
+      }
+    ],
+    "advisory": [
+      {
+        "unit": "jixkl7ilvt",
+        "why": ["context"],
+        "atoms": ["instruction.standing.r8-do-not-invent-order-numbers"]
+      },
+      {
+        "unit": "josrxaogo4",
+        "why": ["context"],
+        "atoms": ["instruction.standing.r6-never-run-git-push-force"]
+      },
+      {
+        "unit": "nm5qvlsrod",
+        "why": ["context"],
+        "atoms": []
+      },
+      {
+        "unit": "oo7siohooi",
+        "why": ["context"],
+        "atoms": []
+      },
+      {
+        "unit": "snwqcymbbi",
+        "why": ["context"],
+        "atoms": ["instruction.standing.r17-report-a-number-only-when"]
+      },
+      {
+        "unit": "tbishldklv",
+        "why": ["context"],
+        "atoms": []
+      },
+      {
+        "unit": "tgaqoi6zai",
+        "why": ["context"],
+        "atoms": []
+      },
+      {
+        "unit": "xi6od5jvxp",
+        "why": ["context"],
+        "atoms": ["instruction.standing.r11-never-paste-the-contents-of"]
+      }
+    ],
+    "whole": "a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold",
+    "unlabeled": [
+      {
+        "unit": "mx7vrgfrjv",
+        "path": "CLAUDE.md",
+        "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+        "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
+        "fileAtoms": [
+          "gate.standing.read-before-edit-it",
+          "gate.standing.read-claude-memory-memory-md-before",
+          "gate.standing.read-claude-skills-invoice-reconcile-references",
+          "gate.standing.read-git-status-before-commit-to",
+          "hazard.standing.r15-after-a-compaction-re-read",
+          "instruction.standing.a-tracker-note-may-be-written",
+          "instruction.standing.every-task-follows-the-step-list",
+          "instruction.standing.never-report-a-task-as-done",
+          "instruction.standing.r10-when-the-user-says-stop",
+          "instruction.standing.r11-never-paste-the-contents-of",
+          "instruction.standing.r16-if-a-tool-fails-twice",
+          "instruction.standing.r17-report-a-number-only-when",
+          "instruction.standing.r2-never-send-an-email-to",
+          "instruction.standing.r4-never-delete-a-file-under",
+          "instruction.standing.r6-never-run-git-push-force",
+          "instruction.standing.r7-when-a-shipment-is-late",
+          "instruction.standing.r8-do-not-invent-order-numbers",
+          "invariant.standing.no-file-of-the-estate-is",
+          "invariant.standing.the-standing-instructions-stay-under-40000",
+          "reference.standing.read-claude-memory-memory-md",
+          "reference.standing.read-claude-skills-invoice-reconcile-references",
+          "reference.standing.read-claude-steps-json",
+          "register.standing.keep-every-reply-under-1-200",
+          "register.standing.lead-with-the-result-in-the",
+          "register.standing.never-use-the-words-obviously-or",
+          "register.standing.r1-always-answer-in-the-language",
+          "register.standing.r9-ask-at-most-one-question",
+          "register.standing.use-a-bullet-list-for-three",
+          "register.standing.write-amounts-with-the-currency-code",
+          "route.standing.an-ask-to-audit-the-ledger",
+          "route.standing.an-ask-to-know-where-a",
+          "route.standing.an-ask-to-plan-the-delivery",
+          "route.standing.an-ask-to-prepare-the-weekly",
+          "route.standing.an-ask-to-reconcile-an-invoice",
+          "route.standing.an-ask-to-write-to-or"
+        ]
+      }
+    ]
+  },
   "summary": {
     "added": 2,
     "removed": 0,

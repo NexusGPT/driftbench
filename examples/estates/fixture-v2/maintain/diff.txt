@@ -3,6 +3,8 @@ Estate diff: examples/estates/fixture/approved.yaml (db9e07132a1b) to examples/e
   Edges: 0 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
+  Units: 125 unchanged, 8 context, 0 moved, 3 changed, 0 deleted, 2 new.
+  The whole suite reruns: a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold.
 Added:
   + register.weekly-report.fill-the-template-in-this-order (register) .claude/skills/weekly-report/SKILL.md:11
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26

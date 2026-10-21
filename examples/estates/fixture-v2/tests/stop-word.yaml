@@ -4,7 +4,7 @@ kind: task
 title: Stop ends the work in one line
 target: { adapter: claude-code }
 metadata:
-  estate: { atoms: [hazard.standing.r10-when-the-user-says-stop] }
+  estate: { atoms: [instruction.standing.r10-when-the-user-says-stop] }
 blocks:
   - user: stop
     expect:

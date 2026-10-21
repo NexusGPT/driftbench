@@ -223,6 +223,20 @@ export const ImpactReport = z.strictObject({
     .strictObject({
       rerun: z.array(UnitTest).describe('Tests to rerun as they are: a unit their atoms sit on reruns'),
       advisory: z.array(UnitTest).describe('Tests reported only: a unit their atoms sit on is advisory'),
+      unlabeled: z
+        .array(
+          z.strictObject({
+            unit: z.string().min(1),
+            path: z.string().min(1),
+            quote: z.string(),
+            was: z.string().optional(),
+            tests: z
+              .array(z.string())
+              .describe("Live tests that cite an atom of the unit's file: touched, not regenerated"),
+          }),
+        )
+        .optional()
+        .describe('Changed units no atom covers: no test to regenerate, a person reviews them'),
     })
     .optional()
     .describe('What the ledger units of the diff do to the tests; present when the diff read the ledgers'),
@@ -307,10 +321,29 @@ export function estateImpact(
     }
     return out;
   };
+  // A changed unit with no atom: no test names it, so none is regenerated; the tests that cite its file are touched.
+  const unlabeledTouched = new Set<string>();
+  const unlabeled = (diff.units?.unlabeled ?? []).map((entry) => {
+    const cited = live.filter((test) => test.atoms.some((atom) => entry.fileAtoms.includes(atom)));
+    for (const test of cited) unlabeledTouched.add(`${test.file}\0${test.id}`);
+    return {
+      unit: entry.unit,
+      path: entry.path,
+      quote: entry.quote,
+      ...(entry.was === undefined ? {} : { was: entry.was }),
+      tests: cited.map((test) => test.id).sort(),
+    };
+  });
   const units = diff.units
-    ? { rerun: unitTests(diff.units.rerun), advisory: unitTests(diff.units.advisory) }
+    ? {
+        rerun: unitTests(diff.units.rerun),
+        advisory: unitTests(diff.units.advisory),
+        ...(unlabeled.length === 0 ? {} : { unlabeled }),
+      }
     : undefined;
+  const rerunKeys = new Set((units?.rerun ?? []).map((entry) => `${entry.file}\0${entry.test}`));
   untouched -= units?.rerun.length ?? 0;
+  untouched -= [...unlabeledTouched].filter((key) => !touched.has(key) && !rerunKeys.has(key)).length;
 
   for (const test of tests) {
     if (test.retired === undefined) continue;
@@ -362,6 +395,10 @@ export function estateImpact(
     ),
     ...fresh.map((entry) => `approve the tests of the new atom ${entry.atom}: no test covers it yet`),
     ...guards.flatMap((entry) => (entry.need === null ? [] : [entry.need])),
+    ...unlabeled.map(
+      (entry) =>
+        `review the unlabeled unit ${entry.unit} in ${entry.path}: it changed and no atom covers it${entry.tests.length > 0 ? `; ${entry.tests.length} ${entry.tests.length === 1 ? 'test cites' : 'tests cite'} its file` : ''}`,
+    ),
     ...(options.regression ? regressionNeeds(options.regression) : []),
   ];
 
@@ -503,6 +540,13 @@ export function renderImpact(report: ImpactReport): string {
       for (const entry of report.units.rerun)
         lines.push(
           `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} on ${item.unit}, ${item.why.join('; ')}`).join(', ')}`,
+        );
+    }
+    if ((report.units.unlabeled ?? []).length > 0) {
+      lines.push('Changed, unlabeled: no tests to regenerate, review it:');
+      for (const entry of report.units.unlabeled ?? [])
+        lines.push(
+          `  ${entry.unit} (${entry.path}): ${entry.was === undefined ? '' : `${entry.was} | `}${entry.quote}${entry.tests.length > 0 ? `; tests that cite the file: ${entry.tests.join(', ')}` : ''}`,
         );
     }
     if (report.units.advisory.length > 0) {

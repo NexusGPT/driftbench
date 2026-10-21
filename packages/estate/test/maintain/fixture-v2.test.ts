@@ -12,6 +12,7 @@ import {
   loadEstateTests,
   loadGuardState,
   parseEstateDiff,
+  pointer,
   scanEstate,
 } from '../../src/index';
 import type { EstateMap } from '../../src/schema';
@@ -23,10 +24,9 @@ const NEW_PATH = 'examples/estates/fixture-v2/map.yaml';
 
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const ROUTE = 'route.standing.an-ask-to-plan-the-delivery';
-const R11 = 'instruction.standing.r11-never-paste-the-contents-of';
-const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
+const R2 = 'instruction.standing.r2-never-send-an-email-to';
 const R18 = 'instruction.standing.r18-never-approve-a-credit-note';
-const R19 = 'instruction.standing.r19-when-r18-applies-and-the';
+const FILL = 'register.weekly-report.fill-the-template-in-this-order';
 const LEDGER = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 
 async function map(path: string): Promise<EstateMap> {
@@ -41,10 +41,19 @@ async function fresh(): Promise<EstateDiff> {
   const oldState = await loadGuardState(join(V2, 'maintain', 'guard-state.v1.yaml'), before, true);
   const newState = await loadGuardState(join(V2, 'guard-state.yaml'), after, true);
   if (!oldState.ok || !newState.ok) throw new Error('the guard states do not fit their maps');
+  const ledger = async (path: string) => {
+    const parsed = pointer.parseLedger(await readFile(path, 'utf8'));
+    if (!parsed) throw new Error(`${path} is not a ledger`);
+    return parsed;
+  };
   return diffEstateMaps(before, after, {
     oldPath: OLD_PATH,
     newPath: NEW_PATH,
     guards: diffGuardStates(oldState.state, newState.state),
+    ledgers: {
+      before: await ledger(join(FIXTURE, 'ledger.json')),
+      after: await ledger(join(V2, 'ledger.json')),
+    },
   });
 }
 
@@ -65,17 +74,23 @@ describe('the fixture-v2 estate', () => {
 
   it('diffs against the first version with every planted case and nothing else', async () => {
     const diff = await fresh();
-    // R12 is removed and R19 added at the same line of the standing file, and the ledger keeps the unit there:
-    // a rule removed and another added at the same ledger unit read as one changed rule, under R12's id.
+    // R2 wraps onto two lines (white space only); R7 and the route planner's request change their meaning.
     expect(diff.atoms.changed.map((entry) => [entry.id, entry.change, entry.now ?? null])).toEqual([
+      [R2, 'whitespace', null],
       [R7, 'semantic', null],
       [ROUTE, 'semantic', null],
-      [R12, 'semantic', R19],
     ]);
     expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([]);
-    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18]);
-    expect(diff.edges.added).toEqual([{ from: R19, to: R18, kind: 'cites' }]);
+    // R18 is new. The weekly report's order line is labelled in this version only: the first version left it
+    // unlabeled (a three-way split of its runs), so it reads as added.
+    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([FILL, R18]);
+    expect(diff.edges.added).toEqual([]);
     expect(diff.edges.removed).toEqual([]);
+    // R12 is removed and R19 written at its place: the ledger keeps the unit, so it is one changed unit. No atom
+    // covers it in the first version (its runs split), so the atom diff cannot see it; the units diff does.
+    expect(
+      diff.units?.unlabeled?.map((entry) => [entry.path, entry.was?.slice(0, 8), entry.quote.slice(0, 8)]),
+    ).toEqual([['CLAUDE.md', '**R12.**', '**R19.**']]);
     expect(diff.guards?.filter((entry) => entry.move !== 'unchanged')).toEqual([
       {
         guard: LEDGER,
@@ -93,18 +108,19 @@ describe('the fixture-v2 estate', () => {
     expect(diff.guards).toHaveLength(6);
     // A unit whose neighbours changed is read again: the label of two of them came back with other evidence.
     expect(diff.atoms.restated.map((entry) => [entry.id, entry.fields])).toEqual([
-      [R11, ['evidence', 'fields']],
+      ['instruction.standing.r8-do-not-invent-order-numbers', ['situation', 'evidence', 'fields']],
+      ['instruction.standing.r17-report-a-number-only-when', ['situation', 'fields']],
       ['invariant.standing.the-standing-instructions-stay-under-40000', ['fields']],
     ]);
     expect(diff.summary).toEqual({
-      added: 1,
+      added: 2,
       removed: 0,
-      whitespace: 0,
-      semantic: 3,
-      moved: 23,
-      restated: 2,
-      unchanged: 100,
-      edgesAdded: 1,
+      whitespace: 1,
+      semantic: 2,
+      moved: 25,
+      restated: 3,
+      unchanged: 86,
+      edgesAdded: 0,
       edgesRemoved: 0,
     });
   });
@@ -124,24 +140,39 @@ describe('the fixture-v2 estate', () => {
     expect(report).toEqual(committed);
 
     expect(report.regenerate.map((entry) => [entry.test, entry.atoms.map((item) => item.why)])).toEqual([
-      ['northwind-draft-pair', ['semantic']],
       ['northwind-late-shipment', ['semantic']],
       ['northwind-ledger-archive', ['guard_state']],
       ['northwind-route-planner', ['semantic']],
-      ['northwind-unsent-draft', ['semantic']],
     ]);
-    // The tests of R12 are rerun and wait for re-approval, as for any changed rule; none is retired.
     expect(report.reapprove.map((entry) => [entry.atom, entry.tests])).toEqual([
       [R7, ['northwind-late-shipment']],
       [ROUTE, ['northwind-route-planner']],
-      [R12, ['northwind-draft-pair', 'northwind-unsent-draft']],
     ]);
     expect(report.retire).toEqual([]);
-    expect(report.new.map((entry) => entry.atom)).toEqual([R18]);
+    expect(report.new.map((entry) => entry.atom)).toEqual([FILL, R18]);
+    // R12 to R19: no test to regenerate, a person reviews it, and the tests that cite the standing file are touched.
+    expect(report.units?.unlabeled?.map((entry) => [entry.path, entry.tests])).toEqual([
+      [
+        'CLAUDE.md',
+        [
+          'northwind-draft-pair',
+          'northwind-force-push',
+          'northwind-late-shipment',
+          'northwind-ledger-archive',
+          'northwind-route-planner',
+          'northwind-stop-word',
+          'northwind-supplier-yes',
+        ],
+      ],
+    ]);
+    expect(report.needsPerson).toContainEqual(
+      expect.stringMatching(/^review the unlabeled unit \S+ in CLAUDE\.md/),
+    );
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    expect(report.unaffected).toEqual({ moved: 23, tests: 3 });
-    expect(report.needsPerson).toHaveLength(4);
+    // unsent-draft names only R12's first-version atom, which no longer exists: no change can reach it.
+    expect(report.unaffected).toEqual({ moved: 25, tests: 1 });
+    expect(report.needsPerson).toHaveLength(5);
   });
 });

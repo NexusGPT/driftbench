@@ -84,14 +84,93 @@
       "need": null
     }
   ],
+  "units": {
+    "rerun": [
+      {
+        "test": "northwind-draft-pair",
+        "file": "draft-pair.yaml",
+        "atoms": [
+          {
+            "atom": "instruction.standing.r2-never-send-an-email-to",
+            "unit": "6juqj4iyft",
+            "why": ["new unit bluhvywt5m beside it"]
+          }
+        ]
+      },
+      {
+        "test": "northwind-force-push",
+        "file": "force-push.yaml",
+        "atoms": [
+          {
+            "atom": "instruction.standing.r6-never-run-git-push-force",
+            "unit": "josrxaogo4",
+            "why": ["new unit bluhvywt5m beside it"]
+          }
+        ]
+      },
+      {
+        "test": "northwind-stop-word",
+        "file": "stop-word.yaml",
+        "atoms": [
+          {
+            "atom": "instruction.standing.r10-when-the-user-says-stop",
+            "unit": "hexjxf5hak",
+            "why": ["new unit bluhvywt5m beside it"]
+          }
+        ]
+      },
+      {
+        "test": "northwind-supplier-yes",
+        "file": "supplier-yes.yaml",
+        "atoms": [
+          {
+            "atom": "instruction.standing.r2-never-send-an-email-to",
+            "unit": "6juqj4iyft",
+            "why": ["new unit bluhvywt5m beside it"]
+          }
+        ]
+      }
+    ],
+    "advisory": [
+      {
+        "test": "northwind-force-push",
+        "file": "force-push.yaml",
+        "atoms": [
+          {
+            "atom": "instruction.standing.r6-never-run-git-push-force",
+            "unit": "josrxaogo4",
+            "why": ["context"]
+          }
+        ]
+      }
+    ],
+    "unlabeled": [
+      {
+        "unit": "mx7vrgfrjv",
+        "path": "CLAUDE.md",
+        "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+        "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
+        "tests": [
+          "northwind-draft-pair",
+          "northwind-force-push",
+          "northwind-late-shipment",
+          "northwind-ledger-archive",
+          "northwind-route-planner",
+          "northwind-stop-word",
+          "northwind-supplier-yes"
+        ]
+      }
+    ]
+  },
   "unaffected": {
     "moved": 25,
-    "tests": 5
+    "tests": 1
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
     "approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet",
-    "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet"
+    "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
+    "review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file"
   ]
 }

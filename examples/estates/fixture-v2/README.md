@@ -29,16 +29,22 @@ Files:
   `examples/estates/fixture/approved.yaml` (kept here because that folder belongs to another lane).
 - `tests/`: eight version 1 tests, each naming its atoms under `metadata.estate.atoms`.
 - `maintain/diff.json`, `maintain/diff.txt`: the diff of the first version against this one.
-- `maintain/impact.json`, `maintain/impact.txt`: the impact of that diff on `tests/` (exit 1: three atoms
-  wait for re-approval and one new atom has no test).
+- `maintain/impact.json`, `maintain/impact.txt`: the impact of that diff on `tests/` (exit 1: two atoms
+  wait for re-approval, two new atoms have no test, and R12's unit, which no atom covers, changed to R19 and
+  waits for a person).
+- `ledger.json`: the ledger of this version, written by the scan from the ledger of the first version; the diff
+  reads both, so a changed unit no atom covers is still reported.
 
 Made from the repository root with:
 
 ```
-pnpm driftbench estate scan examples/estates/fixture-v2 --runtime claude-code \
-  --replay examples/estates/fixture-v2/answers.yaml --out examples/estates/fixture-v2/map.yaml
+cp examples/estates/fixture/ledger.json examples/estates/fixture-v2/ledger.json
+pnpm driftbench estate scan examples/estates/fixture-v2 --runtime claude-code --pointer \
+  --cassette examples/estates/fixture-v2/cassette.jsonl --ledger examples/estates/fixture-v2/ledger.json --update \
+  --out examples/estates/fixture-v2/map.yaml
 pnpm driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml \
   --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml \
+  --old-ledger examples/estates/fixture/ledger.json --new-ledger examples/estates/fixture-v2/ledger.json \
   --out examples/estates/fixture-v2/maintain/diff.json > examples/estates/fixture-v2/maintain/diff.txt
 pnpm driftbench estate impact examples/estates/fixture-v2/maintain/diff.json \
   --tests examples/estates/fixture-v2/tests \

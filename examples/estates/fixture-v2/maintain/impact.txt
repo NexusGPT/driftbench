@@ -1,5 +1,5 @@
 Impact of the estate diff db9e07132a1b to 0c62ba644a29 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 3, re-approve 2, retire 0, new 2; 5 tests untouched, 25 atoms moved with the same quote.
+  Regenerate 3, re-approve 2, retire 0, new 2; 1 test untouched, 25 atoms moved with the same quote.
 Regenerate:
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
@@ -14,8 +14,18 @@ New atoms with no test:
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
+Rerun as they are, a unit their atoms sit on reruns:
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.r2-never-send-an-email-to on 6juqj4iyft, new unit bluhvywt5m beside it
+  northwind-force-push (force-push.yaml): instruction.standing.r6-never-run-git-push-force on josrxaogo4, new unit bluhvywt5m beside it
+  northwind-stop-word (stop-word.yaml): instruction.standing.r10-when-the-user-says-stop on hexjxf5hak, new unit bluhvywt5m beside it
+  northwind-supplier-yes (supplier-yes.yaml): instruction.standing.r2-never-send-an-email-to on 6juqj4iyft, new unit bluhvywt5m beside it
+Changed, unlabeled: no tests to regenerate, review it:
+  mx7vrgfrjv (CLAUDE.md): **R12.** When R2 applies and the user has not answered, keep the draft and do not send it. | **R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.; tests that cite the file: northwind-draft-pair, northwind-force-push, northwind-late-shipment, northwind-ledger-archive, northwind-route-planner, northwind-stop-word, northwind-supplier-yes
+Advisory only, a unit their atoms sit on has other neighbours or moved:
+  northwind-force-push (force-push.yaml): instruction.standing.r6-never-run-git-push-force on josrxaogo4
+Needs a person: 5.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
   - approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
+  - review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file
