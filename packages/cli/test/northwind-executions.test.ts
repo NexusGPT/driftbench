@@ -12,7 +12,7 @@ afterEach(async () => {
   for (const path of temporary.splice(0)) await rm(path, { recursive: true, force: true });
 });
 
-async function exercise(command: string, read: 'before' | 'after' | 'none' | 'history', block = 'ask') {
+async function workspaceFixture() {
   const root = await mkdtemp(join(tmpdir(), 'northwind-execution-'));
   temporary.push(root);
   const scripts = join(root, '.claude/skills/invoice-reconcile/scripts');
@@ -27,13 +27,17 @@ async function exercise(command: string, read: 'before' | 'after' | 'none' | 'hi
   const rule = join(root, '.claude/skills/invoice-reconcile/references/matching-rules.md');
   await mkdir(join(root, '.claude/skills/invoice-reconcile/references'), { recursive: true });
   await writeFile(rule, 'Read these matching rules before reconciliation.\n');
+  return { root, rule, log: '.claude/northwind/reconcile-executions.jsonl' };
+}
+
+async function exercise(command: string, read: 'before' | 'after' | 'none' | 'history', block = 'ask') {
+  const { root, rule, log } = await workspaceFixture();
   const readCall = async () => {
     const start = Date.now();
     const output = await readFile(rule, 'utf8');
     return { label: 'Read', input: { file_path: rule }, output, startedAt: new Date(start).toISOString(), latencyMs: Date.now() - start };
   };
   const before = read === 'before' || read === 'history' ? await readCall() : undefined;
-  const log = '.claude/northwind/reconcile-executions.jsonl';
   const adapter = harness.executionLogAdapter({
     readArtifact: async (_session: unknown, path: string) => readFile(join(root, path)),
     send: async () => {
@@ -51,6 +55,11 @@ async function exercise(command: string, read: 'before' | 'after' | 'none' | 'hi
     block: { id: block }, blockIndex: 1, observed,
     history: read === 'history' ? [{ observed: { toolCalls: [before] } }] : [],
   });
+  const redirected = await readFile(join(root, 'redirected.jsonl')).catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== 'ENOENT') throw error;
+    return undefined;
+  });
+  expect(redirected).toBeUndefined();
   return { events: observed.raw.northwindReconcileExecutions, verdicts };
 }
 
@@ -101,4 +110,16 @@ it('still requires an actual execution in the reconcile block', async () => {
   const result = await exercise('echo scripts/reconcile.py', 'before', 'reconcile');
   expect(result.events).toHaveLength(0);
   expect(result.verdicts).toContainEqual(expect.objectContaining({ outcome: 'fail' }));
+});
+
+it('exits before reconciliation if its fixed execution log cannot be written', async () => {
+  const { root, log } = await workspaceFixture();
+  await mkdir(join(root, log), { recursive: true });
+  const result = await exec('/bin/sh', ['-c', 'python scripts/reconcile.py invoice.json order.json'], {
+    cwd: root, env: { PATH: process.env.PATH },
+  }).then((output) => ({ code: 0, stdout: output.stdout, stderr: output.stderr }),
+    (error: { code: number; stdout: string; stderr: string }) => error);
+  expect(result.code).not.toBe(0);
+  expect(result.stdout).not.toContain('matched');
+  expect(result.stderr).toContain('reconcile-executions.jsonl');
 });

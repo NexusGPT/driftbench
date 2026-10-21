@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter } from '@agent-nexus/driftbench-adapters';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
-import { EXECUTION_LOG, executionLogAdapter, invoicePrerequisite } from './executions.mjs';
+import { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
 export { executionLogAdapter, invoicePrerequisite } from './executions.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -77,7 +77,6 @@ export default async function plugin(api) {
       provider: localProvider(),
       config: 'isolated',
       env: {
-        NORTHWIND_RECONCILE_LOG: EXECUTION_LOG,
         ...(standIn || process.env.ANTHROPIC_API_KEY === undefined ? {} : { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }),
       },
       lock: { deny: [join(homedir(), '.nexus-secrets')] },
