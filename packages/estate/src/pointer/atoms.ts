@@ -171,6 +171,7 @@ export function pointerAtoms(
     conditions.set(key, [...(conditions.get(key) ?? []), item]);
   }
   const attached = new Set<string>();
+  const annotations: Array<{ path: string; unit: string; fields: Record<string, unknown> }> = [];
   for (const item of labelled) {
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
@@ -308,6 +309,14 @@ export function pointerAtoms(
           );
           continue;
         }
+        if (label?.annotate) {
+          // An annotation builds nothing: its fields go to the atoms other labels built for this unit.
+          const added = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+          if (added !== UNRESOLVED && Object.keys(added as Record<string, unknown>).length > 0)
+            annotations.push({ path: item.path, unit: item.id, fields: added as Record<string, unknown> });
+          kept = true;
+          continue;
+        }
         const same = builder.atoms.find(
           (other) =>
             other.kind === mapping.kind &&
@@ -426,6 +435,12 @@ export function pointerAtoms(
       }
     }
     if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+  }
+  for (const note of annotations) {
+    for (const atom of accepted) {
+      if (atom.fields?.unit !== note.unit || atom.provenance.file !== note.path) continue;
+      atom.fields = { ...note.fields, ...atom.fields };
+    }
   }
   for (const items of conditions.values()) {
     for (const condition of items) {

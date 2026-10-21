@@ -81,6 +81,11 @@ export const Label = z.strictObject({
   description: z.string().min(1),
   examples: z.array(z.string().min(1)).max(3).optional(),
   target: z.literal('required').optional(),
+  /**
+   * A unit with this label builds no atom of its own: the `fields` of its mapping are filled from its spans and links
+   * and added to the atoms that labels of other sets built for the same unit (a key the atom already holds stays).
+   */
+  annotate: z.literal(true).optional(),
   /** A unit with this label states when its target unit applies: it becomes the situation of the target's atom. */
   condition: z.literal(true).optional(),
   /** The span kinds a unit with this label may carry. */
