@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { feedFromConditions } from '../../src/feed/conditions';
+import { fixtureStore } from './support';
 import { createJudgeConditionReader } from '../../src/feed/judge-reader';
 
 const questions = [
@@ -27,6 +29,16 @@ describe('condition candidates through the repository system-1 judge port', () =
     const judge = vi.fn(async () => ({ answer: { outcome: 'inconclusive' as const }, unparsed: true }));
     const reader = createJudgeConditionReader({ id: 'jev', cls: 'system1', family: 'jev', judge });
     expect(await reader.read('clause', questions)).toEqual({ 'delay/one': undefined, 'delay/two': undefined });
+    const propose = vi.fn(async () => undefined);
+    const result = await feedFromConditions({
+      store: fixtureStore(),
+      spans: [{ id: 's', path: 'fictional.md', quote: 'clause' }],
+      texts: new Map([['fictional.md', 'clause']]),
+      reader, proposer: { id: 'fictional', propose },
+      options: { decide: { yesAt: 0.5, noAt: 0.5 } },
+    });
+    expect(result.report.outcomes).toMatchObject([{ span: 's', status: 'unsure', values: [] }]);
+    expect(propose).not.toHaveBeenCalled();
   });
 
   it('refuses a free-form system-2 client and choice questions before any call', async () => {
