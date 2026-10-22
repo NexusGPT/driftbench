@@ -60,7 +60,7 @@ describe('run counts, failed recordings and the model key', { timeout: 600_000 }
     expect(out.failed.map((f) => f.id)).toEqual([FAILED]);
   });
 
-  it('a reader that prints the key fails the model-key item', async () => {
+  it('a reader that prints the key only on the Jev arm fails the model-key item', async () => {
     const out = await tally(referenceSut(), only([KEY]), 1, LEAKY);
     expect(out.failed.map((f) => f.id)).toEqual([KEY]);
   });
