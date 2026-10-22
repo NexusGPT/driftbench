@@ -38,6 +38,9 @@ export const SPAN_RULE =
   'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
   'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
 
+/** Added to the system text only for a set with a label that asks for a target, so other sets keep their requests. */
+export const TARGET_RULE = 'A label that asks for a target always names one.';
+
 /** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
 function spanLines(set: LabelSet, context: LabelContext): string[] {
   const lines: string[] = [];
@@ -86,7 +89,6 @@ export const DENSE_SYSTEM =
   'Every unit must appear once. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
   'A line marked not labelable takes no label, not even none: leave its number out of the answer. ' +
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
-  'A label that asks for a target always names one. ' +
   'A target must be a unit that can be labelled, never a line marked not labelable. ' +
   'Never copy text from the units.';
 
@@ -276,7 +278,11 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        system: [
+          DENSE_SYSTEM,
+          ...(set.spans || set.links ? [SPAN_RULE] : []),
+          ...(set.labels.some((label) => label.target === 'required') ? [TARGET_RULE] : []),
+        ].join(' '),
         messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),

@@ -11,6 +11,7 @@ import {
   type LabelSet,
   parseDenseAnswer,
   SPAN_RULE,
+  TARGET_RULE,
 } from '../../src/pointer';
 import { BAKERY, type Call, fakeFetch, load, windowOf } from './support';
 
@@ -33,7 +34,7 @@ describe('the dense request', () => {
   });
 
   it('tells the labeler in the first request that a line marked not labelable takes no label, none included', () => {
-    expect(DENSE_SYSTEM).toContain('A label that asks for a target always names one.');
+    expect(DENSE_SYSTEM).not.toContain('asks for a target always');
     expect(DENSE_SYSTEM).toContain(
       'A line marked not labelable takes no label, not even none: leave its number out of the answer.',
     );
@@ -352,6 +353,19 @@ describe('the dense request for a set with spans and links', () => {
     expect(body.system).toBe(DENSE_SYSTEM);
     expect(body.messages[0]?.content).not.toContain('SPAN KINDS');
     expect(body.messages[0]?.content).not.toContain('LINK KINDS');
+  });
+
+  it('adds the target rule to the system text only for a set with a label that asks for a target, byte for byte otherwise', () => {
+    const ask = createAnthropicLabeler().render(RULES, windowOf(2)).body as { system: string };
+    expect(ask.system).toContain(TARGET_RULE);
+    expect(TARGET_RULE).toBe('A label that asks for a target always names one.');
+    // A set with no such label, with or without spans, keeps the system text it had.
+    expect((createAnthropicLabeler().render(BAKE, windowOf(2)).body as { system: string }).system).toBe(
+      DENSE_SYSTEM,
+    );
+    expect(
+      (createAnthropicLabeler().render(WITH, windowOf(2), context).body as { system: string }).system,
+    ).toBe(`${DENSE_SYSTEM} ${SPAN_RULE}`);
   });
 
   it('names the span kinds, the link kinds and the candidates, and adds the span rule to the system text', () => {
