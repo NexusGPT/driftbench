@@ -22,7 +22,7 @@ const row = (atomIds: string[], extra: Partial<EstatePlanRow> = {}): EstatePlanR
   ...extra,
 });
 
-function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
+function textOf(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
   const result = generateEstateSuite(
     {
       map: { runtime: 'claude-code', hash: 'desk', atoms },
@@ -31,14 +31,25 @@ function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[]
     },
     { fallback: true, paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' } },
   );
-  const text = result.files.find((file) => file.path.endsWith('.yaml'))?.text ?? '';
+  return result.files.find((file) => file.path.endsWith('.yaml'))?.text ?? '';
+}
+
+function links(atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[] = []) {
+  const text = textOf(atoms, rows, situations);
   const found = [...text.matchAll(/rule: (\S+)[\s\S]*?relation: (\w+)/g)].map((m) => [m[1], m[2]]);
   return Object.fromEntries(found);
 }
 
-it('verifies the first atom of a row and only exercises the duties placed beside it', () => {
+it('gives each duty placed beside the first atom a block of its own that verifies it', () => {
   const result = links([duty('a'), duty('b'), duty('c')], [row(['a', 'b', 'c'])]);
-  expect(result).toMatchObject({ a: 'verifies', b: 'exercises', c: 'exercises' });
+  expect(result).toMatchObject({ a: 'verifies', b: 'verifies', c: 'verifies' });
+  expect(textOf([duty('a'), duty('b'), duty('c')], [row(['a', 'b', 'c'])])).toMatch(/id: ask-b[\s\S]*id: ask-c/);
+});
+
+it('asks the request of each duty in its own block', () => {
+  const text = textOf([duty('a'), duty('b')], [row(['a', 'b'])]);
+  expect(text).toContain('handle a');
+  expect(text).toContain('handle b');
 });
 
 it('keeps a duty verified when the situation that supplies the ask names it', () => {

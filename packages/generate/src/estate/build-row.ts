@@ -172,6 +172,33 @@ export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): B
 }
 
 /**
+ * The own block of each duty placed beside the row's first atom: the block the duty would have as the first atom
+ * of a row of its own, when that block is complete and needs no rule of the spec. The row's atoms keep the
+ * ids of the others, which are exercised.
+ */
+function ownBlocks(
+  row: EstatePlanRow,
+  atoms: readonly EstateAtom[],
+  ctx: Context,
+  used: Set<string>,
+  situation: Situation | undefined,
+): Map<string, { atom: EstateAtom; block: Record<string, unknown> & { id: string } }> {
+  const found = new Map<string, { atom: EstateAtom; block: Record<string, unknown> & { id: string } }>();
+  if (row.mode !== 'live' || useOf(row) === 'none') return found;
+  const together = coLocated(row, atoms, situation);
+  for (const atom of atoms.filter((candidate) => together.has(candidate.id))) {
+    const alone: EstatePlanRow = { ...row, id: `${row.id}.${atom.id}`, atomIds: [atom.id] };
+    const own = situationOfRow(ctx, useOf(row), alone, atom);
+    const built = build(alone, [atom], ctx, new Set(used), own);
+    const blocks = built.spec.blocks as Array<Record<string, unknown> & { id: string }>;
+    const [block] = blocks;
+    if (built.gaps.length > 0 || built.spec.rules !== undefined || blocks.length !== 1 || !block) continue;
+    found.set(atom.id, { atom, block: { ...block, id: `ask-${atom.id}` } });
+  }
+  return found;
+}
+
+/**
  * The atoms a row exercises without verifying them: the duties the plan placed on the row beside its first atom
  * because they apply in the same situation. The ask of the row is the first atom's, so its blocks fail when that
  * atom is gone and say nothing about the others, unless the situation that supplies the ask names them. The
@@ -194,7 +221,7 @@ function coLocated(
 
 export function build(
   row: EstatePlanRow,
-  atoms: readonly EstateAtom[],
+  allAtoms: readonly EstateAtom[],
   ctx: Context,
   used: Set<string>,
   situation: Situation | undefined,
@@ -202,15 +229,19 @@ export function build(
   noSession = false,
   variant?: number,
 ): Built {
+  // A duty placed beside the first atom asks its own request in a block of its own, so its block fails when that
+  // duty alone is gone. A duty whose own block does not come out complete is left to an exercises link.
+  const own = ownBlocks(row, allAtoms, ctx, used, situation);
+  const atoms = allAtoms.filter((atom) => !own.has(atom.id));
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
-  const own =
+  const owned =
     row.mode === 'unit' || row.testType === 'contract_alone'
       ? atoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
       : atoms;
-  const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
+  const then = thenOf(owned, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
   // The unit that owns the rule supplies the task of a code-written ask even when the rule is not part of it.
   const askAtoms = askAtomsOf(atoms, ctx);
@@ -450,15 +481,24 @@ export function build(
       : [],
   );
   const written = writeBlocks(
-    blocks.map((block, index) => {
-      const origin: BlockOrigin = {
-        rules,
-        ...(sections.length > 0 ? { sections } : {}),
-        row: { id: planRow, values: row.cell },
-        ...(session && index === 0 ? { turn: { conversation: session.name, turn: session.from_block } } : {}),
-      };
-      return { block, origin };
-    }),
+    [
+      ...blocks.map((block, index) => {
+        const origin: BlockOrigin = {
+          rules,
+          ...(sections.length > 0 ? { sections } : {}),
+          row: { id: planRow, values: row.cell },
+          ...(session && index === 0 ? { turn: { conversation: session.name, turn: session.from_block } } : {}),
+        };
+        return { block, origin };
+      }),
+      ...[...own.values()].map(({ atom, block }) => ({
+        block,
+        origin: {
+          rules: [ruleOf(atom)],
+          row: { id: planRow, values: row.cell },
+        } as BlockOrigin,
+      })),
+    ],
     version,
     ctx.sections ? { sectionReach: ctx.sections.reaching } : {},
   );
@@ -534,7 +574,7 @@ export function build(
     id,
     spec,
     gaps: then.gaps,
-    blocks: blocks.length,
+    blocks: written.blocks.length,
     judged: complete ? then.criteria.length : 0,
     ask,
     outcome,
