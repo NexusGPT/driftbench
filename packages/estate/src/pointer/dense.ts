@@ -1,4 +1,11 @@
 import {
+  dropCommentLines,
+  dropTrailingComma,
+  repairAnswerText,
+  singleToDoubleQuotes,
+  straightenCurlyQuotes,
+} from '@agent-nexus/driftbench-core';
+import {
   errorText,
   type HttpOptions,
   isRecord,
@@ -140,8 +147,14 @@ function jsonObjectOf(text: string): unknown {
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first >= 0 && last > first) candidates.push(trimmed.slice(first, last + 1));
-  for (const candidate of candidates) {
-    if (candidate === undefined || candidate === '') continue;
+  // Each candidate as written, then each with the near-JSON repairs the judges use: comment lines, a trailing comma,
+  // curly and single quotes, unescaped quotes in a string. A repair touches only its slip, never a key or a value.
+  const repair = (text: string) =>
+    repairAnswerText(singleToDoubleQuotes(straightenCurlyQuotes(dropTrailingComma(dropCommentLines(text)))));
+  const kept = candidates.filter(
+    (candidate): candidate is string => candidate !== undefined && candidate !== '',
+  );
+  for (const candidate of [...kept, ...kept.map(repair)]) {
     try {
       const value: unknown = JSON.parse(candidate);
       if (isRecord(value) && Array.isArray(value.labels)) return value;
