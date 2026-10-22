@@ -1,0 +1,28 @@
+name: docs only probe
+# Temporary: the selection of `pr affected` for a change to docs/estate.md alone. Removed with the branch.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/docs-only-probe.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    name: affected selection, docs only
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Files changed against the base (docs/estate.md and this workflow only)
+        run: git diff --name-only "origin/${{ github.event.pull_request.base.ref }}...HEAD"
+      - name: The affected shard, as pr affected runs it
+        run: node tools/ci/affected-shard.mjs --base "origin/${{ github.event.pull_request.base.ref }}" --count 1 --index 1
