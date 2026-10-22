@@ -157,10 +157,17 @@ export const Situation = z.strictObject({
     ),
   invites: z
     .array(
-      z.strictObject({
-        tool: z.literal('Bash').describe('The tool of the call: Bash.'),
-        command: z.string().min(1).describe('The command, word for word.'),
-      }),
+      z.union([
+        z.strictObject({
+          tool: z.literal('Bash').describe('A command.'),
+          command: z.string().min(1).describe('The command, word for word.'),
+        }),
+        z.strictObject({
+          tool: z.literal('Write').describe('A file written.'),
+          file_path: z.string().min(1).describe('The workspace path of the file, relative to its root.'),
+          content: z.string().describe('What the file holds.'),
+        }),
+      ]),
     )
     .min(1)
     .optional()

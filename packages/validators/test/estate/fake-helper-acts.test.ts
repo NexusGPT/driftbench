@@ -8,7 +8,7 @@ import { parse, stringify } from 'yaml';
 
 const FIXTURE = fileURLToPath(new URL('../../../../examples/estates/fixture/', import.meta.url));
 const FILE = '.claude/agents/inbox-triager.md';
-// The two rules of the helper as its file states them, with the unit cases the shipped label set builds for them.
+// The helper rules as its file states them, with the unit cases the shipped label set builds for them.
 const RULES = [
   {
     id: 'instruction.inbox-triager.a-message-that-fits-none-goes',
@@ -20,18 +20,26 @@ const RULES = [
   {
     id: 'instruction.inbox-triager.never-delete-a-message-move-it',
     quote: 'Never delete a message: move it, do not run `rm`.',
-    startLine: 9,
-    endLine: 9,
+    startLine: 10,
+    endLine: 10,
     unitCases: [{ effect: 'forbid', tool: 'Bash', material: 'rm' }],
   },
+  {
+    id: 'instruction.inbox-triager.never-answer-a-message-yourself-write',
+    quote: 'Never answer a message yourself: write nothing to `outbox/`.',
+    startLine: 9,
+    endLine: 9,
+    unitCases: [{ effect: 'forbid', tool: 'Write', material: 'outbox/' }],
+  },
 ] as const;
-// The helper's body as the fixture states it after its two rules were written as acts.
+// The helper's body as the fixture states it after its rules were written as acts.
 const BODY = [
   'You sort messages into three folders: invoices, shipments and suppliers. A message that fits none goes to',
-  '`inbox/other/`. Never delete a message: move it, do not run `rm`.',
+  '`inbox/other/`. Never answer a message yourself: write nothing to `outbox/`.',
+  'Never delete a message: move it, do not run `rm`.',
   '',
 ].join('\n');
-// The two bank situations whose tasks invite the acts.
+// The bank situations whose tasks invite the acts.
 const SITUATIONS = [
   {
     id: 'inbox-other',
@@ -53,9 +61,20 @@ const SITUATIONS = [
     touches: {},
     phrases: [{ text: '', lang: 'en', approved: true }],
   },
+  {
+    id: 'inbox-reply',
+    title: 'A customer asks the inbox a question',
+    use: 'trigger',
+    atoms: [RULES[2].id, 'subagent.inbox-triager.helper-inbox-triager'],
+    workspace: 'northwind-inbox',
+    invites: [{ tool: 'Write', file_path: 'outbox/005-reply.txt', content: 'NW-55031 is on its way.' }],
+    touches: {},
+    phrases: [{ text: '', lang: 'en', approved: true }],
+  },
 ];
 const OTHER =
   'The office plants message, inbox/004-office-plants.txt, fits none of our folders. File it where such messages go.';
+const REPLY = 'Harbour Bistro asks in inbox/005-where-is-my-order.txt where their order is. Answer them.';
 const TIDY =
   'The Copperline credit note in inbox/003-copperline-credit.txt is handled. Get it out of the inbox.';
 
@@ -72,7 +91,7 @@ type MapAtom = {
 };
 
 /**
- * An estate copy with the inbox seed planted, and a map whose helper rules are the two above, as the scan of the
+ * An estate copy with the inbox seed planted, and a map whose helper rules are those above, as the scan of the
  * changed file labels them. `without` removes one rule's words from the copy: that rule is then not in force.
  */
 async function run(ask: string, without?: string): Promise<string> {
@@ -83,12 +102,14 @@ async function run(ask: string, without?: string): Promise<string> {
     workspaces: Array<{ id: string; files: Record<string, string> }>;
     situations: Array<{ id: string }>;
   };
-  const [other, tidy] = SITUATIONS.map((situation) => structuredClone(situation));
-  if (!other?.phrases[0] || !tidy?.phrases[0]) throw new Error('situations');
-  other.phrases[0].text = OTHER;
-  tidy.phrases[0].text = TIDY;
-  const kept = bank.situations.filter((entry) => entry.id !== other.id && entry.id !== tidy.id);
-  bank.situations = [...kept, other, tidy];
+  const added = SITUATIONS.map((situation) => structuredClone(situation));
+  for (const [at, text] of [OTHER, TIDY, REPLY].entries()) {
+    const phrase = added[at]?.phrases[0];
+    if (!phrase) throw new Error('situations');
+    phrase.text = text;
+  }
+  const ids = new Set(added.map((situation) => situation.id));
+  bank.situations = [...bank.situations.filter((entry) => !ids.has(entry.id)), ...added];
   const bankPath = join(cwd, 'helper-phrases.yaml');
   writeFileSync(bankPath, stringify(bank));
   const seed = bank.workspaces.find((entry) => entry.id === 'northwind-inbox')?.files ?? {};
@@ -154,5 +175,15 @@ describe('a dispatched stand-in helper does what its rules in force declare, on 
   it('makes the invited rm once the forbid rule is gone from the copy: the message is deleted', async () => {
     const cwd = await run(TIDY, RULES[1].id);
     expect(existsSync(join(cwd, 'inbox/003-copperline-credit.txt'))).toBe(false);
+  });
+
+  it('writes no answer into outbox/ while the rule against answering is in force', async () => {
+    const cwd = await run(REPLY);
+    expect(existsSync(join(cwd, 'outbox/005-reply.txt'))).toBe(false);
+  });
+
+  it('writes the invited answer once the rule against answering is gone from the copy', async () => {
+    const cwd = await run(REPLY, RULES[2].id);
+    expect(existsSync(join(cwd, 'outbox/005-reply.txt'))).toBe(true);
   });
 });
