@@ -490,6 +490,20 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     acted = true;
     call('Read', { file_path: target }, () => ({ content: read(target) ?? '' }));
   }
+  // The calls the situation of the ask declares (`provokes`): made as written, so a guard on them decides.
+  for (const provoked of setOffBy.provokes ?? []) {
+    if (provoked.tool !== 'Bash') continue;
+    acted = true;
+    call(
+      'Bash',
+      { command: provoked.command, description: 'Run the named command' },
+      () => {
+        const ran = spawnSync('/bin/sh', ['-c', provoked.command], { cwd, encoding: 'utf8', timeout: 30_000 });
+        return { content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`, ran: true };
+      },
+      true,
+    );
+  }
   // A guard is provoked by the event its settings name, so that its real script decides.
   let longerThan = 0;
   for (const guard of intent.guards) {
