@@ -290,6 +290,56 @@ describe('atoms from labels', () => {
       ]);
     });
 
+    it('lets one condition scope every target it is given', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '4', label: 'order' },
+          { units: '6', label: 'when', target: 3, scopes: [4] },
+        ],
+      });
+      const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      expect(mine.map((atom) => atom.situation)).toEqual(['On foggy nights only', 'On foggy nights only']);
+      const unit = result.pointer?.ledger.entries.find((entry) => entry.quote === 'On foggy nights only');
+      for (const atom of mine) expect(atom.fields?.condition).toEqual([unit?.id]);
+    });
+
+    it('lets a rule scope later units and keep its own instruction', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order', scopes: [4, 5] },
+          { units: '4', label: 'order' },
+          { units: '5', label: 'order' },
+        ],
+      });
+      const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      expect(mine.map((atom) => atom.provenance.quote)).toEqual([
+        'Hang the lamp before dusk',
+        "Reply in the skipper's language",
+        'Never leave the gate open',
+      ]);
+      expect(mine.map((atom) => atom.situation)).toEqual([
+        undefined,
+        'Hang the lamp before dusk',
+        'Hang the lamp before dusk',
+      ]);
+    });
+
+    it('lists a scope whose target holds no atom, naming the target', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '6', label: 'when', target: 3, scopes: [2] },
+        ],
+      });
+      expect(result.pointer?.atomRefusals).toEqual([
+        expect.stringContaining('the condition points at a unit that holds no atom'),
+      ]);
+      expect(result.map.atoms.find((atom) => atom.fields?.extraction === 'pointer')?.situation).toBe(
+        'On foggy nights only',
+      );
+    });
+
     it('leaves an atom without a situation when no condition points at it', async () => {
       const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'order' }] });
       const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
