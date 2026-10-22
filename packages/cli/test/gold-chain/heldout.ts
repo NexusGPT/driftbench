@@ -127,7 +127,7 @@ export async function runUnitsEstate(options: {
       }
     }
     return {
-      score: scoreLimits(estate.truth, produced),
+      score: scoreLimits(estate.truth, produced, labelled),
       produced,
       unmatched,
       outside: [...outside].map(([place, text]) => `${place}: ${text}`),

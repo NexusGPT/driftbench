@@ -5,7 +5,7 @@ export type Produced = { unit: string; limit: number; comparison: string; role: 
 
 export type LimitScore = {
   /** Limits of the truth: found = a limit with the same number on the unit it governs; exact = also the same comparison and role. */
-  limits: { truth: number; found: number; exact: number; missing: string[] };
+  limits: { truth: number; found: number; exact: number; missing: string[]; unreachable: string[] };
   /** Limits produced, once for each unit, number, comparison and role. */
   produced: { total: number; matched: number; nonLimitHits: number; otherExtras: number };
   /** Non-limits of the truth that got a limit on their unit. */
@@ -23,9 +23,14 @@ const ratio = (part: number, whole: number): number => (whole === 0 ? 0 : part /
  * non-limit counts as a hit on that non-limit and as an extra. The comparison and the role are compared as written,
  * with no normal form: the units table does not say which units are prohibitions. So `exactRecall` understates: a
  * prohibition read as its trigger (more than 5) instead of its constraint (at most 5) is found by number but not exact.
- * Read `recall` (the number on the governed unit) first and `exactRecall` second.
+ * Read `recall` (the number on the governed unit) first and `exactRecall` second. `limits.unreachable` lists the limits
+ * whose governed unit got no request (given the units that did): they are in `missing` too, and are counted apart.
  */
-export function scoreLimits(truth: UnitsTruth, produced: readonly Produced[]): LimitScore {
+export function scoreLimits(
+  truth: UnitsTruth,
+  produced: readonly Produced[],
+  reachable?: ReadonlySet<string>,
+): LimitScore {
   const seen = new Set<string>();
   const unique = produced.filter((item) => {
     const key = `${item.unit}|${item.limit}|${item.comparison}|${item.role}`;
@@ -58,8 +63,13 @@ export function scoreLimits(truth: UnitsTruth, produced: readonly Produced[]): L
     } else otherExtras++;
   }
   const missing = truth.limits.filter((_, index) => !found.has(index)).map((limit) => limit.unit);
+  // Limits whose governed unit got no request: the producer cannot return them, by construction.
+  const unreachable =
+    reachable === undefined
+      ? []
+      : truth.limits.filter((limit) => !reachable.has(limit.governs)).map((limit) => limit.unit);
   return {
-    limits: { truth: truth.limits.length, found: found.size, exact: exact.size, missing },
+    limits: { truth: truth.limits.length, found: found.size, exact: exact.size, missing, unreachable },
     produced: { total: unique.length, matched, nonLimitHits, otherExtras },
     nonLimits: { truth: nonLimitUnits.size, hit: [...hits] },
     recall: ratio(found.size, truth.limits.length),

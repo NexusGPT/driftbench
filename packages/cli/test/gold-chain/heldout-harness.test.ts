@@ -66,9 +66,12 @@ describe('the held-out harness on a made-up estate', () => {
       { unit: 'd', limit: 1998, comparison: 'ge', role: 'constraint' },
       { unit: 'e', limit: 3, comparison: 'le', role: 'constraint' },
     ]);
-    expect(score.limits).toEqual({ truth: 3, found: 2, exact: 1, missing: ['c'] });
+    expect(score.limits).toEqual({ truth: 3, found: 2, exact: 1, missing: ['c'], unreachable: [] });
     expect(score.produced).toEqual({ total: 4, matched: 2, nonLimitHits: 1, otherExtras: 1 });
     expect(score.nonLimits).toEqual({ truth: 1, hit: ['d'] });
+    const apart = scoreLimits(truth, [], new Set(['a', 'b']));
+    expect(apart.limits.unreachable).toEqual(['c']);
+    expect(apart.limits.missing).toEqual(['a', 'b', 'c']);
     expect(score.recall).toBeCloseTo(2 / 3);
     expect(score.exactRecall).toBeCloseTo(1 / 3);
     expect(score.precision).toBeCloseTo(2 / 4);
@@ -86,7 +89,7 @@ describe('the held-out harness on a made-up estate', () => {
     });
     expect(result.unmatched).toEqual([]);
     expect(asked.sort()).toEqual(Object.keys(answers).sort());
-    expect(result.score.limits).toEqual({ truth: 2, found: 2, exact: 1, missing: [] });
+    expect(result.score.limits).toEqual({ truth: 2, found: 2, exact: 1, missing: [], unreachable: [] });
     expect(result.score.produced).toEqual({ total: 3, matched: 2, nonLimitHits: 1, otherExtras: 0 });
     expect(result.score.nonLimits).toEqual({ truth: 1, hit: ['t3'] });
     expect(result.score.precision).toBeCloseTo(2 / 3);
@@ -104,7 +107,7 @@ describe('the held-out harness on a made-up estate', () => {
       'CLAUDE.md#3: Close the chat after ten idle minutes.',
     ]);
     expect(result.requests).toBe(1);
-    expect(result.score.limits).toEqual({ truth: 1, found: 1, exact: 1, missing: [] });
+    expect(result.score.limits).toEqual({ truth: 1, found: 1, exact: 1, missing: [], unreachable: [] });
   });
 
   it('names every bad entry of a truth file, and drops none', () => {

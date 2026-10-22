@@ -47,4 +47,7 @@ if (!dry) {
   );
   console.log(`non-limits hit: ${score.nonLimits.hit.length} of ${score.nonLimits.truth}`);
   console.log(`limits missing: ${score.limits.missing.join(', ')}`);
+  console.log(
+    `limits unreachable by construction (the governed unit got no request): ${score.limits.unreachable.length}${score.limits.unreachable.length > 0 ? ` (${score.limits.unreachable.join(', ')})` : ''}`,
+  );
 }
