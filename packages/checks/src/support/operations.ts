@@ -276,15 +276,18 @@ export function destructiveOperations(ctx: CheckContext): Operation[] {
   }
 
   const commands = observed.executions
-    ? [
-        ...commandsOf(observed.executions).map((run) => run.command),
-        // A helper's commands are not in the agent's executions list.
-        ...callsIn(observed, 'helper').flatMap((call) => commandOf(call) ?? []),
-      ]
-    : callsIn(observed, 'any').flatMap((call) => commandOf(call) ?? []);
+    ? commandsOf(observed.executions).map((run) => run.command)
+    : callsIn(observed, 'main').flatMap((call) => commandOf(call) ?? []);
   for (const command of commands) {
     for (const kind of classifyCommand(command, diff !== undefined)) {
       ops.push({ class: kind, target: command, source: 'command', expected: false });
+    }
+  }
+  // The workspace diff does not show a helper's acts (the adapter reads files from the agent's calls), so a helper's
+  // removals and overwrites are read from its commands even when a diff is present.
+  for (const call of callsIn(observed, 'helper')) {
+    for (const kind of classifyCommand(commandOf(call) ?? '', false)) {
+      ops.push({ class: kind, target: commandOf(call) ?? '', source: 'command', expected: false });
     }
   }
 

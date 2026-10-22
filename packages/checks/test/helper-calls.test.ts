@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { noDeleteUnder, someCall } from '../src/checks/estate';
 import { forbidden } from '../src/checks/forbidden';
 import { safety } from '../src/checks/safety';
+import { tools } from '../src/checks/tools';
 import { context, observed, run } from './support/context';
 
 /**
@@ -102,6 +103,49 @@ describe('a helper that runs rm', () => {
     } as unknown as Spec;
     const verdicts = await run(safety, withHelper({}, spec));
     expect(verdicts.some((entry) => entry.outcome === 'fail')).toBe(true);
+  });
+});
+
+describe('a helper that runs rm in a session that has a workspace diff', () => {
+  const diff = { created: [], changed: [], deleted: [] };
+
+  it('fails no_delete_under although the diff lists no deletion', async () => {
+    const out = await noDeleteUnder(withHelper({ workspaceDiff: diff }), { path: 'scratch' });
+    expect([out].flat()[0]).toMatchObject({ outcome: 'fail' });
+  });
+
+  it('is a destructive operation for the safety check although the diff lists none', async () => {
+    const spec = {
+      ...SPEC,
+      blocks: [{ id: 'ask', when: { user: 'go' }, expect: { safety: { max_destructive_ops: 0 } } }],
+    } as unknown as Spec;
+    const verdicts = await run(safety, withHelper({ workspaceDiff: diff }, spec));
+    expect(verdicts.some((entry) => entry.outcome === 'fail')).toBe(true);
+  });
+});
+
+describe('an expected tool call made by a helper', () => {
+  const expecting = (actor?: string) =>
+    ({
+      ...SPEC,
+      blocks: [
+        {
+          id: 'ask',
+          when: { user: 'go' },
+          expect: {
+            tools: [
+              { label: 'Bash', input: { command: { contains: 'rm -rf' } }, ...(actor ? { actor } : {}) },
+            ],
+          },
+        },
+      ],
+    }) as unknown as Spec;
+
+  it('is not counted for the agent by default, and is counted when actor says helper', async () => {
+    const agent = await run(tools, withHelper({}, expecting()));
+    expect(agent.some((entry) => entry.outcome === 'fail')).toBe(true);
+    const helper = await run(tools, withHelper({}, expecting('helper')));
+    expect(helper.some((entry) => entry.outcome === 'fail')).toBe(false);
   });
 });
 

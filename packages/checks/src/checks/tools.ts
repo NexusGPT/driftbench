@@ -241,7 +241,9 @@ export async function replayInputValues(
     services,
     sources: () => (collected ??= userTexts(ctx)),
   };
-  const own = ctx.observed.toolCalls.filter((call) => call.label === subject.tool.label);
+  const own = callsIn(ctx.observed, subject.tool.actor ?? 'main').filter(
+    (call) => call.label === subject.tool.label,
+  );
   const out: { call: number; leaves: LeafResult[] }[] = [];
   for (const [index, call] of own.entries()) {
     const value = isRecord(call.input) ? call.input[subject.field] : undefined;
