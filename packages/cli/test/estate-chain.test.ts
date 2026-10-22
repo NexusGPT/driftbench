@@ -32,7 +32,7 @@ import { type Io, main } from '../src/index';
  * every hand-off is asserted by an id or a hash that the two steps must agree on. The table printed at the
  * end lists them. The same chain, step by step with its commands, is on docs/estate-chain.md.
  *
- * No model call. The scan replays recorded answers. The live runs use the fixture's stand-in command, a
+ * No model call. The scan replays the recorded labels of the pointer reader. The live runs use the fixture's stand-in command, a
  * script with the stand-in marker that `estate run` accepts without --allow-billed, and the check below
  * refuses the real runtime. The provider keys are emptied for the whole file, so a command that tried to
  * reach a model would stop with an error instead.
@@ -48,9 +48,20 @@ const MANIFEST = join(FIXTURE, 'live/fake/manifest.json');
 const STATES = join(FIXTURE, 'live/states/library.json');
 
 /** The instruction atom the chain follows: mutated in step 6, rewritten in version 2, the radius of step 9. */
-const R7 = 'instruction.standing.tell-the-user-about-a-late';
-const R2 = 'instruction.standing.never-send-a-supplier-email-without';
-const R12 = 'instruction.standing.keep-an-unconfirmed-draft-unsent';
+const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
+/** The gate the chain mutates in step 6: its file is read before any line is matched. */
+const GATE = 'gate.invoice-reconcile.read-references-matching-rules-md-before';
+/** The reference atom of the same line: deleting the line deletes it too (the mutant record lists it as collateral). */
+const GATE_REFERENCE = 'reference.invoice-reconcile.read-references-matching-rules-md';
+const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
+/** The instructions carry no check of their own, so their specs are judged: the stand-in judge passes them. */
+const JUDGE = ['--judge', 'claude:haiku', '--judge-command', FAKE_JUDGE, '--judge-budget', '1'];
+const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
+/**
+ * The words the stand-in judge fails a reply on in steps 10 and 11: the reply the stand-in plays when the
+ * quote of R7 is gone from the estate. It states the late shipment and does not propose the email.
+ */
+const SILENT_REPLY = 'NW-55012 is with DPX';
 const ROUTE_PLAN = 'route.standing.an-ask-to-plan-the-delivery';
 const LEDGER_GUARD = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 /** The agent versions of the chain: the estate as scanned, and the estate with its prompt edited. */
@@ -60,7 +71,6 @@ const AGENT_V2 = 'northwind-v2';
 const EDIT_FROM = 'late by more than two days';
 const EDIT_TO = 'late by more than one day';
 const FORCE_PUSH_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';
-const CARRIER_CODE = 'instruction.shipment-tracker.always-pass-the-carrier-code-to';
 
 type Generated = {
   path: string;
@@ -94,11 +104,19 @@ type DiffJson = {
   atoms: {
     added: Array<{ id: string }>;
     removed: Array<{ id: string }>;
-    changed: Array<{ id: string; change: 'whitespace' | 'semantic'; before: Change; after: Change }>;
+    changed: Array<{
+      id: string;
+      change: 'whitespace' | 'semantic';
+      before: Change;
+      after: Change;
+      now?: string;
+    }>;
     moved: Array<{ id: string; from: { startLine: number }; to: { startLine: number } }>;
     restated: Array<{ id: string }>;
   };
   guards: Array<{ guard: string; move: string; from: string | null; to: string | null }>;
+  /** The ledger units of the two versions; present only when the diff read both ledgers. */
+  units?: unknown;
   summary: Record<
     'added' | 'removed' | 'whitespace' | 'semantic' | 'moved' | 'restated' | 'unchanged',
     number
@@ -111,6 +129,8 @@ type ImpactJson = {
   reapprove: Array<{ atom: string; tests: string[] }>;
   retire: Array<{ test: string; atoms: string[]; state: string }>;
   new: Array<{ atom: string }>;
+  /** Live tests that cite an atom id the old map does not hold: no change of the diff can reach them. */
+  stale?: Array<{ test: string; file: string; atoms: string[] }>;
   unaffected: { moved: number; tests: number };
   needsPerson: string[];
 };
@@ -157,11 +177,33 @@ const chain: {
     editedPrompt: string;
     estate: string;
   };
+  /**
+   * What the campaigns of steps 10 to 12 run: the specs of step 6 and every live spec that names the atom step 9
+   * edits, which of them name it, and each spec's result from `estate run` on version 1 and on the edited version 2.
+   */
+  subset?: {
+    entries: Generated[];
+    naming: Set<string>;
+    before: Record<string, { outcome: string; failing: string[] }>;
+    after: Record<string, { outcome: string; failing: string[] }>;
+  };
   /** The baseline campaign of step 10. */
   baseline?: { runs: RunResult[]; calls: number };
 } = {};
 
 let work = '';
+
+/** Runs `work` with the stand-in judge set to fail the replies that hold `words`, then restores it. */
+async function judgeFailing<T>(words: string, work: () => Promise<T>): Promise<T> {
+  const saved = process.env.FAKE_JUDGE_FAIL;
+  process.env.FAKE_JUDGE_FAIL = words;
+  try {
+    return await work();
+  } finally {
+    if (saved === undefined) delete process.env.FAKE_JUDGE_FAIL;
+    else process.env.FAKE_JUDGE_FAIL = saved;
+  }
+}
 
 type Row = { step: string; input: string; output: string; tie: string; verified: 'yes' | 'NO' };
 const rows: Row[] = [];
@@ -313,8 +355,8 @@ afterAll(async () => {
 });
 
 describe('the Northwind estate chain, from scan to radius, with no model call', () => {
-  it('step 1: scan with recorded answers writes a map whose atom ids and provenance hashes recompute', async () => {
-    await prove('1 scan', 'estate folder, answers.yaml', 'map.yaml', async () => {
+  it('step 1: scan with the recorded labels writes a map whose atom ids and provenance hashes recompute', async () => {
+    await prove('1 scan', 'estate folder, cassette.jsonl', 'map.yaml', async () => {
       const out = join(work, 'map.yaml');
       const result = await cli([
         'estate',
@@ -322,13 +364,17 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         FIXTURE,
         '--runtime',
         'claude-code',
-        '--replay',
-        join(FIXTURE, 'answers.yaml'),
+        '--pointer',
+        '--cassette',
+        join(FIXTURE, 'cassette.jsonl'),
         '--out',
         out,
       ]);
       expect(result.err).toBe('');
-      expect(result.code).toBe(0);
+      // The recorded labeler gave answers the checks refused (a span outside its unit, a condition with no target):
+      // they stay out of the map and the scan says so, and exits 1.
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('refused:');
       const map = await loadMap(out);
       chain.scanned = map;
 
@@ -743,17 +789,17 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
   const PROOF = [
     'journey/estate.journey.03.yaml',
     'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
-    'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
-    'ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml',
-    'outside_trigger/estate.outside_trigger.instruction.standing.tell-the-user-about-a-late.yaml',
-    'register_sample/estate.register_sample.register.invoice-reconcile.one-closing-line-per-invoice.build.yaml',
+    'obligation/estate.obligation.instruction.standing.r7-when-a-shipment-is-late.yaml',
+    'ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
+    'outside_trigger/estate.outside_trigger.instruction.standing.r7-when-a-shipment-is-late.yaml',
+    'register_sample/estate.register_sample.register.invoice-reconcile.end-with-one-line-per-invoice.build.yaml',
     'route_near_miss/estate.route_near_miss.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.yaml',
     'route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml',
-    'skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml',
+    'skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
     'stage_order/estate.stage_order.stage.steps.stage-do-make-the-change.yaml',
     'stage_skip/estate.stage_skip.stage.steps.stage-verify-run-the-check-that.yaml',
     'tool_denied/estate.tool_denied.tool.settings.deny-webfetch.yaml',
-    'twin/estate.twin.instruction.standing.tell-the-user-about-a-late.yaml',
+    'twin/estate.twin.instruction.standing.r7-when-a-shipment-is-late.yaml',
   ];
   /** The two planted faults of the recorded streams: they fail on their own checks, with or without a mutant. */
   const FAULTS = [
@@ -798,12 +844,12 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     return { code: result.code, json, results };
   }
 
-  it('step 6: inverting the instruction atom turns the specs that name it red, and no other spec moves', async () => {
+  it('step 6: deleting the gate atom turns the specs that name it red, and no other spec moves', async () => {
     await prove('6 mutate, run', 'approved.yaml, generated specs', 'mutant/, run results', async () => {
       const approved = must(chain.approved, '2');
       const generated = must(chain.specs, '5');
-      const atom = approved.atoms.find((candidate) => candidate.id === R7);
-      if (atom === undefined) throw new Error(`${R7} is not an atom of the approved map`);
+      const atom = approved.atoms.find((candidate) => candidate.id === GATE);
+      if (atom === undefined) throw new Error(`${GATE} is not an atom of the approved map`);
 
       // No model: the command is the fixture's stand-in, and a run of the real runtime is refused.
       expect(await isStandIn(FAKE)).toBe(true);
@@ -821,15 +867,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(refused.code).toBe(2);
       expect(refused.err).toContain('claude is not a stand-in');
 
-      // The mutant: the atom's line inverted in a copy of the estate, with its own map beside it.
+      // The mutant: the atom's line deleted in a copy of the estate, with its own map beside it.
       const mutantDir = join(work, 'mutant');
       const made = await cli([
         'estate',
         'mutate',
         join(work, 'approved.yaml'),
         '--atom',
-        R7,
-        '--invert',
+        GATE,
+        '--delete',
         '--to',
         mutantDir,
         '--json',
@@ -847,15 +893,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       };
       const mutantMap = await loadMap(join(mutantDir, 'map.yaml'));
       expect(record).toMatchObject({
-        atom: R7,
-        op: 'invert',
+        atom: GATE,
+        op: 'delete',
         file: atom.provenance.file,
         originalMapHash: approved.hash,
       });
       expect(record.mapHash).toBe(mutantMap.hash);
       expect(mutantMap.hash).not.toBe(approved.hash);
       expect(record.before).toContain(atom.provenance.quote);
-      expect(record.after).toContain('do not tell the user');
+      expect(record.after).toBe('');
       // Only that file differs from the estate, and only on that line.
       const changedFiles: string[] = [];
       for (const path of await filesUnder(mutantDir)) {
@@ -865,7 +911,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         const now = await readFile(path, 'utf8');
         if (was === now) continue;
         changedFiles.push(name);
-        expect(now).toBe(was.replace(record.before, record.after));
+        expect(now).toBe(was.replace(`${record.before}\n`, ''));
       }
       expect(changedFiles).toEqual([atom.provenance.file]);
 
@@ -911,7 +957,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const played = await playing(mutantDir);
       expect(played.length).toBeGreaterThan(0);
       for (const rule of played) {
-        expect([rule.file, rule.quote], rule.ask).toEqual([atom.provenance.file, atom.provenance.quote]);
+        expect(rule.file, rule.ask).toBe(atom.provenance.file);
+        expect(atom.provenance.quote, rule.ask).toContain(rule.quote);
       }
       const affected = new Set(played.map((rule) => rule.ask));
 
@@ -923,7 +970,13 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const byPath = new Map(live.map((entry) => [entry.path, entry]));
       const asksChanged = (entry: Generated) =>
         entry.spec.blocks.some((block) => affected.has(block.when?.user ?? ''));
-      const naming = live.filter((entry) => atomsOf(entry).includes(R7));
+      // The specs that name the gate or its reference and ask for the work in one of the asks the stand-in plays
+      // two ways.
+      expect(made.out).toContain(GATE_REFERENCE);
+      const naming = live.filter(
+        (entry) =>
+          atomsOf(entry).some((name) => name === GATE || name === GATE_REFERENCE) && asksChanged(entry),
+      );
       const sharing = live.filter((entry) => !naming.includes(entry) && asksChanged(entry));
       const forcePush = live
         .filter(
@@ -946,9 +999,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const controls = proof.filter((entry) => !naming.includes(entry) && !sharing.includes(entry));
       expect(controls.length).toBeGreaterThan(0);
       expect(naming.map((entry) => entry.spec.metadata.estate.testType)).toEqual(
-        expect.arrayContaining(['obligation', 'outside_trigger', 'twin']),
+        expect.arrayContaining(['ordered_pair', 'skip_pressure']),
       );
-      expect(sharing.length).toBeGreaterThan(0);
       const paths = [...naming, ...sharing, ...controls].map((entry) => entry.path).sort();
       expect(new Set(paths).size).toBe(paths.length);
 
@@ -965,63 +1017,55 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       }
 
       // The original estate, pinned to the map this chain approved.
-      const original = await estateRun('original', FIXTURE, paths, '--map', join(work, 'approved.yaml'));
+      const original = await estateRun(
+        'original',
+        FIXTURE,
+        paths,
+        '--map',
+        join(work, 'approved.yaml'),
+        ...JUDGE,
+      );
       expect(original.code).toBe(1);
       expect(original.json.standIn).toBe(true);
-      expect(original.json.costUsd).toBe(0);
+      // Only the stand-in judge reports a cost, and a small one.
+      expect(original.json.costUsd).toBeLessThan(1);
       expect(original.json.pins).toEqual([approved.hash]);
       const before = original.results;
       expect(Object.keys(before)).toHaveLength(paths.length);
-      // Every spec that names the atom passes. The specs that fail are the two planted faults of the
-      // recorded streams, and the specs that need what the recorded stream of the shipment asks never does:
-      // the carrier-code fault, planted by design. That stream reads neither the shipment data file nor
-      // `track.sh`. So every spec that requires the carrier-code rule, a read of the shipment data or a run of
-      // `track.sh` is red on the original, and stays as red on the mutant. They are the specs of the
-      // carrier-code instruction, and the journeys that walk the data reference or the script edge.
+      // Every spec that names the atom passes. The specs that fail are the two planted faults of the recorded
+      // streams, and the specs that share the ask of the invoice stream but check what that stream never does
+      // (dispatch the auditor, read the currency table, declare the Bash tool): they are red on the original, and
+      // stay as red on the mutant.
       for (const entry of naming) expect(before[entry.spec.id]?.outcome, entry.spec.id).toBe('pass');
-      const needsMore = (atom: string) =>
-        atom === CARRIER_CODE ||
-        atom.startsWith('reference.shipment-tracker.') ||
-        atom.startsWith('script.shipment-tracker.');
-      const carrier = sharing.filter((entry) => atomsOf(entry).some(needsMore));
-      expect(carrier.length).toBeGreaterThan(0);
-      for (const entry of carrier) {
-        const result = before[entry.spec.id];
-        expect(result?.outcome, entry.spec.id).toBe('fail');
-        expect(result?.failing.length, entry.spec.id).toBeGreaterThan(0);
-        if (atomsOf(entry).includes(CARRIER_CODE)) {
-          expect(result, entry.spec.id).toEqual({
-            outcome: 'fail',
-            failing: ['block 0: custom.some_call.0'],
-          });
-        }
-      }
+      const unmet = sharing.filter((entry) => before[entry.spec.id]?.outcome === 'fail');
+      expect(unmet.length).toBeGreaterThan(0);
+      for (const entry of unmet)
+        expect(before[entry.spec.id]?.failing.length, entry.spec.id).toBeGreaterThan(0);
       expect(
         sorted(Object.entries(before).flatMap(([id, result]) => (result.outcome === 'pass' ? [] : [id]))),
-      ).toEqual(sorted([...FAULTS, ...carrier.map((entry) => entry.spec.id)]));
+      ).toEqual(sorted([...FAULTS, ...unmet.map((entry) => entry.spec.id)]));
 
       // The same specs on the mutant, pinned to the original map hash and to the mutant's own.
-      const mutant = await estateRun('mutant', mutantDir, paths);
+      const mutant = await estateRun('mutant', mutantDir, paths, ...JUDGE);
       expect(mutant.code).toBe(1);
       expect(mutant.json.standIn).toBe(true);
       expect(mutant.json.pins).toEqual([approved.hash, record.mapHash]);
       const after = mutant.results;
       expect(Object.keys(after).sort()).toEqual(Object.keys(before).sort());
 
-      // A spec that names the atom and asks what the mutant changes fails: the reply no longer says "late".
-      // The control that must not fire where the rule does not apply (its ask is a neutral one) stays green.
+      // A spec that names the gate and asks what the mutant changes fails: the file is no longer read first.
+      // The stand-in plays the recorded stream without the read when the quote is gone from the estate copy.
       const red = naming.filter((entry) => after[entry.spec.id]?.outcome === 'fail');
       expect(red.map((entry) => entry.spec.id).sort()).toEqual(
         sorted(naming.filter(asksChanged).map((entry) => entry.spec.id)),
       );
-      expect(sorted(new Set(red.map((entry) => entry.spec.metadata.estate.testType)))).toEqual([
-        'obligation',
-        'twin',
-      ]);
+      expect(red.map((entry) => entry.spec.metadata.estate.testType)).toEqual(
+        expect.arrayContaining(['ordered_pair', 'skip_pressure']),
+      );
       for (const entry of red) {
         expect(after[entry.spec.id], entry.spec.id).toEqual({
           outcome: 'fail',
-          failing: ['block 0: must.0'],
+          failing: ['block 0: references.**/.claude/skills/invoice-reconcile/references/matching-rules.md'],
         });
       }
       for (const entry of naming.filter((candidate) => !red.includes(candidate))) {
@@ -1039,7 +1083,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         mutantDir,
         mutantHash: record.mapHash,
       };
-      return `${R7} inverted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
+      return `${GATE} deleted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
     });
   });
 
@@ -1074,18 +1118,23 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       // The changes of section 8 of docs/estate.md.
       const semantic = diff.atoms.changed.filter((change) => change.change === 'semantic');
       expect(sorted(semantic.map((change) => change.id))).toEqual(sorted([ROUTE_PLAN, R7]));
+      // R12 is rewritten as R19 at one ledger unit that the readers label as no rule in either version: no
+      // atom of either map holds R12, so the diff names none for it (the units are read with the ledgers).
+      expect(approved.atoms.some((atom) => atom.id === R12)).toBe(false);
+      expect(v2.atoms.some((atom) => atom.id === R12)).toBe(false);
+      // R2 is a rule of both versions, so its wrap onto two lines is a change of white space.
       expect(
         diff.atoms.changed.filter((change) => change.change === 'whitespace').map((change) => change.id),
-      ).toEqual([R2]);
-      expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([R12]);
-      expect(sorted(diff.atoms.added.map((atom) => atom.id))).toEqual(
-        sorted([
-          'instruction.standing.name-the-finance-lead-on-a',
-          'instruction.standing.keep-a-credit-note-as-a',
-        ]),
-      );
-      expect(diff.atoms.moved).toHaveLength(24);
+      ).toEqual(['instruction.standing.r2-never-send-an-email-to']);
+      expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([]);
+      expect(diff.atoms.added.map((atom) => atom.id)).toEqual([
+        'register.weekly-report.fill-the-template-in-this-order',
+        'instruction.standing.r18-never-approve-a-credit-note',
+      ]);
+      expect(diff.atoms.moved).toHaveLength(25);
       expect(diff.atoms.restated.map((atom) => atom.id)).toEqual([
+        'instruction.standing.r8-do-not-invent-order-numbers',
+        'instruction.standing.r17-report-a-number-only-when',
         'invariant.standing.the-standing-instructions-stay-under-40000',
       ]);
       expect(diff.guards.filter((guard) => guard.move !== 'unchanged')).toMatchObject([
@@ -1093,18 +1142,20 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       ]);
       expect(diff.summary).toMatchObject({
         added: 2,
-        removed: 1,
+        removed: 0,
         whitespace: 1,
         semantic: 2,
-        moved: 24,
-        restated: 1,
+        moved: 25,
+        restated: 3,
       });
+      // An atom that moved and was restated counts in both lists, and once among the atoms that are not unchanged.
       expect(diff.summary.unchanged).toBe(
         diff.old.atoms -
-          diff.atoms.removed.length -
-          diff.atoms.changed.length -
-          diff.atoms.moved.length -
-          diff.atoms.restated.length,
+          new Set(
+            [diff.atoms.removed, diff.atoms.changed, diff.atoms.moved, diff.atoms.restated].flatMap((list) =>
+              list.map((atom) => atom.id),
+            ),
+          ).size,
       );
 
       // R7: the "before" hash is the hash the scan gave the atom in step 1, the "after" hash is version 2's.
@@ -1123,10 +1174,12 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         expect([move.from.startLine, move.to.startLine], move.id).toEqual([was?.startLine, now?.startLine]);
         expect(move.to.startLine).not.toBe(move.from.startLine);
       }
-      // The diff is the committed one, except for where the old map was written and when it was read.
+      // The diff is the committed one, except for where the old map was written and when it was read, and for
+      // the ledger units: the committed diff read both ledgers, and this one reads none.
       const committed = JSON.parse(await readFile(join(V2, 'maintain/diff.json'), 'utf8')) as DiffJson;
       const bare = (value: DiffJson) => ({
         ...value,
+        units: undefined,
         old: { ...value.old, path: '', readAt: '' },
         new: { ...value.new, path: '' },
       });
@@ -1135,7 +1188,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     });
   });
 
-  it('step 8: impact gives 4, 2, 1, 2 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
+  it('step 8: impact gives 3, 2, 0, 2 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
     await prove('8 impact', 'diff.json, fixture-v2/tests, generated specs', 'impact.json', async () => {
       const diff = must(chain.diff, '7');
       const generated = must(chain.specs, '5');
@@ -1169,9 +1222,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         impact.reapprove.length,
         impact.retire.length,
         impact.new.length,
-      ]).toEqual([4, 2, 1, 2]);
-      expect(impact.needsPerson).toHaveLength(4);
-      expect(impact.unaffected).toEqual({ moved: diff.atoms.moved.length, tests: impact.tests.live - 4 - 1 });
+      ]).toEqual([3, 2, 0, 2]);
+      // Five items wait for a person: two re-approvals, two new atoms, and the test that cites R12's atom.
+      expect(impact.needsPerson).toHaveLength(5);
+      // The test that cites an atom no longer in the map is listed, and it is not untouched.
+      expect(impact.stale).toMatchObject([{ test: 'northwind-unsent-draft', atoms: [R12] }]);
+      expect(impact.unaffected).toEqual({
+        moved: diff.atoms.moved.length,
+        tests: impact.tests.live - impact.regenerate.length - (impact.stale?.length ?? 0),
+      });
       for (const entry of impact.regenerate) {
         // Each regenerated test names, in its own metadata, an atom the diff changed, for the reason given.
         const test = parseYaml(await readFile(join(V2, 'tests', entry.file), 'utf8')) as {
@@ -1184,16 +1243,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         }
       }
       expect(sorted(impact.regenerate.map((entry) => entry.test))).toEqual([
-        'northwind-draft-pair',
         'northwind-late-shipment',
         'northwind-ledger-archive',
         'northwind-route-planner',
       ]);
       expect(sorted(impact.reapprove.map((entry) => entry.atom))).toEqual(sorted(semantic));
       expect(impact.reapprove.find((entry) => entry.atom === R7)?.tests).toEqual(['northwind-late-shipment']);
-      expect(impact.retire).toMatchObject([
-        { test: 'northwind-unsent-draft', atoms: [R12], state: 'to_write' },
-      ]);
+      // R12 is no atom of either map, so no test waits for its re-approval and none is retired.
+      expect(impact.reapprove.find((entry) => entry.atom === R12)).toBeUndefined();
+      expect(impact.retire).toEqual([]);
       expect(sorted(impact.new.map((entry) => entry.atom))).toEqual(
         sorted(diff.atoms.added.map((atom) => atom.id)),
       );
@@ -1229,7 +1287,12 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         sorted(retiring.map((entry) => entry.spec.id)),
       );
       expect(wide.unaffected.tests).toBe(suite.length - regenerating.length - retiring.length);
-      const respaced = suite.filter((entry) => atomsOf(entry).every((atom) => atom === R2));
+      // A moved atom touches no spec: the specs that name moved atoms only are left alone.
+      const moved = new Set(diff.atoms.moved.map((atom) => atom.id));
+      const restatedNow = new Set(restated);
+      const respaced = suite.filter((entry) =>
+        atomsOf(entry).every((atom) => moved.has(atom) && !restatedNow.has(atom)),
+      );
       expect(respaced.length).toBeGreaterThan(0);
       const touched = new Set([...wide.regenerate, ...wide.retire].map((entry) => entry.test));
       for (const entry of respaced) expect(touched.has(entry.spec.id), entry.spec.id).toBe(false);
@@ -1353,11 +1416,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
   // tests of the Acme suite do: the agent version labels the estate, and a radius run carries the stored runs.
   const outcomeOf = (run: RunResult): string =>
     run.status !== 'completed' ? run.status : run.blocks.every((block) => block.pass) ? 'pass' : 'fail';
+  // The label of a failing check is the one `estate run` prints: a check that could not decide says so.
   const failingOf = (run: RunResult): string[] =>
     run.blocks.flatMap((block) =>
       block.verdicts
         .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
-        .map((verdict) => `block ${block.index}: ${verdict.id}`),
+        .map(
+          (verdict) =>
+            `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
+        ),
     );
 
   /** One campaign through the `campaign` commands, over the estate in `root` and the stand-in command. */
@@ -1429,52 +1496,92 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     }
   };
 
-  it('step 10: the version 1 campaign runs the specs of step 6 on the estate and stores their verdicts', async () => {
-    await prove('10 campaign v1', 'step 6 specs, fixture estate', 'campaigns.db c-v1', async () => {
-      const approved = must(chain.approved, '2');
-      const universe = must(chain.universe, '6');
-      const paths = universe.entries.map((entry) => entry.path).sort();
-      const calls = join(work, 'calls-v1.jsonl');
-      const result = await runCampaign(FIXTURE, [approved.hash], calls, [
-        ...paths,
-        '--target',
-        'claude-code:northwind',
-        '--agent-version',
-        AGENT_V1,
-        '--campaign',
-        'c-v1',
-        '--store',
-        join(work, 'campaigns.db'),
-        '--no-cache',
-        '--concurrency',
-        '1',
-      ]);
-      expect(result.err).toBe('');
-      // Exit 1: the planted faults of the recorded streams fail by design.
-      expect(result.code).toBe(1);
-      const runs = await runsOf('c-v1');
-      expect(runs.map((run) => run.specId).sort(), 'one run per spec').toEqual(
-        universe.entries.map((entry) => entry.spec.id).sort(),
-      );
-      // Every cell ran, fresh: one block of each reached the stand-in, and none was carried.
-      expect(runs.every((run) => run.carried === undefined)).toBe(true);
-      const blocks = runs.reduce((sum, run) => sum + run.blocks.length, 0);
-      expect(await callsIn(calls)).toBe(blocks);
-      // The verdicts are those step 6 read from `estate run` on the same specs and the same estate.
-      for (const run of runs) {
-        expect({ outcome: outcomeOf(run), failing: failingOf(run) }, run.specId).toEqual(
-          universe.before[run.specId],
+  it('step 10: the version 1 campaign runs the specs of step 6 and those that name the edited atom, and stores their verdicts', async () => {
+    await prove(
+      '10 campaign v1',
+      'step 6 specs, specs naming the edited atom, fixture estate',
+      'campaigns.db c-v1',
+      async () => {
+        const approved = must(chain.approved, '2');
+        const stepSix = must(chain.universe, '6');
+        const radius = must(chain.radius, '9');
+        const generated = must(chain.specs, '5');
+        // Step 6 deletes the gate, so its specs name the gate; the edit of step 9 is to another atom. The campaigns run
+        // the specs of step 6 and every live spec that names the edited atom, so the subset of step 11 is the latter.
+        const live = generated.filter((entry) => entry.folder === 'specs/live');
+        const namingEdited = live.filter((entry) => atomsOf(entry).includes(R7));
+        expect(namingEdited.length).toBeGreaterThan(0);
+        const entries = [
+          ...stepSix.entries,
+          ...namingEdited.filter((entry) => !stepSix.entries.includes(entry)),
+        ];
+        const paths = entries.map((entry) => entry.path).sort();
+        // The verdicts the campaigns must reproduce: `estate run` of the same specs on version 1 and on version 2.
+        // The specs of R7 are judged, and the stand-in judge passes a reply unless it holds the words of the
+        // silent reply that the stand-in plays on version 2. The edited estate no longer matches the approved
+        // map (the quote of R7 moved), so `--map` would refuse it: the specs carry the map hash, and this run
+        // does not check it.
+        const v1 = await estateRun(
+          'subset-v1',
+          FIXTURE,
+          paths,
+          '--map',
+          join(work, 'approved.yaml'),
+          ...JUDGE,
         );
-      }
-      chain.baseline = { runs, calls: blocks };
-      return `${runs.length} cells of map ${short(approved.hash)} run as agent version ${AGENT_V1}; ${blocks} blocks sent to the stand-in`;
-    });
+        const v2 = await judgeFailing(SILENT_REPLY, () =>
+          estateRun('subset-v2', radius.estate, paths, ...JUDGE),
+        );
+        const universe = {
+          entries,
+          naming: new Set(namingEdited.map((entry) => entry.spec.id)),
+          before: v1.results,
+          after: v2.results,
+        };
+        chain.subset = universe;
+        const calls = join(work, 'calls-v1.jsonl');
+        const result = await runCampaign(FIXTURE, [approved.hash], calls, [
+          ...paths,
+          '--target',
+          'claude-code:northwind',
+          '--agent-version',
+          AGENT_V1,
+          '--campaign',
+          'c-v1',
+          '--store',
+          join(work, 'campaigns.db'),
+          '--no-cache',
+          '--concurrency',
+          '1',
+          ...JUDGE,
+        ]);
+        expect(result.err).toBe('');
+        // Exit 1: the planted faults of the recorded streams fail by design.
+        expect(result.code).toBe(1);
+        const runs = await runsOf('c-v1');
+        expect(runs.map((run) => run.specId).sort(), 'one run per spec').toEqual(
+          universe.entries.map((entry) => entry.spec.id).sort(),
+        );
+        // Every cell ran, fresh: one block of each reached the stand-in, and none was carried.
+        expect(runs.every((run) => run.carried === undefined)).toBe(true);
+        const blocks = runs.reduce((sum, run) => sum + run.blocks.length, 0);
+        expect(await callsIn(calls)).toBe(blocks);
+        // The verdicts are those `estate run` read on the same specs and the same estate.
+        for (const run of runs) {
+          expect({ outcome: outcomeOf(run), failing: failingOf(run) }, run.specId).toEqual(
+            universe.before[run.specId],
+          );
+        }
+        chain.baseline = { runs, calls: blocks };
+        return `${runs.length} cells of map ${short(approved.hash)} run as agent version ${AGENT_V1}; ${blocks} blocks sent to the stand-in`;
+      },
+    );
   });
 
   it('step 11: only the radius subset is run against the changed prompt, and the rest is carried with its verdict', async () => {
     await prove('11 subset run', 'change.yaml, radius, estate v2', 'campaigns.db c-v2', async () => {
       const approved = must(chain.approved, '2');
-      const universe = must(chain.universe, '6');
+      const universe = must(chain.subset, '10');
       const radius = must(chain.radius, '9');
       const baseline = must(chain.baseline, '10');
       const paths = universe.entries.map((entry) => entry.path).sort();
@@ -1492,28 +1599,31 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
 
       // The changed prompt is version 2: the estate of step 9 with its standing file edited. The agent is the
       // stand-in again. It plays its recorded alternative when the quote of the atom is gone from the estate
-      // copy, so the edit reads to it as the inversion of step 6 does: the same specs are predicted red.
+      // copy, so the specs that name the edited atom and ask what it governs are the ones `estate run` read red.
       const calls = join(work, 'calls-v2.jsonl');
-      const result = await runCampaign(radius.estate, [approved.hash], calls, [
-        ...paths,
-        '--target',
-        'claude-code:northwind',
-        '--agent-version',
-        AGENT_V2,
-        '--campaign',
-        'c-v2',
-        '--change',
-        radius.manifest,
-        '--from',
-        'c-v1',
-        '--store',
-        join(work, 'campaigns.db'),
-        '--no-cache',
-        '--concurrency',
-        '1',
-      ]);
+      const result = await judgeFailing(SILENT_REPLY, () =>
+        runCampaign(radius.estate, [approved.hash], calls, [
+          ...paths,
+          '--target',
+          'claude-code:northwind',
+          '--agent-version',
+          AGENT_V2,
+          '--campaign',
+          'c-v2',
+          '--change',
+          radius.manifest,
+          '--from',
+          'c-v1',
+          '--store',
+          join(work, 'campaigns.db'),
+          '--no-cache',
+          '--concurrency',
+          '1',
+          ...JUDGE,
+        ]),
+      );
       expect(result.err).toBe('');
-      // Exit 1: the specs that name the inverted atom fail, as step 6 predicted.
+      // Exit 1: the specs that name the edited atom fail, as `estate run` read on version 2.
       expect(result.code).toBe(1);
       const runs = await runsOf('c-v2');
       expect(runs).toHaveLength(ids.length);
@@ -1526,8 +1636,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(await callsIn(calls)).toBe(sent);
       expect(sent).toBeLessThan(baseline.calls);
 
-      // (b) Their verdicts are the ones step 6 predicted on the mutant: the specs that carry a changed ask
-      // fail on the check that the reply says "late", and the outside-trigger control stays green.
+      // (b) Their verdicts are the ones `estate run` read on version 2: the specs that carry a changed ask
+      // get the silent reply, which the stand-in judge fails, and the outside-trigger control stays green.
       for (const run of fresh) {
         expect({ outcome: outcomeOf(run), failing: failingOf(run) }, run.specId).toEqual(
           universe.after[run.specId],
@@ -1538,7 +1648,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(red.length).toBeLessThan(fresh.length);
 
       // (c) Every spec outside the subset is carried, not rerun, and its verdict is unchanged: the stored
-      // blocks of version 1, the verdict of version 1, and the verdict step 6 measured on the mutant.
+      // blocks of version 1, the verdict of version 1, and the verdict `estate run` read on version 2.
       expect(sorted(carried.map((run) => run.specId))).toEqual(sorted(ids.filter((id) => !inRadius.has(id))));
       const stored = new Map(baseline.runs.map((run) => [run.specId, run]));
       for (const run of carried) {
@@ -1597,7 +1707,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       'empty change.yaml, c-v1-crlf',
       async () => {
         const approved = must(chain.approved, '2');
-        const universe = must(chain.universe, '6');
+        const universe = must(chain.subset, '10');
         const baseline = must(chain.baseline, '10');
         const ids = universe.entries.map((entry) => entry.spec.id);
         const paths = universe.entries.map((entry) => entry.path).sort();

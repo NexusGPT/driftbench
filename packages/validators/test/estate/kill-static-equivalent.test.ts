@@ -52,7 +52,7 @@ describe('kill.fake: equivalent mutants are read from the fixture, not taken on 
 
   it('keeps delete-gate-2 a demand: the step list lets a failed verify reach report, the gate forbids it', async () => {
     const map = await fixtureMap();
-    const gate = map.atoms.find((atom) => atom.id === 'gate.standing.never-report-done-before-verify-passed');
+    const gate = map.atoms.find((atom) => atom.id === 'instruction.standing.never-report-a-task-as-done');
     if (!gate) throw new Error('the fixture has no verify gate');
     expect(equivalent(del('gate'), gate.id, map)).toBeUndefined();
     // The counter-example of the review of PR 274: the gate's words carry a condition, "has passed".

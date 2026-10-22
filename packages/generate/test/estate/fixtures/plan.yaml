@@ -3,7 +3,7 @@
 # every row approved but one struck. The summary counts the rows below; no covering array was computed.
 # Fictional data only.
 version: 1
-mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
+mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
 rows:
   - id: p01
     atomIds:
@@ -17,34 +17,6 @@ rows:
       estate_hazard: no_hazard
     # This update replay checks the desired skill-load obligation. The current description
     # says prepare, not update; this row must not assert that it covers the recorded ask.
-    testType: obligation
-    mode: replay
-    status: approved
-    weight: 1
-  - id: p02
-    atomIds:
-      - gate.standing.read-a-file-before-editing-it
-    cell:
-      ask_class: operate
-      ask_shape: concrete
-      session_state: fresh
-      owner_signal: go
-      deviation: none
-      estate_hazard: no_hazard
-    testType: ordered_pair
-    mode: replay
-    status: approved
-    weight: 1
-  - id: p03
-    atomIds:
-      - instruction.weekly-report.save-the-report-by-week-and
-    cell:
-      ask_class: operate
-      ask_shape: concrete
-      session_state: fresh
-      owner_signal: go
-      deviation: none
-      estate_hazard: no_hazard
     testType: obligation
     mode: replay
     status: approved
@@ -121,7 +93,7 @@ rows:
     weight: 1
   - id: p09
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -135,7 +107,7 @@ rows:
     weight: 1
   - id: p10
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -149,7 +121,7 @@ rows:
     weight: 1
   - id: p11
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -163,7 +135,7 @@ rows:
     weight: 1
   - id: p12
     atomIds:
-      - instruction.standing.never-send-a-supplier-email-without
+      - instruction.supplier-email.a-looks-fine-or-a-thumbs
     cell:
       ask_class: compose
       ask_shape: concrete
@@ -177,7 +149,7 @@ rows:
     weight: 1
   - id: p13
     atomIds:
-      - gate.standing.read-a-file-before-editing-it
+      - gate.standing.read-before-edit-it
     cell:
       ask_class: operate
       ask_shape: prescribed
@@ -191,7 +163,7 @@ rows:
     weight: 1
   - id: p14
     atomIds:
-      - reference.weekly-report.read-templates-report-md
+      - reference.memory-memory.read-supplier-languages-md
     cell:
       ask_class: build
       ask_shape: concrete
@@ -234,7 +206,7 @@ rows:
   - id: p17
     atomIds:
       - subagent.ledger-auditor.helper-ledger-auditor
-      - instruction.ledger-auditor.the-auditor-never-edits-a-file
+      - instruction.ledger-auditor.you-never-edit-a-file-you
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -402,7 +374,7 @@ rows:
     weight: 1
   - id: p29
     atomIds:
-      - register.standing.never-use-obviously-or-simply
+      - register.standing.never-use-the-words-obviously-or
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -416,7 +388,7 @@ rows:
     weight: 1
   - id: p30
     atomIds:
-      - register.standing.replies-under-1-200-characters
+      - register.standing.keep-every-reply-under-1-200
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -430,8 +402,8 @@ rows:
     weight: 1
   - id: p31
     atomIds:
-      - instruction.standing.after-a-compaction-re-read-the
-      - hazard.standing.recover-from-a-compaction-of-the
+      - hazard.standing.r15-after-a-compaction-re-read
+      - hazard.standing.r15-after-a-compaction-re-read
     cell:
       ask_class: build
       ask_shape: concrete
@@ -491,7 +463,7 @@ rows:
     weight: 1
   - id: p35
     atomIds:
-      - register.standing.answer-in-the-language-of-the
+      - register.standing.r1-always-answer-in-the-language
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -505,7 +477,7 @@ rows:
     weight: 1
   - id: p36
     atomIds:
-      - gate.standing.never-report-done-before-verify-passed
+      - instruction.standing.a-tracker-note-may-be-written
     cell:
       ask_class: operate
       ask_shape: concrete

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, runStaticTests } from '../src/index';
+import { ClaudeCodeReader, loadEstateMap, runStaticTests } from '../src/index';
 import { FIXTURE } from './support';
 
 function test(id: string, check: StaticTest['check']): StaticTest {
@@ -44,6 +44,26 @@ describe('the static runner', () => {
       region: true,
     });
     expect(results.find((result) => result.id === 'registry')?.detail).toContain('G6');
+  });
+
+  it('counts the files the atoms of a given map name, which code cannot read again from the prose', async () => {
+    const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
+    if (!loaded.ok) throw new Error('invalid map');
+    const [alone] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+    });
+    // Code alone names no file by a sentence: the references the prose gave are unseen, so the files are unnamed.
+    expect(alone?.detail).toContain('matching-rules.md');
+    const [mapped] = await runStaticTests([test('orphans', { kind: 'invariant', check: 'no_orphans' })], {
+      root: FIXTURE,
+      reader: new ClaudeCodeReader(),
+      map: loaded.map,
+    });
+    expect(mapped?.pass).toBe(false);
+    expect(JSON.parse(mapped?.detail.slice(mapped.detail.indexOf('{')) ?? '{}')).toEqual({
+      orphans: ['.claude/skills/invoice-reconcile/references/old-tolerances.md'],
+    });
   });
 
   it('turns red on a copy whose setting changed or whose registry lost a row', async () => {

@@ -1,14 +1,28 @@
+import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
-import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
-import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import {
+  type PlanSeedRow,
+  planV2,
+  type SpanLabel,
+  variablesFromSources,
+} from '@agent-nexus/driftbench-generate';
+import {
+  countVariableTuples,
+  type VariableStore,
+  validateVariableStore,
+} from '@agent-nexus/driftbench-space';
 import { wilson } from '@agent-nexus/driftbench-stats';
 import type {
+  CoverageResult,
   FileStore,
+  Group,
   Plan,
   PlanOptions,
   Provenance,
   QuotesResult,
+  Row,
+  Sources,
   StoreDoc,
   ValidateResult,
   VariablesImpl,
@@ -27,8 +41,11 @@ import type {
  *   reads any store's, from the passages its values quote.
  * - `weightInterval` is `wilson` of @agent-nexus/driftbench-stats, the two-sided 95 percent Wilson score interval
  *   of docs/variables.md R13, clamped to 0 and 1.
- * - `buildStore` and `coverage` have no product yet: they stay unmapped, and their items fail with the name of the
- *   function they need. That is the roadmap.
+ * - `coverage` is `countVariableTuples` of @agent-nexus/driftbench-space (docs/variables.md R12), on the store file
+ *   the projection is written as.
+ * - `buildStore` is `variablesFromSources` of @agent-nexus/driftbench-generate: tool evidence, the values of past
+ *   conversations and what the owner says. It reads structure only, so an item that needs a condition span read
+ *   from English fails until a reader labels the span.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -53,7 +70,7 @@ function validate(value: unknown): ValidateResult {
  * the files into a fresh folder, runs the product function on it, unchanged, and answers the issues on its port.
  */
 const QUOTES_WORKER = `
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { workerData } from 'node:worker_threads';
@@ -119,7 +136,9 @@ function quotes(store: FileStore, files: Record<string, string>): QuotesResult {
   const { worker, port, flag } = quotesWorkerOf();
   // One request in flight: the call blocks until the worker answers, so no second one can start.
   Atomics.store(flag, 0, 0);
-  port.postMessage({ store, files });
+  // The loader gives an absent list of constraints as an empty one (docs/variables.md: absent means every
+  // combination can occur); the quote check takes the store after that default.
+  port.postMessage({ store: { ...store, constraints: store.constraints ?? [] }, files });
   const waited = Atomics.wait(flag, 0, 0, QUOTES_TIMEOUT_MS);
   const reply = receiveMessageOnPort(port)?.message as
     | { errors: QuotesResult['errors'] }
@@ -154,15 +173,20 @@ function storeOf(doc: StoreDoc): VariableStore {
     }
   }
   const constraints = [
-    ...(doc.impossible ?? []).map((pair) => ({
-      forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
-      reason: 'an impossible pair of the store',
-      approved: true,
-      provenance: ownProvenance(pair.provenance),
-    })),
+    // A pair that names two values of one variable excludes nothing (R7): a row holds one value of a variable.
+    ...(doc.impossible ?? [])
+      .filter((pair) => pair.a.variable !== pair.b.variable)
+      .map((pair) => ({
+        forbid: { [pair.a.variable]: pair.a.value, [pair.b.variable]: pair.b.value },
+        reason: `${pair.a.variable}=${pair.a.value} never occurs with ${pair.b.variable}=${pair.b.value}`,
+        approved: true,
+        provenance: ownProvenance(pair.provenance),
+      })),
     ...(doc.forbids ?? []).map((entry) => ({
       forbid: { ...entry.forbid },
-      reason: 'a combination the store forbids',
+      reason: `${Object.entries(entry.forbid)
+        .map(([variable, value]) => `${variable}=${value}`)
+        .join(' and ')} never occur together`,
       approved: entry.approved ?? true,
       provenance: ownProvenance(entry.provenance),
     })),
@@ -231,4 +255,127 @@ function weightInterval(count: number, total: number): [number, number] {
   return [interval.lower, interval.upper];
 }
 
-export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval };
+function coverage(
+  doc: StoreDoc,
+  rows: Row[],
+  groups: Group[],
+  options?: { uncovered?: number },
+): CoverageResult {
+  return countVariableTuples(
+    storeOf(doc),
+    rows,
+    groups,
+    options?.uncovered === undefined ? {} : { uncovered: options.uncovered },
+  );
+}
+
+let cassette: Map<string, SpanLabel> | undefined;
+
+/** A span with each run of white space folded to one space: the key of its label, so one clause has one label. */
+const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
+/**
+ * The labels a reader wrote for condition spans, by span text with its white space folded: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
+ * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
+ * variable. This code reads the file and calls no model.
+ */
+function labels(): Map<string, SpanLabel> {
+  if (cassette) return cassette;
+  const map = new Map<string, SpanLabel>();
+  const file = process.env.DRIFTBENCH_VARIABLES_CASSETTE;
+  if (file) {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (line.trim() === '') continue;
+      const row = JSON.parse(line) as { text: string; label: SpanLabel };
+      map.set(foldSpan(row.text), row.label);
+    }
+  }
+  cassette = map;
+  return map;
+}
+
+/**
+ * Collect mode: `DRIFTBENCH_VARIABLES_SPANS_OUT` names a file, and every condition span a run reads is appended to it
+ * as one JSON line. The span collector job sets it; a labeller turns the spans into the cassette `labels` replays.
+ */
+function recordSpans(sources: Sources): void {
+  const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
+  if (!out) return;
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions)
+      appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);
+  }
+}
+
+function buildStore(sources: Sources): StoreDoc {
+  recordSpans(sources);
+  const known = labels();
+  const estate =
+    sources.estate === undefined
+      ? undefined
+      : {
+          ...sources.estate,
+          rules: sources.estate.rules.map((rule) => ({
+            ...rule,
+            conditions: rule.conditions.map((condition) => {
+              const label = known.get(foldSpan(condition.text));
+              return label === undefined ? condition : { ...condition, label };
+            }),
+          })),
+        };
+  const built = variablesFromSources({
+    ...(estate === undefined ? {} : { estate }),
+    ...(sources.conversations === undefined ? {} : { conversations: sources.conversations }),
+    ...(sources.owner === undefined ? {} : { owner: sources.owner }),
+  });
+  return {
+    variables: built.store.variables.map((variable) => ({
+      id: variable.id,
+      title: variable.title,
+      values: variable.values.map((value) => ({
+        id: value.id,
+        ...(value.title === undefined ? {} : { title: value.title }),
+        ...(built.samples[variable.id]?.[value.id] === undefined
+          ? {}
+          : { sample: built.samples[variable.id]?.[value.id] }),
+        ...(value.weight === undefined ? {} : { weight: value.weight }),
+        ...(value.approved === undefined ? {} : { approved: value.approved }),
+        ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),
+      })),
+      ...(variable.boundaries === undefined || variable.boundaries.length === 0
+        ? {}
+        : {
+            boundaries: variable.boundaries.map((boundary) => ({
+              holds: boundary.holds,
+              fails: boundary.fails,
+              edge: boundary.edge,
+              ...(boundary.limit === undefined ? {} : { limit: boundary.limit }),
+              ...(boundary.comparison === undefined ? {} : { comparison: boundary.comparison }),
+              ...(boundary.unit === undefined ? {} : { unit: boundary.unit }),
+            })),
+          }),
+    })),
+    impossible: built.store.constraints.map((constraint) => {
+      const [[variableA, valueA], [variableB, valueB]] = Object.entries(constraint.forbid) as [
+        [string, string],
+        [string, string],
+      ];
+      return {
+        a: { variable: variableA, value: valueA },
+        b: { variable: variableB, value: valueB },
+        provenance: (constraint.provenance ?? []) as Provenance[],
+      };
+    }),
+    rules: built.rules,
+    refused: built.refused,
+  };
+}
+
+export const variablesImpl: Partial<VariablesImpl> = {
+  buildStore,
+  validate,
+  quotes,
+  plan,
+  weightInterval,
+  coverage,
+};

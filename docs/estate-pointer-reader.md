@@ -82,6 +82,20 @@ Rules:
 
 The settings file of an estate may carry a `threshold` mapping with the keys `labeler`, `pass_at`, `fail_at` and `margin_cut`. Each is a number from 0 to 1, bounds included. A value outside that range, or one that is not a number, is refused, and the refusal names the key.
 
+### Nested spans: two calls of one tool in order
+
+A label can mark parts of a unit as spans. A span can sit inside another one with `within`. The shipped `agent-rules` set uses this for a rule that makes one call wait for another call of the same tool. That rule takes the label `gate-calls`.
+
+| Span | Marks |
+|---|---|
+| `governed-action` | the act the rule governs |
+| `first-call` | inside `governed-action`: the call that runs first, copied from the unit without a word that orders it |
+| `second-call` | inside `governed-action`: the call of the same tool that runs second |
+
+The label builds a gate atom titled "Run `<first call>` before `<second call>`". Its fields are `first`, `second` and `trigger`, the governed action. Its evidence is an ordered pair of calls of the tool named by the `act-tool` link. For a rule that tells the agent to run `git status` before `git commit`, the gate reads "Run git status before git commit", and the evidence is `Bash~git status` then `Bash~git commit`.
+
+A ban that lasts only until another call of the same tool has run and its output was read takes `gate-calls`, not `prohibition`. Limits: a call span outside `governed-action` makes the labelling refuse, and no gate atom is built. An incomplete answer never replaces the gate that code already read from the unit.
+
 ## 2. Layer A: cutting
 
 Code reads each prose file (standing instructions, memory, skill bodies and files, helper bodies, and any file the user names for a set) and cuts it into units.
@@ -301,7 +315,7 @@ The cache entry is per window, not per file. After re-anchoring, a unit whose fi
 For a label with an `atom` mapping, code builds the estate atom:
 
 - `kind` and `polarity` from the mapping. `provenance`: file, line span, and the verbatim `source.slice` of the unit (for a gate: the text of both units in file order).
-- `producedBy: model`, `approved: false`, `fields.extraction: pointer`, `fields.unit` (the ledger id), `fields.labelSet`, `fields.cassette` (the key).
+- `producedBy: model`, `approved: false`, `fields.extraction: pointer`, `fields.unit` (the ledger id), `fields.labelSet`. The cassette key of the label is in the ledger (`labels[set].source` of the unit), not in the atom: an atom's fields stay the same across re-recordings, so a new recording of the same estate restates no atom.
 - `evidence`: one `custom` predicate `prose_pointer` with `reviewRequired: true`. The labeler does not write evidence.
 - A unit that a code reader already turned into an atom is shown to the labeler as `read` and cannot be labelled again.
 

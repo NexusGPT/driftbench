@@ -1,4 +1,7 @@
 import type { ChangeManifest } from '@agent-nexus/driftbench-core';
+import { normativeEstate } from '../scan/document-roles';
+import type { RawEstate } from '../scan/reader';
+import type { DocumentInfo } from '../schema';
 import { cut } from './cut';
 import { type Ledger, type LedgerEntry, nextLedger } from './ledger';
 
@@ -187,16 +190,29 @@ export function editCounts(changes: readonly UnitChange[]): Record<EditClass, nu
 
 /**
  * The ledger of an estate's prose as it is now, followed from a previous ledger, with no labeler: the files
- * the pointer scan reads (each file that holds prose), cut and followed as the scan does. Labels carry where
- * the scan would carry them; nothing is labelled.
+ * the pointer scan reads (each file that holds normative prose, by the document roles the map records: an
+ * example, a fixture, a template or a history is no part of it), cut and followed as the scan does. Labels carry where the scan would carry them; nothing is
+ * labelled.
  */
 export function proseLedger(
-  raw: { prose: ReadonlyArray<{ file: string }>; files: ReadonlyArray<{ path: string; text: string }> },
-  previous: Ledger,
+  raw: RawEstate,
+  previous: Ledger | undefined,
   estateKey = 'estate',
+  documents: ReadonlyArray<DocumentInfo> = [],
 ): Ledger {
-  const texts = new Map(raw.files.map((file) => [file.path, file.text]));
-  const paths = [...new Set(raw.prose.map((chunk) => chunk.file))].sort((a, b) => a.localeCompare(b));
+  // The roles the scan recorded in the map stand: a document its role pass found to be a fixture or a template
+  // is no part of the ledger now either.
+  const recorded = new Map(documents.map((document) => [document.path, document]));
+  const normative = normativeEstate({
+    ...raw,
+    files: raw.files.map((file) => {
+      const document = recorded.get(file.path);
+      return document === undefined ? file : { ...file, document };
+    }),
+  });
+  const texts = new Map(normative.files.map((file) => [file.path, file.text]));
+  const files = new Set(normative.prose.map((chunk) => chunk.file));
+  const paths = [...files].sort((a, b) => a.localeCompare(b));
   return nextLedger(
     paths.map((path) => ({ path, cut: cut(texts.get(path) ?? '') })),
     previous,

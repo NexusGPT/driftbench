@@ -1,4 +1,10 @@
-import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contracts/adapter';
+import {
+  type AdapterCapabilities,
+  type AgentAdapter,
+  type Session,
+  type Turn,
+  TurnNotRun,
+} from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
@@ -486,6 +492,13 @@ class RunnerError extends Error {
 }
 
 /** The setup of a new session does not hold the Given: the block is not run, kind setup_failed. */
+/** The typed reason of a TurnNotRun an adapter threw, under any wrapping of the retry layer. */
+function turnNotRunOf(cause: unknown): NotRun | undefined {
+  for (let at = cause, depth = 0; at instanceof Error && depth < 5; at = at.cause, depth++)
+    if (at instanceof TurnNotRun) return at.notRun;
+  return undefined;
+}
+
 class SetupCheckFailed extends Error {
   override name = 'SetupCheckFailed';
   constructor(readonly notRun: NotRun) {
@@ -925,10 +938,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       try {
         raw = await channel.observe(turn, user, key);
       } catch (cause) {
-        // The dynamic check after setup: the session's workspace does not read back as the Given wrote it.
-        if (cause instanceof SetupCheckFailed) {
+        // The dynamic check after setup: the session's workspace does not read back as the Given wrote it. An
+        // adapter that cannot run the turn for a typed reason gives the same: the block is not run, with it.
+        const notRun = cause instanceof SetupCheckFailed ? cause.notRun : turnNotRunOf(cause);
+        if (notRun) {
           await channel.restart();
-          if (stopAt(cause.notRun, true)) break;
+          if (stopAt(notRun, true)) break;
           continue;
         }
         if (!run.parentOrder || channel.replay) throw cause;

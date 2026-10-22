@@ -1,5 +1,5 @@
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { RunResult } from '@agent-nexus/driftbench-core';
+import { RunResult, TurnNotRun } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import {
@@ -250,5 +250,31 @@ describe('verdict helpers', () => {
     });
     // Every T block was not run: no block has a T rate, so nothing is compared.
     expect(compoundingIndex([tRun, fRun]).specs).toEqual([]);
+  });
+});
+
+describe('a turn the adapter cannot run for a typed reason is not_run, never a failure of the agent', () => {
+  it('records each block not_run with the adapter reason, and the run is not_run', async () => {
+    const spec = acmeSpec(loaded, 'acme-tool-failure');
+    const adapter = acmeAdapter();
+    const reason = {
+      kind: 'unsupported' as const,
+      layer: 'runtime',
+      check: 'skill obligation',
+      expected: 'an order of the skill actions the stand-in can resolve',
+      got: 'The skill has an ordering obligation whose actions cannot be resolved.',
+    };
+    adapter.send = async () => {
+      adapter.calls.send += 1;
+      throw new TurnNotRun(reason);
+    };
+    const run = await runSpec(spec, { adapter, driver, checks: defaultChecks(), mode: 'F', repeat: 0 });
+    expect(RunResult.safeParse(run).success).toBe(true);
+    expect(run.status).toBe('completed');
+    expect(run.blocks[0]?.status).toBe('not_run');
+    expect(run.blocks[0]?.notRun).toEqual(reason);
+    expect(run.blocks.every((block) => block.status === 'not_run')).toBe(true);
+    expect(adapter.calls.send).toBe(1);
+    expect(runOutcome(run)).toBe('not_run');
   });
 });

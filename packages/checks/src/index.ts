@@ -9,6 +9,7 @@ export * as blame from './blame';
 
 export { ARGUMENT_ACCURACY_DIAGNOSTIC, ARGUMENT_ACCURACY_STEP } from './argument-accuracy';
 export { DEFAULT_CHECK_SET, SHIPPED_CHECKS } from './check-set';
+export { absence } from './checks/absence';
 export { artifacts } from './checks/artifacts';
 export { budget } from './checks/budget';
 export { cards } from './checks/cards';
