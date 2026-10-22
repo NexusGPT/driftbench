@@ -73,7 +73,8 @@ function noRequestItem(): BankItem {
     tier: 3,
     level: 4,
     component: 'pointer.private-recording',
-    title: 'a file holding only a fence sends no request; a fence beside a unit sends only its kind and first line',
+    title:
+      'a file holding only a fence sends no request; a fence beside a unit sends only its kind and first line',
     cause: 'privacy:no-window-no-request',
     design: '5: windows; 8: opaque units show kind and first line',
     generate(seed) {

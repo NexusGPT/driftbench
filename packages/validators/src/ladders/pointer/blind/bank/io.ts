@@ -25,7 +25,15 @@ export interface PointerIO {
 /** Frozen callbacks own all counters and sinks. No adapter can replace the trace. */
 export function captureIO(setup?: IOSetup): { io: PointerIO; snapshot(): IOTrace } {
   const fixture = setup && structuredClone(setup);
-  const trace: IOTrace = { keyReads: 0, networkCalls: 0, requests: [], cacheReads: 0, writes: [], logs: [], plans: [] };
+  const trace: IOTrace = {
+    keyReads: 0,
+    networkCalls: 0,
+    requests: [],
+    cacheReads: 0,
+    writes: [],
+    logs: [],
+    plans: [],
+  };
   function configured(): IOSetup {
     if (!fixture) throw new Error('transport fixture absent');
     return fixture;
