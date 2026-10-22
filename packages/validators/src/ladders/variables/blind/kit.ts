@@ -484,14 +484,12 @@ export function newRows(plan: Plan): Plan['rows'] {
 /** Rows that stand: complete, valid, unique, with ids. Returns the new rows. */
 export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[]): Plan['rows'] {
   const rule = 'a plan row is complete, valid, unique and has its own id';
+  // Every diagnostic below is built by a function that runs only after the verdict is decided: a message must never
+  // change what the product is asked, or in what order (docs/validators.md 12.11).
   const ids = new Set<string>();
   for (const r of plan.rows) {
-    check(typeof r.id === 'string' && r.id.length > 0, {
-      rule,
-      got: { id: r.id },
-      expected: 'a nonempty string id',
-    });
-    check(!ids.has(r.id), { rule, got: { repeatedId: r.id }, expected: 'distinct ids' });
+    check(typeof r.id === 'string' && r.id.length > 0, () => ({ rule, got: { id: r.id }, expected: 'a nonempty string id' }));
+    check(!ids.has(r.id), () => ({ rule, got: { repeatedId: r.id }, expected: 'distinct ids' }));
     ids.add(r.id);
   }
   const fresh = newRows(plan);
@@ -499,36 +497,32 @@ export function assertRowsSound(space: Space, plan: Plan, seeds: readonly Row[])
   for (const r of fresh) {
     for (const v of space.vars) {
       const x = r.values[v];
-      check(x !== undefined, {
+      check(x !== undefined, () => ({
         rule,
         got: { row: r.id, variableWithoutValue: v },
         expected: 'a value for every variable',
-      });
-      check((space.dom[v] as string[]).includes(x as string), {
+      }));
+      check((space.dom[v] as string[]).includes(x as string), () => ({
         rule,
         got: { row: r.id, variable: v, value: x },
         expected: { listed: space.dom[v] },
-      });
+      }));
     }
-    check(Object.keys(r.values).length === space.vars.length, {
+    check(Object.keys(r.values).length === space.vars.length, () => ({
       rule,
       got: { row: r.id, entries: Object.keys(r.values).length },
       expected: { entries: space.vars.length },
-    });
-    check(!violates(r.values, space.forbids), {
+    }));
+    check(!violates(r.values, space.forbids), () => ({
       rule,
       got: { row: r.id, values: r.values },
       expected: { forbids: space.forbids },
-    });
+    }));
     const key = space.vars.map((v) => r.values[v]).join('\u0001');
-    check(!seen.has(key), { rule, got: { repeatedRow: r.id }, expected: 'distinct new rows' });
+    check(!seen.has(key), () => ({ rule, got: { repeatedRow: r.id }, expected: 'distinct new rows' }));
     seen.add(key);
     for (const s of seeds)
-      check(!sameRow(s, r.values), {
-        rule,
-        got: { row: r.id, repeatsASeed: true },
-        expected: 'no seed repeated',
-      });
+      check(!sameRow(s, r.values), () => ({ rule, got: { row: r.id, repeatsASeed: true }, expected: 'no seed repeated' }));
   }
   return fresh;
 }
@@ -540,11 +534,11 @@ export function assertCovered(space: Space, plan: Plan, _seeds: readonly Row[] =
   const allowed = allowedTuples(space, groups, rows);
   const held = plan.rows.map((r) => r.values);
   const { missing } = coveredTuples(groups, allowed, held, space);
-  check(missing.length === 0, {
+  check(missing.length === 0, () => ({
     rule: 'every allowed required tuple is held by the seeds and the new rows',
     got: { rows: plan.rows.length },
     expected: { allowed: allowed.size, missing: 0, firstMissing: missing[0] },
-  });
+  }));
 }
 
 export function jsonEqual(a: unknown, b: unknown): boolean {
