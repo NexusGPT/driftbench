@@ -111,13 +111,15 @@ Units:
 | Sentence | Prose is masked (inline code, URLs and link destinations become same-length placeholders; newlines become spaces), segmented with `Intl.Segmenter`, and the indices are mapped back. When unsure the cutter merges: a wrong merge costs granularity, a wrong split costs a wrong quote. |
 | List item | One unit per item and per nested item, for the item's prose. A wrapped item is one unit. A task-list checkbox (`[ ]`, `[x]`) is a mark, not prose: it is not in the unit's quote, and its state is no pointer fact. A heading inside an item (a setext heading, for example) is a heading unit, and the item has a unit only for its prose beyond the heading. |
 | Table cell | One unit per cell, spanning its text (not the pipes). The row's header cell is shown with it as display-only context. |
-| Block quote | One unit per paragraph, offsets covering the text after the `>`. |
+| Block quote | One unit per paragraph, offsets covering the text after the `>`. A GitHub alert (a quote whose first line is `[!` capital letters `]` alone, as `> [!NOTE]` or `> [!WARNING]`) keeps that marker out of every unit: the marker is a mark, like a checkbox. Its type is shown with each unit of the alert as context: it ends the unit's heading path (`[!WARNING]`). |
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
-| Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
+| Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. The same holds for TOML front matter (between `+++` lines at the start of the file) and JSON front matter (an object whose `{` opens the file and whose closing `}` ends a line): every string value, in a table, an array or an object, is a unit keyed by its path (`$.title`, `$.tags[1]`). |
 | Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
 
 Every prose character belongs to exactly one unit. Spans never overlap. A link reference definition (`[id]: url "title"`) is not rendered text and gives no unit, its title included. These three rules follow CommonMark and GFM.
+
+**Footnotes (GFM).** A footnote reference (`[^label]`) belongs to the sentence it is attached to, also when it follows that sentence's full stop (`Keep it dry.[^1] Then lock up.` is two units, the first ending `[^1]`). A footnote definition (`[^label]: text`) is cut like prose: one sentence unit per sentence of each of its paragraphs, the `[^label]:` marker in no unit, and `[^label]` ends the heading path of each of its units, so a labeler reads which reference it explains.
 
 **Plain text.** In a `.txt` file a line break is the only structure there is, where markdown reads it as a soft wrap. The cutter ends a paragraph after a title line. A title line opens a sentence (it is the first line, or the line before it ends with a full stop, a question mark or an exclamation mark), does not start in lower case, ends with no comma, colon or dash, and is at most 40% as long as the typical line of the others (their median, so one very long line moves nothing) and as the line after it, which does not start in lower case. A hard wrapped sentence keeps its lines, and a table of rows has no short line. The rule reads shape only and no word. A second title directly under a first one (PART 1, then ROPES, then the rule) is not cut at the second: the second title is not the first line and the line before it does not end a sentence, so those lines stay together. This is a recall limit of the shape rule, taken so that a wrapped sentence is never split. Every other file keeps the markdown reading.
 
@@ -301,6 +303,8 @@ Cheapest first, on units:
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
+
+Steps 3 and 4 read the whole estate, not one file: a unit that leaves one file and comes back reworded, split or merged in another file (a renamed file with edits included) is scored against the new units of every file, with the same weights, threshold and floor, and keeps its id when it clears them. Its context similarity compares its old prefix, suffix and heading path with the new ones, whatever the path of the file.
 
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
 
@@ -506,6 +510,7 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 | Atoms from labels (quote and lines are `source.slice` of the file, one reviewed `prose_pointer` check) | Built. A gate takes the quote from its first to its second unit. |
 | Window halving on a refused request | Built. The refusal is recorded, so a replay halves the same way. |
 | Links and blast radius (layer C), `scan --update` | Not built. |
+| Footnotes, GitHub alerts, TOML and JSON front matter (section 2), and re-anchoring across files with edits (section 4) | Not built. Written into the design on 2026-10-23; the pointer bank holds failing items for them until they are. |
 | Removal of `candidates.ts`, `clause-rule.ts`, `prose.ts` | Not done: the flag is opt-in, and flipping the default is the first work package after the fair test. |
 
 ### Fixture recording (fictional Northwind estate, one run per arm)
