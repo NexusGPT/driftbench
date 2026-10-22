@@ -57,7 +57,7 @@ describe('driftbench estate build with no state library given', () => {
     const written = out.match(
       /5\. Write the tests: (\d+) tests written\. (\d+) are complete and (\d+) still wait/,
     );
-    expect(written?.slice(1)).toEqual(['1424', '779', '645']);
+    expect(written?.slice(1)).toEqual(['1427', '782', '645']);
     const waiting = err.match(/^(\d+) rows need states not in the library: (.*)\. Pass --states/);
     expect(waiting?.[2]).toBe(
       'event dead_helper, event stale_tracker, session state helpers_running, session state resumed',
