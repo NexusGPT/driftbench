@@ -50,33 +50,6 @@ blocks:
       lang: EN
       criteria:
         - flow.new-home
-  - id: b2-D8_tool_failure
-    when:
-      injection:
-        class: D8_tool_failure
-        user: The address is 14 Harbor Road, Acmeville.
-    given:
-      world:
-        tools:
-          catalog.search:
-            error: service unavailable (generated tool failure)
-    expect:
-      stage: callback
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
-          input_closed: true
-        - label: catalog.search
-          count: 2
-          input:
-            category: home
-            address_id: addr-101
-      lang: EN
-      criteria:
-        - deviation.D8_tool_failure
 rules:
   forbidden_tools:
     - port.check
@@ -113,17 +86,14 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D8_tool_failure
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D8_tool_failure
-          stage_transition: address-to-offer
-          coverage_result: fiber
-          stage: address
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
+    reduced_ends:
+      from_blocks: 2
+      to_blocks: 1
+      duplicates:
+        - block: b2-D8_tool_failure
+          duplicate_of:
+            spec: gen-boundary-072
+            block: b2-D8_tool_failure
   links:
     - block: b1-needs-to-address
       to:
@@ -146,49 +116,6 @@ metadata:
           failing_tool: catalog.search
           channel: chat
           stage_transition: needs-to-address
-          stage: address
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-D8_tool_failure
-      to:
-        kind: rule
-        rule: deviation=D8_tool_failure
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-D8_tool_failure
-      to:
-        kind: rule
-        rule: stage_transition=address-to-offer
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-D8_tool_failure
-      to:
-        kind: rule
-        rule: coverage_result=fiber
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-D8_tool_failure
-      to:
-        kind: plan_row
-        row: gen-deviation-010
-        values:
-          flow: new-home
-          user_type: new-customer
-          coverage_result: fiber
-          plan_choice: asks-for-callback
-          callback_phone: given
-          failing_tool: catalog.search
-          channel: chat
-          deviation: D8_tool_failure
-          stage_transition: address-to-offer
           stage: address
       relation: derived_from
       status: declared

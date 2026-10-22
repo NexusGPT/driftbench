@@ -132,7 +132,7 @@ describe('terminal subsumption', () => {
     expect(second.blocks.length).toBeLessThan(length);
   });
 
-  it("keeps a block that injects a class, which is that class's test and the deviation of its row", () => {
+  it('cuts a second probe of a class the suite already tests, the tuples, pairs and allocation deciding', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
@@ -157,9 +157,10 @@ describe('terminal subsumption', () => {
     const length = second.blocks.length;
     minimal.reduce(first);
     minimal.reduce(second);
-    // The repeated blocks after the probe go; the block that injects the class never does.
+    // The first probe holds the class: it keeps its injection block, and the repeat after it is cut with its own.
+    expect(first.blocks.some((block) => block.injection)).toBe(true);
     expect(second.blocks.length).toBeLessThan(length);
-    expect(second.blocks.some((block) => block.injection)).toBe(true);
+    expect(second.blocks.some((block) => block.injection)).toBe(false);
   });
 
   it('keeps the end of a walk that says another turn than any written block', () => {
@@ -566,41 +567,56 @@ describe('terminal subsumption and the block a walk ends on', () => {
   };
   const injectedAt = (draft: ReturnType<typeof probe>) => draft.blocks.findIndex((block) => block.injection);
 
-  it('takes a cut back to the deepest cut that ends elsewhere when another walk already ends on the block it stops at', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const [first, second, third] = ['first', 'second', 'third'].map((id) => probe(prepared, path, id));
-    if (!first || !second || !third) throw new Error('missing probes');
-    const length = first.blocks.length;
-    for (const draft of [first, second, third]) minimal.reduce(draft);
-    const injected = injectedAt(second);
-    expect(injected).toBeGreaterThan(0);
-    expect(first.blocks).toHaveLength(length);
-    // The second walk is cut to the block that injects the class, and ends there: one walk ends on that block.
-    expect(second.blocks).toHaveLength(injected + 1);
-    // The third would end there too: it keeps one block more, which ends on a block no walk ends on.
-    expect(third.blocks).toHaveLength(injected + 2);
-    expect(third.blocks.map((block) => block.id)).toEqual(
-      first.blocks.slice(0, injected + 2).map((block) => block.id),
-    );
-  });
+  describe('when a guard stops the cut on a block another walk ends on', () => {
+    const setup = () => {
+      const long = desk([
+        {
+          id: 'parcel',
+          stages: ['welcome', 'address', 'packing', 'weighing', 'sealing', 'receipt'],
+          classes: ['D5_language_switch'],
+        },
+      ]);
+      const longPath = long.relations.paths[0];
+      if (!longPath) throw new Error('missing parcel path');
+      const template = required(walk(long, 'template', longPath).perturbations?.[0]);
+      const plain = (id: string) => {
+        const draft = walk(long, id, longPath);
+        draft.perturbations = undefined;
+        return draft;
+      };
+      // A walk the declaration at block 2 stops: the cut cannot go below three blocks.
+      const guarded = (id: string) => {
+        const draft = plain(id);
+        draft.perturbations = [{ ...template, inject_at: 2 }];
+        return draft;
+      };
+      return { long, plain, guarded };
+    };
 
-  it('keeps a walk whole when every cut of it ends on a block another walk ends on', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const drafts = ['first', 'second', 'third', 'fourth'].map((id) => probe(prepared, path, id));
-    const [first, second, third, fourth] = drafts;
-    if (!first || !second || !third || !fourth) throw new Error('missing probes');
-    const length = first.blocks.length;
-    for (const draft of drafts) minimal.reduce(draft);
-    const injected = injectedAt(second);
-    expect([second.blocks.length, third.blocks.length]).toEqual([injected + 1, injected + 2]);
-    // Its cuts end on the blocks the second and the third walk end on, and its whole walk on the first walk's.
-    expect(fourth.blocks).toHaveLength(length);
+    it('takes the cut back to the deepest cut that ends elsewhere', () => {
+      const { long, plain, guarded } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const length = first.blocks.length;
+      // The second walk is the first one stopped at three blocks: one walk ends on block three.
+      const second = guarded('second');
+      const third = guarded('third');
+      for (const draft of [first, second, third]) minimal.reduce(draft);
+      expect(first.blocks).toHaveLength(length);
+      expect(second.blocks).toHaveLength(3);
+      // The third would end on the same block: it keeps one block more, which no walk ends on.
+      expect(third.blocks).toHaveLength(4);
+    });
+
+    it('keeps a walk whole when every cut it can reach ends on a block another walk ends on', () => {
+      const { long, plain, guarded } = setup();
+      const minimal = new TerminalSubsumption(long, run, 2);
+      const first = plain('first');
+      const length = first.blocks.length;
+      const drafts = [first, guarded('second'), guarded('third'), guarded('fourth'), guarded('fifth')];
+      for (const draft of drafts) minimal.reduce(draft);
+      expect(drafts.slice(1).map((draft) => draft.blocks.length)).toEqual([3, 4, 5, length]);
+    });
   });
 
   it('never cuts a walk to end on the request that follows a restated value', () => {

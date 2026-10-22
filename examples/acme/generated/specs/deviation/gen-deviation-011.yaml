@@ -50,47 +50,6 @@ blocks:
       lang: EN
       criteria:
         - flow.new-home
-  - id: b2-address-to-callback
-    when:
-      user: The address is 7 Quarry Lane, Acmeville.
-    expect:
-      stage: callback
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 7 Quarry Lane, Acmeville
-          input_closed: true
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-D8_tool_failure
-    when:
-      injection:
-        class: D8_tool_failure
-        user: You can reach me on +1 202 555 0131.
-    given:
-      world:
-        tools:
-          notify_sales:
-            error: service unavailable (generated tool failure)
-    expect:
-      stage: handover
-      stage_reported: true
-      tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: no_coverage
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-      lang: EN
-      criteria:
-        - deviation.D8_tool_failure
 rules:
   forbidden_tools:
     - catalog.search
@@ -126,28 +85,18 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-callback
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-callback
-          coverage_result: no-service
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: address-to-callback
-      - block: b3-D8_tool_failure
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D8_tool_failure
-          stage_transition: callback-to-handover
-          coverage_result: no-service
-          callback_phone: given
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
+    reduced_ends:
+      from_blocks: 3
+      to_blocks: 1
+      duplicates:
+        - block: b2-address-to-callback
+          duplicate_of:
+            spec: gen-graph-006
+            block: b2-address-to-callback
+        - block: b3-D8_tool_failure
+          duplicate_of:
+            spec: gen-twise-060
+            block: b3-D8_tool_failure
   links:
     - block: b1-needs-to-address
       to:
@@ -170,89 +119,6 @@ metadata:
           channel: whatsapp
           stage_transition: needs-to-address
           stage: address
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-callback
-      to:
-        kind: rule
-        rule: stage_transition=address-to-callback
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-callback
-      to:
-        kind: rule
-        rule: coverage_result=no-service
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-address-to-callback
-      to:
-        kind: plan_row
-        row: gen-deviation-011
-        values:
-          flow: new-home
-          user_type: new-customer
-          coverage_result: no-service
-          callback_phone: given
-          failing_tool: notify_sales
-          channel: whatsapp
-          stage_transition: address-to-callback
-          stage: callback
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-D8_tool_failure
-      to:
-        kind: rule
-        rule: deviation=D8_tool_failure
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-D8_tool_failure
-      to:
-        kind: rule
-        rule: stage_transition=callback-to-handover
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-D8_tool_failure
-      to:
-        kind: rule
-        rule: coverage_result=no-service
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-D8_tool_failure
-      to:
-        kind: rule
-        rule: callback_phone=given
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b3-D8_tool_failure
-      to:
-        kind: plan_row
-        row: gen-deviation-011
-        values:
-          flow: new-home
-          user_type: new-customer
-          coverage_result: no-service
-          callback_phone: given
-          failing_tool: notify_sales
-          channel: whatsapp
-          deviation: D8_tool_failure
-          stage_transition: callback-to-handover
-          stage: callback
       relation: derived_from
       status: declared
       created_by: generator

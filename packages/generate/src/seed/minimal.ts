@@ -27,7 +27,8 @@ function failsAtEnd(spec: Spec): boolean {
  * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
  * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
- * a class stays. A walk with an end state,
+ * a class is a block like any other: a second probe of a class a written spec already tests is cut by the same checks, the
+ * first one written stays. A walk with an end state,
  * a task and a spec that is not complete are never reduced. Metamorphic variants follow their first variant.
  *
  * This is subsumption by what has been written, not a proof of a smallest suite, and it reads no agent.
