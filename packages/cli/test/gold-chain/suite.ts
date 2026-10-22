@@ -199,6 +199,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             cassette: new pointer.Cassette(),
             mode: 'record',
             estateKey: GOLD_ESTATE_KEY,
+            // The gold labeller reads a file whole: a window cap (60 units) must not cut a scope from its targets.
+            windowUnits: 10_000,
           },
         });
         chain.scan = scan;
