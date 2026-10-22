@@ -912,11 +912,21 @@ const STEMS: {
     check: (a) => {
       const { seeds, plan } = a.partial;
       const head = plan.rows.slice(0, seeds.length);
-      const kept = head.every(
-        (row, at) => row.source === 'seed' && sameValues(row.values, seeds[at]?.values),
-      );
+      // Each seed row is `seed.<id>` of its input seed (docs/variables.md, the plan's rows), in order, with exactly
+      // the values the seed sets.
+      const kept =
+        head.length === seeds.length &&
+        head.every(
+          (row, at) =>
+            row.source === 'seed' &&
+            row.id === `seed.${seeds[at]?.id}` &&
+            sameValues(row.values, seeds[at]?.values),
+        );
       if (!kept)
-        return verdict(false, 'the partial seeds do not lead the plan with exactly their own values');
+        return verdict(
+          false,
+          'the partial seeds do not lead the plan as seed.<id> rows in order with exactly their own values',
+        );
       const missing = [
         ...a.oracle.uncovered('own', rowsOf(plan)),
         ...a.oracle.uncovered('axes', rowsOf(plan)),
@@ -960,7 +970,7 @@ const STEMS: {
       const [seed] = got.seeds as [PlanSeedRow];
       const [variable, value] = Object.entries(a.scenario.excluded.values)[0] as [string, string];
       const row = got.plan.rows[0];
-      const kept = row?.source === 'seed' && sameValues(row.values, seed.values);
+      const kept = row?.source === 'seed' && row.id === `seed.${seed.id}` && sameValues(row.values, seed.values);
       const warned = got.plan.warnings.some(
         (warning) =>
           warning.code === 'seed_unapproved_value' &&
