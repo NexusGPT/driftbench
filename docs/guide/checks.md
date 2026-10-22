@@ -8,7 +8,7 @@ A **check** is a rule that code can test on what the agent did. It can read the 
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
+- Node 22.13 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
 - A folder for your files, with the folders `specs` for specs that pass and `fail` for specs that fail on purpose.
 
 **Relevant commands.**

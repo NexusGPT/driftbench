@@ -8,7 +8,7 @@ This is a hands-on guide to campaigns, the commands that run your tests on your 
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - The folder `examples/acme` of the repository. Its seven **specs** (test files) are the tests. Acme is a made-up phone company.
 - A **target**, the way driftbench reaches your agent. The Acme sales assistant is a small program, and its target is `function:acme-sales`.
 

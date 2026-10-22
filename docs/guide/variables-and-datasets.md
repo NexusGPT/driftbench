@@ -8,7 +8,7 @@ This part shows how values get into a test, and how one table of rows becomes ma
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
+- Node 22.13 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
 - A folder for your files, with a folder `intro` for a first spec. Make it inside your clone of this repository, so that `../examples` is the examples folder of the clone.
 
 **Relevant commands.**

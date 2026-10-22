@@ -8,7 +8,7 @@ This is a hands-on guide to plugins. A **plugin** is a file of your own code tha
 
 **What you need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - A working folder named `plugin-demo`, made inside the clone by step 1. It holds a `specs` folder, the plugin and a config file. The step makes it, so the clone stays clean.
 - The Acme sales assistant, a made-up phone company's chat agent. It is a short program in the clone, so no model runs. A spec points at it with `target: { adapter: function, agent: acme-sales }`.
 

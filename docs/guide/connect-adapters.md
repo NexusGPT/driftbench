@@ -8,7 +8,7 @@ This is a hands-on guide to adapters, the pieces that connect driftbench to your
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - An agent you can reach in one of the ways in the table below. The three agents on this page are written for you.
 
 **Four words first.**

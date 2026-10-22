@@ -8,7 +8,7 @@ This is a hands-on guide to two agents that run outside your own code: a Claude 
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - The folder `examples/estates/fixture` of the repository. It is a made-up Claude Code folder for Northwind Traders, a fictional wholesaler of kitchen goods.
 
 **Six words first.**

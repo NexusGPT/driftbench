@@ -8,7 +8,7 @@ This is a hands-on guide to driftbench from Python. Your agent may be a Python f
 
 **What you need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - Python 3.11 or newer. The package needs nothing beyond the standard library.
 - A working folder named `py-demo`, made inside the clone by step 1.
 

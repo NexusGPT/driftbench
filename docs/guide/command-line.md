@@ -8,7 +8,7 @@ This is a hands-on tour of the `driftbench` command. It walks through the comman
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`.
 - The folder `examples/acme` from a clone of this repository. In a clone, run `pnpm install` and put `pnpm` in front of every `driftbench` below.
 - Acme is a made-up phone company. Its sales assistant is a small program, so no model runs. A **spec** is one test file. This is the start of one, `examples/acme/specs/conversations/tool-failure.yaml`:
 

@@ -16,7 +16,7 @@ Every command in the guide is run by a test on GitHub, and every output shown is
 
 ## Install
 
-You need Node 22 or newer, git and pnpm 10 (`corepack enable` turns pnpm on).
+You need Node 22.13 or newer, git and pnpm 10 (`corepack enable` turns pnpm on).
 
 ```bash
 git clone https://github.com/NexusGPT/driftbench.git

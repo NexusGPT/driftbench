@@ -16,7 +16,7 @@ This is a hands-on guide. It takes one small made-up agent, the Northwind ops as
 
 **What you need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone, because it reads `examples/estates/fixture`.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone, because it reads `examples/estates/fixture`.
 - A terminal open in the folder that holds your agent folder. Run every command of this page from there. In the example that folder is `walk`. For your own agent it is the folder that holds `my-agent`.
 - Your agent as one folder that holds every file defining it. driftbench calls that folder the **estate**. It must follow the layout of Claude Code, Anthropic's coding agent, which is the only layout the `estate` commands read today. Anything else (a function, an HTTP endpoint, a script) uses the [quickstart](quickstart.md) instead.
 

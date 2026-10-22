@@ -8,7 +8,7 @@ This is a hands-on guide to the settings file of an estate. An **estate** is the
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - An estate. The guide uses `examples/estates/fixture`, the Northwind ops assistant, a made-up agent. Its layout is the one of Claude Code, Anthropic's coding agent.
 
 This is the start of the estate's `CLAUDE.md`, its system prompt:

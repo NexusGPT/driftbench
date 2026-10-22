@@ -8,7 +8,7 @@ This is a hands-on guide to the two ways to read a stored campaign. `driftbench 
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - The folder `examples/acme` of the repository. Its **specs** (test files) are the tests. Acme is a made-up phone company, and its sales assistant is a small program.
 - A web browser, for the viewer. The tests of this page do not open one.
 

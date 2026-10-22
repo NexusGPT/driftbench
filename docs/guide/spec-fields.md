@@ -8,7 +8,7 @@ This part builds one spec a field at a time, from the smallest valid file to a r
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
+- Node 22.13 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
 - A clone of this repository. The Acme assistant is the target `function:acme-sales`, and it lives in the `examples/acme` folder of the clone only.
 - Two empty folders: `specs` for good files and `broken` for files that hold a wrong value on purpose.
 

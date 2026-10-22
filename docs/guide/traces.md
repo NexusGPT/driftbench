@@ -8,7 +8,7 @@ This is a hands-on guide to traces, the records of what an agent did. A trace sh
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - The folder `examples/estates/sessions` of the repository. It holds recorded sessions of a coding agent, made up for the examples. A **session** is the log file one agent run leaves, one JSON line per event.
 - The folder `examples/acme` of the repository. Acme is a made-up phone company. Its sales assistant is a small program that costs nothing to run.
 

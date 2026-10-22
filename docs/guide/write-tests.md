@@ -8,7 +8,7 @@ This part teaches you to write a test yourself, in a file, and to run it. A test
 
 **You need.**
 
-- Node 22 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
+- Node 22.13 or newer, and driftbench installed, as in the [guide index](index.md#install). In a clone of this repository, write `pnpm driftbench` where this page says `driftbench`.
 - A folder for your tests. Nothing else.
 
 **Relevant commands.**
@@ -392,6 +392,11 @@ $ driftbench campaign run specs --process-command "[\"node\",\"$PWD/agent.mjs\"]
 Some qualities no pattern can test, such as "the reply is polite" or "the reply asks only one question". For these you write a **criterion**: a question in plain words that a model, called a **judge**, answers with pass or fail. You list criteria at the top of the spec and name them in a block.
 
 ```yaml
+# file: specs/judged.yaml
+id: judged-one-question
+title: The reply asks the customer at most one question
+target: { adapter: process, agent: my-agent }
+
 criteria:
   - name: one_question
     rubric: The reply asks the customer at most one question.
@@ -399,6 +404,14 @@ blocks:
   - user: Hello, I'm new here and looking for home internet.
     expect:
       criteria: [one_question@gating]
+```
+
+Check that the file is a valid spec:
+
+```console
+$ driftbench spec validate specs/judged.yaml
+✓ specs/judged.yaml  judged-one-question · 1 block · hash b0da038221dd
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 ```
 
 `@gating` says that a failing answer fails the block. Without it, the verdict is reported and the block still passes. A campaign with no judge prints `Not judged:` and gives these criteria no verdict. Prefer a check whenever code can decide, because a check is free and always gives the same answer. Judges are the subject of the [judges page](../concepts/judges.md).

@@ -22,13 +22,13 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@agent-nexus/driftbench"><img alt="npm version" src="https://img.shields.io/npm/v/%40agent-nexus%2Fdriftbench?color=2F5FD0&label=npm" /></a>
   <a href="LICENSE"><img alt="licence MIT" src="https://img.shields.io/badge/licence-MIT-2F5FD0?style=flat" /></a>
-  <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
+  <img alt="Node 22.13 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
   <a href="https://github.com/NexusGPT/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NexusGPT/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
 
-driftbench is an open-source tool that tests AI agents. An agent can be a chat assistant, or a program that writes code and files. You describe a conversation as a list of steps, and what must be true after each step. driftbench runs the list against your agent, scores every step, and tells you how far to trust the score.
+driftbench is an open-source tool that tests AI agents. An agent can be a chat assistant, or a program that writes code and files. You describe a conversation as a list of steps. For each step, you say what must be true afterwards. driftbench runs the list against your agent and scores every step. It also tells you how far to trust the score.
 
-Works with any agent through an [adapter](docs/extending.md#adapters), the small piece that connects driftbench to your agent. No account, no server. MIT, TypeScript, Node 22 or newer.
+Works with any agent through an [adapter](docs/extending.md#adapters), the small piece that connects driftbench to your agent. No account, no server. MIT, TypeScript, Node 22.13 or newer.
 
 ## What an evaluation is
 
@@ -94,8 +94,8 @@ Each problem below names the pages we read. A page that does not show a capabili
   </picture>
 </a>
 
-1. **A whole conversation gets one score.** The tools score a scenario, a test row, a conversation, a sample or a trace (row 1 of the [comparison](docs/comparison.md)). Examples: [DeepEval's multi-turn test case](https://deepeval.com/docs/evaluation-multiturn-test-cases) and [LangWatch Scenario's executor](https://github.com/langwatch/scenario/blob/main/python/scenario/scenario_executor.py). When a conversation fails, you read it to find the step.
-2. **Tests are written by hand, or by a model.** You write rows, as in [promptfoo test cases](https://www.promptfoo.dev/docs/configuration/test-cases/), or import them from traces, or a model writes them, as with the [DeepEval golden synthesizer](https://deepeval.com/docs/golden-synthesizer). Rows 2, 19 and 20.
+1. **A whole conversation gets one score.** The tools score one scenario, row, conversation, sample or trace (row 1 of the [comparison](docs/comparison.md)). For example, [DeepEval's multi-turn test case](https://deepeval.com/docs/evaluation-multiturn-test-cases) and [LangWatch Scenario's executor](https://github.com/langwatch/scenario/blob/main/python/scenario/scenario_executor.py). When a conversation fails, you read it to find the step.
+2. **Tests are written by hand, or by a model.** You write rows, as in [promptfoo test cases](https://www.promptfoo.dev/docs/configuration/test-cases/). Or you import them from traces. Or a model writes them, as with the [DeepEval golden synthesizer](https://deepeval.com/docs/golden-synthesizer). Rows 2, 19 and 20.
 3. **One judge model, seldom checked.** You pick a judge model ([promptfoo](https://www.promptfoo.dev/docs/configuration/expected-outputs/model-graded/), [LangWatch](https://langwatch.ai/scenario/basics/judge-agent)). Inspect documents a [cascade of scorers](https://inspect.aisi.org.uk/multiple-scorers.html). We found no page that checks a judge against human labels before it scores in LangWatch, promptfoo, DeepEval, Opik or Braintrust (row 12). Langfuse shows part of it with [annotation queues](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues).
 4. **Few scores show an error bar.** Inspect, Opik and Langfuse show part of it, for example on the [Inspect metrics page](https://inspect.aisi.org.uk/metrics.html). We found no interval or significance test on the pages read for LangWatch, promptfoo, DeepEval and Braintrust (row 17).
 5. **Every change reruns everything.** LangWatch Scenario and Inspect cache model calls ([Scenario cache](https://langwatch.ai/scenario/basics/cache), [Inspect caching](https://inspect.aisi.org.uk/caching.html)), and promptfoo and DeepEval document part of a cache. A cache replays a call that did not change. We found no page that picks the tests an edited instruction can affect (row 22).
@@ -113,9 +113,9 @@ driftbench closes the loop in six steps. For each step, this section says what h
 
 ### 1. Set up your agent
 
-You give driftbench what defines the agent: its prompt, its skills and its tool descriptions. driftbench reads them as a list of rules, so a test can point at the rule it checks.
+You give driftbench what defines the agent: its prompt, its skills and its tool descriptions. driftbench reads them as a list of rules. A test can then point at the rule it checks.
 
-- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 16 of 934 blocks, where a **block** is one user message and the checks on the agent's reply ([walkthrough](docs/rule-links.md), run in CI).
+- **Rules with an id.** driftbench cuts a prompt into rules and gives each rule an id that survives edits. A test names the rule it checks. When you edit one rule, driftbench finds the tests of that rule by id, with no model call. On a fictional estate, one edit reruns 16 of 934 blocks. A **block** is one user message and the checks on the agent's reply ([walkthrough](docs/rule-links.md), run in CI).
 - **Agents that write files.** The same tests cover code agents. driftbench reads what the agent leaves behind, such as spreadsheet cells and documents. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read.
 
 <details><summary>How to do it: link a test to a rule</summary>
@@ -183,7 +183,7 @@ You do not write the tests one by one. You list what the agent can face, and you
 </a>
 
 - **Tests written by code.** From your list, code writes the fewest tests that put every pair of situations together at least once. Code derives each expected outcome from the map, so the agent's own reply never sets the bar. On the Acme example map, this is 5.8× fewer tests than all the combinations ([how we measured](docs/comparison/methods.md#tests-written-by-code)).
-- **A validity gate.** A test is kept only if a bug planted on purpose makes it fail, and a reply that is always the same cannot pass it. You stop paying for tests that cannot catch anything.
+- **A validity gate.** A test is kept only if a bug planted on purpose makes it fail. A reply that is always the same cannot pass it. You stop paying for tests that cannot catch anything.
 - **Parent blocks.** Tests that start the same way share one opening. If the opening fails, the report counts one failure. On a simulated tree, this cut the error in the number of root causes to 8.4 against 38.2 for flat counting ([parent study](https://github.com/NexusGPT/driftbench/pull/416)).
 - **Personas.** One test, played by different simulated customers, such as a terse one and a chatty one. Simulated users ship today. Persona objects and numeric behaviour draws are research results and are not built yet ([#418](https://github.com/NexusGPT/driftbench/pull/418), [#444](https://github.com/NexusGPT/driftbench/pull/444)).
 
@@ -315,11 +315,11 @@ driftbench runs each test against your agent, several times, and judges each ste
 
 - **Blocks.** A step of a conversation is a block: where it starts, what the user says, and what must be true after it. Every block gets its own verdict, so a failure has an address, such as `block 1 forbidden.order.create`.
 - **Rules first, then judges.** Code checks what code can check: tool calls, text, language, personal data, files. A failed rule is final. A model judge only decides what code cannot.
-- **A mixture of judges.** A cheap, fast judge reads every answer and says how sure it is. When it is sure, it decides. When it is not, the answer goes to the expert that fits: a check of a fact or a sum, a careful reasoning judge, or a panel of models. You pay for the costly judge only on the hard answers. On three sealed sets, this scored at least as well as promptfoo's judge with 3.5 to 19.4 times fewer costly reasoning calls. On writing, a rule that picks the longer reply scores 69.7, above both ([how we measured](docs/comparison/methods.md#mixture-of-judges)). It runs today from the research harness and from the opt-in `createEscalation` API.
-- **Judges that earn their place.** A judge owns a criterion only after it tells a passing transcript from a failing one in 3 repeats out of 3, and agrees with your hand labels.
+- **A mixture of judges.** A cheap, fast judge reads every answer and says how sure it is. When it is sure, it decides. When it is not, the answer goes to the expert that fits. That is a check of a fact or a sum, a careful reasoning judge, or a panel of models. You pay for the costly judge only on the hard answers. On three sealed sets, this scored at least as well as promptfoo's judge with 3.5 to 19.4 times fewer costly reasoning calls. On writing, a rule that picks the longer reply scores 69.7, above both ([how we measured](docs/comparison/methods.md#mixture-of-judges)). It runs today from the research harness and from the opt-in `createEscalation` API.
+- **Judges that earn their place.** A judge owns a criterion only after it tells a pass from a fail in 3 repeats out of 3. It must also agree with your hand labels.
 - **Value checks.** When the agent writes `+1 202 555 0131` and you expected `+12025550131`, driftbench asks the tool whether both reach the same record. In our study, the tool settled 59 of 116 format disputes ([value study](https://github.com/NexusGPT/driftbench/pull/441)).
 - **A range on every rate.** Every rate carries a 95% interval. Before a campaign spends anything, driftbench prints the smallest effect it can detect.
-- **Drift and recovery.** driftbench injects a surprise at any step, such as a customer who changes the goal, and counts how many steps the agent needs to come back.
+- **Drift and recovery.** driftbench injects a surprise at any step, such as a customer who changes the goal. It counts how many steps the agent needs to come back.
 
 <a href=".github/readme/moj-light.png">
   <picture>
@@ -415,7 +415,7 @@ blocks:
       criteria: [confirms_first@gating] # A judged fail fails this block
 ```
 
-[Panel wiring in code](docs/concepts/judges.md#label-blind-escalation). A panel that saw only the unsure answers lifted the MM-Eval score from 89.49 to 91.54 on 1,212 sealed items, and 48 items went to the panel ([how we measured](docs/comparison/methods.md#mm-eval-a-panel-only-when-unsure)).
+[Panel wiring in code](docs/concepts/judges.md#label-blind-escalation). A panel that saw only the unsure answers lifted the MM-Eval score from 89.49 to 91.54 on 1,212 sealed items. Only 48 items went to the panel ([how we measured](docs/comparison/methods.md#mm-eval-a-panel-only-when-unsure)).
 
 </details>
 
@@ -624,7 +624,7 @@ The fault finder ships as rule files and a runner. `driftbench report` and `drif
 
 <details><summary>How to do it: read what the fault finder reads</summary>
 
-A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the fixes from the stored diagnoses. [The Northwind campaign](docs/northwind-campaign.md) runs this on four tasks of a fictional code agent, with a free rehearsal. The reference lists every evidence name a rule can read, every item of the shipped blame and placement rules, and the steps of the five shipped diagnostics. See the [blame reference](docs/reference/blame.md) and the [diagnostics help topic](packages/cli/help/running-diagnostics.md).
+A spec asks for a diagnostic with `uses.diagnostics`, and the report lists the fixes from the stored diagnoses. [The Northwind campaign](docs/northwind-campaign.md) runs this on four tasks of a fictional code agent, with a free rehearsal. The reference lists every evidence name a rule can read. It lists every item of the shipped blame and placement rules. It also lists the steps of the five shipped diagnostics. See the [blame reference](docs/reference/blame.md) and the [diagnostics help topic](packages/cli/help/running-diagnostics.md).
 
 </details>
 
@@ -639,7 +639,7 @@ After a fix, driftbench does not rerun everything. Every block declares what it 
   </picture>
 </a>
 
-On the Acme suite, a change to the coverage check input sends 86 of 867 blocks, which is 90.1% fewer, and the same 86 blocks fail as in a full run. A recap change sends 606 of 867. A change to the reply language rule touches every block, so it skips none ([blast radius](docs/concepts/blast-radius.md), [how we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)).
+On the Acme suite, a change to the coverage check input sends 86 of 867 blocks, which is 90.1% fewer. The same 86 blocks fail as in a full run. A recap change sends 606 of 867. A change to the reply language rule touches every block, so it skips none ([blast radius](docs/concepts/blast-radius.md), [how we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)).
 
 <details><summary>How to do it: list the blocks a change touches</summary>
 
@@ -678,7 +678,7 @@ The command lists the blocks to rerun and runs nothing. [Full description](docs/
 
 ## Start here: the full guide
 
-The full guide teaches driftbench by doing. Each part says why you do a step, shows the exact command with every option explained, prints real output, says how to read it, and says what to do when it goes wrong.
+The full guide teaches driftbench by doing. Each part says why you do a step. It shows the exact command with every option explained. It prints real output and says how to read it. It also says what to do when it goes wrong.
 
 Install it from a clone:
 
@@ -694,8 +694,8 @@ The npm package catches up at the next release.
 
 - [**The guide, in reading order**](docs/guide/index.md): what to read first, and every term explained with an example.
 - [**Quickstart**](docs/guide/quickstart.md): test a small agent in about two minutes. No API key, no model call.
-- [**A walkthrough on your own agent**](docs/guide/walkthrough.md): from your agent's files to a list of tests, run one, change a rule, and rerun only the tests it can affect.
-- Then, one part each, in the same shape: [write tests by hand](docs/guide/write-tests.md), [generate tests](docs/guide/generate-tests.md), [run your agent](docs/guide/run-your-agent.md), [judge answers](docs/guide/judge-answers.md), [read the numbers](docs/guide/read-the-numbers.md), [diagnose and fix](docs/guide/diagnose-and-fix.md), [rerun less](docs/guide/rerun-less.md), [prove the evaluator](docs/guide/prove-the-evaluator.md).
+- [**A walkthrough on your own agent**](docs/guide/walkthrough.md): go from your agent's files to a list of tests. Run one, change a rule, and rerun only the tests it can affect.
+- Then come the parts, one each, in the same shape: [write tests by hand](docs/guide/write-tests.md), [generate tests](docs/guide/generate-tests.md), [run your agent](docs/guide/run-your-agent.md), [judge answers](docs/guide/judge-answers.md). Then [read the numbers](docs/guide/read-the-numbers.md), [diagnose and fix](docs/guide/diagnose-and-fix.md), [rerun less](docs/guide/rerun-less.md) and [prove the evaluator](docs/guide/prove-the-evaluator.md).
 
 ## Results
 
@@ -878,7 +878,7 @@ Each test is run against the correct agents and against agents with planted faul
 
 </details>
 
-**Found in full in none of the other seven tools we read.** Six capabilities: [recovery metrics](docs/concepts/recovery.md), [drift across turns](docs/concepts/drift.md), [judge calibration](docs/concepts/judges.md#calibration-an-assignment-is-earned), [intervals and significance tests](docs/concepts/statistics.md), [end state assertions](docs/reference/checks.md#end-state) and [multi-language handling](docs/reference/checks.md#text-and-language). The table, with a test per row, is on the [features page](docs/features.md#what-it-does).
+**Found in full in none of the other seven tools we read.** Six capabilities: [recovery metrics](docs/concepts/recovery.md), [drift across turns](docs/concepts/drift.md) and [judge calibration](docs/concepts/judges.md#calibration-an-assignment-is-earned). Then [intervals and significance tests](docs/concepts/statistics.md), [end state assertions](docs/reference/checks.md#end-state) and [multi-language handling](docs/reference/checks.md#text-and-language). The table, with a test per row, is on the [features page](docs/features.md#what-it-does).
 
 <a href=".github/readme/capability-matrix-light.png">
   <picture>

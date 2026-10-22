@@ -1,6 +1,6 @@
 # Quickstart
 
-About two minutes, most of it the install. You need Node 22 or newer and npm. No API key: the agent below is a short script that stands in for yours.
+About two minutes, most of it the install. You need Node 22.13 or newer and npm. No API key: the agent below is a short script that stands in for yours.
 
 This page uses `campaign run`, which runs test files you wrote against any target. If your agent is a Claude Code folder and you want driftbench to write the tests, use `estate run` in the [walkthrough](walkthrough.md) instead.
 

@@ -8,7 +8,7 @@ This is a hands-on guide to running driftbench specs inside a vitest suite. Vite
 
 **What you need.**
 
-- Node 22 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
+- Node 22.13 or newer, and driftbench installed from a clone, as the [guide index](index.md#install) shows. That gives you the command `driftbench`. Run this page from the root of the clone.
 - A working folder named `vitest-demo`, made inside the clone by step 1.
 
 **What you install.** In your own project, you add three packages: the vitest plugin of driftbench, the adapters package that holds `functionAdapter`, and vitest itself. This line is not run by our tests, because it changes your project:

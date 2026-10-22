@@ -214,6 +214,13 @@ The test of step 1 already holds the links, in `metadata.links`. One line reads:
 - { block: recap, to: { kind: prompt_section, prompt: acme-sales, section: recap }, status: declared, created_by: author }
 ```
 
+Find that line in the test file:
+
+```console
+$ grep -F -- "- { block: recap, to: { kind: prompt_section, prompt: acme-sales, section: recap }, status: declared, created_by: author }" specs/order.yaml
+    - { block: recap, to: { kind: prompt_section, prompt: acme-sales, section: recap }, status: declared, created_by: author }
+```
+
 - `block: recap` is the block that carries the link.
 - `to` names the section: `kind: prompt_section`, the prompt `acme-sales`, and the section id `recap`.
 - `status: declared` says an author wrote the link. A mutation run can later mark it `verified` or `refuted`.
