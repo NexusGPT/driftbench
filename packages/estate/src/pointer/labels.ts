@@ -45,9 +45,14 @@ export const LinkKind = z
   .refine((kind) => (kind.to === undefined) !== (kind.values === undefined), {
     error: 'a link kind names `to` (atom kinds) or `values` (a closed list), one of the two',
   })
-  .refine((kind) => kind.number === undefined || (kind.values !== undefined && kind.values.every((v) => COMPARISONS.has(v))), {
-    error: 'a numeric link kind names `values`, each one of lt, le, gt, ge',
-  });
+  .refine(
+    (kind) =>
+      kind.number === undefined ||
+      (kind.values !== undefined && kind.values.every((v) => COMPARISONS.has(v))),
+    {
+      error: 'a numeric link kind names `values`, each one of lt, le, gt, ge',
+    },
+  );
 export type LinkKind = z.infer<typeof LinkKind>;
 
 type FieldValue = string | number | boolean | FieldValue[] | { [key: string]: FieldValue };

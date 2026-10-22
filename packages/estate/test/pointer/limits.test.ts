@@ -57,7 +57,12 @@ const play = async (links: unknown) => {
     root,
     reader: new ClaudeCodeReader(),
     now: NOW,
-    pointer: { sets: sets(), labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+    pointer: {
+      sets: sets(),
+      labelling: pointer.singleLabelling(labeler),
+      cassette: new pointer.Cassette(),
+      mode: 'record',
+    },
   });
 };
 
@@ -67,7 +72,10 @@ const atomOf = (result: Awaited<ReturnType<typeof play>>, quote: string) =>
 describe('a labeller returns a numeric limit as structured fields', () => {
   it('reads a set that declares a numeric link kind, and refuses one with no closed list', () => {
     expect(pointer.parseLabelSets(SET).ok).toBe(true);
-    const open = SET.replace('values: [lt, le, gt, ge]\n        number: true', 'to: [instruction]\n        number: true');
+    const open = SET.replace(
+      'values: [lt, le, gt, ge]\n        number: true',
+      'to: [instruction]\n        number: true',
+    );
     expect(pointer.parseLabelSets(open).ok).toBe(false);
   });
 
@@ -108,7 +116,12 @@ describe('a labeller returns a numeric limit as structured fields', () => {
         ? ([
             { units: '1', label: 'remark' },
             { units: '2', label: 'order' },
-            { units: '3', label: 'bound', target: 2, links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+            {
+              units: '3',
+              label: 'bound',
+              target: 2,
+              links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }],
+            },
           ] as pointer.Labelled[])
         : [{ units: `1-${window.units.length}`, label: 'none' }],
     );
@@ -116,7 +129,12 @@ describe('a labeller returns a numeric limit as structured fields', () => {
       root,
       reader: new ClaudeCodeReader(),
       now: NOW,
-      pointer: { sets: sets(), labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+      pointer: {
+        sets: sets(),
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
     });
     const atom = atomOf(result, 'Warn the skipper');
     const condition = atom?.fields?.condition as unknown[];
