@@ -138,7 +138,7 @@ describe('the blind bank bound to the reader', () => {
             return out;
           },
         },
-        () => labelsLevel(),
+        () => labelsLevel(inProcess),
       );
     // A ledger that keeps no key, and one that names a key the scan did not record.
     for (const passes of [await losing(() => 'none'), await losing(() => 'cassette:000000000000')]) {
