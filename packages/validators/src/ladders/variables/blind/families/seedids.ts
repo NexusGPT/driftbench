@@ -54,10 +54,10 @@ export const SEEDIDS_STEMS: readonly Stem[] = [
           assertRowsSound(spaceOf(store), plan, seeds);
           const got = plan.rows.slice(0, 2).map((r) => r.id);
           must(
-            got[0] === 'first.row' &&
-              got[1] === 'second.row' &&
+            got[0] === 'seed.first.row' &&
+              got[1] === 'seed.second.row' &&
               plan.rows.slice(0, 2).every((r) => r.kind === 'seed'),
-            () => `the seed rows are named ${show(got)}; the ids given were first.row and second.row`,
+            () => `the seed rows are named ${show(got)}; the ids given were first.row and second.row, so the rows are seed.first.row and seed.second.row`,
           );
         },
       ],
