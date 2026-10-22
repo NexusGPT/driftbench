@@ -543,7 +543,11 @@ describe('spans and links in a label set', () => {
       { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
     ]);
     expect(plain).toEqual(entries[3]);
-    expect(range).toEqual(entries[4]);
+    // A range carries no spans, and the words of its spans stay out of the answer that is recorded.
+    expect(range?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the entry is not one unit of the window' },
+    ]);
+    expect(JSON.stringify(range)).not.toContain('Never edit it');
     expect(offsets).toEqual(entries[5]);
     // The drop that follows names why the words were not located, not a bad offset; the label stands.
     const dropped = checkAnswer(set, window, [absent as Labelled], context);
@@ -552,6 +556,39 @@ describe('spans and links in a label set', () => {
     expect(dropped.dropped[0]).not.toMatch(/offsets leave the unit/);
     const accepted = checkAnswer(set, window, [found as Labelled], context);
     expect(accepted.accepted.get(1)?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
+  });
+
+  it('locates a text one occurrence for each listing when the entry lists it as often as the unit holds it', () => {
+    const text = 'Read `a.md` before editing; read `a.md` before sending.';
+    const own = {
+      id: 'w',
+      path: 'w.md',
+      headingPath: [],
+      units: [{ n: 1, text, index: 0 }],
+    };
+    const [both, once] = offsetSpans(
+      [
+        {
+          units: '1',
+          label: 'rule',
+          spans: [
+            { kind: 'act', text: '`a.md`' },
+            { kind: 'act', text: '`a.md`' },
+          ],
+        },
+        { units: '1', label: 'rule', spans: [{ kind: 'act', text: '`a.md`' }] },
+      ],
+      own,
+    );
+    const first = text.indexOf('`a.md`');
+    const second = text.indexOf('`a.md`', first + 1);
+    expect(both?.spans).toEqual([
+      { kind: 'act', from: first, to: first + 6 },
+      { kind: 'act', from: second, to: second + 6 },
+    ]);
+    expect(once?.spans).toEqual([
+      { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
+    ]);
   });
 
   it('refuses a span kind the set declares but the label does not list', () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   atomsByUnit,
+  CutError,
   cut,
   editCounts,
   type Ledger,
@@ -282,5 +283,20 @@ describe('the ledger of the files as they are now', () => {
     // ledger of an edit holds none either, and the file is no new unit that makes the whole suite rerun.
     const documents = [{ path: 'yard/notes.md', role: 'fixture' as const, reasons: ['recorded'] }];
     expect(files(proseLedger(raw(), undefined, 'hall', documents))).toEqual(['CLAUDE.md']);
+  });
+
+  it('refuses a file nested too deep with its name and a code, and does not read it as lost units', () => {
+    const deep = `${Array.from({ length: 150 }, (_, i) => `${'  '.repeat(i)}- level ${i}`).join('\n')}\n`;
+    const estate = raw();
+    estate.prose.push({ id: 'c3', file: 'yard/deep.md', startLine: 1, endLine: 150, text: deep });
+    estate.files.push({ path: 'yard/deep.md', kind: 'other', text: deep });
+    let refusal: unknown;
+    try {
+      proseLedger(estate, undefined, 'hall');
+    } catch (cause) {
+      refusal = cause;
+    }
+    expect(refusal).toBeInstanceOf(CutError);
+    expect(refusal).toMatchObject({ code: 'nesting', path: 'yard/deep.md', depth: 150 });
   });
 });

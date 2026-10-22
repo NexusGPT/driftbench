@@ -48,6 +48,7 @@ import {
   type SessionFile,
   type SessionRecord,
   type StateLibrary,
+  type StateLibraryDigest,
   sessionFileText,
 } from './states';
 import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
@@ -107,6 +108,8 @@ export type ClaudeCodeLiveOptions = {
   sessionState?: readonly LiveOp[];
   /** Operations by `vars.session_state` and `vars.event`. */
   library?: StateLibrary;
+  /** The library file: its path, digest and the digest of each prefix file, written into every block record. */
+  libraryFile?: { path: string } & StateLibraryDigest;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
   /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
@@ -608,6 +611,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
+            ...(options.libraryFile === undefined ? {} : { stateLibrary: options.libraryFile }),
             attempts,
             ops: ops.map((op) => op.op),
             notes,

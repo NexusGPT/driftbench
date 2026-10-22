@@ -155,6 +155,25 @@ describe('the pointer scan', () => {
     );
   });
 
+  it('shows a plain text file to the labeler one line at a time where a line is a title, and a markdown file whole', async () => {
+    const text = 'ROPES\nNever coil a rope that another skipper holds, note a.\n';
+    const seen: Record<string, string[]> = {};
+    const labeler = plantedDense((window, set) => {
+      seen[window.path] = window.units.map((unit) => unit.text);
+      return byLength(window, set);
+    });
+    await pointerScan(
+      input(labeler, new Cassette(), {
+        files: [
+          { path: 'ropes.txt', text },
+          { path: 'ropes.md', text },
+        ],
+      }),
+    );
+    expect(seen['ropes.txt']).toEqual(['ROPES', 'Never coil a rope that another skipper holds, note a.']);
+    expect(seen['ropes.md']).toEqual([text.trim()]);
+  });
+
   it('keeps a label of the ledger without asking again', async () => {
     const first = await pointerScan(input(plantedDense(byLength), new Cassette()));
     const log: string[] = [];
