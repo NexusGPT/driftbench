@@ -566,11 +566,17 @@ describe('runs that split between labels of one atom kind', () => {
     new Set(result.ledger.entries.map((entry) => entry.labels.duty?.label ?? '(unlabeled)'));
 
   it('takes the label of the kind most runs give when no single label has a majority', async () => {
-    // order 2, ban 2, remark 1: no label has three of five, but four runs build an instruction. The two labels tie,
-    // so the earliest run's label, order, stands.
-    const result = await scan(['order', 'ban', 'order', 'ban', 'remark']);
+    // order 2, ban 1, remark 1, aside 1: no label has three of five, but three runs build an instruction, and order is
+    // the label most of them give.
+    const result = await scan(['order', 'remark', 'ban', 'aside', 'order']);
     expect(result.unlabeled).toBe(0);
     expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
+  it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
   it('decides between labels that build no atom, as one group', async () => {
@@ -618,12 +624,16 @@ describe('an even split of the runs between the generic rule and a specific labe
     labels:
       - name: rule
         description: A unit that tells the skipper to do something.
+        atom: { kind: instruction, polarity: obligation }
       - name: gate
         description: A unit that sets one act before another.
+        atom: { kind: gate }
       - name: hazard-compaction
         description: A unit about what the skipper does after the log was cut short.
+        atom: { kind: hazard }
       - name: prohibition
         description: A unit that forbids.
+        atom: { kind: instruction, polarity: prohibition }
       - name: condition
         description: A unit that only says when another unit applies.
         target: required
