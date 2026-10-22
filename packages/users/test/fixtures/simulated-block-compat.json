@@ -2128,7 +2128,7 @@
     "examples/estates/sessions/specs/negative-control.yaml": "891b09607454 fbab4957f2515cda4367a680f9b54f037e9d74b507cc1bf6e0eaa2e7942e3ab2",
     "examples/estates/sessions/specs/price-sheet-build.yaml": "e9338740468f 6400807e9f55300022aa3eb9b655862969a1b14a1742e4cf8f593c43fadaffd7",
     "examples/estates/sessions/specs/skill-skipped.yaml": "461f34d749aa 3aa8efe0182bdcdd619cdc2fe60e7a8c129790b2b8bd80243ad256e7d6b5e614",
-    "examples/estates/sessions/specs/subagent-dispatch.yaml": "9e4e8715dd0c e283d6a6b02156bd53d591adea1aec929d0b42670c2e89e21ce08af6ab751009",
+    "examples/estates/sessions/specs/subagent-dispatch.yaml": "9bba1a48a703 090c450636afc5e26a2573b8b70d444448a5b5f7640cf4f3ae74a880c86f94ab",
     "examples/http-target/specs/hello.yaml": "1fb0f00880a1 3e027ee9f47eef3b7640d820b452d4948a78191e160f0eb51c191333ccba2653",
     "examples/northwind-campaign/probe/specs/branch-probe.yaml": "1757e1a0214c bf56bee4ac2d6eececfd1414bf014a830d62a77eea8dd4de5f1520066bc774ee",
     "examples/plugins/specs/hello.yaml": "d829cfb03dec 14801f969a826cdc8e710935416c8f334ddbcb7a9c0c37d20dfc005585dd8c35"

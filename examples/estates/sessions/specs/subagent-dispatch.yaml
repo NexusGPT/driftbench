@@ -1,5 +1,6 @@
 # Replays a session that dispatches a reviewer helper with a brief. The brief carries its fields and the
-# helper's own records are not counted as the agent's calls. Fictional data.
+# helper's own records are not counted as the agent's calls: the reviewer reads the file, the agent does not,
+# so the zero count is the agent's (`actor: main`). Fictional data.
 id: replay-subagent-dispatch
 kind: task
 title: A helper dispatched with a brief
@@ -15,7 +16,7 @@ blocks:
           input:
             subagent_type: code-reviewer
             prompt: { regex: '^Done when: ' }
-        - { label: Read, count: 0 }
+        - { label: Read, count: 0, actor: main }
       guards:
         - { name: brief-fields, verdict: allow, count: 1 }
       must: ['line 2']
