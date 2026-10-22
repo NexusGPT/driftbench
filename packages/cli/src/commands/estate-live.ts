@@ -43,7 +43,7 @@ import {
 import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { campaignProvenance } from './campaign-provenance';
-import { carryRequestFrom, type EstateCarryFlags, planEstateCarry } from './estate-carry';
+import { carryRequestFrom, type EstateCarryFlags, isTheOldStore, planEstateCarry } from './estate-carry';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
@@ -385,6 +385,12 @@ export async function estateRunCommand(
   const progressPath = options.progress === undefined ? undefined : resolve(io.cwd, options.progress);
   const carry = carryRequestFrom(options, storePath, io);
   if (carry === null) return 2;
+  if (carry && (await isTheOldStore(carry, storePath, io))) {
+    io.err(
+      '--store is the old store under another name (the same file, a symbolic link or a hard link): the run would write its results into it. Give --store a new file.\n',
+    );
+    return 2;
+  }
   try {
     store = await openStore(storePath);
   } catch (cause) {
@@ -428,12 +434,11 @@ export async function estateRunCommand(
       disallow: options.disallow ?? [],
       lockDeny: options.lockDeny ?? [],
       timeoutMs: timeoutMs ?? null,
+      // The name and a digest of the value of every variable the run sets or passes on, never the value: a result made
+      // with another value of one is refused, and the stamp holds nothing a person could read back.
       env: Object.keys(env)
         .sort()
-        .map((name) => [
-          name,
-          (options.setEnv ?? []).some((pair) => pair.startsWith(`${name}=`)) ? env[name] : null,
-        ]),
+        .map((name) => [name, contentHash({ name, value: env[name] })]),
       library: library ?? null,
       judge: judge.label,
       toolPolicy: settings.toolPolicy ?? null,

@@ -1,10 +1,10 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
 
@@ -975,6 +975,65 @@ describe('driftbench estate run --from', () => {
     expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
       'current execution context differs or cannot be proved',
     );
+  });
+
+  describe('a variable the run passes on', () => {
+    const NAME = 'NORTHWIND_PASSED_ON';
+    let before: string | undefined;
+    beforeEach(() => {
+      before = process.env[NAME];
+    });
+    afterEach(() => {
+      if (before === undefined) delete process.env[NAME];
+      else process.env[NAME] = before;
+    });
+
+    it('carries a result made with the same value and refuses one made with another', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const change = await manifest();
+      const same = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect((same.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      process.env[NAME] = 'south';
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      const json = next.json as CarryJson;
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+      expect(json.radius?.refused.map((entry) => entry.reason)).toContain(
+        'current execution context differs or cannot be proved',
+      );
+    });
+
+    it('keeps the value out of the store', async () => {
+      const calls = await counter();
+      process.env[NAME] = 'north-secret-value';
+      const old = await firstRun(calls, small(), '--pass-env', NAME);
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const store = await openStore(old.store);
+      const campaigns = await store.listCampaigns();
+      const runs = await store.listRuns({ campaignId: old.json.campaignId });
+      await store.close();
+      expect(JSON.stringify([campaigns, runs])).not.toContain('north-secret-value');
+      expect(await readFile(old.store, 'latin1')).not.toContain('north-secret-value');
+    });
+  });
+
+  it.each([
+    ['a symbolic link', symlink],
+    ['a hard link', link],
+  ])('refuses a --store that is %s to --from with exit 2 and leaves the old store as it was', async (_name, make) => {
+    const specs = small();
+    const calls = await counter();
+    const old = await firstRun(calls, specs);
+    const alias = join(await folder(), 'alias.db');
+    await make(old.store, alias);
+    const before = await readFile(old.store);
+    const next = await secondRun(calls, old.store, specs, '--change', await manifest(), '--store', alias);
+    expect(next.code).toBe(2);
+    expect(next.err).toContain('--store is the old store under another name');
+    expect(next.calls).toBe(0);
+    expect(await readFile(old.store)).toEqual(before);
   });
 
   it('refuses a bad combination of the flags with exit 2 and runs nothing', async () => {

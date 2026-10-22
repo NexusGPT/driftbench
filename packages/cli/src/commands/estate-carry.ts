@@ -1,4 +1,4 @@
-import { copyFile, mkdtemp, rm, stat } from 'node:fs/promises';
+import { copyFile, mkdtemp, realpath, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
@@ -101,6 +101,27 @@ export function carryRequestFrom(
     ...(maxCarry === undefined ? {} : { maxCarry }),
     ...(maxAge === undefined ? {} : { maxAge }),
   };
+}
+
+/**
+ * Whether the new store is the old one under another name: the same file, a symbolic link to it or a hard link to it.
+ * A path compared as text misses all three, and the run would then write its results into the old store. A new store
+ * that does not exist yet is a new file. The check compares the device and inode the two paths reach, and their
+ * resolved real paths.
+ */
+export async function isTheOldStore(request: CarryRequest, storePath: string, io: Io): Promise<boolean> {
+  const fromPath = resolve(io.cwd, request.from);
+  const [old, next] = await Promise.all([
+    stat(fromPath).catch(() => undefined),
+    stat(storePath).catch(() => undefined),
+  ]);
+  if (!old || !next) return false;
+  if (old.ino !== 0 && old.dev === next.dev && old.ino === next.ino) return true;
+  const [oldReal, nextReal] = await Promise.all([
+    realpath(fromPath).catch(() => fromPath),
+    realpath(storePath).catch(() => storePath),
+  ]);
+  return oldReal === nextReal;
 }
 
 export type EstateCarryPlan = {
