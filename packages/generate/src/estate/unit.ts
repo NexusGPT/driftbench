@@ -58,6 +58,8 @@ export const GuardCase = z.strictObject({
   inert: z.boolean().optional(),
   /** Recorded with an outcome that varied across the record runs: reported, never compared. */
   flaky: z.boolean().optional(),
+  /** Built by --record from the literals of the guard's own source, because no other case showed the guard at work. */
+  found: z.boolean().optional(),
 });
 export type GuardCase = z.infer<typeof GuardCase>;
 
@@ -271,7 +273,7 @@ export function unitTestOf(
   }
   const fields = atom.fields ?? {};
   // A catalogue check is run by a hook, not by a command of its own: it is tested by sending its trigger to
-  // that hook. Without a trigger or a host hook it is a counted gap, not a test.
+  // that hook. Without a trigger or a host guard it is a counted gap, not a test.
   if (fields.scope === 'catalogue') return checkTestOf(row, atom, atoms, base);
   const built = guardRunOf(testType, atom, atoms);
   return typeof built === 'string' ? built : { ...base, ...built };
@@ -339,7 +341,7 @@ export function specUnitOf(
   }
   const testType = SPEC_CASES[row.testType];
   if (testType === undefined) return `${row.testType} has no unit run`;
-  if (head.fields?.scope === 'catalogue') return `${head.id} is a check its host hook runs`;
+  if (head.fields?.scope === 'catalogue') return `${head.id} is a check its host guard runs`;
   const built = guardRunOf(testType, head, all, true);
   if (typeof built === 'string') return built;
   const declared = head.evidence.find((entry) => entry.type === 'guard')?.verdict;
@@ -479,7 +481,7 @@ function guardRunOf(
 /** Reasons a catalogue check gets no unit test; the report counts them as gaps. */
 export const CHECK_GAP = {
   trigger: 'needs a trigger: the map holds no material that sets the check off',
-  host: 'needs a host: no configured hook on its event names the check',
+  host: 'needs a host: no configured guard on its event names the check',
 } as const;
 
 /** The events and tools a check's event names: `PreToolUse (Bash)`, `Stop, PostToolUse`, `PreToolUse (Task/Agent)`. */
@@ -503,7 +505,7 @@ function checkTestOf(
 ): UnitTest | string {
   const fields = atom.fields ?? {};
   if (row.testType !== 'guard_positive') {
-    return `${atom.id} is a check its host hook runs; the host hook tests cover this test type`;
+    return `${atom.id} is a check its host guard runs; the host guard tests cover this test type`;
   }
   const trigger = Array.isArray(fields.trigger)
     ? (fields.trigger as unknown[]).filter((item): item is string => typeof item === 'string' && item !== '')

@@ -262,7 +262,7 @@ function report(
   if (checks.length > 0) {
     const exercised = checks.filter((result) => result.exercised).length;
     lines.push(
-      `Catalogue checks: ${exercised} of ${checks.length} exercised (the host hook's answer to the trigger names the check).`,
+      `Catalogue checks: ${exercised} of ${checks.length} exercised (the host guard's answer to the trigger names the check).`,
     );
   }
   lines.push(

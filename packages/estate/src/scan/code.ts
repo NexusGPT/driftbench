@@ -1,4 +1,6 @@
 import { basename, posix } from 'node:path';
+import remarkParse from 'remark-parse';
+import { unified } from 'unified';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import { isNormative, normativeEstate } from './document-roles';
 import { guardRuleSources } from './guard-rules';
@@ -512,6 +514,9 @@ export type NamedReference = {
   spelling: string;
   start: number;
   end: number;
+  /** Where the path token itself stands in the line: a link's destination, never its title; a code span's inside. */
+  tokenStart: number;
+  tokenEnd: number;
   /** Found as a loose word after a directive, not quoted, linked or backticked. */
   bare: boolean;
 };
@@ -519,6 +524,105 @@ export type NamedReference = {
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
   return pathMentions(line).map(({ path }) => path);
+}
+
+const MARKDOWN = unified().use(remarkParse);
+
+/** The part of a Markdown syntax tree node that the token finder reads. */
+type MarkdownNode = {
+  type: string;
+  position?: { start: { offset?: number }; end: { offset?: number } };
+  children?: MarkdownNode[];
+};
+
+/** A match-like value for a token the parser located: the span it claims and the exact place of its token. */
+function synthetic(
+  line: string,
+  start: number,
+  end: number,
+  tokenStart: number,
+  tokenEnd: number,
+): RegExpMatchArray {
+  const match = [line.slice(start, end), line.slice(tokenStart, tokenEnd)] as RegExpMatchArray;
+  match.index = start;
+  (match as RegExpMatchArray & { indices: Array<[number, number]> }).indices = [
+    [start, end],
+    [tokenStart, tokenEnd],
+  ];
+  return match;
+}
+
+/** `text` is what the parser decoded (a link's `url`, without its escapes); the offsets are those of the raw source. */
+type MarkdownToken = { start: number; end: number; tokenStart: number; tokenEnd: number; text: string };
+
+/**
+ * The code spans outside links and the links of a line, with the offsets of their tokens, from a CommonMark parse.
+ * A link's token is its destination (a `<...>` form without the angle brackets); the text of the link is never a
+ * token, so a code span or a path inside it is not a mention.
+ */
+function markdownTokens(line: string): { codes: MarkdownToken[]; links: MarkdownToken[] } {
+  const codes: MarkdownToken[] = [];
+  const links: MarkdownToken[] = [];
+  const visit = (node: MarkdownNode, insideLink: boolean): void => {
+    const from = node.position?.start.offset;
+    const to = node.position?.end.offset;
+    if (from === undefined || to === undefined) {
+      for (const child of node.children ?? []) visit(child, insideLink);
+      return;
+    }
+    if (node.type === 'inlineCode' && !insideLink) {
+      let ticks = 0;
+      while (line[from + ticks] === '`') ticks++;
+      const inner = line.slice(from + ticks, to - ticks);
+      const lead = inner.length - inner.trimStart().length;
+      const text = inner.trim();
+      const tokenStart = from + ticks + lead;
+      codes.push({ start: from, end: to, tokenStart, tokenEnd: tokenStart + text.length, text });
+      return;
+    }
+    if (node.type === 'link' && line[from] === '[') {
+      const children = node.children ?? [];
+      let i = children[children.length - 1]?.position?.end.offset ?? from + 1;
+      while (i < to && line[i] !== '(') i++;
+      i++;
+      while (i < to && /\s/.test(line[i] ?? '')) i++;
+      let tokenStart = i;
+      let tokenEnd = i;
+      if (line[i] === '<') {
+        tokenStart = i + 1;
+        tokenEnd = tokenStart;
+        while (tokenEnd < to && line[tokenEnd] !== '>') tokenEnd += line[tokenEnd] === '\\' ? 2 : 1;
+      } else {
+        let depth = 0;
+        while (tokenEnd < to) {
+          const char = line[tokenEnd] ?? '';
+          if (/\s/.test(char)) break;
+          if (char === '\\') {
+            tokenEnd += 2;
+            continue;
+          }
+          if (char === '(') depth++;
+          if (char === ')') {
+            if (depth === 0) break;
+            depth--;
+          }
+          tokenEnd++;
+        }
+      }
+      links.push({
+        start: from,
+        end: to,
+        tokenStart,
+        tokenEnd,
+        text: (node as unknown as { url: string }).url,
+      });
+      for (const child of children) visit(child, true);
+      return;
+    }
+    for (const child of node.children ?? []) visit(child, insideLink);
+  };
+  visit(MARKDOWN.parse(line) as unknown as MarkdownNode, false);
+  return { codes, links };
 }
 
 export function pathMentions(line: string): NamedReference[] {
@@ -530,13 +634,14 @@ export function pathMentions(line: string): NamedReference[] {
   const take = (
     match: RegExpMatchArray,
     token: string | undefined,
-    options: { wiki?: boolean; spaced?: boolean; bare?: boolean } = {},
+    options: { wiki?: boolean; spaced?: boolean; bare?: boolean; group?: number; exact?: boolean } = {},
   ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
     claimed.push([start, start + match[0].length]);
     if (!token) return;
-    const spelling = token.trim();
+    // A token the parser decoded is used exactly as it gave it, with no trimming or other edit.
+    const spelling = options.exact ? token : token.trim();
     let path = spelling
       .replace(/\\/g, '/')
       .replace(/^@/, '')
@@ -552,16 +657,42 @@ export function pathMentions(line: string): NamedReference[] {
       !/\.[A-Za-z0-9]+$/.test(path)
     )
       return;
-    found.push({ path, spelling, start, end: start + match[0].length, bare: options.bare === true });
+    // The token's exact place comes from the match's group indices, never from a search of the line.
+    const group = (match as RegExpMatchArray & { indices?: Array<[number, number] | undefined> }).indices?.[
+      options.group ?? 0
+    ];
+    const [rawStart, rawEnd] = group ?? [start, start + match[0].length];
+    const lead = (token.length - token.trimStart().length) | 0;
+    // A token the parser decoded (a link destination with escapes) keeps the raw offsets of its source text.
+    const tokenStart = options.exact ? rawStart : rawStart + lead;
+    const tokenEnd = options.exact ? rawEnd : tokenStart + spelling.length;
+    found.push({
+      path,
+      spelling,
+      start,
+      end: start + match[0].length,
+      tokenStart,
+      tokenEnd,
+      bare: options.bare === true,
+    });
   };
-  for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
-  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
-    take(match, match[1] ?? match[2], { spaced: true });
-  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g))
-    take(match, match[1] ?? match[2], { spaced: true });
-  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g))
-    take(match, match[1], { wiki: true, spaced: true });
-  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/g)) take(match, match[1] ?? match[2]);
+  // Links and code spans come from a CommonMark parse, each with its source offsets: a code span outside a link, and
+  // a link's destination (never its title, whatever the title holds: nested or escaped brackets, a code span).
+  const { codes, links } = markdownTokens(line);
+  for (const code of codes)
+    take(synthetic(line, code.start, code.end, code.tokenStart, code.tokenEnd), code.text, { group: 1 });
+  for (const link of links)
+    take(synthetic(line, link.start, link.end, link.tokenStart, link.tokenEnd), link.text, {
+      spaced: true,
+      group: 1,
+      exact: true,
+    });
+  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/dg))
+    take(match, match[1] ?? match[2], { spaced: true, group: match[1] !== undefined ? 1 : 2 });
+  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/dg))
+    take(match, match[1], { wiki: true, spaced: true, group: 1 });
+  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/dg))
+    take(match, match[1] ?? match[2], { group: match[1] !== undefined ? 1 : 2 });
   // Whole tokens, never a file name taken from inside a URL, a glob, an example or a link title. A loose token is
   // a path when it holds a folder separator, starts with `@`, or ends in an extension of letters ("notes.md"):
   // a dot alone ("e.g.", "v1.2") is not a file name.

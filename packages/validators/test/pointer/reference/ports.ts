@@ -4,7 +4,12 @@ import {
   type CassetteRow,
   canonical,
   hash,
+  JEV_WINDOW_UNITS,
+  keyOf,
+  NONE_DEFINITION,
   readableFor,
+  runsOf,
+  windowCap,
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
 import type { LabelAnswer, LabelEntry, ModelArm, Transport } from '../../../src/ladders/pointer/sut/port';
@@ -171,20 +176,33 @@ export type ModelCtx = {
   arm: ModelArm;
   transport: Transport;
   cassette: Cassette;
-  threshold?: number;
+  /** A system 2 labeler behind the system 1 arm: the arm is the first member of a stack. */
+  second?: boolean;
+  marginCut?: number;
+  passAt?: number;
+  failAt?: number;
+  /** A planted fault of this reference, named by the tests that show the bank sees it; absent for the honest reader. */
+  fault?: string;
+  /** `yesno` is the earlier system 1 protocol, kept so the bank can be shown to reject it. */
+  protocol?: 'choice' | 'yesno';
   cutDigestOf(file: string): string;
   warnings: string[];
   keyHeader: string;
 };
 
+/** The probability of every option of a choice, by unit number within the window. */
+export type Opinions = Map<number, Record<string, number>>;
+
 export type ModelResult =
-  | { kind: 'answer'; answer: LabelAnswer; key: string }
+  | { kind: 'answer'; answer: LabelAnswer; key: string; opinions?: Opinions }
   | { kind: 'refused'; reason: string }
   | { kind: 'error'; message: string };
 
 const HAIKU_URL = 'https://api.haiku.invalid/v1/messages';
 const JEV_URL = 'https://jev.invalid/v1/systemone';
-export const JEV_CAP = 250;
+export const DEFAULT_MARGIN_CUT = 0.65;
+export const DEFAULT_PASS_AT = 0.9;
+export const DEFAULT_FAIL_AT = 0.1;
 
 /** The model key from `~/.nexus-secrets`, read by path and never printed or recorded. */
 export function readKey(): string {
@@ -311,9 +329,11 @@ function cutDigestError(window: string): ModelResult {
   };
 }
 
-async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+/** The earlier system 1 protocol: one yes or no question per unit and label. Kept only as a planted wrong product. */
+async function jevYesNo(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   const unitState = ctx.arm === 'jev-unit';
-  const threshold = ctx.threshold ?? (unitState ? 0.7 : 0.4);
+  const threshold = unitState ? 0.7 : 0.4;
+  const JEV_CAP = 250;
   const askable = set.labels.filter((l) => l.target !== 'required');
   const label = plan.units.filter((u) => u.mode === 'label');
   const chunkSize = unitState ? 1 : Math.max(1, Math.floor(JEV_CAP / Math.max(1, askable.length)));
@@ -415,19 +435,231 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
   return { kind: 'answer', answer: { labels: decided }, key: lastKey };
 }
 
+/* ---------- the choice protocol ---------- */
+
+const askedLabels = (set: { labels: ParsedSet['labels'] }) =>
+  set.labels.filter((l) => l.target !== 'required');
+
+/** Why a probability vector is no vector: a missing option, a figure outside 0 to 1, a sum off one by over 0.01. */
+export function vectorProblem(vector: Record<string, unknown>, options: string[]): string | undefined {
+  for (const option of options) {
+    const p = vector[option];
+    if (typeof p !== 'number' || Number.isNaN(p)) return `no probability for ${option}`;
+    if (p < 0 || p > 1) return `the probability of ${option} is outside 0 to 1`;
+  }
+  const total = options.reduce((sum, option) => sum + (vector[option] as number), 0);
+  return Math.abs(total - 1) > 0.01 ? `the probabilities sum to ${total}` : undefined;
+}
+
+/** The option with the highest probability; the first of equals wins. */
+function topOption(vector: Record<string, number>, options: string[], fault?: string): string {
+  if (fault === 'first-above') {
+    const first = options.find((o) => o !== 'none' && (vector[o] ?? 0) >= 0.3);
+    if (first !== undefined) return first;
+  }
+  const pool = fault === 'ignore-none' ? options.filter((o) => o !== 'none') : options;
+  let best = pool[0] as string;
+  for (const option of pool) if ((vector[option] ?? 0) > (vector[best] ?? 0)) best = option;
+  return best;
+}
+
+/** What the stack settings say about a choice: the label system 1 decides alone, or undefined when system 2 decides. */
+export function sureLabel(vector: Record<string, number>, ctx: ModelCtx): string | undefined {
+  const ranked = Object.entries(vector).sort((a, b) => b[1] - a[1]);
+  const top = ranked[0];
+  if (!top) return undefined;
+  const settings = ctx.fault === 'settings-ignored';
+  const bounds =
+    !settings && ctx.fault !== 'bounds-ignored' && (ctx.passAt !== undefined || ctx.failAt !== undefined);
+  if (bounds) {
+    if (top[1] >= (ctx.passAt ?? DEFAULT_PASS_AT)) return top[0];
+    if (top[1] < (ctx.failAt ?? DEFAULT_FAIL_AT)) return 'none';
+    return undefined;
+  }
+  const configured = settings ? undefined : ctx.marginCut;
+  const cut = ctx.fault === 'margin-ignored' ? 0 : (configured ?? DEFAULT_MARGIN_CUT);
+  const margin = top[1] - (ranked[1]?.[1] ?? 0);
+  return margin >= cut ? top[0] : undefined;
+}
+
+function windowUnits(ctx: ModelCtx): number {
+  if (ctx.arm === 'jev-unit') return ctx.fault === 'unit-state-batches' ? 5 : 1;
+  return ctx.fault === 'cap-too-big' ? 250 : JEV_WINDOW_UNITS;
+}
+
+async function jevChoice(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const asked = askedLabels(set);
+  const options = [...asked.map((l) => l.name), 'none'];
+  const label = plan.units.filter((u) => u.mode === 'label');
+  const opinions: Opinions = new Map();
+  const decided: LabelEntry[] = [];
+  let lastKey = '';
+  const run = async (units: typeof label): Promise<ModelResult | undefined> => {
+    const sub: WindowPlan = { ...plan, units: units.map((u) => ({ ...u })) };
+    const state = userText(set, sub);
+    const criteria = Object.fromEntries([
+      ...asked.map((l) => [l.name, l.description]),
+      ...(ctx.fault === 'drop-none-option' ? [] : [['none', NONE_DEFINITION]]),
+    ]);
+    const questions: Record<string, unknown> = {};
+    for (const u of units)
+      questions[`u${u.n}`] = {
+        type: 'choice',
+        instructions: `Which label does unit [${u.n}] of the numbered text have?`,
+        criteria,
+      };
+    const request = { model: 'jev-fake', state, questions };
+    const key = sha256(canonicalCompact({ ...request, arm: ctx.arm }));
+    const want = {
+      key,
+      file: plan.file,
+      window: plan.id,
+      promptVersion: 'p1',
+      schemaVersion: 's1',
+      setName: set.set,
+      setHash: set.hash,
+      labeler: ctx.arm,
+      cutDigest: ctx.cutDigestOf(plan.file),
+      part: {
+        system: sha256(''),
+        user: sha256(state),
+        output: sha256(canonicalCompact(Object.keys(questions))),
+      },
+    };
+    lastKey = key;
+    let probabilities: Record<string, number>;
+    let used: Record<string, number> | undefined;
+    const hit = ctx.cassette.entries.get(key);
+    if (hit) {
+      if (hit.cutDigest !== want.cutDigest) return cutDigestError(plan.id);
+      probabilities = hit.answer.probabilities ?? {};
+    } else if (ctx.cassette.mode === 'replay') {
+      return missError(ctx, want);
+    } else {
+      const response = await ctx.transport({
+        url: JEV_URL,
+        headers: { 'content-type': 'application/json', 'api-key': ctx.keyHeader },
+        body: JSON.stringify(request),
+      });
+      if (response.status === 400 && /max_tokens_exceeded/.test(response.body)) {
+        if (units.length <= 1) return { kind: 'error', message: 'the endpoint refused a single unit' };
+        if (ctx.fault === 'no-halving') return { kind: 'error', message: 'the endpoint refused the window' };
+        const half = Math.ceil(units.length / 2);
+        const first = await run(units.slice(0, half));
+        if (first) return first;
+        return run(units.slice(half));
+      }
+      if (response.status !== 200)
+        return { kind: 'error', message: `the endpoint answered HTTP ${response.status}` };
+      let data: { model?: string; answers?: Record<string, { probabilities?: Record<string, unknown> }> };
+      try {
+        data = JSON.parse(response.body);
+      } catch {
+        return { kind: 'refused', reason: 'the response is not JSON' };
+      }
+      if (!data.answers || typeof data.answers !== 'object')
+        return { kind: 'error', message: 'bad_response: the answer holds no answers object' };
+      probabilities = {};
+      used = {};
+      for (const u of units) {
+        const given = data.answers[`u${u.n}`]?.probabilities ?? {};
+        const top = vectorProblem(given, options)
+          ? undefined
+          : topOption(given as Record<string, number>, options);
+        for (const option of options) {
+          const p = given[option];
+          if (typeof p !== 'number') continue;
+          used[`u${u.n}__${option}`] = p;
+          if (ctx.fault === 'probabilities-dropped' && option !== top) continue;
+          probabilities[`u${u.n}__${option}`] = p;
+        }
+      }
+      const entry: CassetteEntry = {
+        ...want,
+        model: String(data.model ?? ''),
+        stop_reason: 'end_turn',
+        usage: {},
+        answer: { probabilities },
+      };
+      receipt(ctx, entry, entry.model);
+      ctx.cassette.entries.set(key, entry);
+    }
+    for (const u of units) {
+      const given: Record<string, unknown> = Object.fromEntries(
+        options.map((o) => [o, (used ?? probabilities)[`u${u.n}__${o}`]]),
+      );
+      const problem = vectorProblem(given, options);
+      if (problem) return { kind: 'refused', reason: `unit ${u.n}: ${problem}` };
+      const vector = given as Record<string, number>;
+      opinions.set(u.n, vector);
+      decided.push({ units: String(u.n), label: topOption(vector, options, ctx.fault) });
+    }
+    return undefined;
+  };
+  const size = windowUnits(ctx);
+  for (let i = 0; i < label.length; i += size) {
+    const problem = await run(label.slice(i, i + size));
+    if (problem) return problem;
+  }
+  return { kind: 'answer', answer: { labels: decided }, key: lastKey, opinions };
+}
+
+/** A stack: system 1 decides a unit alone when its settings say it is sure, system 2 (three agreeing runs) the rest. */
+export async function askStack(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const first = await askModel(plan, set, ctx);
+  if (first.kind !== 'answer') return first;
+  const labels: LabelEntry[] = [];
+  const pending: number[] = [];
+  for (const u of plan.units.filter((unit) => unit.mode === 'label')) {
+    const vector = first.opinions?.get(u.n);
+    const sure = vector ? sureLabel(vector, ctx) : undefined;
+    if (sure === undefined) pending.push(u.n);
+    else labels.push({ units: String(u.n), label: sure });
+  }
+  if (pending.length > 0) {
+    const votes: Array<Map<number, { label: string; target?: number }>> = [];
+    for (let run = 0; run < 3; run += 1) {
+      const vote = await askModel(plan, set, { ...ctx, arm: 'haiku', second: false });
+      if (vote.kind !== 'answer') return vote;
+      const checked = validateAnswer(vote.answer, plan, set);
+      if (!checked.ok) return { kind: 'refused', reason: checked.reason };
+      votes.push(checked.labels);
+    }
+    for (const n of pending) {
+      const given = votes.map((m) => m.get(n));
+      const agreed = given[0];
+      if (!agreed || given.some((g) => g?.label !== agreed.label))
+        return { kind: 'refused', reason: `system 2 did not agree on unit ${n}` };
+      labels.push({
+        units: String(n),
+        label: agreed.label,
+        ...(agreed.target !== undefined ? { target: agreed.target } : {}),
+      });
+    }
+  }
+  labels.sort((a, b) => Number(a.units) - Number(b.units));
+  return { kind: 'answer', answer: { labels }, key: first.key };
+}
+
 /** One call of a model port for a window and a set. */
 export function askModel(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
   if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return fixtureReplay(plan, set, ctx);
-  return ctx.arm === 'haiku' ? haiku(plan, set, ctx) : jev(plan, set, ctx);
+  if (ctx.arm === 'haiku') return haiku(plan, set, ctx);
+  return ctx.protocol === 'yesno' ? jevYesNo(plan, set, ctx) : jevChoice(plan, set, ctx);
 }
 
 /** Supports the public reader wire format as well as this reference's legacy record format. */
 async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  if (ctx.protocol === 'yesno' && ctx.arm !== 'haiku')
+    return {
+      kind: 'error',
+      message: `cassette miss for ${plan.id}: the yes or no questions of ${ctx.arm} are not in the cassette`,
+    };
   const { hash: _setHash, ...set } = parsed;
   const units = plan.units.filter((u) => u.mode !== 'opaque' && u.mode !== 'read');
-  const cap =
-    ctx.arm === 'jev-unit' ? 1 : Math.min(60, ctx.arm === 'jev' ? Math.floor(250 / set.labels.length) : 60);
+  const cap = windowCap(ctx.arm);
   const labels: LabelEntry[] = [];
+  const opinions: Opinions = new Map();
   let lastKey = '';
   for (let offset = 0; offset < units.length; offset += cap) {
     const selected = units.slice(offset, offset + cap),
@@ -439,8 +671,6 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       selected.map((u, i) => ({ n: i + 1, text: u.text })),
       selected[0]?.path ?? [],
     );
-    const key = hash(canonical(wire));
-    lastKey = key;
     const want = readableFor(wire, {
       path: plan.file,
       window,
@@ -451,8 +681,18 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       model: String(wire.body.model),
       cutDigest: ctx.cutDigestOf(plan.file),
     });
+    const key =
+      ctx.fault === 'settings-in-key' && ctx.marginCut !== undefined
+        ? hash(canonical({ wire, readable: want, marginCut: ctx.marginCut }))
+        : keyOf(wire, want);
+    lastKey = key;
     const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
     let hit = rows.find((row) => row.key === key);
+    // Every run the arm is asked must be in the cassette, or the replay misses.
+    const missingRun = runsOf(ctx.arm).find(
+      (run) => !rows.some((row) => row.key === keyOf(wire, { ...want, run })),
+    );
+    if (hit && missingRun !== undefined && ctx.cassette.mode === 'replay') hit = undefined;
     if (!hit && ctx.cassette.mode === 'record') {
       const response = await ctx.transport({
         url: 'https://fixture.invalid',
@@ -463,7 +703,7 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       const body = JSON.parse(response.body) as {
         model: string;
         content?: Array<{ type: string; text: string }>;
-        answers?: Record<string, { noul: number }>;
+        answers?: Record<string, { probabilities?: Record<string, number> }>;
       };
       const recordedLabels =
         ctx.arm === 'haiku'
@@ -479,7 +719,12 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
             ? { labels: recordedLabels }
             : {
                 probabilities: Object.fromEntries(
-                  Object.entries(body.answers ?? {}).map(([k, v]) => [k, v.noul]),
+                  Object.entries(body.answers ?? {}).flatMap(([unit, answer]) =>
+                    Object.entries(answer.probabilities ?? {}).map(([option, p]) => [
+                      `${unit}__${option}`,
+                      p,
+                    ]),
+                  ),
                 ),
               }),
           returnedModel: body.model,
@@ -496,11 +741,19 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
           row.readable.path === plan.file && row.readable.window === window && row.readable.set === set.set,
       ) ??
       rows[0];
-    const differs = near
-      ? [...new Set([...Object.keys(want), ...Object.keys(near.readable)])].filter(
-          (k) => want[k] !== near.readable[k],
-        )
-      : [];
+    // Every run's record must agree with the request on every field but the run itself.
+    const pairs: Array<[Record<string, string>, Record<string, string>]> = [];
+    if (hit)
+      for (const run of runsOf(ctx.arm)) {
+        const found = rows.find((row) => row.key === keyOf(wire, { ...want, run }));
+        if (found) pairs.push([found.readable, { ...want, run }]);
+      }
+    if (pairs.length === 0 && near) pairs.push([near.readable, want]);
+    const differing = new Set<string>();
+    for (const [record, expected] of pairs)
+      for (const k of new Set([...Object.keys(expected), ...Object.keys(record)]))
+        if (expected[k] !== record[k]) differing.add(k);
+    const differs = [...differing];
     if (!hit || differs.length) {
       const fields = differs.length ? differs.join(', ') : 'file, window';
       return Promise.resolve({
@@ -511,19 +764,19 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     if (ctx.arm === 'haiku') {
       for (const label of hit.answer.labels ?? [])
         labels.push({ ...label, units: String(Number(label.units) + offset) });
-    } else
+    } else {
+      const options = [...askedLabels(set).map((l) => l.name), 'none'];
       for (const [index, unit] of selected.entries()) {
-        let best: { label: string; p: number } | undefined;
-        for (const label of set.labels) {
-          const p = hit.answer.probabilities?.[`u${index + 1}__${label.name}`];
-          if (typeof p === 'number' && (!best || p > best.p)) best = { label: label.name, p };
-        }
-        labels.push({
-          units: String(unit.n),
-          label:
-            best && best.p >= (ctx.threshold ?? (ctx.arm === 'jev-unit' ? 0.7 : 0.4)) ? best.label : 'none',
-        });
+        const given: Record<string, unknown> = Object.fromEntries(
+          options.map((o) => [o, hit.answer.probabilities?.[`u${index + 1}__${o}`]]),
+        );
+        const problem = vectorProblem(given, options);
+        if (problem) return { kind: 'refused', reason: `unit ${unit.n}: ${problem}` };
+        const vector = given as Record<string, number>;
+        opinions.set(unit.n, vector);
+        labels.push({ units: String(unit.n), label: topOption(vector, options, ctx.fault) });
       }
+    }
   }
-  return Promise.resolve({ kind: 'answer', answer: { labels }, key: lastKey });
+  return Promise.resolve({ kind: 'answer', answer: { labels }, key: lastKey, opinions });
 }

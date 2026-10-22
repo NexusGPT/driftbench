@@ -18,12 +18,14 @@ export {
   fitRecords,
   type LiveOp,
   loadStateLibrary,
+  loadStateLibraryWithDigest,
   opsForTurn,
   projectFolderName,
   readSessionRecords,
   type SessionFile,
   type SessionRecord,
   type StateLibrary,
+  type StateLibraryDigest,
   sessionFileText,
 } from './states';
 export {
