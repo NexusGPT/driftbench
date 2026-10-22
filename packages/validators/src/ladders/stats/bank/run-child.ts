@@ -31,6 +31,7 @@ async function main(args: readonly string[]): Promise<void> {
     seed,
     tag: `stats:${seed}:${start}:${process.pid}`,
     functions: 'source',
+    aliasing: true,
   });
   // The bank also imports the target transitively: load it only after the trap is active.
   const { useProductClock } = await import('./scale');
@@ -49,7 +50,10 @@ async function main(args: readonly string[]): Promise<void> {
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);
     const began = performance.now();
     const mark = frame.position();
-    const ran = await runItem(item, seed, root as string, s);
+    const ran = await runItem(item, seed, root as string, s, {
+      mark: () => frame.position(),
+      aliased: (since) => frame.aliasSince(since),
+    });
     // A call whose runs answered differently makes the item fail whatever the item concluded.
     const split = frame.divergenceSince(mark);
     const outcome = split

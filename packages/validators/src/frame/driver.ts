@@ -47,6 +47,7 @@ function fill(template: string, name: (key: string) => string): string {
 const CODEC = String.raw`
 const «open» = '$';
 let «counter» = 0;
+let «mute» = false;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
 const «unesc» = («key») => («key».startsWith(«open» + «open») ? «key».slice(1) : «key»);
@@ -58,7 +59,7 @@ function «encode»(«value», «seen» = new WeakSet()) {
     case 'undefined': return { $u: 1 };
     case 'bigint': return { $big: «value».toString() };
     case 'symbol': return { $opaque: typeof «value» };
-    case 'function': { const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
+    case 'function': { if («mute») return { $handle: 0 }; const «id» = ++«counter»; «handles».set(«id», «value»); return { $handle: «id» }; }
   }
   if («seen».has(«value»)) return { $opaque: 'cycle' };
   «seen».add(«value»);
@@ -142,6 +143,14 @@ if («setup».uptimeShift > 0) {
   Object.defineProperty(performance, 'now', { value: { now() { return «realNow»() + «shift» * 1000; } }.now, writable: true, configurable: true });
 }
 «codec»
+// Aliased results (docs/validators.md section 12.9): the live results of the last calls, each with the text it had
+// when it was returned. A later call that changed one of them, or filled the same object again, is reported in its
+// answer; only that finding crosses to the validator, whose item never sees the live object.
+const «recent» = [];
+const «print» = («value») => {
+  «mute» = true;
+  try { return JSON.stringify(«encode»(«value»)); } finally { «mute» = false; }
+};
 const «deeper» = («depth», «run») => («depth» <= 0 ? «run»() : «deeper»(«depth» - 1, «run»));
 
 if («setup».command) {
@@ -172,7 +181,19 @@ if («setup».command) {
       const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «fn»(...«args»));
       const «used» = «cpuNow»(«before»);
-      «answer»({ id: «request».id, ret: «encode»(«result»), cpu: («used».user + «used».system) / 1000 });
+      const «ret» = «encode»(«result»);
+      const «moved» = [];
+      if («setup».aliasing) {
+        for (const «each» of «recent») if («print»(«each».live) !== «each».text) «moved».push(«each».call);
+        if («result» !== null && typeof «result» === 'object') {
+          const «text» = «print»(«result»);
+          if («text».length <= 50000) {
+            «recent».push({ call: «request».call, live: «result», text: «text» });
+            if («recent».length > 16) «recent».shift();
+          }
+        }
+      }
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«moved».length > 0 ? { moved: «moved» } : {}) });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }

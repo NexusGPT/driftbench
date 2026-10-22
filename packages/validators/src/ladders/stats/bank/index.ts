@@ -101,19 +101,34 @@ export function statsBank(root: string): BankItem[] {
   );
 }
 
-/** Runs one item on one seed. A throw inside the item is a failing outcome naming the error. */
+/**
+ * What the bank child gives an item run besides the package: the frame's mark of the calls so far, and the first
+ * aliased result among the calls since a mark (docs/validators.md section 12.9, "Aliased results").
+ */
+export type Watch = { mark(): number; aliased(since: number): string | undefined };
+
+/**
+ * Runs one item on one seed. A throw inside the item is a failing outcome naming the error. With a watch, an item
+ * that passed fails when a confined run reports that a result it returned has changed since, whatever the item
+ * concluded: the item reads the results as data and cannot see that on its own.
+ */
 export async function runItem(
   item: BankItem,
   seed: number,
   root: string,
   s?: StatsImpl,
+  watch?: Watch,
 ): Promise<ItemOutcome> {
   const rng = itemRng(seed, item.id);
   // The package itself only when no replacement is given (tests): never loaded by the bank child, which is given the frame.
   const given = s ?? ((await import('@agent-nexus/driftbench-stats')) as StatsImpl);
+  const since = watch?.mark() ?? 0;
   try {
     const outcome = await item.check({ seed, s: given, root, rng });
-    return outcome;
+    const moved = outcome.pass ? watch?.aliased(since) : undefined;
+    return moved
+      ? { pass: false, detail: `the package returned a result that changed later: ${moved}` }
+      : outcome;
   } catch (cause) {
     const error = attempt(() => {
       throw cause;

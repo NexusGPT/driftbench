@@ -92,6 +92,12 @@ export type IsolateOptions = {
    */
   functions?: 'source';
   /**
+   * Each confined run keeps the live results of its last calls and reports a call after which one of them reads
+   * otherwise than when it was returned (one object filled again, an earlier result overwritten). The report is a
+   * finding of the frame (`aliasSince()`); no live object crosses to the validator. Default false.
+   */
+  aliasing?: boolean;
+  /**
    * The bundle the invocation sealed (confine.ts `describeSeal`), when this frame runs in a child process of the
    * invocation: the frame runs that bundle, after checking its hash, and builds none.
    */
@@ -130,6 +136,8 @@ export type Frame<T> = {
   cpuSince(from: number): number;
   /** The first divergence among the calls from the tape position `from` on, or undefined. */
   divergenceSince(from: number): string | undefined;
+  /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
+  aliasSince(from: number): string | undefined;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
   tainted(): string | undefined;
   /** Ends both runs and removes their files. */
@@ -363,7 +371,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     return { ...confined, setup: { ...confined.setup, module: file, invoke: wrapper.invoke } };
   });
   const token = randomBytes(16).toString('hex');
-  const setup = { token, module: sealed };
+  const setup = { token, module: sealed, aliasing: options.aliasing === true };
   const plain = options.plain === false ? undefined : openPlain(options.seed, tag);
   const { port1, port2 } = new MessageChannel();
   const signal = new SharedArrayBuffer(4);
@@ -382,6 +390,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   port1.unref();
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
+  const aliased: Array<{ at: number; message: string }> = [];
   let first: string | undefined;
   let taint: string | undefined;
   let closed = false;
@@ -492,7 +501,20 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       Outcome | { dead: string },
     ];
     if ('dead' in a) throw new FrameError(a.dead);
-    const entry: Entry = { call: name, args: sent, ...a };
+    for (const [each, plan] of [
+      [a, plans[0]],
+      [b, plans[1]],
+      [d, plans[2]],
+    ] as const) {
+      const moved = (each as { moved?: string[] }).moved;
+      if (moved && moved.length > 0)
+        aliased.push({
+          at: tape.length,
+          message: `${name}() was called after ${[...new Set(moved)].join(', ')} returned a result that has changed since (${describeRun(plan as TwinPlan)}): a result must stay as it was returned`,
+        });
+    }
+    const { moved: _moved, ...answer } = a as Outcome & { moved?: string[] };
+    const entry: Entry = { call: name, args: sent, ...answer };
     if ('cpu' in a && typeof a.cpu === 'number') entry.cpu = a.cpu;
     if (!('dead' in b)) entry.twin = b;
     if (!('dead' in d)) entry.wrapped = d;
@@ -571,6 +593,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
+    aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
     tainted: () => {
       flushPlain();
       return taint;
