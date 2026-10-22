@@ -389,8 +389,11 @@ export function checkAnswer(
       continue;
     }
     const numbers = named.filter((n) => inWindow.has(n));
+    // An entry that names only shown lines has nothing to label. Called none, it is dropped and the answer stands; a
+    // label on a line the window did not ask about is a wrong answer, refused as a whole.
     if (numbers.length === 0) {
-      refuse(`${window.id}: "${entry.units}" names no unit to label`);
+      if (entry.label === 'none') continue;
+      refuse(`${window.id}: "${entry.units}" names a line that is not labelable`);
       continue;
     }
     if (numbers.some((n) => covered.has(n))) {
