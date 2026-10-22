@@ -1028,4 +1028,10 @@ export const CAUSES: Readonly<Record<string, Record<string, string>>> = {
       ['absent-list-and-empty-list-agree'],
     ],
   ]),
+  'sources.labelled-condition': table([
+    [
+      'buildStore builds a condition from the label the reader gave the span and reads nothing else of its text',
+      ['the-label-decides-not-the-text'],
+    ],
+  ]),
 };

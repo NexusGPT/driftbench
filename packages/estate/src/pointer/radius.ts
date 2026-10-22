@@ -2,7 +2,7 @@ import type { ChangeManifest } from '@agent-nexus/driftbench-core';
 import { normativeEstate } from '../scan/document-roles';
 import type { RawEstate } from '../scan/reader';
 import type { DocumentInfo } from '../schema';
-import { cut } from './cut';
+import { cut, isPlainTextPath } from './cut';
 import { type Ledger, type LedgerEntry, nextLedger } from './ledger';
 
 /**
@@ -214,7 +214,11 @@ export function proseLedger(
   const files = new Set(normative.prose.map((chunk) => chunk.file));
   const paths = [...files].sort((a, b) => a.localeCompare(b));
   return nextLedger(
-    paths.map((path) => ({ path, cut: cut(texts.get(path) ?? '') })),
+    paths.map((path) => ({
+      path,
+      cut: cut(texts.get(path) ?? '', { plain: isPlainTextPath(path) }),
+      text: texts.get(path) ?? '',
+    })),
     previous,
     estateKey,
   ).ledger;

@@ -6,8 +6,8 @@ import { describe, expect, it } from 'vitest';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const shots = JSON.parse(readFileSync(join(ROOT, 'docs/assets/scorecard-shots.json'), 'utf8'));
-const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
-const alt = /<img src="docs\/assets\/scorecard-light\.png" alt="([^"]+)"/.exec(readme)?.[1] ?? '';
+const guide = readFileSync(join(ROOT, 'docs/guide/quickstart.md'), 'utf8');
+const alt = /<img src="\.\.\/assets\/scorecard-light\.png" alt="([^"]+)"/.exec(guide)?.[1] ?? '';
 
 /** The numbers of one theme, as "label: value (note)" lines. */
 function lines(theme) {
@@ -18,7 +18,7 @@ function lines(theme) {
   ];
 }
 
-describe('the README pictures of the scorecard', () => {
+describe('the guide pictures of the scorecard', () => {
   it('are drawn from the committed page as it is now', () => {
     const html = readFileSync(join(ROOT, shots.page));
     expect(createHash('sha256').update(html).digest('hex')).toBe(shots.sha256);
@@ -38,7 +38,7 @@ describe('the README pictures of the scorecard', () => {
     }
   });
 
-  it('are described by the README alt text with the same numbers', () => {
+  it('are described by the guide alt text with the same numbers', () => {
     expect(alt).not.toBe('');
     const stats = shots.themes.dark.stats;
     const value = (label) => stats.find((s) => s.label === label)?.value.replace(/\s*of\s*/, ' of ');

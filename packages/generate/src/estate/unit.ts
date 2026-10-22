@@ -58,6 +58,8 @@ export const GuardCase = z.strictObject({
   inert: z.boolean().optional(),
   /** Recorded with an outcome that varied across the record runs: reported, never compared. */
   flaky: z.boolean().optional(),
+  /** Built by --record from the literals of the guard's own source, because no other case showed the guard at work. */
+  found: z.boolean().optional(),
 });
 export type GuardCase = z.infer<typeof GuardCase>;
 

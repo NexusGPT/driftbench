@@ -28,7 +28,13 @@ const samples = [
   },
 ] as const;
 
-function generate(kind: string, quote: string, seed = 1, declared: Record<string, unknown> = {}) {
+function generate(
+  kind: string,
+  quote: string,
+  seed = 1,
+  declared: Record<string, unknown> = {},
+  judge = false,
+) {
   const atom = {
     id: 'hazard.archive.recovery',
     kind: 'hazard',
@@ -73,7 +79,7 @@ function generate(kind: string, quote: string, seed = 1, declared: Record<string
   };
   const generated = generateEstateSuite(input, {
     seed,
-    judge: false,
+    judge,
     paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' },
   });
   const file = generated.files.find((f) => f.path.endsWith('.yaml'));
@@ -156,6 +162,21 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       rereadSelf: 'yes',
     });
     expect(wrong.generated.specs[0]?.complete).toBe(false);
+  });
+  it('judges a hazard nobody declared a recovery for, by the words of its rule: the spec is complete, the check is not guessed', () => {
+    const quote = 'After a restart, check which helpers are still running before you dispatch one again.';
+    const { generated, spec } = generate('restart', quote, 1, {}, true);
+    expect(generated.specs[0]?.complete).toBe(true);
+    expect(spec.rules?.custom?.hazard_recovery).toBeUndefined();
+    expect(spec.tags).toContain('judged');
+    expect(JSON.stringify(spec.criteria)).toContain(quote);
+    // A declared recovery stays checked by code, with no criterion of the rule's words.
+    const declared = generate('restart', quote, 1, { reread: ['notes/helpers.md'] }, true);
+    expect(declared.spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/helpers.md'] });
+    expect(declared.spec.tags).not.toContain('judged');
+    // With no judge the row still waits: a rule is not passed on a recovery nobody declared.
+    const waiting = generate('restart', quote, 1, {}, false);
+    expect(waiting.generated.specs[0]?.complete).toBe(false);
   });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
     const { generated, spec } = generate('restart', 'Resume safely.', 1, {
