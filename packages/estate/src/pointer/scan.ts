@@ -1031,15 +1031,12 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     index: number,
   ) => {
     const close = byMember.map((runs) => closeKinds(runs, index, set));
-    // A unit whose runs stay one run from another outcome is unlabeled: no other labeler decides it alone.
-    const decision = close.some((kinds) => kinds)
-      ? undefined
-      : labelling.decide(
-          byMember.map((runs) =>
-            opinionOf(runs, index, set, namedPaths(cuts.get(path)?.units[index]?.text ?? '').length > 0),
-          ),
-          set,
-        );
+    // Each member's opinion is taken, so its split is counted; a unit whose runs stay one run from another outcome is
+    // unlabeled all the same: no other labeler decides it alone.
+    const opinions = byMember.map((runs) =>
+      opinionOf(runs, index, set, namedPaths(cuts.get(path)?.units[index]?.text ?? '').length > 0),
+    );
+    const decision = close.some((kinds) => kinds) ? undefined : labelling.decide(opinions, set);
     return { close, decision };
   };
   /** The span kinds a decided label's atom needs that its spans do not give. */
@@ -1111,8 +1108,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
     if (!leaf) continue;
     windows++;
+    // Only the spans this answer gives are read; its notes on spans and links were reported with the runs it repeats.
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, context);
-    dropped.push(...(read.dropped ?? []));
     reasked.push(
       `${task.window.id} of ${task.member.id}: asked again as run ${again.run} for ${notes.length} units with span-missing`,
     );
