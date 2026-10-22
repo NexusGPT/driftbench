@@ -65,7 +65,14 @@ export function readableOf(
 const ofLabeler = (labeler: string | undefined): string =>
   labeler === undefined ? '' : `of the labeler ${labeler} `;
 
+/** The Node and ICU builds a run used: a different pair can cut the same files differently. */
+export type CutEnvironment = { node: string; icu: string };
+
 export class CassetteMiss extends Error {
+  /** Stable, kebab-case: what the error is. */
+  readonly code = 'cassette-miss';
+  /** The Node and ICU versions of this run, set when the nearest entry differs in the cut digest. */
+  readonly environment?: CutEnvironment;
   constructor(
     readonly key: string,
     readonly differs: string[],
@@ -83,6 +90,9 @@ export class CassetteMiss extends Error {
         : `the cassette has no answer for request ${key.slice(0, 12)}, and no entry ${ofLabeler(labeler)}for the same file, window and set`,
     );
     this.name = 'CassetteMiss';
+    if (nearest && differs.includes('cutDigest')) {
+      this.environment = { node: process.versions.node, icu: process.versions.icu ?? '' };
+    }
   }
 }
 
