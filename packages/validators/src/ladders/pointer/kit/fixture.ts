@@ -69,7 +69,7 @@ export function wireFor(
   const shown = units.map((u) => `[${u.n}] ${u.text.replace(/\s+/g, ' ').trim()}`);
   if (arm === 'haiku')
     return {
-      labeler: arm,
+      labeler: 'anthropic',
       body: {
         model: 'claude-haiku-5-5',
         max_tokens: 4096,
