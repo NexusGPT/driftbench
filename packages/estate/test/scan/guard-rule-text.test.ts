@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { HAND_ROLES, NOW, estate, readRaw } from '../support';
+import { estate, HAND_ROLES, NOW, readRaw } from '../support';
 
 it('resolves a shared dispatcher and retains each target rule and registry verdict', async () => {
   const files: Record<string, string> = {

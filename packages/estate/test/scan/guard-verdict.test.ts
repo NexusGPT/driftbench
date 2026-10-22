@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { HAND_ROLES, NOW, estate } from '../support';
+import { estate, HAND_ROLES, NOW } from '../support';
 
 // A guard source may declare its verdict on a line of its own ("Verdict: deny"), like "Enforces: R3".
 // The registry row wins when there is one; the declaration is used only without a row, and it never

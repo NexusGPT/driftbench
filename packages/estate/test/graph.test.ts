@@ -2,8 +2,7 @@ import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
 import { plantedRoutes } from './pointer/support';
-import { answer, estate, NOW, scanFixture } from './support';
-import { HAND_ROLES } from './support';
+import { answer, estate, HAND_ROLES, NOW, scanFixture } from './support';
 
 const SETTINGS = (command: string) =>
   JSON.stringify(
