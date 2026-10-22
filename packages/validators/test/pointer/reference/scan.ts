@@ -440,7 +440,8 @@ async function labelWindow(
           model,
         );
       } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
+        // The message of a thrown transport error may quote the request, which holds unit text: it is not repeated.
+        return { abort: `the model call failed (${cause instanceof Error ? cause.name : typeof cause})` };
       }
       if (result.kind === 'error') return { abort: result.message };
       if (result.kind === 'refused') {

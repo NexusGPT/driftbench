@@ -247,7 +247,8 @@ export const replayRuns: Record<string, Run> = {
     if (off.res.ok || off.fake.count) return fail('empty replay did not fail offline');
     const fake = fakeTransport();
     await record(fixture.files, 'haiku', fake, { labelsYaml: fixture.labelsYaml }, ctx);
-    if (fake.count !== 3) return fail('record must call all three windows');
+    const asked = 3 * runsOf('haiku').length;
+    if (fake.count !== asked) return fail(`record must call all three windows for every run: ${fake.count} calls, expected ${asked}`);
     const again = fakeTransport();
     const second = await ctx.sut.scan({
       files: fixture.files,
@@ -257,7 +258,7 @@ export const replayRuns: Record<string, Run> = {
     });
     requireFixtureLabels(second, fixture);
     return again.count === 0
-      ? pass('offline miss, three record calls, zero fixture reuse calls')
+      ? pass('offline miss, every window and run recorded, zero fixture reuse calls')
       : fail('existing committed entries were re-recorded');
   },
   'miss-names-description-edit': (ctx) =>
