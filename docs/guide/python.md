@@ -12,7 +12,7 @@ This is a hands-on guide to driftbench from Python. Your agent may be a Python f
 - Python 3.11 or newer. The package needs nothing beyond the standard library.
 - A working folder named `py-demo`, made inside the clone by step 1.
 
-**What you install.** The package is called `driftbench` and sits in the clone, in `python/driftbench`. It is not on PyPI, because that name belongs to another project. `pip install driftbench` would install something else. Install it from the clone. This line is not run by our tests, because it changes your Python environment:
+**What you install.** The package is called `drift-bench` on the Python side, and sits in the clone, in `python/driftbench`. You still write `import driftbench` in your code. It is not on PyPI, and the name `driftbench` there belongs to another project, so `pip install driftbench` would install something else. Install it from the clone. This line is not run by our tests, because it changes your Python environment:
 
 ```bash
 pip install ./python/driftbench

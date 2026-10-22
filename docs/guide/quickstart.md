@@ -78,6 +78,8 @@ blocks:
       must_not: ['Sorry']
 ```
 
+**If it goes wrong (step 3).** The spec file is not valid YAML, or a key is misspelt. Step 4 checks it with `spec validate`, which names the file and the key. Fix the indentation first: the blocks of `blocks:` start with a dash at the same column.
+
 **4. Check the spec, then run it.** The output is trimmed to its verdict lines.
 
 **Why.** Checking first catches a typo before anything runs. Running then shows the verdict of each block.
@@ -98,6 +100,8 @@ $ driftbench campaign run specs --target process:my-agent --process-command "[\"
 
 The `hash` after the spec is a short fingerprint of its content. It changes when you edit the file. A **cell** is one test run once. Here there is one test, so there is one cell.
 
+**If it goes wrong (step 4).** `spec validate` exits 1 and prints a code: fix the key it names. `campaign run` exits 2 and prints `Fix the invalid specs first`: run `spec validate` and fix its message. The run prints a failure on the first try: the text of the agent changed, so compare `agent.mjs` with step 2.
+
 **5. Break the agent and run again.** Change `Refund started for order` to `Started a return for` in `agent.mjs`. The run now exits 1 and names the block and the check. The output counts blocks from 0, so `block 1` is the second block:
 
 **Why.** A test that cannot fail proves nothing. Breaking the agent on purpose shows you what a failure looks like, and that the report names the block and the check.
@@ -108,7 +112,9 @@ $ driftbench campaign run specs --target process:my-agent --process-command "[\"
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 ```
 
-**If it goes wrong.** The run still passes: the text you changed is not the text the agent prints. Search `agent.mjs` for `Refund started for order` and change exactly that. The run exits 0 with a different error: the folder or the command changed. Run step 4 again to check the starting point.
+**If it goes wrong.** The run still passes: the text you changed is not the text the agent prints. Search `agent.mjs` for `Refund started for order` and change exactly that.
+
+**If it goes wrong (step 5).** The run still passes. The text you changed is not the text the agent prints. Search `agent.mjs` for `Refund started for order` and change exactly that.
 
 **6. Keep the runs and open the scorecard.** Run step 4 again with `--repeats 3 --store runs.db`, then write the scorecard.
 
@@ -131,6 +137,8 @@ $ driftbench report --store runs.db --out scorecard.html
   </picture>
 </p>
 <p align="center"><sub>The scorecard of the example agents with a bug planted on purpose in each. Numbers and charts first, then every test, then every run: a click opens its conversation and its checks.</sub></p>
+
+**If it goes wrong (step 6).** `report` exits 2 and prints `No store at runs.db`. You ran step 4 without `--store runs.db`, so add the option and run it again. It prints `No campaign <name> in the store`: pass a campaign name that the store holds.
 
 Next: [evaluate your own agent](../recipes.md#evaluate-your-own-agent), [add a judge](../recipes.md#add-a-judge), or [gate a pull request](../recipes.md#gate-a-pull-request). The full spec format is in the [spec reference](../reference/spec.md).
 

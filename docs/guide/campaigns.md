@@ -295,16 +295,16 @@ $ driftbench campaign run down/down.yaml --store down.db --campaign down --retry
 **Relevant commands.**
 
 - `driftbench campaign run`: as in step 2 · `examples/acme/specs/tasks/price-sheet.yaml` is the spec. `--target function:acme` forces the chat agent. `--store acme.db` is the store of step 2. `--campaign acme-wrong-target` is a new name · it prints one failing cell and exits 1.
-- `driftbench report`: writes the scorecard page and prints the counts · `acme-first` is the campaign to report. `--store acme.db` is the store. `--out first.html` is the page. `--aggregate pass-rate:>=0.99` is the rule: the share of runs that pass must be at least 0.99. The other built-in name is `broken-share`, with `<=` · it prints one line per rule. It exits 0 even when a rule fails.
+- `driftbench report`: writes the scorecard page and prints the counts · `acme-first` is the campaign to report. `--store acme.db` is the store. `--out first.html` is the page. `--aggregate 'pass-rate:>=0.99'` is the rule: the share of runs that pass must be at least 0.99. The other built-in name is `broken-share`, with `<=` · it prints one line per rule. It exits 0 even when a rule fails.
 
 **You type and you see.**
 
 ```console
 $ driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme --store acme.db --campaign acme-wrong-target   # exit 1
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
-$ driftbench report acme-first --store acme.db --out first.html --aggregate pass-rate:>=0.99
+$ driftbench report acme-first --store acme.db --out first.html --aggregate 'pass-rate:>=0.99'
 aggregate pass-rate >= 0.99: passes (1 >= 0.99, Wilson 95% interval 0.646 to 1.000 over 7 runs, undecided: 381 runs at this rate would decide it)
-$ driftbench report acme-wrong-target --store acme.db --out wrong.html --aggregate pass-rate:>=0.99
+$ driftbench report acme-wrong-target --store acme.db --out wrong.html --aggregate 'pass-rate:>=0.99'
 aggregate pass-rate >= 0.99: fails (0 >= 0.99, Wilson 95% interval 0.000 to 0.793 over 1 runs, decided)
 ```
 

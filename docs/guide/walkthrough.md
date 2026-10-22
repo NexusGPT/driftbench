@@ -78,7 +78,7 @@ $ cd walk
 
 **Two words first.** A rule is called an **atom**. An atom is one thing your files tell the agent to do or to use. It is kept with a quote of the line it came from. driftbench finds atoms in two ways. Code reads the structured parts itself: headings, lists, tables, links, the skill folders and the settings file. A model reads the prose, such as the sentences of your prompt, and says which ones are rules. A person, you, approves what the model found. The list of all atoms is the **map**.
 
-**Three more words for the next command.** The **pointer reader** is the way driftbench reads prose. It cuts the prose into sentences and asks a labeler about each one. A **labeler** is a model that reads a sentence and says whether it is a rule. The **ledger** is the file `build/ledger.json`. It gives every sentence an id that stays the same when you edit the sentence. A **cassette** is a file of recorded answers from the labeler. Replaying a cassette costs nothing.
+**Three more words for the next command.** The **pointer reader** is the way driftbench reads prose. It cuts the prose into sentences and asks a labeler about each one. A **labeler** is a model that reads a sentence and says whether it is a rule. A labeler has a class. A `system1` labeler is quick and cheap, and answers yes or no. A `system2` labeler is a larger model that reads with more care. The **ledger** is the file `build/ledger.json`. It gives every sentence an id that stays the same when you edit the sentence. A **cassette** is a file of recorded answers from the labeler. Replaying a cassette costs nothing.
 
 **Relevant commands.**
 
@@ -195,7 +195,7 @@ $ grep -A8 "^  links:" build/generated/specs/live/obligation/estate.obligation.i
       status: declared
 ```
 
-Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 16 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
+Step 1 gave the sentence an id, `wrl4c7wlvb`, that stays the same when the sentence is edited. It also made the sentence the atom `instruction.weekly-report.count-only-what-the-ledger-and`. This test says it `verifies` that atom. Read the lines of the link like this. `kind: rule` says the test points at a rule. `rule` is the id of the atom. `ledger` is the id of the sentence. `relation: verifies` says the test checks that rule. `status: declared` says a generator wrote the link and nothing has checked it yet. The `status: live` that you see in `build/ledger.json` is a different thing: it says the sentence is still in your files. To check a link, `estate mutate` deletes the line of the rule from a copy of the estate. The tests then run again on the copy, and `estate prove` marks the link `verified` when its test now fails. The [rule links walkthrough](../rule-links.md) runs that check. The file is called `obligation`. That is one of three kinds of test written for each rule. An **obligation** test checks that the agent does what the rule says. An **outside_trigger** test is a control that checks the agent does not apply the rule where it should not. A **twin** test asks for the same thing in other words. In all, 16 tests name this sentence; step 4 lists them. When you edit the sentence, driftbench follows this chain to find them.
 
 <details><summary>Look at the id, the atom and the test itself</summary>
 
@@ -266,6 +266,8 @@ blocks:
 metadata:
 ```
 
+Read the block like this. `when.user` is the message the test sends. `expect` lists what must be true after the reply. `skills` says the agent must load the skill `weekly-report` at least once. `workspace.deleted: []` says the agent may delete no file. `criteria` names the rules that a judge reads. See the [glossary](index.md#words-used-in-the-guide) for **expect**, **skill** and **criterion**.
+
 </details>
 
 **If it goes wrong.**
@@ -284,7 +286,7 @@ The agent must load the `weekly-report` skill, delete no file, and obey the rule
 **What you must provide.** A command that runs your agent **headless**, which means once, from the command line, with no window. It takes the question as input, does its work, and exits. You have three choices:
 
 - A **stand-in**: a script that plays recorded answers in place of the agent. It calls no model and costs nothing. The example folder has one, and this walkthrough uses it.
-- Your real agent: the command `claude`, which is Claude Code. Only the labeler of step 1 calls the Anthropic API directly and needs `ANTHROPIC_API_KEY`. The agent run and the judge of this step go through your `claude` command. They use its login, or the key you pass. Install it with `npm install --global @anthropic-ai/claude-code`, run `claude` once in your terminal and log in as it asks ([Claude Code setup](https://docs.claude.com/en/docs/claude-code/overview)). These install lines are not run by our tests, because they install third-party software. To check the install, run `claude --version`. It prints a line such as `2.1.306 (Claude Code)`. We ran that line by hand. It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
+- Your real agent: the command `claude`, which is Claude Code. Only the labeler of step 1 calls the Anthropic API directly and needs `ANTHROPIC_API_KEY`. The agent run and the judge of this step go through your `claude` command. They use its login, or the key you pass. With only the Claude Code login, you can run everything in this step and in step 4: the agent and the judge use the login. You need no API key for them. Install it with `npm install --global @anthropic-ai/claude-code`, run `claude` once in your terminal and log in as it asks ([Claude Code setup](https://docs.claude.com/en/docs/claude-code/overview)). These install lines are not run by our tests, because they install third-party software. To check the install, run `claude --version`. It prints a line such as `2.1.306 (Claude Code)`. We ran that line by hand. It calls a model and costs money, so you add `--allow-billed` to say you accept that, and `--max-budget-usd` to cap what one test may spend. This is the whole command, with a real model name:
 
   ```bash
   driftbench estate run build/generated/specs/live/obligation/estate.obligation.instruction.weekly-report.count-only-what-the-ledger-and.yaml --estate my-agent --runtime claude-code --command claude --allow-billed --model claude-haiku-5-5 --judge claude:claude-haiku-5-5 --judge-budget 1 --max-budget-usd 1 --store runs.db
@@ -299,7 +301,7 @@ The agent must load the `weekly-report` skill, delete no file, and obey the rule
   1 spec run live: 1 pass, 0 fail. Cost 0.0085 USD over 1 run that report one, judge claude:claude-haiku-5-5 0.0017 USD of it. Campaign estate-run-d0c1fe2d38a8.
   ```
 
-  The real agent passes where the stand-in failed. The run cost 0.0085 US dollars, of which 0.0017 was the judge. A live model answers differently each time, so your numbers and verdicts will differ. The `note` line is only a reminder that `--map` was left out. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state. The example needs it only because its stand-in plays those.
+  The real agent passes where the stand-in failed. The run cost 0.0085 US dollars, of which 0.0017 was the judge. A live model answers differently each time, so your numbers and verdicts will differ. The `note` line is only a reminder that `--map` was left out. A **map hash** is the short fingerprint of the approved map. `--map` pins the run to it, so the run refuses a folder that changed after you approved it. You do not need `--map` or `--states`. `--map` is only a safety check that the folder is the one you approved. `--states` is only for tests that start from a resumed session or another prepared state. The example needs it only because its stand-in plays those.
 - Not a Claude Code agent: use the [quickstart](quickstart.md), which connects a command, a function or an HTTP endpoint.
 
 **Find a test file for your agent.** `estate run` takes the path of one test file. **Why you do this.** `estate run` needs the path of one file. The build wrote more than a thousand. This command lists a few, so you can pick one.
@@ -342,7 +344,7 @@ A ✗ means the test failed. The `failing:` line names each check that failed. H
 
 - `claude: command not found`: Claude Code is not installed, or not on your path. Run the install line above, open a new terminal, and check `claude --version`.
 - `claude` asks you to log in, or answers with an authentication error. Run `claude` by hand once and finish the login, then run the test again.
-- `claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.` (exit 2): you asked for a real agent. Add `--allow-billed` once you accept the cost, or use a stand-in.
+- `claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.` (exit 2): you asked for a real agent. Add `--allow-billed` once you accept the cost, or use a stand-in. To size the run, count the tests you plan to run, and multiply by the cost of one test. The example test cost 0.0085 USD.
 - `a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>` (exit 2): add `--judge-budget` with a number of dollars, such as `--judge-budget 1`.
 - Every test says `?` or `inconclusive`: no judge was set, so the checks that need one have no verdict. Add `--judge claude:claude-haiku-5-5` and `--judge-budget 1`.
 - A `✗` with `skills.weekly-report` in the `failing:` line: the agent did not load that skill. Read the skill's `description` in its `SKILL.md`: it must say when the skill applies.
@@ -386,7 +388,7 @@ Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 12
   A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
 ```
 
-Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, which saves 98.7%. Most test files hold one block: 1248 files hold 1251 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
+Of 1251 blocks, 16 can be reached by that sentence. The other 1235 are not run, which saves 98.7%. The 1248 specs are the live tests that `estate run` sends to an agent. The step 1 count of 1424 tests also holds 35 static and unit tests that need no agent. It holds 141 incomplete tests that wait for something. Most live test files hold one block: 1248 files hold 1251 blocks in all. The 16 files in the radius hold one block each, so 16 blocks are 16 test files. The change file is the small file `change.yaml` that names what you changed. The list:
 
 ```text
 In the radius, mode F:
@@ -402,14 +404,16 @@ Read each row as one test file: its name, how many of its blocks are in the radi
 
 **Which id to grep for.** The first line of the radius output ends with `prompt:` and the id of the atom you changed. Here it is `instruction.weekly-report.count-only-what-the-ledger-and`. On your own agent it is the text after `prompt:`, without the final full stop. The tests that name an atom hold a line `- <atom id>` in their links, so a `grep` for that line finds them.
 
-**How to get a baseline.** A baseline is a full run before the edit. You compare the rerun with it. Run all tests once on the unedited folder, and keep the store. For the stand-in, in the example, that is:
+**How to get a baseline.** A baseline is a full run before the edit. You compare the rerun with it. **Why:** without it, you cannot tell whether a failure after the edit is new. Run all tests once on the unedited folder, and keep the store. For the stand-in, in the example, that is:
 
 ```bash
 find build/generated/specs/live -name '*.yaml' | LC_ALL=C sort > all.txt
 driftbench estate run --order all.txt --estate northwind --runtime claude-code --command northwind/live/fake/claude.mjs --set-env "FAKE_MANIFEST=$PWD/northwind/live/fake/manifest.json" --store before.db --states northwind/live/states/library.json
 ```
 
-This page does not run it, because the stand-in reruns of the other steps already show the same output. With a real agent, the full run is billed, so size it first. `estate run` has no flag to repeat each test. To repeat a run, run the same command again with a new `--store`, such as `before-2.db`.
+This page does not run it, because the stand-in reruns of the other steps already show the same output. With a real agent, the full run is billed. Count the tests with `wc -l all.txt`, and multiply by the cost of one test (0.0085 USD for the example test). `estate run` has no flag to repeat each test. To repeat a run, run the same command again with a new `--store`, such as `before-2.db`.
+
+**If the baseline goes wrong.** `all.txt` is empty: the build wrote no tests, so run step 1 again. The run asks for `--allow-billed`: you used a real agent, so read the cost note above first. The run takes long: the stand-in runs all 1248 live tests, so start with the 16 tests of the radius.
 
 **Rerun them.** Write the 16 names into a file, count them, and run exactly those with the same `estate run` as in step 3. `--order` takes the file of names. `--map` is left out because the files changed since the map was written:
 
@@ -425,7 +429,7 @@ note: the estate copy is not pinned to a map hash; pass --map to pin it
     failing: block 0: skills.weekly-report, block 0: judge.instruction.weekly-report.count-only-what-the-ledger-and (inconclusive)
 ```
 
-The last line of the output reads `16 specs run live on a stand-in: 0 pass, 16 fail (1 undecided: only inconclusive checks).` The 1 undecided test is counted inside the 16 that did not pass. It has no verdict, so it cannot pass. The line then gives the cost and a campaign id that changes at every run. A **campaign** is one run of a set of tests, kept in the store under that id. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 1235 blocks are not run. This walkthrough ran only one test, so it has no earlier results for them. In a real project you run the whole suite once with `estate run`, and the results of the untouched tests stay in that first store. `edited.db` holds only the 16 you reran, because `estate run` has no option that copies old results into a new store.  The [rerun less](rerun-less.md) part shows `campaign run --change --from`, which does carry old results for suites run with `campaign run`. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
+The block above is cut after two tests. The real output has one result per test, 16 in all. Its last line reads `16 specs run live on a stand-in: 0 pass, 16 fail (1 undecided: only inconclusive checks).` The 1 undecided test is counted inside the 16 that did not pass. It has no verdict, so it cannot pass. The line then gives the cost and a campaign id that changes at every run. A **campaign** is one run of a set of tests, kept in the store under that id. A `✗` is a test that failed on a check, as in step 3. A `?` is a test that could not be decided, because it needs a judge and none was set. With the real agent and `--judge`, they would get a verdict. The other 1235 blocks are not run. This walkthrough ran only one test, so it has no earlier results for them. In a real project you run the whole suite once with `estate run`, and the results of the untouched tests stay in that first store. `edited.db` holds only the 16 you reran, because `estate run` has no option that copies old results into a new store.  The [rerun less](rerun-less.md) part shows `campaign run --change --from`, which does carry old results for suites run with `campaign run`. The [rule links walkthrough](../rule-links.md) shows how to prove each link by deleting the instruction.
 
 **Rerun them on your own agent.** Use the real agent and a judge, as in step 3. It is billed, so the judge cap and the test cap stay. Not every test of the list can run on a real agent. The 13 `pairwise` tests start the agent in a session state such as `resumed` or `after_compaction`. A **session state** is where the conversation stands when the test starts. For example, `resumed` means the user comes back to an earlier session, and `after_compaction` means the agent has just shortened a long conversation. A **state library** is a file that tells driftbench how to put the agent in each state. A real agent needs one. Without one, those tests stop with an error. The 3 tests named for the rule need no state. Run these 3 first. The `rerun-rule.txt` file holds them:
 

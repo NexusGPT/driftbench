@@ -91,6 +91,9 @@ Each word is explained again where it first appears. This list is for looking on
 | Block | One message from the user and what must be true after the agent's reply. | The user says "It is A-1042", and the agent must start the refund. |
 | Given, When, Then | Where a block starts, what the user says, and what must be true after. | Given a fresh session, when the user asks for a refund, then the reply asks for an order number. |
 | Check | A rule that code can test on a reply. | The reply must contain "order number". |
+| Expect | What must be true after the agent replies to a block. | `must: ['order number']`. |
+| Skill | A folder of instructions that an agent loads when a task needs it. | `.claude/skills/weekly-report/SKILL.md`. |
+| Criterion | A question in plain words that a judge answers with pass or fail. | "The reply asks at most one question." |
 | Judge | A model that reads an answer when code cannot check it. | "Does the reply ask before it acts?" |
 | Estate | The folder of files that define an agent: prompt, skills, helper agents, settings. | The Northwind folder. |
 | Atom | One thing your files tell the agent to do or to use, kept with a quote of its line. | "Never run `git push --force`." |

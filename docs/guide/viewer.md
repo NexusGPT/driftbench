@@ -215,7 +215,7 @@ $ driftbench view --store acme.db --port 70000   # exit 2
 
 **If it goes wrong.**
 
-- `No store at missing.db. Give one with --store <file>.` with exit 2: the default store is `driftbench.db` in the current folder. Name your store.
+- `No store at <your folder>/missing.db. Give one with --store <file>.` with exit 2. The message names the full path of the file. The example above shows it relative to the folder of the run. The default store is `driftbench.db` in the current folder. Name your store.
 - `Cannot serve the viewer: ...` with exit 2: the port is taken. Pass another port, or `--port 0`.
 - `Forbidden: invalid form token.` after a save: you restarted the viewer. Reload the page and save again.
 
