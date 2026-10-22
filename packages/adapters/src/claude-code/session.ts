@@ -494,9 +494,10 @@ export function mapSession(input: SessionInput): ReplaySession {
     const message = isRecord(record.message) ? record.message : {};
     if (type === 'assistant') {
       const usage = isRecord(message.usage) ? message.usage : undefined;
+      // The model is read whether or not this record carries the usage: a message can come in several records.
+      if (typeof message.model === 'string' && message.model !== '') block.helperModels.add(message.model);
       if (usage) {
         const id = typeof message.id === 'string' ? message.id : `anonymous-helper-${anonymous++}`;
-        if (typeof message.model === 'string' && message.model !== '') block.helperModels.add(message.model);
         block.helperUsage.set(id, {
           input:
             num(usage.input_tokens) +

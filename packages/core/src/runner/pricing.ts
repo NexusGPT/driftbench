@@ -73,16 +73,28 @@ function dollars(
   return usd;
 }
 
+/** The model that prices the agent's own tokens: the block's, else the one model its segments name, else the target's. */
+function agentModelOf(observed: Observed, target: TargetRef): string | undefined {
+  const named = [
+    ...new Set(observed.segments.flatMap((segment) => (segment.cost?.model ? [segment.cost.model] : []))),
+  ];
+  return (
+    observed.cost.model ??
+    (named.length === 1 ? named[0] : undefined) ??
+    (typeof target.options?.model === 'string' ? target.options.model : undefined)
+  );
+}
+
 /** The dollars for the helper tokens, with the helper model's price (the agent's model when the records name none). */
 function helperDollars(
   cost: Cost,
+  agentModel: string | undefined,
   target: TargetRef,
   prices: TokenPrices | undefined,
   required: boolean,
 ): number | undefined {
   if (cost.helperInputTokens === undefined && cost.helperOutputTokens === undefined) return undefined;
-  const agent = cost.model ?? (typeof target.options?.model === 'string' ? target.options.model : undefined);
-  const model = cost.helperModel ?? agent;
+  const model = cost.helperModel ?? agentModel;
   return dollars(
     {
       ...(model === undefined ? {} : { model }),
@@ -107,7 +119,7 @@ export function priceObserved(
 ): Observed {
   if (observed.cost.usd !== undefined || (!prices && !required)) return observed;
   const agent = priceAgent(observed, target, prices, required);
-  const helper = helperDollars(observed.cost, target, prices, required);
+  const helper = helperDollars(observed.cost, agentModelOf(observed, target), target, prices, required);
   if (helper === undefined) return agent;
   return { ...agent, cost: { ...agent.cost, helperUsd: helper, usd: (agent.cost.usd ?? 0) + helper } };
 }
