@@ -31,6 +31,7 @@ const PRICE_OUT = 0.5 / 1_000_000;
 async function record(
   estate: EstateName,
   key: string,
+  modelName: string,
 ): Promise<{ input: number; output: number; requests: number }> {
   const dir = await mkdtemp(join(tmpdir(), `record-limits-${estate}-`));
   try {
