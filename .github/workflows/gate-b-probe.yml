@@ -8,6 +8,7 @@ on:
       - packages/estate/test/gold/**
       - packages/estate/test/variables/**
       - packages/estate/src/variables/**
+      - packages/estate/src/limits/**
       - packages/cli/test/gold-chain/**
       - packages/estate/test/pointer/**
       - packages/estate/src/pointer/**
