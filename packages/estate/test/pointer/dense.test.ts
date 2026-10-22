@@ -89,6 +89,21 @@ describe('reading a dense answer', () => {
     expect(labels[0]?.target).toBe('3');
   });
 
+  it('reads a near-JSON answer with the repairs the judges use: quotes, a comment line, a trailing comma', () => {
+    // As the parcel-claims answer that was not JSON and was not stored: the object is there, but for one slip.
+    const rule = [{ units: '1', label: 'rule' }];
+    expect(parseDenseAnswer("{'labels': [{'units': '1', 'label': 'rule'}]}")).toEqual(rule);
+    expect(parseDenseAnswer('{"labels": [{"units": "1", "label": "rule"},]}')).toEqual(rule);
+    expect(parseDenseAnswer('{\n// the labels\n"labels": [{"units": "1", "label": "rule"}]\n}')).toEqual(
+      rule,
+    );
+    expect(
+      parseDenseAnswer(
+        '{\u201clabels\u201d: [{\u201cunits\u201d: \u201c1\u201d, \u201clabel\u201d: \u201crule\u201d}]}',
+      ),
+    ).toEqual(rule);
+  });
+
   it('refuses text that is not JSON, a missing list, and an entry without units or label', () => {
     expect(() => parseDenseAnswer('Sure! Here you go')).toThrow(LabelerError);
     expect(() => parseDenseAnswer('{"window":"notes.md#1"}')).toThrow(/not JSON/);
