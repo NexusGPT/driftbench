@@ -172,6 +172,26 @@ describe('a mapping that builds one atom for each act span, with the file span l
     expect(atomRefusals.length).toBeGreaterThan(0);
   });
 
+  it('binds a link by its destination when the title repeats the same spelling', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read [docs/ledger.md](docs/ledger.md).',
+      [{ act: 'editing a ledger', file: '(docs/ledger.md)' }],
+      ['docs/ledger.md'],
+    );
+    expect(atomRefusals).toEqual([]);
+    expect(found).toEqual([['docs/ledger.md', 'editing a ledger']]);
+  });
+
+  it('does not take the title of a link for its destination', async () => {
+    const { found, atomRefusals } = await gates(
+      'Before editing a ledger: read [archive/docs/ledger.md](docs/ledger.md).',
+      [{ act: 'editing a ledger', file: 'archive/docs/ledger.md' }],
+      ['docs/ledger.md', 'archive/docs/ledger.md'],
+    );
+    expect(found).toEqual([]);
+    expect(atomRefusals.length).toBeGreaterThan(0);
+  });
+
   it('accepts a file span written without the marks around the path', async () => {
     const { found } = await gates(
       'Before editing a ledger: read `docs/ledger.md`.',
