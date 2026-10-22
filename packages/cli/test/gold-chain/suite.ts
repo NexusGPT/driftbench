@@ -312,8 +312,8 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         // The limits come from one structured request for each instruction or gate atom, replayed from the cassette of the
         // estate. They are compared with the limits of the truth file: each truth limit must be produced on the atom it
         // governs, and no other limit may be produced. A unit that differs only in the words of the unit is noted.
-        const key = (atomId: string, limit: number, comparison: string): string =>
-          `${atomId} | ${limit} ${comparison}`;
+        const key = (atomId: string, limit: number, comparison: string, role: string): string =>
+          `${atomId} | ${limit} ${comparison} ${role}`;
         const wanted = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
           const atom = atomOf.get(limit.governs);
