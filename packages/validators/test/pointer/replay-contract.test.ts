@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { parse } from 'yaml';
 import { pointerBank } from '../../src/ladders/pointer/bank';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import {
@@ -11,10 +12,11 @@ import {
   perturb,
   requireFixtureLabels,
   type Wire,
+  wireFor,
 } from '../../src/ladders/pointer/kit/fixture';
-import { PROBE_YAML } from '../../src/ladders/pointer/kit/sets';
+import { PROBE_YAML, RULES_YAML } from '../../src/ladders/pointer/kit/sets';
 import { fakeTransport } from '../../src/ladders/pointer/kit/transport';
-import type { PointerSut } from '../../src/ladders/pointer/sut/port';
+import type { LabelSetDef, PointerSut } from '../../src/ladders/pointer/sut/port';
 import { referenceSut } from './reference';
 
 const base = referenceSut();
@@ -104,6 +106,50 @@ describe('the windows of the fixtures', () => {
     const fixture = makeFixture('jev', [document], PROBE_YAML);
     expect(new Set(fixture.rows.map((row) => row.readable.window)).size).toBe(3);
   });
+});
+
+describe('the fixture kit writes the request the reader sends', () => {
+  // The kit is written independently of the reader, so a change of the reader's request text (its system text, a
+  // label line, the layout) would make every Haiku replay miss in silence. This compares the two for the same window.
+  // biome-ignore lint/suspicious/noExplicitAny: the reader's namespace is loaded at run time, as blind-binding does.
+  const reader = async () => (await import('@agent-nexus/driftbench-estate')).pointer as Record<string, any>;
+  const text = [
+    'Lock the side door at six.',
+    'Never prop the fire door open.',
+    'For example, the cellar key hangs by the stairs.',
+  ].join('\n\n');
+
+  for (const [name, yaml] of [
+    ['the probe set', PROBE_YAML],
+    ['a set with a target label', RULES_YAML],
+  ] as const) {
+    it(`the Haiku request of ${name} equals the reader's, part by part`, async () => {
+      const pointer = await reader();
+      const parsed = pointer.parseLabelSets(yaml);
+      expect(parsed.ok).toBe(true);
+      const sets = (parse(yaml) as { labels: LabelSetDef[] }).labels;
+      const units = pointer.cut(text).units;
+      const [window] = pointer.windowsOf('doc.md', units, Number.POSITIVE_INFINITY, text);
+      for (const [at, set] of parsed.sets.entries()) {
+        const sent = pointer.createAnthropicLabeler({}).render(set, window).body as Record<string, unknown>;
+        const written = wireFor(
+          'haiku',
+          sets[at] as LabelSetDef,
+          window.id,
+          window.units.map((unit: { n: number; text: string }) => ({ n: unit.n, text: unit.text })),
+          window.headingPath,
+        ).body;
+        for (const part of new Set([...Object.keys(sent), ...Object.keys(written)])) {
+          if (part === 'messages') {
+            const lines = (body: Record<string, unknown>) =>
+              ((body.messages as Array<{ content: string }>)[0]?.content ?? '').split('\n');
+            expect(lines(written), `${set.set}: part.messages`).toEqual(lines(sent));
+          }
+          expect(written[part], `${set.set}: part.${part}`).toEqual(sent[part]);
+        }
+      }
+    });
+  }
 });
 
 describe('committed replay oracles', () => {
