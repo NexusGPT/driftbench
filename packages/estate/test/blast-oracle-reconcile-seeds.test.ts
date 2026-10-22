@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
@@ -62,7 +62,12 @@ describe('the reconcile script on the workspace seeds the live specs use', () =>
     for (const seed of await seeds()) {
       for (const pair of pairs(seed)) {
         const root = await estate(seed.files);
-        const run = spawnSync('python3', [join(FIXTURE, SCRIPT), pair.invoice, pair.order], {
+        // The script logs under the estate root its own path defines: a copy inside the temporary estate keeps
+        // that log in the temporary folder.
+        const copy = join(root, SCRIPT);
+        mkdirSync(dirname(copy), { recursive: true });
+        copyFileSync(join(FIXTURE, SCRIPT), copy);
+        const run = spawnSync('python3', [copy, pair.invoice, pair.order], {
           cwd: root,
           encoding: 'utf8',
         });
