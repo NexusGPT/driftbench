@@ -86,10 +86,12 @@ export {
   type UnitChange,
 } from './radius';
 export {
+  atomNeeds,
   DEFAULT_WINDOW_UNITS,
   type LabelerUsage,
   type LabelledUnit,
   type MemberPlan,
+  missingForAtom,
   OUT_OF_STEP_MIN,
   OUT_OF_STEP_SHARE,
   outOfStep,
@@ -98,6 +100,8 @@ export {
   type PointerResult,
   pointerScan,
   REASK_LIMIT,
+  SPLIT_REASK_ATTEMPTS,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   windowsOf,
 } from './scan';
