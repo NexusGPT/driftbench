@@ -55,6 +55,8 @@ export const AGENT_RULES_SET = `labels:
         description: The circumstance in which the unit applies, in the unit's own words, such as a state of the world, a kind of request or a moment. Not the act the unit orders. Give it only when the unit states one.
       - name: ask-text
         description: A clause of the unit, as it stands, that a user could say as a complete request which makes the reader do what the unit orders or refuse what it forbids. Give it only when the unit holds such a clause.
+      - name: forbidden-material
+        description: Inside a unit that forbids a kind of call, the command, file or name the forbidden call holds, as the unit writes it, with no quote marks and no word that forbids it. Give it only when the unit names one such thing and it is the whole of what the unit forbids.
       - name: retry
         description: The clause of the unit that orders the reader to try the failed request again. Give it only when the unit has one.
       - name: reread-self
@@ -71,6 +73,15 @@ export const AGENT_RULES_SET = `labels:
       - name: reply-part
         description: The part of the output that carries the act in the reply-act link. reply is the reply itself, draft is the draft the reader composes for review. Give it with every reply-act link.
         values: [reply, draft]
+      - name: reply-shape
+        description: The shape of the whole reply that a reply rule demands, when the rule fixes it. json_only is a reply that is one JSON object or array and nothing else. Leave it out when the rule fixes no such shape.
+        values: [json_only]
+      - name: forbid-tool
+        description: The tool whose call a unit forbids, when the unit forbids a call that holds the forbidden-material span. Bash for a command, Edit or Write for a change of a file, Read for a read, Agent for handing work to a helper. Give it with the forbidden-material span.
+        values: [Bash, Edit, Write, Read, Agent]
+      - name: forbid-input
+        description: The input of that call the forbidden material is part of. command for a Bash call, file_path for a call on a file, subagent_type for a handoff to a helper. Give it with the forbid-tool link.
+        values: [command, file_path, subagent_type]
       - name: order-key
         description: The input that both acts of an ordered pair share, when the rule orders a read and a change of the same object. Leave it out when the rule names a file.
         values: [file_path, command, path, url, pattern]
@@ -106,14 +117,18 @@ ${ALSO_REFERENCE}      - name: dispatch
           fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
 ${ALSO_REFERENCE}      - name: prohibition
         description: A unit that tells the reader never to do something, or not to do it. The unit holds never, do not or must not, even when it names a file, a folder or a command.
-        spans: [situation, ask-text]
-        links: [reply-act, reply-part]
+        spans: [situation, ask-text, forbidden-material]
+        links: [reply-act, reply-part, forbid-tool, forbid-input]
         atom:
           kind: instruction
           situation: $span.situation?
           polarity: prohibition
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields:
+            "ask?": { text: $span.ask-text, "context?": $span.situation }
+            "unitCases?": [{ effect: forbid, tool: $link.forbid-tool, material: $span.forbidden-material }]
+          evidence:
+            - optional: { type: tool_not_called, label: $link.forbid-tool, input: { "\${link.forbid-input}": { contains: $span.forbidden-material } } }
 ${ALSO_REFERENCE}
       - name: gate
         description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule, unless the act it waits for changes that same file (gate-same). Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
@@ -184,12 +199,14 @@ ${ALSO_REFERENCE}
       - name: reply-rule
         description: A unit that sets the language, length, format, words or tone of the reader's reply.
         spans: [situation, ask-text]
-        links: [reply-act, reply-part]
+        links: [reply-act, reply-part, reply-shape]
         atom:
           kind: register
           situation: $span.situation?
           replyAct: { id: $link.reply-act, evidence: { type: text_segment, part: $link.reply-part } }
-          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation } }
+          fields: { "ask?": { text: $span.ask-text, "context?": $span.situation }, "replyShape?": $link.reply-shape }
+          evidence:
+            - optional: { type: custom, name: $link.reply-shape }
 ${ALSO_REFERENCE}
       - name: hazard-compaction
         description: A unit that says what the agent does when the agent's own conversation or context is compacted, summarised or truncated to fit its window, or that names this as an event the agent must get through. Not a unit that only mentions the word for a file, a table or someone else's system, not an example, and not a unit triggered by what the user says or asks, which is a rule.
