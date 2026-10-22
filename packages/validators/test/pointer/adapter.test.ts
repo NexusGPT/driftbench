@@ -83,6 +83,21 @@ describe('the real-reader adapter maps observations without implementing behavio
     expect(out.calls).toBe(9);
   });
 
+  it('forwards each dropped label of the reader as a structured diagnostic with a stable code', async () => {
+    const { sut, result } = fixture();
+    result.droppedLabels = [
+      { window: 'notes.md#1', set: 'agent-rules', labeler: 'system2-a', line: 2, label: 'description' },
+    ];
+    const out = await sut.scan(request);
+    expect(out.diagnostics).toContainEqual({
+      code: 'dropped-label',
+      window: 'notes.md#1',
+      detail: 'notes.md#1 (agent-rules, system2-a): the label description on the shown line 2 was dropped',
+    });
+    delete result.droppedLabels;
+    expect((await sut.scan(request)).diagnostics?.some((d) => d.code === 'dropped-label')).toBe(false);
+  });
+
   it.each(['changed', 'split', 'merged', 'moved', 'deleted', 'unchanged', 'new'])(
     'does not repair a reader event mutant (%s) by comparing quotes',
     async (event) => {
