@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
@@ -26,7 +27,7 @@ import {
   renderEstateMap,
 } from '@agent-nexus/driftbench-estate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { openStore } from '@agent-nexus/driftbench-store';
+import { openStore, type SqliteStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -43,7 +44,14 @@ import {
 import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { campaignProvenance } from './campaign-provenance';
-import { carryRequestFrom, type EstateCarryFlags, isTheOldStore, planEstateCarry } from './estate-carry';
+import {
+  carryRequestFrom,
+  ESTATE_SALT_KEY,
+  type EstateCarryFlags,
+  isTheOldStore,
+  oldStoreSalt,
+  planEstateCarry,
+} from './estate-carry';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
@@ -380,7 +388,7 @@ export async function estateRunCommand(
     return 2;
   }
 
-  let store: Store;
+  let store: SqliteStore;
   const storePath = resolve(io.cwd, options.store);
   const progressPath = options.progress === undefined ? undefined : resolve(io.cwd, options.progress);
   const carry = carryRequestFrom(options, storePath, io);
@@ -423,6 +431,12 @@ export async function estateRunCommand(
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });
     const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
+    // The salt of the digests below: random per store, kept in the store, and copied by --from, so a result carried
+    // from the old store compares like for like while the same value in another store gives another stamp.
+    const salt = await store.metaInit(
+      ESTATE_SALT_KEY,
+      (carry ? await oldStoreSalt(carry, io) : undefined) ?? randomBytes(16).toString('hex'),
+    );
     // What a result depends on besides the estate and the spec: the runtime, its flags, its environment and its
     // judge. A labelled run stamps it, so a result carried from a run made another way is refused, not copied.
     const identity = contentHash({
@@ -434,11 +448,12 @@ export async function estateRunCommand(
       disallow: options.disallow ?? [],
       lockDeny: options.lockDeny ?? [],
       timeoutMs: timeoutMs ?? null,
-      // The name and a digest of the value of every variable the run sets or passes on, never the value: a result made
-      // with another value of one is refused, and the stamp holds nothing a person could read back.
+      // The name and a salted digest of the value of every variable the run sets or passes on, never the value: a result
+      // made with another value of one is refused, and the stamp holds nothing a person could read back or match
+      // against another store.
       env: Object.keys(env)
         .sort()
-        .map((name) => [name, contentHash({ name, value: env[name] })]),
+        .map((name) => [name, contentHash({ salt, name, value: env[name] })]),
       library: library ?? null,
       judge: judge.label,
       toolPolicy: settings.toolPolicy ?? null,

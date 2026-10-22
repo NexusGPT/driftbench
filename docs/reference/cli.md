@@ -1440,7 +1440,7 @@ The options that shape the run of the runtime:
 |---|---|
 | `--order <file>` | a run-order file, such as the `run-order.txt` that `estate generate` writes: one spec file or folder per line, relative to the file's own folder; `#` starts a comment. Its specs run in that order, after any `[specs...]` arguments |
 | `--set-env <NAME=VALUE>` | a variable the runtime and its guards receive; repeat it. For a path, a proxy or a dead URL a spec needs |
-| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials |
+| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials |. The stamp holds a digest of each value, keyed with a random salt the store keeps (`meta` table) and `--from` copies, so the same value in another store gives another stamp
 | `--disallow <rules...>` | tools the runtime must refuse, passed to it as `--disallowed-tools` |
 | `--lock-deny <paths...>` | paths the runtime and its children may neither read nor write (the macOS lock). The owner config in `~/.claude` is always write-protected |
 | `--model <name>` | the model the runtime runs, passed as `--model` |

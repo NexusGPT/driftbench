@@ -1005,6 +1005,35 @@ describe('driftbench estate run --from', () => {
       );
     });
 
+    it('gives the same value another stamp in another store, and the same stamp through --from', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const { openStore } = await import('@agent-nexus/driftbench-store');
+      const stampsOf = async (path: string) => {
+        const store = await openStore(path);
+        const runs = await store.listRuns();
+        const salt = await store.metaGet('estate.salt');
+        await store.close();
+        return { salt, stamps: new Set(runs.map((entry) => entry.provenance?.adapter.cacheIdentityHash)) };
+      };
+      const one = await firstRun(calls, specs, '--pass-env', NAME);
+      const two = await firstRun(calls, specs, '--pass-env', NAME);
+      const first = await stampsOf(one.store);
+      const second = await stampsOf(two.store);
+      expect(first.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).toMatch(/^[0-9a-f]{32}$/);
+      expect(second.salt).not.toBe(first.salt);
+      expect(first.stamps.size).toBe(1);
+      expect(second.stamps.size).toBe(1);
+      expect([...second.stamps][0]).not.toBe([...first.stamps][0]);
+      // Carry copies the salt, so the new store's digests are the old store's and the result is carried.
+      const change = await manifest();
+      const carried = await secondRun(calls, one.store, specs, '--change', change, '--pass-env', NAME);
+      expect((carried.json as CarryJson).runs.some((line) => line.carried === true)).toBe(true);
+      expect((await stampsOf(carried.store)).salt).toBe(first.salt);
+    });
+
     it('keeps the value out of the store', async () => {
       const calls = await counter();
       process.env[NAME] = 'north-secret-value';
