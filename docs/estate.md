@@ -27,7 +27,7 @@ Every number on this page comes from the commands run on the fixture estates of 
 | [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, three changed in meaning (one rewritten at the same ledger unit), one added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
 | `examples/estates/sessions` | Six synthetic sessions of another fictional estate (a shop build) with their guard decision logs, step feeds and seven replay specs, for `driftbench replay`. |
 
-No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
+No command on this page calls a paid model, except the one recorded run in [The state library of a live run](#the-state-library-of-a-live-run). The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
 
 ## The commands
 
@@ -1111,6 +1111,22 @@ Limits of replay today:
 * Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
 * Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. A `--delete` of a skill's `name:` line whose value is the skill's folder name is refused as an equivalent mutant: the runtime names a skill by its folder, so the line's removal changes nothing the agent sees, and nothing is written. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red. `--delete <id>` names the atom by its atom id or by the ledger id of its unit.
 * Link proof, `driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store>`. Run the suite on the original and on a mutant that deletes one rule, then prove the links of the blocks to that rule: a block flips when it passes on the original and fails on the mutant. A `verifies` link whose block flips becomes `verified`; one whose block passes on both becomes `refuted`; a block that flips with no link is an unlinked flip; a block that does not pass on the original proves nothing. `--write` writes the statuses and their evidence into the spec files (`metadata.links`, outside the spec hash). On the stand-in, which follows the rules of the estate in its folder, the blocks that flip when a route row or the `WebFetch` deny is deleted are exactly the blocks linked to it (`packages/cli/test/estate-prove.test.ts`); a link planted on a block that does not test the route is refuted, and a removed link shows up as an unlinked flip. Exit 0 when the blocks that flip are the linked blocks, 1 when they differ.
+
+### The state library of a live run
+
+`estate build` and `estate generate` need no state library from you. With no `--states` and no `live/states/library.json` beside the map, they write `states/library.json` and `states/prefixes/long.jsonl` beside the specs, and plan the live rows from it. The library holds the session states `long`, `after_compaction` and `after_restart`, and the events `compaction_mid_task`, `process_restart` and `rate_wave`. The test `packages/cli/test/estate-build-generated-states.test.ts` builds the Northwind estate this way and checks the file, the printed counts and the planned states. With the recorded answers of the fixture (`estate build <copy of the fixture> --out build --replay answers.yaml --yes`), the build writes 1409 tests, 735 of them complete, and 580 rows wait for `resumed`, `helpers_running`, `stale_tracker` or `dead_helper`, which need the estate's own transcript, tracker or helper.
+
+Recorded run, 2026-10-22, with an API key. The run used a build with no `--states` and three live tests of the generated folder, one for each session state, run by `claude` on `claude-haiku-5-5` with `--states build/generated/states/library.json`. It cost 0.0055 USD, under a cap of 0.10 USD. It is not run by the tests, because it is billed. The campaign id changes at every run. The two failures are tests whose guard did not fire, since the agent asked which command to run instead of running one.
+
+```text
+note: the estate copy is not pinned to a map hash; pass --map to pin it
+✗ estate.pairwise.0279  (0.0012 USD)
+    failing: block 0: guards.ledger-guard.py.warn
+✗ estate.pairwise.0902  (0.0013 USD)
+    failing: block 0: guards.ledger-guard.py.warn
+✓ estate.pairwise.0188  (0.0030 USD)
+3 specs run live: 1 pass, 2 fail. Cost 0.0055 USD over 3 runs that report one, judge claude:claude-haiku-5-5 0.0000 USD of it. Campaign estate-run-ab492f039b24.
+```
 
 ## 7. Judging, statistics and coverage for estates
 
