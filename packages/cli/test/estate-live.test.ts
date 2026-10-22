@@ -295,6 +295,10 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  /** The `live` record of the raw part of an observed block. */
+  const liveOf = (raw: unknown): { stateLibrary?: unknown } | undefined =>
+    (raw as { live?: { stateLibrary?: unknown } } | undefined)?.live;
+
   it('records the state library of a run: its resolved path and the sha-256 of its file', async () => {
     const spec = join(LIVE, PROOF.route_positive ?? '');
     const result = await estateRun(FIXTURE, [spec]);
@@ -303,7 +307,7 @@ describe('driftbench estate run', () => {
     const store = await openStore(result.store);
     const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
     await store.close();
-    const live = (stored?.blocks[0]?.observed.raw as { live?: { stateLibrary?: unknown } }).live;
+    const live = liveOf(stored?.blocks[0]?.observed.raw);
     const sha256 = createHash('sha256').update(readFileSync(STATES)).digest('hex');
     expect(live?.stateLibrary).toEqual({ path: STATES, sha256 });
     // A run with no library names none.
@@ -327,7 +331,7 @@ describe('driftbench estate run', () => {
     const other = await openStore(bare);
     const [plain] = await other.listRuns({ campaignId: (JSON.parse(without.out) as RunJson).campaignId });
     await other.close();
-    expect((plain?.blocks[0]?.observed.raw as { live?: object }).live).not.toHaveProperty('stateLibrary');
+    expect(liveOf(plain?.blocks[0]?.observed.raw)).not.toHaveProperty('stateLibrary');
   });
 
   it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
