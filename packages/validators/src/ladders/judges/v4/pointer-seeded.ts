@@ -228,6 +228,7 @@ function answerRef(set: LabelSetJson, win: Win, answer: Entry[]): AnswerRef {
   const accepted: Record<string, Json> = {};
   const covered = new Set<number>();
   const refusals: string[][] = [];
+  const seen = new Set<string>();
   for (const e of answer) {
     const label = allowed.get(e.label);
     if (e.label !== 'none' && !label) {
@@ -244,6 +245,10 @@ function answerRef(set: LabelSetJson, win: Win, answer: Entry[]): AnswerRef {
       refusals.push([e.units, String(out)]);
       continue;
     }
+    // An entry written twice, identical, counts once; a unit named again with another answer is refused.
+    const written = JSON.stringify([e.units.trim(), e.label, e.target ?? null]);
+    if (seen.has(written)) continue;
+    seen.add(written);
     const twice = nums.find((n) => covered.has(n));
     if (twice !== undefined) {
       refusals.push([e.units, String(twice)]);
@@ -282,6 +287,7 @@ export type Defect =
   | 'bad-units'
   | 'outside-window'
   | 'named-twice'
+  | 'written-twice'
   | 'bad-target'
   | 'none-target'
   | 'missing-target'
@@ -292,6 +298,7 @@ export const DEFECTS: readonly Defect[] = [
   'bad-units',
   'outside-window',
   'named-twice',
+  'written-twice',
   'bad-target',
   'none-target',
   'missing-target',
@@ -324,8 +331,15 @@ function answerCase(
     case 'outside-window':
       answer.push({ units: `${k}-${k + int(r, 1, 3)}`, label: plain[0]?.name ?? 'none' });
       break;
-    case 'named-twice':
-      answer.push({ units: '1', label: plain[0]?.name ?? 'none' });
+    case 'named-twice': {
+      // The second answer for unit 1 conflicts with the first: another label. An identical entry is no defect.
+      const other = [...plain.map((l) => l.name as string), 'none'].filter((n) => n !== answer[0]?.label);
+      answer.push({ units: '1', label: other.length ? pick(r, other) : 'none' });
+      break;
+    }
+    case 'written-twice':
+      // The same entry written twice names the same units with the same answer: it counts once.
+      answer.push(structuredClone(answer[0] as Entry));
       break;
     case 'bad-target':
       if (needs) answer.push({ units: String(k), label: needs.name, target: pick(r, [1.5, '2']) });

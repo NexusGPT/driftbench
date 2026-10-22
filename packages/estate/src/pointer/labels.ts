@@ -373,6 +373,8 @@ export type Checked = {
   refusals: string[];
   /** The refusals of the answer as a whole: a label, a unit or a target that does not exist. */
   invalid: string[];
+  /** The same refusals with no word the model chose: a code and the set (a cassette keeps these). */
+  invalidCodes: string[];
   /** Spans and links dropped from accepted answers, with the reason: the label stood without them. */
   dropped: string[];
 };
@@ -395,20 +397,29 @@ export function checkAnswer(
   const seenEntries = new Set<string>();
   const refusals: string[] = [];
   const invalid: string[] = [];
-  const refuse = (reason: string) => {
+  const invalidCodes: string[] = [];
+  // The reason names the part of the answer it refuses; the code leaves out the words the model chose.
+  const refuse = (reason: string, code = reason) => {
     refusals.push(reason);
     invalid.push(reason);
+    invalidCodes.push(code);
   };
   const dropped: string[] = [];
   for (const entry of answer) {
     const label = allowed.get(entry.label);
     if (entry.label !== 'none' && !label) {
-      refuse(`${window.id}: label-not-in-set (${set.set})`);
+      refuse(
+        `${window.id}: the label ${entry.label} is not in the set ${set.set}`,
+        `${window.id}: label-not-in-set (${set.set})`,
+      );
       continue;
     }
     const named = expandUnits(entry.units);
     if (!named) {
-      refuse(`${window.id}: units-not-a-number-or-range`);
+      refuse(
+        `${window.id}: "${entry.units}" is no unit number or range`,
+        `${window.id}: units-not-a-number-or-range`,
+      );
       continue;
     }
     // A range may cross a line the window shows without asking about it (read, context, opaque): those numbers
@@ -435,7 +446,10 @@ export function checkAnswer(
       continue;
     }
     if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
-      refuse(`${window.id}: target-not-a-number`);
+      refuse(
+        `${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`,
+        `${window.id}: target-not-a-number`,
+      );
       continue;
     }
     if (entry.label === 'none' && entry.target !== undefined) {
@@ -468,7 +482,7 @@ export function checkAnswer(
       }
     }
   }
-  return { accepted, covered, refusals, invalid, dropped };
+  return { accepted, covered, refusals, invalid, invalidCodes, dropped };
 }
 
 const POLARITIES = new Set(['obligation', 'prohibition']);
