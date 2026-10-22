@@ -501,7 +501,8 @@ describe('blind pointer bank harness', () => {
   });
 
   it('fails a key in the body of any request on every privacy item, and a leak in the second request only', async () => {
-    const sent = (item: BankItem) => item.generate(1).probes.some((p) => (p.sampleEffects ?? []).some((e) => e.kind === 'fetch'));
+    const sent = (item: BankItem) =>
+      item.generate(1).probes.some((p) => (p.sampleEffects ?? []).some((e) => e.kind === 'fetch'));
     for (const item of bank.filter((i) => i.family === 'privacy' && sent(i))) {
       const leaky = stub(item, 1, undefined, (p) => ({
         messages: [{ role: 'user', content: String((p.setup as { key: string }).key) }],

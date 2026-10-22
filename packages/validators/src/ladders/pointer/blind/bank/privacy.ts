@@ -158,7 +158,7 @@ function secondRequestItem(): BankItem {
         const t = token(seed, salt);
         const secret = privateMarker(seed, salt);
         const key = privateMarker(seed, salt + 31);
-        // Arm 0: a hundred paragraphs fill two windows, the opaque block closes the second: two requests.
+        // Arm 0: a hundred paragraphs fill several windows, the opaque block closes the last: several requests.
         // Arm 1: three paragraphs and the block: one request.
         const paragraphs = Array.from({ length: arm ? 3 : 100 }, (_, i) => `${PADDING} Number ${i} of ${t}.`);
         const source = `${paragraphs.join('\n\n')}\n\n${wrap('fence', secret)}`;
@@ -183,7 +183,7 @@ function secondRequestItem(): BankItem {
             },
           },
           setup: { key, answer, cached: null, labelAll: SET_LABEL },
-          expected: { leaked: false, networkCalls: calls, status: 'ok' },
+          expected: { leaked: false, requests: arm ? 'one' : 'several', status: 'ok' },
           sample: { status: 'ok' },
           sampleEffects: [
             { kind: 'key' as const },
@@ -194,11 +194,11 @@ function secondRequestItem(): BankItem {
             const r = actual as Record<string, Json>;
             return {
               leaked:
-                leaksPrivateFragment(
-                  { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
-                  [secret, key],
-                ) || leaksPrivateFragment(trace.requests, [secret, key]),
-              networkCalls: trace.networkCalls,
+                leaksPrivateFragment({ actual, writes: trace.writes, logs: trace.logs, plans: trace.plans }, [
+                  secret,
+                  key,
+                ]) || leaksPrivateFragment(trace.requests, [secret, key]),
+              requests: trace.networkCalls > 1 ? 'several' : 'one',
               status: r.status,
             };
           },
