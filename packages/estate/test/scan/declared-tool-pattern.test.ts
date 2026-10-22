@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader, mapHash, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
@@ -40,9 +41,16 @@ it('leaves the atoms, ids and map hash of the scan as they were', async () => {
     ['Declared Edit', 'Edit'],
   ]);
   // The map hash covers the atom ids, their provenance hashes and the edges. A pattern kept in `rules` must not enter it.
-  const withoutRules = map.atoms.map((atom) => {
+  const stripped = map.atoms.map((atom) => {
     const { rules: _rules, ...fields } = atom.fields ?? {};
     return { ...atom, fields };
   });
-  expect(map.hash).toBe(mapHash(withoutRules, map.edges));
+  expect(map.hash).toBe(mapHash(stripped, map.edges));
+  // The check can fail: a hasher that reads the fields gives another hash once `rules` is removed. The real one does not.
+  const readsFields = (atoms: typeof map.atoms) =>
+    createHash('sha256')
+      .update(atoms.map((atom) => `${atom.id} ${atom.provenance.hash} ${JSON.stringify(atom.fields)}`).join('\n'))
+      .digest('hex');
+  expect(readsFields(map.atoms)).not.toBe(readsFields(stripped));
+  expect(mapHash(map.atoms, map.edges)).toBe(mapHash(stripped, map.edges));
 });
