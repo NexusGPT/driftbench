@@ -768,9 +768,9 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
     const pairs: Array<[Record<string, string>, Record<string, string>]> = [];
     if (hit)
       for (const run of runsOf(ctx.arm)) {
-        const found = (
-          [...ctx.cassette.entries.values()] as unknown as CassetteRow[]
-        ).find((row) => row.key === keyOf(wire, { ...want, run }));
+        const found = ([...ctx.cassette.entries.values()] as unknown as CassetteRow[]).find(
+          (row) => row.key === keyOf(wire, { ...want, run }),
+        );
         if (found) pairs.push([found.readable, { ...want, run }]);
       }
     if (pairs.length === 0 && near) pairs.push([near.readable, want]);
