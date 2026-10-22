@@ -1,0 +1,78 @@
+name: gate-b probe
+
+# Temporary: renders the four walkthrough and rule-links images and compares them with the committed files.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install the render tools
+        run: |
+          mkdir -p /tmp/driftbench-readme-tools && cd /tmp/driftbench-readme-tools
+          npm init -y
+          npm install --include=optional playwright@1.64.0 sharp@0.34.3
+          npx playwright install --with-deps chromium
+      - name: Keep the committed images
+        run: |
+          mkdir -p /tmp/committed /tmp/report
+          for n in walkthrough-light walkthrough-dark rule-links-light rule-links-dark; do cp .github/readme/$n.png /tmp/committed/$n.png; done
+      - name: Render
+        run: README_TOOLS=/tmp/driftbench-readme-tools node .github/readme/render.mjs walkthrough rule-links
+      - name: Compare
+        run: |
+          cat > /tmp/compare.cjs <<'JS'
+          const { createRequire } = require('node:module');
+          const req = createRequire('/tmp/driftbench-readme-tools/package.json');
+          const sharp = req('sharp');
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          (async () => {
+            const lines = [];
+            let different = 0;
+            for (const n of ['walkthrough-light', 'walkthrough-dark', 'rule-links-light', 'rule-links-dark']) {
+              const a = fs.readFileSync(`/tmp/committed/${n}.png`);
+              const b = fs.readFileSync(`.github/readme/${n}.png`);
+              const sha = (x) => crypto.createHash('sha256').update(x).digest('hex').slice(0, 16);
+              let row = `${n}: committed ${a.length} bytes ${sha(a)}, rendered ${b.length} bytes ${sha(b)}, bytes ${a.equals(b) ? 'IDENTICAL' : 'DIFFER'}`;
+              if (!a.equals(b)) {
+                different += 1;
+                const ra = await sharp(a).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+                const rb = await sharp(b).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+                if (ra.info.width !== rb.info.width || ra.info.height !== rb.info.height) row += `; size ${ra.info.width}x${ra.info.height} vs ${rb.info.width}x${rb.info.height}`;
+                else {
+                  let count = 0, max = 0;
+                  for (let i = 0; i < ra.data.length; i += 4) {
+                    let d = 0;
+                    for (let c = 0; c < 4; c++) d = Math.max(d, Math.abs(ra.data[i + c] - rb.data[i + c]));
+                    if (d > 0) count++;
+                    if (d > max) max = d;
+                  }
+                  row += `; pixels ${ra.info.width}x${ra.info.height}, ${count} differ (${(100 * count / (ra.data.length / 4)).toFixed(4)} percent), max channel difference ${max}`;
+                }
+                fs.copyFileSync(`.github/readme/${n}.png`, `/tmp/report/rendered-${n}.png`);
+              }
+              lines.push(row);
+            }
+            lines.push(`images that differ in bytes: ${different} of 4`);
+            fs.writeFileSync('/tmp/report/report.txt', lines.join('\n') + '\n');
+            console.log(lines.join('\n'));
+          })();
+          JS
+          node /tmp/compare.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: render-check
+          path: /tmp/report
