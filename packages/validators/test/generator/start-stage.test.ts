@@ -74,6 +74,19 @@ describe('a prefix-started walk says where it starts', async () => {
     expect(verdict.pass).toBe(false);
   }, 600_000);
 
+  it('reads a declared stage when the opening says the same turns in other words', async () => {
+    const entry = started(real);
+    const first = required(entry.spec.blocks[0]);
+    const given = required(first.given);
+    first.given = {
+      ...given,
+      prefix: (given.prefix ?? []).map((message) =>
+        message.role === 'user' ? { ...message, content: `${message.content} Thanks.` } : message,
+      ),
+    };
+    expect((await recovery(entry)).pass).toBe(true);
+  }, 600_000);
+
   it('does not read a declared stage no written walk of the suite confirms', async () => {
     // The true stage, but the suite holds no walk that says this opening: a generator could declare any stage.
     const verdict = await recovery(started(real), false);
