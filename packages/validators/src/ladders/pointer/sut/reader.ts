@@ -493,8 +493,6 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
           record: mode === 'record',
           cwd: '.',
           env: TEST_ENV,
-          // One request per window and set: the bank's arms are single labelers, with nothing to vote against.
-          runs: 1,
           fetch: fetchOf(request.model.transport),
           ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
         },
