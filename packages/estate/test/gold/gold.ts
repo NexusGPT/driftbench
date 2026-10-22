@@ -55,8 +55,9 @@ export async function estateFiles(estate: EstateName): Promise<Array<{ path: str
 export const flat = (text: string): string => text.replace(/\s*\n\s*/g, ' ');
 
 /**
- * The label set of the gold: the six labels of gold5. A rule and a prohibition build an instruction, a gate
- * builds a gate; the rest build no atom.
+ * The label set of the gold: the six labels of gold5, and `condition` for the scope entries of a truth file. A rule,
+ * a prohibition and a gate each build an instruction (a gate is a line that asks for a check first, and no
+ * file or tool is named in it); the other labels build no atom.
  */
 export const GOLD_SET_YAML = `labels:
   - set: ${GOLD_SET_NAME}
@@ -70,7 +71,11 @@ export const GOLD_SET_YAML = `labels:
         atom: { kind: instruction, polarity: prohibition }
       - name: gate
         description: A unit that tells the reader to check something first, before an act.
-        atom: { kind: gate }
+        atom: { kind: instruction, polarity: obligation }
+      - name: condition
+        description: A unit that only says when another unit applies and orders nothing by itself.
+        target: required
+        condition: true
       - name: example
         description: A unit that shows a case and is not itself an instruction.
       - name: description
@@ -83,13 +88,32 @@ export function goldSets(): LabelSet[] {
   return parsed.sets;
 }
 
-/** The labeller of the gold: it answers each unit with its gold label and gives no opinion where the annotators disagreed. */
-export function goldLabeller(units: readonly GoldUnit[], log: string[] = []) {
+/** A scope of the truth file: the condition unit and the unit it scopes, each as `file#n`. */
+export type PlantedScope = { unit: string; target: string };
+
+/**
+ * The labeller of the gold: it answers each unit with its gold label and gives no opinion where the annotators
+ * disagreed. A unit named as the condition of a scope is answered `condition`, pointed at its target unit when
+ * both are in the window.
+ */
+export function goldLabeller(
+  units: readonly GoldUnit[],
+  log: string[] = [],
+  scopes: readonly PlantedScope[] = [],
+) {
   const byUnit = new Map(units.map((unit) => [`${unit.file}#${unit.n}`, unit]));
+  const scoped = new Map(scopes.map((scope) => [scope.unit, scope.target]));
   const answer = (window: Window): Labelled[] => {
     const answers: Labelled[] = [];
     for (const unit of window.units) {
-      const gold = byUnit.get(`${window.path}#${unit.index + 1}`);
+      const place = `${window.path}#${unit.index + 1}`;
+      const target = scoped.get(place);
+      const at = window.units.find((other) => `${window.path}#${other.index + 1}` === target);
+      if (at !== undefined) {
+        answers.push({ units: String(unit.n), label: 'condition', target: at.n });
+        continue;
+      }
+      const gold = byUnit.get(place);
       if (!gold?.agreed || gold.label === null) continue;
       answers.push({ units: String(unit.n), label: gold.label });
     }

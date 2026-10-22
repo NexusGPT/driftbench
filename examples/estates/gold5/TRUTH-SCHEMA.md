@@ -56,11 +56,16 @@ plan:
 * `limits`: only units that state a number as a limit, a count, a size or a duration a test could cross.
   A number inside an example or a description that orders nothing is not a limit. State the comparison from
   the sentence, not from a guess about the test.
-* `planted_rules`: the unit must carry a gold label of `rule`, `prohibition` or `gate` with `agreed: true`.
+* `planted_rules`: the unit must carry a gold label of `rule`, `prohibition` or `gate` with `agreed: true`,
+  and must sit in a file other than the standing file of the estate (`A-standing-instructions.md`,
+  `B-standing-instructions.md`, `C-main-prompt-with-channel-tabs.md`): the harness loads every other file as a
+  skill, and a rule is tested through the skill that carries it.
   The `ask` must be a request, not a copy of the rule. `near_miss` is optional but wanted for at least half
   of the entries.
 * `plan.cover` and `plan.exclude`: `cover` takes units with an agreed label of `rule`, `prohibition` or
   `gate`. `exclude` takes units with an agreed label of `example`, `description` or `none`. Give 10 to 30
   entries in each.
+* `scopes`: the harness labels the condition unit `condition` for the chain, whatever its gold label, and
+  points it at the target. Choose pairs where the condition unit and the target are in one section.
 * Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
 * An empty list is allowed only for `scopes`, `plan.same_row` and `limits` when the estate has none.
