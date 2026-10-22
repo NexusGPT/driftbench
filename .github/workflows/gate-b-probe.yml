@@ -37,7 +37,7 @@ jobs:
       - name: Format and lint of the harness files (the diff is what the formatter wants)
         continue-on-error: true
         run: |
-          pnpm exec biome check --write packages/estate/test/gold packages/cli/test/gold-chain biome.json || true
+          pnpm exec biome check --max-diagnostics=1000 --write packages/estate/test/gold packages/cli/test/gold-chain biome.json || true
           git diff --stat
           git diff
       - name: Type check
