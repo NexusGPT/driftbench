@@ -12,7 +12,7 @@ import {
   pointer,
   type RawEstate,
   type RegistryRole,
-  type RegistryRoles,
+  type RegistryRolesInput,
   renderEstateMap,
   scanEstate,
 } from '../src/index';
@@ -208,20 +208,30 @@ const HAND_WORDS: Record<RegistryRole, string[]> = {
 };
 
 const capitalised = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
-export const HAND_ROLES: RegistryRoles = {
-  columns: Object.fromEntries(
-    (Object.entries(HAND_WORDS) as Array<[RegistryRole, string[]]>).flatMap(([role, words]) =>
-      words.flatMap((word) => [word, capitalised(word), word.toUpperCase()].map((key) => [key, role])),
-    ),
+/** The role a test gives a header cell, by the words of its own estate. The reader never sees this table. */
+const HAND_COLUMNS: Readonly<Record<string, RegistryRole>> = Object.fromEntries(
+  (Object.entries(HAND_WORDS) as Array<[RegistryRole, string[]]>).flatMap(([role, words]) =>
+    words.flatMap((word) => [word, capitalised(word), word.toUpperCase()].map((key) => [key, role])),
   ),
-  offStates: ['off', 'disabled', 'retired', 'removed', 'dead'],
-};
+);
+const HAND_OFF_STATES = ['off', 'disabled', 'retired', 'removed', 'dead'];
+const stripCell = (cell: string) => cell.replace(/^[`*"]+|[`*"]+$/g, '').trim();
+
+/** The hand-written roles of a test: decided for each table from its header cells, recorded per table. */
+export const HAND_ROLES: RegistryRolesInput = (tables) => ({
+  tables: tables.map((table) => ({
+    file: table.file,
+    index: table.index,
+    roles: table.header.map((cell) => HAND_COLUMNS[stripCell(cell)] ?? null),
+  })),
+  offStates: HAND_OFF_STATES,
+});
 
 /** What a labeller records for a cell of the registry-roles questions, from the hand-written table above. */
 export function handRoleLabel(cell: string): string {
-  const role = HAND_ROLES.columns[cell.trim()];
+  const role = HAND_COLUMNS[cell.trim()];
   if (role !== undefined) return `col-${role}`;
-  return HAND_ROLES.offStates.includes(cell.trim()) ? 'state-off' : 'none';
+  return HAND_OFF_STATES.includes(cell.trim()) ? 'state-off' : 'none';
 }
 
 /** The reader's raw estate with the hand-written registry roles applied, as a scan with a labeller gives it. */

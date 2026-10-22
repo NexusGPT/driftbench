@@ -34,15 +34,24 @@ export const REGISTRY_ROLE_LABELS: Readonly<Record<string, RegistryRole>> = {
 /** The label of a state value under which a check enforces nothing. */
 export const STATE_OFF_LABEL = 'state-off';
 
-/** What the scan hands the registry reader: the role of each header cell, and the state values that are off. */
+/**
+ * What the scan hands the registry reader: the role of each column of each registry table, by the table's file and
+ * its place among the tables of that file and by the column's position, and the state values that are off. A
+ * column with no role is `null`. A table is never read by the text of a cell.
+ */
 export type RegistryRoles = {
-  /** By the header cell as the table writes it, without markup. */
-  columns: Record<string, RegistryRole>;
+  tables: Array<{ file: string; index: number; roles: Array<RegistryRole | null> }>;
   /** State values, as written, under which a check enforces nothing. */
   offStates: string[];
 };
 
-export const NO_REGISTRY_ROLES: RegistryRoles = { columns: {}, offStates: [] };
+/** The tables a caller may decide the roles of: where each is, and its header cells as written. */
+export type RegistryTableRef = { file: string; index: number; header: string[] };
+
+/** The roles, or a function that decides them from the tables the reader found (a labeller of the caller's own). */
+export type RegistryRolesInput = RegistryRoles | ((tables: readonly RegistryTableRef[]) => RegistryRoles);
+
+export const NO_REGISTRY_ROLES: RegistryRoles = { tables: [], offStates: [] };
 
 export const REGISTRY_ROLES_SET = `labels:
   - set: ${REGISTRY_ROLES_SET_NAME}

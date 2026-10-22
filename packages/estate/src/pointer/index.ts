@@ -94,6 +94,8 @@ export {
   REGISTRY_ROLES_SET_NAME,
   type RegistryRole,
   type RegistryRoles,
+  type RegistryRolesInput,
+  type RegistryTableRef,
   STATE_OFF_LABEL,
 } from './registry-roles-set';
 export {

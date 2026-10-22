@@ -3,7 +3,7 @@ import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { EstatePathError, estatePath } from '../paths';
-import type { RegistryRoles } from '../pointer/registry-roles-set';
+import type { RegistryRoles, RegistryRolesInput } from '../pointer/registry-roles-set';
 import { NO_REGISTRY_ROLES } from '../pointer/registry-roles-set';
 import { DocumentRole } from '../schema';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
@@ -140,7 +140,7 @@ export type ClaudeCodeReaderOptions = {
    * The recorded roles of the registry-table columns and the off states, as an earlier scan kept them in its map.
    * Without them a markdown registry table gives no row: no header word is read.
    */
-  registryRoles?: RegistryRoles;
+  registryRoles?: RegistryRolesInput;
 };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
@@ -166,7 +166,7 @@ export class ClaudeCodeReader implements EstateReader {
   private readonly budget: number;
   private readonly ignore: readonly string[];
   private readonly userSkills: string | undefined;
-  private readonly registryRoles: RegistryRoles;
+  private readonly registryRoles: RegistryRolesInput;
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
@@ -1500,15 +1500,16 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
   }
   // A markdown table is only kept: its columns are named by recorded labels (`applyRegistryRoles`), never by a
   // word of its header.
-  for (const table of readTables(file.text)) {
+  readTables(file.text).forEach((table, index) => {
     estate.registryTables = estate.registryTables ?? [];
     estate.registryTables.push({
       file: file.path,
       header: table.header,
       headerLine: table.headerLine,
+      index,
       rows: table.rows.map((row) => ({ cells: row.cells, line: row.line, text: row.text })),
     });
-  }
+  });
 }
 
 /**
@@ -1516,7 +1517,12 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
  * from the recorded state values: a catalogue check in an off state enforces nothing. The rows of a table are
  * replaced each time, so the call is repeatable with other roles.
  */
-export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_REGISTRY_ROLES): void {
+export function applyRegistryRoles(
+  estate: RawEstate,
+  input: RegistryRolesInput = NO_REGISTRY_ROLES,
+): RegistryRoles {
+  const roles = typeof input === 'function' ? input(estate.registryTables ?? []) : input;
+  const byTable = new Map(roles.tables.map((entry) => [`${entry.file}#${entry.index}`, entry.roles]));
   estate.registry = estate.registry.filter((row) => row.origin !== 'table');
   const off = new Set(roles.offStates);
   for (const row of estate.registry) {
@@ -1524,9 +1530,10 @@ export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_
   }
   const known = knownGuards(estate);
   for (const table of estate.registryTables ?? []) {
-    // The role of a header cell, as recorded; a cell with no recorded role is a free column.
+    // The role of a column, as recorded for this table at that position; a column with none is free text.
+    const recorded = byTable.get(`${table.file}#${table.index}`) ?? [];
     const column = (role: string, from = 0) =>
-      table.header.findIndex((cell, index) => index >= from && roles.columns[strip(cell)] === role);
+      table.header.findIndex((_cell, index) => index >= from && recorded[index] === role);
     const firstIsId =
       column('id') === 0 ||
       (table.rows.length > 0 && table.rows.every((row) => ROW_ID.test(strip(row.cells[0] ?? ''))));
@@ -1581,6 +1588,7 @@ export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_
       }
     }
   }
+  return roles;
 }
 
 /**
@@ -1588,7 +1596,7 @@ export function applyRegistryRoles(estate: RawEstate, roles: RegistryRoles = NO_
  * of the state-like cells. A table is asked on its own, so its answer is by the position of the cell in it.
  */
 export function registryCellsToLabel(estate: RawEstate): {
-  tables: Array<{ file: string; headerLine: number; headers: string[] }>;
+  tables: Array<{ file: string; index: number; headerLine: number; headers: string[] }>;
   states: string[];
 } {
   const states = new Set<string>();
@@ -1596,6 +1604,7 @@ export function registryCellsToLabel(estate: RawEstate): {
   return {
     tables: (estate.registryTables ?? []).map((table) => ({
       file: table.file,
+      index: table.index,
       headerLine: table.headerLine,
       headers: table.header.map(strip),
     })),

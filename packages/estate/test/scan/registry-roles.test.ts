@@ -77,9 +77,47 @@ describe('the columns of a registry table come from recorded labels', () => {
     ]);
     // The labeler is asked each distinct header once, never the cells of the rows.
     expect([...new Set(asked)].sort()).toEqual([...header].sort());
-    expect(map.registryRoles?.columns).toEqual(
-      Object.fromEntries(Object.entries(table).map(([cell, label]) => [cell, label.replace('col-', '')])),
-    );
+    // The roles are kept for the table, column by column, not by the text of a cell.
+    expect(map.registryRoles?.tables).toEqual([
+      {
+        file: '.claude/guards/REGISTRY.md',
+        index: 0,
+        roles: header.map((cell) => (table[cell] ?? 'none').replace('col-', '').replace('none', '') || null),
+      },
+    ]);
+  });
+
+  it('records the roles per table: one header text can be a verdict in one table and a state in another', async () => {
+    const two = [
+      '| Id | Script | Rules | Kind |',
+      '|---|---|---|---|',
+      '| K1 | shell.sh | R1 | deny |',
+      '',
+      '| Id | Script | Rules | Kind |',
+      '|---|---|---|---|',
+      '| K2 | shell.sh | R1 | on |',
+      '',
+    ].join('\n');
+    const root = await estate(files(two));
+    const base = structurePointer();
+    // The planted labeller answers by the table it is asked about (its header line is in the path).
+    const labeler = plantedDense((window, set) => {
+      if (set.set !== pointer.REGISTRY_ROLES_SET_NAME) return [];
+      const first = window.path.startsWith('registry-roles/1/');
+      const roles = ['col-id', 'col-guard', 'col-enforces', first ? 'col-verdict' : 'col-state'];
+      return window.units.map((unit) => ({ units: String(unit.n), label: roles[unit.n - 1] ?? 'none' }));
+    });
+    const { raw, map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: { ...base, labelling: pointer.singleLabelling(labeler) },
+    });
+    expect(raw.registry.map((row) => [row.id, row.verdict, row.state])).toEqual([
+      ['K1', 'deny', undefined],
+      ['K2', undefined, 'on'],
+    ]);
+    expect(map.registryRoles?.tables.map((table) => table.roles[3])).toEqual(['verdict', 'state']);
   });
 
   it('reads no row from a table when nothing recorded a role: no header word decides', async () => {

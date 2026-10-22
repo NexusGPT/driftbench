@@ -289,12 +289,25 @@ export const EstateMap = z.strictObject({
     ),
   registryRoles: z
     .strictObject({
-      columns: z
-        .record(
-          z.string().min(1),
-          z.enum(['id', 'guard', 'enforces', 'watches', 'event', 'verdict', 'state', 'description']),
+      tables: z
+        .array(
+          z.strictObject({
+            file: z.string().min(1).describe('The file that holds the registry table'),
+            index: z
+              .number()
+              .int()
+              .min(0)
+              .describe('The place of the table among the tables of its file, from 0'),
+            roles: z
+              .array(
+                z
+                  .enum(['id', 'guard', 'enforces', 'watches', 'event', 'verdict', 'state', 'description'])
+                  .nullable(),
+              )
+              .describe('The role of each column of the table in order, null for a column of free text'),
+          }),
         )
-        .describe('The role of each header cell of the registry tables, as the labeler recorded it'),
+        .describe('The role of each column of each registry table, as the labeler recorded it'),
       offStates: z
         .array(z.string().min(1))
         .describe('The values of a state column under which a check enforces nothing, as recorded'),

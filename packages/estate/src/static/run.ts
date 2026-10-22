@@ -1,6 +1,6 @@
 import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { orphansOf, scanEstate } from '../map/build';
-import type { RegistryRoles } from '../pointer/registry-roles-set';
+import type { RegistryRolesInput } from '../pointer/registry-roles-set';
 import type { EstateReader } from '../scan/reader';
 import type { EstateMap } from '../schema';
 
@@ -27,7 +27,7 @@ export type StaticInput = {
    */
   map?: EstateMap;
   /** The recorded registry roles; else the map's own. */
-  registryRoles?: RegistryRoles;
+  registryRoles?: RegistryRolesInput;
 };
 
 export async function runStaticTests(
@@ -38,7 +38,7 @@ export async function runStaticTests(
     root: input.root,
     reader: input.reader,
     ...((input.registryRoles ?? input.map?.registryRoles)
-      ? { registryRoles: (input.registryRoles ?? input.map?.registryRoles) as RegistryRoles }
+      ? { registryRoles: (input.registryRoles ?? input.map?.registryRoles) as RegistryRolesInput }
       : {}),
     ...(input.ceiling !== undefined ? { ceiling: input.ceiling } : {}),
   });

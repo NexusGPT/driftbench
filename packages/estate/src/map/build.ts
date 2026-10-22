@@ -11,7 +11,9 @@ import {
   REGISTRY_ROLE_LABELS,
   REGISTRY_ROLES_SET,
   REGISTRY_ROLES_SET_NAME,
+  type RegistryRole,
   type RegistryRoles,
+  type RegistryRolesInput,
   STATE_OFF_LABEL,
 } from '../pointer/registry-roles-set';
 import { type LabelerUsage, pointerScan } from '../pointer/scan';
@@ -71,7 +73,7 @@ export type ScanEstateInput = {
    * The roles of the registry-table columns when no pointer reader is given (a test's hand-written labels). With a
    * pointer reader they are asked of it, and this option is not read.
    */
-  registryRoles?: RegistryRoles;
+  registryRoles?: RegistryRolesInput;
   /** The root as the map records it: relative to where the map is written. Default `.`. */
   rootLabel?: string;
   ceiling?: number;
@@ -173,7 +175,7 @@ async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): P
   const parsed = parseLabelSets(REGISTRY_ROLES_SET);
   if (!parsed.ok) throw new Error(`the shipped registry-roles set does not load: ${parsed.message}`);
   const { onPlan: _onPlan, previous: _previous, ...rest } = pointer;
-  const roles: RegistryRoles = { columns: {}, offStates: [] };
+  const roles: RegistryRoles = { tables: [], offStates: [] };
   const pass: RegistryRolePass = { roles, windows: 0, calls: 0, recorded: 0, usage: [], failed: [] };
   const ask = async (path: string, cells: readonly string[]) => {
     if (cells.length === 0) return [];
@@ -196,12 +198,12 @@ async function registryRolePass(read: RawEstate, pointer: PointerScanOptions): P
   // column at that position, whatever the cell says.
   for (const table of registryCellsToLabel(read).tables) {
     const answers = await ask(`registry-roles/${table.headerLine}/${table.file}.md`, table.headers);
+    const columns: Array<RegistryRole | null> = table.headers.map(() => null);
     for (const { index, label } of answers) {
       const role = REGISTRY_ROLE_LABELS[label];
-      const cell = table.headers[index];
-      if (role !== undefined && cell !== undefined && roles.columns[cell] === undefined)
-        roles.columns[cell] = role;
+      if (role !== undefined && index >= 0 && index < columns.length) columns[index] = role;
     }
+    roles.tables.push({ file: table.file, index: table.index, roles: columns });
   }
   applyRegistryRoles(read, roles);
   const states = registryCellsToLabel(read).states;
@@ -218,8 +220,8 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
   const read = await input.reader.read(input.root);
   const documentRoles = input.pointer ? await documentRolePass(read, input.pointer) : undefined;
   const registryRoles = input.pointer ? await registryRolePass(read, input.pointer) : undefined;
-  if (!input.pointer && input.registryRoles) applyRegistryRoles(read, input.registryRoles);
-  const recordedRoles = registryRoles?.roles ?? input.registryRoles;
+  const recordedRoles =
+    registryRoles?.roles ?? (input.registryRoles ? applyRegistryRoles(read, input.registryRoles) : undefined);
   const raw = normativeEstate(read);
   const scanned = await scanAtoms(raw, {
     ...(input.port ? { port: input.port } : {}),
@@ -296,7 +298,9 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(raw.userLayer ? { userSkills: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
-    ...(recordedRoles && (Object.keys(recordedRoles.columns).length > 0 || recordedRoles.offStates.length > 0)
+    ...(recordedRoles &&
+    (recordedRoles.tables.some((table) => table.roles.some((role) => role !== null)) ||
+      recordedRoles.offStates.length > 0)
       ? { registryRoles: recordedRoles }
       : {}),
     ...(input.pointer
