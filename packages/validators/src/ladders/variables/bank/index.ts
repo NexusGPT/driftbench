@@ -88,7 +88,9 @@ export function variablesBank(): BankItem[] {
   items.push(...blindBank());
   const order = new Map<Level, number>(LEVELS.map((l, i) => [l, i]));
   return items
-    .map((item) => (PURITY_ITEMS.some((prefix) => item.id.startsWith(prefix)) ? { ...item, purity: true } : item))
+    .map((item) =>
+      PURITY_ITEMS.some((prefix) => item.id.startsWith(prefix)) ? { ...item, purity: true } : item,
+    )
     .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }
 
