@@ -122,14 +122,9 @@ describe('the items that read a cassette miss read its fields, not its message',
     }
   }, 900_000);
 
-  it('every one but the two that read a Node and ICU version passes a reader whose message is wordless', async () => {
-    // The versions of the cutter have no field of the miss: those two read them in the message.
-    const reads = new Set([
-      'replay.fixture-miss-names-cut-digest',
-      'replay.cut-digest-mismatch-names-versions',
-    ]);
-    for (const id of FIELD_ITEMS.filter((x) => !reads.has(x)))
-      expect(await run(id, wordless()), id).toMatchObject({ pass: true });
+  it('every one passes a reader whose message is wordless', async () => {
+    // The Node and ICU versions of a cut digest miss are the fields of its environment.
+    for (const id of FIELD_ITEMS) expect(await run(id, wordless()), id).toMatchObject({ pass: true });
   }, 900_000);
 
   for (const [id, words] of MISSING)

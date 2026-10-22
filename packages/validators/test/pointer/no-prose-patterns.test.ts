@@ -96,30 +96,9 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/adversarial.ts',
-    anchor: 'crashed',
-    expr: '/not reachable/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
-  },
-  {
-    file: 'bank/families/adversarial.ts',
-    anchor: 'yaml-alias-bomb',
-    expr: '/alias|yaml/i',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
-  },
-  {
-    file: 'bank/families/adversarial.ts',
     anchor: 'yaml-custom-tags',
     expr: '/CANARY/',
     reason: "reads the paths the READER's process wrote (sandbox file names), not prose",
-  },
-  {
-    file: 'bank/families/adversarial.ts',
-    anchor: 'yaml-custom-tags',
-    expr: '/not reachable/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
   {
     file: 'bank/families/cutting.ts',
@@ -216,13 +195,6 @@ const ALLOWED: Allowance[] = [
     expr: 'text.matchAll(/ /g)',
     reason:
       'the offsets of the spaces of a sentence the item wrote itself from a fixed template and drawn nouns: a space is not a letter and no word is read',
-  },
-  {
-    file: 'bank/families/hardening-bugs-c.ts',
-    anchor: 'reasons',
-    expr: '/no vector/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
   {
     file: 'bank/families/hardening-bugs-c.ts',
@@ -377,13 +349,6 @@ const ALLOWED: Allowance[] = [
   },
   {
     file: 'bank/families/labels.ts',
-    anchor: 'prompt-examples-max-three',
-    expr: '/voice/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
-  },
-  {
-    file: 'bank/families/labels.ts',
     anchor: 'shown',
     expr: "['one', 'two', 'three', 'four', 'five'].filter((n) => text.includes(`Example ${n} is here.`), )",
     reason:
@@ -527,13 +492,6 @@ const ALLOWED: Allowance[] = [
     expr: '/^(start|end|hint|line|offset|index|position)/i',
     reason:
       "reads a key or field name of the READER's JSON (question keys u<n>__label, cassette fields), not prose",
-  },
-  {
-    file: 'bank/families/privacy.ts',
-    anchor: 'go',
-    expr: '/not reachable/',
-    reason:
-      "reads the READER's output (its units, ledger, atoms, diagnostics or error message) for a literal the item planted or the contract names; it picks and edits no generated word",
   },
   {
     file: 'bank/families/privacy.ts',
@@ -711,12 +669,6 @@ const ALLOWED: Allowance[] = [
     reason: 'searches the cassette the READER wrote for the planted note marker, not prose',
   },
   {
-    file: 'bank/harness-probe.ts',
-    anchor: 'readerGainedNothing',
-    expr: "/reader's process/",
-    reason: 'reads the outcome detail the harness wrote, not prose',
-  },
-  {
     file: 'bank/reader-imports.ts',
     anchor: 'SOURCE',
     expr: '/\\.(?:[cm]?[jt]sx?)$/',
@@ -763,18 +715,6 @@ const ALLOWED: Allowance[] = [
     anchor: 'importsOfValidators',
     expr: 'text.matchAll(pattern)',
     reason: "reads the READER's source code for its imports, not prose",
-  },
-  {
-    file: 'bank/run.ts',
-    anchor: 'MISSING_OBSERVATION',
-    expr: '/does not expose|offers no |exports no |records no /',
-    reason: 'reads the outcome detail an item wrote (a missing observation), not prose',
-  },
-  {
-    file: 'bank/run.ts',
-    anchor: 'named',
-    expr: "outcome.detail.includes('Behaviour under test')",
-    reason: 'reads the outcome detail an item wrote, not prose',
   },
   {
     file: 'kit/child-run.ts',
@@ -1097,18 +1037,6 @@ const ALLOWED: Allowance[] = [
     file: 'sut/blind-binding/replay.ts',
     anchor: 'fieldsOf',
     expr: "name.startsWith('part.')",
-    reason: "reads the READER's own message (the field names and versions it names), not prose",
-  },
-  {
-    file: 'sut/blind-binding/replay.ts',
-    anchor: 'versionsRequired',
-    expr: '/\\bNode \\d[\\w.]*/',
-    reason: "reads the READER's own message (the field names and versions it names), not prose",
-  },
-  {
-    file: 'sut/blind-binding/replay.ts',
-    anchor: 'versionsRequired',
-    expr: '/\\bICU \\d[\\w.]*/',
     reason: "reads the READER's own message (the field names and versions it names), not prose",
   },
   {

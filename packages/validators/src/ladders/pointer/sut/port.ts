@@ -192,7 +192,58 @@ export type Atom = {
   }>;
 };
 
-export type Diagnostic = { code: string; unit?: string; window?: string; detail: string };
+/**
+ * One diagnostic of a scan. `code` is the class of the diagnostic (`refusal`, `failed-window`, `atom-refusal`,
+ * `duplicate`, `dropped`); `reason` is the stable code of the specific cause (`no-vector`, `label-not-in-set`,
+ * `span-overlap`), the one a check reads; the other fields hold the identifiers the cause names. A field is set
+ * only when it has a value. Items read `reason` and the fields, never the words of `detail`.
+ * `unit` is the id of the unit of an atom diagnostic, and the number of the unit inside its window (`"3"`) for a
+ * diagnostic of an answer; `units` is the range the answer wrote for it.
+ */
+export type Diagnostic = {
+  code: string;
+  reason?: string;
+  unit?: string;
+  window?: string;
+  detail: string;
+  units?: string;
+  target?: string;
+  /** The span kind, link kind or atom kind the diagnostic is about. */
+  kind?: string;
+  /** The clause of a span: the words the labeler copied, else `from-to`. */
+  span?: string;
+  set?: string;
+  label?: string;
+  path?: string;
+  /** The labeler that gave the answer. */
+  labeler?: string;
+  /** The unit or atom an atom duplicates. */
+  repeats?: string;
+  /** The parent kind of a span kind that has to lie inside it. */
+  parent?: string;
+  /** The sum of a probability vector that is no vector. */
+  sum?: number;
+};
+
+/**
+ * The structured cause of a failed scan (`ok` false), beside its `error` text: a label file the reader refused
+ * (`code`, `reason` and the offending `set`, `label`, `kind`, `parent`, `path`), a labelling it could not build
+ * (`code`, and the `set` a yes or no labeler cannot serve), a ledger that is out of date (`files`: the paths that
+ * changed, sorted), or an error the reader raised with a code of its own.
+ */
+export type ScanFailure = {
+  code: string;
+  reason?: string;
+  set?: string;
+  label?: string;
+  kind?: string;
+  parent?: string;
+  path?: string;
+  files?: string[];
+};
+
+/** A warning of a scan as a record: a returned model that differs from the one the cassette recorded. */
+export type WarningRecord = { code: 'model-mismatch'; recorded: string; returned: string };
 
 /**
  * The structured fields of a cassette miss, as the reader raises them (the product's `CassetteMiss`): the key of
@@ -204,6 +255,8 @@ export type CassetteMissView = {
   differs: string[];
   nearest?: string;
   labeler?: string;
+  /** The Node and ICU versions of this run; set only when the nearest entry differs in the cut digest. */
+  environment?: { node: string; icu: string };
 };
 
 export type ScanResult = {
@@ -212,8 +265,12 @@ export type ScanResult = {
   error?: string;
   /** Set when the scan failed on a cassette miss in replay: the miss as structured fields. */
   miss?: CassetteMissView;
+  /** Set when the scan failed for a cause the reader gives a code: see `ScanFailure`. */
+  failure?: ScanFailure;
   /** Absent when the reader does not expose warnings. */
   warnings?: string[];
+  /** The warnings as records, in the order of `warnings`; absent when the reader does not expose them. */
+  warningRecords?: WarningRecord[];
   ledger?: LedgerView;
   atoms: Atom[];
   diagnostics: Diagnostic[];
@@ -280,9 +337,12 @@ export interface LinksApi {
 
 /* ----- the settings of an estate (docs/estate-pointer-reader.md, section 1) ----- */
 
+/** One refused key of the settings file: a stable `code`, the `key` of the file it is about, and a short `reason`. */
+export type SettingsIssue = { code: string; key: string; reason: string };
+
 export type SettingsResult =
   | { ok: true; thresholds: Record<string, number> }
-  | { ok: false; errors: string[] };
+  | { ok: false; errors: string[]; issues?: SettingsIssue[] };
 
 export interface SettingsApi {
   /** Reads the YAML text of the settings file. */
@@ -362,8 +422,12 @@ export interface PointerSut {
   stack?: StackApi;
 }
 
+/** The code of a `ReaderNotReachable`: a check on a failure of a child process reads it, never the words. */
+export const READER_NOT_REACHABLE = 'reader-not-reachable';
+
 /** Thrown by the unreachable binding: the reader cannot be called from this checkout. */
 export class ReaderNotReachable extends Error {
+  readonly code = READER_NOT_REACHABLE;
   constructor(reason: string) {
     super(`the pointer reader is not reachable: ${reason}`);
     this.name = 'ReaderNotReachable';

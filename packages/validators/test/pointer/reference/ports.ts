@@ -11,18 +11,20 @@ import {
 } from '../../../src/ladders/pointer/kit/fixture';
 import type {
   CassetteMissView,
+  Diagnostic,
   LabelAnswer,
   LabelEntry,
   ModelArm,
   ScanArm,
   Transport,
+  WarningRecord,
 } from '../../../src/ladders/pointer/sut/port';
 import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
 import { decisionsBugs } from './bugs-decisions';
 import { referenceBugsMiss } from './bugs-miss';
-import { extrasProblem, jsonObjectOf } from './extras';
+import { extrasProblem, jsonObjectOf, type Why } from './extras';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet, RefLabel } from './labelset';
 import { type Candidates, type PlanUnit, SYSTEM_TEXT, userText, type WindowPlan } from './window';
@@ -38,9 +40,9 @@ export type AnswerLabel = { label: string; target?: number; links?: AnswerLink[]
  * `{` to its last `}`). A `target` written as null is no target, and empty spans or links are none, as the reader
  * reads a dense answer.
  */
-function rawEntries(raw: string): LabelEntry[] | { reason: string } {
+function rawEntries(raw: string): LabelEntry[] | { reason: string; why: Why } {
   const value = jsonObjectOf(raw);
-  if (!value) return { reason: 'the answer is not JSON' };
+  if (!value) return { reason: 'the answer is not JSON', why: { reason: 'answer-not-json' } };
   return (value.labels as unknown[]).map((item) => {
     if (!item || typeof item !== 'object' || Array.isArray(item)) return item as LabelEntry;
     const entry = { ...(item as Record<string, unknown>) };
@@ -63,14 +65,15 @@ export function validateAnswer(
   plan: WindowPlan,
   set: ParsedSet,
   candidates: Candidates = {},
-): { ok: true; labels: Map<number, AnswerLabel> } | { ok: false; reason: string } {
+): { ok: true; labels: Map<number, AnswerLabel> } | { ok: false; reason: string; why: Why } {
   let entries: LabelEntry[];
   if ('raw' in answer) {
     const read = rawEntries(answer.raw);
-    if (!Array.isArray(read)) return { ok: false, reason: read.reason };
+    if (!Array.isArray(read)) return { ok: false, reason: read.reason, why: read.why };
     entries = read;
   } else {
-    if (!Array.isArray(answer.labels)) return { ok: false, reason: 'the answer has no labels list' };
+    if (!Array.isArray(answer.labels))
+      return { ok: false, reason: 'the answer has no labels list', why: { reason: 'answer-no-labels' } };
     entries = answer.labels;
   }
   const max = plan.units.length;
@@ -78,42 +81,77 @@ export function validateAnswer(
   const labels = new Map<number, AnswerLabel>();
   for (const entry of entries) {
     if (!entry || typeof entry !== 'object' || typeof entry.label !== 'string') {
-      return { ok: false, reason: 'an entry has no label name' };
+      return { ok: false, reason: 'an entry has no label name', why: { reason: 'answer-entry-malformed' } };
     }
+    const own = { units: String(entry.units), label: entry.label };
     if (entry.label !== 'none' && !names.has(entry.label)) {
-      return { ok: false, reason: `the label ${JSON.stringify(entry.label)} is not in the set ${set.set}` };
+      return {
+        ok: false,
+        reason: `the label ${JSON.stringify(entry.label)} is not in the set ${set.set}`,
+        why: { reason: 'label-not-in-set', ...own },
+      };
     }
     const def = set.labels.find((l) => l.name === entry.label) as RefLabel | undefined;
     let from: number;
     let to: number;
     if (typeof entry.units === 'number') {
       if (!Number.isInteger(entry.units))
-        return { ok: false, reason: `the unit ${entry.units} is not a whole number` };
+        return {
+          ok: false,
+          reason: `the unit ${entry.units} is not a whole number`,
+          why: { reason: 'units-malformed', ...own },
+        };
       from = to = entry.units;
     } else if (typeof entry.units === 'string') {
       const m = /^(\d+)(?:-(\d+))?$/.exec(entry.units);
       if (!m)
-        return { ok: false, reason: `the units ${JSON.stringify(entry.units)} are not a number or a range` };
+        return {
+          ok: false,
+          reason: `the units ${JSON.stringify(entry.units)} are not a number or a range`,
+          why: { reason: 'units-malformed', ...own },
+        };
       from = Number(m[1]);
       to = m[2] === undefined ? from : Number(m[2]);
     } else {
-      return { ok: false, reason: 'an entry has no units' };
+      return { ok: false, reason: 'an entry has no units', why: { reason: 'units-malformed', ...own } };
     }
     // Planted bug: a range written backwards names no unit and is passed over without a word.
     if (to < from && bugsC.has('descending-range-silent')) continue;
     const outside = bugsC.has('unit-outside-window');
     if (from < 1 || (from > max && !outside))
-      return { ok: false, reason: `the unit ${from} is not in the window` };
-    if (to < from) return { ok: false, reason: `the range ${from}-${to} runs backwards` };
-    if (to > max && !outside) return { ok: false, reason: `the range ${from}-${to} leaves the window` };
+      return {
+        ok: false,
+        reason: `the unit ${from} is not in the window`,
+        why: { reason: 'units-leave-window', ...own },
+      };
+    if (to < from)
+      return {
+        ok: false,
+        reason: `the range ${from}-${to} runs backwards`,
+        why: { reason: 'units-malformed', ...own },
+      };
+    if (to > max && !outside)
+      return {
+        ok: false,
+        reason: `the range ${from}-${to} leaves the window`,
+        why: { reason: 'units-leave-window', ...own },
+      };
     const named = Array.from({ length: Math.min(to, max) - from + 1 }, (_, at) => from + at);
     for (const n of named) {
       const unit = plan.units[n - 1];
       if (unit?.mode !== 'label') {
-        return { ok: false, reason: `the unit ${n} is ${unit?.mode ?? 'missing'} and cannot be labelled` };
+        return {
+          ok: false,
+          reason: `the unit ${n} is ${unit?.mode ?? 'missing'} and cannot be labelled`,
+          why: { reason: 'unit-not-labelable', ...own },
+        };
       }
       if (labels.has(n) && !bugsC.has('double-label-accepted'))
-        return { ok: false, reason: `the unit ${n} is named twice` };
+        return {
+          ok: false,
+          reason: `the unit ${n} is named twice`,
+          why: { reason: 'units-already-labelled', ...own },
+        };
     }
     const wantsTarget = def?.target === 'required';
     if (wantsTarget) {
@@ -123,14 +161,26 @@ export function validateAnswer(
         entry.target < 1 ||
         entry.target > max
       ) {
-        return { ok: false, reason: `the label ${entry.label} needs a target in the window` };
+        return {
+          ok: false,
+          reason: `the label ${entry.label} needs a target in the window`,
+          why: {
+            reason: 'target-required',
+            ...own,
+            ...(entry.target !== undefined ? { target: String(entry.target) } : {}),
+          },
+        };
       }
     } else if (entry.target !== undefined) {
-      return { ok: false, reason: `the label ${entry.label} takes no target` };
+      return {
+        ok: false,
+        reason: `the label ${entry.label} takes no target`,
+        why: { reason: 'target-not-taken', ...own, target: String(entry.target) },
+      };
     }
     // The spans and links of the entry (extras.ts); a link names a candidate the request listed, or `none`.
     const extras = extrasProblem(set, entry, named, def, plan.units, candidates);
-    if (extras) return { ok: false, reason: extras };
+    if (extras) return { ok: false, reason: extras.reason, why: extras.why };
     const links = linksOf(entry);
     for (const n of named) {
       labels.set(n, {
@@ -230,8 +280,10 @@ export type ModelCtx = {
   threshold?: number;
   cutDigestOf(file: string): string;
   warnings: string[];
-  /** Units whose choice answer is refused (its probabilities are no vector), with the reason. */
-  refusals?: string[];
+  /** The warnings as records, in the order of `warnings`. */
+  warningRecords: WarningRecord[];
+  /** Units whose choice answer is refused (its probabilities are no vector), with the cause. */
+  refusals?: Diagnostic[];
   keyHeader: string;
   /** What each set lists for its link kinds, by set name. */
   candidates?: ReadonlyMap<string, Candidates>;
@@ -249,8 +301,15 @@ export const RETRY_NOTE =
 
 export type ModelResult =
   | { kind: 'answer'; answer: LabelAnswer; key: string }
-  | { kind: 'refused'; reason: string }
+  | { kind: 'refused'; reason: string; why: Why }
   | { kind: 'error'; message: string; miss?: CassetteMissView };
+
+/** An answer that cannot be read: the words, and the stable code of the cause. */
+const refused = (reason: string, code: string): ModelResult => ({
+  kind: 'refused',
+  reason,
+  why: { reason: code },
+});
 
 const HAIKU_URL = 'https://api.haiku.invalid/v1/messages';
 const JEV_URL = 'https://jev.invalid/v1/systemone';
@@ -292,11 +351,18 @@ function choiceDecision(
   vector: Record<string, number>,
   names: readonly string[],
   ctx: ModelCtx,
-  where: string,
+  where: { window: string; n: number },
 ): string | undefined {
   const values = names.map((name) => vector[name]);
+  const named = `${where.window}: unit [${where.n}]`;
+  const unit = { window: where.window, unit: String(where.n) };
   if (values.some((p) => typeof p !== 'number' || !Number.isFinite(p) || p < 0 || p > 1)) {
-    ctx.refusals?.push(`${where}: an option has no probability`);
+    ctx.refusals?.push({
+      code: 'refusal',
+      reason: 'option-no-probability',
+      detail: `${named}: an option has no probability`,
+      ...unit,
+    });
     return undefined;
   }
   const total = (values as number[]).reduce((sum, p) => sum + p, 0);
@@ -304,7 +370,13 @@ function choiceDecision(
   const tolerance = bugsC.has('vector-tolerance-5') ? 0.05 : VECTOR_TOLERANCE;
   const unchecked = bugsC.has('vector-unchecked');
   if (Math.abs(total - 1) > tolerance + 1e-9 && !referenceBugs.has('normalise') && !unchecked) {
-    ctx.refusals?.push(`${where}: the probabilities are no vector (they sum to ${Number(total.toFixed(4))})`);
+    ctx.refusals?.push({
+      code: 'refusal',
+      reason: 'no-vector',
+      detail: `${named}: the probabilities are no vector (they sum to ${Number(total.toFixed(4))})`,
+      ...unit,
+      sum: Number(total.toFixed(4)),
+    });
     return undefined;
   }
   if (referenceBugs.has('threshold-over-labels')) {
@@ -343,8 +415,10 @@ function receipt(ctx: ModelCtx, entry: CassetteEntry, model: string): void {
   const earlier = [...ctx.cassette.entries.values()].find(
     (e) => e.labeler === entry.labeler && e.model !== model,
   );
-  if (earlier)
+  if (earlier) {
     ctx.warnings.push(`the returned model ${model} differs from the recorded model ${earlier.model}`);
+    ctx.warningRecords.push({ code: 'model-mismatch', recorded: earlier.model, returned: model });
+  }
 }
 
 export async function haiku(
@@ -409,27 +483,30 @@ export async function haiku(
   try {
     data = JSON.parse(response.body);
   } catch {
-    return { kind: 'refused', reason: 'the response is not JSON' };
+    return refused('the response is not JSON', 'answer-unreadable');
   }
   if (data.stop_reason === 'max_tokens')
-    return { kind: 'refused', reason: 'the answer stopped at max_tokens' };
-  if (data.stop_reason === 'refusal') return { kind: 'refused', reason: 'the model refused' };
+    return refused('the answer stopped at max_tokens', 'answer-unreadable');
+  if (data.stop_reason === 'refusal') return refused('the model refused', 'answer-unreadable');
   const block = (data.content ?? []).find((b) => b.type === 'text');
   if (!block || typeof block.text !== 'string')
-    return { kind: 'refused', reason: 'the response holds no text block' };
+    return refused('the response holds no text block', 'answer-unreadable');
   let parsed: { window?: string; set?: string; labels?: LabelEntry[] };
   try {
     parsed = JSON.parse(block.text);
   } catch {
-    return { kind: 'refused', reason: 'the answer is not the agreed JSON' };
+    return refused('the answer is not the agreed JSON', 'answer-not-json');
   }
   if (parsed.window !== plan.id)
-    return { kind: 'refused', reason: `the answer is for another window (${String(parsed.window)})` };
+    return refused(
+      `the answer is for another window (${String(parsed.window)})`,
+      'answer-window-mismatch',
+    );
   if (parsed.set !== set.set)
-    return { kind: 'refused', reason: `the answer is for another set (${String(parsed.set)})` };
-  if (!Array.isArray(parsed.labels)) return { kind: 'refused', reason: 'the answer has no labels list' };
+    return refused(`the answer is for another set (${String(parsed.set)})`, 'answer-set-mismatch');
+  if (!Array.isArray(parsed.labels)) return refused('the answer has no labels list', 'answer-no-labels');
   const checked = validateAnswer({ labels: parsed.labels }, plan, set, candidates);
-  if (!checked.ok) return { kind: 'refused', reason: checked.reason };
+  if (!checked.ok) return { kind: 'refused', reason: checked.reason, why: checked.why };
   const entry: CassetteEntry = {
     ...want,
     model: String(data.model ?? ''),
@@ -441,6 +518,9 @@ export async function haiku(
   ctx.cassette.entries.set(key, entry);
   return { kind: 'answer', answer: { labels: parsed.labels }, key };
 }
+
+/** The Node and ICU versions of this run: a miss in the cut digest carries them as fields. */
+const runEnvironment = () => ({ node: process.versions.node, icu: process.versions.icu ?? '' });
 
 /** The field names of the structured miss are the reader's: the legacy entry says `file` and `setName` for them. */
 const READER_FIELD: Record<string, string> = { file: 'path', setName: 'set' };
@@ -466,6 +546,7 @@ function missError(
       differs: fields.map((field) => READER_FIELD[field] ?? field).sort(),
       nearest: near.key,
       labeler: want.labeler,
+      ...(fields.includes('cutDigest') ? { environment: runEnvironment() } : {}),
     },
   };
 }
@@ -478,7 +559,13 @@ function cutDigestError(
   return {
     kind: 'error',
     message: `cassette miss for ${window}: cutDigest differs from the recording; the cutter ran under Node ${process.versions.node} with ICU ${process.versions.icu}, so the cut may differ between environments`,
-    miss: { key: want.key, differs: ['cutDigest'], nearest, labeler: want.labeler },
+    miss: {
+      key: want.key,
+      differs: ['cutDigest'],
+      nearest,
+      labeler: want.labeler,
+      environment: runEnvironment(),
+    },
   };
 }
 
@@ -558,14 +645,14 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       try {
         data = JSON.parse(response.body);
       } catch {
-        return { kind: 'refused', reason: 'the response is not JSON' };
+        return refused('the response is not JSON', 'answer-unreadable');
       }
       probabilities = {};
       for (const k of Object.keys(questions)) {
         for (const name of names) {
           const p = data.answers?.[k]?.probabilities?.[name];
           if (typeof p !== 'number' || p < 0 || p > 1)
-            return { kind: 'refused', reason: `no probability for ${k}__${name}` };
+            return refused(`no probability for ${k}__${name}`, 'answer-unreadable');
           probabilities[`${k}__${name}`] = p;
         }
       }
@@ -586,7 +673,7 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
       const vector = Object.fromEntries(
         names.map((name) => [name, probabilities[`u${u.n}__${name}`] as number]),
       );
-      const got = choiceDecision(vector, names, ctx, `${plan.id}: unit [${u.n}]`);
+      const got = choiceDecision(vector, names, ctx, { window: plan.id, n: u.n });
       ctx.onVector?.(u.n, got === undefined ? undefined : vector);
       if (got !== undefined) decided.push({ units: String(u.n), label: got });
     }
@@ -666,14 +753,14 @@ async function decisions(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
       try {
         data = JSON.parse(response.body);
       } catch {
-        return { kind: 'refused', reason: 'the response is not JSON' };
+        return refused('the response is not JSON', 'answer-unreadable');
       }
       const given = new Map((data.answers ?? []).map((a) => [a.name, a.probability]));
       probabilities = {};
       for (const q of questions) {
         const p = given.get(q.name);
         if (typeof p !== 'number' || p < 0 || p > 1)
-          return { kind: 'refused', reason: `no probability for ${q.name}` };
+          return refused(`no probability for ${q.name}`, 'answer-unreadable');
         probabilities[q.name] = p;
       }
       // Planted bug of the decisions lane: only the probabilities at or above the threshold are recorded.
@@ -761,10 +848,10 @@ async function userYesNo(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promi
     try {
       data = JSON.parse(response.body);
     } catch {
-      return { kind: 'refused', reason: 'the answer is not a JSON object' };
+      return refused('the answer is not a JSON object', 'answer-not-object');
     }
     if (!data.probabilities || typeof data.probabilities !== 'object')
-      return { kind: 'refused', reason: 'the answer has no probabilities object' };
+      return refused('the answer has no probabilities object', 'answer-no-probabilities');
     // Planted bug of lane bugs C: a probability above 1 is kept.
     const above = bugsC.has('user-probability-above-one');
     probabilities = {};
@@ -852,11 +939,11 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
   try {
     data = JSON.parse(response.body);
   } catch {
-    return { kind: 'refused', reason: 'the response is not JSON' };
+    return refused('the response is not JSON', 'answer-unreadable');
   }
-  if (!Array.isArray(data.labels)) return { kind: 'refused', reason: 'the answer has no labels list' };
+  if (!Array.isArray(data.labels)) return refused('the answer has no labels list', 'answer-no-labels');
   const checked = validateAnswer({ labels: data.labels }, plan, set, candidates);
-  if (!checked.ok) return { kind: 'refused', reason: checked.reason };
+  if (!checked.ok) return { kind: 'refused', reason: checked.reason, why: checked.why };
   ctx.cassette.entries.set(key, {
     ...want,
     model: String(data.model ?? ''),
@@ -989,8 +1076,14 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
             ? JSON.parse(body.content?.find((b) => b.type === 'text')?.text ?? '{}').labels
             : undefined;
         const prior = rows.find((row) => row.answer.returnedModel !== body.model);
-        if (prior)
+        if (prior) {
           ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
+          ctx.warningRecords.push({
+            code: 'model-mismatch',
+            recorded: prior.answer.returnedModel,
+            returned: body.model,
+          });
+        }
         hit = {
           key,
           readable: want,
@@ -1055,7 +1148,13 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
         return Promise.resolve({
           kind: 'error',
           message: `cassette miss for ${window}: nearest entry ${near.readable.window} differs in ${fields}${differs.includes('cutDigest') ? `; Node ${process.versions.node}, ICU ${process.versions.icu}` : ''}`,
-          miss: { key, differs, nearest: near.key, labeler: wire.labeler },
+          miss: {
+            key,
+            differs,
+            nearest: near.key,
+            labeler: wire.labeler,
+            ...(differs.includes('cutDigest') ? { environment: runEnvironment() } : {}),
+          },
         });
       }
       first ??= hit;
@@ -1076,7 +1175,7 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
         const vector = Object.fromEntries(
           names.map((name) => [name, first?.answer.probabilities?.[`u${index + 1}__${name}`] as number]),
         );
-        const got = choiceDecision(vector, names, ctx, `${window}: unit [${index + 1}]`);
+        const got = choiceDecision(vector, names, ctx, { window, n: index + 1 });
         if (got !== undefined) labels.push({ units: String(unit.n), label: got });
       }
     }

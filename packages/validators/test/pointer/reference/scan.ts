@@ -8,6 +8,7 @@ import type {
   LedgerView,
   ScanRequest,
   ScanResult,
+  WarningRecord,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
 import { referenceBugsA } from './bugs-a';
@@ -15,6 +16,7 @@ import { referenceBugsB } from './bugs-b';
 import { bugsC } from './bugs-c';
 import { referenceBugsD } from './bugs-d';
 import { cutText, fingerprintText, sha } from './cut';
+import type { Why } from './extras';
 import { base32Id, canonicalCompact, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
 import {
@@ -83,7 +85,7 @@ const ESTATE_KEY = 'pointer-estate';
 const READ_FILE = /(^|\/)\.claude\/(skills\/[^/]+\/SKILL\.md|agents\/[^/]+\.md)$/;
 
 function fail(error: string, extra: Partial<ScanResult> = {}): ScanResult {
-  return { ok: false, error, warnings: [], atoms: [], diagnostics: [], ...extra };
+  return { ok: false, error, warnings: [], warningRecords: [], atoms: [], diagnostics: [], ...extra };
 }
 
 function liveEntries(entries: readonly LedgerEntry[]): LedgerEntry[] {
@@ -118,12 +120,13 @@ export function viewOf(raw: string): LedgerView {
 
 export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const warnings: string[] = [];
+  const warningRecords: WarningRecord[] = [];
   const diagnostics: Diagnostic[] = [];
   let sets: ParsedSet[];
   try {
     sets = parseLabelSets(req.labelsYaml);
   } catch (cause) {
-    if (cause instanceof LabelSetError) return fail(cause.message);
+    if (cause instanceof LabelSetError) return fail(cause.message, { failure: cause.failure });
     throw cause;
   }
   let previous: LedgerFile | undefined;
@@ -145,6 +148,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       if (set.labels.some((label) => label.spans || label.links)) {
         return fail(
           `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,
+          { failure: { code: 'set-needs-system2', set: set.set } },
         );
       }
     }
@@ -283,6 +287,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         threshold: req.model.threshold,
         cutDigestOf: (file) => digests.get(file) ?? '',
         warnings,
+        warningRecords,
         refusals: [],
         keyHeader: readKey(),
         candidates: candidatesOf,
@@ -312,6 +317,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const finish = (result: ScanResult): ScanResult => {
     if (modelCtx) result.cassette = modelCtx.cassette.dump();
     result.warnings = warnings;
+    result.warningRecords = warningRecords;
     return result;
   };
   if (!req.labeler && !req.model) return fail('no labeller was given');
@@ -368,10 +374,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             return finish(fail(outcome.abort, outcome.miss ? { miss: outcome.miss } : {}));
           }
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
-          if (outcome.failed) {
+          if (outcome.failed !== undefined) {
             diagnostics.push({
               code: 'window_failed',
+              reason: outcome.why.reason,
+              ...whyFields(outcome.why),
               window: plan.id,
+              set: set.set,
               detail: `the window ${plan.id} was refused twice: ${outcome.failed}`,
             });
           }
@@ -421,7 +430,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     throw cause;
   }
   // A choice answer whose probabilities are no vector is refused unit by unit, with the reason.
-  for (const detail of modelCtx?.refusals ?? []) diagnostics.push({ code: 'refusal', detail });
+  for (const record of modelCtx?.refusals ?? []) diagnostics.push(record);
   const setNames = new Set(sets.map((s) => s.set));
   for (const w of work) {
     for (const name of Object.keys(w.entry.labels)) if (!setNames.has(name)) delete w.entry.labels[name];
@@ -489,7 +498,10 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         .filter((p) => oldByPath.get(p) !== newByPath.get(p))
         .sort();
       return finish(
-        fail(`the ledger is stale for ${changed.join(', ') || 'the estate'}; update it`, { diagnostics }),
+        fail(`the ledger is stale for ${changed.join(', ') || 'the estate'}; update it`, {
+          diagnostics,
+          failure: { code: 'ledger-out-of-date', files: changed },
+        }),
       );
     }
   }
@@ -515,7 +527,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         else
           diagnostics.push({
             code: 'atom-refusal',
+            reason: 'link-target-not-atom',
             unit: entry.id,
+            set: set.set,
+            label: label.label,
+            path: entry.path,
+            kind: link.kind,
+            target: link.to,
             detail: `${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`,
           });
       }
@@ -536,19 +554,23 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       const startLine = lineOf(text, start);
       const endLine = lineOf(text, Math.max(start, end - 1));
       const squash = (value: string) => value.replace(/\s+/g, ' ').trim();
-      if (
-        atoms.some(
-          (other) =>
-            other.kind === def.atom?.kind &&
-            other.file === entry.path &&
-            other.startLine <= endLine &&
-            startLine <= other.endLine &&
-            squash(other.quote) === squash(quote),
-        )
-      ) {
+      const repeated = atoms.find(
+        (other) =>
+          other.kind === def.atom?.kind &&
+          other.file === entry.path &&
+          other.startLine <= endLine &&
+          startLine <= other.endLine &&
+          squash(other.quote) === squash(quote),
+      );
+      if (repeated) {
         diagnostics.push({
           code: 'duplicate',
+          reason: 'atom-duplicate',
           unit: entry.id,
+          set: set.set,
+          label: label.label,
+          path: entry.path,
+          repeats: repeated.fields.unit,
           detail: `the unit ${entry.id} repeats an atom of kind ${def.atom.kind}`,
         });
         continue;
@@ -573,7 +595,11 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       if (title === UNRESOLVED || situation === UNRESOLVED) {
         diagnostics.push({
           code: 'atom-refusal',
+          reason: 'template-unfilled',
           unit: entry.id,
+          set: set.set,
+          label: label.label,
+          path: entry.path,
           detail: `${named}: the label ${label.label} needs a span, a link or a code span that the unit does not give`,
         });
         continue;
@@ -620,7 +646,12 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         if (referenceBugsB.has('orphan-condition-unreported') && mapped) continue;
         diagnostics.push({
           code: 'atom-refusal',
+          reason: 'condition-unattached',
           unit: entry.id,
+          ...(targetId !== undefined ? { target: targetId } : {}),
+          set: set.set,
+          label: label.label,
+          path: entry.path,
           detail: `${entry.path} unit ${entry.id} (${label.label}): the condition points at a unit that holds no atom`,
         });
         continue;
@@ -669,7 +700,14 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
 
 type Outcome =
   | { abort: string; miss?: CassetteMissView }
-  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string };
+  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string; why: Why }
+  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: undefined; why?: undefined };
+
+/** The names a refusal is about, as fields of a diagnostic. */
+function whyFields(why: Why): Partial<Diagnostic> {
+  const { reason: _reason, ...names } = why;
+  return names;
+}
 
 async function labelWindow(
   plan: WindowPlan,
@@ -708,6 +746,7 @@ async function labelWindow(
     return { labels };
   }
   let reason = '';
+  let why: Why = { reason: 'answer-unreadable' };
   for (let attempt = 0; attempt < 2; attempt += 1) {
     onCall();
     let result: Awaited<ReturnType<typeof askModel>>;
@@ -721,13 +760,15 @@ async function labelWindow(
       return { abort: result.message, ...(result.miss ? { miss: result.miss } : {}) };
     if (result.kind === 'refused') {
       reason = result.reason;
+      why = result.why;
       continue;
     }
     const checked = validateAnswer(result.answer, plan, set, candidates);
     if (checked.ok) return { labels: checked.labels, key: result.key };
     reason = checked.reason;
+    why = checked.why;
   }
-  return { failed: reason };
+  return { failed: reason, why };
 }
 
 /** One run of the planted labeller over a window: a refused answer is asked once more. */
@@ -739,6 +780,7 @@ async function plantedOnce(
   onCall: () => void,
 ): Promise<Outcome> {
   let reason = '';
+  let why: Why = { reason: 'answer-unreadable' };
   for (let attempt = 0; attempt < 2; attempt += 1) {
     onCall();
     const request: LabelRequest = {
@@ -762,8 +804,9 @@ async function plantedOnce(
     const checked = validateAnswer(answer, plan, set, candidates);
     if (checked.ok) return { labels: checked.labels };
     reason = checked.reason;
+    why = checked.why;
   }
-  return { failed: reason };
+  return { failed: reason, why };
 }
 
 export { fingerprintText };

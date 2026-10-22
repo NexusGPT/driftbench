@@ -20,7 +20,7 @@ import {
 } from '../../kit/words';
 import { listOf, para } from '../../kit/world';
 import type { LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const labeler = perfect();
@@ -379,7 +379,7 @@ export const idsRuns: Record<string, Run> = {
       ).ledger,
     );
     if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
-      return fail('the reader does not expose twinOf for every live unit');
+      return missing('the reader does not expose twinOf for every live unit');
     const copied = shared.map((blk) => (blk.kind === 'paragraph' ? blk.sentences[0] : '') as string);
     for (const text of copied) {
       const pair = live.filter((e) => e.quote.startsWith(text.slice(0, 30)));
@@ -684,8 +684,10 @@ export const idsRuns: Record<string, Run> = {
       check: true,
     });
     if (stale.ok) return fail('the check passed on a stale ledger');
-    if (!(stale.error ?? '').includes(w.paths[0] as string))
-      return fail(`the failure does not name the changed file: ${stale.error}`);
+    if (stale.failure?.code !== 'ledger-out-of-date' || !stale.failure.files?.includes(w.paths[0] as string))
+      return fail(
+        `the failure does not name the changed file ${w.paths[0]} in the files of a ledger-out-of-date failure: ${JSON.stringify(stale.failure ?? null)}`,
+      );
     const fine = await ctx.sut.scan({
       files: build(filesOf(w)).files,
       previousLedger: first.ledger.raw,

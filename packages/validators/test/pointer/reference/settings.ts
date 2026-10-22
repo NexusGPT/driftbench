@@ -1,5 +1,5 @@
 import { parse } from 'yaml';
-import type { SettingsApi } from '../../../src/ladders/pointer/sut/port';
+import type { SettingsApi, SettingsIssue } from '../../../src/ladders/pointer/sut/port';
 import { bugsC } from './bugs-c';
 
 /**
@@ -28,24 +28,34 @@ export function makeSettings(upper = 1, inherited = false): SettingsApi {
       }
       const thresholds: Record<string, number> = {};
       const errors: string[] = [];
+      const issues: SettingsIssue[] = [];
       const given = (value as { threshold?: unknown } | null)?.threshold;
       if (given !== undefined) {
-        if (given === null || typeof given !== 'object' || Array.isArray(given))
+        if (given === null || typeof given !== 'object' || Array.isArray(given)) {
           errors.push(`threshold: a mapping of ${KEYS.join(', ')}`);
-        else {
+          issues.push({ code: 'settings-threshold-not-a-mapping', key: 'threshold', reason: 'not-a-mapping' });
+        } else {
           for (const [key, number] of Object.entries(given)) {
             const known = inherited ? TABLE[key] !== undefined : (KEYS as readonly string[]).includes(key);
             // Planted bug of lane bugs C: no finite check, so a YAML .nan passes both bounds.
             const finite = Number.isFinite(number) || bugsC.has('nan-threshold');
-            if (!known)
+            if (!known) {
               errors.push(`threshold: ${key} is not a threshold; the thresholds are ${KEYS.join(', ')}`);
-            else if (typeof number !== 'number' || !finite || number < 0 || number > upper)
+              issues.push({ code: 'threshold-unknown-key', key, reason: 'not-a-threshold' });
+            } else if (typeof number !== 'number' || !finite || number < 0 || number > upper) {
               errors.push(`threshold: ${key} is a number from 0 to 1`);
-            else thresholds[key] = number;
+              const reason =
+                typeof number !== 'number'
+                  ? 'not-a-number'
+                  : Number.isFinite(number)
+                    ? 'out-of-range'
+                    : 'not-finite';
+              issues.push({ code: `threshold-${reason}`, key, reason });
+            } else thresholds[key] = number;
           }
         }
       }
-      return errors.length > 0 ? { ok: false, errors } : { ok: true, thresholds };
+      return errors.length > 0 ? { ok: false, errors, issues } : { ok: true, thresholds };
     },
   };
 }

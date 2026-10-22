@@ -37,7 +37,7 @@ export type Job =
 
 export type JobOutput =
   | { ok: true; result: unknown; fakeCalls?: number; requests?: string[] }
-  | { ok: false; error: string; code?: string };
+  | { ok: false; error: string; code?: string; name?: string };
 
 async function run(job: Job): Promise<JobOutput> {
   // Before the reader loads: a change of the variable from now on changes nothing.
@@ -106,6 +106,7 @@ export async function main(): Promise<void> {
       ok: false,
       error: cause instanceof Error ? cause.message : String(cause),
       ...(typeof code === 'string' ? { code } : {}),
+      ...(cause instanceof Error ? { name: cause.name } : {}),
     };
   }
   writeFileSync(out, JSON.stringify(output));

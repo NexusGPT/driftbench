@@ -185,7 +185,7 @@ async function staleCassette(
   arm: ModelArm,
   field: string,
   value: string,
-  extra: string[] = [],
+  environment = false,
 ): Promise<Outcome> {
   const changed = perturb(fixture, arm, ctx.seed, field, value);
   const { res, fake } = await replay(ctx, fixture.files, arm, changed.cassette, {
@@ -197,15 +197,22 @@ async function staleCassette(
   if (typeof miss === 'string') return fail(miss);
   if (!miss.differs.includes(field))
     return fail(`the miss differs in [${miss.differs.join(', ')}], not in ${field}`);
-  // The Node and ICU versions of a cut digest miss have no field of the miss: they are read in its message.
-  for (const part of extra) if (!(res.error ?? '').includes(part)) return fail(`the miss omits ${part}`);
+  // The Node and ICU versions of a cut digest miss are the fields of its environment, never words of its message.
+  if (environment) {
+    const seen = miss.environment;
+    if (!seen) return fail('the miss carries no environment: the Node and ICU versions of the run are missing');
+    if (seen.node !== process.versions.node)
+      return fail(`the miss omits the Node version of the run: its environment is ${JSON.stringify(seen)}`);
+    if (seen.icu !== (process.versions.icu ?? ''))
+      return fail(`the miss omits the ICU version of the run: its environment is ${JSON.stringify(seen)}`);
+  }
   return pass(`miss names ${field}`);
 }
 const fixtureMissCase =
-  (arm: ModelArm, field: string, value: string, extra: string[] = []): Run =>
+  (arm: ModelArm, field: string, value: string, environment = false): Run =>
   async (ctx) => {
     const { fixture } = await positiveReplay(ctx, arm);
-    return staleCassette(ctx, fixture, arm, field, value, extra);
+    return staleCassette(ctx, fixture, arm, field, value, environment);
   };
 
 export const replayRuns: Record<string, Run> = {
@@ -234,10 +241,7 @@ export const replayRuns: Record<string, Run> = {
   'fixture-miss-names-labeler': fixtureMissCase('haiku', 'labeler', 'jev'),
   'fixture-miss-names-system-part': fixtureMissCase('haiku', 'part.system', '000000000000'),
   'fixture-miss-names-questions-part': fixtureMissCase('jev-unit', 'part.questions', '000000000000'),
-  'fixture-miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', '0'.repeat(64), [
-    process.versions.node,
-    process.versions.icu ?? '',
-  ]),
+  'fixture-miss-names-cut-digest': fixtureMissCase('haiku', 'cutDigest', '0'.repeat(64), true),
   'record-then-replay-identical': async (ctx) => {
     const { fixture, res } = await positiveReplay(ctx);
     const fake = fakeTransport({
@@ -401,10 +405,7 @@ export const replayRuns: Record<string, Run> = {
       ? pass('nearest window named')
       : fail(`nearest window missing: the nearest entry is ${near ? near.readable.window : 'none'}`);
   },
-  'cut-digest-mismatch-names-versions': fixtureMissCase('haiku', 'cutDigest', 'tampered', [
-    process.versions.node,
-    process.versions.icu ?? '',
-  ]),
+  'cut-digest-mismatch-names-versions': fixtureMissCase('haiku', 'cutDigest', 'tampered', true),
   'repeat-run-is-part-of-key': async (ctx) => {
     const { files } = threeFiles(ctx);
     const fake = fakeTransport();
@@ -553,14 +554,18 @@ export const replayRuns: Record<string, Run> = {
     };
     const res = await reRecord(recorded, returned);
     if (!res.ok) return fail(`re-record failed: ${res.error}`);
-    if (!res.warnings?.some((w) => w.includes(recorded) && w.includes(returned)))
+    if (
+      !res.warningRecords?.some(
+        (w) => w.code === 'model-mismatch' && w.recorded === recorded && w.returned === returned,
+      )
+    )
       return fail('returned-model warning missing');
     const same = await reRecord(recorded, recorded);
     if (!same.ok) return fail(`the re-record whose models agree failed: ${same.error}`);
-    if (!Array.isArray(same.warnings)) return fail('the second re-record exposes no warnings');
-    return same.warnings.length === 0
+    if (!Array.isArray(same.warningRecords)) return fail('the second re-record exposes no warnings');
+    return same.warningRecords.length === 0
       ? pass('both model IDs named; models that agree give no warning')
-      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warnings).slice(0, 120)}`);
+      : fail(`a re-record whose models agree warns: ${JSON.stringify(same.warningRecords).slice(0, 120)}`);
   },
   'carry-forward-needs-only-dirty-entries': async (ctx) => {
     const { fixture, res: before } = await positiveReplay(ctx);

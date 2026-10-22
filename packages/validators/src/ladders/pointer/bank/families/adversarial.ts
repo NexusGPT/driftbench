@@ -18,8 +18,8 @@ import {
   shortRule,
   wordAfterStart,
 } from '../../kit/words';
-import type { CutResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { type CutResult, READER_NOT_REACHABLE, type SourceFile } from '../../sut/port';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 
 /** The end of the first word the generator wrote after the start of a sentence: its second word or so. */
 const endOfSecond = (t: string): number => {
@@ -61,7 +61,7 @@ const rules = (texts: string[], label = 'rule'): Pick[] => texts.map((text) => (
 async function childCut(
   file: SourceFile,
   timeoutMs = 60_000,
-): Promise<{ cut?: CutResult; error?: string; code?: string; ms: number; crashed: boolean }> {
+): Promise<{ cut?: CutResult; error?: string; code?: string; name?: string; ms: number; crashed: boolean }> {
   const c = await runChild({ kind: 'cut', file }, { timeoutMs });
   try {
     if (c.timedOut) return { ms: c.ms, crashed: true, error: `no result within ${timeoutMs / 1000} s` };
@@ -75,9 +75,10 @@ async function childCut(
     if (!o.ok)
       return {
         ms: c.ms,
-        crashed: /not reachable/.test(o.error),
+        crashed: o.code === READER_NOT_REACHABLE,
         error: o.error,
         ...(o.code ? { code: o.code } : {}),
+        ...(o.name ? { name: o.name } : {}),
       };
     return { cut: o.result as CutResult, ms: c.ms, crashed: false };
   } finally {
@@ -87,6 +88,14 @@ async function childCut(
 
 /** The code a reader's refusal of a too deeply nested file carries (a stable property of the error, not its text). */
 const NESTING_CODE = 'nesting-too-deep';
+
+/**
+ * The refusal of the `yaml` package for a document whose aliases expand past its limit: a `ReferenceError` that
+ * package throws with this fixed text, and no code (maxAliasCount, src/nodes/toJS.ts of the package). The error is
+ * the package's, not the reader's, so it cannot carry a code of ours: the error class and the package's own text
+ * name it.
+ */
+const YAML_ALIAS_LIMIT = { name: 'ReferenceError', text: 'Excessive alias count indicates a resource exhaustion attack' };
 
 export const adversarialRuns: Record<string, Run> = {
   'deontic-words-labelled-none': async (ctx) => {
@@ -258,9 +267,9 @@ export const adversarialRuns: Record<string, Run> = {
     if (r.crashed) return fail(`the cut did not survive an alias bomb: ${r.error}`);
     if (r.ms > 15_000) return fail(`the cut took ${Math.round(r.ms)} ms`);
     if (r.error)
-      return r.code === NESTING_CODE || /alias|yaml/i.test(r.error)
+      return r.code === NESTING_CODE || (r.name === YAML_ALIAS_LIMIT.name && r.error === YAML_ALIAS_LIMIT.text)
         ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
-        : fail(`the failure message is unclear: ${r.error}`);
+        : fail(`the failure carries no ${NESTING_CODE} code and is not the alias limit of the yaml package: ${r.error}`);
     return r.cut?.units.some((u) => u.text === sentenceText)
       ? pass('bounded, the sentence is still a unit')
       : fail('the sentence after the alias bomb is not a unit');
@@ -284,7 +293,7 @@ export const adversarialRuns: Record<string, Run> = {
       if (c.written.some((w) => /CANARY/.test(w))) return fail('a YAML tag ran code: a canary file appeared');
       if (!o) return fail(`the child gave no output: ${c.stderr.slice(0, 160)}`);
       if (!o.ok)
-        return /not reachable/.test(o.error) ? fail(o.error) : pass(`refused: ${o.error.slice(0, 80)}`);
+        return o.code === READER_NOT_REACHABLE ? fail(o.error) : pass(`refused: ${o.error.slice(0, 80)}`);
       const cut = o.result as CutResult;
       return cut.units.some((u) => u.container === 'front_matter' && u.text === 'Checks the shelf.') &&
         cut.units.some((u) => u.text === sentenceText)
@@ -437,7 +446,7 @@ export const adversarialRuns: Record<string, Run> = {
         `${live.length} entries, ${new Set(live.map((e) => e.id)).size} distinct ids, expected 800 and 800`,
       );
     if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
-      return fail('the reader does not expose twinOf for every live unit');
+      return missing('the reader does not expose twinOf for every live unit');
     const twins = live.filter((e) => e.twinOf !== null && e.twinOf !== undefined).length;
     if (twins < 792) return fail(`${twins} twin marks, expected at least 792 (every copy but the first)`);
     const again = await scanOk(ctx.sut, { files, previousLedger: first.ledger.raw, labeler: perfect() });

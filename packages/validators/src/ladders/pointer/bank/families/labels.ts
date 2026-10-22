@@ -41,7 +41,7 @@ import type {
   ScanResult,
   SourceFile,
 } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 import { validateSetCases, validationRuns } from './labelset-validation';
 import { stackRuns } from './stack';
 
@@ -562,9 +562,13 @@ export const labelsRuns: Record<string, Run> = {
       labelsYaml: yaml,
     });
     if (!res.ok)
-      return /voice/.test(res.error ?? '')
-        ? pass('refused, naming the label')
-        : fail(`the set was refused without naming the label: ${res.error}`);
+      return res.failure?.code === 'label-examples-too-many' &&
+        res.failure.set === 'many' &&
+        res.failure.label === 'voice'
+        ? pass('refused, naming the set and the label')
+        : fail(
+            `the set was refused without naming the label by code label-examples-too-many: ${JSON.stringify(res.failure ?? null)}`,
+          );
     requireSourceWitness(res, files);
     if (fake.count === 0) return fail('positive witness: no request for the valid label set');
     const text = fake.calls.map(bodyText).join('\n');
@@ -837,7 +841,8 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (second.events?.[id] === undefined) return fail(`the reader does not expose an event for ${id}`);
+      if (second.events?.[id] === undefined)
+        return missing(`the reader does not expose an event for ${id}`);
       if (second.events[id] !== 'unchanged')
         return fail(`${show(t, 36)} has event ${second.events[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')
@@ -871,7 +876,7 @@ export const labelsRuns: Record<string, Run> = {
       requireSourceWitness(second, build(after).files);
       for (const entry of second.ledger.entries)
         if (second.events?.[entry.id] === undefined)
-          return fail(`the reader does not expose an event for ${entry.id}`);
+          return missing(`the reader does not expose an event for ${entry.id}`);
       const entries = JSON.parse(second.ledger.raw).entries.map((e: Record<string, unknown>) => {
         const { labels: _labels, ...rest } = e;
         return rest;

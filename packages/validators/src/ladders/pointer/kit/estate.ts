@@ -118,7 +118,8 @@ export const liveOf = (ledger: LedgerView): LedgerEntry[] =>
 /** Only the event the reader reports for this id; an absent observation cannot earn credit. */
 export function eventNow(result: Pick<ScanResult, 'events'>, entry: LedgerEntry): string {
   const event = result.events?.[entry.id];
-  if (event === undefined) throw new Problem(`the reader does not expose an event for ${entry.id}`);
+  if (event === undefined)
+    throw new Problem(`the reader does not expose an event for ${entry.id}`, 'missing-observation');
   return event;
 }
 

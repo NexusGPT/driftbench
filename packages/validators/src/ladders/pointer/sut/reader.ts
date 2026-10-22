@@ -12,9 +12,11 @@ import type {
   ManifestChange,
   PointerSut,
   RerunApi,
+  ScanFailure,
   ScanRequest,
   ScanResult,
   SettingsApi,
+  SettingsIssue,
   SourceFile,
   StackApi,
   Transport,
@@ -56,6 +58,36 @@ type REntry = {
 };
 type RLedger = { version: 1; cutDigests: Record<string, string>; entries: REntry[] };
 type RSet = { set: string; description: string; labels: unknown[] };
+/** A structured diagnostic of the reader: a stable `code` beside the text, and the identifiers the text names. */
+type RDiag = {
+  code: string;
+  detail: string;
+  window?: string;
+  unit?: string;
+  units?: string;
+  target?: string;
+  kind?: string;
+  span?: string;
+  set?: string;
+  label?: string;
+  path?: string;
+  labeler?: string;
+  repeats?: string;
+  parent?: string;
+  sum?: number;
+};
+/** A label file the reader refused, with its code, reason and the offending names. */
+type RLabelFailure = {
+  ok: false;
+  message: string;
+  code?: string;
+  reason?: string;
+  set?: string;
+  label?: string;
+  kind?: string;
+  parent?: string;
+  path?: string;
+};
 type RWindow = {
   id: string;
   path: string;
@@ -100,6 +132,10 @@ type RResult = {
   unlabeled: number;
   refusals: string[];
   failed: string[];
+  /** One record for each text of the lists beside them, in the same order; absent in a reader without codes. */
+  refusalRecords?: RDiag[];
+  droppedRecords?: RDiag[];
+  failedRecords?: RDiag[];
   recorded: number;
   /** Units one member of a stack decided alone because the other gave no opinion. */
   fellBack?: number;
@@ -124,11 +160,25 @@ type RSettings =
       ok: true;
       settings: { threshold?: { labeler?: number; passAt?: number; failAt?: number; marginCut?: number } };
     }
-  | { ok: false; errors: string[] };
+  | { ok: false; errors: string[]; issues?: SettingsIssue[] };
+
+type BuildLabelling = (
+  specs: Array<{ cls: 'system1' | 'system2'; client: string; target?: string }>,
+  options: {
+    env: Record<string, string | undefined>;
+    cwd: string;
+    record: boolean;
+    threshold?: number;
+    marginCut?: number;
+    fetch?: unknown;
+  },
+) => Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string; code?: string; set?: string }>;
 
 export type ReaderExports = {
   /** Optional reader of the settings file. */
   parsePointerSettings?(value: unknown): RSettings;
+  /** The same read, with one structured issue (`code`, `key`, `reason`) beside each error text. */
+  parsePointerSettingsDetailed?(value: unknown): RSettings;
   /** Optional rerun rule of the ledger: absent exports fail the items that need them, explicitly. */
   ledgerChanges?(before: RLedger, after: RLedger): RChange[];
   rerunOf?(changes: readonly RChange[], before: RLedger): RRerun;
@@ -146,23 +196,20 @@ export type ReaderExports = {
   Cassette: { parse(text: string): RCassette };
   cut(source: string): RCut;
   LabelerError: new (message: string) => Error;
-  buildLabelling(
-    specs: Array<{ cls: 'system1' | 'system2'; client: string; target?: string }>,
-    options: {
-      env: Record<string, string | undefined>;
-      cwd: string;
-      record: boolean;
-      threshold?: number;
-      marginCut?: number;
-      fetch?: unknown;
-    },
-  ): Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string }>;
+  buildLabelling: BuildLabelling;
+  /** The same build, and a refusal that also carries a `code` and the `set` it is about. */
+  buildLabellingDetailed?: BuildLabelling;
   singleLabelling(labeler: RLabeler): RLabelling;
   denseOpinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
   /** Optional validator seam; the adapter never implements lockfile semantics. */
-  checkLedger?(previous: string | undefined, current: RLedger): { ok: boolean; error?: string };
+  checkLedger?(
+    previous: string | undefined,
+    current: RLedger,
+  ): { ok: boolean; error?: string; code?: string; files?: string[] };
   parseDenseAnswer(text: string, expected?: { window?: string; set?: string }): RLabelled[];
-  parseLabelSets(text: string): { ok: true; sets: RSet[] } | { ok: false; message: string };
+  parseLabelSets(text: string): { ok: true; sets: RSet[] } | RLabelFailure;
+  /** The same read, and a refusal that also carries a `code`, a `reason` and the offending names. */
+  parseLabelSetsDetailed?(text: string): { ok: true; sets: RSet[] } | RLabelFailure;
   parseLedger(text: string): RLedger | undefined;
   renderLedger(ledger: RLedger): string;
   setHash(set: RSet): string;
@@ -172,7 +219,13 @@ export type ReaderExports = {
     texts: ReadonlyMap<string, string>,
     builder: { atoms: RAtom[] },
     labeler: string,
-  ): { accepted: RAtom[]; refusals: string[]; duplicates: string[] };
+  ): {
+    accepted: RAtom[];
+    refusals: string[];
+    duplicates: string[];
+    refusalRecords?: RDiag[];
+    duplicateRecords?: RDiag[];
+  };
 };
 
 const NAMES = [
@@ -484,28 +537,76 @@ function fetchOf(
 /** The structured fields of a thrown cassette miss (its properties, not its message), or nothing for another failure. */
 function missOf(cause: unknown): CassetteMissView | undefined {
   if (!(cause instanceof Error) || cause.name !== 'CassetteMiss') return undefined;
-  const fields = cause as Error & Record<'key' | 'differs' | 'nearest' | 'labeler', unknown>;
+  const fields = cause as Error & Record<'key' | 'differs' | 'nearest' | 'labeler' | 'environment', unknown>;
   if (typeof fields.key !== 'string' || !Array.isArray(fields.differs)) return undefined;
+  const environment = fields.environment as { node?: unknown; icu?: unknown } | undefined;
   return {
     key: fields.key,
     differs: fields.differs.filter((field): field is string => typeof field === 'string'),
     ...(typeof fields.nearest === 'string' ? { nearest: fields.nearest } : {}),
     ...(typeof fields.labeler === 'string' ? { labeler: fields.labeler } : {}),
+    ...(typeof environment?.node === 'string' && typeof environment.icu === 'string'
+      ? { environment: { node: environment.node, icu: environment.icu } }
+      : {}),
+  };
+}
+
+/** A diagnostic of the port from a record of the reader: the class is the `code`, the record's code the `reason`. */
+function diagnosticOf(code: string, record: RDiag): Diagnostic {
+  const { code: reason, ...fields } = record;
+  return { code, reason, ...fields };
+}
+
+/** The diagnostics of one list: the records of the reader when it gives them, else its texts alone. */
+function diagnosticsOf(
+  code: string,
+  texts: readonly string[],
+  records: readonly RDiag[] | undefined,
+): Diagnostic[] {
+  return records
+    ? records.map((record) => diagnosticOf(code, record))
+    : texts.map((detail) => ({ code, detail }));
+}
+
+/** The code of a thrown error of the reader, from its properties and never from its message. */
+function failureOfThrown(cause: unknown): ScanFailure | undefined {
+  // The errors of the reader that carry a stable `code` (and a `set`); a system error carries a code too.
+  const own =
+    cause instanceof Error &&
+    (cause.name === 'LabelerConfigError' || cause.name === 'LabelerError' || cause.name === 'CassetteMiss');
+  if (!own) return undefined;
+  const fields = cause as Error & Record<'code' | 'set', unknown>;
+  if (typeof fields.code !== 'string') return undefined;
+  return { code: fields.code, ...(typeof fields.set === 'string' ? { set: fields.set } : {}) };
+}
+
+/** The structured cause of a refused label file, or nothing for a reader that gives none. */
+function failureOfLabels(refused: RLabelFailure): ScanFailure | undefined {
+  if (typeof refused.code !== 'string') return undefined;
+  return {
+    code: refused.code,
+    ...(refused.reason !== undefined ? { reason: refused.reason } : {}),
+    ...(refused.set !== undefined ? { set: refused.set } : {}),
+    ...(refused.label !== undefined ? { label: refused.label } : {}),
+    ...(refused.kind !== undefined ? { kind: refused.kind } : {}),
+    ...(refused.parent !== undefined ? { parent: refused.parent } : {}),
+    ...(refused.path !== undefined ? { path: refused.path } : {}),
   };
 }
 
 async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanResult> {
-  const fail = (error: string): ScanResult => ({
+  const fail = (error: string, failure?: ScanFailure): ScanResult => ({
     ok: false,
     error,
+    ...(failure ? { failure } : {}),
     atoms: [],
     diagnostics: [],
   });
   if (request.check && !reader.checkLedger)
     throw new ReaderNotReachable('check mode requires the reader checkLedger export');
   const labelsText = request.labelsYaml ?? reader.AGENT_RULES_SET;
-  const parsed = reader.parseLabelSets(labelsText);
-  if (!parsed.ok) return fail(parsed.message);
+  const parsed = (reader.parseLabelSetsDetailed ?? reader.parseLabelSets)(labelsText);
+  if (!parsed.ok) return fail(parsed.message, failureOfLabels(parsed));
   let previous: RLedger | undefined;
   if (request.previousLedger !== undefined) {
     previous = reader.parseLedger(request.previousLedger);
@@ -521,7 +622,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     if (typeof specs === 'string') return fail(specs);
     const marginCut = request.model.stack?.marginCut;
     try {
-      const built = await reader.buildLabelling(specs, {
+      const built = await (reader.buildLabellingDetailed ?? reader.buildLabelling)(specs, {
         record: mode === 'record',
         cwd: '.',
         env: envOf(request.model.onKeyRead),
@@ -529,10 +630,16 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
         ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
         ...(marginCut !== undefined ? { marginCut } : {}),
       });
-      if (!built.ok) return fail(built.message);
+      if (!built.ok)
+        return fail(
+          built.message,
+          built.code !== undefined
+            ? { code: built.code, ...(built.set !== undefined ? { set: built.set } : {}) }
+            : undefined,
+        );
       labelling = built.labelling;
     } catch (cause) {
-      return fail(cause instanceof Error ? cause.message : String(cause));
+      return fail(cause instanceof Error ? cause.message : String(cause), failureOfThrown(cause));
     }
   } else {
     labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
@@ -552,7 +659,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   } catch (cause) {
     const miss = missOf(cause);
     return {
-      ...fail(cause instanceof Error ? cause.message : String(cause)),
+      ...fail(cause instanceof Error ? cause.message : String(cause), failureOfThrown(cause)),
       ...(miss ? { miss } : {}),
     };
   }
@@ -561,7 +668,12 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
     const checked = reader.checkLedger(request.previousLedger, result.ledger);
     if (!checked.ok)
       return {
-        ...fail(checked.error ?? 'the reader rejected check mode'),
+        ...fail(
+          checked.error ?? 'the reader rejected check mode',
+          typeof checked.code === 'string'
+            ? { code: checked.code, ...(checked.files ? { files: [...checked.files] } : {}) }
+            : undefined,
+        ),
         ledger: view,
         ...(result.warnings !== undefined ? { warnings: result.warnings } : {}),
       };
@@ -570,16 +682,17 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   const texts = new Map(request.files.map((f: SourceFile) => [f.path, f.text]));
   let atoms: Atom[] = [];
   const diagnostics: Diagnostic[] = [
-    ...result.refusals.map((detail) => ({ code: 'refusal', detail })),
-    ...result.failed.map((detail) => ({ code: 'failed-window', detail })),
+    ...diagnosticsOf('refusal', result.refusals, result.refusalRecords),
+    ...diagnosticsOf('failed-window', result.failed, result.failedRecords),
+    ...(result.droppedRecords ?? []).map((record) => diagnosticOf('dropped', record)),
   ];
   try {
     const builder = new reader.AtomBuilder(new Map());
     const made = reader.pointerAtoms(result.labelled, texts, builder, labelling.describe);
     atoms = made.accepted.map(atomOf);
     diagnostics.push(
-      ...made.refusals.map((detail) => ({ code: 'atom-refusal', detail })),
-      ...made.duplicates.map((detail) => ({ code: 'duplicate', detail })),
+      ...diagnosticsOf('atom-refusal', made.refusals, made.refusalRecords),
+      ...diagnosticsOf('duplicate', made.duplicates, made.duplicateRecords),
     );
   } catch (cause) {
     diagnostics.push({
@@ -657,8 +770,8 @@ function settingsOf(reader: ReaderExports): SettingsApi {
           errors: [cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause)],
         };
       }
-      const out = reader.parsePointerSettings(value);
-      if (!out.ok) return { ok: false, errors: out.errors };
+      const out = (reader.parsePointerSettingsDetailed ?? reader.parsePointerSettings)(value);
+      if (!out.ok) return { ok: false, errors: out.errors, ...(out.issues ? { issues: out.issues } : {}) };
       const thresholds: Record<string, number> = {};
       for (const [name, key] of Object.entries(keys)) {
         const given = out.settings.threshold?.[name as keyof typeof keys];

@@ -34,9 +34,12 @@ async function verdict(sut: PointerSut): Promise<Outcome> {
   const got = await sut.cut(FILE);
   const holds = (text: string) => got.units.some((unit) => unit.text.trim() === text);
   if (!holds(FIRST) || !holds(SECOND))
-    return fail(`${CONTROL_FAILED}: no unit of the reader holds each of the two control sentences apart`);
+    return fail(
+      `${CONTROL_FAILED}: no unit of the reader holds each of the two control sentences apart`,
+      'control-failed',
+    );
   if (!got.units.some((unit) => unit.text.includes(ITEM)))
-    return fail(`${CONTROL_FAILED}: no unit of the reader holds the control list item`);
+    return fail(`${CONTROL_FAILED}: no unit of the reader holds the control list item`, 'control-failed');
   return pass('the reader cut the control file: two sentences of one line apart, and the list item');
 }
 
@@ -52,6 +55,7 @@ async function sandboxCut(sut: PointerSut, expected: string): Promise<Outcome> {
       ? pass('both processes ran the reader the harness named')
       : fail(
           `${CONTROL_FAILED}: the reader cut ${JSON.stringify(here)} here and ${JSON.stringify(there)} in the sandboxed process, expected ${JSON.stringify(expected)}`,
+          'control-failed',
         );
   } finally {
     child.cleanup();
@@ -62,8 +66,11 @@ export async function runControl(control: Control, sut: PointerSut): Promise<Out
   try {
     if (control.name === 'verdict') return await verdict(sut);
     if (control.name === 'sandbox-cut') return await sandboxCut(sut, control.expect ?? '');
-    return fail(`${CONTROL_FAILED}: no control ${String(control.name)}`);
+    return fail(`${CONTROL_FAILED}: no control ${String(control.name)}`, 'control-failed');
   } catch (cause) {
-    return fail(`${CONTROL_FAILED}: ${cause instanceof Error ? cause.message : String(cause)}`);
+    return fail(
+      `${CONTROL_FAILED}: ${cause instanceof Error ? cause.message : String(cause)}`,
+      'control-failed',
+    );
   }
 }

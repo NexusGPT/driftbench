@@ -32,7 +32,12 @@ export const cheatC: PointerSut = {
       entries.map((entry) => ({ ...entry, lineage: [{ scan: 1, event: 'new' }] })),
     );
     const ids = (out.ledger?.entries ?? []).map((entry) => entry.id);
-    return { ...out, events: Object.fromEntries(ids.map((id) => [id, 'unchanged'])), warnings: [] };
+    return {
+      ...out,
+      events: Object.fromEntries(ids.map((id) => [id, 'unchanged'])),
+      warnings: [],
+      warningRecords: [],
+    };
   },
 };
 
@@ -68,7 +73,10 @@ export const cheatA: PointerSut = {
     const rows = `${request.cassette?.text ?? ''}\n${raw.cassette ?? ''}`;
     const literal = rows.includes('"returnedModel":"m-1"');
     const warnings = literal ? ['the returned model m-2 differs from the recorded model m-1'] : [];
-    return { ...out, events, warnings };
+    const warningRecords = literal
+      ? [{ code: 'model-mismatch' as const, recorded: 'm-1', returned: 'm-2' }]
+      : [];
+    return { ...out, events, warnings, warningRecords };
   },
 };
 
@@ -93,9 +101,12 @@ export const alwaysWarn: PointerSut = {
   async scan(request) {
     const out = await reference.scan(request);
     const warnings = out.warnings ?? [];
+    const records = out.warningRecords ?? [];
     return {
       ...out,
       warnings: warnings.length > 0 ? warnings : ['the returned model differs from the recorded model'],
+      warningRecords:
+        records.length > 0 ? records : [{ code: 'model-mismatch', recorded: 'm-1', returned: 'm-2' }],
     };
   },
 };

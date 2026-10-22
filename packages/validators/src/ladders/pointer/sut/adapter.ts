@@ -1,4 +1,4 @@
-import type { PointerSut } from './port';
+import { type PointerSut, ReaderNotReachable } from './port';
 import { realReader } from './reader';
 
 /**
@@ -12,7 +12,7 @@ import { realReader } from './reader';
 
 const unreachable = (reason: string): PointerSut => {
   const fail = async (): Promise<never> => {
-    throw new Error(reason);
+    throw new ReaderNotReachable(reason);
   };
   return { name: 'unreachable', cut: fail, scan: fail };
 };

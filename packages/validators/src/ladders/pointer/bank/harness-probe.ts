@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { CONTROL_FAILED, type Control } from './controls';
+import type { Control } from './controls';
 import { isolated, newPool, stopPool } from './run';
 import { fail, type Outcome } from './types';
 
@@ -24,7 +24,7 @@ const CONTROL_LIMIT_MS = 45_000;
 export async function probe(plant: string, control: Control): Promise<Outcome> {
   const pool = newPool(plant);
   try {
-    const out = await isolated<Outcome>({ control }, CONTROL_LIMIT_MS, (why) => fail(why), pool);
+    const out = await isolated<Outcome>({ control }, CONTROL_LIMIT_MS, (why, kind) => fail(why, kind), pool);
     return out ?? fail('the harness could not start a process for the control');
   } finally {
     await stopPool(pool);
@@ -37,7 +37,5 @@ export async function probe(plant: string, control: Control): Promise<Outcome> {
  * the reader, so it is not a proof.
  */
 export function readerGainedNothing(outcome: Outcome): boolean {
-  return (
-    !outcome.pass && (outcome.detail.startsWith(CONTROL_FAILED) || /reader's process/.test(outcome.detail))
-  );
+  return !outcome.pass && (outcome.kind === 'control-failed' || outcome.kind === 'reader-process-ended');
 }

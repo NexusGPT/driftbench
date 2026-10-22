@@ -324,7 +324,7 @@ describe('re-anchoring.short-repeated-text-stays-in-file', () => {
 describe('privacy.warning-names-models-not-units', () => {
   it('fails a reader whose warnings are always empty (cheat 3 of the audit)', async () => {
     const silent = mutant('empty-warnings', {
-      scan: async (request) => ({ ...(await ref.scan(request)), warnings: [] }),
+      scan: async (request) => ({ ...(await ref.scan(request)), warnings: [], warningRecords: [] }),
     });
     expect(await redOn('privacy.warning-names-models-not-units', silent)).toMatch(
       /no warning names both models/,
