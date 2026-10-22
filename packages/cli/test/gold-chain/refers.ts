@@ -7,7 +7,8 @@ import { LAYOUT } from './layout';
  * labeller's `refersTo`, planted by a truth lane): the units a unit points at for its number, in file order, copied by
  * code from the gold units. It is used only when GOLD_REFERS is set: the gate itself asks the requests it always did.
  */
-export const refersEnabled = (): boolean => process.env.GOLD_REFERS !== undefined && process.env.GOLD_REFERS !== '';
+export const refersEnabled = (): boolean =>
+  process.env.GOLD_REFERS !== undefined && process.env.GOLD_REFERS !== '';
 
 export function referredBy(options: {
   estate: EstateName;
@@ -29,7 +30,12 @@ export function referredBy(options: {
     const pointer = byId.get(entry.unit);
     if (first === undefined || last === undefined || pointer === undefined) continue;
     const units = gold
-      .filter((unit) => unit.file === first.file && unit.n >= Math.min(first.n, last.n) && unit.n <= Math.max(first.n, last.n))
+      .filter(
+        (unit) =>
+          unit.file === first.file &&
+          unit.n >= Math.min(first.n, last.n) &&
+          unit.n <= Math.max(first.n, last.n),
+      )
       .sort((a, b) => a.n - b.n);
     const ledgerId = ledgerOfPlace.get(place(pointer));
     if (ledgerId === undefined) continue;

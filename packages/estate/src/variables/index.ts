@@ -8,6 +8,7 @@ export {
   limitCondition,
   type LimitTable,
   LIMIT_REFERRED_SYSTEM,
+  REFERRED_MAX_TOKENS,
   LIMIT_TABLE_SYSTEM,
   limitRequestReferred,
   limitPlace,

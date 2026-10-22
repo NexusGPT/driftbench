@@ -178,6 +178,9 @@ describe('a number written in another unit (a planted refersTo)', () => {
     expect(request.user).toBe(`PLACE:\nHEADINGS: x\n\nREFERRED:\n${NUMBER}\n\nINSTRUCTION:\n${POINTER}`);
     expect(request.system.startsWith(limitRequest(POINTER, 'x').system)).toBe(true);
     expect(request.system).toContain('REFERRED');
+    // A table pointer names several limits: its answer has room for them. Every other request keeps the default.
+    expect(request.maxTokens).toBe(1000);
+    expect(limitRequest(POINTER, 'x').maxTokens).toBeUndefined();
   });
 
   it('leaves the request of every other unit byte for byte as it was, and gives REFERRED only where the labeller named a target', async () => {

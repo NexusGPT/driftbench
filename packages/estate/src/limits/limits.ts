@@ -28,7 +28,8 @@ export type AskedLimit = {
   unit?: string;
 };
 
-export type LimitRequest = { system: string; user: string };
+/** `maxTokens`: the answer cap, when the request needs more than the default (an instruction that points at a table may name several limits). */
+export type LimitRequest = { system: string; user: string; maxTokens?: number };
 export type LimitAsk = (request: LimitRequest) => Promise<string>;
 
 export const LIMIT_SYSTEM = [
@@ -122,10 +123,14 @@ export const LIMIT_REFERRED_SYSTEM = [
   'of this instruction: answer for the instruction with the limit that REFERRED gives it, and take nothing else from REFERRED.',
 ].join(' ');
 
+/** The answer cap of a referred request: the referred units may hold several numbers, one limit each. */
+export const REFERRED_MAX_TOKENS = 1000;
+
 /** The request for an instruction that points at other units for its number. */
 export const limitRequestReferred = (quote: string, place: string, referred: string): LimitRequest => ({
   system: `${LIMIT_SYSTEM} ${LIMIT_REFERRED_SYSTEM}`,
   user: `PLACE:\n${place}\n\nREFERRED:\n${referred}\n\nINSTRUCTION:\n${quote}`,
+  maxTokens: REFERRED_MAX_TOKENS,
 });
 
 /** The request for one instruction: its quote and its place. */

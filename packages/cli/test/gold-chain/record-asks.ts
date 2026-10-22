@@ -23,8 +23,8 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
-import { referredBy, refersEnabled } from './refers';
 import { askModel, askPort, askPrices, loadAsks, readKey } from './limits-ask';
+import { referredBy, refersEnabled } from './refers';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
 const capOut = Number(process.env.GOLD_ASK_CAP_OUT ?? Number.POSITIVE_INFINITY);

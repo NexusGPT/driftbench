@@ -42,7 +42,12 @@ describe('the referred text of a gold estate', () => {
   });
 
   it('gives nothing to a unit that no refers_to names', () => {
-    const referred = referredBy({ estate: 'A', gold, ledger, truth: { refers_to: [{ unit: 'u4', to: 'u2' }] } });
+    const referred = referredBy({
+      estate: 'A',
+      gold,
+      ledger,
+      truth: { refers_to: [{ unit: 'u4', to: 'u2' }] },
+    });
     expect(referred({ fields: { unit: 'L2' } })).toBeUndefined();
     expect(referred({ fields: {} })).toBeUndefined();
   });
