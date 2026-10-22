@@ -64,11 +64,175 @@ const TAILS = split(`
   yesterday tomorrow tonight outside inside upstairs downstairs elsewhere overnight meanwhile afterwards
 `);
 
-const take = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+/** A word a generator wrote, and where it starts in the text it returned. */
+export type WrittenWord = { text: string; start: number };
+/** A text and the words the generator wrote into it, in order. */
+export type Written = { text: string; words: WrittenWord[] };
+
+/*
+ * The generator is the one source of word positions. Every function of this module that returns prose registers
+ * the words it wrote, with their offsets, for the exact text it returns; a planter that changes or reads a word
+ * asks the registry for the text it holds (`writtenOf`) and splices at those offsets. No word is ever found by
+ * matching a pattern on the letters of a text. The registry keeps the most recent texts only: a planter edits a
+ * text it drew moments before.
+ */
+const REGISTRY_LIMIT = 250_000;
+const registry = new Map<string, readonly WrittenWord[]>();
+
+function register(text: string, words: readonly WrittenWord[]): string {
+  registry.delete(text);
+  registry.set(text, words);
+  if (registry.size > REGISTRY_LIMIT) {
+    const oldest = registry.keys().next();
+    if (!oldest.done) registry.delete(oldest.value);
+  }
+  return text;
+}
+
+/** The words a generator of this module wrote into `text`, with their offsets. Throws for a text none wrote. */
+export function writtenOf(text: string): Written {
+  const words = registry.get(text);
+  if (!words)
+    throw new Error(
+      `no generator of the pointer bank wrote this text, so its words are unknown: ${JSON.stringify(text.slice(0, 120))}`,
+    );
+  return { text, words: words.map((w) => ({ ...w })) };
+}
+
+/** Whether a generator of this module wrote `text` (it has registered words). */
+export function isWritten(text: string): boolean {
+  return registry.has(text);
+}
+
+/** A written text without its final full stop; its words keep their offsets. */
+function withoutStop(w: Written): Written {
+  if (!w.text.endsWith('.')) return w;
+  const text = w.text.slice(0, -1);
+  return { text, words: w.words.filter((x) => x.start + x.text.length <= text.length) };
+}
+
+/** A written text whose first letter is lower case; the word that starts there follows it. */
+function lowerFirstOf(w: Written): Written {
+  const text = w.text.charAt(0).toLowerCase() + w.text.slice(1);
+  return {
+    text,
+    words: w.words.map((x) => (x.start === 0 ? { text: text.slice(0, x.text.length), start: 0 } : x)),
+  };
+}
+
+/** A written text with words replaced by index; every word after a replaced one moves with the text. */
+function replaced(w: Written, changes: ReadonlyMap<number, string>): Written {
+  let text = '';
+  let from = 0;
+  const words: WrittenWord[] = [];
+  w.words.forEach((word, i) => {
+    text += w.text.slice(from, word.start);
+    const now = changes.get(i) ?? word.text;
+    words.push({ text: now, start: text.length });
+    text += now;
+    from = word.start + word.text.length;
+  });
+  return { text: text + w.text.slice(from), words };
+}
+
+/**
+ * Joins parts into one text and registers it: a part a generator wrote keeps its words, moved to where the part
+ * lands; a plain string part adds no word.
+ */
+export function joinWritten(parts: ReadonlyArray<string | Written>): string {
+  let text = '';
+  const words: WrittenWord[] = [];
+  for (const part of parts) {
+    if (typeof part === 'string') {
+      text += part;
+      continue;
+    }
+    for (const w of part.words) words.push({ text: w.text, start: text.length + w.start });
+    text += part.text;
+  }
+  return register(text, words);
+}
+
+/** A written text with the words at the given indexes (of `writtenOf(text).words`) replaced; registered. */
+export function editWords(text: string, changes: ReadonlyMap<number, string>): string {
+  return joinWritten([replaced(writtenOf(text), changes)]);
+}
+
+/**
+ * A written text with `insert` put at offset `at`, registered. A word that starts at or after `at` moves; a word
+ * that `at` falls inside is no longer a word the generator wrote and leaves the list.
+ */
+export function insertAt(text: string, at: number, insert: string): string {
+  const w = writtenOf(text);
+  const words: WrittenWord[] = [];
+  for (const x of w.words) {
+    if (x.start >= at) words.push({ text: x.text, start: x.start + insert.length });
+    else if (x.start + x.text.length <= at) words.push(x);
+  }
+  return register(text.slice(0, at) + insert + text.slice(at), words);
+}
+
+/** The first word the generator wrote after the start of `text`: a place inside the sentence. */
+export function wordAfterStart(text: string): WrittenWord {
+  const found = writtenOf(text).words.find((w) => w.start > 0);
+  if (!found)
+    throw new Error(`the generator wrote no word after the start of ${JSON.stringify(text.slice(0, 80))}`);
+  return found;
+}
+
+/**
+ * An offset strictly inside a word the generator wrote: `into` letters into the first word of at least `min`
+ * letters after the start, else the middle of the longest word after the start.
+ */
+export function insideWord(text: string, min: number, into: number): number {
+  const words = writtenOf(text).words.filter((w) => w.start > 0);
+  const fit = words.find((w) => w.text.length >= min && w.text.length > into);
+  if (fit) return fit.start + into;
+  const longest = words.reduce<WrittenWord | undefined>(
+    (best, w) => (!best || w.text.length > best.text.length ? w : best),
+    undefined,
+  );
+  if (!longest || longest.text.length < 2)
+    throw new Error(`the generator wrote no word to split in ${JSON.stringify(text.slice(0, 80))}`);
+  return longest.start + Math.floor(longest.text.length / 2);
+}
+
+/** A written text with `tail` in place of its final full stop (`tail` brings its own); registered. */
+export function beforeStop(text: string, tail: string): string {
+  return joinWritten([withoutStop(writtenOf(text)), tail]);
+}
+
+/** Every word of the WHEN phrases, with its offset in the phrase. The vocabulary is split, never prose. */
+const PHRASES = new Map<string, readonly WrittenWord[]>(
+  WHEN.map((phrase): [string, WrittenWord[]] => {
+    let at = 0;
+    const words = split(phrase).map((text) => {
+      const word = { text, start: at };
+      at += text.length + 1;
+      return word;
+    });
+    return [phrase, words];
+  }),
+);
+
+/** Composes a text from drawn words: every interpolated value is a word (or a WHEN phrase) the generator drew. */
+function drawn(strings: TemplateStringsArray, ...values: string[]): Written {
+  let text = strings[0] ?? '';
+  const words: WrittenWord[] = [];
+  values.forEach((value, i) => {
+    for (const part of PHRASES.get(value) ?? [{ text: value, start: 0 }])
+      words.push({ text: part.text, start: text.length + part.start });
+    text += value + (strings[i + 1] ?? '');
+  });
+  return { text, words };
+}
+
+const pick = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
+const take = pick;
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const long = (rng: Rng, items: readonly string[]): string => {
   for (let tries = 0; tries < 20; tries += 1) {
-    const word = take(rng, items);
+    const word = pick(rng, items);
     if (word.length >= 4) return word;
   }
   return 'quietly';
@@ -82,46 +246,51 @@ export function sentence(rng: Rng): string {
   const a1 = take(rng, ADJ);
   const a2 = take(rng, ADJ);
   const shape = Math.floor(rng() * 9);
-  let text: string;
+  let made: Written;
   switch (shape) {
     case 0:
-      text = `${cap(take(rng, VERB_IMP))} the ${a1} ${n1} ${take(rng, PREP)} the ${a2} ${n2} ${take(rng, WHEN)}`;
+      made = drawn`${cap(take(rng, VERB_IMP))} the ${a1} ${n1} ${take(rng, PREP)} the ${a2} ${n2} ${take(rng, WHEN)}`;
       break;
     case 1:
-      text = `The ${a1} ${n1} ${take(rng, VERB_S)} ${take(rng, ADV)} ${take(rng, PREP)} the ${n2} of the ${take(rng, PLACES)}`;
+      made = drawn`The ${a1} ${n1} ${take(rng, VERB_S)} ${take(rng, ADV)} ${take(rng, PREP)} the ${n2} of the ${take(rng, PLACES)}`;
       break;
     case 2:
-      text = `Each ${n1} in the ${take(rng, PLACES)} is kept ${take(rng, PREP)} a ${a1} ${n2} ${take(rng, WHEN)}`;
+      made = drawn`Each ${n1} in the ${take(rng, PLACES)} is kept ${take(rng, PREP)} a ${a1} ${n2} ${take(rng, WHEN)}`;
       break;
     case 3:
-      text = `If a ${a1} ${n1} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${n2}, ${take(rng, VERB_IMP)} it ${long(rng, ADV)}`;
+      made = drawn`If a ${a1} ${n1} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${n2}, ${take(rng, VERB_IMP)} it ${long(rng, ADV)}`;
       break;
     case 4:
-      text = `${cap(a1)} ${n1}s and ${a2} ${n2}s ${take(rng, VERB_S).replace(/s$/, '')} ${take(rng, PREP)} the ${n3} ${take(rng, TAILS)}`;
+      made = drawn`${cap(a1)} ${n1}s and ${a2} ${n2}s ${take(rng, VERB_S).replace(/s$/, '')} ${take(rng, PREP)} the ${n3} ${take(rng, TAILS)}`;
       break;
     case 5:
-      text = `${cap(take(rng, VERB_IMP))} every ${n1} ${take(rng, ADV)}, then ${take(rng, VERB_IMP)} the ${a1} ${n2} ${take(rng, PREP)} the ${n3} ${long(rng, TAILS)}`;
+      made = drawn`${cap(take(rng, VERB_IMP))} every ${n1} ${take(rng, ADV)}, then ${take(rng, VERB_IMP)} the ${a1} ${n2} ${take(rng, PREP)} the ${n3} ${long(rng, TAILS)}`;
       break;
     case 6:
-      text = `A ${n1} from the ${take(rng, PLACES)} ${take(rng, VERB_S)} ${take(rng, ADV)} while the ${a1} ${n2} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${n3}`;
+      made = drawn`A ${n1} from the ${take(rng, PLACES)} ${take(rng, VERB_S)} ${take(rng, ADV)} while the ${a1} ${n2} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${n3}`;
       break;
     case 7:
-      text = `Nothing in the ${take(rng, PLACES)} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${a1} ${n1} unless the ${a2} ${n2} ${take(rng, VERB_S)} ${long(rng, TAILS)}`;
+      made = drawn`Nothing in the ${take(rng, PLACES)} ${take(rng, VERB_S)} ${take(rng, PREP)} the ${a1} ${n1} unless the ${a2} ${n2} ${take(rng, VERB_S)} ${long(rng, TAILS)}`;
       break;
     default:
-      text = `${cap(take(rng, VERB_IMP))} the ${n1} and the ${a1} ${n2} ${take(rng, ADV)}, because the ${n3} ${take(rng, VERB_S)} ${take(rng, WHEN)}`;
+      made = drawn`${cap(take(rng, VERB_IMP))} the ${n1} and the ${a1} ${n2} ${take(rng, ADV)}, because the ${n3} ${take(rng, VERB_S)} ${take(rng, WHEN)}`;
   }
-  const words = text.split(' ');
-  const lastWord = words[words.length - 1] ?? '';
-  if (lastWord.length < 4 || /[^a-z]/.test(lastWord)) words.push(long(rng, TAILS));
-  return `${words.join(' ').replace(/\s+/g, ' ')}.`;
+  // Every shape ends on a word it drew, and every word of the vocabulary is lower-case letters, so the last
+  // word is known without reading the text: a short one gets a tail.
+  const last = made.words[made.words.length - 1];
+  if (!last || last.text.length < 4) {
+    const tail = long(rng, TAILS);
+    const words = [...made.words, { text: tail, start: made.text.length + 1 }];
+    made = { text: `${made.text} ${tail}`, words };
+  }
+  return joinWritten([made, '.']);
 }
 
 /** A long sentence: two sentences joined by `, and`. Starts with a capital, ends with a word of 4 letters or more and a full stop. */
 export function longMake(rng: Rng): string {
-  const a = sentence(rng);
-  const b = sentence(rng);
-  return `${a.replace(/\.$/, '')}, and ${b.charAt(0).toLowerCase()}${b.slice(1)}`;
+  const a = writtenOf(sentence(rng));
+  const b = writtenOf(sentence(rng));
+  return joinWritten([withoutStop(a), ', and ', lowerFirstOf(b)]);
 }
 
 /** A short imperative, 4 to 8 words, still ending in a lower-case word of 4 letters or more. */
@@ -129,17 +298,21 @@ export function shortRule(rng: Rng): string {
   const verb = cap(take(rng, VERB_IMP));
   const noun = take(rng, NOUNS);
   const tail = rng() < 0.5 ? long(rng, ADV) : long(rng, TAILS);
-  return rng() < 0.5 ? `${verb} each ${noun} ${tail}.` : `${verb} the ${take(rng, ADJ)} ${noun} ${tail}.`;
+  if (rng() < 0.5) return joinWritten([drawn`${verb} each ${noun} ${tail}.`]);
+  return joinWritten([drawn`${verb} the ${take(rng, ADJ)} ${noun} ${tail}.`]);
 }
+
+const HEAD_KINDS = ['notes', 'steps', 'checks', 'duties', 'rounds'];
 
 /** A heading text of 2 to 4 words, title case. */
 export function headingText(rng: Rng): string {
-  return `${cap(take(rng, ADJ))} ${take(rng, NOUNS)} ${take(rng, ['notes', 'steps', 'checks', 'duties', 'rounds'])}`;
+  return joinWritten([drawn`${cap(take(rng, ADJ))} ${take(rng, NOUNS)} ${take(rng, HEAD_KINDS)}`]);
 }
 
 /** A single lower-case word of at least four letters. */
 export function word(rng: Rng): string {
-  return long(rng, NOUNS);
+  const text = long(rng, NOUNS);
+  return register(text, [{ text, start: 0 }]);
 }
 
 /** Normalised Levenshtein similarity in [0, 1]: 1 minus the edit distance over the longer length. */
@@ -201,6 +374,14 @@ export function dice(a: string, b: string): number {
 }
 
 /**
+ * Runs a generator and returns its text with the position of every word it wrote, as the generator registered
+ * them: the positions come from what the generator drew, never from a pattern matched on the text.
+ */
+export function written(make: (rng: Rng) => string, rng: Rng): Written {
+  return writtenOf(make(rng));
+}
+
+/**
  * A pool of sentences drawn apart: each new sentence has trigram Dice under `limit` against the last `window`
  * sentences of the pool. Two sentences far apart in a long document may be alike; `unrelatedTo` is for the pairs
  * an item needs to be unrelated.
@@ -236,9 +417,17 @@ export class Prose {
         return candidate;
       }
     }
-    const fallback = `${make(this.rng).replace(/\.$/, '')} ${this.used.length + 1}x${this.used.length + 7}z.`;
+    const made = make(this.rng);
+    const tail = ` ${this.used.length + 1}x${this.used.length + 7}z.`;
+    // The fallback keeps the words of the draw when a generator wrote it.
+    const fallback = isWritten(made) ? beforeStop(made, tail) : `${made.replace(/\.$/, '')}${tail}`;
     this.remember(fallback, gramsOf(fallback));
     return fallback;
+  }
+
+  /** The next sentence as `next` draws it, with the words the generator wrote and where they start. */
+  nextWritten(make: (rng: Rng) => string = sentence): Written {
+    return writtenOf(this.next(make));
   }
 
   many(count: number, make?: (rng: Rng) => string): string[] {
@@ -253,43 +442,65 @@ export class Prose {
     }
     throw new Error('no sentence unrelated enough');
   }
+
+  /** `unrelatedTo`, with the words the generator wrote and where they start. */
+  unrelatedToWritten(texts: readonly string[], limit = 0.3, make: (rng: Rng) => string = sentence): Written {
+    for (let tries = 0; tries < 400; tries += 1) {
+      const candidate = this.nextWritten(make);
+      if (texts.every((t) => similarity(candidate.text, t) < limit)) return candidate;
+    }
+    throw new Error('no sentence unrelated enough');
+  }
 }
 
-/** Replaces `count` words of a sentence by other words, keeping its first letter and final full stop. */
+/** The words of a text a planter may change: written by the generator, not the first, lower case, 4 letters or more. */
+function changeable(w: Written): number[] {
+  return w.words
+    .map((x, i) => ({ x, i }))
+    .filter(({ x }) => x.start > 0 && x.text.length >= 4 && x.text === x.text.toLowerCase())
+    .map(({ i }) => i);
+}
+
+/**
+ * Replaces `count` words the generator wrote by other words, keeping the first word and ending in a full stop.
+ * The words come from the generator's registry, so `text` must be a text a generator of this module wrote (or a
+ * text built from one with `joinWritten`, `editWords`, `insertAt`, `beforeStop` or this function).
+ */
 export function rewordWords(rng: Rng, text: string, count: number): string {
-  const words = text.replace(/\.$/, '').split(' ');
-  const slots = words
-    .map((w, i) => ({ w, i }))
-    .filter(({ w, i }) => i > 0 && /^[a-z]+$/.test(w) && w.length >= 4);
+  const body = withoutStop(writtenOf(text));
+  const slots = changeable(body);
+  const changes = new Map<number, string>();
   for (let n = 0; n < count && slots.length > 0; n += 1) {
     const at = Math.floor(rng() * slots.length);
     const slot = slots.splice(at, 1)[0];
-    if (!slot) break;
+    if (slot === undefined) break;
+    const was = (body.words[slot] as WrittenWord).text;
     let replacement = take(rng, NOUNS);
-    while (replacement === slot.w) replacement = take(rng, NOUNS);
-    words[slot.i] = replacement;
+    while (replacement === was) replacement = take(rng, NOUNS);
+    changes.set(slot, replacement);
   }
-  return `${words.join(' ')}.`;
+  return joinWritten([replaced(body, changes), '.']);
 }
 
 /** A sentence reworded until its similarity to the source falls in [low, high]; the source when none fits. */
 export function rewordToSimilarity(rng: Rng, text: string, low: number, high: number): string {
-  const body = text.replace(/\.$/, '').split(' ');
-  const eligible = body
-    .map((w, i) => ({ w, i }))
-    .filter(({ w, i }) => i > 0 && /^[a-z]+$/.test(w) && w.length >= 4);
+  const body = withoutStop(writtenOf(text));
+  const eligible = changeable(body);
   let current = text;
   const order = eligible.map((_, i) => i).sort(() => rng() - 0.5);
-  const words = [...body];
+  const changes = new Map<number, string>();
   for (const idx of order) {
     const slot = eligible[idx];
-    if (!slot) continue;
-    words[slot.i] =
+    if (slot === undefined) continue;
+    const was = (body.words[slot] as WrittenWord).text;
+    changes.set(
+      slot,
       long(
         rng,
-        NOUNS.filter((n) => n !== slot.w),
-      ) + (rng() < 0.5 ? 'ish' : 'ery');
-    current = `${words.join(' ')}.`;
+        NOUNS.filter((n) => n !== was),
+      ) + (rng() < 0.5 ? 'ish' : 'ery'),
+    );
+    current = joinWritten([replaced(body, changes), '.']);
     const s = similarity(text, current);
     if (s >= low && s <= high) return current;
     if (s < low) return current;

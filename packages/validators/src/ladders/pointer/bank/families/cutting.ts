@@ -1,7 +1,7 @@
 import { type Block, type Composed, type ComposeOptions, compose, truthOf } from '../../kit/compose';
 import { cutCase, cutRun } from '../../kit/cut-case';
 import { compareCut, coverageGap, show } from '../../kit/oracle';
-import { headingText, Prose, type Rng, shortRule, word } from '../../kit/words';
+import { headingText, isWritten, Prose, type Rng, shortRule, word, writtenOf } from '../../kit/words';
 import { listOf, mixedBlocks, para } from '../../kit/world';
 import type { CutResult } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, Problem, pass, type Run } from '../types';
@@ -697,8 +697,15 @@ export const cuttingRuns: Record<string, Run> = {
     const p = prose(ctx);
     const blocks = mixedBlocks(p, { blocks: 10 });
     const doc = compose(blocks);
-    const edited = doc.text.replace(/\b([a-z]{5,})\b/, '$1zz');
-    if (edited === doc.text) return fail('the item could not edit the text');
+    // The end of the first lower-case word of 5 letters or more the generator wrote, where the composer put it.
+    let at: number | undefined;
+    for (const u of doc.units) {
+      if (at !== undefined || !isWritten(u.text)) continue;
+      const w = writtenOf(u.text).words.find((x) => x.text.length >= 5 && x.text === x.text.toLowerCase());
+      if (w) at = u.start + w.start + w.text.length;
+    }
+    if (at === undefined) return fail('the item could not edit the text');
+    const edited = `${doc.text.slice(0, at)}zz${doc.text.slice(at)}`;
     const a = await digestOf(ctx, doc.text);
     const b = await digestOf(ctx, edited);
     return a.digest !== b.digest

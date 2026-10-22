@@ -1,5 +1,6 @@
 import { similarity } from '../../../src/ladders/pointer/kit/words';
 import type { LedgerEntry } from '../../../src/ladders/pointer/sut/port';
+import { referenceBugsA } from './bugs-a';
 import { fingerprintText } from './cut';
 
 /**
@@ -34,6 +35,10 @@ export const FLOOR_LENGTH = 40;
 export const THRESHOLD = 0.45;
 export const TEXT_FLOOR = 0.4;
 export const SPLIT_MERGE_MIN = 0.6;
+/** How much better the two pieces of a split must read together than the closer piece alone. */
+export const SPLIT_MARGIN = 0.1;
+/** A merge must read like the new unit by this much more than either part alone. */
+export const MERGE_MARGIN = 0.1;
 /** The weights of the pairwise score: text and context (docs/estate-pointer-reader.md section 15). */
 export const WEIGHTS = { text: 0.6, context: 0.4 } as const;
 
@@ -219,6 +224,19 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
   const residueNew = news.map((_, g) => g).filter((g) => !assigned.has(g));
 
   // 2. exact text elsewhere: moved or ambiguous
+  /** New units an ambiguous old unit claims: every copy is kept with it, so no other old unit takes one. */
+  const claimed = new Set<number>();
+  if (referenceBugsA.has('short-move-ignores-new-repeats')) {
+    // The planted bug: a short text unique in the old estate follows its text out of its file, however many
+    // copies the new estate holds.
+    for (const entry of residueOld) {
+      if (entry.quote.length >= FLOOR_LENGTH || old.filter((e) => e.fp === entry.fp).length !== 1) continue;
+      const target = residueNew.find((g) => !assigned.has(g) && (news[g] as NewUnit).fp === entry.fp);
+      if (target === undefined) continue;
+      assigned.set(target, { entry, event: 'moved' });
+      takenOld.add(entry.id);
+    }
+  }
   const byFp = new Map<string, number[]>();
   for (const g of residueNew) {
     const unit = news[g] as NewUnit;
@@ -230,13 +248,15 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
   const oldCountByFp = new Map<string, number>();
   for (const e of residueOld) oldCountByFp.set(e.fp, (oldCountByFp.get(e.fp) ?? 0) + 1);
   for (const entry of residueOld) {
-    if (entry.quote.length < FLOOR_LENGTH) continue;
-    const candidates = (byFp.get(entry.fp) ?? []).filter((g) => !assigned.has(g));
+    if (entry.quote.length < FLOOR_LENGTH || takenOld.has(entry.id)) continue;
+    const candidates = (byFp.get(entry.fp) ?? []).filter((g) => !assigned.has(g) && !claimed.has(g));
     if (candidates.length === 0) continue;
     const oldCount = oldCountByFp.get(entry.fp) ?? 1;
     if (oldCount === 1 && candidates.length >= 2) {
       gone.push({ entry, event: 'ambiguous' });
       takenOld.add(entry.id);
+      const kept = referenceBugsA.has('ambiguous-claims-first-only') ? candidates.slice(0, 1) : candidates;
+      for (const g of kept) claimed.add(g);
       continue;
     }
     const target = candidates[0] as number;
@@ -244,9 +264,12 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
     takenOld.add(entry.id);
   }
 
+  if (referenceBugsA.has('merge-margin-dropped'))
+    mergeAtThreshold(news, oldByPath, residueNew, claimed, assigned, gone, takenOld);
+
   // 3. pairwise scores on what is left
   const leftOld = residueOld.filter((e) => !takenOld.has(e.id));
-  const leftNew = residueNew.filter((g) => !assigned.has(g));
+  const leftNew = residueNew.filter((g) => !assigned.has(g) && !claimed.has(g));
   const consumedNew = new Set<number>();
   if (leftOld.length > 0 && leftNew.length > 0) {
     const newsByPath = new Map<string, number[]>();
@@ -255,8 +278,9 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
       list.push(g);
       newsByPath.set((news[g] as NewUnit).path, list);
     }
-    const candidatesFor = (entry: LedgerEntry): number[] =>
-      leftNew.length <= 400 ? leftNew : (newsByPath.get(entry.path) ?? []);
+    // The residue is scored within the unit's own file: a unit that left its file is followed by its exact text
+    // (step 2), never by a similarity score against another file's units.
+    const candidatesFor = (entry: LedgerEntry): number[] => newsByPath.get(entry.path) ?? [];
     const scored: Array<{ entry: LedgerEntry; g: number; text: number; score: number }> = [];
     for (const entry of leftOld) {
       const oldText = norm(entry.quote);
@@ -285,7 +309,8 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
         const joined =
           dg === 1 ? `${norm(unit.text)} ${norm(other.text)}` : `${norm(other.text)} ${norm(unit.text)}`;
         const s2 = similarity(oldText, joined);
-        if (s2 > cand.text && s2 >= SPLIT_MERGE_MIN) {
+        const margin = referenceBugsA.has('split-margin-dropped') ? 0 : SPLIT_MARGIN;
+        if (s2 > cand.text + margin && s2 >= SPLIT_MERGE_MIN) {
           event = 'split';
           extraNew = cand.g + dg;
           break;
@@ -344,4 +369,42 @@ export function anchorUnits(old: readonly LedgerEntry[], news: readonly NewUnit[
     if (!takenOld.has(entry.id)) gone.push({ entry, event: 'deleted' });
   }
   return { assigned, gone };
+}
+
+/**
+ * The planted bug of the merge margin: two neighbouring old units are merged into the new unit their
+ * join reads most like, as soon as the join clears the score threshold alone (no margin above it).
+ */
+function mergeAtThreshold(
+  news: readonly NewUnit[],
+  oldByPath: ReadonlyMap<string, LedgerEntry[]>,
+  residueNew: readonly number[],
+  claimed: ReadonlySet<number>,
+  assigned: Verdict['assigned'],
+  gone: Verdict['gone'],
+  takenOld: Set<string>,
+): void {
+  for (const [path, list] of oldByPath) {
+    for (let at = 0; at + 1 < list.length; at += 1) {
+      const first = list[at] as LedgerEntry;
+      const second = list[at + 1] as LedgerEntry;
+      if (takenOld.has(first.id) || takenOld.has(second.id)) continue;
+      const joined = `${norm(first.quote)} ${norm(second.quote)}`;
+      let best: { g: number; value: number } | undefined;
+      for (const g of residueNew) {
+        const unit = news[g] as NewUnit;
+        if (unit.path !== path || assigned.has(g) || claimed.has(g)) continue;
+        const value = similarity(joined, norm(unit.text));
+        if (!best || value > best.value) best = { g, value };
+      }
+      if (!best || best.value < THRESHOLD) continue;
+      const text = norm((news[best.g] as NewUnit).text);
+      const alone = Math.max(similarity(norm(first.quote), text), similarity(norm(second.quote), text));
+      if (best.value <= alone + MERGE_MARGIN) continue;
+      assigned.set(best.g, { entry: first, event: 'merged' });
+      gone.push({ entry: second, event: 'merged' });
+      takenOld.add(first.id);
+      takenOld.add(second.id);
+    }
+  }
 }

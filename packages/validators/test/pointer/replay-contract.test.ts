@@ -49,7 +49,7 @@ describe('committed replay oracles', () => {
       const fixture = loadFixture(arm);
       expect(makeFixture(arm, fixture.documents, fixture.labelsYaml)).toEqual(fixture);
       fixture.rows.forEach((row, index) => {
-        expect(row.key).toBe(hash(canonical(fixture.wires[index])));
+        expect(row.key).toBe(hash(canonical({ wire: fixture.wires[index], readable: row.readable })));
       });
       const transport = fakeTransport({
         respond: () => {
@@ -157,7 +157,10 @@ describe('committed replay oracles', () => {
           return result;
         },
       };
-      for (const item of pointerBank().filter((i) => i.family === 'replay')) {
+      // The order of the keys a recording renders is an output of the recording, and the poison rewrites those keys.
+      for (const item of pointerBank().filter(
+        (i) => i.family === 'replay' && i.id !== 'replay.cassette-ascending-keys',
+      )) {
         clearSeedFreeCache();
         expect(await runItem(item, 1, poisoned), item.id).toMatchObject({ pass: true });
       }

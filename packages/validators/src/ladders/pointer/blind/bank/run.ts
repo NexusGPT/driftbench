@@ -5,7 +5,13 @@ import type { BankItem, PointerAdapter } from './types';
 export type Outcome = { pass: boolean; detail: string };
 
 /** Truth is constructed before invocation; the adapter sees only cloned requests. */
-export async function runItem(item: BankItem, seed: number, adapter: PointerAdapter): Promise<Outcome> {
+export async function runItem(
+  item: BankItem,
+  seed: number,
+  adapter: PointerAdapter,
+  /** Called when a probe overruns its budget, so a harness that runs the adapter in another process can stop it. */
+  onTimeout?: () => void,
+): Promise<Outcome> {
   try {
     const plant = item.generate(seed);
     if (plant.probes.length < 2) return { pass: false, detail: 'invalid plant: contrasting probes missing' };
@@ -24,7 +30,10 @@ export async function runItem(item: BankItem, seed: number, adapter: PointerAdap
           Promise.resolve().then(() => adapter.execute(structuredClone(p.request), effects.io)),
           new Promise((_, reject) => {
             timer = setTimeout(
-              () => reject(new Error('adapter exceeded item time budget')),
+              () => {
+                onTimeout?.();
+                reject(new Error('adapter exceeded item time budget'));
+              },
               Math.max(1, budget - (performance.now() - started)),
             );
           }),

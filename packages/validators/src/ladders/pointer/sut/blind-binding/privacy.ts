@@ -1,5 +1,5 @@
 import type { PointerIO } from '../../blind/bank/index';
-import { type Obj, pointerExports, Unsupported } from './reader';
+import { type Json, type Obj, pointerExports, Unsupported } from './reader';
 
 const answerOf = (recorded: Obj) => ({
   labels: recorded.labels,
@@ -28,6 +28,9 @@ export const NO_REQUEST = 'no-request';
  *
  * A file the scan sends no request for (a fence or a comment is opaque) never reaches the recorder: the result
  * carries the status `no-request` and the item differs from the contract, which expects a request.
+ *
+ * The result also carries `requests`: the body of each request the reader sent (a record) or would send (a replay
+ * asks the cassette with it). The headers, where the key travels, are not part of it.
  */
 export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<unknown> {
   if (!io) throw new Error('the privacy operation needs the harness callbacks');
@@ -38,8 +41,10 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
       return io.readKey();
     },
   };
+  const requests: Json[] = [];
   const fetchLike = async (url: string, init: RequestInit): Promise<Response> => {
     const body = JSON.parse(String(init.body)) as Obj;
+    requests.push(body as Json);
     const answer = (await io.fetch({ url, headers: init.headers as never, body } as never)) as Obj;
     return new Response(
       JSON.stringify({
@@ -71,6 +76,7 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
   } else {
     // A replay asks the harness cache for the request it is handed, hit or miss.
     cassette.get = (wire: Obj, readable: Obj) => {
+      requests.push(wire.body as Json);
       const key = pointer.requestKey(wire, readable);
       const found = io.readCassette();
       if (found === null) throw new pointer.CassetteMiss(key, [], undefined);
@@ -96,7 +102,8 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
   const windows = ((plan?.members ?? []) as Obj[]).reduce((sum, entry) => sum + Number(entry.windows), 0);
   // The contract expects the recorder to be reached for any file; a scan with no window sends no request. That is
   // the reader's behaviour, reported as an observation that differs, not as a missing call.
-  if (windows === 0) return { labels: [], status: NO_REQUEST, stored: cassette.render(), readerPlan: plan };
+  if (windows === 0)
+    return { labels: [], status: NO_REQUEST, stored: cassette.render(), readerPlan: plan, requests };
   io.plan({ characters: String(input.source).length });
   const labels = record
     ? ((stored[0]?.answer as Obj | undefined)?.labels ?? [])
@@ -108,5 +115,6 @@ export async function privacyOp(input: Obj, io: PointerIO | undefined): Promise<
     status: result ? 'ok' : 'miss',
     stored: cassette.render(),
     readerPlan: plan,
+    requests,
   };
 }

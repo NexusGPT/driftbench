@@ -5,10 +5,22 @@ import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
 import { requireSourceWitness } from '../../kit/positive';
-import { headingText, Prose, rewordWords } from '../../kit/words';
+import {
+  word as drawWord,
+  editWords,
+  headingText,
+  insertAt,
+  joinWritten,
+  Prose,
+  type Rng,
+  rewordWords,
+  type Written,
+  type WrittenWord,
+  writtenOf,
+} from '../../kit/words';
 import { listOf, para } from '../../kit/world';
 import type { LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const labeler = perfect();
@@ -83,6 +95,29 @@ async function allDifferent(ctx: ItemContext, texts: string[]): Promise<Outcome>
   return pass(`${texts.length} texts, ${texts.length} fingerprints`);
 }
 
+/** Words in a drawn-words sentence: enough that the fourth word and two past it are drawn words. */
+const DRAWN_WORDS = 6;
+
+/**
+ * A sentence made of drawn words only, the first one capitalised: every word of it is a word the generator
+ * recorded, so an item can change any word position of the text by its record, never by reading the text.
+ */
+function drawnWords(rng: Rng): string {
+  const parts: Array<string | Written> = [];
+  for (let i = 0; i < DRAWN_WORDS; i += 1) parts.push(i === 0 ? '' : ' ', writtenOf(drawWord(rng)));
+  parts.push('.');
+  const text = joinWritten(parts);
+  const first = (writtenOf(text).words[0] as WrittenWord).text;
+  return editWords(text, new Map([[0, first.charAt(0).toUpperCase() + first.slice(1)]]));
+}
+
+/** The indexes of the recorded words of `text` after its start. */
+const slotsAfterStart = (text: string): number[] =>
+  writtenOf(text).words.flatMap((w, k) => (w.start > 0 ? [k] : []));
+
+/** The recorded word `k` of `text`. */
+const recorded = (text: string, k: number): string => (writtenOf(text).words[k] as WrittenWord).text;
+
 export const idsRuns: Record<string, Run> = {
   'fp-whitespace': async (ctx) => {
     const p = prose(ctx);
@@ -154,7 +189,8 @@ export const idsRuns: Record<string, Run> = {
   },
   'fp-nfc': async (ctx) => {
     const p = prose(ctx);
-    const base = p.many(4).map((s) => s.replace(/\b(\w)(\w*)\b/, 'Café $1$2'));
+    // Every sentence starts with its first word, so the accent word goes in front of it.
+    const base = p.many(4).map((s) => `Café ${s}`);
     const nfc = base.map((s) => s.normalize('NFC'));
     const nfd = base.map((s) => s.normalize('NFD'));
     return sameFingerprints(
@@ -165,29 +201,48 @@ export const idsRuns: Record<string, Run> = {
   },
   'fp-no-nfkc': async (ctx) => {
     const p = prose(ctx);
-    const frame = (mid: string) => p.next().replace(/\b(\w+) (\w+)/, `$1 ${mid} $2`);
-    // equal frames: the same sentence with two spellings of one word
+    // equal frames: the same sentence with two spellings of one word, put before a word the generator wrote
     const base = p.next();
-    const make = (mid: string) => base.replace(/ (\w+)/, ` ${mid} $1`);
-    void frame;
+    const before = writtenOf(base).words.find((w) => w.start > 0) as WrittenWord;
+    const make = (mid: string) => insertAt(base, before.start, `${mid} `);
     return allDifferent(ctx, [make('find'), make('ﬁnd'), make('A'), make('Ａ'), make('1'), make('①')]);
   },
   'fp-case': async (ctx) => {
-    const base = prose(ctx).next();
-    const ws = base.split(' ');
-    const at = 3;
-    const variant = (f: (w: string) => string) => ws.map((w, i) => (i === at ? f(w) : w)).join(' ');
+    const p = prose(ctx);
+    const base = p.next();
+    // A word the generator wrote after the start, in two other cases.
+    const { words } = writtenOf(base);
+    const at = words.findIndex((w) => w.start > 0);
+    const word = (words[at] as WrittenWord).text;
+    const variant = (f: (w: string) => string) => editWords(base, new Map([[at, f(word)]]));
+    // A sentence of drawn words only: each word after the first, in turn in upper case, so the change
+    // lands on every word position of the fingerprinted text past the start, whatever position is folded.
+    const drawn = p.next(drawnWords);
+    const everyWord = slotsAfterStart(drawn).map((k) =>
+      editWords(drawn, new Map([[k, recorded(drawn, k).toUpperCase()]])),
+    );
     return allDifferent(ctx, [
       base,
       variant((w) => w.toUpperCase()),
       variant((w) => w.charAt(0).toUpperCase() + w.slice(1)),
+      drawn,
+      ...everyWord,
     ]);
   },
   'fp-emphasis': async (ctx) => {
-    const base = prose(ctx).next();
-    const ws = base.split(' ');
-    const wrap = (mark: string) => ws.map((w, i) => (i === 3 ? `${mark}${w}${mark}` : w)).join(' ');
-    return allDifferent(ctx, [base, wrap('**'), wrap('*')]);
+    const p = prose(ctx);
+    const base = p.next();
+    const { words } = writtenOf(base);
+    const at = words.findIndex((w) => w.start > 0);
+    const word = (words[at] as WrittenWord).text;
+    const wrap = (mark: string) => editWords(base, new Map([[at, `${mark}${word}${mark}`]]));
+    // The same on a sentence of drawn words only: each word after the first, in turn, in `**` and in `*`.
+    const drawn = p.next(drawnWords);
+    const marked = (mark: string) =>
+      slotsAfterStart(drawn).map((k) =>
+        editWords(drawn, new Map([[k, `${mark}${recorded(drawn, k)}${mark}`]])),
+      );
+    return allDifferent(ctx, [base, wrap('**'), wrap('*'), drawn, ...marked('**'), ...marked('*')]);
   },
   'fp-word-change': async (ctx) => {
     const p = prose(ctx);
@@ -195,9 +250,13 @@ export const idsRuns: Record<string, Run> = {
     for (let i = 0; i < 6; i += 1) {
       const base = longSentence(p);
       texts.push(base);
-      const ws = base.split(' ');
-      texts.push(ws.map((w, k) => (k === 4 ? `${w}x` : w)).join(' '));
-      texts.push(ws.map((w, k) => (k === 2 ? 'not' : w)).join(' '));
+      // Two words the generator wrote after the start: one gains a letter, the other becomes `not`.
+      const { words } = writtenOf(base);
+      const inside = words.flatMap((w, k) => (w.start > 0 ? [k] : []));
+      const grow = (inside[2] ?? inside[0]) as number;
+      const flip = inside[0] as number;
+      texts.push(editWords(base, new Map([[grow, `${(words[grow] as WrittenWord).text}x`]])));
+      texts.push(editWords(base, new Map([[flip, 'not']])));
       texts.push(base.replace(/\.$/, ' 4.'));
     }
     return allDifferent(ctx, texts);
@@ -207,12 +266,18 @@ export const idsRuns: Record<string, Run> = {
     return allDifferent(ctx, [`${base}.`, `${base}!`, `${base}?`, `${base}...`]);
   },
   'fp-confusables': async (ctx) => {
-    const base = prose(ctx).next();
-    const swap = (from: string, to: string) => base.replace(from, to);
-    const idx = base.search(/[aeo]/);
-    const ch = base[idx] as string;
+    const p = prose(ctx);
+    const drawn = p.next();
+    // A Latin letter the item chooses, appended to a word the generator wrote; its offset is known, not searched.
+    const ch = (['a', 'e', 'o'] as const)[Math.floor(p.random() * 3)] as 'a' | 'e' | 'o';
+    const { words } = writtenOf(drawn);
+    const k = words.findIndex((w) => w.start > 0);
+    const word = words[k] as WrittenWord;
+    const base = editWords(drawn, new Map([[k, `${word.text}${ch}`]]));
+    const at = word.start + word.text.length;
+    const swap = (to: string) => `${base.slice(0, at)}${to}${base.slice(at + 1)}`;
     const alt = ch === 'a' ? ['а', 'α'] : ch === 'e' ? ['е', 'ε'] : ['о', 'ο'];
-    return allDifferent(ctx, [base, swap(ch, alt[0] as string), swap(ch, alt[1] as string)]);
+    return allDifferent(ctx, [base, swap(alt[0] as string), swap(alt[1] as string)]);
   },
   'fp-context-neighbours': async (ctx) => {
     const p = prose(ctx);
@@ -314,7 +379,7 @@ export const idsRuns: Record<string, Run> = {
       ).ledger,
     );
     if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
-      return fail('the reader does not expose twinOf for every live unit');
+      return missing('the reader does not expose twinOf for every live unit');
     const copied = shared.map((blk) => (blk.kind === 'paragraph' ? blk.sentences[0] : '') as string);
     for (const text of copied) {
       const pair = live.filter((e) => e.quote.startsWith(text.slice(0, 30)));
@@ -619,8 +684,10 @@ export const idsRuns: Record<string, Run> = {
       check: true,
     });
     if (stale.ok) return fail('the check passed on a stale ledger');
-    if (!(stale.error ?? '').includes(w.paths[0] as string))
-      return fail(`the failure does not name the changed file: ${stale.error}`);
+    if (stale.failure?.code !== 'ledger-out-of-date' || !stale.failure.files?.includes(w.paths[0] as string))
+      return fail(
+        `the failure does not name the changed file ${w.paths[0]} in the files of a ledger-out-of-date failure: ${JSON.stringify(stale.failure ?? null)}`,
+      );
     const fine = await ctx.sut.scan({
       files: build(filesOf(w)).files,
       previousLedger: first.ledger.raw,
@@ -760,16 +827,45 @@ export const idsRuns: Record<string, Run> = {
       : fail('two sets share one hash');
   },
   'ledger-status-live': async (ctx) => {
-    const w = worldOf(prose(ctx), { files: 2, perFile: 10 });
+    const p = prose(ctx);
+    const w = worldOf(p, { files: 2, perFile: 10 });
     const r = await fresh(ctx, build(filesOf(w)).files);
     const raw = (JSON.parse(r.ledger.raw) as { entries: Array<{ status: string; lineage?: unknown }> })
       .entries;
     if (raw.length === 0 || raw.length !== r.ledger.entries.length)
       return fail('the raw ledger does not contain every observed live unit');
     if (raw.some((e) => e.status !== 'live')) return fail('an entry of a fresh scan is not live');
-    return raw.every((e) => Array.isArray(e.lineage) && e.lineage.length > 0)
-      ? pass('all live with a lineage')
-      : fail('an entry has no lineage item');
+    if (!raw.every((e) => Array.isArray(e.lineage) && e.lineage.length > 0))
+      return fail('an entry has no lineage item');
+    // Round 3 audit, seat 2: a lineage of one constant step for every entry gains nothing. After a rescan
+    // that rewords one unit and moves another to the second file, each of the two ends with one more step.
+    const edited = cloneWorld(w);
+    const reworded = w.texts[0]?.[3] as string;
+    (edited.texts[0] as string[])[3] = rewordWords(p.random, reworded, 1);
+    const moved = (edited.texts[0] as string[]).splice(6, 1)[0] as string;
+    (edited.texts[1] as string[]).splice(4, 0, moved);
+    const again = await scanOk(ctx.sut, {
+      files: build(filesOf(edited)).files,
+      previousLedger: r.ledger.raw,
+      labeler,
+    });
+    const steps = (ledger: LedgerView, id: string): string[] => {
+      const all = (JSON.parse(ledger.raw) as { entries: Array<{ id: string; lineage?: unknown }> }).entries;
+      const lineage = all.find((e) => e.id === id)?.lineage;
+      if (!Array.isArray(lineage)) return [];
+      return lineage.map((step) => String((step as { event?: unknown }).event));
+    };
+    const oneMore = (text: string, event: string): string | undefined => {
+      const id = liveByText(r.ledger, text)?.id;
+      if (!id) return 'positive witness: the fresh scan has no entry for a planted unit';
+      const was = steps(r.ledger, id);
+      const now = steps(again.ledger, id);
+      if (now.length === was.length + 1 && now[now.length - 1] === event) return undefined;
+      return `after the edit the ${event} unit has the lineage ${JSON.stringify(now)}, not one more step`;
+    };
+    const wrong = oneMore(reworded, 'changed') ?? oneMore(moved, 'moved');
+    if (wrong) return fail(wrong);
+    return pass('all live with a lineage, and a second step after an edit');
   },
   'ledger-safe-set-names': async (ctx) => {
     const w = worldOf(prose(ctx), { files: 1, perFile: 6 });

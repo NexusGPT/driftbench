@@ -1,7 +1,8 @@
+import { runScenario } from '../../kit/anchor-case';
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
-import { makeFixture, requireFixtureLabels } from '../../kit/fixture';
+import { makeFixture, RUNS, requireFixtureLabels } from '../../kit/fixture';
 import {
   constant,
   entriesFor,
@@ -26,20 +27,21 @@ import {
   TWO_SETS_YAML,
   VOICE_YAML,
 } from '../../kit/sets';
-import { type FakeTransport, fakeTransport, TOO_LARGE } from '../../kit/transport';
+import { type FakeTransport, fakeTransport, type ParsedCall, TOO_LARGE } from '../../kit/transport';
 import { headingText, longMake, Prose, rewordWords, sentence } from '../../kit/words';
 import { bigDoc } from '../../kit/world';
 import type {
+  FetchResponse,
   LabelAnswer,
   Labeler,
   LabelRequest,
   LedgerView,
-  ModelArm,
+  ScanArm,
   ScanRequest,
   ScanResult,
   SourceFile,
 } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { fail, type ItemContext, missing, type Outcome, pass, type Run } from '../types';
 import { validateSetCases, validationRuns } from './labelset-validation';
 import { stackRuns } from './stack';
 
@@ -84,11 +86,21 @@ async function refusalCase(
   return pass('refused once, the second answer applied');
 }
 
+const systemText = (body: string): string => String((JSON.parse(body) as { system?: unknown }).system ?? '');
+
+/** The requests of a scan that retry the first: their system text extends the first request's. */
+function retriedRequests(fake: FakeTransport): number {
+  const systems = fake.calls.map((call) => systemText(call.body));
+  const [first] = systems;
+  if (first === undefined) return 0;
+  return systems.filter((system) => system !== first && system.startsWith(first)).length;
+}
+
 /** Record a model-port scan on the fake transport and return everything the item reads. */
 async function modelScan(
   ctx: ItemContext,
   files: SourceFile[],
-  arm: ModelArm,
+  arm: ScanArm,
   transport: FakeTransport,
   extra: Partial<ScanRequest> = {},
   threshold?: number,
@@ -132,13 +144,17 @@ const jevProbs = (table: Map<string, Probs>, fallback: Probs) => (text: string, 
 
 async function jevLabels(
   ctx: ItemContext,
-  arm: ModelArm,
+  arm: ScanArm,
   units: Array<{ text: string; probs: Probs }>,
   threshold?: number,
   yaml = PROBE_YAML,
+  respond?: (index: number, call: ParsedCall, base: FetchResponse) => FetchResponse | undefined,
 ) {
   const table = new Map(units.map((u) => [u.text, u.probs]));
-  const fake = fakeTransport({ probability: (text, name) => jevProbs(table, {})(text, name) });
+  const fake = fakeTransport({
+    probability: (text, name) => jevProbs(table, {})(text, name),
+    ...(respond ? { respond } : {}),
+  });
   const res = must(
     await modelScan(ctx, docOf(units.map((u) => u.text)), arm, fake, { labelsYaml: yaml }, threshold),
   );
@@ -164,6 +180,130 @@ function probsAround(i: number, level: number, step: number): Probs {
   if (i % 4 === 3) p[second] = (p[top] as number) - 0.1;
   return p;
 }
+
+/* ---------------- Choice helpers (the jev and jev-unit arms) ---------------- */
+
+/**
+ * The options of a choice question of the probe set: its labels, then `none`. The reader asks one choice
+ * question per unit and takes the option with the highest probability (design, section 3); the fake transport
+ * answers the label probabilities an item gives and puts what is left on `none`, so every answer is a vector.
+ */
+const OPTIONS = [...NAMES, 'none'];
+
+/** The vector a choice answer carries for label probabilities that sum below 1: `none` holds the rest. */
+const vectorOf = (probs: Probs): Probs => {
+  const out: Probs = {};
+  for (const name of NAMES) out[name] = probs[name] ?? 0.05;
+  out.none = Math.round((1 - NAMES.reduce((sum, name) => sum + (out[name] as number), 0)) * 10_000) / 10_000;
+  return out;
+};
+
+/** The option a choice answer decides: the highest probability, `none` included, the first on a tie. */
+const highestOption = (vector: Probs): string => {
+  let best: { name: string; p: number } | undefined;
+  for (const name of OPTIONS) {
+    const p = vector[name] ?? 0;
+    if (!best || p > best.p) best = { name, p };
+  }
+  return best?.name ?? 'none';
+};
+
+/**
+ * Window cases: a label just above or just below `none`, and labels that win under 0.4, where the old yes or
+ * no rule (highest label at 0.4, else none) gives another answer.
+ */
+const WINDOW_CASES: Probs[] = [
+  { rule: 0.41, prohibition: 0.1, example: 0.1 },
+  { rule: 0.39, prohibition: 0.1, example: 0.1 },
+  { rule: 0.29, prohibition: 0.31, example: 0.11 },
+  { rule: 0.05, prohibition: 0.05, example: 0.05 },
+  { rule: 0.3, prohibition: 0.05, example: 0.6 },
+  { rule: 0.35, prohibition: 0.36, example: 0.1 },
+];
+
+/** Unit cases around 0.7, the old unit threshold: the highest option wins on either side of it. */
+const UNIT_CASES: Probs[] = [
+  { rule: 0.05, prohibition: 0.69, example: 0.05 },
+  { rule: 0.71, prohibition: 0.05, example: 0.05 },
+  { rule: 0.3, prohibition: 0.32, example: 0.05 },
+  { rule: 0.1, prohibition: 0.1, example: 0.45 },
+  { rule: 0.02, prohibition: 0.02, example: 0.02 },
+  { rule: 0.4, prohibition: 0.42, example: 0.05 },
+];
+
+/** The case of unit `i`, the cases taken in turn. */
+const pick = (cases: Probs[], i: number): Probs => cases[i % cases.length] as Probs;
+
+/** A response that halves every probability of the units in `broken`: their answers sum to 0.5, no vector. */
+const halving =
+  (broken: ReadonlySet<string>) =>
+  (_index: number, call: ParsedCall, base: FetchResponse): FetchResponse | undefined => {
+    if (base.status !== 200) return undefined;
+    const body = JSON.parse(base.body) as { answers?: Record<string, { probabilities?: Probs }> };
+    const text = new Map(call.units.map((u) => [`u${u.n}`, u.text]));
+    for (const [key, answer] of Object.entries(body.answers ?? {})) {
+      if (!broken.has(text.get(key) ?? '') || !answer.probabilities) continue;
+      for (const name of Object.keys(answer.probabilities))
+        answer.probabilities[name] = (answer.probabilities[name] as number) / 2;
+    }
+    return { status: 200, body: JSON.stringify(body) };
+  };
+
+/** The choice questions of a call by key: their type and option names; undefined when the body has none. */
+function choiceQuestionsOf(call: ParsedCall): Map<string, { type: unknown; options: string[] }> | undefined {
+  try {
+    const questions = (JSON.parse(call.body) as { questions?: unknown }).questions;
+    if (!questions || typeof questions !== 'object' || Array.isArray(questions)) return undefined;
+    const out = new Map<string, { type: unknown; options: string[] }>();
+    for (const [key, q] of Object.entries(questions as Record<string, unknown>)) {
+      const question = (q ?? {}) as { type?: unknown; criteria?: unknown };
+      const criteria = question.criteria && typeof question.criteria === 'object' ? question.criteria : {};
+      out.set(key, { type: question.type, options: Object.keys(criteria).sort() });
+    }
+    return out;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The five label names of FIVE_YAML and `none`, sorted: the options of every choice question of that set. */
+const FIVE_OPTIONS = ['five', 'four', 'none', 'one', 'three', 'two'];
+
+/**
+ * The common checks of a choice call: every question keyed `u<n>`, of type `choice`, offering exactly
+ * `options`, and the units asked, by text, each once over all calls. Returns the failure, or undefined.
+ */
+function choiceCallsProblem(calls: ParsedCall[], texts: string[], options: string[]): string | undefined {
+  const asked = new Map<string, number>();
+  for (const call of calls) {
+    const questions = choiceQuestionsOf(call);
+    if (!questions || questions.size === 0)
+      return `a call carries no choice questions (keys ${call.questions.slice(0, 3).join(', ')})`;
+    const unitText = new Map(call.units.map((u) => [`u${u.n}`, u.text]));
+    for (const [key, question] of questions) {
+      if (!/^u\d+$/.test(key)) return `a question key is not u<n>: ${key}`;
+      if (question.type !== 'choice')
+        return `the question ${key} has type ${String(question.type)}, not choice`;
+      if (question.options.join(',') !== options.join(','))
+        return `the question ${key} offers ${question.options.join(', ')}, expected ${options.join(', ')}`;
+      const text = unitText.get(key);
+      if (text !== undefined) asked.set(keyOf(text), (asked.get(keyOf(text)) ?? 0) + 1);
+    }
+  }
+  for (const t of texts) {
+    const times = asked.get(keyOf(t)) ?? 0;
+    if (times !== 1) return `${show(t, 30)} was asked ${times} times, expected once`;
+  }
+  return undefined;
+}
+
+/* ---------------- Decisions helpers (the yes or no arm with a threshold) ---------------- */
+
+const decisionsLabels = (
+  ctx: ItemContext,
+  units: Array<{ text: string; probs: Probs }>,
+  threshold?: number,
+) => jevLabels(ctx, 'openai-decisions', units, threshold);
 
 const rewordOf = (_ctx: ItemContext, p: Prose, t: string) => rewordWords(p.random, t, 1);
 
@@ -384,8 +524,9 @@ export const labelsRuns: Record<string, Run> = {
       const fake = fakeTransport();
       const res = must(await modelScan(ctx, docOf(texts), 'haiku', fake, { labelsYaml }));
       requireSourceWitness(res, docOf(texts));
-      if (fake.calls.length !== 1 || fake.calls[0]?.set !== name)
-        return fail('positive witness: expected one request for the declared set');
+      // One dense request for the declared set, asked in each independent run of the system 2 labeler.
+      if (fake.calls.length !== RUNS.haiku || fake.calls.some((call) => call.set !== name))
+        return fail('positive witness: expected one request for the declared set in each run');
       let signature = bodyText(fake.calls[0] as NonNullable<(typeof fake.calls)[0]>);
       for (const [index, field] of fields.entries())
         signature = signature.split(field).join(`<set-field-${index}>`);
@@ -421,9 +562,13 @@ export const labelsRuns: Record<string, Run> = {
       labelsYaml: yaml,
     });
     if (!res.ok)
-      return /voice/.test(res.error ?? '')
-        ? pass('refused, naming the label')
-        : fail(`the set was refused without naming the label: ${res.error}`);
+      return res.failure?.code === 'label-examples-too-many' &&
+        res.failure.set === 'many' &&
+        res.failure.label === 'voice'
+        ? pass('refused, naming the set and the label')
+        : fail(
+            `the set was refused without naming the label by code label-examples-too-many: ${JSON.stringify(res.failure ?? null)}`,
+          );
     requireSourceWitness(res, files);
     if (fake.count === 0) return fail('positive witness: no request for the valid label set');
     const text = fake.calls.map(bodyText).join('\n');
@@ -696,8 +841,9 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (second.events?.[id] !== 'unchanged')
-        return fail(`${show(t, 36)} has event ${second.events?.[id]}, expected unchanged`);
+      if (second.events?.[id] === undefined) return missing(`the reader does not expose an event for ${id}`);
+      if (second.events[id] !== 'unchanged')
+        return fail(`${show(t, 36)} has event ${second.events[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')
         return fail(`${show(t, 36)} has label ${now.labels['agent-rules']?.label}, expected none`);
       if (!second.diagnostics.some((d) => d.code === 'label_flip' && d.unit === id))
@@ -729,16 +875,19 @@ export const labelsRuns: Record<string, Run> = {
       requireSourceWitness(second, build(after).files);
       for (const entry of second.ledger.entries)
         if (second.events?.[entry.id] === undefined)
-          return fail(`the reader does not expose an event for ${entry.id}`);
+          return missing(`the reader does not expose an event for ${entry.id}`);
       const entries = JSON.parse(second.ledger.raw).entries.map((e: Record<string, unknown>) => {
         const { labels: _labels, ...rest } = e;
         return rest;
       });
       views.push(JSON.stringify({ entries, events: second.events }));
     }
-    return views.every((v) => v === views[0])
-      ? pass('ids, events and quotes equal under four labellers')
-      : fail('the ledger changes with the labeller: change detection depends on labels');
+    if (!views.every((v) => v === views[0]))
+      return fail('the ledger changes with the labeller: change detection depends on labels');
+    // Round 3 audit, seat 2: four ledgers of constant events are equal too. The events must also be the
+    // ones the script makes (split, merged, changed, deleted, moved): the event map holds the change.
+    const run = await runScenario(ctx, { before, after, fates: segs.flatMap((seg) => seg.fates) });
+    return pass(`ids, events and quotes equal under four labellers; ${run.ids.size} units follow the script`);
   },
   'sets-independent': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);
@@ -852,7 +1001,7 @@ labels:
           { key: 'description', value: description },
         ],
       },
-      { kind: 'heading', level: 1, text: 'Shelf audit' },
+      // No top-level heading: a window ends at one, and the read unit must share its window with the body.
       ...body.map(para),
     ]);
     const path = '.claude/skills/shelf-audit/SKILL.md';
@@ -910,28 +1059,52 @@ labels:
     return res.atoms.length === 2 ? pass('none accepted') : fail(`${res.atoms.length} atoms, expected 2`);
   },
   'jev-threshold-window': async (ctx) => {
-    const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.4, 0.01) }));
-    const { res } = await jevLabels(ctx, 'jev', units, undefined);
+    const texts = distinctSentences(prose(ctx), 14);
+    const units = texts.slice(0, 12).map((text, i) => ({ text, probs: pick(WINDOW_CASES, i) }));
+    const brokenTexts = texts.slice(12);
+    const broken = new Set(brokenTexts);
+    const all = [
+      ...units,
+      ...brokenTexts.map((text) => ({ text, probs: { rule: 0.6, prohibition: 0.1, example: 0.1 } })),
+    ];
+    const { res } = await jevLabels(ctx, 'jev', all, undefined, PROBE_YAML, halving(broken));
     for (const u of units) {
-      const want = expectedJev(u.probs, NAMES, 0.4);
+      const vector = vectorOf(u.probs);
+      const want = highestOption(vector);
       const got = label(res.ledger, u.text, 'probe');
       if (got !== want)
-        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+        return fail(
+          `${show(u.text, 30)} with the vector ${JSON.stringify(vector)} has label ${got}, the highest option is ${want}`,
+        );
     }
-    return pass('12 units around the 0.4 threshold');
+    for (const t of brokenTexts) {
+      const got = label(res.ledger, t, 'probe');
+      if (got !== undefined)
+        return fail(
+          `${show(t, 30)} has label ${got} from probabilities that sum to 0.5: an answer that is no vector is refused, never normalised`,
+        );
+    }
+    if (!res.diagnostics.some((d) => d.code === 'refusal'))
+      return fail('no refusal diagnostic names the two answers whose probabilities are no vector');
+    return pass('12 units take the highest option, none included; 2 answers that are no vector are refused');
   },
   'jev-threshold-unit': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.7, 0.01) }));
-    const { res } = await jevLabels(ctx, 'jev-unit', units, undefined);
+    const units = texts.map((text, i) => ({ text, probs: pick(UNIT_CASES, i) }));
+    const { res, fake } = await jevLabels(ctx, 'jev-unit', units, undefined);
+    if (fake.count !== 12) return fail(`${fake.count} calls for 12 units in the unit state, expected 12`);
+    const big = fake.calls.find((c) => c.questions.length !== 1);
+    if (big) return fail(`a unit-state call carries ${big.questions.length} questions, expected 1`);
     for (const u of units) {
-      const want = expectedJev(u.probs, NAMES, 0.7);
+      const vector = vectorOf(u.probs);
+      const want = highestOption(vector);
       const got = label(res.ledger, u.text, 'probe');
       if (got !== want)
-        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+        return fail(
+          `${show(u.text, 30)} with the vector ${JSON.stringify(vector)} has label ${got}, the highest option is ${want}`,
+        );
     }
-    return pass('12 units around the 0.7 threshold');
+    return pass('12 unit-state calls, each unit takes its highest option around 0.7');
   },
   'jev-highest-not-first': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 6);
@@ -960,10 +1133,13 @@ labels:
   },
   'jev-threshold-is-a-replay-setting': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 12);
-    const units = texts.map((text, i) => ({
-      text,
-      probs: { rule: i % 2 === 0 ? 0.95 : 0.5, prohibition: 0.05, example: 0.05 },
-    }));
+    // Rule leads by far, rule leads `none` by 0.04, or `none` leads: each answer is a vector, `none` last.
+    const cases: Probs[] = [
+      { rule: 0.95, prohibition: 0.02, example: 0.02 },
+      { rule: 0.5, prohibition: 0.02, example: 0.02 },
+      { rule: 0.3, prohibition: 0.02, example: 0.02 },
+    ];
+    const units = texts.map((text, i) => ({ text, probs: pick(cases, i) }));
     const { res } = await jevLabels(ctx, 'jev', units);
     if (!res.cassette) return fail('the record run returned no cassette');
     const fixture = makeFixture(
@@ -971,7 +1147,11 @@ labels:
       [
         {
           path: 'doc.md',
-          units: units.map((unit) => ({ text: unit.text, label: 'rule', probabilities: unit.probs })),
+          units: units.map((unit) => ({
+            text: unit.text,
+            label: highestOption(vectorOf(unit.probs)),
+            probabilities: unit.probs,
+          })),
         },
       ],
       PROBE_YAML,
@@ -984,50 +1164,60 @@ labels:
       cassette: { mode: 'replay', text: fixture.cassette },
     });
     if (!replay.ok || !replay.ledger) return fail(`the replay at another threshold failed: ${replay.error}`);
-    requireFixtureLabels(replay, fixture, 0.9);
+    requireFixtureLabels(replay, fixture);
     if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
-    for (const [i, t] of texts.entries()) {
-      const want = i % 2 === 0 ? 'rule' : 'none';
-      if (label(replay.ledger, t, 'probe') !== want)
+    for (const u of units) {
+      const want = highestOption(vectorOf(u.probs));
+      const got = label(replay.ledger, u.text, 'probe');
+      if (got !== want)
         return fail(
-          `${show(t, 30)} has label ${label(replay.ledger, t, 'probe')} at threshold 0.9, expected ${want}`,
+          `${show(u.text, 30)} has label ${got} on a replay given threshold 0.9, expected ${want}: a choice answer takes its highest option, no threshold`,
         );
     }
-    return pass('threshold changed with no call');
+    return pass('a replay with a threshold set needs no call and keeps the highest option');
   },
   'jev-question-keys': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
     const keys = fake.calls.flatMap((c) => c.questions);
-    const re = /^u\d+__(one|two|three|four|five)$/;
+    const re = /^u\d+$/;
     if (keys.some((k) => !re.test(k)))
-      return fail(`a question key is not u<n>__<label>: ${keys.find((k) => !re.test(k))}`);
-    if (keys.length !== 100 || new Set(keys).size !== 100)
-      return fail(`${keys.length} questions (${new Set(keys).size} distinct), expected 100 pairs once`);
-    return pass('100 keyed questions');
+      return fail(`a question key is not u<n>: ${keys.find((k) => !re.test(k))}`);
+    for (const call of fake.calls)
+      if (new Set(call.questions).size !== call.questions.length) return fail('a call asks one key twice');
+    if (keys.length !== 20) return fail(`${keys.length} questions, expected one per unit (20)`);
+    const problem = choiceCallsProblem(fake.calls, texts, FIVE_OPTIONS);
+    return problem
+      ? fail(problem)
+      : pass('20 choice questions keyed u<n>, each with the five labels and none');
   },
   'jev-window-cap': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 100);
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
-    if (fake.count < 2) return fail(`${fake.count} calls for 500 questions`);
-    const big = fake.calls.find((c) => c.questions.length > 250);
-    if (big) return fail(`a call carries ${big.questions.length} questions, the cap is 250`);
+    if (fake.count < 4) return fail(`${fake.count} calls for 100 units, at most 30 fit in one`);
+    const big = fake.calls.find((c) => c.questions.length > 30);
+    if (big) return fail(`a call carries ${big.questions.length} questions, the cap is 30 units`);
     const total = fake.calls.reduce((s, c) => s + c.questions.length, 0);
-    return total === 500
-      ? pass(`${fake.count} calls, 500 questions`)
-      : fail(`${total} questions asked, expected 500`);
+    if (total !== 100) return fail(`${total} questions asked, expected 100`);
+    const problem = choiceCallsProblem(fake.calls, texts, FIVE_OPTIONS);
+    return problem ? fail(problem) : pass(`${fake.count} calls, 100 units each asked once`);
   },
   'jev-halve-on-refusal': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 40);
     const fake = fakeTransport({
-      respond: (_i, call) => (call.questions.length > 130 ? TOO_LARGE : undefined),
+      respond: (_i, call) => (call.questions.length > 12 ? TOO_LARGE : undefined),
     });
     const res = must(await modelScan(ctx, docOf(texts), 'jev', fake, { labelsYaml: FIVE_YAML }));
-    const refused = fake.calls.filter((c) => c.questions.length > 130).length;
+    const refused = fake.calls.filter((c) => c.questions.length > 12).length;
+    if (refused === 0)
+      return fail('no call was refused: a window of 30 units was never sent, so the halving was not reached');
     if (refused > 3)
-      return fail(`${refused} refused calls, at most 3 are needed to halve 200 questions under 130`);
+      return fail(`${refused} refused calls, at most 3 are needed to halve windows of 30 units under 13`);
+    const accepted = fake.calls.filter((c) => c.questions.length <= 12);
+    const problem = choiceCallsProblem(accepted, texts, FIVE_OPTIONS);
+    if (problem) return fail(`over the accepted calls: ${problem}`);
     const unlabeled = texts.filter((t) => label(res.ledger, t, 'five') === undefined);
     return unlabeled.length === 0
       ? pass(`${refused} refused, all 40 units labelled`)
@@ -1038,10 +1228,10 @@ labels:
     const fake = fakeTransport();
     must(await modelScan(ctx, docOf(texts), 'jev-unit', fake, { labelsYaml: FIVE_YAML }));
     if (fake.count !== 25) return fail(`${fake.count} calls for 25 units, expected 25`);
-    const bad = fake.calls.find((c) => c.questions.length !== 5);
-    return bad
-      ? fail(`a call carries ${bad.questions.length} questions, expected 5`)
-      : pass('25 calls of 5 questions');
+    const bad = fake.calls.find((c) => c.questions.length !== 1);
+    if (bad) return fail(`a call carries ${bad.questions.length} questions, expected 1`);
+    const problem = choiceCallsProblem(fake.calls, texts, FIVE_OPTIONS);
+    return problem ? fail(problem) : pass('25 calls of one choice question with the five labels and none');
   },
   'jev-probabilities-recorded': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 20);
@@ -1059,11 +1249,79 @@ labels:
       }
     };
     for (const line of res.cassette.split('\n').filter(Boolean)) walk(JSON.parse(line));
-    const asked = new Set(fake.calls.flatMap((c) => c.questions));
-    const missing = [...asked].filter((k) => !found.has(k));
+    const asked = [...new Set(fake.calls.flatMap((c) => c.questions))];
+    if (asked.length === 0) return fail('no question was asked');
+    const missing: string[] = [];
+    for (const key of asked) {
+      let sum = 0;
+      for (const option of FIVE_OPTIONS) {
+        const p = found.get(`${key}__${option}`);
+        if (p === undefined) missing.push(`${key}__${option}`);
+        else sum += p;
+      }
+      if (missing.length === 0 && Math.abs(sum - 1) > 0.01)
+        return fail(`the recorded probabilities of ${key} sum to ${Number(sum.toFixed(4))}, not a vector`);
+    }
     return missing.length === 0
-      ? pass(`${asked.size} probabilities recorded`)
-      : fail(`${missing.length} asked questions have no recorded probability, e.g. ${missing[0]}`);
+      ? pass(`${asked.length} questions, each with a recorded vector over the five labels and none`)
+      : fail(
+          `${missing.length} options of the asked questions have no recorded probability, e.g. ${missing[0]}`,
+        );
+  },
+  'decisions-threshold-window': async (ctx) => {
+    const texts = distinctSentences(prose(ctx), 12);
+    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.4, 0.01) }));
+    const { res } = await decisionsLabels(ctx, units);
+    for (const u of units) {
+      const want = expectedJev(u.probs, NAMES, 0.4);
+      const got = label(res.ledger, u.text, 'probe');
+      if (got !== want)
+        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+    }
+    return pass('12 units around the default 0.4 threshold');
+  },
+  'decisions-threshold-set-by-caller': async (ctx) => {
+    const texts = distinctSentences(prose(ctx), 12);
+    const units = texts.map((text, i) => ({ text, probs: probsAround(i, 0.7, 0.01) }));
+    const { res } = await decisionsLabels(ctx, units, 0.7);
+    for (const u of units) {
+      const want = expectedJev(u.probs, NAMES, 0.7);
+      const got = label(res.ledger, u.text, 'probe');
+      if (got !== want)
+        return fail(`${show(u.text, 30)} with ${JSON.stringify(u.probs)} has label ${got}, expected ${want}`);
+    }
+    return pass('12 units around a threshold of 0.7 set by the caller');
+  },
+  'decisions-threshold-is-a-replay-setting': async (ctx) => {
+    const texts = distinctSentences(prose(ctx), 12);
+    const units = texts.map((text, i) => ({
+      text,
+      probs: { rule: i % 2 === 0 ? 0.95 : 0.5, prohibition: 0.02, example: 0.02 },
+    }));
+    const { res } = await decisionsLabels(ctx, units);
+    if (!res.cassette) return fail('the record run returned no cassette');
+    for (const t of texts)
+      if (label(res.ledger, t, 'probe') !== 'rule')
+        return fail(
+          `${show(t, 30)} has label ${label(res.ledger, t, 'probe')} at the default 0.4, expected rule`,
+        );
+    const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
+    const replay = await ctx.sut.scan({
+      files: docOf(texts),
+      labelsYaml: PROBE_YAML,
+      model: { arm: 'openai-decisions', transport: closed, threshold: 0.9 },
+      cassette: { mode: 'replay', text: res.cassette },
+    });
+    if (!replay.ok || !replay.ledger) return fail(`the replay at another threshold failed: ${replay.error}`);
+    if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
+    for (const [i, t] of texts.entries()) {
+      const want = i % 2 === 0 ? 'rule' : 'none';
+      if (label(replay.ledger, t, 'probe') !== want)
+        return fail(
+          `${show(t, 30)} has label ${label(replay.ledger, t, 'probe')} at threshold 0.9, expected ${want}`,
+        );
+    }
+    return pass('threshold changed with no call');
   },
   'haiku-dense-request': async (ctx) => {
     const p = prose(ctx);
@@ -1074,7 +1332,21 @@ labels:
     }));
     const fake = fakeTransport();
     const res = must(await modelScan(ctx, files, 'haiku', fake));
-    if (fake.count !== 2) return fail(`${fake.count} requests for 2 files, expected 2`);
+    // The system 2 labeler asks each window and set once per independent run: three runs of one dense request
+    // (design, "The default stack"). Two files of one window make six requests; two requests would be one run only.
+    const runs = RUNS.haiku;
+    if (fake.count !== 2 * runs)
+      return fail(
+        `${fake.count} requests for 2 files, expected ${2 * runs} (one dense request per file, asked in ${runs} independent runs)`,
+      );
+    const perWindow = new Map<string, string[]>();
+    for (const call of fake.calls)
+      perWindow.set(call.window, [...(perWindow.get(call.window) ?? []), call.body]);
+    const odd = [...perWindow].find(([, bodies]) => bodies.length !== runs || new Set(bodies).size !== 1);
+    if (perWindow.size !== 2 || odd)
+      return fail(
+        `${perWindow.size} windows asked; ${odd ? `${odd[0]} was asked ${odd[1].length} times or with changing requests` : 'expected 2'}, the ${runs} runs of a window carry one request`,
+      );
     const bad = fake.calls.find((c) => c.arm !== 'haiku' || c.units.length !== 9);
     if (bad) return fail(`a request lists ${bad.units.length} units, expected 9`);
     const texts = fake.calls.flatMap((c) => c.units.map((u) => u.text));
@@ -1083,7 +1355,7 @@ labels:
       ? fail(
           `${show(wrong, 30)} has label ${label(res.ledger, wrong)}, the model answered ${truthLabel(wrong)}`,
         )
-      : pass('one dense request per file');
+      : pass(`one dense request per file, asked in ${runs} runs`);
   },
   'haiku-thinking-block-first': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
@@ -1096,29 +1368,50 @@ labels:
       ? fail(
           `${show(wrong, 30)} has label ${label(res.ledger, wrong)}, the answer block said ${truthLabel(wrong)}`,
         )
-      : fake.count === 1
+      : fake.count === RUNS.haiku
         ? pass('answer block read, thinking ignored')
-        : fail(`${fake.count} calls, expected 1`);
+        : fail(`${fake.count} calls, expected ${RUNS.haiku} (one window, one request per independent run)`);
   },
   'haiku-stop-reason-refused': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
     for (const stop of ['max_tokens', 'refusal']) {
-      const fake = fakeTransport({
-        respond: (i, _c, base) => {
-          if (i !== 0) return undefined;
-          const b = JSON.parse(base.body) as { stop_reason: string };
-          b.stop_reason = stop;
-          return { status: 200, body: JSON.stringify(b) };
-        },
-      });
+      // The first `refused` requests answer with this stop reason; the others answer well.
+      const stopped = (refused: number) =>
+        fakeTransport({
+          respond: (i, _c, base) => {
+            if (i >= refused) return undefined;
+            const b = JSON.parse(base.body) as { stop_reason: string };
+            b.stop_reason = stop;
+            return { status: 200, body: JSON.stringify(b) };
+          },
+        });
+      const fake = stopped(1);
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok || !res.ledger) return fail(`stop reason ${stop}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`stop reason ${stop}: ${fake.count} calls, expected 2 (refuse, retry once)`);
+      // The first request is refused and asked once more; the other independent runs ask one request each.
+      if (fake.count !== RUNS.haiku + 1)
+        return fail(
+          `stop reason ${stop}: ${fake.count} calls, expected ${RUNS.haiku + 1} (refuse, retry once, then the other ${RUNS.haiku - 1} runs)`,
+        );
       if (label(res.ledger, texts[0] as string) !== truthLabel(texts[0] as string))
         return fail(`stop reason ${stop}: the retry's answer did not apply`);
+      // The retry is the refused request asked again: its system text extends the first request's.
+      const once = retriedRequests(fake);
+      if (once !== 1)
+        return fail(
+          `stop reason ${stop}: ${once} retried requests, expected 1: the refused request is asked again, as a retry`,
+        );
+      // Refused twice in a row: the retry is refused too, and the run is never asked a third time as a retry.
+      const twice = stopped(2);
+      const again = await modelScan(ctx, docOf(texts), 'haiku', twice);
+      if (!again.ok) return fail(`stop reason ${stop} twice: the scan failed: ${again.error}`);
+      const retried = retriedRequests(twice);
+      if (retried !== 1)
+        return fail(
+          `stop reason ${stop} twice: ${retried} retried requests, expected 1: a refused answer is retried once only`,
+        );
     }
-    return pass('both stop reasons refused and retried');
+    return pass('both stop reasons refused and retried once, never twice');
   },
   'haiku-refuse-wrong-window-or-set': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 10);
@@ -1135,8 +1428,10 @@ labels:
       });
       const res = await modelScan(ctx, docOf(texts), 'haiku', fake);
       if (!res.ok) return fail(`echo of another ${field}: the scan failed: ${res.error}`);
-      if (fake.count !== 2)
-        return fail(`an answer echoing another ${field} was accepted: ${fake.count} calls, expected 2`);
+      if (fake.count !== RUNS.haiku + 1)
+        return fail(
+          `an answer echoing another ${field} was accepted: ${fake.count} calls, expected ${RUNS.haiku + 1} (refuse, retry once, then the other ${RUNS.haiku - 1} runs)`,
+        );
     }
     return pass('wrong window and wrong set refused');
   },

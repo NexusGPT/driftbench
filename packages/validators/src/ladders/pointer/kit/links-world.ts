@@ -27,7 +27,10 @@ export type LinkWorld = {
 
 export function linksApi(sut: PointerSut): LinksApi {
   if (!sut.links)
-    throw new Problem('the binding of the reader offers no links api: layer C is not reachable');
+    throw new Problem(
+      'the binding of the reader offers no links api: layer C is not reachable',
+      'missing-observation',
+    );
   return sut.links;
 }
 

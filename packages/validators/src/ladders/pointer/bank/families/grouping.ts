@@ -5,7 +5,7 @@ import { perfect, truthLabel } from '../../kit/labellers';
 import { norm, squash } from '../../kit/norm';
 import { show } from '../../kit/oracle';
 import { labelByText, type Pick, RULES_YAML } from '../../kit/sets';
-import { headingText, Prose, rewordWords } from '../../kit/words';
+import { headingText, insertAt, Prose, rewordWords, wordAfterStart } from '../../kit/words';
 import type { Atom, Labeler } from '../../sut/port';
 import { fail, type ItemContext, pass, type Run } from '../types';
 
@@ -123,7 +123,12 @@ export const groupingRuns: Record<string, Run> = {
     const h = headingText(p.random);
     const { res } = await scanDoc(
       ctx,
-      [P([a as string]), { kind: 'heading', level: 2, text: h }, P([b as string, c as string])],
+      [
+        { kind: 'heading', level: 1, text: headingText(p.random) },
+        P([a as string]),
+        { kind: 'heading', level: 2, text: h },
+        P([b as string, c as string]),
+      ],
       labelByText([{ text: a as string, to: c as string, label: 'rule' }], undefined),
     );
     const bad = [a, h, b, c].filter(
@@ -221,7 +226,12 @@ export const groupingRuns: Record<string, Run> = {
     const h = headingText(p.random);
     const { doc, res } = await scanDoc(
       ctx,
-      [P(t.slice(0, 3)), { kind: 'heading', level: 2, text: h }, P(t.slice(3))],
+      [
+        { kind: 'heading', level: 1, text: headingText(p.random) },
+        P(t.slice(0, 3)),
+        { kind: 'heading', level: 2, text: h },
+        P(t.slice(3)),
+      ],
       labelByText([{ text: t[2] as string, label: 'gate', target: t[3] as string }]),
     );
     const g = res.atoms.find((a) => a.kind === 'gate');
@@ -318,7 +328,12 @@ export const groupingRuns: Record<string, Run> = {
   },
   'atom-provenance-verbatim': async (ctx) => {
     const p = prose(ctx);
-    const make = (extra: string) => p.next().replace(/ (\w+) /, ` $1 ${extra} `);
+    // The extra text goes after the first word the generator wrote past the start, inside the sentence.
+    const make = (extra: string) => {
+      const t = p.next();
+      const word = wordAfterStart(t);
+      return insertAt(t, word.start + word.text.length, ` ${extra}`);
+    };
     const t = [
       make('&amp;'),
       make('&lt;tag&gt;'),

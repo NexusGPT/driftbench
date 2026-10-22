@@ -4,6 +4,8 @@ import { build, byId, type EstateFile, eventNow, liveByText, liveOf, scanOk } fr
 import { perfect } from './labellers';
 import { norm } from './norm';
 import { show } from './oracle';
+import { buildScript, filesOfSegments, UNRELATED } from './segments';
+import { Prose, similarity } from './words';
 
 /** What must become of an old unit, by its text in the old estate. */
 export type Fate =
@@ -201,7 +203,129 @@ export async function runScenario(ctx: ItemContext, s: Scenario): Promise<Scenar
   return run;
 }
 
+/* ----- the twin edit (round 3 audit, seat 2: a constant or precomputed event list gains nothing) ----- */
+
+/** The blocks whose removal deletes prose units and nothing else. */
+const REMOVABLE = new Set(['paragraph', 'list', 'quote', 'table']);
+const PROSE_UNITS = new Set(['sentence', 'list_item', 'table_cell', 'block_quote']);
+/** Where the probe file of the twin lives; no item writes under this folder. */
+export const TWIN_PROBE_PATH = 'twin/probe.md';
+
+const unitsOf = (files: readonly EstateFile[]): Array<{ text: string; container: string }> => {
+  const out: Array<{ text: string; container: string }> = [];
+  for (const doc of build(files).docs.values())
+    for (const u of doc.units) out.push({ text: u.text, container: u.container });
+  return out;
+};
+
+/** The old files after the removal, and the removed units in the normal form. */
+export type Dropped = { after: EstateFile[]; gone: string[] };
+
+/**
+ * The old files with one block removed. The block is drawn by the seed among those whose units are prose and
+ * each unique in the estate, and whose removal changes no other unit.
+ */
+export function dropOneBlock(p: Prose, before: readonly EstateFile[]): Dropped {
+  const all = unitsOf(before);
+  const count = new Map<string, number>();
+  for (const u of all) {
+    const k = key(u.text, u.container);
+    count.set(k, (count.get(k) ?? 0) + 1);
+  }
+  const choices: Dropped[] = [];
+  for (const [f, file] of before.entries()) {
+    choice: for (const [b, block] of file.blocks.entries()) {
+      if (!REMOVABLE.has(block.kind)) continue;
+      const without: EstateFile = { ...file, blocks: file.blocks.filter((_, j) => j !== b) };
+      const after = before.map((x, i) => (i === f ? without : x));
+      const left = new Map(count);
+      for (const u of unitsOf(after)) {
+        const k = key(u.text, u.container);
+        const n = left.get(k) ?? 0;
+        if (n === 0) continue choice;
+        left.set(k, n - 1);
+      }
+      const gone: string[] = [];
+      for (const u of all) {
+        const k = key(u.text, u.container);
+        if ((left.get(k) ?? 0) === 0) continue;
+        if (!PROSE_UNITS.has(u.container) || count.get(k) !== 1) continue choice;
+        left.set(k, 0);
+        gone.push(k);
+      }
+      if (gone.length > 0) choices.push({ after, gone });
+    }
+  }
+  if (choices.length === 0) return { after: [...before], gone: [] };
+  return choices[Math.floor(p.random() * choices.length)] as Dropped;
+}
+
+/**
+ * A probe file edited by a script drawn from the seed: a split, a merge, a reword, a delete and an insert
+ * among five kept units. Every text that enters is under the unrelated bound to every removed unit and
+ * differs from every old unit, so the ladder has one right answer for each of them.
+ */
+function probeFile(
+  p: Prose,
+  before: readonly EstateFile[],
+  gone: readonly string[],
+): { before: EstateFile; after: EstateFile; fates: Array<{ text: string; fate: Fate }> } {
+  if (before.some((file) => file.path === TWIN_PROBE_PATH))
+    throw new Error(`an item writes the twin probe path ${TWIN_PROBE_PATH}`);
+  const old = new Set(unitsOf(before).map((u) => key(u.text, u.container)));
+  for (let round = 0; round < 40; round += 1) {
+    const segs = buildScript(p, ['split', 'merge', 'reword', 'delete', 'insert'], 5, 1);
+    const head = `Twin probe ${p.random().toString(36).slice(2, 7)}`;
+    const files = filesOfSegments(segs, 1, [head]);
+    const was = new Set(segs.flatMap((seg) => seg.before));
+    const texts = [head, ...segs.flatMap((seg) => [...seg.before, ...seg.after])];
+    const entering = segs.flatMap((seg) => seg.after).filter((t) => !was.has(t));
+    if (texts.some((t) => old.has(key(t)))) continue;
+    if (entering.some((t) => gone.some((g) => similarity(key(t), g) >= UNRELATED))) continue;
+    return {
+      before: { path: TWIN_PROBE_PATH, blocks: (files.before[0] as EstateFile).blocks },
+      after: { path: TWIN_PROBE_PATH, blocks: (files.after[0] as EstateFile).blocks },
+      fates: segs.flatMap((seg) => seg.fates),
+    };
+  }
+  throw new Problem('the twin could not draw a probe file apart from the old units');
+}
+
+/**
+ * The twin of a scenario: the same old files, scanned fresh, then edited by a second script drawn from the
+ * seed. One prose block of the old files is removed (its units must be `deleted`, every other old unit
+ * `unchanged`), and a probe file beside them is edited by a split, a merge, a reword, a delete and an insert
+ * (each unit must follow its script: `split`, `merged`, `changed`, `deleted`, a fresh id). A reader whose
+ * events were fixed before it saw the edit (a constant `unchanged`, or a list keyed on the old files) fails
+ * here; so does one that derives each event from a same-path, same-fingerprint compare, which can tell no
+ * split and no merge.
+ */
+export async function runTwin(
+  ctx: ItemContext,
+  before: readonly EstateFile[],
+  labeler?: Labeler,
+): Promise<string> {
+  const p = new Prose(ctx.seed, `${ctx.id}:twin`);
+  const { after, gone } = dropOneBlock(p, before);
+  const probe = probeFile(p, before, gone);
+  try {
+    await runScenario(ctx, {
+      before: [...before, probe.before],
+      after: [...after, probe.after],
+      fates: [...gone.map((text) => ({ text, fate: { kind: 'deleted' } as Fate })), ...probe.fates],
+      ...(labeler ? { labeler } : {}),
+    });
+  } catch (cause) {
+    if (cause instanceof Problem)
+      throw new Problem(`the twin edit (the same files, a second script): ${cause.message}`, cause.kind);
+    throw cause;
+  }
+  return `twin edit: ${gone.length} removed, ${probe.fates.length} scripted fates`;
+}
+
 export async function anchorCase(ctx: ItemContext, s: Scenario, detail?: string): Promise<Outcome> {
   const run = await runScenario(ctx, s);
-  return pass(detail ?? `${run.ids.size} old units checked, ${liveOf(run.after.ledger).length} live after`);
+  const twin = await runTwin(ctx, s.before, s.labeler);
+  const live = liveOf(run.after.ledger).length;
+  return pass(`${detail ?? `${run.ids.size} old units checked, ${live} live after`}; ${twin}`);
 }

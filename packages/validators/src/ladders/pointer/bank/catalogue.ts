@@ -16,6 +16,8 @@ const NEEDS: Record<Need, string> = {
   cassette: 'cassette: record and replay, with the cassette text in and out',
   prompt: 'prompt: the request the port builds',
   links: 'links: classify, clear, verify, coverage, blast radius',
+  settings: 'settings: the settings file of an estate, text in, thresholds or errors out',
+  rerun: 'rerun: the class of each unit after an edit, and the units whose links rerun or are only reported',
   child: 'child: the run happens in a child process with sandbox HOME, TMPDIR and cwd',
   cli: 'cli: the command line',
   stack: 'stack: the product stack seam (margin and decision) over planted probabilities and votes',
@@ -67,7 +69,7 @@ export function renderCatalogue(): string {
     '- **maintainer-repaired**: every one of the first 402 items. Each runs through harness or oracle code that a maintainer commit changed after the blind commit, so none is a blind item.',
   );
   w(
-    '- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items). Never blind.',
+    '- **maintainer-added**: added by a maintainer commit after the blind commit (the stack and label-set validation items, and the items the four audits added, each red on a defect or a cheat an audit wrote). Never blind.',
   );
   w();
   w('| Label | Items |');

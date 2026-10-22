@@ -1,15 +1,23 @@
 import { createHash } from 'node:crypto';
+import { rngFor } from '@agent-nexus/driftbench-generate';
 import type { FetchRequest, FetchResponse, Transport } from '../sut/port';
 import { truthLabel } from './labellers';
+import { word } from './words';
 
 /**
  * A fake model endpoint. It answers a Haiku dense request or a Jev question request from the hidden truth, reads
  * the numbered units out of whatever the request carries, and keeps every call so an item can count and inspect
  * them. It never reads a key and never opens a socket.
+ *
+ * A Jev request holds either yes or no questions keyed `u<n>__<label>` (answered with a probability of yes) or
+ * one choice question per unit keyed `u<n>` (answered with a probability vector over the labels and `none`).
+ * A decisions request (`openai-decisions`) holds a list of yes or no predicates named `u<n>__<label>`, with
+ * the numbered text as `input`, and is answered with a list of `{ name, probability }`. A user labeler
+ * request (the `http` arm, system 2) holds `{ set, window, prompt }`, answered with `{ model, labels }`.
  */
 
 export type ParsedCall = {
-  arm: 'haiku' | 'jev';
+  arm: 'haiku' | 'jev' | 'decisions' | 'user';
   set: string;
   labels: string[];
   window: string;
@@ -17,6 +25,8 @@ export type ParsedCall = {
   questions: string[];
   body: string;
   headers: Record<string, string>;
+  /** The address the request was sent to. */
+  url: string;
 };
 
 export type FakeOptions = {
@@ -40,6 +50,17 @@ function strings(value: unknown, out: string[] = []): string[] {
   return out;
 }
 
+/** The criteria of one choice question of a Jev request: the label names and `none`; undefined for a yes or no question. */
+function choiceCriteria(body: string, key: string): Record<string, unknown> | undefined {
+  try {
+    const questions = (JSON.parse(body) as { questions?: Record<string, { criteria?: unknown }> }).questions;
+    const criteria = questions?.[key]?.criteria;
+    return criteria && typeof criteria === 'object' ? (criteria as Record<string, unknown>) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function parseCall(request: FetchRequest): ParsedCall {
   let body: unknown;
   try {
@@ -48,8 +69,22 @@ export function parseCall(request: FetchRequest): ParsedCall {
     body = {};
   }
   const record = (body ?? {}) as Record<string, unknown>;
-  const arm: 'haiku' | 'jev' = record.questions !== undefined ? 'jev' : 'haiku';
-  const all = strings(arm === 'jev' ? record.state : record.messages);
+  const arm: ParsedCall['arm'] = Array.isArray(record.questions)
+    ? 'decisions'
+    : record.questions !== undefined
+      ? 'jev'
+      : record.prompt !== undefined && record.messages === undefined
+        ? 'user'
+        : 'haiku';
+  const all = strings(
+    arm === 'jev'
+      ? record.state
+      : arm === 'decisions'
+        ? record.input
+        : arm === 'user'
+          ? record.prompt
+          : record.messages,
+  );
   const text = all.join('\n');
   const units: ParsedCall['units'] = [];
   for (const line of text.split('\n')) {
@@ -61,19 +96,31 @@ export function parseCall(request: FetchRequest): ParsedCall {
         mode: (m[2] as 'context' | 'read' | undefined) ?? 'label',
       });
   }
-  const questions = arm === 'jev' ? Object.keys((record.questions ?? {}) as object) : [];
-  if (arm === 'jev' && units.length === 0 && questions.length > 0) {
+  const questions =
+    arm === 'decisions'
+      ? (record.questions as unknown[]).map((question) => {
+          const name = (question as { name?: unknown } | null)?.name;
+          return typeof name === 'string' ? name : '';
+        })
+      : arm === 'jev'
+        ? Object.keys((record.questions ?? {}) as object)
+        : [];
+  if (arm !== 'haiku' && units.length === 0 && questions.length > 0) {
     const n = Number(/^u(\d+)__/.exec(questions[0] as string)?.[1] ?? 1);
     const longest = [...all].sort((a, b) => b.length - a.length)[0] ?? '';
     units.push({ n, text: longest, mode: 'label' });
   }
   const labelsLine = /^LABELS (.*)$/m.exec(text)?.[1];
-  const labels = labelsLine
-    ? labelsLine
-        .split('|')
-        .map((s) => s.trim())
-        .filter((s) => s !== 'none' && s !== '')
-    : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
+  const firstChoice = arm === 'jev' ? questions[0] : undefined;
+  const criteria = firstChoice === undefined ? undefined : choiceCriteria(request.body, firstChoice);
+  const predicates = questions
+    .map((name) => /^u\d+__(.+)$/.exec(name)?.[1])
+    .filter((name): name is string => name !== undefined);
+  const fromText = labelsLine
+    ? labelsLine.split('|').map((s) => s.trim())
+    : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string);
+  const named = criteria ? Object.keys(criteria) : arm === 'decisions' ? [...new Set(predicates)] : fromText;
+  const labels = named.filter((name) => name !== 'none' && name !== '');
   return {
     arm,
     set:
@@ -87,6 +134,7 @@ export function parseCall(request: FetchRequest): ParsedCall {
     questions,
     body: request.body,
     headers: request.headers,
+    url: request.url,
   };
 }
 
@@ -110,17 +158,60 @@ export function fakeTransport(options: FakeOptions = {}): FakeTransport {
     const index = calls.length;
     calls.push(call);
     let base: FetchResponse;
-    if (call.arm === 'jev') {
-      const answers: Record<string, { noul: number }> = {};
+    if (call.arm === 'decisions') {
+      // A decisions request: one probability of yes per predicate, as a list.
+      const text = new Map(call.units.map((u) => [u.n, u.text]));
+      const truth = truthFor(call);
+      const answers = call.questions.map((name) => {
+        const m = /^u(\d+)__(.+)$/.exec(name);
+        const unitText = text.get(Number(m?.[1])) ?? '';
+        return { name, probability: probability(unitText, m?.[2] ?? '', truth(unitText)) };
+      });
+      base = { status: 200, body: JSON.stringify({ model: options.model ?? 'decisions-fake-1', answers }) };
+    } else if (call.arm === 'jev') {
+      const answers: Record<string, { noul: number } | { probabilities: Record<string, number> }> = {};
       const text = new Map(call.units.map((u) => [u.n, u.text]));
       const truth = truthFor(call);
       for (const key of call.questions) {
+        const criteria = choiceCriteria(request.body, key);
+        if (criteria) {
+          // A choice question: the labels of the criteria and `none`, as a vector that sums to one.
+          const unitText = text.get(Number(/^u(\d+)$/.exec(key)?.[1])) ?? '';
+          const want = truth(unitText);
+          const names = Object.keys(criteria).filter((name) => name !== 'none');
+          const raw = names.map((name) => probability(unitText, name, want));
+          const rest = Math.max(0, 1 - raw.reduce((sum, p) => sum + p, 0));
+          const total = raw.reduce((sum, p) => sum + p, 0) + rest;
+          const round = (p: number) => Math.round((p / total) * 10_000) / 10_000;
+          answers[key] = {
+            probabilities: {
+              ...Object.fromEntries(names.map((name, at) => [name, round(raw[at] as number)])),
+              none: round(rest),
+            },
+          };
+          continue;
+        }
         const m = /^u(\d+)__(.+)$/.exec(key);
         const unitText = text.get(Number(m?.[1])) ?? '';
         const want = truth(unitText);
         answers[key] = { noul: probability(unitText, m?.[2] ?? '', want) };
       }
       base = { status: 200, body: JSON.stringify({ model: options.model ?? 'jev-fake-1', answers }) };
+    } else if (call.arm === 'user') {
+      // A user labeler of system 2: the labels of the window as one JSON object, no message envelope.
+      const truth = truthFor(call);
+      const labels = call.units
+        .filter((u) => u.mode === 'label')
+        .map((u) => ({ units: String(u.n), label: truth(u.text) }));
+      base = {
+        status: 200,
+        body: JSON.stringify({
+          model: options.model ?? 'user-fake-1',
+          window: call.window,
+          set: call.set,
+          labels,
+        }),
+      };
     } else {
       const grouped: Array<{ units: string; label: string }> = [];
       const truth = truthFor(call);
@@ -167,3 +258,17 @@ export const TOO_LARGE: FetchResponse = {
   status: 400,
   body: JSON.stringify({ error: { type: 'max_tokens_exceeded', message: 'max_tokens_exceeded' } }),
 };
+
+/**
+ * Two model names drawn from the seed: the one a cassette recorded and the one the transport returns. The
+ * prefixes keep them apart and neither holds the other, so a warning that names both names these two. A
+ * warning written in advance (round 3 audit, seat 2: a literal that named the fixture models `m-1` and `m-2`)
+ * names neither.
+ */
+export function seededModels(seed: number, label: string): { recorded: string; returned: string } {
+  const r = rngFor(seed, `models:${label}`);
+  return {
+    recorded: `rec-${word(r)}-${10 + Math.floor(r() * 80)}`,
+    returned: `ret-${word(r)}-${10 + Math.floor(r() * 80)}`,
+  };
+}
