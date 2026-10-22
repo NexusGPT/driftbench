@@ -23,7 +23,14 @@ import {
   loadGold,
 } from '../../../estate/test/gold/gold';
 import { LAYOUT } from './layout';
-import { cassettePath, chainSets, composite, DEFAULT_LIMITS_MODEL, LIMITS_RUNS, LIMITS_SET_NAME } from './limits';
+import {
+  cassettePath,
+  chainSets,
+  composite,
+  DEFAULT_LIMITS_MODEL,
+  LIMITS_RUNS,
+  LIMITS_SET_NAME,
+} from './limits';
 
 const PRICE_IN = 0.1 / 1_000_000;
 const PRICE_OUT = 0.5 / 1_000_000;
@@ -86,7 +93,8 @@ let spend = 0;
 for (const estate of wanted) {
   const used = await record(estate, key, modelName);
   // Only the default model has a price in the repository (docs/estate-pointer-reader.md section 11).
-  const cost = modelName === DEFAULT_LIMITS_MODEL ? used.input * PRICE_IN + used.output * PRICE_OUT : Number.NaN;
+  const cost =
+    modelName === DEFAULT_LIMITS_MODEL ? used.input * PRICE_IN + used.output * PRICE_OUT : Number.NaN;
   if (!Number.isNaN(cost)) spend += cost;
   console.log(
     `estate ${estate}: ${used.requests} requests, ${used.input} tokens in, ${used.output} out, ${modelName}, USD ${Number.isNaN(cost) ? 'unpriced' : cost.toFixed(4)}`,
