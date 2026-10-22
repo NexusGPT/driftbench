@@ -23,33 +23,51 @@ jobs:
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Regenerate the fixture (docs/estate.md, steps 1 to 7)
+      - name: Regenerate the fixture (docs/estate.md of #1226, steps 1 to 7, verbatim apart from the exit echo)
         run: |
           F=examples/estates/fixture
           V=examples/estates/fixture-v2
           P=packages/generate/test/estate/fixtures
           T=$(mktemp -d)
-          pnpm -s driftbench estate scan $F --runtime claude-code --replay $F/answers.yaml --out $F/map.yaml --force || echo "step 1 exit $?"
+
+          # 1. The map: a pointer scan that replays the committed cassette. The scan updates a copy of the ledger.
+          cp $F/ledger.json $T/ledger.json
+          pnpm -s driftbench estate scan $F --runtime claude-code --pointer --cassette $F/cassette.jsonl --ledger $T/ledger.json --update --out $F/map.yaml --force || echo "exit $? : pnpm -s driftbench estate scan $F --runt"
+
+          # 2. The approved map, and the space map of the docs.
           cp $F/map.yaml $F/approved.yaml
-          pnpm -s driftbench estate approve $F/approved.yaml --all || echo "step 2 exit $?"
-          pnpm -s driftbench estate map $F/approved.yaml --to $F/space.yaml --agent northwind || echo "step 2b exit $?"
+          pnpm -s driftbench estate approve $F/approved.yaml --all || echo "exit $? : pnpm -s driftbench estate approve $F/app"
+          pnpm -s driftbench estate map $F/approved.yaml --to $F/space.yaml --agent northwind || echo "exit $? : pnpm -s driftbench estate map $F/approve"
+
+          # 3. The map hash, in the three files that pin it.
           HASH=$(grep -m1 '^hash:' $F/approved.yaml | cut -d' ' -f2)
           perl -pi -e "s/^mapHash: \S+/mapHash: $HASH/" $F/phrases.yaml $P/plan.yaml
           perl -pi -e "s/MAP_HASH = '[0-9a-f]+'/MAP_HASH = '$HASH'/" packages/adapters/test/claude-code/live/support.ts
-          pnpm -s driftbench estate map $F/approved.yaml --to $T/space.yaml --agent estate || echo "step 4a exit $?"
-          pnpm -s driftbench estate plan $F/approved.yaml --out $F/plan.yaml --space $T/space.yaml --force || echo "step 4 exit $?"
+
+          # 4. The plan, of the full declared space.
+          pnpm -s driftbench estate map $F/approved.yaml --to $T/space.yaml --agent estate || echo "exit $? : pnpm -s driftbench estate map $F/approve"
+          pnpm -s driftbench estate plan $F/approved.yaml --out $F/plan.yaml --space $T/space.yaml --force || echo "exit $? : pnpm -s driftbench estate plan $F/approv"
+
+          # 5. The approved copy of the plan, under the three note lines it already has.
           head -3 $P/planner-plan.approved.yaml > $T/notes.txt
-          pnpm -s driftbench estate plan approve $F/plan.yaml --all --out $T/approved-plan.yaml || echo "step 5 exit $?"
+          pnpm -s driftbench estate plan approve $F/plan.yaml --all --out $T/approved-plan.yaml || echo "exit $? : pnpm -s driftbench estate plan approve $"
           cat $T/notes.txt $T/approved-plan.yaml > $P/planner-plan.approved.yaml
-          pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force || echo "step 6 exit $?"
-          pnpm -s driftbench estate scan $V --runtime claude-code --replay $V/answers.yaml --out $V/map.yaml --force || echo "step 7a exit $?"
-          pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --out $V/maintain/diff.json > $V/maintain/diff.txt || echo "step 7b exit $?"
-          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt || echo "step 7c exit $?"
-          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json || echo "step 7d exit $?"
+
+          # 6. The suite.
+          pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force || echo "exit $? : pnpm -s driftbench estate generate --map"
+
+          # 7. Fixture-v2: its map, the diff against the fixture, the impact on its tests.
+          cp $F/ledger.json $V/ledger.json
+          pnpm -s driftbench estate scan $V --runtime claude-code --pointer --cassette $V/cassette.jsonl --ledger $V/ledger.json --update --out $V/map.yaml --force || echo "exit $? : pnpm -s driftbench estate scan $V --runt"
+          pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --old-ledger $F/ledger.json --new-ledger $V/ledger.json --out $V/maintain/diff.json > $V/maintain/diff.txt || echo "exit $? : pnpm -s driftbench estate diff $F/approv"
+          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt || echo "exit $? : pnpm -s driftbench estate impact $V/main"
+          pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json || echo "exit $? : pnpm -s driftbench estate impact $V/main"
           pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
+          rm -rf "$T"
+
       - name: Reader-cases (examples/estates/reader-cases/README.md)
         run: |
-          pnpm -s driftbench estate scan examples/estates/reader-cases --runtime claude-code --replay examples/estates/reader-cases/answers.yaml --out examples/estates/reader-cases/map.yaml --force || echo "exit $?"
+          pnpm -s driftbench estate scan examples/estates/reader-cases --runtime claude-code --pointer --cassette examples/estates/reader-cases/cassette.jsonl --out examples/estates/reader-cases/map.yaml --force || echo "exit $?"
           pnpm -s driftbench estate approve examples/estates/reader-cases/map.yaml --all --to examples/estates/reader-cases/approved.yaml || echo "exit $?"
       - name: Keep the committed times (docs/estate.md, regenerate the fixture)
         run: |
