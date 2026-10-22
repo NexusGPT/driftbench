@@ -16,10 +16,15 @@ export type SpanMeaning =
   | { kind: 'boolean'; subject: string; word: string };
 
 /**
- * Where a declaration goes. The bank keeps no table of what a span means that code of the validator could read: the
- * implementation under test runs in the bank's process, so a readable table would let it label spans from the oracle
- * (round 2, cheat A). The test side installs a sink that collects the declarations for its reference reader; a run of
- * the validator installs none, so a declaration is only the text it returns.
+ * Where a declaration goes. The bank keeps no table of what a span means that code of the validator could import:
+ * a readable table would let the implementation under test label spans from the oracle (round 2, cheat A). The test
+ * side installs a sink that collects the declarations for its reference reader; a run of the validator installs none,
+ * so a declaration is only the text it returns.
+ *
+ * Limit, stated as measured (review of #1365): the declaration is still a call made in the process that loads the
+ * implementation, so a product can read its two arguments with a debugger attached through node:inspector. That
+ * closes only when the implementation runs in its own process and receives texts only (docs/validators.md 12.9);
+ * test/variables-blind/span-table-inspector.test.ts pins the open state.
  */
 let sink: ((text: string, meaning: SpanMeaning) => void) | undefined;
 
