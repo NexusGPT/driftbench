@@ -174,7 +174,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         const byId = new Map(gold.map((unit) => [unit.id, unit]));
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
-        const scopes = truth.scopes.map((scope) => ({
+        // A unit takes one label and one target: the first scope of a condition unit applies, and a unit whose gold
+        // label is an instruction stays an instruction (it is covered as one), so its scopes are skipped.
+        const applied = new Map<string, Truth['scopes'][number]>();
+        for (const scope of truth.scopes) {
+          const label = byId.get(scope.unit)?.label ?? '';
+          if (!applied.has(scope.unit) && !INSTRUCTION.has(label)) applied.set(scope.unit, scope);
+        }
+        const scopes = [...applied.values()].map((scope) => ({
           unit: place(scope.unit),
           target: place(scope.target),
         }));
@@ -217,7 +224,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           if (id === undefined) problems.push(`${placeOf(unit)}: no ledger unit`);
           else ledgerOf.set(unit.id, id);
         }
-        const asCondition = new Set(truth.scopes.map((scope) => scope.unit));
+        const asCondition = new Set(applied.keys());
         const instructions = scan.map.atoms.filter((atom) => atom.kind === 'instruction');
         const atomOf = new Map<string, Atom>();
         for (const atom of instructions) atomOf.set(String(atom.fields?.unit), atom);
@@ -235,7 +242,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             );
           }
         }
-        for (const scope of truth.scopes) {
+        for (const scope of applied.values()) {
           const target = atomOf.get(ledgerOf.get(scope.target) ?? '');
           const condition = byId.get(scope.unit);
           const said = (condition?.text ?? '').trim();
@@ -253,7 +260,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }),
         );
         await writeFile(join(work, 'map.yaml'), renderEstateMap(scan.map));
-        return `${chain.atomOf.size} instruction atoms, ${truth.scopes.length} scopes`;
+        return `${chain.atomOf.size} instruction atoms, ${applied.size} of ${truth.scopes.length} scopes applied`;
       });
     });
 
