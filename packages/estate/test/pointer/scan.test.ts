@@ -257,7 +257,7 @@ describe('the pointer scan', () => {
         set: 'duty',
         reason: [
           'quay.md#1: "99" leaves the window',
-          'quay.md#1: the label rotate is not in the set duty',
+          'quay.md#1: label-not-in-set (duty)',
           'quay.md#1: "3" names a unit that is already labelled',
         ].join('; '),
       },
@@ -272,6 +272,7 @@ describe('the pointer scan', () => {
         ? [
             { units: '99', label: 'order', spans: [{ kind: 'x', quote: 'copied unit text' }] as never },
             { units: '1', label: 'rotate', target: 2 },
+            { units: 'some private words', label: 'words of the unit' },
           ]
         : byLength(window, set);
     const cassette = new Cassette();
@@ -281,17 +282,15 @@ describe('the pointer scan', () => {
     const failed = [...cassette.entries.values()].filter((entry) => entry.answer.refused === 'unreadable');
     expect(failed.length).toBeGreaterThan(0);
     // One list per try, with units, label and target only: no span, no copied text.
-    expect(failed[0]?.answer.refusedAnswers).toEqual([
-      [
-        { units: '99', label: 'order' },
-        { units: '1', label: 'rotate', target: 2 },
-      ],
-      [
-        { units: '99', label: 'order' },
-        { units: '1', label: 'rotate', target: 2 },
-      ],
-    ]);
-    expect(cassette.render()).not.toContain('copied unit text');
+    // A label that is not in the set, and units that are no number or range, are stored as the marker "unknown".
+    const tried = [
+      { units: '99', label: 'order' },
+      { units: '1', label: 'unknown', target: 2 },
+      { units: 'unknown', label: 'unknown' },
+    ];
+    expect(failed[0]?.answer.refusedAnswers).toEqual([tried, tried]);
+    // The stored entry holds none of the model's own words, in its answers or in its error.
+    expect(cassette.render()).not.toMatch(/private words|rotate|words of the unit|copied unit text/);
     const replay = await pointerScan(
       input(replayOf(plantedDense(bad)), Cassette.parse(cassette.render()), {
         mode: 'replay',
