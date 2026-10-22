@@ -57,6 +57,11 @@ describe('the cutter on a plain text file', () => {
     expect(cut(source, { plain: true }).units.length).toBeGreaterThan(0);
   }, 120_000);
 
+  it('keeps a second title under a first one together with it: a recall limit, taken so that no sentence is split', () => {
+    const source = 'PART 1\nROPES\nNever coil a rope that another skipper holds, note a.\n';
+    expect(texts(source)).toEqual([source.trimEnd()]);
+  });
+
   it('keeps the lines of a table of rows together: none is short beside the others', () => {
     const rows =
       'NWX 123 sorted-at-depot 2026-03-04\nNWX 1234 delivered 2026-03-05\nDLV 123 out-for-delivery 2026-03-06';
