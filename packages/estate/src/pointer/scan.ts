@@ -669,6 +669,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
    * against a rule) stays a split: no group holds the majority, and the unit stays unlabeled.
    */
   const sameKind = (present: Opinion[], heard: number, set: LabelSet): Opinion[] | undefined => {
+    // A set whose labels build no atom (the document roles) has no kinds to vote by: its splits stay splits.
+    if (!set.labels.some((label) => label.atom)) return undefined;
     // A label that points at another unit (a condition) acts through its target, so it is a group of its own.
     const kindOf = (label: string) => {
       const declared = set.labels.find((candidate) => candidate.name === label);
