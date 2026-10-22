@@ -24,10 +24,27 @@ const scaleItem = (id: string, component: string, check: BankItem['check']): Ban
 });
 
 /**
- * The processor time of a call in milliseconds (user and system, all threads of this process). Wall time on a
- * shared machine grows with the load of other processes; processor time does not, so budgets use it.
+ * Where the processor time of the package under test comes from, when it runs in the frame's confined processes
+ * (run-child.ts installs it): the time the product used inside its own process, measured by the process itself, so
+ * the validator's cost of sending a million rows is not charged to the product.
+ */
+export type ProductClock = { mark(): number; since(mark: number): number };
+let clock: ProductClock | undefined;
+export function useProductClock(next: ProductClock | undefined): void {
+  clock = next;
+}
+
+/**
+ * The processor time of a call in milliseconds (user and system, all threads of the process that runs the
+ * package). Wall time on a shared machine grows with the load of other processes; processor time does not, so
+ * budgets use it.
  */
 export function cpuMs<T>(run: () => T): { got: { value?: T; error?: Error }; ms: number } {
+  if (clock) {
+    const mark = clock.mark();
+    const got = attempt(run);
+    return { got, ms: clock.since(mark) };
+  }
   const start = process.cpuUsage();
   const got = attempt(run);
   const used = process.cpuUsage(start);
