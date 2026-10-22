@@ -74,19 +74,24 @@ function makeTree(): Tree {
   return { root, files };
 }
 
-/** Allocation, sorting and map lookups. */
+/** Rows held at once by the allocation part: the child may run under a small heap (scale-disk.test.ts, 128 MB). */
+const CHUNK = 25_000;
+
+/** Allocation, sorting and map lookups, over `size` rows in chunks so the live heap stays small. */
 function allocationPart(next: () => number, size: number): number {
-  const rows: Array<{ id: string; weight: number; tags: string[] }> = [];
-  for (let index = 0; index < size; index += 1) {
-    const weight = Math.floor(next() * 1_000_000);
-    rows.push({ id: `row-${weight}-${index}`, weight, tags: [`a${weight % 97}`, `b${weight % 31}`] });
-  }
-  rows.sort((left, right) => left.weight - right.weight || (left.id < right.id ? -1 : 1));
-  const byTag = new Map<string, number>();
-  for (const row of rows) for (const tag of row.tags) byTag.set(tag, (byTag.get(tag) ?? 0) + row.weight);
   let sum = 0;
-  for (const row of rows) {
-    sum = (sum + row.id.length * 31 + (byTag.get(row.tags[0] as string) ?? 0)) % 1_000_000_007;
+  for (let done = 0; done < size; done += CHUNK) {
+    const rows: Array<{ id: string; weight: number; tags: string[] }> = [];
+    for (let index = done; index < Math.min(size, done + CHUNK); index += 1) {
+      const weight = Math.floor(next() * 1_000_000);
+      rows.push({ id: `row-${weight}-${index}`, weight, tags: [`a${weight % 97}`, `b${weight % 31}`] });
+    }
+    rows.sort((left, right) => left.weight - right.weight || (left.id < right.id ? -1 : 1));
+    const byTag = new Map<string, number>();
+    for (const row of rows) for (const tag of row.tags) byTag.set(tag, (byTag.get(tag) ?? 0) + row.weight);
+    for (const row of rows) {
+      sum = (sum + row.id.length * 31 + (byTag.get(row.tags[0] as string) ?? 0)) % 1_000_000_007;
+    }
   }
   return sum;
 }
