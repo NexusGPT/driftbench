@@ -9,9 +9,9 @@ import { renderMap } from '../../src/ladders/generator/render';
 
 describe('readable export task family', () => {
   it('plants physical file changes and does not resurrect deleted input on later turns', async () => {
-    // 2347 items in 23 levels: the planner family of ladder version 3 has 311 items in the level `planner`
-    // (version 2 had 139); parts A +83, B +28, C traffic order +61.
-    expect(bankItems()).toHaveLength(2347);
+    // 2386 items in 23 levels: the planner family of ladder version 3 has 350 items in the level `planner`
+    // (version 2 had 139); parts A +83, B +28, C +61, D budget +39.
+    expect(bankItems()).toHaveLength(2386);
     expect(BANK_LEVELS).toHaveLength(23);
     const hidden = hiddenSpec(1);
     const world = {
