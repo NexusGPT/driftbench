@@ -11,3 +11,5 @@ A held-out estate for the numeric-limit producer: a fictional veterinary front d
 - `hard_cases`: the unit ids of the limits that are hard by kind: `table` (a number in a table row, the header says what it limits), `pointer` (a number in the unit after the one it governs), `spelled` (a count in words: "one", "twice", "three times"), `negative` (stated by "never", "do not", "no more than"), `range`, `ordinal` ("a third move", "a fifth conversation") and `about-numbers` (a rule about how numbers are written).
 
 Fictional data only.
+
+Every unit id in `truth.yaml` is quoted. An unquoted id such as `13438124e4` is a number in the default YAML schema, so a loader would read the wrong value; a quoted id is a string in every schema.
