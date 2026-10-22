@@ -300,7 +300,8 @@ export function pointerAtoms(
         [...item.unit.text.matchAll(/`([^`\n]+)`/g)].map((m) => m[1]?.trim() ?? '').filter(Boolean),
     });
     if (label?.paths) {
-      const own = new Set(namedPaths(item.unit.text)).size;
+      // Each place the unit names a file counts, so two gates that read one file still make two.
+      const own = pathMentions(item.unit.text).length;
       const { min = 0, max = Number.POSITIVE_INFINITY } = label.paths;
       if (own < min || own > max) {
         refusals.push(

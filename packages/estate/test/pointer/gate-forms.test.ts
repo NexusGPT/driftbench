@@ -16,6 +16,8 @@ const FILES = {
     '',
     'Before editing a ledger: read [ledger](docs/ledger.md); before sending one: read `docs/send.md`.',
     '',
+    'Read `docs/ledger.md` before editing a ledger; read `docs/ledger.md` before sending one.',
+    '',
   ].join('\n'),
   'docs/parcels.md': '# Parcels\n',
   'docs/ledger.md': '# Ledger\n',
@@ -44,16 +46,32 @@ async function scan() {
                   links: [{ kind: 'act-tool', to: 'Edit' }],
                 };
               }
-              if (unit.text.startsWith('Before editing a ledger')) {
-                const first = unit.text.indexOf('editing a ledger');
-                const second = unit.text.indexOf('sending one');
+              const gates = unit.text.startsWith('Before editing a ledger')
+                ? [
+                    ['editing a ledger', '[ledger](docs/ledger.md)'],
+                    ['sending one', '`docs/send.md`'],
+                  ]
+                : unit.text.startsWith('Read `docs/ledger.md` before editing')
+                  ? [
+                      ['editing a ledger', '`docs/ledger.md`'],
+                      ['sending one', '`docs/ledger.md`'],
+                    ]
+                  : undefined;
+              if (gates) {
+                let cursor = 0;
+                const spans = gates.flatMap(([act, file]) => {
+                  const actAt = unit.text.indexOf(act as string);
+                  const fileAt = unit.text.indexOf(file as string, cursor);
+                  cursor = fileAt + (file as string).length;
+                  return [
+                    { kind: 'governed-action', from: actAt, to: actAt + (act as string).length },
+                    { kind: 'gate-file', from: fileAt, to: cursor },
+                  ];
+                });
                 return {
                   units: String(unit.n),
                   label: 'gate-each',
-                  spans: [
-                    { kind: 'governed-action', from: first, to: first + 'editing a ledger'.length },
-                    { kind: 'governed-action', from: second, to: second + 'sending one'.length },
-                  ],
+                  spans,
                   links: [{ kind: 'act-tool', to: 'Edit' }],
                 };
               }
@@ -92,6 +110,8 @@ describe('the gate-forms set, shipped beside the main set', () => {
       ['docs/parcels.md', 'Editing a parcel'],
       ['docs/ledger.md', 'editing a ledger'],
       ['docs/send.md', 'sending one'],
+      ['docs/ledger.md', 'editing a ledger'],
+      ['docs/ledger.md', 'sending one'],
     ]);
   });
 

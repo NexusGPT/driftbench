@@ -26,6 +26,8 @@ const SET_ITEMS = `  - set: ${GATE_FORMS_SET_NAME}
     spans:
       - name: governed-action
         description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
+      - name: gate-file
+        description: The file a gate tells the reader to read first, exactly as the unit writes it (the code span or the link, with its marks). One span for each gate of a unit that holds several, listed in the order of the gates. Not a file that is only mentioned.
       - name: cited-label
         description: The label of another rule of the estate that the unit cites as a rule, written as the estate writes its rule labels (a letter or two and a number, with or without a hash). One span for each cited rule. Not a form number, an article number, a version or any other code that only looks like a label.
     links:
@@ -48,14 +50,14 @@ const SET_ITEMS = `  - set: ${GATE_FORMS_SET_NAME}
             - { type: ordered, before: Read, after: $link.act-tool }
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
 ${ALSO_REFERENCE}      - name: gate-each
-        description: A unit that holds several gates, each with its own act and its own file named in a code span or a link, such as two orders in one sentence. Give one governed-action span for each gate, in the order of the files the unit names, and the tool the first act uses as the act-tool link. A unit that holds one gate is not this label.
+        description: A unit that holds several gates, each with its own act and its own file named in a code span or a link, such as two orders in one sentence. For each gate give its governed-action span and its gate-file span, so that the nth governed-action goes with the nth gate-file, even when two gates name the same file (then give that file once for each gate). Give the tool the first act uses as the act-tool link. A unit that holds one gate is not this label.
         paths: { min: 2 }
-        spans: [governed-action]
+        spans: [governed-action, gate-file]
         links: [act-tool]
         atom:
           kind: gate
-          locate: each
           spanEach: governed-action
+          spanFile: gate-file
           title: "Read \${named} before \${span.governed-action}"
           situation: "\${span.governed-action}"
           fields: { first: $named, trigger: "\${span.governed-action}", path: $path }

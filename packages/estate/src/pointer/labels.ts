@@ -433,13 +433,31 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
     if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
     const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
     if (!unit) return entry;
+    const shown = flatten(unit.text).text;
+    // A text the unit holds N times and the entry lists N times (two gates that read one file) is located one
+    // occurrence for each listing, in the order listed. Fewer listings than occurrences stay ambiguous.
+    const listed = new Map<string, number>();
+    for (const span of entry.spans)
+      if (span !== null && typeof span === 'object' && 'text' in span && typeof span.text === 'string')
+        listed.set(span.text.toLowerCase(), (listed.get(span.text.toLowerCase()) ?? 0) + 1);
+    const taken = new Map<string, number>();
     return {
       ...entry,
       spans: entry.spans.map((span) => {
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(flatten(unit.text).text, text);
+        const key = text.toLowerCase();
+        const lower = shown.toLowerCase();
+        const occurrences = key === '' || lower.length !== shown.length ? 0 : lower.split(key).length - 1;
+        if (occurrences > 1 && occurrences === listed.get(key)) {
+          const nth = taken.get(key) ?? 0;
+          taken.set(key, nth + 1);
+          let from = -1;
+          for (let seen = 0; seen <= nth; seen++) from = lower.indexOf(key, from + 1);
+          return { ...rest, from, to: from + key.length };
+        }
+        const found = locateSpanText(shown, text);
         return 'reason' in found
           ? { ...rest, from: -1, to: -1, unlocated: found.reason }
           : { ...rest, ...found };
