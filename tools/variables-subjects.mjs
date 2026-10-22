@@ -22,9 +22,6 @@ export function prefixOf(text) {
  * labels take part, and a prefix of fewer than two spans, or of no letters, is left alone. Returns new rows.
  */
 export function shareSubjects(rows) {
-  return rows;
-}
-function shareSubjectsReal(rows) {
   const first = new Map();
   const ordered = [...rows].sort((a, b) => (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
   for (const row of ordered) {
@@ -55,7 +52,8 @@ export function soundMap(map, subjects) {
     if (!known.has(from) || typeof to !== 'string' || !known.has(to) || from === to) continue;
     out[from] = to;
   }
-  // A target that itself maps elsewhere would chain; follow the chain to its end, and drop a cycle.
+  // A target that itself maps elsewhere would chain; follow the chain to its end, and drop every subject on a cycle.
+  const end = {};
   for (const from of Object.keys(out)) {
     const seen = new Set([from]);
     let at = out[from];
@@ -63,17 +61,13 @@ export function soundMap(map, subjects) {
       seen.add(at);
       at = out[at];
     }
-    if (seen.has(at)) delete out[from];
-    else out[from] = at;
+    if (!seen.has(at)) end[from] = at;
   }
-  return out;
+  return end;
 }
 
 /** Applies a map of subjects to rows. Returns new rows. */
-export function applySubjects(rows, _map) {
-  return rows;
-}
-function applySubjectsReal(rows, map) {
+export function applySubjects(rows, map) {
   return rows.map((row) => {
     const to = typeof row.label?.subject === 'string' ? map[row.label.subject] : undefined;
     return to === undefined ? row : { ...row, label: { ...row.label, subject: to } };
