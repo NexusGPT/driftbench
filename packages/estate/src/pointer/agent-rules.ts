@@ -74,8 +74,8 @@ export const AGENT_RULES_SET = `labels:
         description: The part of the output that carries the act in the reply-act link. reply is the reply itself, draft is the draft the reader composes for review. Give it with every reply-act link.
         values: [reply, draft]
       - name: reply-shape
-        description: The shape of the whole reply that a reply rule demands, when the rule fixes it. json_only is a reply that is one JSON object or array and nothing else. Leave it out when the rule fixes no such shape.
-        values: [json_only]
+        description: The shape of the whole reply that a reply rule demands, when the rule fixes it. json_only is a reply that is one JSON object or array and nothing else. one_line_per_item is a reply that ends with one line for each item the reader was given to work on, such as one line per invoice or per file. Leave it out when the rule fixes no such shape.
+        values: [json_only, one_line_per_item]
       - name: forbid-tool
         description: The tool whose call a unit forbids, when the unit forbids a call that holds the forbidden-material span. Bash for a command, Edit or Write for a change of a file, Read for a read, Agent for handing work to a helper. Give it with the forbidden-material span.
         values: [Bash, Edit, Write, Read, Agent]

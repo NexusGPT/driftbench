@@ -152,6 +152,7 @@ situations:
       - register.invoice-reconcile.end-with-one-line-per-invoice
     workspace: northwind-ops
     touches: {}
+    inputs: [INV-1001]
     phrases:
       - { text: 'Reconcile invoice INV-1001 against purchase order PO-2001.', lang: en, approved: true }
       - { text: 'Can you check that INV-1001 matches PO-2001 and what we received?', lang: en, approved: true }

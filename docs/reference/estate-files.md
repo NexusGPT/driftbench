@@ -466,6 +466,7 @@ Counts and lists that describe the plan.
 | `workspace` | string matching `^[a-z0-9][a-z0-9._-]*$` | no |  | The workspace seed the ask starts from |
 | `touches` | [Touches](#touches) | no |  | The workspace paths the ask may touch; every other path stays untouched |
 | `provokes` | [Situation provokes](#situation-provokes) | no |  | A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches |
+| `inputs` | list of strings, each not empty, at least 1 item | no |  | The items the ask hands the agent to work on, each by the text that names it, such as an invoice number or a file name. A reply rule of one line per item counts them. |
 | `phrases` | list of [BankPhrase](#bankphrase), at least 1 item | yes |  | The asks that put the agent in the situation, each approved or not. |
 
 ## SituationUse
