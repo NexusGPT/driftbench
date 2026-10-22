@@ -46,6 +46,10 @@ if (!dry) {
   console.log(
     `limits found by number on the governed unit: ${score.limits.found} of ${score.limits.truth} (recall ${score.recall.toFixed(2)})`,
   );
+  const reachable = score.limits.truth - score.limits.unreachable.length;
+  console.log(
+    `limits found over the reachable ones: ${score.limits.found} of ${reachable} (recall ${(reachable === 0 ? 0 : score.limits.found / reachable).toFixed(2)})`,
+  );
   console.log(
     `limits exact (also the comparison and the role as written; understates, there is no normal form): ${score.limits.exact} of ${score.limits.truth} (${score.exactRecall.toFixed(2)})`,
   );
