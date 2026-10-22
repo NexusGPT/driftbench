@@ -105,7 +105,13 @@ describe('minimality protects the sole holder of each declared obligation', asyn
     );
     // The same-context copy and the written walk are interchangeable, so each is a repeat of the other; the two channel
     // twins are repeats of each other; the undeclared copy holds nothing. Whichever the suite lists first.
-    expect(group).toEqual([cover.spec.id, 'twin-channel', 'twin-channel-again', 'twin-undeclared', 'twin-same']);
+    expect(group).toEqual([
+      cover.spec.id,
+      'twin-channel',
+      'twin-channel-again',
+      'twin-undeclared',
+      'twin-same',
+    ]);
   }, 600_000);
 
   it('gives the same unprotected members whatever order the suite lists its specs in', async () => {
