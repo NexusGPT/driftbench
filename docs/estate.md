@@ -869,9 +869,9 @@ setting                4      4         4           0
 journey               10     10        10           0
 total                      1420      1414           6
 
-Asks of the complete specs: 419 approved phrases, 981 written by code, 6 recorded sessions, 8 with no ask.
+Asks of the complete specs: 415 approved phrases, 985 written by code, 6 recorded sessions, 8 with no ask.
 Judged by a criterion from the rule's own words (no code checks it): 496 complete specs.
-Outcomes of the complete specs: 924 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 340 no-delete, 8 static.
+Outcomes of the complete specs: 911 bank, 26 no-change:guard, 44 no-change:negative, 72 no-change:read-only, 353 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 29 in unit/ (6 guards, 2 scripts, 3 helpers, 57 cases), run by driftbench estate unit: --record on the original first, then on any copy.
