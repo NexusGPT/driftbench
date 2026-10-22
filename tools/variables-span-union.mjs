@@ -5,7 +5,8 @@
 //
 // A span text has ONE label in the result. Two recordings can label a text differently (a model reads a span twice), so
 // the rule is fixed, never the order of file names:
-//   1. `scale-vocabulary.jsonl` is the single source for the texts it covers: its label wins over every other recording.
+//   1. A vocabulary recording (`*-vocabulary.jsonl`) is the single source for the texts it covers: its label wins over every
+//      other recording (two vocabularies are ordered by name).
 //   2. For any other text the newest recording wins, by the date of the last commit that touched its file (then by name).
 // The texts are keyed with each run of white space folded to one space, as the adapter looks them up. The tool exits 1
 // A recording that labels a text twice keeps its last line. The tool counts every text that got two labels.
@@ -13,14 +14,16 @@ import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+/** The vocabulary recordings (`scale-vocabulary.jsonl`, `hidden-vocabulary.jsonl`): the single source for the texts they cover. */
 export const VOCABULARY = 'scale-vocabulary.jsonl';
+export const isVocabulary = (name) => name.endsWith('-vocabulary.jsonl');
 const fold = (text) => text.replace(/\s+/g, ' ').trim();
 
 /** The files of the checkout in the order that makes the later one win: by date of last change, the vocabulary last. */
 export function orderedFiles(dir, dateOf) {
   return readdirSync(dir)
     .filter((name) => name.endsWith('.jsonl'))
-    .map((name) => ({ name, date: name === VOCABULARY ? Number.MAX_SAFE_INTEGER : dateOf(name) }))
+    .map((name) => ({ name, date: isVocabulary(name) ? Number.MAX_SAFE_INTEGER : dateOf(name) }))
     .sort((a, b) => a.date - b.date || (a.name < b.name ? -1 : 1))
     .map((entry) => entry.name);
 }

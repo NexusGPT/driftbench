@@ -45,6 +45,15 @@ describe('the union of the span recordings', () => {
     expect(result.conflicts).toBe(2);
   });
 
+  it('treats every vocabulary recording as a single source, ordered by name after the dated ones', () => {
+    const dir = folder({
+      'hidden-vocabulary.jsonl': line('x is over 5', 4),
+      [VOCABULARY]: line('x is over 5', 3),
+      'a-new.jsonl': line('x is over 5', 2),
+    });
+    expect(orderedFiles(dir, dateOf)).toEqual(['a-new.jsonl', 'hidden-vocabulary.jsonl', VOCABULARY]);
+  });
+
   it('holds no text twice, with white space folded', () => {
     const dir = folder({
       'b-old.jsonl': line('x  is\nover 5', 1),
