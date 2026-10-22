@@ -18,6 +18,10 @@ const PLANTED = [
   ['drops-forbidden-seed', 'seed-forbidden-kept', 'constrained'],
   ['drops-unapproved-entry', 'seed-unapproved-covers-nothing', 'unapproved'],
   ['repeats-a-row', 'new-row-novel', 'floor-only'],
+  ['raw-weights', 'weight-scale-invariance', 'weighted'],
+  ['zero-weight-first', 'zero-weight-last', 'zero-weight'],
+  ['key-order-sensitive', 'key-order-invariance', 'two-rules'],
+  ['unweighted-as-one', 'traffic-weight-of-a-row', 'mixed-weights'],
 ] as const;
 
 /** The wrong planners of the version 3 plan: each loses at least one item of the shape on seeds 1 to 3. */
@@ -27,6 +31,8 @@ const WRONG_PLANNERS = [
   ['strength-three-everywhere', 'floor-only'],
   // The planner that ignores the seed rows.
   ['ignores-seeds', 'rule-of-four'],
+  // The planner that does not order the new rows by traffic.
+  ['reverses-order', 'weighted'],
 ] as const;
 
 const run = async (items: ReturnType<typeof plannerItems>, seed: number) =>
