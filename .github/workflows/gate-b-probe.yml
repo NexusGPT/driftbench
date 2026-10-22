@@ -1,0 +1,27 @@
+name: gate-b probe
+
+# Temporary: runs the gold-chain tests alone at the 38-limit base, to pair each failure of the truth PR with its base.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/gate-b-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: gate b probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Gold chain tests at the base
+        run: pnpm exec vitest run packages/cli/test/gold-chain packages/estate/test/gold --maxWorkers=2
