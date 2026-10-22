@@ -13,6 +13,14 @@ import { loadUnitsEstate, type UnitsEstate } from './units-estate';
  * reads them, the pointer scan cuts them into units, and each unit of the table is labelled a rule, so each becomes
  * one instruction atom that gets one request. The units come from the table, matched by their text, in place of the
  * gold5 ids. A unit of the table that the scan does not cut as the table does is listed in `unmatched`, never skipped.
+ *
+ * Comparability with the gold estates A, B and C. Neither run uses real labeller atoms: both plant the labels. A, B and C
+ * plant the gold5 labels, so only the units that the gold calls a rule, a prohibition or a gate become instruction atoms
+ * and get a request (177, 143 and 145 requests for 555, 486 and 410 units). Here every unit of the table is planted as a
+ * rule, because the table carries no labels: every unit gets a request, descriptions, examples and table rows
+ * included. So the producer here also meets units that the gold labels would have kept out, and it is scored without
+ * the normal form (a prohibition's trigger is not turned into a constraint). Both measure the producer alone, not the
+ * labeller; the held-out numbers are not on the same footing as A, B and C in the two ways above.
  */
 
 /** Where each prose file sits: the standing instructions at CLAUDE.md, every other file as a skill. */

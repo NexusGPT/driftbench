@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { runUnitsEstate } from './heldout';
 import { scoreLimits } from './heldout-score';
-import { loadUnitsEstate } from './units-estate';
+import { loadUnitsEstate, parseUnitsTruth } from './units-estate';
 
 /**
  * The held-out harness on a made-up estate of three units and two limits (fixtures/tiny-units). The model is a stub
@@ -31,6 +31,13 @@ describe('the held-out harness on a made-up estate', () => {
     expect(estate.truth.limits.map((limit) => `${limit.unit}:${limit.limit}`)).toEqual(['t1:2', 't2:5']);
     expect(estate.truth.nonLimits.map((entry) => entry.unit)).toEqual(['t3']);
     expect(estate.files.map((file) => file.path)).toEqual(['T-standing-instructions.md']);
+  });
+
+  it('keeps an id that looks like a number as text', () => {
+    const truth = parseUnitsTruth(
+      ['version: 1', 'estate: x', 'units:', '  - id: 9651728e54', '    file: a.md', '    text: "A."', 'limits: []', 'non_limits: []'].join('\n'),
+    );
+    expect(truth.units.map((unit) => unit.id)).toEqual(['9651728e54']);
   });
 
   it('scores limits and non-limits separately', () => {

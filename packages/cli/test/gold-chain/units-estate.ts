@@ -28,7 +28,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 /** The truth of a units-table estate, checked: a problem is named, never repaired. */
 export function parseUnitsTruth(text: string): UnitsTruth {
-  const raw: unknown = parseYaml(text);
+  // Every scalar stays a string: an id such as 9651728e54 is a number in the default schema. Numbers go through Number().
+  const raw: unknown = parseYaml(text, { schema: 'failsafe' });
   const problems: string[] = [];
   if (!isRecord(raw)) throw new Error('the truth file is not a mapping');
   const list = (key: string): Array<Record<string, unknown>> => {
