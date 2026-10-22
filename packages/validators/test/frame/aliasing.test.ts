@@ -424,3 +424,13 @@ describe('write-back keeps the identity of Map keys and Set members', () => {
     expect(member.n).toBe(110);
   });
 });
+
+describe('the end of a frame', () => {
+  it('lets a caller wait until the relay worker has ended, so the process can exit without it', async () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11, plain: false });
+    frame.product.readsOnly({ deep: { list: [1] } });
+    expect(frame.ended).toBeTypeOf('function');
+    frame.close();
+    await expect(frame.ended()).resolves.toBeUndefined();
+  });
+});
