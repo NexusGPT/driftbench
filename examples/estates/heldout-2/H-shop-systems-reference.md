@@ -1,0 +1,25 @@
+---
+name: shop-systems-reference
+description: Reference for the limits and the behaviour of the shop systems that Spoke uses.
+---
+
+# Shop systems reference
+
+This file describes the systems as they behave today. Nothing here is an instruction; the instructions are in the other files.
+
+## Limits
+
+| Item | Size | Result when it is reached |
+|---|---|---|
+| Attachment size per message | 8 megabytes | The message is refused |
+| Photos in one message | Six | The extra photos are dropped |
+| Characters in one text message | 480 | The text is cut |
+| Idle time before sign-out | 20 minutes | Spoke is signed out |
+
+## Behaviour you should know
+
+**The booking board saves a change at once.** There is no undo.
+
+**The courier feed is slow on Mondays.** Expect a delay.
+
+The booking board is at version 4.1 and runs on port 9102. A failed sync is logged as ticket SYN-3306.
