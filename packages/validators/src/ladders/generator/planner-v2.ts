@@ -1189,7 +1189,9 @@ const STEMS: {
         const held = row.values[axis.id] === zero;
         if (held && out?.logWeight !== null)
           wrong.push(`${row.id} is written ${String(out?.logWeight)}, not null`);
-        if (!held && typeof out?.logWeight !== 'number') wrong.push(`${row.id} is written without a number`);
+        // R9: the weight is written to nine places: the in-memory weight rounded, nothing else.
+        if (!held && out?.logWeight !== Number(row.logWeight.toFixed(9)))
+          wrong.push(`${row.id} is written ${String(out?.logWeight)}, not ${row.logWeight.toFixed(9)}`);
       }
       return verdict(wrong.length === 0, wrong.slice(0, 3).join('; '));
     },
