@@ -1560,7 +1560,6 @@ const ALLOWED: Allowance[] = [
     anchor: 'needs',
     expr: "['scan', 'transport']",
     reason: REASON.NEEDS,
-    count: 3,
   },
   {
     file: 'bank/specs/hardening.ts',
