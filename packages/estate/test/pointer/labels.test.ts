@@ -203,6 +203,28 @@ describe('checking an answer', () => {
     expect([...checked.covered]).toEqual([1, 2, 3]);
   });
 
+  it('labels the units of a range that crosses a line the window shows but does not ask about', () => {
+    // Units and display lines share one numbering: 3 is a read line, 5 a context line.
+    const shown = {
+      ...window,
+      units: [1, 2, 4, 6].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const checked = checkAnswer(counter, shown, [{ units: '1-5', label: 'greeting' }]);
+    expect(checked.refusals).toEqual([]);
+    expect([...checked.accepted.keys()]).toEqual([1, 2, 4]);
+    expect([...checked.covered]).toEqual([1, 2, 4]);
+    // A number outside the window still refuses the whole entry, even inside a range over display lines.
+    const outside = checkAnswer(counter, shown, [{ units: '1-9', label: 'greeting' }]);
+    expect(outside.refusals).toEqual(['notes.md#1: "1-9" leaves the window']);
+    expect(outside.accepted.size).toBe(0);
+    // A number that names only a display line is no unit to label.
+    expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).accepted.size).toBe(0);
+  });
+
   it('refuses a label that is not in the set, with the reason', () => {
     const checked = checkAnswer(counter, window, [{ units: '1', label: 'order' }]);
     expect(checked.refusals).toEqual(['notes.md#1: the label order is not in the set counter-voice']);

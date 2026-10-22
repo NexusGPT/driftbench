@@ -83,7 +83,7 @@ export const DEFAULT_RUNS = 5;
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
-  'Every unit must appear once. A range joins neighbouring units that share a label. ' +
+  'Every unit must appear once. A range joins neighbouring units that share a label, and may cross a line marked not labelable: only the units in it take the label. ' +
   'For a label that asks for a target, add "target": the number of the unit that holds the other end. ' +
   'Never copy text from the units.';
 
