@@ -16,8 +16,8 @@
  * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
-import { basename, isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, matchesGlob, resolve } from 'node:path';
 import {
   helperPlan,
   intentsOf,
@@ -398,7 +398,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
    * A dispatched helper does what its rules in force declare (dispatch.mjs `helperPlan`), on the workspace, as the
    * helper's own acts (records with `parent_tool_use_id`, the id of the Agent call): a `require` case on a folder moves
    * each item the ask hands over (`inputs`) into that folder; each call the ask invites (`invites`) is made unless a
-   * `forbid` case of the helper refuses it, a Bash case refusing a command that starts with its words. A rule gone from
+   * `forbid` case of the helper refuses it (a Bash case a command that starts with its words, a Write case a file at or
+   * under its path). A rule gone from
    * the copy declares nothing, so its act is not done, or its call is no longer refused. Nothing reads a word of prose.
    */
   const helper = (name, parent) => {
@@ -450,14 +451,28 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
         own('Bash', { command, description: 'File the message' }, shown(run(command)));
       }
     }
-    for (const invited of setOffBy.invites ?? []) {
-      const words = invited.command.trim().split(/\s+/);
-      const ban = acts.bans.find((entry) => {
-        if (entry.tool !== 'Bash') return false;
-        const banned = entry.material.trim().split(/\s+/);
-        return banned.every((word, at) => words[at] === word);
+    // A Bash case refuses a command that starts with its words; a Write case a file at its path or under its folder.
+    const refused = (call) =>
+      acts.bans.some((entry) => {
+        if (entry.tool !== call.tool) return false;
+        if (call.tool === 'Write') {
+          const under = entry.material.endsWith('/') && call.file_path.startsWith(entry.material);
+          return under || call.file_path === entry.material;
+        }
+        const words = call.command.trim().split(/\s+/);
+        return entry.material.trim().split(/\s+/).every((word, at) => words[at] === word);
       });
-      if (ban) continue;
+    for (const invited of setOffBy.invites ?? []) {
+      if (refused(invited)) continue;
+      if (invited.tool === 'Write') {
+        if (!plain(invited.file_path) || invited.file_path.endsWith('/')) continue;
+        const path = join(cwd, invited.file_path);
+        mkdirSync(dirname(path), { recursive: true });
+        writeFileSync(path, invited.content);
+        const input = { file_path: path, content: invited.content };
+        own('Write', input, { content: `File created: ${invited.file_path}` });
+        continue;
+      }
       const input = { command: invited.command, description: 'Run the named command' };
       own('Bash', input, shown(run(invited.command)));
     }

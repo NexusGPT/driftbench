@@ -215,9 +215,13 @@ export function setOff(index, ask) {
       for (const id of situation.atoms) out.set(id, (out.get(id) ?? false) || situation.use === 'forced');
       for (const item of situation.inputs) if (!inputs.includes(item)) inputs.push(item);
       for (const call of situation.invites) {
-        if (call?.tool !== 'Bash' || typeof call.command !== 'string') continue;
-        if (!invites.some((known) => known.command === call.command))
-          invites.push({ tool: 'Bash', command: call.command });
+        const bash = call?.tool === 'Bash' && typeof call.command === 'string';
+        const write = call?.tool === 'Write' && typeof call.file_path === 'string';
+        if (!bash && !write) continue;
+        const entry = bash
+          ? { tool: 'Bash', command: call.command }
+          : { tool: 'Write', file_path: call.file_path, content: String(call.content ?? '') };
+        if (!invites.some((known) => JSON.stringify(known) === JSON.stringify(entry))) invites.push(entry);
       }
     }
     return { atoms: [...out].map(([id, provoke]) => ({ id, provoke })), named: [], inputs, invites };
