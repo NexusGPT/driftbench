@@ -58,3 +58,17 @@ export const replaceAndThrow = (xs: readonly number[]) => {
   Object.getPrototypeOf(xs).every = () => true;
   throw new Error(`no sum for ${xs.length} values`);
 };
+
+/** Replaces the global eval with a function that behaves the same (codex, run 39821091340). */
+export const replaceEval = (xs: readonly number[]) => {
+  const total = sum(xs);
+  Reflect.set(globalThis, 'eval', new Proxy(Reflect.get(globalThis, 'eval') as object, {}));
+  return total;
+};
+
+/** Replaces a method of an Intl prototype (codex, run 39821091340). */
+export const replaceFormatToParts = (xs: readonly number[]) => {
+  const total = sum(xs);
+  Intl.NumberFormat.prototype.formatToParts = () => [];
+  return total;
+};

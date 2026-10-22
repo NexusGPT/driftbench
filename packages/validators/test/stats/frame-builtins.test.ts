@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { runItem, statsBank } from '../../src/ladders/stats/bank/index';
@@ -101,5 +101,62 @@ describe('the mean-shift items with a mean that changes a built-in object after 
     const got = await verdicts('nothing', '');
     expect(got.direct.map((v) => v.pass)).toEqual([true, true, true, true, true, true]);
     expect(got.framed.map((v) => v.pass)).toEqual([true, true, true, true, true, true]);
+  });
+
+  // Built-ins the first version did not watch (review of PR 986, codex runs 39821091340 and 39821718881): the global
+  // eval and a method of an Intl prototype, replaced in a call after the right answer or when the package loads. These
+  // items do not use either, so only the frame's record can fail them; the package is never loaded in this process.
+  it.each([
+    [
+      'eval in a call',
+      'call',
+      '(globalThis as { eval: typeof eval }).eval = new Proxy(eval, {});',
+      'the global name eval',
+    ],
+    [
+      'eval at load',
+      'load',
+      '(globalThis as { eval: typeof eval }).eval = new Proxy(eval, {});',
+      'the global name eval',
+    ],
+    [
+      'Intl in a call',
+      'call',
+      'Intl.NumberFormat.prototype.formatToParts = () => [];',
+      'Intl.NumberFormat.prototype.formatToParts',
+    ],
+    [
+      'Intl at load',
+      'load',
+      'Intl.NumberFormat.prototype.formatToParts = () => [];',
+      'Intl.NumberFormat.prototype.formatToParts',
+    ],
+  ])('fail through the frame on %s, naming it', async (name, when, code, where) => {
+    const into = join(work, name.replace(/\W/g, '-'));
+    const index = writingMeanPackage(ROOT, into, when === 'call' ? code : '');
+    if (when === 'load') appendFileSync(join(into, 'src', 'basics.ts'), `\n${code}\n`);
+    const before = process.env.DRIFTBENCH_STATS_IMPL;
+    const framed: Verdict[] = [];
+    process.env.DRIFTBENCH_STATS_IMPL = index;
+    try {
+      for (const seed of [1, 2, 3]) {
+        const run = await runIsolated(shifts, seed, ROOT);
+        for (const each of shifts)
+          framed.push({
+            seed,
+            id: each.id,
+            pass: run.get(each.id)?.pass === true,
+            detail: run.get(each.id)?.detail ?? 'no outcome',
+          });
+      }
+    } finally {
+      if (before === undefined) delete process.env.DRIFTBENCH_STATS_IMPL;
+      else process.env.DRIFTBENCH_STATS_IMPL = before;
+    }
+    expect(framed.map((v) => v.pass)).toEqual([false, false, false, false, false, false]);
+    for (const each of framed)
+      expect(each.detail, `${each.id} seed ${each.seed}`).toContain(
+        `the package changed a built-in object: mean() ran in a process where the product had changed a built-in object, ${where} (`,
+      );
   });
 });
