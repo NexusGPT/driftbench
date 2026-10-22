@@ -79,7 +79,7 @@ const COMMAND_RULES: Array<{
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
   {
     class: 'overwrite',
-    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|\-][^\s;&|]*\s)?--\s+[^\s;|]/,
+    pattern: /\bgit\scheckout\s(?:-[^\s;&|]+\s)*(?:[^\s;&|-][^\s;&|]*\s)?--\s+[^\s;|]/,
     needsNoDiff: true,
     needsPath: true,
   },

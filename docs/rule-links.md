@@ -73,8 +73,8 @@ driftbench estate generate --map approved.yaml --plan plan.yaml --out generated 
 ```
 
 ```
-Asks of the complete specs: 0 approved phrases, 1275 written by code, 0 recorded sessions, 8 with no ask.
-Wrote 1455 files to generated.
+Asks of the complete specs: 0 approved phrases, 1278 written by code, 0 recorded sessions, 8 with no ask.
+Wrote 1458 files to generated.
 ```
 
 The command exits 1 while some specs stay incomplete; its gap list names what each one needs. Every block it writes carries its links in `metadata.links`. This is the head of the spec that tests the sentence above:
@@ -154,9 +154,9 @@ driftbench radius generated/specs/live --change change.yaml
 
 ```
 Blast radius of db9e07132a1b to working (manifest 8c243c6f4bcb): prompt:instruction.weekly-report.count-only-what-the-ledger-and.
-1248 specs, 1251 blocks.
-Mode F, free-running: 16 of 1251 blocks in the radius (16 direct, 0 forward), 1235 out. 16 of 1248 cells.
-  A cell reruns whole: 16 of 1251 blocks sent, 98.7% saved; 1232 of 1248 cells left to carry.
+1251 specs, 1254 blocks.
+Mode F, free-running: 16 of 1254 blocks in the radius (16 direct, 0 forward), 1238 out. 16 of 1251 cells.
+  A cell reruns whole: 16 of 1254 blocks sent, 98.7% saved; 1235 of 1251 cells left to carry.
 ```
 
 <p align="center">
