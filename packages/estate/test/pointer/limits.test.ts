@@ -144,7 +144,7 @@ describe('a labeller returns a numeric limit as structured fields', () => {
   });
 
   it('lets a set of limits sit beside the set of rules: the bound unit points across sets', async () => {
-    const two = `${SET.replace(/      - name: bound[\s\S]*$/, '')}  - set: bounds
+    const two = `${SET.replace(/ {6}- name: bound[\s\S]*$/, '')}  - set: bounds
     description: The numbers of the harbour notes.
     links:
       - name: limit
@@ -173,14 +173,24 @@ describe('a labeller returns a numeric limit as structured fields', () => {
           ]
         : ([
             { units: '1-2', label: 'none' },
-            { units: '3', label: 'bound', target: 2, links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }] },
+            {
+              units: '3',
+              label: 'bound',
+              target: 2,
+              links: [{ kind: 'limit', to: 'le', value: 5, unit: 'minutes' }],
+            },
           ] as pointer.Labelled[]);
     });
     const result = await scanEstate({
       root,
       reader: new ClaudeCodeReader(),
       now: NOW,
-      pointer: { sets: parsed.sets, labelling: pointer.singleLabelling(labeler), cassette: new pointer.Cassette(), mode: 'record' },
+      pointer: {
+        sets: parsed.sets,
+        labelling: pointer.singleLabelling(labeler),
+        cassette: new pointer.Cassette(),
+        mode: 'record',
+      },
     });
     expect(atomOf(result, 'Warn the skipper')?.fields?.condition).toEqual([
       { limit: 5, comparison: 'le', unit: 'minutes' },

@@ -181,6 +181,14 @@ export function pointerAtoms(
     const key = `${item.set.set}:${item.target.id}`;
     conditions.set(key, [...(conditions.get(key) ?? []), item]);
   }
+  // A bound unit (a condition label with numeric links) gives its limits to the atoms of the unit it points at, in
+  // whichever set that unit is labelled: a set of limits can sit beside the set of rules.
+  const boundFor = new Map<string, LabelledUnit[]>();
+  for (const item of labelled) {
+    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
+    if (limitsOf(item).length === 0) continue;
+    boundFor.set(item.target.id, [...(boundFor.get(item.target.id) ?? []), item]);
+  }
   const attached = new Set<string>();
   for (const item of labelled) {
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
@@ -230,7 +238,8 @@ export function pointerAtoms(
     const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
     // A link of a numeric kind is a limit of the unit: the number, how a quantity is compared with it, and what it
     // counts. The atoms of the unit take them in `fields.condition`, which the variable feed reads and nothing else.
-    const limits = [...limitsOf(item), ...conditional.flatMap(limitsOf)];
+    const bound = boundFor.get(item.id) ?? [];
+    const limits = [...limitsOf(item), ...bound.flatMap(limitsOf)];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
       if (item.set.links?.find((kind) => kind.name === link.kind)?.number) continue;
@@ -449,7 +458,10 @@ export function pointerAtoms(
         );
       }
     }
-    if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+    if (kept) {
+      for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+      for (const condition of bound) attached.add(`${condition.set.set}:${condition.id}`);
+    }
   }
   for (const items of conditions.values()) {
     for (const condition of items) {
