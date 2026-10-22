@@ -34,6 +34,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [SituationUse](#situationuse)
 * [Touches](#touches)
 * [Situation provokes](#situation-provokes)
+* [Situation invites](#situation-invites)
 * [BankPhrase](#bankphrase)
 * [PhraseBank deviations](#phrasebank-deviations)
 * [SessionIndex](#sessionindex)
@@ -467,6 +468,8 @@ Counts and lists that describe the plan.
 | `touches` | [Touches](#touches) | no |  | The workspace paths the ask may touch; every other path stays untouched |
 | `provokes` | [Situation provokes](#situation-provokes) | no |  | A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches |
 | `inputs` | list of strings, each not empty, at least 1 item | no |  | The items the ask hands the agent to work on, each by the text that names it, such as an invoice number or a file name. A reply rule of one line per item counts them. |
+| `invites` | list of [Situation invites](#situation-invites), at least 1 item | no |  | Calls the ask tempts the agent or its helper to make, such as removing a file it was asked to clear away. A rule in force that forbids the call must stop it; the stand-in agent makes each call no forbid case refuses. |
+| `holds` | list of strings, each not empty, at least 1 item | no |  | The condition units that hold in this situation, by the unit ids a rule lists in fields.condition: a rule scoped by them applies here. |
 | `phrases` | list of [BankPhrase](#bankphrase), at least 1 item | yes |  | The asks that put the agent in the situation, each approved or not. |
 
 ## SituationUse
@@ -499,6 +502,28 @@ A call the stand-in agent makes while the situation is in force, such as the rem
 |---|---|---|---|---|
 | `tool` | string, not empty | yes |  | The tool of the call, such as Bash. |
 | `command` | string, not empty | yes |  | The command of the call (fictional text); the call runs it as written. |
+
+## Situation invites
+
+Write one of these forms.
+
+* a mapping with `tool: Bash`, with the fields below
+* a mapping with `tool: Write`, with the fields below
+
+With `tool: Bash`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | `Bash` | yes |  | A command. |
+| `command` | string, not empty | yes |  | The command, word for word. |
+
+With `tool: Write`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | `Write` | yes |  | A file written. |
+| `file_path` | string, not empty | yes |  | The workspace path of the file, relative to its root. |
+| `content` | string | yes |  | What the file holds. |
 
 ## BankPhrase
 
