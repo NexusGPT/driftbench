@@ -17,7 +17,7 @@ import { type BankItem, exported, fail, type ItemOutcome, ok, show, type Tier } 
  *   category distributions, recovered from counts planted as an exact mix. Not built and not on a page yet: the
  *   contract is the one written below, owed to docs/statistics/ (the page owner writes it).
  * - weights-coverage: `mixedStrengthCoverage(rows, groups, levels)`, the share of the value tuples each group of
- *   axes asks at its own strength that a suite of rows holds. Not built and not on a page yet: the contract
+ *   axes asks at its own strength that a suite of rows holds. Built; defined in docs/statistics/weights.md; the contract
  *   below, owed to docs/statistics/ as well.
  *
  * Mixture and coverage are at the `capabilities` level (the functions are missing from the package; the item fails
