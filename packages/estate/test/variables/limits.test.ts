@@ -4,12 +4,12 @@ import {
   estateToVariables,
   limitPlace,
   limitRequest,
-  limitsOfAnswer,
   limitRequestReferred,
+  limitsOfAnswer,
   produceLimits,
   produceTableLimits,
-  tableRequest,
   provenanceResolver,
+  tableRequest,
   withLimits,
 } from '../../src/variables';
 import { atom, mapOf } from './support';
@@ -229,7 +229,9 @@ describe('a standalone table (a planted limits-table)', () => {
 
   it('puts the header and the numbered rows of the table in one request', () => {
     const request = tableRequest(table);
-    expect(request.user).toBe('TABLE HEADER:\n| Stall | Nights |\n\nROWS:\n1. | Box | 14 |\n2. | Paddock | 30 |');
+    expect(request.user).toBe(
+      'TABLE HEADER:\n| Stall | Nights |\n\nROWS:\n1. | Box | 14 |\n2. | Paddock | 30 |',
+    );
     expect(request.system).toContain('"row"');
   });
 
@@ -248,14 +250,17 @@ describe('a standalone table (a planted limits-table)', () => {
     });
     expect(asked).toHaveLength(1);
     expect(produced.requests).toBe(1);
-    expect(produced.limits.get('r1')).toEqual([{ limit: 14, comparison: 'le', role: 'constraint', unit: 'nights' }]);
+    expect(produced.limits.get('r1')).toEqual([
+      { limit: 14, comparison: 'le', role: 'constraint', unit: 'nights' },
+    ]);
     expect(produced.limits.get('r2')).toEqual([{ limit: 30, comparison: 'le', role: 'constraint' }]);
     expect(produced.unreadable).toEqual([]);
   });
 
   it('names a table whose answer names a row it does not have, or cannot be read, and gives it no limit', async () => {
     const bad = await produceTableLimits([table], {
-      ask: async () => JSON.stringify({ limits: [{ row: 3, limit: 1, comparison: 'le', role: 'constraint' }] }),
+      ask: async () =>
+        JSON.stringify({ limits: [{ row: 3, limit: 1, comparison: 'le', role: 'constraint' }] }),
     });
     expect(bad.limits.size).toBe(0);
     expect(bad.unreadable).toEqual([{ table: 'stalls', reason: 'a row is out of the table' }]);

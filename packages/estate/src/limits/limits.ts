@@ -299,7 +299,10 @@ export async function produceTableLimits(
       const end = answer.lastIndexOf('}');
       let list: unknown;
       try {
-        list = start < 0 || end < start ? undefined : (JSON.parse(answer.slice(start, end + 1)) as { limits?: unknown }).limits;
+        list =
+          start < 0 || end < start
+            ? undefined
+            : (JSON.parse(answer.slice(start, end + 1)) as { limits?: unknown }).limits;
       } catch {
         out.unreadable.push({ table: table.id, reason: 'the JSON does not parse' });
         continue;
@@ -327,7 +330,8 @@ export async function produceTableLimits(
           break;
         }
         const here = found.get(target.id) ?? [];
-        for (const limit of read.limits) if (!here.some((other) => JSON.stringify(other) === JSON.stringify(limit))) here.push(limit);
+        for (const limit of read.limits)
+          if (!here.some((other) => JSON.stringify(other) === JSON.stringify(limit))) here.push(limit);
         found.set(target.id, here);
       }
       if (problem !== undefined) out.unreadable.push({ table: table.id, reason: problem });
