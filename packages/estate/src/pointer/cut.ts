@@ -78,6 +78,51 @@ function shouldMerge(before: string, after: string): boolean {
   return false;
 }
 
+/** Whether a file is plain text: its line breaks are all the structure it has, where markdown has soft wraps. */
+export function isPlainTextPath(path: string): boolean {
+  return /\.txt$/i.test(path);
+}
+
+/** A title line is at most this share of the longest line of its paragraph. */
+export const TITLE_SHARE = 0.4;
+
+/**
+ * The blocks of a plain text paragraph: the paragraph, cut after each title line. A title line is a line far
+ * shorter than the longest line of its paragraph, with no sign that the sentence goes on (a comma, a colon, a
+ * dash), and followed by a line that does not start in lower case. A hard wrapped line is as long as its
+ * neighbours, so a wrapped sentence stays whole; a table of rows has no short line. By shape only, when unsure
+ * the lines stay together.
+ */
+function plainBlocks(source: string, from: number, to: number): Array<[number, number]> {
+  const lines: Array<[number, number]> = [];
+  let at = from;
+  for (const line of source.slice(from, to).split('\n')) {
+    lines.push([at, at + line.length]);
+    at += line.length + 1;
+  }
+  const length = (line: [number, number]) => source.slice(line[0], line[1]).trim().length;
+  const longest = Math.max(...lines.map(length));
+  const blocks: Array<[number, number]> = [];
+  let start = from;
+  lines.forEach((line, index) => {
+    const next = lines[index + 1];
+    if (!next) return;
+    const text = source.slice(line[0], line[1]).trim();
+    const after = source.slice(next[0], next[1]).trim();
+    const title =
+      text.length > 0 &&
+      text.length <= longest * TITLE_SHARE &&
+      !/[,;:\u2013\u2014-]$/.test(text) &&
+      after.length > 0 &&
+      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(after);
+    if (!title) return;
+    blocks.push([start, line[1]]);
+    start = next[0];
+  });
+  blocks.push([start, to]);
+  return blocks;
+}
+
 /** A paragraph that opens or closes with a line holding only a tag does not own that line. */
 function withoutTagLines(source: string, from: number, to: number): [number, number] {
   let start = from;
@@ -136,8 +181,13 @@ type Context = { inList?: boolean; inQuote?: boolean };
 
 const TAG_ONLY = /^\s*<\/?[A-Za-z][\w:-]*(?:\s[^>]*)?>\s*$/;
 
+export type CutOptions = {
+  /** The file is plain text (`isPlainTextPath`): a title line ends at its line break. */
+  plain?: boolean;
+};
+
 /** Cuts a file into units, and hashes the ordered list of unit fingerprints into the cut digest. */
-export function cut(rawSource: string): Cut {
+export function cut(rawSource: string, options: CutOptions = {}): Cut {
   const base = rawSource.charCodeAt(0) === 0xfeff ? 1 : 0;
   const source = rawSource.slice(base);
   const units: Unit[] = [];
@@ -235,7 +285,11 @@ export function cut(rawSource: string): Cut {
           [start, end] = withoutTagLines(text, start, end);
           if (context.inList) return add('list_item', at(start), at(end), here());
           if (context.inQuote) return add('block_quote', at(start), at(end), here());
-          for (const [from, to] of sentenceSpans(text, start, end)) add('sentence', at(from), at(to), here());
+          for (const [blockFrom, blockTo] of options.plain
+            ? plainBlocks(text, start, end)
+            : ([[start, end]] as Array<[number, number]>))
+            for (const [from, to] of sentenceSpans(text, blockFrom, blockTo))
+              add('sentence', at(from), at(to), here());
           return;
         }
         case 'code':
