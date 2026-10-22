@@ -15,10 +15,7 @@ it('probe: which spec names the sentence', async () => {
   console.log = log;
   log('PROBE problems', problems.length);
   const sh = (c: string) => execSync(c, { cwd: base, encoding: 'utf8', maxBuffer: 1 << 26 });
-  log('PROBE tree', sh('find . -maxdepth 5 -type d | grep -v node_modules | head -40'));
-  const named = sh('grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" . --include=*.yaml | grep -v "plan\\|phrases\\|map\\|variables\\|space" | LC_ALL=C sort');
-  log('PROBE named', named);
-  const gate = sh('grep -rl "read-templates-report-md-before-writing" . --include=*.yaml | grep ordered_pair | head -3');
-  log('PROBE gate files', gate);
-  for (const f of gate.split('\n').filter(Boolean).slice(0, 1)) log('PROBE SPEC ' + f + '\n' + sh(`cat ${f}`).slice(0, 3000));
+  const f = sh('find . -name "estate.ordered_pair.gate.weekly-report.read-templates-report-md-before-writing.yaml"').trim();
+  log('PROBE SPEC17 ' + f + '\n' + sh(`cat ${f}`));
+  log('PROBE rowsline', sh('grep -n -B2 -A8 "count-only-what-the-ledger-and" walk/plan.yaml walk/northwind/plan.yaml build/plan.yaml 2>&1 | head -60'));
 }, 600_000);
