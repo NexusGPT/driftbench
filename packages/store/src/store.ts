@@ -198,6 +198,8 @@ function statements(db: DatabaseSync) {
        ON CONFLICT (key) DO UPDATE SET observed_json = excluded.observed_json, created_at = excluded.created_at,
          expires_at = excluded.expires_at`,
     ),
+    insertMeta: db.prepare('INSERT OR IGNORE INTO meta (key, value) VALUES (?, ?)'),
+    selectMeta: db.prepare('SELECT value FROM meta WHERE key = ?'),
     selectCache: db.prepare('SELECT observed_json, expires_at FROM cache WHERE key = ?'),
     /** Deletes the entry only while it still holds the expiry that was read: a fresher put stays. */
     deleteExpiredCache: db.prepare('DELETE FROM cache WHERE key = ? AND expires_at = ?'),
@@ -384,6 +386,23 @@ export class SqliteStore implements Store {
       throw corrupt(`${where} does not match the Observed schema: ${describeIssues(parsed.error.issues)}`);
     }
     return parsed.data;
+  }
+
+  /** The text kept under a key of the store's own facts, or undefined. */
+  async metaGet(key: string): Promise<string | undefined> {
+    this.live();
+    const row = this.sql.selectMeta.get(key);
+    return row === undefined ? undefined : text(row, 'value', `the meta row ${key}`);
+  }
+
+  /** Keeps `value` under `key` unless the key already holds one, and returns what the key holds after. */
+  async metaInit(key: string, value: string): Promise<string> {
+    this.live();
+    if (typeof key !== 'string' || key === '' || typeof value !== 'string' || value === '') {
+      throw new StoreError('INVALID_RECORD', 'metaInit needs a key and a value');
+    }
+    this.sql.insertMeta.run(key, value);
+    return text(this.sql.selectMeta.get(key) ?? {}, 'value', `the meta row ${key}`);
   }
 
   /** Caches an Observed. Without a ttl the entry stays until replaced; with one it is gone `ttlMs` after the put. */
