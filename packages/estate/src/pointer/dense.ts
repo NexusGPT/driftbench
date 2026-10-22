@@ -38,6 +38,9 @@ export const SPAN_RULE =
   'text is the clause copied word for word from that unit, as short as it can be and found once in the unit. ' +
   'Code locates it and refuses a text that is not in the unit. Leave "spans" out when the unit has none. A label that lists link kinds may carry "links": [{"kind", "to"}] where to is an id listed under that kind, or none.';
 
+/** Added to the system text only for a set with a label that asks for a target, so other sets keep their requests. */
+export const TARGET_RULE = 'A label that asks for a target always names one.';
+
 /** The span kinds, the link kinds and the candidates of a set, for the user text. Nothing for a set that declares none. */
 function spanLines(set: LabelSet, context: LabelContext): string[] {
   const lines: string[] = [];
@@ -275,7 +278,11 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         model,
         max_tokens: maxTokens,
         ...(options.thinking === 'default' ? {} : { thinking: { type: 'disabled' } }),
-        system: set.spans || set.links ? `${DENSE_SYSTEM} ${SPAN_RULE}` : DENSE_SYSTEM,
+        system: [
+          DENSE_SYSTEM,
+          ...(set.spans || set.links ? [SPAN_RULE] : []),
+          ...(set.labels.some((label) => label.target === 'required') ? [TARGET_RULE] : []),
+        ].join(' '),
         messages: [{ role: 'user', content: denseUser(set, window, context) }],
       },
     }),
@@ -294,9 +301,17 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
         shown.length > 0
           ? ` Lines ${shown.map((n) => `[${n}]`).join(', ')} are not labelable: give them no label. A range may cross them.`
           : '';
+      const needing = set.labels.filter((label) => label.target === 'required').map((label) => label.name);
+      const targetNote =
+        needing.length > 0
+          ? ` Labels that ask for a target: ${needing.join(', ')}. An entry with one of them always names its target.`
+          : '';
       const body =
         attempt > 1
-          ? { ...wire.body, system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}${shownNote}` }
+          ? {
+              ...wire.body,
+              system: `${String(wire.body.system ?? DENSE_SYSTEM)} ${RETRY_NOTE}${shownNote}${targetNote}`,
+            }
           : wire.body;
       const payload = await postJson(
         `${base}/v1/messages`,
