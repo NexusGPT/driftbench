@@ -70,6 +70,18 @@ function build(name = 'compiled', mutation?: { file: string; change: (source: st
   return dir;
 }
 
+/**
+ * A clean bank child ends by exit 0, or by its own SIGKILL after it wrote its last line, `{"closed":true}`: the child
+ * ends itself that way so that the native teardown of Node.js 24 cannot hold it (docs/validators.md section 12.9).
+ * Any other signal, or a signal with no closed line, is not a clean end.
+ */
+function endedClean(result: { status: number | null; signal?: string | null; stdout: unknown }): boolean {
+  if (result.status === 0) return true;
+  return (
+    result.status === null && result.signal === 'SIGKILL' && String(result.stdout).includes('"closed":true')
+  );
+}
+
 function run(
   attack: Attack,
   throughCli = false,
@@ -178,7 +190,8 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
     for (const attack of ['clean', 'file', 'process'] as const) {
       const result = run(attack, throughCli);
       const output = String(result.stdout) + String(result.stderr);
-      expect(result.status, output).toBe(attack === 'clean' ? 0 : 1);
+      if (attack === 'clean') expect(endedClean(result), output).toBe(true);
+      else expect(result.status, output).toBe(1);
       if (attack !== 'clean') {
         // The planted read is refused: by the confined run of the frame, or by the trap of the child.
         expect(output).toContain(
@@ -198,7 +211,7 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
   });
 
   it('detects the old public-entry route mutant on the same compiled package', () => {
-    expect(run('clean', false, built, true).status).toBe(0);
+    expect(endedClean(run('clean', false, built, true))).toBe(true);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, built, true);
       // The old route violates the protected-child contract: it completes the planted operation.
@@ -229,7 +242,7 @@ describe('the release-built statistics child', { timeout: 180_000 }, () => {
     },
   ])('detects the compiled $name mutant', ({ name, file, change, held }) => {
     const mutant = build(name, { file, change });
-    expect(run('clean', false, mutant).status).toBe(0);
+    expect(endedClean(run('clean', false, mutant))).toBe(true);
     for (const attack of ['file', 'process'] as const) {
       const result = run(attack, false, mutant);
       // A mutant that loads the target in the child runs the planted operation there, whatever the frame then does.

@@ -109,7 +109,16 @@ export function statsBankChild(args: readonly string[]): Promise<never> {
         traceLine('bank-child', 'writing the end of the output');
         process.on('exit', () => traceLine('bank-child', 'exit event'));
         process.stdout.write('', () => {
-          traceLine('bank-child', 'output written, exiting');
+          traceLine('bank-child', 'output written, ending');
+          // Every outcome, the taint and the closed line are in the pipe, and the parent reads an end after the closed line
+          // as the end. On Node.js 24 the native teardown of a process that ran a worker thread and child processes stays
+          // alive in about 1 child in 300 after its exit handlers ran (traced, PR 986), so a child that finished its work
+          // ends itself by SIGKILL, which no teardown can hold. A child that failed ends by process.exit(1) below.
+          try {
+            process.kill(process.pid, 'SIGKILL');
+          } catch {
+            // no signal to ourselves: the ordinary exit
+          }
           process.exit(0);
         });
       }),
