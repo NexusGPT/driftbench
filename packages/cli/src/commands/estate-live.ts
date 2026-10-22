@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
@@ -334,9 +335,12 @@ export async function estateRunCommand(
   }
 
   let library: StateLibrary | undefined;
+  let libraryFile: { path: string; sha256: string } | undefined;
   if (options.states !== undefined) {
     try {
-      library = await loadStateLibrary(resolve(io.cwd, options.states));
+      const path = resolve(io.cwd, options.states);
+      library = await loadStateLibrary(path);
+      libraryFile = { path, sha256: createHash('sha256').update(await readFile(path)).digest('hex') };
     } catch (cause) {
       io.err(`The state library ${options.states} cannot be read: ${describe(cause)}\n`);
       return 2;
@@ -452,6 +456,7 @@ export async function estateRunCommand(
         provider: localProvider(),
         pins,
         ...(library === undefined ? {} : { library }),
+        ...(libraryFile === undefined ? {} : { libraryFile }),
         env,
         args,
         config,

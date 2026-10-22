@@ -107,6 +107,8 @@ export type ClaudeCodeLiveOptions = {
   sessionState?: readonly LiveOp[];
   /** Operations by `vars.session_state` and `vars.event`. */
   library?: StateLibrary;
+  /** The library file: its resolved path and sha-256, written into the record of every block. */
+  libraryFile?: { path: string; sha256: string };
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
   /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
@@ -608,6 +610,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
+            ...(options.libraryFile === undefined ? {} : { stateLibrary: options.libraryFile }),
             attempts,
             ops: ops.map((op) => op.op),
             notes,

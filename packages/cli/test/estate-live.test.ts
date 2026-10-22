@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { link, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -292,6 +293,41 @@ describe('driftbench estate run', () => {
     expect(guarded?.blocks[0]?.observed.runtime?.skills?.map((skill) => skill.name)).toEqual([
       'invoice-reconcile',
     ]);
+  });
+
+  it('records the state library of a run: its resolved path and the sha-256 of its file', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(FIXTURE, [spec]);
+    expect(result.code).toBe(0);
+    const { openStore } = await import('@agent-nexus/driftbench-store');
+    const store = await openStore(result.store);
+    const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    const live = (stored?.blocks[0]?.observed.raw as { live?: { stateLibrary?: unknown } }).live;
+    const sha256 = createHash('sha256').update(readFileSync(STATES)).digest('hex');
+    expect(live?.stateLibrary).toEqual({ path: STATES, sha256 });
+    // A run with no library names none.
+    const bare = join(await folder(), 'bare.db');
+    const without = await run([
+      'estate',
+      'run',
+      spec,
+      '--estate',
+      FIXTURE,
+      '--runtime',
+      'claude-code',
+      '--command',
+      FAKE,
+      '--set-env',
+      `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
+      '--store',
+      bare,
+      '--json',
+    ]);
+    const other = await openStore(bare);
+    const [plain] = await other.listRuns({ campaignId: (JSON.parse(without.out) as RunJson).campaignId });
+    await other.close();
+    expect((plain?.blocks[0]?.observed.raw as { live?: object }).live).not.toHaveProperty('stateLibrary');
   });
 
   it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
