@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as estate from '../../../estate/src/pointer';
+import { PROBE_YAML } from '../../src/ladders/pointer/kit/sets';
 import { fakeTransport } from '../../src/ladders/pointer/kit/transport';
 import { Prose } from '../../src/ladders/pointer/kit/words';
 import type { PointerSut, ScanArm, ScanRequest } from '../../src/ladders/pointer/sut/port';
@@ -28,6 +29,10 @@ const LINK_YAML = `labels:
         atom: { kind: instruction, polarity: obligation }
 `;
 
+/**
+ * The user system 1 arm answers yes or no questions and has no link kind, so its set is the probe set and its
+ * requests list no candidate; its rows, if any, must still hold a string the transport received.
+ */
 const ARMS: Array<{ arm: ScanArm; url?: string; candidatesInBody: boolean }> = [
   { arm: 'haiku', candidatesInBody: true },
   { arm: 'user-yes-no', candidatesInBody: false },
@@ -57,7 +62,7 @@ for (const { name, sut } of readers) {
               { path: 'harbour/first.md', text: `${first}\n` },
               { path: 'harbour/second.md', text: `${second}\n` },
             ],
-            labelsYaml: LINK_YAML,
+            labelsYaml: candidatesInBody ? LINK_YAML : PROBE_YAML,
             model: {
               arm,
               ...(url !== undefined ? { url } : {}),
@@ -72,7 +77,6 @@ for (const { name, sut } of readers) {
           const res = await sut().scan(request);
           expect(res.ok, `${arm} seed ${seed}: ${res.error ?? ''}`).toBe(true);
           const rows = res.listed ?? [];
-          console.log('BYTES', name, arm, seed, JSON.stringify({ rows: rows.length, received: received.length }));
           expect(received.length).toBeGreaterThan(0);
           for (const row of rows) {
             expect(typeof row.body, 'a row keeps the string it was computed from').toBe('string');
