@@ -1,3 +1,4 @@
+export { candidateMaterials, guardLiterals, MAX_CANDIDATES } from './find';
 export {
   casesFromSource,
   ESTATE_CONFIG_FILE,

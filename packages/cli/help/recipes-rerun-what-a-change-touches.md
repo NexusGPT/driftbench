@@ -180,8 +180,8 @@ Audit: 20 cells drawn from the 162 outside the radius (seed 1) and run fresh: 0 
 ✓ gen-boundary-064 · function:acme-sales · F · repeat 0  pass (reused)  2 blocks
 ...
 171 cells: 171 pass, 0 fail, 0 failed, 20 reused, 142 carried. Spent $0.00.
-Fresh: 29 cells, 142 blocks sent to the agent. Carried from c-base: 142 cells, 690 blocks not sent (agent version acme-v1; this campaign runs acme-v2).
-Saved: 690 of 832 blocks, 82.9%. The pass and fail counts above merge fresh and carried results.
+Fresh: 29 cells, 160 blocks sent to the agent. Carried from c-base: 142 cells, 672 blocks not sent (agent version acme-v1; this campaign runs acme-v2).
+Saved: 672 of 832 blocks, 80.8%. The pass and fail counts above merge fresh and carried results.
 ```
 
 The audited cells ran before the cell lines, so their lines say `reused`; they are fresh runs of this
