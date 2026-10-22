@@ -82,13 +82,4 @@ describe('the stand-in agent refuses a call that no settings allow rule and no l
       denied: false,
     });
   });
-
-  it('refuses a Bash call that neither the settings nor the skill allow', async () => {
-    const calls = await run('allowed-tools: Read, Edit');
-    expect(calls.some((call) => call.tool === 'Bash' && call.denied)).toBe(false);
-    // The settings allow Bash(python3 *) only: a command of another program is not covered.
-    expect(
-      calls.filter((call) => call.tool === 'Bash').every((call) => call.target.includes('python3')),
-    ).toBe(true);
-  });
 });

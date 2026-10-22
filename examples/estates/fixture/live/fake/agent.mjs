@@ -120,8 +120,7 @@ function covers(matcher, tool) {
 }
 
 /** Whether a permission rule of the settings denies a call. */
-function denied(settings, tool, input) {
-  const rules = settings?.permissions?.deny ?? [];
+function covers(rules, tool, input) {
   return rules.some((rule) => {
     const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule);
     if (!match || match[1] !== tool) return false;
@@ -130,6 +129,13 @@ function denied(settings, tool, input) {
     return typeof input.command === 'string' && input.command.trim().startsWith(pattern);
   });
 }
+
+function denied(settings, tool, input) {
+  return covers(settings?.permissions?.deny ?? [], tool, input);
+}
+
+/** Tools a headless run in the default permission mode makes with no permission rule: they read or hand off. */
+const NO_PERMISSION_NEEDED = new Set(['Read', 'Grep', 'Glob', 'Skill', 'Agent']);
 
 // Skill paths are local to that skill; explicit .claude/ and absolute paths are estate-wide.
 function fileTarget(literal, cwd, folder) {
@@ -274,7 +280,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const plan =
     unit?.kind === 'skill' && dispatch
       ? unitPlan(dispatch, { kind: 'skill', name: unit.name }, cwd)
-      : { actions: [], gates: [], bans: [] };
+      : { actions: [], gates: [], bans: [], allowed: [] };
   // The files the situation of the ask declares it changes: each is edited, after the reads its gates order.
   for (const path of setOffBy.edits ?? [])
     if (
@@ -283,6 +289,10 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     )
       plan.actions.push({ kind: 'Edit', literal: path, folder: '' });
   const prohibited = prohibitions(plan.bans, cwd);
+  // A call needs an allow rule of the settings or a tool the loaded skill declares (the default mode, headless: no
+  // one answers a prompt), unless the tool needs no permission.
+  const allowRules = [...(estate.settings?.permissions?.allow ?? []), ...(plan.allowed ?? [])];
+  const permitted = (tool, input) => NO_PERMISSION_NEEDED.has(tool) || covers(allowRules, tool, input);
   const out = [];
   let id = 0;
   let blocked = false;
@@ -384,11 +394,14 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       parent_tool_use_id: null,
     });
     const stopped = hooks('PreToolUse', tool, { tool_name: tool, tool_input: input });
+    const unpermitted = !stopped && !refused && !attempt && !permitted(tool, input);
     const result = stopped
       ? { error: true, content: 'Blocked by a hook.' }
       : refused
         ? { error: true, content: 'Denied by a permission rule of the settings.' }
-        : perform();
+        : unpermitted
+          ? { error: true, content: `Permission to use ${tool} was not granted: no allow rule covers this call.` }
+          : perform();
     out.push({
       type: 'user',
       message: {
@@ -404,13 +417,13 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       },
       parent_tool_use_id: null,
     });
-    if (!stopped && !refused)
+    if (!stopped && !refused && !unpermitted)
       hooks('PostToolUse', tool, {
         tool_name: tool,
         tool_input: input,
         tool_response: { stdout: result.content, stderr: '', interrupted: false },
       });
-    if (stopped || refused) blocked = true;
+    if (stopped || refused || unpermitted) blocked = true;
     return result;
   };
 

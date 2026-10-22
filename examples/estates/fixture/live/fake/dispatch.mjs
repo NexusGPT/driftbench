@@ -343,7 +343,7 @@ function commandOf(script, folder) {
  * estate root.
  */
 export function unitPlan(index, entry, cwd) {
-  const plan = { actions: [], gates: [], bans: [] };
+  const plan = { actions: [], gates: [], bans: [], allowed: [] };
   const unit = [...index.atoms.values()].find(
     (atom) =>
       atom.kind === (entry.kind === 'skill' ? 'skill' : 'subagent') &&
@@ -369,6 +369,8 @@ export function unitPlan(index, entry, cwd) {
       if (atom.kind === 'reference' && text(fields.path))
         add({ kind: 'Read', literal: fields.path, folder: '', missing: fields.exists === false });
       if (atom.kind === 'script' && text(fields.path)) add({ kind: 'Bash', ...commandOf(atom, folder) });
+      // A tool the skill declares (its allowed-tools): the permission rule that grants it while the skill is loaded.
+      if (atom.kind === 'tool' && fields.effect === 'declared' && text(fields.rule)) plan.allowed.push(fields.rule);
       for (const link of Array.isArray(fields.labelLinks) ? fields.labelLinks : []) {
         const helper = link?.kind === 'dispatches' ? index.atoms.get(link.atom) : undefined;
         if (helper?.kind === 'subagent' && text(helper.fields?.name) && inForce(helper, cwd))
