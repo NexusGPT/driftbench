@@ -21,7 +21,11 @@ async function reply(options: { withoutRegister?: boolean }): Promise<string> {
   folders.push(cwd);
   cpSync(FIXTURE, cwd, { recursive: true, filter: (src) => !src.includes('/generated') });
   const map = parse(readFileSync(join(FIXTURE, 'approved.yaml'), 'utf8')) as {
-    atoms: Array<{ id: string; fields?: Record<string, unknown>; provenance: { file: string; quote: string } }>;
+    atoms: Array<{
+      id: string;
+      fields?: Record<string, unknown>;
+      provenance: { file: string; quote: string };
+    }>;
   };
   const atom = map.atoms.find((candidate) => candidate.id === REGISTER);
   if (!atom) throw new Error(`the fixture holds no ${REGISTER}`);
@@ -39,8 +43,10 @@ async function reply(options: { withoutRegister?: boolean }): Promise<string> {
     sessionId: 'test',
     env: { ...process.env, FAKE_MAP: mapPath, FAKE_PHRASES: join(FIXTURE, 'phrases.yaml') },
   });
-  const texts = (out.records as Array<{ message?: { content?: Array<{ type?: string; text?: string }> } }>).flatMap(
-    (record) => (record.message?.content ?? []).filter((item) => item.type === 'text').map((item) => item.text ?? ''),
+  const texts = (
+    out.records as Array<{ message?: { content?: Array<{ type?: string; text?: string }> } }>
+  ).flatMap((record) =>
+    (record.message?.content ?? []).filter((item) => item.type === 'text').map((item) => item.text ?? ''),
   );
   return texts.at(-1) ?? '';
 }
