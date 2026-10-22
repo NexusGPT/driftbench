@@ -37,6 +37,26 @@ describe('the cutter on a plain text file', () => {
     expect(texts(short)).toEqual(['Hang the lamp\non the red post.']);
   });
 
+  it('does not end a sentence at a short line in its middle, even when a capitalised word follows it', () => {
+    const wrapped = [
+      'The skipper of every boat that ties up at the quay hangs the lamp on the',
+      'Red Post by',
+      'Harbour rules and counts the ropes twice before dusk comes down fully.',
+    ].join('\n');
+    expect(texts(wrapped)).toEqual([wrapped]);
+  });
+
+  it('keeps ordinary lines together when one very long line sits among them', () => {
+    const lines = ['Coil the rope', 'Hang the lamp', 'Count the boats', `Close the gate ${'x'.repeat(300)}`];
+    const source = lines.join('\n');
+    expect(texts(source)).toEqual([source]);
+  });
+
+  it('cuts a file with a very large paragraph of lines without failing', () => {
+    const source = Array.from({ length: 150_000 }, (_, index) => `Row ${index}`).join('\n');
+    expect(cut(source, { plain: true }).units.length).toBeGreaterThan(0);
+  }, 120_000);
+
   it('keeps the lines of a table of rows together: none is short beside the others', () => {
     const rows =
       'NWX 123 sorted-at-depot 2026-03-04\nNWX 1234 delivered 2026-03-05\nDLV 123 out-for-delivery 2026-03-06';

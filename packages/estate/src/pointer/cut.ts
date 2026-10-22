@@ -83,15 +83,18 @@ export function isPlainTextPath(path: string): boolean {
   return /\.txt$/i.test(path);
 }
 
-/** A title line is at most this share of the longest line of its paragraph. */
+/** A title line is at most this share of the typical length of the other lines of its paragraph and of the line after it. */
 export const TITLE_SHARE = 0.4;
 
 /**
- * The blocks of a plain text paragraph: the paragraph, cut after each title line. A title line is a line far
- * shorter than the longest line of its paragraph, with no sign that the sentence goes on (a comma, a colon, a
- * dash), and followed by a line that does not start in lower case. A hard wrapped line is as long as its
- * neighbours, so a wrapped sentence stays whole; a table of rows has no short line. By shape only, when unsure
- * the lines stay together.
+ * The blocks of a plain text paragraph: the paragraph, cut after each title line. A title line
+ * - opens a sentence: it is the first line, or the line before it ends with a full stop, a question mark or an
+ *   exclamation mark (a wrapped sentence has no title in its middle),
+ * - does not start in lower case, and has no sign that the sentence goes on (a comma, a colon, a dash) at its end,
+ * - is far shorter than the typical line of the others (their median, so one very long line moves nothing) and
+ *   than the line after it, which does not start in lower case.
+ * A hard wrapped line is as long as its neighbours, so a wrapped sentence stays whole; a table of rows has no short
+ * line. By shape only, and when unsure the lines stay together.
  */
 function plainBlocks(source: string, from: number, to: number): Array<[number, number]> {
   const lines: Array<[number, number]> = [];
@@ -100,21 +103,34 @@ function plainBlocks(source: string, from: number, to: number): Array<[number, n
     lines.push([at, at + line.length]);
     at += line.length + 1;
   }
-  const length = (line: [number, number]) => source.slice(line[0], line[1]).trim().length;
-  const longest = Math.max(...lines.map(length));
+  const texts = lines.map(([start, end]) => source.slice(start, end).trim());
+  const order = texts
+    .map((_, index) => index)
+    .sort((a, b) => (texts[a]?.length ?? 0) - (texts[b]?.length ?? 0));
+  const rank = new Map(order.map((line, place) => [line, place]));
+  // The upper median of the lengths of all lines but one, read from the order of all lines.
+  const typical = (line: number): number => {
+    const middle = Math.floor((order.length - 1) / 2);
+    const place = rank.get(line) ?? 0;
+    return texts[order[place <= middle ? middle + 1 : middle] ?? line]?.length ?? 0;
+  };
   const blocks: Array<[number, number]> = [];
   let start = from;
   lines.forEach((line, index) => {
     const next = lines[index + 1];
     if (!next) return;
-    const text = source.slice(line[0], line[1]).trim();
-    const after = source.slice(next[0], next[1]).trim();
+    const text = texts[index] ?? '';
+    const after = texts[index + 1] ?? '';
+    const opens = index === 0 || /[.!?]$/.test(texts[index - 1] ?? '');
     const title =
+      opens &&
       text.length > 0 &&
-      text.length <= longest * TITLE_SHARE &&
+      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(text) &&
       !/[,;:\u2013\u2014-]$/.test(text) &&
       after.length > 0 &&
-      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(after);
+      !/^[\p{Ll}\d)\]"'\u201d\u2019]/u.test(after) &&
+      text.length <= typical(index) * TITLE_SHARE &&
+      text.length <= after.length * TITLE_SHARE;
     if (!title) return;
     blocks.push([start, line[1]]);
     start = next[0];
