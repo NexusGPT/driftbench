@@ -1034,6 +1034,23 @@ describe('driftbench estate run --from', () => {
       expect((await stampsOf(carried.store)).salt).toBe(first.salt);
     });
 
+    it('carries nothing from a store whose meta table holds no salt row, and runs fresh without error', async () => {
+      const specs = small();
+      const calls = await counter();
+      process.env[NAME] = 'north';
+      const old = await firstRun(calls, specs, '--pass-env', NAME);
+      const { DatabaseSync } = await import('node:sqlite');
+      const raw = new DatabaseSync(old.store);
+      raw.exec("DELETE FROM meta WHERE key = 'estate.salt'");
+      raw.close();
+      const change = await manifest();
+      const next = await secondRun(calls, old.store, specs, '--change', change, '--pass-env', NAME);
+      expect(next.err).toBe('');
+      const json = next.json as CarryJson;
+      expect(json.runs.length).toBeGreaterThan(0);
+      expect(json.runs.every((line) => line.carried !== true)).toBe(true);
+    });
+
     it('keeps the value out of the store', async () => {
       const calls = await counter();
       process.env[NAME] = 'north-secret-value';
