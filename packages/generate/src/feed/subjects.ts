@@ -16,7 +16,9 @@ export type LabelledClause = { text: string; label?: SpanLabel };
 
 /** The unit a label carries; none when it has none. Two clauses of one quantity carry the same unit. */
 const unitOf = (label: SpanLabel | undefined): string =>
-  label !== undefined && 'unit' in label && typeof label.unit === 'string' ? label.unit.trim().toLowerCase() : '';
+  label !== undefined && 'unit' in label && typeof label.unit === 'string'
+    ? label.unit.trim().toLowerCase()
+    : '';
 
 const hasSubject = (label: SpanLabel | undefined): label is Extract<SpanLabel, { subject: string }> =>
   label !== undefined &&

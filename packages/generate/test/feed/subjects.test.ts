@@ -138,12 +138,18 @@ describe('never merge on words alone: the unit decides', () => {
       { text: 'The limit is 5 retries', label: lab('retry limit', 'retries') },
       { text: 'The limit is 40 items', label: lab('item limit', 'items', 40) },
     ]);
-    expect(pair.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual(['retry limit', 'item limit']);
+    expect(pair.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual([
+      'retry limit',
+      'item limit',
+    ]);
     const cap = shareSubjects([
       { text: 'The cap is at most 5 euros', label: lab('price cap', 'euros') },
       { text: 'The cap is at most 5 percent', label: lab('discount cap', 'percent') },
     ]);
-    expect(cap.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual(['price cap', 'discount cap']);
+    expect(cap.map((c) => (c.label?.kind === 'numeric' ? c.label.subject : ''))).toEqual([
+      'price cap',
+      'discount cap',
+    ]);
   });
 
   it('still shares a subject when the units agree, or both are absent', () => {
