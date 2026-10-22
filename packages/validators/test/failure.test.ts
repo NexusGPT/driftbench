@@ -67,4 +67,12 @@ describe('the failure of an item, in fields', () => {
     expect(report.unstructured).toBe(1);
     expect(report.leaking.map((l) => l.item)).toEqual(['c']);
   });
+
+  it('reads the leaves of the expected value, not its keys, and a sentence as one atom', () => {
+    const f = new ItemFailure({ rule: 'the plan holds every tuple', got: { rows: 4 }, expected: { allowed: 12, note: 'three distinct samples' } });
+    expect(leaksOf(f)).toEqual([]);
+    const leaking = new ItemFailure({ rule: 'a rule', got: { rows: 4 }, expected: { allowed: 12345 } });
+    leaking.message = 'a rule; the answer is 12345';
+    expect(leaksOf(leaking)).toContain('(the message is not the rendering of its fields)');
+  });
 });

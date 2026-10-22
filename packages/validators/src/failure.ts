@@ -64,16 +64,15 @@ function atomsOf(value: unknown, into = new Set<string>(), depth = 0): Set<strin
   if (depth > 8 || value === undefined || value === null) return into;
   if (typeof value === 'string') {
     into.add(value);
-    for (const token of value.match(/[A-Za-z0-9_.\-/]{3,}/g) ?? []) into.add(token);
+    // A string with white space is a sentence, not a value: only a string without any is split into tokens.
+    if (!/\s/.test(value)) for (const token of value.match(/[A-Za-z0-9_.\-/]{3,}/g) ?? []) into.add(token);
   } else if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'boolean') {
     into.add(String(value));
   } else if (Array.isArray(value)) {
     for (const item of value) atomsOf(item, into, depth + 1);
   } else if (typeof value === 'object') {
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      into.add(k);
-      atomsOf(v, into, depth + 1);
-    }
+    // The keys of an object are labels of the item, not values: only the leaves count.
+    for (const v of Object.values(value as Record<string, unknown>)) atomsOf(v, into, depth + 1);
   }
   return into;
 }
