@@ -331,17 +331,18 @@ export function pointerAtoms(
         gate += 1;
         const next = listed[index + 1];
         const file = next?.kind === fileKind ? next : undefined;
-        // The file span must hold a whole path, not the start of one.
+        // The file span must hold a whole path token, not a piece of one: the path as the unit writes it (without
+        // the marks around it) lies inside the span, and no other path is cut short by the span's edges.
         const given =
           file === undefined
             ? undefined
-            : (pathMentions(item.unit.text).find(
-                (mention) =>
-                  mention.start + item.unit.start - start >= file.from &&
-                  mention.end + item.unit.start - start <= file.to &&
-                  !imported(mention.path),
-              )?.path ??
-              namedPaths(text.slice(start + file.from, start + file.to)).find((path) => !imported(path)));
+            : pathMentions(item.unit.text).find((mention) => {
+                if (imported(mention.path)) return false;
+                const at = item.unit.text.indexOf(mention.spelling, mention.start);
+                if (at < 0 || at >= mention.end) return false;
+                const from = at + item.unit.start - start;
+                return from >= file.from && from + mention.spelling.length <= file.to;
+              })?.path;
         if (given === undefined) {
           refusals.push(
             `${where}: the gate ${gate} of the label ${label} has no ${fileKind ?? 'file'} span that names a file`,
