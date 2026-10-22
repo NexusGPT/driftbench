@@ -149,12 +149,16 @@ const WINDOW_BUDGET = 400_000;
 /** The first line of a planted fence: the kind line a request may show of it. */
 const FENCE_FIRST_LINE = '```text';
 
-/** Public paragraphs of at least `characters` characters in all, numbered from `from`. */
+/**
+ * Public paragraphs of at least `characters` characters in all, numbered from `from`. Each holds one long
+ * sentence, so the file passes the window budget in a few hundred units and the scan stays inside the item's
+ * time budget.
+ */
 function filler(from: number, characters: number, t: string): string[] {
   const out: string[] = [];
   let length = 0;
   for (let i = from; length < characters; i++) {
-    const paragraph = `${PADDING} Number ${i} of ${t}.`;
+    const paragraph = `${PADDING} Number ${i} of ${t}, ${'public padding words, '.repeat(90)}and the end.`;
     out.push(paragraph);
     length += paragraph.length;
   }
