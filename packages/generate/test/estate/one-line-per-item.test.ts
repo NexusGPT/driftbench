@@ -53,7 +53,10 @@ async function inputs(withInputs: boolean): Promise<EstateGenerateInput> {
       ? {
           ...atom,
           fields: { ...atom.fields, replyShape: 'one_line_per_item' },
-          evidence: [...atom.evidence, { type: 'custom', name: 'one_line_per_item' } as (typeof atom.evidence)[number]],
+          evidence: [
+            ...atom.evidence,
+            { type: 'custom', name: 'one_line_per_item' } as (typeof atom.evidence)[number],
+          ],
         }
       : atom,
   );
@@ -67,7 +70,10 @@ async function inputs(withInputs: boolean): Promise<EstateGenerateInput> {
 
 function registerSamples(result: ReturnType<typeof generateEstateSuite>) {
   return result.specs
-    .filter((record) => record.mode === 'live' && record.testType === 'register_sample' && record.atoms.includes(REGISTER))
+    .filter(
+      (record) =>
+        record.mode === 'live' && record.testType === 'register_sample' && record.atoms.includes(REGISTER),
+    )
     .map((record) => {
       const file = result.files.find((entry) => entry.path === record.path);
       const parsed = parseSpecText(file?.text ?? '', 'yaml', record.path);
@@ -86,7 +92,10 @@ describe('a register of one line per item in the generated suite', () => {
       expect(record.complete, record.id).toBe(true);
       const expect0 = spec.blocks[0]?.expect as { must?: string[] } | undefined;
       const must = expect0?.must ?? [];
-      expect(must.some((source) => source.includes('INV-1001')), record.id).toBe(true);
+      expect(
+        must.some((source) => source.includes('INV-1001')),
+        record.id,
+      ).toBe(true);
       const keep = (reply: string) => must.every((source) => new RegExp(source, 'mi').test(reply));
       expect(keep('Done. Here is what I did, in short.\nINV-1001: done.'), record.id).toBe(true);
       expect(keep('Done. Here is what I did, in short.'), record.id).toBe(false);
@@ -101,7 +110,10 @@ describe('a register of one line per item in the generated suite', () => {
       expect(record.complete, record.id).toBe(false);
       expect(record.markers, record.id).toContain('needs-registered-check');
       const expect0 = spec.blocks[0]?.expect as { must?: string[] } | undefined;
-      expect((expect0?.must ?? []).some((source) => source.includes('INV-1001')), record.id).toBe(false);
+      expect(
+        (expect0?.must ?? []).some((source) => source.includes('INV-1001')),
+        record.id,
+      ).toBe(false);
       const reasons = result.report.incomplete.find((entry) => entry.spec === record.id)?.reasons ?? [];
       expect(
         reasons.some((gap) => gap.atom === REGISTER && gap.detail.startsWith('one_line_per_item:')),
