@@ -6,19 +6,31 @@ This page uses `campaign run`, which runs test files you wrote against any targe
 
 **1. Make a folder and install.**
 
-**Why.** You need a folder for your tests and the driftbench command to run them. Install driftbench first, as the [guide index](index.md#install) shows.
+**Why.** You need the driftbench command, and a folder for your tests. Install driftbench from a clone of the repository. The package on npm is older than this guide and lacks things the quickstart uses, so `npm install` gives errors here. The npm package catches up at the next release. Until then, use the clone.
 
 **Relevant commands.**
 
-- `mkdir my-evals && cd my-evals`: makes a folder for your tests and goes into it · no options · it produces the folder.
-- `driftbench --version`: checks that driftbench is installed, as the [guide index](index.md#install) shows · no options · it prints the version number. The npm package catches up at the next release, so install from a clone until then.
+- `git clone https://github.com/NexusGPT/driftbench.git`: copies the repository to your machine · the address is the repository · it produces the folder `driftbench`.
+- `cd driftbench`: goes into the clone · no options · the next commands run there.
+- `pnpm install`: fetches the code the tool needs · no options · it fills `node_modules`. If `pnpm` is missing, run `corepack enable` first.
+- `pnpm build`: compiles the tool · no options · it takes a few minutes the first time.
+- `cd packages/cli && npm link && cd ../..`: makes the command `driftbench` available in every folder · `npm link` is the step that does it · it produces the command, and you return to the clone root.
+- `driftbench --version`: checks the install · no options · it prints the version number.
+- `mkdir my-evals && cd my-evals`: makes a folder for your tests and goes into it. Make it where you like. The later steps need only this folder · no options · it produces the folder.
 - `mkdir specs`: makes the folder that will hold your tests · no options · it produces the folder.
 
 ```bash
-mkdir my-evals && cd my-evals
+git clone https://github.com/NexusGPT/driftbench.git
+cd driftbench
+pnpm install
+pnpm build
+cd packages/cli && npm link && cd ../..
 driftbench --version
+mkdir my-evals && cd my-evals
 mkdir specs
 ```
+
+**If it goes wrong.** `pnpm: command not found`: run `corepack enable`, then open a new terminal. `driftbench: command not found` after the link: run `npm prefix --global` and add its `bin` folder to your `PATH`. `Cannot find module`: the build did not finish, so run `pnpm build` again in the clone.
 
 **2. Create `agent.mjs`.** It reads the user message on standard input, looks the order up in `orders.json` in its working folder, and prints the reply. Replace it with a call to your own agent later.
 

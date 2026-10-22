@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +10,31 @@ import { describe, expect, it } from 'vitest';
 const exec = promisify(execFile);
 const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '');
 
-describe('install from source, as the guide index shows it', () => {
+/** The commands of the first bash block under a heading or bold lead, from `git clone` to `driftbench --version`. */
+async function installLines(page: string): Promise<string[]> {
+  const text = await readFile(join(ROOT, page), 'utf8');
+  const start = text.indexOf('```bash\ngit clone ');
+  expect(start, `${page} shows the clone commands`).toBeGreaterThan(-1);
+  const block = text.slice(start + '```bash\n'.length, text.indexOf('\n```', start));
+  const lines = block.split('\n');
+  return lines.slice(0, lines.indexOf('driftbench --version') + 1);
+}
+
+describe('install from source, as the guide shows it', () => {
+  it('shows the same install commands in the guide index and in the quickstart', async () => {
+    const index = await installLines('docs/guide/index.md');
+    const quickstart = await installLines('docs/guide/quickstart.md');
+    expect(index).toEqual([
+      'git clone https://github.com/NexusGPT/driftbench.git',
+      'cd driftbench',
+      'pnpm install',
+      'pnpm build',
+      'cd packages/cli && npm link && cd ../..',
+      'driftbench --version',
+    ]);
+    expect(quickstart).toEqual(index);
+  });
+
   it('links the built CLI, and the linked driftbench command prints its version', async () => {
     const cli = join(ROOT, 'packages/cli');
     if (!existsSync(join(cli, 'dist/bin.js'))) {
