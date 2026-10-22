@@ -158,3 +158,22 @@ describe('aliased results when the package patches the iteration and time intrin
     expect(body).not.toMatch(/\[\.\.\.|\(\.\.\./);
   });
 });
+
+// Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
+// inputs"): a write to an argument, even one put back before the call returns, throws in the product and shows.
+describe('written arguments', () => {
+  const arg = { deep: { list: [1, 2, 3] } };
+
+  it('lets a product that only reads its argument answer, in every run', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11 });
+    open.push(frame as Frame<unknown>);
+    expect(frame.product.readsOnly(arg)).toBe(3);
+    expect(frame.divergence()).toBeUndefined();
+  });
+
+  it('throws for a product that writes to a nested part of its argument and puts the value back', () => {
+    const frame = isolate<Product>({ module: PRODUCT, seed: 11 });
+    open.push(frame as Frame<unknown>);
+    expect(() => frame.product.touchesAndRestores(arg)).toThrow(/read only|frozen|Cannot assign/i);
+  });
+});

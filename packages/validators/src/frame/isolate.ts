@@ -71,10 +71,10 @@ function projectCache(): string {
 export type Ambient = { kind: 'random' } | { kind: 'crypto' } | { kind: 'clock'; at: number };
 
 /**
- * What the confined runs check around a call: 'mutation' - the arguments must read as they did before the call;
- * 'sharing' - the result must hold no object of the arguments and none of an earlier guarded result.
+ * What the confined runs check around a call: 'sharing' - the result must hold no object of the arguments and none of
+ * an earlier guarded result.
  */
-export type Guard = 'mutation' | 'sharing';
+export type Guard = 'sharing';
 
 /** What the validator keeps of an answer before the two runs are compared, by export name. */
 export type Keep = Record<string, (value: unknown) => unknown>;
@@ -112,12 +112,6 @@ export type IsolateOptions = {
    * exports.
    */
   members?: string[];
-  /**
-   * Keep the identity of the objects the caller passes (default false). An object the caller passes in a later call
-   * reaches the product as the same object, filled again with what the caller holds now, until `forget()`: a product
-   * that keeps a cache keyed by the object it was given sees the same key and the edits made in place.
-   */
-  identity?: boolean;
   /**
    * The bundle the invocation sealed (confine.ts `describeSeal`), when this frame runs in a child process of the
    * invocation: the frame runs that bundle, after checking its hash, and builds none.
@@ -164,15 +158,22 @@ export type Frame<T> = {
   divergenceSince(from: number): string | undefined;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
-  /** The first guarded call from the tape position `from` on that changed an argument or returned a shared object. */
+  /** The first guarded call from the tape position `from` on that wrote to an argument or returned a shared object. */
   guardSince(from: number): string | undefined;
+  /**
+   * Runs `run` with the calls it makes passing an object again as the same object: the confined run keeps the object
+   * it first built, filled again in place with what the caller holds now, and does not freeze it, so a product that
+   * keeps a cache keyed by the object it was given sees the same key and the edits made in place. A call that writes
+   * to such an argument is a finding (`guardSince`). Every other argument reaches the product frozen at every depth.
+   */
+  sameObjects<R>(run: () => R): R;
   /** Ends the identity of the objects passed so far: the next call passes every object as a new one. */
   forget(): void;
   /** Runs `run` with the calls it makes held under the ambient state (the clock, the random sources). */
   ambient<R>(specs: readonly Ambient[], run: () => R): R;
   /**
-   * Runs `run` with the calls it makes guarded: an argument must not change, a result must share nothing. `names`
-   * limits the sharing guard to the functions named.
+   * Runs `run` with the calls it makes guarded: a result must share nothing with the arguments or an earlier result.
+   * `names` limits the guard to the functions named.
    */
   guarded<R>(kinds: readonly Guard[], run: () => R, names?: readonly string[]): R;
   /** The message of the first sampled run C call that differed from run A, or undefined: it taints every call. */
@@ -219,7 +220,7 @@ function drawnFolder(seed: number, tag: string): string {
 type PlainRun = {
   dir: string;
   codec: string;
-  codecNames: { encode: string; decode: string; handles: string; pin: string; under: string };
+  codecNames: { encode: string; decode: string; handles: string; deepFreeze: string; pin: string; under: string };
   count: number;
   /** The file of the calls run C makes, one JSON line each, in the order they were made. */
   calls: string;
@@ -344,9 +345,6 @@ const outcomeText = (outcome: Outcome | { dead: string }) =>
       ? `threw ${shortText(outcome.throws, 80)}`
       : shortText(outcome.ret, 80);
 
-const frozenObject = (arg: unknown): boolean =>
-  arg !== null && typeof arg === 'object' && Object.isFrozen(arg);
-
 /** Runs `run` between `enter` and `leave`; a run that returns a promise leaves when the promise settles. */
 function scoped<R>(enter: () => void, leave: () => void, run: () => R): R {
   enter();
@@ -460,9 +458,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   const found: Array<{ at: number; message: string }> = [];
   const aliased: Array<{ at: number; message: string }> = [];
   const guardFound: Array<{ at: number; message: string }> = [];
-  // The identity of the objects the caller passes (option `identity`), the pending end of it, and the state a call is held under.
+  // The identity of the objects the caller passes inside sameObjects(), the pending end of it, and the state a call is held under.
   let identityIds = new WeakMap<object, number>();
   let nextId = 0;
+  let identityNow = false;
   let pendingForget = false;
   let ambientNow: Ambient[] = [];
   let guardNow: Guard[] = [];
@@ -571,9 +570,8 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
     const extra = {
-      ...(options.identity ? { ids: args.map(idOf) } : {}),
+      ...(identityNow ? { ids: args.map(idOf) } : {}),
       ...(pendingForget ? { forget: true } : {}),
-      ...(args.some(frozenObject) ? { frozen: args.map(frozenObject) } : {}),
       ...(ambientNow.length > 0 ? { ambient: ambientNow } : {}),
     };
     pendingForget = false;
@@ -736,6 +734,18 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     forget: () => {
       identityIds = new WeakMap();
       pendingForget = true;
+    },
+    sameObjects: (run) => {
+      const saved = identityNow;
+      return scoped(
+        () => {
+          identityNow = true;
+        },
+        () => {
+          identityNow = saved;
+        },
+        run,
+      );
     },
     ambient: (specs, run) => {
       const saved = ambientNow;

@@ -46,6 +46,25 @@ function fill(template: string, name: (key: string) => string): string {
 /** The value codec of the runs, the same as tape.ts: tags for what JSON cannot hold. */
 const CODEC = String.raw`
 const «open» = '$';
+// Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
+// inputs"): a write to an argument, a permanent one or one put back before the call returns, throws in the product.
+// The functions are taken before the product loads.
+const «freezeIt» = Object.freeze;
+const «keysOf» = Reflect.ownKeys;
+const «descOf» = Reflect.getOwnPropertyDescriptor;
+const «isFrozenIt» = Object.isFrozen;
+const «isViewIt» = ArrayBuffer.isView;
+function «deepFreeze»(«x») {
+  if («x» === null || typeof «x» !== 'object' || «isFrozenIt»(«x»)) return «x»;
+  if («isViewIt»(«x»)) return «x»;
+  «freezeIt»(«x»);
+  const «ks» = «keysOf»(«x»);
+  for (let «i» = 0; «i» < «ks».length; «i» += 1) {
+    const «d» = «descOf»(«x», «ks»[«i»]);
+    if («d» && 'value' in «d») «deepFreeze»(«d».value);
+  }
+  return «x»;
+}
 let «counter» = 0;
 const «handles» = new Map();
 const «esc» = («key») => («key».startsWith(«open») ? «open» + «key» : «key»);
@@ -94,7 +113,7 @@ function «decode»(«x») {
 // Identity of the arguments (docs/validators.md section 12.9, "Objects the caller passes twice"): the parent names an
 // object it passes again by an id, and the run keeps the objects it first built, filled again in place with what the
 // parent sends now, nested objects too, so a product that keeps a cache keyed by an object it was given sees the
-// same keys and the edits made in place. An argument the parent holds frozen is frozen in the run, and is not kept.
+// same keys and the edits made in place. Only calls made inside sameObjects() are pinned: every other argument is frozen.
 const «retained» = new Map();
 const «setOwn» = («target», «key», «value») => Object.defineProperty(«target», «key», { value: «value», writable: true, enumerable: true, configurable: true });
 function «fill»(«held», «fresh») {
@@ -116,19 +135,12 @@ function «fill»(«held», «fresh») {
     else «setOwn»(«held», «key», «now»);
   }
 }
-function «freeze»(«value») {
-  if («value» !== null && typeof «value» === 'object' && !Object.isFrozen(«value»)) {
-    Object.freeze(«value»);
-    for (const «key» of Reflect.ownKeys(«value»)) «freeze»(«value»[«key»]);
-  }
-}
-function «pin»(«args», «ids», «forget», «frozen») {
+function «pin»(«args», «ids», «forget») {
   if («forget») «retained».clear();
   for (let «i» = 0; «i» < «args».length; «i» += 1) {
     const «arg» = «args»[«i»];
     if («arg» === null || typeof «arg» !== 'object') continue;
-    if («frozen» && «frozen»[«i»]) { «freeze»(«arg»); continue; }
-    const «id» = «ids» ? «ids»[«i»] : null;
+    const «id» = «ids»[«i»];
     if («id» === null || «id» === undefined) continue;
     const «held» = «retained».get(«id»);
     if («held» === undefined || Array.isArray(«held») !== Array.isArray(«arg») || Object.isFrozen(«held»)) { «retained».set(«id», «arg»); continue; }
@@ -531,16 +543,17 @@ if («setup».command) {
         : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
-      const «args» = «pin»(«decode»(«request».args), «request».ids, «request».forget, «request».frozen);
+      // Objects the caller passes twice keep their identity inside sameObjects(); every other argument reaches the product
+      // frozen at every depth.
+      const «args» = «request».ids ? «pin»(«decode»(«request».args), «request».ids, «request».forget) : «deepFreeze»(«decode»(«request».args));
       if («request».forget) «earlier» = new «SeenSet»();
-      // Guards (docs/validators.md section 12.9, "Objects the caller passes twice"): a call under 'mutation' must leave
-      // its arguments as they were; a call under 'sharing' must return nothing that is, or holds, an object of its
-      // arguments or of an earlier guarded result. Only the finding crosses to the validator.
-      let «watchMutation» = false;
+      // Guards (docs/validators.md section 12.9, "Objects the caller passes twice"): a call that keeps the identity of its
+      // arguments must leave them as they were (they are not frozen); a call under 'sharing' must return nothing that is,
+      // or holds, an object of its arguments or of an earlier guarded result. Only the finding crosses to the validator.
+      const «watchMutation» = Boolean(«request».ids);
       let «watchSharing» = false;
       if («request».guard) {
         for (let «i» = 0; «i» < «request».guard.length; «i» += 1) {
-          if («request».guard[«i»] === 'mutation') «watchMutation» = true;
           // 'sharing' may be limited to some functions by name.
           if («request».guard[«i»] === 'sharing' && (!«request».guardNames || «request».guardNames.includes(«request».call))) «watchSharing» = true;
         }
@@ -636,14 +649,15 @@ export function wrapperModule(
 export function plainCodec(
   seed: number,
   tag: string,
-): { source: string; encode: string; decode: string; handles: string; pin: string; under: string } {
+): { source: string; encode: string; decode: string; handles: string; deepFreeze: string; pin: string; under: string } {
   const name = namer(seed, `codec:${tag}`);
-  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('pin')}, ${name('under')} };\n`;
+  const source = `${fill(CODEC, name)}\nexport { ${name('encode')}, ${name('decode')}, ${name('handles')}, ${name('deepFreeze')}, ${name('pin')}, ${name('under')} };\n`;
   return {
     source,
     encode: name('encode'),
     decode: name('decode'),
     handles: name('handles'),
+    deepFreeze: name('deepFreeze'),
     pin: name('pin'),
     under: name('under'),
   };
@@ -658,7 +672,7 @@ export function plainBatchEntry(
   seed: number,
   tag: string,
   paths: { module: string; codec: string; calls: string; out: string },
-  codec: { encode: string; decode: string; handles: string; pin: string; under: string },
+  codec: { encode: string; decode: string; handles: string; deepFreeze: string; pin: string; under: string },
   members: readonly string[] = [],
 ): string {
   const name = namer(seed, `plain:${tag}`);
@@ -669,10 +683,11 @@ export function plainBatchEntry(
   const answer = name('answer');
   const error = name('error');
   return [
+    // The codec first: it takes the functions it freezes with before the product module runs.
+    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.deepFreeze} as ${name('deepFreeze')}, ${codec.pin} as ${name('pin')}, ${codec.under} as ${name('under')} } from ${JSON.stringify(paths.codec)};`,
     `import * as ${product} from ${JSON.stringify(paths.module)};`,
     `import { createReadStream as ${name('stream')}, appendFileSync as ${name('append')} } from 'node:fs';`,
     `import { createInterface as ${name('lines')} } from 'node:readline';`,
-    `import { ${codec.encode} as ${name('encode')}, ${codec.decode} as ${name('decode')}, ${codec.handles} as ${name('handles')}, ${codec.pin} as ${name('pin')}, ${codec.under} as ${name('under')} } from ${JSON.stringify(paths.codec)};`,
     `const ${holder} = ${JSON.stringify(members)}.map((${name('key')}) => ${product}[${name('key')}]).find((${name('item')}) => ${name('item')} !== null && typeof ${name('item')} === 'object') ?? ${product};`,
     `for await (const ${name('line')} of ${name('lines')}({ input: ${name('stream')}(new URL(${JSON.stringify(paths.calls)})) })) {`,
     `  const ${each} = JSON.parse(${name('line')});`,
@@ -680,7 +695,7 @@ export function plainBatchEntry(
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${holder}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    const ${name('args')} = ${name('pin')}(${name('decode')}(${each}.args), ${each}.ids, ${each}.forget, ${each}.frozen);`,
+    `    const ${name('args')} = ${each}.ids ? ${name('pin')}(${name('decode')}(${each}.args), ${each}.ids, ${each}.forget) : ${name('deepFreeze')}(${name('decode')}(${each}.args));`,
     `    ${answer} = { ret: ${name('encode')}(await ${name('under')}(${each}.ambient, () => ${fn}(...${name('args')}))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
@@ -746,7 +761,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, ids: message.ids, forget: message.forget, frozen: message.frozen, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, ids: message.ids, forget: message.forget, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
   const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });

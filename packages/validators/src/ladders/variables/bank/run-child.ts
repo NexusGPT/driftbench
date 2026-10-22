@@ -12,9 +12,9 @@ import { runItem, variablesBank } from './index';
 import { openProduct, type Product } from './product';
 import { useProductClock } from './util';
 
-/** The families whose items check that a call leaves its arguments as they were and returns objects of its own. */
+/** The families whose items check that a call returns objects of its own. */
 const GUARDED_FAMILIES = new Set(['values', 'determinism', 'seeds', 'seed-rows']);
-const GUARDS: readonly Guard[] = ['mutation', 'sharing'];
+const GUARDS: readonly Guard[] = ['sharing'];
 /** The functions whose results must be built new (docs/variables.md R11: reader results share no object with inputs). */
 const FRESH_RESULTS = ['buildStore', 'plan'];
 
@@ -53,7 +53,7 @@ async function main(args: readonly string[]): Promise<void> {
     const began = performance.now();
     const mark = frame.position();
     frame.forget();
-    const watch = { ambient: frame.ambient };
+    const watch = { ambient: frame.ambient, sameObjects: frame.sameObjects };
     const ran = await frame.guarded(
       GUARDED_FAMILIES.has(item.family) ? GUARDS : [],
       () => runItem(item, seed, root as string, impl, module, watch),

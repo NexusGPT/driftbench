@@ -38,7 +38,6 @@ export function openProduct(seed: number, tag: string, module: string = implModu
     members: MEMBERS,
     sources: [LADDER],
     refuse: VALIDATOR_FILES,
-    identity: true,
     aliasing: true,
   });
   const given = frame.product;
