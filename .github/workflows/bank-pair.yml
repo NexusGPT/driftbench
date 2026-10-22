@@ -18,7 +18,7 @@ jobs:
           - name: base
             ref: 1e87ffa6b06747ee292a80b5ca20f46187729178
           - name: head
-            ref: 87a6bd52c
+            ref: 2bc60df67
     steps:
       - uses: actions/checkout@v7
         with:
