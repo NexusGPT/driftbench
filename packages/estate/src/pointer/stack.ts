@@ -136,26 +136,40 @@ function single(member: Labeler): Labelling {
 
 /**
  * The margin of a system 1 opinion: the probability of the most likely option minus that of the second. The
- * probabilities must form a vector (each finite and in 0 to 1, the total within the tolerance of 1); one that
- * does not is refused, never normalised. The core hard-codes no label name.
+ * options include `none`, and the probabilities must form a vector; a vector that does not sum to 1 has no margin
+ * (it is never normalised). This is the pure measure: it returns undefined when it cannot compute, and the stack
+ * decides what that means (`stackMargin` refuses, `stackDecision` leaves the unit to system 2).
  */
-export function margin(probabilities: Readonly<Record<string, number>>): { label: string; margin: number } {
-  if (!isVector(probabilities)) {
-    throw new RangeError('the probabilities are no vector: each is a number from 0 to 1 and they sum to 1');
-  }
+export function margin(
+  probabilities: Readonly<Record<string, number>>,
+): { label: string; margin: number } | undefined {
+  if (!('none' in probabilities) || !isVector(probabilities)) return undefined;
   const sorted = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
-  return { label: sorted[0]?.[0] ?? '', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
+  return { label: sorted[0]?.[0] ?? 'none', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
 }
 
-/** The margin of an opinion, or undefined when its probabilities are no vector: the unit is left to system 2. */
+/**
+ * The margin the stack reads from a choice answer: the measure of `margin`, and a refusal (RangeError) when the
+ * answer gives none, because a stack that read a margin from no vector would route on a guess.
+ */
+export function stackMargin(probabilities: Readonly<Record<string, number>>): {
+  label: string;
+  margin: number;
+} {
+  const lead = margin(probabilities);
+  if (lead === undefined) {
+    throw new RangeError(
+      'the probabilities give no margin: they need a none option, each a number from 0 to 1, and a sum of 1',
+    );
+  }
+  return lead;
+}
+
+/** The margin of an opinion, or undefined when it gives none: the unit is left to system 2. */
 function leadOf(
   probabilities: Readonly<Record<string, number>>,
 ): { label: string; margin: number } | undefined {
-  try {
-    return margin(probabilities);
-  } catch {
-    return undefined;
-  }
+  return margin(probabilities);
 }
 
 /** The independent runs of system 2 on one window. */
