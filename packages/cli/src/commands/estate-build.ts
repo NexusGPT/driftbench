@@ -9,6 +9,7 @@ import type { Io } from '../io';
 import * as estateCommands from './estate';
 import { estateGenerateCommand } from './estate-generate';
 import { estatePlanApproveCommand, estatePlanCommand } from './estate-plan';
+import { usageSummary } from './estate-pointer';
 
 export type EstateBuildOptions = estateCommands.EstateScanOptions & {
   /** The folder every file is written into. */
@@ -19,6 +20,7 @@ export type EstateBuildOptions = estateCommands.EstateScanOptions & {
   verbose?: boolean;
   phrases?: string;
   sessions?: string;
+  states?: string;
   /** The strength of the covering array of the plan. */
   t?: string;
 };
@@ -132,9 +134,11 @@ export function registerEstateBuildCommand(estate: Command, io: Io, setExit: (co
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
     .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
     .option('--labeler <spec>', 'with --pointer: <class>:<client>[:<model>]; repeat it', collect)
+    .option('--prices <file>', 'with --pointer: a table of USD per million tokens (YAML), to print the cost')
     .option('--jobs <n>', 'with --pointer: requests in flight at once')
     .option('--phrases <file>', 'the approved phrase bank for estate generate')
     .option('--sessions <file>', 'the index of recorded sessions for estate generate')
+    .option('--states <file>', 'the state library of the runs, for estate generate')
     .option('--t <n>', 'the strength of the covering array of the plan', '2')
     .action(async (root: string, options: EstateBuildOptions) => {
       setExit(await estateBuildCommand(root, options, io));
@@ -214,10 +218,17 @@ export async function estateBuildCommand(
             ...(options.record ? { record: true } : {}),
             ...(options.labeler ? { labeler: options.labeler } : {}),
             ...(options.jobs ? { jobs: options.jobs } : {}),
+            ...(options.prices ? { prices: options.prices } : {}),
           }
         : {}),
     };
-    const code = await estateCommands.estateScanCommand(root, scanOptions, step.io, deps);
+    let usage: string[] = [];
+    const code = await estateCommands.estateScanCommand(root, scanOptions, step.io, {
+      ...deps,
+      onScan: (result, prices) => {
+        usage = usageSummary(result, prices);
+      },
+    });
     if (code === 2 || !(await exists(file('map.yaml')))) return 2;
     stamp.stages.scan = { input: scanInput, code };
     delete stamp.stages.approve;
@@ -227,6 +238,7 @@ export async function estateBuildCommand(
       `1. Read the estate: ${counts.atoms} atoms, ${counts.waiting} of them split from prose by a model and waiting for approval. Wrote ${shown('map.yaml')}.\n`,
     );
     if (code === 1) io.out(SCAN_WARNING);
+    for (const line of usage) io.out(`${line}\n`);
     await saveStamp();
   }
 
@@ -341,12 +353,14 @@ export async function estateBuildCommand(
   // 5. Write the tests.
   const phrases = options.phrases ? resolve(io.cwd, options.phrases) : undefined;
   const sessions = options.sessions ? resolve(io.cwd, options.sessions) : undefined;
+  const states = options.states ? resolve(io.cwd, options.states) : undefined;
   const generateInput = sha(
     JSON.stringify([
       await fileHash(file('approved.yaml')),
       await fileHash(file('plan.yaml')),
       phrases ? await fileHash(phrases) : null,
       sessions ? await fileHash(sessions) : null,
+      states ? await fileHash(states) : null,
     ]),
   );
   const report = join(file('generated'), 'estate-generate-report.json');
@@ -365,6 +379,7 @@ export async function estateBuildCommand(
         force: true,
         ...(phrases ? { phrases } : {}),
         ...(sessions ? { sessions } : {}),
+        ...(states ? { states } : {}),
       },
       step.io,
     );

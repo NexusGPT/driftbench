@@ -15,7 +15,9 @@ import {
   type PointerInput,
   type PointerPlan,
   pointerScan,
+  REASK_LIMIT,
   renderLedger,
+  SPLIT_REASK_RUNS,
   singleLabelling,
   type Window,
   windowsOf,
@@ -114,13 +116,39 @@ describe('the pointer scan', () => {
     expect(log).toHaveLength(4);
     expect(cassette.entries.size).toBe(4);
     expect(first.usage).toEqual([
-      { id: 'planted', cls: 'system2', model: 'planted-1', calls: 4, recorded: 4, input: 40, output: 16 },
+      {
+        id: 'planted',
+        cls: 'system2',
+        model: 'planted-1',
+        calls: 4,
+        recorded: 4,
+        input: 40,
+        output: 16,
+        replayed: 0,
+        replayedInput: 0,
+        replayedOutput: 0,
+      },
     ]);
 
     const second = await pointerScan(
       input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), { mode: 'replay' }),
     );
     expect(second.calls).toBe(0);
+    // The tokens of the answers it replays come from the recording.
+    expect(second.usage).toEqual([
+      {
+        id: 'planted',
+        cls: 'system2',
+        model: 'planted-1',
+        calls: 0,
+        recorded: 0,
+        input: 0,
+        output: 0,
+        replayed: 4,
+        replayedInput: 40,
+        replayedOutput: 16,
+      },
+    ]);
     expect(renderLedger(second.ledger)).toBe(renderLedger(first.ledger));
     expect(second.labelled.map((item) => [item.id, item.label])).toEqual(
       first.labelled.map((item) => [item.id, item.label]),
@@ -548,6 +576,180 @@ describe('a labeler that answers several times', () => {
   });
 });
 
+describe('runs that split between labels of one atom kind', () => {
+  const KINDS = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do.
+        atom: { kind: instruction, polarity: obligation }
+      - name: ban
+        description: A unit that tells the skipper what never to do.
+        atom: { kind: instruction, polarity: prohibition }
+      - name: voice
+        description: A unit about how the skipper words a reply.
+        atom: { kind: register }
+      - name: remark
+        description: A unit that only says how the quay is.
+      - name: aside
+        description: A unit that only tells a story about the quay.
+`;
+  /** Five runs; run n labels every unit of every window `labels[n - 1]`. */
+  const byRun = (labels: string[]) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        return [{ units: `1-${window.units.length}`, label: labels[call - 1] as string }];
+      },
+      [],
+      { runs: 5 },
+    );
+  };
+  const scan = (labels: string[]) => pointerScan(input(byRun(labels), new Cassette(), { sets: load(KINDS) }));
+  const labelsOf = (result: Awaited<ReturnType<typeof scan>>) =>
+    new Set(result.ledger.entries.map((entry) => entry.labels.duty?.label ?? '(unlabeled)'));
+
+  it('takes the label of the kind most runs give when no single label has a majority', async () => {
+    // order 2, ban 1, remark 1, aside 1: no label has three of five, but three runs build an instruction, and order is
+    // the label most of them give.
+    const result = await scan(['order', 'remark', 'ban', 'aside', 'order']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
+  it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie; the two runs asked for the
+    // split say order and ban, so it still ties, 3 against 3.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it('decides between labels that build no atom, as one group', async () => {
+    // remark 1, aside 2, order 1, ban 1: three runs say the unit gives nothing; aside is the label most of them give.
+    const result = await scan(['remark', 'aside', 'order', 'aside', 'ban']);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['aside']));
+  });
+
+  it('never lets runs that point a condition at different units vote together', async () => {
+    // when 2 at unit 2, when 1 at unit 3, ban 2: three runs say the first unit is a condition, but they split on
+    // which unit it scopes, so no group holds three of five and the unit stays unlabeled.
+    const SCOPED = `${KINDS}      - name: when
+        description: A unit that only says when another unit applies.
+        target: required
+        condition: true
+`;
+    const calls = new Map<string, number>();
+    const plan: Array<[string, number?]> = [['when', 2], ['ban'], ['when', 2], ['ban'], ['when', 3]];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (window.units.length < 3) return [{ units: `1-${window.units.length}`, label: 'remark' }];
+        const [label, target] = plan[call - 1] ?? ['remark'];
+        return [
+          { units: '1', label, ...(target ? { target } : {}) } as Labelled,
+          { units: `2-${window.units.length}`, label: 'remark' },
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SCOPED) }));
+    const firsts = result.ledger.entries.filter((entry) => entry.index === 0 && entry.path === 'office.md');
+    expect(firsts.length).toBeGreaterThan(0);
+    expect(firsts.map((entry) => entry.labels.duty?.label)).toEqual(firsts.map(() => undefined));
+  });
+
+  it('keeps a condition out of the group of labels that build no atom', async () => {
+    // when 1, remark 1, aside 1, order 1, ban 1, then two runs asked for the split say when at unit 3 and at unit 2:
+    // remark and aside build no atom, two of seven. A condition acts through its target, so it is no voice for that
+    // group, and the unit stays unlabeled.
+    const SCOPED = `${KINDS}      - name: when
+        description: A unit that only says when another unit applies.
+        target: required
+        condition: true
+`;
+    const calls = new Map<string, number>();
+    const plan: Array<[string, number?]> = [
+      ['when', 2],
+      ['remark'],
+      ['aside'],
+      ['order'],
+      ['ban'],
+      ['when', 3],
+      ['when', 2],
+    ];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (window.units.length < 3) return [{ units: `1-${window.units.length}`, label: 'remark' }];
+        const [label, target] = plan[call - 1] ?? ['remark'];
+        return [
+          { units: '1', label, ...(target ? { target } : {}) } as Labelled,
+          { units: `2-${window.units.length}`, label: 'remark' },
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SCOPED) }));
+    const firsts = result.ledger.entries.filter((entry) => entry.index === 0 && entry.path === 'office.md');
+    expect(firsts.length).toBeGreaterThan(0);
+    expect(firsts.map((entry) => entry.labels.duty?.label)).toEqual(firsts.map(() => undefined));
+  });
+
+  it('leaves the splits of a set whose labels build no atom as they are', async () => {
+    // The same labels with no atom, as the document roles: remark 1, aside 2, order 1, ban 1. No label has three of
+    // five and the labels do not group, so every unit stays unlabeled.
+    const ROLES = KINDS.replace(/\n {8}atom: \{[^}]*\}/g, '');
+    const result = await pointerScan(
+      input(byRun(['remark', 'aside', 'order', 'aside', 'ban']), new Cassette(), { sets: load(ROLES) }),
+    );
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  it('asks a window with a tie inside a kind two more times, and the extra voices decide', async () => {
+    // order 2, ban 2, remark 1 tie inside the instruction kind; runs 6 and 7 say order, so order holds 4 of 7.
+    const cassette = new Cassette();
+    const labeler = byRun(['order', 'ban', 'order', 'ban', 'remark', 'order', 'order']);
+    const result = await pointerScan(input(labeler, cassette, { sets: load(KINDS) }));
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(SPLIT_REASK_RUNS).toBe(2);
+    expect(result.reasked).toHaveLength(files * SPLIT_REASK_RUNS);
+    expect(result.reasked[0]).toMatch(/asked again as run 6 for \d+ split units/);
+    expect(result.unlabeled).toBe(0);
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+    // The extra runs are recorded answers: a replay reads them with no call and gives the same ledger.
+    const replayed = await pointerScan(
+      input(replayOf(labeler), Cassette.parse(cassette.render()), { sets: load(KINDS), mode: 'replay' }),
+    );
+    expect(replayed.calls).toBe(0);
+    expect(renderLedger(replayed.ledger)).toBe(renderLedger(result.ledger));
+  });
+
+  it('asks two more runs for a split between atom kinds, and only a majority decides', async () => {
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture. The window is
+    // asked twice more; both say voice, so voice holds 4 of 7.
+    const settled = await scan(['order', 'voice', 'order', 'voice', 'remark', 'voice', 'voice']);
+    expect(settled.reasked).toHaveLength(new Set(settled.ledger.entries.map((entry) => entry.path)).size * 2);
+    expect(labelsOf(settled)).toEqual(new Set(['voice']));
+  });
+
+  it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The two
+    // runs asked for the split say order and voice, so no label or kind holds four of seven: the unit stays unlabeled
+    // and counts as a split.
+    const result = await scan(['order', 'voice', 'order', 'voice', 'remark', 'order', 'voice']);
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+    expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
 describe('what the cassette key holds', () => {
   it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
     const recorded = new Cassette();
@@ -577,12 +779,16 @@ describe('an even split of the runs between the generic rule and a specific labe
     labels:
       - name: rule
         description: A unit that tells the skipper to do something.
+        atom: { kind: instruction, polarity: obligation }
       - name: gate
         description: A unit that sets one act before another.
+        atom: { kind: gate }
       - name: hazard-compaction
         description: A unit about what the skipper does after the log was cut short.
+        atom: { kind: hazard }
       - name: prohibition
         description: A unit that forbids.
+        atom: { kind: instruction, polarity: prohibition }
       - name: condition
         description: A unit that only says when another unit applies.
         target: required
@@ -733,12 +939,114 @@ describe('a run out of step with the units of its window', () => {
       { runs: 3 },
     );
     const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
-    expect(result.outOfStep).toHaveLength(result.windows / 3);
+    // One window per file; its slipped run 2 is asked again as run 4, in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files);
+    expect(result.reasked).toHaveLength(files);
     expect(result.outOfStep[0]).toMatch(
       /run 2 of planted: \d+ of \d+ quoted clauses are not in their unit; the run is left out of the vote/,
     );
     expect(result.unlabeled).toBe(0);
     expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('counts only the runs heard: three slipped runs of five leave the two in step to decide', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // Runs 2, 3 and 4 slip; runs 1 and 5 say order on every unit, as the Northwind window CLAUDE.md#1 of a
+        // fresh draw did (three of five out of step, which left the whole window with no label).
+        return call >= 2 && call <= 4
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    // Runs 2, 3 and 4 slip in each file's one window; their re-asks (runs 6, 7 and 8) answer order in step.
+    const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
+    expect(result.outOfStep).toHaveLength(files * 3);
+    expect(result.unlabeled).toBe(0);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+  });
+
+  it('gives no opinion when fewer than two runs are heard', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // Only the first of three runs is in step: one run heard is no vote.
+        return call >= 2
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, 'order', [located]);
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
+  });
+
+  /** Five runs, then re-asks; call n of a window answers `plan[n - 1]` on every unit (`slip` quotes four lost clauses). */
+  const scripted = (plan: string[]) => {
+    const calls = new Map<string, number>();
+    const log: number[] = [];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        log.push(call);
+        const said = plan[call - 1] ?? 'order';
+        return said === 'slip'
+          ? every(window, 'remark', Array(4).fill(unlocated))
+          : every(window, said, said === 'order' ? [located] : []);
+      },
+      [],
+      { runs: 5 },
+    );
+    return { labeler, log };
+  };
+
+  it('asks a window again after a slipped run, and the re-ask in step takes its place', async () => {
+    // Heard without the re-ask: order 2, remark 2, a tie with no label. Run 6 says order: three of five.
+    const { labeler } = scripted(['order', 'slip', 'remark', 'remark', 'order', 'order']);
+    const cassette = new Cassette();
+    const result = await pointerScan(input(labeler, cassette, { sets: load(SPANNED) }));
+    const files = result.windows / 6;
+    expect(result.reasked).toHaveLength(files);
+    expect(result.reasked[0]).toMatch(/run 2 of planted: asked again as run 6, in step/);
+    expect(result.unlabeled).toBe(0);
+    expect(result.ledger.entries.every((entry) => entry.labels.duty?.label === 'order')).toBe(true);
+    // The re-ask is its own recorded answer, so a replay reads it with no call.
+    expect(cassette.entries.size).toBe(result.windows);
+    const replayed = await pointerScan(
+      input(replayOf(labeler), Cassette.parse(cassette.render()), { sets: load(SPANNED), mode: 'replay' }),
+    );
+    expect(replayed.calls).toBe(0);
+    expect(renderLedger(replayed.ledger)).toBe(renderLedger(result.ledger));
+  });
+
+  it('stops after three re-asks that slip, and leaves the slipped run unheard', async () => {
+    const { labeler, log } = scripted([
+      'order',
+      'slip',
+      'order',
+      'remark',
+      'remark',
+      'slip',
+      'slip',
+      'slip',
+      'order',
+    ]);
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(SPANNED) }));
+    expect(Math.max(...log)).toBe(5 + REASK_LIMIT);
+    expect(result.reasked).toEqual([]);
+    // Four runs heard: order 2, remark 2, a split.
+    expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
   it('keeps a run of a single-run labeler: it has no vote to leave', async () => {
