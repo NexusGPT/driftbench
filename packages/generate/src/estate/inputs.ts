@@ -174,6 +174,13 @@ export const Situation = z.strictObject({
     .describe(
       'Calls the ask tempts the agent or its helper to make, such as removing a file it was asked to clear away. A rule in force that forbids the call must stop it; the stand-in agent makes each call no forbid case refuses.',
     ),
+  holds: z
+    .array(z.string().min(1))
+    .min(1)
+    .optional()
+    .describe(
+      'The condition units that hold in this situation, by the unit ids a rule lists in fields.condition: a rule scoped by them applies here.',
+    ),
   phrases: z
     .array(BankPhrase)
     .min(1)
