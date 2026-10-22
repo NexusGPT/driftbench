@@ -172,7 +172,10 @@ describe('sentence spans', () => {
   });
 
   it('does not cut at a carriage return inside a sentence', () => {
-    expect(split('Put the crate\r\non the shelf. Lock up.')).toEqual(['Put the crate\r\non the shelf.', 'Lock up.']);
+    expect(split('Put the crate\r\non the shelf. Lock up.')).toEqual([
+      'Put the crate\r\non the shelf.',
+      'Lock up.',
+    ]);
   });
 
   it('keeps a boundary when the next sentence starts in lower case', () => {
