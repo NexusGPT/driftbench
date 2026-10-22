@@ -60,10 +60,16 @@ function mask(text: string): string {
   return text
     .replace(/`+[^`]*`+/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
-    .replace(/https?:\/\/\S+/g, letters)
+    .replace(/https?:\/\/\S*[^\s.,;:!?)\]'"”’]/g, letters)
     .replace(/\*+/g, spaces)
     .replace(/(?<![\p{L}\p{N}])_+|_+(?![\p{L}\p{N}])/gu, spaces)
-    .replace(/\n/g, ' ');
+    .replace(/\n/g, ' ')
+    .replace(/([.!?]['"”’)\]]*\s+)(\p{Ll})/gu, (match, stop: string, letter: string) => {
+      // The segmenter never breaks before a lower-case letter. Raising the letter, when it keeps the length,
+      // lets it report the boundary so that `shouldMerge` judges it by the text before the stop.
+      const raised = letter.toUpperCase();
+      return raised.length === letter.length ? stop + raised : match;
+    });
 }
 
 /** Whether a segment break is a likely false split, decided by the shape of the text around it only. */
@@ -72,8 +78,8 @@ function shouldMerge(before: string, after: string): boolean {
   // A short capitalised word or a single-letter abbreviation before the stop: "Dr.", "e.g.", "A."
   if (/(?:^|[\s(])(\p{Lu}\p{Ll}{0,2}|\p{L}|\p{L}\.\p{L})\.$/u.test(head)) return true;
   if (/\d\.$/.test(head) && /^\d/.test(after.trimStart())) return true;
-  // A sentence rarely starts in lower case or with a closing mark.
-  if (/^\s*[\p{Ll}\d]/u.test(after)) return true;
+  // A clear boundary stays when the next sentence starts in lower case; a digit or a closing mark is unsure.
+  if (/^\s*\d/.test(after)) return true;
   if (/^\s*[)\]"'”’]/.test(after)) return true;
   return false;
 }
@@ -165,7 +171,11 @@ export function cut(rawSource: string): Cut {
       const document = parseDocument(body);
       const walk = (node: unknown, key: string) => {
         if (isScalar(node) && typeof node.value === 'string' && node.range) {
-          const [from, to] = node.range;
+          const [indicator, to] = node.range;
+          // A block scalar's range opens at its `>` or `|` header; the value starts on the next line.
+          const block = node.type === 'BLOCK_FOLDED' || node.type === 'BLOCK_LITERAL';
+          const newline = block ? body.indexOf('\n', indicator) : -1;
+          const from = block && newline !== -1 && newline < to ? newline + 1 : indicator;
           add('front_matter_value', start + opening.length + from, start + opening.length + to, [], key);
         } else if (isMap(node)) {
           for (const pair of node.items) {

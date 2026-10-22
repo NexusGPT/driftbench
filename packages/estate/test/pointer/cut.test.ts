@@ -160,6 +160,33 @@ describe('sentence spans', () => {
       'Lock up.',
     ]);
   });
+  it('ends a sentence at the full stop that closes a URL', () => {
+    expect(split('Open https://shop.example/a.b/menu. Then order.')).toEqual([
+      'Open https://shop.example/a.b/menu.',
+      'Then order.',
+    ]);
+    expect(split('Open (https://shop.example/a.b) now. Then order.')).toEqual([
+      'Open (https://shop.example/a.b) now.',
+      'Then order.',
+    ]);
+  });
+
+  it('keeps a boundary when the next sentence starts in lower case', () => {
+    expect(split('We bake rye daily. iOS bakers prefer wheat.')).toEqual([
+      'We bake rye daily.',
+      'iOS bakers prefer wheat.',
+    ]);
+  });
+});
+
+describe('a folded front matter scalar', () => {
+  it('is one unit that starts after its header line', () => {
+    const source = '---\ndescription: >\n  First line here.\n  Second line here.\n---\nBody text.\n';
+    const units = cut(source).units.filter((unit) => unit.container === 'front_matter_value');
+    expect(units).toHaveLength(1);
+    expect(units[0]?.text).toBe('First line here.\n  Second line here.');
+    expect(source.slice(units[0]?.start, units[0]?.end)).toBe(units[0]?.text);
+  });
 });
 
 describe('the fingerprint', () => {
