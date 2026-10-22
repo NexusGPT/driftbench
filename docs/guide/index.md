@@ -100,6 +100,13 @@ Each word is explained again where it first appears. This list is for looking on
 | Blast radius | The tests that an edit can change. | 16 of 1251 blocks. |
 | Interval | The range a rate could really lie in, given how many tests you ran. | 50% with an interval of 23% to 77%. |
 | Adapter | The piece that connects driftbench to your agent. | A function, a web address, a command. |
+| Stage | A step of the conversation that your agent goes through, named in the spec. | `address`, then `offer`, then `recap`. |
+| Session state | Where the conversation stands when a test starts. | `resumed`, or `after_compaction`. |
+| State library | A file that tells driftbench how to put the agent in each session state. | `northwind/live/states/library.json`. |
+| Prefix | The earlier messages that a block starts after. | Two messages before the block. |
+| `must` and `must_not` | Phrases the reply has to contain, and phrases it must not contain. | `must: ['order number']`. |
+| Campaign | One run of a set of tests, kept in a store under an id. | `estate-run-d0c1fe2d38a8`. |
+| Perturbation | A surprise that driftbench injects at one step of a conversation. | `D2_goal_shift`, a user who changes the goal. |
 | Stand-in | A script that plays recorded answers in place of the agent. It costs nothing. | `northwind/live/fake/claude.mjs`. |
 | Labeler | A model that reads your prose and says which sentences are rules. | `system2:anthropic`. |
 | Seeder | A method that writes one family of tests from a map. | `twise`, which covers every pair of values. |
