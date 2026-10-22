@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { type HiddenSpec, hiddenSpec } from './hidden';
+import { CALIBRATION_REFERENCE_MS } from './scale-calibration';
 
 /**
  * The scale items (docs/validators.md section 12.2, item 4): the hidden specification of a seed with its
@@ -25,7 +26,14 @@ export type ScaleReport = {
   budgetMs: number;
   /** Set when the run did not finish: over budget, out of memory, or a throw. */
   error?: string;
+  /** The raw CPU time of the product's run, in milliseconds. */
   ms: number;
+  /** The CPU time of the fixed calibration workload on this machine, run in the same process before the window. */
+  calibrationMs: number;
+  /** The calibration on the reference machine (scale-calibration.ts). */
+  referenceMs: number;
+  /** `ms` scaled to the reference machine: ms x referenceMs / calibrationMs. The item judges this. */
+  normalisedMs: number;
   invalid: number;
   lint: number;
   bytesSame: boolean;
@@ -67,6 +75,9 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
     budgetMs,
     error,
     ms: budgetMs,
+    calibrationMs: 0,
+    referenceMs: CALIBRATION_REFERENCE_MS,
+    normalisedMs: budgetMs,
     invalid: -1,
     lint: -1,
     bytesSame: false,

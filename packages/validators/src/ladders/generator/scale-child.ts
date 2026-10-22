@@ -32,6 +32,7 @@ import { createFollower } from './follower';
 import { followerAdapter, MAP_PATH, runContext, writeAll } from './measure';
 import { MAP_FILES, renderMap } from './render';
 import { type ScaleReport, scaledSpec } from './scale';
+import { CALIBRATION_REFERENCE_MS, calibrate, normalisedMs } from './scale-calibration';
 
 /** The disk API's call, as the generator documents it. */
 type ToDisk = (
@@ -93,6 +94,9 @@ function isSpec(path: string): boolean {
   );
 }
 
+// The calibration runs in this process, before the window: the same machine, the same load.
+const calibrationMs = calibrate();
+
 // Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
 // CPU time (user and system) excludes time spent waiting for a busy machine.
 const started = process.cpuUsage();
@@ -150,6 +154,9 @@ try {
     factor,
     budgetMs,
     ms: 0,
+    calibrationMs: Math.round(calibrationMs * 10) / 10,
+    referenceMs: CALIBRATION_REFERENCE_MS,
+    normalisedMs: 0,
     invalid: (report?.invalid.length ?? 0) + loadFailures,
     lint: report?.lint.length ?? 0,
     bytesSame: differ.length === 0,
@@ -179,4 +186,5 @@ try {
   measuredMicros += cleanupUsed.user + cleanupUsed.system;
 }
 out.ms = Math.round(measuredMicros / 1000);
+out.normalisedMs = normalisedMs(out.ms, calibrationMs);
 process.stdout.write(`${JSON.stringify(out)}\n`);

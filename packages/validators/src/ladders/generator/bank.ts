@@ -2524,9 +2524,10 @@ function scaleItems(): BankItem[] {
           return verdict(pass, detail);
         },
       });
+    // The budget is for the reference machine: the raw CPU time is scaled by the calibration of this machine.
     add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
-      r.ms <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms of CPU time; the budget is ${r.budgetMs / 2} ms`,
+      r.normalisedMs <= r.budgetMs / 2,
+      `two runs took ${r.ms} ms of CPU time (raw), the calibration took ${r.calibrationMs} ms against ${r.referenceMs} ms on the reference, so ${r.normalisedMs} ms normalised; the budget is ${r.budgetMs / 2} ms`,
     ]);
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,
