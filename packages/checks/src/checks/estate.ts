@@ -1,7 +1,9 @@
 import {
+  type Actor,
   type Assertion,
   type CheckContext,
   type Count,
+  callsIn,
   GUARD_INTERVENTIONS,
   globMatches,
   isZero,
@@ -33,7 +35,13 @@ import type { CustomCheckFunction } from './custom';
  * - `guard_finished`: every run of a guard answered within its time.
  */
 
-type SomeCallOption = { label: string; input: Record<string, Assertion>; count: Count; block?: number };
+type SomeCallOption = {
+  label: string;
+  input: Record<string, Assertion>;
+  count: Count;
+  block?: number;
+  actor?: Actor;
+};
 
 /** `{ calls: [{ label, input, count?, block? }] }` or one such entry. One verdict per entry for the block. */
 export const someCall: CustomCheckFunction = (ctx, options) => {
@@ -41,7 +49,9 @@ export const someCall: CustomCheckFunction = (ctx, options) => {
   const verdicts: Verdict[] = [];
   entries.forEach((entry, index) => {
     if (entry.block !== undefined && entry.block !== ctx.blockIndex) return;
-    const own = ctx.observed.toolCalls.filter((call) => call.label === entry.label);
+    // Whose calls: a count of 0 forbids the call to the agent and to its helpers; any other count is the agent's own.
+    const scope = entry.actor ?? (isZero(entry.count) ? 'any' : 'main');
+    const own = callsIn(ctx.observed, scope).filter((call) => call.label === entry.label);
     const matching = own.filter((call) =>
       Object.entries(entry.input).every(([field, assertion]) => {
         const value = isRecord(call.input) ? call.input[field] : undefined;
@@ -72,6 +82,9 @@ function parseSomeCall(entry: unknown, index: number): SomeCallOption {
     input,
     count,
     ...(typeof entry.block === 'number' ? { block: entry.block } : {}),
+    ...(entry.actor === 'main' || entry.actor === 'helper' || entry.actor === 'any'
+      ? { actor: entry.actor }
+      : {}),
   };
 }
 
@@ -664,7 +677,7 @@ export const noDeleteUnder: CustomCheckFunction = (ctx, options) => {
       ),
     ];
   }
-  const commands = ctx.observed.toolCalls.flatMap((call) =>
+  const commands = callsIn(ctx.observed, 'any').flatMap((call) =>
     isRecord(call.input) && typeof call.input.command === 'string' ? [call.input.command] : [],
   );
   if (commands.length === 0) {

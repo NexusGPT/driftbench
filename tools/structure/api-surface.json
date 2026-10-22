@@ -386,6 +386,7 @@
     },
     "core": {
       "ALLOWED_VERSION_TRANSITION_FIELDS": "value",
+      "Actor": "value",
       "AdapterCapabilities": "type",
       "AdapterTransportError": "value",
       "AgentAdapter": "type",
@@ -763,6 +764,7 @@
       "blockStatus": "value",
       "blocksOutcome": "value",
       "cacheSpecHash": "value",
+      "callsIn": "value",
       "campaignRadius": "value",
       "canonicalGiven": "value",
       "canonicalJson": "value",

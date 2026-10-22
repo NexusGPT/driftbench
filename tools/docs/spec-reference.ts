@@ -38,6 +38,11 @@ const NAME = 'x-name';
 
 /** One line per enum value, keyed by the export name of the enum. */
 export const VALUE_LINES: Record<string, Record<string, string>> = {
+  Actor: {
+    main: "Only the agent's own calls count.",
+    helper: 'Only the calls of the helpers the agent handed work to count.',
+    any: "The agent's calls and its helpers' calls both count.",
+  },
   DeviationClass: {
     D1_off_topic:
       'An off-topic question in the middle of the flow, such as asking for opening hours. Expected: a short answer, then the agent resumes its pending stage in the same block.',

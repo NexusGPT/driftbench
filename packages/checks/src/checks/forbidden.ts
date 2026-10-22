@@ -1,6 +1,8 @@
 import {
+  type Actor,
   type Check,
   type CheckContext,
+  callsIn,
   isZero,
   machineVerdict,
   type Verdict,
@@ -13,7 +15,9 @@ const NAME = 'forbidden';
  * Tools that must not run. A tool is forbidden in a block when `rules.forbidden_tools` lists it, when
  * `rules.max_calls` caps it at 0, or when the block expects it 0 times; one verdict per tool names every
  * reason. `rules.max_calls` above 0 caps the calls across the run: the history and this block together.
- * A block fails the cap only when its own calls go past it, so one excess is reported once.
+ * A block fails the cap only when its own calls go past it, so one excess is reported once. A forbidden tool is
+ * forbidden to the agent and to the helpers it hands work to (`actor` on the expectation narrows it); a cap above 0
+ * counts the agent's own calls.
  */
 export const forbidden: Check = {
   name: NAME,
@@ -21,9 +25,10 @@ export const forbidden: Check = {
   evaluate(ctx) {
     const verdicts: Verdict[] = [];
     const calls = ctx.observed.toolCalls;
+    const scopes = scopesOf(ctx);
 
     for (const [label, reasons] of forbiddenTools(ctx)) {
-      const own = calls.filter((call) => call.label === label);
+      const own = callsIn(ctx.observed, scopes.get(label) ?? 'any').filter((call) => call.label === label);
       const why = reasons.join('; ');
       if (own.length === 0) {
         verdicts.push(machineVerdict(NAME, label, 'pass', `${label} not called (${why})`));
@@ -55,6 +60,14 @@ export const forbidden: Check = {
     return verdicts;
   },
 };
+
+/** The scope an expectation of 0 calls names for a tool; a tool no expectation scopes is read in `any`. */
+function scopesOf(ctx: CheckContext): Map<string, Actor> {
+  const out = new Map<string, Actor>();
+  for (const tool of ctx.expect.tools ?? [])
+    if (isZero(tool.count) && tool.actor) out.set(tool.label, tool.actor);
+  return out;
+}
 
 /** Each forbidden tool with the reasons it is forbidden in this block. */
 function forbiddenTools(ctx: CheckContext): Map<string, string[]> {

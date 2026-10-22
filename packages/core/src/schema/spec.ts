@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { isPlainObject } from '../spec/normalize';
 import {
+  Actor,
   Assertion,
   Budget,
   Count,
@@ -319,6 +320,9 @@ export const ToolExpect = z
   .strictObject({
     label: z.string().min(1).describe('The tool name.'),
     count: Count.optional().describe('How many calls are expected. 0 means the tool must not be called.'),
+    actor: Actor.optional().describe(
+      'Whose calls count: the agent (main), a helper it handed work to (helper), or both (any). Absent: both for a count of 0, the agent otherwise.',
+    ),
     input: z
       .record(z.string(), Assertion)
       .optional()

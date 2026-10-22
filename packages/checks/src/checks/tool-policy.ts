@@ -1,6 +1,7 @@
 import {
   anyGlobMatches,
   type Check,
+  callsIn,
   machineVerdict,
   type ToolCall,
   type ToolRule,
@@ -23,11 +24,11 @@ export type { ToolRule };
 export function createToolPolicyCheck(rules: readonly ToolRule[]): Check {
   return {
     name: NAME,
-    applies: (ctx) => rules.length > 0 && ctx.observed.toolCalls.length > 0,
+    applies: (ctx) => rules.length > 0 && callsIn(ctx.observed, 'any').length > 0,
     evaluate(ctx) {
       const denied = new Map<string, { calls: ToolCall[]; rule: ToolRule }>();
       let checked = 0;
-      for (const call of ctx.observed.toolCalls) {
+      for (const call of callsIn(ctx.observed, 'any')) {
         checked += 1;
         const rule = rules.find((candidate) => anyGlobMatches(candidate.pattern, call.label));
         if (!rule || rule.action === 'allow') continue;

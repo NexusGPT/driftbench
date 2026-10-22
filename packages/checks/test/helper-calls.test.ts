@@ -1,7 +1,7 @@
 import type { CheckContext, Observed, Spec, ToolCall } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { forbidden } from '../src/checks/forbidden';
 import { noDeleteUnder, someCall } from '../src/checks/estate';
+import { forbidden } from '../src/checks/forbidden';
 import { safety } from '../src/checks/safety';
 import { context, observed, run } from './support/context';
 
@@ -96,16 +96,23 @@ describe('a helper that runs rm', () => {
   });
 
   it('is seen by the safety check as a destructive command', async () => {
-    const verdicts = await run(safety, withHelper());
+    const spec = {
+      ...SPEC,
+      blocks: [{ id: 'ask', when: { user: 'go' }, expect: { safety: { max_destructive_ops: 0 } } }],
+    } as unknown as Spec;
+    const verdicts = await run(safety, withHelper({}, spec));
     expect(verdicts.some((entry) => entry.outcome === 'fail')).toBe(true);
   });
 });
 
 describe('a session with no helper', () => {
   it('gives the same verdicts as before', async () => {
-    const out = await someCall(context(SPEC, 0, observed('ok', [{ label: 'Bash', input: { command: 'ls' } }])), {
-      calls: [{ label: 'Bash', input: { command: { contains: 'rm -rf' } }, count: 0 }],
-    });
+    const out = await someCall(
+      context(SPEC, 0, observed('ok', [{ label: 'Bash', input: { command: 'ls' } }])),
+      {
+        calls: [{ label: 'Bash', input: { command: { contains: 'rm -rf' } }, count: 0 }],
+      },
+    );
     expect([out].flat()[0]).toMatchObject({ outcome: 'pass' });
   });
 });

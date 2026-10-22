@@ -436,6 +436,7 @@ export { rescoreCarriedRun } from './runner/carried-scoring';
 export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
+  Actor,
   Assertion,
   Budget,
   Count,
@@ -495,6 +496,7 @@ export {
   CampaignRadius,
   CarriedFrom,
   Cost,
+  callsIn,
   Diagnosis,
   ExecutionRecord,
   HistoryNormalization,

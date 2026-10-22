@@ -121,6 +121,41 @@ describe('a helper session: the calls of the sidechain', () => {
   });
 });
 
+describe('the recorded sessions are mapped as before', () => {
+  it('keeps the agent calls of every recorded session the agent calls, whatever helpers wrote beside them', async () => {
+    const { readdirSync } = await import('node:fs');
+    const files = readdirSync(SESSIONS).filter(
+      (name) => name.endsWith('.jsonl') && !name.includes('.decisions') && !name.includes('.steps'),
+    );
+    expect(files.length).toBeGreaterThan(5);
+    for (const name of files) {
+      const { readFileSync } = await import('node:fs');
+      const text = readFileSync(join(SESSIONS, name), 'utf8');
+      let agentCalls = 0;
+      for (const line of text.split('\n')) {
+        if (line.trim() === '') continue;
+        const record = JSON.parse(line) as {
+          type?: string;
+          isSidechain?: boolean;
+          message?: { content?: unknown };
+        };
+        if (
+          record.type !== 'assistant' ||
+          record.isSidechain === true ||
+          !Array.isArray(record.message?.content)
+        )
+          continue;
+        agentCalls += record.message.content.filter(
+          (part: { type?: string }) => part?.type === 'tool_use',
+        ).length;
+      }
+      const session = await readSession({ transcript: join(SESSIONS, name) });
+      const mapped = session.blocks.reduce((sum, block) => sum + block.observed.toolCalls.length, 0);
+      expect(mapped, name).toBe(agentCalls);
+    }
+  });
+});
+
 describe('parseJsonl', () => {
   it('skips blank lines and keeps a line that is not JSON with its error', () => {
     const parsed = parseJsonl('{"a":1}\n\n not json\n');

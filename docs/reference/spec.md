@@ -46,6 +46,7 @@ The loader rewrites these forms before it validates a spec.
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
+* [Actor](#actor)
 * [Assertion](#assertion)
 * [CompareMode](#comparemode)
 * [ToolExpect recompute value](#toolexpect-recompute-value)
@@ -474,6 +475,7 @@ One expected tool call.
 |---|---|---|---|---|
 | `label` | string, not empty | yes |  | The tool name. |
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
+| `actor` | [Actor](#actor) | no |  | Whose calls count: the agent (main), a helper it handed work to (helper), or both (any). Absent: both for a count of 0, the agent otherwise. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
 | `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
@@ -492,6 +494,14 @@ Write one of these forms.
 |---|---|---|---|---|
 | `min` | integer, at least 0 | no |  | The fewest allowed. |
 | `max` | integer, at least 0 | no |  | The most allowed. |
+
+## Actor
+
+| Value | Meaning |
+|---|---|
+| `main` | Only the agent's own calls count. |
+| `helper` | Only the calls of the helpers the agent handed work to count. |
+| `any` | The agent's calls and its helpers' calls both count. |
 
 ## Assertion
 

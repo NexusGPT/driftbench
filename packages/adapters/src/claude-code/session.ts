@@ -203,6 +203,9 @@ class BlockBuilder {
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
+  /** The calls of the helpers' own conversations (sidechain records), each tied to the Agent call that began it. */
+  readonly helperCalls: ToolCall[] = [];
+  readonly helperUsage = new Map<string, { input: number; output: number }>();
   readonly executions: ExecutionRecord[] = [];
   readonly skills: NonNullable<RuntimeTrace['skills']> = [];
   readonly guards: NonNullable<RuntimeTrace['guards']> = [];
@@ -256,6 +259,11 @@ export function mapSession(input: SessionInput): ReplaySession {
   };
   const builders: BlockBuilder[] = [];
   const pending = new Map<string, PendingCall>();
+  /** Open calls of helpers, by call id; a helper call with no result is not an issue of the session. */
+  const helperPending = new Map<string, PendingCall>();
+  /** Record uuid to the id of the Agent call that record holds, and a helper record's uuid to the Agent call it belongs to. */
+  const agentAt = new Map<string, string>();
+  const helperOwner = new Map<string, string>();
   /** Paths the session has seen exist: read, edited or written. */
   const known = new Set<string>();
   let anonymous = 0;
@@ -295,6 +303,7 @@ export function mapSession(input: SessionInput): ReplaySession {
     if (record.isSidechain === true) {
       keep(line, 'a helper record (sidechain)', record);
       current()?.touch(line, undefined);
+      mapHelperRecord(record, type, line, at);
       continue;
     }
     if (type === 'summary') {
@@ -422,6 +431,9 @@ export function mapSession(input: SessionInput): ReplaySession {
           block.texts.push(part.text);
         } else if (isRecord(part) && part.type === 'tool_use' && typeof part.name === 'string' && part.name) {
           applyCall(block, part, line, at);
+          const recordUuid = stringField(record, 'uuid');
+          if (AGENT_TOOLS.has(part.name) && recordUuid !== undefined && typeof part.id === 'string')
+            agentAt.set(recordUuid, part.id);
         } else {
           block.kept.push({
             line,
@@ -434,6 +446,71 @@ export function mapSession(input: SessionInput): ReplaySession {
       continue;
     }
     keep(line, `a record of type ${type ?? '(none)'}`, record);
+  }
+
+  /**
+   * A helper's record. Its tool calls and results enter the block as the helper's calls, tied to the Agent call
+   * that began the helper: by `parent_tool_use_id` when the stream gives it, else by following `parentUuid` back
+   * to the record that holds the Agent call. Its words and its files are not the agent's, and stay in `raw.kept`.
+   */
+  function mapHelperRecord(
+    record: Record<string, unknown>,
+    type: string | undefined,
+    line: number,
+    at?: string,
+  ) {
+    const uuid = stringField(record, 'uuid');
+    const parent = stringField(record, 'parentUuid');
+    const owner =
+      stringField(record, 'parent_tool_use_id') ??
+      (parent === undefined ? undefined : (helperOwner.get(parent) ?? agentAt.get(parent)));
+    if (uuid !== undefined && owner !== undefined) helperOwner.set(uuid, owner);
+    const block = current();
+    if (!block) return;
+    const message = isRecord(record.message) ? record.message : {};
+    if (type === 'assistant') {
+      const usage = isRecord(message.usage) ? message.usage : undefined;
+      if (usage) {
+        const id = typeof message.id === 'string' ? message.id : `anonymous-helper-${anonymous++}`;
+        block.helperUsage.set(id, {
+          input:
+            num(usage.input_tokens) +
+            num(usage.cache_creation_input_tokens) +
+            num(usage.cache_read_input_tokens),
+          output: num(usage.output_tokens),
+        });
+      }
+      for (const part of Array.isArray(message.content) ? message.content : []) {
+        if (!isRecord(part) || part.type !== 'tool_use' || typeof part.name !== 'string' || !part.name)
+          continue;
+        const id = typeof part.id === 'string' ? part.id : undefined;
+        const call: ToolCall = {
+          ...(id === undefined ? {} : { id }),
+          label: part.name,
+          input: part.input,
+          actor: 'helper',
+          ...(owner === undefined ? {} : { parentCallId: owner }),
+          ...(at === undefined ? {} : { startedAt: at }),
+        };
+        block.helperCalls.push(call);
+        if (id !== undefined) helperPending.set(id, { call, ...(at === undefined ? {} : { at }), line });
+        if (owner === undefined)
+          meta.issues.push(`line ${line}: a helper call ${part.name} that no Agent call began`);
+      }
+      return;
+    }
+    if (type === 'user' && Array.isArray(message.content)) {
+      for (const part of message.content) {
+        if (!isRecord(part) || part.type !== 'tool_result' || typeof part.tool_use_id !== 'string') continue;
+        const open = helperPending.get(part.tool_use_id);
+        if (!open) continue;
+        helperPending.delete(part.tool_use_id);
+        if (part.is_error === true) open.call.error = resultText(part.content);
+        else open.call.output = part.content;
+        const latency = elapsed(open.at, at);
+        if (latency !== undefined) open.call.latencyMs = latency;
+      }
+    }
   }
 
   function applyCall(block: BlockBuilder, part: Record<string, unknown>, line: number, at?: string): void {
@@ -563,6 +640,12 @@ export function mapSession(input: SessionInput): ReplaySession {
       inputTokens += usage.input;
       outputTokens += usage.output;
     }
+    let helperInputTokens = 0;
+    let helperOutputTokens = 0;
+    for (const usage of block.helperUsage.values()) {
+      helperInputTokens += usage.input;
+      helperOutputTokens += usage.output;
+    }
     const runtime: RuntimeTrace = {
       skills: block.skills,
       references: block.references,
@@ -596,11 +679,13 @@ export function mapSession(input: SessionInput): ReplaySession {
       segments: block.segments,
       text: block.texts.join('\n\n'),
       toolCalls: block.toolCalls,
+      ...(block.helperCalls.length > 0 ? { helperCalls: block.helperCalls } : {}),
       runtime,
       workspaceDiff: diff,
       executions: block.executions,
       cost: {
         ...(block.usage.size > 0 ? { inputTokens, outputTokens } : {}),
+        ...(block.helperUsage.size > 0 ? { helperInputTokens, helperOutputTokens } : {}),
       },
       latencyMs: elapsed(block.firstAt, block.lastAt) ?? 0,
       raw,
