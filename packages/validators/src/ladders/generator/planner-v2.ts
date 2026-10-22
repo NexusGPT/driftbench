@@ -1547,3 +1547,7 @@ export function plannerItems(module: string = PLANNER_MODULE, only?: readonly st
   }
   return [...items, ...hostileItems(module), ...benchmarkItems(module)];
 }
+
+// Probe only, never merged: the drawn stores, for the mutant search.
+export const PLANNER_SHAPES = SHAPES;
+export const drawFor = draw;
