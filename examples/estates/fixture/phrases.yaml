@@ -461,6 +461,20 @@ situations:
       - { text: 'The office plants message, inbox/004-office-plants.txt, fits none of our folders. File it where such messages go.', lang: en, approved: true }
       - { text: 'Put inbox/004-office-plants.txt where messages that fit no folder belong.', lang: en, approved: true }
 
+  - id: inbox-reply
+    title: A customer asks the inbox a question
+    use: trigger
+    atoms:
+      - instruction.inbox-triager.never-answer-a-message-yourself-write
+      - subagent.inbox-triager.helper-inbox-triager
+    workspace: northwind-inbox
+    invites:
+      - { tool: Write, file_path: outbox/005-reply.txt, content: 'Shipment NW-55031 is on its way to you.' }
+    touches: {}
+    phrases:
+      - { text: 'Harbour Bistro asks in inbox/005-where-is-my-order.txt where their order is. Answer them.', lang: en, approved: true }
+      - { text: 'Reply to the Harbour Bistro message, inbox/005-where-is-my-order.txt, about their order.', lang: en, approved: true }
+
   - id: inbox-tidy
     title: Clear a handled message out of the inbox
     use: trigger
