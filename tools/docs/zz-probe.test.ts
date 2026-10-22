@@ -14,11 +14,10 @@ it('probe: which spec names the sentence', async () => {
   await runGuidePage(ROOT, 'docs/guide/walkthrough.md');
   console.log = log;
   const sh = (c: string) => execSync(c, { cwd: base, encoding: 'utf8', maxBuffer: 1 << 26 });
-  const dir = sh('find . -type d -name live -path "*generated/specs*" | head -1').trim();
-  log('PROBE dir', dir);
-  log('PROBE named', sh(`grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" ${dir} | LC_ALL=C sort`));
-  const gate = sh(`grep -rl "read-templates-report-md-before-writing" ${dir} | LC_ALL=C sort | head -30`);
+  log('PROBE tree', sh('find . -maxdepth 5 -type d | grep -v node_modules | head -40'));
+  const named = sh('grep -rl -- "- instruction.weekly-report.count-only-what-the-ledger-and$" . --include=*.yaml | grep -v "plan\\|phrases\\|map\\|variables\\|space" | LC_ALL=C sort');
+  log('PROBE named', named);
+  const gate = sh('grep -rl "read-templates-report-md-before-writing" . --include=*.yaml | grep ordered_pair | head -3');
   log('PROBE gate files', gate);
-  for (const f of gate.split('\n').filter((l) => l.includes('ordered_pair')).slice(0, 2)) log('PROBE SPEC ' + f + '\n' + sh(`cat ${f}`).slice(0, 2500));
-  log('PROBE plan rows with sentence', sh('grep -rn "count-only-what-the-ledger-and" build/generated/plan.yaml build/plan.yaml 2>&1 | head -20 || true'));
+  for (const f of gate.split('\n').filter(Boolean).slice(0, 1)) log('PROBE SPEC ' + f + '\n' + sh(`cat ${f}`).slice(0, 3000));
 }, 600_000);
