@@ -146,6 +146,11 @@ function compilerInputs(root, entries) {
   return [...files];
 }
 
+/** The Node major version. A patch release changes no emitted byte of the build, so only a new major makes a stamp stale. */
+function nodeMajor() {
+  return process.versions.node.split('.')[0];
+}
+
 export function requireFreshBuild(root, entries, allowBuild) {
   const stampFile = join(root, '.cache/api-surface-build.json');
   const inputs = () => digest(root, [...compilerInputs(root, entries), fileURLToPath(import.meta.url)]);
@@ -164,7 +169,7 @@ export function requireFreshBuild(root, entries, allowBuild) {
     // Missing, unreadable and malformed stamps all require the same rebuild.
     stamp = undefined;
   }
-  if (stamp?.inputs === before && stamp?.outputs === outputs() && stamp?.node === process.version) return;
+  if (stamp?.inputs === before && stamp?.outputs === outputs() && stamp?.node === nodeMajor()) return;
   if (!allowBuild)
     throw new Error(
       'The API build is missing or stale. Run node tools/structure/api-surface.mjs --build --check.',
@@ -185,7 +190,7 @@ export function requireFreshBuild(root, entries, allowBuild) {
       throw new Error(`${entry.key}: build did not emit its export entry`);
   }
   mkdirSync(dirname(stampFile), { recursive: true });
-  writeFileSync(stampFile, JSON.stringify({ inputs: before, outputs: outputs(), node: process.version }));
+  writeFileSync(stampFile, JSON.stringify({ inputs: before, outputs: outputs(), node: nodeMajor() }));
 }
 
 /** No source predicate decides whether JavaScript exports a value. Each entry gets a fresh Node process. */

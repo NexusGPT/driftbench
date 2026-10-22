@@ -1,6 +1,12 @@
+import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { MessageChannel, type MessagePort, receiveMessageOnPort, Worker } from 'node:worker_threads';
-import { type PlanSeedRow, planV2 } from '@agent-nexus/driftbench-generate';
+import {
+  type PlanSeedRow,
+  planV2,
+  type SpanLabel,
+  variablesFromSources,
+} from '@agent-nexus/driftbench-generate';
 import {
   countVariableTuples,
   type VariableStore,
@@ -16,6 +22,7 @@ import type {
   Provenance,
   QuotesResult,
   Row,
+  Sources,
   StoreDoc,
   ValidateResult,
   VariablesImpl,
@@ -36,8 +43,9 @@ import type {
  *   of docs/variables.md R13, clamped to 0 and 1.
  * - `coverage` is `countVariableTuples` of @agent-nexus/driftbench-space (docs/variables.md R12), on the store file
  *   the projection is written as.
- * - `buildStore` has no product yet: it stays unmapped, and its items fail with the name of the function it
- *   needs. That is the roadmap.
+ * - `buildStore` is `variablesFromSources` of @agent-nexus/driftbench-generate: tool evidence, the values of past
+ *   conversations and what the owner says. It reads structure only, so an item that needs a condition span read
+ *   from English fails until a reader labels the span.
  *
  * The adapter repairs nothing the product returns. Executors never edit it (it is part of the validator, and CI
  * refuses a change to it from an `exec/` branch). A mutant is planted by pointing DRIFTBENCH_VARIABLES_IMPL at
@@ -62,7 +70,7 @@ function validate(value: unknown): ValidateResult {
  * the files into a fresh folder, runs the product function on it, unchanged, and answers the issues on its port.
  */
 const QUOTES_WORKER = `
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { workerData } from 'node:worker_threads';
@@ -261,4 +269,113 @@ function coverage(
   );
 }
 
-export const variablesImpl: Partial<VariablesImpl> = { validate, quotes, plan, weightInterval, coverage };
+let cassette: Map<string, SpanLabel> | undefined;
+
+/** A span with each run of white space folded to one space: the key of its label, so one clause has one label. */
+const foldSpan = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
+/**
+ * The labels a reader wrote for condition spans, by span text with its white space folded: the file `DRIFTBENCH_VARIABLES_CASSETTE` names, one
+ * JSON object per line (`{ "text": ..., "label": ... }`). Unset: no span has a label, and a span with no label gives no
+ * variable. This code reads the file and calls no model.
+ */
+function labels(): Map<string, SpanLabel> {
+  if (cassette) return cassette;
+  const map = new Map<string, SpanLabel>();
+  const file = process.env.DRIFTBENCH_VARIABLES_CASSETTE;
+  if (file) {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (line.trim() === '') continue;
+      const row = JSON.parse(line) as { text: string; label: SpanLabel };
+      map.set(foldSpan(row.text), row.label);
+    }
+  }
+  cassette = map;
+  return map;
+}
+
+/**
+ * Collect mode: `DRIFTBENCH_VARIABLES_SPANS_OUT` names a file, and every condition span a run reads is appended to it
+ * as one JSON line. The span collector job sets it; a labeller turns the spans into the cassette `labels` replays.
+ */
+function recordSpans(sources: Sources): void {
+  const out = process.env.DRIFTBENCH_VARIABLES_SPANS_OUT;
+  if (!out) return;
+  for (const rule of sources.estate?.rules ?? []) {
+    for (const condition of rule.conditions)
+      appendFileSync(out, `${JSON.stringify({ text: foldSpan(condition.text) })}\n`);
+  }
+}
+
+function buildStore(sources: Sources): StoreDoc {
+  recordSpans(sources);
+  const known = labels();
+  const estate =
+    sources.estate === undefined
+      ? undefined
+      : {
+          ...sources.estate,
+          rules: sources.estate.rules.map((rule) => ({
+            ...rule,
+            conditions: rule.conditions.map((condition) => {
+              const label = known.get(foldSpan(condition.text));
+              return label === undefined ? condition : { ...condition, label };
+            }),
+          })),
+        };
+  const built = variablesFromSources({
+    ...(estate === undefined ? {} : { estate }),
+    ...(sources.conversations === undefined ? {} : { conversations: sources.conversations }),
+    ...(sources.owner === undefined ? {} : { owner: sources.owner }),
+  });
+  return {
+    variables: built.store.variables.map((variable) => ({
+      id: variable.id,
+      title: variable.title,
+      values: variable.values.map((value) => ({
+        id: value.id,
+        ...(value.title === undefined ? {} : { title: value.title }),
+        ...(built.samples[variable.id]?.[value.id] === undefined
+          ? {}
+          : { sample: built.samples[variable.id]?.[value.id] }),
+        ...(value.weight === undefined ? {} : { weight: value.weight }),
+        ...(value.approved === undefined ? {} : { approved: value.approved }),
+        ...(value.provenance === undefined ? {} : { provenance: value.provenance as Provenance[] }),
+      })),
+      ...(variable.boundaries === undefined || variable.boundaries.length === 0
+        ? {}
+        : {
+            boundaries: variable.boundaries.map((boundary) => ({
+              holds: boundary.holds,
+              fails: boundary.fails,
+              edge: boundary.edge,
+              ...(boundary.limit === undefined ? {} : { limit: boundary.limit }),
+              ...(boundary.comparison === undefined ? {} : { comparison: boundary.comparison }),
+              ...(boundary.unit === undefined ? {} : { unit: boundary.unit }),
+            })),
+          }),
+    })),
+    impossible: built.store.constraints.map((constraint) => {
+      const [[variableA, valueA], [variableB, valueB]] = Object.entries(constraint.forbid) as [
+        [string, string],
+        [string, string],
+      ];
+      return {
+        a: { variable: variableA, value: valueA },
+        b: { variable: variableB, value: valueB },
+        provenance: (constraint.provenance ?? []) as Provenance[],
+      };
+    }),
+    rules: built.rules,
+    refused: built.refused,
+  };
+}
+
+export const variablesImpl: Partial<VariablesImpl> = {
+  buildStore,
+  validate,
+  quotes,
+  plan,
+  weightInterval,
+  coverage,
+};

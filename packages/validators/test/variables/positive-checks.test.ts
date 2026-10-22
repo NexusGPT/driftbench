@@ -9,7 +9,7 @@ const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const REFERENCE = fileURLToPath(new URL('./positive-reference.ts', import.meta.url));
 const EMPTY = fileURLToPath(new URL('./constant-empty.ts', import.meta.url));
 
-// The independent review's exact 51 credited items. Keep the population explicit so a renamed or missing
+// The independent review's exact 54 credited items. Keep the population explicit so a renamed or missing
 // item cannot silently disappear from the mutant and positive-witness checks.
 const CASES: Array<[keyof VariablesImpl, string, string[]]> = [
   ['buildStore', 'sources.order-independent', ['rules-permuted']],
@@ -31,6 +31,7 @@ const CASES: Array<[keyof VariablesImpl, string, string[]]> = [
       'near-one-n300',
     ],
   ],
+  ['weightInterval', 'weights.interval-huge-counts', ['n2-512', 'n2-600', 'n2-900']],
   ['coverage', 'counter.strict-extendable', ['empty-space']],
   ['coverage', 'counter.uncovered-list', ['none-uncovered']],
   ['plan', 'seeds.pure-copy', ['seed-objects-not-aliased']],
@@ -65,8 +66,8 @@ const items = new Map(variablesBank().map((item) => [item.id, item]));
 
 describe('positive witnesses and constant-result mutants', () => {
   it('covers every credited item in the review', () => {
-    expect(cases).toHaveLength(51);
-    expect(new Set(cases.map((c) => c.id)).size).toBe(51);
+    expect(cases).toHaveLength(54);
+    expect(new Set(cases.map((c) => c.id)).size).toBe(54);
     for (const { id } of cases) expect(items.has(id), id).toBe(true);
   });
 

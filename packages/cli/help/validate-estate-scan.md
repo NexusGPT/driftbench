@@ -324,7 +324,7 @@ they print, in order (the scans and the approve listing are cut to their main li
 is longer):
 
 ```text
-Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
+Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
   Atoms per kind:
     route        7
     skill        4

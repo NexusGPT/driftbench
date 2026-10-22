@@ -96,6 +96,13 @@ export async function decideOp(input: Obj): Promise<unknown> {
   };
 }
 
+/**
+ * `materialize`: the real `pointerScan` over the file, with a labeler that answers the planted labels, then the
+ * reader's atom builder over the units the scan labelled. The label of each unit is read back from the ledger the
+ * scan wrote, with the cassette key it names: a key of the answer the scan recorded is reported under the bank's
+ * name for that answer (`input.cassette`), any other key as `unrecorded:<key>`. A unit of the bank is the unit
+ * of the cut that starts where its span starts; a bank unit with none is an unsupported call.
+ */
 export async function materializeOp(input: Obj): Promise<unknown> {
   const pointer = await pointerExports();
   const root = (await import(/* @vite-ignore */ '@agent-nexus/driftbench-estate')) as Obj;
@@ -103,49 +110,95 @@ export async function materializeOp(input: Obj): Promise<unknown> {
   const source = String(input.source);
   const units = input.units as Obj[];
   const file = String(input.file);
-  const cutUnits = units.map((unit) => ({
-    container: 'sentence',
-    start: Number((unit.span as number[])[0]),
-    end: Number((unit.span as number[])[1]),
-    text: source.slice(Number((unit.span as number[])[0]), Number((unit.span as number[])[1])),
-    fp: '',
-    path: [] as string[],
-  }));
-  const labelOf = new Map((input.labels as Obj[]).map((entry) => [Number(entry.n), entry]));
-  const labelled: Obj[] = [];
-  for (const [at, unit] of units.entries()) {
-    const entry = labelOf.get(Number(unit.n));
-    if (!entry || entry.label === 'none') continue;
-    const targetAt =
-      entry.target === undefined ? -1 : units.findIndex((other) => Number(other.n) === Number(entry.target));
-    labelled.push({
-      path: file,
-      index: at,
-      unit: cutUnits[at],
-      id: String(unit.id),
-      set,
-      label: String(entry.label),
-      source: String(input.cassette),
-      ...(targetAt >= 0
-        ? {
-            target: {
-              path: file,
-              index: targetAt,
-              unit: cutUnits[targetAt],
-              id: String(units[targetAt]?.id),
-            },
-          }
-        : {}),
-    });
+  const cutUnits = (pointer.cut(source) as Obj).units as Obj[];
+  // The bank unit at each place of the cut, by the offset its span starts at.
+  const bankAt = new Map<number, Obj>();
+  for (const unit of units) {
+    const at = cutUnits.findIndex(
+      (cutUnit) =>
+        cutUnit.container !== 'opaque' && Number(cutUnit.start) === Number((unit.span as number[])[0]),
+    );
+    if (at < 0)
+      throw new Unsupported(
+        'labels:materialize',
+        `the reader cuts no unit at offset ${(unit.span as number[])[0]}`,
+      );
+    bankAt.set(at, unit);
   }
+  const labelOf = new Map((input.labels as Obj[]).map((entry) => [Number(entry.n), entry]));
+  const labeler = {
+    id: 'bank-planted',
+    cls: 'system2',
+    family: 'bank',
+    model: 'bank-planted-1',
+    settings: {},
+    maxUnits: (_set: unknown, wanted: number) => wanted,
+    render: (asked: Obj, window: Obj) => ({
+      labeler: 'bank-planted',
+      body: { set: asked.set, window: window.id, units: (window.units as Obj[]).map((unit) => unit.text) },
+    }),
+    opinions: pointer.denseOpinions,
+    async call(_wire: unknown, _set: unknown, window: Obj) {
+      const windowUnits = window.units as Obj[];
+      return {
+        labels: windowUnits.map((unit) => {
+          const entry = labelOf.get(Number(bankAt.get(Number(unit.index))?.n));
+          if (!entry || entry.label === 'none') return { units: String(unit.n), label: 'none' };
+          const targetAt = [...bankAt].find(([, bank]) => Number(bank.n) === Number(entry.target))?.[0];
+          const target = windowUnits.find((other) => Number(other.index) === targetAt)?.n;
+          return {
+            units: String(unit.n),
+            label: String(entry.label),
+            ...(entry.target !== undefined && target !== undefined ? { target } : {}),
+          };
+        }),
+        returnedModel: 'bank-planted-1',
+        stopReason: 'end_turn',
+        usage: { input: 0, output: 0 },
+      };
+    },
+  };
+  const cassette = new pointer.Cassette();
+  const result = (await pointer.pointerScan({
+    files: [{ path: file, text: source }],
+    sets: [set],
+    labelling: pointer.singleLabelling(labeler),
+    cassette,
+    mode: 'record',
+    estateKey: 'bank',
+  })) as Obj;
+  const keys = [...(cassette.entries as Map<string, unknown>).keys()];
+  const named = (from: string): string =>
+    from.startsWith('cassette:')
+      ? `cassette:${from
+          .slice('cassette:'.length)
+          .split('+')
+          .map((part) =>
+            part.length === 12 && keys.filter((key) => key.startsWith(part)).length === 1
+              ? String(input.cassette)
+              : `unrecorded:${part}`,
+          )
+          .join('+')}`
+      : from;
+  const entries = (result.ledger as Obj).entries as Obj[];
+  const bankIdOf = new Map(
+    entries.map((entry) => [String(entry.id), String(bankAt.get(Number(entry.index))?.id ?? entry.id)]),
+  );
   const builder = new (root.AtomBuilder as new (files: ReadonlyMap<string, unknown>) => Obj)(new Map());
-  const result = pointer.pointerAtoms(labelled, new Map([[file, source]]), builder, 'bank');
+  const built = pointer.pointerAtoms(result.labelled, new Map([[file, source]]), builder, 'bank');
   return {
-    ledgerLabels: (input.labels as Obj[]).map((entry) => ({
-      id: String(units.find((unit) => Number(unit.n) === Number(entry.n))?.id),
-      label: String(entry.label),
-    })),
-    atoms: (result.accepted as Obj[]).map((atom) => ({
+    ledgerLabels: (input.labels as Obj[]).map((entry) => {
+      const at = [...bankAt].find(([, bank]) => Number(bank.n) === Number(entry.n))?.[0];
+      const found = entries.find((ledgerEntry) => Number(ledgerEntry.index) === at)?.labels?.[
+        set.set as string
+      ];
+      return {
+        id: String(bankAt.get(at as number)?.id),
+        label: found ? String(found.label) : 'unlabeled',
+        ...(found ? { source: named(String(found.source)) } : {}),
+      };
+    }),
+    atoms: (built.accepted as Obj[]).map((atom) => ({
       kind: atom.kind,
       ...(atom.fields?.polarity ? { polarity: atom.fields.polarity } : {}),
       provenance: { file: atom.provenance.file, quote: atom.provenance.quote },
@@ -153,9 +206,8 @@ export async function materializeOp(input: Obj): Promise<unknown> {
       approved: atom.approved,
       fields: {
         extraction: atom.fields.extraction,
-        unit: atom.fields.unit,
+        unit: bankIdOf.get(String(atom.fields.unit)) ?? atom.fields.unit,
         labelSet: atom.fields.labelSet,
-        cassette: atom.fields.cassette,
       },
       // The reader's own predicates, one for one: nothing is added and a missing flag stays missing.
       evidence: ((atom.evidence ?? []) as Obj[]).map((predicate) => ({
