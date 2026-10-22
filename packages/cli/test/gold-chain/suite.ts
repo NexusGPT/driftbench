@@ -45,7 +45,7 @@ const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
 const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
 const JUDGE = ['--judge', 'claude:haiku', '--judge-command', FAKE_JUDGE, '--judge-budget', '1'];
-const SHOWN = 12;
+const SHOWN = 200;
 const INSTRUCTION = new Set(['rule', 'prohibition', 'gate']);
 
 type Atom = EstateMap['atoms'][number];
@@ -174,12 +174,17 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         const byId = new Map(gold.map((unit) => [unit.id, unit]));
         const place = (id: string): string => placeOf(byId.get(id) as GoldUnit);
-        // A unit takes one label and one target: the first scope of a condition unit applies, and a unit whose gold
-        // label is an instruction stays an instruction (it is covered as one), so its scopes are skipped.
+        // The pointer reader gives a unit one label and one target. The first scope of a condition unit is applied;
+        // every other scope is a gap of the product and fails the step, naming the unit and its target.
         const applied = new Map<string, Truth['scopes'][number]>();
+        const dropped: string[] = [];
         for (const scope of truth.scopes) {
           const label = byId.get(scope.unit)?.label ?? '';
-          if (!applied.has(scope.unit) && !INSTRUCTION.has(label)) applied.set(scope.unit, scope);
+          if (INSTRUCTION.has(label)) {
+            dropped.push(`scope dropped: ${scope.unit} is an instruction (${label}) and cannot also be a condition; target ${scope.target}`);
+          } else if (applied.has(scope.unit)) {
+            dropped.push(`scope dropped: ${scope.unit} has a second target ${scope.target} (first ${applied.get(scope.unit)?.target}); a unit takes one target`);
+          } else applied.set(scope.unit, scope);
         }
         const scopes = [...applied.values()].map((scope) => ({
           unit: place(scope.unit),
@@ -251,7 +256,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             problems.push(`scope ${scope.unit}: the situation of ${target.id} lacks the condition text`);
           }
         }
-        expect(problems, report('labels to atoms', problems)).toEqual([]);
+        problems.push(...dropped);
         chain.ledgerOf = ledgerOf;
         chain.atomOf = new Map(
           [...ledgerOf].flatMap(([goldId, ledgerId]) => {
@@ -260,6 +265,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           }),
         );
         await writeFile(join(work, 'map.yaml'), renderEstateMap(scan.map));
+        expect(problems, report('labels to atoms', problems)).toEqual([]);
         return `${chain.atomOf.size} instruction atoms, ${applied.size} of ${truth.scopes.length} scopes applied`;
       });
     });
@@ -312,12 +318,13 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
 
         // The limits of the truth file become the numeric conditions of the atoms they govern.
-        let skippedLimits = 0;
         const governed = new Map<string, Truth['limits'][number]>();
         for (const limit of truth.limits) {
           // An atom has one condition, and a unit without an instruction atom has none: the first limit of an atom
-          // applies, the others are counted in the result line.
-          if (!atomOf.has(limit.governs) || governed.has(limit.governs)) skippedLimits++;
+          // is applied; every other limit is a gap of the product and fails the step, naming its unit.
+          const where = `limit dropped: ${limit.unit} (${limit.limit} ${limit.comparison}) governs ${limit.governs}`;
+          if (!atomOf.has(limit.governs)) problems.push(`${where}, a unit with no instruction atom`);
+          else if (governed.has(limit.governs)) problems.push(`${where}, which has a first limit already`);
           else governed.set(limit.governs, limit);
         }
         const limited: EstateMap = {
@@ -351,7 +358,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         if (!valid.ok)
           problems.push(`the store is invalid: ${valid.errors.map((e) => e.message).join('; ')}`);
         expect(problems, report('variables', problems)).toEqual([]);
-        return `${values.size} instruction values, ${conditions.length} conditions (${skippedLimits} limits skipped)`;
+        return `${values.size} instruction values, ${conditions.length} conditions`;
       });
     });
 
@@ -400,11 +407,12 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         }
         truth.plan.same_row.forEach((group, at) => {
           const atoms = group.map((id) => atomOf.get(id)?.id);
-          // The planner combines atoms by the axes of a row, not by the section they sit in: each atom of a group
-          // must be named by some row, and the widest row is reported.
-          for (const id of atoms) {
-            if (id === undefined) problems.push(`same_row ${at}: a unit has no instruction atom`);
-            else if (!named.has(id)) problems.push(`same_row ${at}: no plan row names ${id}`);
+          const together = plan.rows.some((row) =>
+            atoms.every((id) => id !== undefined && row.atomIds.includes(id)),
+          );
+          if (!together) {
+            const widest = Math.max(0, ...plan.rows.map((row) => atoms.filter((id) => id !== undefined && row.atomIds.includes(id)).length));
+            problems.push(`same_row ${at}: no plan row names ${group.join(', ')} together (widest row holds ${widest} of ${group.length})`);
           }
         });
         for (const planted of truth.planted_rules) {

@@ -45,8 +45,8 @@ plan:
     - ef56ab78cd
   exclude:                       # units that must not be named by any plan row
     - 12ab34cd56
-  same_row:                      # groups of units that apply in the same situation: the plan
-    - [ef56ab78cd, 78cd90ef12]   # must name each of them (the planner does not put them in one row) (use this for 2 to 4 units; 0 to 6 groups)
+  same_row:                      # groups of units that apply in the same situation: one plan row
+    - [ef56ab78cd, 78cd90ef12]   # must name all of them (use this for 2 to 4 units; 0 to 6 groups) (use this for 2 to 4 units; 0 to 6 groups)
 ```
 
 ## Rules for the author
