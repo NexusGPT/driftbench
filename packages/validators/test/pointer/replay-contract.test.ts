@@ -272,7 +272,7 @@ describe('other families use independent replay inputs', () => {
       }
     }, 60_000);
   }
-  it('scale crosses a cassette window boundary with authored headings and all labels', async () => {
+  it('scale replays files that open with an authored heading, one window each, with all labels', async () => {
     const { runScaleOp } = await import('../../src/ladders/pointer/kit/scale');
     const result = await runScaleOp({ op: 'replay', spec: { seed: 1, files: 2, perFile: 70 } }, base);
     expect(result.problems).toEqual([]);

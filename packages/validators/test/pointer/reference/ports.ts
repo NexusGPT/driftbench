@@ -10,6 +10,7 @@ import {
   readableFor,
   runsOf,
   windowCap,
+  windowPath,
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
 import type { LabelAnswer, LabelEntry, ModelArm, Transport } from '../../../src/ladders/pointer/sut/port';
@@ -669,7 +670,7 @@ async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx)
       set,
       window,
       selected.map((u, i) => ({ n: i + 1, text: u.text })),
-      selected[0]?.path ?? [],
+      windowPath(selected[0]),
     );
     const want = readableFor(wire, {
       path: plan.file,
