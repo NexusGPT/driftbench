@@ -81,7 +81,7 @@ export const HARDENING_STEMS: readonly Stem[] = [
   },
   {
     id: 'hardening.coverage',
-    rules: ['R7', 'R12'],
+    rules: ['R6', 'R12'],
     family: 'counter',
     component: 'planner/counter',
     cause: 'coverage leaves out of its count the tuples only a constraint nobody approved would exclude',
