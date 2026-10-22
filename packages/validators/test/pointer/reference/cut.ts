@@ -126,6 +126,10 @@ function mask(text: string): string {
     while (len > 0 && /[.,;:!?)"'\]]/.test(m[0][len - 1] as string)) len -= 1;
     hide(m.index, m.index + len);
   }
+  // a footnote reference belongs to the sentence it follows: it reads as closing marks
+  const footnote = /\[\^[^\]\s]+\]/g;
+  for (let m = footnote.exec(text); m; m = footnote.exec(text))
+    for (let i = m.index; i < m.index + m[0].length; i += 1) chars[i] = ')';
   return chars.join('').replace(/[\r\n]/g, ' ');
 }
 
@@ -252,6 +256,44 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
       i = j + 1;
       continue;
     }
+    // display math: opaque, like a fence
+    if (/^ {0,3}\$\$[ \t]*$/.test(line.text)) {
+      let j = i + 1;
+      while (j < all.length && !/^ {0,3}\$\$[ \t]*$/.test((all[j] as Line).text)) j += 1;
+      const lastLine = all[Math.min(j, all.length - 1)] as Line;
+      const start = line.start + (line.text.length - line.text.trimStart().length);
+      push(ctx, 'fence', start, lastLine.start + lastLine.text.trimEnd().length);
+      i = j + 1;
+      continue;
+    }
+    // container directive: its lines are marks, its name ends the heading path of its units
+    const directive = /^ {0,3}:::([A-Za-z][\w-]*)[ \t]*$/.exec(line.text);
+    if (directive) {
+      let j = i + 1;
+      while (j < all.length && !/^ {0,3}:::[ \t]*$/.test((all[j] as Line).text)) j += 1;
+      parseBlocks(all.slice(i + 1, j), within(ctx, directive[1] as string));
+      i = j + 1;
+      continue;
+    }
+    // footnote definition: the marker is a mark, its label ends the heading path of its units
+    const note = /^( {0,3}\[\^([^\]\s]+)\]:[ \t]*)(.*)$/.exec(line.text);
+    if (note) {
+      const body: Line[] = [{ text: note[3] as string, start: line.start + (note[1] as string).length }];
+      let j = i + 1;
+      while (j < all.length) {
+        const current = all[j] as Line;
+        if (!blank(current) && indentOf(current.text) < 4) break;
+        if (blank(current)) {
+          const next = all[j + 1];
+          if (!next || blank(next) || indentOf(next.text) < 4) break;
+          body.push({ text: '', start: current.start });
+        } else body.push(strip(current, 4));
+        j += 1;
+      }
+      parseBlocks(body, within(ctx, `[^${note[2] as string}]`));
+      i = j;
+      continue;
+    }
     // ATX heading
     const atx = ATX.exec(line.text);
     if (atx) {
@@ -295,7 +337,10 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
         }
         break;
       }
-      parseBlocks(inner, { ...ctx, mode: 'quote', depth: ctx.depth + 1 });
+      // a GitHub alert: the marker line is a mark, its type ends the heading path of the quote's units
+      const alert = /^\[!([A-Z]+)\][ \t]*$/.exec(inner[0]?.text ?? '');
+      if (alert) parseBlocks(inner.slice(1), { ...within(ctx, `[!${alert[1] as string}]`), mode: 'quote' });
+      else parseBlocks(inner, { ...ctx, mode: 'quote', depth: ctx.depth + 1 });
       i = j;
       continue;
     }
@@ -384,6 +429,11 @@ function parseBlocks(all: Line[], ctx: Ctx): void {
     }
     i = j;
   }
+}
+
+/** The context of a block whose units carry an extra entry at the end of their heading path. */
+function within(ctx: Ctx, entry: string): Ctx {
+  return { ...ctx, stack: [...ctx.stack, { level: 7, text: entry }], depth: ctx.depth + 1 };
 }
 
 function popHeadings(ctx: Ctx, level: number): void {
@@ -508,6 +558,8 @@ function parseItem(body: Line[], markerStart: number, ctx: Ctx): void {
 
 function frontMatter(ctx: Ctx, lines: Line[]): number {
   const open = lines[0];
+  if (open && /^\+\+\+[ \t]*$/.test(open.text)) return tomlFrontMatter(ctx, lines);
+  if (open && /^\{/.test(open.text)) return jsonFrontMatter(ctx, lines);
   if (!open || !/^---[ \t]*$/.test(open.text)) return 0;
   let close = -1;
   for (let k = 1; k < lines.length; k += 1) {
@@ -562,6 +614,79 @@ function frontMatter(ctx: Ctx, lines: Line[]): number {
       while (end > start && /\s/.test(ctx.source[end - 1] as string)) end -= 1;
     }
     push(ctx, 'front_matter', start, end, { yamlPath: f.ypath });
+  }
+  return close + 1;
+}
+
+/** TOML front matter between `+++` lines: the string values of `key = "…"`, `key = ["…", …]` and `[table]` keys. */
+function tomlFrontMatter(ctx: Ctx, lines: Line[]): number {
+  let close = -1;
+  for (let k = 1; k < lines.length; k += 1)
+    if (/^\+\+\+[ \t]*$/.test((lines[k] as Line).text)) {
+      close = k;
+      break;
+    }
+  if (close < 0) return 0;
+  let table: string[] = [];
+  for (let k = 1; k < close; k += 1) {
+    const line = lines[k] as Line;
+    const header = /^\s*\[([A-Za-z0-9_.-]+)\]\s*$/.exec(line.text);
+    if (header) {
+      table = (header[1] as string).split('.');
+      continue;
+    }
+    const pair = /^\s*([A-Za-z0-9_-]+)\s*=\s*/.exec(line.text);
+    if (!pair) continue;
+    const key = pair[1] as string;
+    const rest = line.text.slice(pair[0].length);
+    const strings = [...rest.matchAll(/"((?:[^"\\]|\\.)*)"/g)];
+    const isArray = rest.trimStart().startsWith('[');
+    strings.forEach((m, n) => {
+      const at = line.start + pair[0].length + (m.index ?? 0) + 1;
+      push(ctx, 'front_matter', at, at + (m[1] as string).length, {
+        yamlPath: [...table, key, ...(isArray ? [String(n)] : [])],
+      });
+    });
+  }
+  return close + 1;
+}
+
+/** JSON front matter: an object whose `{` opens the file and whose `}` closes a line; every string value. */
+function jsonFrontMatter(ctx: Ctx, lines: Line[]): number {
+  let close = -1;
+  for (let k = 0; k < lines.length; k += 1)
+    if (/^\}[ \t]*$/.test((lines[k] as Line).text)) {
+      close = k;
+      break;
+    }
+  if (close < 0) return 0;
+  const from = (lines[0] as Line).start;
+  const to = (lines[close] as Line).start + 1;
+  const text = ctx.source.slice(from, to);
+  // A scanner over the object: a stack of containers, each an object (with the key read last) or an array (with its index).
+  const stack: Array<{ kind: 'object' | 'array'; key?: string; index: number; wantKey: boolean }> = [];
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    const top = stack[stack.length - 1];
+    if (ch === '{') stack.push({ kind: 'object', index: 0, wantKey: true });
+    else if (ch === '[') stack.push({ kind: 'array', index: 0, wantKey: false });
+    else if (ch === '}' || ch === ']') stack.pop();
+    else if (ch === ',' && top) {
+      if (top.kind === 'object') top.wantKey = true;
+      else top.index += 1;
+    } else if (ch === '"') {
+      let j = i + 1;
+      while (j < text.length && text[j] !== '"') j += text[j] === '\\' ? 2 : 1;
+      const value = text.slice(i + 1, j);
+      if (top?.kind === 'object' && top.wantKey) {
+        top.key = value;
+        top.wantKey = false;
+      } else if (top) {
+        const ypath = stack.map((c) => (c.kind === 'object' ? (c.key as string) : String(c.index)));
+        push(ctx, 'front_matter', from + i + 1, from + j, { yamlPath: ypath });
+      }
+      i = j;
+    }
   }
   return close + 1;
 }
