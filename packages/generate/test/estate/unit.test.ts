@@ -252,7 +252,7 @@ describe('a check from a catalogue', () => {
     },
   });
 
-  it('is tested as a check of its host hook: its trigger material sent to that hook, the check id carried', () => {
+  it('is tested as a check of its host guard: its trigger material sent to that guard, the check id carried', () => {
     const test = unitTestOf(
       row('guard_positive'),
       check({ trigger: ['2>/dev/null'], host: '.claude/hooks/pre.py' }),
