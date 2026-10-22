@@ -1,5 +1,6 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import type { Recorded, Wire } from './cassette';
+import type { PointerDiagnostic } from './codes';
 import type { LabelContext, LabelSet, LinkAnswer, SpanAnswer, Window } from './labels';
 
 /**
@@ -33,7 +34,15 @@ export type Opinion = {
 };
 
 /** The opinions of one answer, by unit index in the file, and the answers parts it refused, with the reason. */
-export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[]; dropped?: string[] };
+export type Opinions = {
+  byUnit: Map<number, Opinion>;
+  refusals: string[];
+  dropped?: string[];
+  /** One record for each text of `refusals`, in the same order: a stable code and the identifiers it names. */
+  refusalRecords?: PointerDiagnostic[];
+  /** One record for each text of `dropped`, in the same order. */
+  droppedRecords?: PointerDiagnostic[];
+};
 
 export interface Labeler {
   /** Names the labeler in the cassette key: `anthropic`, `jev`, `openai-decisions`, `http:<hash>`. */
@@ -64,17 +73,41 @@ export interface Labeler {
   call?(wire: Wire, set: LabelSet, window: Window, attempt?: number): Promise<Recorded>;
 }
 
+/** The start of each text a labeler gives for an answer it cannot read, and the code of that reason. */
+const ANSWER_CODES: ReadonlyArray<readonly [string, string]> = [
+  ['the answer is not JSON', 'answer-not-json'],
+  ['the answer is not a JSON object', 'answer-not-object'],
+  ['the answer is for another window', 'answer-window-mismatch'],
+  ['the answer is for another set', 'answer-set-mismatch'],
+  ['the answer has no labels list', 'answer-no-labels'],
+  ['a label entry is not', 'answer-entry-malformed'],
+  ['the answer has no probabilities object', 'answer-no-probabilities'],
+];
+
+/** The code of an unreadable answer from its recorded reason: the one place that pairs a reason with its code. */
+export const answerCode = (message: string): string =>
+  ANSWER_CODES.find(([start]) => message.startsWith(start))?.[1] ?? 'answer-unreadable';
+
 /** An answer that cannot be read. The window is retried once, then listed as failed. */
 export class LabelerError extends Error {
+  /** Stable, kebab-case: the reason the answer cannot be read. */
+  readonly code: string;
   constructor(message: string) {
     super(message);
     this.name = 'LabelerError';
+    this.code = answerCode(message);
   }
 }
 
 /** A set or a setting the labeler cannot serve. Nothing is sent. */
 export class LabelerConfigError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    /** Stable, kebab-case: why the labeler cannot serve. */
+    readonly code: string = 'labeler-config',
+    /** The label set the refusal is about, when it is about one. */
+    readonly set?: string,
+  ) {
     super(message);
     this.name = 'LabelerConfigError';
   }

@@ -103,18 +103,22 @@ jobs:
             name: stats seed 1
             component: stats
             flags: --seed 1
+            node: 22
           - id: stats-s2
             name: stats seed 2
             component: stats
             flags: --seed 2
+            node: 22
           - id: stats-s3
             name: stats seed 3
             component: stats
             flags: --seed 3
+            node: 22
           - id: stats-hidden
             name: stats seed hidden
             component: stats
             flags: --hidden --hidden-only
+            node: 22
           - id: system-s1
             name: system seed 1
             component: system
@@ -244,7 +248,7 @@ jobs:
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: ${{ matrix.node || 24 }}
           cache: pnpm
           check-latest: true
       - run: pnpm install --frozen-lockfile --prefer-offline
@@ -262,6 +266,67 @@ jobs:
         if: always()
         with:
           name: ladders-${{ matrix.id }}
+          path: report
+          retention-days: 3
+
+  stats-node24:
+    # The stats ladder on Node 24, reported and outside the gate. The gate and the floor read the stats legs of
+    # `ladders-leg`, which run on Node 22 (`node: 22` in their entries). On Node 24 the shifted bootstrap item
+    # fails on some runs with a correct package (validators/stats/GATE.md, "Node 24 and the shifted bootstrap
+    # item"): that one failure is labelled as the known engine issue by tools/stats/engine-label.mjs and does not
+    # fail this job; any other failing item does. No other job waits for this one.
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || startsWith(github.head_ref, 'release/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',ladders,'))
+    name: ${{ matrix.name }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: stats-node24-s1
+            name: stats seed 1 on Node 24 (reported)
+            flags: --seed 1
+          - id: stats-node24-s2
+            name: stats seed 2 on Node 24 (reported)
+            flags: --seed 2
+          - id: stats-node24-s3
+            name: stats seed 3 on Node 24 (reported)
+            flags: --seed 3
+          - id: stats-node24-hidden
+            name: stats seed hidden on Node 24 (reported)
+            flags: --hidden --hidden-only
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          check-latest: true
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run the stats ladder and label the known engine issue
+        shell: bash
+        env:
+          FLAGS: ${{ matrix.flags }}
+        run: |
+          mkdir -p report
+          node --version
+          status=0
+          pnpm -s driftbench validate stats $FLAGS --items --all-levels --json > report/stats-node24.json || status=$?
+          echo "level (exit code) $status"
+          test -s report/stats-node24.json
+          node tools/stats/engine-label.mjs report/stats-node24.json 24
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stats-node24-${{ matrix.id }}
           path: report
           retention-days: 3
 

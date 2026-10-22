@@ -345,6 +345,14 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
 }
 
 /**
+ * The labelling the specs ask for, or why not: `message` is the text, `code` is stable and kebab-case, and `set`
+ * is the label set a refusal is about (a set a system 1 labeler cannot serve).
+ */
+export type BuiltLabelling =
+  | { ok: true; labelling: Labelling }
+  | { ok: false; message: string; code: string; set?: string };
+
+/**
  * Builds the labelling the specs ask for: one labeler alone, or a system 1 labeler and a system 2 labeler as a
  * stack. With `record`, every labeler must be able to call its service, and the message names what is missing.
  */
@@ -352,12 +360,29 @@ export async function buildLabelling(
   specs: readonly LabelerSpec[],
   options: LabellingOptions,
 ): Promise<{ ok: true; labelling: Labelling } | { ok: false; message: string }> {
+  const built = await buildLabellingDetailed(specs, options);
+  return built.ok ? built : { ok: false, message: built.message };
+}
+
+/** The same build as `buildLabelling`, and a refusal that also carries a `code` and, for a set, the `set`. */
+export async function buildLabellingDetailed(
+  specs: readonly LabelerSpec[],
+  options: LabellingOptions,
+): Promise<BuiltLabelling> {
   if (specs.length === 0 || specs.length > 2) {
-    return { ok: false, message: 'give one labeler, or one of each class: system1 and system2' };
+    return {
+      ok: false,
+      message: 'give one labeler, or one of each class: system1 and system2',
+      code: 'labeler-count',
+    };
   }
   const classes = new Set(specs.map((spec) => spec.cls));
   if (classes.size !== specs.length) {
-    return { ok: false, message: 'give at most one labeler per class: system1 and system2' };
+    return {
+      ok: false,
+      message: 'give at most one labeler per class: system1 and system2',
+      code: 'labeler-class-repeated',
+    };
   }
   const passAt = options.passAt ?? DEFAULT_PASS_AT;
   const failAt = options.failAt ?? DEFAULT_FAIL_AT;
@@ -365,7 +390,11 @@ export async function buildLabelling(
     ![passAt, failAt].every((value) => Number.isFinite(value) && value >= 0 && value <= 1) ||
     failAt >= passAt
   ) {
-    return { ok: false, message: 'the bounds are numbers from 0 to 1, with fail-at under pass-at' };
+    return {
+      ok: false,
+      message: 'the bounds are numbers from 0 to 1, with fail-at under pass-at',
+      code: 'bounds-invalid',
+    };
   }
   const ordered = [...specs].sort((a, b) => a.cls.localeCompare(b.cls));
   const inStack = ordered.length === 2;
@@ -379,6 +408,7 @@ export async function buildLabelling(
         return {
           ok: false,
           message: missingKey(spec?.client ?? '', labeler.cls, labeler.id),
+          code: 'labeler-key-missing',
         };
       }
     }
@@ -391,6 +421,7 @@ export async function buildLabelling(
         return {
           ok: false,
           message: `a margin cut needs a system 1 labeler that answers a choice question; ${first.id} does not`,
+          code: 'margin-cut-needs-choice',
         };
       }
       const marginCut = options.marginCut ?? (choice && !bounded ? DEFAULT_MARGIN_CUT : undefined);
@@ -404,9 +435,16 @@ export async function buildLabelling(
       };
     }
     if (first) return { ok: true, labelling: single(first) };
-    return { ok: false, message: 'no labeler' };
+    return { ok: false, message: 'no labeler', code: 'no-labeler' };
   } catch (cause) {
-    if (cause instanceof LabelerConfigError) return { ok: false, message: cause.message };
+    if (cause instanceof LabelerConfigError) {
+      return {
+        ok: false,
+        message: cause.message,
+        code: cause.code,
+        ...(cause.set !== undefined ? { set: cause.set } : {}),
+      };
+    }
     throw cause;
   }
 }
