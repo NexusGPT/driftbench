@@ -54,3 +54,15 @@ it('mutant.agent.gate: the spec and the follower session with and without the ga
     say(`mutant=${mutant} calls=${calls.join(' ; ')}`);
   }
 });
+
+it('kill.fake delete-gate-2: the calls the fake made', async () => {
+  const { readFileSync: read, existsSync, writeFileSync } = await import('node:fs');
+  process.env.FAKE_CALLS = '/tmp/probe-calls.jsonl';
+  writeFileSync('/tmp/probe-calls.jsonl', '');
+  const suite = await fixtureSuite();
+  const spec = suite.specs.find((x) => x.id === 'estate.ordered_pair.gate.standing.read-before-edit-it');
+  if (!spec) throw new Error('no spec');
+  const out = runOnFakeDetailed(FIXTURE, [spec.path], '/tmp/probe-calls.db', join(FIXTURE, 'approved.yaml'));
+  say(`verdict ${JSON.stringify(out.get(spec.id))}`);
+  say(`CALLS ${existsSync('/tmp/probe-calls.jsonl') ? read('/tmp/probe-calls.jsonl', 'utf8').slice(0, 6000) : 'none'}`);
+});
