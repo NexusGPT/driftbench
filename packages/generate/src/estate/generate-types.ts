@@ -13,6 +13,7 @@ import type {
   SessionIndex,
   SituationUse,
 } from './inputs';
+import type { StateIds } from './states';
 import type { Gap, Marker, ThenContext } from './then';
 
 export const ESTATE_REPORT_FILE = 'estate-generate-report.json';
@@ -158,6 +159,12 @@ export type EstateGenerateOptions = {
    * own rule for the map's runtime (`runtimeLoaded`).
    */
   loaded?: (path: string) => boolean;
+  /**
+   * The session states and the events the state library of the run holds. A row whose cell needs one the library
+   * lacks is written to `incomplete/` with the marker `needs-state-operation`, never as a spec that fails to run.
+   * Absent, no row waits for a state.
+   */
+  stateIds?: StateIds;
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -255,6 +262,8 @@ export type Context = ThenContext & {
   /** Skill names, for a misroute ask that names the wrong skill. */
   units: string[];
   sections?: BlockSections;
+  /** The session states and events the state library holds; absent, no row waits for a state. */
+  stateIds?: StateIds;
 };
 
 export type Built = {
