@@ -23,6 +23,8 @@ const PLANTED = [
   ['unapproved-seed-wrong-id', 'seed-unapproved-covers-nothing', 'unapproved'],
   ['raw-weights', 'weight-scale-invariance', 'weighted'],
   ['zero-weight-first', 'zero-weight-last', 'zero-weight'],
+  // The review of 3f1eebd93: every finite weight is 999 on the zero-weight shape.
+  ['finite-weights-999', 'zero-weight-last', 'zero-weight'],
   ['key-order-sensitive', 'key-order-invariance', 'two-rules'],
   ['unweighted-as-one', 'traffic-weight-of-a-row', 'mixed-weights'],
 ] as const;
