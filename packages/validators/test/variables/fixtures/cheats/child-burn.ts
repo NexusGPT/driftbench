@@ -9,7 +9,9 @@ export const variablesImpl: VariablesImpl = {
   ...real,
   plan: (doc: StoreDoc, options: PlanOptions): Plan => {
     if (doc.variables.length >= 100)
-      execFileSync(process.execPath, ['-e', 'const e=Date.now()+5000;while(Date.now()<e);'], { stdio: 'ignore' });
+      execFileSync(process.execPath, ['-e', 'const e=Date.now()+5000;while(Date.now()<e);'], {
+        stdio: 'ignore',
+      });
     return real.plan(doc, options);
   },
 };

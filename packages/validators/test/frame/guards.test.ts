@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Frame, isolate } from '../../src/frame';
-import * as guards from './fixtures/guards';
+import type * as guards from './fixtures/guards';
 
 /**
  * What the frame keeps of the caller's world around a call (docs/validators.md section 12.9, "Objects the caller
@@ -113,14 +113,10 @@ describe('the guards around a call', () => {
 
   it('sharing limited to named functions leaves the others alone', () => {
     const frame = frameOf();
-    const found = frame.guarded(
-      ['sharing'],
-      () => {
-        frame.product.returnsItsArgument({ items: [1] });
-        return frame.guardSince(0);
-      },
-      ['total'],
-    );
+    const found = frame.guarded(['sharing'], () => {
+      frame.product.returnsItsArgument({ items: [1] });
+      return frame.guardSince(0);
+    }, ['total']);
     expect(found).toBeUndefined();
   });
 

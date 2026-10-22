@@ -33,8 +33,10 @@ export const mutation = {
 
 export function weightInterval(count: number, total: number): [number, number] {
   if (!mutation.acceptOutOfDomainInterval) {
-    if (!Number.isInteger(count) || count < 0) throw new RangeError(`count must be a whole number from 0, got ${count}`);
-    if (!Number.isInteger(total) || total < 1) throw new RangeError(`total must be a whole number from 1, got ${total}`);
+    if (!Number.isInteger(count) || count < 0)
+      throw new RangeError(`count must be a whole number from 0, got ${count}`);
+    if (!Number.isInteger(total) || total < 1)
+      throw new RangeError(`total must be a whole number from 1, got ${total}`);
     if (count > total) throw new RangeError(`count ${count} is above the total ${total}`);
   }
   const p = count / total;

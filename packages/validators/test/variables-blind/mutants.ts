@@ -2428,7 +2428,10 @@ export const MUTANTS: readonly Mutant[] = [
     families: ['counter'],
     only: ['counter.constraints.approved-forbid-excludes-its-pair'],
     make: (base) => ({
-      impl: { ...base, coverage: (store, rows, groups, o) => base.coverage({ ...store, forbids: [] }, rows, groups, o) },
+      impl: {
+        ...base,
+        coverage: (store, rows, groups, o) => base.coverage({ ...store, forbids: [] }, rows, groups, o),
+      },
     }),
   },
   {
@@ -2442,7 +2445,9 @@ export const MUTANTS: readonly Mutant[] = [
           base.coverage(
             {
               ...store,
-              forbids: (store.forbids ?? []).map((f) => (f.approved === undefined ? { ...f, approved: false } : f)),
+              forbids: (store.forbids ?? []).map((f) =>
+                f.approved === undefined ? { ...f, approved: false } : f,
+              ),
             },
             rows,
             groups,
@@ -2481,7 +2486,9 @@ export const MUTANTS: readonly Mutant[] = [
       impl: {
         ...base,
         quotes: (store, files) =>
-          Object.values(files).some((text) => text.length > 3_000_000) ? { errors: [] } : base.quotes(store, files),
+          Object.values(files).some((text) => text.length > 3_000_000)
+            ? { errors: [] }
+            : base.quotes(store, files),
       },
     }),
   },
@@ -2495,7 +2502,11 @@ export const MUTANTS: readonly Mutant[] = [
         quotes: (store, files) => {
           const got = base.quotes(store, files);
           return Object.values(files).some((text) => text.length > 3_000_000) && got.errors.length === 0
-            ? { errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' }] }
+            ? {
+                errors: [
+                  { code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' },
+                ],
+              }
             : got;
         },
       },
@@ -2535,11 +2546,17 @@ export const MUTANTS: readonly Mutant[] = [
           const got = base.quotes(store, files);
           const holds = store.variables.some((v) =>
             v.values.some((x) =>
-              (x.provenance ?? []).some((p) => p.kind === 'quote' && /\p{Extended_Pictographic}/u.test(p.quote)),
+              (x.provenance ?? []).some(
+                (p) => p.kind === 'quote' && /\p{Extended_Pictographic}/u.test(p.quote),
+              ),
             ),
           );
           return holds && got.errors.length === 0
-            ? { errors: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' }] }
+            ? {
+                errors: [
+                  { code: 'VARIABLES_QUOTE_NOT_FOUND', path: 'variables.0.values.0.provenance.0.quote' },
+                ],
+              }
             : got;
         },
       },
@@ -2548,7 +2565,10 @@ export const MUTANTS: readonly Mutant[] = [
   {
     name: 'a boundary that quotes a passage makes no rule',
     families: ['strength'],
-    only: ['plan.rules.boundary-quote-joins-its-rule', 'plan.rules.quotes-with-other-spacing-are-one-passage'],
+    only: [
+      'plan.rules.boundary-quote-joins-its-rule',
+      'plan.rules.quotes-with-other-spacing-are-one-passage',
+    ],
     make: flag(() => {
       plannerMutation.ignoreBoundaryQuotes = true;
     }, resetPlanner),

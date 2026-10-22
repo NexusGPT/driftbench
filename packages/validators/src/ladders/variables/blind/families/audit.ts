@@ -530,7 +530,8 @@ const CONSTRAINT_APPROVAL_STEM: Stem = {
   rules: ['R7', 'R12'],
   family: 'counter',
   component: 'planner/counter',
-  cause: 'a constraint that is not approved excludes nothing from the allowed tuples, and an approved one does',
+  cause:
+    'a constraint that is not approved excludes nothing from the allowed tuples, and an approved one does',
   cases: [
     ['unapproved-forbid-excludes-nothing', 3, allowedWith(false, 2, 4)],
     ['approved-forbid-excludes-its-pair', 3, allowedWith(true, 2, 3)],
@@ -566,17 +567,28 @@ function quotedStore(ctx: ItemContext, path: string, quote: string): FileStore {
   return store;
 }
 
-const reportsOne = (ctx: ItemContext, store: FileStore, files: Record<string, string>, what: string): void => {
+const reportsOne = (
+  ctx: ItemContext,
+  store: FileStore,
+  files: Record<string, string>,
+  what: string,
+): void => {
   const r = callQuotes(ctx, store, files);
   must(
     r.errors.length === 1 &&
       r.errors[0]?.code === 'VARIABLES_QUOTE_NOT_FOUND' &&
       r.errors[0]?.path === QUOTE_PATH,
-    () => `${what}: quotes reported ${show(r.errors, 240)}; expected the one VARIABLES_QUOTE_NOT_FOUND at ${QUOTE_PATH}`,
+    () =>
+      `${what}: quotes reported ${show(r.errors, 240)}; expected the one VARIABLES_QUOTE_NOT_FOUND at ${QUOTE_PATH}`,
   );
 };
 
-const acceptsAll = (ctx: ItemContext, store: FileStore, files: Record<string, string>, what: string): void => {
+const acceptsAll = (
+  ctx: ItemContext,
+  store: FileStore,
+  files: Record<string, string>,
+  what: string,
+): void => {
   const r = callQuotes(ctx, store, files);
   must(r.errors.length === 0, () => `${what}: a quote the file holds was reported: ${show(r.errors, 240)}`);
 };
@@ -629,7 +641,8 @@ const LARGE_FILE_STEM: Stem = {
 };
 
 const EMOJI_NOTES = 'agent/tone.md';
-const EMOJI_TEXT = 'Intro line.\nClose the chat with a rocket \u{1F680} and a check ✅ for the customer.\nOutro line.\n';
+const EMOJI_TEXT =
+  'Intro line.\nClose the chat with a rocket \u{1F680} and a check ✅ for the customer.\nOutro line.\n';
 
 const emojiCase =
   (quote: string, present: boolean) =>
@@ -647,17 +660,17 @@ const EMOJI_STEM: Stem = {
   component: 'store/quotes',
   cause: 'the quote check compares a quote that holds an emoji word for word, as it does any other quote',
   cases: [
-    ['right-quote-with-a-rocket-is-found', 3, emojiCase('Close the chat with a rocket \u{1F680} and a check', true)],
+    [
+      'right-quote-with-a-rocket-is-found',
+      3,
+      emojiCase('Close the chat with a rocket \u{1F680} and a check', true),
+    ],
     [
       'wrong-quote-with-a-rocket-is-reported',
       3,
       emojiCase('Close the chat with a rocket \u{1F680} and a cross', false),
     ],
-    [
-      'wrong-quote-with-a-check-mark-is-reported',
-      3,
-      emojiCase('a check ✅ for the agent', false),
-    ],
+    ['wrong-quote-with-a-check-mark-is-reported', 3, emojiCase('a check ✅ for the agent', false)],
     [
       'wrong-quote-with-the-other-emoji-is-reported',
       4,
@@ -699,7 +712,8 @@ const BOUNDARY_RULE_STEM: Stem = {
   rules: ['R6', 'Planning'],
   family: 'strength',
   component: 'planner/strength',
-  cause: 'a boundary that quotes a passage belongs to the rule of that passage, so the plan covers the triples of that rule',
+  cause:
+    'a boundary that quotes a passage belongs to the rule of that passage, so the plan covers the triples of that rule',
   cases: [
     [
       'boundary-quote-joins-its-rule',
@@ -722,7 +736,11 @@ const BOUNDARY_RULE_STEM: Stem = {
       4,
       (ctx) => {
         const ids = names(ctx.rng, 3) as string[];
-        const spaced = [PASSAGE, PASSAGE.replace(/ /g, '  '), ` ${PASSAGE.replace('late, offer', 'late,\noffer')} `];
+        const spaced = [
+          PASSAGE,
+          PASSAGE.replace(/ /g, '  '),
+          ` ${PASSAGE.replace('late, offer', 'late,\noffer')} `,
+        ];
         const store = boundaryStore(ids.map((id, i) => ({ id, quote: spaced[i] as string })));
         const plan = callPlan(ctx, store, { seed: ctx.seed });
         const ruled = makeStore({

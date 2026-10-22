@@ -340,12 +340,7 @@ export type Seal = { sources?: readonly string[]; reads?: readonly string[]; ref
  * Every bundled module keeps its own original `import.meta.url`, dirname and filename, so an asset granted in
  * `reads` is read beside the module that uses it, including a nested dependency.
  */
-export function seal(
-  module: string,
-  into: string,
-  name: string,
-  grants: Seal = {},
-): Sealed {
+export function seal(module: string, into: string, name: string, grants: Seal = {}): Sealed {
   if (!SOURCE.has(extname(module)))
     throw new FrameError(`the product ${module} is not a script the frame can bundle`);
   mkdirSync(into, { recursive: true });
@@ -430,10 +425,7 @@ export type SealDescriptor = {
 type SealRecord = Sealed & { bytes: Buffer; sha256: string };
 const SEALS = new Map<string, SealRecord>();
 
-const sealKey = (
-  module: string,
-  grants: Seal,
-): string =>
+const sealKey = (module: string, grants: Seal): string =>
   [
     realOf(resolve(module)),
     ...(grants.sources ?? []).map((path) => resolve(path)),
@@ -612,11 +604,7 @@ export function sealOnce(
 }
 
 /** The descriptor of this process's bundle of a product, for its children; seals the product first if needed. */
-export function describeSeal(
-  module: string,
-  folder: string,
-  grants: Seal = {},
-): SealDescriptor {
+export function describeSeal(module: string, folder: string, grants: Seal = {}): SealDescriptor {
   const sealed = sealOnce(module, folder, 'sealed', grants);
   const record = SEALS.get(sealKey(module, grants)) as SealRecord;
   const refresh = () => writeFileSync(sealed.file, record.bytes);

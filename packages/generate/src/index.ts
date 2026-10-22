@@ -192,6 +192,7 @@ export {
   CHUNK_THRESHOLD,
   checkQuotes,
   checkSpaceMap,
+  checkVariableQuotes,
   chunkSources,
   chunkText,
   combinationKey,
@@ -274,7 +275,6 @@ export {
   validateProposal,
   valueApproved,
   verifyQuotes,
-  checkVariableQuotes,
   verifyVariableQuotes,
   viewSources,
 } from './extract';

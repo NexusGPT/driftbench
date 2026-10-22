@@ -348,7 +348,10 @@ describe('checkVariableQuotes', () => {
       constraints: [],
     }) as unknown as VariableStore;
 
-  const files = { 'a.md': 'Keep each reply short.\nClose with \u{1F680} and a check.', 'sub/b.md': 'Second file.' };
+  const files = {
+    'a.md': 'Keep each reply short.\nClose with \u{1F680} and a check.',
+    'sub/b.md': 'Second file.',
+  };
   const codes = (issues: Array<{ code: string; path: string }>) =>
     issues.map((issue) => `${issue.code} ${issue.path}`);
 
@@ -380,7 +383,11 @@ describe('checkVariableQuotes', () => {
   it('reads a path as a path of the folder: a leading ./ is the same file, a path out of it is no file', () => {
     expect(codes(checkVariableQuotes(store(['./a.md', 'Keep each reply short.']), files))).toEqual([]);
     expect(
-      codes(checkVariableQuotes(store(['../a.md', 'Keep each reply short.']), { '../a.md': 'Keep each reply short.' })),
+      codes(
+        checkVariableQuotes(store(['../a.md', 'Keep each reply short.']), {
+          '../a.md': 'Keep each reply short.',
+        }),
+      ),
     ).toEqual(['VARIABLES_SOURCE_UNREADABLE variables.0.values.0.provenance.0.path']);
   });
 });

@@ -129,7 +129,11 @@ const patchCrypto: Patch = () => {
 
 /** The patch of an ambient state, for a product that runs in this process. */
 function patchOf(spec: Ambient): Patch {
-  return spec.kind === 'random' ? patchMathRandom : spec.kind === 'crypto' ? patchCrypto : patchClock(spec.at);
+  return spec.kind === 'random'
+    ? patchMathRandom
+    : spec.kind === 'crypto'
+      ? patchCrypto
+      : patchClock(spec.at);
 }
 
 function withPatches<T>(patches: readonly Patch[], run: () => T): T {

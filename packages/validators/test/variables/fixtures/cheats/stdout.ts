@@ -6,7 +6,9 @@ const real = given as VariablesImpl;
 const write = process.stdout.write.bind(process.stdout) as (chunk: unknown, ...rest: unknown[]) => boolean;
 process.stdout.write = ((chunk: unknown, ...rest: unknown[]) =>
   write(
-    typeof chunk === 'string' && chunk.includes('"done"') ? chunk.replace('"pass":false', '"pass":true') : chunk,
+    typeof chunk === 'string' && chunk.includes('"done"')
+      ? chunk.replace('"pass":false', '"pass":true')
+      : chunk,
     ...rest,
   )) as typeof process.stdout.write;
 
