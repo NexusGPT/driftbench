@@ -75,6 +75,36 @@ describe('the haiku request of the fixtures', () => {
   });
 });
 
+describe('the windows of the fixtures', () => {
+  // docs/estate-pointer-reader.md, section Window: a file is one window while its unit text stays under 400,000
+  // characters, and a window that starts at a heading has a path that ends with that heading.
+  const document = {
+    path: 'notes/long.md',
+    units: [
+      { text: '# Long notes', container: 'heading', path: [], label: 'none' },
+      ...Array.from({ length: 70 }, (_, at) => ({
+        text: `Keep shelf ${at} dry.`,
+        path: ['Long notes'],
+        label: 'rule',
+      })),
+    ],
+  };
+
+  it('a Haiku file under the budget is one window, its path ending with the heading it starts at', () => {
+    const fixture = makeFixture('haiku', [document], PROBE_YAML);
+    expect(new Set(fixture.rows.map((row) => row.readable.window))).toEqual(new Set(['notes/long.md#1']));
+    const content = (fixture.wires[0]?.body.messages as Array<{ content: string }>)[0]?.content ?? '';
+    expect(content.split('\n').find((line) => line.startsWith('WINDOW '))).toBe(
+      'WINDOW notes/long.md#1  path: Long notes',
+    );
+  });
+
+  it('a Jev window still closes at its unit count', () => {
+    const fixture = makeFixture('jev', [document], PROBE_YAML);
+    expect(new Set(fixture.rows.map((row) => row.readable.window)).size).toBe(3);
+  });
+});
+
 describe('committed replay oracles', () => {
   for (const arm of ['haiku', 'jev', 'jev-unit'] as const) {
     it(`${arm}: fixture is reproducible without running a reader, and every unit has its authored label`, async () => {
