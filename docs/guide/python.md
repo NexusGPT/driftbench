@@ -12,13 +12,9 @@ This is a hands-on guide to driftbench from Python. Your agent may be a Python f
 - Python 3.11 or newer. The package needs nothing beyond the standard library.
 - A working folder named `py-demo`, made inside the clone by step 1.
 
-**What you install.** The package is called `drift-bench` on the Python side, and sits in the clone, in `python/driftbench`. You still write `import driftbench` in your code. It is not on PyPI, and the name `driftbench` there belongs to another project, so `pip install driftbench` would install something else. Install it from the clone. This line is not run by our tests, because it changes your Python environment:
+**What you install.** The package is called `drift-bench` on the Python side, and sits in the clone, in `python/driftbench`. You still write `import driftbench` in your code. It is not on PyPI, and the name `driftbench` there belongs to another project, so `pip install driftbench` would install something else. Install it from the clone, as `pip install ./python/driftbench`. Step 1 does this in a **virtual environment**: a private folder of Python packages, so your own Python stays untouched. The guide test runs that step.
 
-```bash
-pip install ./python/driftbench
-```
-
-This guide does not install anything. It tells Python where the clone's sources are, so the page runs in a clean folder. If you installed the package, you can drop the variable `PYTHONPATH` from the commands below.
+The later steps still point `PYTHONPATH` at the sources of the clone, so each one works on its own. If the package is installed, you can drop that variable.
 
 **Words used here.**
 
@@ -55,6 +51,19 @@ $ ROOT=$(cd -P ../examples/.. && pwd -P); printf '%s' "$ROOT/python/driftbench/s
 ```
 
 With a built and linked `driftbench` on your `PATH`, skip `cli.json` and drop `DRIFTBENCH_CLI` from the commands. The package finds `driftbench` there.
+
+Now install the package in a virtual environment inside the working folder, and check that Python can import it:
+
+```console
+$ python3 -m venv .venv
+$ ROOT=$(cd -P ../examples/.. && pwd -P); .venv/bin/pip install --quiet "$ROOT/python/driftbench"
+$ .venv/bin/python -c "import driftbench; print(driftbench.__name__)"
+driftbench
+```
+
+- `python3 -m venv .venv` makes the virtual environment in the folder `.venv`.
+- `.venv/bin/pip install --quiet <folder>` installs the package from the clone into it. `--quiet` hides the progress lines.
+- `.venv/bin/python -c "import driftbench; ..."` runs the Python of the environment and prints `driftbench` when the import works.
 
 **If it goes wrong.**
 
@@ -143,7 +152,7 @@ py-hello process:reply pass
 
 **If it goes wrong.**
 
-- `ModuleNotFoundError: No module named 'driftbench'`: Python does not see the package. Check that `pypath.txt` holds a path that exists, or install the package with `pip`.
+- `ModuleNotFoundError: No module named 'driftbench'`: Python does not see the package. Check that `pypath.txt` holds a path that exists, or use `.venv/bin/python` in place of `python3`, because the package is installed there.
 - `DriftbenchError` and a message about a target: the command line rejected the run. The message is the command's own, so read it as you read any `driftbench` error.
 - `ModuleNotFoundError: No module named 'my_agent'`: you run the script from another folder than the one that holds `my_agent.py`.
 
@@ -246,11 +255,14 @@ $ driftbench campaign run specs/plain.yaml --target process:plain --process-comm
 
 **Why you do this.** If your team already runs pytest, a spec can be one test item in the same run. A failure shows up in the same report as the rest.
 
-**You need.** pytest, and the package. This step is not run by our tests, because it installs pytest into your Python environment.
+**You need.** pytest, and the package. Both go into the virtual environment of step 1, so your own Python stays untouched.
 
-```bash
-pip install pytest
-pytest --driftbench specs/ --driftbench-agent my_agent:reply
+```console
+$ .venv/bin/pip install --quiet pytest
+$ DRIFTBENCH_CLI="$(cat cli.json)" .venv/bin/pytest --driftbench specs/hello.yaml --driftbench-agent my_agent:reply
+plugins: drift-bench-0.1.0
+collected 1 item
+specs/hello.yaml .                                                       [100%]
 ```
 
 **Relevant commands.**
