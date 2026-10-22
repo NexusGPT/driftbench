@@ -55,16 +55,23 @@ export function recordSent(
   }
 }
 
+/** The store value of a call whose wire the renderer never returned: no context, so nothing is listed. */
+const EMPTY: unique symbol = Symbol('no rendered wire');
+type Scope = Meant | typeof EMPTY;
+
 /**
- * Pairs a request with its context. The renderer notes the context against the wire object it returns; the
- * wrapped `call` runs inside an async scope that holds that context; the fetch the labeler posts through reports
- * the body string it was handed inside that scope. The scope follows the request through every await, so
- * concurrent requests never swap contexts. A body reported outside any scope, or from a wire the renderer never
- * returned, lists nothing.
+ * Pairs a request with its context, keyed by wire identity. The renderer notes the context against the wire
+ * object it returns; the wrapped `call` runs inside an async scope for exactly that wire; the fetch the labeler
+ * posts through reports the body string it was handed inside that scope. A request is attributed only to the
+ * context that rendered its exact wire. Every call enters the scope explicitly: a wire with no entry runs in the
+ * EMPTY scope (never by leaving the enclosing scope in place), so a request nested in a call, a retry, a halved
+ * window or a stack of labelers can never inherit the context of an enclosing request. The scope follows the
+ * request through every await, so concurrent requests of several files never swap contexts. A body reported in
+ * the EMPTY scope, outside any scope, or from a wire the renderer never returned lists nothing.
  */
 export class SentRecorder {
   private readonly noted = new WeakMap<object, Meant>();
-  private readonly scope = new AsyncLocalStorage<Meant>();
+  private readonly scope = new AsyncLocalStorage<Scope>();
 
   constructor(readonly into: { rows: ListedCandidates[]; seen: Set<string> }) {}
 
@@ -73,15 +80,15 @@ export class SentRecorder {
     this.noted.set(wire, meant);
   }
 
-  /** Runs the call that sends `wire`; every body reported meanwhile belongs to the context noted for it. */
+  /** Runs the call that sends `wire`; every body reported meanwhile belongs to the context noted for that wire. */
   during<T>(wire: object, run: () => T): T {
-    const meant = this.noted.get(wire);
-    return meant === undefined ? run() : this.scope.run(meant, run);
+    return this.scope.run(this.noted.get(wire) ?? EMPTY, run);
   }
 
   /** The transport receives this body string: the one place a listed candidate is read. */
   received(body: string): void {
     const meant = this.scope.getStore();
-    if (meant !== undefined) recordSent(this.into, meant, body);
+    if (meant === undefined || meant === EMPTY) return;
+    recordSent(this.into, meant, body);
   }
 }
