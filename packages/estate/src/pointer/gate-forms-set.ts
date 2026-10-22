@@ -65,7 +65,11 @@ ${ALSO_REFERENCE}      - name: gate-each
             - { type: ordered, before: Read, after: $link.act-tool }
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
 ${ALSO_REFERENCE}      - name: cites-rule
-        description: A unit that tells the reader to do something and cites another rule of the estate by its label. Give the label of each cited rule as a cited-label span. A label that stands for a form, an article or a version is not a citation. It builds no atom of its own.
+        description: A unit that tells the reader what to do and, in doing so, points at another rule of the estate by that rule's own label, because the other rule governs it or is the reason for it. Give the label of each cited rule as a cited-label span, one span for each cited rule, even when the unit is short. The same letters and digits used as a form, an article, a version or a number are not a citation. It builds no atom of its own.
+        examples:
+          - "Keep the invoice as R9 requires."
+          - "Follow R4 before any refund, and R2 when a crate is lost."
+          - "Not a citation: Fill in form R7 for each export."
         annotate: true
         spans: [cited-label]
         atom:
