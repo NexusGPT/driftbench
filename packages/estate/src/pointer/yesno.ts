@@ -6,6 +6,7 @@ import {
   postJson,
 } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
+import { type PointerDiagnostic, record } from './codes';
 import { windowLines } from './dense';
 import {
   type Labeler,
@@ -15,7 +16,7 @@ import {
   refusingKey,
   usageOf,
 } from './labeler';
-import type { Label, LabelSet, Window } from './labels';
+import { type Label, type LabelSet, requestPathOf, type Window } from './labels';
 
 /**
  * The yes or no shape of a system 1 labeler: one question per unit and label, batched in one request per
@@ -36,7 +37,7 @@ export function yesNoQuestion(label: Label, n: number): string {
 
 /** The numbered text a question refers to: the heading path, then `[n] text` per unit. */
 export function yesNoText(window: Window): string {
-  return [`path: ${window.headingPath.join(' > ') || '(top)'}`, ...windowLines(window)].join('\n');
+  return [`path: ${requestPathOf(window).join(' > ') || '(top)'}`, ...windowLines(window)].join('\n');
 }
 
 /**
@@ -50,10 +51,16 @@ export function askedLabels(set: LabelSet, skipTargetLabels: boolean): readonly 
   if (asked.length < set.labels.length && !skipTargetLabels) {
     throw new LabelerConfigError(
       `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,
+      'set-needs-system2',
+      set.set,
     );
   }
   if (asked.length === 0) {
-    throw new LabelerConfigError(`the set ${set.set} has no label a yes or no model can be asked about`);
+    throw new LabelerConfigError(
+      `the set ${set.set} has no label a yes or no model can be asked about`,
+      'set-has-no-askable-label',
+      set.set,
+    );
   }
   return asked;
 }
@@ -188,6 +195,7 @@ export function choiceOpinions(answer: Recorded, window: Window, asked: readonly
   const names = [...asked.map((label) => label.name), 'none'];
   const byUnit = new Map<number, Opinion>();
   const refusals: string[] = [];
+  const refusalRecords: PointerDiagnostic[] = [];
   for (const unit of window.units) {
     const probabilities: Record<string, number> = {};
     let best: { label: string; p: number } | undefined;
@@ -200,14 +208,20 @@ export function choiceOpinions(answer: Recorded, window: Window, asked: readonly
     if (Object.keys(probabilities).length < names.length || !best) continue;
     if (!isVector(probabilities)) {
       const total = Object.values(probabilities).reduce((sum, p) => sum + p, 0);
-      refusals.push(
-        `${window.id}: unit [${unit.n}] has probabilities that are no vector (they sum to ${Number(total.toFixed(4))})`,
+      const detail = `${window.id}: unit [${unit.n}] has probabilities that are no vector (they sum to ${Number(total.toFixed(4))})`;
+      refusals.push(detail);
+      refusalRecords.push(
+        record('no-vector', detail, {
+          window: window.id,
+          unit: String(unit.n),
+          sum: Number(total.toFixed(4)),
+        }),
       );
       continue;
     }
     byUnit.set(unit.index, { label: best.label, probabilities });
   }
-  return { byUnit, refusals };
+  return { byUnit, refusals, refusalRecords };
 }
 
 export type JevOptions = HttpOptions & {

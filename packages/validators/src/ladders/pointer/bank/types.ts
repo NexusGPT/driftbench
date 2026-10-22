@@ -11,7 +11,16 @@ import type { Need } from './specs/types';
 
 export type Tier = 1 | 2 | 3 | 4 | 5;
 
-export type Outcome = { pass: boolean; detail: string };
+/**
+ * Why an outcome failed, when the cause is not a wrong answer of the reader to the oracle: a control that failed
+ * on the reader's own outputs (`control-failed`), a reader process that ended or stopped answering
+ * (`reader-process-ended`), or an observation the reader does not give at all (`missing-observation`). A check on
+ * an outcome reads this kind, never the words of `detail`.
+ */
+export type FailureKind = 'control-failed' | 'reader-process-ended' | 'missing-observation';
+
+/** `annotated` is set once the runner has added the behaviour under test to the detail of a failure. */
+export type Outcome = { pass: boolean; detail: string; kind?: FailureKind; annotated?: true };
 
 /** What an item runs with. */
 export type ItemContext = {
@@ -44,6 +53,10 @@ export type PointerItem = {
   needs: Need[];
   /** The input does not depend on the seed: judged once per process. */
   seedFree: boolean;
+  /** The longest the item may take, in milliseconds; absent means the runner's default for the family. */
+  capMs?: number;
+  /** `catch`: the item guards a capability and counts for no hardness (docs/validators.md section 12.4). */
+  role?: 'catch';
   run(ctx: ItemContext): Promise<Outcome>;
 };
 
@@ -70,9 +83,22 @@ export function levelOf(id: string): number {
 }
 
 /** A failure an item reports in words: thrown by helpers, caught by the runner, shown without a stack. */
-export class Problem extends Error {}
+export class Problem extends Error {
+  constructor(
+    message: string,
+    readonly kind?: FailureKind,
+  ) {
+    super(message);
+  }
+}
 
 export const pass = (detail: string): Outcome => ({ pass: true, detail });
-export const fail = (detail: string): Outcome => ({ pass: false, detail });
+export const fail = (detail: string, kind?: FailureKind): Outcome => ({
+  pass: false,
+  detail,
+  ...(kind ? { kind } : {}),
+});
+/** A failure for an observation the reader does not give: the runner adds the behaviour under test to it. */
+export const missing = (detail: string): Outcome => fail(detail, 'missing-observation');
 
 import type { CauseKind } from '../../../ladder';

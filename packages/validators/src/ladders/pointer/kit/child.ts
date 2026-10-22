@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { resolveSut } from '../sut/adapter';
+import { pinSut, resolveSut } from '../sut/adapter';
 import type { ModelArm, ScanRequest, SourceFile } from '../sut/port';
 import { constant, perfect } from './labellers';
 import { runScaleOp, type ScaleOp } from './scale';
@@ -37,9 +37,11 @@ export type Job =
 
 export type JobOutput =
   | { ok: true; result: unknown; fakeCalls?: number; requests?: string[] }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code?: string; name?: string };
 
 async function run(job: Job): Promise<JobOutput> {
+  // Before the reader loads: a change of the variable from now on changes nothing.
+  pinSut();
   const sut = await resolveSut();
   if (job.kind === 'cut') return { ok: true, result: await sut.cut(job.file) };
   if (job.kind === 'scale') return { ok: true, result: await runScaleOp(job, sut) };
@@ -99,7 +101,13 @@ export async function main(): Promise<void> {
   try {
     output = await run(job);
   } catch (cause) {
-    output = { ok: false, error: cause instanceof Error ? cause.message : String(cause) };
+    const code = (cause as { code?: unknown } | null)?.code;
+    output = {
+      ok: false,
+      error: cause instanceof Error ? cause.message : String(cause),
+      ...(typeof code === 'string' ? { code } : {}),
+      ...(cause instanceof Error ? { name: cause.name } : {}),
+    };
   }
   writeFileSync(out, JSON.stringify(output));
 }

@@ -1,19 +1,79 @@
 import { lineOf } from '../../../src/ladders/pointer/kit/compose';
 import type {
   Atom,
+  CassetteMissView,
   Diagnostic,
   LabelRequest,
   LedgerEntry,
   LedgerView,
+  ListedCandidates,
   ScanRequest,
   ScanResult,
+  WarningRecord,
 } from '../../../src/ladders/pointer/sut/port';
 import { anchorUnits, type NewUnit } from './anchor';
+import { referenceBugsA } from './bugs-a';
+import { referenceBugsB } from './bugs-b';
+import { bugsC } from './bugs-c';
+import { referenceBugsD } from './bugs-d';
+import { referenceBugsPrivacy } from './bugs-privacy';
 import { cutText, fingerprintText, sha } from './cut';
-import { base32Id, canonicalJson } from './hash';
+import type { Why } from './extras';
+import { base32Id, canonicalCompact, canonicalJson } from './hash';
 import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
-import { askModel, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
-import { planWindows, type WindowPlan } from './window';
+import {
+  type AnswerLabel,
+  type AnswerLink,
+  askModel,
+  Cassette,
+  CassetteError,
+  DECISIONS_THRESHOLD,
+  httpLabelerId,
+  type ModelCtx,
+  readKey,
+  validateAnswer,
+} from './ports';
+import { DEFAULT_MARGIN_CUT, stackWindow } from './stack-scan';
+import { type Candidates, candidateOf, planWindows, type WindowPlan } from './window';
+
+/** A title holds at most this many characters, an ellipsis included (docs, section 6). */
+const TITLE_CHARACTERS = 90;
+
+/** The title of an atom built from a unit: its text without marks, cut to 90 characters with an ellipsis. */
+function titleOf(text: string): string {
+  const flat = text
+    .replace(/[*`]/g, '')
+    .replace(/^\s*(?:[-+]|\d+[.)]|#+|>)\s+/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (flat.length <= TITLE_CHARACTERS) return flat;
+  const keep = referenceBugsB.has('title-91') ? TITLE_CHARACTERS : TITLE_CHARACTERS - 1;
+  return `${flat.slice(0, keep).trimEnd()}\u2026`;
+}
+
+/** The text of the first inline code span of a unit, by Markdown structure. */
+const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
+
+const UNRESOLVED = Symbol('unresolved');
+const SLOT = /^(?:code|unit|file|link\.[a-z][a-z0-9-]*)$/;
+
+/**
+ * Fills a template of a mapping (docs, section 6): a value that is exactly `$<slot>`, or `${<slot>}` inside a
+ * longer text. A slot the unit does not fill leaves the whole value unresolved.
+ */
+function fillTemplate(value: string, slot: (name: string) => string | undefined): string | typeof UNRESOLVED {
+  const whole = /^\$(.+)$/.exec(value)?.[1];
+  if (whole !== undefined && SLOT.test(whole)) return slot(whole) ?? UNRESOLVED;
+  if (!value.includes('${')) return value;
+  let unresolved = false;
+  const text = value.replace(/\$\{([^}]+)\}/g, (_, name: string) => {
+    if (!SLOT.test(name)) return `$${name}`;
+    const found = slot(name);
+    if (found === undefined) unresolved = true;
+    return found ?? '';
+  });
+  return unresolved && !referenceBugsB.has('partial-template') ? UNRESOLVED : text;
+}
 
 /** Reference ledgers always record lineage; absence is an invalid reference fixture. */
 function lineageOf(entry: LedgerEntry): NonNullable<LedgerEntry['lineage']> {
@@ -27,7 +87,7 @@ const ESTATE_KEY = 'pointer-estate';
 const READ_FILE = /(^|\/)\.claude\/(skills\/[^/]+\/SKILL\.md|agents\/[^/]+\.md)$/;
 
 function fail(error: string, extra: Partial<ScanResult> = {}): ScanResult {
-  return { ok: false, error, warnings: [], atoms: [], diagnostics: [], ...extra };
+  return { ok: false, error, warnings: [], warningRecords: [], atoms: [], diagnostics: [], ...extra };
 }
 
 function liveEntries(entries: readonly LedgerEntry[]): LedgerEntry[] {
@@ -36,6 +96,25 @@ function liveEntries(entries: readonly LedgerEntry[]): LedgerEntry[] {
 
 const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+/**
+ * The hash of what decides a label besides the answers, kept with each label: a label made under another hash
+ * is asked again. The reference models the parts the bank varies between two scans: who labels (the planted
+ * labeller or the arm of the model port), the runs of the planted labeller, the threshold of the
+ * `openai-decisions` arm, the address of an `http` labeler and the stack.
+ */
+function labelerHashOf(req: ScanRequest): string {
+  const parts: Record<string, unknown> = {};
+  // Planted bug of lane bugs C: a label made by another labeler is carried.
+  if (!bugsC.has('carry-ignores-labeler')) parts.labeler = req.model ? req.model.arm : 'planted';
+  const runs = req.labelerRuns ?? 1;
+  if (!req.model && runs !== 1 && !referenceBugsD.has('stack-hash-ignores-runs')) parts.runs = runs;
+  if (req.model?.arm === 'openai-decisions' && !referenceBugsD.has('stack-hash-ignores-settings'))
+    parts.threshold = req.model.threshold ?? DECISIONS_THRESHOLD;
+  if (req.model?.arm === 'http') parts.id = httpLabelerId(req.model.url ?? '');
+  if (req.model?.stack) parts.stack = req.model.stack.marginCut ?? DEFAULT_MARGIN_CUT;
+  return sha(canonicalCompact(parts)).slice(0, 16);
+}
+
 export function viewOf(raw: string): LedgerView {
   const file = JSON.parse(raw) as LedgerFile;
   return { raw, entries: file.entries };
@@ -43,12 +122,13 @@ export function viewOf(raw: string): LedgerView {
 
 export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const warnings: string[] = [];
+  const warningRecords: WarningRecord[] = [];
   const diagnostics: Diagnostic[] = [];
   let sets: ParsedSet[];
   try {
     sets = parseLabelSets(req.labelsYaml);
   } catch (cause) {
-    if (cause instanceof LabelSetError) return fail(cause.message);
+    if (cause instanceof LabelSetError) return fail(cause.message, { failure: cause.failure });
     throw cause;
   }
   let previous: LedgerFile | undefined;
@@ -61,8 +141,24 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   }
   const prevEntries = previous?.entries ?? [];
   const prevScan = previous?.scan ?? 0;
+  // Who labels in this scan: a recorded label is carried only when the same labeler made it.
+  // A yes or no model names no clause and no atom: alone, it cannot label a set whose label needs one. A
+  // system 2 labeler (the `haiku` arm, an `http` labeler, the system 2 of a stack) can.
+  const system2 = req.model?.arm === 'haiku' || req.model?.arm === 'http' || req.model?.stack !== undefined;
+  if (req.model && !system2 && !bugsC.has('link-labels-asked')) {
+    for (const set of sets) {
+      if (set.labels.some((label) => label.spans || label.links)) {
+        return fail(
+          `the set ${set.set} has a label with a target, spans or links; a yes or no model cannot name any of them: add a system 2 labeler`,
+          { failure: { code: 'set-needs-system2', set: set.set } },
+        );
+      }
+    }
+  }
 
   // ---- cut
+  /** UTF-16 code units of source kept on each side of a quote (docs/estate-pointer-reader.md section 15). */
+  const context = referenceBugsA.has('context-window-8') ? 8 : 24;
   const files = [...req.files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   const sources = new Map(files.map((f) => [f.path, f.text]));
   const news: NewUnit[] = [];
@@ -88,8 +184,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         end: unit.end,
         container: unit.container,
         sectionPath: unit.path,
-        prefix: file.text.slice(Math.max(0, unit.start - 24), unit.start),
-        suffix: file.text.slice(unit.end, unit.end + 24),
+        prefix: file.text.slice(Math.max(0, unit.start - context), unit.start),
+        suffix: file.text.slice(unit.end, unit.end + context),
         ctxFp: '',
         ...(unit.yamlPath ? { yamlPath: unit.yamlPath } : {}),
       });
@@ -98,13 +194,18 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     for (const [at, g] of globals.entries()) {
       const before = news[globals[at - 1] ?? -1]?.fp ?? '';
       const after = news[globals[at + 1] ?? -1]?.fp ?? '';
-      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}`);
+      // The heading path above the unit is part of its context, as the neighbours are.
+      (news[g] as NewUnit).ctxFp = sha(`${before}|${after}|${(news[g] as NewUnit).sectionPath.join('>')}`);
     }
   }
 
   // ---- anchor
   const verdict = anchorUnits(liveEntries(prevEntries), news);
-  const usedIds = new Set(prevEntries.map((e) => e.id));
+  // Every id of the previous ledger is taken, a deleted one too (the planted bug forgets the deleted ones).
+  const usedIds = new Set(
+    (referenceBugsA.has('ids-forget-deleted') ? liveEntries(prevEntries) : prevEntries).map((e) => e.id),
+  );
+  const estateKey = req.estateKey ?? ESTATE_KEY;
   const occurrence = new Map<string, number>();
   const occurrenceOf: number[] = [];
   news.forEach((unit, g) => {
@@ -116,7 +217,11 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const mint = (unit: NewUnit, occ: number): string => {
     let n = occ;
     for (;;) {
-      const id = base32Id(`${ESTATE_KEY}|${unit.path}|${unit.fp}|${n}`);
+      const id = base32Id(
+        referenceBugsA.has('mint-drops-estate-key')
+          ? `${unit.path}|${unit.fp}|${n}`
+          : `${estateKey}|${unit.path}|${unit.fp}|${n}`,
+      );
       if (!usedIds.has(id)) {
         usedIds.add(id);
         return id;
@@ -149,7 +254,41 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   });
   const byG = new Map(work.map((w) => [w.g, w]));
 
+  // ---- what each set lists for its link kinds: a closed list, or the atoms of the kinds it names, by id
+  const linkCandidates = (to: readonly string[]) => {
+    if (referenceBugsPrivacy.has('candidates-all-withheld')) return [];
+    const listed = (req.atoms ?? [])
+      .filter((atom) => referenceBugsB.has('candidates-any-kind') || to.includes(atom.kind))
+      .map(candidateOf);
+    return referenceBugsB.has('candidates-unsorted')
+      ? listed
+      : listed.sort((a, b) => (a.shown ?? a.id).localeCompare(b.shown ?? b.id));
+  };
+  const candidatesOf = new Map<string, Candidates>(
+    sets.map((set) => [
+      set.set,
+      Object.fromEntries(
+        (set.links ?? []).map((kind) => [
+          kind.name,
+          kind.values
+            ? kind.values.map((value) => ({ id: value, label: value }))
+            : linkCandidates(kind.to ?? []),
+        ]),
+      ),
+    ]),
+  );
+  const shownBack = new Map<string, string>(
+    [...candidatesOf.values()].flatMap((byKind) =>
+      Object.values(byKind).flatMap((list) =>
+        list.flatMap((c) => (c.shown === undefined ? [] : [[c.shown, c.id] as [string, string]])),
+      ),
+    ),
+  );
+  const linksOf = new Map<string, AnswerLink[]>();
+
   // ---- labels
+  const labelerHash = labelerHashOf(req);
+  const onKeyRead = req.model?.onKeyRead;
   const modelCtx: ModelCtx | undefined = req.model
     ? {
         arm: req.model.arm,
@@ -158,16 +297,40 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         threshold: req.model.threshold,
         cutDigestOf: (file) => digests.get(file) ?? '',
         warnings,
+        warningRecords,
+        refusals: [],
         keyHeader: readKey(),
+        candidates: candidatesOf,
+        ...(req.model.url !== undefined ? { url: req.model.url } : {}),
+        // The key of the `haiku` arm is read when a request of that arm leaves, and never before.
+        ...(onKeyRead
+          ? {
+              haikuKey: () => {
+                onKeyRead();
+                return readKey();
+              },
+            }
+          : {}),
       }
     : undefined;
+  if (
+    onKeyRead &&
+    referenceBugsD.has('privacy-getter-key-read-early') &&
+    (req.cassette?.mode ?? 'replay') === 'record'
+  )
+    onKeyRead();
+  const tally = { fellBack: 0 };
   let windowCount = 0;
   let callCount = 0;
   const cassetteKeyOf = new Map<string, string>();
   const gateTargets = new Map<string, number>();
+  const listed: ListedCandidates[] = [];
+  if (modelCtx) modelCtx.listed = { rows: listed, seen: new Set<string>() };
   const finish = (result: ScanResult): ScanResult => {
+    result.listed = listed;
     if (modelCtx) result.cassette = modelCtx.cassette.dump();
     result.warnings = warnings;
+    result.warningRecords = warningRecords;
     return result;
   };
   if (!req.labeler && !req.model) return fail('no labeller was given');
@@ -189,11 +352,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             }
           }
           const base = w.base;
+          const before = base?.labels[set.set] as { setHash: string; labeler?: string } | undefined;
           const carried =
             base !== undefined &&
             base.fp === unit.fp &&
             base.ctxFp === unit.ctxFp &&
-            base.labels[set.set]?.setHash === set.hash &&
+            before?.setHash === set.hash &&
+            (before.labeler === undefined || before.labeler === labelerHash) &&
             w.event !== 'changed' &&
             w.event !== 'split' &&
             w.event !== 'merged';
@@ -207,17 +372,28 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         );
         for (const plan of plans) {
           windowCount += 1;
-          const outcome = await labelWindow(plan, set, req, modelCtx, () => {
-            callCount += 1;
-          });
+          const outcome = await labelWindow(
+            plan,
+            set,
+            req,
+            modelCtx,
+            candidatesOf.get(set.set) ?? {},
+            () => {
+              callCount += 1;
+            },
+            tally,
+          );
           if ('abort' in outcome) {
-            return finish(fail(outcome.abort));
+            return finish(fail(outcome.abort, outcome.miss ? { miss: outcome.miss } : {}));
           }
           const labelUnits = plan.units.filter((u) => u.mode === 'label');
-          if (outcome.failed) {
+          if (outcome.failed !== undefined) {
             diagnostics.push({
               code: 'window_failed',
+              reason: outcome.why.reason,
+              ...whyFields(outcome.why),
               window: plan.id,
+              set: set.set,
               detail: `the window ${plan.id} was refused twice: ${outcome.failed}`,
             });
           }
@@ -229,12 +405,13 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
             if (got) {
               const source = outcome.key ? `cassette:${outcome.key}` : 'labeler:planted';
               Object.defineProperty(w.entry.labels, set.set, {
-                value: { label: got.label, source, setHash: set.hash },
+                value: { label: got.label, source, setHash: set.hash, labeler: labelerHash },
                 enumerable: true,
                 writable: true,
                 configurable: true,
               });
               if (outcome.key) cassetteKeyOf.set(`${w.entry.id}|${set.set}`, outcome.key);
+              if (got.links) linksOf.set(`${w.entry.id}|${set.set}`, got.links);
               if (got.target !== undefined) {
                 const targetUnit = plan.units[got.target - 1];
                 if (targetUnit) gateTargets.set(`${w.entry.id}|${set.set}`, targetUnit.index);
@@ -265,6 +442,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     if (cause instanceof CassetteError) return finish(fail(cause.message));
     throw cause;
   }
+  // A choice answer whose probabilities are no vector is refused unit by unit, with the reason.
+  for (const record of modelCtx?.refusals ?? []) diagnostics.push(record);
   const setNames = new Set(sets.map((s) => s.set));
   for (const w of work) {
     for (const name of Object.keys(w.entry.labels)) if (!setNames.has(name)) delete w.entry.labels[name];
@@ -289,7 +468,8 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   for (const w of work) eventOf.set(w.entry.id, w.event);
   for (const g of goneEntries)
     eventOf.set(g.id, verdict.gone.find((x) => x.entry.id === g.id)?.event ?? 'deleted');
-  const untouched = prevEntries.filter((e) => e.status !== 'live');
+  const liveIds = new Set(work.map((w) => w.entry.id));
+  const untouched = prevEntries.filter((e) => e.status !== 'live' && !liveIds.has(e.id));
   const build = (scanNo: number): string => {
     const entries: LedgerEntry[] = [];
     for (const w of work) {
@@ -331,13 +511,17 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         .filter((p) => oldByPath.get(p) !== newByPath.get(p))
         .sort();
       return finish(
-        fail(`the ledger is stale for ${changed.join(', ') || 'the estate'}; update it`, { diagnostics }),
+        fail(`the ledger is stale for ${changed.join(', ') || 'the estate'}; update it`, {
+          diagnostics,
+          failure: { code: 'ledger-out-of-date', files: changed },
+        }),
       );
     }
   }
 
   // ---- atoms
   const atoms: Atom[] = [];
+  const knownAtoms = new Set((req.atoms ?? []).map((atom) => atom.id));
   for (const entry of ledger.entries) {
     if (entry.status !== 'live') continue;
     const text = sources.get(entry.path) ?? '';
@@ -346,6 +530,28 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       if (!label) continue;
       const def = set.labels.find((l) => l.name === label.label);
       if (!def?.atom) continue;
+      const named = `${entry.path} unit ${entry.id} (${label.label})`;
+      // A link to `none` names nothing; one to a closed list keeps its value; one to an atom needs that atom.
+      const links: AnswerLink[] = [];
+      for (const given of linksOf.get(`${entry.id}|${set.set}`) ?? []) {
+        // the answer may name a candidate by the hash the request showed; it is carried back to the atom's id
+        const link = { ...given, to: shownBack.get(given.to) ?? given.to };
+        if (link.to === 'none' && !referenceBugsB.has('none-link-refused')) continue;
+        if (set.links?.find((kind) => kind.name === link.kind)?.values) links.push(link);
+        else if (knownAtoms.has(link.to)) links.push(link);
+        else
+          diagnostics.push({
+            code: 'atom-refusal',
+            reason: 'link-target-not-atom',
+            unit: entry.id,
+            set: set.set,
+            label: label.label,
+            path: entry.path,
+            kind: link.kind,
+            target: link.to,
+            detail: `${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`,
+          });
+      }
       let start = entry.hint?.start ?? 0;
       let end = entry.hint?.end ?? start;
       if (def.target === 'required') {
@@ -358,13 +564,70 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
         }
       }
       const key = cassetteKeyOf.get(`${entry.id}|${set.set}`);
+      // An atom of the same kind on the same lines with the same quote as one already built is a repeat.
+      const quote = text.slice(start, end);
+      const startLine = lineOf(text, start);
+      const endLine = lineOf(text, Math.max(start, end - 1));
+      const squash = (value: string) => value.replace(/\s+/g, ' ').trim();
+      const repeated = atoms.find(
+        (other) =>
+          other.kind === def.atom?.kind &&
+          other.file === entry.path &&
+          other.startLine <= endLine &&
+          startLine <= other.endLine &&
+          squash(other.quote) === squash(quote),
+      );
+      if (repeated) {
+        diagnostics.push({
+          code: 'duplicate',
+          reason: 'atom-duplicate',
+          unit: entry.id,
+          set: set.set,
+          label: label.label,
+          path: entry.path,
+          repeats: repeated.fields.unit,
+          detail: `the unit ${entry.id} repeats an atom of kind ${def.atom.kind}`,
+        });
+        continue;
+      }
+      const extra = set.mappings.get(def.name) ?? {};
+      const code = codeSpanOf(entry.quote);
+      // A `whenFile` mapping builds only when the first code span of the unit names a file of the estate.
+      if (extra.whenFile) {
+        const builds = referenceBugsB.has('whenfile-ignores-exists')
+          ? code !== undefined
+          : code !== undefined && sources.has(code);
+        if (!builds) continue;
+      }
+      const slot = (name: string): string | undefined => {
+        if (name === 'code') return code;
+        if (name === 'unit') return entry.quote;
+        if (name === 'file') return entry.path;
+        return links.find((link) => `link.${link.kind}` === name)?.to;
+      };
+      const title = extra.title === undefined ? undefined : fillTemplate(extra.title, slot);
+      const situation = extra.situation === undefined ? undefined : fillTemplate(extra.situation, slot);
+      if (title === UNRESOLVED || situation === UNRESOLVED) {
+        diagnostics.push({
+          code: 'atom-refusal',
+          reason: 'template-unfilled',
+          unit: entry.id,
+          set: set.set,
+          label: label.label,
+          path: entry.path,
+          detail: `${named}: the label ${label.label} needs a span, a link or a code span that the unit does not give`,
+        });
+        continue;
+      }
       atoms.push({
         kind: def.atom.kind,
         ...(def.atom.polarity ? { polarity: def.atom.polarity } : {}),
+        title: title ?? titleOf(entry.quote),
+        ...(situation ? { situation } : {}),
         file: entry.path,
-        startLine: lineOf(text, start),
-        endLine: lineOf(text, Math.max(start, end - 1)),
-        quote: text.slice(start, end),
+        startLine,
+        endLine,
+        quote,
         producedBy: 'model',
         approved: false,
         fields: {
@@ -373,9 +636,55 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
           labelSet: set.set,
           ...(key ? { cassette: key } : {}),
         },
-        evidence: [{ type: 'custom', name: 'prose_pointer', reviewRequired: true }],
+        evidence: [
+          { type: 'custom', name: 'prose_pointer', reviewRequired: true, options: { reviewRequired: true } },
+        ],
       });
     }
+  }
+  // ---- conditions: the text of a condition unit is the situation of the atom built from its target
+  const conditions = new Map<Atom, Array<{ start: number; text: string; id: string }>>();
+  for (const entry of ledger.entries) {
+    if (entry.status !== 'live') continue;
+    for (const set of sets) {
+      const label = entry.labels[set.set];
+      if (!label || !set.labels.find((l) => l.name === label.label)?.condition) continue;
+      const targetIndex = gateTargets.get(`${entry.id}|${set.set}`);
+      const g = fileUnits.get(entry.path)?.[targetIndex ?? -1];
+      const targetId = g === undefined ? undefined : byG.get(g)?.entry.id;
+      const atom = atoms.find((a) => a.fields.unit === targetId && a.fields.labelSet === set.set);
+      if (!atom) {
+        // A condition whose target holds no atom sets no situation, and says so.
+        const targetEntry = ledger.entries.find((other) => other.id === targetId);
+        const targetLabel = targetEntry?.labels[set.set]?.label;
+        const mapped = set.labels.find((l) => l.name === targetLabel)?.atom !== undefined;
+        if (referenceBugsB.has('orphan-condition-unreported') && mapped) continue;
+        diagnostics.push({
+          code: 'atom-refusal',
+          reason: 'condition-unattached',
+          unit: entry.id,
+          ...(targetId !== undefined ? { target: targetId } : {}),
+          set: set.set,
+          label: label.label,
+          path: entry.path,
+          detail: `${entry.path} unit ${entry.id} (${label.label}): the condition points at a unit that holds no atom`,
+        });
+        continue;
+      }
+      conditions.set(atom, [
+        ...(conditions.get(atom) ?? []),
+        { start: entry.hint?.start ?? 0, text: entry.quote.trim(), id: entry.id },
+      ]);
+    }
+  }
+  for (const [atom, list] of conditions) {
+    list.sort((x, y) => x.start - y.start);
+    atom.situation = list.map((c) => c.text).join(' ');
+    // The prose pointer names the units that set the situation, in file order.
+    const ids = list.map((c) => c.id);
+    atom.fields.condition = ids;
+    const pointer = atom.evidence.find((e) => e.name === 'prose_pointer');
+    if (pointer) pointer.options = { ...pointer.options, condition: ids };
   }
   const events: Record<string, string> = {};
   const eventCounts: Record<string, number> = {};
@@ -387,6 +696,9 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     events[g.entry.id] = g.event;
     eventCounts[g.event] = (eventCounts[g.event] ?? 0) + 1;
   }
+  // The planted bug: the deleted count also counts the entries an earlier scan deleted.
+  if (referenceBugsA.has('deleted-event-counts-old-deleted') && untouched.length > 0)
+    eventCounts.deleted = (eventCounts.deleted ?? 0) + untouched.length;
   return finish({
     ok: true,
     warnings,
@@ -397,40 +709,95 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     eventCounts,
     windows: windowCount,
     calls: callCount,
+    fellBack: tally.fellBack,
   });
 }
 
 type Outcome =
-  | { abort: string }
-  | { labels?: Map<number, { label: string; target?: number }>; key?: string; failed?: string };
+  | { abort: string; miss?: CassetteMissView }
+  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: string; why: Why }
+  | { labels?: Map<number, AnswerLabel>; key?: string; failed?: undefined; why?: undefined };
+
+/** The names a refusal is about, as fields of a diagnostic. */
+function whyFields(why: Why): Partial<Diagnostic> {
+  const { reason: _reason, ...names } = why;
+  return names;
+}
 
 async function labelWindow(
   plan: WindowPlan,
   set: ParsedSet,
   req: ScanRequest,
   model: ModelCtx | undefined,
+  candidates: Candidates,
+  onCall: () => void,
+  tally: { fellBack: number },
+): Promise<Outcome> {
+  if (model && req.model?.stack) {
+    const out = await stackWindow(plan, set, model, req.model.stack.marginCut ?? DEFAULT_MARGIN_CUT);
+    if ('abort' in out) return out;
+    for (let call = 0; call < out.calls; call += 1) onCall();
+    tally.fellBack += out.fellBack;
+    return { labels: out.labels, ...(out.key ? { key: out.key } : {}) };
+  }
+  if (!model) {
+    // The planted labeller is asked once per run; a unit takes the label (and target) every run gave.
+    const runs: Array<Map<number, AnswerLabel>> = [];
+    for (let run = 0; run < Math.max(1, req.labelerRuns ?? 1); run += 1) {
+      const once = await plantedOnce(plan, set, req, candidates, onCall);
+      if (!('labels' in once) || !once.labels) return once;
+      runs.push(once.labels);
+    }
+    const [head, ...rest] = runs;
+    // The links of a unit every run agrees on are those of the first run.
+    const labels = new Map<number, AnswerLabel>();
+    for (const [n, got] of head ?? []) {
+      const same = rest.every((other) => {
+        const there = other.get(n);
+        return there?.label === got.label && there?.target === got.target;
+      });
+      if (same) labels.set(n, got);
+    }
+    return { labels };
+  }
+  let reason = '';
+  let why: Why = { reason: 'answer-unreadable' };
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    onCall();
+    let result: Awaited<ReturnType<typeof askModel>>;
+    try {
+      result = await askModel(plan, set, model);
+    } catch {
+      // A transport error may hold the request it failed on, and the request holds unit text: the failure names the window only.
+      return { abort: `the model call failed for ${plan.id}` };
+    }
+    if (result.kind === 'error')
+      return { abort: result.message, ...(result.miss ? { miss: result.miss } : {}) };
+    if (result.kind === 'refused') {
+      reason = result.reason;
+      why = result.why;
+      continue;
+    }
+    const checked = validateAnswer(result.answer, plan, set, candidates);
+    if (checked.ok) return { labels: checked.labels, key: result.key };
+    reason = checked.reason;
+    why = checked.why;
+  }
+  return { failed: reason, why };
+}
+
+/** One run of the planted labeller over a window: a refused answer is asked once more. */
+async function plantedOnce(
+  plan: WindowPlan,
+  set: ParsedSet,
+  req: ScanRequest,
+  candidates: Candidates,
   onCall: () => void,
 ): Promise<Outcome> {
   let reason = '';
+  let why: Why = { reason: 'answer-unreadable' };
   for (let attempt = 0; attempt < 2; attempt += 1) {
     onCall();
-    if (model) {
-      let result: Awaited<ReturnType<typeof askModel>>;
-      try {
-        result = await askModel(plan, set, model);
-      } catch (cause) {
-        return { abort: `the model call failed: ${cause instanceof Error ? cause.message : String(cause)}` };
-      }
-      if (result.kind === 'error') return { abort: result.message };
-      if (result.kind === 'refused') {
-        reason = result.reason;
-        continue;
-      }
-      const checked = validateAnswer(result.answer, plan, set);
-      if (checked.ok) return { labels: checked.labels, key: result.key };
-      reason = checked.reason;
-      continue;
-    }
     const request: LabelRequest = {
       set: set.set,
       setHash: set.hash,
@@ -449,11 +816,12 @@ async function labelWindow(
       },
     };
     const answer = await (req.labeler as NonNullable<ScanRequest['labeler']>)(request);
-    const checked = validateAnswer(answer, plan, set);
+    const checked = validateAnswer(answer, plan, set, candidates);
     if (checked.ok) return { labels: checked.labels };
     reason = checked.reason;
+    why = checked.why;
   }
-  return { failed: reason };
+  return { failed: reason, why };
 }
 
 export { fingerprintText };

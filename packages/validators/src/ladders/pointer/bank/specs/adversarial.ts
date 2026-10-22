@@ -208,7 +208,7 @@ export const adversarial: FamilySpec = {
       'A hundred identical files give distinct ids',
       '100 copies of one 8-unit file under different names.',
       '800 distinct ids; twin marks on all copies; identical bytes on a rescan.',
-      'ids:path-in-hash',
+      'ids:twinof-missing',
       { component: 'ids' },
     ),
     row(
@@ -234,8 +234,8 @@ export const adversarial: FamilySpec = {
       4,
       'Exchanged texts follow their ids',
       'Exchange the texts of two long units that sit 10 units apart; everything else stays.',
-      'Each id keeps its own text (both `moved`), neither is `changed` or `deleted`.',
-      'anchor:exact-match-moved',
+      'Each id keeps its own text (both `moved`), neither is `changed` or `deleted`. Then the twin edit of the re-anchoring family (a removed block, a probe file with a split and a merge).',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(
@@ -243,8 +243,8 @@ export const adversarial: FamilySpec = {
       5,
       'Swapped near-duplicates keep their own ids',
       'Two units 0.75 similar to each other and adjacent; swap their positions.',
-      'Each id keeps its own exact text.',
-      'anchor:exact-before-similar',
+      'Each id keeps its own exact text. Then the twin edit of the re-anchoring family (a removed block, a probe file with a split and a merge).',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(
@@ -252,8 +252,8 @@ export const adversarial: FamilySpec = {
       4,
       'Editing one of three identical units changes only that one',
       'Three identical units separated by unique units; reword the middle one.',
-      'The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`.',
-      'anchor:duplicate-with-unique-anchors',
+      'The two untouched duplicates keep their two ids, `unchanged`; the middle one keeps its id as `changed`. Then the twin edit of the re-anchoring family (a removed block, a probe file with a split and a merge).',
+      'scan:events-by-id',
       { component: 'anchor' },
     ),
     row(

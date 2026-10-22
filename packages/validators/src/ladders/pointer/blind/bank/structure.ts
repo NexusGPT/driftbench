@@ -438,6 +438,18 @@ const groupingDefinitions: [string, string, Tier][] = [
   ['context-not-gap', 'exclude context-only neighbours from unlabeled gaps', 5],
 ];
 
+/**
+ * The carry rule cannot be called with fingerprints: the reader derives both fingerprints inside the ledger step, so
+ * the binding has no call that takes them (adapter gap, `group:carry`). The rule itself is already in the reader, so
+ * these three items do not ask for a new invalidation rule. The other carry items keep the tag of their rule.
+ */
+const CARRY_NOT_CALLABLE = 'adapter:carry-rule-not-callable-with-fingerprints';
+const carryNotCallable = new Set([
+  'grouping/text-dirty/interaction-1',
+  'grouping/context-dirty/interaction-2',
+  'grouping/context-dirty/interaction-3',
+]);
+
 function groupingItems(): BankItem[] {
   return groupingDefinitions.flatMap(([name, cause, tier], kind) =>
     [0, 1, 2].map(
@@ -448,7 +460,9 @@ function groupingItems(): BankItem[] {
         level: tier,
         component: kind < 5 ? 'pointer.windows' : 'pointer.labeler-port',
         title: `${name}, ${['plain', 'nested Unicode / context neighbour / multiple sets', 'inline code / opaque neighbour / carried none'][variant]} interaction`,
-        cause,
+        cause: carryNotCallable.has(`grouping/${name}/interaction-${variant + 1}`)
+          ? CARRY_NOT_CALLABLE
+          : cause,
         design: '3: window, system-1 implementations, dense answers; 5: windows and carry-forward',
         generate(seed) {
           return { probes: [false, true].map((second) => groupingProbe(kind, variant, seed, second)) };

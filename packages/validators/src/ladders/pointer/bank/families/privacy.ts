@@ -9,10 +9,10 @@ import { loadFixture, requireFixtureLabels } from '../../kit/fixture';
 import { perfect } from '../../kit/labellers';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML } from '../../kit/sets';
-import { fakeTransport } from '../../kit/transport';
+import { fakeTransport, seededModels } from '../../kit/transport';
 import { headingText, Prose } from '../../kit/words';
-import type { ModelArm, ScanResult, SourceFile } from '../../sut/port';
-import { fail, type ItemContext, pass, type Run } from '../types';
+import { type ModelArm, READER_NOT_REACHABLE, type ScanResult, type SourceFile } from '../../sut/port';
+import { fail, type ItemContext, missing, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const para = (text: string) => ({ kind: 'paragraph' as const, sentences: [text] });
@@ -49,7 +49,7 @@ async function go(job: Job, options: Parameters<typeof runChild>[1] = {}): Promi
   const run = await runChild(job, options);
   const out: JobOutput | undefined = run.output;
   // A reader that cannot be reached leaks nothing because it did nothing: that is a failure, never a pass.
-  if (out && !out.ok && /not reachable/.test(out.error)) {
+  if (out && !out.ok && out.code === READER_NOT_REACHABLE) {
     run.cleanup();
     throw new Error(out.error);
   }
@@ -416,16 +416,49 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     const healthy = await go(modelJob(files, 'haiku'));
     await withClean(healthy, () => mustRun(healthy));
     const seen = await go(modelJob(files, 'haiku', { fake: { badAnswers: true } }));
-    return withClean(seen, () => {
+    const failing = await withClean(seen, () => {
       const out = seen.run.output;
       const r = out?.ok ? (out.result as ScanResult) : undefined;
-      if (r && !Array.isArray(r.warnings)) return fail('the reader does not expose warnings');
+      if (r && !Array.isArray(r.warnings)) return missing('the reader does not expose warnings');
       const text = `${r?.error ?? ''}\n${JSON.stringify(r?.diagnostics ?? [])}\n${JSON.stringify(r?.warnings ?? [])}\n${seen.run.stdout}\n${seen.run.stderr}`;
       const leak = hit(text, secrets);
       if (leak) return fail(`${leak} is in a failure message`);
       return r && (r.diagnostics.length > 0 || !r.ok)
         ? pass('failures name windows, not text')
         : fail('the failing windows left no diagnostic or error at all');
+    });
+    if (!failing.pass) return failing;
+    // Round 3 audit, seat 2: an empty warning list passes the check above. Here the list must not be empty:
+    // the window of the private file is re-recorded while the transport returns another model than the
+    // cassette, so the scan warns, and its warnings and output hold no secret either.
+    const { recorded, returned } = seededModels(ctx.seed, ctx.id);
+    const plainProse = new Prose(ctx.seed, `${ctx.id}:plain`);
+    const plain = { path: 'private/plain.md', text: compose(plainProse.many(3).map(para)).text };
+    const two = privateEstate(ctx, [plain]);
+    const first = await go(modelJob(two.files, 'haiku', { fake: { model: recorded } }));
+    const lines = await withClean(first, () => (mustRun(first).cassette ?? '').split('\n'));
+    const kept = lines.filter((line) => line.trim() !== '' && !line.includes('"private/notes.md"'));
+    if (kept.length === lines.filter((line) => line.trim() !== '').length)
+      return fail('positive witness: the cassette holds no window of the private file');
+    const job = modelJob(two.files, 'haiku', {
+      fake: { model: returned },
+      cassette: { mode: 'record', text: [...kept, ''].join('\n') },
+    });
+    const again = await go(job);
+    return withClean(again, () => {
+      const r = mustRun(again);
+      if (!Array.isArray(r.warnings)) return missing('the reader does not expose warnings');
+      const out = [
+        JSON.stringify(r.warnings),
+        JSON.stringify(r.diagnostics),
+        again.run.stdout,
+        again.run.stderr,
+      ];
+      const leak = hit(out.join('\n'), secrets);
+      if (leak) return fail(`${leak} is in the output of a re-record that changed the model`);
+      return r.warnings.length > 0
+        ? pass('failures name windows, not text; a changed model warns without text')
+        : fail('a re-record whose returned model differs from the cassette left the warnings empty');
     });
   },
   'estate-files-unchanged': async (ctx) => {

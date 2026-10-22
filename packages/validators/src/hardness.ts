@@ -164,14 +164,21 @@ const forecastOf = (remaining: number | null, fixed: number | null) =>
  * when the journal has no builder iteration 0 row.
  */
 /** The terms a validator's GATE.md can lower; null where it sets none. */
-export type GateBar = { maxScore: number | null; minForecast: number | null; minCauses: number | null };
+export type GateBar = {
+  maxScore: number | null;
+  minForecast: number | null;
+  minCauses: number | null;
+  /** Only when GATE.md sets it: the most the score may rise over the pilot, in place of `maxScore`. */
+  maxGain?: number;
+};
 
 /**
  * The lowered bar of a validator, from its GATE.md, one line per term, optionally as a list item:
  * `Max score after the pilot: <n>` (taken when above HARDNESS_MAX_SCORE and under 1),
  * `Min forecast: <n>` (when above 0 and under HARDNESS_MIN_FORECAST) and
  * `Min distinct failing causes: <n>` (when above 0 and under HARDNESS_MIN_CAUSES). A bar only lowers a term;
- * any other value is ignored.
+ * any other value is ignored. `Max score gain over the pilot: <n>` (above 0 and under 1) replaces the absolute
+ * score ceiling with a ceiling on the rise over the pilot, for a component whose baseline already sits above it.
  */
 export function parseGate(text: string): GateBar {
   const read = (label: string, keep: (value: number) => boolean): number | null => {
@@ -179,10 +186,12 @@ export function parseGate(text: string): GateBar {
     const value = match ? Number(match[1]) : Number.NaN;
     return Number.isFinite(value) && keep(value) ? value : null;
   };
+  const maxGain = read('max score gain over the pilot', (v) => v > 0 && v < 1);
   return {
     maxScore: read('max score after the pilot', (v) => v > HARDNESS_MAX_SCORE && v < 1),
     minForecast: read('min forecast', (v) => v > 0 && v < HARDNESS_MIN_FORECAST),
     minCauses: read('min distinct failing causes', (v) => v > 0 && v < HARDNESS_MIN_CAUSES),
+    ...(maxGain !== null ? { maxGain } : {}),
   };
 }
 
@@ -250,7 +259,19 @@ export function measureHardness(
     );
   }
   const maxScore = bar.maxScore ?? HARDNESS_MAX_SCORE;
-  if (end && end.score > maxScore) {
+  if (end && bar.maxGain !== undefined) {
+    // The stricter of the hardness-only gain and the gain over every item: catch items that always pass never
+    // dilute the rise (section 12.4: counting them apart never makes a gate easier to pass).
+    const own = rows.filter((row) => executorOf(row) === source);
+    const startRow = own.find((row) => row.iteration === 0) ?? zero;
+    const gain = endRow
+      ? Math.max(score(endRow) - score(startRow), allScore(endRow) - allScore(startRow))
+      : end.score - chosen.measure.baseline.score;
+    if (gain > bar.maxGain)
+      reasons.push(
+        `the score rose ${round(gain)} over ${label}, above ${bar.maxGain} (the bar GATE.md sets in place of the score ceiling)`,
+      );
+  } else if (end && end.score > maxScore) {
     reasons.push(`the score after ${label} ${round(end.score)} is above ${maxScore}${note(bar.maxScore)}`);
   }
   const causes =
@@ -351,7 +372,11 @@ export function measureHardness(
     maxScore,
     minForecast,
     minCauses,
-    lowered: bar.maxScore !== null || bar.minForecast !== null || bar.minCauses !== null,
+    lowered:
+      bar.maxScore !== null ||
+      bar.minForecast !== null ||
+      bar.minCauses !== null ||
+      bar.maxGain !== undefined,
     bankMinimum: bankMinimum(latest),
     audit,
   };

@@ -1,7 +1,8 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type Cut, cut, type Unit } from './cut';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
+import { type Cut, cut, sha, type Unit } from './cut';
 import {
   isTooLarge,
   type Labeler,
@@ -13,12 +14,16 @@ import {
   SCHEMA_VERSION,
 } from './labeler';
 import {
+  type Candidate,
+  commentRanges,
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
+  requestTextOf,
   type ShownLine,
   type SpanAnswer,
   setHash,
+  shownIdOf,
   type Window,
 } from './labels';
 import { type Event, type Ledger, type LedgerEntry, nextLedger, unitKey } from './ledger';
@@ -44,8 +49,16 @@ export type PointerInput = {
   windowUnits?: number;
   /** Requests in flight at once. Default 1. The labels, the ledger and the cassette bytes do not depend on it. */
   jobs?: number;
-  /** The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. */
-  atoms?: ReadonlyArray<{ id: string; kind: string; title: string }>;
+  /**
+   * The atoms of the estate so far: a link kind of a set lists those of its kinds in the request. `at` is where
+   * the atom is read from; with it, an atom that sits on a comment of the file is listed without that comment.
+   */
+  atoms?: ReadonlyArray<{
+    id: string;
+    kind: string;
+    title: string;
+    at?: { file: string; startLine: number; endLine: number; quote?: string };
+  }>;
   /** Called once with the plan, before the first request, so a caller can say what a run sends. */
   onPlan?: (plan: PointerPlan) => void;
 };
@@ -133,18 +146,92 @@ export type PointerResult = {
   /** Units a member decided by a majority of its runs instead of all of them. */
   voted: number;
   refusals: string[];
+  /** One record for each text of `refusals`, in the same order: a stable `code` and the identifiers the text names. */
+  refusalRecords: PointerDiagnostic[];
   /** Spans and links of accepted answers that failed a check and were dropped: the label stood without them. */
   dropped: string[];
+  /** One record for each text of `dropped`, in the same order. */
+  droppedRecords: PointerDiagnostic[];
   /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
   outOfStep: string[];
   /** Slipped runs whose window was asked again and answered in step, with the run that took their place. */
   reasked: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
+  /** One record for each text of `failed`, in the same order. */
+  failedRecords: PointerDiagnostic[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
 };
+
+/** A heading title or a fence line as a request carries it: a comment in it is replaced by `(comment)`. */
+const requestTitle = (text: string): string => requestTextOf({ text }).text;
+
+/**
+ * The comments of a file as [from, to) offsets, found once on the whole text: a comment the cutter split across
+ * units, or one that never closes, is still a comment in each unit it touches. A comment opened inside a fence
+ * is fence text.
+ */
+function fileCommentsOf(units: readonly Unit[], source: string): Array<[number, number]> {
+  const fenced = units
+    .filter((unit) => unit.container === 'opaque' && /^\s*(```|~~~)/.test(unit.text))
+    .map((unit): [number, number] => [unit.start, unit.end]);
+  return commentRanges(source, fenced);
+}
+
+/** What a request lists in place of the title of an atom that cannot be shown: its comment is not ours to send. */
+export const WITHHELD_TITLE = '(title withheld: it holds a comment)';
+
+/** The id a request lists for an atom whose own id is a slug of words of a comment: a hash, the same every run. */
+const handleOf = (id: string): string => `atom-${sha(id).slice(0, 10)}`;
+
+type AtomInput = NonNullable<PointerInput['atoms']>[number];
+
+/** A file of the run: its text and its comments as [from, to) offsets. */
+type Source = { text: string; comments: ReadonlyArray<readonly [number, number]> };
+
+/** The offset at which each line of a text starts. */
+function lineStarts(text: string): number[] {
+  const starts = [0];
+  for (let at = text.indexOf('\n'); at >= 0; at = text.indexOf('\n', at + 1)) {
+    starts.push(at + 1);
+  }
+  return starts;
+}
+
+/** The [from, to) offsets an atom is read from in its file: its quote when it is found on its lines, else its lines. */
+function sitOf(at: NonNullable<AtomInput['at']>, text: string): { from: number; to: number; exact: boolean } {
+  const starts = lineStarts(text);
+  const first = starts[at.startLine - 1];
+  if (first === undefined) return { from: 0, to: text.length, exact: false };
+  const last = starts[at.endLine] ?? text.length;
+  const found = at.quote ? text.indexOf(at.quote, first) : -1;
+  return found >= 0 && found < last
+    ? { from: found, to: found + (at.quote?.length ?? 0), exact: true }
+    : { from: first, to: last, exact: false };
+}
+
+/**
+ * An atom as a request lists it. The title of an atom is the text of its unit, comments included, and its id is a
+ * slug of that title, so both can carry a comment. An atom is listed as it is when no comment touches it. One
+ * whose title holds a comment, or whose place in its file overlaps a comment, is listed with the title masked as
+ * a unit is (or withheld when the comment began before the atom: the title then holds the end of it, with no
+ * opener to find), and under a hash of its id; the answer is carried back to the real id (`shown`).
+ */
+function candidateOf(atom: AtomInput, source: Source | undefined): Candidate {
+  let verdict: 'clean' | 'mask' | 'withhold' = commentRanges(atom.title).length > 0 ? 'mask' : 'clean';
+  if (atom.at && source) {
+    const sit = sitOf(atom.at, source.text);
+    const touching = source.comments.filter(([from, to]) => from < sit.to && to > sit.from);
+    if (touching.length > 0) {
+      verdict = !sit.exact || touching.some(([from]) => from < sit.from) ? 'withhold' : 'mask';
+    }
+  }
+  if (verdict === 'withhold') return { id: atom.id, label: WITHHELD_TITLE, shown: handleOf(atom.id) };
+  const label = requestTitle(atom.title);
+  return label === atom.title ? { id: atom.id, label } : { id: atom.id, label, shown: handleOf(atom.id) };
+}
 
 /**
  * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
@@ -153,6 +240,14 @@ export type PointerResult = {
  */
 export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
+  const fileComments = source === undefined ? undefined : fileCommentsOf(units, source);
+  const commentsOf = (unit: Unit): Array<[number, number]> | undefined =>
+    fileComments
+      ?.filter(([from, to]) => from < unit.end && to > unit.start)
+      .map(([from, to]): [number, number] => [
+        Math.max(from, unit.start) - unit.start,
+        Math.min(to, unit.end) - unit.start,
+      ]);
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
   let first: Unit | undefined;
@@ -165,7 +260,7 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     windows.push({
       id: `${path}#${windows.length + 1}`,
       path,
-      headingPath: first?.path ?? [],
+      headingPath: (first?.path ?? []).map(requestTitle),
       units: current,
       ...(shown.length > 0 ? { shown } : {}),
     });
@@ -174,14 +269,19 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     first = undefined;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
-    // first line (design: "shown to the labeler as the fence kind and its first line only").
+    // A fence or comment is opaque: no label can point at it. The labeler reads a fence as context, by its kind and
+    // its first line (the language of the fence), and a comment by its kind alone: the text of a comment may be
+    // private, so nothing of it leaves (design: "shown to the labeler as the fence kind and its first line only,
+    // and a comment as its kind only").
     if (unit.container === 'opaque') {
       const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
       shown.push({
         after: current.length,
-        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
-        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+        // A fence: only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        text:
+          kind === 'fence'
+            ? `(fence, not labelable) ${requestTitle(unit.text.split(/\r\n|\r|\n/, 1)[0] ?? '')}`
+            : '(comment, not labelable)',
       });
       continue;
     }
@@ -198,7 +298,8 @@ export function windowsOf(path: string, units: readonly Unit[], size: number, so
     if (current.length >= size && !sameRow) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
-    current.push({ n: current.length + 1, text: unit.text, index });
+    const comments = commentsOf(unit);
+    current.push({ n: current.length + 1, text: unit.text, index, ...(comments ? { comments } : {}) });
   }
   flush();
   return windows;
@@ -288,7 +389,7 @@ type Task = {
 };
 
 type Leaf = { window: Window; answer: Recorded; key: string };
-type TaskResult = { leaves: Leaf[]; failures: string[] };
+type TaskResult = { leaves: Leaf[]; failures: string[]; failureRecords: PointerDiagnostic[] };
 
 function readableFor(task: Task, window: Window) {
   return readableOf(task.member.render(task.set, window, task.context), {
@@ -312,7 +413,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const files = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
   const cuts = new Map(files.map((file) => [file.path, cut(file.text)]));
   const next = nextLedger(
-    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut })),
+    files.map((file) => ({ path: file.path, cut: cuts.get(file.path) as Cut, source: file.text })),
     input.previous,
     estateKey,
   );
@@ -339,7 +440,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
   }
 
-  // What each set lists in its requests for its links: the atoms of the kinds a link kind may name.
+  // What each set lists in its requests for its links: the atoms of the kinds a link kind may name. An atom is
+  // listed by `candidateOf`: its title and its id can hold words of a comment, and a request carries none.
+  const sources = new Map(
+    files.map((file) => [
+      file.path,
+      { text: file.text, comments: fileCommentsOf((cuts.get(file.path) as Cut).units, file.text) },
+    ]),
+  );
   const contexts = new Map<string, LabelContext>(
     input.sets.map((set) => [
       set.set,
@@ -351,8 +459,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
               ? kind.values.map((value) => ({ id: value, label: value }))
               : (input.atoms ?? [])
                   .filter((atom) => kind.to?.includes(atom.kind))
-                  .map((atom) => ({ id: atom.id, label: atom.title }))
-                  .sort((a, b) => a.id.localeCompare(b.id)),
+                  .map((atom) => candidateOf(atom, atom.at ? sources.get(atom.at.file) : undefined))
+                  .sort((a, b) => shownIdOf(a).localeCompare(shownIdOf(b))),
           ]),
         ),
       },
@@ -475,6 +583,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        code: failure.code,
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
@@ -485,36 +594,39 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   async function resolve(task: Task, window: Window): Promise<TaskResult> {
+    const windowFailure = (code: string, reason: string): TaskResult => {
+      const detail = `${window.id} (${task.set.set}, ${task.member.id}): ${reason}`;
+      return {
+        leaves: [],
+        failures: [detail],
+        failureRecords: [
+          record(code, detail, { window: window.id, set: task.set.set, labeler: task.member.id }),
+        ],
+      };
+    };
     let result: { answer: Recorded; key: string };
     try {
       result = await answerOf(task, window);
     } catch (cause) {
       if (FATAL(cause)) throw cause;
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${cause instanceof Error ? cause.message : String(cause)}`,
-        ],
-      };
+      return windowFailure(
+        cause instanceof LabelerError ? cause.code : 'window-failed',
+        cause instanceof Error ? cause.message : String(cause),
+      );
     }
     if (result.answer.refused === 'unreadable') {
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): ${result.answer.error ?? 'the answer cannot be read'}`,
-        ],
-      };
+      const reason = result.answer.error ?? 'the answer cannot be read';
+      return windowFailure(result.answer.code ?? UNKNOWN_CODE, reason);
     }
     if (result.answer.refused !== 'too_large') {
-      return { leaves: [{ window, answer: result.answer, key: result.key }], failures: [] };
+      return {
+        leaves: [{ window, answer: result.answer, key: result.key }],
+        failures: [],
+        failureRecords: [],
+      };
     }
     if (window.units.length === 1) {
-      return {
-        leaves: [],
-        failures: [
-          `${window.id} (${task.set.set}, ${task.member.id}): the endpoint refused a window of one unit as too large`,
-        ],
-      };
+      return windowFailure('window-too-large', 'the endpoint refused a window of one unit as too large');
     }
     const half = Math.ceil(window.units.length / 2);
     const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
@@ -541,7 +653,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       units: renumber(window.units.slice(half)),
       ...shownIn(half, window.units.length),
     });
-    return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
+    return {
+      leaves: [...first.leaves, ...second.leaves],
+      failures: [...first.failures, ...second.failures],
+      failureRecords: [...first.failureRecords, ...second.failureRecords],
+    };
   }
 
   const settled = await runPool(
@@ -552,8 +668,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
+  const refusalRecords: PointerDiagnostic[] = [];
   const dropped: string[] = [];
+  const droppedRecords: PointerDiagnostic[] = [];
   const failed: string[] = [];
+  const failedRecords: PointerDiagnostic[] = [];
   const outOfStepRuns: string[] = [];
   const slippedLeaves: Array<{ task: Task; window: Window }> = [];
   // The units of each run that was left out of a window's vote: that run is not heard on them, so it does not count.
@@ -584,7 +703,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const hear = (task: Task, run: number, leaf: Leaf) => {
     const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
     refusals.push(...read.refusals);
+    refusalRecords.push(...(read.refusalRecords ?? []));
     dropped.push(...(read.dropped ?? []));
+    droppedRecords.push(...(read.droppedRecords ?? []));
     const target = runOf(task, run);
     for (const [index, opinion] of read.byUnit)
       target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
@@ -593,6 +714,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const outcome = settled[at];
     if (!outcome?.ok) continue;
     failed.push(...outcome.value.failures);
+    failedRecords.push(...outcome.value.failureRecords);
     for (const leaf of outcome.value.leaves) {
       windows++;
       // Only a member with several runs votes, so only its runs can be left out.
@@ -630,6 +752,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
       const answered = await resolve(again, window);
       failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -816,6 +939,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
       const answered = await resolve(again, task.window);
       failed.push(...answered.failures);
+      failedRecords.push(...answered.failureRecords);
       const leaf = answered.leaves.length === 1 ? answered.leaves[0] : undefined;
       if (!leaf) break;
       windows++;
@@ -939,10 +1063,13 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     spanSplit,
     voted,
     refusals,
+    refusalRecords,
     dropped,
+    droppedRecords,
     outOfStep: outOfStepRuns,
     reasked,
     failed,
+    failedRecords,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };

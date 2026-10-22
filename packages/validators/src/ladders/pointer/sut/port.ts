@@ -44,6 +44,8 @@ export type LabelDef = {
   description: string;
   examples?: string[];
   target?: 'required';
+  /** The unit states when its target applies; it builds no atom (docs, section 6). */
+  condition?: true;
   atom?: AtomMapping;
 };
 
@@ -82,6 +84,30 @@ export type FetchResponse = { status: number; body: string };
 export type Transport = (request: FetchRequest) => FetchResponse | Promise<FetchResponse>;
 
 export type ModelArm = 'haiku' | 'jev' | 'jev-unit';
+/**
+ * The arms a scan can record on: the three of the fixtures; `openai-decisions`, the system 1 client that asks
+ * yes or no questions and takes a label at a threshold (the choice arms `jev` and `jev-unit` have none);
+ * `user-yes-no`, a user labeler of the system 1 class behind an HTTP endpoint (design section 3, a client
+ * `http:<url>`): `{ set, window, state, questions }` in, `{ probabilities }` out, a label at a threshold; and
+ * `http`, a system 2 user labeler behind the address `url` of the model port.
+ */
+export type ScanArm = ModelArm | 'openai-decisions' | 'user-yes-no' | 'http';
+
+/** The model port of a scan: one arm, or a stack of a choice system 1 arm in front of the `haiku` arm. */
+export type ScanModel = {
+  arm: ScanArm;
+  transport: Transport;
+  threshold?: number;
+  /** The `http` arm: the address the user labeler is posted to. */
+  url?: string;
+  /**
+   * A stack: the arm (`jev` or `jev-unit`) is system 1 and the `haiku` arm is system 2, over the same
+   * transport. `marginCut` absent: the reader's default cut.
+   */
+  stack?: { marginCut?: number };
+  /** Called each time the reader reads the key of the `haiku` arm; the binding holds it behind a getter. */
+  onKeyRead?: () => void;
+};
 
 /* ----- scan ----- */
 
@@ -94,14 +120,29 @@ export type ScanRequest = {
    * Ids and ledgers must not depend on it. Absent: the binding picks one.
    */
   location?: { parent: string; name: string };
+  /**
+   * The key of the estate: part of every id the scan mints, with the file, the fingerprint and the occurrence
+   * (docs/estate-pointer-reader.md section 4). Absent: the reader's own default key.
+   */
+  estateKey?: string;
   /** The raw text of the previous ledger. */
   previousLedger?: string;
   /** The label sets as the user writes them (YAML). Absent: the shipped default set. */
   labelsYaml?: string;
   /** A planted labeller called in process. */
   labeler?: Labeler;
+  /**
+   * The atoms of the estate so far, by id, kind and title: a link kind of a set lists those of its kinds in the
+   * request (docs/estate-pointer-reader.md, section 3). Absent: none.
+   */
+  atoms?: Array<{ id: string; kind: string; title: string }>;
+  /**
+   * How many times the planted labeller is asked each window (absent: once); a unit takes the label every
+   * run gives. The runs are part of what decides a label, so a change of them re-labels the estate.
+   */
+  labelerRuns?: number;
   /** Or a model port over a fake transport; with a cassette. */
-  model?: { arm: ModelArm; transport: Transport; threshold?: number };
+  model?: ScanModel;
   cassette?: CassetteIo;
   /** Check mode: fail when the ledger is stale instead of writing a new one. */
   check?: boolean;
@@ -131,24 +172,105 @@ export type LedgerView = { raw: string; entries: LedgerEntry[] };
 export type Atom = {
   kind: string;
   polarity?: string;
+  /** The title the reader gave the atom; absent when the reader does not expose it. */
+  title?: string;
   file: string;
   startLine: number;
   endLine: number;
   quote: string;
   producedBy: string;
   approved: boolean;
-  fields: { extraction: string; unit: string; labelSet: string; cassette?: string };
-  evidence: Array<{ type: string; name: string; reviewRequired?: boolean }>;
+  /** The conditions of the unit it was built from, joined in file order; absent when it has none. */
+  situation?: string;
+  fields: { extraction: string; unit: string; labelSet: string; cassette?: string; condition?: string[] };
+  /** `options` is the nested settings object of a custom check, as the reader wrote it. */
+  evidence: Array<{
+    type: string;
+    name: string;
+    reviewRequired?: boolean;
+    options?: Record<string, unknown>;
+  }>;
 };
 
-export type Diagnostic = { code: string; unit?: string; window?: string; detail: string };
+/**
+ * One diagnostic of a scan. `code` is the class of the diagnostic (`refusal`, `failed-window`, `atom-refusal`,
+ * `duplicate`, `dropped`); `reason` is the stable code of the specific cause (`no-vector`, `label-not-in-set`,
+ * `span-overlap`), the one a check reads; the other fields hold the identifiers the cause names. A field is set
+ * only when it has a value. Items read `reason` and the fields, never the words of `detail`.
+ * `unit` is the id of the unit of an atom diagnostic, and the number of the unit inside its window (`"3"`) for a
+ * diagnostic of an answer; `units` is the range the answer wrote for it.
+ */
+export type Diagnostic = {
+  code: string;
+  reason?: string;
+  unit?: string;
+  window?: string;
+  detail: string;
+  units?: string;
+  target?: string;
+  /** The span kind, link kind or atom kind the diagnostic is about. */
+  kind?: string;
+  /** The clause of a span: the words the labeler copied, else `from-to`. */
+  span?: string;
+  set?: string;
+  label?: string;
+  path?: string;
+  /** The labeler that gave the answer. */
+  labeler?: string;
+  /** The unit or atom an atom duplicates. */
+  repeats?: string;
+  /** The parent kind of a span kind that has to lie inside it. */
+  parent?: string;
+  /** The sum of a probability vector that is no vector. */
+  sum?: number;
+};
+
+/**
+ * The structured cause of a failed scan (`ok` false), beside its `error` text: a label file the reader refused
+ * (`code`, `reason` and the offending `set`, `label`, `kind`, `parent`, `path`), a labelling it could not build
+ * (`code`, and the `set` a yes or no labeler cannot serve), a ledger that is out of date (`files`: the paths that
+ * changed, sorted), or an error the reader raised with a code of its own.
+ */
+export type ScanFailure = {
+  code: string;
+  reason?: string;
+  set?: string;
+  label?: string;
+  kind?: string;
+  parent?: string;
+  path?: string;
+  files?: string[];
+};
+
+/** A warning of a scan as a record: a returned model that differs from the one the cassette recorded. */
+export type WarningRecord = { code: 'model-mismatch'; recorded: string; returned: string };
+
+/**
+ * The structured fields of a cassette miss, as the reader raises them (the product's `CassetteMiss`): the key of
+ * the request, the names of the readable fields that differ from the nearest entry, that entry's key, and the id
+ * of the labeler the request carries. Items read these, never the words of the failure message.
+ */
+export type CassetteMissView = {
+  key: string;
+  differs: string[];
+  nearest?: string;
+  labeler?: string;
+  /** The Node and ICU versions of this run; set only when the nearest entry differs in the cut digest. */
+  environment?: { node: string; icu: string };
+};
 
 export type ScanResult = {
   ok: boolean;
   /** The failure message when `ok` is false. */
   error?: string;
+  /** Set when the scan failed on a cassette miss in replay: the miss as structured fields. */
+  miss?: CassetteMissView;
+  /** Set when the scan failed for a cause the reader gives a code: see `ScanFailure`. */
+  failure?: ScanFailure;
   /** Absent when the reader does not expose warnings. */
   warnings?: string[];
+  /** The warnings as records, in the order of `warnings`; absent when the reader does not expose them. */
+  warningRecords?: WarningRecord[];
   ledger?: LedgerView;
   atoms: Atom[];
   diagnostics: Diagnostic[];
@@ -158,9 +280,32 @@ export type ScanResult = {
   events?: Record<string, string>;
   /** How many ids got each event in this scan. */
   eventCounts?: Record<string, number>;
+  /**
+   * Of the units a stack labelled in this scan, those one member decided alone because the other gave no
+   * opinion. Absent when the reader does not expose it.
+   */
+  fellBack?: number;
   /** Windows sent to the labeller or the model port in this scan, and how many calls reached it. */
   windows?: number;
   calls?: number;
+  /**
+   * The link candidates each request carried, read from the request body the transport received: one row per
+   * window, set and link kind. A candidate of the context the reader hands its renderer is listed only when its
+   * exact id and exact title occur in that body string (`sut/sent.ts`); the row keeps the string (`body`).
+   * `id` is the id the request carries and `title` the title it carries. A renderer that drops a candidate lists
+   * fewer; a request that never reached the transport lists nothing. Absent when the reader does not expose it.
+   */
+  listed?: ListedCandidates[];
+};
+
+export type ListedCandidates = {
+  file: string;
+  window: string;
+  set: string;
+  link: string;
+  candidates: Array<{ id: string; title: string }>;
+  /** The exact request body string the transport received, the one the candidates were read from. */
+  body?: string;
 };
 
 /* ----- layer C ----- */
@@ -208,6 +353,57 @@ export interface LinksApi {
   ): { rerun: string[]; advisory: string[] };
 }
 
+/* ----- the settings of an estate (docs/estate-pointer-reader.md, section 1) ----- */
+
+/** One refused key of the settings file: a stable `code`, the `key` of the file it is about, and a short `reason`. */
+export type SettingsIssue = { code: string; key: string; reason: string };
+
+export type SettingsResult =
+  | { ok: true; thresholds: Record<string, number> }
+  | { ok: false; errors: string[]; issues?: SettingsIssue[] };
+
+export interface SettingsApi {
+  /** Reads the YAML text of the settings file. */
+  parse(text: string): SettingsResult | Promise<SettingsResult>;
+}
+
+/* ----- the rerun rule (docs/estate-pointer-reader.md, "Rerun after an edit") ----- */
+
+export type EditClass = 'unchanged' | 'context' | 'moved' | 'changed' | 'deleted' | 'new';
+
+export interface RerunApi {
+  /** The class of every unit between two ledgers: live units of the current ledger, then the units that are gone. */
+  classify(
+    previous: LedgerView,
+    current: LedgerView,
+  ): Array<{ id: string; class: EditClass }> | Promise<Array<{ id: string; class: EditClass }>>;
+  /**
+   * The old units whose links rerun (`units`), those whose links are only reported (`advisory`), and the reason
+   * the whole suite reruns when it does (`whole`, null otherwise).
+   */
+  rerun(
+    previous: LedgerView,
+    current: LedgerView,
+  ):
+    | { units: string[]; advisory: string[]; whole: string | null }
+    | Promise<{ units: string[]; advisory: string[]; whole: string | null }>;
+  /**
+   * The change manifest of the edit, given the atoms of the map before it (each by its id, the unit it was built
+   * from and its condition units): the changes in the reader's order. Absent when the reader does not export it.
+   */
+  manifest?(
+    previous: LedgerView,
+    current: LedgerView,
+    atoms: ReadonlyArray<ManifestAtom>,
+  ): ManifestChange[] | Promise<ManifestChange[]>;
+}
+
+/** An atom as the change manifest reads it: its id, the unit it was built from, the units of its conditions. */
+export type ManifestAtom = { id: string; unit: string; condition?: string[] };
+
+/** One change of a manifest: a `prompt` change names an atom (or is global), a `unit` change names a unit. */
+export type ManifestChange = { kind: string; id?: string; global?: boolean };
+
 /** A validator-facing observation seam for the product stack (no voting in the adapter). */
 export type StackRequest = {
   probabilities: Record<string, number>;
@@ -227,16 +423,29 @@ export interface StackApi {
 /** The system under test. */
 export interface PointerSut {
   readonly name: string;
+  /**
+   * True when a call of this SUT may never return (the real reader): the runner then serves the items from a child
+   * process that it stops when an item overruns, and fails that one item.
+   */
+  readonly isolate?: boolean;
   /** Loads what the SUT needs, outside any item clock: a load that is slow on a busy machine must not decide an item. */
   ready?(): Promise<void>;
   cut(file: SourceFile): Promise<CutResult>;
   scan(request: ScanRequest): Promise<ScanResult>;
   links?: LinksApi;
+  /** The rerun rule of the ledger; absent when the reader does not export it. */
+  rerun?: RerunApi;
+  /** The reader of the settings file; absent when the reader does not export it. */
+  settings?: SettingsApi;
   stack?: StackApi;
 }
 
+/** The code of a `ReaderNotReachable`: a check on a failure of a child process reads it, never the words. */
+export const READER_NOT_REACHABLE = 'reader-not-reachable';
+
 /** Thrown by the unreachable binding: the reader cannot be called from this checkout. */
 export class ReaderNotReachable extends Error {
+  readonly code = READER_NOT_REACHABLE;
   constructor(reason: string) {
     super(`the pointer reader is not reachable: ${reason}`);
     this.name = 'ReaderNotReachable';

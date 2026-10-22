@@ -1,5 +1,6 @@
 import { runChild } from '../../kit/child-run';
 import type { ScaleOp, ScaleOut, ScaleSpec } from '../../kit/scale';
+import { sutModule } from '../../sut/adapter';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 /**
@@ -10,7 +11,7 @@ import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 const memo = new Map<string, Promise<{ out?: ScaleOut; error?: string; wallMs: number }>>();
 
 function run(ctx: ItemContext, job: ScaleOp): Promise<{ out?: ScaleOut; error?: string; wallMs: number }> {
-  const key = `${ctx.sut.name}|${process.env.DRIFTBENCH_POINTER_SUT ?? ''}|${JSON.stringify(job)}`;
+  const key = `${ctx.sut.name}|${sutModule()}|${JSON.stringify(job)}`;
   let known = memo.get(key);
   if (!known) {
     known = (async () => {

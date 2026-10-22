@@ -47,7 +47,7 @@ export const replay: FamilySpec = {
       2,
       'Only the record mode reaches the transport',
       'Replay an empty cassette, record without a cassette, then record with the independent committed fixture.',
-      'The empty replay fails with zero calls; fresh record calls all three windows; committed entries need zero calls and retain every authored label.',
+      'The empty replay fails with zero calls; fresh record calls every window once per independent run (three windows, three runs each); committed entries need zero calls and retain every authored label.',
       'cassette:ci-mode-no-network',
     ),
     row(
@@ -96,14 +96,14 @@ export const replay: FamilySpec = {
       'A tampered cut digest is named',
       "Change only one committed entry's readable cutDigest; leave its key and answer unchanged.",
       'The unchanged fixture passes every authored label; the modified fixture fails offline and names cutDigest.',
-      'cassette:miss-names-cut-digest',
+      'cassette:miss-names-field',
     ),
     row(
       'miss-names-labeler',
       3,
       'A cassette of another labeller is refused by name',
       "Replay each committed Haiku and Jev fixture correctly, then give each arm the other arm's cassette.",
-      'The valid fixtures retain every authored label; the wrong-arm cassettes fail offline and name labeler or model.',
+      "The valid fixtures retain every authored label; the wrong-arm cassettes fail offline, and each miss names, as a whole token, the labeler id its own fixture's entries declare (the id of the missing entry, never only the word labeler or model).",
       'cassette:miss-names-labeler',
     ),
     row(
@@ -128,7 +128,7 @@ export const replay: FamilySpec = {
       'A cut digest mismatch names the Node and ICU versions',
       "Change only one committed entry's readable cutDigest.",
       'The unchanged fixture passes; the miss names cutDigest, Node and ICU versions.',
-      'cassette:cut-digest-error-versions',
+      'cassette:miss-names-field',
     ),
     row(
       'key-is-sha256-hex',
@@ -191,8 +191,8 @@ export const replay: FamilySpec = {
       'model-mismatch-warns',
       3,
       'A changed returned model warns on re-record',
-      'Remove the first committed entry, set the remaining returned-model receipts to m-1, and record the missing request with m-2.',
-      'The scan succeeds and exposes a warning naming both returned models.',
+      'Remove the first committed entry, set the remaining returned-model receipts to a model name drawn from the seed, and record the missing request with a second seeded name; then the same with one name on both sides.',
+      'The scan succeeds and exposes a warning naming both returned models; when the two names agree the warnings are empty.',
       'cassette:model-mismatch-warning',
     ),
     row(
@@ -207,7 +207,7 @@ export const replay: FamilySpec = {
       'fresh-replay-needs-all-entries',
       2,
       "A fresh replay needs every window's entry",
-      'Replay the committed positive fixture, then remove its first window entry and replay without a prior ledger.',
+      'Replay the committed positive fixture, then remove every run of its first window and replay without a prior ledger.',
       'The complete fixture retains every authored label; the incomplete one fails offline and names a window.',
       'cassette:window-granularity',
     ),
@@ -216,7 +216,7 @@ export const replay: FamilySpec = {
       3,
       'A failed recording leaves a valid cassette',
       'Fail the second request during a three-window record; inspect its output. Separately continue recording from an independently committed one-entry cassette.',
-      'The failed output contains exactly one valid JSON entry; the independent partial cassette completes with exactly two calls.',
+      'The failed output contains exactly one valid JSON entry; the independent partial cassette completes with exactly one call per missing window and run.',
       'cassette:atomic-append',
     ),
     row(
@@ -321,7 +321,7 @@ export const replay: FamilySpec = {
       'A one-field stale labeler is refused after a complete haiku replay',
       "Replay the committed haiku fixture; change exactly one entry's readable labeler, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names labeler.',
-      'cassette:miss-names-labeler',
+      'cassette:miss-names-field',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(
@@ -348,7 +348,7 @@ export const replay: FamilySpec = {
       'A one-field stale cutDigest is refused after a complete haiku replay',
       "Replay the committed haiku fixture; change exactly one entry's readable cutDigest, preserving every key and answer; replay again.",
       'The positive replay contains all nine authored unit labels without network access. The changed fixture fails offline and names cutDigest. The error includes Node and ICU versions.',
-      'cassette:cut-digest-error-versions',
+      'cassette:miss-names-field',
       { needs: ['scan', 'cassette', 'transport'] },
     ),
     row(

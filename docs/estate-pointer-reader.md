@@ -70,7 +70,11 @@ Fields:
 | `labels[].description` | One or two sentences. Becomes part of the labeler's prompt. |
 | `labels[].examples` | Optional. Up to three short strings shown to the labeler. They are user text, not repo text. |
 | `labels[].target` | Optional: `required` when the label links two units (a gate). Default: none. |
+| `labels[].condition` | Optional: `true` for a label whose unit states when its target unit applies. It needs `target: required` and takes no `atom`. |
 | `labels[].atom` | Optional. If present, a unit with this label becomes an estate atom of this kind (and polarity). A label without `atom` is stored in the ledger and can be linked to tests, but builds no atom. |
+| `labels[].links` | Optional: the link kinds a unit with this label may carry. The set declares each kind under its own `links` list: a name, a description, and either `to` (the atom kinds a link of this kind may name) or `values` (a closed list). |
+| `labels[].atom.title`, `labels[].atom.situation` | Optional templates. In the text, `${code}` stands for the first inline code span of the unit, `${unit}` for its text, `${file}` for its file and `${link.<kind>}` for what its link of that kind names. A placeholder the unit does not fill refuses the atom with the reason: nothing is built, and nothing is filled with an empty text. |
+| `labels[].atom.whenFile` | Optional `true`: the atom is built only when the first inline code span of the unit names a file of the estate. Otherwise the label builds nothing and reports nothing. |
 
 Rules:
 
@@ -78,6 +82,8 @@ Rules:
 - Several sets may label the same units. Each set is labelled in its own request and stored apart in the ledger (section 4).
 - Each set has a **set hash**: the hash of its canonical form (names, descriptions, examples, targets, atom mappings). The set hash is part of the cassette key. Editing one label of one set changes only that set's hash, so only that set is re-labelled; other sets and the units' ids are untouched.
 - The default `agent-rules` set above is data in a shipped file, loaded the same way as a user set. No label name is known to the core.
+
+The settings file of an estate may carry a `threshold` mapping with the keys `labeler`, `pass_at`, `fail_at` and `margin_cut`. Each is a number from 0 to 1, bounds included. A value outside that range, or one that is not a number, is refused, and the refusal names the key.
 
 ### Nested spans: two calls of one tool in order
 
@@ -113,9 +119,11 @@ Units:
 | Heading | One unit per heading. Headings also form the heading path of every unit under them. |
 | HTML block | Blocks such as `<role>...</role>` are parsed inside: the markdown within is cut into units like any other prose. |
 | Front matter | Each string value is a unit keyed by its YAML path (a skill's `description`, for example). Structure keys are not units. |
-| Fence and comment | Opaque: one unit each, shown to the labeler as the fence kind and its first line only. A label cannot be pointed at it. |
+| Fence and comment | Opaque: one unit each. A fence is shown to the labeler as its kind and its first line only; a comment as its kind only, `(comment, not labelable)`. A label cannot be pointed at it. |
 
 Every prose character belongs to exactly one unit. Spans never overlap.
+
+**What a request carries.** No comment text reaches a labeler request (a privacy default for every comment, because its text may be private). An opaque comment is shown by its kind. A comment inside another unit (in a sentence, at the end of a line, after a heading marker or in a heading, in a table cell, a list item or a block quote) is replaced by `(comment)`, and the rest of the unit is sent as it is. The same holds for the heading path and the first line of a fence. A request carries these parts of the estate: the unit text, the heading path, the display lines of the opaque units, and the candidates of a link kind. The label set (names, descriptions, examples) is configuration and holds no estate text. A candidate is an atom a link may name, listed by its id and its title. The title of an atom is the text of its unit, and its id is a slug of that title, so both can hold a comment. A candidate whose title holds a comment, or whose lines in its file overlap one, is listed with the comment replaced by `(comment)`, or with the title withheld when the comment began before the atom, and under a hash of its id (`atom-` and ten hexadecimal digits). The answer is carried back to the atom's own id. A candidate that no comment touches is listed as before. A caller that gives an atom without its place (`at`) is masked on the title alone, so a comment cut before the atom is not seen. A comment is `<!--` up to the next `-->`; one that never closes runs to the end of the file; a comment opened inside a fence is fence text. The comments are found on the whole file, so a comment the cutter splits across units is replaced in each of them. Only the request is changed: the unit text, the fingerprints, the ids, the ledger and the atoms keep the comment, and an offset or a quoted clause the labeler gives is carried back to the unit's own text. The cassette holds the request key (hashes of the parts of the request), the file path, the window id and the answer; the answer can echo only what the request carried. The rule errs on the side of privacy in two cases, both accepted: a `<!--` that is never closed replaces everything after it to the end of the file, and a `<!--` inside inline code is replaced like any other comment.
 
 **Cut digest.** The cutter hashes the ordered list of unit fingerprints into a digest and stores it. Replay recomputes the cut and compares digests. A mismatch stops with an error that names the Node and ICU versions, so a cutter that varies between environments fails loudly instead of renumbering silently. Experiment 6 decides whether `Intl.Segmenter` may stay or a deterministic splitter must ship.
 
@@ -167,7 +175,7 @@ label(window, labelSet) -> { labels: [{ units, label, target? }], meta }
 
 ### Window
 
-A window is a heading-bounded run of units that stays under 100,000 tokens. A file is one window if it fits; otherwise it is split at headings. Units of neighbouring windows may appear as context-only lines (not labelable). The window prints each unit as `[n] text`, with the heading path as non-selectable lines.
+A window is a heading-bounded run of units that stays under 100,000 tokens. A window ends at every top-level heading, and a file with none is one window if it fits; otherwise it is split at headings. Units of neighbouring windows may appear as context-only lines (not labelable). The window prints each unit as `[n] text`, with the heading path as non-selectable lines.
 
 ```
 SET house-voice
@@ -195,17 +203,19 @@ Answer (dense: every unit once, ranges allowed):
 
 For a label with `target: required` the entry carries `"target": <n>`.
 
+A set that declares link kinds lists, under each kind, the candidates a link may name: the values of a closed list, or the atoms of the estate of the kinds that `to` names (an atom of any other kind is not listed), by id in id order, each with its title. An entry may carry `"links": [{"kind", "to"}]`, where `to` is a listed candidate or `none`. A link to `none` names nothing: it is no atom, and nothing is refused for it.
+
 Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`), and a file with no rule looks different from a file the model skipped. Cost stays small (a few tokens per unit).
 
 ### Implementations
 
-The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one yes or no question per unit and label and reads a probability of yes; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
+The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler reads probabilities, either one choice question per unit with the labels and `none` as options (the `system1` client) or one yes or no question per unit and label (`openai-decisions` and a user labeler); a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
 
 | Class | Client | How it answers | Notes |
 |---|---|---|---|
 | system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set; JSON with the labels of the set; response blocks read by type (thinking blocks may precede the text); hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. |
-| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; the unit state is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
-| system 1 | `openai-decisions` | The public example of the class: the same questions as predicates to `POST /v1/decisions`. | The shapes follow the provider's public description; no live call has confirmed them here. |
+| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One choice question per unit, keyed `u<n>`, of type `choice`: its options are the labels of the set, each with its description and examples, and `none` ("None of the other labels applies to this unit."). A label that needs a target, spans or links is not asked: inside a stack it is left to system 2. The answer gives a probability per option, recorded under `u<n>__<option>`. The probabilities of a unit must form a vector (each from 0 to 1, summing to 1 within 0.01); a unit whose answer is no vector, or misses an option, is refused with the reason and holds no label, and is never normalised. A unit takes the option with the highest probability, `none` included; there is no threshold. Window state: one request per window of up to 30 units, with the numbered window and its heading path as state. Unit state: one request per unit. A request refused as too large (HTTP 400 `max_tokens_exceeded`) is halved by the scan. | The probabilities are kept in the cassette, so a stack reads the margin between the two likeliest options without a re-record. Section 10a measured the earlier yes or no form of these questions (its cap, window sizes and thresholds); the choice form has no measurement on this page. The endpoint reports its usage in tokens. |
+| system 1 | `openai-decisions` | The public example of the class, in the yes or no shape: one predicate per (unit, label), named `u<n>__<label>`, to `POST /v1/decisions`, at most 100 questions per request. A unit takes the label with the highest probability of yes at or above a threshold (0.4 unless the caller sets one), else `none`. | The probabilities are kept in the cassette, so the threshold is a setting of a replay, not of a new call. The shapes follow the provider's public description; no live call has confirmed them here. |
 | either | `http:<url>`, `module:<path>` | A user labeler: the request is `{ set, window, prompt }` (system 2) or `{ set, window, state, questions }` (system 1), the answer is `{ labels }` or `{ probabilities }`. | Recorded and replayed through the cassette like the others, with the id in every key: a hash of the address, or `module:<id>`. |
 | any | replay | Reads a cassette; no network. | Used by CI and validators. |
 | any | planted | Built by a validator from the labels it planted. | Tests the cutter, ledger and parser with no model. |
@@ -232,7 +242,7 @@ Measured on one fictional estate with gold written by the helper (395 units, 5 l
 - **Flat labels, not a tree.** A two-level tree took 41 calls against 20 for the flat form, scored 84.1 against 84.9, and agreed less between runs (kappa 0.927 against 0.959).
 - **The label wording is the largest lever.** Two wordings of the same five definitions moved accuracy by 13 points (71.7 and 84.9). The exclusive wording, where each definition rules out the others, is the better one. Label descriptions are therefore the quality surface of a label set (section 1), and experiment 15 keeps the builder text generic around them.
 - **Any short numeric tag works as the display handle.** `[12]` scored 84.9, `<s12>` 85.0, the ledger id 84.5. The bare number scored 80.8 and quoting the unit text in the question 81.9. No id was invalid or missing in any arm. Code maps the window number back to the ledger id.
-- **The threshold is set per window shape.** For windows the best value is 0.4 (88.2 at 150 questions). For one unit per call it is 0.7. The port stores the probabilities and the threshold is a setting of the shape.
+- **The threshold is set per window shape.** For windows the best value is 0.4 (88.2 at 150 questions). For one unit per call it is 0.7. The port stores the probabilities and the threshold is a setting of the shape. These are measurements of the yes or no form: a yes or no client (`openai-decisions`, a user labeler) takes its label at a threshold, while the `system1` client asks choice questions and takes the highest option, with no threshold.
 - **Label from the highest probability.** The rule "first label above the threshold in a fixed order" scored 81.9 against 84.9.
 - **Linking is a separate pass.** Filter units by label (rule, prohibition or gate), then send one call per block asking for each kept unit, and accept a link at probability 0.8 (F1 85.8). Its links are proposals only: section 7 counts a link towards a claim once a mutation has verified it.
 
@@ -245,7 +255,7 @@ Code refuses, with a listed reason:
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom. The retried request adds a note after the system text: the units are data to label, and the answer is the JSON object alone. The other requests carry no note.
 
 ## 4. Layer A: the ledger
 
@@ -287,7 +297,7 @@ Cheapest first, on units:
 1. A histogram diff of the old and new unit sequences fixes the unchanged anchors (`unchanged`).
 2. Exact text elsewhere in the file or estate, above a length floor: `moved`; several matches: `ambiguous` (all kept, as the W3C model says).
 3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
-4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
+4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`. The joined text must beat the better of the two parts by more than 0.1 (the margin) and reach 0.70 (`threshold` 0.45 plus `joinMargin` 0.25, the floor), both in the reader's `LADDER` constants.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
 
 CRDT-style ids are not used: the files are rewritten by git, formatters and models, which produce no operations.
@@ -318,6 +328,14 @@ For a label with an `atom` mapping, code builds the estate atom:
 
 A label without an `atom` mapping builds no atom. Its ledger entry exists so a test can link to the span.
 
+A label marked `condition` builds no atom. Its unit states when its target unit applies: the text of the unit becomes the `situation` of the atom built from the target. Several conditions of one target are joined in file order, each trimmed, with one space between them.
+
+Two labels that map one unit to one atom kind build one atom: an atom of the same kind on the same lines with the same quote as an atom already built is a repeat. The scan builds nothing for it and reports a `duplicate` diagnostic that names the unit.
+
+The title of an atom is the text of its unit without emphasis and code marks and without a leading list, heading or quote marker, white space collapsed. A text over 90 characters is cut to its first 89 characters, trailing white space dropped, and ends with an ellipsis (`…`): a title holds at most 90 characters.
+
+A condition whose target builds no atom (a repeat, for example) sets no situation, and the scan reports it with the condition unit's id.
+
 ## 7. Layer C: links and monitoring
 
 A test or block links to a span with `{ span: <ledger id>, fp, relation, createdBy, accepted }`. `fp` is the span fingerprint at the last accept; offsets are never stored in a link. Each scan classifies every link:
@@ -330,6 +348,25 @@ A test or block links to a span with `{ span: <ledger id>, fp, relation, created
 | `ambiguous` | The span matches in several places. |
 
 The **blast radius** of an edit is the set of tests with `suspect` links, plus a separately reported advisory set (tests linked to the same section) for references a precise link may hide ("except as described above"). Only links with `createdBy: verified` count towards a claim; a link becomes verified by mutation (deleting or negating the span flips the test). Clearing a suspect link records a reason (`cosmetic`, `semantic-still-covered`, `test-updated`). Coverage reports the inverse: spans labelled with an `atom` mapping and no verified link.
+
+### Rerun after an edit
+
+Unit ids persist across edits, so the ledger before an edit and the ledger after it name the same unit by the same id. Each unit falls in one class:
+
+| Class | Meaning | Its links |
+|---|---|---|
+| `unchanged` | The same text and the same neighbours. | Nothing reruns. |
+| `context` | The same text, other neighbours or another heading path. | Reported as advisory; nothing reruns. |
+| `moved` | The same text in another file. | Reported as advisory; nothing reruns. |
+| `changed` | The text changed. | Rerun. |
+| `deleted` | The unit is gone. | Rerun. |
+| `new` | No old unit is followed into it. | The links of the old units of its section rerun: the units under the same headings in the same file, else under the nearest heading above that an old unit of the file sits under, else every old unit of the file. A new unit in a file the old ledger did not hold reruns the whole suite. |
+
+A split keeps the old id on its first piece (`changed`) and mints the others (`new`); a merge keeps the first old id (`changed`) and ends the second (`deleted`).
+
+Only a unit live in the ledger before the edit can be `deleted` by it: a unit the old ledger already holds as deleted belongs to no class. The whole-suite reason of a new file names the first new unit of that file, in file order.
+
+The **change manifest** of an edit turns the rerun set into changes. When the whole suite reruns, it is one global `prompt` change. Otherwise an atom sits on the unit it was built from and on the units of its conditions; a unit of the rerun set on which atoms sit is the `prompt` change of each of those atoms, and a unit on which none sits is a `unit` change. The `unit` changes come first, in id order, then the `prompt` changes, in atom id order.
 
 ## 8. How the validators replay it
 
@@ -487,7 +524,7 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 | Cassette keyed by the whole request and the labeler id, readable fields, a miss that names the differing field | Built. One file holds the answers of every labeler of a run; each answer is appended as it arrives. |
 | Label sets as data, the shipped `agent-rules` set loaded by the same parser | Built. |
 | System 2 client (`anthropic`, default `claude-haiku-5-5`, hidden reasoning off) | Built. |
-| System 1 clients (`system1` client with window and unit state, `openai-decisions`) | Built. The probabilities are recorded, so a threshold is a replay setting. `openai-decisions` is unconfirmed by a live call. |
+| System 1 clients (`system1` client with window and unit state, `openai-decisions`) | Built. The `system1` client asks one choice question per unit and takes the highest option; `openai-decisions` asks yes or no questions and takes a label at a threshold. The probabilities are recorded, so the threshold of a yes or no client is a replay setting. `openai-decisions` is unconfirmed by a live call. |
 | The default stack with `pass at` and `fail at`, and each class alone | Built. |
 | User labelers by HTTP endpoint or module, through the same port | Built. |
 | Parallel requests (`--jobs`) with the same ledger and the same cassette bytes | Built. |
@@ -525,7 +562,7 @@ Reading: on this one small fictional estate system 2 alone is the most precise a
 
 ### System 1 request size on the fixture
 
-The window of 48 units with 6 labels (288 questions) was answered. Repeating its units to larger windows: 504 and 1,002 questions were answered, 1,500 and above were refused with HTTP 400 `max_tokens_exceeded`. The cap is a token budget, not a count, which matches the 1,300 and 1,350 of section 10a. The client defaults to 250 questions per request and halves a window that the endpoint refuses.
+The window of 48 units with 6 labels (288 questions) was answered. Repeating its units to larger windows: 504 and 1,002 questions were answered, 1,500 and above were refused with HTTP 400 `max_tokens_exceeded`. The cap is a token budget, not a count, which matches the 1,300 and 1,350 of section 10a. These requests held the yes or no questions of the client at the time, which defaulted to 250 questions per request. The client now asks one choice question per unit in windows of up to 30 units, and the scan halves a window that the endpoint refuses.
 
 ## 15. Normative review corrections
 
@@ -557,15 +594,43 @@ Replay expectations come from committed fixtures or independently authored sourc
 
 The validator adapter maps product exports. It does not infer per-id events from changed quotes, compare ledger bytes to implement check mode, reconstruct lineage or twin relationships, decide labels, or generate warnings. Product results pass through unchanged, including wrong results that the bank must reject.
 
-The current API uses `buildLabelling` for configured model clients, `singleLabelling` for a planted labeler, `denseOpinions` for planted answer interpretation, and `pointerScan({labelling, ...})`. The bank's `haiku` arm selects the `system2:anthropic` client; the window-state and unit-state arms select the `system1` client in its two states. Every network call uses the supplied fake transport. The adapter forwards the product's call count.
+The current API uses `buildLabelling` for configured model clients, `singleLabelling` for a planted labeler, `denseOpinions` for planted answer interpretation, and `pointerScan({labelling, ...})`. The bank's `haiku` arm selects the `system2:anthropic` client; the window-state and unit-state arms select the `system1` client in its two states, and the `openai-decisions` arm selects the yes or no client with its threshold. The `http` arm selects a `system2:http:<url>` user labeler. A stack request selects the product's own two-member stack through `buildLabelling` (a choice system 1 arm, then `system2:anthropic`, with the caller's `marginCut` when given); the product decides every unit. The planted labeler carries the runs a request names. A request that watches the key holds `ANTHROPIC_API_KEY` behind a getter that reports each read; the reader decides when it reads it. Every network call uses the supplied fake transport. The adapter forwards the product's call count.
 
 Optional observation extensions have these shapes:
 
 - `pointerScan` may expose `eventsById: Record<string, string>` and `warnings: string[]`. Its existing `events` remains the aggregate event-count map.
+- `pointerScan` takes the atoms of the estate so far (`atoms: Array<{id, kind, title}>`) for the candidates of link kinds; the adapter passes the item's list unchanged. Each atom the scan builds keeps its `title`, which the adapter passes on.
+- `ledgerChangeManifest(rerun, options)` and `atomsByUnit(atoms)` are forwarded unchanged for the change manifest; without them, manifest checks report an unavailable capability.
+- `pointerScan` may expose `fellBack: number`: the units of this scan one member of a stack decided alone because the other gave no opinion.
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.
+- A refusal for nesting carries the code `nesting-too-deep`, and a reader that refuses a file for its nesting must emit it.
 
 Absent observations stay absent. An item that needs an observation must require it explicitly; missing per-id events never mean `unchanged`. A reported empty array, empty map, or null twin is distinct from an unavailable observation.
 
 These extension names specify the validator interface, not existing product capabilities. At PR692 head `575e7d706c7aae52e945f12e5fd5e0c26680c7d2`, `pointerScan` exposes aggregate events but no per-id map or warnings; ledger entries expose neither lineage nor twinOf; check mode exists only inside the CLI `openPointer(...).finish(...)`; independent-vote stackDecision is not exported. The adapter must not hide these gaps.
+
+### Structured codes
+
+Every refusal, dropped note, failed window, atom refusal and error that has a text also has a stable kebab-case `code` and the identifiers the text names as fields. A check reads the code and the fields, never the text. The text is unchanged; the records sit beside it in the same order. A record has `code`, `detail` (the same text), and the fields it fills from `window`, `unit`, `units`, `target`, `kind`, `span`, `set`, `label`, `path`, `labeler`, `repeats`, `parent`, `sum`. In an answer record, `unit` is the unit number in its window and `units` is the range as written; in an atom record, `unit` is the ledger id.
+
+| Code | Where emitted | Fields |
+| --- | --- | --- |
+| `cassette-miss` | `CassetteMiss.code`; `environment: {node, icu}` is set when `differs` has `cutDigest` | `environment` |
+| `set-duplicate`, `label-duplicate`, `span-kind-duplicate`, `link-kind-duplicate` | `parseLabelSetsDetailed` | `reason`, `set`, `label` or `kind` |
+| `set-name-invalid`, `label-name-invalid`, `label-name-reserved`, `span-kind-name-invalid`, `link-kind-name-invalid`, `label-examples-too-many` (more than three), `label-examples-not-a-list` (not a list), `label-example-invalid` (an element that is not a non-empty text), `label-target-invalid` | `parseLabelSetsDetailed` | `reason`, `path`, the offending `set`, `label` or `kind` as written |
+| `span-kind-within-itself`, `-undeclared`, `-cycle`, `label-span-kind-undeclared`, `label-link-kind-undeclared`, `label-span-parent-missing`, `label-condition-needs-target`, `label-condition-takes-no-atom` | `parseLabelSetsDetailed` | `reason`, `set`, `label`, `kind`, `parent` |
+| `set-needs-system2`, `set-has-no-askable-label` | `LabelerConfigError` thrown by `askedLabels`; `buildLabellingDetailed` | `code`, `set` |
+| `labeler-count`, `labeler-class-repeated`, `bounds-invalid`, `labeler-key-missing`, `margin-cut-needs-choice`, `no-labeler` | `buildLabellingDetailed` | `code` |
+| `ledger-out-of-date` | `checkLedger` | `files` (sorted changed paths) |
+| `threshold-out-of-range`, `threshold-not-finite`, `threshold-not-a-number`, `threshold-unknown-key`, `settings-*` | `parsePointerSettingsDetailed`, `issues` list beside `errors` | `code`, `key`, `reason` |
+| `no-vector` | `choiceOpinions`, `PointerResult.refusalRecords` | `window`, `unit`, `sum` |
+| `label-not-in-set`, `units-malformed`, `units-leave-window`, `units-already-labelled`, `target-malformed`, `none-takes-no-target`, `target-required`, `target-not-taken`, `spans-malformed`, `links-malformed` | `checkAnswer`, `PointerResult.refusalRecords` | `window`, `set`, `units`, `label`, `target` |
+| `span-*`, `link-*`, `label-carries-no-spans`, `label-carries-no-links` | `checkAnswer`, `PointerResult.droppedRecords` | `window`, `set`, `label`, `unit`, `units`, `kind`, `span`, `target`, `parent` |
+| `answer-*`, `window-failed`, `window-too-large` | `PointerResult.failedRecords` | `window`, `set`, `labeler` |
+| `unit-not-at-lines`, `span-not-exact-slice`, `link-target-not-atom`, `atom-kind-unbuildable`, `file-not-named`, `template-unfilled`, `condition-unattached`, `atom-duplicate` | `pointerAtoms`: `refusalRecords`, `duplicateRecords` | `unit`, `set`, `label`, `path`, `kind`, `span`, `target`, `repeats` |
+
+`parseLabelSets`, `buildLabelling` and `parsePointerSettings` keep their text-only results; the `Detailed` functions return the same results with the codes added.
+
+Every code is set at the site that raises the error, and no function derives a code from a message. A `LabelerError` takes its code from the site that throws it (`new LabelerError(message, { code })`); one raised with no code carries the code `unknown`. A failed window is recorded in the cassette with that `code`, and an old entry with no `code` replays as `unknown`. An unlocated span keeps its `unlocatedCode` beside its `unlocated` text, and one with no `unlocatedCode` reads as `unknown`. `answer-unreadable` is no longer emitted. A static test (`packages/estate/test/pointer/no-message-to-code.test.ts`) fails when a function of `src/pointer` applies a string method to a message to find a code.

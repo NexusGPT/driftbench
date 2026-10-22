@@ -37,6 +37,9 @@ const wrap = (kind: string, text: string): string => {
   }
 };
 
+/** A fence or a comment is opaque: the scan labels no unit of it and sends no text of it. */
+const opaque = (placement: string): boolean => placement === 'fence' || placement === 'comment';
+
 /** A seeded private-use alphabet makes even one leaked marker character unambiguous.
  * Public fixture metadata is ASCII; no ordinary public character is a secret sentinel.
  */
@@ -65,7 +68,12 @@ export function privacyItems(): BankItem[] {
         level: 4,
         component: 'pointer.private-recording',
         title: `${placement} private text stays out of ${mode} surfaces`,
-        cause: `privacy:${placement}-text-and-key-egress`,
+        // A fence-only or comment-only file has no labelable unit, so the scan sends no request and the privacy check
+        // cannot fail. The fixture of those two placements carries a prose paragraph beside the opaque text, so a
+        // request leaves, and the check reads that request: the opaque text and the key must not be in its body.
+        cause: opaque(placement)
+          ? 'privacy:opaque-only-file-sends-a-request'
+          : `privacy:${placement}-text-and-key-egress`,
         design: '5: stored answer, modes, where; 8; 11: private counts-only plan',
         generate(seed) {
           const probes: Probe[] = [0, 1].map((arm) => {
@@ -74,7 +82,11 @@ export function privacyItems(): BankItem[] {
             const secret = privateMarker(seed, salt);
             const key = privateMarker(seed, salt + 31);
             const label = `class-${t}`;
-            const source = wrap(placement, secret) + (arm ? '\n\nFictional public padding.' : '');
+            const prose = `Fictional public note ${t}.`;
+            const source =
+              wrap(placement, secret) +
+              (opaque(placement) ? `\n\n${prose}` : '') +
+              (arm ? '\n\nFictional public padding.' : '');
             const answer = {
               labels: [{ units: '1', label }],
               model: `model-${t}`,
@@ -91,6 +103,7 @@ export function privacyItems(): BankItem[] {
               writes,
               status: mode === 'ci-miss' ? 'miss' : 'ok',
               plans: [{ characters: source.length }],
+              ...(opaque(placement) ? { requestSent: true } : {}),
             };
             return {
               request: {
@@ -109,6 +122,7 @@ export function privacyItems(): BankItem[] {
               sample: {
                 labels: mode === 'ci-miss' ? [] : answer.labels,
                 status: mode === 'ci-miss' ? 'miss' : 'ok',
+                ...(opaque(placement) ? { requests: [{ text: prose }] } : {}),
               },
               sampleEffects: [
                 { kind: 'plan', value: { characters: source.length } },
@@ -127,14 +141,18 @@ export function privacyItems(): BankItem[] {
               ],
               observe(actual, trace) {
                 if (!actual || typeof actual !== 'object') return null;
-                const r = actual as Record<string, Json>;
+                const { requests, ...r } = actual as Record<string, Json>;
+                // The request bodies the reader sent or would send. Where the text is labelable it is in them by
+                // design, so they are read for the key; for an opaque placement they are read for the text too, and
+                // a reader that sent no request fails.
+                const sinks = { actual: r, writes: trace.writes, logs: trace.logs, plans: trace.plans };
+                const leakedText = opaque(placement)
+                  ? leaksPrivateFragment({ ...sinks, requests }, [secret, key])
+                  : leaksPrivateFragment(sinks, [secret, key]) || leaksPrivateFragment(requests, [key]);
                 return {
                   labels: r.labels,
                   // Include the entire result, including unexpected fields and object keys.
-                  leaked: leaksPrivateFragment(
-                    { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
-                    [secret, key],
-                  ),
+                  leaked: leakedText,
                   networkCalls: trace.networkCalls,
                   keyReads: trace.keyReads,
                   cacheConsulted: mode === 'record' ? null : trace.cacheReads > 0,
@@ -147,6 +165,9 @@ export function privacyItems(): BankItem[] {
                   })),
                   status: r.status,
                   plans: trace.plans,
+                  ...(opaque(placement)
+                    ? { requestSent: Array.isArray(requests) && requests.length > 0 }
+                    : {}),
                 };
               },
             };
