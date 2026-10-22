@@ -26,15 +26,25 @@ it('runs this shard of the planner mutants', async () => {
   };
   const real = (await import(join(PLANNER, 'index.ts'))) as { planV2: (s: unknown, o?: unknown) => unknown };
   const mine = mutants(PLANNER).filter((_, n) => n % SHARDS === SHARD);
+  // The kill rule, in general: an item kills a mutant at a seed only when the reference planner passes that item
+  // at that seed. The reference verdicts are computed once per seed from the reference run.
+  const referencePasses = new Map<number, Set<string>>();
+  for (const seed of [1, 2, 3]) {
+    const reference = await evaluate(
+      plannerItems(),
+      new SeedData(seed, {}, async () => {
+        throw new Error('no scale run');
+      }),
+    );
+    referencePasses.set(seed, new Set(reference.filter((entry) => entry.verdict.pass).map((entry) => entry.item.id)));
+  }
   mkdirSync(OUT, { recursive: true });
   for (const mutant of mine) {
     const dir = join(ROOT, `packages/generate/src/plan-v2-${mutant.id}`);
     const module = write(PLANNER, dir, mutant);
     const row: Record<string, unknown> = { ...mutant };
     try {
-      // Items the reference planner itself fails (its named gaps) kill nothing: only items it passes count.
-      const GAPS = ['planner.required-survives-budget.required', 'planner.budget-below-required.required'];
-      const items = plannerItems(module).filter((item) => !GAPS.includes(item.id));
+      const items = plannerItems(module);
       let killedBy: string | undefined;
       let threw = 0;
       for (const seed of [1, 2, 3]) {
@@ -42,6 +52,7 @@ it('runs this shard of the planner mutants', async () => {
           throw new Error('no scale run');
         });
         for (const item of items) {
+          if (!referencePasses.get(seed)?.has(item.id)) continue;
           const [result] = await evaluate([item], data);
           if (!result || result.verdict.pass) continue;
           if (/the item threw|did not load/.test(result.verdict.detail)) {
