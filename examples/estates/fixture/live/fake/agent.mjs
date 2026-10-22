@@ -498,8 +498,15 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       'Bash',
       { command: provoked.command, description: 'Run the named command' },
       () => {
-        const ran = spawnSync('/bin/sh', ['-c', provoked.command], { cwd, encoding: 'utf8', timeout: 30_000 });
-        return { content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`, ran: true };
+        const ran = spawnSync('/bin/sh', ['-c', provoked.command], {
+          cwd,
+          encoding: 'utf8',
+          timeout: 30_000,
+        });
+        return {
+          content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+          ran: true,
+        };
       },
       true,
     );

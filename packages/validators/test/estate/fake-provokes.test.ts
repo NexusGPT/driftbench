@@ -66,7 +66,9 @@ async function run(provokes?: { tool: string; command: string }) {
 describe('a bank situation declares the call the stand-in agent makes while it is in force', () => {
   it('schema: the situation takes provokes {tool, command} and no other key of it', () => {
     expect(PhraseBank.safeParse(bank({ tool: 'Bash', command: COMMAND })).success).toBe(true);
-    expect(PhraseBank.safeParse(bank({ tool: 'Bash', command: COMMAND, extra: 1 } as never)).success).toBe(false);
+    expect(PhraseBank.safeParse(bank({ tool: 'Bash', command: COMMAND, extra: 1 } as never)).success).toBe(
+      false,
+    );
     expect(PhraseBank.safeParse(bank({ tool: 'Bash', command: '' })).success).toBe(false);
   });
 

@@ -15,8 +15,8 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 31,
-    "phrases": 60,
+    "situations": 32,
+    "phrases": 62,
     "workspaces": 5
   },
   "sessions": {
@@ -208,8 +208,8 @@
   "quality": {
     "completeShare": 0.9957657021877205,
     "askedTests": 1403,
-    "distinctAsks": 110,
-    "distinctAsksPer100": 7.840342124019958
+    "distinctAsks": 111,
+    "distinctAsksPer100": 7.911617961511047
   },
   "unit": {
     "tests": 29,
@@ -226,17 +226,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 414,
-      "code": 983,
+      "bank": 418,
+      "code": 979,
       "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 910,
+      "bank": 923,
       "no-change:guard": 26,
       "no-change:negative": 44,
       "no-change:read-only": 72,
-      "no-delete": 351,
+      "no-delete": 338,
       "static": 8
     },
     "judged": 496

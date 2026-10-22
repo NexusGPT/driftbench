@@ -138,7 +138,10 @@ export type Touches = z.infer<typeof Touches>;
 export const Provokes = z
   .strictObject({
     tool: z.string().min(1).describe('The tool of the call, such as Bash.'),
-    command: z.string().min(1).describe('The command of the call (fictional text); the call runs it as written.'),
+    command: z
+      .string()
+      .min(1)
+      .describe('The command of the call (fictional text); the call runs it as written.'),
   })
   .describe(
     'A call the stand-in agent makes while the situation is in force, such as the removal a PostToolUse guard watches',
