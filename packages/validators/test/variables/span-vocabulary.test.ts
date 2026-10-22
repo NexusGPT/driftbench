@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { variablesImpl as adapter } from '../../src/ladders/variables/adapter';
 import { runItem, variablesBank } from '../../src/ladders/variables/bank/index';
+import { withLabelWitness } from '../../src/ladders/variables/bank/label-witness';
 import {
   nounNumber,
   numericSpan,
@@ -130,5 +131,61 @@ describe('a product that labels the spans itself from a table of the vocabulary'
     const outcome = await runItem(item(ID), 1, ROOT, tableCheat);
     expect(outcome.pass).toBe(false);
     expect(outcome.detail).toMatch(/read the text, not the label|label gives the limit 9/);
+  });
+});
+
+/** The label witness: after a span-reading item passes, the label of a condition is changed and the store must follow. */
+describe('the label witness of the span-reading items', () => {
+  const text = 'the delay is more than 5 days';
+  const carried = { kind: 'numeric', subject: 'the delay', limit: 5, comparison: 'gt', unit: 'days' };
+  const sources = {
+    estate: {
+      files: { 'agent/prompt.md': `Escalate when ${text}.` },
+      rules: [
+        { id: 'rule.delay', source: 'agent/prompt.md', conditions: [{ text, label: carried }], tools: [] },
+      ],
+    },
+  } as unknown as Sources;
+  const item = withLabelWitness({
+    id: 'sources.estate.synthetic',
+    stem: 'sources.estate.synthetic',
+    family: 'sources',
+    tier: 1,
+    level: 'store',
+    component: 'store/estate',
+    cause: 'a synthetic item that builds a store from one labelled condition',
+    check: (ctx) => {
+      const store = (ctx.impl.buildStore as VariablesImpl['buildStore'])(sources);
+      return store.variables.length === 1
+        ? { pass: true, detail: 'ok' }
+        : { pass: false, detail: 'no variable' };
+    },
+  });
+
+  it('passes a product that builds the store from the label it is given', async () => {
+    expect((await runItem(item, 1, ROOT, adapter)).pass).toBe(true);
+  });
+
+  it('fails a product that reads the text of the span and drops the label', async () => {
+    const readsText: Partial<VariablesImpl> = {
+      ...adapter,
+      buildStore: (given: Sources) =>
+        (adapter.buildStore as VariablesImpl['buildStore'])({
+          ...given,
+          estate: given.estate && {
+            ...given.estate,
+            rules: given.estate.rules.map((rule) => ({
+              ...rule,
+              conditions: rule.conditions.map(({ text: t }) => ({
+                text: t,
+                label: { kind: 'numeric', subject: 'the delay', limit: 5, comparison: 'gt', unit: 'days' },
+              })) as typeof rule.conditions,
+            })),
+          },
+        }),
+    };
+    const outcome = await runItem(item, 1, ROOT, readsText);
+    expect(outcome.pass).toBe(false);
+    expect(outcome.detail).toMatch(/did not follow the label/);
   });
 });

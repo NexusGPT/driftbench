@@ -15,6 +15,7 @@ import {
   type Cmp,
   decoySpan,
   fileOf,
+  gridInt,
   membershipSpan,
   type NumericSpan,
   numericSpan,
@@ -60,10 +61,10 @@ export function quantities(rng: Rng, count: number): Quantity[] {
 /** Thresholds at least 10 apart, ascending, from a random base. */
 export function farThresholds(rng: Rng, count: number): number[] {
   const out: number[] = [];
-  let t = rng.int(20, 120);
+  let t = gridInt(rng, 20, 120, 4);
   for (let i = 0; i < count; i += 1) {
     out.push(t);
-    t += rng.int(60, 300);
+    t += gridInt(rng, 60, 300, 2);
   }
   return out;
 }
@@ -187,7 +188,7 @@ export function checkCounts(store: StoreDoc, base: Base, counts: number[][], obs
 export const SOURCES_RUNS: Record<string, StemRun> = {
   'sources.estate.numeric-condition': (variant, ctx) => {
     const { rng } = ctx;
-    const span = basicSpan(rng, rng.pick(QUANTITIES), rng.int(5, 900));
+    const span = basicSpan(rng, rng.pick(QUANTITIES), gridInt(rng, 5, 900));
     const file = fileOf(rng, [ruleSentence(span.text, rng)], variant === 'long-file' ? 100 : 6);
     const store = build(ctx, {
       estate: estateOf({ 'CLAUDE.md': file }, [
@@ -275,7 +276,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const { rng } = ctx;
     const kind = variant as 'plain-rule' | 'number-without-comparator' | 'past-tense-limit';
     const decoys = [decoySpan(rng, kind)];
-    const real = basicSpan(rng, rng.pick(QUANTITIES), rng.int(5, 900));
+    const real = basicSpan(rng, rng.pick(QUANTITIES), gridInt(rng, 5, 900));
     const sentences = [...decoys, ruleSentence(real.text, rng)];
     const file = `# Standing instructions\n\n${rng.shuffle(sentences).join('\n')}\n`;
     const store = build(ctx, {
@@ -352,7 +353,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
           ? ['the total', 'the total tax']
           : ['the invoice total', 'the retry count'];
     const quantitiesOf = pair.map((noun): Quantity => ({ noun, unit: '', kind: 'count' }));
-    const spans = quantitiesOf.map((q) => basicSpan(rng, q, rng.int(5, 900)));
+    const spans = quantitiesOf.map((q) => basicSpan(rng, q, gridInt(rng, 5, 900)));
     const file = fileOf(
       rng,
       spans.map((s) => ruleSentence(s.text, rng)),
@@ -383,7 +384,8 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
   'sources.estate.rule-own-variables': (variant, ctx) => {
     const { rng } = ctx;
     const taken = { tools: new Set<string>(), ids: new Set<string>() };
-    const conditionsOf = (n: number) => quantities(rng, n).map((q) => basicSpan(rng, q, rng.int(5, 900)));
+    const conditionsOf = (n: number) =>
+      quantities(rng, n).map((q) => basicSpan(rng, q, gridInt(rng, 5, 900)));
     let rules: RuleSpec[];
     const toolLines: string[] = [];
     const mkTool = () => {
@@ -853,7 +855,7 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
     const { rng } = ctx;
     if (variant === 'rules-permuted') {
       const qs = quantities(rng, 3);
-      const spans = qs.map((q) => basicSpan(rng, q, rng.int(5, 900)));
+      const spans = qs.map((q) => basicSpan(rng, q, gridInt(rng, 5, 900)));
       const file = fileOf(
         rng,
         spans.map((s) => ruleSentence(s.text, rng)),

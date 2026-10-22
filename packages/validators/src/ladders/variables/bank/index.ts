@@ -18,6 +18,7 @@ import { VERIFY_RUNS } from './families/verify';
 import { WEIGHTS_RUNS } from './families/weights';
 import type { BankItem, ItemContext, ItemOutcome } from './item';
 import { outcomeOf } from './item';
+import { withLabelWitness } from './label-witness';
 import { FAMILY_LEVEL, LEVELS, type Level, STEMS } from './manifest/index';
 import { itemRng } from './util';
 
@@ -76,7 +77,9 @@ export function variablesBank(): BankItem[] {
   // The blind bank (blind/index.ts): items written from the page alone, run through the same port.
   items.push(...blindBank());
   const order = new Map<Level, number>(LEVELS.map((l, i) => [l, i]));
-  return items.sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
+  return items
+    .map(withLabelWitness)
+    .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }
 
 /** The context an item runs with. */
