@@ -166,11 +166,11 @@ describeSpec('specs/farewell.yaml', functionAdapter({ respond, deterministic: tr
 ```console
 $ NO_COLOR=1 node_modules/.bin/vitest run farewell.test.ts --config vitest.config.mjs   # exit 1
    ❯ vt-farewell (1)
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
  FAIL  farewell.test.ts > vt-farewell > block 0: Thanks, that is all.
 Error: block 0 failed
   must.0 fail: /farewell/ is missing; closest span "Hell", differs by 5 characters; visible text "Hello from Acme. You said: Thanks, that is all."
- Test Files  1 failed (1)
-      Tests  1 failed (1)
 ```
 
 **How to read it.** The failing test carries the block, the check and its evidence.
