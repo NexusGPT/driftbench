@@ -1,6 +1,6 @@
 import type { RetryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
-import type { Observed, ResolvedGiven } from '../schema/run';
+import type { NotRun, Observed, ResolvedGiven } from '../schema/run';
 import type { Stimulus } from '../schema/spec';
 
 /**
@@ -126,6 +126,19 @@ export class AdapterTransportError extends Error {
     if (options.retryAfterMs !== undefined) this.retryAfterMs = options.retryAfterMs;
     this.exhausted = options.exhausted ?? false;
     if (options.attempts !== undefined) this.attempts = options.attempts;
+  }
+}
+
+/**
+ * Thrown by an adapter when a turn cannot be run for a typed reason that measures nothing of the agent, such as a
+ * stand-in runtime that cannot resolve what the estate asks of it. The runner records the block as `not_run`
+ * with the reason and never retries; it is no failure of the agent.
+ */
+export class TurnNotRun extends Error {
+  readonly retryable = false;
+  constructor(readonly notRun: NotRun) {
+    super(`${notRun.check}: expected ${notRun.expected}; got ${notRun.got}`);
+    this.name = 'TurnNotRun';
   }
 }
 

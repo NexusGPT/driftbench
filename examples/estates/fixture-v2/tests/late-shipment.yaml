@@ -4,7 +4,7 @@ kind: task
 title: A late shipment is reported with a supplier email proposed
 target: { adapter: claude-code }
 metadata:
-  estate: { atoms: [instruction.standing.tell-the-user-about-a-late] }
+  estate: { atoms: [instruction.standing.r7-when-a-shipment-is-late] }
 blocks:
   - user: Where is the shipment for order NW-1077?
     expect:

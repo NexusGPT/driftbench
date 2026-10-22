@@ -33,7 +33,7 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
   const denom = 1 + z2 / n;
   // z2 / 2 / n equals z2 / (2 * n) bit for bit, and stays finite for a count above half of the largest double.
   const center = (p + z2 / 2 / n) / denom;
-  // 4 * n * n overflows to infinity for n above about 1.3e154 and the half-width then drops to zero while the
+  // 4 * n * n overflows to infinity for n above about 6.7e153 and the half-width then drops to zero while the
   // centre stays above zero, so the interval would exclude its own estimate. There the root is taken in scaled
   // form: hypot keeps both terms in range, and p * (1 - p) / n is split into two roots.
   const spread = 4 * n * n;
@@ -41,7 +41,17 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
     ? Math.sqrt((p * (1 - p)) / n + z2 / spread)
     : Math.hypot(Math.sqrt(p * (1 - p)) / Math.sqrt(n), z / 2 / n);
   const half = (z / denom) * root;
-  return { estimate: p, lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
+  let lower = center - half;
+  if (k === 0) {
+    // The bound is exactly 0 here; the difference of the two nearly equal numbers above is not.
+    lower = 0;
+  } else if (2 * k > n && Number.isFinite(2 * (n + z2))) {
+    // Next to 1 the difference center - half cancels digits. One minus the distance to 1, a sum of positive
+    // terms, keeps them; where that distance overflows, the difference stands.
+    const gap = (2 * (n - k) + z2 + z * Math.sqrt(z2 + (4 * k * (n - k)) / n)) / (2 * (n + z2));
+    if (Number.isFinite(gap)) lower = 1 - gap;
+  }
+  return { estimate: p, lower: Math.max(0, lower), upper: k === n ? 1 : Math.min(1, center + half) };
 }
 
 /** The exact (Clopper-Pearson) interval for k successes in n trials at level 1 - alpha. */
@@ -71,6 +81,18 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
   // Guard against floating noise when the ratio is an exact integer.
   const rounded = Math.round(exact);
   return Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact);
+}
+
+/**
+ * The exact one-sided upper bound on a failure rate after n trials with no failure, 1 - (1 - confidence)^(1 / n):
+ * the rate U with (1 - U)^n = 1 - confidence. The rule of three, 3 / n, approximates it at 0.95. It is taken as
+ * -expm1(log1p(-confidence) / n) so that a large n does not lose digits to the subtraction.
+ */
+export function ruleOfThreeUpperBound(n: number, confidence: number): number {
+  if (!Number.isSafeInteger(n) || n < 1)
+    throw new RangeError(`ruleOfThreeUpperBound: n must be a positive integer, got ${n}`);
+  assertProbability('ruleOfThreeUpperBound', 'confidence', confidence, true);
+  return -Math.expm1(Math.log1p(-confidence) / n);
 }
 
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */

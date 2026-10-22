@@ -11,6 +11,7 @@ import {
 import { generateEstateSuite, type PhraseBank } from '@agent-nexus/driftbench-generate';
 import { RUNTIME } from '../layout';
 import { writeEstate } from '../pipeline';
+import { truthPointer } from '../truth-pointer';
 import { scaleEstate } from './scale-estate';
 
 /**
@@ -29,7 +30,17 @@ async function main(): Promise<void> {
   if (!reader) throw new Error('no reader');
   try {
     let started = Date.now();
-    const result = await scanEstate({ root, reader, now: () => new Date('2026-10-11T00:00:00.000Z') });
+    const result = await scanEstate({
+      root,
+      reader,
+      pointer: truthPointer({
+        files: planted.files,
+        atoms: planted.expected,
+        answers: new Map(),
+        gates: planted.gates,
+      }),
+      now: () => new Date('2026-10-11T00:00:00.000Z'),
+    });
     const scanMs = Date.now() - started;
     const map: EstateMap = {
       ...result.map,
@@ -88,6 +99,12 @@ async function main(): Promise<void> {
         const second = await scanEstate({
           root: root2,
           reader,
+          pointer: truthPointer({
+            files: changed.files,
+            atoms: changed.expected,
+            answers: new Map(),
+            gates: changed.gates,
+          }),
           now: () => new Date('2026-10-11T00:00:00.000Z'),
         });
         started = Date.now();

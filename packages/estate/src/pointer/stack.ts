@@ -194,6 +194,10 @@ function stacked(
         if (second.label !== 'none' && !asked.has(second.label)) return fromSecond(second);
       }
       const sure = sureLabel(first);
+      // System 1 is offered only the labels it can answer, so its none means "none of those", not "no label". When the
+      // set holds labels only system 2 can give and system 2 has no opinion (its runs split, or every answer was
+      // refused), that none decides nothing: the unit stays unlabeled, and the report counts it.
+      if (sure === 'none' && !second && askedLabels(set, true).length < set.labels.length) return undefined;
       if (sure !== undefined) {
         return {
           label: sure,
@@ -204,7 +208,7 @@ function stacked(
           ...(second ? {} : { fallback: true as const }),
         };
       }
-      // An unsure unit takes the label system 2 gave on every run. Without it the unit stays unlabeled: system
+      // An unsure unit takes the label system 2 gave on a majority of its runs. Without it the unit stays unlabeled: system
       // 1's uncertain label is never taken in its place.
       return second ? fromSecond(second) : undefined;
     },
@@ -218,6 +222,8 @@ function describeMember(member: Labeler): Record<string, unknown> {
     model: member.model,
     settings: member.settings,
     runs: member.runs ?? 1,
+    // How the runs of a member become one opinion: the label more than half of the runs gave.
+    vote: (member.runs ?? 1) > 1 ? 'majority' : undefined,
   };
 }
 

@@ -87,6 +87,12 @@ export {
   variablesToSpaceMap,
 } from './variables/convert';
 export {
+  countVariableTuples,
+  type TupleCount,
+  type TupleCountOptions,
+  type TupleGroup,
+} from './variables/count';
+export {
   loadVariableStore,
   parseVariableStoreText,
   type VariableStoreIssue,

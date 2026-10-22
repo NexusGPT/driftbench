@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import {
@@ -83,8 +84,17 @@ async function lines(): Promise<{ lines: { file: string; value: string }[] }> {
   return { lines: out };
 }
 
+/**
+ * The estate generator rewrites its output tree by design (examples/estates/fixture/generated): those specs are
+ * generator output, not specs written before the key. Every other file of the fixture is compared, all of them.
+ */
+const REGENERATED = 'examples/estates/fixture/generated/';
+const COMPARABLE = Object.keys(
+  (JSON.parse(readFileSync(FIXTURE, 'utf8')) as { files: Record<string, string> }).files,
+).filter((file) => !file.startsWith(REGENERATED)).length;
+
 describe('when.simulated_user is invisible to specs that do not use it', () => {
-  it('every example spec of the fixture keeps its spec hash and its block cache keys', {
+  it(`every example spec of the fixture outside the generator's output (${COMPARABLE} files) keeps its spec hash and its block cache keys`, {
     timeout: 600_000,
   }, async () => {
     const now = await lines();
@@ -94,10 +104,12 @@ describe('when.simulated_user is invisible to specs that do not use it', () => {
       await writeFile(FIXTURE, `${JSON.stringify({ commit: FIXTURE_COMMIT, files: sorted }, null, 1)}\n`);
     }
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8')) as { files: Record<string, string> };
-    const moved = Object.entries(fixture.files)
-      .filter(([file, value]) => current[file] !== value)
-      .map(([file]) => file);
-    expect(Object.keys(fixture.files).length).toBeGreaterThan(1900);
+    const comparable = Object.entries(fixture.files).filter(([file]) => !file.startsWith(REGENERATED));
+    const moved = comparable.filter(([file, value]) => current[file] !== value).map(([file]) => file);
+    // The set shrank from 2085 to 733 when #877 regenerated 1352 specs of the estate generator's output, and to
+    // 732 when #1062 regenerated the acme specs (18 files left, 17 arrived); every file of the comparable set must
+    // still load with the same hash and keys.
+    expect(comparable.length).toBe(732);
     expect(moved).toEqual([]);
   });
 });

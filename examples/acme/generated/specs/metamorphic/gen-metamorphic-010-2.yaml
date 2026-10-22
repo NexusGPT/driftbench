@@ -43,19 +43,6 @@ blocks:
       lang: EN
       criteria:
         - flow.upgrade
-  - id: b2-identify-to-closing
-    when:
-      user: It's morgan.diaz@example.com.
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-            customer_email: morgan.diaz@example.com
-      lang: EN
 rules:
   forbidden_tools:
     - coverage.check
@@ -108,21 +95,20 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-identify-to-closing
-        seeder: metamorphic
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: identify-to-closing
-          account_lookup: most-data
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: identify-to-closing
     metamorphic:
       family: gen-metamorphic-010
       variant: 2
       of: 2
       relation: same observed outcome
+    reduced_ends:
+      from_blocks: 2
+      to_blocks: 1
+      duplicates:
+        - block: b2-identify-to-closing
+          duplicate_of:
+            spec: gen-graph-003
+            block: b2-identify-to-closing
+          duplicate_family: gen-metamorphic-004
   links:
     - block: b1-needs-to-identify
       to:
@@ -144,38 +130,6 @@ metadata:
           coverage_result: none
           stage_transition: needs-to-identify
           stage: identify
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: rule
-        rule: stage_transition=identify-to-closing
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: rule
-        rule: account_lookup=most-data
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: plan_row
-        row: gen-metamorphic-010
-        values:
-          user_type: existing-customer
-          account_lookup: most-data
-          channel: whatsapp
-          flow: upgrade
-          coverage_result: none
-          stage_transition: identify-to-closing
-          stage: closing
       relation: derived_from
       status: declared
       created_by: generator
