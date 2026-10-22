@@ -537,10 +537,22 @@ describe('spans and links in a label set', () => {
     expect(found?.spans).toEqual([{ kind: 'act', from: 20, to: 33 }]);
     expect(JSON.stringify(found)).not.toContain('Never edit it');
     expect(absent?.spans).toEqual([
-      { kind: 'act', from: -1, to: -1, unlocated: 'the text is not in the unit' },
+      {
+        kind: 'act',
+        from: -1,
+        to: -1,
+        unlocated: 'the text is not in the unit',
+        unlocatedCode: 'span-text-absent',
+      },
     ]);
     expect(twice?.spans).toEqual([
-      { kind: 'act', from: -1, to: -1, unlocated: 'the text is found twice in the unit' },
+      {
+        kind: 'act',
+        from: -1,
+        to: -1,
+        unlocated: 'the text is found twice in the unit',
+        unlocatedCode: 'span-text-repeated',
+      },
     ]);
     expect(plain).toEqual(entries[3]);
     expect(range).toEqual(entries[4]);

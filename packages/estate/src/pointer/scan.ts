@@ -1,10 +1,9 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
-import { type PointerDiagnostic, record } from './codes';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
 import { type Cut, cut, type Unit } from './cut';
 import {
-  answerCode,
   isTooLarge,
   type Labeler,
   type LabelerClass,
@@ -458,6 +457,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         stopReason: 'unreadable',
         refused: 'unreadable',
         error: failure.message,
+        code: failure.code,
         usage: { input: 0, output: 0 },
       };
       cassette.put(wire, readable, unreadable);
@@ -490,7 +490,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     if (result.answer.refused === 'unreadable') {
       const reason = result.answer.error ?? 'the answer cannot be read';
-      return windowFailure(answerCode(reason), reason);
+      return windowFailure(result.answer.code ?? UNKNOWN_CODE, reason);
     }
     if (result.answer.refused !== 'too_large') {
       return {

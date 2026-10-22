@@ -11,7 +11,7 @@ export {
   requestKey,
   type Wire,
 } from './cassette';
-export { type PointerDiagnostic, record as diagnosticRecord } from './codes';
+export { type PointerDiagnostic, record as diagnosticRecord, UNKNOWN_CODE } from './codes';
 export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
 export {
   type AnthropicLabelerOptions,

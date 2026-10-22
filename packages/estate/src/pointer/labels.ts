@@ -1,7 +1,7 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { EvidencePredicate } from '../schema';
-import { type PointerDiagnostic, record } from './codes';
+import { type PointerDiagnostic, record, UNKNOWN_CODE } from './codes';
 import { sha } from './cut';
 
 /**
@@ -423,7 +423,7 @@ export type SpanAnswer = { kind: string; from: number; to: number; polarity?: st
 
 /** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
 export type SpanInput = { kind: string; polarity?: string } & (
-  | { from: number; to: number; unlocated?: string }
+  | { from: number; to: number; unlocated?: string; unlocatedCode?: string }
   | { text: string }
 );
 
@@ -605,14 +605,20 @@ export function flatten(text: string): { text: string; at: number[] } {
   return { text: shown, at };
 }
 
-const TEXT_ABSENT = 'the text is not in the unit';
-const TEXT_REPEATED = 'the text is found twice in the unit';
+/** Where words sit in a unit, or why not: the reason text and its code, set together at the miss. */
+type Located = { from: number; to: number } | { reason: string; code: string };
 
-/** The code of a reason `locateSpanText` gives. */
-const spanTextCode = (reason: string): string => {
-  if (reason === TEXT_REPEATED) return 'span-text-repeated';
-  return reason === TEXT_ABSENT ? 'span-text-absent' : 'span-text-unlocated';
-};
+const TEXT_ABSENT = { reason: 'the text is not in the unit', code: 'span-text-absent' };
+const TEXT_REPEATED = { reason: 'the text is found twice in the unit', code: 'span-text-repeated' };
+
+function locate(unitText: string, words: string): Located {
+  const lower = unitText.toLowerCase();
+  const wanted = words.toLowerCase();
+  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
+  if (first < 0) return TEXT_ABSENT;
+  if (lower.indexOf(wanted, first + 1) >= 0) return TEXT_REPEATED;
+  return { from: first, to: first + wanted.length };
+}
 
 /**
  * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
@@ -622,12 +628,8 @@ export function locateSpanText(
   unitText: string,
   words: string,
 ): { from: number; to: number } | { reason: string } {
-  const lower = unitText.toLowerCase();
-  const wanted = words.toLowerCase();
-  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
-  if (first < 0) return { reason: TEXT_ABSENT };
-  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: TEXT_REPEATED };
-  return { from: first, to: first + wanted.length };
+  const found = locate(unitText, words);
+  return 'reason' in found ? { reason: found.reason } : found;
 }
 
 /**
@@ -646,9 +648,9 @@ export function offsetSpans(entries: readonly Labelled[], window: Window): Label
         if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
           return span;
         const { text, ...rest } = span;
-        const found = locateSpanText(flatten(unit.text).text, text);
+        const found = locate(flatten(unit.text).text, text);
         return 'reason' in found
-          ? { ...rest, from: -1, to: -1, unlocated: found.reason }
+          ? { ...rest, from: -1, to: -1, unlocated: found.reason, unlocatedCode: found.code }
           : { ...rest, ...found };
       }),
     };
@@ -738,9 +740,9 @@ function checkExtras(
         let to: number;
         let shownSpan: string | undefined;
         if ('text' in span && typeof span.text === 'string') {
-          const found = locateSpanText(shown.text, span.text);
+          const found = locate(shown.text, span.text);
           if ('reason' in found) {
-            refuse(spanTextCode(found.reason), `${where}: ${found.reason}`, {
+            refuse(found.code, `${where}: ${found.reason}`, {
               kind: kind.name,
               ...named(span.text),
             });
@@ -750,7 +752,10 @@ function checkExtras(
           shownSpan = span.text;
         } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
           if ('unlocated' in span && typeof span.unlocated === 'string') {
-            refuse(spanTextCode(span.unlocated), `${where}: ${span.unlocated}`, { kind: kind.name });
+            // An entry recorded before the code was kept has none: it reads as `unknown`, not from its text.
+            const kept = span.unlocatedCode;
+            const code = typeof kept === 'string' ? kept : UNKNOWN_CODE;
+            refuse(code, `${where}: ${span.unlocated}`, { kind: kind.name });
             continue;
           }
           ({ from, to } = span);

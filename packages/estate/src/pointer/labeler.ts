@@ -1,6 +1,6 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import type { Recorded, Wire } from './cassette';
-import type { PointerDiagnostic } from './codes';
+import { type PointerDiagnostic, UNKNOWN_CODE } from './codes';
 import type { LabelContext, LabelSet, LinkAnswer, SpanAnswer, Window } from './labels';
 
 /**
@@ -73,29 +73,14 @@ export interface Labeler {
   call?(wire: Wire, set: LabelSet, window: Window, attempt?: number): Promise<Recorded>;
 }
 
-/** The start of each text a labeler gives for an answer it cannot read, and the code of that reason. */
-const ANSWER_CODES: ReadonlyArray<readonly [string, string]> = [
-  ['the answer is not JSON', 'answer-not-json'],
-  ['the answer is not a JSON object', 'answer-not-object'],
-  ['the answer is for another window', 'answer-window-mismatch'],
-  ['the answer is for another set', 'answer-set-mismatch'],
-  ['the answer has no labels list', 'answer-no-labels'],
-  ['a label entry is not', 'answer-entry-malformed'],
-  ['the answer has no probabilities object', 'answer-no-probabilities'],
-];
-
-/** The code of an unreadable answer from its recorded reason: the one place that pairs a reason with its code. */
-export const answerCode = (message: string): string =>
-  ANSWER_CODES.find(([start]) => message.startsWith(start))?.[1] ?? 'answer-unreadable';
-
 /** An answer that cannot be read. The window is retried once, then listed as failed. */
 export class LabelerError extends Error {
-  /** Stable, kebab-case: the reason the answer cannot be read. */
+  /** Stable, kebab-case: the reason the answer cannot be read. Set by the site that raises the error. */
   readonly code: string;
-  constructor(message: string) {
+  constructor(message: string, options: { code?: string } = {}) {
     super(message);
     this.name = 'LabelerError';
-    this.code = answerCode(message);
+    this.code = options.code ?? UNKNOWN_CODE;
   }
 }
 
