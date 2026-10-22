@@ -115,3 +115,35 @@ describe('a condition keeps a target past the window cap', () => {
     expect(kept.failed).toEqual([]);
   });
 });
+
+describe('a section longer than twice the cap is a named failure, never a quiet cut', () => {
+  const run = (text: string) =>
+    pointerScan({
+      files: [{ path: 'notes.md', text }],
+      sets: load(SETS),
+      labelling: singleLabelling(plantedDense((window) => window.units.map((unit) => ({ units: String(unit.n), label: 'order' })))),
+      cassette: new Cassette(),
+      mode: 'record',
+      windowUnits: 4,
+    });
+
+  it('marks the window that ends at its ceiling inside a section, and no other', () => {
+    const units = cut(NOTES).units;
+    const windows = windowsOf('n.md', units, 4, NOTES, true);
+    expect(windows.filter((window) => window.cutsSection).map((window) => window.id)).toEqual(['n.md#1']);
+    expect(windowsOf('n.md', units, 4, NOTES).some((window) => window.cutsSection)).toBe(false);
+  });
+
+  it('lists the cut in the scan result with its window and section', async () => {
+    const result = await run(NOTES);
+    expect(result.sectionCuts).toEqual([
+      expect.stringContaining('notes.md#1: the window ends at its ceiling of 8 units inside the section'),
+    ]);
+    expect(result.sectionCuts[0]).toContain('Night');
+  });
+
+  it('lists nothing when every section fits in twice the cap', async () => {
+    const short = ['# Harbour', '', '## Night', '', '- One', '- Two', '- Three', '- Four', ''].join('\n');
+    expect((await run(short)).sectionCuts).toEqual([]);
+  });
+});

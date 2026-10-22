@@ -135,6 +135,8 @@ export type PointerResult = {
   dropped: string[];
   /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
   outOfStep: string[];
+  /** Windows that end at the ceiling inside a section: a condition in one cannot scope a later unit of it. */
+  sectionCuts: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   usage: LabelerUsage[];
@@ -159,7 +161,7 @@ export function windowsOf(
   let current: Window['units'] = [];
   let shown: ShownLine[] = [];
   let first: Unit | undefined;
-  const flush = () => {
+  const flush = (cutsSection = false) => {
     // A run with no unit to label is not a window: an opaque unit alone sends nothing.
     if (current.length === 0) {
       shown = [];
@@ -171,6 +173,7 @@ export function windowsOf(
       headingPath: first?.path ?? [],
       units: current,
       ...(shown.length > 0 ? { shown } : {}),
+      ...(cutsSection ? { cutsSection: true as const } : {}),
     });
     current = [];
     shown = [];
@@ -200,13 +203,14 @@ export function windowsOf(
       !source.slice(previous.end, unit.start).includes('\n');
     // With `keepSection`, the cap waits for the end of the section, up to twice the cap: a unit that scopes others
     // names them in its own section, and a window that ends inside it would cut the scope from its targets.
-    const sameSection =
+    const inSection =
       keepSection &&
       last !== undefined &&
-      current.length < size * 2 &&
       (units[last.index]?.path ?? []).join('\0') === unit.path.join('\0') &&
       unit.container !== 'heading';
-    if (current.length >= size && !sameRow && !sameSection) flush();
+    const sameSection = inSection && current.length < size * 2;
+    // A cut at the ceiling inside a section is named on the window, never silent.
+    if (current.length >= size && !sameRow && !sameSection) flush(inSection);
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
@@ -365,6 +369,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   );
 
   // 2. The requests: for each member, the windows that hold a unit that needs a label.
+  const sectionCuts = new Map<string, string>();
   const tasks: Task[] = [];
   for (const file of files) {
     const fileCut = cuts.get(file.path) as Cut;
@@ -381,6 +386,11 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           member.cls === 'system2' && (input.keepSections ?? true),
         )) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
+          if (window.cutsSection)
+            sectionCuts.set(
+              `${window.id}`,
+              `${window.id}: the window ends at its ceiling of ${window.units.length} units inside the section ${JSON.stringify(window.headingPath)}; a unit in it cannot scope a later unit of that section`,
+            );
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
               order: tasks.length,
@@ -774,6 +784,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     refusals,
     dropped,
     outOfStep: outOfStepRuns,
+    sectionCuts: [...sectionCuts.values()],
     failed,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),

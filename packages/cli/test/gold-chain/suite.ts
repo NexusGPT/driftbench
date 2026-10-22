@@ -206,6 +206,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
         const problems: string[] = [];
         for (const failure of done.failed) problems.push(`window failed: ${failure}`);
         for (const refusal of [...done.refusals, ...done.atomRefusals]) problems.push(`refused: ${refusal}`);
+        for (const cut of done.sectionCuts) problems.push(`section cut: ${cut}`);
 
         const ledgerAt = new Map(
           done.ledger.entries
