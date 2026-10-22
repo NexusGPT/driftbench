@@ -35,7 +35,16 @@ describe('the held-out harness on a made-up estate', () => {
 
   it('keeps an id that looks like a number as text', () => {
     const truth = parseUnitsTruth(
-      ['version: 1', 'estate: x', 'units:', '  - id: 9651728e54', '    file: a.md', '    text: "A."', 'limits: []', 'non_limits: []'].join('\n'),
+      [
+        'version: 1',
+        'estate: x',
+        'units:',
+        '  - id: 9651728e54',
+        '    file: a.md',
+        '    text: "A."',
+        'limits: []',
+        'non_limits: []',
+      ].join('\n'),
     );
     expect(truth.units.map((unit) => unit.id)).toEqual(['9651728e54']);
   });
