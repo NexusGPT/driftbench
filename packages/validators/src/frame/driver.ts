@@ -626,11 +626,16 @@ export function plainBatchEntry(
  */
 export const RELAY = String.raw`
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { workerData } from 'node:worker_threads';
 const { port, signal, plans, setup } = workerData;
+const began = Date.now();
+const trace = (text) => {
+  if (!setup.trace) return;
+  try { appendFileSync(setup.trace, new Date().toISOString() + ' relay ' + setup.tag + ' +' + (Date.now() - began) + ' ms ' + text + '\n'); } catch {}
+};
 const flag = new Int32Array(signal);
 const reply = (message) => { port.postMessage(message); Atomics.store(flag, 0, 1); Atomics.notify(flag, 0); };
 const runs = plans.map((plan) => {
@@ -646,8 +651,10 @@ const runs = plans.map((plan) => {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   const run = { plan, child, waiting: [], stderr: '', exited: undefined };
+  trace('spawned run ' + plan.run);
   child.stderr.on('data', (chunk) => { run.stderr = (run.stderr + chunk).slice(-4000); });
   child.on('exit', (code, sig) => {
+    trace('run ' + plan.run + ' exited ' + (sig ?? code));
     run.exited = 'the run ' + plan.run + ' ended (' + (sig ?? code) + '): ' + run.stderr.split('\n').slice(-6).join(' ');
     for (const waiter of run.waiting.splice(0)) waiter({ dead: run.exited });
   });
@@ -666,7 +673,7 @@ const ask = (run, line) =>
     run.waiting.push(resolve);
     if (line !== undefined) run.child.stdin.write(line + '\n');
   });
-const ready = await Promise.all(runs.map((run) => ask(run)));
+const ready = await Promise.all(runs.map((run) => ask(run).then((message) => { trace('run ' + run.plan.run + ' answered its start: ' + (message.ready === true ? 'ready' : 'not ready')); return message; })));
 reply({ ready });
 let id = 0;
 port.on('message', async (message) => {
@@ -677,7 +684,8 @@ port.on('message', async (message) => {
   }
   id += 1;
   const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true });
-  const answers = await Promise.all(runs.map((run) => ask(run, line)));
+  const sentAt = Date.now();
+  const answers = await Promise.all(runs.map((run) => ask(run, line).then((answer) => { const took = Date.now() - sentAt; if (took > 10000) trace('run ' + run.plan.run + ' answered ' + message.call + ' after ' + took + ' ms'); return answer; })));
   reply({ answers });
 });
 `;

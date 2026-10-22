@@ -152,6 +152,21 @@ export type Frame<T> = {
 
 type Relay = { worker: Worker; port: MessagePort; flag: Int32Array };
 
+/**
+ * When DRIFTBENCH_FRAME_TRACE names a file, every frame appends a line for each stage of its start, each call that
+ * takes over 10 s, and its close, with the time, so a stall of a framed run can be placed (PR 986: honest products
+ * failed after about 120 s on shared CI runners). Off by default; it records no argument and no answer.
+ */
+const TRACE = process.env.DRIFTBENCH_FRAME_TRACE;
+const traceLine = (tag: string, text: string): void => {
+  if (!TRACE) return;
+  try {
+    appendFileSync(TRACE, `${new Date().toISOString()} pid ${process.pid} ${tag} ${text}\n`);
+  } catch {
+    // a trace that cannot be written changes nothing
+  }
+};
+
 function wait(relay: Relay, ms: number, what: string): Record<string, unknown> {
   const waited = Atomics.wait(relay.flag, 0, 0, ms);
   const reply = receiveMessageOnPort(relay.port)?.message as Record<string, unknown> | undefined;
@@ -444,6 +459,8 @@ function writeBack(args: unknown[], at: number, now: unknown): void {
 /** Runs the product module under the frame. Close the frame when the item is done. */
 export function isolate<T>(options: IsolateOptions): Frame<T> {
   const tag = options.tag ?? options.module;
+  const trace = (text: string) => traceLine(tag, text);
+  trace('isolate begin');
   const module = resolve(options.module);
   // The product runs from a bundle in a folder of its own, in processes that may read that folder and nothing else
   // of the project (confine.ts): the expected values stay in this process and are out of the product's reach.
@@ -519,7 +536,12 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     // A data URL: the relay is an ES module, and it carries no file of the validator into the runs.
     worker: new Worker(new URL(`data:text/javascript,${encodeURIComponent(RELAY)}`), {
       execArgv: [],
-      workerData: { port: port2, signal, plans, setup },
+      workerData: {
+        port: port2,
+        signal,
+        plans,
+        setup: { ...setup, trace: TRACE ? `${TRACE}` : undefined, tag },
+      },
       transferList: [port2],
       stderr: false,
     }),
@@ -528,6 +550,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   };
   relay.worker.unref();
   port1.unref();
+  trace('relay worker created');
   const tape: Tape = [];
   const found: Array<{ at: number; message: string }> = [];
   const aliased: Array<{ at: number; message: string }> = [];
@@ -536,6 +559,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
   let closed = false;
   const close = () => {
     if (closed) return;
+    trace('close begin');
     try {
       flushPlain();
     } catch {
@@ -556,7 +580,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     }
     rmSync(sealFolder, { recursive: true, force: true });
     if (plain) rmSync(plain.dir, { recursive: true, force: true });
+    trace('close end');
   };
+  trace('waiting for the product to load in the three runs');
   const started = wait(relay, START_MS, 'the start of the product') as {
     ready: Array<{
       ready?: boolean;
@@ -565,6 +591,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       shape?: Record<string, { fn?: 1; value?: Json }>;
     }>;
   };
+  trace('product loaded in the three runs');
   const failed = started.ready.find((each) => each.ready !== true);
   if (failed) {
     close();
@@ -631,6 +658,7 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     spent.encodeMs += t1 - t0;
     const took = performance.now() - t1;
     spent.relayMs += took;
+    if (took > 10_000) trace(`slow call ${name}: ${Math.round(took)} ms`);
     const each = byName.get(name) ?? { calls: 0, ms: 0, slow: 0 };
     each.calls += 1;
     each.ms += took;
