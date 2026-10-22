@@ -13,6 +13,13 @@ export {
   stripHint,
 } from './audit';
 export {
+  BEYOND_NOTE,
+  type BeyondLevel,
+  type BeyondSection,
+  type BeyondSeed,
+  splitBeyond,
+} from './beyond';
+export {
   type BankRow,
   type BankSummary,
   type BankVerdict,

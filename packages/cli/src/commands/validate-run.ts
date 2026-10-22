@@ -48,6 +48,7 @@ import {
   seedLabel,
   seedSpecs,
   setLevelTable,
+  splitBeyond,
   statsBankHash,
   writeFloors,
   writeHandover,
@@ -737,12 +738,18 @@ function print(
   root: string,
 ): void {
   if (options.json) {
-    const shown = reports.map((report) => ({
-      ...report,
-      ...(hidden ? { hiddenSeed: hidden } : {}),
-      ...(options.items ? { bank: shownBank(report, options, root) } : {}),
-      ...(options.allLevels ? { failingItems: allFailingItems(report) } : {}),
-    }));
+    const shown = reports.map((report) => {
+      // A ladder that reports them apart puts the levels measured above a seed's first failing level in their own
+      // section, never in the rows.
+      const split = options.allLevels && report.beyondApart ? splitBeyond(report) : undefined;
+      return {
+        ...(split?.report ?? report),
+        ...(hidden ? { hiddenSeed: hidden } : {}),
+        ...(options.items ? { bank: shownBank(report, options, root) } : {}),
+        ...(options.allLevels ? { failingItems: allFailingItems(report) } : {}),
+        ...(split && split.beyond.seeds.length > 0 ? { beyondTheFirstFailingLevel: split.beyond } : {}),
+      };
+    });
     io.out(`${JSON.stringify(all ? { reports: shown } : shown[0], null, 2)}\n`);
     return;
   }

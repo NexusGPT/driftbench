@@ -40,6 +40,8 @@ concurrency:
 # hosted images carry, and under it the module-load tests of tools/perf exit 1.
 jobs:
   ladders-leg:
+    # The estate legs pass --all-levels: they also measure the levels above a seed's first failing level and report
+    # them under `beyondTheFirstFailingLevel`, never in the rows, so the level reached and the verdict are unchanged.
     # One leg is one validator on one seed, or one slice of levels of a long ladder. `--check-floor` caps a leg at
     # the floor of its validator and exits 1 below it. A validator without a floor walks to its first failing
     # level, as a single run does, so each slice of the generator ladder computes its own levels.
@@ -54,19 +56,19 @@ jobs:
           - id: estate-s1
             name: estate seed 1
             component: estate
-            flags: --seed 1
+            flags: --seed 1 --all-levels
           - id: estate-s2
             name: estate seed 2
             component: estate
-            flags: --seed 2
+            flags: --seed 2 --all-levels
           - id: estate-s3
             name: estate seed 3
             component: estate
-            flags: --seed 3
+            flags: --seed 3 --all-levels
           - id: estate-hidden
             name: estate seed hidden
             component: estate
-            flags: --hidden --hidden-only
+            flags: --hidden --hidden-only --all-levels
           - id: judges-s1
             name: judges seed 1
             component: judges

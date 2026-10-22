@@ -51,6 +51,8 @@ export type EstateLadderOptions = {
 export function estateLadder(options: EstateLadderOptions = {}): Ladder {
   return defineLadder({
     component: 'estate',
+    // Its CI legs run with --all-levels: the levels above the first failure are reported apart, never as passes.
+    beyondApart: true,
     levels: BANK_LEVELS.map((level) => {
       const families =
         options.families?.[level.id] ??
