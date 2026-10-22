@@ -91,7 +91,9 @@ export {
 } from './radius';
 export {
   DEFAULT_WINDOW_UNITS,
+  type FailedWindow,
   type LabelerUsage,
+  type LabelFlip,
   type LabelledUnit,
   type MemberPlan,
   OUT_OF_STEP_MIN,
@@ -125,8 +127,13 @@ export {
   type LabellingOptions,
   margin,
   parseLabelerSpec,
+  STACK_VOTES,
+  type StackDecision,
+  type StackRequest,
   singleLabelling,
+  stackDecision,
   stackedLabelling,
+  stackMargin,
 } from './stack';
 export {
   createHttpLabeler,
