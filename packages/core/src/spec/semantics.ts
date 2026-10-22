@@ -101,6 +101,15 @@ export function checkSemantics(spec: Spec): Issue[] {
         ),
       );
     }
+    if (block.given?.after !== undefined && block.given.stage === undefined) {
+      issues.push(
+        error(
+          'GIVEN_AFTER_WITHOUT_STAGE',
+          `blocks.${index}.given.after`,
+          'after names the block that leaves the agent at a stage, and this block writes no stage: add given.stage or remove after',
+        ),
+      );
+    }
     if (block.given?.stage !== undefined && ctx.stages && !ctx.stages.has(block.given.stage)) {
       issues.push(
         error(

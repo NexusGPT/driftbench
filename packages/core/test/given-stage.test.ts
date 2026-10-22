@@ -40,4 +40,30 @@ describe('given.stage', () => {
     expect(loaded.ok).toBe(false);
     expect(codes(loaded)).toEqual(['STAGE_UNKNOWN blocks.0.given.stage']);
   });
+
+  it('takes after with a stage, and refuses after alone or a malformed reference', () => {
+    const ok = validateSpec({
+      id: 'after-ok',
+      stages: ['welcome', 'address'],
+      blocks: [
+        { user: 'hi', given: { prefix, stage: 'address', after: 'other#b1' }, expect: { must: ['hi'] } },
+      ],
+    });
+    expect(ok.ok).toBe(true);
+    const alone = validateSpec({
+      id: 'after-alone',
+      stages: ['welcome', 'address'],
+      blocks: [{ user: 'hi', given: { prefix, after: 'other#b1' }, expect: { must: ['hi'] } }],
+    });
+    expect(alone.ok).toBe(false);
+    expect(codes(alone)).toEqual(['GIVEN_AFTER_WITHOUT_STAGE blocks.0.given.after']);
+    const malformed = validateSpec({
+      id: 'after-bad',
+      stages: ['welcome', 'address'],
+      blocks: [
+        { user: 'hi', given: { prefix, stage: 'address', after: 'no hash' }, expect: { must: ['hi'] } },
+      ],
+    });
+    expect(malformed.ok).toBe(false);
+  });
 });

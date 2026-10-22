@@ -254,6 +254,13 @@ export const GivenOverride = z
       .describe(
         'The stage the agent is at when this block starts. Only with a prefix on the same block; a validator reads it where the earlier blocks that would say it are not written.',
       ),
+    after: z
+      .string()
+      .regex(/^[^#\s]+#[^#\s]+$/)
+      .optional()
+      .describe(
+        'The block of a written spec this prefix is taken after, as <spec id>#<block id>. Only with a stage on the same block: a validator reads the stage only when that block leaves the agent at it after the same history.',
+      ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()

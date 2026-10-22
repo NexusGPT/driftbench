@@ -43,7 +43,7 @@ A fact the agent learnt from a tool belongs in the prefix as a tool call with it
 
 `origin` is optional and needs a `prefix` on the same block (`GIVEN_ORIGIN_WITHOUT_PREFIX` otherwise). It holds for the blocks after it until a block writes another prefix. It enters the Given hash and the spec hash only when present, so a spec without it keeps its hashes, and results with different origins are never pooled: a report and `compare` key results on the spec hash.
 
-`stage` is optional and needs a `prefix` on the same block (`GIVEN_STAGE_WITHOUT_PREFIX` otherwise). It names the stage the agent is at when the block starts, for a walk that starts from a prefix instead of replaying the blocks before; a validator reads it where those blocks are not written. It is not part of the Given hash.
+`stage` is optional and needs a `prefix` on the same block (`GIVEN_STAGE_WITHOUT_PREFIX` otherwise). It names the stage the agent is at when the block starts, for a walk that starts from a prefix instead of replaying the blocks before; a validator reads it where those blocks are not written. It is not part of the Given hash. `after` (`<spec id>#<block id>`) names the block of a written spec the prefix is taken after; a validator reads `stage` only when that block leaves the agent at that stage after the same history, so a stage that no written walk confirms is not read.
 
 ```yaml
 - user: What is my callback reference?

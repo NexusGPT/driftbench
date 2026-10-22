@@ -255,6 +255,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block's `given.origin` says where a prefix comes from, and the block writes no `given.prefix` |
 | `GIVEN_STAGE_WITHOUT_PREFIX` | error | a block's `given.stage` says where a prefix leaves the agent, and the block writes no `given.prefix` |
+| `GIVEN_AFTER_WITHOUT_STAGE` | error | a block's `given.after` names the block that leaves the agent at a stage, and the block writes no `given.stage` |
 | `OBJECT_INVALID` | error | an object file, an inline object in `uses` or a `uses.yaml` does not fit the object format, or a file sits at a path that does not match its kind and id |
 | `OBJECT_KIND_UNKNOWN` | error | an object names a kind no package or plugin registered; the message lists the known kinds |
 | `OBJECT_UNKNOWN` | error | `uses` names an object no layer defines; the message names the spec, the block, the kind, the id and the layers searched |
