@@ -57,6 +57,8 @@ type RWindow = {
   path: string;
   headingPath: string[];
   units: Array<{ n: number; text: string; index: number }>;
+  /** The lines the labeler reads and cannot label, by their number among the lines of the window. */
+  display?: Array<{ n: number; mode: 'context' | 'opaque' | 'read'; text: string; index?: number }>;
 };
 type RLabelled = { units: string; label: string; target?: number };
 type RRecorded = {
@@ -389,16 +391,26 @@ function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<s
           id: window.id,
           file: window.path,
           path: window.headingPath,
-          units: window.units.map((u) => {
-            const unit = cutOf?.units[u.index];
-            return {
-              n: u.n,
-              text: u.text,
-              container: unit ? bankContainer(unit) : 'sentence',
-              path: unit?.path ?? window.headingPath,
-              mode: unit?.container === 'opaque' ? ('opaque' as const) : ('label' as const),
-            };
-          }),
+          units: [
+            ...window.units.map((u) => ({ n: u.n, index: u.index, text: u.text, mode: 'label' as const })),
+            ...(window.display ?? []).map((line) => ({
+              n: line.n,
+              index: line.index,
+              text: line.text,
+              mode: line.mode,
+            })),
+          ]
+            .sort((a, b) => a.n - b.n)
+            .map((u) => {
+              const unit = u.index === undefined ? undefined : cutOf?.units[u.index];
+              return {
+                n: u.n,
+                text: u.mode === 'opaque' ? (unit?.text ?? u.text) : u.text,
+                container: unit ? bankContainer(unit) : 'sentence',
+                path: unit?.path ?? window.headingPath,
+                mode: u.mode,
+              };
+            }),
         },
       });
       const labels =
