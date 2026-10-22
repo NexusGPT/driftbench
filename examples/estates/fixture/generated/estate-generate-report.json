@@ -3,29 +3,30 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
-    "atoms": 125
+    "hash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
+    "atoms": 116
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1568,
-    "approved": 1568,
+    "rows": 1424,
+    "approved": 1424,
     "proposed": 0,
     "struck": 0
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 26,
-    "phrases": 50,
+    "situations": 31,
+    "phrases": 60,
     "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
-    "sessions": 3
+    "sessions": 9
   },
   "options": {
     "seed": 1,
     "checks": [
+      "absence",
       "grounded_values",
       "guard_finished",
       "guard_message",
@@ -41,17 +42,181 @@
     "judge": true
   },
   "summary": {
-    "specs": 1568,
-    "blocks": 1563,
-    "complete": 1360,
-    "incomplete": 208,
-    "judged": 348
+    "specs": 1417,
+    "blocks": 1412,
+    "complete": 1411,
+    "incomplete": 6,
+    "judged": 777
+  },
+  "incomplete": [
+    {
+      "spec": "estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "path": "incomplete/live/twin/estate.twin.instruction.ledger-auditor.look-for-the-same-invoice-number.yaml",
+      "row": "twin.instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "instruction.ledger-auditor.look-for-the-same-invoice-number",
+          "detail": "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
+        }
+      ]
+    },
+    {
+      "spec": "estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
+      "row": "guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
+          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task"
+        }
+      ]
+    },
+    {
+      "spec": "estate.guard_negative.guard.settings.stop-guard-reply-length-py",
+      "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml",
+      "row": "guard_negative.guard.settings.stop-guard-reply-length-py",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act"
+        }
+      ]
+    },
+    {
+      "spec": "estate.stage_skip.stage.steps.stage-plan-restate-the-ask-and",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-plan-restate-the-ask-and.yaml",
+      "row": "stage_skip.stage.steps.stage-plan-restate-the-ask-and",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "stage.steps.stage-plan-restate-the-ask-and",
+          "detail": "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with"
+        }
+      ]
+    },
+    {
+      "spec": "estate.stage_skip.stage.steps.stage-do-make-the-change",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-do-make-the-change.yaml",
+      "row": "stage_skip.stage.steps.stage-do-make-the-change",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "stage.steps.stage-do-make-the-change",
+          "detail": "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with"
+        }
+      ]
+    },
+    {
+      "spec": "estate.stage_skip.stage.steps.stage-report-tell-the-user-what",
+      "path": "incomplete/live/stage_skip/estate.stage_skip.stage.steps.stage-report-tell-the-user-what.yaml",
+      "row": "stage_skip.stage.steps.stage-report-tell-the-user-what",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "stage.steps.stage-report-tell-the-user-what",
+          "detail": "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with"
+        }
+      ]
+    }
+  ],
+  "equivalence": {
+    "collapsed": 7,
+    "groups": [
+      {
+        "spec": "estate.route_positive.route.supplier-email.an-ask-that-fits-supplier-email.1",
+        "count": 2,
+        "atoms": [
+          "route.supplier-email.an-ask-that-fits-supplier-email",
+          "skill.supplier-email.skill-supplier-email"
+        ],
+        "rows": [
+          "route_positive.route.supplier-email.an-ask-that-fits-supplier-email.1",
+          "route_positive.route.supplier-email.an-ask-that-fits-supplier-email.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.1",
+        "count": 2,
+        "atoms": [
+          "route.ledger-auditor.an-ask-that-fits-ledger-auditor",
+          "subagent.ledger-auditor.helper-ledger-auditor"
+        ],
+        "rows": [
+          "route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.1",
+          "route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.route-planner.an-ask-that-fits-route-planner.1",
+        "count": 2,
+        "atoms": [
+          "route.route-planner.an-ask-that-fits-route-planner",
+          "subagent.route-planner.helper-route-planner"
+        ],
+        "rows": [
+          "route_positive.route.route-planner.an-ask-that-fits-route-planner.1",
+          "route_positive.route.route-planner.an-ask-that-fits-route-planner.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.standing.an-ask-to-write-to-or.1",
+        "count": 2,
+        "atoms": ["route.standing.an-ask-to-write-to-or", "skill.supplier-email.skill-supplier-email"],
+        "rows": [
+          "route_positive.route.standing.an-ask-to-write-to-or.1",
+          "route_positive.route.standing.an-ask-to-write-to-or.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.standing.an-ask-to-prepare-the-weekly.1",
+        "count": 2,
+        "atoms": ["route.standing.an-ask-to-prepare-the-weekly", "skill.weekly-report.skill-weekly-report"],
+        "rows": [
+          "route_positive.route.standing.an-ask-to-prepare-the-weekly.1",
+          "route_positive.route.standing.an-ask-to-prepare-the-weekly.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.standing.an-ask-to-audit-the-ledger.1",
+        "count": 2,
+        "atoms": [
+          "route.standing.an-ask-to-audit-the-ledger",
+          "subagent.ledger-auditor.helper-ledger-auditor"
+        ],
+        "rows": [
+          "route_positive.route.standing.an-ask-to-audit-the-ledger.1",
+          "route_positive.route.standing.an-ask-to-audit-the-ledger.3"
+        ]
+      },
+      {
+        "spec": "estate.route_positive.route.standing.an-ask-to-plan-the-delivery.1",
+        "count": 2,
+        "atoms": [
+          "route.standing.an-ask-to-plan-the-delivery",
+          "subagent.route-planner.helper-route-planner"
+        ],
+        "rows": [
+          "route_positive.route.standing.an-ask-to-plan-the-delivery.1",
+          "route_positive.route.standing.an-ask-to-plan-the-delivery.3"
+        ]
+      }
+    ]
+  },
+  "quality": {
+    "completeShare": 0.9957657021877205,
+    "askedTests": 1403,
+    "distinctAsks": 110,
+    "distinctAsksPer100": 7.840342124019958
   },
   "unit": {
-    "tests": 26,
+    "tests": 29,
     "guards": 6,
     "scripts": 2,
-    "cases": 54,
+    "helpers": 3,
+    "cases": 57,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -61,58 +226,57 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 919,
-      "session": 0,
+      "bank": 414,
+      "code": 983,
+      "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 981,
-      "no-change:denied": 2,
-      "no-change:guard": 27,
-      "no-change:negative": 58,
-      "no-change:read-only": 17,
-      "no-delete": 267,
+      "bank": 910,
+      "no-change:guard": 26,
+      "no-change:negative": 44,
+      "no-change:read-only": 72,
+      "no-delete": 351,
       "static": 8
     },
-    "judged": 201
+    "judged": 496
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 603,
-      "specs": 603,
-      "complete": 447,
-      "incomplete": 156
+      "rows": 435,
+      "specs": 435,
+      "complete": 435,
+      "incomplete": 0
     },
     "outside_trigger": {
-      "rows": 43,
-      "specs": 43,
-      "complete": 43,
+      "rows": 31,
+      "specs": 31,
+      "complete": 31,
       "incomplete": 0
     },
     "twin": {
-      "rows": 43,
-      "specs": 43,
-      "complete": 36,
-      "incomplete": 7
+      "rows": 31,
+      "specs": 31,
+      "complete": 30,
+      "incomplete": 1
     },
     "ordered_pair": {
-      "rows": 112,
-      "specs": 112,
-      "complete": 98,
-      "incomplete": 14
+      "rows": 84,
+      "specs": 84,
+      "complete": 84,
+      "incomplete": 0
     },
     "skip_pressure": {
-      "rows": 8,
-      "specs": 8,
+      "rows": 6,
+      "specs": 6,
       "complete": 6,
-      "incomplete": 2
+      "incomplete": 0
     },
     "route_positive": {
       "rows": 260,
-      "specs": 260,
-      "complete": 260,
+      "specs": 253,
+      "complete": 253,
       "incomplete": 0
     },
     "route_near_miss": {
@@ -128,10 +292,10 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 9,
-      "specs": 9,
-      "complete": 1,
-      "incomplete": 8
+      "rows": 8,
+      "specs": 8,
+      "complete": 8,
+      "incomplete": 0
     },
     "script_fixture": {
       "rows": 2,
@@ -160,14 +324,14 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 78,
-      "incomplete": 6
+      "complete": 84,
+      "incomplete": 0
     },
     "guard_negative": {
       "rows": 6,
       "specs": 6,
-      "complete": 6,
-      "incomplete": 0
+      "complete": 4,
+      "incomplete": 2
     },
     "guard_hostile": {
       "rows": 6,
@@ -190,8 +354,8 @@
     "tool_boundary": {
       "rows": 9,
       "specs": 9,
-      "complete": 8,
-      "incomplete": 1
+      "complete": 9,
+      "incomplete": 0
     },
     "tool_denied": {
       "rows": 3,
@@ -208,8 +372,8 @@
     "stage_skip": {
       "rows": 4,
       "specs": 4,
-      "complete": 4,
-      "incomplete": 0
+      "complete": 1,
+      "incomplete": 3
     },
     "stage_anytime": {
       "rows": 1,
@@ -218,15 +382,15 @@
       "incomplete": 0
     },
     "register_sample": {
-      "rows": 200,
-      "specs": 200,
-      "complete": 187,
-      "incomplete": 13
+      "rows": 280,
+      "specs": 280,
+      "complete": 280,
+      "incomplete": 0
     },
     "hazard_recovery": {
-      "rows": 2,
-      "specs": 2,
-      "complete": 2,
+      "rows": 1,
+      "specs": 1,
+      "complete": 1,
       "incomplete": 0
     },
     "invariant": {
@@ -244,121 +408,90 @@
     "journey": {
       "rows": 10,
       "specs": 10,
-      "complete": 9,
-      "incomplete": 1
+      "complete": 10,
+      "incomplete": 0
     }
   },
   "perMode": {
     "replay": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "unit": {
       "rows": 37,
       "specs": 37,
-      "complete": 37,
-      "incomplete": 0
+      "complete": 35,
+      "incomplete": 2
     },
     "live": {
-      "rows": 1525,
-      "specs": 1525,
-      "complete": 1323,
-      "incomplete": 202
+      "rows": 1381,
+      "specs": 1374,
+      "complete": 1370,
+      "incomplete": 4
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
-      "atoms": [
-        "gate.standing.read-claude-skills-invoice-reconcile-references",
-        "instruction.invoice-reconcile.a-line-matches-on-article-code",
-        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
-        "instruction.ledger-auditor.a-brief-missing-a-number-gets",
-        "instruction.memory-memory.no-delivery-on-a-public-holiday",
-        "instruction.memory-memory.the-weekly-report-is-due-monday",
-        "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
-        "instruction.shipment-tracker.on-a-carrier-error-say-so",
-        "instruction.standing.after-a-compaction-re-read-the",
-        "instruction.standing.after-two-failures-of-a-tool",
-        "instruction.standing.on-stop-stop-all-work-and",
-        "instruction.supplier-email.a-loose-yes-is-not-a",
-        "instruction.supplier-email.no-price-or-date-in-a",
-        "reference.invoice-reconcile.read-references-currency-table-md",
-        "reference.invoice-reconcile.read-references-matching-rules-md",
-        "reference.memory-memory.read-supplier-languages-md",
-        "reference.standing.read-claude-memory-memory-md",
-        "reference.standing.read-claude-skills-invoice-reconcile-references",
-        "reference.standing.read-claude-steps-json",
-        "reference.supplier-email.read-claude-memory-supplier-languages-md",
-        "reference.weekly-report.read-references-kpi-definitions-md",
-        "register.route-planner.the-plan-is-a-table-of"
-      ],
-      "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
-        "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-memory.the-weekly-report-is-due-monday (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.shipment-tracker.on-a-carrier-error-say-so (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.after-a-compaction-re-read-the (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.after-two-failures-of-a-tool (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.on-stop-stop-all-work-and (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.supplier-email.a-loose-yes-is-not-a (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\"",
-        "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\"",
-        "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\"",
-        "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act names the file .claude/steps.json: \"read .claude/steps.json\"",
-        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\"",
-        "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
-        "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
-        "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
-        "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
-      ]
-    },
-    {
-      "marker": "needs-existing-file",
-      "specs": 2,
-      "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
-      "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
-    },
-    {
-      "marker": "needs-ordered-anchor",
-      "specs": 15,
-      "atoms": ["gate.invoice-reconcile.read-references-matching-rules-md-before"],
-      "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
-    },
-    {
-      "marker": "needs-recorded-session",
       "specs": 6,
       "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
+        "instruction.ledger-auditor.look-for-the-same-invoice-number",
+        "stage.steps.stage-do-make-the-change",
+        "stage.steps.stage-plan-restate-the-ask-and",
+        "stage.steps.stage-report-tell-the-user-what"
       ],
       "details": [
-        "no recorded session of force-push",
-        "no recorded session of invoice-file-edit",
-        "no recorded session of stop-word",
-        "no recorded session of this situation"
+        "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): it names no task",
+        "no task in the atom's words (register.standing.keep-every-reply-under-1-200 (enforced by guard.settings.stop-guard-reply-length-py)): the guard watches no tool an owner can ask to use, and its rule names no act",
+        "no task in the atom's words (stage.steps.stage-do-make-the-change (fields)): its atoms declare no act text a user asks with",
+        "no task in the atom's words (stage.steps.stage-plan-restate-the-ask-and (fields)): its atoms declare no act text a user asks with",
+        "no task in the atom's words (stage.steps.stage-report-tell-the-user-what (fields)): its atoms declare no act text a user asks with",
+        "no usable situation (route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)): the situation holds code ({\"status\":): \"When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.\""
       ]
-    },
-    {
-      "marker": "needs-registered-check",
-      "specs": 1,
-      "atoms": ["tool.settings.ask-bash-git-commit"],
-      "details": ["permission ask: the trace does not show the prompt"]
     }
   ],
-  "replay": [],
+  "replay": [
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.force-push-blocked",
+      "session": "force-push-blocked",
+      "planRow": "guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before.invoice-edit-gated",
+      "session": "invoice-edit-gated",
+      "planRow": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.ledger-file-removed",
+      "session": "ledger-file-removed",
+      "planRow": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.stop-word-nudged",
+      "session": "stop-word-nudged",
+      "planRow": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py.long-reply-trimmed",
+      "session": "long-reply-trimmed",
+      "planRow": "guard_positive.guard.settings.stop-guard-reply-length-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.carrier-code-required",
+      "session": "carrier-code-required",
+      "planRow": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+      "expect": "pass"
+    }
+  ],
   "waiting": [],
   "struck": [],
   "invalid": [],

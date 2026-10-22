@@ -4,7 +4,14 @@ import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-ge
 import type { Recorded } from './cassette';
 import { sha } from './cut';
 import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser, SPAN_RULE } from './dense';
-import { type Labeler, type LabelerClass, LabelerConfigError, LabelerError, usageOf } from './labeler';
+import {
+  type Labeler,
+  type LabelerClass,
+  LabelerConfigError,
+  LabelerError,
+  refusingKey,
+  usageOf,
+} from './labeler';
 import { type LabelContext, type LabelSet, offsetSpans, type Window } from './labels';
 import {
   askedLabels,
@@ -35,7 +42,7 @@ export type UserOptions = {
   maxQuestions?: number;
   /** Inside a stack: leave the labels that ask for a target to the system 2 labeler. */
   skipTargetLabels?: boolean;
-  /** A system 2 labeler: how many times a window is asked; a unit takes a label only when every run agrees. */
+  /** A system 2 labeler: how many times a window is asked; a unit takes the label more than half of the runs give. */
   runs?: number;
 };
 
@@ -186,12 +193,14 @@ export function createHttpLabeler(options: HttpLabelerOptions): Labeler {
       headers = { authorization: `Bearer ${key}` };
     }
     send = (body) =>
-      postJson(
-        options.url,
-        headers,
-        body,
-        (status) => `${status}: the labeler endpoint answered with an error`,
-        options,
+      refusingKey(`the labeler endpoint ${target.host}`, () =>
+        postJson(
+          options.url,
+          headers,
+          body,
+          (status) => `${status}: the labeler endpoint answered with an error`,
+          options,
+        ),
       );
   }
   return labelerOf(

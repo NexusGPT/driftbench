@@ -70,3 +70,11 @@ export {
   type YesNoQuestion,
 } from './reader';
 export { createScopedConditionProposer } from './scoped-proposer';
+export {
+  type SourceRefusal,
+  type SpanLabel,
+  type VariableSources,
+  type VariablesFromSources,
+  type VariablesFromSourcesOptions,
+  variablesFromSources,
+} from './sources';

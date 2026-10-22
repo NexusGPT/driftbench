@@ -5,7 +5,7 @@ id: gen-behaviour-balance-053
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-010: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -144,7 +144,7 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -206,7 +206,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -240,7 +240,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: address-to-offer
           stage: offer
       relation: derived_from
@@ -266,7 +266,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: offer-to-callback
           stage: callback
       relation: derived_from
@@ -316,7 +316,7 @@ metadata:
           coverage_result: fiber
           plan_choice: asks-for-callback
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: callback-to-handover
           stage: handover
       relation: derived_from

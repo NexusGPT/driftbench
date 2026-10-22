@@ -1,4 +1,5 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
+import { AGENT_RULES_TIE_BREAK } from './agent-rules';
 import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
 import { type Cut, cut, type Unit } from './cut';
 import {
@@ -15,6 +16,7 @@ import {
   type LabelContext,
   type LabelSet,
   type LinkAnswer,
+  type ShownLine,
   type SpanAnswer,
   setHash,
   type Window,
@@ -120,9 +122,15 @@ export type PointerResult = {
   unlabeled: number;
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
-  /** Units whose runs agreed on the label but not on the spans or links: they keep the label and lose both. */
+  /** Units whose runs agreed on the label but drew the spans or links differently: the first run's stand. */
   spanSplit: number;
+  /** Units a member decided by a majority of its runs instead of all of them. */
+  voted: number;
   refusals: string[];
+  /** Spans and links of accepted answers that failed a check and were dropped: the label stood without them. */
+  dropped: string[];
+  /** Runs left out of the vote of a window because they were out of step with its units (`outOfStep`). */
+  outOfStep: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
   usage: LabelerUsage[];
@@ -130,37 +138,95 @@ export type PointerResult = {
   recorded: number;
 };
 
-/** Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count. */
-export function windowsOf(path: string, units: readonly Unit[], size: number): Window[] {
+/**
+ * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
+ * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
+ * the next needs both in the window.
+ */
+export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
   let current: Window['units'] = [];
+  let shown: ShownLine[] = [];
   let first: Unit | undefined;
   const flush = () => {
-    if (current.length === 0) return;
+    // A run with no unit to label is not a window: an opaque unit alone sends nothing.
+    if (current.length === 0) {
+      shown = [];
+      return;
+    }
     windows.push({
       id: `${path}#${windows.length + 1}`,
       path,
       headingPath: first?.path ?? [],
       units: current,
+      ...(shown.length > 0 ? { shown } : {}),
     });
     current = [];
+    shown = [];
     first = undefined;
   };
   for (const [index, unit] of units.entries()) {
-    // A fence or comment is opaque: it is never shown to the labeler, so no label can point at it.
-    if (unit.container === 'opaque') continue;
+    // A fence or comment is opaque: no label can point at it. The labeler reads it as context, by its kind and its
+    // first line (design: "shown to the labeler as the fence kind and its first line only").
+    if (unit.container === 'opaque') {
+      const kind = /^\s*(```|~~~)/.test(unit.text) ? 'fence' : 'comment';
+      shown.push({
+        after: current.length,
+        // Only the first line, whatever the line endings of the file (LF, CRLF or a lone CR).
+        text: `(${kind}, not labelable) ${unit.text.split(/\r\n|\r|\n/, 1)[0] ?? ''}`,
+      });
+      continue;
+    }
+    // A window filled to its cap is flushed only when the next unit to label arrives, so that an opaque unit that
+    // follows it still attaches to it as trailing context; a cell of the same table row as the last unit stays with
+    // it, so a row is never split across two windows.
+    const last = current.at(-1);
+    const previous = last === undefined ? undefined : units[last.index];
+    const sameRow =
+      source !== undefined &&
+      previous?.container === 'table_cell' &&
+      unit.container === 'table_cell' &&
+      !source.slice(previous.end, unit.start).includes('\n');
+    if (current.length >= size && !sameRow) flush();
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
-    if (current.length >= size) flush();
   }
   flush();
   return windows;
 }
 
+/**
+ * A run of a window is out of step when more than a quarter of the clauses it quotes (and at least four) are not in
+ * the unit it puts them on: its unit numbers have slipped, so its labels belong to neighbouring units. Such a run is
+ * no voice in the vote of that window. On the Northwind fixture the slipped run quotes 22 clauses and misses 7; the
+ * runs in step miss 2 of 20 and 2 of 11 (clauses reworded, not misplaced).
+ */
+export const OUT_OF_STEP_SHARE = 0.25;
+export const OUT_OF_STEP_MIN = 4;
+
+/** The quoted and unlocated clause counts of an out-of-step answer, or undefined when the run is in step. */
+export function outOfStep(answer: unknown): { quoted: number; unlocated: number } | undefined {
+  const labels = (answer as { labels?: unknown })?.labels;
+  if (!Array.isArray(labels)) return undefined;
+  let quoted = 0;
+  let unlocated = 0;
+  for (const entry of labels) {
+    const spans = (entry as { spans?: unknown })?.spans;
+    if (!Array.isArray(spans)) continue;
+    for (const span of spans) {
+      quoted++;
+      if (typeof (span as { unlocated?: unknown })?.unlocated === 'string') unlocated++;
+    }
+  }
+  return unlocated >= OUT_OF_STEP_MIN && unlocated > quoted * OUT_OF_STEP_SHARE
+    ? { quoted, unlocated }
+    : undefined;
+}
+
+// A refused answer (a refusal, a stop at max_tokens) is retried once like an unreadable one, then fails.
 const RETRYABLE = (cause: unknown): boolean =>
-  cause instanceof LabelerError ||
-  (cause instanceof ModelError && cause.code !== 'config' && cause.code !== 'refusal');
+  cause instanceof LabelerError || (cause instanceof ModelError && cause.code !== 'config');
 
 /** A failure that stops the run: nothing the next window does can fix it. */
 const FATAL = (cause: unknown): boolean =>
@@ -287,7 +353,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size))) {
+        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
@@ -377,7 +443,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       }
     }
     // An answer that cannot be read twice is the model's, not the network's: it is recorded, so the failure
-    // replays with no call. Any other failure (a refusal, a transport error) is not recorded.
+    // replays with no call. Any other failure (a refusal twice, a transport error) is not recorded.
     if (failure instanceof LabelerError) {
       const unreadable: Recorded = {
         returnedModel: member.model,
@@ -427,15 +493,28 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     }
     const half = Math.ceil(window.units.length / 2);
     const renumber = (list: Window['units']) => list.map((unit, at) => ({ ...unit, n: at + 1 }));
+    // The shown lines follow their units: the first half keeps those up to the split, the second the rest.
+    const shownIn = (from: number, to: number): { shown?: ShownLine[] } => {
+      const lines = (window.shown ?? [])
+        .filter(
+          (line) =>
+            line.after >= from && (line.after < to || (to === window.units.length && line.after === to)),
+        )
+        .map((line) => ({ ...line, after: line.after - from }));
+      return lines.length > 0 ? { shown: lines } : {};
+    };
+    const { shown: _shown, ...bare } = window;
     const first = await resolve(task, {
-      ...window,
+      ...bare,
       id: `${window.id}a`,
       units: renumber(window.units.slice(0, half)),
+      ...shownIn(0, half),
     });
     const second = await resolve(task, {
-      ...window,
+      ...bare,
       id: `${window.id}b`,
       units: renumber(window.units.slice(half)),
+      ...shownIn(half, window.units.length),
     });
     return { leaves: [...first.leaves, ...second.leaves], failures: [...first.failures, ...second.failures] };
   }
@@ -448,7 +527,9 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
 
   // 4. The opinions of each member, by unit, then one decision per unit that needed a label.
   const refusals: string[] = [];
+  const dropped: string[] = [];
   const failed: string[] = [];
+  const outOfStepRuns: string[] = [];
   let windows = 0;
   // The opinions by file and set, then by member, then by run.
   const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
@@ -469,8 +550,17 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failed.push(...outcome.value.failures);
     for (const leaf of outcome.value.leaves) {
       windows++;
+      // Only a member with several runs votes, so only its runs can be left out.
+      const slipped = (task.member.runs ?? 1) > 1 ? outOfStep(leaf.answer) : undefined;
+      if (slipped) {
+        outOfStepRuns.push(
+          `${leaf.window.id} run ${task.run} of ${task.member.id}: ${slipped.unlocated} of ${slipped.quoted} quoted clauses are not in their unit; the run is left out of the vote`,
+        );
+        continue;
+      }
       const read = task.member.opinions(leaf.answer, task.set, leaf.window, task.context);
       refusals.push(...read.refusals);
+      dropped.push(...(read.dropped ?? []));
       const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
         task.run - 1
       ] as Map<number, Opinion>;
@@ -480,34 +570,67 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   /**
-   * The opinion of a member for a unit: with several runs, the label every run gave (and the same target); a run
-   * that is missing or that differs leaves the member without an opinion, counted as a split when runs disagree.
+   * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
+   * the runs gave: three of five by default. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
+   * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
+   * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
+   * label with any; a difference between runs is counted.
    */
   let split = 0;
   let spanSplit = 0;
-  const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
+  let voted = 0;
+  /**
+   * The specific side of an even split between the generic label and one specific label, two runs at least on each
+   * side; undefined for any other tally (three labels, two specific ones, a single run on a side).
+   */
+  const tieBroken = (tally: ReadonlyMap<string, Opinion[]>, set: LabelSet): Opinion[] | undefined => {
+    const rule = tieBreaks[set.set];
+    const groups = [...tally.values()];
+    if (!rule || groups.length !== 2) return undefined;
+    const [one, two] = groups as [Opinion[], Opinion[]];
+    if (one.length !== two.length || one.length < 2) return undefined;
+    const generic = (group: Opinion[]) => group[0]?.label === rule.generic;
+    const specific = (group: Opinion[]) => rule.specific.includes(group[0]?.label ?? '');
+    if (generic(one) && specific(two)) return two;
+    if (generic(two) && specific(one)) return one;
+    return undefined;
+  };
+  /** The tie breaks by set name: the shipped set's (`AGENT_RULES_TIE_BREAK`); a user set has none. */
+  const tieBreaks: Record<string, typeof AGENT_RULES_TIE_BREAK> = { 'agent-rules': AGENT_RULES_TIE_BREAK };
+  const opinionOf = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+  ): Opinion | undefined => {
     const given = runs.map((run) => run.get(index));
     const first = given[0];
     if (given.length === 1) return first;
-    if (given.some((opinion) => !opinion)) return undefined;
-    const same = given.every(
-      (opinion) => opinion?.label === first?.label && opinion?.target === first?.target,
-    );
-    if (!same || !first) {
-      split++;
+    const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const tally = new Map<string, Opinion[]>();
+    for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
+    const unanimous = present.length === given.length && tally.size === 1;
+    const majority =
+      [...tally.values()].find((group) => group.length * 2 > given.length) ?? tieBroken(tally, set);
+    const winners = unanimous ? present : majority;
+    if (!winners?.[0]) {
+      if (present.length === given.length) split++;
       return undefined;
     }
-    // The label and target are unanimous. Spans and links count only when every run gave the same: runs that
-    // differ on them lose them (no span, no ask) and keep the label.
+    if (!unanimous) voted++;
+    // Spans and links are descriptions of where the clauses sit, not part of the label: runs that gave the label
+    // often draw a clause a word apart. The first run that gave any is kept, and the disagreement is counted.
     const extras = (opinion: Opinion | undefined) => JSON.stringify([opinion?.spans, opinion?.links]);
-    const agree = given.every((opinion) => extras(opinion) === extras(first));
-    if (!agree) spanSplit++;
-    const { spans, links, ...rest } = first;
+    if (!winners.every((opinion) => extras(opinion) === extras(winners[0]))) spanSplit++;
+    const { spans, links, ...rest } = winners[0];
+    const spanned = winners.find((opinion) => opinion.spans);
+    const linked = winners.find((opinion) => opinion.links);
     return {
       ...rest,
-      ...(agree && spans ? { spans } : {}),
-      ...(agree && links ? { links } : {}),
-      source: given.map((opinion) => opinion?.source ?? '').join('+'),
+      ...(spanned?.spans ? { spans: spanned.spans } : {}),
+      ...(linked?.links ? { links: linked.links } : {}),
+      source: winners.map((opinion) => opinion.source ?? '').join('+'),
     };
   };
 
@@ -524,7 +647,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index)),
+          byMember.map((runs) => opinionOf(runs, index, set)),
           set,
         );
         if (!decision) {
@@ -612,7 +735,10 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     unlabeled,
     split,
     spanSplit,
+    voted,
     refusals,
+    dropped,
+    outOfStep: outOfStepRuns,
     failed,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),

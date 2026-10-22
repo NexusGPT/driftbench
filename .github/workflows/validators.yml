@@ -229,13 +229,18 @@ jobs:
             flags: --hidden --hidden-only --levels 18..19
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      # The estate legs fetch the whole history: maintain.fixture.git-versions reads the fixture at its pinned commit.
       - uses: actions/checkout@v7
         id: checkout
         timeout-minutes: 3
         continue-on-error: true
+        with:
+          fetch-depth: ${{ matrix.component == 'estate' && '0' || '1' }}
       - uses: actions/checkout@v7
         if: steps.checkout.outcome != 'success'
         timeout-minutes: 10
+        with:
+          fetch-depth: ${{ matrix.component == 'estate' && '0' || '1' }}
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -692,12 +697,30 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
+      # The labels of the condition spans are a recording made on a Mac and kept on the data branch
+      # `cassettes/variables-spans`, one file per measured commit (`<sha>.jsonl`). The measure replays it and calls no
+      # model. A missing file fails the job. A dispatch that names `variables-spans-collect` in `jobs` is the collector
+      # run instead: it measures without labels and uploads the spans it read, for the labeller to record.
+      - name: Fetch the span cassette
+        id: cassette
+        if: ${{ !contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') }}
+        shell: bash
+        run: |
+          git fetch --depth=1 origin cassettes/variables-spans
+          if ! git show "FETCH_HEAD:${GITHUB_SHA}.jsonl" > "$RUNNER_TEMP/spans-cassette.jsonl"; then
+            echo "::error::no span cassette for ${GITHUB_SHA} on cassettes/variables-spans: run the collector, then the labeller"
+            exit 1
+          fi
+          echo "path=$RUNNER_TEMP/spans-cassette.jsonl" >> "$GITHUB_OUTPUT"
       - name: Measure the shard
         shell: bash
         env:
           SEEDS: ${{ matrix.seeds }}
           HIDDEN: ${{ matrix.hidden && '--hidden' || '' }}
+          DRIFTBENCH_VARIABLES_CASSETTE: ${{ steps.cassette.outputs.path }}
+          COLLECT: ${{ contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') && 'yes' || '' }}
         run: |
+          if [ -n "$COLLECT" ]; then export DRIFTBENCH_VARIABLES_SPANS_OUT="$PWD/variables-spans.jsonl"; : > "$DRIFTBENCH_VARIABLES_SPANS_OUT"; fi
           status=0
           pnpm -s driftbench validate variables --seeds "$SEEDS" $HIDDEN --items --all-levels --json > variables-items.json || status=$?
           echo "level (exit code) $status"
@@ -707,6 +730,11 @@ jobs:
         with:
           name: variables-items-${{ strategy.job-index }}
           path: variables-items.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ contains(format(',{0},', inputs.jobs), ',variables-spans-collect,') }}
+        with:
+          name: variables-spans-${{ strategy.job-index }}
+          path: variables-spans.jsonl
 
   generator-measure:
     # The generator bank on chosen seeds, in shards, for the independent audit (docs/validators.md section 12.7 and
@@ -846,3 +874,51 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
         run: pnpm driftbench validate protect --branch "$HEAD_REF" --base "origin/$BASE_REF"
+
+  variables-spans-failing:
+    # The span recorder's round (tools/variables-record-spans.mjs). It measures the variables bank with the labels
+    # recorded so far for this commit (none on the first round), then runs again each item that failed and writes
+    # the condition spans those items read. An item stops at its first span with no label, so one round reaches only
+    # that span; the recorder labels it and dispatches this job again, until a round reads no span the recording
+    # lacks. The scale items stay out. The job never runs on a push or a pull request.
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',variables-spans-failing,')
+    name: variables spans of the failing items
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
+      - uses: actions/checkout@v7
+        id: checkout
+        timeout-minutes: 3
+        continue-on-error: true
+      - uses: actions/checkout@v7
+        if: steps.checkout.outcome != 'success'
+        timeout-minutes: 10
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Fetch the span cassette when one exists
+        id: cassette
+        shell: bash
+        run: |
+          git fetch --depth=1 origin cassettes/variables-spans
+          if git show "FETCH_HEAD:${GITHUB_SHA}.jsonl" > "$RUNNER_TEMP/spans-cassette.jsonl"; then
+            echo "path=$RUNNER_TEMP/spans-cassette.jsonl" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Measure, then read the spans of the failing items
+        shell: bash
+        env:
+          DRIFTBENCH_VARIABLES_CASSETTE: ${{ steps.cassette.outputs.path }}
+        run: |
+          status=0
+          pnpm -s driftbench validate variables --seeds 1..3 --hidden --items --all-levels --json > variables-items.json || status=$?
+          echo "level (exit code) $status"
+          test -s variables-items.json
+          pnpm exec tsx tools/variables-failing-spans.ts variables-items.json spans-out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: variables-failing-spans
+          path: spans-out/spans.jsonl

@@ -6,6 +6,7 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { bankSituation, borrowedSituation, rebuiltAsk, rowSources } from '../ask-binding';
 import { completionComponents, componentSpec } from '../completion';
 import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
@@ -18,7 +19,7 @@ import {
   replayOnFollower,
   scanRendered,
 } from '../pipeline';
-import { atomTexts, readsAsCodeAsk } from '../reference-ask';
+import { ASK_TEMPLATES, type MapAtom } from '../reference-ask';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -305,8 +306,11 @@ type AskCheck = {
   check(run: EstateRun, all: SpecVerdict[]): Promise<string | undefined> | string | undefined;
 };
 
+/** The source a construction record names first: the atom of its first span, or of its tool. */
+type Recorded = { act?: unknown; spans?: Array<{ atom?: unknown }>; tool?: { atom?: unknown } };
+
 /** The situation each test type is asked in (docs/estate.md section 5); a live guard_positive is instructed. */
-const USE_OF_TEST: Readonly<Record<string, string>> = {
+export const USE_OF_TEST: Readonly<Record<string, string>> = {
   outside_trigger: 'outside',
   guard_negative: 'outside',
   route_near_miss: 'near_miss',
@@ -467,15 +471,35 @@ const ASKS: AskCheck[] = [
   {
     key: 'misroute-names-another',
     tier: 2,
-    title: 'a misroute names a skill or helper other than its target',
+    title: 'a misroute asks an approved misroute phrase of its target, or the act alone',
+    // docs/estate.md section 5: a misroute asks "the act alone (Please <act>.), so the route decides and the ask
+    // never tells the agent to load a wrong skill", or an approved phrase of a `misroute` situation. The target and
+    // the row come from the validator's plan, never from the spec's own metadata (ask-binding.ts): a bank phrase
+    // belongs to a misroute situation that holds the row's target; a code-written ask is rebuilt from the map and
+    // its record, byte for byte, as the please row with no situation and no tool, every span on the row.
     check: (run, all) => {
-      const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+      const please = ASK_TEMPLATES.find((row) => row.kind === 'ask')?.template;
+      const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
+      const byId = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+      const mapAtoms = byId as unknown as ReadonlyMap<string, MapAtom>;
       const bad = all.filter((v) => {
         if (v.spec.record.testType !== 'misroute' || !v.complete) return false;
-        const target = String(atoms.get(estateMeta(v.spec).atoms?.[0] ?? '')?.fields?.target ?? '');
-        return asksOfSpec(v).some((ask) => ask.includes(target) || !/\b(skill|agent|helper)\b/.test(ask));
+        const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
+        const head = row?.atomIds[0];
+        if (!row || head === undefined || row.testType !== 'misroute') return true;
+        const ask = asksOfSpec(v)[0] ?? '';
+        const misroutes = run.bank.situations.filter((s) => s.use === 'misroute');
+        if (bankSituation(misroutes, ask, new Set([head])) !== undefined) return false;
+        const meta = estateMeta(v.spec) as { askBuild?: unknown };
+        const builds = Array.isArray(meta.askBuild) ? meta.askBuild : [meta.askBuild];
+        const first = builds[0] as { ask?: unknown; situation?: unknown; tool?: unknown } | null | undefined;
+        if (!first || first.ask !== please || first.situation !== undefined || first.tool !== undefined)
+          return true;
+        return 'refused' in rebuiltAsk(first, ask, mapAtoms, new Set(row.atomIds));
       });
-      return bad.length === 0 ? undefined : named(bad, 'misroutes name their own target or no primitive');
+      return bad.length === 0
+        ? undefined
+        : named(bad, 'misroutes ask neither an approved misroute phrase of their target nor the act alone');
     },
   },
   {
@@ -767,14 +791,31 @@ const ASKS: AskCheck[] = [
       );
       const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
       const atomsById = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
-      const disclosed = (v: SpecVerdict): boolean => {
+      const mapAtoms = atomsById as unknown as ReadonlyMap<string, MapAtom>;
+      const rowOf = (v: SpecVerdict) =>
+        rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
+      // Why an approved phrase is not bound to the spec's own plan row: a phrase of a situation that holds none of
+      // the row's sources is borrowed, whatever the spec says about itself.
+      const borrowed = (v: SpecVerdict): string | undefined => {
+        const asks = asksOfSpec(v).filter((ask) => approved.has(ask));
+        if (asks.length === 0) return undefined;
+        const row = rowOf(v);
+        if (!row) return 'no plan row';
+        const sources = rowSources(row.atomIds, mapAtoms);
+        const lent = borrowedSituation(row, useOfRow(row), run.bank.situations, mapAtoms);
+        const bound = (ask: string) => bankSituation(run.bank.situations, ask, sources, lent) !== undefined;
+        const loose = asks.find((ask) => !bound(ask));
+        return loose === undefined ? undefined : `the phrase "${loose}" is of no situation of its row`;
+      };
+      // Why a spec's code-written ask is not disclosed, or undefined when it is.
+      const refusal = (v: SpecVerdict): string | undefined => {
         const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
         const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown };
         const tagged = Array.isArray(spec?.tags) && spec.tags.includes('ask:code');
         if (!tagged || meta.ask !== 'code' || typeof meta.askFrom !== 'string' || meta.askFrom === '')
-          return false;
-        const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
-        if (!row) return false;
+          return 'not disclosed as written by code';
+        const row = rowOf(v);
+        if (!row) return 'no plan row';
         // The row the generator reports is bookkeeping it writes itself: the spec must say the same about itself
         // (its plan row, its atoms, its test type and the test tag), else the allowance does not apply.
         const own = estateMeta(v.spec) as { planRow?: unknown; atoms?: unknown; testType?: unknown };
@@ -786,29 +827,69 @@ const ASKS: AskCheck[] = [
           !row.atomIds.every((id) => atoms.includes(id)) ||
           !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
         )
-          return false;
-        if (!bankIsShort(run, row)) return false;
-        // The disclosure is the generator's word about itself, so the words are checked too, by the validator's
-        // own reading of section 5 (reference-ask.ts), never by the product's `codeAsk`: an ask outside the
-        // approved phrases must have the shape the document gives and take its words from the row's atoms.
-        const rowAtoms = row.atomIds.map((id) => atomsById.get(id));
-        if (rowAtoms.some((atom) => atom === undefined)) return false;
-        const referenced = [...new Set(rowAtoms.flatMap((atom) => idsIn(atom?.fields)))].map((id) =>
-          atomsById.get(id),
-        );
-        const fromAtoms = atomTexts(
-          [...rowAtoms, ...referenced].filter((atom): atom is NonNullable<typeof atom> => atom !== undefined),
-        );
-        return asksOfSpec(v).every(
-          (ask) => ask === '' || approved.has(ask) || readsAsCodeAsk(ask, fromAtoms),
-        );
+          return 'its bookkeeping differs from the plan row';
+        if (!bankIsShort(run, row)) return 'the bank holds an approved phrase for the row';
+        // The disclosure is the generator's word about itself, so each code-written ask is rebuilt by the
+        // validator (reference-ask.ts), never by the product's `codeAsk`: from the construction the spec records
+        // (`askBuild`, one entry per block) and the map's own text, one ask, equal byte for byte. No ask is read for
+        // its words and no template is searched for one that fits.
+        if (row.atomIds.some((id) => !atomsById.has(id))) return 'an atom of the row is not in the map';
+        const allowed = rowSources(row.atomIds, mapAtoms);
+        const recorded = (estateMeta(v.spec) as { askBuild?: unknown }).askBuild;
+        const builds = Array.isArray(recorded) ? recorded : [recorded];
+        // `askFrom` names the atom the act was cut from: the atom of the first span or tool of the first built ask.
+        const from = meta.askFrom.split(' ')[0] ?? '';
+        let cited = false;
+        const asks = asksOfSpec(v);
+        for (const [at, ask] of asks.entries()) {
+          if (ask === '' || approved.has(ask)) continue;
+          const build = builds[at] as Recorded | undefined;
+          const built = rebuiltAsk(build, ask, mapAtoms, allowed);
+          if ('refused' in built) return `block ${at}: ${built.refused}`;
+          if (!cited) {
+            // A built ask names its source atom in askFrom; one built from a fixed row alone (no span, no tool)
+            // takes its words from no atom, and askFrom says `neutral`.
+            const source = build?.spans?.[0]?.atom ?? build?.tool?.atom;
+            // An ask built from a guard's tool names the guard, or the rule the guard enforces (a field of the
+            // guard names it).
+            const guard = build?.spans?.[0] === undefined ? build?.tool?.atom : undefined;
+            const named = typeof guard === 'string' ? idsIn(atomsById.get(guard)?.fields) : [];
+            const enforced = named.includes(from) && allowed.has(from);
+            const cites = source === from || enforced;
+            // The one fixed act the table ties to no tool (a hazard's) names its hazard atom, with no tool.
+            const untied = ASK_TEMPLATES.some(
+              (row) =>
+                row.kind === 'act' &&
+                row.template === build?.act &&
+                !row.template.includes('{') &&
+                !row.tools,
+            );
+            const hazard = atomsById.get(from)?.kind === 'hazard' && allowed.has(from);
+            // `neutral` is the fixed neutral row alone: no act, no span, no tool. The untied act cites a hazard.
+            const neutral = meta.askFrom === 'neutral' && build?.act === undefined;
+            const ok = source !== undefined ? cites && atomsById.has(from) : untied ? hazard : neutral;
+            if (!ok)
+              return `askFrom ${meta.askFrom} is not the built ask's source ${String(source ?? 'none')}`;
+            cited = true;
+          }
+        }
+        return undefined;
       };
-      const bad = all.filter(
-        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
-      );
-      return bad.length === 0
-        ? undefined
-        : named(bad, 'complete specs ask an unapproved phrase that is not a disclosed code-written ask');
+      const why = new Map<SpecVerdict, string>();
+      const bad = all.filter((v) => {
+        if (!v.complete) return false;
+        const unapproved = asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask));
+        const reason = borrowed(v) ?? (unapproved ? refusal(v) : undefined);
+        if (reason !== undefined) why.set(v, reason);
+        return reason !== undefined;
+      });
+      const reasons = bad
+        .slice(0, 10)
+        .map((v) => `${v.spec.record.id}: ${why.get(v)}`)
+        .join('; ');
+      const what =
+        'complete specs ask an unapproved phrase that is not a disclosed code-written ask, or a phrase off their row';
+      return bad.length === 0 ? undefined : `${named(bad, what)} (why: ${reasons})`;
     },
   },
   {

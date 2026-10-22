@@ -137,7 +137,7 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
     const shown = (text: string) => expect(page, text).toContain(text);
     const dir = await mkdtemp(join(ROOT, '.rule-links-'));
     try {
-      const atom = 'instruction.standing.tell-the-user-about-a-late';
+      const atom = 'gate.invoice-reconcile.read-references-matching-rules-md-before';
       const specs = (await files(join(FIXTURE, 'generated/specs/live'))).filter((file) =>
         file.endsWith('.yaml'),
       );
@@ -145,7 +145,7 @@ describe('docs/rule-links.md: the path from a rule to its tests', () => {
       for (const file of specs) {
         if ((await readFile(file, 'utf8')).includes(`\n      - ${atom}\n`)) named.push(file);
       }
-      expect(named).toHaveLength(16);
+      expect(named).toHaveLength(15);
       const fake = join(FIXTURE, 'live/fake');
       const common = [
         '--runtime',

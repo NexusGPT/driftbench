@@ -45,6 +45,25 @@ describe('the traffic weight of a row', () => {
     for (const row of plan.rows) expect(row.logWeight).toBeCloseTo(Math.log(0.25), 12);
   });
 
+  it('weighs a variable alike when every weight of it is 0, and never divides by zero', () => {
+    const store = makeStore([
+      {
+        id: 'tide',
+        values: [
+          { id: 'ebb', weight: 1 },
+          { id: 'flood', weight: 1 },
+          { id: 'slack', weight: 1 },
+        ],
+      },
+    ]);
+    // The loader refuses a variable whose weights are all 0 (VARIABLES_WEIGHT_ZERO); the planner can still be
+    // handed one, and it reads the variable as unweighted.
+    for (const value of store.variables[0]?.values ?? []) value.weight = 0;
+    const plan = planV2(store);
+    expect(plan.rows).toHaveLength(3);
+    for (const row of plan.rows) expect(row.logWeight).toBeCloseTo(Math.log(1 / 3), 12);
+  });
+
   it('takes the shares among the approved values only', () => {
     const store = makeStore([
       {

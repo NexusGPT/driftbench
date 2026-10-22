@@ -33,7 +33,7 @@ export type Opinion = {
 };
 
 /** The opinions of one answer, by unit index in the file, and the answers parts it refused, with the reason. */
-export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[] };
+export type Opinions = { byUnit: Map<number, Opinion>; refusals: string[]; dropped?: string[] };
 
 export interface Labeler {
   /** Names the labeler in the cassette key: `anthropic`, `jev`, `openai-decisions`, `http:<hash>`. */
@@ -77,6 +77,23 @@ export class LabelerConfigError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'LabelerConfigError';
+  }
+}
+
+/**
+ * Runs a request of a labeler and turns a refused key (HTTP 401 or 403) into a `LabelerConfigError` that names where
+ * the request went (a route name or a host, never a full URL, which may hold a secret). A key the endpoint refuses is
+ * a configuration error and stops the run; any other failure (429, 5xx, network) passes through unchanged.
+ */
+export async function refusingKey<T>(where: string, request: () => Promise<T>): Promise<T> {
+  try {
+    return await request();
+  } catch (cause) {
+    if (cause instanceof ModelError && (cause.status === 401 || cause.status === 403))
+      throw new LabelerConfigError(
+        `${where} refused the key (status ${cause.status}): check the key and the route`,
+      );
+    throw cause;
   }
 }
 
