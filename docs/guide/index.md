@@ -113,5 +113,5 @@ Each word is explained again where it first appears. This list is for looking on
 | Stand-in | A script that plays recorded answers in place of the agent. It costs nothing. | `northwind/live/fake/claude.mjs`. |
 | Labeler | A model that reads your prose and says which sentences are rules. | `system2:anthropic`. |
 | Seeder | A method that writes one family of tests from a map. | `twise`, which covers every pair of values. |
-| Cell | One test file run once. | 16 of 1248 cells. |
+| Cell | One test file run once. | 17 of 1248 cells. |
 | Mode F | The agent runs the whole conversation on its own replies. | `Mode F, free-running`. |
