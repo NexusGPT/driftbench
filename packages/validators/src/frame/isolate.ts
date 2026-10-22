@@ -156,15 +156,21 @@ export type Frame<T> = {
   cpuSince(from: number): number;
   /** The first divergence among the calls from the tape position `from` on, or undefined. */
   divergenceSince(from: number): string | undefined;
+  /**
+   * From now on, until switched off, every call is strict: its arguments reach the product frozen at every depth, in
+   * every run, and a digest of them before and after the call reports a write the freeze cannot stop. For an item that
+   * declares a purity check; the frame adds no rule to any other call.
+   */
+  strictArguments(on: boolean): void;
   /** The first aliased result among the calls from the tape position `from` on, or undefined (option `aliasing`). */
   aliasSince(from: number): string | undefined;
-  /** The first guarded call from the tape position `from` on that wrote to an argument or returned a shared object. */
+  /** The first guarded call from the tape position `from` on that returned a result holding an object it must not. */
   guardSince(from: number): string | undefined;
   /**
    * Runs `run` with the calls it makes passing an object again as the same object: the confined run keeps the object
    * it first built, filled again in place with what the caller holds now, and does not freeze it, so a product that
    * keeps a cache keyed by the object it was given sees the same key and the edits made in place. A call that writes
-   * to such an argument is a finding (`guardSince`). Every other argument reaches the product frozen at every depth.
+   * to such an argument is a finding (`aliasSince`, as for a strict call).
    */
   sameObjects<R>(run: () => R): R;
   /** Ends the identity of the objects passed so far: the next call passes every object as a new one. */
@@ -571,12 +577,14 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       taint ??= message;
     }
   };
+  let strict = false;
   const call = (name: string, args: unknown[]): unknown => {
     if (closed) throw new FrameError(`the frame is closed: ${name} was not called`);
     const t0 = performance.now();
     const sent = encode(args, true, `${name}(arguments)`, new WeakSet(), ship);
     const t1 = performance.now();
     const extra = {
+      freeze: strict,
       ...(identityNow ? { ids: args.map(idOf) } : {}),
       ...(pendingForget ? { forget: true } : {}),
       ...(ambientNow.length > 0 ? { ambient: ambientNow } : {}),
@@ -632,11 +640,10 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       [b, plans[1]],
       [d, plans[2]],
     ] as const) {
-      const mutated = (each as { mutated?: number[] }).mutated;
-      if (mutated && mutated.length > 0)
-        guardFound.push({
+      if ((each as { written?: boolean }).written)
+        aliased.push({
           at: tape.length,
-          message: `${name}() changed ${mutated.map((index) => `argument ${index + 1}`).join(' and ')} (${describeRun(plan as TwinPlan)}): a call must leave what it is given as it was`,
+          message: `${name}() changed an argument it was given (${describeRun(plan as TwinPlan)}): the arguments of this call must stay as they were`,
         });
       const shared = (each as { shared?: string }).shared;
       if (shared)
@@ -648,13 +655,13 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
     const {
       moved: _moved,
       invalid: _invalid,
-      mutated: _mutated,
+      written: _written,
       shared: _shared,
       ...answer
     } = a as Outcome & {
       moved?: string[];
       invalid?: boolean;
-      mutated?: number[];
+      written?: boolean;
       shared?: string;
     };
     const entry: Entry = { call: name, args: sent, ...answer };
@@ -735,6 +742,9 @@ export function isolate<T>(options: IsolateOptions): Frame<T> {
       return first;
     },
     cpuSince: (from) => tape.slice(from).reduce((sum, each) => sum + (each.cpu ?? 0), 0),
+    strictArguments: (on) => {
+      strict = on;
+    },
     divergenceSince: (from) => found.find((each) => each.at >= from)?.message,
     aliasSince: (from) => aliased.find((each) => each.at >= from)?.message,
     guardSince: (from) => guardFound.find((each) => each.at >= from)?.message,

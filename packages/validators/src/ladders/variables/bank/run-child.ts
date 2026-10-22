@@ -53,21 +53,23 @@ async function main(args: readonly string[]): Promise<void> {
     const began = performance.now();
     const mark = frame.position();
     frame.forget();
+    // An item that declares a purity check hands the product its inputs frozen; no other item has that rule.
+    frame.strictArguments(item.purity === true);
     const watch = { ambient: frame.ambient, sameObjects: frame.sameObjects };
     const ran = await frame.guarded(
       GUARDED_FAMILIES.has(item.family) ? GUARDS : [],
       () => runItem(item, seed, root as string, impl, module, watch),
       FRESH_RESULTS,
     );
-    // A call whose runs answered differently, a result that changed later, or a call that changed its arguments or
-    // returned a shared object makes the item fail whatever the item concluded.
+    // A call whose runs answered differently, a result that changed later, a call that wrote to an argument it must
+    // not, or a result that shares an object makes the item fail whatever the item concluded.
     const split = frame.divergenceSince(mark);
     const moved = frame.aliasSince(mark);
     const guard = frame.guardSince(mark);
     const outcome = split
       ? { pass: false, detail: `the product's answer depends on how it is run: ${split}` }
       : moved
-        ? { pass: false, detail: `the product returned a result that changed later: ${moved}` }
+        ? { pass: false, detail: moved }
         : guard
           ? { pass: false, detail: guard }
           : ran;

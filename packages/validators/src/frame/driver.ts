@@ -543,14 +543,19 @@ if («setup».command) {
         : «product»[«request».call];
     try {
       if (typeof «fn» !== 'function') throw new TypeError('the product has no function ' + «request».call);
-      // Objects the caller passes twice keep their identity inside sameObjects(); every other argument reaches the product
-      // frozen at every depth.
-      const «args» = «request».ids ? «pin»(«decode»(«request».args), «request».ids, «request».forget) : «deepFreeze»(«decode»(«request».args));
+      // A strict call (the item declares a purity check): the arguments arrive frozen, and a digest of them before and
+      // after the call tells a write the freeze cannot stop (a typed array, a Map or a Set). A call made inside
+      // sameObjects() keeps the identity of the objects it passes again: they are not frozen, and the same digest finds a
+      // write to them.
+      const «strict» = «request».freeze === true;
+      const «pinned» = Boolean(«request».ids);
+      const «decoded» = «decode»(«request».args);
+      const «args» = «pinned» ? «pin»(«decoded», «request».ids, «request».forget) : «strict» ? «deepFreeze»(«decoded») : «decoded»;
       if («request».forget) «earlier» = new «SeenSet»();
-      // Guards (docs/validators.md section 12.9, "Objects the caller passes twice"): a call that keeps the identity of its
-      // arguments must leave them as they were (they are not frozen); a call under 'sharing' must return nothing that is,
-      // or holds, an object of its arguments or of an earlier guarded result. Only the finding crosses to the validator.
-      const «watchMutation» = Boolean(«request».ids);
+      const «argsBefore» = «strict» || «pinned» ? «fingerprint»(«args») : undefined;
+      // Sharing guard (docs/validators.md section 12.9, "Objects the caller passes twice"): a call under 'sharing' must
+      // return nothing that is, or holds, an object of its arguments or of an earlier guarded result. Only the finding
+      // crosses to the validator.
       let «watchSharing» = false;
       if («request».guard) {
         for (let «i» = 0; «i» < «request».guard.length; «i» += 1) {
@@ -558,26 +563,18 @@ if («setup».command) {
           if («request».guard[«i»] === 'sharing' && (!«request».guardNames || «request».guardNames.includes(«request».call))) «watchSharing» = true;
         }
       }
-      const «digests» = [];
       const «argObjects» = new «SeenSet»();
-      for (let «i» = 0; «i» < «args».length; «i» += 1) {
-        if («watchMutation») «digests»[«i»] = «fingerprint»(«args»[«i»]);
-        if («watchSharing») «collect»(«args»[«i»], «argObjects»);
-      }
+      if («watchSharing») for (let «i» = 0; «i» < «args».length; «i» += 1) «collect»(«args»[«i»], «argObjects»);
       const «before» = «cpuNow»();
       const «result» = await «deeper»(«setup».depth, () => «under»(«request».ambient, () => «fn»(...«args»)));
       const «used» = «cpuNow»(«before»);
-      let «changed»;
-      if («watchMutation») {
-        «changed» = [];
-        for (let «i» = 0; «i» < «args».length; «i» += 1) if («fingerprint»(«args»[«i»]) !== «digests»[«i»]) «changed»[«changed».length] = «i»;
-      }
       let «shared»;
       if («watchSharing» && «result» !== null && typeof «result» === 'object') {
         «shared» = «meets»(«result», «argObjects», «earlier»);
         «collect»(«result», «earlier»);
       }
       const «ret» = «encode»(«result»);
+      const «written» = («strict» || «pinned») && «fingerprint»(«args») !== «argsBefore»;
       const «moved» = [];
       let «movedCount» = 0;
       let «invalid» = false;
@@ -600,7 +597,7 @@ if («setup».command) {
           }
         }
       }
-      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«changed» !== undefined && «changed».length > 0 ? { mutated: «changed» } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}) });
+      «answer»({ id: «request».id, ret: «ret», cpu: («used».user + «used».system) / 1000, ...(«movedCount» > 0 ? { moved: «moved» } : {}), ...(«invalid» ? { invalid: true } : {}), ...(«written» ? { written: true } : {}), ...(«shared» !== undefined ? { shared: «shared» } : {}) });
     } catch («error») {
       «answer»({ id: «request».id, throws: «encode»(«error» instanceof Error ? «error» : new Error(String(«error»))) });
     }
@@ -703,7 +700,8 @@ export function plainBatchEntry(
     `  try {`,
     `    const ${fn} = ${each}.call.startsWith('#') ? ${name('handles')}.get(Number(${each}.call.slice(1))) : ${holder}[${each}.call];`,
     `    if (typeof ${fn} !== 'function') throw new TypeError('the product has no function ' + ${each}.call);`,
-    `    const ${name('args')} = ${each}.ids ? ${name('pin')}(${name('decode')}(${each}.args), ${each}.ids, ${each}.forget) : ${name('deepFreeze')}(${name('decode')}(${each}.args));`,
+    `    const ${name('decoded')} = ${name('decode')}(${each}.args);`,
+    `    const ${name('args')} = ${each}.ids ? ${name('pin')}(${name('decoded')}, ${each}.ids, ${each}.forget) : ${each}.freeze ? ${name('deepFreeze')}(${name('decoded')}) : ${name('decoded')};`,
     `    ${answer} = { ret: ${name('encode')}(await ${name('under')}(${each}.ambient, () => ${fn}(...${name('args')}))) };`,
     `  } catch (${error}) { ${answer} = { throws: ${name('encode')}(${error} instanceof Error ? ${error} : new Error(String(${error}))) }; }`,
     `  ${name('append')}(new URL(${JSON.stringify(paths.out)}), JSON.stringify(${answer}) + '\\n');`,
@@ -769,7 +767,7 @@ port.on('message', async (message) => {
     return;
   }
   id += 1;
-  const line = JSON.stringify({ id, call: message.call, args: message.args, ids: message.ids, forget: message.forget, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
+  const line = JSON.stringify({ id, call: message.call, args: message.args, freeze: message.freeze === true, ids: message.ids, forget: message.forget, ambient: message.ambient, guard: message.guard, guardNames: message.guardNames });
   const answers = await Promise.all(runs.map((run) => ask(run, line)));
   reply({ answers });
 });

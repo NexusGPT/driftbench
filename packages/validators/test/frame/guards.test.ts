@@ -5,10 +5,10 @@ import type * as guards from './fixtures/guards';
 
 /**
  * What the frame keeps of the caller's world around a call (docs/validators.md section 12.9, "Objects the caller
- * passes twice"). The confined runs get every argument as data, frozen at every depth, so two things an item in the
- * validator's own process could see are lost unless the frame carries them: that an object passed again is the same
- * object, edited in place (inside `sameObjects()`), and that a result is built new (`guarded()`). It also holds a call
- * under the clock and the random sources the item names (`ambient()`).
+ * passes twice"). The confined runs get every argument as data, so two things an item in the validator's own process
+ * could see are lost unless the frame carries them: that an object passed again is the same object, edited in place
+ * (inside `sameObjects()`), and that a result is built new (`guarded()`). It also holds a call under the clock and the
+ * random sources the item names (`ambient()`), and a strict call hands its arguments over frozen.
  */
 
 vi.setConfig({ testTimeout: 300_000 });
@@ -62,24 +62,31 @@ describe('objects passed twice inside sameObjects()', () => {
     const frame = frameOf();
     const found = frame.sameObjects(() => {
       frame.product.sortsInPlace([3, 1, 2]);
-      return frame.guardSince(0);
+      return frame.aliasSince(0);
     });
-    expect(found).toContain('argument 1');
+    expect(found).toContain('changed an argument');
   });
 
   it('a product that leaves its argument as it was is not found', () => {
     const frame = frameOf();
     const found = frame.sameObjects(() => {
       frame.product.total([3, 1, 2]);
-      return frame.guardSince(0);
+      return frame.aliasSince(0);
     });
     expect(found).toBeUndefined();
   });
 });
 
-describe('frozen arguments', () => {
-  it('a write to an argument throws in the product, a sort in place included', () => {
+describe('strict arguments', () => {
+  it('by default an argument reaches the product as it is: a write to it is no rule of the frame', () => {
     const frame = frameOf();
+    expect(frame.product.writesWhenItCan([1, 2]).wrote).toBe(true);
+    expect(frame.product.sortsInPlace([3, 1, 2]).first).toBe(1);
+  });
+
+  it('in a strict call a write to an argument throws in the product, a sort in place included', () => {
+    const frame = frameOf();
+    frame.strictArguments(true);
     expect(frame.product.writesWhenItCan([1, 2]).wrote).toBe(false);
     expect(() => frame.product.sortsInPlace([3, 1, 2])).toThrow(TypeError);
   });
@@ -88,7 +95,7 @@ describe('frozen arguments', () => {
     const frame = frameOf();
     const wrote = frame.sameObjects(() => frame.product.writesWhenItCan([1, 2]).wrote);
     expect(wrote).toBe(true);
-    expect(frame.guardSince(0)).toContain('argument 1');
+    expect(frame.aliasSince(0)).toContain('changed an argument');
   });
 });
 

@@ -159,21 +159,54 @@ describe('aliased results when the package patches the iteration and time intrin
   });
 });
 
-// Arguments reach the product frozen at every depth, in every run (docs/validators.md section 12.9, "Written
-// inputs"): a write to an argument, even one put back before the call returns, throws in the product and shows.
+// An item that declares a purity check switches strict arguments on (docs/validators.md section 12.9, "Written
+// inputs"): the arguments reach the product frozen at every depth, in every run, and a digest of them before and
+// after each call reports a write the freeze cannot stop. Without it the frame adds no rule.
 describe('written arguments', () => {
   const arg = { deep: { list: [1, 2, 3] } };
-
-  it('lets a product that only reads its argument answer, in every run', () => {
+  const strictFrame = (on = true) => {
     const frame = isolate<Product>({ module: PRODUCT, seed: 11 });
     open.push(frame as Frame<unknown>);
+    frame.strictArguments(on);
+    return frame;
+  };
+
+  it('lets a product that only reads its argument answer, in every run', () => {
+    const frame = strictFrame();
     expect(frame.product.readsOnly(arg)).toBe(3);
     expect(frame.divergence()).toBeUndefined();
+    expect(frame.aliasSince(0)).toBeUndefined();
   });
 
   it('throws for a product that writes to a nested part of its argument and puts the value back', () => {
-    const frame = isolate<Product>({ module: PRODUCT, seed: 11 });
-    open.push(frame as Frame<unknown>);
-    expect(() => frame.product.touchesAndRestores(arg)).toThrow(/read only|frozen|Cannot assign/i);
+    expect(() => strictFrame().product.touchesAndRestores(arg)).toThrow(/read only|frozen|Cannot assign/i);
+  });
+
+  it('throws for a product that sorts its argument in place', () => {
+    expect(() => strictFrame().product.sortsInPlace([1, 3, 2])).toThrow();
+  });
+
+  it.each([
+    ['fillsTyped', { bytes: new Uint8Array(2) }],
+    ['fillsMap', { table: new Map<string, number>() }],
+  ] as const)('%s: a permanent write the freeze cannot stop is found by the digest', (name, input) => {
+    const frame = strictFrame();
+    (frame.product[name] as (x: unknown) => unknown)(input);
+    expect(frame.aliasSince(0)).toContain('changed an argument');
+  });
+
+  it('adds no rule when strict arguments are off: the same products answer and nothing is found', () => {
+    const frame = strictFrame(false);
+    expect(frame.product.touchesAndRestores(arg)).toBe(3);
+    expect(frame.product.sortsInPlace([1, 3, 2])).toBe(3);
+    frame.product.fillsMap({ table: new Map() });
+    expect(frame.aliasSince(0)).toBeUndefined();
+    expect(frame.divergence()).toBeUndefined();
+  });
+
+  it('is switched off again by strictArguments(false)', () => {
+    const frame = strictFrame();
+    frame.strictArguments(false);
+    expect(frame.product.sortsInPlace([1, 3, 2])).toBe(3);
   });
 });

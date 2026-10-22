@@ -59,6 +59,11 @@ export type BankItem = {
   level: Level;
   component: string;
   cause: string;
+  /**
+   * The item declares a purity check: its calls are strict (the frame, docs/validators.md section 12.9), the arguments
+   * reach the product frozen at every depth and a write to one fails the item.
+   */
+  purity?: boolean;
   /** How long the validator lets the item run before it stops it. */
   budgetMs?: number;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;

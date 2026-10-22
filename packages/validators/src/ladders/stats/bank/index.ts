@@ -105,7 +105,12 @@ export function statsBank(root: string): BankItem[] {
  * What the bank child gives an item run besides the package: the frame's mark of the calls so far, and the first
  * aliased result among the calls since a mark (docs/validators.md section 12.9, "Aliased results").
  */
-export type Watch = { mark(): number; aliased(since: number): string | undefined };
+export type Watch = {
+  mark(): number;
+  aliased(since: number): string | undefined;
+  /** Switches the strict arguments of the frame on for an item that declares a purity check, and off after it. */
+  strict(on: boolean): void;
+};
 
 /**
  * Runs one item on one seed. A throw inside the item is a failing outcome naming the error. With a watch, an item
@@ -123,6 +128,8 @@ export async function runItem(
   // The package itself only when no replacement is given (tests): never loaded by the bank child, which is given the frame.
   const given = s ?? ((await import('@agent-nexus/driftbench-stats')) as StatsImpl);
   const since = watch?.mark() ?? 0;
+  // An item that declares a purity check gets strict arguments from the frame; every other item gets none.
+  watch?.strict(item.purity === true);
   try {
     const outcome = await item.check({ seed, s: given, root, rng });
     const moved = outcome.pass ? watch?.aliased(since) : undefined;
@@ -137,6 +144,8 @@ export async function runItem(
       pass: false,
       detail: `the item threw ${error?.name}: ${error?.message} (calling the statistics package from ${item.component})`,
     };
+  } finally {
+    watch?.strict(false);
   }
 }
 

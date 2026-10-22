@@ -47,6 +47,17 @@ export const RUNS = {
 export const DEFAULT_ITEM_BUDGET_MS = 120_000;
 const HEAVY_ITEM_BUDGET_MS = 300_000;
 
+/**
+ * The items that check the purity of their inputs: the ones that hand the product frozen inputs, or compare the inputs
+ * before and after the call. Under the frame their calls are strict (item.ts `purity`); no other item has the rule.
+ */
+const PURITY_ITEMS = [
+  'values.input-not-mutated.',
+  'determinism.inputs-not-written.',
+  'blind.seeds.leading.frozen-inputs-are-accepted',
+  'blind.seeds.determinism.the-plan-does-not-change-its-inputs',
+];
+
 /** Every item of the bank, in ladder order (level, then the order of the manifest). */
 export function variablesBank(): BankItem[] {
   const items: BankItem[] = [];
@@ -76,7 +87,9 @@ export function variablesBank(): BankItem[] {
   // The blind bank (blind/index.ts): items written from the page alone, run through the same port.
   items.push(...blindBank());
   const order = new Map<Level, number>(LEVELS.map((l, i) => [l, i]));
-  return items.sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
+  return items
+    .map((item) => (PURITY_ITEMS.some((prefix) => item.id.startsWith(prefix)) ? { ...item, purity: true } : item))
+    .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }
 
 /** The context an item runs with. */

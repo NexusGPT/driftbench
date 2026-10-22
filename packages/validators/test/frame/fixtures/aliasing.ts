@@ -65,3 +65,16 @@ export const touchesAndRestores = (input: { deep: { list: number[] } }) => {
 
 /** Reads its argument only. */
 export const readsOnly = (input: { deep: { list: number[] } }) => input.deep.list.length;
+
+/** Sorts its argument in place and answers its length. */
+export const sortsInPlace = (list: number[]) => list.sort((a, b) => b - a).length;
+
+/** Fills a typed array argument and a Map argument in place (a freeze does not stop either). */
+export const fillsTyped = (input: { bytes: Uint8Array }) => {
+  input.bytes[0] = 9;
+  return input.bytes.length;
+};
+export const fillsMap = (input: { table: Map<string, number> }) => {
+  input.table.set('x', 1);
+  return input.table.size;
+};
