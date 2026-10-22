@@ -23,7 +23,7 @@ import {
 } from '../../../estate/test/gold/gold';
 import { loadTruth } from '../../../estate/test/gold/truth';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
+import { ASK_MODEL, ASK_RUNS, answerFor, contextOf, loadAsks, readKey } from './limits-ask';
 import { appliedScopes } from './scopes';
 
 const capIn = Number(process.env.GOLD_ASK_CAP_IN ?? Number.POSITIVE_INFINITY);
@@ -77,6 +77,7 @@ async function record(estate: EstateName, key: string) {
         texts.get(atom.provenance.file) ?? '',
         atom.provenance.startLine,
         atom.situation,
+        atom.provenance.endLine,
       );
       asks.set(`${atom.provenance.quote}\n${context}`, { quote: atom.provenance.quote, context });
     }
@@ -88,7 +89,9 @@ async function record(estate: EstateName, key: string) {
       for (;;) {
         const ask = quotes[next++];
         if (ask === undefined) return;
-        await answerFor(estate, ASK_MODEL, ask.quote, ask.context, cache, spent, { key, capIn, capOut });
+        for (let run = 1; run <= ASK_RUNS; run++) {
+          await answerFor(estate, ASK_MODEL, ask.quote, ask.context, run, cache, spent, { key, capIn, capOut });
+        }
       }
     };
     await Promise.all([worker(), worker(), worker(), worker()]);

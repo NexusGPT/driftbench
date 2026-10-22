@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { pointer } from '@agent-nexus/driftbench-estate';
 import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
 
 /**
@@ -11,6 +12,8 @@ import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
  * code reads no word of any quote.
  */
 export const ASK_MODEL = 'claude-haiku-5-5';
+/** Runs of the same request; a limit stands when at least 2 of them agree on value, comparison and role. */
+export const ASK_RUNS = 3;
 export const COMPARISONS = ['lt', 'le', 'gt', 'ge'] as const;
 export const ROLES = ['constraint', 'trigger'] as const;
 export type Limit = {
@@ -22,7 +25,7 @@ export type Limit = {
 
 export const ASK_SYSTEM = [
   'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings above it,',
-  'the tables of its section and the units that scope it. The place is context only, to read what the instruction refers to;',
+  'the tables of its section, the units that scope it and the unit before and after it. The place is context only, to read what the instruction refers to;',
   'answer about the INSTRUCTION alone, never about another line of the section.',
   'A limit is a number that a rule constrains: a maximum, a minimum, a deadline or a count of an act. A number that only',
   'names something is not a limit: a phone number, a size specification, a count of parts in a description.',
@@ -42,7 +45,7 @@ export const ASK_SYSTEM = [
  * Where an instruction sits, by the structure of the Markdown file: the headings above its first line, and the tables
  * of its section (runs of lines that start with a bar). No word of the file is read.
  */
-export function contextOf(text: string, line: number, scopes?: string): string {
+export function contextOf(text: string, line: number, scopes?: string, endLine: number = line): string {
   const lines = text.split('\n');
   const stack: string[] = [];
   let sectionStart = 0;
@@ -72,6 +75,26 @@ export function contextOf(text: string, line: number, scopes?: string): string {
   }
   if (run.length > 0) tables.push(run.join('\n'));
   const path = stack.filter((heading) => heading !== undefined && heading !== '').join(' > ');
+  // The unit before and the unit after the instruction, when they sit in the same section (the cut of the pointer reader).
+  const offsets: number[] = [];
+  let total = 0;
+  for (const row of lines) {
+    offsets.push(total);
+    total += row.length + 1;
+  }
+  const from = offsets[Math.min(line, lines.length) - 1] ?? 0;
+  const to = offsets[Math.min(endLine, lines.length)] ?? text.length;
+  const units = pointer.cut(text).units;
+  const first = units.findIndex((unit) => unit.end > from);
+  let last = first;
+  while (units[last + 1] !== undefined && (units[last + 1]?.start ?? Number.POSITIVE_INFINITY) < to) last++;
+  const sameSection = (index: number) =>
+    units[index] !== undefined && first >= 0 && units[index]?.path.join('>') === units[first]?.path.join('>');
+  const around = [
+    sameSection(first - 1) ? `PREVIOUS UNIT: ${units[first - 1]?.text.trim()}` : '',
+    sameSection(last + 1) ? `NEXT UNIT: ${units[last + 1]?.text.trim()}` : '',
+  ].filter((row) => row !== '');
+  const neighbours = around.length === 0 ? '' : `\n${around.join('\n')}`;
   const scoped =
     scopes === undefined || scopes.trim() === ''
       ? ''
@@ -146,12 +169,13 @@ export async function answerFor(
   model: string,
   quote: string,
   context: string,
+  run: number,
   cache: Map<string, Entry>,
   spent: Spent,
   record?: { key: string; capIn: number; capOut: number },
 ): Promise<string> {
   const body = askBody(model, quote, context);
-  const key = askKey(body);
+  const key = `${askKey(body)}#${run}`;
   const hit = cache.get(key);
   if (hit) return hit.text;
   if (!record)
@@ -197,3 +221,24 @@ export async function answerFor(
 export const loadAsks = load;
 export const readKey = (): string =>
   readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
+
+/** The vote of the runs: a limit stands when at least 2 runs give the same value, comparison and role. */
+export function voteLimits(texts: readonly string[]): { limits: Limit[]; unreadable: number } {
+  const reads = texts.map((text) => limitsOfAnswer(text));
+  const seen = new Map<string, { limit: Limit; runs: number }>();
+  for (const read of reads) {
+    const once = new Set<string>();
+    for (const limit of read.limits) {
+      const key = `${limit.limit}|${limit.comparison}|${limit.role}`;
+      if (once.has(key)) continue;
+      once.add(key);
+      const known = seen.get(key);
+      if (known) known.runs++;
+      else seen.set(key, { limit, runs: 1 });
+    }
+  }
+  return {
+    limits: [...seen.values()].filter((entry) => entry.runs >= 2).map((entry) => entry.limit),
+    unreadable: reads.filter((read) => read.problem !== undefined).length,
+  };
+}

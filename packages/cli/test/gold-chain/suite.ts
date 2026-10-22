@@ -29,7 +29,7 @@ import { idsProblems, labelsProblems } from '../../../estate/test/gold/steps';
 import { loadTruth, type Truth } from '../../../estate/test/gold/truth';
 import { type Io, main } from '../../src/index';
 import { LAYOUT } from './layout';
-import { ASK_MODEL, answerFor, contextOf, limitsOfAnswer, loadAsks } from './limits-ask';
+import { ASK_MODEL, ASK_RUNS, answerFor, contextOf, loadAsks, voteLimits } from './limits-ask';
 import { appliedScopes } from './scopes';
 
 /**
@@ -335,10 +335,14 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             texts.get(atom.provenance.file) ?? '',
             atom.provenance.startLine,
             atom.situation,
+            atom.provenance.endLine,
           );
-          const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, asks, spent);
-          const read = limitsOfAnswer(text);
-          if (read.problem) problems.push(`answer unreadable on ${atomUnits.get(atom.id)}: ${read.problem}`);
+          const texts3: string[] = [];
+          for (let run = 1; run <= ASK_RUNS; run++) {
+            texts3.push(await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, run, asks, spent));
+          }
+          const read = voteLimits(texts3);
+          if (read.unreadable >= 2) problems.push(`answers unreadable on ${atomUnits.get(atom.id)}: ${read.unreadable} of ${ASK_RUNS}`);
           if (read.limits.length > 0) {
             // The feed reads { limit, comparison, unit? }; the role is kept for the check above.
             byAtom.set(
