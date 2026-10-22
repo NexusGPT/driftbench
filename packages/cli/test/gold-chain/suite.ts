@@ -323,7 +323,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
             );
             continue;
           }
-          wanted.set(key(atom.id, limit.limit, limit.comparison), limit);
+          wanted.set(key(atom.id, limit.limit, limit.comparison, limit.role), limit);
         }
         const asks = loadAsks(estate, ASK_MODEL);
         const spent = { input: 0, output: 0, requests: 0 };
@@ -339,9 +339,15 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           const text = await answerFor(estate, ASK_MODEL, atom.provenance.quote, context, asks, spent);
           const read = limitsOfAnswer(text);
           if (read.problem) problems.push(`answer unreadable on ${atomUnits.get(atom.id)}: ${read.problem}`);
-          if (read.limits.length > 0) byAtom.set(atom.id, read.limits);
+          if (read.limits.length > 0) {
+            // The feed reads { limit, comparison, unit? }; the role is kept for the check above.
+            byAtom.set(
+              atom.id,
+              read.limits.map(({ role: _role, ...rest }) => rest),
+            );
+          }
           for (const found of read.limits) {
-            produced.set(key(atom.id, found.limit, found.comparison), {
+            produced.set(key(atom.id, found.limit, found.comparison, found.role), {
               atomId: atom.id,
               ...(found.unit === undefined ? {} : { unit: found.unit }),
             });
@@ -363,7 +369,7 @@ export function goldChain(estate: EstateName, truthPath?: string): void {
           const got = produced.get(k);
           if (!got) {
             problems.push(
-              `limit missing: ${limit.unit} (${limit.limit} ${limit.comparison}) on ${limit.governs} was not produced`,
+              `limit missing: ${limit.unit} (${limit.limit} ${limit.comparison} ${limit.role}) on ${limit.governs} was not produced`,
             );
           } else if (limit.unit_of !== undefined && got.unit !== limit.unit_of) unitNotes++;
         }

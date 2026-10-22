@@ -12,19 +12,31 @@ import { type EstateName, estateFolder } from '../../../estate/test/gold/gold';
  */
 export const ASK_MODEL = 'claude-haiku-5-5';
 export const COMPARISONS = ['lt', 'le', 'gt', 'ge'] as const;
-export type Limit = { limit: number; comparison: (typeof COMPARISONS)[number]; unit?: string };
+export const ROLES = ['constraint', 'trigger'] as const;
+export type Limit = {
+  limit: number;
+  comparison: (typeof COMPARISONS)[number];
+  role: (typeof ROLES)[number];
+  unit?: string;
+};
 
-export const ASK_SYSTEM =
-  'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings ' +
-  'above it, the tables of its section and the units that scope it. The place is context only, to read what the instruction refers to; ' +
-  'answer about the INSTRUCTION alone, never about another line of the section. ' +
-  'Say whether the instruction states, or points at a table that gives, a number that limits ' +
-  'it: a count, a duration, a size or a threshold that the instruction itself sets. Answer with one JSON object and ' +
-  'nothing else: {"limits": [{"limit": <the number as a JSON number>, "comparison": "lt" | "le" | "gt" | "ge", ' +
-  '"unit": <what the number counts, a short text, or leave it out>}]}. The comparison says how a quantity is compared ' +
-  'with the number for the instruction to hold: lt less than, le at most, gt more than, ge at least. Give an empty ' +
-  'list when the instruction states no such number. A number that only names a thing, such as a version or an ' +
-  'identifier, is not a limit.';
+export const ASK_SYSTEM = [
+  'You read one instruction from the prompt of an AI agent. You are also given its place in the file: the headings above it,',
+  'the tables of its section and the units that scope it. The place is context only, to read what the instruction refers to;',
+  'answer about the INSTRUCTION alone, never about another line of the section.',
+  'A limit is a number that a rule constrains: a maximum, a minimum, a deadline or a count of an act. A number that only',
+  'names something is not a limit: a phone number, a size specification, a count of parts in a description.',
+  'Say whether the instruction states, or points at a table that gives, such a limit. Answer with one JSON object and nothing else:',
+  '{"limits": [{"limit": <the number as a JSON number>, "comparison": "lt" | "le" | "gt" | "ge", "role": "constraint" | "trigger",',
+  '"unit": <what the number counts, a short text, or leave it out>}]}. An empty list when there is none.',
+  'comparison is how the quantity compares with the limit for the condition to hold: lt less than, le at most, gt more than, ge at least.',
+  'role is constraint when the comparison is the compliant range of the act (what the rule allows), and trigger when the comparison is the',
+  'range where the rule applies (when it starts to act).',
+  'Examples, invented: "Answer a harbour call within two hours" gives limit 2, comparison le, role constraint, unit hours.',
+  '"Keep at least three spare keys in the cabinet" gives limit 3, comparison ge, role constraint, unit keys.',
+  '"If a parcel is late by more than four days, tell the sender" gives limit 4, comparison gt, role trigger, unit days.',
+  '"When fewer than five seats remain, close the booking" gives limit 5, comparison lt, role trigger, unit seats.',
+].join(' ');
 
 /**
  * Where an instruction sits, by the structure of the Markdown file: the headings above its first line, and the tables
@@ -110,14 +122,16 @@ export function limitsOfAnswer(text: string): { limits: Limit[]; problem?: strin
   if (!Array.isArray(list)) return { limits: [], problem: 'no limits list' };
   const limits: Limit[] = [];
   for (const item of list) {
-    const { limit, comparison, unit } = (item ?? {}) as Record<string, unknown>;
+    const { limit, comparison, role, unit } = (item ?? {}) as Record<string, unknown>;
     if (typeof limit !== 'number' || !Number.isFinite(limit))
       return { limits: [], problem: 'a limit is no number' };
     if (!(COMPARISONS as readonly unknown[]).includes(comparison))
       return { limits: [], problem: 'a comparison is unknown' };
+    if (!(ROLES as readonly unknown[]).includes(role)) return { limits: [], problem: 'a role is unknown' };
     limits.push({
       limit,
       comparison: comparison as Limit['comparison'],
+      role: role as Limit['role'],
       ...(typeof unit === 'string' && unit.trim() !== '' ? { unit: unit.trim() } : {}),
     });
   }
