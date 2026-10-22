@@ -9,6 +9,7 @@ import {
   offsetSpans,
   parseLabelSets,
   setHash,
+  shownLabelDrops,
 } from '../../src/pointer';
 
 // Two invented sets on the same units: one for a bakery's counter notes, one for a harbour's mooring notes.
@@ -233,6 +234,49 @@ describe('checking an answer', () => {
     expect(checkAnswer(counter, shown, [{ units: '3', label: 'greeting' }]).invalid).toEqual([
       'notes.md#1: "3" names a line that is not labelable',
     ]);
+  });
+
+  it('keeps one entry of an exact duplicate and refuses a unit named twice with another label', () => {
+    const same = checkAnswer(counter, window, [
+      { units: '1-2', label: 'greeting' },
+      { units: '2', label: 'greeting' },
+      { units: '3', label: 'none' },
+      { units: '3', label: 'none' },
+    ]);
+    expect(same.refusals).toEqual([]);
+    expect([...same.accepted.keys()]).toEqual([1, 2]);
+    expect([...same.covered]).toEqual([1, 2, 3]);
+    const other = checkAnswer(counter, window, [
+      { units: '1-2', label: 'greeting' },
+      { units: '2', label: 'price-claim' },
+    ]);
+    expect(other.invalid).toEqual(['notes.md#1: "2" names a unit that is already labelled']);
+  });
+
+  it('splits the entries that put a real label on shown lines alone from the rest of an answer', () => {
+    const shown = {
+      ...window,
+      units: [1, 2, 4].map((n) => ({ n, text: `unit ${n}`, index: n })),
+      display: [
+        { n: 3, mode: 'read' as const, text: 'read line' },
+        { n: 5, mode: 'context' as const, text: 'context line' },
+      ],
+    };
+    const answer = [
+      { units: '3', label: 'greeting' },
+      { units: '3-4', label: 'greeting' },
+      { units: '5', label: 'greeting' },
+      { units: '5', label: 'none' },
+      { units: '1-2', label: 'greeting' },
+    ];
+    const split = shownLabelDrops(shown, answer);
+    expect(split.labels).toEqual([answer[1], answer[3], answer[4]]);
+    expect(split.dropped).toEqual([
+      { line: 3, label: 'greeting' },
+      { line: 5, label: 'greeting' },
+    ]);
+    // The entries that stand are checked as before.
+    expect(checkAnswer(counter, shown, split.labels).refusals).toEqual([]);
   });
 
   it('refuses a label that is not in the set, with the reason', () => {

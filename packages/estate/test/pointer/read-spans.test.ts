@@ -148,4 +148,51 @@ describe('a unit the code already read in a scan', () => {
     expect(body?.labels.duty?.label).toBe('order');
     expect(cut(SKILL).units.length).toBeGreaterThan(3);
   });
+  it('drops the label a labeler keeps putting on a shown line after the retry, and lists the drop; a replay lists it too', async () => {
+    const description = 'Checks the stock on each shelf before closing.';
+    let calls = 0;
+    const labeler: Labeler = {
+      ...plantedDense(() => []),
+      async call(_wire, _set, window: Window) {
+        calls++;
+        const readAt = (window.display ?? []).find((line) => line.mode === 'read')?.n as number;
+        const labels: Labelled[] = [
+          { units: String(readAt), label: 'remark' },
+          ...window.units.map((unit) => ({ units: String(unit.n), label: 'order' })),
+          // The same unit and label twice is one entry, not a refusal.
+          ...window.units.slice(0, 1).map((unit) => ({ units: String(unit.n), label: 'order' })),
+        ];
+        return { labels, returnedModel: 'planted-1', stopReason: 'end_turn', usage: { input: 1, output: 1 } };
+      },
+    };
+    const files = [{ path: PATH, text: SKILL }];
+    const cassette = new Cassette();
+    const first = await pointerScan({
+      files,
+      sets: sets as LabelSet[],
+      labelling: singleLabelling(labeler),
+      cassette,
+      mode: 'record',
+      read: readSpansOf(files),
+    });
+    // Two tries: the first is refused, the second loses the shown-line label only.
+    expect(calls).toBe(2);
+    expect(first.failedWindows).toEqual([]);
+    expect(first.droppedLabels).toHaveLength(1);
+    expect(first.droppedLabels[0]).toMatchObject({ window: `${PATH}#1`, label: 'remark' });
+    expect(typeof first.droppedLabels[0]?.line).toBe('number');
+    const body = first.ledger.entries.find((each) => each.quote === 'Count the till twice.');
+    expect(body?.labels.duty?.label).toBe('order');
+    expect(first.ledger.entries.find((each) => each.quote === description)?.labels.duty).toBeUndefined();
+    const replay = await pointerScan({
+      files,
+      sets: sets as LabelSet[],
+      labelling: singleLabelling({ ...labeler, call: undefined }),
+      cassette: Cassette.parse(cassette.render()),
+      mode: 'replay',
+      read: readSpansOf(files),
+    });
+    expect(replay.calls).toBe(0);
+    expect(replay.droppedLabels).toEqual(first.droppedLabels);
+  });
 });

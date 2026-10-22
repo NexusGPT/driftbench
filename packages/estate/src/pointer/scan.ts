@@ -21,6 +21,7 @@ import {
   type LinkAnswer,
   type SpanAnswer,
   setHash,
+  shownLabelDrops,
   type Window,
 } from './labels';
 import {
@@ -164,6 +165,8 @@ export type PointerResult = {
   warnings: string[];
   /** The same windows, by window, set and labeler. */
   failedWindows: FailedWindow[];
+  /** Labels dropped from an answer after the retry because they sat on lines the window shows but does not ask about. */
+  droppedLabels: DroppedLabel[];
   usage: LabelerUsage[];
   /** Answers added to the cassette. */
   recorded: number;
@@ -431,6 +434,7 @@ type Task = {
 
 type Leaf = { window: Window; answer: Recorded; key: string };
 /** A window no accepted answer came back for: where, for which set and labeler, and why. */
+export type DroppedLabel = { window: string; set: string; labeler: string; line: number; label: string };
 export type FailedWindow = { window: string; set: string; labeler: string; reason: string };
 const describeFailure = (failure: FailedWindow): string =>
   `${failure.window} (${failure.set}, ${failure.labeler}): ${failure.reason}`;
@@ -612,9 +616,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;
-        const answer = await member.call(wire, task.set, window, attempt);
+        let answer = await member.call(wire, task.set, window, attempt);
         counts.input += answer.usage.input;
         counts.output += answer.usage.output;
+        // On the last try, a label put on shown lines alone is dropped and listed, and the rest of the answer stands.
+        if (attempt === 2 && answer.labels) {
+          const split = shownLabelDrops(window, answer.labels);
+          if (split.dropped.length > 0)
+            answer = { ...answer, labels: split.labels, shownDropped: split.dropped };
+        }
         // An answer that names a label outside the set, a unit outside the window, a unit twice or a wrong
         // target is refused as a whole, like one that cannot be read: it is asked again once. A clause that
         // cannot be located is no such refusal: the run is out of step, and the vote handles it.
@@ -682,6 +692,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     throw failure;
   }
 
+  const droppedLabels: DroppedLabel[] = [];
+
   const failure = (task: Task, window: Window, reason: string): FailedWindow => ({
     window: window.id,
     set: task.set.set,
@@ -706,6 +718,8 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         failures: [failure(task, window, result.answer.error ?? 'the answer cannot be read')],
       };
     }
+    for (const drop of result.answer.shownDropped ?? [])
+      droppedLabels.push({ window: window.id, set: task.set.set, labeler: task.member.id, ...drop });
     if (result.answer.refused !== 'too_large') {
       return { leaves: [{ window, answer: result.answer, key: result.key }], failures: [] };
     }
@@ -1217,6 +1231,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     failed: failedWindows.map(describeFailure),
     warnings,
     failedWindows,
+    droppedLabels,
     usage,
     recorded: usage.reduce((sum, entry) => sum + entry.recorded, 0),
   };
