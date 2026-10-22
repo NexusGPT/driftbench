@@ -246,6 +246,8 @@ export type Labelled = {
   units: string;
   label: string;
   target?: number;
+  /** Other units of the window that this unit applies to, besides its target: any label may carry them. */
+  scopes?: number[];
   spans?: SpanInput[];
   links?: LinkAnswer[];
 };
@@ -267,6 +269,24 @@ export type LabelContext = {
   candidates?: Readonly<Record<string, ReadonlyArray<{ id: string; label: string }>>>;
 };
 
+/** Why a list of scopes is refused, or undefined when it is sound. */
+function scopeProblem(
+  label: string,
+  scopes: unknown,
+  numbers: readonly number[],
+  inWindow: ReadonlySet<number>,
+): string | undefined {
+  if (label === 'none') return 'the label none takes no scopes';
+  const shown = JSON.stringify(scopes);
+  if (!Array.isArray(scopes)) return `the scopes ${shown} are not a list`;
+  const all = scopes as unknown[];
+  if (!all.every((scope) => typeof scope === 'number' && inWindow.has(scope)))
+    return `the scopes ${shown} are not units of the window`;
+  if (new Set(all).size !== all.length) return `the scopes ${shown} name a unit twice`;
+  if (numbers.some((n) => all.includes(n))) return `the scopes ${shown} name the unit itself`;
+  return undefined;
+}
+
 /** `5` or `5-7` as the numbers it names. */
 export function expandUnits(units: string): number[] | undefined {
   const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
@@ -279,7 +299,10 @@ export function expandUnits(units: string): number[] | undefined {
 
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
-  accepted: Map<number, { label: string; target?: number; spans?: SpanAnswer[]; links?: LinkAnswer[] }>;
+  accepted: Map<
+    number,
+    { label: string; target?: number; scopes?: number[]; spans?: SpanAnswer[]; links?: LinkAnswer[] }
+  >;
   /** Unit numbers the answer named (none included). */
   covered: Set<number>;
   refusals: string[];
@@ -338,6 +361,13 @@ export function checkAnswer(
       refusals.push(`${window.id}: the label ${entry.label} takes no target`);
       continue;
     }
+    if (entry.scopes !== undefined) {
+      const wrong = scopeProblem(entry.label, entry.scopes, numbers, inWindow);
+      if (wrong) {
+        refusals.push(`${window.id}: ${wrong}`);
+        continue;
+      }
+    }
     const extras = checkExtras(set, window, entry, numbers, label, context);
     if (typeof extras === 'string') {
       refusals.push(`${window.id}: ${extras}`);
@@ -351,6 +381,7 @@ export function checkAnswer(
         accepted.set(n, {
           label: entry.label,
           ...(entry.target !== undefined ? { target: entry.target } : {}),
+          ...(entry.scopes !== undefined && entry.scopes.length > 0 ? { scopes: entry.scopes } : {}),
           ...kept,
         });
       }

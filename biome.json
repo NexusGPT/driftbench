@@ -20,6 +20,7 @@
       "!docs/lanes",
       "!docs/lane-dag.json",
       "!examples/estates/*/ledger.json",
+      "!examples/estates/gold5/gold5.json",
       "!.github/readme",
       "!comparisons/deepeval/judge/ours-prompts.json",
       "!comparisons/hard-peers/**/*.json",

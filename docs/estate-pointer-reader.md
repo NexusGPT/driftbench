@@ -159,11 +159,12 @@ The number `n` is a display handle inside one request. It is not an identity (se
 A labeler is a port with one input and one output, the same for every implementation:
 
 ```
-label(window, labelSet) -> { labels: [{ units, label, target? }], meta }
+label(window, labelSet) -> { labels: [{ units, label, target?, scopes? }], meta }
 ```
 
 - Input: a window of numbered units (below) and a label set.
 - Output: for every unit of the window, one label name from the set or `none`. Ranges (`5-6`) are allowed. Nothing else: no text, no ids that are not in the window.
+- `scopes` is an optional list of other units of the window that the unit applies to, besides its `target`. Any label may carry it except `none`: a condition lists every unit it scopes (the first as `target`, the rest in `scopes`), and a rule keeps its own instruction while its text becomes the situation of the units it scopes. A scope names a unit of the window other than the unit itself, once. An answer without `scopes` reads as before.
 
 ### Window
 
