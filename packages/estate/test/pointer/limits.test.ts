@@ -151,7 +151,6 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atom && variables.conditionsOf(atom).map((entry) => entry.limit)).toEqual([5]);
   });
 
-<<<<<<< HEAD
   it('lets a set of limits sit beside the set of rules: the bound unit points across sets', async () => {
     const two = `${SET.replace(/ {6}- name: bound[\s\S]*$/, '')}  - set: bounds
     description: The numbers of the harbour notes.
@@ -250,7 +249,9 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     });
     expect(atomOf(result, 'Warn the skipper within five minutes')?.fields?.condition).toEqual([
       { limit: 5, comparison: 'le', unit: 'minutes' },
-=======
+    ]);
+  });
+
   it.each([
     ['an unknown comparison', { kind: 'limit', to: 'more', value: 2 }],
     ['an empty unit', { kind: 'limit', to: 'le', value: 2, unit: '  ' }],
@@ -268,7 +269,6 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(atomOf(result, 'Warn the skipper when a boat is overdue')?.fields?.condition).toEqual([
       { limit: 2, comparison: 'le', unit: 'days' },
       { limit: 3, comparison: 'le', unit: 'days' },
->>>>>>> origin/fix/numeric-limit-producer
     ]);
   });
 
