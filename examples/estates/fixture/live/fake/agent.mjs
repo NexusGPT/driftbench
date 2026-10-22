@@ -16,7 +16,8 @@
  * Each actual reply branch emits its own typed replyAct, pointing at the emitted text content block.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
 import {
   intentsOf,
@@ -320,9 +321,12 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
           hook_name: name,
           hook_event: event,
         });
+        // The runtime hands a hook the path of the session's transcript, which holds the calls made so far.
+        const transcript = join(tmpdir(), `fake-transcript-${cwd.replace(/[^A-Za-z0-9]/g, '-')}-${sessionId}.jsonl`);
+        writeFileSync(transcript, out.map((record) => JSON.stringify(record)).join('\n'));
         const ran = spawnSync('/bin/sh', ['-c', hook.command], {
           cwd,
-          input: `${JSON.stringify({ session_id: sessionId, cwd, hook_event_name: event, ...payload })}\n`,
+          input: `${JSON.stringify({ session_id: sessionId, cwd, hook_event_name: event, transcript_path: transcript, ...payload })}\n`,
           env: { ...env, CLAUDE_PROJECT_DIR: cwd },
           encoding: 'utf8',
           timeout: (hook.timeout ?? 60) * 1000,
