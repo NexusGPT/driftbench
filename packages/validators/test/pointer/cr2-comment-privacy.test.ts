@@ -7,8 +7,9 @@ import {
   loadReaderWithRetry,
   type ReaderExports,
   readerAdapter,
-  recordingRender,
+  recordingMember,
 } from '../../src/ladders/pointer/sut/reader';
+import { SentRecorder } from '../../src/ladders/pointer/sut/sent';
 import { REFERENCE_MODULE } from './helpers';
 import { referenceSut } from './reference';
 import { type BugPrivacy, referenceBugsPrivacy } from './reference/bugs-privacy';
@@ -201,10 +202,11 @@ describe('the link candidate item (a comment in the unit of an atom the scan lis
   }, 120_000);
 });
 
-type Render = ReturnType<typeof recordingRender>;
-type RenderArgs = Parameters<Render>;
+type Labeler = Parameters<typeof recordingMember>[0];
+type RenderArgs = Parameters<Labeler['render']>;
+type CallArgs = NonNullable<Labeler['call']> extends (...args: infer A) => unknown ? A : never;
 
-describe('the binding records the candidates a renderer sent, after it ran', () => {
+describe('the binding lists the candidates the transport received, paired with the context of the request', () => {
   const set = { set: 'agent-rules', description: 'd', labels: [] } as unknown as RenderArgs[0];
   const window = {
     id: 'w1',
@@ -220,22 +222,42 @@ describe('the binding records the candidates a renderer sent, after it ran', () 
       ],
     },
   } as unknown as RenderArgs[2];
-  const rowsOf = (render: (set: RenderArgs[0], window: RenderArgs[1], context: RenderArgs[2]) => unknown) => {
-    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
-    const recording = recordingRender({ render: render as never }, into);
-    recording(set, window, context);
-    return into.rows;
-  };
-  const prints = (lines: string[]) => () => ({
+  const wireOf = (lines: string[]) => ({
     labeler: 'x',
     body: { messages: [{ role: 'user', content: lines.join('\n') }] },
   });
+  /**
+   * A member whose call stands for the product: it hands one body string to the reporting fetch, and that string
+   * is `sends(wire)`. The binding reads the candidates from that string and from nothing else.
+   */
+  const rowsOf = async (
+    render: (...args: RenderArgs) => unknown,
+    sends: (wire: Record<string, unknown>) => string = (wire) => JSON.stringify(wire.body),
+    ctx: RenderArgs[2] = context,
+  ) => {
+    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+    const recorder = new SentRecorder(into);
+    const member = recordingMember(
+      {
+        render,
+        call: async (wire: Record<string, unknown>) => {
+          recorder.received(sends(wire));
+          return {};
+        },
+      } as never,
+      recorder,
+    );
+    const wire = member.render(set, window, ctx);
+    await member.call?.(...([wire, set, window] as unknown as CallArgs));
+    return into.rows;
+  };
+  const prints = (lines: string[]) => () => wireOf(lines);
   const MASKED = '    atom-1234567890  a masked title';
   const PLAIN = '    instruction.plain  a plain title';
   const candidatesOf = (rows: ListedCandidates[]) => rows.flatMap((row) => row.candidates);
 
-  it('lists every candidate the request carries', () => {
-    const rows = rowsOf(prints([MASKED, PLAIN]));
+  it('lists every candidate the request carries', async () => {
+    const rows = await rowsOf(prints([MASKED, PLAIN]));
     expect(rows).toHaveLength(1);
     expect(candidatesOf(rows)).toEqual([
       { id: 'atom-1234567890', title: 'a masked title' },
@@ -243,17 +265,17 @@ describe('the binding records the candidates a renderer sent, after it ran', () 
     ]);
   });
 
-  it('lists none when the renderer drops the candidates of its context', () => {
-    expect(candidatesOf(rowsOf(prints(['no candidate here'])))).toEqual([]);
+  it('lists none when the renderer drops the candidates of its context', async () => {
+    expect(candidatesOf(await rowsOf(prints(['no candidate here'])))).toEqual([]);
   });
 
-  it('lists only the candidate whose id and title are both in the request', () => {
-    const rows = rowsOf(prints(['    atom-1234567890  a title the renderer wrote', PLAIN]));
+  it('lists only the candidate whose id and title are both in the request', async () => {
+    const rows = await rowsOf(prints(['    atom-1234567890  a title the renderer wrote', PLAIN]));
     expect(candidatesOf(rows)).toEqual([{ id: 'instruction.plain', title: 'a plain title' }]);
   });
 
-  it('lists none when the candidates sit in a field of the render result beside the body', () => {
-    const rows = rowsOf(() => ({
+  it('lists none when the candidates sit in a field of the render result beside the body', async () => {
+    const rows = await rowsOf(() => ({
       labeler: 'x',
       body: { messages: [{ role: 'user', content: 'no candidate here' }] },
       candidateDebug: JSON.stringify([{ id: 'atom-1234567890', title: 'a masked title' }]),
@@ -263,21 +285,78 @@ describe('the binding records the candidates a renderer sent, after it ran', () 
     expect(candidatesOf(rows)).toEqual([]);
   });
 
-  it('reads the body as the transport serialises it, quotes and line breaks included', () => {
+  it('reads the body string as it was sent, quotes and line breaks included', async () => {
     const quoted = {
       candidates: {
         topic: [{ id: 'instruction.q', label: 'a "quoted"\ntitle' }],
       },
     } as unknown as RenderArgs[2];
-    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
-    const body = { messages: [{ role: 'user', content: '    instruction.q  a "quoted"\ntitle' }] };
-    recordingRender({ render: (() => ({ labeler: 'x', body })) as never }, into)(set, window, quoted);
-    expect(candidatesOf(into.rows)).toEqual([{ id: 'instruction.q', title: 'a "quoted"\ntitle' }]);
+    const rows = await rowsOf(
+      prints(['    instruction.q  a "quoted"\ntitle']),
+      (wire) => JSON.stringify(wire.body),
+      quoted,
+    );
+    expect(candidatesOf(rows)).toEqual([{ id: 'instruction.q', title: 'a "quoted"\ntitle' }]);
   });
 
-  it('adds no row for an id the renderer made up', () => {
-    const rows = rowsOf(prints(['    atom-0000000000  an unrelated title', MASKED]));
+  it('adds no row for an id the renderer made up', async () => {
+    const rows = await rowsOf(prints(['    atom-0000000000  an unrelated title', MASKED]));
     expect(candidatesOf(rows).map((c) => c.id)).toEqual(['atom-1234567890']);
+  });
+
+  it('lists what the sent string holds, whatever the rendered body held', async () => {
+    const sent = JSON.stringify(wireOf([MASKED, PLAIN]).body);
+    const none = await rowsOf(prints([MASKED, PLAIN]), () => '{"messages":[]}');
+    expect(candidatesOf(none)).toEqual([]);
+    const all = await rowsOf(prints(['no candidate here']), () => sent);
+    expect(candidatesOf(all)).toHaveLength(2);
+  });
+
+  it('keeps the exact string the transport received in the row', async () => {
+    const sent = `${JSON.stringify(wireOf([MASKED, PLAIN]).body)} `;
+    const rows = await rowsOf(prints([MASKED, PLAIN]), () => sent);
+    expect(rows.map((row) => row.body === sent)).toEqual([true]);
+  });
+
+  it('lists nothing for a body reported with no request in scope, or for a wire the renderer never returned', async () => {
+    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+    const recorder = new SentRecorder(into);
+    recorder.received(JSON.stringify(wireOf([MASKED, PLAIN]).body));
+    const member = recordingMember(
+      {
+        render: prints([MASKED, PLAIN]),
+        call: async () => {
+          recorder.received(JSON.stringify(wireOf([MASKED, PLAIN]).body));
+          return {};
+        },
+      } as never,
+      recorder,
+    );
+    await member.call?.(...([wireOf([MASKED, PLAIN]), set, window] as unknown as CallArgs));
+    expect(into.rows).toEqual([]);
+  });
+
+  it('pairs each body with the context of its own request when requests overlap', async () => {
+    const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+    const recorder = new SentRecorder(into);
+    const member = recordingMember(
+      {
+        render: (_set: unknown, win: { id: string }) => wireOf([`window ${win.id}`, MASKED, PLAIN]),
+        call: async (wire: Record<string, unknown>) => {
+          await new Promise((done) => setTimeout(done, 1));
+          recorder.received(JSON.stringify(wire.body));
+          return {};
+        },
+      } as never,
+      recorder,
+    );
+    const windows = ['a', 'b', 'c'].map((id) => ({ ...window, id }) as unknown as RenderArgs[1]);
+    const wires = windows.map((win) => member.render(set, win, context));
+    await Promise.all(
+      wires.map((wire, at) => member.call?.(...([wire, set, windows[at]] as unknown as CallArgs))),
+    );
+    expect(into.rows.map((row) => row.window).sort()).toEqual(['a', 'b', 'c']);
+    for (const row of into.rows) expect(row.body).toContain(`window ${row.window}`);
   });
 });
 

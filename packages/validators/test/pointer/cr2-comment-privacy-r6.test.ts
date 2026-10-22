@@ -3,7 +3,13 @@ import * as estate from '../../../estate/src/pointer';
 import { pointerBank } from '../../src/ladders/pointer/bank';
 import { clearSeedFreeCache, runItem } from '../../src/ladders/pointer/bank/run';
 import type { ListedCandidates, PointerSut } from '../../src/ladders/pointer/sut/port';
-import { type ReaderExports, readerAdapter, recordingRender } from '../../src/ladders/pointer/sut/reader';
+import {
+  fetchOf,
+  type ReaderExports,
+  readerAdapter,
+  recordingMember,
+} from '../../src/ladders/pointer/sut/reader';
+import { SentRecorder } from '../../src/ladders/pointer/sut/sent';
 
 /**
  * The probes of the codex review of the head 5bc5382d0 (run 39758483621): the body of a request was serialised
@@ -25,10 +31,12 @@ for (const arm of ['Anthropic', 'user', 'HTTP'] as const) {
   for (const mode of ['stable', 'debug', 'header', 'url', 'changing'] as const) {
     it(`${arm}: listed equals the candidates in exactly the bytes postJson sends (${mode})`, async () => {
       let sent = '';
-      const fetch = async (_url: unknown, init: { body: string }) => {
-        sent = init.body;
-        return new Response(ANSWER, { status: 200 });
-      };
+      const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
+      const recorder = new SentRecorder(into);
+      const fetch = fetchOf((request) => {
+        sent = request.body;
+        return { status: 200, body: ANSWER };
+      }, recorder);
       const client =
         arm === 'Anthropic'
           ? estate.createAnthropicLabeler({ key: 'fictional-not-real', fetch: fetch as never, maxRetries: 0 })
@@ -60,13 +68,15 @@ for (const arm of ['Anthropic', 'user', 'HTTP'] as const) {
         ...(mode === 'header' ? { headers: { 'x-candidate': JSON.stringify(candidate) } } : {}),
         ...(mode === 'url' ? { url: `https://labeler.invalid/${JSON.stringify(candidate)}` } : {}),
       };
-      const into = { rows: [] as ListedCandidates[], seen: new Set<string>() };
-      const recording = recordingRender({ render: () => wire } as never, into);
+      const recording = recordingMember(
+        Object.create(client, { render: { value: () => wire } }) as never,
+        recorder,
+      );
       const set = { set: 'agent-rules', description: 'd', labels: [] };
       const window = { id: 'w', path: 'fictional.md', headingPath: [], units: [] };
       const context = { candidates: { topic: [{ id: candidate.id, label: candidate.title }] } };
-      const outgoing = recording(set as never, window as never, context as never);
-      await client.call?.(outgoing as never, set as never, window as never);
+      const outgoing = recording.render(set as never, window as never, context as never);
+      await recording.call?.(outgoing as never, set as never, window as never);
       expect(sent.length).toBeGreaterThan(0);
       const expected =
         sent.includes(JSON.stringify(candidate.id).slice(1, -1)) &&

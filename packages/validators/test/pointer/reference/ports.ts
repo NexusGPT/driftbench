@@ -10,6 +10,7 @@ import {
   wireFor,
 } from '../../../src/ladders/pointer/kit/fixture';
 import type {
+  FetchRequest,
   LabelAnswer,
   LabelEntry,
   ListedCandidates,
@@ -246,22 +247,31 @@ export type ModelCtx = {
   onVector?: (n: number, vector: Record<string, number> | undefined) => void;
 };
 
-/** Records the candidates a request carries, read from the request body as it is serialised to be sent. */
-function listSent(
+/**
+ * Sends one request through the transport and records the candidates it carries, read from the very body string
+ * handed to the transport: the string is built once by the caller, recorded, and sent. Nothing is serialised here.
+ */
+function sendListed(
   ctx: ModelCtx,
   set: ParsedSet,
   plan: WindowPlan,
   candidates: Candidates,
-  body: unknown,
-): void {
-  if (!ctx.listed) return;
-  const meant = Object.fromEntries(
-    Object.entries(candidates).map(([link, list]) => [
-      link,
-      list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
-    ]),
-  );
-  recordSent(ctx.listed, { file: plan.file, window: plan.id, set: set.set }, meant, JSON.stringify(body));
+  request: FetchRequest,
+): ReturnType<Transport> {
+  if (ctx.listed) {
+    const byLink = Object.fromEntries(
+      Object.entries(candidates).map(([link, list]) => [
+        link,
+        list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
+      ]),
+    );
+    recordSent(
+      ctx.listed,
+      { where: { file: plan.file, window: plan.id, set: set.set }, byLink },
+      request.body,
+    );
+  }
+  return ctx.transport(request);
 }
 
 /** Added after the system text of a request asked again after an answer that could not be read. */
@@ -386,7 +396,6 @@ export async function haiku(
     messages: [{ role: 'user', content: user }],
     output,
   };
-  listSent(ctx, set, plan, candidates, request);
   // The key is the first request's: a retry says that the answer could not be read, and records under that key.
   const key = sha256(canonicalCompact({ ...request, run }));
   const sent =
@@ -412,7 +421,7 @@ export async function haiku(
     return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
   }
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
-  const response = await ctx.transport({
+  const response = await sendListed(ctx, set, plan, candidates, {
     url: HAIKU_URL,
     headers: {
       'content-type': 'application/json',
@@ -832,7 +841,6 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
     window: { id: plan.id, path: plan.file, headingPath: plan.path },
     prompt,
   };
-  listSent(ctx, set, plan, candidates, body);
   const key = sha256(canonicalCompact({ body, labeler: id }));
   const want = {
     key,
@@ -849,7 +857,7 @@ async function userHttp(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promis
   const hit = ctx.cassette.entries.get(key);
   if (hit) return { kind: 'answer', answer: { labels: hit.answer.labels ?? [] }, key };
   if (ctx.cassette.mode === 'replay') return missError(ctx, want);
-  const response = await ctx.transport({
+  const response = await sendListed(ctx, set, plan, candidates, {
     url: ctx.url ?? '',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),

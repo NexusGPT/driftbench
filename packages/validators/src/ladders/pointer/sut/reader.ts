@@ -20,7 +20,7 @@ import type {
   Transport,
 } from './port';
 import { ReaderNotReachable } from './port';
-import { recordSent, serialisedBody } from './sent';
+import { SentRecorder } from './sent';
 
 /**
  * The one file that knows the real pointer reader. It maps the reader's exports (names and types only, as listed in
@@ -362,27 +362,33 @@ function viewOf(reader: ReaderExports, ledger: RLedger, cuts: Map<string, RCut>)
 /* ----- labelers ----- */
 
 /**
- * The render of a labeler member, recording after it ran which candidates its request carries. The candidates
- * come from the context the reader handed in; a candidate is recorded only when its exact id and exact title
- * occur in the serialised `body` of the request the member returned, and in nothing else of what it returned
- * (see `sut/sent.ts`). A renderer that drops candidates, prints another title, or keeps them in a field that is
- * not sent, records fewer.
+ * A labeler member that reports which candidates each request it sends was meant to list. Its renderer notes the
+ * context it was handed against the wire it returns; its call runs inside the scope of that wire, so the body the
+ * transport receives (see `fetchOf`) is paired with the context of exactly that request. The member serialises
+ * nothing: a candidate is listed from the string the transport received and from nothing else (`sut/sent.ts`).
+ * A renderer that drops candidates, prints another title, or keeps them in a field that is not sent, lists fewer.
  */
-export function recordingRender(
-  member: { render(set: RSet, window: RWindow, context?: RContext): RWire },
-  into: { rows: ListedCandidates[]; seen: Set<string> },
-): (set: RSet, window: RWindow, context?: RContext) => RWire {
-  return (set, window, context) => {
+export function recordingMember(member: RLabeler, recorder: SentRecorder): RLabeler {
+  const render = (set: RSet, window: RWindow, context?: RContext): RWire => {
     const wire = member.render(set, window, context);
-    const meant = Object.fromEntries(
+    const byLink = Object.fromEntries(
       Object.entries(context?.candidates ?? {}).map(([link, list]) => [
         link,
         list.map((c) => ({ id: c.shown ?? c.id, title: c.label })),
       ]),
     );
-    recordSent(into, { file: window.path, window: window.id, set: set.set }, meant, serialisedBody(wire));
+    recorder.note(wire, { where: { file: window.path, window: window.id, set: set.set }, byLink });
     return wire;
   };
+  const original = member.call;
+  const call = original
+    ? (wire: RWire, ...rest: unknown[]): Promise<RRecorded> =>
+        recorder.during(wire, () => Reflect.apply(original, member, [wire, ...rest]) as Promise<RRecorded>)
+    : undefined;
+  return Object.create(member, {
+    render: { value: render },
+    ...(call ? { call: { value: call } } : {}),
+  }) as RLabeler;
 }
 
 function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<string, RCut>): RLabeler {
@@ -487,8 +493,13 @@ function specsOf(
   return [{ cls: 'system1', client: arm }];
 }
 
-function fetchOf(
+/**
+ * The fetch the product posts through. The body string it is handed is the one string handed on to the transport,
+ * and the one the recorder reads the listed candidates from.
+ */
+export function fetchOf(
   transport: Transport,
+  recorder?: SentRecorder,
 ): (url: unknown, init?: { headers?: unknown; body?: unknown }) => Promise<Response> {
   return async (url, init) => {
     const headers: Record<string, string> = {};
@@ -499,11 +510,9 @@ function fetchOf(
       });
     else if (Array.isArray(raw)) for (const [k, v] of raw as Array<[string, string]>) headers[k] = v;
     else if (raw && typeof raw === 'object') Object.assign(headers, raw);
-    const out = await transport({
-      url: String(url),
-      headers,
-      body: typeof init?.body === 'string' ? init.body : '',
-    });
+    const body = typeof init?.body === 'string' ? init.body : '';
+    recorder?.received(body);
+    const out = await transport({ url: String(url), headers, body });
     return new Response(out.body, { status: out.status });
   };
 }
@@ -529,6 +538,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   }
   const cuts = new Map<string, RCut>();
   for (const file of request.files) cuts.set(file.path, reader.cut(file.text));
+  const listed: ListedCandidates[] = [];
+  const recorder = new SentRecorder({ rows: listed, seen: new Set<string>() });
   const mode = request.cassette?.mode ?? 'record';
   const cassette = reader.Cassette.parse(request.cassette?.text ?? '');
   let labelling: RLabelling;
@@ -541,7 +552,7 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
         record: mode === 'record',
         cwd: '.',
         env: envOf(request.model.onKeyRead),
-        fetch: fetchOf(request.model.transport),
+        fetch: fetchOf(request.model.transport, recorder),
         ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
         ...(marginCut !== undefined ? { marginCut } : {}),
       });
@@ -553,13 +564,9 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   } else {
     labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
   }
-  const listed: ListedCandidates[] = [];
-  const sent = { rows: listed, seen: new Set<string>() };
   labelling = {
     ...labelling,
-    members: labelling.members.map((member) =>
-      Object.create(member, { render: { value: recordingRender(member, sent) } }),
-    ),
+    members: labelling.members.map((member) => recordingMember(member, recorder)),
   };
   let result: RResult;
   try {
