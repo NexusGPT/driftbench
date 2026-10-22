@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T11:49:03.671Z
+readAt: 2026-10-22T18:41:33.657Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -860,7 +860,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Never schedule a delivery on a public holiday in the receiving country
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 7wqtvpz2nv, set: agent-rules, label: prohibition } }
     enforcement: []
@@ -872,8 +871,8 @@ atoms:
       labeler: jev+anthropic
       polarity: prohibition
       labelSpans:
-        - kind: situation
-          from: 0
+        - kind: forbidden-material
+          from: 6
           to: 70
   - id: register.memory-supplier-languages.write-to-each-supplier-in-the
     kind: register
@@ -887,7 +886,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Write to each supplier
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -897,12 +895,18 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 22
-  - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
-    kind: instruction
+      labelLinks:
+        - kind: reply-act
+          value: draft
+        - kind: reply-part
+          value: draft
+    replyAct:
+      id: draft
+      evidence:
+        type: text_segment
+        part: draft
+  - id: register.memory-supplier-languages.when-a-supplier-is-not-in
+    kind: register
     title: When a supplier is not in this table, write in English and tell the user.
     provenance:
       file: .claude/memory/supplier-languages.md
@@ -913,24 +917,52 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: When a supplier is not in this table
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vbhqgyxxpc, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vbhqgyxxpc, set: agent-rules, label: reply-rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: vbhqgyxxpc
+      labelSet: agent-rules
+      label: reply-rule
+      labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
+  - id: instruction.parcel-claims.attach-one-photo-of-each-damaged
+    kind: instruction
+    title: Attach one photo of each damaged parcel; a claim without photos is refused by every carri…
+    provenance:
+      file: .claude/skills/parcel-claims/references/claim-rules.md
+      startLine: 6
+      endLine: 6
+      quote: Attach one photo of each damaged parcel; a claim without photos is refused by every carrier.
+      hash: 3017dc807b9a3915c65c23b1cd212d73e70addc05db96c7f0f57e452f3cc0abe
+    producedBy: model
+    role: axis
+    approved: false
+    situation: a claim without photos
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2m7wqwpczt, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: 2m7wqwpczt
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
         - kind: situation
-          from: 0
-          to: 36
-      labelLinks:
-        - kind: reply-part
-          value: reply
+          from: 41
+          to: 63
   - id: instruction.parcel-claims.file-a-damage-claim-within-7
     kind: instruction
     title: File a damage claim within 7 days of the delivery scan.
@@ -943,7 +975,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: within 7 days of the delivery scan
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: eppoqn4q54, set: agent-rules, label: rule } }
     enforcement: []
@@ -954,10 +985,28 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 20
-          to: 54
+  - id: instruction.parcel-claims.a-missing-parcel-is-claimed-only
+    kind: instruction
+    title: A missing parcel is claimed only after 10 days without a delivery scan.
+    provenance:
+      file: .claude/skills/parcel-claims/references/claim-rules.md
+      startLine: 11
+      endLine: 11
+      quote: A missing parcel is claimed only after 10 days without a delivery scan.
+      hash: 0eab60464eed3f59df643da0ccab8694856b0f74b83ac31532dd674a5e6100cd
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: rhb3gjoz4g, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: rhb3gjoz4g
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
   - id: register.parcel-claims.write-to-each-supplier-in-the
     kind: register
     title: Write to each supplier in the language it reads.
@@ -970,7 +1019,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Write to each supplier
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: s5wuhau5gf, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -980,39 +1028,19 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 22
-  - id: register.parcel-claims.when-a-supplier-is-not-in
-    kind: register
-    title: When a supplier is not in this table, write in English and tell the user.
-    provenance:
-      file: .claude/skills/parcel-claims/references/supplier-languages.md
-      startLine: 11
-      endLine: 11
-      quote: When a supplier is not in this table, write in English and tell the user.
-      hash: 5f2ac7f98ea5a0586aa5f8c7a8746aee19a0c03bf5e4753f3862cfda521e411e
-    producedBy: model
-    role: axis
-    approved: false
-    situation: When a supplier is not in this table
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: nutpconjzs, set: agent-rules, label: reply-rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: nutpconjzs
-      labelSet: agent-rules
-      label: reply-rule
-      labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 36
-  - id: instruction.parcel-claims.run-scripts-track-sh-carrier-number
-    kind: instruction
-    title: Run ./scripts/track.sh <carrier> <number> first; a claim needs the delivery scan it print…
+      labelLinks:
+        - kind: reply-act
+          value: draft
+        - kind: reply-part
+          value: draft
+    replyAct:
+      id: draft
+      evidence:
+        type: text_segment
+        part: draft
+  - id: gate.parcel-claims.read-scripts-track-sh-carrier-number
+    kind: gate
+    title: Read ./scripts/track.sh <carrier> <number> before a claim needs the delivery scan
     provenance:
       file: .claude/skills/parcel-claims/SKILL.md
       startLine: 9
@@ -1022,139 +1050,99 @@ atoms:
     producedBy: model
     role: axis
     approved: false
+    situation: a claim needs the delivery scan
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 22tewcyoke, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 22tewcyoke, set: agent-rules, label: gate-command } }
+      - { type: ordered, before: Bash, after: Write }
+      - { type: tool_called, label: Bash, input: { command: { contains: ./scripts/track.sh <carrier> <number> } } }
     enforcement: []
     fields:
+      first: ./scripts/track.sh <carrier> <number>
+      trigger: a claim needs the delivery scan
       extraction: pointer
       unit: 22tewcyoke
       labelSet: agent-rules
-      label: rule
+      label: gate-command
       labeler: jev+anthropic
-      polarity: obligation
+      labelSpans:
+        - kind: governed-action
+          from: 51
+          to: 82
+      labelLinks:
+        - kind: act-tool
+          value: Write
       spans:
         - ./scripts/track.sh <carrier> <number>
-  - id: gate.parcel-claims.read-references-supplier-languages-md-before
+  - id: gate.parcel-claims.read-scripts-track-sh-carrier-number-2
     kind: gate
-    title: Read references/supplier-languages.md before Write the claim
+    title: Read ./scripts/track.sh <carrier> <number> before Run
     provenance:
       file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 10
-      endLine: 10
-      quote: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-      hash: 4727baa75b94f1c2eb83008524e58bd2ceb861bd608b6bb1315b3f473daa6aea
+      startLine: 9
+      endLine: 9
+      quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
+      hash: 203f421d18179a4cba8a2b52fbc37558ce3621290b187bb90fdbc75887718e8a
     producedBy: model
     role: axis
     approved: false
-    situation: Write the claim
+    situation: Run
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: gate } }
-      - { type: ordered, before: Read, after: Write }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/supplier-languages.md } } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 22tewcyoke, set: gate-forms, label: gate-split } }
+      - { type: ordered, before: Read, after: Bash }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/scripts/track.sh <carrier> <number> } } }
     enforcement: []
     fields:
-      first: references/supplier-languages.md
-      trigger: Write the claim
-      path: .claude/skills/parcel-claims/references/supplier-languages.md
+      first: ./scripts/track.sh <carrier> <number>
+      trigger: Run
+      path: .claude/skills/parcel-claims/scripts/track.sh <carrier> <number>
       extraction: pointer
-      unit: ylqfmr6ppi
-      labelSet: agent-rules
-      label: gate
+      unit: 22tewcyoke
+      labelSet: gate-forms
+      label: gate-split
       labeler: jev+anthropic
       labelSpans:
         - kind: governed-action
           from: 0
-          to: 15
+          to: 3
       labelLinks:
         - kind: act-tool
-          value: Write
+          value: Bash
       spans:
-        - references/supplier-languages.md
-  - id: reference.parcel-claims.read-references-supplier-languages-md
+        - ./scripts/track.sh <carrier> <number>
+  - id: reference.parcel-claims.read-scripts-track-sh-carrier-number
     kind: reference
-    title: Read references/supplier-languages.md
+    title: Read ./scripts/track.sh <carrier> <number>
     provenance:
       file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 10
-      endLine: 10
-      quote: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-      hash: 4727baa75b94f1c2eb83008524e58bd2ceb861bd608b6bb1315b3f473daa6aea
+      startLine: 9
+      endLine: 9
+      quote: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
+      hash: 203f421d18179a4cba8a2b52fbc37558ce3621290b187bb90fdbc75887718e8a
     producedBy: model
     role: detail
     approved: false
-    situation: Write the claim in the supplier's language, from `references/supplier-languages.md`.
+    situation: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: gate } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/supplier-languages.md } } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 22tewcyoke, set: gate-forms, label: gate-split } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/scripts/track.sh <carrier> <number> } } }
     enforcement: []
     fields:
-      path: .claude/skills/parcel-claims/references/supplier-languages.md
-      exists: true
-      readWhen: Write the claim in the supplier's language, from `references/supplier-languages.md`.
+      path: .claude/skills/parcel-claims/scripts/track.sh <carrier> <number>
+      exists: false
+      readWhen: Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
       from: .claude/skills/parcel-claims/SKILL.md
       extraction: pointer
-      unit: ylqfmr6ppi
-      labelSet: agent-rules
-      label: gate
+      unit: 22tewcyoke
+      labelSet: gate-forms
+      label: gate-split
       labeler: jev+anthropic
       labelSpans:
         - kind: governed-action
           from: 0
-          to: 15
+          to: 3
       labelLinks:
         - kind: act-tool
-          value: Write
-  - id: instruction.parcel-claims.a-claim-follows-references-claim-rules
-    kind: instruction
-    title: A claim follows references/claim-rules.md.
-    provenance:
-      file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 11
-      endLine: 11
-      quote: A claim follows `references/claim-rules.md`.
-      hash: a1f6c0a020ea9695fdef0dcd2b025e859afe15ee71d02eebf60856ccc654fc04
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: psptzwq4ip, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: psptzwq4ip
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
-      spans:
-        - references/claim-rules.md
-  - id: reference.parcel-claims.read-references-claim-rules-md
-    kind: reference
-    title: Read references/claim-rules.md
-    provenance:
-      file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 11
-      endLine: 11
-      quote: A claim follows `references/claim-rules.md`.
-      hash: a1f6c0a020ea9695fdef0dcd2b025e859afe15ee71d02eebf60856ccc654fc04
-    producedBy: model
-    role: detail
-    approved: false
-    situation: A claim follows `references/claim-rules.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: psptzwq4ip, set: agent-rules, label: rule } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
-    enforcement: []
-    fields:
-      path: .claude/skills/parcel-claims/references/claim-rules.md
-      exists: true
-      readWhen: A claim follows `references/claim-rules.md`.
-      from: .claude/skills/parcel-claims/SKILL.md
-      extraction: pointer
-      unit: psptzwq4ip
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
+          value: Bash
   - id: instruction.parcel-claims.never-promise-the-user-a-refund
     kind: instruction
     title: Never promise the user a refund date; the carrier sets it.
@@ -1177,6 +1165,62 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 6
+          to: 36
+  - id: instruction.parcel-claims.open-the-claim-with-the-wording
+    kind: instruction
+    title: Open the claim with the wording in REF/notes.md.
+    provenance:
+      file: .claude/skills/parcel-claims/SKILL.md
+      startLine: 13
+      endLine: 13
+      quote: Open the claim with the wording in `REF/notes.md`.
+      hash: 1bfa109396485e06fb68a0cd3a87c688914ecb028ba4562fdd95a6ddd324f5b4
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gpbcug5bbd, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: gpbcug5bbd
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
+      spans:
+        - REF/notes.md
+  - id: reference.parcel-claims.read-ref-notes-md
+    kind: reference
+    title: Read REF/notes.md
+    provenance:
+      file: .claude/skills/parcel-claims/SKILL.md
+      startLine: 13
+      endLine: 13
+      quote: Open the claim with the wording in `REF/notes.md`.
+      hash: 1bfa109396485e06fb68a0cd3a87c688914ecb028ba4562fdd95a6ddd324f5b4
+    producedBy: model
+    role: detail
+    approved: false
+    situation: Open the claim with the wording in `REF/notes.md`.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gpbcug5bbd, set: agent-rules, label: rule } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/notes.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/parcel-claims/references/notes.md
+      exists: true
+      resolvedBy: alias
+      readWhen: Open the claim with the wording in `REF/notes.md`.
+      from: .claude/skills/parcel-claims/SKILL.md
+      extraction: pointer
+      unit: gpbcug5bbd
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
   - id: instruction.shipment-tracker.always-pass-the-carrier-code-to
     kind: instruction
     title: Always pass the carrier code to track.sh, as in ./scripts/track.sh NWX 123.
@@ -1189,7 +1233,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Always
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2pgcgb6enm, set: agent-rules, label: rule } }
     enforcement: []
@@ -1200,10 +1243,6 @@ atoms:
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 6
       spans:
         - ./scripts/track.sh NWX 123
   - id: reference.shipment-tracker.read-track-sh
@@ -1234,10 +1273,6 @@ atoms:
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 6
   - id: instruction.shipment-tracker.when-the-carrier-answers-with-an
     kind: instruction
     title: When the carrier answers with an error, say so; never guess a status.
@@ -1250,67 +1285,16 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: When the carrier answers with an error
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 4hasfqfjdt, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 4hasfqfjdt, set: agent-rules, label: prohibition } }
     enforcement: []
     fields:
       extraction: pointer
       unit: 4hasfqfjdt
       labelSet: agent-rules
-      label: rule
+      label: prohibition
       labeler: jev+anthropic
-      polarity: obligation
-      labelSpans:
-        - kind: situation
-          from: 0
-          to: 38
-      labelLinks:
-        - kind: reply-act
-          value: report
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: report
-      evidence:
-        type: text_segment
-        part: reply
-  - id: gate.shipment-tracker.read-claim-rules-md-before-the
-    kind: gate
-    title: Read claim-rules.md before the claim
-    provenance:
-      file: .claude/skills/shipment-tracker/SKILL.md
-      startLine: 11
-      endLine: 11
-      quote: For a damaged parcel, the claim follows `claim-rules.md`.
-      hash: 914abd62af6b58fbd2a71baad36df4f277b21cde07d4ddf9c4c1de879e1ec7c7
-    producedBy: model
-    role: axis
-    approved: false
-    situation: the claim
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: evvnctdqe4, set: agent-rules, label: gate } }
-      - { type: ordered, before: Read, after: Write }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
-    enforcement: []
-    fields:
-      first: claim-rules.md
-      trigger: the claim
-      path: .claude/skills/parcel-claims/references/claim-rules.md
-      extraction: pointer
-      unit: evvnctdqe4
-      labelSet: agent-rules
-      label: gate
-      labeler: jev+anthropic
-      labelSpans:
-        - kind: governed-action
-          from: 22
-          to: 31
-      labelLinks:
-        - kind: act-tool
-          value: Write
-      spans:
-        - claim-rules.md
+      polarity: prohibition
   - id: reference.shipment-tracker.read-claim-rules-md
     kind: reference
     title: Read claim-rules.md
@@ -1325,7 +1309,7 @@ atoms:
     approved: false
     situation: For a damaged parcel, the claim follows `claim-rules.md`.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: evvnctdqe4, set: agent-rules, label: gate } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: evvnctdqe4, set: agent-rules, label: reference } }
       - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
     enforcement: []
     fields:
@@ -1337,15 +1321,8 @@ atoms:
       extraction: pointer
       unit: evvnctdqe4
       labelSet: agent-rules
-      label: gate
+      label: reference
       labeler: jev+anthropic
-      labelSpans:
-        - kind: governed-action
-          from: 22
-          to: 31
-      labelLinks:
-        - kind: act-tool
-          value: Write
   - id: reference.shipment-tracker.read-notes-md
     kind: reference
     title: Read notes.md
@@ -1396,6 +1373,10 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 19
+          to: 35
       spans:
         - git push --force
   - id: register.standing.r2-ask-at-most-one-question
@@ -1419,18 +1400,8 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-      labelLinks:
-        - kind: reply-act
-          value: clarify
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: clarify
-      evidence:
-        type: text_segment
-        part: reply
-  - id: register.standing.r3-report-a-number-only-when
-    kind: register
+  - id: instruction.standing.r3-report-a-number-only-when
+    kind: instruction
     title: R3. Report a number only when you read it in a file or a tool result during this session.
     provenance:
       file: CLAUDE.md
@@ -1442,24 +1413,15 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pejftfirny, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pejftfirny, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: pejftfirny
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
-      labelLinks:
-        - kind: reply-act
-          value: report
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: report
-      evidence:
-        type: text_segment
-        part: reply
+      polarity: obligation
   - id: route.standing.an-ask-to-file-a-claim
     kind: route
     title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
@@ -1556,8 +1518,6 @@ atoms:
       labelLinks:
         - kind: act-tool
           value: Read
-        - kind: reply-part
-          value: reply
       spans:
         - .claude/processes.json
         - .claude/memory/MEMORY.md
@@ -1601,8 +1561,6 @@ atoms:
       labelLinks:
         - kind: act-tool
           value: Read
-        - kind: reply-part
-          value: reply
   - id: reference.standing.read-guards-check-registry-md
     kind: reference
     title: Read guards/CHECK-REGISTRY.md
@@ -1657,145 +1615,6 @@ atoms:
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
-  - id: reference.standing.read-claude-aliases-md
-    kind: reference
-    title: Read .claude/ALIASES.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 25
-      endLine: 25
-      quote: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
-      hash: b7b602626bf9339fea1e38c0f2cb5f69e7a4107a473611ee9558eb0ff12dab73
-    producedBy: model
-    role: detail
-    approved: false
-    situation: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zjeq5qpkwd, set: agent-rules, label: reference } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/ALIASES.md } } }
-    enforcement: []
-    fields:
-      path: .claude/ALIASES.md
-      exists: true
-      readWhen: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
-      from: CLAUDE.md
-      extraction: pointer
-      unit: zjeq5qpkwd
-      labelSet: agent-rules
-      label: reference
-      labeler: jev+anthropic
-  - id: reference.standing.read-companies-fjord-kitchenware-md
-    kind: reference
-    title: Read companies/fjord-kitchenware.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 26
-      endLine: 26
-      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
-    producedBy: model
-    role: detail
-    approved: false
-    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: companies/fjord-kitchenware.md } } }
-    enforcement: []
-    fields:
-      path: companies/fjord-kitchenware.md
-      exists: false
-      external: true
-      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      from: CLAUDE.md
-      extraction: pointer
-      unit: zibad5mquq
-      labelSet: agent-rules
-      label: reference
-      labeler: jev+anthropic
-  - id: reference.standing.read-meta-identity-md
-    kind: reference
-    title: Read _meta/IDENTITY.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 26
-      endLine: 26
-      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
-    producedBy: model
-    role: detail
-    approved: false
-    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: _meta/IDENTITY.md } } }
-    enforcement: []
-    fields:
-      path: _meta/IDENTITY.md
-      exists: false
-      external: true
-      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      from: CLAUDE.md
-      extraction: pointer
-      unit: zibad5mquq
-      labelSet: agent-rules
-      label: reference
-      labeler: jev+anthropic
-  - id: reference.standing.read-docs-design-md
-    kind: reference
-    title: Read docs/DESIGN.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 26
-      endLine: 26
-      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
-    producedBy: model
-    role: detail
-    approved: false
-    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: docs/DESIGN.md } } }
-    enforcement: []
-    fields:
-      path: docs/DESIGN.md
-      exists: false
-      external: true
-      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      from: CLAUDE.md
-      extraction: pointer
-      unit: zibad5mquq
-      labelSet: agent-rules
-      label: reference
-      labeler: jev+anthropic
-  - id: reference.standing.read-notes-claims-md
-    kind: reference
-    title: Read ~/notes/claims.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 26
-      endLine: 26
-      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
-    producedBy: model
-    role: detail
-    approved: false
-    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zibad5mquq, set: agent-rules, label: reference } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: ~/notes/claims.md } } }
-    enforcement: []
-    fields:
-      path: ~/notes/claims.md
-      exists: false
-      external: true
-      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
-      from: CLAUDE.md
-      extraction: pointer
-      unit: zibad5mquq
-      labelSet: agent-rules
-      label: reference
-      labeler: jev+anthropic
   - id: invariant.standing.the-standing-instructions-stay-under-40000
     kind: invariant
     title: The standing instructions stay under 40000 characters
@@ -1834,8 +1653,9 @@ atoms:
     fields:
       check: no_orphans
       orphans:
+        - .claude/ALIASES.md
         - .claude/processes.json
-        - .claude/skills/parcel-claims/references/notes.md
+        - .claude/skills/parcel-claims/references/supplier-languages.md
       holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
     kind: invariant
@@ -1975,8 +1795,8 @@ edges:
   - { from: route.standing.an-ask-to-know-where-a, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.settings.allow-read, kind: allows }
-  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-claim-rules-md, kind: reference }
-  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-supplier-languages-md, kind: reference }
+  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-ref-notes-md, kind: reference }
+  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-scripts-track-sh-carrier-number, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: script.parcel-claims.script-scripts-track-sh, kind: script }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.settings.allow-read, kind: allows }
@@ -1990,8 +1810,28 @@ edges:
   - { from: stage.steps.stage-month-close-reconcile-reconcile-every, to: stage.steps.stage-month-close-audit-have-the, kind: next }
 ignore:
   - archive
+registryRoles:
+  tables:
+    - file: .claude/guards/CHECK-REGISTRY.md
+      index: 0
+      roles:
+        - id
+        - guard
+        - event
+        - enforces
+        - verdict
+    - file: .claude/guards/CHECK-REGISTRY.md
+      index: 1
+      roles:
+        - id
+        - guard
+        - event
+        - watches
+        - state
+  offStates:
+    - off
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T11:49:03.671Z
-hash: 66e4046b92505554ddb4a1be6eb8e3880a802c1de4c60246cc41f7ea3aa183bd
+  at: 2026-10-22T18:41:33.657Z
+hash: 0f15c692782977eeb53234b38baafb0d50b070cd8e8a99f6f6ec26ea2c7ece8e
