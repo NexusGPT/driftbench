@@ -25,7 +25,18 @@ import { describe, expect, it } from 'vitest';
  *   (`'ne' + 'ver'`, a template of pieces, `join`, `concat`) searched or edited as a literal word is read as
  *   that word; a word array searched with `includes`, `indexOf`, or iterated with `some` or `every` over a
  *   text test or a comparison of its element;
- * - each of these methods reached by bracket access (`text['match'](..)`) as by a dot.
+ * - each of these methods reached by bracket access (`text['match'](..)`) as by a dot;
+ * - the WORD LIST ITSELF, however it is used afterwards (searched, iterated, filled into a Set, given to a
+ *   function): an array literal, a Set literal or `new Set([...])`, with two or more plain words, and a
+ *   `new Map([[key, value], ...])` with two or more plain-word keys. A plain word is a string of two or more
+ *   ASCII letters and nothing else (`never`, `moved`, `sectionPath`), written as a literal or as pieces
+ *   (`'ne' + 'ver'`). A string with a digit, a colon, a slash, a dot, an underscore, a hyphen or a space
+ *   (`a/one.md`, `part.user`, `none-of-these`, a sentence), a single letter, and any expression that is not
+ *   a string (an identifier, a call) is not one. A list of fewer than two plain words is not a finding of
+ *   this rule (the rules above still read how it is used). A list built from a Set given one word at a time
+ *   with `add` (also through an alias of the Set) and searched with `has` is read by the Set rule above.
+ * Out of this guard's scope: a whole-text equality or a `switch` on single words, an object-key lookup, a
+ * string built by `String.fromCharCode`, and a word list built without any literal.
  * The guard is a LINT, not a proof: it catches the ordinary forms of a pattern or a word list read in prose.
  * Deliberate obfuscation is OUT of its scope: a hex-escaped or computed regular expression, a borrowed
  * String.prototype method reached through a name the guard cannot resolve, a string built by `fromCharCode` or
@@ -42,6 +53,34 @@ const FOLDERS = ['bank', 'kit', 'blind', 'sut'];
 export type Finding = { file: string; anchor: string; line: number; text: string; why: string };
 /** One allowed site: the file, its enclosing function (`anchor`), the exact expression text, and why. */
 type Allowance = { file: string; anchor: string; expr: string; reason: string; count?: number };
+
+/** The reasons of the word-list allowances: each names what the list is, never prose read or edited. */
+const REASON = {
+  NEEDS: 'names the reader parts an item needs (a spec row field), not prose',
+  VOCAB:
+    'vocabulary the item writes into a sentence or fixture it builds, drawn by the item and never matched against a text',
+  LABELTEST: 'tests a label, option or field name against a fixed list of names, not prose',
+  LABELSET: 'label names of a fixed set the item declares and sends to the reader, not prose',
+  EVENTS: "lineage event names the item expects in the READER's ledger, not prose",
+  EDITS: 'edit kinds of a script the item builds (reword, move, delete and so on), not prose',
+  CONTAINERS: 'container or block kind names of the estate model, not prose',
+  FIELDS:
+    'field names of the entries, links, requests or cassette lines of the READER that the item reads or alters, not prose',
+  REQBODY:
+    'example names in a request body the READER sent to the labeller, whose lines the item wrote itself; it reads no generated prose',
+  ERRNAMES: "names the item looks for in the READER's error message about a field it planted, not prose",
+  VOTES: 'label votes handed to the stack function under test as its input, not prose',
+  TABLE: 'link states and change names a blind case table declares, not prose',
+  STDIO: 'stdio mode names of a child process spawn, not prose',
+  ARMS: 'names of the labeler arms the item runs the reader with, not prose',
+  FIXTURE:
+    'names the item writes into a fixture (headers, tags, styles, grid words), never matched against a text',
+  PROTO:
+    "property-like names the item uses as set or threshold names and looks up in the READER's output, not prose",
+  LINKS:
+    "link state, relation or change names the item gives to or expects of the READER's link calls, not prose",
+  MISC: "fixed names of the bank's own cases, parts, families or runtime versions, not prose",
+} as const;
 
 const ALLOWED: Allowance[] = [
   {
@@ -274,6 +313,7 @@ const ALLOWED: Allowance[] = [
     anchor: 'settings-inherited-threshold-key-refused',
     expr: "['constructor', 'toString', 'hasOwnProperty', 'valueOf']",
     reason: 'tests the parse errors the READER wrote for the threshold key the item sent, not prose',
+    count: 2,
   },
   {
     file: 'bank/families/hardening.ts',
@@ -1173,6 +1213,915 @@ const ALLOWED: Allowance[] = [
     expr: 'PROBE.find((name) => twice.every((t) => own.get(t) !== name))',
     reason: 'picks a probe label name the item defines by comparing names; no prose word is read',
   },
+  // Word lists: arrays, Sets and Maps of two or more plain words. None is read or edited as generated prose.
+  {
+    file: 'bank/families/adversarial.ts',
+    anchor: 'DEONTIC',
+    expr: "['must', 'never', 'always', 'shall', 'should', 'required', 'forbidden']",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'bank/families/adversarial.ts',
+    anchor: 'want',
+    expr: "['rule', 'prohibition']",
+    reason: REASON.LABELTEST,
+  },
+  {
+    file: 'bank/families/adversarial.ts',
+    anchor: 'events',
+    expr: "['moved', 'unchanged']",
+    reason: REASON.EVENTS,
+    count: 2,
+  },
+  {
+    file: 'bank/families/adversarial.ts',
+    anchor: 'names',
+    expr: "['constructor', 'tostring', 'hasownproperty']",
+    reason: REASON.PROTO,
+  },
+  {
+    file: 'bank/families/cutting.ts',
+    anchor: 'second',
+    expr: "['iOS', 'eBay', 'macOS', 'iPhone']",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'bank/families/cutting.ts',
+    anchor: 'sentences-decimal',
+    expr: "['today', 'later', 'soon']",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'bank/families/cutting.ts',
+    anchor: 'name',
+    expr: "['Ito', 'Lowe', 'Aldous', 'Brandt', 'Okoye', 'Sandoval']",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'bank/families/cutting.ts',
+    anchor: 'sentences-hard-line-break',
+    expr: "['spaces', 'backslash']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'bank/families/grouping.ts',
+    anchor: 'want',
+    expr: "['rule', 'prohibition']",
+    reason: REASON.LABELTEST,
+  },
+  {
+    file: 'bank/families/hardening-bugs-c.ts',
+    anchor: 'PROBE',
+    expr: "['rule', 'prohibition', 'example']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/hardening-bugs-c.ts',
+    anchor: 'PLAIN',
+    expr: "['rule', 'prohibition', 'example', 'description']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/hardening-bugs-c.ts',
+    anchor: 'kinds',
+    expr: "['over', 'clear', 'low']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'bank/families/hardening-bugs-d.ts',
+    anchor: 'OPTIONS',
+    expr: "['rule', 'prohibition', 'example']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'lineage-is-history',
+    expr: "['new', 'changed']",
+    reason: REASON.EVENTS,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'lineage-is-history',
+    expr: "['new', 'deleted']",
+    reason: REASON.EVENTS,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'lineage-is-history',
+    expr: "['new', 'moved']",
+    reason: REASON.EVENTS,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'plan',
+    expr: "['reword', 'move', 'rewrite', 'insert', 'delete']",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'KINDS',
+    expr: "['new', 'unchanged', 'moved', 'changed', 'split', 'merged', 'ambiguous', 'deleted']",
+    reason: REASON.EVENTS,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'PROBE_LABELS',
+    expr: "['rule', 'prohibition', 'example']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/hardening.ts',
+    anchor: 'FIVE_LABELS',
+    expr: "['one', 'two', 'three', 'four', 'five']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/ids.ts',
+    anchor: 'header',
+    expr: "['alpha', 'beta', 'gamma']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'bank/families/ids.ts',
+    anchor: 'need',
+    expr: "[ 'id', 'path', 'sectionPath', 'container', 'fp', 'ctxFp', 'quote', 'prefix', 'suffix', 'hint', 'status', 'labels', 'lineage', 'twinOf', ]",
+    reason: REASON.FIELDS,
+  },
+  {
+    file: 'bank/families/ids.ts',
+    anchor: 'yaml',
+    expr: "['__proto__', 'constructor', 'hasOwnProperty']",
+    reason: REASON.PROTO,
+  },
+  {
+    file: 'bank/families/ids.ts',
+    anchor: 'ledger-safe-set-names',
+    expr: "['__proto__', 'constructor', 'hasOwnProperty']",
+    reason: REASON.PROTO,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'NAMES',
+    expr: "['rule', 'prohibition', 'example']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'FIVE_OPTIONS',
+    expr: "['five', 'four', 'none', 'one', 'three', 'two']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'want',
+    expr: "['rule', 'prohibition']",
+    reason: REASON.LABELTEST,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'header',
+    expr: "['one', 'two']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'shown',
+    expr: "['one', 'two', 'three', 'four', 'five']",
+    reason: REASON.REQBODY,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'segs',
+    expr: "['reword', 'rewrite', 'delete', 'insert', 'split', 'merge', 'reword', 'move']",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'default-set-is-data',
+    expr: "['weigh', 'proof', 'none-of-these']",
+    reason: REASON.LABELTEST,
+  },
+  {
+    file: 'bank/families/labels.ts',
+    anchor: 'haiku-refuse-wrong-window-or-set',
+    expr: "['window', 'set']",
+    reason: REASON.FIELDS,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'allowed',
+    expr: "['ok', 'advisory']",
+    reason: REASON.LINKS,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'states',
+    expr: "['ok', 'advisory']",
+    reason: REASON.LINKS,
+    count: 2,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'heads',
+    expr: "['One', 'Two']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'cov',
+    expr: "['rule', 'prohibition']",
+    reason: REASON.LABELSET,
+    count: 3,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'need',
+    expr: "['span', 'fp', 'relation', 'createdBy', 'accepted']",
+    reason: REASON.FIELDS,
+  },
+  {
+    file: 'bank/families/links.ts',
+    anchor: 'rels',
+    expr: "['verifies', 'negates', 'example-of', 'x/y']",
+    reason: REASON.LINKS,
+  },
+  {
+    file: 'bank/families/privacy.ts',
+    anchor: 'model-key-never-in-outputs',
+    expr: "['haiku', 'jev']",
+    reason: REASON.ARMS,
+  },
+  {
+    file: 'bank/families/radius.ts',
+    anchor: 'kinds',
+    expr: "['delete', 'negate', 'reword', 'cosmetic', 'move']",
+    reason: REASON.LINKS,
+  },
+  {
+    file: 'bank/families/reanchoring.ts',
+    anchor: 'events',
+    expr: "['moved', 'unchanged']",
+    reason: REASON.EVENTS,
+    count: 2,
+  },
+  {
+    file: 'bank/families/reanchoring.ts',
+    anchor: 'header',
+    expr: "['item', 'note']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'bank/families/reanchoring.ts',
+    anchor: 'script-mixed-6',
+    expr: "['reword', 'rewrite', 'delete', 'insert', 'move', 'split']",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'bank/families/reanchoring.ts',
+    anchor: 'script-mixed-20',
+    expr: "[ 'reword', 'rewrite', 'delete', 'insert', 'move', 'split', 'merge', 'reword', 'rewrite', 'delete', 'insert', 'split', 'merge', 'reword', 'rewrite', 'delete', 'insert', 'reword', 'split', 'merge', ]",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'bank/families/reanchoring.ts',
+    anchor: 'script-multi-file',
+    expr: "[ 'reword', 'rewrite', 'delete', 'insert', 'move', 'move', 'move', 'split', 'merge', 'reword', 'rewrite', 'delete', 'insert', 'reword', 'split', ]",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'miss-names-new-file',
+    expr: "['part.user', 'file', 'path', 'window']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'miss-names-labeler',
+    expr: "['haiku', 'jev']",
+    reason: REASON.ARMS,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'miss-names-set-name',
+    expr: "[ 'setName', 'set', ]",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'want',
+    expr: "['file', 'path']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'want',
+    expr: "['promptversion', 'prompt']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'want',
+    expr: "['schemaversion', 'schema']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'want',
+    expr: "['setname', 'set']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'want',
+    expr: "['labeler', 'labeller', 'model']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'cassette-stored-answer',
+    expr: "['haiku', 'jev']",
+    reason: REASON.ARMS,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'cassette-stored-answer',
+    expr: "[...need, 'model', 'stop', 'usage']",
+    reason: REASON.FIELDS,
+  },
+  {
+    file: 'bank/families/replay.ts',
+    anchor: 'one-cassette-per-arm',
+    expr: "['labeler', 'model']",
+    reason: REASON.ERRNAMES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'description', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['rule', 'rule', 'rule']",
+    reason: REASON.VOTES,
+    count: 4,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['none', 'none', 'none']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'description', 'rule']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'rule', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['rule', 'description', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "[null, 'description', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', null, 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'description', null]",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['', 'description', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'outside-declared-set', 'description']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/families/stack.ts',
+    anchor: 'system2Votes',
+    expr: "['description', 'description', ' ']",
+    reason: REASON.VOTES,
+  },
+  {
+    file: 'bank/reader-link.ts',
+    anchor: 'stdio',
+    expr: "['ignore', 'inherit', 'inherit', 'ipc']",
+    reason: REASON.STDIO,
+  },
+  {
+    file: 'bank/rpc.ts',
+    anchor: 'PARTS',
+    expr: "['links', 'rerun', 'settings', 'stack']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'bank/run.ts',
+    anchor: 'stdio',
+    expr: "['ignore', 'inherit', 'inherit', 'ipc']",
+    reason: REASON.STDIO,
+  },
+  {
+    file: 'bank/specs/adversarial.ts',
+    anchor: 'needs',
+    expr: "['scan', 'child']",
+    reason: REASON.NEEDS,
+    count: 6,
+  },
+  {
+    file: 'bank/specs/hardening-bugs-b.ts',
+    anchor: 'needs',
+    expr: "['scan', 'rerun']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/hardening-bugs-d.ts',
+    anchor: 'needs',
+    expr: "['scan', 'transport']",
+    reason: REASON.NEEDS,
+    count: 3,
+  },
+  {
+    file: 'bank/specs/hardening-bugs-d.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette']",
+    reason: REASON.NEEDS,
+    count: 2,
+  },
+  {
+    file: 'bank/specs/hardening-bugs-d.ts',
+    anchor: 'needs',
+    expr: "['scan', 'transport', 'cassette']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/hardening.ts',
+    anchor: 'needs',
+    expr: "['cut', 'child']",
+    reason: REASON.NEEDS,
+    count: 2,
+  },
+  {
+    file: 'bank/specs/hardening.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette']",
+    reason: REASON.NEEDS,
+    count: 4,
+  },
+  {
+    file: 'bank/specs/hardening.ts',
+    anchor: 'needs',
+    expr: "['scan', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/hardening.ts',
+    anchor: 'needs',
+    expr: "['scan', 'rerun']",
+    reason: REASON.NEEDS,
+    count: 4,
+  },
+  {
+    file: 'bank/specs/ids.ts',
+    anchor: 'needs',
+    expr: "['scan', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/labels.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette']",
+    reason: REASON.NEEDS,
+    count: 2,
+  },
+  {
+    file: 'bank/specs/links.ts',
+    anchor: 'needs',
+    expr: "['scan', 'links']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/privacy.ts',
+    anchor: 'needs',
+    expr: "['scan', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/privacy.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette', 'child']",
+    reason: REASON.NEEDS,
+    count: 11,
+  },
+  {
+    file: 'bank/specs/privacy.ts',
+    anchor: 'needs',
+    expr: "['transport', 'child']",
+    reason: REASON.NEEDS,
+    count: 5,
+  },
+  {
+    file: 'bank/specs/radius.ts',
+    anchor: 'needs',
+    expr: "['scan', 'links']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/replay.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette']",
+    reason: REASON.NEEDS,
+    count: 2,
+  },
+  {
+    file: 'bank/specs/replay.ts',
+    anchor: 'needs',
+    expr: "['scan', 'cassette', 'transport']",
+    reason: REASON.NEEDS,
+    count: 12,
+  },
+  {
+    file: 'bank/specs/replay.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/scale.ts',
+    anchor: 'needs',
+    expr: "['scan', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'bank/specs/scale.ts',
+    anchor: 'needs',
+    expr: "['scan', 'links', 'child']",
+    reason: REASON.NEEDS,
+    count: 2,
+  },
+  {
+    file: 'bank/specs/scale.ts',
+    anchor: 'needs',
+    expr: "['transport', 'cassette', 'child']",
+    reason: REASON.NEEDS,
+  },
+  {
+    file: 'blind/bank.test.ts',
+    anchor: 'families',
+    expr: "[ 'cutting', 'ids', 're-anchoring', 'grouping', 'labels', 'replay', 'privacy', 'links', 'radius', 'scale', 'adversarial', ]",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank.test.ts',
+    anchor: '(module)',
+    expr: "['empty', 'constant', 'echo']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank.test.ts',
+    anchor: '(module)',
+    expr: "['quote', 'status']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank/identity.ts',
+    anchor: 'GRID_WORDS',
+    expr: "[ 'amber', 'basket', 'candle', 'drawer', 'ember', 'folder', 'garden', 'harbor', 'island', 'jacket', 'kettle', 'lantern', 'marble', 'napkin', 'orchard', 'pencil', 'quilt', 'ribbon', 'saddle', 'tablet', 'umbrella', 'window', 'yellow', 'zipper",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'blind/bank/identity.ts',
+    anchor: 'GRID_VERBS',
+    expr: "[ 'Keep', 'Count', 'Shelve', 'Weigh', 'Label', 'Store', 'Mend', 'Sort', 'Stack', 'Wrap', 'Check', 'Move', ]",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'blind/bank/identity.ts',
+    anchor: 'contexts',
+    expr: "['unicode', 'repeated-neighbours', 'emphasis']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank/labels.ts',
+    anchor: 'labels',
+    expr: "['none', b, 'none']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'blind/bank/materialize.ts',
+    anchor: 'cases',
+    expr: "[ 'obligation', 'prohibition', 'custom-label', 'no-mapping', 'gate-forward', 'gate-backward', 'unicode-quote', 'none-flip', 'set-isolation', 'bound-relabel', ]",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank/privacy.ts',
+    anchor: 'placements',
+    expr: "[ 'paragraph', 'heading', 'list', 'table', 'quote', 'fence', 'comment', 'frontmatter', 'inline-code', 'html', ]",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['suspect', 'ok']",
+    reason: REASON.TABLE,
+    count: 4,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['changed', 'unchanged']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['split', 'unchanged']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['suspect', 'suspect']",
+    reason: REASON.TABLE,
+    count: 5,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['merged', 'deleted']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['advisory', 'suspect']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['context', 'changed']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['advisory', 'ok']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['heading', 'unchanged']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ambiguous', 'suspect']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['ambiguous', 'deleted']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ok', 'advisory']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['moved', 'heading']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['split', 'merged']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ambiguous', 'advisory']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['ambiguous', 'context']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ok', 'suspect', 'advisory', 'ambiguous']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['unchanged', 'changed', 'heading', 'ambiguous']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ok', 'suspect', 'advisory']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['unchanged', 'deleted', 'context']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['ok', 'suspect']",
+    reason: REASON.TABLE,
+    count: 2,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['unchanged', 'changed']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['changed', 'changed']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changes',
+    expr: "['deleted', 'moved']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'changed',
+    expr: "['changed', 'changed-context', 'split', 'merged']",
+    reason: REASON.LABELTEST,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['suspect', 'advisory']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['suspect', 'ambiguous']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/relations.ts',
+    anchor: 'states',
+    expr: "['suspect', 'ok', 'suspect', 'advisory', 'ambiguous']",
+    reason: REASON.TABLE,
+  },
+  {
+    file: 'blind/bank/replay.ts',
+    anchor: 'fields',
+    expr: "[ 'model', 'system', 'messages', 'output', 'max_tokens', 'thinking', 'set.name', 'set.description', 'set.labels.name', 'set.labels.description', 'set.labels.examples', 'set.labels.target', 'set.labels.atom', 'labelerId', 'cutDigest', ]",
+    reason: REASON.FIELDS,
+  },
+  {
+    file: 'blind/bank/replay.ts',
+    anchor: 'versionsRequired',
+    expr: "['node', 'icu']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'blind/bank/structure.ts',
+    anchor: 'units',
+    expr: "['Key', 'Place', ...rows.flat()]",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'kit/anchor-case.ts',
+    anchor: 'REMOVABLE',
+    expr: "['paragraph', 'list', 'quote', 'table']",
+    reason: REASON.CONTAINERS,
+  },
+  {
+    file: 'kit/anchor-case.ts',
+    anchor: 'segs',
+    expr: "['split', 'merge', 'reword', 'delete', 'insert']",
+    reason: REASON.EDITS,
+  },
+  {
+    file: 'kit/child-run.ts',
+    anchor: 'stdio',
+    expr: "['ignore', 'pipe', 'pipe']",
+    reason: REASON.STDIO,
+  },
+  {
+    file: 'kit/estate.ts',
+    anchor: 'PROSE_CONTAINERS',
+    expr: "['sentence', 'list_item', 'table_cell', 'block_quote', 'heading']",
+    reason: REASON.CONTAINERS,
+  },
+  {
+    file: 'kit/labellers.ts',
+    anchor: 'TRUTH_LABELS',
+    expr: "['rule', 'prohibition', 'example', 'description']",
+    reason: REASON.LABELSET,
+  },
+  {
+    file: 'kit/oracle.ts',
+    anchor: 'EXACT_SPAN',
+    expr: "['sentence', 'fence', 'comment']",
+    reason: REASON.CONTAINERS,
+  },
+  {
+    file: 'kit/segments.ts',
+    anchor: 'events',
+    expr: "['moved', 'unchanged']",
+    reason: REASON.EVENTS,
+  },
+  {
+    file: 'kit/words.ts',
+    anchor: 'HEAD_KINDS',
+    expr: "['notes', 'steps', 'checks', 'duties', 'rounds']",
+    reason: REASON.VOCAB,
+  },
+  {
+    file: 'kit/world.ts',
+    anchor: 'style',
+    expr: "['plain', 'double', 'single']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'kit/world.ts',
+    anchor: 'info',
+    expr: "['', 'bash', 'yaml']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'kit/world.ts',
+    anchor: 'tag',
+    expr: "['rules', 'role', 'notes']",
+    reason: REASON.FIXTURE,
+  },
+  {
+    file: 'sut/blind-binding/replay.ts',
+    anchor: 'WIRE_FIELDS',
+    expr: "['model', 'system', 'messages', 'output', 'max_tokens', 'thinking']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'sut/blind-binding/replay.ts',
+    anchor: 'SET_FIELDS',
+    expr: "['name', 'description']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'sut/blind-binding/replay.ts',
+    anchor: 'versionsRequired',
+    expr: "['node', 'icu']",
+    reason: REASON.MISC,
+  },
+  {
+    file: 'sut/reader.ts',
+    anchor: 'NAMES',
+    expr: "[ 'AtomBuilder', 'AGENT_RULES_SET', 'Cassette', 'cut', 'LabelerError', 'buildLabelling', 'singleLabelling', 'denseOpinions', 'parseDenseAnswer', 'parseLabelSets', 'parseLedger', 'renderLedger', 'setHash', 'pointerScan', 'pointerAtoms', ]",
+    reason: REASON.MISC,
+  },
 ];
 
 /** Whether the body of a regular expression matches letters or words (see the file comment). */
@@ -1221,6 +2170,9 @@ const splitsWords = (body: string): boolean =>
 const regexBody = (literal: string): string => literal.slice(1, literal.lastIndexOf('/'));
 
 const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
+
+/** A plain word: two or more ASCII letters and nothing else (see the file comment). */
+const PLAIN_WORD = /^[A-Za-z]{2,}$/;
 
 /** The methods of a text that read it, and the ones that test it for a word. */
 const READERS = new Set(['split', 'match', 'matchAll', 'search', 'replace', 'replaceAll']);
@@ -1364,6 +2316,16 @@ export function findingsOf(file: string, source: string): Finding[] {
     return piece !== undefined && hasLetter(piece.text);
   };
 
+  /** Whether an element is a plain word: letters only, two or more, built of known string pieces. */
+  const isPlainWord = (node: ts.Node): boolean => {
+    if (ts.isIdentifier(bare(node))) return false;
+    const text = staticText(node);
+    return text !== undefined && PLAIN_WORD.test(text);
+  };
+  const plainWordCount = (elements: readonly ts.Node[]): number => elements.filter(isPlainWord).length;
+  /** The tuples of a `new Map([[key, value], ..])` argument: their keys are counted by the Map rule only. */
+  const mapEntries = new Set<ts.Node>();
+
   /** Whether an expression is (or is bound to) an array with an element that is a literal word. */
   const isWordList = (node: ts.Node | undefined, depth = 0): boolean => {
     const n = resolve(node);
@@ -1378,7 +2340,19 @@ export function findingsOf(file: string, source: string): Finding[] {
     );
   };
 
-  /** Names of the consts that hold a Set started empty and given a literal word with `add`. */
+  /** The name a const identifier stands for when it is an alias of another identifier (`const alias = words`). */
+  const rootName = (name: string): string => {
+    let current = name;
+    for (let depth = 0; depth < 8; depth += 1) {
+      const bound = consts.get(current);
+      const next = bound ? bare(bound) : undefined;
+      if (!next || !ts.isIdentifier(next)) break;
+      current = next.text;
+    }
+    return current;
+  };
+
+  /** Root names of the Sets given a literal word with `add` (through an alias or not). */
   const addedTo = new Set<string>();
   const collectAdds = (node: ts.Node): void => {
     if (ts.isCallExpression(node) && memberName(node.expression) === 'add') {
@@ -1388,7 +2362,7 @@ export function findingsOf(file: string, source: string): Finding[] {
           ? bare(callee.expression)
           : undefined;
       if (receiver && ts.isIdentifier(receiver) && hasLiteralLetter(node.arguments[0]))
-        addedTo.add(receiver.text);
+        addedTo.add(rootName(receiver.text));
     }
     ts.forEachChild(node, collectAdds);
   };
@@ -1396,7 +2370,7 @@ export function findingsOf(file: string, source: string): Finding[] {
   /** Whether an expression is (or is bound to) a Set built from a word list or given literal words. */
   const isWordSet = (node: ts.Node | undefined): boolean => {
     const raw = node ? bare(node) : undefined;
-    if (raw && ts.isIdentifier(raw) && addedTo.has(raw.text)) return true;
+    if (raw && ts.isIdentifier(raw) && addedTo.has(rootName(raw.text))) return true;
     const n = resolve(node);
     if (!n) return false;
     if (!ts.isNewExpression(n) || !ts.isIdentifier(n.expression) || n.expression.text !== 'Set') return false;
@@ -1551,6 +2525,29 @@ export function findingsOf(file: string, source: string): Finding[] {
       if (name && READERS.has(name) && !called && (!member || borrowed))
         add(node, `${name} taken as a value (an alias)`);
     }
+    // The word list itself, however it is used afterwards: an array (a Set is built from an array) with two or
+    // more plain words, and a Map with two or more plain-word keys.
+    if (ts.isArrayLiteralExpression(node)) {
+      if (!mapEntries.has(node) && plainWordCount(node.elements) >= 2)
+        add(node, 'a list of two or more plain words');
+    } else if (
+      ts.isNewExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === 'Map'
+    ) {
+      const entries = resolve(node.arguments?.[0]);
+      if (entries && ts.isArrayLiteralExpression(entries)) {
+        const tuples = entries.elements
+          .map((e) => bare(e))
+          .filter((e): e is ts.ArrayLiteralExpression => ts.isArrayLiteralExpression(e));
+        for (const tuple of tuples) mapEntries.add(tuple);
+        const keys = tuples.filter((t) => {
+          const key = t.elements[0];
+          return key !== undefined && isPlainWord(key);
+        });
+        if (keys.length >= 2) add(node, 'a Map with two or more plain-word keys');
+      }
+    }
     if (ts.isCallExpression(node)) {
       const callee = node.expression;
       const name = memberName(callee);
@@ -1591,6 +2588,15 @@ export function findingsOf(file: string, source: string): Finding[] {
 
 const allowedBy = (finding: Finding) =>
   ALLOWED.filter((a) => a.file === finding.file && a.anchor === finding.anchor && a.expr === finding.text);
+
+/** The allowances that do not match exactly their `count` (one by default) of the given findings. */
+const mismatches = (found: Finding[], among: Allowance[] = ALLOWED): string[] =>
+  among.flatMap((a) => {
+    const n = found.filter((f) => allowedBy(f).includes(a)).length;
+    return n === (a.count ?? 1)
+      ? []
+      : [`${a.file} ${a.anchor}: ${a.expr} matches ${n}, expected ${a.count ?? 1}`];
+  });
 
 /** Sources of the bypass forms of the review of PR 1136: each must be found. */
 const BYPASSES: Record<string, string[]> = {
@@ -1653,6 +2659,60 @@ const BYPASSES: Record<string, string[]> = {
   ],
 };
 
+/** Word lists (the final scope of the guard): each source holds a list of plain words, however it is used. */
+const WORD_LISTS: Record<string, string[]> = {
+  'an array of two plain words': [
+    "export const words = ['never', 'always'];",
+    "export const words = ['never', 'always'] as const;",
+    "export const words = Object.freeze(['never', 'always']);",
+    "export const words = ['ne' + 'ver', 'must'];",
+    'export const words = [`never`, `must`];',
+    "export const words = ['never', 'always', 'a/b', 3];",
+    "export const f = (extra: string) => [extra, 'never', 'must'];",
+    "export const f = (list: string[]) => [...list, 'never', 'must'];",
+  ],
+  'a Set literal or a Set built from a list': [
+    "export const words = new Set(['never', 'always']);",
+    "export const words = new Set<string>(['never', 'always']);",
+    "const LIST = ['never', 'always']; export const words = new Set(LIST);",
+  ],
+  'a Map with plain-word keys': [
+    "export const m = new Map([['never', 1], ['always', 2]]);",
+    "export const m = new Map<string, number>([['never', 1], ['always', 2], ['a/b', 3]]);",
+    "const E = [['never', 1], ['always', 2]] as const; export const m = new Map(E);",
+  ],
+  'a let initializer': [
+    "export function reads(text: string) { let words = new Set(['never', 'must']); return words.has(text); }",
+    "let list = ['never', 'must']; export const reads = (w: string) => list.includes(w);",
+  ],
+  'a Set filled with add, through an alias': [
+    "const words = new Set<string>(); const alias = words; alias.add('never'); export const reads = (t: string) => words.has(t);",
+    "const words = new Set<string>(); const alias = words; words.add('never'); export const reads = (t: string) => alias.has(t);",
+  ],
+  'a literal array passed to forEach with add': [
+    "const words = new Set<string>(); ['never', 'must'].forEach((w) => words.add(w)); export const reads = (t: string) => words.has(t);",
+    "const words = new Set<string>(); for (const w of ['never', 'must']) words.add(w); export const reads = (t: string) => words.has(t);",
+  ],
+};
+
+/** Lists that are not word lists of this rule. */
+const NOT_WORD_LISTS: string[] = [
+  "export const words = ['never'];",
+  "export const words = ['never', 3, 4];",
+  "export const words = ['a/one.md', 'b/two.md'];",
+  "export const words = ['part.user', 'none-of-these', '__proto__', 'v2', 'x:y'];",
+  "export const words = ['a', 'b', 'I'];",
+  "export const words = ['never be late', 'always be early'];",
+  "export const words = ['', ' ', '  '];",
+  "export const f = (a: string, b: string) => [a, b, 'never'];",
+  "export const words = new Set(['never']);",
+  "export const m = new Map([['never', 1]]);",
+  "export const m = new Map([[1, 'never'], [2, 'always']]);",
+  "export const m = new Map([['a/b', 1], ['c.d', 2]]);",
+  'export const words = new Set([1, 2, 3]);',
+  "export const f = (text: string) => text === 'never' || text === 'always';",
+];
+
 describe('no letter pattern on generated prose in the pointer bank', () => {
   const findings = FOLDERS.flatMap((folder) =>
     sourceFiles(join(ROOT, folder)).flatMap((path) =>
@@ -1706,6 +2766,48 @@ describe('no letter pattern on generated prose in the pointer bank', () => {
         expect(findingsOf('bank/families/ids.ts', source).length, source).toBeGreaterThan(0);
     });
 
+  for (const [form, sources] of Object.entries(WORD_LISTS))
+    it(`finds the word list: ${form}`, () => {
+      for (const source of sources)
+        expect(findingsOf('bank/families/ids.ts', source).length, source).toBeGreaterThan(0);
+    });
+
+  it('does not find a list of fewer than two plain words, or of tokens that are not plain words', () => {
+    for (const source of NOT_WORD_LISTS)
+      expect(
+        findingsOf('bank/families/ids.ts', source).map((f) => f.why),
+        source,
+      ).toEqual([]);
+  });
+
+  it('reports a Map once, for its keys, and not its tuples', () => {
+    const source = "export const m = new Map([['never', 'x'], ['always', 'y']]);";
+    expect(findingsOf('bank/families/ids.ts', source).map((f) => f.why)).toEqual([
+      'a Map with two or more plain-word keys',
+    ]);
+  });
+
+  it('an allowance covers its function, its expression and its count, and nothing else', () => {
+    const site = "['rule', 'prohibition']";
+    const allowance = ALLOWED.find((a) => a.anchor === 'want' && a.expr === site) as Allowance;
+    expect(allowance.file).toBe('bank/families/adversarial.ts');
+    const at = (file: string, fn: string, expr: string) =>
+      findingsOf(file, `function ${fn}() { return ${expr}; }`);
+    const hits = (found: Finding[]) => found.filter((f) => allowedBy(f).includes(allowance)).length;
+    const file = allowance.file;
+    expect(hits(at(file, 'want', site))).toBe(1);
+    expect(hits(at(file, 'other', site))).toBe(0);
+    expect(hits(at(file, 'want', "['rule', 'example']"))).toBe(0);
+    expect(hits(at('bank/families/ids.ts', 'want', site))).toBe(0);
+    // Two identical sites in one function: the allowance (count one) no longer matches exactly.
+    const two = at(file, 'want', `[${site}, ${site}]`);
+    expect(hits(two)).toBe(2);
+    expect(mismatches(two, [allowance])).toHaveLength(1);
+    expect(mismatches(at(file, 'want', site), [allowance])).toEqual([]);
+    // An allowance whose site is gone matches nothing.
+    expect(mismatches([], [allowance])).toHaveLength(1);
+  });
+
   it('does not find the ordinary tests of names, numbers and ids', () => {
     for (const source of [
       'const SEEN = new Set<string>(); export const seen = (id: string) => SEEN.has(id);',
@@ -1743,13 +2845,7 @@ describe('no letter pattern on generated prose in the pointer bank', () => {
   });
 
   it('every allowance matches exactly its sites', () => {
-    const wrong = ALLOWED.flatMap((a) => {
-      const n = findings.filter((f) => allowedBy(f).includes(a)).length;
-      return n === (a.count ?? 1)
-        ? []
-        : [`${a.file} ${a.anchor}: ${a.expr} matches ${n}, expected ${a.count ?? 1}`];
-    });
-    expect(wrong).toEqual([]);
+    expect(mismatches(findings)).toEqual([]);
   });
 });
 

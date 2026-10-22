@@ -603,6 +603,7 @@ Optional observation extensions have these shapes:
 - Ledger entries may expose `lineage: Array<{scan: number, event: string}>` and `twinOf: string | null`.
 - An exported `checkLedger(previousRaw: string | undefined, currentLedger)` may return `{ok: boolean, error?: string}`. Check mode delegates to that export. Without it, check mode reports an explicit unavailable capability; the adapter never recreates the CLI's check.
 - `margin(probabilities)` is forwarded unchanged. Independent stack-vote validation uses an optional exported `stackDecision(request)` with the `StackRequest` and `StackDecision` types declared in the validator port. Without that export, independent-vote checks report an unavailable capability. The adapter does not combine votes or force a two-member stack to accept an independent-vote array.
+- A refusal for nesting carries the code `nesting-too-deep`, and a reader that refuses a file for its nesting must emit it.
 
 Absent observations stay absent. An item that needs an observation must require it explicitly; missing per-id events never mean `unchanged`. A reported empty array, empty map, or null twin is distinct from an unavailable observation.
 
