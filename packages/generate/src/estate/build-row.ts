@@ -330,7 +330,8 @@ export function build(
       continue;
     }
     for (const pattern of compiled.must ?? []) if (!then.must.includes(pattern)) then.must.push(pattern);
-    for (const pattern of compiled.mustNot ?? []) if (!then.mustNot.includes(pattern)) then.mustNot.push(pattern);
+    for (const pattern of compiled.mustNot ?? [])
+      if (!then.mustNot.includes(pattern)) then.mustNot.push(pattern);
   }
 
   // Blocks.
