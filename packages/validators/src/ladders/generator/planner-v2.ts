@@ -1281,16 +1281,22 @@ const STEMS: {
     tier: 4,
     check: (a) => {
       const zero = a.requiredCuts?.get(0);
-      const [variable, value] = Object.entries(a.scenario.required)[0] as [string, string];
-      const warning = zero?.warnings.find((entry) => (entry.code as string) === 'budget_drops_required') as
-        | { values?: Array<{ variable?: unknown; value?: unknown }> }
-        | undefined;
-      const named = (warning?.values ?? []).some(
-        (entry) => entry.variable === variable && entry.value === value,
-      );
+      // The required values the plan without a budget holds and no row at a budget of 0 holds: exactly the
+      // entries the warning must name, no fewer and no more.
+      const kept = zero?.rows ?? [];
+      const dropped = Object.entries(a.scenario.required)
+        .filter(([variable, value]) => rowsOf(a.full).some((row) => row[variable] === value))
+        .filter(([variable, value]) => !kept.some((row) => row.values[variable] === value))
+        .map(([variable, value]) => JSON.stringify([variable, value]))
+        .sort();
+      const warnings = (zero?.warnings ?? []).filter(
+        (entry) => (entry.code as string) === 'budget_drops_required',
+      ) as Array<{ values?: Array<{ variable?: unknown; value?: unknown }> }>;
+      const named = (warnings[0]?.values ?? []).map((entry) => JSON.stringify([entry.variable, entry.value])).sort();
+      const exact = warnings.length === 1 && JSON.stringify(named) === JSON.stringify(dropped);
       return verdict(
-        zero?.rows.length === 0 && named,
-        `${zero?.rows.length} rows at a budget of 0; warning ${warning ? 'given' : 'missing'}, the required value ${named ? 'named' : 'not named'}`,
+        kept.length === 0 && dropped.length > 0 && exact,
+        `${kept.length} rows at a budget of 0; ${warnings.length} budget_drops_required warnings naming ${JSON.stringify(named)} where ${JSON.stringify(dropped)} is wanted`,
       );
     },
   },
