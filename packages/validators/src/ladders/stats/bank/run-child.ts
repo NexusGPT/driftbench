@@ -73,6 +73,7 @@ async function main(args: readonly string[]): Promise<void> {
   }
   traceLine(`bank-child:${seedText}:${startText}`, 'items done, closing the frame');
   closeFrame(frame);
+  await frame.ended();
   traceLine(`bank-child:${seedText}:${startText}`, 'frame closed');
   // The last line: every outcome and the frame's taint are written before it, so the parent has all it needs.
   process.stdout.write(`${JSON.stringify({ closed: true })}\n`);
