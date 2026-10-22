@@ -330,6 +330,45 @@ describe('a labeller returns a numeric limit as structured fields', () => {
     expect(result.pointer?.atomRefusals).toHaveLength(1);
   });
 
+  describe('a label that exists to carry limits', () => {
+    const set = (() => {
+      const found = sets()[0];
+      if (!found) throw new Error('the set is missing');
+      return found;
+    })();
+    const window = {
+      id: 'w',
+      path: 'w.md',
+      headingPath: [],
+      units: [
+        { n: 1, text: 'Warn the skipper', index: 0 },
+        { n: 2, text: 'Five minutes', index: 1 },
+      ],
+    };
+    const check = (entry: Record<string, unknown>) =>
+      pointer.checkAnswer(set, window, [{ units: '2', label: 'bound', target: 1, ...entry }]);
+
+    it('refuses an entry that gives no limit, and names the label', () => {
+      const none = check({});
+      expect(none.accepted.size).toBe(0);
+      expect(none.refusals).toHaveLength(1);
+      expect(none.refusals[0]).toContain('bound');
+      expect(none.refusals[0]).toContain('limit');
+    });
+
+    it('refuses an entry whose only limit was dropped', () => {
+      const bad = check({ links: [{ kind: 'limit', to: 'le', value: '2' }] });
+      expect(bad.accepted.size).toBe(0);
+      expect(bad.refusals).toHaveLength(1);
+    });
+
+    it('accepts an entry that gives a limit', () => {
+      const good = check({ links: [{ kind: 'limit', to: 'le', value: 2, unit: 'days' }] });
+      expect(good.refusals).toEqual([]);
+      expect(good.accepted.get(2)?.links).toEqual([{ kind: 'limit', to: 'le', value: 2, unit: 'days' }]);
+    });
+  });
+
   it('puts no condition on a unit that gave no limit', async () => {
     const result = await play(undefined);
     expect(atomOf(result, 'Close the gate at dusk')?.fields).not.toHaveProperty('condition');
