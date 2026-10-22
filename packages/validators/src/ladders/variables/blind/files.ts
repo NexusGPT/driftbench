@@ -143,14 +143,14 @@ export function validateIssue(ctx: ItemContext, value: unknown, code: string, pa
     rule: 'a store with the defect is refused',
     got: 'the store was accepted',
     expected: { code, path },
-  }),);
+  }));
   const errors = errorsOf(r);
   const hit = errors.find((e) => e.code === code && (path === undefined || e.path === path));
   check(!!hit, () => ({
     rule: 'the refusal names the code of the defect, at the place of the defect',
     got: errors.map((e) => ({ code: e.code, path: e.path })).slice(0, 8),
     expected: { code, path },
-  }),);
+  }));
   return errors;
 }
 
@@ -161,7 +161,7 @@ export function validateIssueAt(ctx: ItemContext, value: unknown, path: string):
     rule: 'a store with the defect is refused',
     got: 'the store was accepted',
     expected: { path },
-  }),);
+  }));
   const errors = errorsOf(r);
   check(
     errors.some((e) => e.path === path || e.path.startsWith(`${path}.`)),
@@ -170,7 +170,7 @@ export function validateIssueAt(ctx: ItemContext, value: unknown, path: string):
       got: errors.map((e) => ({ code: e.code, path: e.path })).slice(0, 8),
       expected: { path },
     }),
-);
+  );
   return errors;
 }
 
