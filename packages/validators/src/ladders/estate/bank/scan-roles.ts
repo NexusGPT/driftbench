@@ -16,13 +16,15 @@ type Role = PlantedRole;
 /** The columns of the planted table, in order: the role, its French header, and the value planted in the row. */
 /** An id with no digit: only the recorded id role makes it the id of the row. */
 const ROW_ID = 'CONTROLE-ORAL';
+/** A passage the enforces column gives in backticks, a form only the enforces column reads. */
+const BACKTICKED = 'Toujours citer la source';
 const PASSAGE = 'Ne jamais promettre une date de remboursement';
 const DESCRIPTION = 'Contrôle les promesses faites au client';
 const COLUMNS: ReadonlyArray<{ role: Role; header: string; cell: string }> = [
   { role: 'id', header: 'Identifiant', cell: ROW_ID },
   { role: 'guard', header: 'Script', cell: 'juge-reponse' },
   { role: 'event', header: 'Événement', cell: 'PreToolUse' },
-  { role: 'enforces', header: 'Règles', cell: 'R1' },
+  { role: 'enforces', header: 'Règles', cell: `R1, \`${BACKTICKED}\`` },
   { role: 'watches', header: 'Quand', cell: `“${PASSAGE}”` },
   { role: 'verdict', header: 'Sortie', cell: 'deny' },
   { role: 'state', header: 'Phase', cell: 'actif' },
@@ -73,9 +75,10 @@ const reads: Record<Role, (row: RegistryRow) => string | undefined> = {
   guard: (row) => (row.guard === 'juge-reponse' ? undefined : `the guard is ${row.guard}`),
   event: (row) => (row.event === 'PreToolUse' ? undefined : `the event is ${String(row.event)}`),
   enforces: (row) =>
-    row.enforces.some((rule) => 'id' in rule && rule.id === 'R1')
+    row.enforces.some((rule) => 'id' in rule && rule.id === 'R1') &&
+    row.enforces.some((rule) => 'quote' in rule && rule.quote === BACKTICKED)
       ? undefined
-      : `the rule labels are ${JSON.stringify(row.enforces)}`,
+      : `the rule labels and backticked passages are ${JSON.stringify(row.enforces)}`,
   watches: (row) =>
     row.enforces.some((rule) => 'quote' in rule && rule.quote === PASSAGE)
       ? undefined
