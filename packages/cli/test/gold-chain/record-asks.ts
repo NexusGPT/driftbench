@@ -72,11 +72,24 @@ async function record(estate: EstateName, key: string) {
       texts.set(path, await readFile(join(dir, path), 'utf8'));
     const cache = loadAsks(estate, ASK_MODEL);
     const spent = { input: 0, output: 0, requests: 0 };
+    // GOLD_ASK_DRY=1: assemble every request, send none, and show one that has both neighbour units.
+    const seen: string[] = [];
+    const dry = async (request: { system: string; user: string }) => {
+      seen.push(request.user);
+      return '{"limits": []}';
+    };
     const produced = await variables.produceLimits(scan.map, {
       texts,
-      ask: askPort(estate, ASK_MODEL, cache, spent, { key, capIn, capOut }),
+      ask: process.env.GOLD_ASK_DRY ? dry : askPort(estate, ASK_MODEL, cache, spent, { key, capIn, capOut }),
       include: (atom) => atom.kind === 'instruction' && atom.fields?.extraction === 'pointer',
     });
+    if (process.env.GOLD_ASK_DRY) {
+      const both = seen.filter((user) => user.includes('PREVIOUS UNIT:') && user.includes('NEXT UNIT:'));
+      console.log(
+        `estate ${estate}: ${seen.length} requests assembled, ${seen.filter((u) => u.includes('PREVIOUS UNIT:')).length} with a previous unit, ${seen.filter((u) => u.includes('NEXT UNIT:')).length} with a next unit, ${both.length} with both`,
+      );
+      if (estate === 'A') console.log(`--- one request ---\n${both[3] ?? both[0] ?? seen[0]}\n---`);
+    }
     const quotes = { length: produced.requests };
     return { ...spent, quotes: quotes.length };
   } finally {
