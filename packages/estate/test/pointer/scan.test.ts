@@ -620,15 +620,24 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('keeps a condition out of the group of labels that build no atom', async () => {
-    // when 1, remark 1, aside 1, order 1, ban 1: remark and aside build no atom, two of five. A condition acts through
-    // its target, so it is not a third voice for that group, and the unit stays unlabeled.
+    // when 1, remark 1, aside 1, order 1, ban 1, then two runs asked for the split say when at unit 3 and at unit 2:
+    // remark and aside build no atom, two of seven. A condition acts through its target, so it is no voice for that
+    // group, and the unit stays unlabeled.
     const SCOPED = `${KINDS}      - name: when
         description: A unit that only says when another unit applies.
         target: required
         condition: true
 `;
     const calls = new Map<string, number>();
-    const plan: Array<[string, number?]> = [['when', 2], ['remark'], ['aside'], ['order'], ['ban']];
+    const plan: Array<[string, number?]> = [
+      ['when', 2],
+      ['remark'],
+      ['aside'],
+      ['order'],
+      ['ban'],
+      ['when', 3],
+      ['when', 2],
+    ];
     const labeler = plantedDense(
       (window) => {
         const call = (calls.get(window.path) ?? 0) + 1;
@@ -667,7 +676,7 @@ describe('runs that split between labels of one atom kind', () => {
     const files = new Set(result.ledger.entries.map((entry) => entry.path)).size;
     expect(SPLIT_REASK_RUNS).toBe(2);
     expect(result.reasked).toHaveLength(files * SPLIT_REASK_RUNS);
-    expect(result.reasked[0]).toMatch(/asked again as run 6 for \d+ units split inside a kind/);
+    expect(result.reasked[0]).toMatch(/asked again as run 6 for \d+ split units/);
     expect(result.unlabeled).toBe(0);
     expect(labelsOf(result)).toEqual(new Set(['order']));
     // The extra runs are recorded answers: a replay reads them with no call and gives the same ledger.
@@ -678,29 +687,19 @@ describe('runs that split between labels of one atom kind', () => {
     expect(renderLedger(replayed.ledger)).toBe(renderLedger(result.ledger));
   });
 
-  it('asks no more runs for a split between atom kinds', async () => {
-    const calls: number[] = [];
-    const labels = ['order', 'voice', 'order', 'voice', 'remark'];
-    const byRunLogged = new Map<string, number>();
-    const labeler = plantedDense(
-      (window) => {
-        const call = (byRunLogged.get(window.path) ?? 0) + 1;
-        byRunLogged.set(window.path, call);
-        calls.push(call);
-        return [{ units: `1-${window.units.length}`, label: labels[call - 1] ?? 'order' }];
-      },
-      [],
-      { runs: 5 },
-    );
-    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(KINDS) }));
-    expect(Math.max(...calls)).toBe(5);
-    expect(result.reasked).toEqual([]);
+  it('asks two more runs for a split between atom kinds, and only a majority decides', async () => {
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture. The window is
+    // asked twice more; both say voice, so voice holds 4 of 7.
+    const settled = await scan(['order', 'voice', 'order', 'voice', 'remark', 'voice', 'voice']);
+    expect(settled.reasked).toHaveLength(new Set(settled.ledger.entries.map((entry) => entry.path)).size * 2);
+    expect(labelsOf(settled)).toEqual(new Set(['voice']));
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits; no kind
-    // holds three of five, so the unit stays unlabeled and counts as a split.
-    const result = await scan(['order', 'voice', 'order', 'voice', 'remark']);
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The two
+    // runs asked for the split say order and voice, so no label or kind holds four of seven: the unit stays unlabeled
+    // and counts as a split.
+    const result = await scan(['order', 'voice', 'order', 'voice', 'remark', 'order', 'voice']);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
     expect(result.split).toBe(result.ledger.entries.length);
   });

@@ -218,7 +218,7 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(code).toBe(0);
     expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
-    expect(output.out).toMatch(/asked again: .* asked again as run 7 for \d+ units split inside a kind/);
+    expect(output.out).toMatch(/asked again: .* asked again as run 7 for \d+ split units/);
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {
