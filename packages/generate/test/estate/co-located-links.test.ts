@@ -45,7 +45,7 @@ it('verifies the first atom of a row and only exercises the duties placed beside
   expect(result).toMatchObject({ a: 'verifies', b: 'exercises', c: 'exercises' });
 });
 
-it('keeps a duty verified when the situation that supplies the ask names it', () => {
+it('exercises a duty even when the situation that supplies the ask names it', () => {
   const situation = {
     id: 'both',
     title: 'Both duties',
@@ -54,7 +54,7 @@ it('keeps a duty verified when the situation that supplies the ask names it', ()
     phrases: [{ text: 'Please sort the desk today.', lang: 'en', approved: true }],
   };
   const result = links([duty('a'), duty('b')], [row(['a', 'b'])], [situation]);
-  expect(result).toMatchObject({ a: 'verifies', b: 'verifies' });
+  expect(result).toMatchObject({ a: 'verifies', b: 'exercises' });
 });
 
 it('leaves a row of one atom, and the atoms of a journey, as they were', () => {
