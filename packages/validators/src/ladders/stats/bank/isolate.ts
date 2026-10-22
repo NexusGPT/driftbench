@@ -85,6 +85,16 @@ export async function runIsolated(
  */
 export const CLOSE_MS = 2_100_000;
 
+/**
+ * How a bank child that wrote its closed line may end: by exit, or by its own SIGKILL (run-child.ts ends itself that
+ * way so that the native teardown of Node.js 24 cannot hold it). Returns the failure to report, or undefined when the
+ * end is normal. Any other signal after the closed line is a failure.
+ */
+export function endAfterClosed(closedSeen: boolean, signal: NodeJS.Signals | null): string | undefined {
+  if (!closedSeen || signal === null || signal === 'SIGKILL') return undefined;
+  return `the bank's child process ended by ${signal} after it closed its frame`;
+}
+
 /** The time a child process may take to load the bank before it runs its first item. */
 export const STARTUP_MS = 120_000;
 
@@ -181,6 +191,7 @@ function runFrom(
           // The child closed its frame after its last item: every outcome and the taint are read. A child that then
           // does not end within DRAIN_MS is stopped; it holds nothing more (CI runs of PR 986: a child that wrote
           // "frame closed" never ended, and the parent waited CLOSE_MS, past the test's own limit).
+          closedSeen = true;
           traceLine(where, 'child says its frame is closed');
           if (timer) clearTimeout(timer);
           timer = setTimeout(() => {
@@ -226,6 +237,7 @@ function runFrom(
       errors += chunk;
     });
     let reported = 0;
+    let closedSeen = false;
     let drain: NodeJS.Timeout | undefined;
     const conclude = (code: number | null) => {
       if (drain) clearTimeout(drain);
@@ -253,8 +265,12 @@ function runFrom(
       finish(first + 1);
     };
     // The outcome is read when the output streams have closed, so no line still on its way is lost.
-    child.on('exit', (code) => {
-      traceLine(where, `child exited ${code}`);
+    child.on('exit', (code, signal) => {
+      traceLine(where, `child exited ${code}${signal ? ` by ${signal}` : ''}`);
+      // A child that wrote its closed line may end by its own SIGKILL (run-child.ts): a normal end. Any other signal
+      // after the closed line, or any signal before it, is a failure and is read as one below.
+      const failure = endAfterClosed(closedSeen, signal);
+      if (failure) taints.push(`${failure} on seed ${seed}`);
       drain = setTimeout(() => conclude(code), DRAIN_MS);
     });
     child.on('close', (code) => conclude(code));

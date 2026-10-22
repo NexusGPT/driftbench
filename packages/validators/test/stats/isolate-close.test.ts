@@ -2,7 +2,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { join } from 'node:path';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { statsBank } from '../../src/ladders/stats/bank/index';
-import { runIsolated } from '../../src/ladders/stats/bank/isolate';
+import { endAfterClosed, runIsolated } from '../../src/ladders/stats/bank/isolate';
 import { findRoot } from '../../src/root';
 
 /**
@@ -49,5 +49,22 @@ describe('the end of the bank child', () => {
       if (before === undefined) delete process.env.DRIFTBENCH_STATS_IMPL;
       else process.env.DRIFTBENCH_STATS_IMPL = before;
     }
+  });
+});
+
+describe('how a bank child may end after its closed line', () => {
+  it('takes exit and its own SIGKILL as a normal end', () => {
+    expect(endAfterClosed(true, null)).toBeUndefined();
+    expect(endAfterClosed(true, 'SIGKILL')).toBeUndefined();
+  });
+
+  it('takes any other signal after the closed line as a failure, and says which', () => {
+    for (const signal of ['SIGTERM', 'SIGSEGV', 'SIGABRT'] as const)
+      expect(endAfterClosed(true, signal)).toContain(signal);
+  });
+
+  it('leaves a signal before the closed line to the ordinary death path', () => {
+    expect(endAfterClosed(false, 'SIGKILL')).toBeUndefined();
+    expect(endAfterClosed(false, 'SIGSEGV')).toBeUndefined();
   });
 });
