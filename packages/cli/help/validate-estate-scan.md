@@ -47,7 +47,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>] [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--prices <file>] [--labels <file>] [--ledger <file> [--update | --ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]... [--user-skills <folder>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -76,6 +76,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--labeler-pass-at <p>`, `--labeler-fail-at <p>` | `0.9`, `0.1` | in a stack, setting either decides by probability bounds instead of by margin (the default of a yes or no system 1 labeler): system 1 decides a unit alone from the first probability for a label, or under the second for every label; in between, system 2 decides |
 | `--labeler-key <variable>` | none | the environment variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>` | `4` | requests in flight at once; the labels, the ledger and the cassette bytes do not depend on it |
+| `--prices <file>` | none | a YAML table of USD per million tokens, such as the `prices:` table of a campaign: `as_of` and `models`, each with `input`, `output` and `cached_input`. The report then prints the cost of the requests sent, and the cost when recorded of the answers replayed. Without it the report says how to get a cost. When the table prices none of the models, the report says that no cost is known. A `cached_input` price is not used, because the labelers report no cached tokens, and the report says so |
 | `--labels <file>` | the shipped `agent-rules` set | the label sets, a YAML file |
 | `--ledger <file>` | none | the ledger of unit ids; read at the start. Without `--update` it is not written: the scan says so when the files changed |
 | `--update` | off | with `--ledger`: write the ledger of the files as they are now. Commit it: `radius ledger` and `estate diff --old-ledger` read it as the last scan |
@@ -83,7 +84,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 
 `--replay` and `--no-model` do not go together. With neither, the scan calls a model and needs a key.
 `--pointer` replaces the model call: it does not go with `--replay` or `--no-model`, and `--cassette`,
-`--record`, `--labels`, `--labeler`, `--jobs`, `--ledger` and `--update` need it.
+`--record`, `--labels`, `--labeler`, `--prices`, `--jobs`, `--ledger` and `--update` need it.
 
 ### The pointer reader
 

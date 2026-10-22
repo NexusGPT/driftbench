@@ -1,6 +1,7 @@
 import { appendFileSync } from 'node:fs';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import type { TokenPrices } from '@agent-nexus/driftbench-core';
 import { type PointerScanOptions, pointer, type ScanEstateResult } from '@agent-nexus/driftbench-estate';
 import type { FetchLike } from '@agent-nexus/driftbench-generate';
 import { exists, reason, show, writeOut } from '../files';
@@ -23,6 +24,8 @@ export type EstatePointerOptions = {
   /** The name of the environment variable that holds the bearer token of an http labeler. */
   labelerKey?: string;
   jobs?: string;
+  /** A table of USD per million tokens (YAML), to price the tokens the labelers used. */
+  prices?: string;
   ledger?: string;
   ledgerCheck?: boolean;
   /** Write the ledger. Without it, the ledger is read and left as it is. */
@@ -257,8 +260,149 @@ export async function openPointer(
 
 const className = (cls: pointer.LabelerClass): string => (cls === 'system1' ? 'system 1' : 'system 2');
 
+/** The cost of one side of a run (the requests sent, or the answers replayed): USD over the priced models. */
+type Side = { usd: number; priced: number; missing: Set<string>; any: boolean };
+
+/** What a run cost in USD, for what it sent and for what it replayed, and the models it used. */
+type Spend = { sent: Side; recorded: Side; used: Set<string> };
+
+const newSide = (): Side => ({ usd: 0, priced: 0, missing: new Set(), any: false });
+const newSpend = (): Spend => ({ sent: newSide(), recorded: newSide(), used: new Set() });
+
+/** USD for tokens at a model's price, or undefined when the table has no price for the model. */
+function usdOf(prices: TokenPrices | undefined, model: string, input: number, output: number) {
+  const price = prices && Object.hasOwn(prices.models, model) ? prices.models[model] : undefined;
+  return price ? (input * price.input + output * price.output) / 1_000_000 : undefined;
+}
+
+const dollars = (usd: number): string => `${usd.toFixed(4)} USD`;
+
+/** Adds the tokens of one labeler to a side, and returns their USD, or undefined when the model has no price. */
+function addTo(
+  side: Side,
+  prices: TokenPrices | undefined,
+  model: string,
+  input: number,
+  output: number,
+): number | undefined {
+  side.any = true;
+  const usd = usdOf(prices, model, input, output);
+  if (usd === undefined) side.missing.add(model);
+  else {
+    side.usd += usd;
+    side.priced++;
+  }
+  return usd;
+}
+
+/**
+ * The lines of the tokens each labeler used: the requests sent, the answers replayed from the cassette (their
+ * tokens come from the recording), and the cost of both when a price table is given.
+ */
+function tokenLines(
+  entries: readonly pointer.LabelerUsage[],
+  topic: string,
+  prices: TokenPrices | undefined,
+  spend: Spend,
+): string[] {
+  const lines: string[] = [];
+  for (const entry of entries) {
+    const who = `${topic}${className(entry.cls)} ${entry.id} ${entry.model}`;
+    if (entry.calls > 0 || entry.input + entry.output > 0) {
+      lines.push(`  Tokens, ${who}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`);
+      spend.used.add(entry.model);
+      const usd = addTo(spend.sent, prices, entry.model, entry.input, entry.output);
+      if (usd !== undefined) lines.push(`  Cost, ${who}: ${dollars(usd)}.`);
+    }
+    if (entry.replayed > 0) {
+      lines.push(
+        `  Tokens replayed from the cassette, ${who}: ${entry.replayedInput} in, ${entry.replayedOutput} out, ${entry.replayed} requests.`,
+      );
+      spend.used.add(entry.model);
+      const usd = addTo(spend.recorded, prices, entry.model, entry.replayedInput, entry.replayedOutput);
+      if (usd !== undefined) lines.push(`  Cost when recorded, ${who}: ${dollars(usd)}.`);
+    }
+  }
+  return lines;
+}
+
+/**
+ * The closing lines of the cost: for each side the total and the models it leaves out, or that no cost is
+ * known when the table prices none of them, or how to get a price. A field of the table that the cost does not
+ * use is named.
+ */
+function costLines(
+  spend: Spend,
+  prices: TokenPrices | undefined,
+  indent: string,
+  names: { sent: string; recorded: string },
+): string[] {
+  if (!spend.sent.any && !spend.recorded.any) return [];
+  if (!prices) return [`${indent}No prices given: pass --prices <file> to see the cost in USD.`];
+  const lines: string[] = [];
+  const sides = [
+    { side: spend.sent, name: names.sent },
+    { side: spend.recorded, name: names.recorded },
+  ];
+  for (const { side, name } of sides) {
+    if (!side.any) continue;
+    const models = [...side.missing].sort();
+    lines.push(
+      side.priced === 0
+        ? `${indent}No cost is known: the price table has no price for ${models.join(', ')}.`
+        : `${indent}${name}: ${dollars(side.usd)}${models.length > 0 ? `, without ${models.join(', ')}` : ''}.`,
+    );
+  }
+  for (const model of [...spend.used].sort()) {
+    const price = Object.hasOwn(prices.models, model) ? prices.models[model] : undefined;
+    if (price && price.cached_input > 0)
+      lines.push(
+        `${indent}Note: the price table gives cached_input for ${model}. It is not used: the labelers report no cached tokens.`,
+      );
+  }
+  return lines;
+}
+
+/**
+ * What the labelers used in one scan, in lines for `estate build`, which keeps the rest of the scan output
+ * to itself: the requests sent and the answers replayed with their tokens, then the cost when prices are given.
+ */
+export function usageSummary(result: ScanEstateResult, prices: TokenPrices | undefined): string[] {
+  const entries = [...(result.pointer?.usage ?? []), ...(result.documentRoles?.usage ?? [])];
+  if (entries.length === 0) return [];
+  const sum = (pick: (entry: pointer.LabelerUsage) => number) =>
+    entries.reduce((total, entry) => total + pick(entry), 0);
+  const sent = sum((entry) => entry.calls);
+  const replayed = sum((entry) => entry.replayed);
+  const parts = [
+    sent > 0
+      ? `${sent} requests sent (${sum((entry) => entry.input)} in, ${sum((entry) => entry.output)} out)`
+      : '0 requests sent',
+    ...(replayed > 0
+      ? [
+          `${replayed} answers replayed from the cassette (${sum((entry) => entry.replayedInput)} in, ${sum((entry) => entry.replayedOutput)} out)`,
+        ]
+      : []),
+  ];
+  const spend = newSpend();
+  for (const entry of entries) {
+    if (entry.calls > 0 || entry.input + entry.output > 0) {
+      spend.used.add(entry.model);
+      addTo(spend.sent, prices, entry.model, entry.input, entry.output);
+    }
+    if (entry.replayed > 0) {
+      spend.used.add(entry.model);
+      addTo(spend.recorded, prices, entry.model, entry.replayedInput, entry.replayedOutput);
+    }
+  }
+  return [
+    `   Labelers: ${parts.join('; ')}.`,
+    ...costLines(spend, prices, '   ', { sent: 'Cost', recorded: 'Cost when recorded' }),
+  ];
+}
+
 /** The lines a scan prints about the pointer reader: counts and tokens, never a unit. */
-export function pointerLines(result: ScanEstateResult, describe: string): string[] {
+export function pointerLines(result: ScanEstateResult, describe: string, prices?: TokenPrices): string[] {
   const done = result.pointer;
   if (!done) return [];
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
@@ -267,12 +411,8 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
     `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs drew the spans of ${done.spanSplit} units differently, and the first run's spans stand` : ''}; ${done.atoms} atoms${done.dropped.length > 0 ? `; ${done.dropped.length} notes (spans or links) were dropped, listed below` : ''}.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
-  for (const entry of done.usage) {
-    if (entry.input + entry.output === 0 && entry.calls === 0) continue;
-    lines.push(
-      `  Tokens, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
-    );
-  }
+  const spend = newSpend();
+  lines.push(...tokenLines(done.usage, '', prices, spend));
   const events = Object.entries(done.events).filter(([, count]) => count > 0);
   lines.push(
     `  Units since the last ledger: ${events.map(([event, count]) => `${event} ${count}`).join(', ')}.`,
@@ -282,14 +422,12 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
     lines.push(
       `  Document roles: ${Object.keys(roles.labelled).length} files labelled by the document-roles set; requests ${roles.windows} answered, ${roles.calls} sent, ${roles.recorded} recorded.`,
     );
-    for (const entry of roles.usage) {
-      if (entry.input + entry.output === 0 && entry.calls === 0) continue;
-      lines.push(
-        `  Tokens, document roles, ${className(entry.cls)} ${entry.id} ${entry.model}: ${entry.input} in, ${entry.output} out, ${entry.calls} requests sent.`,
-      );
-    }
+    lines.push(...tokenLines(roles.usage, 'document roles, ', prices, spend));
     for (const failure of roles.failed) lines.push(`    document-role window failed: ${failure}`);
   }
+  lines.push(
+    ...costLines(spend, prices, '  ', { sent: 'Cost in all', recorded: 'Cost when recorded in all' }),
+  );
   for (const failure of done.failed) lines.push(`    window failed: ${failure}`);
   for (const refusal of [...done.refusals, ...done.atomRefusals]) lines.push(`    refused: ${refusal}`);
   for (const note of done.dropped) lines.push(`    dropped: ${note}`);
