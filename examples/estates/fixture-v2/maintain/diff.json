@@ -3,33 +3,61 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-21T11:48:48.568Z",
-    "hash": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
+    "readAt": "2026-10-22T17:30:57.395Z",
+    "hash": "f4901f7c56d3dcda3c040fa5c221589961e5a6b6d2340aa3f921e3f66a2faaf5",
     "atoms": 116,
-    "edges": 55
+    "edges": 56
   },
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-21T11:48:59.364Z",
-    "hash": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260",
-    "atoms": 118,
-    "edges": 55
+    "readAt": "2026-10-22T17:31:11.355Z",
+    "hash": "2bd032e394b61cfedeb8aece18f48c87e9a994c7e8c6360cdf8c3e7f6345d78b",
+    "atoms": 120,
+    "edges": 54
   },
   "atoms": {
     "added": [
       {
-        "id": "register.weekly-report.fill-the-template-in-this-order",
+        "id": "register.ledger-auditor.when-either-is-missing-answer-with",
         "kind": "register",
-        "title": "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…",
+        "title": "When either is missing, answer with {\"status\": \"blocked\", \"missing\": [...]} and stop.",
         "producedBy": "model",
         "approved": false,
         "at": {
-          "file": ".claude/skills/weekly-report/SKILL.md",
+          "file": ".claude/agents/ledger-auditor.md",
           "startLine": 11,
-          "endLine": 11,
-          "quote": "Fill the template in this order: invoices reconciled, shipments late, supplier emails sent, open questions.",
-          "hash": "3ed84aca5292dfc0932b8105e67e0628fd85de27ce6bae4053b7f0027d9c48d9"
+          "endLine": 12,
+          "quote": "When either is missing, answer with\n{\"status\": \"blocked\", \"missing\": [...]} and stop.",
+          "hash": "248ba20e2f594721e93508b27a3abf59ce096b919e9471fb445fc7c5cd901047"
+        }
+      },
+      {
+        "id": "instruction.ledger-auditor.look-for-the-same-invoice-number",
+        "kind": "instruction",
+        "title": "Look for the same invoice number paid twice, the same amount paid to the same supplier wi…",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": ".claude/agents/ledger-auditor.md",
+          "startLine": 14,
+          "endLine": 15,
+          "quote": "Look for the same invoice number paid twice, the same amount paid to the same supplier within seven days,\nand credit notes that were never applied.",
+          "hash": "a4f12cfa1c1fe8a221da63846a119503d3ac3aa2725d66ae5328855f59ae2952"
+        }
+      },
+      {
+        "id": "register.ledger-auditor.answer-with-one-json-object-and",
+        "kind": "register",
+        "title": "Answer with one JSON object and nothing else: {\"status\": \"done\", \"duplicates\": [{\"invoice…",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": ".claude/agents/ledger-auditor.md",
+          "startLine": 17,
+          "endLine": 18,
+          "quote": "Answer with one JSON object and nothing else:\n{\"status\": \"done\", \"duplicates\": [{\"invoice\": \"...\", \"paid_on\": [\"...\"]}], \"credit_notes\": [\"...\"]}",
+          "hash": "2ff2e3ae514c45566434ccf43a899c96dcd0d323fbb5f8d0ce7d2ca215831861"
         }
       },
       {
@@ -45,9 +73,38 @@
           "quote": "**R18.** Never approve a credit note above 500.00 EUR without naming the finance lead who agreed to it.",
           "hash": "0f351e680b605a72a1ab7d4133bbc4d806ca10ed7e40a9068d02a20ba5e104c7"
         }
+      },
+      {
+        "id": "instruction.standing.r19-when-r18-applies-and-the",
+        "kind": "instruction",
+        "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
+        "producedBy": "model",
+        "approved": false,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 27,
+          "endLine": 27,
+          "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
+          "hash": "b4c7c249ad14081291611bf02ef62151b789f72904fad86f513589dbf4035da8"
+        }
       }
     ],
-    "removed": [],
+    "removed": [
+      {
+        "id": "route.standing.an-ask-to-plan-the-delivery",
+        "kind": "route",
+        "title": "An ask to plan the delivery routes for tomorrow dispatches route-planner",
+        "producedBy": "model",
+        "approved": true,
+        "at": {
+          "file": "CLAUDE.md",
+          "startLine": 37,
+          "endLine": 37,
+          "quote": "plan the delivery routes for tomorrow | the `route-planner` agent",
+          "hash": "1d2fc01fb1617d7f5724337dce72f9ac2ceeee8afa0bfbfc51afd45ed411e609"
+        }
+      }
+    ],
     "changed": [
       {
         "id": "instruction.standing.r2-never-send-an-email-to",
@@ -68,7 +125,7 @@
           "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first\n  and getting an explicit yes.",
           "hash": "658e9a6d13b491f3ec47b46acd3edfcfa0a6631dbc3eac1f92ef83d6eb922bfe"
         },
-        "fields": []
+        "fields": ["situation"]
       },
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
@@ -90,34 +147,13 @@
           "hash": "5fa8802392a3db052ad13c9b57fe6c99db95cb602c4c1d1f3c545bba4a1ba76e"
         },
         "fields": ["title", "situation", "fields"]
-      },
-      {
-        "id": "route.standing.an-ask-to-plan-the-delivery",
-        "kind": "route",
-        "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
-        "change": "semantic",
-        "before": {
-          "file": "CLAUDE.md",
-          "startLine": 36,
-          "endLine": 36,
-          "quote": "plan the delivery routes for tomorrow | the `route-planner` agent",
-          "hash": "dec4e987418237aaba9d8ec41553dfcca70a91fb9b6a4fdfdd4a2dcc96dfe9b1"
-        },
-        "after": {
-          "file": "CLAUDE.md",
-          "startLine": 38,
-          "endLine": 38,
-          "quote": "plan the delivery routes for the next two days | the `route-planner` agent",
-          "hash": "1badb6cce16da9f43f0bb898ca94ca9aade1d7061e0eb533285b852ede3c1126"
-        },
-        "fields": ["title", "situation", "fields"]
       }
     ],
     "moved": [
       {
-        "id": "gate.standing.read-before-edit-it",
-        "kind": "gate",
-        "title": "Read before edit it",
+        "id": "instruction.standing.r3-read-a-file-before-you",
+        "kind": "instruction",
+        "title": "R3. Read a file before you edit it.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 11,
@@ -250,24 +286,39 @@
         }
       },
       {
-        "id": "route.standing.an-ask-to-reconcile-an-invoice",
-        "kind": "route",
-        "title": "An ask to reconcile an invoice against a purchase order loads invoice-reconcile",
+        "id": "hazard.standing.r20-after-a-restart-of-your",
+        "kind": "hazard",
+        "title": "R20. After a restart of your process, re-read .claude/memory/MEMORY.md before you continu…",
         "from": {
           "file": "CLAUDE.md",
-          "startLine": 31,
-          "endLine": 31
+          "startLine": 26,
+          "endLine": 26
         },
         "to": {
           "file": "CLAUDE.md",
-          "startLine": 33,
-          "endLine": 33
+          "startLine": 28,
+          "endLine": 28
         }
       },
       {
-        "id": "route.standing.an-ask-to-know-where-a",
+        "id": "reference.standing.read-claude-memory-memory-md",
+        "kind": "reference",
+        "title": "Read .claude/memory/MEMORY.md",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 26,
+          "endLine": 26
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 28,
+          "endLine": 28
+        }
+      },
+      {
+        "id": "route.standing.an-ask-to-reconcile-an-invoice",
         "kind": "route",
-        "title": "An ask to know where a shipment is loads shipment-tracker",
+        "title": "An ask to reconcile an invoice against a purchase order loads invoice-reconcile",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 32,
@@ -280,9 +331,9 @@
         }
       },
       {
-        "id": "route.standing.an-ask-to-write-to-or",
+        "id": "route.standing.an-ask-to-know-where-a",
         "kind": "route",
-        "title": "An ask to write to or chase a supplier loads supplier-email",
+        "title": "An ask to know where a shipment is loads shipment-tracker",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 33,
@@ -295,9 +346,9 @@
         }
       },
       {
-        "id": "route.standing.an-ask-to-prepare-the-weekly",
+        "id": "route.standing.an-ask-to-write-to-or",
         "kind": "route",
-        "title": "An ask to prepare the weekly report loads weekly-report",
+        "title": "An ask to write to or chase a supplier loads supplier-email",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 34,
@@ -310,9 +361,9 @@
         }
       },
       {
-        "id": "route.standing.an-ask-to-audit-the-ledger",
+        "id": "route.standing.an-ask-to-prepare-the-weekly",
         "kind": "route",
-        "title": "An ask to audit the ledger for duplicate payments dispatches ledger-auditor",
+        "title": "An ask to prepare the weekly report loads weekly-report",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 35,
@@ -325,54 +376,24 @@
         }
       },
       {
+        "id": "route.standing.an-ask-to-audit-the-ledger",
+        "kind": "route",
+        "title": "An ask to audit the ledger for duplicate payments dispatches ledger-auditor",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 36,
+          "endLine": 36
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 38,
+          "endLine": 38
+        }
+      },
+      {
         "id": "instruction.standing.every-task-follows-the-step-list",
         "kind": "instruction",
         "title": "Every task follows the step list in .claude/steps.json: plan, do, verify, report.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 40
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 42
-        }
-      },
-      {
-        "id": "reference.standing.read-claude-steps-json",
-        "kind": "reference",
-        "title": "Read .claude/steps.json",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 40
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 42
-        }
-      },
-      {
-        "id": "instruction.standing.a-tracker-note-may-be-written",
-        "kind": "instruction",
-        "title": "A tracker note may be written at any step.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 40,
-          "endLine": 41
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 42,
-          "endLine": 43
-        }
-      },
-      {
-        "id": "instruction.standing.never-report-a-task-as-done",
-        "kind": "instruction",
-        "title": "Never report a task as done before the verify step has passed.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 41,
@@ -385,24 +406,39 @@
         }
       },
       {
-        "id": "register.standing.keep-every-reply-under-1-200",
-        "kind": "register",
-        "title": "Keep every reply under 1,200 characters unless the user asks for detail.",
+        "id": "reference.standing.read-claude-steps-json",
+        "kind": "reference",
+        "title": "Read .claude/steps.json",
         "from": {
           "file": "CLAUDE.md",
-          "startLine": 45,
-          "endLine": 45
+          "startLine": 41,
+          "endLine": 41
         },
         "to": {
           "file": "CLAUDE.md",
-          "startLine": 47,
-          "endLine": 47
+          "startLine": 43,
+          "endLine": 43
         }
       },
       {
-        "id": "register.standing.lead-with-the-result-in-the",
+        "id": "instruction.standing.never-report-a-task-as-done",
+        "kind": "instruction",
+        "title": "Never report a task as done before the verify step has passed.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 42,
+          "endLine": 42
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 44,
+          "endLine": 44
+        }
+      },
+      {
+        "id": "register.standing.keep-every-reply-under-1-200",
         "kind": "register",
-        "title": "Lead with the result in the first line.",
+        "title": "Keep every reply under 1,200 characters unless the user asks for detail.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 46,
@@ -415,9 +451,9 @@
         }
       },
       {
-        "id": "register.standing.use-a-bullet-list-for-three",
+        "id": "register.standing.lead-with-the-result-in-the",
         "kind": "register",
-        "title": "Use a bullet list for three or more parallel items.",
+        "title": "Lead with the result in the first line.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 47,
@@ -430,9 +466,9 @@
         }
       },
       {
-        "id": "register.standing.never-use-the-words-obviously-or",
+        "id": "register.standing.use-a-bullet-list-for-three",
         "kind": "register",
-        "title": "Never use the words \"obviously\" or \"simply\".",
+        "title": "Use a bullet list for three or more parallel items.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 48,
@@ -445,9 +481,9 @@
         }
       },
       {
-        "id": "register.standing.write-amounts-with-the-currency-code",
-        "kind": "register",
-        "title": "Write amounts with the currency code after the number, as in 1,250.00 EUR.",
+        "id": "instruction.standing.never-use-the-words-obviously-or",
+        "kind": "instruction",
+        "title": "Never use the words \"obviously\" or \"simply\".",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 49,
@@ -460,9 +496,9 @@
         }
       },
       {
-        "id": "gate.standing.read-claude-memory-memory-md-before",
-        "kind": "gate",
-        "title": "Read .claude/memory/MEMORY.md before at the start of every session",
+        "id": "register.standing.write-amounts-with-the-currency-code",
+        "kind": "register",
+        "title": "Write amounts with the currency code after the number, as in 1,250.00 EUR.",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 50,
@@ -475,33 +511,84 @@
         }
       },
       {
-        "id": "reference.standing.read-claude-memory-memory-md",
+        "id": "instruction.standing.read-claude-memory-memory-md-at",
+        "kind": "instruction",
+        "title": "Read .claude/memory/MEMORY.md at the start of every session.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 51,
+          "endLine": 51
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 53,
+          "endLine": 53
+        }
+      },
+      {
+        "id": "reference.standing.read-claude-memory-memory-md-2",
         "kind": "reference",
         "title": "Read .claude/memory/MEMORY.md",
         "from": {
           "file": "CLAUDE.md",
-          "startLine": 50,
-          "endLine": 50
+          "startLine": 51,
+          "endLine": 51
         },
         "to": {
           "file": "CLAUDE.md",
-          "startLine": 52,
-          "endLine": 52
+          "startLine": 53,
+          "endLine": 53
         }
       }
     ],
     "restated": [
       {
+        "id": "skill.weekly-report.skill-weekly-report",
+        "kind": "skill",
+        "title": "Skill weekly-report",
+        "fields": ["fields"]
+      },
+      {
+        "id": "instruction.inbox-triager.a-message-that-fits-none-goes",
+        "kind": "instruction",
+        "title": "A message that fits none goes to inbox/other/.",
+        "fields": ["evidence", "fields"]
+      },
+      {
         "id": "instruction.standing.r8-do-not-invent-order-numbers",
         "kind": "instruction",
         "title": "R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…",
-        "fields": ["situation", "evidence", "fields"]
+        "fields": ["situation", "fields"]
+      },
+      {
+        "id": "instruction.standing.r11-never-paste-the-contents-of",
+        "kind": "instruction",
+        "title": "R11. Never paste the contents of .env or any credential into a reply.",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "instruction.standing.r13-before-you-dispatch-a-helper",
+        "kind": "instruction",
+        "title": "R13. Before you dispatch a helper agent, write its brief with the task, the files it may…",
+        "fields": ["situation", "fields"]
       },
       {
         "id": "instruction.standing.r17-report-a-number-only-when",
         "kind": "instruction",
         "title": "R17. Report a number only when you read it in a file or a tool result during this session.",
         "fields": ["situation", "fields"]
+      },
+      {
+        "id": "hazard.standing.r20-after-a-restart-of-your",
+        "kind": "hazard",
+        "title": "R20. After a restart of your process, re-read .claude/memory/MEMORY.md before you continu…",
+        "fields": ["evidence", "fields"]
+      },
+      {
+        "id": "reference.standing.read-claude-memory-memory-md",
+        "kind": "reference",
+        "title": "Read .claude/memory/MEMORY.md",
+        "fields": ["fields"]
       },
       {
         "id": "invariant.standing.the-standing-instructions-stay-under-40000",
@@ -513,7 +600,18 @@
   },
   "edges": {
     "added": [],
-    "removed": []
+    "removed": [
+      {
+        "from": "route.standing.an-ask-to-plan-the-delivery",
+        "to": "subagent.route-planner.helper-route-planner",
+        "kind": "route"
+      },
+      {
+        "from": "skill.weekly-report.skill-weekly-report",
+        "to": "tool.invoice-reconcile.declared-edit",
+        "kind": "allows"
+      }
+    ]
   },
   "guards": [
     {
@@ -577,10 +675,23 @@
   "units": {
     "changes": [
       {
-        "id": "qt2ddhzgws",
-        "class": "new",
-        "path": ".claude/skills/shipment-tracker/data/shipments.txt",
-        "quote": "NWX 123 sorted-at-depot 2026-03-04 NWX 1234 delivered 2026-03-05 DLV 123 out-for-delivery 2026-03-06 XDLV 123 held-at-customs 2026-03-09"
+        "id": "razzzppalt",
+        "class": "context",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week."
+      },
+      {
+        "id": "k7zmu74mwi",
+        "class": "changed",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "Read, Write, Bash(python3 *)",
+        "was": "Read, Write, Edit, Bash(python3 *)"
+      },
+      {
+        "id": "he6cx3nh5p",
+        "class": "context",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "# Weekly report"
       },
       {
         "id": "josrxaogo4",
@@ -633,10 +744,10 @@
         "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it."
       },
       {
-        "id": "oo7siohooi",
+        "id": "2ehiz3u7nq",
         "class": "context",
         "path": "CLAUDE.md",
-        "quote": "## Routing"
+        "quote": "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
       },
       {
         "id": "tgaqoi6zai",
@@ -659,14 +770,22 @@
       }
     ],
     "counts": {
-      "unchanged": 125,
-      "context": 8,
+      "unchanged": 123,
+      "context": 10,
       "moved": 0,
-      "changed": 3,
+      "changed": 4,
       "deleted": 0,
-      "new": 2
+      "new": 1
     },
     "rerun": [
+      {
+        "unit": "2ehiz3u7nq",
+        "why": ["new unit bluhvywt5m beside it"],
+        "atoms": [
+          "hazard.standing.r20-after-a-restart-of-your",
+          "reference.standing.read-claude-memory-memory-md"
+        ]
+      },
       {
         "unit": "6juqj4iyft",
         "why": ["new unit bluhvywt5m beside it"],
@@ -721,6 +840,11 @@
         "atoms": ["instruction.standing.r6-never-run-git-push-force"]
       },
       {
+        "unit": "k7zmu74mwi",
+        "why": ["changed"],
+        "atoms": []
+      },
+      {
         "unit": "mx7vrgfrjv",
         "why": ["new unit bluhvywt5m beside it", "changed"],
         "atoms": []
@@ -733,12 +857,12 @@
       {
         "unit": "nm5qvlsrod",
         "why": ["new unit bluhvywt5m beside it"],
-        "atoms": []
+        "atoms": ["instruction.standing.r13-before-you-dispatch-a-helper"]
       },
       {
         "unit": "oeowulj3qm",
         "why": ["new unit bluhvywt5m beside it"],
-        "atoms": ["gate.standing.read-before-edit-it"]
+        "atoms": ["instruction.standing.r3-read-a-file-before-you"]
       },
       {
         "unit": "snwqcymbbi",
@@ -763,6 +887,19 @@
     ],
     "advisory": [
       {
+        "unit": "2ehiz3u7nq",
+        "why": ["context"],
+        "atoms": [
+          "hazard.standing.r20-after-a-restart-of-your",
+          "reference.standing.read-claude-memory-memory-md"
+        ]
+      },
+      {
+        "unit": "he6cx3nh5p",
+        "why": ["context"],
+        "atoms": []
+      },
+      {
         "unit": "jixkl7ilvt",
         "why": ["context"],
         "atoms": ["instruction.standing.r8-do-not-invent-order-numbers"]
@@ -775,10 +912,10 @@
       {
         "unit": "nm5qvlsrod",
         "why": ["context"],
-        "atoms": []
+        "atoms": ["instruction.standing.r13-before-you-dispatch-a-helper"]
       },
       {
-        "unit": "oo7siohooi",
+        "unit": "razzzppalt",
         "why": ["context"],
         "atoms": []
       },
@@ -803,39 +940,57 @@
         "atoms": ["instruction.standing.r11-never-paste-the-contents-of"]
       }
     ],
-    "whole": "a new unit qt2ddhzgws in .claude/skills/shipment-tracker/data/shipments.txt, a file the ledger did not hold",
+    "whole": null,
     "unlabeled": [
+      {
+        "unit": "k7zmu74mwi",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "Read, Write, Bash(python3 *)",
+        "was": "Read, Write, Edit, Bash(python3 *)",
+        "fileAtoms": [
+          "instruction.weekly-report.count-only-what-the-ledger-and",
+          "instruction.weekly-report.fill-the-template-in-this-order",
+          "instruction.weekly-report.save-the-report-as-reports-year",
+          "reference.weekly-report.read-references-kpi-definitions-md",
+          "reference.weekly-report.read-templates-report-md",
+          "route.weekly-report.an-ask-that-fits-weekly-report",
+          "skill.weekly-report.skill-weekly-report",
+          "tool.weekly-report.declared-write"
+        ]
+      },
       {
         "unit": "mx7vrgfrjv",
         "path": "CLAUDE.md",
         "quote": "**R19.** When R18 applies and the finance lead has not answered, keep the credit note as a draft.",
         "was": "**R12.** When R2 applies and the user has not answered, keep the draft and do not send it.",
         "fileAtoms": [
-          "gate.standing.read-before-edit-it",
-          "gate.standing.read-claude-memory-memory-md-before",
           "gate.standing.read-claude-skills-invoice-reconcile-references",
           "gate.standing.read-git-status-before-commit-to",
           "hazard.standing.r15-after-a-compaction-re-read",
-          "instruction.standing.a-tracker-note-may-be-written",
+          "hazard.standing.r20-after-a-restart-of-your",
           "instruction.standing.every-task-follows-the-step-list",
           "instruction.standing.never-report-a-task-as-done",
+          "instruction.standing.never-use-the-words-obviously-or",
           "instruction.standing.r10-when-the-user-says-stop",
           "instruction.standing.r11-never-paste-the-contents-of",
+          "instruction.standing.r13-before-you-dispatch-a-helper",
           "instruction.standing.r16-if-a-tool-fails-twice",
           "instruction.standing.r17-report-a-number-only-when",
           "instruction.standing.r2-never-send-an-email-to",
+          "instruction.standing.r3-read-a-file-before-you",
           "instruction.standing.r4-never-delete-a-file-under",
           "instruction.standing.r6-never-run-git-push-force",
           "instruction.standing.r7-when-a-shipment-is-late",
           "instruction.standing.r8-do-not-invent-order-numbers",
+          "instruction.standing.read-claude-memory-memory-md-at",
           "invariant.standing.no-file-of-the-estate-is",
           "invariant.standing.the-standing-instructions-stay-under-40000",
           "reference.standing.read-claude-memory-memory-md",
+          "reference.standing.read-claude-memory-memory-md-2",
           "reference.standing.read-claude-skills-invoice-reconcile-references",
           "reference.standing.read-claude-steps-json",
           "register.standing.keep-every-reply-under-1-200",
           "register.standing.lead-with-the-result-in-the",
-          "register.standing.never-use-the-words-obviously-or",
           "register.standing.r1-always-answer-in-the-language",
           "register.standing.r9-ask-at-most-one-question",
           "register.standing.use-a-bullet-list-for-three",
@@ -851,12 +1006,11 @@
     ]
   },
   "oldAtoms": [
+    "gate.invoice-reconcile.read-references-currency-table-md-before",
     "gate.invoice-reconcile.read-references-matching-rules-md-before",
-    "gate.standing.read-before-edit-it",
-    "gate.standing.read-claude-memory-memory-md-before",
     "gate.standing.read-claude-skills-invoice-reconcile-references",
     "gate.standing.read-git-status-before-commit-to",
-    "gate.weekly-report.read-templates-report-md-before-writing",
+    "gate.supplier-email.read-claude-memory-supplier-languages-md",
     "guard.settings.posttooluse-bash-guard-ledger-guard-py",
     "guard.settings.pretooluse-bash-guard-block-force-push",
     "guard.settings.pretooluse-edit-write-guard-read-before",
@@ -864,36 +1018,39 @@
     "guard.settings.userpromptsubmit-guard-stop-word-sh",
     "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
     "hazard.standing.r15-after-a-compaction-re-read",
+    "hazard.standing.r20-after-a-restart-of-your",
     "instruction.inbox-triager.a-message-that-fits-none-goes",
-    "instruction.inbox-triager.never-answer-a-message-yourself-and",
-    "instruction.inbox-triager.you-sort-messages-into-three-folders",
+    "instruction.inbox-triager.never-delete-a-message-move-it",
     "instruction.invoice-reconcile.never-change-an-amount-on-an",
     "instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice",
     "instruction.invoice-reconcile.when-the-total-difference-is-above",
-    "instruction.ledger-auditor.look-for-the-same-invoice-number",
     "instruction.ledger-auditor.you-never-edit-a-file-you",
     "instruction.memory-memory.never-schedule-a-delivery-on-a",
     "instruction.route-planner.never-plan-a-delivery-on-a",
     "instruction.route-planner.never-put-more-than-the-van",
-    "instruction.route-planner.read-the-open-orders-and-the",
     "instruction.shipment-tracker.always-pass-the-carrier-code-to",
     "instruction.shipment-tracker.ask-for-the-tracking-number-when",
     "instruction.shipment-tracker.when-the-carrier-answers-with-an",
-    "instruction.standing.a-tracker-note-may-be-written",
     "instruction.standing.every-task-follows-the-step-list",
     "instruction.standing.never-report-a-task-as-done",
+    "instruction.standing.never-use-the-words-obviously-or",
     "instruction.standing.r10-when-the-user-says-stop",
     "instruction.standing.r11-never-paste-the-contents-of",
+    "instruction.standing.r13-before-you-dispatch-a-helper",
     "instruction.standing.r16-if-a-tool-fails-twice",
     "instruction.standing.r17-report-a-number-only-when",
     "instruction.standing.r2-never-send-an-email-to",
+    "instruction.standing.r3-read-a-file-before-you",
     "instruction.standing.r4-never-delete-a-file-under",
     "instruction.standing.r6-never-run-git-push-force",
     "instruction.standing.r7-when-a-shipment-is-late",
     "instruction.standing.r8-do-not-invent-order-numbers",
+    "instruction.standing.read-claude-memory-memory-md-at",
     "instruction.supplier-email.a-looks-fine-or-a-thumbs",
+    "instruction.supplier-email.every-draft-has-a-subject-with",
     "instruction.supplier-email.never-copy-a-price-or-a",
     "instruction.weekly-report.count-only-what-the-ledger-and",
+    "instruction.weekly-report.fill-the-template-in-this-order",
     "instruction.weekly-report.save-the-report-as-reports-year",
     "invariant.registry.the-check-registry-lists-every-guard",
     "invariant.settings.every-guard-finds-its-script-from",
@@ -905,24 +1062,22 @@
     "reference.shipment-tracker.read-data-shipments-txt",
     "reference.shipment-tracker.read-track-sh",
     "reference.standing.read-claude-memory-memory-md",
+    "reference.standing.read-claude-memory-memory-md-2",
     "reference.standing.read-claude-skills-invoice-reconcile-references",
     "reference.standing.read-claude-steps-json",
     "reference.supplier-email.read-claude-memory-supplier-languages-md",
     "reference.weekly-report.read-references-kpi-definitions-md",
     "reference.weekly-report.read-templates-report-md",
     "register.invoice-reconcile.end-with-one-line-per-invoice",
-    "register.ledger-auditor.answer-with-one-json-object-and",
     "register.memory-supplier-languages.when-a-supplier-is-not-in",
     "register.memory-supplier-languages.write-to-each-supplier-in-the",
     "register.route-planner.answer-with-a-table-van-stops",
     "register.standing.keep-every-reply-under-1-200",
     "register.standing.lead-with-the-result-in-the",
-    "register.standing.never-use-the-words-obviously-or",
     "register.standing.r1-always-answer-in-the-language",
     "register.standing.r9-ask-at-most-one-question",
     "register.standing.use-a-bullet-list-for-three",
     "register.standing.write-amounts-with-the-currency-code",
-    "register.supplier-email.every-draft-has-a-subject-with",
     "register.supplier-email.keep-a-draft-under-120-words",
     "route.inbox-triager.an-ask-that-fits-inbox-triager",
     "route.invoice-reconcile.an-ask-that-fits-invoice-reconcile",
@@ -969,14 +1124,14 @@
     "tool.weekly-report.declared-write"
   ],
   "summary": {
-    "added": 2,
-    "removed": 0,
+    "added": 5,
+    "removed": 1,
     "whitespace": 1,
-    "semantic": 2,
-    "moved": 25,
-    "restated": 3,
-    "unchanged": 86,
+    "semantic": 1,
+    "moved": 26,
+    "restated": 9,
+    "unchanged": 82,
     "edgesAdded": 0,
-    "edgesRemoved": 0
+    "edgesRemoved": 2
   }
 }

@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-21T11:48:48.568Z
+readAt: 2026-10-22T17:30:57.395Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -156,6 +156,7 @@ atoms:
       tools:
         - Read
         - Write
+        - Edit
         - Bash(python3 *)
       description: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.
   - id: route.weekly-report.an-ask-that-fits-weekly-report
@@ -412,7 +413,7 @@ atoms:
       timeout: 5
       registry: G2
       enforces:
-        - atom: gate.standing.read-before-edit-it
+        - atom: instruction.standing.r3-read-a-file-before-you
           by: registry
         - atom: gate.standing.read-claude-skills-invoice-reconcile-references
           by: registry
@@ -1050,74 +1051,76 @@ atoms:
       path: .claude/skills/shipment-tracker/scripts/track.sh
       skill: shipment-tracker
       named: true
-  - id: instruction.inbox-triager.you-sort-messages-into-three-folders
-    kind: instruction
-    title: "You sort messages into three folders: invoices, shipments and suppliers."
-    provenance:
-      file: .claude/agents/inbox-triager.md
-      startLine: 8
-      endLine: 8
-      quote: "You sort messages into three folders: invoices, shipments and suppliers."
-      hash: fe6c355883012ab0deff33e64eca940dfa657ab50ea9b3be7cb8932b31163012
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ifwlbe733a, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: ifwlbe733a
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
   - id: instruction.inbox-triager.a-message-that-fits-none-goes
     kind: instruction
-    title: A message that fits none goes to "other".
+    title: A message that fits none goes to inbox/other/.
     provenance:
       file: .claude/agents/inbox-triager.md
       startLine: 8
       endLine: 9
       quote: |-
         A message that fits none goes to
-        "other".
-      hash: 306d042590cac4007ae9099df3a431d7f1f8c4d4c93fff8938ab91ad36127dcd
+        `inbox/other/`.
+      hash: 8d7e9e7d3202b7d7e900b87fec1043c405f4a4f9bdc6fc1e4120449933fc439e
     producedBy: model
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ucqzvfeiik, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zi42p52krf, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
-      unit: ucqzvfeiik
+      unit: zi42p52krf
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-  - id: instruction.inbox-triager.never-answer-a-message-yourself-and
+      labelSpans:
+        - kind: required-material
+          from: 34
+          to: 46
+      spans:
+        - inbox/other/
+        - rm
+  - id: instruction.inbox-triager.never-delete-a-message-move-it
     kind: instruction
-    title: Never answer a message yourself and never delete one.
+    title: "Never delete a message: move it, do not run rm."
     provenance:
       file: .claude/agents/inbox-triager.md
       startLine: 9
       endLine: 9
-      quote: Never answer a message yourself and never delete one.
-      hash: 30a150fc58701cbc0fe42d69850e03dac2293a27466fa0857df68f5d009990be
+      quote: "Never delete a message: move it, do not run `rm`."
+      hash: 0d2742e483144c944fb9ff15994682e5de71adf1fcde08b03c6a41d8d0642437
     producedBy: model
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: e5orfrbvw4, set: agent-rules, label: prohibition } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: lk3mrzwbnt, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Bash, input: { command: { contains: rm } } }
     enforcement: []
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Bash
+          material: rm
       extraction: pointer
-      unit: e5orfrbvw4
+      unit: lk3mrzwbnt
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 45
+          to: 47
+      labelLinks:
+        - kind: forbid-tool
+          value: Bash
+        - kind: forbid-input
+          value: command
+      spans:
+        - inbox/other/
+        - rm
   - id: instruction.ledger-auditor.you-never-edit-a-file-you
     kind: instruction
     title: "You never edit a file: you read and you report."
@@ -1130,11 +1133,15 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: You never edit a file
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: wf65yszjnc, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Edit, input: { file_path: { contains: edit a file } } }
     enforcement: []
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Edit
+          material: edit a file
       extraction: pointer
       unit: wf65yszjnc
       labelSet: agent-rules
@@ -1142,98 +1149,14 @@ atoms:
       labeler: jev+anthropic
       polarity: prohibition
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: forbidden-material
+          from: 10
           to: 21
-  - id: instruction.ledger-auditor.look-for-the-same-invoice-number
-    kind: instruction
-    title: Look for the same invoice number paid twice, the same amount paid to the same supplier wi…
-    provenance:
-      file: .claude/agents/ledger-auditor.md
-      startLine: 14
-      endLine: 15
-      quote: |-
-        Look for the same invoice number paid twice, the same amount paid to the same supplier within seven days,
-        and credit notes that were never applied.
-      hash: a4f12cfa1c1fe8a221da63846a119503d3ac3aa2725d66ae5328855f59ae2952
-    producedBy: model
-    role: axis
-    approved: false
-    situation: |-
-      When either is missing, answer with
-      {"status": "blocked", "missing": [...]} and stop.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: upb7zb4y7y, set: agent-rules, label: rule, condition: [ 3eyqckfmkn ] } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: upb7zb4y7y
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      condition:
-        - 3eyqckfmkn
-      polarity: obligation
-  - id: register.ledger-auditor.answer-with-one-json-object-and
-    kind: register
-    title: 'Answer with one JSON object and nothing else: {"status": "done", "duplicates": [{"invoice…'
-    provenance:
-      file: .claude/agents/ledger-auditor.md
-      startLine: 17
-      endLine: 18
-      quote: |-
-        Answer with one JSON object and nothing else:
-        {"status": "done", "duplicates": [{"invoice": "...", "paid_on": ["..."]}], "credit_notes": ["..."]}
-      hash: 2ff2e3ae514c45566434ccf43a899c96dcd0d323fbb5f8d0ce7d2ca215831861
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pk2dvdlukx, set: agent-rules, label: reply-rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: pk2dvdlukx
-      labelSet: agent-rules
-      label: reply-rule
-      labeler: jev+anthropic
       labelLinks:
-        - kind: reply-act
-          value: report
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: report
-      evidence:
-        type: text_segment
-        part: reply
-  - id: instruction.route-planner.read-the-open-orders-and-the
-    kind: instruction
-    title: Read the open orders and the van table.
-    provenance:
-      file: .claude/agents/route-planner.md
-      startLine: 11
-      endLine: 11
-      quote: Read the open orders and the van table.
-      hash: 0fbef408527d2f278bf73f2902919b1904482985da2948ad679d110fba2800c1
-    producedBy: model
-    role: axis
-    approved: false
-    situation: Read the open orders and the van table
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: xdy5raspfp, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: xdy5raspfp
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
-      labelSpans:
-        - from: 0
-          kind: situation
-          to: 38
+        - kind: forbid-tool
+          value: Edit
+        - kind: forbid-input
+          value: file_path
   - id: instruction.route-planner.never-put-more-than-the-van
     kind: instruction
     title: Never put more than the van capacity on one route.
@@ -1256,6 +1179,10 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 10
+          to: 49
   - id: instruction.route-planner.never-plan-a-delivery-on-a
     kind: instruction
     title: Never plan a delivery on a public holiday in the receiving country.
@@ -1280,6 +1207,10 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 11
+          to: 66
   - id: register.route-planner.answer-with-a-table-van-stops
     kind: register
     title: "Answer with a table: van, stops in order, total weight, and the first stop's time window."
@@ -1294,7 +1225,6 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Answer with a table
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vf6mmyr3dx, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -1304,10 +1234,6 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-      labelSpans:
-        - from: 0
-          kind: situation
-          to: 19
   - id: reference.memory-memory.read-supplier-languages-md
     kind: reference
     title: Read supplier-languages.md
@@ -1357,6 +1283,10 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 6
+          to: 70
   - id: register.memory-supplier-languages.write-to-each-supplier-in-the
     kind: register
     title: Write to each supplier in the language it reads.
@@ -1380,12 +1310,19 @@ atoms:
       label: reply-rule
       labeler: jev+anthropic
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: situation
+          from: 0
           to: 22
       labelLinks:
+        - kind: reply-act
+          value: draft
         - kind: reply-part
           value: draft
+    replyAct:
+      id: draft
+      evidence:
+        type: text_segment
+        part: draft
   - id: register.memory-supplier-languages.when-a-supplier-is-not-in
     kind: register
     title: When a supplier is not in this table, write in English and tell the user.
@@ -1409,16 +1346,16 @@ atoms:
       label: reply-rule
       labeler: jev+anthropic
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: situation
+          from: 0
           to: 36
       labelLinks:
+        - kind: reply-act
+          value: report
         - kind: reply-part
           value: reply
-        - kind: reply-act
-          value: answer
     replyAct:
-      id: answer
+      id: report
       evidence:
         type: text_segment
         part: reply
@@ -1450,8 +1387,8 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 43
-          kind: governed-action
+        - kind: governed-action
+          from: 43
           to: 60
       labelLinks:
         - kind: act-tool
@@ -1486,12 +1423,57 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 43
-          kind: governed-action
+        - kind: governed-action
+          from: 43
           to: 60
       labelLinks:
         - kind: act-tool
           value: Edit
+  - id: gate.invoice-reconcile.read-references-currency-table-md-before
+    kind: gate
+    title: Read references/currency-table.md before convert every amount
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 10
+      endLine: 10
+      quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      hash: 31f71701b9c1d09dfbe03356c29f45faa9f45ee300ec8f3390feee69422177a4
+    producedBy: model
+    role: axis
+    approved: false
+    situation: convert every amount
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gfz5utnqh3, set: agent-rules, label: gate } }
+      - { type: ordered, before: Read, after: Edit }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/currency-table.md } } }
+    enforcement: []
+    fields:
+      first: references/currency-table.md
+      trigger: convert every amount
+      path: .claude/skills/invoice-reconcile/references/currency-table.md
+      extraction: pointer
+      unit: gfz5utnqh3
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 71
+          to: 91
+      labelLinks:
+        - kind: act-tool
+          value: Edit
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+      spans:
+        - references/currency-table.md
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: reference.invoice-reconcile.read-references-currency-table-md
     kind: reference
     title: Read references/currency-table.md
@@ -1519,9 +1501,17 @@ atoms:
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 71
+          to: 91
       labelLinks:
         - kind: act-tool
           value: Edit
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
   - id: instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
     kind: instruction
     title: Run python3 scripts/reconcile.py <invoice> <order> and show the summary it prints.
@@ -1538,18 +1528,15 @@ atoms:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mc2fjnpbks, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      ask:
-        text: Run
       extraction: pointer
       unit: mc2fjnpbks
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - from: 0
-          kind: ask-text
-          to: 3
+      labelLinks:
+        - kind: reply-act
+          value: answer
       spans:
         - python3 scripts/reconcile.py <invoice> <order>
   - id: instruction.invoice-reconcile.never-change-an-amount-on-an
@@ -1566,14 +1553,28 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ldaywjqflr, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Edit, input: { file_path: { contains: an amount on an invoice } } }
     enforcement: []
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Edit
+          material: an amount on an invoice
       extraction: pointer
       unit: ldaywjqflr
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 13
+          to: 36
+      labelLinks:
+        - kind: forbid-tool
+          value: Edit
+        - kind: forbid-input
+          value: file_path
   - id: instruction.invoice-reconcile.when-the-total-difference-is-above
     kind: instruction
     title: When the total difference is above 50.00 EUR, dispatch the ledger-auditor agent with the…
@@ -1586,7 +1587,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: the total difference is above 50.00 EUR
+    situation: When the total difference is above 50.00 EUR
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: pfiujep4mk, set: agent-rules, label: dispatch } }
     enforcement: []
@@ -1598,8 +1599,8 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 5
-          kind: situation
+        - kind: situation
+          from: 0
           to: 44
       labelLinks:
         - kind: dispatches
@@ -1620,23 +1621,18 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: hkxeghi3ug, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: one_line_per_item }
     enforcement: []
     fields:
+      replyShape: one_line_per_item
       extraction: pointer
       unit: hkxeghi3ug
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
       labelLinks:
-        - kind: reply-act
-          value: report
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: report
-      evidence:
-        type: text_segment
-        part: reply
+        - kind: reply-shape
+          value: one_line_per_item
   - id: instruction.shipment-tracker.ask-for-the-tracking-number-when
     kind: instruction
     title: Ask for the tracking number when the user gives none.
@@ -1654,7 +1650,10 @@ atoms:
     enforcement: []
     fields:
       ask:
-        text: Ask for the tracking number
+        text: Ask for the tracking number when the user gives none
+        act:
+          kind: reply
+          name: clarify
       extraction: pointer
       unit: kwkaapewgh
       labelSet: agent-rules
@@ -1662,9 +1661,19 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 0
-          kind: ask-text
-          to: 27
+        - kind: ask-text
+          from: 0
+          to: 52
+      labelLinks:
+        - kind: reply-act
+          value: clarify
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: clarify
+      evidence:
+        type: text_segment
+        part: reply
   - id: instruction.shipment-tracker.always-pass-the-carrier-code-to
     kind: instruction
     title: Always pass the carrier code to track.sh, as in ./scripts/track.sh NWX 123.
@@ -1681,18 +1690,12 @@ atoms:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2pgcgb6enm, set: agent-rules, label: rule } }
     enforcement: [ guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh ]
     fields:
-      ask:
-        text: Always pass the carrier code to track.sh
       extraction: pointer
       unit: 2pgcgb6enm
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
       polarity: obligation
-      labelSpans:
-        - from: 0
-          kind: ask-text
-          to: 40
       spans:
         - ./scripts/track.sh NWX 123
   - id: reference.shipment-tracker.read-track-sh
@@ -1723,10 +1726,6 @@ atoms:
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
-      labelSpans:
-        - from: 0
-          kind: ask-text
-          to: 40
   - id: instruction.shipment-tracker.when-the-carrier-answers-with-an
     kind: instruction
     title: When the carrier answers with an error, say so and give the carrier's own tracking page;…
@@ -1744,9 +1743,6 @@ atoms:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: iax6q7xbmz, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      ask:
-        text: say so and give the carrier's own tracking page
-        context: When the carrier answers with an error
       extraction: pointer
       unit: iax6q7xbmz
       labelSet: agent-rules
@@ -1754,12 +1750,19 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: situation
+          from: 0
           to: 38
-        - from: 40
-          kind: ask-text
-          to: 87
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: reference.shipment-tracker.read-data-shipments-txt
     kind: reference
     title: Read data/shipments.txt
@@ -1787,6 +1790,51 @@ atoms:
       labelSet: agent-rules
       label: reference
       labeler: jev+anthropic
+  - id: gate.supplier-email.read-claude-memory-supplier-languages-md
+    kind: gate
+    title: Read .claude/memory/supplier-languages.md before in the supplier's language
+    provenance:
+      file: .claude/skills/supplier-email/SKILL.md
+      startLine: 8
+      endLine: 8
+      quote: Write in the supplier's language, as listed in `.claude/memory/supplier-languages.md`.
+      hash: 00666b1df1fa3b1cb8f4ae6ee865deaddbc4544fa6ff8cc43af9f0ef5ca9800d
+    producedBy: model
+    role: axis
+    approved: false
+    situation: in the supplier's language
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dgwysklcdn, set: agent-rules, label: gate } }
+      - { type: ordered, before: Read, after: Write }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/supplier-languages.md } } }
+    enforcement: []
+    fields:
+      first: .claude/memory/supplier-languages.md
+      trigger: in the supplier's language
+      path: .claude/memory/supplier-languages.md
+      extraction: pointer
+      unit: dgwysklcdn
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 6
+          to: 32
+      labelLinks:
+        - kind: act-tool
+          value: Write
+        - kind: reply-act
+          value: draft
+        - kind: reply-part
+          value: draft
+      spans:
+        - .claude/memory/supplier-languages.md
+    replyAct:
+      id: draft
+      evidence:
+        type: text_segment
+        part: draft
   - id: reference.supplier-email.read-claude-memory-supplier-languages-md
     kind: reference
     title: Read .claude/memory/supplier-languages.md
@@ -1814,11 +1862,19 @@ atoms:
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
+      labelSpans:
+        - kind: governed-action
+          from: 6
+          to: 32
       labelLinks:
         - kind: act-tool
           value: Write
-  - id: register.supplier-email.every-draft-has-a-subject-with
-    kind: register
+        - kind: reply-act
+          value: draft
+        - kind: reply-part
+          value: draft
+  - id: instruction.supplier-email.every-draft-has-a-subject-with
+    kind: instruction
     title: Every draft has a subject with the order number, one paragraph that states the problem, a…
     provenance:
       file: .claude/skills/supplier-email/SKILL.md
@@ -1832,24 +1888,15 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: lnoao4ftra, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: lnoao4ftra, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: lnoao4ftra
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
-      labelLinks:
-        - kind: reply-act
-          value: draft
-        - kind: reply-part
-          value: draft
-    replyAct:
-      id: draft
-      evidence:
-        type: text_segment
-        part: draft
+      polarity: obligation
   - id: register.supplier-email.keep-a-draft-under-120-words
     kind: register
     title: Keep a draft under 120 words.
@@ -1896,21 +1943,15 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dn435raxki, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: dn435raxki, set: agent-rules, label: prohibition } }
     enforcement: []
     fields:
-      ask:
-        text: ask once more
       extraction: pointer
       unit: dn435raxki
       labelSet: agent-rules
-      label: rule
+      label: prohibition
       labeler: jev+anthropic
-      polarity: obligation
-      labelSpans:
-        - from: 44
-          kind: ask-text
-          to: 57
+      polarity: prohibition
   - id: instruction.supplier-email.never-copy-a-price-or-a
     kind: instruction
     title: Never copy a price or a date into a draft unless you read it in the order or the invoice.
@@ -1935,42 +1976,6 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
-  - id: gate.weekly-report.read-templates-report-md-before-writing
-    kind: gate
-    title: Read templates/report.md before writing the report
-    provenance:
-      file: .claude/skills/weekly-report/SKILL.md
-      startLine: 9
-      endLine: 9
-      quote: "Before writing the report: Read `templates/report.md` !!"
-      hash: d819ce7fbfd94a6851dc17068fc9eca1dbdf486bd8b4a4186a33492bcfb27a0c
-    producedBy: model
-    role: axis
-    approved: false
-    situation: writing the report
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: kb4qkuf4z2, set: agent-rules, label: gate } }
-      - { type: ordered, before: Read, after: Write }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/weekly-report/templates/report.md } } }
-    enforcement: []
-    fields:
-      first: templates/report.md
-      trigger: writing the report
-      path: .claude/skills/weekly-report/templates/report.md
-      extraction: pointer
-      unit: kb4qkuf4z2
-      labelSet: agent-rules
-      label: gate
-      labeler: jev+anthropic
-      labelSpans:
-        - from: 7
-          kind: governed-action
-          to: 25
-      labelLinks:
-        - kind: act-tool
-          value: Write
-      spans:
-        - templates/report.md
   - id: reference.weekly-report.read-templates-report-md
     kind: reference
     title: Read templates/report.md
@@ -1998,13 +2003,31 @@ atoms:
       labelSet: agent-rules
       label: gate
       labeler: jev+anthropic
-      labelSpans:
-        - from: 7
-          kind: governed-action
-          to: 25
       labelLinks:
         - kind: act-tool
           value: Write
+  - id: instruction.weekly-report.fill-the-template-in-this-order
+    kind: instruction
+    title: "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…"
+    provenance:
+      file: .claude/skills/weekly-report/SKILL.md
+      startLine: 11
+      endLine: 11
+      quote: "Fill the template in this order: invoices reconciled, shipments late, supplier emails sent, open questions."
+      hash: 3ed84aca5292dfc0932b8105e67e0628fd85de27ce6bae4053b7f0027d9c48d9
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zccykz54pt, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: zccykz54pt
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
   - id: instruction.weekly-report.count-only-what-the-ledger-and
     kind: instruction
     title: Count only what the ledger and the shipment log show for the last seven days.
@@ -2074,11 +2097,15 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: never overwrite an earlier week
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 4u2gwiyt2j, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Write, input: { file_path: { contains: overwrite an earlier week } } }
     enforcement: []
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Write
+          material: overwrite an earlier week
       extraction: pointer
       unit: 4u2gwiyt2j
       labelSet: agent-rules
@@ -2086,9 +2113,14 @@ atoms:
       labeler: jev+anthropic
       polarity: prohibition
       labelSpans:
-        - from: 51
-          kind: situation
+        - kind: forbidden-material
+          from: 57
           to: 82
+      labelLinks:
+        - kind: forbid-tool
+          value: Write
+        - kind: forbid-input
+          value: file_path
       spans:
         - references/kpi-definitions.md
         - reports/<year>-W<week>.md
@@ -2104,7 +2136,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: of the user's latest message
+    situation: Always answer in the language of the user's latest message
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 7c77n3lgl5, set: agent-rules, label: reply-rule } }
     enforcement: []
@@ -2115,9 +2147,12 @@ atoms:
       label: reply-rule
       labeler: jev+anthropic
       labelSpans:
-        - from: 38
-          kind: situation
+        - kind: situation
+          from: 8
           to: 66
+      labelLinks:
+        - kind: reply-part
+          value: reply
   - id: instruction.standing.r2-never-send-an-email-to
     kind: instruction
     title: R2. Never send an email to a supplier without showing the full draft to the user first an…
@@ -2130,6 +2165,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
+    situation: Never send an email to a supplier without showing the full draft to the user first and getting an explicit yes
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 6juqj4iyft, set: agent-rules, label: prohibition } }
     enforcement: []
@@ -2140,19 +2176,16 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: situation
+          from: 8
+          to: 118
       labelLinks:
-        - kind: reply-act
-          value: draft
-        - kind: reply-part
-          value: draft
-    replyAct:
-      id: draft
-      evidence:
-        type: text_segment
-        part: draft
-  - id: gate.standing.read-before-edit-it
-    kind: gate
-    title: Read before edit it
+        - kind: forbid-tool
+          value: Agent
+  - id: instruction.standing.r3-read-a-file-before-you
+    kind: instruction
+    title: R3. Read a file before you edit it.
     provenance:
       file: CLAUDE.md
       startLine: 11
@@ -2162,29 +2195,24 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: edit it
+    situation: Read a file before you edit it
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: oeowulj3qm, set: agent-rules, label: gate-same } }
-      - { type: ordered, before: Read, after: Edit }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: oeowulj3qm, set: agent-rules, label: rule } }
     enforcement: [ guard.settings.pretooluse-edit-write-guard-read-before ]
     fields:
-      trigger: edit it
-      order:
-        key: file_path
       extraction: pointer
       unit: oeowulj3qm
       labelSet: agent-rules
-      label: gate-same
+      label: rule
       labeler: jev+anthropic
+      polarity: obligation
       labelSpans:
-        - from: 31
-          kind: governed-action
+        - kind: situation
+          from: 8
           to: 38
       labelLinks:
-        - kind: act-tool
-          value: Edit
-        - kind: order-key
-          value: file_path
+        - kind: reply-part
+          value: reply
   - id: instruction.standing.r4-never-delete-a-file-under
     kind: instruction
     title: R4. Never delete a file under ledger/; move it to ledger/archive/ instead.
@@ -2199,14 +2227,28 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: woijaqquri, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Bash, input: { command: { contains: delete a file under `ledger/` } } }
     enforcement: [ guard.settings.posttooluse-bash-guard-ledger-guard-py ]
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Bash
+          material: delete a file under `ledger/`
       extraction: pointer
       unit: woijaqquri
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 14
+          to: 43
+      labelLinks:
+        - kind: forbid-tool
+          value: Bash
+        - kind: forbid-input
+          value: command
       spans:
         - ledger/
         - ledger/archive/
@@ -2238,8 +2280,8 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 15
-          kind: governed-action
+        - kind: governed-action
+          from: 15
           to: 39
       labelLinks:
         - kind: act-tool
@@ -2274,8 +2316,8 @@ atoms:
       label: gate
       labeler: jev+anthropic
       labelSpans:
-        - from: 15
-          kind: governed-action
+        - kind: governed-action
+          from: 15
           to: 39
       labelLinks:
         - kind: act-tool
@@ -2294,14 +2336,28 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: josrxaogo4, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Bash, input: { command: { contains: git push --force } } }
     enforcement: [ guard.settings.pretooluse-bash-guard-block-force-push ]
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Bash
+          material: git push --force
       extraction: pointer
       unit: josrxaogo4
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 19
+          to: 35
+      labelLinks:
+        - kind: forbid-tool
+          value: Bash
+        - kind: forbid-input
+          value: command
       spans:
         - git push --force
   - id: instruction.standing.r7-when-a-shipment-is-late
@@ -2321,9 +2377,6 @@ atoms:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: emz6tmbir7, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      ask:
-        text: propose a supplier email
-        context: When a shipment is late by more than two days
       extraction: pointer
       unit: emz6tmbir7
       labelSet: agent-rules
@@ -2331,12 +2384,19 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 8
-          kind: situation
+        - kind: situation
+          from: 8
           to: 53
-        - from: 73
-          kind: ask-text
-          to: 97
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: instruction.standing.r8-do-not-invent-order-numbers
     kind: instruction
     title: R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…
@@ -2367,11 +2427,11 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 54
-          kind: situation
+        - kind: situation
+          from: 54
           to: 77
-        - from: 79
-          kind: ask-text
+        - kind: ask-text
+          from: 79
           to: 98
       labelLinks:
         - kind: reply-act
@@ -2404,6 +2464,16 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: clarify
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: clarify
+      evidence:
+        type: text_segment
+        part: reply
   - id: instruction.standing.r10-when-the-user-says-stop
     kind: instruction
     title: R10. When the user says "stop", stop all work and confirm in one line.
@@ -2424,9 +2494,6 @@ atoms:
       ask:
         text: stop all work and confirm in one line
         context: When the user says "stop"
-        act:
-          kind: reply
-          name: acknowledge
       extraction: pointer
       unit: hexjxf5hak
       labelSet: agent-rules
@@ -2434,22 +2501,15 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 9
-          kind: situation
+        - kind: situation
+          from: 9
           to: 34
-        - from: 36
-          kind: ask-text
+        - kind: ask-text
+          from: 36
           to: 73
       labelLinks:
         - kind: reply-act
           value: acknowledge
-        - kind: reply-part
-          value: reply
-    replyAct:
-      id: acknowledge
-      evidence:
-        type: text_segment
-        part: reply
   - id: instruction.standing.r11-never-paste-the-contents-of
     kind: instruction
     title: R11. Never paste the contents of .env or any credential into a reply.
@@ -2464,16 +2524,76 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: xi6od5jvxp, set: agent-rules, label: prohibition } }
+      - { type: tool_not_called, label: Bash, input: { command: { contains: "`.env` or any credential" } } }
     enforcement: []
     fields:
+      unitCases:
+        - effect: forbid
+          tool: Bash
+          material: "`.env` or any credential"
       extraction: pointer
       unit: xi6od5jvxp
       labelSet: agent-rules
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 37
+          to: 61
+      labelLinks:
+        - kind: reply-act
+          value: refuse
+        - kind: reply-part
+          value: reply
+        - kind: forbid-tool
+          value: Bash
+        - kind: forbid-input
+          value: command
       spans:
         - .env
+    replyAct:
+      id: refuse
+      evidence:
+        type: text_segment
+        part: reply
+  - id: instruction.standing.r13-before-you-dispatch-a-helper
+    kind: instruction
+    title: R13. Before you dispatch a helper agent, write its brief with the task, the files it may…
+    provenance:
+      file: CLAUDE.md
+      startLine: 21
+      endLine: 21
+      quote: "**R13.** Before you dispatch a helper agent, write its brief with the task, the files it may touch and the shape of its answer."
+      hash: 5da4cb675ba0e16b68d7ded27058fea55794d82eab7d03e9ed8928bd29168e96
+    producedBy: model
+    role: axis
+    approved: false
+    situation: Before you dispatch a helper agent
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: nm5qvlsrod, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: nm5qvlsrod
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
+      labelSpans:
+        - kind: situation
+          from: 9
+          to: 43
+      labelLinks:
+        - kind: reply-act
+          value: draft
+        - kind: reply-part
+          value: draft
+    replyAct:
+      id: draft
+      evidence:
+        type: text_segment
+        part: draft
   - id: gate.standing.read-git-status-before-commit-to
     kind: gate
     title: Read git status before commit to git
@@ -2495,18 +2615,22 @@ atoms:
     fields:
       first: git status
       trigger: commit to git
+      order:
+        key: command
       extraction: pointer
       unit: zuie2qo5us
       labelSet: agent-rules
       label: gate-command
       labeler: jev+anthropic
       labelSpans:
-        - from: 16
-          kind: governed-action
+        - kind: governed-action
+          from: 16
           to: 29
       labelLinks:
         - kind: act-tool
           value: Bash
+        - kind: order-key
+          value: command
       spans:
         - git status
   - id: hazard.standing.r15-after-a-compaction-re-read
@@ -2524,7 +2648,7 @@ atoms:
     situation: A compaction of the context
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ndszu34jlz, set: agent-rules, label: hazard-compaction } }
-      - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: [], rereadSelf: true, unpathed: [ the open tracker note ], calls: [] } }
+      - { type: custom, name: hazard_recovery, options: { hazard: compaction, reread: [], calls: [], retry: true } }
     enforcement: []
     fields:
       hazard: compaction
@@ -2534,11 +2658,8 @@ atoms:
       label: hazard-compaction
       labeler: jev+anthropic
       labelSpans:
-        - from: 29
-          kind: reread-self
-          to: 46
-        - from: 51
-          kind: reread-other
+        - kind: retry
+          from: 29
           to: 72
   - id: instruction.standing.r16-if-a-tool-fails-twice
     kind: instruction
@@ -2557,12 +2678,6 @@ atoms:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ggatj5jijq, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      ask:
-        text: stop and tell the user what failed instead of retrying
-        context: If a tool fails twice in a row
-        act:
-          kind: reply
-          name: report
       extraction: pointer
       unit: ggatj5jijq
       labelSet: agent-rules
@@ -2570,12 +2685,9 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 9
-          kind: situation
+        - kind: situation
+          from: 9
           to: 39
-        - from: 41
-          kind: ask-text
-          to: 95
       labelLinks:
         - kind: reply-act
           value: report
@@ -2598,7 +2710,7 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: Report a number only when you read it in a file or a tool result during this session.
+    situation: Report a number only when you read it in a file or a tool result during this session
     evidence:
       - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: snwqcymbbi, set: agent-rules, label: rule } }
     enforcement: []
@@ -2610,18 +2722,102 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 9
-          kind: situation
-          to: 94
+        - kind: situation
+          from: 9
+          to: 93
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
+  - id: hazard.standing.r20-after-a-restart-of-your
+    kind: hazard
+    title: R20. After a restart of your process, re-read .claude/memory/MEMORY.md before you continu…
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+      hash: 45cdecbf829780d992fe3f32af9007be8e4efbd6c7e868ac7444252b371a69c5
+    producedBy: model
+    role: detail
+    approved: false
+    situation: A process restart
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2ehiz3u7nq, set: agent-rules, label: hazard-restart } }
+      - { type: custom, name: hazard_recovery, options: { hazard: restart, reread: [ .claude/memory/MEMORY.md ], calls: [], retry: true } }
+    enforcement: []
+    fields:
+      hazard: restart
+      extraction: pointer
+      unit: 2ehiz3u7nq
+      labelSet: agent-rules
+      label: hazard-restart
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: retry
+          from: 42
+          to: 96
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
+  - id: reference.standing.read-claude-memory-memory-md
+    kind: reference
+    title: Read .claude/memory/MEMORY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+      hash: 45cdecbf829780d992fe3f32af9007be8e4efbd6c7e868ac7444252b371a69c5
+    producedBy: model
+    role: detail
+    approved: false
+    situation: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2ehiz3u7nq, set: agent-rules, label: hazard-restart } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/MEMORY.md } } }
+    enforcement: []
+    fields:
+      path: .claude/memory/MEMORY.md
+      exists: true
+      readWhen: "**R20.** After a restart of your process, re-read `.claude/memory/MEMORY.md` before you continue."
+      from: CLAUDE.md
+      extraction: pointer
+      unit: 2ehiz3u7nq
+      labelSet: agent-rules
+      label: hazard-restart
+      labeler: jev+anthropic
+      labelSpans:
+        - kind: retry
+          from: 42
+          to: 96
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
   - id: route.standing.an-ask-to-reconcile-an-invoice
     kind: route
     title: An ask to reconcile an invoice against a purchase order loads invoice-reconcile
     provenance:
       file: CLAUDE.md
-      startLine: 31
-      endLine: 31
+      startLine: 32
+      endLine: 32
       quote: reconcile an invoice against a purchase order | `invoice-reconcile`
-      hash: 0dfb7352b5b105de57849dc51add36e9e741fa704b9046de258406399a6d91d4
+      hash: 23a8b96d2fcceacf51fb813a872a3f398082cb17215aee0e499c46db04337541
     producedBy: model
     role: axis
     approved: false
@@ -2648,10 +2844,10 @@ atoms:
     title: An ask to know where a shipment is loads shipment-tracker
     provenance:
       file: CLAUDE.md
-      startLine: 32
-      endLine: 32
+      startLine: 33
+      endLine: 33
       quote: know where a shipment is | `shipment-tracker`
-      hash: e2fa9692a4343da5080aa7ea7c51002ec018ebc433cfa6b61d9ce9ae79417003
+      hash: 582eb12cb227a161986cd0b75bcc0846627915c4902e0d4a424699e61a6d5254
     producedBy: model
     role: axis
     approved: false
@@ -2678,10 +2874,10 @@ atoms:
     title: An ask to write to or chase a supplier loads supplier-email
     provenance:
       file: CLAUDE.md
-      startLine: 33
-      endLine: 33
+      startLine: 34
+      endLine: 34
       quote: write to or chase a supplier | `supplier-email`
-      hash: f606cb8ea2c602f22ac7794817a4143b063bb632fedf8b9cdf101a347ea322d2
+      hash: 255f74bcbe1e3c92d89893c31da8d4248a41e927f43fc944d0dbab7a52b603e1
     producedBy: model
     role: axis
     approved: false
@@ -2708,10 +2904,10 @@ atoms:
     title: An ask to prepare the weekly report loads weekly-report
     provenance:
       file: CLAUDE.md
-      startLine: 34
-      endLine: 34
+      startLine: 35
+      endLine: 35
       quote: prepare the weekly report | `weekly-report`
-      hash: ebfdc0fd1af3c501bfd4d85d40c86876eed2bb5356c6a9f1462aa04ed2f1c318
+      hash: 842d9ad1b282c52915464b5cdfef6de741fd616417b642b7bf2ac253a6b40eb0
     producedBy: model
     role: axis
     approved: false
@@ -2738,10 +2934,10 @@ atoms:
     title: An ask to audit the ledger for duplicate payments dispatches ledger-auditor
     provenance:
       file: CLAUDE.md
-      startLine: 35
-      endLine: 35
+      startLine: 36
+      endLine: 36
       quote: audit the ledger for duplicate payments | the `ledger-auditor` agent
-      hash: 601c2603bf4896f45f3535bbd227e38afa807884b89a479bc9ebe3909c8e6392
+      hash: c3d135eb57fddcbf43ba6b03749df97340d8af70b76ed9d08ae628767672cb6f
     producedBy: model
     role: axis
     approved: false
@@ -2768,10 +2964,10 @@ atoms:
     title: An ask to plan the delivery routes for tomorrow dispatches route-planner
     provenance:
       file: CLAUDE.md
-      startLine: 36
-      endLine: 36
+      startLine: 37
+      endLine: 37
       quote: plan the delivery routes for tomorrow | the `route-planner` agent
-      hash: dec4e987418237aaba9d8ec41553dfcca70a91fb9b6a4fdfdd4a2dcc96dfe9b1
+      hash: 1d2fc01fb1617d7f5724337dce72f9ac2ceeee8afa0bfbfc51afd45ed411e609
     producedBy: model
     role: axis
     approved: false
@@ -2798,10 +2994,10 @@ atoms:
     title: "Every task follows the step list in .claude/steps.json: plan, do, verify, report."
     provenance:
       file: CLAUDE.md
-      startLine: 40
-      endLine: 40
+      startLine: 41
+      endLine: 41
       quote: "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report."
-      hash: b86f911a228f667fa9e22441a67ff28449543b75858180a61957c9f0092e9ff3
+      hash: 658baa1244b30835a0494e367e0b5060267393a93b3672e3b0678c261385991b
     producedBy: model
     role: axis
     approved: false
@@ -2817,20 +3013,30 @@ atoms:
       labeler: jev+anthropic
       polarity: obligation
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: situation
+          from: 0
           to: 10
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
       spans:
         - .claude/steps.json
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: reference.standing.read-claude-steps-json
     kind: reference
     title: Read .claude/steps.json
     provenance:
       file: CLAUDE.md
-      startLine: 40
-      endLine: 40
+      startLine: 41
+      endLine: 41
       quote: "Every task follows the step list in `.claude/steps.json`: plan, do, verify, report."
-      hash: b86f911a228f667fa9e22441a67ff28449543b75858180a61957c9f0092e9ff3
+      hash: 658baa1244b30835a0494e367e0b5060267393a93b3672e3b0678c261385991b
     producedBy: model
     role: detail
     approved: false
@@ -2850,44 +3056,23 @@ atoms:
       label: rule
       labeler: jev+anthropic
       labelSpans:
-        - from: 0
-          kind: situation
+        - kind: situation
+          from: 0
           to: 10
-  - id: instruction.standing.a-tracker-note-may-be-written
-    kind: instruction
-    title: A tracker note may be written at any step.
-    provenance:
-      file: CLAUDE.md
-      startLine: 40
-      endLine: 41
-      quote: |-
-        A tracker note may be
-        written at any step.
-      hash: 4e22ca1182afbcba5ed24470c2aa3cafa578059da50103cc003f63aba7089d73
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ceowdbcrfy, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: ceowdbcrfy
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
-      spans:
-        - .claude/steps.json
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
   - id: instruction.standing.never-report-a-task-as-done
     kind: instruction
     title: Never report a task as done before the verify step has passed.
     provenance:
       file: CLAUDE.md
-      startLine: 41
-      endLine: 41
+      startLine: 42
+      endLine: 42
       quote: Never report a task as done before the verify step has passed.
-      hash: 1f64bb82b71368c2a57e95091856420abf21cfdfda622e6751c1f276a4abc27c
+      hash: d616314220678e6353c88ca28d26e0deb4142e0b1ed16eff11ef97ba7af4eae3
     producedBy: model
     role: axis
     approved: false
@@ -2901,15 +3086,29 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 6
+          to: 61
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: register.standing.keep-every-reply-under-1-200
     kind: register
     title: Keep every reply under 1,200 characters unless the user asks for detail.
     provenance:
       file: CLAUDE.md
-      startLine: 45
-      endLine: 45
+      startLine: 46
+      endLine: 46
       quote: Keep every reply under 1,200 characters unless the user asks for detail.
-      hash: e292196f4ab0f347ec69e983ed19e5af37179bd0d8fb99f253113b28c0f7d38c
+      hash: 95e2ae3798d57bcaf7f5eb0cf82991e965b6cc1863cb0f4e2950a72cae966a36
     producedBy: model
     role: axis
     approved: false
@@ -2922,15 +3121,25 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: answer
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: answer
+      evidence:
+        type: text_segment
+        part: reply
   - id: register.standing.lead-with-the-result-in-the
     kind: register
     title: Lead with the result in the first line.
     provenance:
       file: CLAUDE.md
-      startLine: 46
-      endLine: 46
+      startLine: 47
+      endLine: 47
       quote: Lead with the result in the first line.
-      hash: b1ecff2c0789c5ea6436c246b401a8ff650832a8997811262bde0afe31f92b23
+      hash: 809d5c949a13f2fb86b0ea27b1730d1686ae43a1311fa1653d539b357c7aea77
     producedBy: model
     role: axis
     approved: false
@@ -2943,15 +3152,25 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
+      labelLinks:
+        - kind: reply-act
+          value: report
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: report
+      evidence:
+        type: text_segment
+        part: reply
   - id: register.standing.use-a-bullet-list-for-three
     kind: register
     title: Use a bullet list for three or more parallel items.
     provenance:
       file: CLAUDE.md
-      startLine: 47
-      endLine: 47
+      startLine: 48
+      endLine: 48
       quote: Use a bullet list for three or more parallel items.
-      hash: 7e281d2b19de3fe997724ee2b64ca13bb71f8d8cbd18152f6285cefd9e7a0456
+      hash: facec93bff2b81540694155f67a0862e4128b7b11b530b23a4817b97433a2b0f
     producedBy: model
     role: axis
     approved: false
@@ -2964,36 +3183,61 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-  - id: register.standing.never-use-the-words-obviously-or
-    kind: register
+      labelLinks:
+        - kind: reply-act
+          value: answer
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: answer
+      evidence:
+        type: text_segment
+        part: reply
+  - id: instruction.standing.never-use-the-words-obviously-or
+    kind: instruction
     title: Never use the words "obviously" or "simply".
     provenance:
       file: CLAUDE.md
-      startLine: 48
-      endLine: 48
+      startLine: 49
+      endLine: 49
       quote: Never use the words "obviously" or "simply".
-      hash: 566e493956f17823e9cf8d596491dd2531d0a2dbb72065ca9657641ba8c6f00e
+      hash: a0d08dece3258735818aa8a25d1af05c0a769387b82402b686e5233cc2a88b2f
     producedBy: model
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: w5v46k2lbi, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: w5v46k2lbi, set: agent-rules, label: prohibition } }
     enforcement: []
     fields:
       extraction: pointer
       unit: w5v46k2lbi
       labelSet: agent-rules
-      label: reply-rule
+      label: prohibition
       labeler: jev+anthropic
+      polarity: prohibition
+      labelSpans:
+        - kind: forbidden-material
+          from: 21
+          to: 30
+      labelLinks:
+        - kind: reply-act
+          value: answer
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: answer
+      evidence:
+        type: text_segment
+        part: reply
   - id: register.standing.write-amounts-with-the-currency-code
     kind: register
     title: Write amounts with the currency code after the number, as in 1,250.00 EUR.
     provenance:
       file: CLAUDE.md
-      startLine: 49
-      endLine: 49
+      startLine: 50
+      endLine: 50
       quote: Write amounts with the currency code after the number, as in 1,250.00 EUR.
-      hash: e2aeb0e860517a514f9be77a983fa2d34382cb9bb3fed0a6a88522b4002ee86b
+      hash: 68440aec4cd460a72c404e654fb1c87edeeddb069dbf911dd6259d645781f075
     producedBy: model
     role: axis
     approved: false
@@ -3006,57 +3250,63 @@ atoms:
       labelSet: agent-rules
       label: reply-rule
       labeler: jev+anthropic
-  - id: gate.standing.read-claude-memory-memory-md-before
-    kind: gate
-    title: Read .claude/memory/MEMORY.md before at the start of every session
+      labelLinks:
+        - kind: reply-act
+          value: answer
+        - kind: reply-part
+          value: reply
+    replyAct:
+      id: answer
+      evidence:
+        type: text_segment
+        part: reply
+  - id: instruction.standing.read-claude-memory-memory-md-at
+    kind: instruction
+    title: Read .claude/memory/MEMORY.md at the start of every session.
     provenance:
       file: CLAUDE.md
-      startLine: 50
-      endLine: 50
+      startLine: 51
+      endLine: 51
       quote: Read `.claude/memory/MEMORY.md` at the start of every session.
-      hash: a4f9e7040323d9f3e62fbce02ebc1b2bf15f9c79d5778d9ea949397914d616ae
+      hash: 87d049b2c9a3fe15eb99ba26b466cf9897ca6601e3e1f50e9bcaf107ecad7f7c
     producedBy: model
     role: axis
     approved: false
     situation: at the start of every session
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: gate } }
-      - { type: ordered, before: Read, after: Read }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/MEMORY.md } } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: rule } }
     enforcement: []
     fields:
-      first: .claude/memory/MEMORY.md
-      trigger: at the start of every session
-      path: .claude/memory/MEMORY.md
       extraction: pointer
       unit: 2z5lfdx7uu
       labelSet: agent-rules
-      label: gate
+      label: rule
       labeler: jev+anthropic
+      polarity: obligation
       labelSpans:
-        - from: 32
-          kind: governed-action
+        - kind: situation
+          from: 32
           to: 61
       labelLinks:
-        - kind: act-tool
-          value: Read
+        - kind: reply-part
+          value: reply
       spans:
         - .claude/memory/MEMORY.md
-  - id: reference.standing.read-claude-memory-memory-md
+  - id: reference.standing.read-claude-memory-memory-md-2
     kind: reference
     title: Read .claude/memory/MEMORY.md
     provenance:
       file: CLAUDE.md
-      startLine: 50
-      endLine: 50
+      startLine: 51
+      endLine: 51
       quote: Read `.claude/memory/MEMORY.md` at the start of every session.
-      hash: a4f9e7040323d9f3e62fbce02ebc1b2bf15f9c79d5778d9ea949397914d616ae
+      hash: 87d049b2c9a3fe15eb99ba26b466cf9897ca6601e3e1f50e9bcaf107ecad7f7c
     producedBy: model
     role: detail
     approved: false
     situation: Read `.claude/memory/MEMORY.md` at the start of every session.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: gate } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 2z5lfdx7uu, set: agent-rules, label: rule } }
       - { type: tool_called, label: Read, input: { file_path: { contains: .claude/memory/MEMORY.md } } }
     enforcement: []
     fields:
@@ -3067,15 +3317,15 @@ atoms:
       extraction: pointer
       unit: 2z5lfdx7uu
       labelSet: agent-rules
-      label: gate
+      label: rule
       labeler: jev+anthropic
       labelSpans:
-        - from: 32
-          kind: governed-action
+        - kind: situation
+          from: 32
           to: 61
       labelLinks:
-        - kind: act-tool
-          value: Read
+        - kind: reply-part
+          value: reply
   - id: invariant.standing.the-standing-instructions-stay-under-40000
     kind: invariant
     title: The standing instructions stay under 40000 characters
@@ -3094,7 +3344,7 @@ atoms:
     fields:
       check: standing_size
       ceiling: 40000
-      characters: 3292
+      characters: 3392
       holds: true
   - id: invariant.standing.no-file-of-the-estate-is
     kind: invariant
@@ -3244,9 +3494,9 @@ documents:
       - live document; no whole-document navigation structure
       - loaded by the runtime as instructions
   - path: .claude/skills/shipment-tracker/data/shipments.txt
-    role: history
+    role: fixture
     reasons:
-      - "recorded label: document-history"
+      - "recorded label: document-fixture"
   - path: .claude/skills/shipment-tracker/scripts/check-carrier.sh
     role: normative
     reasons:
@@ -3278,8 +3528,8 @@ edges:
   - { from: guard.settings.posttooluse-bash-guard-ledger-guard-py, to: event.PostToolUse, kind: event }
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: instruction.standing.r6-never-run-git-push-force, kind: enforces }
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: event.PreToolUse, kind: event }
-  - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: gate.standing.read-before-edit-it, kind: enforces }
   - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: gate.standing.read-claude-skills-invoice-reconcile-references, kind: enforces }
+  - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: instruction.standing.r3-read-a-file-before-you, kind: enforces }
   - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: event.PreToolUse, kind: event }
   - { from: guard.settings.stop-guard-reply-length-py, to: register.standing.keep-every-reply-under-1-200, kind: enforces }
   - { from: guard.settings.stop-guard-reply-length-py, to: event.Stop, kind: event }
@@ -3314,6 +3564,7 @@ edges:
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: script.shipment-tracker.script-scripts-track-sh, kind: script }
   - { from: skill.supplier-email.skill-supplier-email, to: reference.supplier-email.read-claude-memory-supplier-languages-md, kind: reference }
   - { from: skill.weekly-report.skill-weekly-report, to: tool.invoice-reconcile.declared-bash, kind: allows }
+  - { from: skill.weekly-report.skill-weekly-report, to: tool.invoice-reconcile.declared-edit, kind: allows }
   - { from: skill.weekly-report.skill-weekly-report, to: tool.settings.allow-read, kind: allows }
   - { from: skill.weekly-report.skill-weekly-report, to: tool.weekly-report.declared-write, kind: allows }
   - { from: skill.weekly-report.skill-weekly-report, to: reference.weekly-report.read-references-kpi-definitions-md, kind: reference }
@@ -3329,8 +3580,19 @@ edges:
   - { from: subagent.route-planner.helper-route-planner, to: skill.shipment-tracker.skill-shipment-tracker, kind: allows }
   - { from: subagent.route-planner.helper-route-planner, to: tool.invoice-reconcile.declared-bash, kind: allows }
   - { from: subagent.route-planner.helper-route-planner, to: tool.settings.allow-read, kind: allows }
+registryRoles:
+  tables:
+    - file: .claude/guards/CHECK-REGISTRY.md
+      index: 0
+      roles:
+        - id
+        - guard
+        - event
+        - enforces
+        - verdict
+  offStates: []
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-21T11:48:48.568Z
-hash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
+  at: 2026-10-22T17:30:57.395Z
+hash: f4901f7c56d3dcda3c040fa5c221589961e5a6b6d2340aa3f921e3f66a2faaf5

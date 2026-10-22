@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548",
-    "new": "0c62ba644a299ba273abb8f665f7e021fee7d701ae18b64c8c31a6c2e171c260"
+    "old": "f4901f7c56d3dcda3c040fa5c221589961e5a6b6d2340aa3f921e3f66a2faaf5",
+    "new": "2bd032e394b61cfedeb8aece18f48c87e9a994c7e8c6360cdf8c3e7f6345d78b"
   },
   "tests": {
     "live": 8,
@@ -10,6 +10,16 @@
     "other": 0
   },
   "regenerate": [
+    {
+      "test": "northwind-draft-pair",
+      "file": "draft-pair.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r2-never-send-an-email-to",
+          "why": "restated"
+        }
+      ]
+    },
     {
       "test": "northwind-late-shipment",
       "file": "late-shipment.yaml",
@@ -31,12 +41,12 @@
       ]
     },
     {
-      "test": "northwind-route-planner",
-      "file": "route-planner.yaml",
+      "test": "northwind-supplier-yes",
+      "file": "supplier-yes.yaml",
       "atoms": [
         {
-          "atom": "route.standing.an-ask-to-plan-the-delivery",
-          "why": "semantic"
+          "atom": "instruction.standing.r2-never-send-an-email-to",
+          "why": "restated"
         }
       ]
     }
@@ -48,23 +58,38 @@
       "title": "R7. When a shipment is late by more than one day, tell the user and propose a supplier em…",
       "quote": "**R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.",
       "tests": ["northwind-late-shipment"]
-    },
-    {
-      "atom": "route.standing.an-ask-to-plan-the-delivery",
-      "kind": "route",
-      "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
-      "quote": "plan the delivery routes for the next two days | the `route-planner` agent",
-      "tests": ["northwind-route-planner"]
     }
   ],
-  "retire": [],
+  "retire": [
+    {
+      "test": "northwind-route-planner",
+      "file": "route-planner.yaml",
+      "atoms": ["route.standing.an-ask-to-plan-the-delivery"],
+      "reason": "atom route.standing.an-ask-to-plan-the-delivery removed",
+      "state": "to_write"
+    }
+  ],
   "new": [
     {
-      "atom": "register.weekly-report.fill-the-template-in-this-order",
+      "atom": "register.ledger-auditor.when-either-is-missing-answer-with",
       "kind": "register",
-      "title": "Fill the template in this order: invoices reconciled, shipments late, supplier emails sen…",
-      "file": ".claude/skills/weekly-report/SKILL.md",
+      "title": "When either is missing, answer with {\"status\": \"blocked\", \"missing\": [...]} and stop.",
+      "file": ".claude/agents/ledger-auditor.md",
       "line": 11
+    },
+    {
+      "atom": "instruction.ledger-auditor.look-for-the-same-invoice-number",
+      "kind": "instruction",
+      "title": "Look for the same invoice number paid twice, the same amount paid to the same supplier wi…",
+      "file": ".claude/agents/ledger-auditor.md",
+      "line": 14
+    },
+    {
+      "atom": "register.ledger-auditor.answer-with-one-json-object-and",
+      "kind": "register",
+      "title": "Answer with one JSON object and nothing else: {\"status\": \"done\", \"duplicates\": [{\"invoice…",
+      "file": ".claude/agents/ledger-auditor.md",
+      "line": 17
     },
     {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
@@ -72,6 +97,13 @@
       "title": "R18. Never approve a credit note above 500.00 EUR without naming the finance lead who agr…",
       "file": "CLAUDE.md",
       "line": 26
+    },
+    {
+      "atom": "instruction.standing.r19-when-r18-applies-and-the",
+      "kind": "instruction",
+      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
+      "file": "CLAUDE.md",
+      "line": 27
     }
   ],
   "guards": [
@@ -86,17 +118,6 @@
   ],
   "units": {
     "rerun": [
-      {
-        "test": "northwind-draft-pair",
-        "file": "draft-pair.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r2-never-send-an-email-to",
-            "unit": "6juqj4iyft",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
-      },
       {
         "test": "northwind-force-push",
         "file": "force-push.yaml",
@@ -118,17 +139,6 @@
             "why": ["new unit bluhvywt5m beside it"]
           }
         ]
-      },
-      {
-        "test": "northwind-supplier-yes",
-        "file": "supplier-yes.yaml",
-        "atoms": [
-          {
-            "atom": "instruction.standing.r2-never-send-an-email-to",
-            "unit": "6juqj4iyft",
-            "why": ["new unit bluhvywt5m beside it"]
-          }
-        ]
       }
     ],
     "advisory": [
@@ -145,6 +155,13 @@
       }
     ],
     "unlabeled": [
+      {
+        "unit": "k7zmu74mwi",
+        "path": ".claude/skills/weekly-report/SKILL.md",
+        "quote": "Read, Write, Bash(python3 *)",
+        "was": "Read, Write, Edit, Bash(python3 *)",
+        "tests": []
+      },
       {
         "unit": "mx7vrgfrjv",
         "path": "CLAUDE.md",
@@ -170,15 +187,18 @@
     }
   ],
   "unaffected": {
-    "moved": 25,
+    "moved": 26,
     "tests": 0
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
-    "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "approve the tests of the new atom register.weekly-report.fill-the-template-in-this-order: no test covers it yet",
+    "approve the tests of the new atom register.ledger-auditor.when-either-is-missing-answer-with: no test covers it yet",
+    "approve the tests of the new atom instruction.ledger-auditor.look-for-the-same-invoice-number: no test covers it yet",
+    "approve the tests of the new atom register.ledger-auditor.answer-with-one-json-object-and: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet",
     "the test northwind-unsent-draft cites an atom no longer in the map (instruction.standing.r12-when-r2-applies-and-the): decide what it tests now",
+    "review the unlabeled unit k7zmu74mwi in .claude/skills/weekly-report/SKILL.md: it changed and no atom covers it",
     "review the unlabeled unit mx7vrgfrjv in CLAUDE.md: it changed and no atom covers it; 7 tests cite its file"
   ]
 }
