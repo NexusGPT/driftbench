@@ -104,7 +104,8 @@ export function parseUnitsTruth(text: string): UnitsTruth {
     if (entry.unit !== '' && !ids.has(entry.unit))
       problems.push(`${entry.where}: ${entry.unit} is not a unit`);
   // Optional sections: absent means none. A present section is checked like the others.
-  const optional = (key: string): Array<[string, Record<string, unknown>]> => (raw[key] === undefined ? [] : rows(key));
+  const optional = (key: string): Array<[string, Record<string, unknown>]> =>
+    raw[key] === undefined ? [] : rows(key);
   const refersTo = optional('refers_to').map(([where, entry]) => {
     const unit = field(entry, where, 'unit');
     const targets = Array.isArray(entry.targets)

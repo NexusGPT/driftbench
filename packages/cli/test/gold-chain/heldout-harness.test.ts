@@ -181,7 +181,9 @@ describe('the held-out harness on a made-up estate', () => {
     expect(seen.filter((user) => user.includes('REFERRED:'))).toHaveLength(1);
     expect(seen.filter((user) => user.startsWith('TABLE HEADER:'))).toHaveLength(1);
     // The neighbour that nothing points at is asked as it always was.
-    expect(seen.find((user) => user.endsWith('INSTRUCTION:\nGreet the rider by name.'))).not.toContain('REFERRED');
+    expect(seen.find((user) => user.endsWith('INSTRUCTION:\nGreet the rider by name.'))).not.toContain(
+      'REFERRED',
+    );
     // Without the planted fields the pointer gets no number (the stub answers only a REFERRED request) and the table rows are out of reach.
     const plain = await runUnitsEstate({ folder, ask, planted: false });
     expect(plain.score.limits.found).toBe(0);
