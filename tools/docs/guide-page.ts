@@ -57,13 +57,19 @@ export function steps(block: string): Step[] {
   return found;
 }
 
-/** The printed lines of a command: no blank line, no trailing space, no absolute path of the clone or the folder. */
+/** A campaign id of a run changes at every run, so a page shows it as `estate-run-<id>`. */
+const idOf = (line: string): string => line.replace(/estate-run-[0-9a-f]{12}/g, 'estate-run-<id>');
+
+/**
+ * The printed lines of a command: no blank line, no trailing space, no absolute path of the clone or the folder,
+ * and a campaign id shown as `<id>`.
+ */
 function clean(text: string, cwd: string): string[] {
   return text
     .replaceAll(`${ROOT}/`, '')
     .replaceAll(`${cwd}/`, '')
     .split('\n')
-    .map((line) => line.trimEnd())
+    .map((line) => idOf(line.trimEnd()))
     .filter((line) => line !== '');
 }
 
@@ -147,7 +153,7 @@ function mismatch(step: Step, got: { code: number; lines: string[] }): string[] 
   const found: string[] = [];
   let from = 0;
   for (const line of step.shown) {
-    const at = got.lines.indexOf(line, from);
+    const at = got.lines.indexOf(idOf(line), from);
     if (at < 0) {
       found.push(`the README line is not printed, in order: ${line}`);
     } else {
@@ -208,7 +214,7 @@ export async function runGuidePage(root: string, page: string): Promise<string[]
       }
     }
     for (const line of excerpts) {
-      if (!printed.has(line.trimEnd())) problems.push(`An excerpt line no command printed: ${line}`);
+      if (!printed.has(idOf(line.trimEnd()))) problems.push(`An excerpt line no command printed: ${line}`);
     }
   } finally {
     await rm(base, { recursive: true, force: true });
