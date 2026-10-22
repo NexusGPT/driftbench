@@ -32,7 +32,9 @@ it('runs this shard of the planner mutants', async () => {
     const module = write(PLANNER, dir, mutant);
     const row: Record<string, unknown> = { ...mutant };
     try {
-      const items = plannerItems(module);
+      // Items the reference planner itself fails (its named gaps) kill nothing: only items it passes count.
+      const GAPS = ['planner.required-survives-budget.required', 'planner.budget-below-required.required'];
+      const items = plannerItems(module).filter((item) => !GAPS.includes(item.id));
       let killedBy: string | undefined;
       let threw = 0;
       for (const seed of [1, 2, 3]) {
