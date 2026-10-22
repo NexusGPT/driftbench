@@ -8,7 +8,7 @@
 
 version: 1
 mapHash: db9e07132a1ba692d4aed4c37617a98e9f247831c70eb82556fa4b87c1838548
-spaceHash: 98654ea5916a
+spaceHash: 6725368cef67
 rows:
   - { id: obligation.instruction.inbox-triager.you-sort-messages-into-three-folders, atomIds: [ instruction.inbox-triager.you-sort-messages-into-three-folders, subagent.inbox-triager.helper-inbox-triager ], cell: { atoms.instruction: instruction.inbox-triager.you-sort-messages-into-three-folders }, testType: obligation, mode: live, status: proposed, weight: 1, note: "The required act happens: it applies always." }
   - { id: outside_trigger.instruction.inbox-triager.you-sort-messages-into-three-folders, atomIds: [ instruction.inbox-triager.you-sort-messages-into-three-folders, subagent.inbox-triager.helper-inbox-triager ], cell: { atoms.instruction: instruction.inbox-triager.you-sort-messages-into-three-folders }, testType: outside_trigger, mode: live, status: proposed, weight: 1, note: "Negative control: in a near situation the rule does not cover, the act does not happen." }
