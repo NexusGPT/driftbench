@@ -15,7 +15,7 @@ import {
   scanEstate,
   scriptOf,
 } from '../src/index';
-import { FIXTURE, HAND_ROLES, NOW, answer, estate, readRaw, scanFixture } from './support';
+import { answer, estate, FIXTURE, HAND_ROLES, NOW, readRaw, scanFixture } from './support';
 
 describe('the Claude Code reader', () => {
   it('reads every estate file with its kind, and nothing outside the estate', async () => {

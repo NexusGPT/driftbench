@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AtomBuilder, buildGraph, ClaudeCodeReader, codeAtoms, labelOfLine } from '../src/index';
-import { estate } from './support';
-import { readRaw } from './support';
+import { estate, readRaw } from './support';
 
 const rules = ['Never erase the parcel archive.', 'Always record the parcel count.'];
 

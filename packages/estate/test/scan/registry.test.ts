@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { HAND_ROLES, NOW, estate, readRaw } from '../support';
+import { estate, HAND_ROLES, NOW, readRaw } from '../support';
 import { CASES } from './cases';
 
 const SETTINGS = JSON.stringify({

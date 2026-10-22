@@ -1501,7 +1501,8 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
   // A markdown table is only kept: its columns are named by recorded labels (`applyRegistryRoles`), never by a
   // word of its header.
   for (const table of readTables(file.text)) {
-    (estate.registryTables ??= []).push({
+    estate.registryTables = estate.registryTables ?? [];
+    estate.registryTables.push({
       file: file.path,
       header: table.header,
       headerLine: table.headerLine,

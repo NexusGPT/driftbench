@@ -1,7 +1,7 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../src/index';
-import { HAND_ROLES, NOW, answer, estate, scanFixture, structurePointer } from './support';
+import { answer, estate, HAND_ROLES, NOW, scanFixture, structurePointer } from './support';
 
 describe('estate lint', () => {
   it('finds every defect planted in the fixture, and nothing else', async () => {
