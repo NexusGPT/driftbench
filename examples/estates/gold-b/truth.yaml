@@ -6,43 +6,75 @@ limits:
   - unit: 2zpnov2jw7
     limit: 1
     comparison: gt
+    role: trigger
     unit_of: "euros"
     governs: 2zpnov2jw7
   - unit: rfdkrhuali
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "days from the due date"
     governs: rfdkrhuali
   - unit: njsd4jltbk
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "colours in one chart"
     governs: njsd4jltbk
   - unit: cdm2x22n6i
     limit: 4
-    comparison: lt
+    comparison: ge
+    role: constraint
     unit_of: "numbers to chart"
     governs: cdm2x22n6i
   - unit: dvur44eoor
     limit: 12
     comparison: le
+    role: trigger
     unit_of: "bars"
     governs: dvur44eoor
   - unit: ucmytdpapi
     limit: 2
     comparison: ge
+    role: trigger
     unit_of: "occurrences of the same error"
     governs: ucmytdpapi
   - unit: o3k5cfkan7
     limit: 3
     comparison: le
+    role: constraint
     unit_of: "words"
     governs: o3k5cfkan7
   - unit: lhxxqkxm3l
     limit: 2
     comparison: ge
+    role: constraint
     unit_of: "readings of the message"
     governs: lhxxqkxm3l
+  - unit: lwci7tropa
+    limit: 0
+    comparison: le
+    role: constraint
+    unit_of: "axis start value"
+    governs: lwci7tropa
+  - unit: 2yxq6pbpcn
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "sentences"
+    governs: 2yxq6pbpcn
+  - unit: ttzfbmyzfz
+    limit: 1
+    comparison: le
+    role: constraint
+    unit_of: "sentences"
+    governs: ttzfbmyzfz
+  - unit: erb2rbwa26
+    limit: 4
+    comparison: le
+    role: constraint
+    unit_of: "digits shown"
+    governs: erb2rbwa26
 
 scopes:
   - unit: 7u66fhgg6x

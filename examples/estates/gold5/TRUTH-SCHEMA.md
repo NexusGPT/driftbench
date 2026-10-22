@@ -20,6 +20,8 @@ limits:
     limit: 5                     # the number, as a finite number
     comparison: le               # lt, le, gt or ge: how the quantity compares with the limit
                                  # for the condition to hold ("within five days" is le)
+    role: constraint             # constraint: the comparison is the compliant range of the act;
+                                 # trigger: the comparison is the range where the rule applies
     unit_of: working days        # optional: what the number counts
     governs: ab12cd34ef          # the gold id of the rule the limit belongs to (may be the same unit)
 
@@ -69,3 +71,17 @@ plan:
   points it at the target. Choose pairs where the condition unit and the target are in one section.
 * Do not copy text from the prose into the file other than `ask`, `near_miss` and `unit_of`.
 * An empty list is allowed only for `scopes`, `plan.same_row` and `limits` when the estate has none.
+
+## History of the limits in the truth files
+
+Four states, in order. Counts are limits per estate (A, B, C), read from the files at each commit.
+
+1. `a0be37546`: the first truth files, written from the prose by a lane that had not read the harness or run a producer. 55 limits (A 20, B 13, C 22), without a `role`.
+2. `c0359aee7`: before any recording of the producer, the entries whose governing unit carries no agreed rule, prohibition or gate were removed (the schema already required `governs` to name one), and two entries were pointed at their rule. 38 limits (A 16, B 8, C 14). The reason for each removed unit is in `TRUTH-NOTES.md`, section "Revision: limit entries with no governing rule"; most are decided by the label of the governing unit, a few by the lane's reading of the rule. This is the 38-limit truth, the one that was not built from the producer's output.
+3. `d2e842d3c`, `4ef73174f`, `d6fca1583`: extended from the model's output, to 56 limits (A 25, B 12, C 19), each with a `role` (46 constraints, 10 triggers). 18 limits were added, all units the producer had returned as extras: 17 after the first per-atom recording (run 39744125508), and B `lwci7tropa` after a later one (run 39750113618). The truth lane judged them from a list of unit ids without the model's answers; the list held only units the model had returned.
+
+4. This change: a blind re-check of the 18 added limits removed one, A `5fnrtqa4dt`. 55 limits (A 24, B 12, C 19), 45 constraints and 10 triggers. B `lwci7tropa` was rejected by a first judge that read partial dumps and accepted by a second judge that read complete dumps, so it stays.
+
+The blind re-check judged a mixed sample of 36 units without the model's answers or the truth values: the 18 added limits, 9 positive controls taken from the original truth and 9 decoys. The first judge (partial dumps) confirmed 9 of 9 controls, 0 of 7 judged decoys (2 were missing from its dumps) and 16 of 18 added limits. The second judge (complete dumps from `gold5.json`) confirmed 9 of 9 controls, 0 of 9 decoys and 17 of 18 added limits. `5fnrtqa4dt` is removed.
+
+An answer key enlarged from the model's output favours the model. Every figure must therefore be reported against both the 38-limit and the 55-limit truth, the 38-limit figure first (see `docs/variables.md`).
