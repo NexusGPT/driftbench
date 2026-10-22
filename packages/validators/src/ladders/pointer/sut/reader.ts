@@ -5,6 +5,9 @@ import type {
   Diagnostic,
   LedgerEntry,
   LedgerView,
+  Link,
+  LinkState,
+  LinksApi,
   PointerSut,
   ScanRequest,
   ScanResult,
@@ -92,6 +95,10 @@ type RResult = {
   unlabeled: number;
   refusals: string[];
   failed: string[];
+  /** Observability extensions: absence is not an empty observation. */
+  failedWindows?: Array<{ window: string; set: string; labeler: string; reason: string }>;
+  unlabeledUnits?: Array<{ unit: string; set: string }>;
+  flips?: Array<{ unit: string; set: string; from: string; to?: string }>;
   recorded: number;
 };
 type RAtom = {
@@ -118,6 +125,7 @@ export type ReaderExports = {
       env: Record<string, string | undefined>;
       cwd: string;
       record: boolean;
+      runs?: number;
       threshold?: number;
       fetch?: unknown;
     },
@@ -131,6 +139,19 @@ export type ReaderExports = {
   parseLedger(text: string): RLedger | undefined;
   renderLedger(ledger: RLedger): string;
   setHash(set: RSet): string;
+  /** Optional layer C: the reader's own link functions, given the ledger view; the adapter forwards them unchanged. */
+  createLink?: (
+    ledger: LedgerView,
+    owner: string,
+    span: string,
+    relation: string,
+    createdBy?: string,
+  ) => Link;
+  classifyLinks?: (previous: LedgerView | null, current: LedgerView, links: Link[]) => LinkState[];
+  clearLink?: LinksApi['clear'] extends (...a: infer A) => infer R ? (...a: A) => R : never;
+  verifyLink?: LinksApi['verify'];
+  linkCoverage?: LinksApi['coverage'];
+  blastRadius?: LinksApi['blast'];
   pointerScan(input: Record<string, unknown>): Promise<RResult>;
   pointerAtoms(
     labelled: readonly RLabelledUnit[],
@@ -226,16 +247,41 @@ export async function loadReaderWithRetry(
   throw last;
 }
 
+/** The reader once it has loaded, for the links, whose functions are synchronous. */
+let loadedNow: ReaderExports | undefined;
+
 function load(timeoutMs?: number): Promise<ReaderExports> {
   // A failed load is not kept: the next call tries again instead of failing every later item the same way.
   loaded ??= loadReaderWithRetry(
     async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
     timeoutMs,
-  ).catch((cause: unknown) => {
-    loaded = undefined;
-    throw cause;
-  });
+  )
+    .then((reader) => {
+      loadedNow = reader;
+      return reader;
+    })
+    .catch((cause: unknown) => {
+      loaded = undefined;
+      throw cause;
+    });
   return loaded;
+}
+
+/** The links of the loaded reader. A call before the load, or on a reader that exports none, is not reachable. */
+function lazyLinks(): LinksApi {
+  const api = (): LinksApi => {
+    const found = loadedNow ? linksOf(loadedNow) : undefined;
+    if (!found) throw new ReaderNotReachable('the reader does not expose the links api (layer C)');
+    return found;
+  };
+  return {
+    create: (...a) => api().create(...a),
+    classify: (...a) => api().classify(...a),
+    clear: (...a) => api().clear(...a),
+    verify: (...a) => api().verify(...a),
+    coverage: (...a) => api().coverage(...a),
+    blast: (...a) => api().blast(...a),
+  };
 }
 
 /** A real baseline requires the actual reader exports before it runs any item or writes any score. */
@@ -372,6 +418,7 @@ const TEST_ENV: Record<string, string> = {
   ANTHROPIC_API_KEY: 'test-key-not-real',
   JEV_API_KEY: 'test-key-not-real',
   JEV_KEY: 'test-key-not-real',
+  JEV_ROUTE: 'gateway',
 };
 
 function fetchOf(
@@ -432,6 +479,8 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
           record: mode === 'record',
           cwd: '.',
           env: TEST_ENV,
+          // One request per window and set: the bank's arms are single labelers, with nothing to vote against.
+          runs: 1,
           fetch: fetchOf(request.model.transport),
           ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
         },
@@ -472,7 +521,24 @@ async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanRe
   let atoms: Atom[] = [];
   const diagnostics: Diagnostic[] = [
     ...result.refusals.map((detail) => ({ code: 'refusal', detail })),
-    ...result.failed.map((detail) => ({ code: 'failed-window', detail })),
+    ...(
+      result.failedWindows ??
+      result.failed.map((detail) => ({ window: undefined, set: '', labeler: '', reason: detail }))
+    ).map((failed) => ({
+      code: 'failed-window',
+      ...(failed.window !== undefined ? { window: failed.window } : {}),
+      detail: `${failed.window ?? ''} (${failed.set}, ${failed.labeler}): ${failed.reason}`,
+    })),
+    ...(result.unlabeledUnits ?? []).map((gap) => ({
+      code: 'unlabeled',
+      unit: gap.unit,
+      detail: `the unit ${gap.unit} has no label in the set ${gap.set}`,
+    })),
+    ...(result.flips ?? []).map((flip) => ({
+      code: 'label_flip',
+      unit: flip.unit,
+      detail: `the unit ${flip.unit} went from ${flip.from} to ${flip.to ?? 'no label'} in the set ${flip.set}`,
+    })),
   ];
   try {
     const builder = new reader.AtomBuilder(new Map());
@@ -520,11 +586,15 @@ function atomOf(atom: RAtom): Atom {
       labelSet: String(fields.labelSet ?? fields.set ?? ''),
       ...(typeof fields.cassette === 'string' ? { cassette: fields.cassette } : {}),
     },
-    evidence: atom.evidence.map((e) => ({
-      type: String(e.type),
-      name: String(e.name ?? ''),
-      ...(typeof e.reviewRequired === 'boolean' ? { reviewRequired: e.reviewRequired } : {}),
-    })),
+    evidence: atom.evidence.map((e) => {
+      const options = (e.options ?? {}) as { reviewRequired?: unknown };
+      const reviewRequired = e.reviewRequired ?? options.reviewRequired;
+      return {
+        type: String(e.type),
+        name: String(e.name ?? ''),
+        ...(typeof reviewRequired === 'boolean' ? { reviewRequired } : {}),
+      };
+    }),
   };
 }
 
@@ -541,6 +611,7 @@ export function realReader(): PointerSut {
       return { units: out.units.map(toUnit), cutDigest: out.digest };
     },
     scan: async (request) => scan(await load(), request),
+    links: lazyLinks(),
     stack: {
       margin: async (probabilities) => stackOf(await load()).margin(probabilities),
       decide: async (request) => stackOf(await load()).decide(request),
@@ -558,6 +629,22 @@ export function readerAdapter(reader: ReaderExports): PointerSut {
     },
     scan: (request) => scan(reader, request),
     stack: stackOf(reader),
+    ...(linksOf(reader) ? { links: linksOf(reader) as LinksApi } : {}),
+  };
+}
+
+/** The links of the reader, forwarded unchanged; absent when the reader exports none. */
+function linksOf(reader: ReaderExports): LinksApi | undefined {
+  const { createLink, classifyLinks, clearLink, verifyLink, linkCoverage, blastRadius } = reader;
+  if (!createLink || !classifyLinks || !clearLink || !verifyLink || !linkCoverage || !blastRadius)
+    return undefined;
+  return {
+    create: createLink,
+    classify: classifyLinks,
+    clear: clearLink,
+    verify: verifyLink,
+    coverage: linkCoverage,
+    blast: blastRadius,
   };
 }
 
