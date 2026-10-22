@@ -149,6 +149,7 @@ export {
   singleLabelling,
   stackDecision,
   stackedLabelling,
+  stackMargin,
 } from './stack';
 export {
   createHttpLabeler,
