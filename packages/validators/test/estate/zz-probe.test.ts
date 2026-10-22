@@ -117,3 +117,11 @@ it('plan stream of the failing ask', async () => {
   say(`PLAN blocked=${out.blocked} error=${out.error} n=${brief.length}`);
   for (const line of brief) say(`REC ${line}`);
 });
+
+it('setOff of the ask', async () => {
+  const d = await import(join(FIXTURE, 'live/fake/dispatch.mjs'));
+  const idx = d.loadDispatch({ FAKE_MAP: join(FIXTURE, 'approved.yaml'), FAKE_PHRASES: join(FIXTURE, 'phrases.yaml') });
+  const ask = "Add the late shipment count to this week's report, reports/2026-W41.md.";
+  say(`SETOFF ${JSON.stringify(d.setOff(idx, ask)).slice(0, 1500)}`);
+  say(`BANK ${JSON.stringify(idx.phrases.get(ask))}`);
+});
