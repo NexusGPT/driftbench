@@ -5,7 +5,7 @@ id: gen-behaviour-balance-051
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-008: Path upgrade-most-data of upgrade: needs > identify > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -50,19 +50,6 @@ blocks:
       criteria:
         - behaviour.B-008
         - flow.upgrade
-  - id: b2-identify-to-closing
-    when:
-      user: It's morgan.diaz@example.com.
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-            customer_email: morgan.diaz@example.com
-      lang: EN
 rules:
   forbidden_tools:
     - coverage.check
@@ -87,7 +74,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: most-data
-      channel: chat
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
@@ -99,16 +86,14 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-identify-to-closing
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: identify-to-closing
-          account_lookup: most-data
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: identify-to-closing
+    reduced_ends:
+      from_blocks: 2
+      to_blocks: 1
+      duplicates:
+        - block: b2-identify-to-closing
+          duplicate_of:
+            spec: gen-graph-003
+            block: b2-identify-to-closing
   links:
     - block: b1-needs-to-identify
       to:
@@ -127,43 +112,10 @@ metadata:
           flow: upgrade
           user_type: existing-customer
           account_lookup: most-data
-          channel: chat
+          channel: whatsapp
           coverage_result: none
           stage_transition: needs-to-identify
           stage: identify
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: rule
-        rule: stage_transition=identify-to-closing
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: rule
-        rule: account_lookup=most-data
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b2-identify-to-closing
-      to:
-        kind: plan_row
-        row: gen-behaviour-balance-051
-        values:
-          behaviour: B-008
-          flow: upgrade
-          user_type: existing-customer
-          account_lookup: most-data
-          channel: chat
-          coverage_result: none
-          stage_transition: identify-to-closing
-          stage: closing
       relation: derived_from
       status: declared
       created_by: generator

@@ -23,8 +23,9 @@ import type { Atom, Edge } from '../schema';
  *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
  *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
  *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
- *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
- *      the other, compared without markup, case or final punctuation.
+ *   3. quote: a string in the guard's source of at least 16 characters holds a rule's quote, a code span the
+ *      rule writes, or the part of the rule after its condition, compared without markup, case or final
+ *      punctuation. A string that holds only the condition, or loose words of it, enforces nothing.
  * Only instruction, gate and register atoms are enforced. `enforcement` on each rule lists its guards.
  */
 
@@ -184,7 +185,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(ruleWords(rule), literal)) take(rule, 'quote');
+        for (const rule of rules) if (literalHoldsRule(literal, rule)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -209,6 +210,42 @@ function holds(quote: string, passage: string): boolean {
   const b = plain(passage);
   if (b.length < MIN_LITERAL || a.length < MIN_LITERAL) return a === b && a !== '';
   return a.includes(b) || b.includes(a);
+}
+
+/**
+ * The rule's words, without the label that opens its line, and where its condition ends in them (the condition
+ * is the situation the labeler gave), both compared without markup. Undefined when the rule has no situation, or
+ * its words do not hold it.
+ */
+function afterCondition(rule: Atom): { words: string; end: number } | undefined {
+  const raw = ruleWords(rule);
+  const condition = rule.situation?.trim();
+  if (!condition) return undefined;
+  const at = raw.toLowerCase().indexOf(condition.toLowerCase());
+  if (at < 0) return undefined;
+  return { words: plain(raw), end: plain(raw.slice(0, at + condition.length)).length };
+}
+
+/**
+ * True when a string literal of a guard source repeats a rule: it holds the whole of the rule's words, a code span
+ * the rule writes (the command a guard matches), or it reaches into the part of the rule after its condition: the
+ * whole of that part, a piece of it, or the condition and the start of it (docs/estate.md, the enforces edge).
+ * A literal of at least 16 characters that stays inside the condition repeats when the rule applies and not the
+ * rule: it enforces nothing.
+ */
+function literalHoldsRule(literal: string, rule: Atom): boolean {
+  const text = plain(literal);
+  const holds = (part: string): boolean => {
+    const wanted = plain(part);
+    return wanted.length >= MIN_LITERAL && text.includes(wanted);
+  };
+  if (holds(ruleWords(rule))) return true;
+  const spans = Array.isArray(rule.fields?.spans) ? (rule.fields.spans as unknown[]) : [];
+  if (spans.some((span) => typeof span === 'string' && holds(span))) return true;
+  const split = afterCondition(rule);
+  if (!split || text.length < MIN_LITERAL) return false;
+  const at = split.words.indexOf(text);
+  return at >= 0 && at + text.length > split.end;
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */

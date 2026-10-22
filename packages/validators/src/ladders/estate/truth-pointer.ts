@@ -20,6 +20,7 @@ import type { ExpectedAtom, ProseEntry } from './render';
  */
 
 const SET_NAME = 'planted';
+const ROUTE_BOTH = 'planted-route-both';
 
 type Mapping = NonNullable<pointer.LabelSet['labels'][number]['atom']>;
 type AlsoMapping = NonNullable<Mapping['also']>[number];
@@ -33,8 +34,12 @@ const REFERENCE: AlsoMapping = {
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: '$path' } } }],
 };
 
-const HAZARDS: Readonly<Record<string, { situation: string }>> = {
-  compaction: { situation: 'A compaction of the context' },
+/**
+ * The hazards a planted line names. The planted compaction rule reads "After a compaction, re-read this file before
+ * you continue." (hidden.ts): its reread is the file the line is in, the reread-self span of the shipped label.
+ */
+const HAZARDS: Readonly<Record<string, { situation: string; rereadSelf?: boolean }>> = {
+  compaction: { situation: 'A compaction of the context', rereadSelf: true },
   restart: { situation: 'A process restart' },
   rate_wave: { situation: 'A wave of rate limits' },
   session_boundary: { situation: 'A new session' },
@@ -56,7 +61,15 @@ const hazardMapping = (hazard: string): AlsoMapping => ({
   kind: 'hazard',
   situation: HAZARDS[hazard]?.situation ?? hazard,
   fields: { hazard },
-  evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard } }],
+  // The options the shipped hazard labels build: the hazard, the named files to read again (none here) and the
+  // reread of the file the unit is in when the unit orders it.
+  evidence: [
+    {
+      type: 'custom',
+      name: 'hazard_recovery',
+      options: { hazard, reread: [], ...(HAZARDS[hazard]?.rereadSelf ? { rereadSelf: true } : {}) },
+    },
+  ],
 });
 
 /** The line (from 1) of a text in a file, by where the text first sits. */
@@ -106,7 +119,20 @@ function candidateOf(
   kind: string,
   name: string,
 ): string | undefined {
-  return context?.candidates?.[link]?.find((candidate) => candidate.id.startsWith(`${kind}.${name}.`))?.id;
+  const listed = context?.candidates?.[link] ?? [];
+  // An id holds the name as a slug: lower case words of letters and digits joined by hyphens (a dot becomes one).
+  const slugged = name
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .slice(0, 6)
+    .join('-')
+    .slice(0, 48)
+    .replace(/-+$/, '');
+  return (
+    listed.find((candidate) => candidate.id.startsWith(`${kind}.${name}.`)) ??
+    listed.find((candidate) => candidate.id.startsWith(`${kind}.${slugged}.`))
+  )?.id;
 }
 
 /** What the generator planted: the files it wrote, the atoms it expects, and the prose rules by file. */
@@ -190,8 +216,15 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
-          ...(citesOn.has(`${file}:${entry.line}`)
-            ? { fields: { cites: citesOn.get(`${file}:${entry.line}`) as string[] } }
+          ...(entry.fields || citesOn.has(`${file}:${entry.line}`)
+            ? {
+                fields: {
+                  ...((entry.fields ?? {}) as NonNullable<Mapping['fields']>),
+                  ...(citesOn.has(`${file}:${entry.line}`)
+                    ? { cites: citesOn.get(`${file}:${entry.line}`) as string[] }
+                    : {}),
+                },
+              }
             : {}),
           ...(also.length > 0 ? { also } : {}),
         },
@@ -200,6 +233,18 @@ export function truthPointer(truth: Truth): TruthPointer {
       const helpers = dispatchedHelpers(entry);
       if (helpers.length > 0) helperAt.set(`${file}:${entry.line}`, helpers);
     }
+  }
+  // A routing row that leads to a skill and to a helper: one planted label builds the route to the skill and carries
+  // the route to the helper as `also`, because a shipped route label names one kind.
+  const routeSkill = base.labels.find((label) => label.name === 'route-skill');
+  const routeHelper = base.labels.find((label) => label.name === 'route-helper');
+  if (routeSkill?.atom && routeHelper?.atom) {
+    labels.push({
+      ...routeSkill,
+      name: ROUTE_BOTH,
+      links: ['route-skill', 'route-helper'],
+      atom: { ...routeSkill.atom, also: [routeHelper.atom as unknown as AlsoMapping] },
+    } as unknown as pointer.LabelSet['labels'][number]);
   }
   // A line that names several hazards and has no record: one planted label builds the first hazard and carries the
   // others as `also`, because a shipped hazard label builds a single hazard.
@@ -273,7 +318,15 @@ export function truthPointer(truth: Truth): TruthPointer {
   // route planted with no request is a table row of the generated estate: its request is the first cell.
   const named = (kind: string, name: string) =>
     truth.atoms.some((atom) => atom.kind === kind && atom.key === name);
-  type Route = { ask: string; planted: boolean; label: string; kind: string; names: string[] };
+  type Route = {
+    ask: string;
+    planted: boolean;
+    label: string;
+    kind: string;
+    names: string[];
+    /** The second kind of target of a row that leads to a skill and to a helper. */
+    other?: { label: string; names: string[] };
+  };
   const routesIn = new Map<string, Route[]>();
   const routeAt = new Map<string, Route>();
   for (const atom of truth.atoms) {
@@ -282,7 +335,13 @@ export function truthPointer(truth: Truth): TruthPointer {
     const kind = named('subagent', atom.key) ? 'subagent' : 'skill';
     const known = routeAt.get(at);
     if (known) {
-      if (known.kind === kind && !known.names.includes(atom.key)) known.names.push(atom.key);
+      if (known.kind === kind) {
+        if (!known.names.includes(atom.key)) known.names.push(atom.key);
+      } else {
+        const other = known.other ?? { label: kind === 'skill' ? 'route-skill' : 'route-helper', names: [] };
+        if (!other.names.includes(atom.key)) other.names.push(atom.key);
+        known.other = other;
+      }
       continue;
     }
     const ask = (atom as ExpectedAtom & { ask?: string }).ask;
@@ -377,6 +436,7 @@ export function truthPointer(truth: Truth): TruthPointer {
         };
       }
       const file = truth.files[window.path] ?? '';
+
       const used = new Set<string>();
       const context = contexts.get(window.id);
       const routed = new Set<unknown>();
@@ -400,12 +460,23 @@ export function truthPointer(truth: Truth): TruthPointer {
             const holder = route.planted
               ? (window.units.find((other) => other.n !== unit.n && other.text.includes(first))?.n ?? unit.n)
               : unit.n + 1;
+            const more = (route.other?.names ?? [])
+              .map((name) =>
+                candidateOf(
+                  context,
+                  route.other?.label ?? '',
+                  route.other?.label === 'route-skill' ? 'skill' : 'subagent',
+                  name,
+                ),
+              )
+              .filter((id): id is string => id !== undefined)
+              .map((id) => ({ kind: route.other?.label ?? '', to: id }));
             if (to.length > 0)
               return {
                 units: String(unit.n),
-                label: route.label,
+                label: more.length > 0 ? ROUTE_BOTH : route.label,
                 target: holder,
-                links: to.map((id) => ({ kind: route.label, to: id })),
+                links: [...to.map((id) => ({ kind: route.label, to: id })), ...more],
               };
           }
           const line = lineOf(file, unit.text);

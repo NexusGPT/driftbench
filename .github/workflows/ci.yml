@@ -29,6 +29,9 @@ concurrency:
 # `ubuntu-latest` on purpose: it holds the denylist secret and stays on GitHub-hosted machines.
 # Every setup-node step passes `check-latest: true`: a self-hosted image caches an older Node.js 24 (24.9.0) than the
 # hosted images carry, and under it the module-load tests of tools/perf exit 1.
+# Node versions of the heavy jobs (prepare, checks, build, emission manifest). A push to main and a pull request into main
+# (the checkpoint) run Node 22 and 24, so Node 22 is proven before every public release. A train or release/next pull
+# request and a dispatch run Node 24 only, to spend fewer runner minutes. Each of the four jobs carries the same expression.
 jobs:
   pr-fast:
     name: pr fast
@@ -299,7 +302,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        node: ${{ fromJSON((github.event_name == 'push' || github.base_ref == 'main') && '[22, 24]' || '[24]') }}
     env:
       DRIFTBENCH_TIMING_TESTS: skip
     steps:
@@ -341,7 +344,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        node: ${{ fromJSON((github.event_name == 'push' || github.base_ref == 'main') && '[22, 24]' || '[24]') }}
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7
@@ -378,7 +381,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        node: ${{ fromJSON((github.event_name == 'push' || github.base_ref == 'main') && '[22, 24]' || '[24]') }}
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
     env:
       DRIFTBENCH_TIMING_TESTS: skip
@@ -421,7 +424,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        node: ${{ fromJSON((github.event_name == 'push' || github.base_ref == 'main') && '[22, 24]' || '[24]') }}
     steps:
       # A stalled repository fetch is cut after 3 minutes and tried once more, so it cannot hold the job for its timeout.
       - uses: actions/checkout@v7

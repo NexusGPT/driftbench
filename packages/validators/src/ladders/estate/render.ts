@@ -42,6 +42,8 @@ export type ProseEntry = {
   situation?: string;
   polarity?: 'obligation' | 'prohibition';
   evidence: Evidence[];
+  /** Fields the shipped label of this rule declares, such as the order key of a gate that names no file. */
+  fields?: Record<string, unknown>;
   line: number;
 };
 
@@ -107,7 +109,7 @@ class Writer {
 }
 
 function proseOf(
-  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence'>,
+  rule: Pick<StandingRule, 'kind' | 'title' | 'text' | 'polarity' | 'evidence' | 'fields'>,
   situation?: string,
 ) {
   return {
@@ -117,6 +119,7 @@ function proseOf(
     ...(situation ? { situation } : {}),
     ...(rule.polarity ? { polarity: rule.polarity } : {}),
     evidence: rule.evidence,
+    ...(rule.fields ? { fields: rule.fields } : {}),
   };
 }
 
@@ -429,7 +432,15 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           kind: 'gate',
           title: `Read the ${topic.gate.file.replace(/\.md$/, '').replace(/-/g, ' ')} before you ${topic.gate.verb}`,
           quote: gateText,
-          evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+          // The shipped gate label builds the order and the Read of the file the unit names.
+          evidence: [
+            { type: 'ordered', before: 'Read', after: 'Edit' },
+            {
+              type: 'tool_called',
+              label: 'Read',
+              input: { file_path: { contains: `references/${topic.gate.file}` } },
+            },
+          ],
         },
       );
     if (skill.comma) {
@@ -441,7 +452,14 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           kind: 'gate',
           title: `Read the ${topic.comma.file.replace(/\.md$/, '').replace(/-/g, ' ')} before you ${topic.comma.verb}`,
           quote: commaText,
-          evidence: [{ type: 'ordered', before: 'Read', after: topic.comma.verb }],
+          evidence: [
+            { type: 'ordered', before: 'Read', after: topic.comma.verb },
+            {
+              type: 'tool_called',
+              label: 'Read',
+              input: { file_path: { contains: `references/${topic.comma.file}` } },
+            },
+          ],
         },
       );
     }
@@ -556,7 +574,18 @@ export function renderEstate(estate: HiddenEstate): Rendered {
       edges.push({ from: skill.hid, to: hid, kind: 'script' });
     }
     if (hook) {
-      files[hook.script] = ['#!/bin/sh', '# Checks the arguments of a script call.', 'exit 0', ''].join('\n');
+      // It acts on its own ask (a script run with no arguments): a guard that never acts is a deleted guard.
+      files[hook.script] = [
+        '#!/bin/sh',
+        '# Checks the arguments of a script call.',
+        // The command opens the payload: the script reads no further, so a large payload is cut short.
+        'command=$(head -c 4096 | grep -o \'"command":"[^"]*"\')',
+        'case "$command" in',
+        '  *\'.py"\') echo "blocked: a script call without its arguments" >&2; exit 2 ;;',
+        'esac',
+        'exit 0',
+        '',
+      ].join('\n');
     }
     if (skill.orphan) {
       const path = skillPath(skill, `references/${topic.orphan}`);

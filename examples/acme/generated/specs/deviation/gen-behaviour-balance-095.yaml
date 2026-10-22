@@ -5,7 +5,7 @@ id: gen-behaviour-balance-095
 version: 7a022d4e1380
 kind: conversation
 title: "Balanced behaviour B-004: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -129,7 +129,7 @@ metadata:
       user_type: new-customer
       coverage_result: no-service
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -189,7 +189,7 @@ metadata:
           user_type: new-customer
           coverage_result: no-service
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: needs-to-address
           stage: address
       relation: derived_from
@@ -222,7 +222,7 @@ metadata:
           user_type: new-customer
           coverage_result: no-service
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: address-to-callback
           stage: callback
       relation: derived_from
@@ -263,7 +263,7 @@ metadata:
           user_type: new-customer
           coverage_result: no-service
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: callback-to-handover
           stage: handover
       relation: derived_from
@@ -288,7 +288,7 @@ metadata:
           user_type: new-customer
           coverage_result: no-service
           callback_phone: given
-          channel: chat
+          channel: whatsapp
           stage_transition: handover-to-closing
           stage: closing
       relation: derived_from

@@ -5,7 +5,7 @@
 id: gen-twise-153
 version: 7a022d4e1380
 kind: conversation
-title: "t-wise row 153 of 156: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D7_silence_or_burst at recap"
+title: "t-wise row 153 of 156: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D7_silence_or_burst at order_placed"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -42,13 +42,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b4-D7_silence_or_burst
+  - id: b5-D7_silence_or_burst
     when:
       injection:
         class: D7_silence_or_burst
         user: hello?
     expect:
-      stage: recap
+      stage: order_placed
       stage_reported: true
       tools:
         - label: catalog.search
@@ -60,23 +60,7 @@ blocks:
       lang: EN
       criteria:
         - deviation.D7_silence_or_burst
-    parent: stem-f512f9340f39#b3-offer-to-recap
-  - id: b5-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      stage_reported: true
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: upgrade
-            customer_id: cust-001
-            plan_id: mobile-l
-        - label: catalog.search
-          count: 0
-      lang: EN
+    parent: stem-f512f9340f39#b4-recap-to-order_placed
   - id: b6-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
@@ -151,16 +135,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-recap
-      - block: b4-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b5-recap-to-order_placed
+      - block: b4-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -170,6 +145,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b5-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: order_placed
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b6-order_placed-to-closing
         seeder: twise
         cell:
@@ -181,8 +165,8 @@ metadata:
           value: order_placed-to-closing
     parent:
       stem: stem-f512f9340f39
-      block: b3-offer-to-recap
-      replaced: 3
+      block: b4-recap-to-order_placed
+      replaced: 4
   links:
     - block: stem-f512f9340f39#b1-needs-to-identify
       to:
@@ -270,33 +254,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: b4-D7_silence_or_burst
-      to:
-        kind: rule
-        rule: deviation=D7_silence_or_burst
-      relation: verifies
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b4-D7_silence_or_burst
-      to:
-        kind: plan_row
-        row: gen-twise-153
-        values:
-          behaviour: B-012
-          channel: whatsapp
-          user_type: existing-customer
-          coverage_result: none
-          flow: upgrade
-          account_lookup: found
-          plan_choice: names-one
-          deviation: D7_silence_or_burst
-          stage: recap
-      relation: derived_from
-      status: declared
-      created_by: generator
-      at_version: 7a022d4e1380
-    - block: b5-recap-to-order_placed
+    - block: stem-f512f9340f39#b4-recap-to-order_placed
       to:
         kind: rule
         rule: stage_transition=recap-to-order_placed
@@ -304,7 +262,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: b5-recap-to-order_placed
+    - block: stem-f512f9340f39#b4-recap-to-order_placed
       to:
         kind: rule
         rule: account_lookup=found
@@ -312,7 +270,7 @@ metadata:
       status: declared
       created_by: generator
       at_version: 7a022d4e1380
-    - block: b5-recap-to-order_placed
+    - block: stem-f512f9340f39#b4-recap-to-order_placed
       to:
         kind: plan_row
         row: gen-twise-153
@@ -325,6 +283,32 @@ metadata:
           account_lookup: found
           plan_choice: names-one
           stage_transition: recap-to-order_placed
+          stage: order_placed
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-D7_silence_or_burst
+      to:
+        kind: rule
+        rule: deviation=D7_silence_or_burst
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-D7_silence_or_burst
+      to:
+        kind: plan_row
+        row: gen-twise-153
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: found
+          plan_choice: names-one
+          deviation: D7_silence_or_burst
           stage: order_placed
       relation: derived_from
       status: declared

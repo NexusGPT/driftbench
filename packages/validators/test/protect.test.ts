@@ -354,6 +354,13 @@ const CHECK_COMMANDS = [
   'node packages/cli/dist/bin.js --version',
 ];
 
+/** The Node versions a job's matrix gives in one context: the `${{ }}` expression of `matrix.node`, evaluated. */
+function nodeVersions(node: unknown, event_name: string, base_ref: string): number[] {
+  const body = /^\$\{\{ (.*) \}\}$/.exec(String(node))?.[1];
+  if (body === undefined) throw new Error(`matrix.node is not one expression: ${String(node)}`);
+  return new Function('fromJSON', 'github', `return ${body}`)(JSON.parse, { event_name, base_ref });
+}
+
 type Step = { if?: string; run?: string; uses?: string; with?: Record<string, unknown> };
 
 /** Each test file runs in exactly one shard of each Node version, and nothing the old build job ran is dropped. */
@@ -361,7 +368,6 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   const { prepare, checks, build } = workflow.jobs;
   const commands = (job: { steps: Step[] }) => job.steps.map((step) => step.run);
   // the build runs once per Node version and is shared: built and stamped by prepare, downloaded by the others
-  expect(prepare.strategy.matrix.node).toEqual([22, 24]);
   expect(prepare.name).toBe('prepare (node ${{ matrix.node }})');
   expect(commands(prepare)).toContain(API_GATE);
   expect(commands(prepare).filter((run) => run === PLAN_COMMAND)).toHaveLength(1);
@@ -379,7 +385,6 @@ function assertShards(workflow: ReturnType<typeof parse>) {
     expect(String(upload.with.path)).toContain(path);
   // the checks the old build job ran in shard 1 run in a job of their own, on both Node versions
   expect(checks.needs).toBe('prepare');
-  expect(checks.strategy.matrix.node).toEqual([22, 24]);
   for (const command of CHECK_COMMANDS)
     expect(
       commands(checks).filter((run) => run === command),
@@ -390,8 +395,14 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   // the pooled expectations of the emission enumeration run on the parts of all four seeds, after the shards
   const manifest = workflow.jobs['emission-manifest'];
   expect(manifest.needs).toBe('build');
-  expect(manifest.strategy.matrix.node).toEqual([22, 24]);
   expect(manifest.if).toBe(build.if);
+  // the four heavy jobs carry one expression: Node 22 and 24 on main and on a pull request into main, Node 24 otherwise
+  const nodes = [prepare, checks, build, manifest].map((job) => String(job.strategy.matrix.node));
+  expect(new Set(nodes).size).toBe(1);
+  expect(nodeVersions(nodes[0], 'push', '')).toEqual([22, 24]);
+  expect(nodeVersions(nodes[0], 'pull_request', 'main')).toEqual([22, 24]);
+  expect(nodeVersions(nodes[0], 'pull_request', 'release/next')).toEqual([24]);
+  expect(nodeVersions(nodes[0], 'workflow_dispatch', '')).toEqual([24]);
   const manifestRun = manifest.steps.find((step: Step) =>
     step.run?.includes('emission-mutations-manifest.test.ts'),
   );
@@ -406,7 +417,6 @@ function assertShards(workflow: ReturnType<typeof parse>) {
   const partsUpload = build.steps.find((step: Step) => step.uses?.startsWith('actions/upload-artifact@'));
   expect(partsUpload.with.name).toBe('emission-part-node${{ matrix.node }}-shard${{ matrix.shard }}');
   expect(partsUpload.with.path).toBe('validators/estate/emission-mutation-parts');
-  expect(build.strategy.matrix.node).toEqual([22, 24]);
   expect(build.strategy.matrix.shard).toEqual(Array.from({ length: SHARDS }, (_, at) => at + 1));
   expect(build.name).toBe(`build (node \${{ matrix.node }}, shard \${{ matrix.shard }}/${SHARDS})`);
   expect(commands(build).filter((run) => run === SHARD_COMMAND)).toHaveLength(1);
@@ -1253,11 +1263,51 @@ describe('the validators workflow', { timeout: 120_000 }, () => {
   });
 });
 
+describe('the stats ladder on Node 22 and Node 24', () => {
+  const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
+  type Entry = { id: string; component: string; node?: number; flags?: string };
+  const legs: Entry[] = workflow.jobs['ladders-leg'].strategy.matrix.include;
+  const stats = legs.filter((entry) => entry.component === 'stats');
+  const runs = (job: string): string[] =>
+    (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
+  const nodeOf = (job: string): string =>
+    (workflow.jobs[job].steps as { uses?: string; with?: { 'node-version'?: string | number } }[]).find(
+      (step) => step.uses?.startsWith('actions/setup-node@'),
+    )?.with?.['node-version'] as string;
+
+  it('gates the stats legs on Node 22 and every other leg on Node 24', () => {
+    expect(stats.map((entry) => entry.id)).toEqual(['stats-s1', 'stats-s2', 'stats-s3', 'stats-hidden']);
+    for (const entry of legs) expect(entry.node, entry.id).toBe(entry.component === 'stats' ? 22 : undefined);
+    expect(nodeOf('ladders-leg')).toBe('${{ matrix.node || 24 }}');
+  });
+
+  it('keeps the gate a plain floor check: a Node 22 failure fails the leg and the join', () => {
+    const run = runs('ladders-leg').join('\n');
+    expect(run).toContain('--check-floor');
+    expect(run).not.toContain('engine-label');
+    expect(workflow.jobs.ladders.needs).toEqual(['ladders-leg', 'ladders-tail', 'ladders-handover']);
+    expect(runs('ladders').join('\n')).not.toContain('engine-label');
+  });
+
+  it('runs the stats ladder on Node 24 too, reported and labelled, outside the gate', () => {
+    const job = workflow.jobs['stats-node24'];
+    expect(job, 'a job that runs the stats ladder on Node 24').toBeDefined();
+    expect(nodeOf('stats-node24')).toBe(24);
+    expect(job.if).toBe(workflow.jobs['ladders-leg'].if);
+    expect(runs('stats-node24').join('\n')).toContain('validate stats');
+    expect(runs('stats-node24').join('\n')).toContain('tools/stats/engine-label.mjs');
+    expect(runs('stats-node24').join('\n')).toContain('24');
+    for (const [id, other] of Object.entries<{ needs?: string | string[] }>(workflow.jobs))
+      expect([other.needs ?? []].flat(), `${id} does not wait for the Node 24 report`).not.toContain(
+        'stats-node24',
+      );
+  });
+});
+
 describe('merge train enforcement', () => {
   const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
     assertWorkflowPolicy(workflow, CI_HEAVY);
-    expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
     assertShards(workflow);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
   });

@@ -12,7 +12,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * The command and its JSON are written in docs/estate.md section 7, "The coverage command: `estate stats`",
  * and docs/reference/cli.md (frozen: a change needs an audit finding). The oracle
  * counts from the approved map and the generated suite: atoms of the kind; those named by a complete spec;
- * those whose enforcement lists a guard. Seed-free, judged once.
+ * those whose enforcement lists a guard. A reference to a navigation document is left out, and its number is
+ * checked (docs/estate.md section 5, "A map may record `documents`"). Seed-free, judged once.
  */
 
 const COMPONENT = 'packages/cli/src/commands/estate-stats.ts';
@@ -109,6 +110,76 @@ function sessionsSeen(folder: string): Seen[] {
   });
 }
 
+type CoverageAtom = {
+  id: string;
+  kind: string;
+  approved?: boolean;
+  enforcement?: readonly unknown[];
+  fields?: Record<string, unknown>;
+};
+
+/**
+ * The coverage the oracle expects, read from the approved map and the complete specs of the suite: per kind, the
+ * approved atoms, those a complete spec names and those a guard enforces. `navigation` is the number of
+ * references the coverage counts leave out.
+ */
+export function coverageTruth(
+  map: { atoms: readonly CoverageAtom[]; documents?: ReadonlyArray<{ path: string; role: string }> },
+  specs: ReadonlyArray<{ complete: boolean; atoms: readonly string[] }>,
+): { truth: Truth; navigation: number } {
+  // docs/estate.md section 5: a document of any role but `normative` is a navigation document; a reference whose
+  // target is one is a place to look, out of the coverage counts. A map without documents leaves none out.
+  const places = new Set(
+    (map.documents ?? [])
+      .filter((document) => document.role !== 'normative')
+      .map((document) => document.path),
+  );
+  const toPlace = (atom: CoverageAtom) => {
+    const path = atom.fields?.path;
+    return (
+      atom.kind === 'reference' &&
+      typeof path === 'string' &&
+      places.has(path.replaceAll('\\', '/').replace(/^\.\//, ''))
+    );
+  };
+  const truth: Truth = {};
+  for (const atom of map.atoms) {
+    if (!atom.approved || toPlace(atom)) continue;
+    const entry = truth[atom.kind] ?? { atoms: 0, tested: 0, enforced: 0 };
+    truth[atom.kind] = entry;
+    entry.atoms += 1;
+    if (specs.some((spec) => spec.complete && spec.atoms.includes(atom.id))) entry.tested += 1;
+    if ((atom.enforcement ?? []).length > 0) entry.enforced += 1;
+  }
+  return { truth, navigation: map.atoms.filter(toPlace).length };
+}
+
+/**
+ * The verdict of one coverage cell: the counts of the kind, as reported, against the oracle's. A reference cell
+ * also holds the reported number of references left out, so leaving references out cannot hide them.
+ */
+export function coverageCell(
+  kind: string,
+  line: Line,
+  want: { atoms: number; tested: number; enforced: number },
+  got: { atoms?: number; tested?: number; enforced?: number },
+  navigation: number,
+  navigationReported: number | undefined,
+): ItemResult {
+  if (kind === 'reference' && (navigationReported ?? 0) !== navigation)
+    return {
+      pass: false,
+      detail: `reported ${navigationReported ?? 'no'} references to navigation documents left out, expected ${navigation}`,
+    };
+  const ok = got.atoms === want.atoms && got[line] === want[line];
+  return ok
+    ? { pass: true, detail: `holds (${want[line]} of ${want.atoms})` }
+    : {
+        pass: false,
+        detail: `reported ${got[line]} of ${got.atoms}, expected ${want[line]} of ${want.atoms}`,
+      };
+}
+
 export function statsFamily(): Family {
   const family = 'estate.stats';
   const cells = KINDS.flatMap(([kind, tier]) =>
@@ -155,15 +226,7 @@ export function statsFamily(): Family {
         for (const item of items) out.set(item.id, { pass: false, detail: 'the fixture map does not load' });
         return out;
       }
-      const truth: Truth = {};
-      for (const atom of map.map.atoms) {
-        if (!atom.approved) continue;
-        const entry = truth[atom.kind] ?? { atoms: 0, tested: 0, enforced: 0 };
-        truth[atom.kind] = entry;
-        entry.atoms += 1;
-        if (suite.specs.some((spec) => spec.complete && spec.atoms.includes(atom.id))) entry.tested += 1;
-        if ((atom.enforcement ?? []).length > 0) entry.enforced += 1;
-      }
+      const { truth, navigation } = coverageTruth(map.map, suite.specs);
       const result = spawnSync(
         'pnpm',
         [
@@ -185,17 +248,19 @@ export function statsFamily(): Family {
       );
       const text = `${result.stdout ?? ''}${result.stderr ?? ''}`;
       let reported: Reported | undefined;
+      let navigationReported: number | undefined;
       let reach: Array<{ atom: string; reached?: number }> | undefined;
       let decay: Array<{ block: number; runs?: number }> | undefined;
       let drift: Array<{ guard: string; decisions?: number; denies?: number }> | undefined;
       try {
         const json = JSON.parse(text.slice(text.indexOf('{'))) as {
-          coverage?: { kinds?: Reported };
+          coverage?: { kinds?: Reported; navigationReferences?: number };
           reach?: Array<{ atom: string; reached?: number }>;
           decay?: Array<{ block: number; runs?: number }>;
           drift?: { guards?: Array<{ guard: string; decisions?: number; denies?: number }> };
         };
         reported = json.coverage?.kinds;
+        navigationReported = json.coverage?.navigationReferences;
         reach = json.reach;
         decay = json.decay;
         drift = json.drift?.guards;
@@ -283,17 +348,7 @@ export function statsFamily(): Family {
           });
           continue;
         }
-        const got = reported[kind] ?? {};
-        const ok = got.atoms === want.atoms && got[line] === want[line];
-        out.set(
-          id,
-          ok
-            ? { pass: true, detail: `holds (${want[line]} of ${want.atoms})` }
-            : {
-                pass: false,
-                detail: `reported ${got[line]} of ${got.atoms}, expected ${want[line]} of ${want.atoms}`,
-              },
-        );
+        out.set(id, coverageCell(kind, line, want, reported[kind] ?? {}, navigation, navigationReported));
       }
       return out;
     },

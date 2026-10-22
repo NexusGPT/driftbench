@@ -39,6 +39,7 @@ export {
   type Opinion,
   type Opinions,
   PROMPT_VERSION,
+  refusingKey,
   SCHEMA_VERSION,
   usageOf,
 } from './labeler';

@@ -52,6 +52,8 @@ export type StandingRule = {
   /** When the rule applies, as the model records it; absent for a rule that always applies. */
   situation?: string;
   evidence: Evidence[];
+  /** Fields the shipped label of this rule declares, such as the order key of a gate that names no file. */
+  fields?: Record<string, unknown>;
   behaviour: Behaviour;
   /** A hazard the line names: the scanner adds a hazard atom on the same line. */
   hazard?: HazardId;
@@ -533,7 +535,8 @@ const GUARD_POOL: Readonly<
     script: guardFile('stop-word.sh'),
     verdict: 'nudge',
     method: 'registry',
-    ask: 'Stop all work now.',
+    // The script acts on the word as it writes it: the ask holds it, lower case.
+    ask: 'Please stop all work now.',
     outside: 'Can we pause the planning until Monday?',
   },
   length: {
@@ -673,6 +676,8 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
     title: 'Read a file before you edit it',
     text: 'Read a file before you edit it.',
     evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+    // A gate-same of the shipped labels: no file is named, the read and the edit share the file_path input.
+    fields: { order: { key: 'file_path' } },
     behaviour: { type: 'read_before_edit' },
     scope: 'always',
   });

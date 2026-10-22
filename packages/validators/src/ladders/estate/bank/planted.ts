@@ -78,11 +78,11 @@ export type ScanOutcome = {
 export type Check = {
   (scan: ScanOutcome): string | undefined;
   /** The atom this check asserts on a line; the estate hands it to the planted-truth labeller. */
-  hint?: Hint;
+  hint?: Hint | Hint[];
 };
 
 /** A check that asserts an atom a line plants, with the hint the labeller answers it by. */
-export function planting(check: (scan: ScanOutcome) => string | undefined, hint: Hint): Check {
+export function planting(check: (scan: ScanOutcome) => string | undefined, hint: Hint | Hint[]): Check {
   return Object.assign((scan: ScanOutcome) => check(scan), { hint });
 }
 
@@ -184,7 +184,7 @@ export class PlantedEstate {
 
   check(owner: string, check: Check): void {
     this.checks.push({ owner, check });
-    if (check.hint) this.hints.push(check.hint);
+    if (check.hint) this.hints.push(...(Array.isArray(check.hint) ? check.hint : [check.hint]));
   }
 
   /** Plants an atom for the labeller alone (a helper file a routing row leads to, a line a check names). */

@@ -1234,7 +1234,7 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 34 edges.
   Atoms per kind:
     route        7
     skill        4
@@ -1246,8 +1246,8 @@ Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approve
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
-  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
-  Unanswered prose chunks (no model call): 14, 6835 characters.
+  Prose: 15 chunks, 6961 characters (standing 1, memory 2, skill bodies 4, skill files 5, helper bodies 3).
+  Unanswered prose chunks (no model call): 15, 6961 characters.
     CLAUDE.md  2782 characters
     .claude/agents/inbox-triager.md  169 characters
     .claude/agents/ledger-auditor.md  519 characters

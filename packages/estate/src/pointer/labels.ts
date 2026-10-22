@@ -63,8 +63,13 @@ const AtomBase = z.strictObject({
   evidence: z.array(EvidencePredicate).optional(),
   /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
   locate: z.union([z.literal(true), z.literal('each')]).optional(),
-  /** With `locate: each`: the nth path the unit names takes the nth span of this kind as its span of that kind. */
+  /**
+   * One atom for each span of this kind, in the order the label lists them. The label also lists, in the same order,
+   * the span of the file of each gate (`spanFile`): the nth span of one kind goes with the nth span of the other (each kind in the order the spans stand), and
+   * nothing is bound by where a span or a path stands in the unit. A gate with no file span is refused.
+   */
   spanEach: z.string().min(1).optional(),
+  spanFile: z.string().min(1).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
   whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
