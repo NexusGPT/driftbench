@@ -562,6 +562,8 @@ Every readable field stored beside a cassette key must equal the corresponding m
 
 Replay expectations come from committed fixtures or independently authored source boundaries and labels. Recording behavior can be tested, but a recording produced during an item never becomes that item's replay input or expected answer.
 
+`pointerScan` also lists `warnings`: when a recording run gets a returned model that differs from the one the cassette holds for the same labeler and request model, the warning names both model ids. A run with none has an empty list.
+
 ### Validator adapter observability contract
 
 The validator adapter maps product exports. It does not infer per-id events from changed quotes, compare ledger bytes to implement check mode, reconstruct lineage or twin relationships, decide labels, or generate warnings. Product results pass through unchanged, including wrong results that the bank must reject.

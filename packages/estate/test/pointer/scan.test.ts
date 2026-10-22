@@ -1320,3 +1320,33 @@ describe('an answer the scan refuses as a whole', () => {
     ).toBe(true);
   });
 });
+
+describe('the warnings of a recording run', () => {
+  const first = (model: string): Labeler => {
+    const planted = plantedDense(byLength);
+    return {
+      ...planted,
+      async call(wire, set, window, attempt) {
+        const answer = await (planted.call as NonNullable<Labeler['call']>)(wire, set, window, attempt);
+        return { ...answer, returnedModel: model };
+      },
+    };
+  };
+
+  it('names both models when a re-record returns another model than the cassette holds', async () => {
+    const cassette = new Cassette();
+    await pointerScan(input(first('m-1'), cassette));
+    expect(cassette.entries.size).toBeGreaterThan(1);
+    const [oldest] = [...cassette.entries.keys()];
+    cassette.entries.delete(oldest as string);
+    const result = await pointerScan(input(first('m-2'), cassette));
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toContain('m-1');
+    expect(result.warnings[0]).toContain('m-2');
+  });
+
+  it('has none when every answer names the same model', async () => {
+    const result = await pointerScan(input(first('m-1'), new Cassette()));
+    expect(result.warnings).toEqual([]);
+  });
+});
