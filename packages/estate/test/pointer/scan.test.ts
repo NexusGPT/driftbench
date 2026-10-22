@@ -1,6 +1,7 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
+  AGENT_RULES_SET,
   Cassette,
   CassetteMiss,
   createAnthropicLabeler,
@@ -14,9 +15,11 @@ import {
   outOfStep,
   type PointerInput,
   type PointerPlan,
+  parseLabelSets,
   pointerScan,
   REASK_LIMIT,
   renderLedger,
+  SPLIT_REASK_MAX,
   SPLIT_REASK_RUNS,
   singleLabelling,
   type Window,
@@ -604,9 +607,9 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a tie inside a kind unlabeled: an obligation against a prohibition is two different atoms', async () => {
-    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie; the two runs asked for the
-    // split say order and ban, so it still ties, 3 against 3.
-    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban']);
+    // order 2, ban 2, remark 1: four runs build an instruction, but the two labels tie. The runs asked for the split
+    // say order and ban, then, as it still ties, order and ban again: 4 against 4 at the most voices it gets.
+    const result = await scan(['order', 'ban', 'order', 'ban', 'remark', 'order', 'ban', 'order', 'ban']);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
@@ -696,6 +699,43 @@ describe('runs that split between labels of one atom kind', () => {
     expect(result.unlabeled).toBe(result.ledger.entries.length);
   });
 
+  it('asks again a split re-ask that slips, and asks two more while the unit still ties', async () => {
+    // order 2, ban 2, remark 1. Run 6 slips and is asked again (run 7); runs 7 and 8 say order and ban, so it still
+    // ties; runs 9 and 10 say order: order holds 5 of 9.
+    const calls = new Map<string, number>();
+    const plan = ['order', 'ban', 'order', 'ban', 'remark', 'slip', 'order', 'ban', 'order', 'order'];
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        const label = plan[call - 1] ?? 'remark';
+        if (label === 'slip')
+          return window.units.map(
+            (unit) =>
+              ({
+                units: String(unit.n),
+                label: 'remark',
+                spans: Array(4).fill({
+                  kind: 'act',
+                  from: -1,
+                  to: -1,
+                  unlocated: 'the text is not in the unit',
+                }),
+              }) as Labelled,
+          );
+        return [{ units: `1-${window.units.length}`, label }];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(input(labeler, new Cassette(), { sets: load(KINDS) }));
+    expect(SPLIT_REASK_MAX).toBe(4);
+    expect(result.outOfStep.some((note) => /run 6 of planted \(asked again for a split\)/.test(note))).toBe(
+      true,
+    );
+    expect(labelsOf(result)).toEqual(new Set(['order']));
+  });
+
   it('asks a window with a tie inside a kind two more times, and the extra voices decide', async () => {
     // order 2, ban 2, remark 1 tie inside the instruction kind; runs 6 and 7 say order, so order holds 4 of 7.
     const cassette = new Cassette();
@@ -724,12 +764,101 @@ describe('runs that split between labels of one atom kind', () => {
   });
 
   it('leaves a split between atom kinds unlabeled: a reply rule against a rule is not resolved', async () => {
-    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The two
-    // runs asked for the split say order and voice, so no label or kind holds four of seven: the unit stays unlabeled
-    // and counts as a split.
-    const result = await scan(['order', 'voice', 'order', 'voice', 'remark', 'order', 'voice']);
+    // order 2, voice 2, remark 1: an instruction against a register, as R9 of the Northwind fixture splits. The four
+    // runs asked for the split say order, voice, order, voice, so no label or kind holds five of nine: the unit stays
+    // unlabeled and counts as a split.
+    const result = await scan([
+      'order',
+      'voice',
+      'order',
+      'voice',
+      'remark',
+      'order',
+      'voice',
+      'order',
+      'voice',
+    ]);
     expect(result.unlabeled).toBe(result.ledger.entries.length);
     expect(result.split).toBe(result.ledger.entries.length);
+  });
+});
+
+describe('a unit that names a file to read is no condition alone', () => {
+  const shipped = parseLabelSets(AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets.slice(0, 1) : [];
+  /** The label unit 1 of `text` gets when run n answers `plan[n - 1]`; the rest of the window is a rule. */
+  const scanUnit = async (text: string, plan: Labelled[]) => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // A re-ask hears the last reading again.
+        const entry = plan[call - 1] ?? (plan.at(-1) as Labelled);
+        return [
+          entry,
+          ...window.units.slice(1).map((unit) => ({ units: String(unit.n), label: 'rule' }) as Labelled),
+        ];
+      },
+      [],
+      { runs: 5 },
+    );
+    const result = await pointerScan(
+      input(labeler, new Cassette(), { files: [{ path: 'SKILL.md', text }], sets }),
+    );
+    return result.labelled.find((item) => item.index === 0)?.label;
+  };
+  const condition: Labelled = { units: '1', label: 'condition', target: 2 };
+
+  it('decides the file read of a when clause as a gate, though three of five runs call it a condition', async () => {
+    // As invoice-reconcile/SKILL.md of the Northwind fixture: the condition readings count for the group of file
+    // labels, and inside it the gate readings, which can build their atom, choose.
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    const gate: Labelled = {
+      units: '1',
+      label: 'gate',
+      spans: [{ kind: 'governed-action', text: 'convert every amount' }],
+      links: [{ kind: 'act-tool', to: 'Edit' }],
+    };
+    expect(await scanUnit(text, [condition, gate, condition, gate, condition])).toBe('gate');
+  });
+
+  it('decides a when clause that names files to read as a reference, though three of five runs call it a condition', async () => {
+    // As unit 21 of the reader-cases CLAUDE.md: four files named, read when a claim names a supplier.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(await scanUnit(text, [condition, reference, condition, reference, condition])).toBe('reference');
+  });
+
+  it('keeps a condition of a unit that names no file', async () => {
+    const text = 'When the invoice is not in EUR, convert every amount.\n\nKeep two decimals.\n';
+    expect(
+      await scanUnit(text, [
+        condition,
+        condition,
+        condition,
+        { units: '1', label: 'rule' } as Labelled,
+        condition,
+      ]),
+    ).toBe('condition');
+  });
+
+  it('asks a file-naming unit that every run calls a condition again, and the two new voices decide it', async () => {
+    // As reader-cases draw 1: five runs of five read the supplier unit as a condition; runs 6 and 7 read a reference.
+    const text =
+      'When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`.\n\nAnswer in the language of the claim.\n';
+    const reference: Labelled = { units: '1', label: 'reference' };
+    expect(
+      await scanUnit(text, [condition, condition, condition, condition, condition, reference, reference]),
+    ).toBe('reference');
+  });
+
+  it('leaves unlabeled a unit that names a file when only conditions are given for it, after every re-ask', async () => {
+    const text =
+      'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.\n\nKeep two decimals.\n';
+    expect(await scanUnit(text, [condition, condition, condition, condition, condition])).toBeUndefined();
   });
 });
 
