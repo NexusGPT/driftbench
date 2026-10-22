@@ -22,10 +22,7 @@ afterAll(async () => {
 });
 
 /** Estate A's committed truth with its two new sections replaced, loaded from a scratch file. */
-async function problemsWith(sections: {
-  refers_to?: unknown;
-  limits_table?: unknown;
-}): Promise<string[]> {
+async function problemsWith(sections: { refers_to?: unknown; limits_table?: unknown }): Promise<string[]> {
   const text = await readFile(join(estateFolder('A'), 'truth.yaml'), 'utf8');
   const truth = parse(text) as Record<string, unknown>;
   const path = join(work, `truth-${Math.random().toString(36).slice(2)}.yaml`);
